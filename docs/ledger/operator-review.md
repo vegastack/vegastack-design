@@ -1638,8 +1638,8 @@ nothing about the deltas we do not assert.
    passes unchanged.
 10. **`--transform-origin` for start/end-aligned popups is now the aligned edge (1.8.0, #5015)** —
     the custom property resolves to an edge value on our positioners. This is a **pixel** change to
-    pop-in origin, and no contract check can see it; it belongs to `vrt-review` at `/ship` and is
-    flagged there rather than claimed as verified here.
+    pop-in origin, and no lane in `pnpm verify` can see it — no lane takes a screenshot (R3,
+    2026-09-08). It is flagged here for the human visual pass at `/ship`, not claimed as verified.
 11. **`Avatar.Image keepMounted` (1.8.0, #5536)** — new opt-in prop; not adopted.
 12. **`Avatar.Image data-loading` / **13.** `data-error` (1.8.0, same PR, no release-note line)** —
     observed: on a loaded avatar the `<img>` carries `alt, data-slot, class, src` and **neither**
@@ -1686,3 +1686,29 @@ rules) and `message-scroller` now declares `^0.3.1` — correct independently, s
 styles an attribute that only exists from 0.3.1. `@base-ui/react` stays at `^1.6.0`: the pinned
 1.8.0 satisfies it, no component source depends on 1.7+ behaviour, and raising a consumer floor
 without a reason forces churn on every consumer for nothing.
+
+## 2026-09-09 — D1's rebase onto the post-rebuild `main`: how AGENTS.md was resolved
+
+The nine pre-rebuild batch branches rebase under a rule that says take `main`'s AGENTS.md wholesale,
+because WP6 rewrote the file and every hunk written against the old one is against a file that no
+longer exists. Applied literally to D1 that rule deletes decisions **D25** and **D30** — the entries
+that name `react-day-picker` and `next-themes` as sanctioned engines — because those live in
+§ Sanctioned dependency exceptions, not in the generated § Numbers.
+
+Resolved by taking `main`'s file wholesale and then re-applying D25/D30 by hand onto the rewritten,
+condensed section. The reason the rule exists is to stop a branch resurrecting a deleted document's
+structure; it is not a licence to drop a FINAL decision, and dropping it here would have left the
+repo self-contradicting — `design.md` § Sanctioned engines (kept per the same rebase rule) names
+both engines while AGENTS.md would still say "Exactly four". `packages/ui/registry/ui/date-picker.tsx`
+imports `react-day-picker` today; the doctrine has to say so.
+
+The alternative — moving the AGENTS.md half to the wave PR and shipping D1 with `design.md` and the
+ledger only — is still open and is flagged for MK on PR #72. It costs a second PR and a window in
+which the two documents disagree.
+
+Also rebased away, as the rule requires: the hand-written `## [0.7.0]` CHANGELOG entry and its
+generated docs page (WP5 made that a build output — the prose now lives in five changesets under
+`.changeset/`), two `chore(gates)` receipt commits, two `chore(derived)` restamps, and five
+`docs(changelog)` sha-repointing commits. The four dependency commits were squashed into one because
+they share a `pnpm-lock.yaml` that had to be regenerated wholesale against the new `main` rather than
+hand-merged.
