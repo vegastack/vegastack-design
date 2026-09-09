@@ -1094,25 +1094,117 @@ assert.match(
 // runner and fork-guard assertion — while the static half of the suite stopped executing on macOS and
 // a change to a published package could merge with nothing to publish.
 {
+  // MATCHED BY SHAPE, NOT BY LITERAL, for the install. Its flags carry runner topology — the
+  // per-agent `--store-dir` the mac-mini store rule below requires — and a literal here would turn
+  // any future flag change into a gate failure that says nothing about the property being
+  // protected. The four commands whose identity IS the assertion stay exact. What matters about the
+  // install is that one runs at all; `--frozen-lockfile` is asserted for every install in these
+  // workflows by the frozen-install rule above, and the store path by the rule below.
   const required = [
-    "pnpm install --frozen-lockfile",
-    "pnpm typecheck",
-    "pnpm lint",
-    "pnpm design:verify",
-    "pnpm exec changeset status --since=origin/main",
+    {
+      label: "pnpm install …",
+      matches: (command) => /^pnpm install(?:\s|$)/.test(command),
+    },
+    {
+      label: "pnpm typecheck",
+      matches: (command) => command === "pnpm typecheck",
+    },
+    { label: "pnpm lint", matches: (command) => command === "pnpm lint" },
+    {
+      label: "pnpm design:verify",
+      matches: (command) => command === "pnpm design:verify",
+    },
+    {
+      label: "pnpm exec changeset status --since=origin/main",
+      matches: (command) =>
+        command === "pnpm exec changeset status --since=origin/main",
+    },
   ];
   const body = jobsOf("ci.yml").get("verify-macos");
   assert.ok(body, "ci.yml: the verify-macos job is missing");
   const commands = jobSteps("ci.yml", "verify-macos", body)
     .map(({ step }) => (typeof step.run === "string" ? step.run.trim() : ""))
     .filter(Boolean);
-  for (const command of required) {
+  for (const { label, matches } of required) {
     assert.ok(
-      commands.includes(command),
-      `ci.yml: verify-macos must run \`${command}\`. It runs [${commands.join(" · ")}]. This job is ` +
+      commands.some(matches),
+      `ci.yml: verify-macos must run \`${label}\`. It runs [${commands.join(" · ")}]. This job is ` +
         `the entire cross-platform static signal and the only \`changeset status\` check in CI.`,
     );
   }
+}
+
+// ---------------------------------------------------------------------------------------------
+// THE MAC MINI IS ONE MACHINE WITH TWO RUNNER AGENTS, AND THEY SHARE A HOME DIRECTORY.
+//
+// `vsk-runner-mac-mini-1` and `-2` both report `Machine name: 'patrick-mac-mini'` and both run as
+// `/Users/vegastack-runners`. Two of these jobs therefore execute side by side against one home
+// directory, and `pnpm/action-setup` defaults `dest` to `~/setup-pnpm` — which it opens by
+// `rm(dest, {recursive: true})` and which it then names as `PNPM_HOME`, so pnpm's DEFAULT STORE
+// lives inside it too. Concurrent jobs raced that removal into
+// `ENOTEMPTY: rmdir …/setup-pnpm/node_modules/.bin/store/v11/files/NN` and into a half-linked
+// `node_modules` (turbo: `unable to spawn child process`), before any repository code ran — three
+// of eight pushes on 2026-09-09. The same aliasing meant every macOS install logged
+// `reused 0, downloaded 1136`: the store was deleted at the start of every job.
+//
+// Two properties fix it, and both are asserted rather than left to a comment:
+//   `dest` under `runner.temp`      — per-agent AND per-job, so the wipe can never collide;
+//   `--store-dir` under $RUNNER_WORKSPACE — per-agent and PERSISTENT, so the store is a real cache.
+// A path under the shared home, or the default, reinstates the race. Issue #94.
+{
+  const RUNNER_TEMP_DEST = /\$\{\{\s*runner\.temp\s*\}\}/;
+  const AGENT_STORE =
+    /--store-dir\s+"?\$(?:RUNNER_WORKSPACE\b|\{RUNNER_WORKSPACE\})/;
+  let bootstraps = 0;
+  let installs = 0;
+  for (const name of REQUIRED_WORKFLOWS) {
+    for (const [job, body] of jobsOf(name)) {
+      if (formatRunner(body["runs-on"]) !== SELF_HOSTED) continue;
+      for (const { step, label } of jobSteps(name, job, body)) {
+        if (
+          typeof step.uses === "string" &&
+          /^pnpm\/action-setup@/.test(step.uses)
+        ) {
+          bootstraps++;
+          const dest = stepWith(name, label, step).dest;
+          assert.ok(
+            typeof dest === "string" && RUNNER_TEMP_DEST.test(dest),
+            `${name}: ${label} bootstraps pnpm into ${dest === undefined ? "the default `~/setup-pnpm`" : `\`${dest}\``} — ` +
+              "both mac-mini agents share that home directory, and the action deletes `dest` on every " +
+              "job. Point it under `${{ runner.temp }}`.",
+          );
+        }
+        if (typeof step.run === "string" && /\bpnpm install\b/.test(step.run)) {
+          installs++;
+          assert.match(
+            step.run,
+            AGENT_STORE,
+            `${name}: ${label} installs without a per-agent \`--store-dir "$RUNNER_WORKSPACE/…"\`. ` +
+              "The default store lives inside the bootstrap directory the setup action wipes, so it " +
+              "is shared between the two agents on one machine and cached for nobody.",
+          );
+        }
+        if (
+          typeof step.uses === "string" &&
+          /^actions\/setup-node@/.test(step.uses)
+        ) {
+          assert.equal(
+            stepWith(name, label, step).cache,
+            undefined,
+            `${name}: ${label} enables setup-node's package-manager cache on a mini. It resolves the ` +
+              "store through `PNPM_HOME`, i.e. the per-job bootstrap directory — it would restore into " +
+              "a path the next job deletes and save an empty one back. The persistent store is the cache.",
+          );
+        }
+      }
+    }
+  }
+  assert.ok(
+    bootstraps >= 4 && installs >= 4,
+    `the mac-mini store rules matched ${bootstraps} pnpm bootstrap(s) and ${installs} install(s); ` +
+      "at least four of each are expected (ci verify-macos, release version-pr, release publish, " +
+      "deploy build-sign-deploy). A drop to zero is a rule that stopped being exercised.",
+  );
 }
 
 // The deploy's full-sweep job runs on every dispatch, unconditionally. An `if:` here would be a

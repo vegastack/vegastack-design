@@ -581,8 +581,11 @@ const CASES = [
   {
     id: "an install with no lockfile flag at all",
     file: "ci.yml",
-    find: "      - run: pnpm install --frozen-lockfile\n",
-    replace: "      - run: pnpm install\n",
+    // BY SHAPE. This was `find: "      - run: pnpm install --frozen-lockfile\n"` and rotted the
+    // moment the mac-mini install grew a `--store-dir` flag (issue #94): the literal was absent, so
+    // the case reported a harness bug rather than exercising the rule. The flag it strips is the
+    // one the rule is about; everything else on the line is incidental to it.
+    mutateAfter: (source) => source.replace(/ --frozen-lockfile\b/, ""),
     expect: /without `--frozen-lockfile`/,
   },
   {
@@ -619,7 +622,9 @@ const CASES = [
     // one job and the mutation silently guts that job instead.
     mutateAfter: (source) =>
       replaceJobSteps(source, "verify-macos", "      - run: echo ok\n"),
-    expect: /verify-macos must run `pnpm install --frozen-lockfile`/,
+    // The gate names the install by shape (`pnpm install …`) because its flags carry runner
+    // topology; pinning the old full command line here would fail on the gate's own message.
+    expect: /verify-macos must run `pnpm install [^`]*`/,
   },
   {
     id: "the changeset presence check dropped from verify-macos",
@@ -644,6 +649,47 @@ const CASES = [
     replace: "permissions:\n  contents: read\n  id-token: write\n",
     expect:
       /grants OIDC \(`id-token: write`\) at WORKFLOW level|missing read-only workflow token/,
+  },
+  // ------------------------------------------------- the mac minis' shared pnpm store (issue #94)
+  //
+  // Two runner agents, one machine, one home directory. Every mutation here puts a pnpm directory
+  // back into that shared space, which is what produced `ENOTEMPTY` inside `pnpm/action-setup` on
+  // three of eight pushes on 2026-09-09 — a red run with nothing to do with the diff. Each is
+  // matched by SHAPE (the step, the flag), never by a full command line, so a later flag change
+  // cannot quietly turn a case into a no-op the way it just did to the two cases above.
+  {
+    id: "the mac-mini pnpm bootstrap left at its shared-home default",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        /(uses: pnpm\/action-setup@[0-9a-f]{40}[^\n]*\n)\s*with:\n\s*dest:[^\n]*\n/,
+        "$1",
+      ),
+    expect: /bootstraps pnpm into the default/,
+  },
+  {
+    id: "the mac-mini pnpm bootstrap pointed back at the shared home",
+    file: "release.yml",
+    mutateAfter: (source) =>
+      source.replace(/dest: [^\n]*setup-pnpm/, "dest: ~/setup-pnpm"),
+    expect: /bootstraps pnpm into `~\/setup-pnpm`/,
+  },
+  {
+    id: "a mac-mini install losing its per-agent store directory",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source.replace(/ --store-dir "\$RUNNER_WORKSPACE\/[^"]*"/, ""),
+    expect: /installs without a per-agent/,
+  },
+  {
+    id: "setup-node's package-manager cache re-enabled on a mini",
+    file: "release.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        /with: \{ node-version: (\d+) \}/,
+        "with: { node-version: $1, cache: pnpm }",
+      ),
+    expect: /enables setup-node's package-manager cache on a mini/,
   },
   {
     id: "the Sigstore OIDC token moved onto a second deploy job",
@@ -737,5 +783,9 @@ console.log(
     `the \`npm publish\` line itself (a \`false &&\` prefix publishes nothing), SITE_VISIBILITY in all ` +
     `three workflows, the dispatched sha on every outward checkout, \`--frozen-lockfile\` on every ` +
     `install, a concurrency group and a bounded \`timeout-minutes\` on every job, the macOS lane's ` +
-    `required steps, and exact permission sets on every job that holds more than the default`,
+    `required steps, exact permission sets on every job that holds more than the default, and — ` +
+    `since issue #94 — the mac minis' pnpm topology: a job-private bootstrap directory, a ` +
+    `per-agent persistent store on every install, and no setup-node package-manager cache on a ` +
+    `mini, each of which otherwise puts pnpm state back into the home directory the machine's ` +
+    `two runner agents share`,
 );

@@ -155,10 +155,20 @@ jobs:
       # reimplements none of changesets' versioning, and should keep not doing so.
       - name: Give changesets the base branch its release plan needs
         run: git branch -f main "$GITHUB_SHA"
+      # Job-private pnpm bootstrap and a per-agent store; see ci.yml's `verify-macos` for the
+      # mechanism. Both mini runners share one machine and one home directory, and this action wipes
+      # `dest` — which is also where `PNPM_HOME` puts the store — on every job. Issue #94.
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+        with:
+          dest: ${{ runner.temp }}/setup-pnpm
+      # NO `cache: pnpm`. It resolves the store through `pnpm store path`, i.e. through
+      # `PNPM_HOME` — the throwaway bootstrap directory above — so it would restore a tarball
+      # into a path the next job deletes, and save an empty one back. The store below is the
+      # cache. docs/runbooks/ci-runner-provisioning-macos.md measured the restore at 7-7.7
+      # minutes of a 13-minute job and banned it on the minis; this is that ban, applied.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile --ignore-scripts
+        with: { node-version: 24 }
+      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_WORKSPACE/pnpm-store"
       - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           version: pnpm run version-packages
@@ -204,16 +214,22 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
+      # Job-private pnpm bootstrap and a per-agent store; see ci.yml's `verify-macos` for the
+      # mechanism. Both mini runners share one machine and one home directory, and this action wipes
+      # `dest` — which is also where `PNPM_HOME` puts the store — on every job. Issue #94.
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+        with:
+          dest: ${{ runner.temp }}/setup-pnpm
+      # NO `cache: pnpm` — see the `version-pr` job above. `registry-url` is what this step is
+      # here for: it writes the .npmrc that npm OIDC trusted publishing reads.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24
-          cache: pnpm
           registry-url: https://registry.npmjs.org
       - name: Pin npm to the reviewed OIDC-capable release
         # npm >= 11.5.1 speaks OIDC trusted publishing; this is the reviewed pin.
         run: npm install -g npm@11.16.0
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --store-dir "$RUNNER_WORKSPACE/pnpm-store"
       # Build ONLY the two PUBLIC packages. `@vegastack/ui` is private by the locked distribution model
       # and must never be published.
       - run: pnpm --filter @vegastack/design-tokens build

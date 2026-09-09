@@ -119,8 +119,23 @@ jobs:
           # clone fails both.
           fetch-depth: 0
           persist-credentials: false
+      # JOB-PRIVATE BOOTSTRAP DIRECTORY, AND A PER-AGENT STORE. Both mini runners
+      # (`vsk-runner-mac-mini-1` and `-2`) are agents on ONE machine — `patrick-mac-mini`, per the
+      # runner banner in any job log — sharing the home directory `/Users/vegastack-runners`. With
+      # `dest` left at its `~/setup-pnpm` default, both agents bootstrap pnpm into the same path, and
+      # the action opens with `rm(dest, {recursive: true})`: a concurrent job's install turns that
+      # into `ENOTEMPTY: rmdir …/setup-pnpm/node_modules/.bin/store/v11/files/NN` before a single
+      # line of repository code has run. Worse, the action exports `PNPM_HOME` pointing INSIDE that
+      # directory, and pnpm derives its default store from `PNPM_HOME` — so the wiped bootstrap
+      # directory was also the project store. That is why every macOS install logged
+      # `reused 0, downloaded 1136`: the "persistent store" on the minis never survived a job.
+      # `runner.temp` is per-agent and cleared per job, so the bootstrap can never collide;
+      # `$RUNNER_WORKSPACE` is per-agent and PERSISTS, so the store is a real cache again.
+      # Issue #94.
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
-      - run: pnpm install --frozen-lockfile
+        with:
+          dest: ${{ runner.temp }}/setup-pnpm
+      - run: pnpm install --frozen-lockfile --store-dir "$RUNNER_WORKSPACE/pnpm-store"
       # ORDER MATTERS: typecheck runs `prepare:content` for @vegastack/docs, which the docs lint
       # chain needs. `pnpm lint` ends in `turbo run lint`, and `design:verify` builds the token dist
       # the parity and contrast checks read.
