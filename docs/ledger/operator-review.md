@@ -1597,3 +1597,128 @@ to the iframe` for one file, with **1488 tests passed and zero assertion failure
   running `registry:build` on the branch normalised five files whose formatting predated it. The
   tree is idempotent after the change (two consecutive `registry:build` runs leave it clean); the
   five files carry no behavioural edit. Re-verified after the rebase onto merged F2.
+
+## 2026-09-07 — D1 dependency batch: the fifteen Base UI deltas, and four judgment calls
+
+Issue #34. Every version below was read from the npm registry that day; every behavioural claim was
+observed in a browser, not inferred from a green suite.
+
+### The fifteen Base UI 1.6.0 → 1.8.0 deltas — observed
+
+Probed with a throwaway spec (`zz-baseui18-probe.test.tsx`, deleted after the run) rendering our own
+components, because a passing suite proves only that nothing we already assert changed — it says
+nothing about the deltas we do not assert.
+
+1. **`render` callback typing tightened (1.7.0, #5104)** — `pnpm typecheck` clean workspace-wide, no
+   source change.
+2. **`Combobox.Input` no longer injects `type="text"` (1.7.0, rides on #5104)** — observed: our
+   combobox input now carries **no `type` attribute** at all. Benign, and deliberately left alone: an
+   `<input>` without `type` _is_ a text input, and nothing in this repo selects on `input[type=…]`
+   (grepped across component source and every CSS file). Note this delta has no release-note line —
+   it is only visible in the source diff between the tags.
+3. **`Accordion.Root` no longer sets `dir` (1.7.0, #5117)** — observed: `dir` is **absent** from our
+   accordion root. This is the RTL contract's preferred state — direction inherits from the document
+   instead of being pinned per-component. All 110 RTL contract routes pass.
+4. **Submenu `onOpenChange` no longer fires twice (1.7.0, #5178)** — observed: opening then closing a
+   `DropdownMenuSub` produces exactly `[true, false]`; one `false`, not two.
+5. **Select no longer force-mounts on programmatic value change (1.7.0, #5119)** — observed: setting
+   a controlled Select's value from a button leaves **no `[role=listbox]` in the DOM**.
+6. **`aria-orientation` moved to role owners (1.8.0, #5551)** — observed: an open Select has **no
+   element carrying `aria-orientation`** anywhere. Our three components that assert the attribute
+   (`radio-group`, `resizable`, `separator`) set it themselves and are unaffected; all pass.
+7. **`readOnly` Select/Combobox now open and browse (1.8.0, #5531 Select / #5541 Combobox)** —
+   observed: a `readOnly` Select **does** open on click. `editable-cell` passes `readOnly`, so this
+   is a real user-visible change there: a read-only cell's select can now be opened and browsed
+   (not changed). Kept as upstream shipped it — browsing a read-only value is better a11y than a
+   dead control — and recorded here because nothing in our suite asserts it either way.
+8. **NavigationMenu keeps focus on the trigger (1.8.0, #5479)** — observed: after focusing the
+   trigger and pressing Enter, `document.activeElement` is still that `BUTTON`.
+9. **Async Field validation publishes neutral validity (1.8.0, #5600)** — `auto-save-input` uses a
+   synchronous `validate` predicate, so it never enters the in-flight state this changes; its suite
+   passes unchanged.
+10. **`--transform-origin` for start/end-aligned popups is now the aligned edge (1.8.0, #5015)** —
+    the custom property resolves to an edge value on our positioners. This is a **pixel** change to
+    pop-in origin, and no lane in `pnpm verify` can see it — no lane takes a screenshot (R3,
+    2026-09-08). It is flagged here for the human visual pass at `/ship`, not claimed as verified.
+11. **`Avatar.Image keepMounted` (1.8.0, #5536)** — new opt-in prop; not adopted.
+12. **`Avatar.Image data-loading` / **13.** `data-error` (1.8.0, same PR, no release-note line)** —
+    observed: on a loaded avatar the `<img>` carries `alt, data-slot, class, src` and **neither**
+    attribute. They are meaningful only under `keepMounted`, where the element stays mounted and
+    derives status from its own load/error events. Inert for us.
+13. **`Combobox.createItems` (1.8.0, #5326)** — observed present (`typeof === "function"`); not
+    adopted. `useFilteredItems`, which we do use, is unchanged.
+14. **Neither 1.7.0 nor 1.8.0 labels any change breaking** — confirmed by reading both release
+    bodies. That is a labelling fact, not a safety guarantee: #5104 and #5551 are behaviourally
+    breaking in practice, which is why each was probed.
+
+### Four judgment calls
+
+- **TD-5 — the release-age floor is now explicit, and that is the whole point.** Measured on pnpm
+  11.7.0 against the then-too-new `style-dictionary@5.5.3`: **inherited/loose**, pnpm appends a
+  `minimumReleaseAgeExclude` entry to `pnpm-workspace.yaml` and installs the too-new version anyway —
+  the floor grants itself an exemption and the only trace is a line in a file nobody re-reads.
+  **Explicit/strict**, the install fails with `ERR_PNPM_NO_MATURE_MATCHING_VERSION` and nothing is
+  written. The two `fumadocs-*@16.10.5` excludes that used to sit in that file were written by pnpm
+  this way, not by a human, which is why they were stale and why deleting them was safe.
+- **style-dictionary held at 5.5.2, not 5.5.3.** 5.5.3 was inside the 24h floor on the day, and it
+  touches `color/css` alpha precision — token CSS output, which is F1's (#32) territory. 5.5.2
+  already carries the security fix. Taking 5.5.3 here would have moved token values under another
+  issue's feet for no security gain.
+- **Next `agentRules: false`.** 16.3's `next dev` writes a managed block into an `AGENTS.md` /
+  `CLAUDE.md` in the Next app directory when it detects a coding agent. Turned off deliberately:
+  this repo's agent instructions are authored and reviewed, AGENTS.md is the canonical cross-tool
+  file, and a tool-managed block inside a hand-authored one has no owner. It would also drop two
+  untracked files into `apps/docs/` and trip the `git status --porcelain` idempotency gates. (The
+  write is a plain join on the Next app dir, so it could never have reached the repo-root AGENTS.md.)
+- **shadcn 4.21's `cn` package: not adopted.** 4.21.0 installs the `cn` package and generates
+  `export { cn } from "cn"` for `lib/utils`, and upstream registry components now import from it.
+  That is registry **content**, not CLI behaviour: `shadcn build` output is byte-identical and
+  `verify-shadcn-consume` passes unchanged. `cn()` continues to come from `@vegastack/design` — a
+  locked decision — and no `package.json` here carries a top-level `registries` key (4.16.0/4.18.0
+  allow one; our config stays in `components.json`). The cost accepted is a churn line in future
+  `shadcn add --diff` output where upstream now imports `cn` from the package.
+
+### One registry floor moved, one deliberately did not
+
+`verify-registry-deps` enforces that `packages/ui/package.json`'s installed range satisfies each
+item's declared range. `@shadcn/react` **had** to move (`^0.2.1` cannot admit 0.3.1 under 0.x caret
+rules) and `message-scroller` now declares `^0.3.1` — correct independently, since the viewport
+styles an attribute that only exists from 0.3.1. `@base-ui/react` stays at `^1.6.0`: the pinned
+1.8.0 satisfies it, no component source depends on 1.7+ behaviour, and raising a consumer floor
+without a reason forces churn on every consumer for nothing.
+
+## 2026-09-09 — D1's rebase onto the post-rebuild `main`: how AGENTS.md was resolved
+
+The nine pre-rebuild batch branches rebase under a rule that says take `main`'s AGENTS.md wholesale,
+because WP6 rewrote the file and every hunk written against the old one is against a file that no
+longer exists. Applied literally to D1 that rule deletes decisions **D25** and **D30** — the entries
+that name `react-day-picker` and `next-themes` as sanctioned engines — because those live in
+§ Sanctioned dependency exceptions, not in the generated § Numbers.
+
+Resolved by taking `main`'s file wholesale and then re-applying D25/D30 by hand onto the rewritten,
+condensed section. The reason the rule exists is to stop a branch resurrecting a deleted document's
+structure; it is not a licence to drop a FINAL decision, and dropping it here would have left the
+repo self-contradicting — `design.md` § Sanctioned engines (kept per the same rebase rule) names
+both engines while AGENTS.md would still say "Exactly four". `packages/ui/registry/ui/date-picker.tsx`
+imports `react-day-picker` today; the doctrine has to say so.
+
+The alternative — moving the AGENTS.md half to the wave PR and shipping D1 with `design.md` and the
+ledger only — is still open and is flagged for MK on PR #72. It costs a second PR and a window in
+which the two documents disagree.
+
+**Two defects the rebase surfaced, both real and both fixed at the root.** CI run 34326426938 failed
+at `test (@vegastack/ui, @vegastack/design)` on a duplicated `prosemirror-model` — `pnpm install`
+after the tiptap bump re-resolved only what it had to, leaving 1.25.9 and 1.25.11 side by side;
+`pnpm dedupe` collapsed it (`docs/ledger/bugs.md`, 2026-09-09). Then Fo1 (#67) merged mid-rebase
+carrying `registry/ui/field-form.test.tsx`, which exists to fail the TYPECHECK when the RHF/Zod
+surface drifts — and it did, because `@hookform/resolvers@5.4.0`'s `zodResolver` overloads reject a
+schema built by the zod 4.5.4 this batch installs. Taken to 5.9.1 rather than holding zod back or
+loosening the test. Both are the same lesson in different clothes: a version bump is not finished
+when `pnpm install` exits.
+
+Also rebased away, as the rule requires: the hand-written `## [0.7.0]` CHANGELOG entry and its
+generated docs page (WP5 made that a build output — the prose now lives in five changesets under
+`.changeset/`), two `chore(gates)` receipt commits, two `chore(derived)` restamps, and five
+`docs(changelog)` sha-repointing commits. The four dependency commits were squashed into one because
+they share a `pnpm-lock.yaml` that had to be regenerated wholesale against the new `main` rather than
+hand-merged.

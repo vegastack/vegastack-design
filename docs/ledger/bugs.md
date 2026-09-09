@@ -114,6 +114,7 @@ Every bug found + root cause + fix. Append-only.
   `/docs/components/button`, click "Fullscreen preview", and press Tab six times.
 
 ---
+
 ## 2026-09-07 — `IconButton` swallows a caller's `data-slot` (Fo1, found by the push gate)
 
 - **Symptom.** `PasswordInput`'s reveal toggle set `data-slot="password-input-toggle"` on the
@@ -550,6 +551,7 @@ re-diagnose it, and because a race that flakes under load is a real race.
   subscribes to. Same visible behaviour, one `<span>` re-rendered instead of a grid.
 
 ---
+
 ## 2026-09-07 — Two defects the audit did not name, found while unifying the field chrome (Fo1)
 
 - **The forced-colours focus outline was being clipped on every field with addons.** F1 fixed B1-01
@@ -577,7 +579,6 @@ re-diagnose it, and because a race that flakes under load is a real race.
   than the source string, and should recognise `fieldControl` as an imported focus affordance.
 
 ---
-
 
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 
@@ -1259,3 +1260,163 @@ count`, so a page that loads with unread items sits still; the cue additionally 
 - **The class to recognise:** a component that ships a workaround prop for its own default has the
   default wrong. `option`, `treeitem` and `gridcell` are the same shape of hazard — the container
   must license the role, never a default.
+
+---
+
+## 2026-09-07 — Prosemirror duplicated in the tree (stale lockfile, not a dependency conflict)
+
+- **Symptom:** the `@tiptap/*` 3.27.4 → 3.31.3 security bump surfaced two copies of the prosemirror
+  packages in the tree. The obvious reading — that two tiptap entry points had pinned incompatible
+  prosemirror ranges and the duplication was structural — would have meant `pnpm.overrides`.
+- **Root cause:** neither. The lockfile had drifted: it still described resolutions from before
+  several tiptap minors, so the new versions could not dedupe against the recorded ones. A lockfile
+  refresh collapsed the duplicates on its own.
+- **Fix:** refresh the lockfile; no override added. Recorded because an override would have been the
+  wrong fix and would have quietly outlived its cause — a permanent pin papering over a stale file.
+- **Rider:** the same refresh cleared the bulk of the transitive advisories. `pnpm audit` went 47 → 3
+  findings, 0 critical; the one remaining high sat on `postcss` under `shadcn`/`tsup`. The shadcn
+  4.13.0 → 4.21.0 bump later in the batch cleared that path too, so the branch finishes at **1 low**
+  (a Windows-only esbuild dev-server file read reached through `tsup`) and **0 critical/high**.
+
+---
+
+## 2026-09-07 — Browser-lane failures under concurrent gate runs, all flakes (test-environment)
+
+- **Symptom:** during the D1 branch's `gates:push` runs, the browser unit lane failed twice on tests
+  the branch does not touch — `provider.test.tsx` ("useVegaStackTheme exposes resolvedTheme")
+  and `use-list-nav.test.tsx` ("edges clamp — no wrap-around"). Both reported
+  `Matcher did not succeed in time`, and the second took **19.5s** for a test that normally runs in
+  about 1s.
+- **Root cause:** machine contention, not the upgrade. Sibling agents were running their own
+  `gates:push` in parallel worktrees; load average was **~20 on the first failure and ~40 on the
+  second**, and the whole unit lane stretched from its usual ~20s to 118s. Both files are ours and
+  neither imports anything the Base UI / shadcn bump changed.
+- **Proof:** re-run in isolation on a quiet machine, `provider.test.tsx` passes **8/8** and
+  `use-list-nav.test.tsx` passes **15/15**; a subsequent full `gates:push` passed all five gates with
+  880 contract checks and no skips.
+- **Fix:** none in code. Recorded so the next reader does not chase a phantom regression — and as
+  evidence for the standing rule that a failing browser test is re-run in isolation before it is
+  believed. The real lesson is about the gate ladder, not the tests: several agents running the
+  browser lanes concurrently on one machine manufactures timeouts.
+- **Recurrence the same evening, larger and with a cleaner disproof.** After the rebase onto F1, a
+  `gates:push` at load ~50 failed **twelve** checks across three lanes — unit ×3 (`accordion`,
+  `marketing-surface` "propagates the scope to Select positioner and popup layers", `provider`),
+  cross-engine smoke ×2 (`use-animation-replay`, one Chromium and one Firefox), and contracts ×7
+  (`otp-input`, `split-button`, `button` on the 24px pointer-target check, in the mobile and dark
+  Chromium projects). The shape invites the wrong conclusion twice over: a scope-propagation failure
+  reads as a Base UI 1.8 portal regression, and a pointer-target failure reads as an F1 surface-ladder
+  regression. Both readings are wrong. Re-run on a quiet machine the **whole** browser unit lane
+  passes — **123 files / 1529 tests in 46s**, against 256s for the same lane when it failed. Every
+  one of these checks depends on layout or animation settling within a timeout, which is exactly the
+  class contention breaks; the `marketing-surface` and `use-animation-replay` cases are the tell,
+  since a genuine class-propagation or animation-class defect would be deterministic, not load-dependent.
+- **Third recurrence, and the one that is not contention — but is also not D1's to fix.** The final
+  `gates:push` for this branch, on a Ryzen box carrying several concurrent sweeps, failed
+  `/docs/components/relative-time contains its primary fixture at 320px` with
+  `locator.scrollIntoViewIfNeeded: Element is not attached to the DOM`, in a varying subset of the
+  four Chromium projects. Isolated, the route passes 8/8 — but unlike the entries above, it recurred
+  across full sweeps, so an isolated pass proves nothing here.
+- **What was actually established.** The node that detaches is not the component's own output: it is
+  the Fumadocs `<Tabs>` preview frame the fixture is mounted in
+  (`apps/docs/components/component-preview.tsx`), which re-renders and replaces the subtree the
+  `[data-vrt-preview]` handle is pointing at. A `RelativeTime` hydration change was tried against
+  this — withholding `dateTime` until hydration, on the theory that an attribute mismatch was forcing
+  the client re-render — and it **did not stop the failure**: the sweep after it came back
+  **876/880**, the same check failing, in all four projects rather than a subset. That change has been
+  removed from this branch along with its test and its changelog bullet; a theory that a sweep
+  disproves does not get to ship as a fix.
+- **Where the fix lives.** The durable fix is at the probe, not the component: make the 320px
+  fixture scroll survive a re-rendering fixture in `apps/docs/vrt/contracts.spec.ts`. That work is on
+  **`audit/f1-docfix`**, which also carries the proof that the same check fails on an unmodified
+  `origin/main` @ `9c33dfaf`. D1 is a dependency batch; a component change is the wrong instrument
+  for a docs-harness race, and a speculative one that the evidence contradicts is the wrong change
+  entirely.
+- **Then the race named itself, and the component theory died for good.** A later full sweep on this
+  branch failed the same 320px check on **three different components in one run** —
+  `relative-time` (chromium-dark), `sheet` (mobile-chromium) and `scroll-area` (mobile-chromium) —
+  each with the identical `locator.scrollIntoViewIfNeeded: Element is not attached to the DOM`.
+  877/880. Three unrelated components cannot share a `RelativeTime` hydration bug; what they share is
+  the probe. This is the strongest evidence yet that the defect is
+  `apps/docs/vrt/contracts.spec.ts`'s bare `scrollIntoViewIfNeeded()` on a fixture that may re-render,
+  and it retroactively confirms that removing the speculative component change was correct.
+- **So the probe fix is cherry-picked here rather than re-run around.** `138cefd5` from
+  `audit/f1-docfix` wraps the scroll in a bounded `expect.poll` with a 2s per-attempt timeout, so the
+  lazy locator re-resolves onto the post-re-render element instead of holding a stale handle. It
+  changes **no assertion**: the scroll is setup for the `scrollWidth <= clientWidth` reflow check, and
+  RTL containment, the 24px target floor and the `.first()` fixture selection are untouched. It is
+  taken here because a dependency batch cannot produce a receipt over a lane that fails for reasons
+  it did not cause, and re-running until the race misses would be regenerating the evidence under
+  review — the failure mode the VRT baselines were deleted for. The commit's own ledger entry stays
+  with `audit/f1-docfix`, which owns the fix.
+- **The `provider` unit flake finally has a mechanism, and it is not contention.** Two earlier
+  entries filed `provider.test.tsx > useVegaStackTheme exposes resolvedTheme` under "machine
+  contention" on the strength of `Matcher did not succeed in time`. The final sweep for this branch
+  printed the real error underneath it: `strict mode violation: page.getByRole('button') resolved to
+2 elements` — the probe button, and a second `aria-label="Close toast"` button.
+- **Root cause: sonner's toast store is a module singleton, and the file's first test leaves a toast
+  in it.** Test 1 (`mounts exactly one Sonner toaster by default`) calls
+  `toast("Provider toast works")`. Sonner's `TOAST_LIFETIME` is **4000 ms**, and the store lives at
+  module scope, so the toast survives React unmount — every later `VegaStackProvider` in the file
+  mounts a fresh `Toaster` that re-renders the still-live toast, with our default `closeButton =
+true` giving it a button. Test 4's unscoped `getByRole("button")` then matches two elements.
+- **The timing is the proof.** Re-run alone on a quiet box the file passes **8/8**, but that one test
+  takes **4247 ms** against ~20 ms for its siblings: the locator retries until the toast expires at
+  4000 ms and then succeeds. Under a loaded full sweep the matcher's budget runs out before the toast
+  does, and the same test fails. "Passes in isolation" was never contention — it was the retry loop
+  outliving a 4-second timer.
+- **Not D1's, and not a dependency regression.** The branch touches neither `provider.test.tsx` nor
+  `sonner.tsx`. The one bump in range is `sonner ^2.0.7 → ^2.0.8`, and its entire public delta is an
+  added optional `customAriaLabel` — `TOAST_LIFETIME` is 4000 in both, verified by unpacking both
+  tarballs and diffing `dist/`. The defect is pre-existing and the fix is a test change (scope the
+  locator to the rendered container, or dismiss the toast in test 1's cleanup), which is a component
+  batch's call, not a dependency batch's.
+
+---
+
+## 2026-09-07 — `changelog-lint` accepts a commit link that is not in the branch's history (fail-open)
+
+- **Symptom:** the 0.7.0 entry shipped a link to `7ec6372`, a commit that had been superseded by an
+  amend and was no longer an ancestor of HEAD. `changelog-lint` passed it, and the pre-commit
+  "changelog vocabulary" gate passed it too. On GitHub that URL resolves to nothing for anyone who
+  did not have the orphan in their local object store.
+- **Root cause:** the check is `git cat-file -e <sha>^{commit}` — it asks whether the **object
+  exists**, not whether it is **reachable from HEAD**. An amended, rebased, or squashed commit stays
+  in the local object database (reflog keeps it alive) long after it leaves the branch, so every
+  such link passes locally and dies on push. The failure is invisible on the machine that writes the
+  changelog and visible to everyone else — the worst shape for a link check.
+- **Fix (this entry):** the citation was corrected to `cbc3050`, and every sha in `CHANGELOG.md` was
+  re-checked with `git merge-base --is-ancestor <sha> HEAD` — all 17 are in history.
+- **Root fix not taken here, deliberately.** `tooling/changelog-lint.mjs` is `tooling/**`, which is
+  G1-a's (#49) territory on this audit, so changing it in this branch would collide. The one-line
+  strengthening is to replace the `cat-file -e` probe with `git merge-base --is-ancestor`, with a
+  documented allowance for entries that legitimately cite commits from before a history rewrite.
+  Flagged for #49 rather than fixed in #34.
+
+---
+
+## 2026-09-09 — tiptap 3.31.3 loads prosemirror-model twice, and TextEdit's suite dies on it
+
+- **Symptom:** `pnpm verify` fails at `test (@vegastack/ui, @vegastack/design)` with
+  `RangeError: Can not convert <> to a Fragment (looks like multiple versions of prosemirror-model
+were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text-edit.test.tsx`.
+  Two `[tiptap warn]: prosemirror-model is loaded more than once` lines precede it. It reproduces on
+  the Linux runner and not on a warm Mac worktree, which is the classic shape of a lockfile defect
+  rather than a code one.
+- **Root cause: a partially-resolved lockfile, not tiptap.** `@tiptap/pm@3.31.3` declares
+  `prosemirror-model` directly and resolved to **1.25.11**, while its own siblings
+  (`prosemirror-commands`, `prosemirror-transform`, `prosemirror-schema-list`, …) were left pinned at
+  the **1.25.9** the pre-bump lockfile already carried. `pnpm install` after a version bump only
+  re-resolves what it must, so both versions survived — `node_modules/.pnpm` held
+  `prosemirror-model@1.25.9` and `prosemirror-model@1.25.11` side by side. ProseMirror compares node
+  types by object identity, so a fragment built by one copy is unconvertible by the other.
+- **Fix:** `pnpm dedupe`, which collapsed the tree to a single `prosemirror-model@1.25.11` and
+  removed 34 packages. `text-edit.test.tsx` passes 18/18 afterwards.
+- **Rule:** a dependency bump that moves a package with peer-shaped internals (ProseMirror, React,
+  anything comparing by identity) is not finished at `pnpm install`. Run `pnpm dedupe` and check the
+  lockfile for two entries of the same package before pushing. `pnpm why <pkg>` shows the split;
+  `grep -n '^  <pkg>@' pnpm-lock.yaml` is the fastest check.
+- **Second defect found in the same run, unrelated:** `packages/ui/vitest.config.ts` listed `clsx`
+  and `tailwind-merge` in `optimizeDeps.include`. Neither is a dependency of `@vegastack/ui` — they
+  belong to `@vegastack/design` and reach a test only through its built dist — so Vite printed
+  `Failed to resolve dependency: clsx, present in client 'optimizeDeps.include'` on every run. Both
+  entries removed; the rest of the pre-bundle list is real and still earns its keep.

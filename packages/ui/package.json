@@ -35,13 +35,13 @@
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^2.0.1",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^2.0.0",
-    "@base-ui/react": "1.6.0",
-    "@shadcn/react": "^0.2.1",
+    "@base-ui/react": "1.8.0",
+    "@shadcn/react": "^0.3.1",
     "@tanstack/react-table": "^8.21.3",
-    "@tanstack/react-virtual": "^3.14.8",
-    "@tiptap/pm": "^3.27.4",
-    "@tiptap/react": "^3.27.4",
-    "@tiptap/starter-kit": "^3.27.4",
+    "@tanstack/react-virtual": "^3.14.10",
+    "@tiptap/pm": "^3.31.3",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
     "@vegastack/design": "workspace:*",
     "@vegastack/design-tokens": "workspace:*",
     "class-variance-authority": "^0.7.1",
@@ -50,25 +50,25 @@
     "react-day-picker": "^10.0.1",
     "react-dropzone": "^19.1.1",
     "react-markdown": "^10.1.0",
-    "react-resizable-panels": "^4.12.2",
+    "react-resizable-panels": "^4.12.3",
     "recharts": "^3.9.2",
     "remark-gfm": "^4.0.1",
-    "sonner": "^2.0.7"
+    "sonner": "^2.0.8"
   },
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@hookform/resolvers": "^5.4.0",
-    "@tailwindcss/vite": "^4.3.2",
+    "@hookform/resolvers": "^5.9.1",
+    "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "6.9.1",
-    "@testing-library/user-event": "14.6.1",
-    "@types/node": "^25.9.3",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
+    "@testing-library/user-event": "14.6.7",
+    "@types/node": "^25.9.5",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
     "@vegastack/typescript-config": "workspace:*",
-    "@vitest/browser-playwright": "4.1.9",
+    "@vitest/browser-playwright": "4.1.11",
     "axe-core": "4.12.1",
     "motion": "^12.42.2",
     "playwright": "1.61.0",
@@ -77,10 +77,10 @@
     "react-hook-form": "^7.81.0",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "vitest": "4.1.9",
+    "vitest": "4.1.11",
     "vitest-axe": "0.1.0",
     "vitest-browser-react": "2.2.0",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "publishConfig": {
     "access": "restricted"

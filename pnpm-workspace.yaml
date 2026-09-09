@@ -7,7 +7,7 @@ packages:
 catalog:
   react: ^19.2.8
   react-dom: ^19.2.8
-  tailwindcss: ^4.3.2
+  tailwindcss: ^4.3.3
   typescript: ^6.0.3
 
 # LOCAL: let `shadcn add` (which runs `pnpm add @vegastack/x@^0.1.0`) resolve the
@@ -24,6 +24,35 @@ allowBuilds:
   # binary the deploy workflow (`wrangler deploy`) needs. Enabled so CI install builds it cleanly.
   workerd: true
 
-minimumReleaseAgeExclude:
-  - fumadocs-core@16.10.5
-  - fumadocs-ui@16.10.5
+# Supply-chain floor (TD-5, decided 2026-09-07). A version must be 1440 minutes (24h) old before
+# pnpm resolves it. 1440 is also pnpm 11's default (since v11.0.0), so this line does not change the
+# floor — it changes what happens when a version is too new, and that is the whole point.
+#
+# `minimumReleaseAgeStrict` defaults to true when `minimumReleaseAge` is set explicitly and false
+# when it is merely inherited (pnpm docs, Settings › dependency-resolution; enforced in
+# config/reader/src/index.ts at tag v11.7.0). The two modes behave very differently, measured here
+# on pnpm 11.7.0, 2026-09-07, resolving the then-too-new style-dictionary@5.5.3:
+#
+#   inherited/loose → pnpm APPENDS `minimumReleaseAgeExclude: [style-dictionary@5.5.3]` to this file
+#     and installs the too-new version anyway ("Added 1 entry to minimumReleaseAgeExclude ..."). The
+#     floor grants itself an exemption and the only trace is a line in a file nobody re-reads. The
+#     two `fumadocs-*@16.10.5` excludes that used to live here were written by pnpm this way, not by
+#     a human — which is why they were stale and why deleting them was safe.
+#   explicit/strict → ERR_PNPM_NO_MATURE_MATCHING_VERSION, non-interactive, non-zero exit, nothing
+#     written. On a TTY it prompts first; in CI it just fails.
+#
+# Fail closed, like every other gate in this repo. An install that would need a too-new package now
+# stops and asks for a decision instead of quietly granting itself one.
+#
+# Scope. The floor covers transitive dependencies and exact pins, not just direct ranges. It is NOT
+# limited to fresh resolutions: pnpm 11.7 runs a post-resolution lockfile verifier ("Lockfile passes
+# supply-chain policies") that re-checks already-locked versions in BOTH modes, so a lockfile
+# carrying an immature version fails `--frozen-lockfile` in CI with
+# ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION. That check already ran before this key was set; strict
+# mode does not add it.
+#
+# Do NOT add `minimumReleaseAgeExclude` entries to get past a failure. Wait out the 24h, or take the
+# previous patch and record the deferral. If pnpm ever writes one here on its own, that means this
+# key was lost — restore it rather than keeping the version it let through.
+minimumReleaseAge: 1440
+minimumReleaseAgeStrict: true

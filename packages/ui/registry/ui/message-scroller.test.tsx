@@ -149,3 +149,27 @@ test("prefers-reduced-motion overrides the primitive's smooth default to an inst
     matchMediaSpy.mockRestore();
   }
 });
+
+// `@shadcn/react` 0.3.1 sets `data-pending-scroll` on the root and the viewport until
+// `defaultScrollPosition` is applied, and we answer it with `invisible` so a server-rendered
+// transcript never flashes the top of the thread. The failure mode that would matter is the
+// attribute STICKING — a permanently invisible viewport. Assert it is gone once mounted, for a
+// populated thread and for an empty one (the primitive clears it down two different paths).
+test("data-pending-scroll is cleared after mount so the viewport is never stranded invisible", async () => {
+  for (const count of [6, 0]) {
+    const screen = await render(<Thread count={count} />);
+    const root = screen.container.querySelector(
+      '[data-slot="message-scroller"]',
+    );
+    const viewport = screen.container.querySelector(
+      '[data-slot="message-scroller-viewport"]',
+    );
+    expect(root).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    await vi.waitFor(() => {
+      expect(root!.hasAttribute("data-pending-scroll")).toBe(false);
+      expect(viewport!.hasAttribute("data-pending-scroll")).toBe(false);
+    });
+    expect(getComputedStyle(viewport!).visibility).toBe("visible");
+  }
+});

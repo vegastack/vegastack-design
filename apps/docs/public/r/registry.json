@@ -97,7 +97,7 @@
         "communication"
       ],
       "dependencies": [
-        "@shadcn/react@^0.2.1",
+        "@shadcn/react@^0.3.1",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -117,7 +117,7 @@
         "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.6.0",
-        "integrity": "sha256-5kS0oLy0EENPhWFOOF7K40xTGrghxqpoJmg9Q5q9QtQ="
+        "integrity": "sha256-sTyOqyPNGHY0S5oWwZDnL+HT9eECMNtAu9lvPVv3IcU="
       }
     },
     {
@@ -2814,7 +2814,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.6.0",
-        "integrity": "sha256-G3aMUkmStwiroD70XXm/0+DwXfYdRUjKiYgEe7bemyE="
+        "integrity": "sha256-be2zp7iLpt89AyJ7LzECLsl1UmkVQ8KDKk5eWHmcN9c="
       }
     },
     {

@@ -16,6 +16,19 @@ async function waitForToast(text: string) {
     .toBe(true);
 }
 
+/**
+ * Sonner's toast store is a MODULE SINGLETON, so a toast fired by one test outlives that test's
+ * React tree for its full `TOAST_LIFETIME` (4000ms) and keeps rendering — close button and all —
+ * into whatever the next test mounts. Draining it explicitly is the only way a later test in this
+ * file can assert on "the button it rendered" without racing a 4-second timer.
+ */
+async function drainToasts() {
+  toast.dismiss();
+  await expect
+    .poll(() => document.querySelectorAll("[data-sonner-toast]").length)
+    .toBe(0);
+}
+
 test("renders children", async () => {
   const screen = await render(
     <VegaStackProvider>
@@ -36,6 +49,7 @@ test("mounts exactly one Sonner toaster by default, and toast() reaches it", asy
   toast("Provider toast works");
   await waitForToast("Provider toast works");
   expect(document.querySelectorAll("[data-sonner-toaster]").length).toBe(1);
+  await drainToasts();
 });
 
 test("toaster={false} suppresses the bundled toaster (double-mount escape hatch)", async () => {
@@ -84,13 +98,12 @@ test("useVegaStackTheme exposes resolvedTheme + setTheme below the provider", as
       <ThemeProbe />
     </VegaStackProvider>,
   );
-  await expect
-    .element(screen.getByRole("button"))
-    .toHaveTextContent("theme:dark");
-  (screen.getByRole("button").element() as HTMLButtonElement).click();
-  await expect
-    .element(screen.getByRole("button"))
-    .toHaveTextContent("theme:light");
+  // Name-scoped: an unqualified getByRole("button") is a strict-mode violation the moment any
+  // other test in this file leaves a button behind in the page (see drainToasts above).
+  const probe = screen.getByRole("button", { name: /^theme:/ });
+  await expect.element(probe).toHaveTextContent("theme:dark");
+  (probe.element() as HTMLButtonElement).click();
+  await expect.element(probe).toHaveTextContent("theme:light");
   await expect
     .poll(() => document.documentElement.classList.contains("light"))
     .toBe(true);

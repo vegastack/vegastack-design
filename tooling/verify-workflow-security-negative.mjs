@@ -471,8 +471,11 @@ const CASES = [
   {
     id: "wranglerVersion drifting from apps/docs/package.json",
     file: "deploy.yml",
-    find: "          wranglerVersion: 4.113.0\n",
-    replace: "          wranglerVersion: 3.0.0\n",
+    // Matched by SHAPE, not by the literal version: a `find` string carrying today's pin silently
+    // stops matching the day wrangler is bumped, and a mutation that finds nothing reports as an
+    // uncaught case rather than as a stale harness.
+    mutateAfter: (source) =>
+      source.replace(/wranglerVersion: [\d.]+/, "wranglerVersion: 3.0.0"),
     expect: /disagrees with apps\/docs\/package\.json/,
   },
   {
