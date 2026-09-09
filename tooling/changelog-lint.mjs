@@ -45,9 +45,25 @@ export const docsLinks = (text) =>
 export const commitShas = (text) =>
   [...text.matchAll(/commit\/([0-9a-f]{7,40})/g)].map((match) => match[1]);
 
-const shaExists = (sha) => {
+// REACHABILITY, not existence (bugs.md 2026-09-07, root fix deferred to #49 and taken here).
+//
+// The probe used to be `git cat-file -e <sha>^{commit}`, which asks whether the OBJECT EXISTS in
+// the local database. An amended, rebased or squashed commit stays in that database — the reflog
+// keeps it alive — long after it stops being reachable from any branch. So a link to an orphaned
+// sha passed on the machine that wrote the entry and resolved to nothing on GitHub for everybody
+// else: the failure was invisible exactly where it was introduced. That shipped once, in the
+// 0.7.0 entry's link to `7ec6372`.
+//
+// `git merge-base --is-ancestor <sha> HEAD` asks the question the reader's browser will ask: is
+// this commit in the history this branch publishes? An orphan is not, so it now fails. A sha that
+// is not an object at all also fails, which is the old rule's whole coverage — this is strictly
+// stronger, never weaker.
+const shaReachable = (sha) => {
   try {
-    execSync(`git cat-file -e ${sha}^{commit}`, { cwd: ROOT, stdio: "ignore" });
+    execSync(`git merge-base --is-ancestor ${sha}^{commit} HEAD`, {
+      cwd: ROOT,
+      stdio: "ignore",
+    });
     return true;
   } catch {
     return false;
@@ -63,14 +79,22 @@ const docsPageExists = (path) => {
 };
 
 /**
- * The two rules that apply to any CHANGELOG prose, wherever it is written — the assembled file or
- * a pending changeset body destined to become one of its bullets.
+ * The rules that apply to any CHANGELOG prose, wherever it is written — the assembled file or a
+ * pending changeset body destined to become one of its bullets.
+ *
+ * `skipCommitShas` is for the changeset caller, which BANS commit links outright (a changeset's
+ * sha is pre-merge by construction, so reachability is the wrong question there) and would
+ * otherwise report the same link twice under two different rules.
  */
-export function proseProblems(text) {
+export function proseProblems(text, { skipCommitShas = false } = {}) {
   const problems = [];
-  for (const sha of commitShas(text))
-    if (!shaExists(sha))
-      problems.push(`commit link references unknown sha: ${sha}`);
+  if (!skipCommitShas)
+    for (const sha of commitShas(text))
+      if (!shaReachable(sha))
+        problems.push(
+          `commit link references a sha that is not in this branch's history: ${sha} ` +
+            `(the object may still exist locally after an amend/rebase/squash; GitHub will 404 it)`,
+        );
   for (const path of docsLinks(text))
     if (!docsPageExists(path))
       problems.push(`docs link resolves to no content page: ${path}`);

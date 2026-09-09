@@ -411,9 +411,7 @@ test("no a11y violations with the menu open", async () => {
         <ContextMenuGroup>
           <ContextMenuLabel>Account</ContextMenuLabel>
           <ContextMenuItem>Settings</ContextMenuItem>
-          <ContextMenuItem tone="destructive">
-            Delete account
-          </ContextMenuItem>
+          <ContextMenuItem tone="destructive">Delete account</ContextMenuItem>
         </ContextMenuGroup>
       </ContextMenuContent>
     </ContextMenu>,

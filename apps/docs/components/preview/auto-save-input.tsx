@@ -144,8 +144,9 @@ function AutoSaveInputControlledDemo(): ReactNode {
     { id: "orbit", name: "Orbit Labs" },
     { id: "globex", name: "Globex" },
   ];
-  const [activeId, setActiveId] = useState(records[0].id);
-  const [name, setName] = useState(records[0].name);
+  const first = records[0]!;
+  const [activeId, setActiveId] = useState(first.id);
+  const [name, setName] = useState(first.name);
 
   return (
     <Wrapper className="flex-col items-stretch">

@@ -1,4 +1,4 @@
-// @vegastack attachment@0.6.0 sha256-o0dmj8n5wnbDX2EEIxV2hiFou4+c/tvmecqDmpjJnTY=
+// @vegastack attachment@0.6.0 sha256-rP78aP9evCTIRVG3MLZoIndQoiLQuu0l3Gh6kbvfA1g=
 
 "use client";
 
@@ -28,7 +28,7 @@ export type AttachmentState =
   "idle" | "uploading" | "error" | "complete" | "disabled";
 
 export const attachmentVariants = cva(
-  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 items-center gap-2 rounded-md border border-border bg-card text-sm text-card-foreground  focus-within:border-ring/(--alpha-tint-border) data-[state=error]:border-destructive/(--alpha-outline-border) data-[state=disabled]:pointer-events-none data-[state=disabled]:opacity-(--opacity-dim)",
+  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 items-center gap-2 rounded-md border border-border bg-card text-sm text-card-foreground focus-within:border-ring/(--alpha-tint-border) data-[state=error]:border-destructive/(--alpha-outline-border) data-[state=disabled]:pointer-events-none data-[state=disabled]:opacity-(--opacity-dim)",
   {
     variants: {
       size: {

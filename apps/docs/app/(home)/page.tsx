@@ -288,7 +288,7 @@ export default function HomePage() {
                   className="group flex min-h-(--size-sm) items-center justify-between gap-4 border-b border-border text-foreground"
                 >
                   {label}
-                  <span className="inline-flex shrink-0 transition-transform duration-fast ease-standard group-hover:translate-x-1 group-focus-visible:translate-x-1 motion-reduce:transform-none motion-reduce:transition-none">
+                  <span className="inline-flex shrink-0 transition-transform duration-fast ease-standard group-hover:translate-x-1 group-focus-visible:translate-x-1 motion-reduce:transform-none">
                     <Icon
                       as={ArrowRight}
                       size="sm"

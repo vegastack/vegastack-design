@@ -40,7 +40,7 @@ const MIRRORED_SELECTORS = [
   // inner control stands its outline down, because the group clips and would cut the control's
   // offset ring. The two rules only work as a pair, so the docs copy must carry BOTH — mirroring
   // the paint without the stand-down would double-ring every addon field on the docs site.
-  '@media (forced-colors: active)>[data-field-group] input:focus,[data-field-group] textarea:focus',
+  "@media (forced-colors: active)>[data-field-group] input:focus,[data-field-group] textarea:focus",
   "@media (prefers-reduced-motion: reduce)>*,::before,::after",
 ];
 

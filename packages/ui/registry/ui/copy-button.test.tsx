@@ -91,14 +91,16 @@ test("announces the copy via a visually-hidden live region", async () => {
 test("copying twice in a row re-announces rather than being swallowed", async () => {
   const screen = await render(<CopyButton value="copy-me" />);
   await screen.getByRole("button", { name: "Copy" }).click();
-  const first = screen.container.querySelector('[data-slot="announcer"]')
-    ?.firstElementChild;
+  const first = screen.container.querySelector(
+    '[data-slot="announcer"]',
+  )?.firstElementChild;
   await expect
     .element(screen.getByRole("button", { name: "Copy" }))
     .toBeInTheDocument();
   await screen.getByRole("button", { name: "Copy" }).click();
-  const second = screen.container.querySelector('[data-slot="announcer"]')
-    ?.firstElementChild;
+  const second = screen.container.querySelector(
+    '[data-slot="announcer"]',
+  )?.firstElementChild;
   expect(second?.textContent).toBe("Copied");
   expect(second).not.toBe(first);
 });

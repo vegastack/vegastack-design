@@ -59,7 +59,9 @@ test("Dialog content portals out of the app root and carries the overlay band", 
     </AppRoot>,
   );
   await expect
-    .element(document.body.querySelector('[data-slot="dialog-content"]')!)
+    .element(
+      document.body.querySelector<HTMLElement>('[data-slot="dialog-content"]')!,
+    )
     .toBeInTheDocument();
   assertPortaled(document.querySelector('[data-slot="dialog-content"]'));
 });
@@ -89,7 +91,9 @@ test("Sheet content portals out of the app root and carries the overlay band", a
     </AppRoot>,
   );
   await expect
-    .element(document.body.querySelector('[data-slot="sheet-content"]')!)
+    .element(
+      document.body.querySelector<HTMLElement>('[data-slot="sheet-content"]')!,
+    )
     .toBeInTheDocument();
   assertPortaled(document.querySelector('[data-slot="sheet-content"]'));
 });

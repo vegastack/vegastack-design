@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.6.0 sha256-biPOpS2Lo2uXZ6+ExAKW5WjErggxQVg0bXLDTpoulpU=
+// @vegastack text-edit@0.6.0 sha256-e3kT8GSTlbKC6ztvUjk/w7MusSgNShEwlVpl+/of4e8=
 
 "use client";
 
@@ -608,7 +608,7 @@ export function TextEdit({
       data-editable={editable ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
       className={cn(
-        "relative overflow-hidden rounded-lg border border-input bg-background ",
+        "relative overflow-hidden rounded-lg border border-input bg-background",
         "focus-within:border-ring/(--alpha-tint-border)",
         "has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
         className,

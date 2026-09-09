@@ -16,7 +16,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && node tooling/changeset-lint.mjs && node tooling/sync-package-skills.mjs --check && node tooling/security-boundaries.test.mjs && node tooling/verify-workflow-security.mjs && node tooling/verify-workflow-security-negative.mjs && node tooling/secret-scan.mjs && pnpm test:tooling && pnpm design:verify && turbo run lint",
+    "lint": "prettier --check . && node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && node tooling/changeset-lint.mjs && node tooling/sync-package-skills.mjs --check && node tooling/security-boundaries.test.mjs && node tooling/verify-workflow-security.mjs && node tooling/verify-workflow-security-negative.mjs && node tooling/secret-scan.mjs && pnpm test:tooling && pnpm design:verify && turbo run lint",
     "test:tooling": "vitest run --config vitest.tooling.config.ts",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
@@ -35,7 +35,7 @@
     "design:sync:self-test": "node tooling/sync-design-md.mjs --self-test",
     "design:derived": "node tooling/sync-component-derived.mjs",
     "design:derived:check": "node tooling/sync-component-derived.mjs --check",
-    "design:verify": "pnpm --filter @vegastack/design-tokens build && pnpm --filter @vegastack/design build && pnpm --filter @vegastack/ui build && node tooling/verify-package-exports.mjs && pnpm design:sync:check && pnpm design:sync:self-test && pnpm design:derived:check && node tooling/verify-component-contracts.mjs && node tooling/verify-component-contracts.mjs --self-test && node tooling/verify-public-api-docs.mjs && node tooling/verify-animated-icons.mjs && node tooling/verify-animated-icons.mjs --self-test && node tooling/verify-theme-parity.mjs packages/design-tokens/dist/theme.css && node tooling/verify-portal-theme-scope.mjs && node tooling/verify-rsc-safety.mjs && node tooling/verify-ui-use-client.mjs && node tooling/sync-toaster-mirror.mjs --check && node tooling/verify-design-lint-structural.mjs && node tooling/verify-registry-integrity-negative.mjs && node tooling/verify-bin-parity.mjs",
+    "design:verify": "pnpm --filter @vegastack/design-tokens build && pnpm --filter @vegastack/design build && pnpm --filter @vegastack/ui build && node tooling/verify-package-exports.mjs && pnpm design:sync:check && pnpm design:sync:self-test && pnpm design:derived:check && node tooling/verify-component-contracts.mjs && node tooling/verify-component-contracts.mjs --self-test && node tooling/verify-public-api-docs.mjs && node tooling/verify-animated-icons.mjs && node tooling/verify-animated-icons.mjs --self-test && node tooling/verify-theme-parity.mjs packages/design-tokens/dist/theme.css && node tooling/verify-portal-theme-scope.mjs && node tooling/verify-rsc-safety.mjs && node tooling/verify-ui-use-client.mjs && node tooling/sync-toaster-mirror.mjs --check && node tooling/verify-design-lint-structural.mjs && node tooling/verify-test-css-layers.mjs && node tooling/verify-test-css-layers.mjs --self-test && node tooling/verify-token-references.mjs && node tooling/verify-token-references.mjs --self-test && node tooling/verify-registry-integrity-negative.mjs && node tooling/verify-bin-parity.mjs",
     "shadcn:verify-base": "node tooling/verify-shadcn-base.mjs",
     "format": "prettier --write .",
     "prepare": "husky",

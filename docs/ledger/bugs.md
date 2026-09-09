@@ -29,6 +29,7 @@ Every bug found + root cause + fix. Append-only.
   flagged rather than changed inside a component batch.
 - **Class:** fail-open verification gap, pre-existing since the lane was written (WP1). Nothing
   reported it because a missing utility makes a contract weaker, never red.
+
 ## 2026-09-09 — A selection checkbox's hit area lived in the NEXT cell, and only the obstruction probe could see it (T1)
 
 - **Symptom.** After T1 moved the sort header onto the system `Button`,
@@ -795,7 +796,6 @@ re-diagnose it, and because a race that flakes under load is a real race.
   than the source string, and should recognise `fieldControl` as an imported focus affordance.
 
 ---
-
 
 ## 2026-09-08 — Base UI leaves an urgent toast `aria-hidden` while it is still focusable
 
@@ -1716,3 +1716,80 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
   value channel is the only place selection may be computed. A handler on a rendered part is a
   second channel by definition, and "avoiding a conflicting signal" by not wiring the first one
   inverts the fix.
+
+---
+
+---
+
+## 2026-09-09 — Textarea, grouped Input and TextEdit show no focus indicator (OPEN)
+
+- **Found by** the focus-indicator assertion G1-b added to
+  `packages/ui/test/geometry.browser.test.tsx`, on its first run. 540 of 550 fixtures pass; the ten
+  failures are three component groups, not "all text entry":
+  - **Textarea** — `fieldBorderless`, `textareaStates` (`textarea[data-slot=textarea]`);
+  - **Input inside a group** — `inputAddonStates`, `passwordInput`, `passwordInputStates`. A BARE
+    `Input` tints correctly (`inputStates` passes); the same control inside an addon or
+    password group does not;
+  - **TextEdit** — `textEdit`, `textEditHeights`, `textEditInvalid`, `textEditStates`,
+    `textEditSubmit` (`div[role=textbox]`).
+
+  `chipInputValidation`, `fieldStates`, `inputStates`, `otpInputField` and `otpInputStates` failed
+  on the pre-rebase tree and PASS on this one, so ChipInput, Field, Input and OTP are fine. That
+  narrowing came for free from the lane's stale-exclusion guard: those five entries turned red as
+  "the exclusion is stale" the moment they started passing.
+
+- **Symptom.** On `:focus` the control shows `outline-style: none` — by design, since a text field
+  cannot tell mouse from keyboard (B1-01), so `outline-hidden` is deliberate and the border tint is
+  its WHOLE focus affordance — and its `border-color` does not change, on the control, on its
+  `[data-field-group]`, or on any of its three nearest ancestors. The sanctioned tint is
+  `focus:border-ring/(--alpha-tint-border)` (`fieldSurface` / `fieldGroupSurface` in
+  `@vegastack/design`), which should move the border to `--ring` at 70%.
+- **Not a probe artefact.** Every link in the chain was checked directly in the lane:
+  - the utility is in the compiled sheet —
+    `.focus\:border-ring\/\(--alpha-tint-border\):focus { border-color: color-mix(in oklab, var(--ring) var(--alpha-tint-border), transparent) }`;
+  - `--ring` computes to `oklch(0.353 0.003 75)` at `:root` AND at the control;
+  - `--alpha-tint-border` computes to `70%` at the control;
+  - `CSS.supports("color", "color-mix(in lab, red, red)")` is `true`;
+  - `control.matches(":focus")` is `true`, and `:hover` is `false`.
+    The rule matches, every input to it resolves, and the computed border stays the resting `--input`
+    value. Which declaration actually wins is the open question — and the shape of the surviving
+    three groups (a wrapper-owned surface, a composite editor, and a native `textarea`) says the
+    answer is about WHERE the tint is applied, not whether the utility works.
+- **Not fixed here, deliberately.** This is component and token work across Textarea, the input
+  group, and TextEdit; G1-b is gate work, and the batch that fixes it needs the visual reviewer this
+  repository's lanes do not provide. Recorded as `EXCLUDED.focus` entries with the measurement,
+  which `runAssertion` makes SELF-INVALIDATING: an excluded assertion is still executed in
+  expect-failure mode, so the day the tint lands, each entry turns red with "the exclusion is
+  stale" and must be deleted. Flagged for MK.
+
+---
+
+## 2026-09-09 — CLOSED: `.first()`-only fixture probing (fix-round.md 18)
+
+- **Was:** `apps/docs/vrt/contracts.spec.ts` measured `page.locator("[data-vrt-preview]").first()` —
+  the first demo on each of 111 component routes — so a defect on any later fixture was structurally
+  invisible.
+- **Closed by** WP1's geometry lane, verified by reading
+  `packages/ui/test/geometry.browser.test.tsx` rather than by reading the plan. It iterates every
+  export of the preview barrel: 541 fixtures on this tree, ~4.6× the compositions the route lane
+  reached, and a `beforeAll` guard fails the file if the barrel resolves to fewer than 100. There is
+  no `.first()` anywhere in the file. The direct evidence that it closed a real gap is the `EXCLUDED`
+  map: every entry in it is a fixture the route lane could not see.
+- **The three 24px-target defects it had hidden** (timeline, data-grid, text-edit hero fixtures) were
+  fixed by their owning batches, not merely un-probed — none of them appears in `EXCLUDED.target`.
+
+---
+
+## 2026-09-09 — CLOSED: the `relative-time` target-floor race
+
+- **Was:** the probe measured a rect and then hit-tested, and `relative-time`'s self-rescheduling
+  `setTimeout` re-rendered the fixture in between, detaching the node. It failed a different subset
+  of Chromium projects on each run, on unmodified `main` as well.
+- **Closed at the root, in two parts.** Every `relative-time` preview fixture now pins `now` to a
+  fixed instant (`apps/docs/components/preview/relative-time.tsx`: `const NOW = Date.UTC(2026, 0, 15, 12, 0, 0)`,
+  passed as `now={NOW}` to every specimen), so there is no timer to race. The ONE fixture that
+  deliberately omits `now` — `relativeTimeLive`, whose live clock IS the feature being demonstrated —
+  is in the geometry lane's `UNSWEPT` map with that reason. So the component's geometry is covered
+  and only that one demo's live clock is not; the race cannot recur because nothing measured has a
+  timer.
+- Verified by reading the fixture and the lane, not by trusting the plan.

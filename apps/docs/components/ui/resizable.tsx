@@ -1,4 +1,4 @@
-// @vegastack resizable@0.6.0 sha256-/9Hyb848WsZ+jVHYmTFrHsdGVjJ/2fxE5sTeQTroU08=
+// @vegastack resizable@0.6.0 sha256-nCxTqNB9CqkrbThEHXg5u07+j9AuFDHoG/cG76No8gw=
 
 import * as React from "react";
 import { GripVertical } from "lucide-react";
@@ -136,7 +136,7 @@ export function ResizableHandle({
         // on hover / drag / keyboard-focus (the primitive's own hit-test state, exposed
         // as `data-separator`) and dims when `aria-disabled`. `group/handle` lets the
         // grip glyph below react to this element's own `aria-orientation`.
-        "group/handle relative flex shrink-0 touch-none items-center justify-center bg-border  select-none hover:bg-primary focus-visible:bg-primary data-[separator=active]:bg-primary aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+        "group/handle relative flex shrink-0 touch-none items-center justify-center bg-border select-none hover:bg-primary focus-visible:bg-primary data-[separator=active]:bg-primary aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
         // Default (aria-orientation="vertical" — a vertical bar between horizontally
         // arranged panels): full height, 1px wide, column-resize cursor. A wider
         // invisible `after` hit target (24px) meets WCAG 2.2 target-size guidance

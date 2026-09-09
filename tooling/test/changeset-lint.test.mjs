@@ -9,6 +9,8 @@ import {
   SECTIONS,
 } from "../changelog-assemble.mjs";
 import { lintChangesets } from "../changeset-lint.mjs";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 /** A changeset file as it exists on disk, parsed the way the linter parses it. */
 const changeset = (file, source) => ({ file, ...splitChangeset(source) });
@@ -115,6 +117,23 @@ const DEAD_DOCS_LINK = `---
 \ud83d\udcda **Docs** — see [the page](/docs/components/does-not-exist).
 `;
 
+// A sha that IS reachable from HEAD — this repository's own root commit. The predecessor rule
+// accepted it; the ban does not, because "does this commit exist" was never the question a
+// changeset link fails.
+const ROOT_SHA = execFileSync("git", ["rev-list", "--max-parents=0", "HEAD"], {
+  cwd: fileURLToPath(new URL("../..", import.meta.url)),
+})
+  .toString()
+  .trim()
+  .slice(0, 7);
+
+const REACHABLE_SHA = `---
+"@vegastack/ui": patch
+---
+
+\u{1F41B} **Fixed** — [\`${ROOT_SHA}\`](https://github.com/VegaStack/vegastack-design/commit/${ROOT_SHA}).
+`;
+
 const UNKNOWN_SHA = `---
 "@vegastack/ui": patch
 ---
@@ -163,13 +182,22 @@ describe("lintChangesets", () => {
     ]);
   });
 
-  test("a body whose commit link names an unknown sha is rejected", () => {
-    const { problems } = lintChangesets({
-      changesets: [changeset("unknown-sha.md", UNKNOWN_SHA)],
-    });
-    expect(problems).toEqual([
-      "unknown-sha.md: commit link references unknown sha: 0000000",
-    ]);
+  test("a body carrying ANY commit link is rejected, reachable or not", () => {
+    // The ban is unconditional. A changeset is written before its own commit exists, so the only
+    // sha it can name is a pre-merge one that the squash/rebase orphans — the predecessor rule
+    // (does the object exist?) passed such a link for its author and 404'd for every reader.
+    // Both fixtures below are commit links; both must be rejected, and the message must be the
+    // ban rather than a reachability complaint.
+    for (const [file, source] of [
+      ["unknown-sha.md", UNKNOWN_SHA],
+      ["reachable-sha.md", REACHABLE_SHA],
+    ]) {
+      const { problems } = lintChangesets({
+        changesets: [changeset(file, source)],
+      });
+      expect(problems).toHaveLength(1);
+      expect(problems[0]).toContain("a changeset must not link a commit");
+    }
   });
 
   test("the prose rules are changelog-lint's own, not a second copy", () => {

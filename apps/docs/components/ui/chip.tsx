@@ -1,4 +1,4 @@
-// @vegastack chip@0.6.0 sha256-OIzwdiV/chXBquNGgOMu8SQgmhogjxBjUCbLkKJerCs=
+// @vegastack chip@0.6.0 sha256-ZKhvTlOSuNhUe5NlfSASdQXtlKDZ565NC7SKM3q7uKs=
 
 "use client";
 
@@ -89,8 +89,10 @@ const SIZE_CLASSES: Record<ChipSize, string> = {
 };
 
 /** Props accepted by `Chip`. */
-export interface ChipProps
-  extends Omit<React.ComponentPropsWithRef<"span">, "children"> {
+export interface ChipProps extends Omit<
+  React.ComponentPropsWithRef<"span">,
+  "children"
+> {
   /**
    * Decorative hue from the tag palette. Never a status signal — that is `Badge`.
    * @default 'neutral'

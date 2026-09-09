@@ -231,7 +231,7 @@ const interactiveColumns: DataListColumn<Person>[] = [
     render: (p) => (
       <a
         href={`#person-${p.id}`}
-        className="font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="font-medium underline-offset-4 hover:underline"
       >
         {p.name}
       </a>

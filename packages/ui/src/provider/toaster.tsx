@@ -725,8 +725,7 @@ export function Toast({
                 aria-hidden
                 className={cn(
                   "mt-0.5 size-(--icon-default) shrink-0",
-                  type === "loading" &&
-                    "animate-spin motion-reduce:animate-none",
+                  type === "loading" && "animate-spin",
                 )}
               />
             ) : null}

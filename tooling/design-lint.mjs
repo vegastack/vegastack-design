@@ -102,6 +102,15 @@ const MOTION_EASE_UTILITY =
 const RAW_MOTION_STEP =
   /(?:^|[\s:\]])(duration-(?!0(?=\s|$))\d+|ease-(?:in-out|in|out|linear|initial))(?=\s|$)/g;
 
+// A class literal reaches more than this many levels into its own descendants and it has stopped
+// styling itself. 20 is the audit's figure (04 §7); `audio-player` held 76 in one string.
+const MAX_DESCENDANT_OVERRIDES = 20;
+
+// A cheap "is this a class string" test, so the whitespace rule never fires on prose, an
+// aria-label, or a JSX text node that happens to be a string literal.
+const LOOKS_LIKE_CLASS_STRING =
+  /(?:^|\s)(?:flex|grid|block|inline|hidden|relative|absolute|fixed|sticky|items-|justify-|gap-|p[xytblrse]?-|m[xytblrse]?-|text-|bg-|border|rounded|shadow-|size-|h-|w-|min-|max-|overflow-|z-|opacity-|transition|duration-|ease-|truncate|shrink|grow|font-|leading-|tracking-|cursor-|select-|outline-|ring-|data-\[|group|peer)/;
+
 const RULES = [
   {
     id: "hex-color",
@@ -333,11 +342,14 @@ function staticStringLiterals(file, src) {
   if (!/\.tsx?$/.test(file)) return [];
   const sourceFile = sourceFileFor(file, src);
   const literals = [];
-  const push = (node, text) => {
+  // `template` marks a literal whose text was ASSEMBLED from a template's static spans joined by
+  // a space. That join is synthetic: it inserts separators that were never in the source, so any
+  // rule about the literal's own whitespace would be reading the joiner rather than the author.
+  const push = (node, text, template = false) => {
     const line =
       sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line +
       1;
-    literals.push({ text, line });
+    literals.push({ text, line, template });
   };
   const visit = (node) => {
     if (ts.isStringLiteralLike(node)) {
@@ -351,6 +363,7 @@ function staticStringLiterals(file, src) {
           node.head.text,
           ...node.templateSpans.map((span) => span.literal.text),
         ].join(" "),
+        true,
       );
       for (const span of node.templateSpans) visit(span.expression);
       return;
@@ -531,6 +544,159 @@ for (const root of ROOTS) {
           `${file}:${line} [transition-pairing] "${tokens[0]}" ${detail} in the same class string`,
         );
         violations++;
+      }
+    }
+
+    // ── G1-b rules (issue #49 §7) — all literal-scoped, all with a negative fixture in
+    // `verify-design-lint-structural.mjs`. Each is a token-vocabulary rule that source review kept
+    // finding by hand; a rule nobody can forget is worth more than a review note.
+    for (const { text: lit, line, template } of literals) {
+      const report = (id, message) => {
+        console.log(`${file}:${line} [${id}] ${message}`);
+        violations++;
+      };
+
+      // (a) restated focus ring. `@vegastack/design-tokens/base.css` owns ONE `:focus-visible`
+      // rule for the whole system (2px outline, offset 1, `--ring`). A component that writes its
+      // own re-skins it locally, so the system can never change the ring in one place again — and
+      // a component that STRIPS it on focus-visible removes the indicator outright. The sanctioned
+      // exception is the text-entry border tint, which is `focus:border-*` and never touches the
+      // outline, so it is unaffected by this rule.
+      if (/(?:^|[\s:])focus-visible:(?:outline|ring)-/.test(lit)) {
+        report(
+          "restated-focus",
+          "restates or strips the focus ring that base.css owns for every control " +
+            "(`:focus-visible { outline-2 outline-offset-1 outline-ring }`). Text entry uses " +
+            "`focus:border-ring/(--alpha-tint-border)` instead; nothing else declares a ring.",
+        );
+      }
+
+      // (b) restated reduced-motion. base.css already collapses every animation and transition
+      // under `@media (prefers-reduced-motion: reduce)`, globally and with the one sanctioned
+      // `!important`. A `motion-reduce:` variant that says the SAME thing per element is dead
+      // weight and a second place for the policy to drift.
+      //
+      // Scoped to the variants that are genuinely redundant. `motion-reduce:transform-none` and
+      // friends are NOT restatements: they suppress the end STATE, not the animation to it, which
+      // the global reset does not do and which is a real per-component decision.
+      const restatedMotion = lit.match(
+        /(?:^|[\s:])motion-reduce:(transition-none|animate-none|duration-0|transition-duration-\S+)/,
+      );
+      if (restatedMotion) {
+        report(
+          "restated-motion-reduce",
+          `"motion-reduce:${restatedMotion[1]}" restates the global reduced-motion reset in ` +
+            "base.css (animation and transition duration already collapse to 0.01ms there). " +
+            "Remove it; `motion-reduce:transform-none` and other END-STATE suppressions are not " +
+            "restatements and stay.",
+        );
+      }
+
+      // (c) TD-3 — `text-xs` mono-only — IS NOT ENFORCED HERE, deliberately, and is the one rule
+      // of issue #49 §7 that G1-b measured as landable and still did not land.
+      //
+      // The registry has ZERO `text-xs` offenders, so on the surface the rule is free. The docs
+      // shell has EIGHT, every one a muted caption (`animated-icon-card.tsx:78`,
+      // `foundations.tsx:137/437/527/544/692`, `icon-gallery.tsx:62/80`). Enforcing the rule means
+      // choosing, eight times, between 14px sans and switching those captions to the mono voice —
+      // a visible typographic change to the public docs site, in a repository where NO lane takes
+      // a screenshot (AGENTS.md, locked decision R3) and the visual reviewer is a person opening
+      // the site. Writing a rule and then quietly restricting it to the roots that already pass
+      // would be the fail-open this batch exists to remove. Flagged for MK instead.
+      // (d) viewport magic. A raw viewport unit is a hardcoded literal that ignores mobile browser
+      // chrome (`100vh` is the classic one) and every container the component actually sits in.
+      // The sanctioned form is a token calc — `max-w-[calc(100vw-var(--spacing)*8)]` — where the
+      // inset is itself a token; that form is exempt below.
+      const viewport = lit.match(
+        /(?:^|\s)-?(?:min-|max-)?[hw]-screen(?=\s|$)|\b\d+(?:dvh|dvw|svh|svw|lvh|lvw|vh|vw)\b/,
+      );
+      if (viewport && !/calc\([^)]*var\(--/.test(lit)) {
+        report(
+          "viewport-magic",
+          `"${viewport[0].trim()}" — a raw viewport dimension. Size from the container or a token; ` +
+            "if a viewport bound is genuinely needed, write it as a calc whose inset is a token " +
+            "(e.g. `max-w-[calc(100vw-var(--spacing)*8)]`).",
+        );
+      }
+
+      // (e) class-string hygiene. A leading, trailing or doubled space inside a class literal is
+      // invisible in review and survives every merge, so the same file accumulates them. It also
+      // defeats grep — `"a  b"` does not match `/a b/` — which is how several audit sweeps
+      // undercounted. Only literals that actually look like class strings are checked.
+      // Never a template's synthetic join, and never a multi-line literal: class strings in this
+      // codebase are single-line (a long one is split into several literals `cn()` joins), whereas
+      // a multi-line literal is prose — markdown fixtures, placeholder copy — whose blank lines and
+      // indentation are content, not sloppiness.
+      if (
+        !template &&
+        !lit.includes("\n") &&
+        LOOKS_LIKE_CLASS_STRING.test(lit) &&
+        /^\s|\s$|\s\s/.test(lit)
+      ) {
+        report(
+          "class-whitespace",
+          "class string has a leading, trailing or doubled space — single-space separated, trimmed",
+        );
+      }
+
+      // (f) descendant-override density. A class literal that reaches more than
+      // MAX_DESCENDANT_OVERRIDES levels down (`[&_svg]:`, `[&>div]:`, …) has stopped styling
+      // itself and started styling its children's internals from the outside, which is the shape
+      // that made `audio-player` unreadable (76 overrides in one string, audit 04 §7). The fix is
+      // a `data-slot` on the child and a rule the child owns.
+      // One level of nesting is allowed inside the selector, because real overrides carry it —
+      // `[&_svg:not([class*='size-'])]:size-…` and `[&_[data-slot=x]]:hidden` would otherwise be
+      // missed by a `[^\]]*` body and the density would read lower than it is.
+      const overrides = (
+        lit.match(/\[&[^\][]*(?:\[[^\]]*\][^\][]*)*\]:/g) ?? []
+      ).length;
+      if (overrides > MAX_DESCENDANT_OVERRIDES) {
+        report(
+          "descendant-override-density",
+          `${overrides} descendant overrides in one class string (cap ${MAX_DESCENDANT_OVERRIDES}) — ` +
+            "style the child through its own data-slot instead of reaching into it",
+        );
+      }
+
+      // (g) hover fill without a pressed rung (Codex F1; extends the hover-fill contract in
+      // AGENTS.md § Build rules, "Every control has a pressed step"). A control that CHANGES its
+      // fill on hover and has no pressed state gives a pointer user feedback and a click no
+      // acknowledgement at all.
+      //
+      // Three things are deliberately NOT violations, because each is a real pattern rather than a
+      // missing state:
+      //   • `bg-x hover:bg-x` — restating the SAME fill is how a control opts OUT of the recipe's
+      //     hover (an active pagination page must not react). No change, so no pressed step owed.
+      //   • a pressed rung expressed as component state rather than the CSS pseudo-class —
+      //     `data-[separator=active]:`, `data-pressed:`, `aria-pressed:`, `data-[state=open]:` —
+      //     which is what a primitive that owns its own drag or open state uses.
+      //   • the recipes themselves (`surfaceInteractive`, `fillInteractive`), which carry both
+      //     steps and are not written as literals here.
+      // `hover:bg-transparent` is the fourth non-violation: it CANCELS an inherited hover rather
+      // than declaring one, which is the opposite of the defect (a nested control that must not
+      // repaint under its container's wash).
+      const hoverFill = lit.match(
+        /(?:^|\s)hover:bg-(?!transparent(?:\s|$))([^\s]+)/,
+      );
+      if (hoverFill) {
+        const restFill = lit.match(/(?:^|\s)bg-([^\s]+)/);
+        const changes = !restFill || restFill[1] !== hoverFill[1];
+        const pressed =
+          /(?:^|\s)active:(?:bg|border|text)-/.test(lit) ||
+          /data-\[[^\]]*(?:active|pressed|dragging|open|selected)[^\]]*\]:(?:bg|border)-/.test(
+            lit,
+          ) ||
+          /(?:^|\s)(?:data-pressed|data-selected|aria-pressed):(?:bg|border)-/.test(
+            lit,
+          );
+        if (changes && !pressed) {
+          report(
+            "hover-without-pressed",
+            `"hover:bg-${hoverFill[1]}" changes the fill on hover with no pressed rung in the same ` +
+              "class string. Every control has a pressed step — take it from `surfaceInteractive` / " +
+              "`fillInteractive.<tone>` in @vegastack/design, or add the `active:`/state rung.",
+          );
+        }
       }
     }
 

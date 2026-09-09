@@ -1,4 +1,4 @@
-// @vegastack otp-input@0.6.0 sha256-EpR0P97KR9H3MGb9cbsTt3Nizbii1JX2v1R/+h0P2z4=
+// @vegastack otp-input@0.6.0 sha256-e/YNwCbeeiRC6oSK/Tn+7sR6XOu1YwUt0ImAnHSIkJA=
 
 "use client";
 
@@ -121,7 +121,7 @@ const slotSizeClasses = {
 } as const;
 
 const slotClasses =
-  "relative flex items-center justify-center text-center font-mono text-foreground outline-hidden " +
+  "relative flex items-center justify-center text-center font-mono text-foreground outline-hidden" +
   "caret-foreground focus:z-(--z-raised)";
 
 const separatorClasses =

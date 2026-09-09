@@ -550,21 +550,6 @@ assert(
   "unexpected inventory kind",
 );
 
-const expected = {
-  totalRegistryItems: 568,
-  components: 116,
-  animatedIcons: 439,
-  hooks: 10,
-  blocks: 1,
-  libs: 2,
-};
-for (const [key, value] of Object.entries(expected)) {
-  assert(
-    contracts.expectedCounts?.[key] === value,
-    `expectedCounts.${key} must be ${value}`,
-  );
-}
-
 const expectedWaves = {
   "Core controls": 24,
   "Forms/editing": 23,
@@ -732,10 +717,6 @@ for (const [wave, count] of Object.entries(expectedWaves)) {
 }
 
 assert(Array.isArray(registry.items), "registry.items must be an array");
-assert(
-  registry.items.length === expected.totalRegistryItems,
-  `registry must contain exactly ${expected.totalRegistryItems} items`,
-);
 const registryNames = registry.items.map((item) => item.name);
 assert(
   new Set(registryNames).size === registryNames.length,
@@ -758,26 +739,55 @@ const registryBlocks = registry.items.filter(
 const registryLibs = registry.items.filter(
   (item) => item.type === "registry:lib",
 );
+
+// ── the inventory counts, DERIVED ───────────────────────────────────────────────────────────────
+//
+// These were five hardcoded literals, so adding a component meant editing a gate script — and a
+// literal that has to be edited by hand is a literal that can be edited WRONG. O1 (#66) found
+// `components: 111` committed against `totalRegistryItems: 559` on a tree whose real partition was
+// 112 + 439 + 7 + 1; the arithmetic did not close, and nothing noticed, because each number was
+// only ever compared against a copy of itself.
+//
+// `packages/ui/registry.json` is the machine authority for inventory (AGENTS.md § Truth hierarchy,
+// rank 2), so the counts are read off its partition and every consumer below is reconciled against
+// THAT. The gate still fails closed in both directions — the contract file, the generated home
+// catalog, the icon gallery, the animated-icon manifest and § Numbers must all agree with the
+// registry — but it no longer holds an opinion of its own that can drift away from it.
+const expected = {
+  totalRegistryItems: registry.items.length,
+  components: registryComponents.length,
+  animatedIcons: registryIcons.length,
+  hooks: registryHooks.length,
+  blocks: registryBlocks.length,
+  libs: registryLibs.length,
+};
+
+// The partition must be exhaustive: an item that is none of the five kinds would otherwise be
+// counted in the total and in nothing else, which is the shape of O1's defect. `registry:lib`
+// arrived on main while this change was in flight and is exactly the event this assertion is for.
 assert(
-  registryComponents.length === expected.components,
-  `registry component count must be ${expected.components}`,
+  expected.components +
+    expected.animatedIcons +
+    expected.hooks +
+    expected.blocks +
+    expected.libs ===
+    expected.totalRegistryItems,
+  `registry.json partition does not close: ${expected.components} components + ` +
+    `${expected.animatedIcons} animated icons + ${expected.hooks} hooks + ${expected.blocks} ` +
+    `blocks + ${expected.libs} libs = ${expected.components + expected.animatedIcons + expected.hooks + expected.blocks + expected.libs}, ` +
+    `but the registry holds ${expected.totalRegistryItems} items. Some item is of a kind this ` +
+    `gate does not model.`,
 );
-assert(
-  registryIcons.length === expected.animatedIcons,
-  `registry animated-icon count must be ${expected.animatedIcons}`,
-);
-assert(
-  registryHooks.length === expected.hooks,
-  `registry hook count must be ${expected.hooks}`,
-);
-assert(
-  registryBlocks.length === expected.blocks,
-  `registry block count must be ${expected.blocks}`,
-);
-assert(
-  registryLibs.length === expected.libs,
-  `registry lib count must be ${expected.libs}`,
-);
+
+// `component-contracts.json` is the OTHER authority (inventory membership); it must agree with the
+// registry item for item. This is the assertion that corrupting registry.json's item list trips.
+for (const [key, value] of Object.entries(expected)) {
+  assert(
+    contracts.expectedCounts?.[key] === value,
+    `expectedCounts.${key} is ${contracts.expectedCounts?.[key]} but packages/ui/registry.json ` +
+      `holds ${value}. Run \`pnpm design:derived\`; if the registry itself is wrong, fix it there.`,
+  );
+}
 assert(
   registryComponents.some((item) => item.name === "icon-button"),
   "icon-button must be modeled as a component",

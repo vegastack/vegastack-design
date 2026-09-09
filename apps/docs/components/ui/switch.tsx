@@ -1,4 +1,4 @@
-// @vegastack switch@0.6.0 sha256-zf3sWxAtDHsY+RuvSCXQkk7Hvf8sIqoEQn96EJhBnN0=
+// @vegastack switch@0.6.0 sha256-iopBYGVR6/+f1kxdfbOX0IasJ40qrLCpkh4eN4khaww=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -15,8 +15,8 @@ export const switchVariants = cva(
   // Invalid carries NO visual treatment on the control itself — no destructive track border and no
   // status dot. `aria-invalid` stays on the DOM as the semantic cue, and the wrapping `Field`
   // supplies the associated error copy, which is the only invalid affordance the switch needs.
-  "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5  " +
-    "bg-surface-3 data-checked:bg-primary " +
+  "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5" +
+    "bg-surface-3 data-checked:bg-primary" +
     // The switch was the one control in the batch with NO hover treatment at all (audit SP-04).
     // Its track already sits on the ladder's top rung, so there is no rung left to climb: the
     // hover step is the same neutral BORDER tint the checkbox and radio wear, which the
@@ -60,7 +60,7 @@ export const switchVariants = cva(
  * and a token-driven `transition`.
  */
 export const switchThumbVariants = cva(
-  "pointer-events-none block rounded-full bg-background ring-0 transition-transform duration-fast ease-standard " +
+  "pointer-events-none block rounded-full bg-background ring-0 transition-transform duration-fast ease-standard" +
     "data-unchecked:translate-x-0",
   {
     variants: {

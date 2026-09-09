@@ -1,4 +1,4 @@
-// @vegastack badge@0.6.0 sha256-EYnhy2yIXziTJwUCp7TAdaln8o7N/Zuj+iOQnK6drg8=
+// @vegastack badge@0.6.0 sha256-9+gxMxWoDkRGSEt3LGYEoSDtsjQM6mqaensVA4+KE/Y=
 
 "use client";
 
@@ -22,7 +22,7 @@ import { cn } from "@vegastack/design";
 export const badgeVariants = cva(
   // text-ellipsis makes a consumer-supplied max-w-* cap elide instead of hard-clipping —
   // costless at the default w-fit (content never overflows itself).
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent text-ellipsis whitespace-nowrap  [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent text-ellipsis whitespace-nowrap [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {

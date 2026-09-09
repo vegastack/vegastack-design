@@ -13,5 +13,4 @@ where pressing changed nothing. Select's trigger hovered only in dark mode; it n
 The current sidebar row rests on `surface-3` so hovering it still moves. ComparisonMatrix and
 PricingSection stop using `info` (blue) for the promoted column and the highlighted plan — `info` is
 links and informational UI only; promotion is a neutral ladder rung.
-[docs](https://design.vegastack.com/docs/components/button) ·
-[`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+[docs](https://design.vegastack.com/docs/components/button)

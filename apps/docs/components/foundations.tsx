@@ -503,7 +503,7 @@ function MotionTrack({
     <div className="flex flex-col gap-1.5">
       <div className="relative h-6 overflow-hidden rounded-md border border-border bg-muted">
         <span
-          className="absolute start-1 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-primary motion-reduce:animate-none"
+          className="absolute start-1 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-primary"
           style={style}
         />
       </div>

@@ -25,7 +25,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../registry/ui/tabs";
  *    recipe wins rather than both classes surviving.
  */
 
-const relLum = ([r, g, b]: number[]) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+const relLum = ([r, g, b]: [number, number, number]) =>
+  0.2126 * r + 0.7152 * g + 0.0722 * b;
 
 /**
  * Parse a computed colour. Chromium keeps an OKLCH-authored token in `oklch(L C H / a)` form
@@ -45,9 +46,12 @@ function parseComputed(color: string): { L: number; alpha: number } {
     color.match(/^rgba?\(\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\s*\)$/);
   if (!rgb) throw new Error(`unparseable computed colour: ${color}`);
   const scale = srgb ? 1 : 255;
-  const triple = [rgb[1], rgb[2], rgb[3]].map((c) => Number(c) / scale);
+  // Three channel groups in every branch of the match above, so the triple is complete.
+  const triple = [rgb[1], rgb[2], rgb[3]].map(
+    (channel) => Number(channel) / scale,
+  ) as [number, number, number];
   return {
-    L: Math.cbrt(relLum(triple.map(gam2lin))),
+    L: Math.cbrt(relLum(triple.map(gam2lin) as [number, number, number])),
     alpha: Number(rgb[4] ?? "1"),
   };
 }
@@ -77,7 +81,10 @@ describe("surface ladder", () => {
       (name) => lightness(readToken(name, dark)),
     );
     for (let i = 1; i < rungs.length; i++) {
-      const step = dark ? rungs[i] - rungs[i - 1] : rungs[i - 1] - rungs[i];
+      // `rungs` is built by mapping a literal array, so both indices exist; the assertion keeps
+      // that fact visible to `noUncheckedIndexedAccess` rather than widening the arithmetic.
+      const [previous, current] = [rungs[i - 1]!, rungs[i]!];
+      const step = dark ? current - previous : previous - current;
       // A rung that cannot be told from its neighbour is the collapsed-token defect.
       expect(step, `rung ${i} vs ${i - 1}`).toBeGreaterThan(0.005);
     }

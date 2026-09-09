@@ -1,4 +1,4 @@
-// @vegastack use-announcer@0.6.0 sha256-El1R0kKLLYWcz5Sc1XAhwpz0Thn6Rvgnoqa27RMYUCA=
+// @vegastack use-announcer@0.6.0 sha256-BH6rnEijAO8ATl8bXMEHk5Bigl4M0kLtwNmXenhScKs=
 
 "use client";
 
@@ -106,11 +106,7 @@ function createAnnouncerComponent(
         className: cn("sr-only", className),
         ...props,
       },
-      React.createElement(
-        "span",
-        { key: announcement.seq },
-        announcement.text,
-      ),
+      React.createElement("span", { key: announcement.seq }, announcement.text),
     );
   }
   Announcer.displayName = "Announcer";
@@ -166,8 +162,5 @@ export function useAnnouncer(): UseAnnouncerResult {
     [store],
   );
 
-  return React.useMemo(
-    () => ({ announce, Announcer }),
-    [announce, Announcer],
-  );
+  return React.useMemo(() => ({ announce, Announcer }), [announce, Announcer]);
 }

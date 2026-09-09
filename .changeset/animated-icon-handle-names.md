@@ -12,5 +12,4 @@ icon, so the primary interface was called `ChevronsDownUpIconHandle` and `Chevro
 the `@deprecated` alias of it. The exported component symbol is authoritative, so the name that
 survives is the one that matches it — **`ChevronsDownUpIconHandle` → `ChevronFirstIconHandle`**.
 Consumers of the old name must rename; no compatibility alias is kept.
-[docs](https://design.vegastack.com/docs/foundations/icons) ·
-[`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
+[docs](https://design.vegastack.com/docs/foundations/icons)
