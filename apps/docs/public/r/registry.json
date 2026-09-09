@@ -3038,7 +3038,7 @@
         "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area chart that needs to match the design system's theme automatically in light and dark.",
         "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress / ProgressIndicator).",
         "version": "0.6.0",
-        "integrity": "sha256-VFvY/FrtOphvirOfQu6/qBeM0ZBRjV7/YVUltgDmFOA="
+        "integrity": "sha256-WM9fz2UnqlEXshewv4rC14nareF8mXDvMpvxru1wvyo="
       }
     },
     {

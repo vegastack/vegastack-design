@@ -70,12 +70,14 @@ function defaultFrom(tags: { name: string; text: string }[]) {
 export async function getApiDocs(source: ApiTableSource): Promise<ApiDoc[]> {
   const docs = await generator.generateTypeTable(source, {
     transform(entry, _propertyType, propertySymbol) {
-      const own = propertySymbol
-        .getDeclarations()
-        .some(
-          (decl) =>
-            !decl.getSourceFile().getFilePath().includes("node_modules"),
-        );
+      // fumadocs-typescript 5.4 swapped ts-morph for the native TypeScript 7 API
+      // (`typescript/unstable/sync`): `propertySymbol` is now a `Symbol` whose `declarations`
+      // are `NodeHandle`s — lazy references carrying the declaring file as `.path` — instead of
+      // ts-morph declaration objects with `getSourceFile().getFilePath()`. Reading `.path`
+      // keeps the own-prop test free of a `resolve()` round-trip per property.
+      const own = propertySymbol.declarations.some(
+        (declaration) => !String(declaration.path).includes("node_modules"),
+      );
       if (own) entry.tags.push({ name: OWN_PROP_TAG, text: "" });
     },
   });

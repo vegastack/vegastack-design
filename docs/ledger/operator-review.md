@@ -298,6 +298,108 @@ packages/ui/registry/ui` → 0. The ref half IS 0. The other half cannot be 0 wh
 item worth an explicit nod.
 
 ---
+
+## 2026-09-08 — D2: the Fumadocs 16.15 family, lucide 1.42, axe 4.13, Playwright 1.63, recharts 3.10
+
+**Context:** dependency batches 5–6 of the 2026-09-07 audit (`01-deps.md`). Five of the six items
+turned out to need no source change at all; the judgment calls below are about the ones that did,
+and about the three places where the audit's instruction and the installed reality disagreed.
+
+**Decisions taken instead of pausing:**
+
+- **lucide-react lands on 1.42.0, not the audit's 1.41.0.** The range is a caret, so the choice is
+  really "newest mature release". 1.43.0 was published 2026-09-08 12:08 UTC, inside D1's new
+  explicit `minimumReleaseAge: 1440` window, and a strict floor fails the install rather than
+  granting itself an exclude — so 1.42.0 (2026-09-07) is the ceiling today. Taking 1.42.0 rather
+  than pinning back to 1.41.0 keeps the repo's normal "caret + mature" resolution and avoids an
+  exact pin nobody asked for. The rename sweep the batch was named after is a **no-op**: a script
+  collected all 126 distinct named `lucide-react` imports across `packages/ui/registry`,
+  `packages/design/src`, `apps/docs` and `tooling`, and resolved each against the installed 1.42.0
+  module — every one still exists. **A correction to the audit's premise:** `01-deps.md` lists
+  `Trash` → `Trash2` as a breaking rename, but lucide-react 1.42.0 still exports `Trash` as a real
+  icon (`declare const Trash: LucideIcon`), and every historical rename it does make is kept as a
+  named alias (`CircleAlert as AlertCircle`, `TriangleAlert as AlertTriangle`, …). There is no
+  rename to sweep at this version; the sweep is a no-op by construction, not by luck.
+- **`@vegastack/design`'s lucide PEER range stays `^1.24.0`.** Bumping the devDependency moved the
+  peer too; that was reverted. The peer declares the minimum version this package is compatible
+  with, not the version we happen to test against, and narrowing it would make every consumer on a
+  1.2x/1.3x lucide take a peer warning for a change that affects nothing they call. The registry
+  items' declared `lucide-react@^1.24.0` in `packages/ui/registry.json` stays for the same reason.
+- **No `forceMount` was added to the docs' preview Tabs.** Fumadocs 16.12 stopped force-mounting
+  inactive `Tabs` panels, so a `ComponentPreview`'s **Code** panel is no longer in the prerendered
+  HTML. The audit flagged this as "where contracts need hidden panels" — they do not, and after the
+  verification rebuild (WP1, 2026-09-08) they need the docs DOM even less than when this batch was
+  written. The blocking visual-surface gate is now
+  `packages/ui/test/geometry.browser.test.tsx`, which mounts every export of the preview barrel
+  directly with compiled token CSS and never renders a docs page, so Fumadocs' panel mounting is
+  outside it entirely. The markdown export reads the fixture from disk rather than the DOM, so
+  `verify-docs-export` is unaffected. Adding `forceMount` would have restored dead HTML on every
+  component route to satisfy nothing.
+- **Fumadocs' `theme={{ hotKey: false }}` is not set, because it would be dead config.** The audit
+  asked for a decision on 16.13's global `d` light/dark hotkey. `RootProvider` mounts `ThemeHotKey`
+  **inside** the `theme?.enabled !== false` branch (`fumadocs-ui@16.15.8`,
+  `dist/provider/base.js`), and this site sets `theme={{ enabled: false }}` because
+  `VegaStackProvider` owns theme — so no `keydown` listener is registered and typing `d` on a
+  component page does nothing. Rather than add a prop that is destructured out of an object that is
+  never read, the finding and the trigger condition are recorded at the call site in
+  `components/provider.tsx`, so re-enabling fumadocs' theme provider cannot silently reintroduce it.
+- **axe-core 4.13 triage.** 4.13 adds `sectionheader`/`sectionfooter`, treats `role=image` as
+  equivalent to `role=img`, allows `aria-actions`, enables `ElementInternals` by default, and
+  changes two rules that can newly fail: `aria-prohibited-attr` ("allow many elements to be named
+  and disallow **label** and **body** from being named"; a visible `aria-labelledby` drops to
+  needs-review) and `aria-allowed-role` (roles on a non-`details` `summary`; `figure` roles
+  restricted when a `figcaption` child is present). Mapped against the registry: no source names a
+  `<label>` or `<body>`, nothing uses `role="image"`, and there is no `summary`/`figure` +
+  `figcaption` pair — so the expected blast radius was nil, and the browser unit suite (which runs
+  axe on every component) is the enforcement. Its result for this branch is recorded in the PR.
+- **recharts 3.10's Legend migration is a documentation change, not a code change.** `align` and
+  `verticalAlign` are deprecated in favour of `position`/`offset`, but they are not removed, no
+  `ChartLegend` call site passes either, and `Legend` still injects `verticalAlign` into custom
+  content (`es6/component/Legend.js:260`), which is where `ChartLegendContent` reads it from. The
+  deprecation and the replacement are noted on the `ChartLegend` re-export so the next person
+  positioning a legend reaches for `position` instead of the deprecated pair.
+- **The prose carries no commit-sha links.** This branch was written before the verification
+  rebuild and rebased twice; a sha linked in a changeset is orphaned on every replay, and the link
+  check validates shas only where present, so it would not catch the rot. Omitting them is cheaper
+  than a post-rebase repoint. (Same finding as D1.)
+- **The batch's hand-written `/CHANGELOG.md` bullets were dropped on the rebase and re-expressed as
+  changesets.** WP5 (2026-09-08) made the release entry a build output of
+  `tooling/changelog-assemble.mjs`, so a PR's only changelog artefact is a changeset carrying one
+  section marker. `.changeset/d2-fumadocs-lucide-deps.md` (📦, `@vegastack/ui` minor) carries the
+  Fumadocs / lucide / axe / recharts prose; `.changeset/d2-playwright-container-pin.md` (🛠, no
+  package bump) carries the Playwright bump and the CI container tag that follows it.
+- **The Playwright bump moves the Linux CI container tag, and that is not optional.**
+  `tooling/verify-workflow-security.mjs` derives the required job image
+  (`mcr.microsoft.com/playwright:v<version>-noble`) from the one `playwright` version the lockfile
+  resolves and refuses a literal tag typed anywhere under `tooling/runner/` or `docs/runbooks/`, so
+  `ci.yml`, `release.yml` and `deploy.yml` move to `v1.63.0-noble` in the same commit as the
+  dependency. The five self-hosted Linux runners each pull a fresh image on the first run after
+  this lands.
+- **Two audit premises did not survive verification, and the prose was corrected rather than
+  repeated.** `01-deps.md` lists `Trash` → `Trash2` as a lucide rename to sweep and
+  `Locator.ariaRef()` as a Playwright 1.62 removal to check call sites for. Measured against the
+  installed packages: lucide-react 1.42.0 still exports `Trash` as a real icon and keeps every
+  historical rename as a named alias, and `ariaRef` appears nowhere in the type surface of
+  playwright-core 1.61.0 or 1.63.0. Both items are no-ops for a reason different from the one the
+  audit gave, which is worth writing down because "no change needed" for the wrong reason is how a
+  real rename gets missed next time.
+- **The docs app's `lucide-react` and `recharts` ranges were lost on the rebase and restored.**
+  `apps/docs/package.json` conflicted only on a `@playwright/test` line that `main` had deleted
+  (WP3 removed the Playwright docs runner); taking main's side wholesale also reverted the two
+  dependency bumps below it. Caught by the lockfile resolving two `recharts` versions — the docs
+  copy-in of `chart` would have run against 3.9.2 while the registry item declared 3.10.1. This is
+  conflict trap #4 from the epic's common brief, hit a third time.
+- **UNCOVERED DECISION — the phantom `@playwright/test` peer is now pinned by a workspace
+  override.** `.npmrc` sets `auto-install-peers=true`, and Next 16.3.4 declares an OPTIONAL
+  `@playwright/test` peer that no manifest in this repo asks for. pnpm had it parked at 1.61.0; once
+  the real `playwright` devDependency moved to 1.63.0 the lockfile resolved **two** `playwright`
+  versions, which the workflow-security gate rejects outright (it needs one authority for the
+  container tag). Options considered: declare `@playwright/test` as an unused root devDependency
+  (noise — nothing imports it); let the peer float (non-deterministic, and the tag must be exact);
+  or pin it. Chosen: an `overrides` entry in `pnpm-workspace.yaml` with a comment tying it to the
+  `playwright` devDependency, which is the option most consistent with `design.md`'s fail-closed,
+  one-authority-per-value stance. It is the workspace's first `overrides` entry. **Flagged for MK.**
+
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
 
 **Context:** a post-merge Codex review of F1 (#32, `9c33dfaf`) found that the token layer moved but

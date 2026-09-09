@@ -11,18 +11,17 @@ import {
   type SharedProps,
 } from "fumadocs-ui/components/dialog/search";
 import { useDocsSearch } from "fumadocs-core/search/client";
-import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
-import { create } from "@orama/orama";
+// fumadocs-core 16.14 replaced Orama with ZBSearch behind the same module path and renamed
+// `oramaStaticClient` → `staticClient` (the old name is a deprecated alias). The client now
+// builds its own database from `/api/search`, so the `initOrama` factory — and the direct
+// `@orama/orama` dependency it needed — are gone.
+import { staticClient } from "fumadocs-core/search/client/orama-static";
 import { useI18n } from "fumadocs-ui/contexts/i18n";
-
-function initOrama() {
-  return create({ schema: { _: "string" }, language: "english" });
-}
 
 export default function DefaultSearchDialog(props: SharedProps) {
   const { locale } = useI18n();
   const { search, setSearch, query } = useDocsSearch({
-    client: oramaStaticClient({ initOrama, locale }),
+    client: staticClient({ locale }),
   });
 
   return (

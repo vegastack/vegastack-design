@@ -19,6 +19,14 @@ export function Provider({ children }: { children: ReactNode }) {
     // Fumadocs `RootProvider` stays the outer shell (search + its own DirectionProvider),
     // but its next-themes ThemeProvider is disabled — `VegaStackProvider` is the single owner
     // of theme (next-themes), Base UI direction, and tooltips, so nothing is double-mounted.
+    //
+    // fumadocs-ui 16.13 added a global `d` hotkey that toggles light/dark. It is mounted by
+    // `RootProvider` INSIDE the `theme?.enabled !== false` branch (fumadocs-ui 16.15.8,
+    // dist/provider/base.js — `const { enabled: _, hotKey = "d", ...themeProps } = theme`), so
+    // `enabled: false` already keeps it off this site: no window `keydown` listener is
+    // registered, and typing `d` in a component showcase does nothing. If theme ownership ever
+    // moves back to fumadocs, add `hotKey: false` here — a bare `d` swallowed from every
+    // non-editable element is a hazard on 110 interactive component pages.
     <RootProvider search={{ SearchDialog }} theme={{ enabled: false }}>
       <VegaStackProvider toaster={false}>
         {children}
