@@ -1183,7 +1183,7 @@ transparent)`) before committing to the shape. Two consequences worth knowing:
 - **The count ledger in `tooling/verify-component-contracts.mjs` moved, and that is not a relaxed
   gate.** It holds the second half of a deliberate double-entry check against
   `component-contracts.json`, so a new registry item must be written into both or the gate fails.
-  556 → 557 items, 110 → 111 components, Content/marketing 22 → 23. No assertion was loosened.
+  559 → 560 items, 112 → 113 components, Content/marketing 22 → 23. No assertion was loosened.
 
 ## 2026-09-07 — M1 adversarial review round: what was fixed, what was left
 

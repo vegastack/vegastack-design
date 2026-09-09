@@ -1,6 +1,4 @@
-// @vegastack slider@0.6.0 sha256-lQ7taqcUwcjGGH+T0+ED4U+N6Y1E2s41+OVsqudwjE0=
-
-"use client";
+// @vegastack slider@0.6.0 sha256-ymGwnurk0I8Y27gSAm7QPCwDFLDG4BYkgX1AXzCGIKQ=
 
 import * as React from "react";
 import { Slider as BaseSlider } from "@base-ui/react/slider";
@@ -413,7 +411,7 @@ export function Slider({
                 // `position: absolute` (it's placed along the track by composite `index`), which
                 // is itself a valid containing block for its own `::before`.
                 "before:absolute before:-inset-1.5",
-                "transition-[transform,opacity] duration-fast ease-standard data-dragging:scale-110 motion-reduce:transition-none",
+                "transition-[transform,opacity] duration-fast ease-standard data-dragging:scale-110",
                 // The thumb is a `<div>` (Base UI nests the native input inside it), so the
                 // native `disabled:` variant can never match — key off `data-disabled`.
                 "data-disabled:pointer-events-none data-disabled:cursor-not-allowed",

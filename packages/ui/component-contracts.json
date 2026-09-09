@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 559,
-    "components": 112,
+    "totalRegistryItems": 560,
+    "components": 113,
     "animatedIcons": 439,
     "hooks": 7,
     "blocks": 1
@@ -15368,8 +15368,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "media-player-controls",
       "dataAttributes": {

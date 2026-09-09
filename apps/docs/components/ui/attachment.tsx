@@ -1,4 +1,4 @@
-// @vegastack attachment@0.6.0 sha256-shXguxodIvgYdc/1WojNxtYRcuILLIJLbhF9bxy8x0I=
+// @vegastack attachment@0.6.0 sha256-o0dmj8n5wnbDX2EEIxV2hiFou4+c/tvmecqDmpjJnTY=
 
 "use client";
 
@@ -35,7 +35,7 @@ export const attachmentVariants = cva(
         /** Standalone chip density. */
         md: "p-2",
         /** Tighter density for a message-compose attachment row. */
-        sm: "gap-1.5 p-1.5 text-xs",
+        sm: "gap-1.5 p-1.5 text-sm",
       },
       orientation: {
         /** A file chip row: media, then a name/meta column, then actions. */
@@ -330,7 +330,7 @@ export function AttachmentDescription({
       ref={ref}
       data-slot="attachment-description"
       className={cn(
-        "mt-0.5 block max-w-full min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive-text",
+        "mt-0.5 block max-w-full min-w-0 truncate text-sm text-muted-foreground group-data-[state=error]/attachment:text-destructive-text",
         className,
       )}
       {...(live
