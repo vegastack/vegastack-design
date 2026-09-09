@@ -9,51 +9,36 @@ Started 2026-09-07 from `main` @ `6f11a4bc`. `@vegastack/ui` 0.6.0 (workspace) �
 
 ## Progress snapshot (refreshed at every state change)
 
-_Last refresh: 2026-09-09 22:00 IST (session 4)._ **Completion (effort-weighted): ≈ 88% done · 12% pending.**
+_Last refresh: 2026-09-10 01:30 IST (session 4)._ **Completion (effort-weighted): ≈ 93% done · 7% pending.**
 
-**Every one of the nine wave batches has merged, plus O2, D2 and the security triage.** `main` is `6d251857` at **568 registry items** — 116 components · 439 animated icons · 10 hooks · 1 block · 2 libs.
+`main` is `2625f2b8` at **596 registry items** — 116 components · 467 animated icons · 10 hooks · 1 block · 2 libs. **163 pending changesets.** `pnpm audit`: **0 critical · 0 high** · 12 moderate · 2 low.
 
-| batch            | issue | PR       | merge                                                        |
-| ---------------- | ----- | -------- | ------------------------------------------------------------ |
-| F1 (+ follow-up) | #32   | #55, #59 | **merged**                                                   |
-| Do1-a            | #48a  | #54      | **merged** `d5c960a3`                                        |
-| I1               | #46   | #57      | **merged** `f1d7d2fb`                                        |
-| F2               | #33   | #60      | **merged** `8ce8de4d`                                        |
-| Di1              | #42   | #62      | **merged** `42aa455b`                                        |
-| T2               | #38   | #63      | **merged** `f8ca47ca`                                        |
-| O1               | #40   | #66      | **merged** `54c5cb68`                                        |
-| M1               | #35   | #65      | **merged** `aa5fa0d5`                                        |
-| Fo1              | #39   | #67      | **merged** `9fbeb655`                                        |
-| M2               | #36   | #64      | **merged** `2a3fc241`                                        |
-| C1               | #44   | #76      | **merged** `8c18d2bb`                                        |
-| Mk1              | #47   | #74      | **merged** `3663f8fa`                                        |
-| D1               | #34   | #72      | **merged** `5b03e3b8`                                        |
-| N1               | #43   | #73      | **merged** `fdaed057`                                        |
-| D2               | #50   | #91      | **merged** `3b37ddee`                                        |
-| O2               | #41   | #90      | **merged** `d5e2de2b`                                        |
-| Security triage  | —     | #93      | **merged** `f54fb92d` — 22 high → **0 high**                 |
-| P1               | #45   | #75      | **merged** `45cde26d`                                        |
-| T1               | #37   | #61      | **merged** `6d251857` — after **ten** rebases                |
-| G1-a             | #49a  | #53      | closed unmerged by decision; TG-07/TG-08 confirmed on `main` |
+**Merged (24):** F1 #55 + #59 · Do1-a #54 · I1 #57 · F2 #60 · Di1 #62 · T2 #63 · O1 #66 · M1 #65 · Fo1 #67 · M2 #64 · C1 #76 · Mk1 #74 · D1 #72 · N1 #73 · D2 #91 · O2 #90 · security triage #93 · P1 #75 · T1 #61 · D3-1 #95 · D3-2 #97 · G1-b #99 · icons #98 · count-derive #101 · D3-3 #102. Plus the whole verification rebuild WP0–WP6. **G1-a #53 closed unmerged by decision**, its two carried items confirmed on `main`.
 
 ### In flight
 
-| work           | issue | state                                                                           |
-| -------------- | ----- | ------------------------------------------------------------------------------- |
-| G1-b           | #49b  | running — twelve lint rules plus the four fail-opens found today                |
-| D3-1           | #51   | running — motion 13, react-dropzone 20, pragmatic-dnd 3, jest-dom 7, globals 17 |
-| D3-2           | #51   | running — TanStack Table 9 in `data-grid`, launched once T1 freed the file      |
-| Icons (28 new) | #92   | running — 439 → 467, unblocks `mirror --refresh`                                |
+| work                        | issue | state                                               |
+| --------------------------- | ----- | --------------------------------------------------- |
+| D3-4 Changesets 3 / pnpm 12 | #51   | running — **MK-gated: opens a PR and STOPS**        |
+| Do1-b docs canon            | #96   | PR **#105** open, CI queued; 116/116 pages migrated |
+| CI store race               | #94   | running                                             |
+| Focus indicator             | #100  | running                                             |
 
 ### Not started
 
-| work      | issue | note                                                                                                                                                                                                                                                 |
-| --------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D3-3      | #51   | Vitest 5 — held until G1-b lands; both rebuild test infrastructure                                                                                                                                                                                   |
-| D3-4      | #51   | **needs re-scoping before it runs** — its brief names `tooling/gates.mjs`, `gate-receipt-carry.mjs`, `verify-gate-receipt-negative`, `release-classify.mjs` and `release:preflight`, all deleted by the rebuild. **MK-gated: opens a PR and STOPS.** |
-| Do1-b     | new   | issue still to open; scope must be re-derived against `design.md` § Docs canon (WP6 moved it there)                                                                                                                                                  |
-| CI infra  | #94   | the shared mac-mini pnpm store race                                                                                                                                                                                                                  |
-| End round | —     | reviewers → fix pass → `verify` + `verify:release` → probes → counts → final report                                                                                                                                                                  |
+| work          | issue | note                                                                                                  |
+| ------------- | ----- | ----------------------------------------------------------------------------------------------------- |
+| A11y name     | #103  | `OnboardingChecklist` collapsed pill announces as one run-together string                             |
+| Gallery route | #58   | DC-16, deferred by I1 — still open on purpose                                                         |
+| End round     | —     | reviewers → fix pass → `verify` + `verify:release` → probes on the five boxes → counts → final report |
+
+### The 15 geometry defects — 4 of 15 fixed at the root
+
+N1 cleared the three breadcrumb triggers; P1 cleared the date-picker caption dropdown, after re-measuring at **50.36 × 21.00** and confirming the defect was real rather than a lane artefact. **11 remain**, all carried as self-invalidating exclusions.
+
+### Version PR
+
+**#56 closed** (2026-09-09) after a salvage check proving nothing unique was in it. The release run has since **regenerated it as #89**, `MERGEABLE`, under the WP5 flow — the closure decision's own closure evidence. Untouched by agents; MK's publish gate.
 
 ### Verification rebuild — complete
 
@@ -334,3 +319,6 @@ Rerun after every wave: `04-cross-cutting.md` §2 scan + `probe-states.mjs --all
 - 2026-09-09 23:45 · **G1-b is the most consequential thing landed today**, because it repaired gates that could not fail. (1) The **focus-indicator assertion is real and proven non-vacuous**: deleting `:focus-visible` from `base.css` turns **262 checks red**, each naming `outline-style: auto` — the UA ring, rejected by name — where the check it replaces stayed **864/864 green** under the identical deletion. (2) **All six commit shas linked across 21 pending changesets were orphaned**; the `cat-file -e` probe passed every one and GitHub would have 404'd every one. Links are now banned outright and the probe is `merge-base --is-ancestor`. (3) **Eleven negative-harness cases had rotted**, ten matching drifting literals and one carrying an alternation in its `expect` that made it pass on the _wrong_ assertion — it had never once exercised the ban it names. (4) `prettier --check .` found **13 unformatted files on `main`**, with three more arriving while the PR was open; `registry.json` deliberately stays out of `.prettierignore`, since ignoring it would make permanent the churn that caused C1's silent loss.
 - 2026-09-09 23:50 · **New issue #100 — focus indicator missing on Textarea, grouped Input and TextEdit** (10 fixtures), found by G1-b's new assertion on its first run. Carried as self-invalidating exclusions. It needs its own batch rather than a quick fix: AGENTS.md § Build rules says text-entry fields use a **border tint instead of an outline**, so the work is deciding what the text-entry focus affordance _is_, proving it meets AA, and having a human look — and no lane takes a screenshot (R3). **New issue #96 — Do1-b**, scope re-derived against `design.md` § Docs canon, which states the gap itself: the generated sections shipped on three reference pages only and "the remaining pages are migrated to this shape in the following release, and the section headings move from `## Installation` to `## Install` in that same atomic change".
 - 2026-09-09 23:55 · Two batches found real degradation risks that no gate would have caught. **D3-2**: TanStack v9 tree-shakes comparators, and an unregistered auto-resolved comparator **silently degrades to `basic`** with a dev-only warning — so exactly the four comparators `column_getAutoSortFn` can resolve are now registered, keeping selection identical to v8. It also rejected `stockFeatures` (bundles everything, erasing the boundary) and `useLegacyTable` (a deprecated shim). **The 28-icon adoption**: it proved none of the 28 is a rename in four independent ways, including parsing `lucide-react@1.42.0`'s 6210 exports across 1815 modules to confirm the `Trash`/`Trash2` alias trap D2 hit does not apply here — and it caught D3-1's `motion@^12 → ^13` range **auto-merging wrongly with no conflict** across its 28 pre-rebase entries, found by tallying dependency strings rather than trusting the merge.
+- 2026-09-10 01:20 · **D3-3 merged** (#102 → `2625f2b8`) and **the count-derive change merged** (#101 → `79a5b2b0`). The count-derive outcome is worth recording against its own dissent: the implementing agent argued for keeping the literals as tripwires, MK chose consistency with G1-b's derived counts, and the tripwire survived anyway **because the authority was chosen outside what each gate validates** — `packages/ui/registry.json`, which nothing generates. Proven by the mutation that matters: a **self-consistent corpus shrink** (drop `zap` from the manifest, decrement `itemCount`, delete `zap.tsx`, leave the registry alone) is still rejected with `itemCount must be 467, got 466`. A manifest-derived count would have waved it through. Six mutations observed failing; nothing left literal.
+- 2026-09-10 01:25 · **D3-3 (Vitest 5) found that a passing test had been asserting almost nothing.** Vitest 5 matches accessible names whole-string, turning ten assertions red. The one-line escape (`browser.locators.exact: false`) was **rejected** — it disables strictness for 2363 tests to hide nine loose assertions — and all ten were fixed at the call site. One, `getByRole("tab", { name: "A" })`, had been silently resolving a tab actually named `Activity3`. The same strictness surfaced **new issue #103**: `OnboardingChecklist`'s collapsed pill announces as `Getting started1/3Expand checklist`, because its three parts are siblings spaced by CSS `gap` with no whitespace text nodes. The composition is correct — it is what satisfies SC 2.5.3 — so the fix is to control the computed name, not restructure. D3-3 also **corrected a false ledger claim**: D1's changeset prose describes a `@vitest/browser` override that never existed (`git log -p --all -S` on `pnpm-workspace.yaml` is empty for it). That is the second false ledger claim caught today by an agent reading rather than trusting.
+- 2026-09-10 01:30 · Three launched: **D3-4** (re-scoped per `briefs/d3-4.md`; its PR body must state what merging does to all seven runners, since MK is the one who acts on it, and it is told to split into two PRs rather than force one green if Changesets 3 and pnpm 12 fight), **#100 focus indicator** (told explicitly that weakening the assertion is the one forbidden outcome, since a check that could not fail is what created the defect), and **#94**. **Do1-b (#96) has PR #105 open** — 116/116 pages migrated by parsing and re-emitting rather than regex-patching, `AutoTypeTable` and `## Installation` both at zero, `content-lint --self-test` observing 12 canon violations fail, and the ⌘K double-dialog fixed at the fixture rather than in the component. Also closed three issues whose work had merged but whose PR bodies carried no `Closes` keyword: **#43** (N1), **#36** (M2), **#49** (G1).
