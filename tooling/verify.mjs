@@ -36,7 +36,13 @@
 //   `shadcn add` consume round-trip, and the three-engine suite.
 
 import { spawn } from "node:child_process";
-import { constants } from "node:os";
+import { constants, tmpdir } from "node:os";
+import { join } from "node:path";
+
+// The before/after baseline for the registry idempotency check lives OUTSIDE the repository on
+// purpose: a file written into the tree between the snapshot and the comparison would itself read
+// as newly introduced drift, which is the bug this comparison exists to remove.
+const REGISTRY_BASELINE = join(tmpdir(), "vegastack-registry-build-baseline");
 
 const MODES = {
   verify: [
@@ -63,6 +69,26 @@ const MODES = {
   // site is public, so the private matrix is a regression guard on a configuration that is not
   // currently deployed — DROPPING IT is a defensible saving, and an MK decision, not an agent's.
   release: [
+    // DISCARD THE DOCS BUILD CACHE FIRST. `apps/docs/next.config.mjs` enables
+    // `experimental.turbopackFileSystemCacheForBuild`, so a `next build` can reuse a compiled
+    // stylesheet from an earlier run. When that cache predates a change to
+    // `apps/docs/app/global.css`, the export keeps the OLD css while the source shows the new —
+    // and `verify:emitted-css`, which reads the built stylesheet, then reports the docs shell as
+    // off-system with ten literal font weights. That is exactly what it is supposed to do; the
+    // input was stale, not the shell. Measured 2026-09-09: the same tree failed with a carried
+    // `.next` and passed in both visibility matrices once it was cleared.
+    //
+    // CI never sees this, because `actions/checkout` runs `git clean -ffdx` and both directories
+    // are gitignored — which is the whole reason it costs a local run an hour of misdiagnosis
+    // instead of being caught once. Clearing here makes the local command match the runner.
+    {
+      name: "discard the docs build cache",
+      argv: [
+        "node",
+        "-e",
+        "for (const p of ['apps/docs/.next', 'apps/docs/out']) require('node:fs').rmSync(p, { recursive: true, force: true });",
+      ],
+    },
     // Self-contained on purpose. Every later stage assumes the workspace dists exist
     // (`packages/design-tokens/dist`, `packages/design/dist`, `packages/ui/dist`): the docs build
     // and the consume round-trip both import `@vegastack/design`, and neither runs through turbo's
@@ -120,12 +146,28 @@ const MODES = {
       argv: ["node", "tooling/verify-docs-shell.mjs", "--self-test"],
       env: { SITE_VISIBILITY: "public" },
     },
+    // The idempotency assertion is a BEFORE/AFTER comparison, not "the tree must be empty". What it
+    // has to prove is that `registry:build` changes nothing — not that the developer running it has
+    // no scratch files. Conflating the two made an unrelated untracked directory report itself as
+    // registry drift. See tooling/assert-clean-tree.mjs.
+    {
+      name: "registry:build baseline",
+      argv: [
+        "node",
+        "tooling/assert-clean-tree.mjs",
+        "--snapshot",
+        REGISTRY_BASELINE,
+        "the tree before registry:build",
+      ],
+    },
     { name: "registry:build", argv: ["pnpm", "registry:build"] },
     {
       name: "registry:build idempotency",
       argv: [
         "node",
         "tooling/assert-clean-tree.mjs",
+        "--against",
+        REGISTRY_BASELINE,
         "the tree after registry:build",
       ],
     },
