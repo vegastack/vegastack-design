@@ -1,4 +1,4 @@
-// @vegastack field@0.6.0 sha256-4MG0yMcgOyaIcttaUudvXCsEcfJSGZTrDSOvHlOBbZU=
+// @vegastack field@0.6.0 sha256-W5HVSCYjlQTL7to9t/xXZoLt7IEMz2sfOk5ceyK2WbY=
 
 "use client";
 
@@ -397,12 +397,22 @@ export interface FieldProps extends FieldRootProps {
 const CONTROL_SLOTS =
   "[&_[data-slot=field-control]]:text-base [&_[data-slot=input]]:text-base";
 
-/** Borderless overrides — flatten inputs/textareas/select-triggers for inline edit. */
+/**
+ * Borderless overrides — flatten inputs/textareas/select-triggers for inline edit.
+ *
+ * The transparent border is scoped to `:not(:focus)` (#100, 2026-09-09). `borderless` documents
+ * that "the control keeps its focus border tint", and it did not: these descendant selectors and
+ * `fieldControl`'s `focus:border-ring/(--alpha-tint-border)` are the same property at the same
+ * specificity, and Tailwind v4 emits an arbitrary variant AFTER a plain one, so `border-transparent`
+ * won in every state. A text-entry control carries `outline-hidden`, so a borderless field had no
+ * focus affordance at all. Standing the override down on focus restores the documented behaviour
+ * without giving the flattened control a resting border.
+ */
 const BORDERLESS =
-  "[&_[data-slot=field-control]]:border-transparent [&_[data-slot=field-control]]:bg-transparent [&_[data-slot=field-control]]:px-0 [&_[data-slot=field-control]]:shadow-none " +
-  "[&_[data-slot=input]]:border-transparent [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:shadow-none " +
-  "[&_[data-slot=textarea]]:border-transparent [&_[data-slot=textarea]]:bg-transparent [&_[data-slot=textarea]]:px-0 [&_[data-slot=textarea]]:shadow-none " +
-  "[&_[data-slot=select-trigger]]:border-transparent [&_[data-slot=select-trigger]]:bg-transparent [&_[data-slot=select-trigger]]:px-0 [&_[data-slot=select-trigger]]:shadow-none";
+  "[&_[data-slot=field-control]:not(:focus)]:border-transparent [&_[data-slot=field-control]]:bg-transparent [&_[data-slot=field-control]]:px-0 [&_[data-slot=field-control]]:shadow-none " +
+  "[&_[data-slot=input]:not(:focus)]:border-transparent [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:shadow-none " +
+  "[&_[data-slot=textarea]:not(:focus)]:border-transparent [&_[data-slot=textarea]]:bg-transparent [&_[data-slot=textarea]]:px-0 [&_[data-slot=textarea]]:shadow-none " +
+  "[&_[data-slot=select-trigger]:not(:focus)]:border-transparent [&_[data-slot=select-trigger]]:bg-transparent [&_[data-slot=select-trigger]]:px-0 [&_[data-slot=select-trigger]]:shadow-none";
 
 /**
  * `Field` — the ergonomic, prop-driven form-field wrapper. Composes a Base UI

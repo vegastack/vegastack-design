@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.6.0 sha256-e3kT8GSTlbKC6ztvUjk/w7MusSgNShEwlVpl+/of4e8=
+// @vegastack text-edit@0.6.0 sha256-lgVb5i8GVRaPxZps8aTOu21XP3NWD1RvVqsG7+LYBCc=
 
 "use client";
 
@@ -610,7 +610,11 @@ export function TextEdit({
       className={cn(
         "relative overflow-hidden rounded-lg border border-input bg-background",
         "focus-within:border-ring/(--alpha-tint-border)",
-        "has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
+        // Focus outranks invalid — same reasoning, same mechanism as `fieldControl`
+        // (`@vegastack/design`, #100): the contenteditable carries `outline-none`, so this
+        // container border is the editor's whole focus affordance and the invalid tint must
+        // stand down while it holds focus rather than win the cascade.
+        "not-focus-within:has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
         className,
       )}
     >

@@ -356,7 +356,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.6.0",
-        "integrity": "sha256-tx3uNmA1NW8BLsqWcvDNv0teSQbZnvi0uWFjUqUVi8Y="
+        "integrity": "sha256-OFrTOddF2OMGXiKwbCAZ6f+q3ooWABddGN+IhzbtUvM="
       }
     },
     {
@@ -388,7 +388,7 @@
         "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.6.0",
-        "integrity": "sha256-4MG0yMcgOyaIcttaUudvXCsEcfJSGZTrDSOvHlOBbZU="
+        "integrity": "sha256-W5HVSCYjlQTL7to9t/xXZoLt7IEMz2sfOk5ceyK2WbY="
       }
     },
     {
@@ -3470,7 +3470,7 @@
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.6.0",
-        "integrity": "sha256-e3kT8GSTlbKC6ztvUjk/w7MusSgNShEwlVpl+/of4e8="
+        "integrity": "sha256-lgVb5i8GVRaPxZps8aTOu21XP3NWD1RvVqsG7+LYBCc="
       }
     },
     {

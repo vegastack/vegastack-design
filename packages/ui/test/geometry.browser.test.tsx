@@ -133,46 +133,6 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // These entries are SELF-INVALIDATING, like every other entry in this map: `runAssertion` still
   // executes an excluded assertion in expect-failure mode, so the day the tint lands, each of
   // these turns red with "the exclusion is stale" and must be deleted. Nobody has to remember.
-  fieldBorderless: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  inputAddonStates: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  passwordInput: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  passwordInputStates: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  textareaStates: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  textEdit: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  textEditHeights: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  textEditInvalid: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  textEditStates: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  textEditSubmit: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
   // ── reflow / RTL ──────────────────────────────────────────────────────────────────────────
   // The demo lays two fixed-width scroll panels side by side, which do not fit a 320px viewport.
   // The docs route absorbed that inside `PreviewFrameContainer`'s `overflow-x-auto`, so the
@@ -516,6 +476,44 @@ function focusIndicatorProblem(
         `and no border-colour change on the control, its [data-field-group], or its wrapper`;
 }
 
+/**
+ * Freeze transitions for the duration of the focus sweep, and return the undo.
+ *
+ * WHY: `getComputedStyle` immediately after `element.focus()` reports the value the transition
+ * STARTS from, not the one it settles on — and a running colour transition serialises in its
+ * interpolation space, so a field whose tint genuinely lands read back as
+ * `oklab(0.145 … / 0.08)` where its resting `border-input` read `oklch(0.145 0.003 75 / 0.08)`.
+ * Same colour, different string. Measured 2026-09-09: one frame later the same element reads
+ * `oklab(0.353 … / 0.7)`, the tint.
+ *
+ * A string comparison over those two values is not FALSE — a transition only runs when the value
+ * really changes — but it makes the assertion pass on a serialisation artefact rather than on the
+ * colour, and it would go quiet the day a `transition-none` fixture appeared. Freezing beats
+ * waiting a frame per control: this file sweeps 554 fixtures, and a rAF per focusable control is
+ * thousands of frames of runtime for the same fact.
+ */
+function freezeTransitions() {
+  const style = document.createElement("style");
+  style.textContent = "*, *::before, *::after { transition: none !important; }";
+  document.head.append(style);
+  return () => style.remove();
+}
+
+/**
+ * The signature of a control with NOTHING focused — the honest baseline.
+ *
+ * Blurring first is load-bearing, not hygiene. The sweep walks a fixture's controls in document
+ * order without releasing focus, so a control measured after a SIBLING inside the same field
+ * surface inherits that sibling's `focus-within` tint as its "rest" — and then focusing it changes
+ * nothing, and a component with a perfectly good indicator is reported as having none. TextEdit is
+ * the reference case: its formatting toolbar lives inside `[data-slot="text-edit"]`, the element
+ * that carries the tint, so the editor itself measured as unindicated behind every toolbar button.
+ */
+function restSignature(control: HTMLElement): FocusSignature {
+  (document.activeElement as HTMLElement | null)?.blur?.();
+  return focusSignature(control);
+}
+
 // ── helpers ─────────────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -850,6 +848,7 @@ for (const [name, fixture] of FIXTURES) {
         ...screen.baseElement.querySelectorAll(INTERACTIVE_SELECTOR),
       ];
       const problems: string[] = [];
+      const thaw = freezeTransitions();
       for (const [index, control] of controls.entries()) {
         if (!isVisible(control) || isDisabled(control)) continue;
         if (control.getAttribute("aria-hidden") === "true") continue;
@@ -859,7 +858,7 @@ for (const [name, fixture] of FIXTURES) {
         // indication is the business of whatever CAN hold focus.
         if (!(control instanceof HTMLElement) || control.tabIndex < 0) continue;
 
-        const rest = focusSignature(control);
+        const rest = restSignature(control);
         control.focus();
         // A component may redirect focus (a wrapper hands it to its inner input). Measure whatever
         // actually holds focus, and only when it is this control or inside it — otherwise the
@@ -867,14 +866,23 @@ for (const [name, fixture] of FIXTURES) {
         const active = document.activeElement;
         if (active !== control && !control.contains(active)) continue;
         const focused = active instanceof HTMLElement ? active : control;
-        const problem = focusIndicatorProblem(
-          focused,
-          focused === control ? rest : focusSignature(focused),
-        );
+        // The redirect target needs a baseline of its OWN, and it has to be taken with focus
+        // released — reading it here, while the target already holds focus, compared the focused
+        // state against itself and could never report a missing indicator.
+        const baseline =
+          focused === control
+            ? rest
+            : (() => {
+                const target = restSignature(focused);
+                control.focus();
+                return target;
+              })();
+        const problem = focusIndicatorProblem(focused, baseline);
         if (problem)
           problems.push(`control ${index} (${describe(focused)}) ${problem}`);
       }
       (document.activeElement as HTMLElement | null)?.blur?.();
+      thaw();
       expect(
         problems,
         `${name}: every focusable control must show a focus indicator the design system owns ` +

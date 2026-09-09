@@ -30,8 +30,11 @@ state-function `className`. Its ref forwards to the underlying input element.
 ### States
 
 The field reflects `disabled`, `readOnly`, and `aria-invalid`. The invalid state
-re-colors the border with the `destructive` token (`aria-invalid:border-destructive/70`) —
-pair it with a visible error message for non-color-dependent feedback.
+re-colors the border with the `destructive-border` token
+(`aria-invalid:border-destructive-border/(--alpha-tint-border)`) — pair it with a visible error
+message for non-color-dependent feedback. **While the field is focused the focus tint wins the
+border** and the invalid tint returns on blur: a text field has no outline, so the border is its only
+focus cue and nothing else may hold it.
 
 <ComponentPreview name="inputStates" file="components/preview/input.tsx" />
 
@@ -65,8 +68,9 @@ the Base UI input and `containerClassName` for the addon wrapper.
 
 In addon mode the wrapper reads the inner input's state through `has-*`
 selectors, so `disabled` and `aria-invalid` recolor the whole group rather than
-just the `<input>` — `has-disabled:*` dims the group and `has-aria-invalid:border-destructive/70`
-marks it invalid.
+just the `<input>` — `has-disabled:*` dims the group and
+`has-aria-invalid:border-destructive-border/(--alpha-tint-border)` marks it invalid. As on a bare
+field, the group's focus tint outranks the invalid one while anything inside it holds focus.
 
 <ComponentPreview name="inputAddonStates" file="components/preview/input.tsx" />
 
