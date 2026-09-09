@@ -132,6 +132,20 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
+      # `ref:` checks out a DETACHED HEAD, so this clone has no local `main` branch — and
+      # `pnpm run version-packages` now begins with `tooling/changelog-assemble.mjs`, which asks
+      # changesets for the release plan via `changeset status`. That walks back to the branch named
+      # by `.changeset/config.json`'s `baseBranch` ("main") and dies with `Failed to find where HEAD
+      # diverged from "main"` when the ref is absent. Before the changelog became assembled rather
+      # than hand-edited (R5, 2026-09-08) nothing in this job asked changesets a history question,
+      # so the missing ref cost nothing; every release run since has failed here.
+      #
+      # This job only ever runs on a push to `main`, so `github.sha` IS that branch's tip and
+      # pointing the local ref at it is exact, not an approximation. Fixing the environment rather
+      # than teaching the script to synthesise a ref is deliberate: `changelog-assemble.mjs`
+      # reimplements none of changesets' versioning, and should keep not doing so.
+      - name: Give changesets the base branch its release plan needs
+        run: git branch -f main "$GITHUB_SHA"
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
