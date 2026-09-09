@@ -291,9 +291,18 @@ if (existsSync(LINT) && existsSync(RULE_DOC)) {
   // RULES array entries…
   for (const m of lintSrc.matchAll(/\bid:\s*["']([a-z][a-z0-9-]*)["']/g))
     actual.add(m[1]);
-  // …and the dedicated passes, which report `${file}:N [rule-id] message`.
+  // …the dedicated passes, which report `${file}:N [rule-id] message`…
   for (const m of lintSrc.matchAll(
     /\$\{file\}[^`]*?\[([a-z][a-z0-9]*(?:-[a-z0-9]+)+)\]/g,
+  ))
+    actual.add(m[1]);
+  // …and the token-vocabulary block, which funnels every one of its rules through a single
+  // `report(id, message)` helper rather than repeating the same template literal six times. The id
+  // is that call's first argument, so it is invisible to the pattern above; without this the parity
+  // gate would silently stop covering the newest rules, which is exactly the class of drift it
+  // exists to catch.
+  for (const m of lintSrc.matchAll(
+    /\breport\(\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g,
   ))
     actual.add(m[1]);
 

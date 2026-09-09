@@ -796,7 +796,6 @@ re-diagnose it, and because a race that flakes under load is a real race.
 
 ---
 
-
 ## 2026-09-08 — Base UI leaves an urgent toast `aria-hidden` while it is still focusable
 
 - **Symptom:** the browser-unit axe pass on an `error` toast with an action reports a **serious**
@@ -1716,3 +1715,69 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
   value channel is the only place selection may be computed. A handler on a rendered part is a
   second channel by definition, and "avoiding a conflicting signal" by not wiring the first one
   inverts the fix.
+
+---
+
+---
+
+## 2026-09-09 — Text-entry controls show no focus indicator in the geometry lane (OPEN)
+
+- **Found by** the focus-indicator assertion G1-b added to
+  `packages/ui/test/geometry.browser.test.tsx`, on its first run. 526 of 541 fixtures passed; all
+  15 failures are text-entry: `chipInputValidation`, `fieldBorderless`, `fieldStates`,
+  `inputAddonStates`, `inputStates`, `otpInputField`, `otpInputStates`, `passwordInput`,
+  `passwordInputStates`, `textareaStates`, `textEdit`, `textEditHeights`, `textEditInvalid`,
+  `textEditStates`, `textEditSubmit`.
+- **Symptom.** On `:focus`, the control's computed `border-color` stays
+  `oklab(0.145 0.000776457 0.00289778 / 0.08)` — the resting `--input` colour, re-serialised. The
+  sanctioned tint (`focus:border-ring/(--alpha-tint-border)`, `fieldSurface` in
+  `@vegastack/design`) should produce `--ring` at 70%, near `oklab(0.353 … / 0.7)`. These controls
+  carry `outline-hidden` by design (a text field cannot tell mouse from keyboard, B1-01), so the
+  border tint is their WHOLE focus affordance. It is not appearing, so they have none.
+- **Not a probe artefact.** Each link in the chain was checked directly in the lane:
+  - the utility is in the compiled sheet —
+    `.focus\:border-ring\/\(--alpha-tint-border\):focus { border-color: color-mix(in oklab, var(--ring) var(--alpha-tint-border), transparent) }`;
+  - `--ring` computes to `oklch(0.353 0.003 75)` at `:root` AND at the control;
+  - `--alpha-tint-border` computes to `70%` at the control;
+  - `CSS.supports("color", "color-mix(in lab, red, red)")` is `true`;
+  - `control.matches(":focus")` is `true`, and `:hover` is `false`.
+    The rule matches, every input to it resolves, and the computed value is still the resting one.
+    Which declaration actually wins is the open question.
+- **Not fixed here, deliberately.** Diagnosing a cascade/utility defect across Input, Textarea,
+  OTP, TextEdit, Field and ChipInput is component and token work; G1-b is gate work, and the batch
+  that fixes it needs a visual reviewer this repository's lanes do not provide. Recorded as
+  `EXCLUDED.focus` entries with the measurement, which `runAssertion` makes SELF-INVALIDATING: an
+  excluded assertion is still executed in expect-failure mode, so the day the tint lands, each of
+  those 15 entries turns red with "the exclusion is stale" and must be deleted. Flagged for MK.
+
+---
+
+## 2026-09-09 — CLOSED: `.first()`-only fixture probing (fix-round.md 18)
+
+- **Was:** `apps/docs/vrt/contracts.spec.ts` measured `page.locator("[data-vrt-preview]").first()` —
+  the first demo on each of 111 component routes — so a defect on any later fixture was structurally
+  invisible.
+- **Closed by** WP1's geometry lane, verified by reading
+  `packages/ui/test/geometry.browser.test.tsx` rather than by reading the plan. It iterates every
+  export of the preview barrel: 541 fixtures on this tree, ~4.6× the compositions the route lane
+  reached, and a `beforeAll` guard fails the file if the barrel resolves to fewer than 100. There is
+  no `.first()` anywhere in the file. The direct evidence that it closed a real gap is the `EXCLUDED`
+  map: every entry in it is a fixture the route lane could not see.
+- **The three 24px-target defects it had hidden** (timeline, data-grid, text-edit hero fixtures) were
+  fixed by their owning batches, not merely un-probed — none of them appears in `EXCLUDED.target`.
+
+---
+
+## 2026-09-09 — CLOSED: the `relative-time` target-floor race
+
+- **Was:** the probe measured a rect and then hit-tested, and `relative-time`'s self-rescheduling
+  `setTimeout` re-rendered the fixture in between, detaching the node. It failed a different subset
+  of Chromium projects on each run, on unmodified `main` as well.
+- **Closed at the root, in two parts.** Every `relative-time` preview fixture now pins `now` to a
+  fixed instant (`apps/docs/components/preview/relative-time.tsx`: `const NOW = Date.UTC(2026, 0, 15, 12, 0, 0)`,
+  passed as `now={NOW}` to every specimen), so there is no timer to race. The ONE fixture that
+  deliberately omits `now` — `relativeTimeLive`, whose live clock IS the feature being demonstrated —
+  is in the geometry lane's `UNSWEPT` map with that reason. So the component's geometry is covered
+  and only that one demo's live clock is not; the race cannot recur because nothing measured has a
+  timer.
+- Verified by reading the fixture and the lane, not by trusting the plan.

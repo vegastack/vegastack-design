@@ -142,6 +142,53 @@ in both directions, so an added or removed rule fails the build until this file 
     React hook/context, an event binding, or a browser API. Pure presentational wrappers stay
     server-safe.
 
+33. **`restated-focus`** — `focus-visible:outline-*` or `focus-visible:ring-*` in component source.
+    `@vegastack/design-tokens/base.css` owns ONE `:focus-visible` rule for the whole system, so a
+    component that writes its own re-skins it locally and a component that strips it on
+    `focus-visible` removes the indicator outright. The sanctioned text-entry alternative is
+    `focus:border-ring/(--alpha-tint-border)`, which never touches the outline and is unaffected.
+34. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
+    `motion-reduce:duration-0` or `motion-reduce:transition-duration-*`. base.css already collapses
+    animation and transition duration to 0.01ms under `prefers-reduced-motion`. Scoped on purpose:
+    `motion-reduce:transform-none` and other END-STATE suppressions are NOT restatements — they
+    remove the displacement itself, which the global reset does not — and stay legal.
+35. **`viewport-magic`** — `h-screen`/`w-screen`/`min-h-screen`/… or a raw viewport unit (`100vh`,
+    `50dvw`). Size from the container or a token. The one legal form is a calc whose inset is itself
+    a token — a `max-w` arbitrary value whose `calc()` subtracts `var(--spacing)` scaled by a
+    step, as `sheet.tsx` and `floating-surface.tsx` write it.
+36. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
+    review, survives every merge, and defeats grep (`"a  b"` does not match `/a b/`, which is how
+    audit sweeps undercounted). Applies to plain string literals only: a template's spans are joined
+    with a synthetic space by the parser, and a multi-line literal is prose, not a class string.
+37. **`hover-without-pressed`** — a `hover:bg-*` that CHANGES the fill with no pressed rung in the
+    same class literal. Every control has a pressed step (AGENTS.md § Build rules); take it from
+    `surfaceInteractive` / `fillInteractive.<tone>`. Three deliberate non-violations: restating the
+    SAME fill (`bg-primary hover:bg-primary`, how a control opts out of the recipe's hover),
+    `hover:bg-transparent` (cancelling an inherited hover), and a pressed rung expressed as component
+    state (`data-[separator=active]:`, `data-pressed:`, `aria-pressed:`).
+38. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
+    the component has stopped styling itself and started styling its children's internals from the
+    outside (`audio-player` held 76). Give the child a `data-slot` and let it own the rule.
+
+Two rules of issue #49 §7 are deliberately NOT in this file, and their absence is recorded rather
+than accidental: `text-xs-mono` (TD-3) has zero registry offenders but eight in the docs shell, each
+a typographic decision on a public page that no lane can review; and `no-raw-size` /
+`no-physical-direction` / `no-font-medium-on-body` wait on the component migration the issue itself
+sequences them behind (112 / 37 / 29 offenders measured 2026-09-09). See
+`docs/ledger/operator-review.md`, 2026-09-09.
+
+### Adjacent gates, not design-lint rules
+
+- **`tooling/verify-token-references.mjs`** — every `--token` a component NAMES must exist. An
+  undefined custom property is not an error anywhere: Tailwind emits the `var()`, the browser drops
+  the declaration, and the element paints its inherited value. design-lint checks the token
+  vocabulary; only this checks existence. Contract = the built token theme plus Tailwind's own, plus
+  file-locals, a closed list of Base UI runtime variables, and the chart series keys (scoped by FILE
+  — a bare `/^--color-/` exemption would swallow every colour-token typo).
+- **`tooling/verify-test-css-layers.mjs`** — every compiled-CSS test lane must import the layer set
+  `packages/design/preset.css` ships. A lane missing `utilities.css` measures fixtures stripped of
+  every custom `@utility`, silently.
+
 ## Raw CSS rules
 
 `--token-css` mode runs ONLY the `!important` check — the Tailwind-utility rules would false-positive

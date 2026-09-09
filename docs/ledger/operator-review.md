@@ -2086,3 +2086,79 @@ hand-merged.
   there has to be a wrapper, and the item's slot belongs on the item's root. The trigger keeps a
   `-trigger` suffixed slot. Recorded as breaking in the changelog because a probe or selector
   targeting `[data-slot="country-select"]` for the button now finds the wrapper.
+
+---
+
+## 2026-09-09 — G1-b: four fail-opens, and what a lint rule costs when nothing takes a screenshot
+
+Batch G1-b (#49b) was sequenced ahead of D3 and Do1-b so the end round would run against gates that
+work. Four fail-opens were closed, and each of the four is the same failure in a different costume:
+**a reference with no definition, compiling to nothing, in silence.**
+
+1. `contrast.css` and `stacking.css` imported a SUBSET of the layer set production ships, so every
+   custom `@utility` a fixture wore compiled to an empty rule and both lanes measured a page no user
+   sees — the defect M2 traced in `geometry.css`. Fixed, and `tooling/verify-test-css-layers.mjs`
+   now derives the required layer set from `packages/design/preset.css` so the lanes cannot drift
+   from the product again. It rejects `main`'s own `stacking.css`; its `--self-test` mutates every
+   lane × layer pair.
+2. `pnpm lint` had no repo-wide formatting check, so thirteen files were unformatted on `origin/main`
+   and every batch that touched one ate churn it did not cause. `prettier --check .` now leads the
+   static umbrella. **`packages/ui/registry.json` deliberately stays OUT of `.prettierignore`**:
+   ignoring it would make the churn permanent rather than ending it — nothing would ever bring the
+   file to a canonical shape — and it is a hand-maintained authority, the same class as
+   `component-contracts.json`, which that file already declines to ignore for the same reason.
+3. A changeset must not link a commit, and now cannot. All 21 pending changesets that did named
+   shas that **exist as objects and are reachable from nothing**: the `git cat-file -e` probe passed
+   every one and GitHub would have 404'd every one. The links were stripped. `changelog-lint`'s own
+   probe became reachability (`git merge-base --is-ancestor`), which is the root fix `bugs.md`
+   (2026-09-07) deferred to this issue; the BAN is separate and unconditional, because a changeset is
+   written before its own commit exists, so the only sha it can name is one the squash will orphan.
+4. Eleven cases in `verify-workflow-security-negative.mjs` matched literals that can drift while
+   their policy does not. Ten were converted to shape matching. The eleventh is worse than rot:
+   "the fragile clean-tree check reintroduced" carried an ALTERNATION in its `expect`
+   (`/command-substitution clean check|git status --porcelain/`) and had been passing on the WRONG
+   assertion — its mutation deleted the canonical form, and the second branch matched the
+   missing-canonical-form message. The case had never once exercised the ban it is named for.
+   Tightening the `expect` is what surfaced it. **Never write an alternation in a negative
+   harness's `expect`**: it is indistinguishable from a case that does not test its own rule.
+
+**Focus indication is covered again, and provably.** The check WP3 deleted was correctly deleted —
+under `forcedColors: "active"` it stayed 864/864 green with the design system's `:focus-visible` rule
+removed — but nothing replaced it while AGENTS.md § Accessibility still promised a visible
+`:focus-visible`. Assertion (4) in the geometry lane sweeps every focusable control in all 541
+fixtures and accepts exactly two affordances: an AUTHORED ≥2px outline, or the sanctioned text-entry
+border tint. It rejects `outline-style: auto` — the user agent's ring — by name, which is the whole
+difference. Deleting `:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` from
+`packages/design-tokens/src/base.css` and rebuilding turns **262 of 541** fixtures red; restoring it
+returns 541/541. It found a real defect on its first run (`bugs.md`, 2026-09-09: text-entry controls
+show no focus affordance at all).
+
+### Decisions taken here, for MK
+
+- **`text-xs-mono` (TD-3) was measured as landable and deliberately NOT landed.** The registry has
+  zero offenders; the docs shell has eight, every one a muted caption. Enforcing it means choosing,
+  eight times, between 14px sans and the mono voice — a visible typographic change to the public
+  docs site in a repository where, by locked decision R3, **no lane takes a screenshot** and the
+  visual reviewer is a person opening the site. Writing the rule and then quietly restricting it to
+  the roots that already pass would be the fail-open this batch exists to remove, so the rule is
+  absent and the reason is recorded at its place in `tooling/design-lint.mjs`.
+- **`no-raw-size` (112 offenders), `no-physical-direction` (37) and `no-font-medium-on-body` (29)
+  were measured and moved**, for the reason issue #49 itself gives: land the rules AFTER the code
+  batches they enforce. Those batches did not land the migration, and migrating 178 sites blind, with
+  no visual gate, is not gate-correctness work.
+- **`no-inline-ref-merge` and `no-status-seq` were dropped as unwritable-as-specified.** All five
+  inline-ref sites are ref CALLBACKS registering a node in a Map (`board`, `data-grid`, `stepper`),
+  which is the correct React 19 pattern, not a merge; a rule that rejects them would be wrong. The
+  announcer rule needs a design for what "sequential" means that the audit did not supply.
+- **`client-directive-needed` already exists** as `presentational-client-boundary`, and has since
+  before this issue was written.
+
+### Uncovered decision: the whitespace rule's scope
+
+`class-whitespace` fires on string literals only, never on a template's spans, and never on a
+multi-line literal. Both exclusions are load-bearing rather than convenient: `staticStringLiterals`
+JOINS a template's static spans with a space, so any whitespace rule reading that text is reading the
+joiner rather than the author (it false-positived on `sidebar.tsx`'s cookie string); and a multi-line
+literal in this codebase is prose — markdown fixtures, placeholder copy — whose blank lines are
+content. Consistent with `design.md`'s treatment of class strings as single-line units that `cn()`
+joins. Flagged rather than assumed.
