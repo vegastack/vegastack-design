@@ -13,3 +13,7 @@ deleted.
 `@hookform/resolvers` moves 5.4.0 → 5.9.1 in the same pass: `zodResolver`'s overloads did not accept
 a schema built by zod 4.5, so `field-form.test.tsx` — which exists to fail the typecheck when the
 RHF/Zod surface drifts — stopped compiling. It did its job.
+
+`deploy.yml`'s `wranglerVersion` pin follows `apps/docs` to 4.129.0. `verify-workflow-security` (#88)
+asserts the two agree, because the deploy action downloads the version named in the workflow and
+production would otherwise ship through a wrangler this repository never installs or tests against.
