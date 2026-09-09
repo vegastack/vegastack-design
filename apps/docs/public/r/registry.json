@@ -117,7 +117,7 @@
         "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.6.0",
-        "integrity": "sha256-sTyOqyPNGHY0S5oWwZDnL+HT9eECMNtAu9lvPVv3IcU="
+        "integrity": "sha256-NSU1WXWnT4rVXlqYmItI+aXfc6gQzIQ4YeEvXDGhMzo="
       }
     },
     {
@@ -577,7 +577,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
         "version": "0.6.0",
-        "integrity": "sha256-oVeNOfzPaH/RRqTG13zdCrAs7W46YuBgxF3sCd1i2QY="
+        "integrity": "sha256-XvOmHb4qspaPz6imIubTRsdVD3z+A8bECVCOplV8S9A="
       }
     },
     {
@@ -1001,7 +1001,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-Q4OrjK/TmTL7piH/p4muRr/lh1L57FnmAnvTm0t8+YM="
+        "integrity": "sha256-32IKMzGtsEp0rPvyP6tFEvz+IesxLhxZf0DyCuu/1AE="
       }
     },
     {
@@ -1060,7 +1060,7 @@
         "whenToUse": "Peer view/mode switches where one option is always active — view modes, billing cycles, filter scopes.",
         "whenNotToUse": "Content panels swapping (Tabs), meaningful empty/multi selection (ToggleGroup), or on/off (Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-ei4jWxyv+hl/2yXvpbdRqNfCUEXYoKfV5ruRdtaNOWc="
+        "integrity": "sha256-ojw+sgvrHc0lqYt51EmVZdYVORmlrwnSRuz4twjVHkQ="
       }
     },
     {
@@ -1267,7 +1267,7 @@
         "whenToUse": "Show location in a hierarchy and navigate back up — nested pages, file trees.",
         "whenNotToUse": "Primary navigation or a menu — a breadcrumb reflects location only.",
         "version": "0.6.0",
-        "integrity": "sha256-lriNPuBpy6S6tFVXeZXfFV/ig2/omqNaFF8qyB1lxIA="
+        "integrity": "sha256-YtGAzWGK9sozjdl3MpYwgryMAnZ8JPX/NniCPqpzOxk="
       }
     },
     {
@@ -1452,7 +1452,7 @@
         "whenToUse": "Bounded panels whose content overflows — sidebars, log viewers, modal bodies, chat histories.",
         "whenNotToUse": "Whole-page scrolling, or content that already fits.",
         "version": "0.6.0",
-        "integrity": "sha256-Bx2QDy2TSpvdIzwoO9EhmIIJLa8nf1IocBX0V/kboMc="
+        "integrity": "sha256-m24lr9V3ZVCDLLF2+EtOCjazWxijl5hcwltd0MUYbDk="
       }
     },
     {
@@ -2583,7 +2583,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.6.0",
-        "integrity": "sha256-Cp0KOoeLD/zGoivbg/nK/kA/ODtZsThpu8roBfLJOIc="
+        "integrity": "sha256-QOVuaUAJ3GiAOKcw5zNGuBM3h8Y0qX7cF0Utonzx53c="
       }
     },
     {
@@ -2602,6 +2602,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/icon-button",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",
@@ -2618,7 +2619,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.6.0",
-        "integrity": "sha256-6XGWR6bwovmcPV9R2cgt/tIGNmVqfxPeLvTnac/V+gk="
+        "integrity": "sha256-3RFiLer8aF88+iTeaiFwPsxj41fH7iEcAmpyNdoahOY="
       }
     },
     {
@@ -2648,7 +2649,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.6.0",
-        "integrity": "sha256-AolZnaXrTvsNZwtUh/MArbz8UMAUj30ON7SrbGT5R9w="
+        "integrity": "sha256-oLkmrhzc8btY6SQ7MzSR1/xJnvNi1MUc6mSk/nBUxXM="
       }
     },
     {
