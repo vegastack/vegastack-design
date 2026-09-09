@@ -1,4 +1,4 @@
-// @vegastack chart@0.6.0 sha256-/gTr8yWFurgFeWZET/sC2IMtbcu61MH5fi52MIXwgko=
+// @vegastack chart@0.6.0 sha256-WM9fz2UnqlEXshewv4rC14nareF8mXDvMpvxru1wvyo=
 
 "use client";
 
@@ -195,7 +195,7 @@ function ChartContainer({
         data-slot="chart"
         style={{ ...chartStyle, ...style } as React.CSSProperties}
         className={cn(
-          "flex aspect-video justify-center text-xs",
+          "flex aspect-video justify-center text-sm",
           // Numerals canon: axis tick numerals are mono (SVG <text> takes font-family
           // via class), matching the tooltip's `font-mono tabular-nums` values.
           "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:font-mono",
@@ -321,7 +321,7 @@ function ChartTooltipContent({
     <div
       data-slot="chart-tooltip-content"
       className={cn(
-        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-overlay",
+        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border bg-popover px-2.5 py-1.5 text-sm text-popover-foreground shadow-overlay",
         className,
       )}
     >

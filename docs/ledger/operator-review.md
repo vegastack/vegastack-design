@@ -323,11 +323,14 @@ and about the three places where the audit's instruction and the installed reali
   items' declared `lucide-react@^1.24.0` in `packages/ui/registry.json` stays for the same reason.
 - **No `forceMount` was added to the docs' preview Tabs.** Fumadocs 16.12 stopped force-mounting
   inactive `Tabs` panels, so a `ComponentPreview`'s **Code** panel is no longer in the prerendered
-  HTML. The audit flagged this as "where contracts need hidden panels" — they do not. The blocking
-  probe is `page.locator("[data-vrt-preview]").first()`, which lives inside the **Preview** panel:
-  the default tab, always mounted. The markdown export reads the fixture from disk, not the DOM, so
-  `verify-docs-export` is unaffected (confirmed: 143 files agent-clean, 110 API tables). Adding
-  `forceMount` would have restored dead HTML on 110 routes to satisfy nothing.
+  HTML. The audit flagged this as "where contracts need hidden panels" — they do not, and after the
+  verification rebuild (WP1, 2026-09-08) they need the docs DOM even less than when this batch was
+  written. The blocking visual-surface gate is now
+  `packages/ui/test/geometry.browser.test.tsx`, which mounts every export of the preview barrel
+  directly with compiled token CSS and never renders a docs page, so Fumadocs' panel mounting is
+  outside it entirely. The markdown export reads the fixture from disk rather than the DOM, so
+  `verify-docs-export` is unaffected. Adding `forceMount` would have restored dead HTML on every
+  component route to satisfy nothing.
 - **Fumadocs' `theme={{ hotKey: false }}` is not set, because it would be dead config.** The audit
   asked for a decision on 16.13's global `d` light/dark hotkey. `RootProvider` mounts `ThemeHotKey`
   **inside** the `theme?.enabled !== false` branch (`fumadocs-ui@16.15.8`,
@@ -351,15 +354,33 @@ and about the three places where the audit's instruction and the installed reali
   content (`es6/component/Legend.js:260`), which is where `ChartLegendContent` reads it from. The
   deprecation and the replacement are noted on the `ChartLegend` re-export so the next person
   positioning a legend reaches for `position` instead of the deprecated pair.
-- **The changelog bullets carry no commit-sha links.** Every other 0.7.0 bullet does, but this
-  branch is stacked on an unmerged D1 and will be rebased once more before it opens; D1 already had
-  to spend a commit repointing its own orphaned links. Omitting them is allowed by
-  `changelog-lint` (shas are validated only where present) and is cheaper than a post-rebase
-  repoint that would also invalidate the gate receipt.
-- **Playwright 1.63 browser builds were installed on all five Ryzen boxes before the sweep**
-  (`npx playwright@1.63.0 install chromium firefox webkit`). The 1.61 builds were left in place, so
-  sibling branches still on 1.61 are unaffected. Nothing in the repo pins a browser revision; the
-  receipt pins only the two `package.json` versions.
+- **The prose carries no commit-sha links.** This branch was written before the verification
+  rebuild and rebased twice; a sha linked in a changeset is orphaned on every replay, and the link
+  check validates shas only where present, so it would not catch the rot. Omitting them is cheaper
+  than a post-rebase repoint. (Same finding as D1.)
+- **The batch's hand-written `/CHANGELOG.md` bullets were dropped on the rebase and re-expressed as
+  changesets.** WP5 (2026-09-08) made the release entry a build output of
+  `tooling/changelog-assemble.mjs`, so a PR's only changelog artefact is a changeset carrying one
+  section marker. `.changeset/d2-fumadocs-lucide-deps.md` (📦, `@vegastack/ui` minor) carries the
+  Fumadocs / lucide / axe / recharts prose; `.changeset/d2-playwright-container-pin.md` (🛠, no
+  package bump) carries the Playwright bump and the CI container tag that follows it.
+- **The Playwright bump moves the Linux CI container tag, and that is not optional.**
+  `tooling/verify-workflow-security.mjs` derives the required job image
+  (`mcr.microsoft.com/playwright:v<version>-noble`) from the one `playwright` version the lockfile
+  resolves and refuses a literal tag typed anywhere under `tooling/runner/` or `docs/runbooks/`, so
+  `ci.yml`, `release.yml` and `deploy.yml` move to `v1.63.0-noble` in the same commit as the
+  dependency. The five self-hosted Linux runners each pull a fresh image on the first run after
+  this lands.
+- **UNCOVERED DECISION — the phantom `@playwright/test` peer is now pinned by a workspace
+  override.** `.npmrc` sets `auto-install-peers=true`, and Next 16.3.4 declares an OPTIONAL
+  `@playwright/test` peer that no manifest in this repo asks for. pnpm had it parked at 1.61.0; once
+  the real `playwright` devDependency moved to 1.63.0 the lockfile resolved **two** `playwright`
+  versions, which the workflow-security gate rejects outright (it needs one authority for the
+  container tag). Options considered: declare `@playwright/test` as an unused root devDependency
+  (noise — nothing imports it); let the peer float (non-deterministic, and the tag must be exact);
+  or pin it. Chosen: an `overrides` entry in `pnpm-workspace.yaml` with a comment tying it to the
+  `playwright` devDependency, which is the option most consistent with `design.md`'s fail-closed,
+  one-authority-per-value stance. It is the workspace's first `overrides` entry. **Flagged for MK.**
 
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
 
