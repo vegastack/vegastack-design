@@ -2404,3 +2404,29 @@ comments. MK confirmed the topology on 2026-09-10 and it is now stated where it 
 the capacity is **two concurrent jobs on one host**, there is no second machine to fail over to, and
 `ship`'s triage line no longer tells an operator that "both minis are busy or offline" when the real
 question is whether one machine is up.
+
+## 2026-09-09 — Accessible names of composite controls (#103)
+
+**An uncovered decision, taken and recorded here.** The defect (`docs/ledger/bugs.md`, same date)
+is that sibling elements spaced by `gap` carry no whitespace text node, so a control's accessible
+name concatenates them flush. Three fixes were available — an explicit `aria-label` reading as a
+sentence, `aria-labelledby` naming the parts in order, or a screen-reader-only separator text node.
+The separator was chosen, and it is the option most consistent with `design.md`: `aria-label`
+REPLACES the visible text and is exactly what the collapsed pill's own source comment forbids
+(SC 2.5.3, Label in Name — a speech-input user must be able to say what they see), and
+`aria-labelledby` would need an id on every part of every affected component, duplicating the
+reading order in a second place that can silently drift from the DOM. An `sr-only` node is
+`position: absolute`, so it is out of flow: it takes no `gap`, changes no layout, and leaves the
+composition that satisfies SC 2.5.3 exactly as it was. It is also already house style — see
+`chip-input.tsx`'s `<span className="sr-only">, invalid entry</span>`.
+
+**The separator is punctuation, never invented vocabulary.** Every one is `", "`. A counted tab
+reads `Activity, 3` rather than `Activity, 3 unread`, because what the count MEANS is the host's
+knowledge, not the component's. Where the meaning is already the component's — `NotificationBell`,
+which owns its own `aria-label` — it was already correct (`Notifications, 3 unread`) and is
+untouched.
+
+**Flagged for MK.** The docs `board` preview's `renderCard` composes a card whose accessible name
+is `Acme renewalPS$12,400` — host-supplied JSX, so not a component defect, and left alone on the
+rule that a preview only composes. The open question is whether a SHIPPED example should model the
+separator, since it is the thing consumers copy. Not decided here.

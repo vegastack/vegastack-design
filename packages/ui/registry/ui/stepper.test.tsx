@@ -292,3 +292,14 @@ test("the navigable label is a link-variant Button, not a reshaped ghost", async
   expect(label.className).not.toContain("h-auto");
   expect(label.className).not.toContain("py-0");
 });
+
+test("a navigable step names its label and its state as separate phrases (issue 103)", async () => {
+  const screen = await render(
+    <Stepper aria-label="Import" steps={STEPS} navigable />,
+  );
+  // The label and the sr-only state text are siblings with no whitespace between them, so
+  // this read "Upload fileCompleted" before the separator was added. Asserted WHOLE.
+  await expect
+    .element(screen.getByRole("button", { name: "Upload file, Completed" }))
+    .toBeInTheDocument();
+});

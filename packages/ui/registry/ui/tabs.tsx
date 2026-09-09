@@ -1,4 +1,4 @@
-// @vegastack tabs@0.6.0 sha256-XvOmHb4qspaPz6imIubTRsdVD3z+A8bECVCOplV8S9A=
+// @vegastack tabs@0.6.0 sha256-MEynbCYWyqHUXEf0OiF5oMzW9O1Qd/kDYqRdqYE7p9I=
 
 "use client";
 
@@ -254,18 +254,24 @@ export function TabsTrigger({
     >
       {children}
       {count != null ? (
-        <span
-          data-slot="tabs-trigger-count"
-          className={cn(
-            // The count sits one rung above WHATEVER the trigger currently paints (rest, hover,
-            // pressed, active chip) — the alpha twin of the ladder does that in one class, on
-            // every variant now that the selected chip is itself an ink tint rather than a
-            // translucent `background` plate that needed its own counter-tint.
-            "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-foreground/(--alpha-hover) px-1 text-label-sm tabular-nums text-muted-foreground",
-          )}
-        >
-          {count}
-        </span>
+        <>
+          {/* The count is a sibling of the label with no whitespace text node between them, so
+              without this the trigger's accessible name concatenates flush ("Activity3" — bug
+              issue 103). `sr-only` is out of flow, so the separator is spoken but never laid out. */}
+          <span className="sr-only">, </span>
+          <span
+            data-slot="tabs-trigger-count"
+            className={cn(
+              // The count sits one rung above WHATEVER the trigger currently paints (rest, hover,
+              // pressed, active chip) — the alpha twin of the ladder does that in one class, on
+              // every variant now that the selected chip is itself an ink tint rather than a
+              // translucent `background` plate that needed its own counter-tint.
+              "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-foreground/(--alpha-hover) px-1 text-label-sm tabular-nums text-muted-foreground",
+            )}
+          >
+            {count}
+          </span>
+        </>
       ) : null}
     </BaseTabs.Tab>
   );

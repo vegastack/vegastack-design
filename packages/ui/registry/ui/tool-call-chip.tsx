@@ -1,4 +1,4 @@
-// @vegastack tool-call-chip@0.6.0 sha256-eOq9D/VPQVo5rFVSZNF56AHYZqqEDVgvpcJrwPAyHqg=
+// @vegastack tool-call-chip@0.6.0 sha256-63ImzkC9ZOWz8BZtscndxZ6vm4t0HgvE3uW5krPjhFI=
 
 "use client";
 
@@ -69,12 +69,19 @@ export function ToolCallChip({
           {children}
           <span className="min-w-0 truncate">{label}</span>
           {meta != null ? (
-            <span
-              data-slot="tool-call-chip-meta"
-              className="min-w-0 truncate font-normal text-muted-foreground"
-            >
-              {meta}
-            </span>
+            <>
+              {/* The meta is a sibling of the label spaced by `gap`, so composed as a control
+                  (`render={<button/>}`, which this component's own hover/press classes support)
+                  the chip's accessible name would concatenate flush ("Search files1.2s" — bug
+                  issue 103). `sr-only` is out of flow: spoken, never laid out. */}
+              <span className="sr-only">, </span>
+              <span
+                data-slot="tool-call-chip-meta"
+                className="min-w-0 truncate font-normal text-muted-foreground"
+              >
+                {meta}
+              </span>
+            </>
           ) : null}
         </>
       ),

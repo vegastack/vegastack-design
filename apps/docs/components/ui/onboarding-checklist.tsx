@@ -1,4 +1,4 @@
-// @vegastack onboarding-checklist@0.6.0 sha256-033ro+6sGSx+hymyj+0hFEwIB3U1izo9824mYmRRzN8=
+// @vegastack onboarding-checklist@0.6.0 sha256-UBX6hd6mRnJnM9u5Keuc1eWiZnmHb8a1KnngkV3Kygg=
 
 "use client";
 
@@ -99,10 +99,17 @@ export function OnboardingChecklist({
         {...props}
       >
         {title}
+        {/* The three parts are flex siblings spaced by `gap`, so there is no whitespace text
+            node between them and accessible-name computation concatenates them FLUSH
+            ("Getting started1/3Expand checklist" — issue 103). These `sr-only` nodes carry the
+            punctuation the layout cannot: `sr-only` is `position: absolute`, so they are out of
+            flow, take no gap, and change the NAME without touching the visual spacing. The
+            visible text stays in the name verbatim, so SC 2.5.3 still holds. */}
+        <span className="sr-only">, </span>
         <span className="text-muted-foreground tabular-nums">
           {clampedDone}/{clampedTotal}
         </span>
-        <span className="sr-only">{expandLabel}</span>
+        <span className="sr-only">, {expandLabel}</span>
         <ChevronUp
           aria-hidden
           className="size-(--icon-compact) text-muted-foreground"

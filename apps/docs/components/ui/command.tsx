@@ -1,4 +1,4 @@
-// @vegastack command@0.6.0 sha256-usBgFHH2gHN0+lpH6cFCHYRA9R6zSDN/JqUXwVYCad8=
+// @vegastack command@0.6.0 sha256-xO7h31irdeb8shTw/QdSOoUm6tLwcag4Vl3rMGHZ6Oc=
 
 "use client";
 
@@ -527,11 +527,23 @@ export type CommandShortcutProps = React.ComponentProps<"span">;
  */
 export function CommandShortcut({ className, ...props }: CommandShortcutProps) {
   return (
-    <span
-      data-slot="command-shortcut"
-      className={cn("ms-auto text-mono-label text-muted-foreground", className)}
-      {...props}
-    />
+    <>
+      {/* The hint is a sibling of the item's label with no whitespace text node between them, so
+          without this the row's accessible name concatenates flush ("Profile⌘P" — issue 103).
+          `sr-only` is out of flow, so the comma is spoken and never laid out, and the visible
+          label still leads the name (WCAG 2.2 SC 2.5.3). The KEY TEXT itself stays the caller's:
+          `⌘` is announced inconsistently, and a caller that needs spoken key names composes
+          `Kbd`, which pairs each mac glyph with its word. */}
+      <span className="sr-only">, </span>
+      <span
+        data-slot="command-shortcut"
+        className={cn(
+          "ms-auto text-mono-label text-muted-foreground",
+          className,
+        )}
+        {...props}
+      />
+    </>
   );
 }
 
