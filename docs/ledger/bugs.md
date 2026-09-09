@@ -1720,35 +1720,46 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
 
 ---
 
-## 2026-09-09 — Text-entry controls show no focus indicator in the geometry lane (OPEN)
+## 2026-09-09 — Textarea, grouped Input and TextEdit show no focus indicator (OPEN)
 
 - **Found by** the focus-indicator assertion G1-b added to
-  `packages/ui/test/geometry.browser.test.tsx`, on its first run. 526 of 541 fixtures passed; all
-  15 failures are text-entry: `chipInputValidation`, `fieldBorderless`, `fieldStates`,
-  `inputAddonStates`, `inputStates`, `otpInputField`, `otpInputStates`, `passwordInput`,
-  `passwordInputStates`, `textareaStates`, `textEdit`, `textEditHeights`, `textEditInvalid`,
-  `textEditStates`, `textEditSubmit`.
-- **Symptom.** On `:focus`, the control's computed `border-color` stays
-  `oklab(0.145 0.000776457 0.00289778 / 0.08)` — the resting `--input` colour, re-serialised. The
-  sanctioned tint (`focus:border-ring/(--alpha-tint-border)`, `fieldSurface` in
-  `@vegastack/design`) should produce `--ring` at 70%, near `oklab(0.353 … / 0.7)`. These controls
-  carry `outline-hidden` by design (a text field cannot tell mouse from keyboard, B1-01), so the
-  border tint is their WHOLE focus affordance. It is not appearing, so they have none.
-- **Not a probe artefact.** Each link in the chain was checked directly in the lane:
+  `packages/ui/test/geometry.browser.test.tsx`, on its first run. 540 of 550 fixtures pass; the ten
+  failures are three component groups, not "all text entry":
+  - **Textarea** — `fieldBorderless`, `textareaStates` (`textarea[data-slot=textarea]`);
+  - **Input inside a group** — `inputAddonStates`, `passwordInput`, `passwordInputStates`. A BARE
+    `Input` tints correctly (`inputStates` passes); the same control inside an addon or
+    password group does not;
+  - **TextEdit** — `textEdit`, `textEditHeights`, `textEditInvalid`, `textEditStates`,
+    `textEditSubmit` (`div[role=textbox]`).
+
+  `chipInputValidation`, `fieldStates`, `inputStates`, `otpInputField` and `otpInputStates` failed
+  on the pre-rebase tree and PASS on this one, so ChipInput, Field, Input and OTP are fine. That
+  narrowing came for free from the lane's stale-exclusion guard: those five entries turned red as
+  "the exclusion is stale" the moment they started passing.
+
+- **Symptom.** On `:focus` the control shows `outline-style: none` — by design, since a text field
+  cannot tell mouse from keyboard (B1-01), so `outline-hidden` is deliberate and the border tint is
+  its WHOLE focus affordance — and its `border-color` does not change, on the control, on its
+  `[data-field-group]`, or on any of its three nearest ancestors. The sanctioned tint is
+  `focus:border-ring/(--alpha-tint-border)` (`fieldSurface` / `fieldGroupSurface` in
+  `@vegastack/design`), which should move the border to `--ring` at 70%.
+- **Not a probe artefact.** Every link in the chain was checked directly in the lane:
   - the utility is in the compiled sheet —
     `.focus\:border-ring\/\(--alpha-tint-border\):focus { border-color: color-mix(in oklab, var(--ring) var(--alpha-tint-border), transparent) }`;
   - `--ring` computes to `oklch(0.353 0.003 75)` at `:root` AND at the control;
   - `--alpha-tint-border` computes to `70%` at the control;
   - `CSS.supports("color", "color-mix(in lab, red, red)")` is `true`;
   - `control.matches(":focus")` is `true`, and `:hover` is `false`.
-    The rule matches, every input to it resolves, and the computed value is still the resting one.
-    Which declaration actually wins is the open question.
-- **Not fixed here, deliberately.** Diagnosing a cascade/utility defect across Input, Textarea,
-  OTP, TextEdit, Field and ChipInput is component and token work; G1-b is gate work, and the batch
-  that fixes it needs a visual reviewer this repository's lanes do not provide. Recorded as
-  `EXCLUDED.focus` entries with the measurement, which `runAssertion` makes SELF-INVALIDATING: an
-  excluded assertion is still executed in expect-failure mode, so the day the tint lands, each of
-  those 15 entries turns red with "the exclusion is stale" and must be deleted. Flagged for MK.
+    The rule matches, every input to it resolves, and the computed border stays the resting `--input`
+    value. Which declaration actually wins is the open question — and the shape of the surviving
+    three groups (a wrapper-owned surface, a composite editor, and a native `textarea`) says the
+    answer is about WHERE the tint is applied, not whether the utility works.
+- **Not fixed here, deliberately.** This is component and token work across Textarea, the input
+  group, and TextEdit; G1-b is gate work, and the batch that fixes it needs the visual reviewer this
+  repository's lanes do not provide. Recorded as `EXCLUDED.focus` entries with the measurement,
+  which `runAssertion` makes SELF-INVALIDATING: an excluded assertion is still executed in
+  expect-failure mode, so the day the tint lands, each entry turns red with "the exclusion is
+  stale" and must be deleted. Flagged for MK.
 
 ---
 

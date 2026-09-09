@@ -31,7 +31,7 @@ const REPOS: Repo[] = [
  * the panel (not on the trigger), and the selected row carries a check.
  */
 export function searchableSelect(): ReactNode {
-  const [value, setValue] = React.useState<Repo | null>(REPOS[0]);
+  const [value, setValue] = React.useState<Repo | null>(REPOS[0]!);
   return (
     <Wrapper>
       <div className="w-full max-w-(--panel-width-md)">
@@ -81,7 +81,7 @@ export function searchableSelectEmpty(): ReactNode {
  * not move between the states.
  */
 export function searchableSelectClearable(): ReactNode {
-  const [value, setValue] = React.useState<Repo | null>(REPOS[1]);
+  const [value, setValue] = React.useState<Repo | null>(REPOS[1]!);
   return (
     <Wrapper>
       <div className="flex w-full max-w-(--panel-width-md) flex-col gap-2">
@@ -114,7 +114,7 @@ export function searchableSelectClearable(): ReactNode {
  * the owner beneath the name while the trigger stays a single line with a leading glyph.
  */
 export function searchableSelectRich(): ReactNode {
-  const [value, setValue] = React.useState<Repo | null>(REPOS[2]);
+  const [value, setValue] = React.useState<Repo | null>(REPOS[2]!);
   return (
     <Wrapper>
       <div className="w-full max-w-(--panel-width-md)">

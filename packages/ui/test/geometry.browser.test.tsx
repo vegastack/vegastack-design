@@ -43,7 +43,7 @@ import {
  *     PROVED NON-VACUOUS, 2026-09-09. Deleting the one rule
  *     `:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` from
  *     `packages/design-tokens/src/base.css` and rebuilding the token package turns 262 of this
- *     file's 541 fixtures RED, each naming `outline-style: auto`; restoring it returns 541/541.
+ *     file's fixtures RED, each naming `outline-style: auto`; restoring it returns a clean sweep.
  *     The check it replaces stayed 864/864 green under the same deletion. Re-run that experiment
  *     before trusting any future edit to `focusIndicatorProblem`.
  *
@@ -110,7 +110,9 @@ type Assertion = "reflow" | "rtl" | "target" | "focus";
  */
 const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // ── focus indicator ───────────────────────────────────────────────────────────────────────
-  // EVERY entry below is a text-entry control, and every one of them fails the SAME way: on
+  // Ten entries in three groups: Textarea, an Input inside an addon/password GROUP (a bare Input
+  // tints correctly — `inputStates` is deliberately not here), and TextEdit. Every one fails the
+  // SAME way: on
   // focus its computed `border-color` is `oklab(0.145 0.000776457 0.00289778 / 0.08)` — the
   // resting `--input` colour — where the sanctioned tint
   // (`focus:border-ring/(--alpha-tint-border)`, `fieldSurface` in `@vegastack/design`) should
@@ -131,31 +133,11 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // These entries are SELF-INVALIDATING, like every other entry in this map: `runAssertion` still
   // executes an excluded assertion in expect-failure mode, so the day the tint lands, each of
   // these turns red with "the exclusion is stale" and must be deleted. Nobody has to remember.
-  chipInputValidation: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
   fieldBorderless: {
     focus:
       "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
   },
-  fieldStates: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
   inputAddonStates: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  inputStates: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  otpInputField: {
-    focus:
-      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
-  },
-  otpInputStates: {
     focus:
       "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
   },
@@ -475,12 +457,18 @@ const AUTHORED_OUTLINE =
  * so the element whose border changes may be an ancestor of the focused control.
  */
 function tintCarriers(control: Element): Element[] {
-  return [
-    control,
-    control.closest("[data-field-group]"),
-    control.closest('[data-slot="text-edit"]'),
-    control.parentElement,
-  ].filter((element): element is Element => element instanceof Element);
+  const carriers: Element[] = [control];
+  // Walk a bounded way up. The tint sits on whichever element owns the field SURFACE, and that is
+  // not always one hop: an input group puts it on the padded wrapper around the control, a Field
+  // puts it on `[data-field-group]`, TextEdit on `[data-slot="text-edit"]`, and a bare Input on
+  // the control itself. Three ancestors covers every arrangement in the registry without reaching
+  // out of the field and into page layout, where a border change would mean something else.
+  let ancestor = control.parentElement;
+  for (let depth = 0; depth < 3 && ancestor; depth++) {
+    carriers.push(ancestor);
+    ancestor = ancestor.parentElement;
+  }
+  return carriers;
 }
 
 type FocusSignature = { outlineStyle: string; borders: string[] };

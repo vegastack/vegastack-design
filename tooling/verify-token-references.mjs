@@ -76,6 +76,14 @@ const RUNTIME_VARIABLES = new Set([
   "--active-tab-bottom",
   "--active-tab-width",
   "--active-tab-height",
+  // Base UI Toast, which positions the stack from these: the toast's index in the stack, the
+  // measured heights the collapsed stack animates between, and the swipe telemetry.
+  "--toast-index",
+  "--toast-height",
+  "--toast-frontmost-height",
+  "--toast-offset-y",
+  "--toast-swipe-movement-x",
+  "--toast-swipe-movement-y",
   // Base UI Drawer (Sheet runs on it) swipe telemetry.
   "--drawer-swipe-movement-x",
   "--drawer-swipe-movement-y",

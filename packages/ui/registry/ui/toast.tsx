@@ -1,4 +1,4 @@
-// @vegastack toast@0.6.0 sha256-PiCYpgrb/doHUocgL1zQzXK02Llno724t8mG6DtcLVw=
+// @vegastack toast@0.6.0 sha256-xd5scLvXmdjeV/vDCSbG5Xjqd6yNfYoHXQT5Ru5lFsM=
 
 "use client";
 
@@ -727,8 +727,7 @@ export function Toast({
                 aria-hidden
                 className={cn(
                   "mt-0.5 size-(--icon-default) shrink-0",
-                  type === "loading" &&
-                    "animate-spin motion-reduce:animate-none",
+                  type === "loading" && "animate-spin",
                 )}
               />
             ) : null}

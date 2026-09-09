@@ -2500,7 +2500,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline or a Dialog.",
         "version": "0.6.0",
-        "integrity": "sha256-PiCYpgrb/doHUocgL1zQzXK02Llno724t8mG6DtcLVw="
+        "integrity": "sha256-xd5scLvXmdjeV/vDCSbG5Xjqd6yNfYoHXQT5Ru5lFsM="
       }
     },
     {
