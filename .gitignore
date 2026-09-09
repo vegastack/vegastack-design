@@ -15,6 +15,17 @@ coverage/
 !.env.example
 .dev.vars
 
+# Agent worktrees. Claude Code creates a git worktree per sub-agent here, each one a full checkout
+# with its own .git file — so `git add -A` in the main checkout stages them as embedded
+# repositories, and the warning it prints is easy to miss. This has never been ignored; it became
+# dangerous when the audit epic left 22 of them holding unpushed commits.
+.claude/worktrees/
+
+# Vitest 4 run artifacts (`packages/ui/.vitest`). `tooling/workspace-clean.mjs --after-run` removes
+# this after every `pnpm verify`, so it exists only mid-run — but a `git add -A` during a run would
+# otherwise stage it.
+packages/ui/.vitest/
+
 # vitest browser-mode artifacts
 .vitest-attachments/
 **/__screenshots__/
