@@ -1,4 +1,4 @@
-// @vegastack tabs@0.6.0 sha256-XvOmHb4qspaPz6imIubTRsdVD3z+A8bECVCOplV8S9A=
+// @vegastack tabs@0.6.0 sha256-MyhwqqR5aUIemoCwI0mK0tk5b9fkejkk5snlPDbygrU=
 
 "use client";
 
@@ -187,7 +187,7 @@ export interface TabsTriggerProps extends React.ComponentProps<
 > {
   /**
    * Optional count rendered as a trailing badge — e.g. unread or item totals.
-   * Tinted muted by default; the active tab brightens it.
+   * Painted as body ink on a quiet ink wash, so it reads on every variant and state.
 
    * @default undefined
    */
@@ -261,7 +261,19 @@ export function TabsTrigger({
             // pressed, active chip) — the alpha twin of the ladder does that in one class, on
             // every variant now that the selected chip is itself an ink tint rather than a
             // translucent `background` plate that needed its own counter-tint.
-            "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-foreground/(--alpha-hover) px-1 text-label-sm tabular-nums text-muted-foreground",
+            //
+            // The ink is `foreground`, NOT `muted-foreground`, and that is a contrast fact rather
+            // than a taste call. On a `pill`/`chip` list this badge STACKS its wash on the
+            // trigger's own: an unselected trigger sits on the `surface-1` track and a selected
+            // one adds `--alpha-ink-tint`, so the badge's backdrop is two washes deep. Measured
+            // dark (axe, compiled tokens): muted ink read 4.05:1 unselected and 3.43:1 selected —
+            // both under AA, and the second is the appearance probe's serious `color-contrast` on
+            // /docs/components/tabs. Body ink clears every one of those stacks with room to spare
+            // (7.28:1 at the worst, dark selected-hovered over the track). The badge stays
+            // visually quiet through its size and its fill, not by thinning ink that is already
+            // sitting on a tinted plate.
+            // Pinned by `test/contrast.browser.test.tsx` ("Tabs count badge", both themes).
+            "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-foreground/(--alpha-hover) px-1 text-label-sm tabular-nums text-foreground",
           )}
         >
           {count}

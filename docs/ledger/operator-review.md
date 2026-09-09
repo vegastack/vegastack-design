@@ -4,6 +4,49 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
+## 2026-09-09 — Appearance-probe fixes: five calls made without pausing
+
+- **The docs toast composition: nest the copy-in provider, rather than add a `toastManager` prop to
+  `VegaStackProvider`.** Three options. (a) Drop the package provider and use the registry copy-in
+  end to end — rejected, `verify-provider-dogfood.mjs` exists precisely to keep the published
+  entrypoint consumed by the showcase. (b) Give `VegaStackProvider` (and its canonical registry
+  twin) an optional `toastManager` prop and pass the copy-in's — correct, but it adds public API to
+  a registry item to serve exactly one consumer: `@vegastack/ui` is private, so no external
+  consumer can mix the two modules in the first place, and a copy-in consumer's provider and toast
+  already come from the same module. (c) Nest the copy-in `ToastProvider` — three lines, no API
+  change, one live manager, both dogfoods intact. Chose (c). The cost is that the package's
+  `ToastProvider` above it is inert on this site; nothing in the docs imports the package `toast()`,
+  and the new gate would catch it if that changed.
+- **The Tabs count badge takes body ink, rather than keeping muted ink and changing the fill.**
+  Inheriting the trigger's ink (muted at rest, `foreground` when active — what the prop doc claimed)
+  still leaves an unselected `pill` count at 4.48:1 in dark, under AA by a hair. An opaque fill can
+  read as invisible on the rung the trigger has just hovered to. `text-foreground` clears every
+  stack in both themes with 7.28:1 at the worst, and the badge stays quiet through size and fill.
+  It does mean the count is brighter than its own label on a resting tab — deliberate, and the way
+  GitHub and Linear paint a tab counter.
+- **The contrast gate learned the rung composite for BODY INK only.** Adding `muted-foreground`
+  over a wash on a rung would fail the gate permanently (3.11–4.48:1 dark) and could only be
+  answered by retuning tokens. So the gate asserts what must hold and `design.md` states the
+  prohibition — muted ink is not available there. If MK would rather the tokens moved so muted ink
+  survives a wash on a rung, that is a retune, not a lint.
+- **DatePicker: fixed the `data-day` hook in the component, pinned `locale` in the fixtures, and
+  left the `locale` default alone.** A locale-formatted `data-*` attribute is indefensible and was
+  fixed outright. The visible label is a different question: following the viewer's locale is the
+  right default for a date, and it is inherently unstable under SSR/static export. Pinning the
+  fixtures fixes the public page; the callout tells consumers the rule. **What is left for MK:
+  should `locale` default to a fixed value so a consumer SSR'ing `<DatePicker value={d}/>` cannot
+  hit this?** That changes documented behaviour of a shipped component, so it was not decided here.
+- **Probe changes go beyond the four the brief named.** Dismissing overlays, the `aria-current`
+  rule, the pill-radius rule and the `opacity: 0` rule were asked for. Three more were added
+  because each was producing the same class of false positive on every run: an inset-chip wash
+  (the system's own SP-02 recipe) read as `hover-invisible` on every stepper; a text-entry field
+  whose focus affordance is a border tint on the GROUP read as `focus-none`; and `[tabindex='0']`
+  swept `role="tabpanel"` containers in, demanding hover states from panels and timing out on
+  inactive ones. Net effect on the six routes re-run: split-button 21 → 0 flags, number-field 9 →
+  0, pagination 5 → 0, tabs 6 → 0, date-picker 1 → 0, bubble 3 → 2.
+
+---
+
 ## 2026-09-09 — Do1-b docs canon migration: four calls the canon did not settle
 
 **Context:** migrating all 116 component pages to `design.md` § Docs canon. Row 0 makes four

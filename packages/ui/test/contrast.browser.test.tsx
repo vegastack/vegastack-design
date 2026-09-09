@@ -11,6 +11,7 @@ import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
 import { TextEdit } from "../registry/ui/text-edit";
 import { ColorPicker } from "../registry/ui/color-picker";
 import { LogoRow } from "../registry/ui/logo-row";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../registry/ui/tabs";
 
 /**
  * Rendered color-contrast a11y gate (Codex R3 HIGH-2/HIGH-3). Unlike the per-component unit a11y
@@ -540,5 +541,59 @@ test("ColorPicker chrome color-contrast passes WCAG AA — dark theme", async ()
   expect(
     violations,
     `color-picker chrome color-contrast failures (dark):\n  ${violations.join("\n  ")}`,
+  ).toEqual([]);
+});
+
+// ── Tabs count badge ───────────────────────────────────────────────────────────────────────────
+// `[data-slot="tabs-trigger-count"]` paints a TRANSLUCENT ink wash (`bg-foreground/(--alpha-hover)`)
+// on top of whatever the trigger itself paints. On a `pill`/`chip` list the SELECTED trigger is
+// already `bg-foreground/(--alpha-ink-tint)` over the `surface-1` track, so the badge composites two
+// washes over a rung — a stack that `tooling/contrast-check.mjs` cannot see, because that gate
+// checks TOKEN pairs (and its ladder composite deliberately hosts only background/card/popover).
+// Measured dark, pre-fix: muted-foreground over that stack = 3.40:1 (needs 4.5:1) — the appearance
+// probes' axe `color-contrast` serious on `/docs/components/tabs`, 1280-dark-ltr. Rendering every
+// variant with a count, selected and unselected, is what makes the compound legible to axe.
+function TabsCounts() {
+  return (
+    <div className="flex flex-col gap-6 bg-background p-6 text-foreground">
+      {(["line", "pill", "chip"] as const).map((variant) => (
+        <Tabs key={variant} defaultValue="overview">
+          <TabsList variant={variant}>
+            <TabsTrigger value="overview" count={12}>
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="activity" count={3}>
+              Activity
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">Overview panel</TabsContent>
+          <TabsContent value="activity">Activity panel</TabsContent>
+        </Tabs>
+      ))}
+    </div>
+  );
+}
+
+test("Tabs count badge color-contrast passes WCAG AA — light theme", async () => {
+  const screen = await render(<TabsCounts />);
+  await expect.poll(() => screen.container.textContent).toContain("12");
+  const violations = await contrastViolations(screen.container);
+  expect(
+    violations,
+    `tabs count color-contrast failures (light):\n  ${violations.join("\n  ")}`,
+  ).toEqual([]);
+});
+
+test("Tabs count badge color-contrast passes WCAG AA — dark theme", async () => {
+  const screen = await render(
+    <div className="dark">
+      <TabsCounts />
+    </div>,
+  );
+  await expect.poll(() => screen.container.textContent).toContain("12");
+  const violations = await contrastViolations(screen.container);
+  expect(
+    violations,
+    `tabs count color-contrast failures (dark):\n  ${violations.join("\n  ")}`,
   ).toEqual([]);
 });

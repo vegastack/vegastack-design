@@ -1,15 +1,16 @@
 // Forced-colors focus probe: does a focused text-entry control paint ANY indicator when the
 // authored border tint is erased by the forced palette? node …/probe-forced-colors.mjs
-import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 const root = path.resolve(import.meta.dirname, "../../..");
 const docs = path.join(root, "apps/docs");
-const { chromium } = createRequire(path.join(docs, "package.json"))(
-  "@playwright/test",
-);
+// Playwright comes from the ROOT workspace, the same way `probe-states.mjs` takes it. It used to
+// be resolved through `apps/docs`'s own `@playwright/test`, which went with the attestation stack
+// on 2026-09-08 — so this script threw `Cannot find module '@playwright/test'` before it opened a
+// single page.
+const { chromium } = await import("playwright");
 const port = await new Promise((ok) => {
   const p = createServer();
   p.listen(0, "127.0.0.1", () => {

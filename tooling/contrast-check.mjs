@@ -52,6 +52,30 @@ const LADDER_ALPHAS = ["alpha-hover", "alpha-pressed"];
 const LADDER_HOSTS = ["background", "card", "popover"];
 const LADDER_INKS = ["foreground", "muted-foreground"];
 
+// The washes ALSO land on the opaque rungs, and they stack: a Tabs count badge paints
+// `--alpha-hover` on top of a `pill` trigger that is itself `--alpha-ink-tint` over the
+// `surface-1` track (`selectedChipVariants`), so its real backdrop is two washes deep on a rung.
+// The block above cannot see that — it hosts only the resting surfaces — and that blind spot is
+// how a 3.43:1 count badge shipped (appearance probe 2026-09-07, axe serious on
+// /docs/components/tabs, 1280-dark-ltr).
+//
+// So gate the deeper stack too, at BODY INK only. Muted ink is deliberately absent, and that
+// absence is the rule rather than an omission: measured dark, muted-foreground reads 4.48:1 on a
+// single hover wash over `surface-1`, 4.05:1 as axe renders the same stack, and 3.43:1 once a
+// selected chip's ink tint is under it — all below AA. **`text-muted-foreground` is not available
+// on a translucent wash over a rung.** A component that wants a quiet badge there keeps body ink
+// and stays quiet through size and fill (Tabs' count does exactly that). `alpha-ink-tint*` is
+// listed here only over the rungs, because the selected chip is by definition a chip on the
+// `surface-1` well.
+const CHIP_ALPHAS = [
+  "alpha-hover",
+  "alpha-pressed",
+  "alpha-ink-tint",
+  "alpha-ink-tint-strong",
+];
+const CHIP_HOSTS = ["surface-1", "surface-2", "surface-3"];
+const CHIP_INKS = ["foreground"];
+
 // Theme-invariant media chrome (B4-01): the off-white ink over the two scrims, measured against
 // the WORST backdrop a scrim can sit on (the light page — a scrim over a bright frame is the
 // weakest case; over dark video it only improves).
@@ -599,6 +623,42 @@ for (const [theme, vars] of Object.entries(themes)) {
         if (ratio < AA_NONTEXT)
           fail(
             `${theme}: text-entry focus border ring@${Math.round(a * 100)}% on ${surface} = ${ratio.toFixed(2)}:1 (WCAG 1.4.11 needs ${AA_NONTEXT}:1)`,
+          );
+      }
+    }
+  }
+
+  // SURFACE-LADDER washes ON THE RUNGS (see CHIP_* above): body ink over a wash painted on a well,
+  // a hovered row or a selected chip. Body ink only — muted ink is not permitted here.
+  for (const alphaName of CHIP_ALPHAS) {
+    const a = alphas[alphaName];
+    const wash = vars.foreground;
+    if (a == null || !wash) {
+      fail(
+        `${theme}: ${alphaName}/foreground missing for the rung composite — fail-closed`,
+      );
+      continue;
+    }
+    for (const host of CHIP_HOSTS) {
+      const bg = vars[host];
+      if (!bg) {
+        fail(`${theme}: ${host} missing for the rung composite — fail-closed`);
+        continue;
+      }
+      const composite = compositeLinear(wash, a, bg);
+      for (const inkName of CHIP_INKS) {
+        const ink = vars[inkName];
+        if (!ink) {
+          fail(
+            `${theme}: ${inkName} missing for the rung composite — fail-closed`,
+          );
+          continue;
+        }
+        checked++;
+        const ratio = contrastCompositeBg(ink, composite);
+        if (ratio < AA_NORMAL)
+          fail(
+            `${theme}: ${inkName} on foreground@${Math.round(a * 100)}% (${alphaName}) over ${host} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
           );
       }
     }
