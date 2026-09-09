@@ -4,6 +4,36 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-09 — The geometry lane sweeps every fixture and found 15 pre-existing 24px/reflow defects
+
+- **Symptom:** WP1 (#69) moved the reflow, RTL and effective-24px-target contracts into
+  `packages/ui/test/geometry.browser.test.tsx`, which mounts every export of
+  `apps/docs/components/preview/` — 522 fixtures — instead of the old lane's first fixture per
+  route (~4.6× the compositions). Fifteen fixtures failed assertions carried over verbatim from
+  `contracts.spec.ts`. None was ever measured before, so none is a regression.
+- **Where they are recorded:** per assertion in the file's `EXCLUDED` map, which still EXECUTES each
+  excluded assertion in expect-failure mode — an exclusion whose defect is fixed turns the fixture
+  red with "the assertion now PASSES … the exclusion is STALE", so the map cannot go stale silently.
+  Removing an entry is the act of claiming the fix.
+- **Measurements (Chromium, 320px reflow / 1280px target probe, compiled token CSS):**
+  - reflow + RTL: `scrollFadeEdge`, `scrollFadeSize` — two side-by-side scroll panels,
+    scrollWidth 332 > clientWidth 320 (a demo-layout overflow, not the utility).
+  - 24px size floor: `breadcrumbCollapsed`, `breadcrumbEllipsisMenu`, `breadcrumbTrail` — the
+    ellipsis/collapsed-crumb trigger measures 20.00×20.00; `datePickerDropdownCaption` — caption
+    dropdown 50.36×21.00; `iconText`, `iconTextSides` — focusable truncation trigger 206.00×21.00;
+    `markerLinkButton` — marker link 270.00×21.00; `messageScrollerVisibility` — control 99.00×16.00;
+    `stepperVertical` — vertical step 152.08×23.00; `tabsChip` — chip tab 237.97×21.00.
+  - 24px obstruction (5-point probe, 0.5px inset): `actionBarPending` — the pending ActionBar
+    surface owns its own control's centre, 5/5 misses; `attachmentImageThumbnail` — the
+    `absolute inset-0` trigger covers the 24×24 action beneath it, 5/5; `resizableNested` — nested
+    handles overlap, the outer handle's centre is owned by the inner one, 3/5; `timeline` — the
+    separator marker owns the centre of the adjacent 63.4×16.0 link, 1/5.
+- **Not a defect, unswept:** `relativeTimeLive` re-renders on its own timer; every other
+  `relative-time` fixture pins `now` and is swept.
+- **Ownership:** component work for the audit epic #31's end round, routed per owning batch; the
+  rebuild did not touch component sources. Fix at the component (invisible ≥24px hit area or a real
+  24px control), then delete the map entry — the expect-failure guard forces that order.
+
 ## 2026-09-09 — `docs-shell.spec.ts` asserted two properties the built site does not have, and no gate ever ran it
 
 - **Found while** restoring the five docs-shell assertions WP3 deleted, as
