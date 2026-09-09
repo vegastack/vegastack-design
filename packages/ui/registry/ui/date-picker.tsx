@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/popover";
 
 /* ------------------------------------------------------------------------------------------------
- * DatePicker — single-date and range date selection, built on react-day-picker v9 + our Popover.
+ * DatePicker — single-date and range date selection, built on react-day-picker v10 + our Popover.
  *
  * Three exports:
  *  - `Calendar`        — a fully token-styled `DayPicker` (use it inline or compose it yourself).
