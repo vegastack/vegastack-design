@@ -70,9 +70,9 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          # FULL HISTORY. `pnpm exec changeset status --since=origin/main` in `verify-macos` needs a
-          # resolvable base, and `tooling/secret-scan.mjs` walks tracked history. A shallow clone
-          # fails both. Kept on the container job too so the two lanes see the identical checkout.
+          # FULL HISTORY. `tooling/secret-scan.mjs` (inside `pnpm lint`) walks tracked history, and a
+          # shallow clone fails it. Kept here as well as on `verify-macos`, which needs a resolvable
+          # base for `changeset status --since=origin/main`, so the two lanes see the same checkout.
           fetch-depth: 0
           persist-credentials: false
       # The runner's work directory is owned by the HOST runner user; inside the container the job
