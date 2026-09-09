@@ -2234,3 +2234,61 @@ joins. Flagged rather than assumed.
   manifest would make the number self-maintaining and therefore unable to detect the thing it exists
   to detect — an upstream corpus that grew while nobody looked. They are double-entry, not a
   fail-open, and are left as literals deliberately; this issue is the process that updates them.
+
+## 2026-09-09 — D3-3: Vitest 5 made every locator exact, and that found loose tests
+
+**The bump is small; the semantics are not.** `vitest` 4.1.11 → 5.0.0,
+`@vitest/browser-playwright` 4.1.11 → 5.0.0, `vitest-browser-react` 2.2.0 → 2.3.0. Ten of 2363
+browser tests failed on the first run, and every one for the same reason in two shapes: Vitest 5
+matches locator text and accessible names **whole-string** by default (`browser.locators.exact`,
+previously a substring match), and `toHaveTextContent` is whole-string equality that no longer
+accepts a RegExp — the old behaviour moved to `toMatchTextContent`.
+
+**Restoring the old looseness was available and rejected.** One line —
+`browser.locators.exact: false` — turns all ten green. It also turns the strictness off for 2363
+tests to hide nine loose assertions, which is the fail-open this repo spent G1-b removing. Every
+call site was fixed instead, and eight of the nine now assert the FULL accessible name, so the query
+states what a screen-reader user actually hears:
+
+- `tabs` — `getByRole("tab", { name: "A" })` was resolving the tab whose accessible name is
+  `Activity3`. A one-character locator matching a nine-character name is not a query; it is a
+  coincidence. Both tabs locators now name the badge-bearing string.
+- `markdown-view` — the link's name is `link (opens in new tab)`; the sr-only affordance was
+  invisible to the old substring query and is now asserted.
+- `password-input` — each row prefixes an sr-only `Met: ` / `Not met: `. That prefix IS the
+  component's state announcement and is now part of the assertion.
+- `auto-save-input` — the polite status text lives inside the `<label>`, so the field's accessible
+  name is `Display name` at rest and `Display name Saving` mid-save. Restating a name that moves
+  with the state under test would be brittle either way; these two queries moved to `getByRole`.
+- `relative-time` — the only place a partial match is still correct: the tooltip renders a time of
+  day that depends on the host timezone, so `toMatchTextContent("January 15, 2026")` preserves the
+  original, deliberate looseness rather than pinning a host-dependent string.
+
+**Two findings the exact matcher surfaced, neither fixed here.** `OnboardingChecklist`'s collapsed
+pill has the accessible name `Getting started1/3Expand checklist` — no separators, because the
+three parts are sibling elements with a CSS `gap` and no whitespace text nodes between them. The
+component's own comment explains why the name is composed that way (WCAG 2.2 SC 2.5.3, Label in
+Name) and the composition is right; the run-together announcement is not. Flagged for MK rather than
+changed, because it is a component fix in a runner batch. Second, `Command`'s option text is
+`Profile⌘P` for the same reason.
+
+**Both G1-b gates were re-proven under the new runner, not assumed.**
+`verify-test-css-layers --self-test` rejects 9 missing-layer mutations (3 lanes × 3 layers), and a
+live deletion of `@vegastack/design-tokens/utilities.css` from `geometry.css` exits 1 naming the
+layer. The focus-indicator assertion: deleting
+`:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` from
+`packages/design-tokens/src/base.css` and rebuilding turns **275 of 554** geometry tests red, each
+naming `outline-style: auto`; restoring returns 554/554. The self-invalidating exclusion mechanism
+was probed directly — a bogus `focus` exclusion on `buttonSizes` fails with
+`EXCLUDED.buttonSizes.focus is STALE`.
+
+**One piece of dead machinery removed.** Vitest 5 consolidated every run artifact under a single
+`.vitest` directory at the project root, so `workspace-clean.mjs`'s tree walk hunting for a
+`.vitest-attachments` directory "wherever the failing test lived" can no longer find anything. The
+walk, its `NEVER_DESCEND` set and the `.vitest-attachments/` ignore line are gone; the
+`FORBIDDEN_SEGMENTS` proof that survives is now stated against `node_modules/pkg/.vitest`.
+
+**There was no `@vitest/browser` override to remove.** D1's changeset prose calls its bump an
+override; `pnpm-workspace.yaml` has never contained one (`git log -S'@vitest/browser'` over that
+file is empty). `@vitest/browser` is a dependency of the pinned `@vitest/browser-playwright`, so
+pinning the provider is what moved it, and it moves to 5.0.0 the same way.

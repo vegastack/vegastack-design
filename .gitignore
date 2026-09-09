@@ -21,13 +21,14 @@ coverage/
 # dangerous when the audit epic left 22 of them holding unpushed commits.
 .claude/worktrees/
 
-# Vitest 4 run artifacts (`packages/ui/.vitest`). `tooling/workspace-clean.mjs --after-run` removes
-# this after every `pnpm verify`, so it exists only mid-run — but a `git add -A` during a run would
-# otherwise stage it.
+# Vitest 5 run artifacts. Vitest 5 consolidated every artifact — attachments, failure screenshots,
+# blob and HTML reports — under ONE `.vitest` directory at the project root, so this single entry
+# covers what `.vitest-attachments/` used to as well. `tooling/workspace-clean.mjs --after-run`
+# removes it after every `pnpm verify`, so it exists only mid-run — but a `git add -A` during a run
+# would otherwise stage it.
 packages/ui/.vitest/
 
-# vitest browser-mode artifacts
-.vitest-attachments/
+# vitest browser-mode reference screenshots (`toMatchScreenshot`)
 **/__screenshots__/
 
 # Ad-hoc screenshots from manual `playwright` CLI runs. Scratch, referenced by nothing, and

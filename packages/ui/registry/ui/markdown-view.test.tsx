@@ -41,7 +41,8 @@ test("renders headings, links, code, and list elements", async () => {
     .element(screen.getByRole("heading", { level: 2, name: "Section" }))
     .toBeInTheDocument();
   // Link (with safe rel)
-  const link = screen.getByRole("link", { name: "link" });
+  // The accessible name carries the sr-only external-link affordance.
+  const link = screen.getByRole("link", { name: "link (opens in new tab)" });
   await expect.element(link).toHaveAttribute("href", "https://example.com");
   await expect.element(link).toHaveAttribute("rel", "noreferrer noopener");
   // Inline code + lists exist in the DOM

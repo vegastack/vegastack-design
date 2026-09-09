@@ -55,11 +55,13 @@ test("renders the requirements checklist with met/unmet rows", async () => {
       ]}
     />,
   );
+  // Each row prefixes an sr-only "Met: " / "Not met: " so the state is announced, and
+  // Vitest 5 matches text exactly — so this now asserts that prefix too.
   await expect
-    .element(screen.getByText("At least 8 characters"))
+    .element(screen.getByText("Met: At least 8 characters"))
     .toBeInTheDocument();
   await expect
-    .element(screen.getByText("Contains a number"))
+    .element(screen.getByText("Not met: Contains a number"))
     .toBeInTheDocument();
 });
 

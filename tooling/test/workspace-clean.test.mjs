@@ -28,11 +28,7 @@ const SCRIPT = fileURLToPath(
 );
 
 /** Paths the script must remove in `--after-run`, relative to the root. */
-const AFTER_RUN = [
-  "packages/ui/.vitest",
-  "packages/ui/test/__screenshots__",
-  "packages/ui/registry/ui/.vitest-attachments",
-];
+const AFTER_RUN = ["packages/ui/.vitest", "packages/ui/test/__screenshots__"];
 
 /** Paths that must SURVIVE every mode. */
 const SURVIVORS = [
@@ -140,12 +136,13 @@ describe("--after-run", () => {
     expect(second).toMatch(/0 path\(s\)/);
   });
 
-  it("never removes a .vitest-attachments directory inside node_modules", () => {
-    touch(join(root, "node_modules/pkg/.vitest-attachments/x.png"));
+  // `FORBIDDEN_SEGMENTS` is the last line of defence, checked per path rather than per list.
+  // A package that ships its own `.vitest` directory must survive even though the name matches
+  // the artifact directory the script removes at the workspace root.
+  it("never removes a .vitest directory inside node_modules", () => {
+    touch(join(root, "node_modules/pkg/.vitest/attachments/x.png"));
     run(["--after-run"]);
-    expect(existsSync(join(root, "node_modules/pkg/.vitest-attachments"))).toBe(
-      true,
-    );
+    expect(existsSync(join(root, "node_modules/pkg/.vitest"))).toBe(true);
   });
 });
 

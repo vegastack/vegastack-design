@@ -55,7 +55,7 @@ test("fallbackOs holds the first render; the real platform lands after the effec
   // This browser-mode environment is a desktop Chromium — a real, non-fallback value.
   await expect
     .element(screen.getByTestId("os"))
-    .toHaveTextContent(/^(mac|windows|linux|other):false$/);
+    .toMatchTextContent(/^(mac|windows|linux|other):false$/);
   const last = seen[seen.length - 1]!;
   expect(last.os).toBe(
     detectPlatformOs(
@@ -78,7 +78,7 @@ test("the returned object keeps its identity while nothing changes", async () =>
   const screen = await render(<Harness onRender={(i) => seen.push(i)} />);
   await expect
     .element(screen.getByTestId("os"))
-    .toHaveTextContent(/^(mac|windows|linux|other):false$/);
+    .toMatchTextContent(/^(mac|windows|linux|other):false$/);
   const settled = seen[seen.length - 1]!;
   expect(seen.filter((info) => info === settled).length).toBeGreaterThan(0);
   // Every DISTINCT object seen must differ in a field — no identity churn.
@@ -119,7 +119,9 @@ test("isTouch follows a live (pointer: coarse) change", async () => {
   );
   try {
     const screen = await render(<Harness onRender={() => {}} />);
-    await expect.element(screen.getByTestId("os")).toHaveTextContent(/:false$/);
+    await expect
+      .element(screen.getByTestId("os"))
+      .toMatchTextContent(/:false$/);
 
     // A 2-in-1 detaching its keyboard: the pointer really does change mid-session.
     coarse = true;
@@ -129,7 +131,7 @@ test("isTouch follows a live (pointer: coarse) change", async () => {
         media: "(pointer: coarse)",
       } as MediaQueryListEvent);
     }
-    await expect.element(screen.getByTestId("os")).toHaveTextContent(/:true$/);
+    await expect.element(screen.getByTestId("os")).toMatchTextContent(/:true$/);
   } finally {
     spy.mockRestore();
   }

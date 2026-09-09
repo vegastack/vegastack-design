@@ -86,25 +86,14 @@ const USAGE = `Usage: node tooling/workspace-clean.mjs [--after-run|--weekly] [-
 // ------------------------------------------------------------------ what may ever be removed
 //
 // Per-run artifacts. Every one of these is written by a test runner during a single `pnpm verify`
-// and is meaningless afterwards. Globs are deliberately absent for all but `.vitest-attachments`,
-// which vitest writes wherever the failing test lived.
+// and is meaningless afterwards. No globs and no tree walk: Vitest 5 consolidated every run
+// artifact — attachments, failure screenshots, blob and HTML reports — under ONE `.vitest`
+// directory at the project root (Vitest 5 migration guide, "Reports and Artifacts Directory"), so
+// there is no longer a directory that can appear next to whichever test happened to fail.
 const AFTER_RUN_PATHS = [
   "packages/ui/.vitest",
   "packages/ui/test/__screenshots__",
 ];
-/** Directory name that may appear anywhere in the tree (vitest browser-mode attachments). */
-const AFTER_RUN_ANYWHERE = [".vitest-attachments"];
-
-/** Directories never descended into when hunting for `AFTER_RUN_ANYWHERE`. */
-const NEVER_DESCEND = new Set([
-  "node_modules",
-  ".git",
-  ".turbo",
-  ".next",
-  "out",
-  "dist",
-  ".source",
-]);
 
 /** Never removable, whatever any list says. The last line of defence, checked per path. */
 const FORBIDDEN_SEGMENTS = new Set(["node_modules", ".git"]);
@@ -196,26 +185,6 @@ function isTracked(root, path) {
   }
 }
 
-/** Every directory named one of `names`, excluding `NEVER_DESCEND` subtrees. */
-function findAnywhere(root, names, directory = root, found = []) {
-  let entries;
-  try {
-    entries = readdirSync(directory, { withFileTypes: true });
-  } catch {
-    return found;
-  }
-  for (const entry of entries) {
-    if (!entry.isDirectory() || entry.isSymbolicLink()) continue;
-    if (names.includes(entry.name)) {
-      found.push(join(directory, entry.name));
-      continue; // do not descend into a directory already scheduled for removal
-    }
-    if (NEVER_DESCEND.has(entry.name)) continue;
-    findAnywhere(root, names, join(directory, entry.name), found);
-  }
-  return found;
-}
-
 // ------------------------------------------------------------------ the modes
 
 /** Per-run test artifacts. */
@@ -225,7 +194,6 @@ function collectAfterRun(root) {
     const path = join(root, rel);
     if (existsSync(path)) targets.push(path);
   }
-  targets.push(...findAnywhere(root, AFTER_RUN_ANYWHERE));
   return targets;
 }
 
@@ -528,7 +496,6 @@ function relativeLabel(root, path) {
 }
 
 export {
-  AFTER_RUN_ANYWHERE,
   AFTER_RUN_PATHS,
   collectAfterRun,
   collectMergedWorktrees,
