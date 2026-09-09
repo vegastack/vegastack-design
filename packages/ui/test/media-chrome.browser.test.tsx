@@ -23,7 +23,8 @@ import { VideoPlayer } from "../registry/ui/video-player";
 
 const SOURCE = "data:video/mp4;base64,";
 
-const relLum = ([r, g, b]: number[]) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+const relLum = ([r, g, b]: [number, number, number]) =>
+  0.2126 * r + 0.7152 * g + 0.0722 * b;
 const gam2lin = (x: number) =>
   x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
 
@@ -54,9 +55,12 @@ function lightness(color: string): number {
     color.match(/rgba?\(\s*(\d+),?\s+(\d+),?\s+(\d+)(?:[,/\s]+([\d.]+))?\s*\)/);
   if (!rgb) throw new Error(`unparseable computed colour: ${color}`);
   const scale = srgb ? 1 : 255;
-  return Math.cbrt(
-    relLum([rgb[1], rgb[2], rgb[3]].map((c) => Number(c) / scale).map(gam2lin)),
-  );
+  // The regexes above all capture exactly three channel groups, so the triple is complete by
+  // construction; the annotation states that rather than widening `relLum`.
+  const triple = [rgb[1], rgb[2], rgb[3]].map(
+    (channel) => Number(channel) / scale,
+  ) as [number, number, number];
+  return Math.cbrt(relLum(triple.map(gam2lin) as [number, number, number]));
 }
 
 /** The first colour stop of the scrim's gradient — the end laid over the video. */

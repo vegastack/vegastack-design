@@ -423,7 +423,7 @@ function effectiveTargetProbe(element: Element) {
           style.right,
           style.bottom,
           style.left,
-        ].map(parse);
+        ].map(parse) as [number, number, number, number];
         if ([t, r, b, l].some(Number.isNaN)) continue;
         // Negative inset values grow the box outward.
         left = Math.min(left, rect.left + l);
@@ -434,7 +434,11 @@ function effectiveTargetProbe(element: Element) {
       return { width: right - left, height: bottom - top };
     })(),
     misses: points
-      .map(([x, y]) => ({ x, y, hit: document.elementFromPoint(x, y) }))
+      .map(([x, y]) => ({
+        x: x!,
+        y: y!,
+        hit: document.elementFromPoint(x!, y!),
+      }))
       .filter(({ hit }) => !ownsHit(hit))
       // `Element`, not `HTMLElement`: an SVG node is neither, and reporting it as `null` reads
       // as "nothing was there" when in fact an ancestor `<svg>` owned the point. That misread

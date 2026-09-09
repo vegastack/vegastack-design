@@ -7,6 +7,13 @@
   // `animated-icons.test.tsx` imports it across that boundary deliberately.
   "compilerOptions": {
     "paths": {
+      // The geometry lane mounts the docs preview fixtures, exactly as vitest.config.ts aliases
+      // them. Kept in step with that alias: a divergence would typecheck one module graph and
+      // execute another.
+      "@/components/preview": ["../../apps/docs/components/preview"],
+      // The preview fixtures import `cn` as the docs app spells it; the canonical binding is the
+      // registry's own re-export. Same alias vitest.config.ts uses, same reason.
+      "@/lib/cn": ["./registry/lib/utils"],
       "@/components/ui/*": ["./registry/ui/*"],
       "@/components/*": ["./registry/*"],
       "@/lib/*": ["./registry/lib/*"],
@@ -16,6 +23,10 @@
   "include": [
     "src",
     "registry",
+    // The browser lanes. Left out until G1-b, which meant the repo's newest and most
+    // load-bearing gate — test/geometry.browser.test.tsx, the only blocking visual-surface
+    // contract — was the one file `pnpm typecheck` never read.
+    "test",
     "vitest.config.ts",
     "vitest.setup.ts",
     "vitest-axe.d.ts"

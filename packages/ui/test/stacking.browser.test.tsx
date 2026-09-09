@@ -79,7 +79,9 @@ test("Select inside Dialog: the open listbox paints above the dialog", async () 
   // Native click dispatch avoids a WebKit Playwright race when opening a
   // second portaled popup from inside a modal focus trap. Poll the observable
   // portaled contract instead of assuming it mounts in the click task.
-  screen.getByRole("combobox", { name: "Fruit" }).element().click();
+  (
+    screen.getByRole("combobox", { name: "Fruit" }).element() as HTMLElement
+  ).click();
   await expect
     .poll(() => document.querySelector('[role="listbox"]'))
     .not.toBeNull();
