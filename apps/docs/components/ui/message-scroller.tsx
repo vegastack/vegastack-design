@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.6.0 sha256-5kS0oLy0EENPhWFOOF7K40xTGrghxqpoJmg9Q5q9QtQ=
+// @vegastack message-scroller@0.6.0 sha256-sTyOqyPNGHY0S5oWwZDnL+HT9eECMNtAu9lvPVv3IcU=
 
 "use client";
 
@@ -73,6 +73,16 @@ export type MessageScrollerViewportProps = React.ComponentPropsWithRef<
  * `MessageScrollerViewport` — the scrollable region. Fades its bottom edge
  * (`scroll-fade-b`), keeps a stable scrollbar gutter, and hides the scrollbar
  * during programmatic auto-scroll.
+ *
+ * **`data-pending-scroll`** (`@shadcn/react` ≥ 0.3.1): the primitive sets this on the root AND the
+ * viewport from the first render until `defaultScrollPosition` (`"end"` / `"last-anchor"`) has been
+ * applied in a layout effect. A server-rendered transcript would otherwise paint the TOP of the
+ * thread for one frame before jumping to the bottom. We answer it with `invisible`
+ * (`visibility: hidden`) rather than `hidden`/`display:none`: the primitive measures
+ * `clientHeight` and `scrollHeight` to compute where to scroll, and a display-none viewport
+ * measures zero. The attribute is cleared unconditionally on mount — with items it clears once the
+ * scroll lands, and with an empty thread the primitive clears it directly — so this can never
+ * strand a permanently invisible viewport (asserted in `message-scroller.test.tsx`).
  * @example <MessageScrollerViewport><MessageScrollerContent /></MessageScrollerViewport>
  */
 export function MessageScrollerViewport({
@@ -83,7 +93,7 @@ export function MessageScrollerViewport({
     <MessageScrollerPrimitive.Viewport
       data-slot="message-scroller-viewport"
       className={cn(
-        "size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content data-autoscrolling:scrollbar-none",
+        "size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content data-autoscrolling:scrollbar-none data-pending-scroll:invisible",
         className,
       )}
       {...props}
