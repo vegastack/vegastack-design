@@ -9,35 +9,53 @@ Started 2026-09-07 from `main` @ `6f11a4bc`. `@vegastack/ui` 0.6.0 (workspace) �
 
 ## Progress snapshot (refreshed at every state change)
 
-_Last refresh: 2026-09-09 01:50 IST (session 3)._ **Completion (effort-weighted): ≈ 60% done · 40% pending** (7 merged · 13 code-complete unmerged · 6 in progress · 4 not started).
+_Last refresh: 2026-09-09 13:00 IST (session 4)._ **Completion (effort-weighted): ≈ 70% done · 30% pending** — 8 batches merged, the whole verification rebuild merged, 9 batches code-complete and rebasing now, 5 batches not started, plus the consolidated end round.
 
-| batch              | issue           | PR                    |      own commits | stage                                                                   |
-| ------------------ | --------------- | --------------------- | ---------------: | ----------------------------------------------------------------------- |
-| F1 (+ follow-up)   | #32             | #55, #59              |                — | **merged**                                                              |
-| Do1-a              | #48a            | #54                   |                — | **merged**                                                              |
-| I1                 | #46             | #57                   |                — | **merged** `f1d7d2fb`                                                   |
-| F2                 | #33             | #60                   |                — | **merged** `8ce8de4d`                                                   |
-| Di1                | #42             | #62                   |                — | **merged** `42aa455b`                                                   |
-| T2                 | #38             | #63                   |                — | **merged** `f8ca47ca`                                                   |
-| O1                 | #40             | #66                   |               15 | finisher running (18 dirty files mid-regeneration recovered)            |
-| N1 · C1 · Mk1 · D1 | #43 #44 #47 #34 | —                     |   6 · 4 · 2 · 15 | finishers running → rebase, verify, PR                                  |
-| M1 · M2 · T1 · Fo1 | #35 #36 #37 #39 | #65 · #64 · #61 · #67 | 8 · 15 · 12 · 16 | PRs open, all CONFLICTING after WP0/WP1 → rebase once WP2 lands         |
-| G1-a               | #49a            | #53                   |               15 | rebuild plan says close unmerged, carry TG-07/TG-08 into WP3 — Needs MK |
-| D2 · O2 · P1       | #50 #41 #45     | —                     |        — · 4 · 3 | code-complete, stacked; D2 after D1, O2/P1 after O1                     |
-| Do1-b · G1-b · D3  | #48b #49b #51   | —                     |                — | not started (dependency-bound; G1-b re-scoped by the rebuild)           |
-| Version PR         | —               | #56                   |                — | MK publish gate — never merged by an agent                              |
+**The topology changed.** WP0–WP6 are all on `main` (#68 #69 #71 #70 #77 #78 #79, plus the geometry-defect ledger #80). That deleted `pnpm gates:*`, `.gates/`/`receipt.json`, `receipt-guard`, `.husky/pre-push`, `apps/docs/vrt/`, `contracts-run.mjs`, `classify-change.mjs`, `vrt-review.mjs`, `verify-gate-receipt*.mjs`, `runner-diagnostics.yml` and the `gates` skill. **There are no receipts, no remote sweeps and no merge train.** A PR now needs: rebase → `pnpm verify` → push → green CI. `pnpm verify` is byte-for-byte what CI runs.
 
-### Parallel effort: verification rebuild (`docs/plans/2026-09-08-verification-rebuild.md`)
+| batch                   | issue               | PR                          | stage                                                                                                                            |
+| ----------------------- | ------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| F1 (+ follow-up)        | #32                 | #55, #59                    | **merged**                                                                                                                       |
+| Do1-a                   | #48a                | #54                         | **merged**                                                                                                                       |
+| I1                      | #46                 | #57                         | **merged** `f1d7d2fb`                                                                                                            |
+| F2                      | #33                 | #60                         | **merged** `8ce8de4d`                                                                                                            |
+| Di1                     | #42                 | #62                         | **merged** `42aa455b`                                                                                                            |
+| T2                      | #38                 | #63                         | **merged** `f8ca47ca`                                                                                                            |
+| O1                      | #40                 | #66                         | **merged**                                                                                                                       |
+| G1-a                    | #49a                | #53                         | **closed unmerged by decision** — TG-07 (`tooling/lib/fs.mjs`) and TG-08 (`checkTransitionPairing`) confirmed on `main`; settled |
+| D1 · M1 · T1 · Fo1 · M2 | #34 #35 #37 #39 #36 | #72 · #65 · #61 · #67 · #64 | **wave 1 in flight** — agents rebasing onto post-rebuild `main`, then CI                                                         |
+| N1 · Mk1 · C1 · P1      | #43 #47 #44 #45     | #73 · #74 · #76 · #75       | wave 2 — code-complete, rebase after wave 1 merges                                                                               |
+| O2                      | #41                 | —                           | agent was stopped mid-task; **verify its scope before shipping**                                                                 |
+| D2                      | #50                 | —                           | must rebase `--onto origin/main 203b2229`, NOT onto D1's current head                                                            |
+| D3 (4 sub-PRs)          | #51                 | —                           | not started; **D3-4 opens a PR and STOPS** (MK gate)                                                                             |
+| Do1-b                   | new issue needed    | —                           | #48 is closed; WP6 moved the page canon into `design.md` § Docs canon, so the scope must be re-derived before reopening          |
+| G1-b                    | #49b                | —                           | not started; `briefs/g1b.md` is the one brief written for the post-rebuild world                                                 |
+| Version PR              | —                   | #56                         | CONFLICTING across 100 files and predates WP5 — **recommend close and regenerate**. MK decision.                                 |
 
-| WP  | what                                                 | state                                                       |
-| --- | ---------------------------------------------------- | ----------------------------------------------------------- |
-| WP0 | Linux runners online (`gates`, `gates2`)             | **merged** #68 `0935d502`                                   |
-| WP1 | geometry contracts under vitest                      | **merged** #69 `aded7838`                                   |
-| WP2 | `pnpm verify` + CI executes the browser lane         | finisher running — adopted from the dead rebuild session    |
-| WP3 | delete the attestation stack (incl. `apps/docs/vrt`) | after the audit batches land                                |
-| WP4 | ungit the generated docs files                       | one unpushed commit `5f082211`, parked until the batch wave |
-| WP5 | changelog per version                                | not started                                                 |
-| WP6 | rulebook and skills                                  | not started                                                 |
+### Verification rebuild — complete
+
+| WP  | what                                                 | state                     |
+| --- | ---------------------------------------------------- | ------------------------- |
+| WP0 | Linux runners online                                 | **merged** #68 `0935d502` |
+| WP1 | geometry contracts under vitest                      | **merged** #69 `aded7838` |
+| WP2 | `pnpm verify` + CI executes the browser lane         | **merged** #71            |
+| WP3 | delete the attestation stack (incl. `apps/docs/vrt`) | **merged** #78 `09b2107e` |
+| WP4 | ungit the generated docs files                       | **merged** #70            |
+| WP5 | changelog assembled per version                      | **merged** #77            |
+| WP6 | rulebook (AGENTS.md) and skills                      | **merged** #79 `d65088bb` |
+
+### CI capacity — 2 → 5 runners (session 4, 2026-09-09)
+
+`ci.yml`'s `verify` job runs on `[self-hosted, linux, vsk-runner]`, and only two boxes carried that
+label, so CI verified two PRs at a time against 13 pending batches. **gates3/4/5 are now enrolled**
+via `tooling/runner/provision-linux-runner.sh` per `docs/runbooks/ci-runner-provisioning-linux.md`.
+Five runners online and idle: `vsk-node-01` (192.168.88.71), `vsk-node-05` (.75), `vsk-node-06`
+(.76), `vsk-node-07` (.77), `vsk-node-08` (.78), all labelled `self-hosted,Linux,X64,vsk-runner`.
+The runbook's "Currently enrolled" table still lists two — a docs fix owed to the wave PR.
+
+Also done this session: `$OPS/briefs/_common.md` rewritten for the post-rebuild world (every other
+brief is now **SCOPE-ONLY**), and 11 merged/closed-batch worktrees pruned — `.claude/worktrees`
+55 GB → 25 GB.
 
 ## Process revision (MK, 2026-09-07 17:10) — development first, one verification round at the end
 
@@ -168,6 +186,14 @@ Rerun after every wave: `04-cross-cutting.md` §2 scan + `probe-states.mjs --all
 21. ~~**WP2 adopted mid-flight by the audit orchestrator.**~~ **WITHDRAWN 02:25 IST — the premise was wrong and no decision is needed.** The rebuild session was never dead: it opened WP4 PR #70 at 02:06 and WP2 PR #71 at 02:07, and its WP2 commits land at 01:59–02:00, about four minutes _before_ the finisher this session launched. What this session read at 01:50 as an abandoned worktree was that session's live working tree between commits. The duplicate finisher has been stopped; it committed nothing and left the tree clean at `418a9d55`, identical to #71's head. WP2 and WP4 are the rebuild session's, and it has been messaged to that effect. Cost: one wasted agent and ~20 minutes. Lesson recorded below.
 
 22. **Focus-indicator coverage will disappear silently unless someone decides otherwise.** The contract lane's focus check has been unable to fail since 2026-07-25 — it runs under `forcedColors: "active"`, where Chromium paints its own ≥2px ring, so deleting the design system's `:focus-visible` rule leaves all 864 checks green (recorded in `bugs.md`). WP3 of the rebuild deletes that check as a documented no-op. Deleting a known-vacuous gate is right; the problem is that **the repo would then have no automated focus-indicator coverage at all**, and AGENTS.md § Accessibility still promises a visible `:focus-visible`. Options: (a) add a real focus-indicator assertion to WP1's geometry lane, measuring the system's own ring rather than forced-colors'; (b) accept review-only coverage and say so explicitly in `bugs.md` and `design.md`. Recommendation: **(a)** — it is a few assertions inside a lane that already mounts every fixture, and AA focus visibility is a WCAG 2.2 commitment this system makes in writing. Either way it needs a decision before WP3 merges, and WP3 belongs to the rebuild session, not this one. Written into `briefs/g1b.md` so it cannot be lost.
+
+23. **The 15 geometry-lane defects need triage, and no batch owns them.** WP1's geometry lane found 15 real WCAG failures and shipped them as an `EXCLUDED` map in `packages/ui/test/geometry.browser.test.tsx`, each carrying its measurement, recorded in `docs/ledger/bugs.md` (2026-09-09). The lane re-executes every exclusion in expect-failure mode, so a stale exemption fails closed — the mechanism is sound, the debt is not. Examples: breadcrumb collapsed/ellipsis/trail triggers at **20.00×20.00** against a 24 px floor; `scrollFadeEdge`/`scrollFadeSize` reflowing to **332 px > 320**; the date-picker caption dropdown at **50.36×21.00**; `iconText` truncation trigger at **206.00×21.00**. Options per defect: (a) fix inside the batch that owns the component (N1 owns breadcrumb, P1 the date picker); (b) spin one new batch that clears all 15; (c) accept specific ones with a written rationale in `bugs.md`. **Recommendation: (a) where a batch is still open — it is a hit-area change, not a redesign — and (b) for the rest, as one small batch after the wave.** Nothing outward should ship with 15 documented AA failures excluded from its own gate.
+
+24. **Version PR #56 should be closed and regenerated.** It is CONFLICTING across 100 files, `main` carries 80 pending changesets, and it predates WP5 — which moved changelog assembly into `pnpm version-packages` (`tooling/changelog-assemble.mjs` runs before `changeset version`). A PR generated by the old flow cannot be merged into the new one, and every batch that lands adds changesets to it anyway. **Recommendation: close #56 now and let the next release run on `main` regenerate it** after the batches land. Closing a Version PR is an outward-adjacent step, so it waits for an explicit MK yes. Never merged by an agent either way.
+
+25. **`$OPS` — the entire orchestration toolkit — is not backed up.** `/Users/mk/projects/vegastack-design-audit-ops/` holds this mandate, all 23 briefs, `counts.mjs`, the runner and onboarding scripts, and the board worktree's config, and it is **not a git repository**. Losing the machine loses all of it. Options: (a) `git init` it and push to a private repo; (b) move the briefs into `docs/audits/2026-09-07-system-audit/briefs/` in the main repo, where they are versioned, reviewed, and visible to every agent without an absolute path. **Recommendation: (b) for the briefs and the board tooling, (a) for the rest** — the briefs are project history and belong with the audit they serve.
+
+26. **The runner runbook's "Currently enrolled" table is now wrong.** `docs/runbooks/ci-runner-provisioning-linux.md` lists two boxes; five are enrolled as of 2026-09-09 (`vsk-node-01`, `-05`, `-06`, `-07`, `-08`). Not a decision — a docs fix, owed to the wave PR. Recorded so it is not lost.
 
 ## Log
 
