@@ -129,10 +129,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
+      # Job-private pnpm bootstrap and a per-agent store; see ci.yml's `verify-macos` for the
+      # mechanism. Both mini runners share one machine and one home directory, and this action wipes
+      # `dest` — which is also where `PNPM_HOME` puts the store — on every job. Issue #94.
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+        with:
+          dest: ${{ runner.temp }}/setup-pnpm
+      # NO `cache: pnpm` — it caches the throwaway bootstrap directory. See release.yml's
+      # `version-pr`, and the store flag on the install below.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
+        with: { node-version: 24 }
+      - run: pnpm install --frozen-lockfile --store-dir "$RUNNER_WORKSPACE/pnpm-store"
       - run: pnpm registry:build
       - name: Require registry build idempotency
         run: |

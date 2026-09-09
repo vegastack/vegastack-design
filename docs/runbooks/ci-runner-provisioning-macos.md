@@ -11,6 +11,13 @@ macOS/ARM64 as well as on Linux/x86_64) and for the jobs that need a credential 
 browser: npm OIDC publish, Sigstore signing, the Cloudflare deploy, and the production boundary
 probe.
 
+**"The minis" is two runner AGENTS, not two machines.** `vsk-runner-mac-mini-1` and
+`vsk-runner-mac-mini-2` both report `Machine name: 'patrick-mac-mini'` in their job banner, both run
+as the user `vegastack-runners`, and they differ only in their runner root
+(`~/actions-runner/runner-1/_work` and `…/runner-2/_work`). Everything else in `$HOME` is shared, and
+two jobs run side by side. That is not a problem to fix — it is the capacity — but it is the fact
+every path below exists to respect. Verified 2026-09-09 from run 34335229569.
+
 ## What must be installed
 
 | Thing             | How                                                                                | Why                                                                                                  |
@@ -33,8 +40,11 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
   runner as a **LaunchAgent in a logged-in session** — not in any workflow file.
 - **No `actions/setup-node` cache step in any mini job.** Measured 2026-09-08: restoring the pnpm
   cache took **7–7.7 minutes of a ~13-minute job**. Node is preinstalled per the table above, so
-  `setup-node` buys nothing and the cache costs more than the install it replaces. `verify-macos`
-  uses `pnpm/action-setup` and a plain `pnpm install --frozen-lockfile`.
+  `setup-node` buys nothing and the cache costs more than the install it replaces. Three jobs
+  (`version-pr`, `publish`, `build-sign-deploy`) carried `cache: pnpm` anyway until 2026-09-09; it is
+  gone, and `verify-workflow-security.mjs` now rejects a `cache:` input on any `setup-node` step in a
+  mac-mini job. See **The pnpm store** below for the second reason: the path it cached was a
+  directory the next job deleted.
 - **No job containers.** Containers are Linux-only and cannot start on macOS at all.
   `tooling/verify-workflow-security.mjs` bans a `container:` on every job outside its `LINUX_JOBS`
   allowlist, and the negative harness proves the ban rejects one.
@@ -47,6 +57,46 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
 - **Not a shared developer workstation, and not holding production credentials** beyond what the
   workflows inject. A self-hosted runner executes repository code; treat the box as
   compromised-if-the-repo-is.
+
+## The pnpm store
+
+**Two agents share `$HOME`, so every pnpm path a job uses must be scoped to the agent.** Two are:
+
+| What                            | Where                                          | Lifetime                 |
+| ------------------------------- | ---------------------------------------------- | ------------------------ |
+| `pnpm/action-setup`'s bootstrap | `${{ runner.temp }}/setup-pnpm` (`dest:`)      | per agent, wiped per job |
+| The package store               | `$RUNNER_WORKSPACE/pnpm-store` (`--store-dir`) | per agent, persists      |
+
+Both are asserted by `tooling/verify-workflow-security.mjs` on every mac-mini job, and the negative
+harness proves that restoring either default is rejected.
+
+**What went wrong before 2026-09-09 (issue #94).** `pnpm/action-setup` defaults `dest` to
+`~/setup-pnpm`, opens with `rm(dest, {recursive: true})`, and then exports `PNPM_HOME` pointing
+_inside_ that directory — and pnpm derives its default store from `PNPM_HOME`
+(`pnpm store path` → `$PNPM_HOME/store/v11`). So both agents bootstrapped into one directory, that
+directory was also the package store, and every job began by deleting it. Two consequences:
+
+- **A red run with nothing to do with the diff.** A concurrent job installing while the other wiped
+  produced `Error: ENOTEMPTY: directory not empty, rmdir
+'/Users/vegastack-runners/setup-pnpm/node_modules/.bin/store/v11/files/NN'` in the _setup_ step, or a
+  half-linked `node_modules` that turbo reported as `unable to spawn child process: No such file or
+directory (os error 2)`. Every later step then read `skipped`. It hit three of eight pushes on
+  2026-09-09.
+- **No cache at all.** Every macOS install logged `reused 0, downloaded 1136` — the store never
+  survived a job, so the "persistent store" on the minis was a fiction, and each run re-downloaded
+  the whole graph (~20–31s of install).
+
+**How to tell this defect from a real failure.** It fails _before_ repository code runs — in
+`Running self-installer...` or in the first turbo task — and the error names a path under the runner
+user's home rather than anything in the workspace. A real failure names a file in the checkout. If
+you ever see one again, the check is `ls ~/setup-pnpm` on the box: after this change nothing should
+create it.
+
+**Nothing to provision.** Both paths are created by the jobs themselves. `$RUNNER_WORKSPACE` is
+`~/actions-runner/runner-N/_work/vegastack-design` — a sibling of the checkout, untouched by
+`git clean -ffdx`. Safe to delete at any time
+(`rm -rf ~/actions-runner/runner-*/_work/vegastack-design/pnpm-store`); the next run repopulates it,
+paying one cold install.
 
 ## Fork pull requests
 
