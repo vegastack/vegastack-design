@@ -192,13 +192,14 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
 > result or a cutover phase as a current deploy expectation.
 
 - npm: `@vegastack/design@0.2.0`, `@vegastack/design-tokens@0.2.0` (from 0.1.1 / 0.1.0).
-- `deploy-curated`: `Verified OK` (cosign, before deploying) then `Uploaded 1477 of 1477 assets`.
+- `build-sign-deploy` (then three jobs, `sign-curated` → `deploy-curated`; folded into one on
+  2026-09-05): `Verified OK` (cosign, before deploying) then `Uploaded 1477 of 1477 assets`.
 - `verify-protected-boundary` against `https://design.vegastack.com`: `/` and `/docs/*` return **302**
   to Cloudflare Access, and every `/r/*` path rejects anonymous while accepting the service token.
   **302 is the correct pre-cutover state, not a failure** — the public-docs cutover is separate.
 - Independently confirmed by hand: `/` → 302 to `peerxp.cloudflareaccess.com`, `/r/registry.json` → 403.
 - Billed minutes for the publish run: **0** — every job runs on the self-hosted mac minis, including
-  `publish`, `sign-curated`, `deploy-curated` and the boundary probe. No job is GitHub-hosted.
+  `publish`, `build-sign-deploy` and the boundary probe. No job is GitHub-hosted.
 
 ## 15. A successful upload can still end in a failed deployment workflow
 
@@ -208,7 +209,7 @@ operator had intentionally made the whole non-registry site public. The recovery
 verifier with the approved boundary, not to roll Cloudflare back: remove the obsolete cutover phase,
 assert public/noindex/no-store on every exported internal derivative, keep anonymous `/r/*`
 fail-closed, and validate a representative registry item's exact workspace version, hash, and signed
-manifest entry. Treat `deploy-curated` success and final workflow success as separate evidence.
+manifest entry. Treat `build-sign-deploy` success and final workflow success as separate evidence.
 
 Two recovery-specific follow-ons:
 

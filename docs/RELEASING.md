@@ -105,11 +105,13 @@ that existed:
   separate `package-build` job that handed the dist over as an artifact was removed: with token-free
   OIDC there is no credential to isolate from the build, and Actions artifact storage is unavailable
   under the billing lock, so cross-job artifacts fail.)
-- **`deploy.yml` `sign-curated`** — keeps GitHub OIDC (Sigstore keyless signing). GitHub OIDC is
-  minted by the Actions control plane and works on self-hosted runners, and the signer certificate
-  identity is the workflow ref (`deploy.yml@refs/heads/main`), not the runner, so `cosign verify-blob`
-  is unaffected.
-- **`deploy.yml` `deploy-curated`** — credential-only Cloudflare deploy; nothing is runner-specific.
+- **`deploy.yml` `build-sign-deploy`** — one job that builds the export, signs the curated
+  manifest (Sigstore keyless, GitHub OIDC), re-verifies it, and deploys with the Cloudflare credential.
+  GitHub OIDC is minted by the Actions control plane and works on self-hosted runners, and the signer
+  certificate identity is the workflow ref (`deploy.yml@refs/heads/main`), not the runner, so
+  `cosign verify-blob` is unaffected. The three-job split (`build-curated` → `sign-curated` →
+  `deploy-curated`) was folded into this one job on 2026-09-05 because Actions artifact storage is
+  unavailable under the billing lock; restore the split once it is.
 - **`deploy.yml` `verify-public-boundary`** — asserts every non-registry route is anonymously
   reachable and anonymous `/r/*` requests are rejected. Its proof depends on originating **outside**
   the trusted network, so the minis must **not** be enrolled in Cloudflare Access device posture /

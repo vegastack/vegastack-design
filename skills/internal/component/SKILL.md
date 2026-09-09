@@ -292,14 +292,14 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
 ## 7. Verify
 
 **Two commands, and one of them is a person.** `pnpm check:component <name>` is the inner loop —
-design-lint over the registry, a workspace typecheck, and this component'''s own unit test, measured
-~5s — so run it after every meaningful edit rather than saving verification for the end. `pnpm verify`
+design-lint over the registry, a workspace typecheck, and this component's own unit test, measured
+~10s — so run it after every meaningful edit rather than saving verification for the end. `pnpm verify`
 is what you run before opening the PR: typecheck, lint, `design:verify`, and the whole browser suite
 including the geometry contracts. It is byte-for-byte what CI executes, so there is nothing further to
 run and nothing to attest.
 
 ```bash
-pnpm check:component <name>                    # ~5s, after every edit
+pnpm check:component <name>                    # ~10s, after every edit
 pnpm registry:build                            # after any canonical edit: validate → hash → stamp → verify-deps
 pnpm design:derived                            # after any contract-record edit; commit what it changes
 pnpm verify                                    # BLOCKING, before the PR. Includes 320px reflow · RTL · 24px targets

@@ -94,7 +94,7 @@ Every component exists in three synced places — canonical `packages/ui/registr
 ## Verification — three loops
 
 ```bash
-pnpm check:component <name>   # ~5s     design-lint · typecheck · that one component's test
+pnpm check:component <name>   # ~10s    design-lint · typecheck · that one component's test
 pnpm verify                   # ~2m on the Mac; ~2m50 on the Linux runner, ~1m40 for the macOS static half
 pnpm verify:release           # ~7m     the deploy-only extras, on top of verify
 pnpm run clean                # report only; --after-run / --weekly reclaim, --dry-run never removes
