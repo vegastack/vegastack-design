@@ -29,7 +29,7 @@
         "whenToUse": "Annotate a thread inline - a merged/status line, a date divider, or a small action row.",
         "whenNotToUse": "A standalone status chip outside a conversation (use Badge) or a full banner (use Alert).",
         "version": "0.6.0",
-        "integrity": "sha256-wN6AYpWYf3HZsaS+uEuwLqd/d3JQbE6NU8UdRiQtTGU="
+        "integrity": "sha256-3B6BajZ0vH1hKJiBKCY872H+iRtuN2p5Cqg1hYH0Mq4="
       }
     },
     {
@@ -1602,7 +1602,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.6.0",
-        "integrity": "sha256-XdT4pZ1LPFiLFrkpARLnLM41jZbBnlvc4Y/+equyJUs="
+        "integrity": "sha256-fcdUMI3NEs5nGTU6nGNb61NTO406SoORxifnGs655+c="
       }
     },
     {

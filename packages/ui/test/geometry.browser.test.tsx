@@ -100,102 +100,45 @@ type Assertion = "reflow" | "rtl" | "target" | "focus";
  *      now passes, the fixture's test FAILS with "the exclusion is stale". So an exclusion
  *      cannot outlive the defect it records: fixing the component forces deleting the entry.
  *
- * Every measurement below was re-taken on 2026-09-08 with the per-assertion map in place; the
- * numbers are from that run, not carried over from the flat-list version. Guard 2 earned its
- * keep on the first run: `comboboxMultiple` (recorded as a 16×16 chip remove — it measures
+ * Every measurement below was re-taken on 2026-09-09, by deleting the entry and reading what the
+ * lane actually reports — the only honest way to read one, and the reason the numbers here are not
+ * the ones recorded on 2026-09-08: those predate M2's fix to `test/geometry.css`, which had been
+ * compiling every custom `@utility` to an empty rule. Guard 2 earned its keep on the first run: `comboboxMultiple` (recorded as a 16×16 chip remove — it measures
  * 24.00×24.00 now that the Chip primitive owns that control) and `chartDemoDonut` (recorded as a
  * donut `<g role="button">` the rectangular probe could not express — no such control matches
  * `INTERACTIVE_SELECTOR` at all; the only interactive node is the 270×256 `<svg>`, which passes)
  * were both exempting assertions that PASS. A flat list would have carried both indefinitely.
  */
 const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
-  // ── focus indicator ───────────────────────────────────────────────────────────────────────
-  // Ten entries in three groups: Textarea, an Input inside an addon/password GROUP (a bare Input
-  // tints correctly — `inputStates` is deliberately not here), and TextEdit. Every one fails the
-  // SAME way: on
-  // focus its computed `border-color` is `oklab(0.145 0.000776457 0.00289778 / 0.08)` — the
-  // resting `--input` colour — where the sanctioned tint
-  // (`focus:border-ring/(--alpha-tint-border)`, `fieldSurface` in `@vegastack/design`) should
-  // produce `--ring` at 70%, around `oklab(0.353 … / 0.7)`. `outline-style` is `none` on these
-  // controls by design: a text field cannot tell mouse from keyboard, so the border tint IS its
-  // whole focus affordance. It is not appearing, so they have none.
-  //
-  // Measured 2026-09-09 while adding this assertion, and NOT a probe artefact — each of these was
-  // checked directly: the utility is in the compiled sheet
-  // (`.focus\:border-ring\/\(--alpha-tint-border\):focus { border-color: color-mix(in oklab,
-  // var(--ring) var(--alpha-tint-border), transparent) }`), `--ring` computes to
-  // `oklch(0.353 0.003 75)` at both `:root` and the control, `--alpha-tint-border` computes to
-  // `70%`, `CSS.supports` accepts `color-mix`, and `control.matches(":focus")` is true. The rule
-  // matches and the computed value is still the resting one. Diagnosing which declaration wins is
-  // component/token work, not gate work: written up in `docs/ledger/bugs.md` (2026-09-09) and
-  // flagged for MK rather than fixed here.
-  //
-  // These entries are SELF-INVALIDATING, like every other entry in this map: `runAssertion` still
-  // executes an excluded assertion in expect-failure mode, so the day the tint lands, each of
-  // these turns red with "the exclusion is stale" and must be deleted. Nobody has to remember.
-  // ── reflow / RTL ──────────────────────────────────────────────────────────────────────────
-  // The demo lays two fixed-width scroll panels side by side, which do not fit a 320px viewport.
-  // The docs route absorbed that inside `PreviewFrameContainer`'s `overflow-x-auto`, so the
-  // page-level reflow assertion never saw it. The overflow is in the DEMO's layout, not the
-  // utility being demonstrated — and it is direction-independent, hence both lanes.
-  scrollFadeEdge: {
-    reflow:
-      "reflow: two side-by-side scroll panels, scrollWidth 332 > clientWidth 320",
-    rtl: "reflow (RTL): mirroring does not change the fixed widths, scrollWidth 332 > 320",
-  },
-  scrollFadeSize: {
-    reflow:
-      "reflow: two side-by-side scroll panels, scrollWidth 332 > clientWidth 320",
-    rtl: "reflow (RTL): mirroring does not change the fixed widths, scrollWidth 332 > 320",
-  },
-
-  // ── 24px size floor ───────────────────────────────────────────────────────────────────────
-  // The control's effective target (border box ∪ ::before/::after hit area) is under 24px on one
-  // axis. Each of these still runs reflow AND RTL. Control index is the position in the
-  // fixture's `INTERACTIVE_SELECTOR` order, so a failure is locatable without re-deriving it.
-  iconText: {
-    target:
-      "size: control 0 (focusable truncation trigger) measures 206.00×21.00 — height short",
-  },
-  iconTextSides: {
-    target:
-      "size: control 0 (focusable truncation trigger) measures 206.00×21.00 — height short",
-  },
-  markerLinkButton: {
-    target:
-      "size: control 0 (marker link) measures 270.00×21.00 — height short",
-  },
-  messageScrollerVisibility: {
-    target: "size: control 2 measures 99.00×16.00 — height short",
-  },
-  tabsChip: {
-    target: "size: control 3 (chip tab) measures 237.97×21.00 — height short",
-  },
-
+  // The focus-indicator group that used to head this map is GONE, not forgotten: #100 landed the
+  // text-entry border tint and all ten entries were deleted with it (`docs/ledger/bugs.md`,
+  // 2026-09-09). Its comment outlived the entries by one PR and is deleted here too — a comment
+  // describing ten exclusions that do not exist reads as known-broken coverage that nobody owns.
   // ── 24px obstruction ──────────────────────────────────────────────────────────────────────
   // The control is big enough, but something else owns the interior of the centred 24px square:
   // `elementFromPoint` resolves the probe points to another element. Miss counts are out of the
   // five points probed (four edges of the centred square, plus its centre).
-  actionBarPending: {
-    target:
-      "obstruction: control 0 (visual 58.6×28.0) misses all 5 points — the pending ActionBar " +
-      "surface owns its own control's centre",
-  },
-  attachmentImageThumbnail: {
-    target:
-      "obstruction: control 0 (visual 24.0×24.0) misses all 5 points — the `absolute inset-0` " +
-      "attachment trigger covers the 24×24 action beneath it",
-  },
+  //
+  // Both entries below were RE-MEASURED on 2026-09-09 and both are real. Neither can be closed
+  // without a decision that changes something a user can see, so both are open questions for MK
+  // rather than a fix somebody can just make — see `docs/ledger/bugs.md` (2026-09-09).
   resizableNested: {
     target:
-      "obstruction: control 0 (visual 1.0×254.0, its -inset hit area passes the size floor) " +
-      "misses 3 of 5 points — nested handles overlap, so the outer handle's centre is owned by " +
-      "the inner one",
+      "obstruction: control 0 (the outer vertical handle, visual 1.0x254.0, its 24px `after` hit " +
+      "area passes the size floor) misses 3 of 5 points — at a nested T-junction the inner " +
+      "horizontal handle's own 24px hit area crosses the outer handle's centre, and the inner " +
+      "one is deeper in the DOM so it wins the pointer. Two perpendicular drag targets cannot " +
+      "both own the 24x24 square where they meet; which one should is a design decision",
   },
   timeline: {
     target:
-      "obstruction: control 0 (visual 63.4×16.0) misses 1 of 5 points — the timeline separator " +
-      "marker owns the centre of the adjacent link",
+      "obstruction: control 2 (the LAST item's RelativeTime, visual 60.7x21.0) misses 1 of 5 " +
+      "points — its `-inset-y-1` hit area reaches 4px below the row, but `timeline-content` " +
+      "drops its bottom padding on the last item (`group-last/timeline-item:pb-0`), so the " +
+      "overhang escapes every ancestor box and Chromium stops hit-testing it: the effective " +
+      "target is clipped to the row's own 23px. Proved 2026-09-09 by adding 8px of padding to " +
+      "the last <li>, which restores ownership of the same point. Closing it means either " +
+      "trailing whitespace under the last row or a taller row — both visible",
   },
 };
 
@@ -609,7 +552,7 @@ function isVisible(element: Element) {
 }
 
 /**
- * Playwright's `isDisabled`, in plain DOM.
+ * Playwright's `isDisabled`, in plain DOM, plus `inert`.
  *
  * `:disabled` covers native form controls (and, per the CSS selector's own semantics, a control
  * inside a disabled `<fieldset>`). ARIA disablement is INHERITED the same way Playwright treats
@@ -617,11 +560,24 @@ function isVisible(element: Element) {
  * disabled toolbar group — is disabled too, even though the attribute is not on the control
  * itself. The first version of this file checked only the control's own attribute and so probed
  * controls the route lane had skipped.
+ *
+ * `inert` is the THIRD form of the same fact, and the strongest: an inert subtree is removed
+ * from the tab order and the accessibility tree AND is not hit-testable at all, so a control
+ * inside one accepts no pointer action whatsoever. WCAG 2.2 §2.5.8 sizes TARGETS — "a region of
+ * the display that will accept a pointer action" — so a control that can accept none is out of
+ * scope for the same reason a disabled one is. Recorded 2026-09-09 as `actionBarPending`:
+ * `ActionBar` marks its action group `inert` while a bulk operation is in flight (a deliberate
+ * choice over `disabled`, so the keyboard cannot re-trigger it either), and the probe then
+ * reported the 58.6x28.0 button as obstructed by its own toolbar on all five points — the toolbar
+ * root is simply the first NON-inert element under the pointer. Nothing about the control was
+ * ever wrong. Without this the lane cannot tell "hidden from the pointer on purpose" from
+ * "covered by a bug", which is the distinction the obstruction assertion exists to make.
  */
 function isDisabled(element: Element) {
   return (
     element.matches(":disabled") ||
-    element.closest('[aria-disabled="true"]') !== null
+    element.closest('[aria-disabled="true"]') !== null ||
+    element.closest("[inert]") !== null
   );
 }
 
@@ -810,6 +766,18 @@ for (const [name, fixture] of FIXTURES) {
           getComputedStyle(control).display === "inline"
         )
           continue;
+
+        // A tab PANEL is not a target. It matches `INTERACTIVE_SELECTOR` only through
+        // `[tabindex="0"]`, which Base UI puts there for the APG reason — a panel whose content
+        // holds nothing focusable must still be reachable by keyboard — and it accepts no
+        // pointer action of its own: clicking it activates nothing. WCAG 2.2 §2.5.8 sizes
+        // "a region of the display that will accept a pointer action", so there is no target
+        // here to size. Recorded 2026-09-09 as `tabsChip`, where the one-line "Record overview
+        // panel." panel measured 237.97x21.00 — the panel's TEXT is short, which is not a defect
+        // in anything. Scoped to `role="tabpanel"` alone and NOT to focusable containers in
+        // general: a `role="separator"` resize handle is focusable AND a drag target, and must
+        // keep being measured.
+        if (control.getAttribute("role") === "tabpanel") continue;
 
         // Centre the control so nothing scrolled out of the 320×812 viewport can steal its hit.
         control.scrollIntoView({ block: "center", inline: "center" });

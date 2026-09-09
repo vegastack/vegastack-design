@@ -64,6 +64,11 @@ export function attachmentImageThumbnail(): ReactNode {
           <AttachmentTitle>cover-photo.png</AttachmentTitle>
           <AttachmentDescription>1920×1080 · 3.4 MB</AttachmentDescription>
         </AttachmentContent>
+        {/* The trigger comes FIRST: it and `AttachmentActions` share the
+            `z-(--z-raised)` band, so DOM order decides who owns the pointer. With the
+            actions second, the remove button stays clickable; the other way round the
+            full-card overlay swallows all 24x24 of it. */}
+        <AttachmentTrigger aria-label="Open cover-photo.png" />
         <AttachmentActions>
           <IconButton
             aria-label="Remove cover-photo.png"
@@ -73,7 +78,6 @@ export function attachmentImageThumbnail(): ReactNode {
             <X />
           </IconButton>
         </AttachmentActions>
-        <AttachmentTrigger aria-label="Open cover-photo.png" />
       </Attachment>
     </Wrapper>
   );

@@ -1,4 +1,4 @@
-// @vegastack marker@0.6.0 sha256-wN6AYpWYf3HZsaS+uEuwLqd/d3JQbE6NU8UdRiQtTGU=
+// @vegastack marker@0.6.0 sha256-3B6BajZ0vH1hKJiBKCY872H+iRtuN2p5Cqg1hYH0Mq4=
 
 "use client";
 
@@ -20,13 +20,25 @@ export const markerVariants = cva(
   {
     variants: {
       variant: {
-        /** A plain inline marker for status, notes, and actions. */
-        default: "",
+        /**
+         * A plain inline marker for status, notes, and actions.
+         *
+         * A marker rendered as a link or a button IS the control, and one line of
+         * `text-base` is a 21px box — under the 24px pointer-target floor (WCAG 2.2
+         * §2.5.8). `:is(a, button)` adds an invisible `::before` hit area to exactly
+         * those cases, so the row measures 29px to the pointer and not one pixel
+         * differently to the eye. It is scoped to this variant (and `border`) rather
+         * than the base because `separator` spends both pseudo-elements on its divider
+         * lines. Measured: 270.00x21.00 -> 270.00x29.00.
+         */
+        default:
+          "[&:is(a,button)]:before:absolute [&:is(a,button)]:before:inset-x-0 [&:is(a,button)]:before:-inset-y-1",
         /** A centred label flanked by divider lines on each side. */
         separator:
           "before:mr-1 before:h-px before:min-w-0 before:flex-1 before:bg-border after:ml-1 after:h-px after:min-w-0 after:flex-1 after:bg-border",
-        /** A marker with a bottom hairline under the row. */
-        border: "border-b border-border pb-2",
+        /** A marker with a bottom hairline under the row. Same hit area as `default`. */
+        border:
+          "border-b border-border pb-2 [&:is(a,button)]:before:absolute [&:is(a,button)]:before:inset-x-0 [&:is(a,button)]:before:-inset-y-1",
       },
     },
     defaultVariants: { variant: "default" },

@@ -1,4 +1,4 @@
-// @vegastack truncated-text@0.6.0 sha256-XdT4pZ1LPFiLFrkpARLnLM41jZbBnlvc4Y/+equyJUs=
+// @vegastack truncated-text@0.6.0 sha256-fcdUMI3NEs5nGTU6nGNb61NTO406SoORxifnGs655+c=
 
 "use client";
 
@@ -413,6 +413,13 @@ export function IconText({
     expanded,
     setExpanded,
   );
+  // A clipped row becomes a real control — a Tooltip trigger, and on a no-hover device a
+  // `role="button"` disclosure — so it has to meet the 24px pointer-target floor. A single
+  // line of `text-base` is 21px, so the row carries an invisible `::before` hit area
+  // (`-inset-y-1`) exactly as `RelativeTime` does; unlike `TruncatedText`, whose focusable box
+  // IS the `truncate`d (and therefore `overflow-hidden`) element, this row only wraps the
+  // clipped span, so a pseudo-element can extend past it. Measured: 206.00x21.00 -> 206.00x29.00.
+  const isInteractive = isTruncated && (isFocusable || touchToggleActive);
 
   const row = (
     <div
@@ -422,12 +429,15 @@ export function IconText({
       // devices) — keyboard-focusable so the full text is reachable without a pointer
       // (register P0-04), unless a host turned that off (D9). See TruncatedText for why
       // `touchToggleActive` overrides the opt-out.
-      tabIndex={
-        isTruncated && (isFocusable || touchToggleActive) ? 0 : undefined
-      }
+      tabIndex={isInteractive ? 0 : undefined}
       role={touchToggleProps.role}
       aria-expanded={touchToggleProps["aria-expanded"]}
-      className={cn("flex min-w-0 items-center gap-2", className)}
+      className={cn(
+        "flex min-w-0 items-center gap-2",
+        isInteractive &&
+          "relative before:absolute before:inset-x-0 before:-inset-y-1",
+        className,
+      )}
       {...props}
       onClick={composeHandlers(touchToggleProps.onClick, props.onClick)}
       onKeyDown={composeHandlers(touchToggleProps.onKeyDown, props.onKeyDown)}

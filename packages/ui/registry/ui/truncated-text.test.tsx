@@ -215,6 +215,37 @@ test("overflowing IconText row is keyboard-focusable (tabIndex 0)", async () => 
     .toBe("0");
 });
 
+test("the IconText hit area appears exactly when the row becomes a control", async () => {
+  // The row is a 21px `text-base` line box; the moment overflow turns it into a Tooltip
+  // trigger it is also a pointer target, and WCAG 2.2 §2.5.8 wants 24px. The invisible
+  // `::before` expansion supplies that — and it must be COUPLED to the tab stop, because a
+  // hit area on a non-control is dead weight and a control without one is the defect the
+  // geometry lane recorded (206.00×21.00, `docs/ledger/bugs.md` 2026-09-09).
+  const long =
+    "An extremely long label that will overflow the constrained row width";
+  const screen = await render(
+    <TooltipProvider>
+      <style>{`[data-slot="icon-text-label"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
+      <IconText icon={<span>•</span>} text={long} />
+      <IconText icon={<span>•</span>} text="short" />
+    </TooltipProvider>,
+  );
+  const rows = () => [
+    ...screen.container.querySelectorAll('[data-slot="icon-text"]'),
+  ];
+  await expect
+    .poll(() =>
+      rows().map((row) => ({
+        tabIndex: row.getAttribute("tabindex"),
+        hitArea: row.className.includes("before:-inset-y-1"),
+      })),
+    )
+    .toEqual([
+      { tabIndex: "0", hitArea: true },
+      { tabIndex: null, hitArea: false },
+    ]);
+});
+
 // --- Touch tap-to-toggle disclosure (audit fix #6: Base UI Tooltip is hover/focus-only, so
 // touch devices need a tap-driven fallback) -----------------------------------------------
 
