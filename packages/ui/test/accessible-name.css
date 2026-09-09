@@ -18,6 +18,13 @@
 @import "@vegastack/design-tokens/theme.css";
 @import "@vegastack/design-tokens/base.css";
 @import "@vegastack/design-tokens/utilities.css";
+/* `tw-animate-css` — the `animate-in`/`fade-in`/`zoom-in`/`slide-in-from-*` family that
+   `@vegastack/design/preset.css` ships to every consumer, and which every other compiled-CSS lane
+   imports for the reason `verify-test-css-layers.mjs` states: an undefined utility compiles to
+   NOTHING with no error, so a fixture wearing one would be measured without it. This lane landed
+   (#114) in parallel with the gate that requires it (#115), so `main` carried the two together for
+   the first time on 64ba720e and failed there — this import is that fix, not a change of policy. */
+@import "tw-animate-css";
 
 @source '../registry/ui/**/*.tsx';
 @source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */
