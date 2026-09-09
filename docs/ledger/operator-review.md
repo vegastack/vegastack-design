@@ -315,7 +315,11 @@ and about the three places where the audit's instruction and the installed reali
   exact pin nobody asked for. The rename sweep the batch was named after is a **no-op**: a script
   collected all 126 distinct named `lucide-react` imports across `packages/ui/registry`,
   `packages/design/src`, `apps/docs` and `tooling`, and resolved each against the installed 1.42.0
-  module — every one still exists, and `Trash` (the removed icon) was already `Trash2` everywhere.
+  module — every one still exists. **A correction to the audit's premise:** `01-deps.md` lists
+  `Trash` → `Trash2` as a breaking rename, but lucide-react 1.42.0 still exports `Trash` as a real
+  icon (`declare const Trash: LucideIcon`), and every historical rename it does make is kept as a
+  named alias (`CircleAlert as AlertCircle`, `TriangleAlert as AlertTriangle`, …). There is no
+  rename to sweep at this version; the sweep is a no-op by construction, not by luck.
 - **`@vegastack/design`'s lucide PEER range stays `^1.24.0`.** Bumping the devDependency moved the
   peer too; that was reverted. The peer declares the minimum version this package is compatible
   with, not the version we happen to test against, and narrowing it would make every consumer on a
@@ -371,6 +375,20 @@ and about the three places where the audit's instruction and the installed reali
   `ci.yml`, `release.yml` and `deploy.yml` move to `v1.63.0-noble` in the same commit as the
   dependency. The five self-hosted Linux runners each pull a fresh image on the first run after
   this lands.
+- **Two audit premises did not survive verification, and the prose was corrected rather than
+  repeated.** `01-deps.md` lists `Trash` → `Trash2` as a lucide rename to sweep and
+  `Locator.ariaRef()` as a Playwright 1.62 removal to check call sites for. Measured against the
+  installed packages: lucide-react 1.42.0 still exports `Trash` as a real icon and keeps every
+  historical rename as a named alias, and `ariaRef` appears nowhere in the type surface of
+  playwright-core 1.61.0 or 1.63.0. Both items are no-ops for a reason different from the one the
+  audit gave, which is worth writing down because "no change needed" for the wrong reason is how a
+  real rename gets missed next time.
+- **The docs app's `lucide-react` and `recharts` ranges were lost on the rebase and restored.**
+  `apps/docs/package.json` conflicted only on a `@playwright/test` line that `main` had deleted
+  (WP3 removed the Playwright docs runner); taking main's side wholesale also reverted the two
+  dependency bumps below it. Caught by the lockfile resolving two `recharts` versions — the docs
+  copy-in of `chart` would have run against 3.9.2 while the registry item declared 3.10.1. This is
+  conflict trap #4 from the epic's common brief, hit a third time.
 - **UNCOVERED DECISION — the phantom `@playwright/test` peer is now pinned by a workspace
   override.** `.npmrc` sets `auto-install-peers=true`, and Next 16.3.4 declares an OPTIONAL
   `@playwright/test` peer that no manifest in this repo asks for. pnpm had it parked at 1.61.0; once

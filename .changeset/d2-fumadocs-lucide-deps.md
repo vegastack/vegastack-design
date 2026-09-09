@@ -26,10 +26,11 @@ mounted Preview panel and the markdown export reads fixture source from disk, so
 was added.
 
 Nothing in the component sources changed for the icon or chart bumps. The lucide 1.25 → 1.42 rename
-sweep is a no-op — every named lucide import in the registry, the design package and the docs app
-still resolves, and `Trash` (removed upstream in favour of `Trash2`) was already unused — and the
-439 animated-icon data modules regenerate byte-identical through the factory, with the 28 new
-upstream icons left unadopted. axe-core 4.12.1 → 4.13.0 expands `aria-prohibited-attr` and
+sweep is a no-op: all 126 distinct lucide names imported across the registry, the design package and
+the docs app — 125 icons plus the `LucideIcon` type — resolve against the installed 1.42.0 module,
+and lucide keeps every historical rename as a named alias, so there is nothing to sweep. The 439
+animated-icon data modules regenerate byte-identical through the factory, with the 28 new upstream
+icons left unadopted. axe-core 4.12.1 → 4.13.0 expands `aria-prohibited-attr` and
 `role=image`, and the browser axe lane reports no new violation. recharts 3.9.2 → 3.10.1 deprecates
 `Legend`'s `align`/`verticalAlign` in favour of `position`/`offset`; no `ChartLegend` call site
 passes either and `Legend` still injects `verticalAlign` into custom content, so
