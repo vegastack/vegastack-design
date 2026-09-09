@@ -45,7 +45,8 @@ Every bug found + root cause + fix. Append-only.
   - reflow + RTL: `scrollFadeEdge`, `scrollFadeSize` — two side-by-side scroll panels,
     scrollWidth 332 > clientWidth 320 (a demo-layout overflow, not the utility).
   - 24px size floor: `breadcrumbCollapsed`, `breadcrumbEllipsisMenu`, `breadcrumbTrail` — the
-    ellipsis/collapsed-crumb trigger measures 20.00×20.00; `datePickerDropdownCaption` — caption
+    ellipsis/collapsed-crumb trigger measures 20.00×20.00 (**fixed by N1, 2026-09-09 — see the
+    entry below**); `datePickerDropdownCaption` — caption
     dropdown 50.36×21.00; `iconText`, `iconTextSides` — focusable truncation trigger 206.00×21.00;
     `markerLinkButton` — marker link 270.00×21.00; `messageScrollerVisibility` — control 99.00×16.00;
     `stepperVertical` — vertical step 152.08×23.00; `tabsChip` — chip tab 237.97×21.00.
@@ -322,12 +323,17 @@ pointer targets` — `mobile-chromium-dark` only, 879/880 passing, with all five
   component that grows a variable tag: type the props off the NARROWER element.
 
 - **The browser-unit suite cannot assert compiled geometry, and it is easy to forget.** The first
-  draft of the SP-02 tab-rail test measured `getBoundingClientRect()` gaps. `packages/ui/vitest.config.ts`
-  says it plainly — only `test/contrast.css` is compiled, "other test files import no CSS" — so
-  `mb-1` would never have applied and the assertion would have measured an unstyled element. **Fix:**
-  the class rules are asserted in the unit suite; the MEASURED gap went into
-  `apps/docs/vrt/contracts.spec.ts`, which runs against the docs page's real built CSS. Any geometry
-  assertion belongs in the contract lane, not the unit lane.
+  draft of the SP-02 tab-rail test measured `getBoundingClientRect()` gaps from a file that imports
+  no stylesheet. `packages/ui/vitest.config.ts` says it plainly — only `test/contrast.css` and
+  `test/geometry.css` are compiled, "other test files import no CSS" — so `mb-1` would never have
+  applied and the assertion would have measured an unstyled element. **Fix:** the class rules are
+  asserted in the unit suite; the MEASURED gap lives in `packages/ui/test/surface-ladder.browser.test.tsx`,
+  one of the two files that compiles the real Tailwind theme against `registry/ui`. It measures
+  5.00px in both orientations (the 4px logical margin plus the list's 1px rule), and inverting the
+  bound turns it red, so it is not a no-op. Any geometry assertion belongs in a compiled-CSS file,
+  never in a bare unit file. (Originally written into `apps/docs/vrt/contracts.spec.ts`; that lane
+  was deleted by the verification rebuild on 2026-09-08 — R3 — and the assertion was carried over
+  during N1's rebase rather than dropped with it.)
 
 - **Calling `unmount()` mid-test poisons every later `render()` in the file.** Two of N1's new tabs
   tests rendered several variants in one test and called `screen.unmount()` between them, to keep
@@ -345,14 +351,29 @@ pointer targets` — `mobile-chromium-dark` only, 879/880 passing, with all five
   `dropzone.test.tsx:490` still calls `unmount()`, and is safe only because it is that file's last
   test — a latent trap for whoever appends to it.
 
-- **`contracts-run.mjs` predicted the full-sweep test count from routes alone.** Adding the SP-02
-  named geometry test to `contracts.spec.ts` made `--list` report 884 where the run expected 880, and
-  the cross-check correctly refused to adjust to it. **Root cause:** the expectation was
-  `routes × assertions × projects`, which has no term for a test that is not generated per route.
-  **Fix:** `FIXED_TEST_TITLES` names such tests explicitly and `FULL_TEST_COUNT` adds them; the count
-  stays a contract that a new named test must update deliberately.
-
 ---
+
+## 2026-09-09 — N1: the three breadcrumb 24px target defects are fixed
+
+- **Symptom:** `breadcrumbCollapsed`, `breadcrumbEllipsisMenu` and `breadcrumbTrail` each measured
+  **20.00×20.00** against the WCAG 2.5.8 24 CSS px effective-target floor — three of the 15
+  exclusions recorded above on 2026-09-09. All three are the SAME control: a `DropdownMenuTrigger`
+  whose only child is the 20px `BreadcrumbEllipsis` glyph.
+- **Root cause:** the glyph box (`size-5`) was also the trigger's border box, and nothing expanded
+  it. `BreadcrumbEllipsis` could not fix this from the inside: the geometry probe unions the
+  CONTROL's own `::before`/`::after` with its border box, so an expansion on the inner span makes
+  `elementFromPoint` resolve correctly but leaves the measured size at 20.
+- **Fix:** the trigger carries `relative before:absolute before:-inset-0.5` — 2px of transparent
+  generated content per side, bringing the effective target to exactly 24×24 with no change to the
+  visible box and no change to `BreadcrumbList`'s line height. 2px stays inside the list's 6px
+  `gap-1.5`, so it never reaches into a neighbouring segment's target square. Applied in
+  `BreadcrumbCollapsed` and in the docs preview's hand-rolled trigger (which demonstrates the
+  manual pattern and must therefore demonstrate the hit area too); `BreadcrumbEllipsis`'s doc
+  comment now says the wrapping trigger owns the target.
+- **Evidence:** the three `EXCLUDED` entries are deleted, and `geometry.browser.test.tsx` runs
+  **532 tests green**. The map re-executes every exclusion in expect-failure mode, so deleting an
+  entry is only possible once the assertion genuinely passes.
+- **Left:** 12 of the 15 exclusions, owned by other batches.
 
 ## 2026-09-07 — 439 reduced-motion effects with no dependency array, and a reduced-motion assertion that could not fail
 

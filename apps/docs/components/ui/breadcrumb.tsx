@@ -1,4 +1,4 @@
-// @vegastack breadcrumb@0.6.0 sha256-vH1gzQfu0K5NTdJp6fNYllPupR2pN5YO3GC9si8FN9A=
+// @vegastack breadcrumb@0.6.0 sha256-YtGAzWGK9sozjdl3MpYwgryMAnZ8JPX/NniCPqpzOxk=
 
 "use client";
 
@@ -197,6 +197,11 @@ export type BreadcrumbEllipsisProps = React.ComponentPropsWithRef<"span">;
  * `BreadcrumbEllipsis` — a collapsed-segments indicator (`…`) for long trails.
  * Decorative only: expose hidden segments with a separate accessible menu/trigger
  * when users need to navigate them. Place inside a `BreadcrumbItem`.
+ *
+ * The glyph box is 20px, so it is the WRAPPING TRIGGER that owns the WCAG 2.5.8
+ * 24×24 target — add `relative before:absolute before:-inset-0.5` to it, as
+ * {@link BreadcrumbCollapsed} does. Expanding this span instead would grow the
+ * trail's line box; the invisible expansion does not.
 
  *
  * @example
@@ -297,7 +302,17 @@ function BreadcrumbCollapsed({
         data-slot="breadcrumb-collapsed-trigger"
         // The focus ring is the global `:focus-visible` rule — restating it here (B6-10) only
         // gave the two a way to drift.
-        className={cn("rounded-sm hover:text-foreground", className)}
+        //
+        // The trigger's visible box is the 20px `BreadcrumbEllipsis` glyph, which is under the
+        // WCAG 2.5.8 24×24 CSS px floor. A transparent `::before` expansion (`relative` +
+        // `before:absolute before:-inset-0.5`) brings the EFFECTIVE target to exactly 24×24
+        // without touching the visible box or the trail's line height. 2px per side stays well
+        // inside `BreadcrumbList`'s 6px `gap-1.5`, so it never reaches into a neighbouring
+        // segment's own target square.
+        className={cn(
+          "relative rounded-sm before:absolute before:-inset-0.5 hover:text-foreground",
+          className,
+        )}
         {...props}
       >
         <BreadcrumbEllipsis />

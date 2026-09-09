@@ -114,7 +114,10 @@ export function breadcrumbEllipsisMenu(): ReactNode {
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label="Show collapsed segments"
-                className="flex items-center rounded-sm hover:text-foreground focus-visible:outline-ring"
+                /* The 20px ellipsis glyph is under the WCAG 2.5.8 24px floor, so the trigger
+                   carries the invisible `::before` expansion that brings its effective target
+                   to 24×24 — the same one `BreadcrumbCollapsed` applies for you. */
+                className="relative flex items-center rounded-sm before:absolute before:-inset-0.5 hover:text-foreground"
               >
                 <BreadcrumbEllipsis />
               </DropdownMenuTrigger>
