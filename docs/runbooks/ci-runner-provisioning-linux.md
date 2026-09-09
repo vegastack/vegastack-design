@@ -30,9 +30,10 @@ gh api repos/VegaStack/vegastack-design/actions/runners \
   --jq '.runners[] | "\(.name)\t\(.status)\t\([.labels[].name] | join(","))"'
 ```
 
-Every row must read `online` with `self-hosted,Linux,X64,vsk-runner`; the runner name is the box's
-short hostname, and `ssh <hostname>` or the LAN address resolves the rest. CI concurrency on the
-Linux class is simply how many rows that command prints.
+Every row must read `online` with `self-hosted,Linux,X64,vsk-runner`, and the runner name **is** the
+box's short hostname — so that command is also the fleet roster. CI concurrency on the Linux class is
+simply how many rows it prints. (SSH aliases and addresses are operator-local `~/.ssh/config`, not
+repository state, and are deliberately not listed here.)
 
 The only per-host fact that is **not** derivable from that command, and that a reader needs:
 
