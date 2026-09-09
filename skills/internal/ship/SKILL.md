@@ -233,7 +233,7 @@ The unprivileged Release quality gate runs first. A changeset-bearing run opens 
 **Version Packages** PR. Review its package versions, `version-sync` stamped item versions, generated
 changelogs, and regenerated `public/r`. STOP for the separate MK approval, then merge it. The merge
 run validates again and only the isolated publish job holds OIDC. Publishing runs on the self-hosted
-minis, token-free via OIDC trusted publishing, calling `npm publish --no-provenance` directly (npm
+mac mini, token-free via OIDC trusted publishing, calling `npm publish --no-provenance` directly (npm
 accepts a provenance bundle only from a GitHub-hosted runner and rejects a self-hosted one with E422;
 the `NPM_CONFIG_PROVENANCE` env is not honoured by the changesets action's OIDC path, so the flag is
 used instead). No `NPM_TOKEN`, no GitHub environment. If `publish` fails with an E422 provenance error,
@@ -253,7 +253,7 @@ gh workflow run deploy.yml -R VegaStack/vegastack-design
 
 The manual dispatch from `main` is the outward-deploy approval. The workflow builds without
 credentials, signs in the only OIDC job (Sigstore keyless via GitHub OIDC, which works on the
-self-hosted minis — the signer identity is the workflow ref, not the runner), reverifies the immutable
+self-hosted mac mini — the signer identity is the workflow ref, not the runner), reverifies the immutable
 artifact in the credential-only deploy job, and then probes the one production boundary. Every
 non-registry route is
 public. `/internal/*` remains intentionally absent from discovery and carries `noindex`/`no-store`,
@@ -316,5 +316,6 @@ correct). If the release changed the starter's own components, pull them
 
 - Deploy "Asset too large" → a page exceeds Cloudflare's 25 MiB limit; the deploy log names
   it. Usually Story-controls type explosion — see `apps/docs/components/stories/story-shims.tsx`.
-- A self-hosted job is queued with no runner → both `vsk-runners-mac-mini` minis are busy or offline.
+- A self-hosted job is queued with no runner → both `vsk-runners-mac-mini` agents are busy, or the
+  one machine hosting them (`patrick-mac-mini`) is offline.
   Nothing to fix in the repository; check the runners.

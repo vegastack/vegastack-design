@@ -4,7 +4,7 @@
 runner for `VegaStack/vegastack-design`, able to run browser lanes inside the pinned Playwright
 container. Budget ~10 minutes, most of it `apt` and the container pull.
 
-**Why a second runner class.** The mac minis cannot launch a browser — their Actions runner has no
+**Why a second runner class.** The mac mini cannot launch a browser — its Actions runner has no
 per-user Mach bootstrap namespace, so every Chromium launch dies with `bootstrap_look_up …
 Unknown service name (1102)` (AGENTS.md § Locked decisions). A Linux box can start a container, and
 the pinned `mcr.microsoft.com/playwright` image already contains the browsers. That is the only
@@ -47,7 +47,7 @@ On **your machine** (the one minting the token): `gh` authenticated with **admin
   `apps/docs/scripts/probe-deployment.mjs` fails fast on an anonymous 200 and asserts against it. So
   an enrolled box does **not** produce a false pass: it **fails the deploy loudly**, for a reason
   that is not a defect. That is fail-safe, and it is still why the prohibition stands — a runner that
-  blocks every deploy on its own network posture is useless. Today the probe runs on the minis; the
+  blocks every deploy on its own network posture is useless. Today the probe runs on the mac mini; the
   same rule applies to any runner that might host it.
 - **Not a machine holding production credentials** beyond what the workflows inject. Self-hosted
   runners execute repository code; treat the box as compromised-if-the-repo-is.

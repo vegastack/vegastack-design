@@ -6,6 +6,8 @@
 //
 //   1. read packages/ui/package.json version (post-`changeset version`)
 //   2. rewrite every item meta.version in packages/ui/registry.json to match
+//   2c. stamp every pending component `since` (a version that has not been released) with the
+//       version actually being released — see ./lib/pending-since.mjs
 //   3. re-run the full `registry:build` chain (shadcn build → stamp → header → verify)
 //   4. regenerate every contract-derived surface after dependency ranges move the contract SHA
 //   5. fail-closed verify: for every apps/docs/public/r/<item>.json,
@@ -17,6 +19,8 @@ import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+
+import { releasedVersions, stampPendingSince } from "./lib/pending-since.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -121,7 +125,23 @@ for (const record of [
     return dependency;
   });
 }
-if (contractRanges > 0) {
+// 2c. PENDING `since` STAMPS become the version actually being released. A `since` is legitimate
+// only if it names a version that HAS been released — one carrying a `## [x.y.z]` heading in
+// /CHANGELOG.md, which `changelog-assemble` has already written for the version being released by
+// the time this runs. Anything else is an author's guess at the next bump, and is corrected here.
+// Why, and the pure rule: ./lib/pending-since.mjs.
+const pendingSince = stampPendingSince(
+  contracts.components ?? [],
+  releasedVersions(readFileSync(join(repoRoot, "CHANGELOG.md"), "utf8")),
+  version,
+);
+if (pendingSince > 0) {
+  console.log(
+    `✓ version-sync: ${pendingSince} pending component \`since\` stamp(s) → ${version}`,
+  );
+}
+
+if (contractRanges > 0 || pendingSince > 0) {
   writeFileSync(contractsPath, `${JSON.stringify(contracts, null, 2)}\n`);
   const prettier = await import("prettier");
   const source = readFileSync(contractsPath, "utf8");

@@ -1,7 +1,8 @@
 ---
 ---
 
-🛠 CI: the mac minis run two runner agents on one machine sharing one home directory, and
+🛠 CI: the macOS runner class is ONE mac mini running two runner agents that share one home
+directory, and
 `pnpm/action-setup` defaulted its bootstrap directory to `~/setup-pnpm` — which it deletes on every
 job, and which `PNPM_HOME` also made the package store. Concurrent jobs raced that deletion into
 `ENOTEMPTY` (or a half-linked `node_modules` that turbo reported as `unable to spawn child process`)

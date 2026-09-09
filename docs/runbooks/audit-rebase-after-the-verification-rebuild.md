@@ -182,7 +182,7 @@ git push --force-with-lease
 ```
 
 CI is two jobs: `verify` on a LAN Linux runner in the pinned Playwright container (~3 min, browsers
-included) and `verify-macos` on a mini (~2 min, static half). Both must be green. `verify-macos`
+included) and `verify-macos` on the mac mini (~2 min, static half). Both must be green. `verify-macos`
 also runs `changeset status`, so a `packages/**` change with no changeset fails there — that is the
 changeset from 2b.
 

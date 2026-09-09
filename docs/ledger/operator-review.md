@@ -2358,3 +2358,49 @@ space — the same colour as rest, a different string, so several fixtures passe
 rather than on the colour. Both re-proved after the change: deleting the `:focus-visible` rule
 still turns 263 of 554 red naming `outline-style: auto`, and deleting the tint from `fieldControl`
 turns the text-entry fixtures red naming "no border-colour change".
+
+## 2026-09-10 — Do1-c: `status` and `since` became data, and the mac minis became one machine
+
+**Do1-b left two of canon row 0's fields as claims nothing checked.** `status` was 116 identical
+hand-typed `stable` strings, written that way because no machine authority recorded status at all —
+a value an agent would quote back as fact, with nothing to stop it going stale. `since` was worse:
+it was _derived_ from `git log --follow`, which reproduced every enumerated CHANGELOG list it could
+be checked against, and still needed one hand override (`provider` → 0.2.0). MK ruled the
+derivation out on 2026-09-10 — "100% appropriate and stable and deterministic without complexity" —
+and both fields moved onto `packages/ui/component-contracts.json` as plain recorded data, with
+`pnpm design:derived` writing them onto the page and `content-lint` rejecting a page that disagrees.
+
+**`--follow` was already wrong, and nothing could see it.** Verifying the pinned values against
+`packages/ui/registry.json` as it stood at each release commit found one disagreement:
+`media-player-controls` read `since: 0.5.0`, because `--follow` walked into the `audio-player`
+source it was extracted from. The registry item itself has never shipped — it is not in the 0.6.0
+manifest — so the published page would have told a consumer to expect an item in a release that
+does not contain it. That is the class of defect a heuristic produces and a gate over a heuristic
+cannot catch: the derivation and the check would have been the same wrong answer.
+
+**How the 116 values were actually checked**, since "verified" is worth nothing without the method.
+Release commits were found by walking `packages/ui/package.json`'s version through git rather than
+trusting the CHANGELOG's linked shas (G1-b established those are orphaned), then each component's
+source path was tested against each release tree. 27 of the values are enumerated by name in
+/CHANGELOG.md and all 27 match — 0.2.0 1/1, 0.3.0 12/12, 0.4.0 12/12, 0.5.0 2/2. The 82 at 0.1.0
+are not enumerated; they were reconciled instead against the 0.1.0 registry manifest, which lists
+exactly 82 non-icon `registry:ui` items. **The 0.1.0 entry's prose says "75 components" and always
+disagreed with its own manifest** — left as written, because a ledger entry is a point-in-time
+record, but recorded here so the next reader does not treat 75 as a count.
+
+**Seven components are stamped for a release that has not happened**, and a pinned value cannot fix
+that on its own: if a `major` changeset lands, 0.6.0 → 1.0.0 and the pin ships as a permanent wrong
+answer in the docs and in `llms-full.txt`. The release flow closes it. `tooling/version-sync.mjs`
+already runs at version time, after `changeset version`, and now re-stamps any `since` that does
+not name a released version — one carrying a `## [x.y.z]` heading in /CHANGELOG.md, which
+`changelog-assemble` has already written by then — with the version actually being released. The
+rule is a pure function in `tooling/lib/pending-since.mjs` with its own test, because a release is
+rare enough that this would otherwise first be observed working on the day it was needed.
+
+**One machine, two agents.** #94/#104 established that `vsk-runner-mac-mini-1` and `-2` are two
+runner agents on `patrick-mac-mini`, and fixed the pnpm paths accordingly, but the plural "the mac
+minis" survived in AGENTS.md, both runbooks, README, RELEASING, the `ship` skill and the workflow
+comments. MK confirmed the topology on 2026-09-10 and it is now stated where it is load-bearing:
+the capacity is **two concurrent jobs on one host**, there is no second machine to fail over to, and
+`ship`'s triage line no longer tells an operator that "both minis are busy or offline" when the real
+question is whether one machine is up.

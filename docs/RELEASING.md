@@ -12,7 +12,7 @@ distribution channels, both already wired:
 
 - **npm packages** (`@vegastack/design` + `@vegastack/design-tokens`) → prepared by `release.yml`
   (changesets) on push to `main`, then published after the reviewed **Version Packages** PR is merged,
-  via **npm OIDC trusted publishing** — token-free, and running on the **self-hosted mac minis**. npm
+  via **npm OIDC trusted publishing** — token-free, and running on the **self-hosted mac mini**. npm
   trusted publishing works on self-hosted runners; only the provenance _bundle_ requires a
   GitHub-hosted runner (npm rejects a self-hosted one with **E422**), so `publish` calls
   `npm publish --no-provenance` directly — the `NPM_CONFIG_PROVENANCE` env is not honoured by the
@@ -56,7 +56,7 @@ distribution channels, both already wired:
    changeset-bearing run then uses its version job to update the **Version Packages** PR.
    Review its package versions, generated changelogs, the assembled root `CHANGELOG.md` entry and
    the regenerated docs Changelog page, registry item versions, and regenerated `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
-   npm OIDC publish job, which runs on a mini token-free via trusted publishing (provenance disabled
+   npm OIDC publish job, which runs on the mac mini token-free via trusted publishing (provenance disabled
    because the runner is self-hosted — npm rejects a self-hosted provenance bundle with E422 — not
    because of repository visibility). **No git tag and no GitHub release is created**; see
    § Tags and GitHub releases below.
@@ -95,9 +95,9 @@ None of that ran in CI before 2026-09-08, when the browser lanes were attested r
 that whole mechanism was removed by `docs/plans/2026-09-08-verification-rebuild.md`, and the history
 is in `docs/ledger/operator-review.md`, 2026-09-09.
 
-**Every job runs on self-hosted hardware** — the mac minis
-(`runs-on: [self-hosted, vsk-runners-mac-mini]`) for everything that needs a credential rather than a
-browser, and the LAN Linux boxes (`[self-hosted, linux, vsk-runner]`) for the three verification jobs
+**Every job runs on self-hosted hardware** — the mac mini
+(`runs-on: [self-hosted, vsk-runners-mac-mini]`, one machine hosting the two runner agents
+`vsk-runner-mac-mini-1` and `-2`) for everything that needs a credential rather than a browser, and the LAN Linux boxes (`[self-hosted, linux, vsk-runner]`) for the three verification jobs
 above. **A pull request, a release, and a deploy each cost zero billable minutes.** No job is
 GitHub-hosted; the empty allowlist is enforced in `tooling/verify-workflow-security.mjs` and
 negative-tested in `tooling/verify-workflow-security-negative.mjs`, which rejects a move back onto
@@ -121,19 +121,19 @@ that existed:
   unavailable under the billing lock; restore the split once it is.
 - **`deploy.yml` `verify-public-boundary`** — asserts every non-registry route is anonymously
   reachable and anonymous `/r/*` requests are rejected. Its proof depends on originating **outside**
-  the trusted network, so the minis must **not** be enrolled in Cloudflare Access device posture /
-  WARP. This is fail-safe if they were: an authenticated "anonymous" `/r/*` request would return 200
+  the trusted network, so the mini must **not** be enrolled in Cloudflare Access device posture /
+  WARP. This is fail-safe if it were: an authenticated "anonymous" `/r/*` request would return 200
   and the probe (`apps/docs/scripts/probe-deployment.mjs`, `expectProtected`) would fail the deploy
   loudly, not pass falsely.
 
-Job containers are **required** on the Linux runners and impossible on the minis. A container is
+Job containers are **required** on the Linux runners and impossible on the mini. A container is
 Linux-only and cannot start on macOS at all; on the Linux boxes the pinned
 `mcr.microsoft.com/playwright` image (tag derived from `pnpm-lock.yaml`) is what makes a box
 interchangeable, so `tooling/verify-workflow-security.mjs` requires it there and rejects it
-everywhere else, with the negative harness proving both halves by mutation. The minis still cannot
-launch a browser, which under this topology blocks nothing; fixing it — reinstalling their Actions
-runner as a LaunchAgent inside a logged-in session — is optional, and worth doing only if you later
-want a second machine independently re-running the browser lanes.
+everywhere else, with the negative harness proving both halves by mutation. The mini still cannot
+launch a browser, which under this topology blocks nothing; fixing it — reinstalling its Actions
+agents as LaunchAgents inside a logged-in session — is optional, and worth doing only if you later
+want macOS independently re-running the browser lanes.
 
 **Screenshots are not part of anything.** The pixel-capture lane was removed on 2026-09-08 with the
 rest of the attestation stack; the blocking visual-surface gate is
