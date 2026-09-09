@@ -1,4 +1,4 @@
-// @vegastack split-button@0.6.0 sha256-fa6AE2vZeVfjkjUKfw1Xvq1IC9gZHGguQFHyurOHc7g=
+// @vegastack split-button@0.6.0 sha256-xnFyHeSmFI4Cty/8Rxj/lRBVhtpUd9QCnC0HwoI9/0c=
 
 "use client";
 
@@ -44,21 +44,21 @@ export interface SplitButtonAction {
  */
 export type SplitButtonProps = Omit<ButtonOwnProps, "render"> &
   ButtonAppearance & {
-  /** The primary action's label. */
-  children: React.ReactNode;
-  /**
-   * Accessible name for the dropdown trigger (the chevron has no visible text).
-   * @default 'More options'
-   */
-  menuLabel?: string;
-  /**
-   * Alignment of the dropdown relative to the trigger.
-   * @default 'end'
-   */
-  menuAlign?: DropdownMenuContentProps["align"];
-  /** Props forwarded to the {@link DropdownMenuContent}. */
-  menuContentProps?: Omit<DropdownMenuContentProps, "align" | "children">;
-} & (
+    /** The primary action's label. */
+    children: React.ReactNode;
+    /**
+     * Accessible name for the dropdown trigger (the chevron has no visible text).
+     * @default 'More options'
+     */
+    menuLabel?: string;
+    /**
+     * Alignment of the dropdown relative to the trigger.
+     * @default 'end'
+     */
+    menuAlign?: DropdownMenuContentProps["align"];
+    /** Props forwarded to the {@link DropdownMenuContent}. */
+    menuContentProps?: Omit<DropdownMenuContentProps, "align" | "children">;
+  } & (
     | {
         /**
          * Secondary actions shown in the dropdown.

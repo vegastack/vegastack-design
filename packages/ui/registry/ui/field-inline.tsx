@@ -1,11 +1,10 @@
-// @vegastack field-inline@0.6.0 sha256-WbAylw8DngJJPSNSvuL38t6o+pIWSRlClwSw+hw7z7Y=
+// @vegastack field-inline@0.6.0 sha256-wPTgAjLEoTpDkVcX/UboZQkgwtvJUl31AP3exdHReyA=
 
 "use client";
 
 import * as React from "react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn, mergeRefs, surfaceInteractive } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
-import { mergeRefs } from "@/components/ui/use-animation-replay";
 import { useInlineEdit } from "@/components/ui/use-inline-edit";
 
 /** Props accepted by `FieldInline`. */

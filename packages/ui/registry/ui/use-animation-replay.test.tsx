@@ -1,11 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
-import {
-  mergeRefs,
-  useAnimationReplay,
-  useShakeOnInvalid,
-} from "./use-animation-replay";
+import { useAnimationReplay, useShakeOnInvalid } from "./use-animation-replay";
 
 /* ---------------------------------------------------------------------------------------------
  * Real-animation mirror (same technique as checkbox.test.tsx's "Touch-target remediation" suite
@@ -145,31 +141,6 @@ test("an animationend bubbling from a descendant does not clear the parent state
   } finally {
     document.head.removeChild(style);
   }
-});
-
-/* -------------------------------------------------------------------------------------------
- * mergeRefs
- * ----------------------------------------------------------------------------------------- */
-
-test("mergeRefs attaches the same node to an object ref and a callback ref", async () => {
-  const objectRef = React.createRef<HTMLDivElement>();
-  const seen: Array<HTMLDivElement | null> = [];
-  const callbackRef = (node: HTMLDivElement | null) => {
-    seen.push(node);
-  };
-  const combined = mergeRefs(objectRef, callbackRef);
-
-  const screen = await render(<div ref={combined} data-testid="merged" />);
-  const el = screen.container.querySelector('[data-testid="merged"]');
-  expect(objectRef.current).toBe(el);
-  expect(seen.at(-1)).toBe(el);
-});
-
-test("mergeRefs skips null/undefined entries without throwing", async () => {
-  const objectRef = React.createRef<HTMLDivElement>();
-  const combined = mergeRefs(objectRef, null, undefined);
-  await render(<div ref={combined} data-testid="merged-safe" />);
-  expect(objectRef.current).not.toBeNull();
 });
 
 /* -------------------------------------------------------------------------------------------

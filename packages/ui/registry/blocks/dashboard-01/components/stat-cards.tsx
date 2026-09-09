@@ -1,11 +1,12 @@
-// @vegastack dashboard-01@0.6.0 sha256-qC0v10OK4O0fjSpM9jQynC6UCiTW5+WOxSRJIZ7Y9M4=
+// @vegastack dashboard-01@0.6.0 sha256-1x7kwIi0qj3rgWVVHXXFqYSaJS7BabQyDTqYlWNH1MU=
 
 "use client";
 
 /**
  * `stat-cards.tsx` — the dashboard-01 block's four-up metrics row (audit §e item 2): "Active
  * agents" / "Tasks completed today" / "API calls (24h)" / "Avg. response time", each a `Card`
- * with a label + delta `Badge` row and a `font-mono` `AnimatedNumber` value.
+ * with a full-width wrapping label above a `font-mono` `AnimatedNumber` value and its delta
+ * `Badge`.
  *
  * 'use client' — `AnimatedNumber` is a client leaf (tween + `prefers-reduced-motion` hook).
  */
@@ -73,13 +74,34 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
             return (
               <Card key={stat.key} data-slot="dashboard-stat-card">
                 <CardHeader>
-                  {/* min-w-0 on the label+badge row (audit §d footgun) — `Card`'s header carries no
-                      min-w-0 by default, so a fixed-width trailing badge would force the row to
-                      overflow instead of letting the label truncate. */}
+                  {/* The label owns the whole header row and WRAPS to at most two lines.
+                      It used to `truncate` next to a fixed-width trend badge, which at the
+                      2-column width cut every label in the sample data ("Active agen…",
+                      "Tasks compl…", "API calls (24…", "Avg. respons…"). A KPI label is the
+                      one thing on a stat card that must never be clipped — the number is
+                      meaningless without it — so the badge moved down to the value row,
+                      where it sits beside a short, mono, predictable-width figure. */}
+                  <CardTitle className="line-clamp-2 text-label-sm font-normal text-muted-foreground">
+                    {stat.label}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* min-w-0 on the value+badge row (audit §d footgun): a fixed-width
+                      trailing badge would otherwise force the row to overflow. */}
                   <div className="flex min-w-0 items-center justify-between gap-2">
-                    <CardTitle className="min-w-0 truncate text-label-sm font-normal text-muted-foreground">
-                      {stat.label}
-                    </CardTitle>
+                    <AnimatedNumber
+                      value={stat.value}
+                      format={
+                        stat.unit === "ms"
+                          ? {
+                              style: "unit",
+                              unit: "millisecond",
+                              unitDisplay: "short",
+                            }
+                          : { maximumFractionDigits: 0 }
+                      }
+                      className="min-w-0 font-mono text-2xl text-foreground"
+                    />
                     <Badge
                       variant="soft"
                       intent={
@@ -101,21 +123,6 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
                       {formatDelta(stat.delta)}
                     </Badge>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <AnimatedNumber
-                    value={stat.value}
-                    format={
-                      stat.unit === "ms"
-                        ? {
-                            style: "unit",
-                            unit: "millisecond",
-                            unitDisplay: "short",
-                          }
-                        : { maximumFractionDigits: 0 }
-                    }
-                    className="font-mono text-2xl text-foreground"
-                  />
                 </CardContent>
               </Card>
             );

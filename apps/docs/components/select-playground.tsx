@@ -60,8 +60,7 @@ const selectPlaygroundConfig: PlaygroundConfig<SelectPlaygroundKey> = {
   ),
   toCode: (state) => {
     const rootProps = state.disabled ? " disabled" : "";
-    const triggerProps =
-      state.size !== "md" ? ` size="${state.size}"` : "";
+    const triggerProps = state.size !== "md" ? ` size="${state.size}"` : "";
     return [
       'const fonts = { sans: "Sans-serif", serif: "Serif", mono: "Monospace" };',
       "",

@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.6.0 sha256-NQw+ikgY+dU5agB6GRNCM5CBsKplOC/En28bCfScOaE=
+// @vegastack date-picker@0.6.0 sha256-G3aMUkmStwiroD70XXm/0+DwXfYdRUjKiYgEe7bemyE=
 
 "use client";
 
@@ -18,7 +18,7 @@ import {
   ChevronDown,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn, mergeRefs, surfaceInteractive } from "@vegastack/design";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Popover,
@@ -91,14 +91,6 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
    */
   ref?: React.Ref<HTMLDivElement>;
 };
-
-/** Assign a value to one or more React refs (object or callback). */
-function setRefs<T>(value: T | null, ...refs: (React.Ref<T> | undefined)[]) {
-  for (const ref of refs) {
-    if (typeof ref === "function") ref(value);
-    else if (ref) (ref as React.RefObject<T | null>).current = value;
-  }
-}
 
 /**
  * `Calendar` — a token-styled `react-day-picker` `DayPicker`. Forwards every DayPicker prop
@@ -217,7 +209,7 @@ export function Calendar({
           <div
             data-slot="calendar"
             // Wire both refs: react-day-picker's animation `rootRef` and the consumer `ref`.
-            ref={(node) => setRefs(node, rootRef, ref)}
+            ref={mergeRefs(rootRef, ref)}
             className={cn(rootClassName)}
             {...rootProps}
           />

@@ -1,14 +1,13 @@
-// @vegastack field@0.6.0 sha256-rSa1mma+CAlNhiS+0N6dBx6O1KL6sd5hrprPECacBlc=
+// @vegastack field@0.6.0 sha256-4MG0yMcgOyaIcttaUudvXCsEcfJSGZTrDSOvHlOBbZU=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Field as BaseField } from "@base-ui/react/field";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
 import {
-  mergeRefs,
   useShakeOnInvalid,
   type ShakeSignal,
 } from "@/components/ui/use-animation-replay";

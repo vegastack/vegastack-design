@@ -1,10 +1,10 @@
-// @vegastack image@0.6.0 sha256-E9dnK1A8O1bgwNZbZkfIp7iOKQegtQkQIMENNAWFTcE=
+// @vegastack image@0.6.0 sha256-Cwvfno/wavRrv8YXnA+yDejNBuw5A8NKGW2Ei/SwV4A=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Image variants — `aspectRatio` reserves space (so the layout never shifts as the image decodes)
@@ -126,14 +126,7 @@ export function Image({
     "loading",
   );
   const imgRef = React.useRef<HTMLImageElement | null>(null);
-  const setImgRef = React.useCallback(
-    (node: HTMLImageElement | null) => {
-      imgRef.current = node;
-      if (typeof ref === "function") ref(node);
-      else if (ref) ref.current = node;
-    },
-    [ref],
-  );
+  const setImgRef = React.useMemo(() => mergeRefs(imgRef, ref), [ref]);
 
   // Reset load state whenever the source changes. Sync from the element so an already-cached
   // image (whose `load` may have fired before this passive effect) isn't stuck behind the skeleton.

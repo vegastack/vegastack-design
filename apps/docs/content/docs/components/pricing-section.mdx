@@ -33,6 +33,17 @@ npx shadcn@latest add @vegastack/pricing-section
   file="components/preview/pricing-section.tsx"
 />
 
+### Billing cycle
+
+`PricingSection` is presentational, so a monthly/annual switch is composed above the grid
+rather than built in: `Segmented` owns the cycle and the price and note are derived at the
+call site.
+
+<ComponentPreview
+  name="pricingSectionBillingCycle"
+  file="components/preview/pricing-section.tsx"
+/>
+
 ## Notes
 
 - Prices render in mono with tabular numerals — the system's numbers rule (a deliberate
@@ -40,7 +51,9 @@ npx shadcn@latest add @vegastack/pricing-section
 - The grid uses `auto-fit` with the semantic `--container-3xs` width, so cards reflow from the
   section's actual available width rather than a viewport breakpoint. Narrow preview frames,
   sidebars, and split panes therefore get the same one-column layout as a small screen.
-- `highlighted` promotes a plan with the info-family border + a bordered `Popular` badge.
+- `highlighted` promotes a plan onto the `surface-3` rung with an alpha-`primary`
+  hairline and a bordered neutral `Popular` badge. Promotion is a ladder rung, never a hue —
+  `info` is reserved for links and informational messages.
 - Billing-cycle toggles compose from [`Segmented`](/docs/components/segmented) above the grid.
 - Pair with [`ComparisonMatrix`](/docs/components/comparison-matrix) for the feature detail.
 

@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.6.0 sha256-iLbnx7bCoGEds2ZKr4lUkcO55zGwzMY4rojquKtGOts=
+// @vegastack message-scroller@0.6.0 sha256-5kS0oLy0EENPhWFOOF7K40xTGrghxqpoJmg9Q5q9QtQ=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   type ButtonOwnProps,
 } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { usePrefersReducedMotion } from "@/components/ui/use-media-query";
 
 /* ------------------------------------------------------------------------------------------------
  * MessageScroller — a virtualised, auto-scrolling conversation viewport built on the headless
@@ -25,34 +26,6 @@ import { IconButton } from "@/components/ui/icon-button";
  * scroll-to-end/start Button. Every class is a semantic token / our motion-ease tokens / the
  * `scroll-fade` + `scrollbar-*` utilities from `@vegastack/design-tokens/utilities.css`.
  * ----------------------------------------------------------------------------------------------*/
-
-/**
- * Tracks the user's `prefers-reduced-motion` OS setting, live — it re-reads on change (e.g. the user
- * flips the setting while the page is open), not just on mount. SSR-safe: the initial render always
- * returns `false` and the real value is picked up in a client-only effect, so server and hydration
- * markup agree before the preference is synchronized.
- */
-function usePrefersReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false);
-
-  React.useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      typeof window.matchMedia !== "function"
-    )
-      return;
-    const mediaQueryList = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    );
-    setPrefersReducedMotion(mediaQueryList.matches);
-    const onChange = (event: MediaQueryListEvent) =>
-      setPrefersReducedMotion(event.matches);
-    mediaQueryList.addEventListener("change", onChange);
-    return () => mediaQueryList.removeEventListener("change", onChange);
-  }, []);
-
-  return prefersReducedMotion;
-}
 
 /** Props accepted by `MessageScrollerProvider`. */
 export type MessageScrollerProviderProps = React.ComponentPropsWithRef<

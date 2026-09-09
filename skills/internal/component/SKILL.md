@@ -174,6 +174,18 @@ Contract for every new animated element:
   viewport. Name your own container (`@container/my-component`) and write `@sm/my-component:flex-row`
   (see `settings-row.tsx`, `app-shell.tsx`, `field.tsx`). Reach for a `ResizeObserver` variant only
   if a container query genuinely cannot express it.
+- **CSS first, `useIsMobile` last.** The ladder is: a container query (follows the component's own
+  width) → a viewport breakpoint (follows the page) → `useMediaQuery`/`useIsMobile` from
+  `use-media-query.ts`. Only the third one costs a `'use client'` boundary and a hydration pass, so
+  it is reserved for branches CSS cannot express — mounting a different component tree (a modal
+  `Sheet` instead of a rail), enabling pointer drag, skipping a `requestAnimationFrame` loop. If both
+  branches render and only their layout differs, it is a CSS job.
+- **A JS media branch must DECLARE its server answer.** `useMediaQuery(query, { serverFallback })`
+  reports `serverFallback` on the server render and the client's hydration render, then reconciles.
+  The default `false` is a decision, not a neutral value: on a mobile-first surface it renders the
+  DESKTOP branch on a phone until hydration finishes. Pass `serverFallback: true` there. Never add a
+  second `matchMedia` subscription — `use-media-query.ts` is the system's only one, and
+  `usePrefersReducedMotion` is its named reduced-motion reader.
 - **Touch targets ≥24px** (WCAG 2.5.8) via an INVISIBLE hit-area, not a bigger visual control:
   `relative` on the control plus `before:absolute before:-inset-N before:content-['']` sized so the
   box is ≥24×24. Verify with a real `elementFromPoint` boundary probe — `getComputedStyle` alone can

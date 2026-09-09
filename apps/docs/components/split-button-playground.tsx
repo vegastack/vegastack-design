@@ -13,12 +13,7 @@ import {
 } from "@/components/playground";
 
 type SplitButtonPlaygroundKey =
-  | "variant"
-  | "tone"
-  | "size"
-  | "destructiveAction"
-  | "disabled"
-  | "loading";
+  "variant" | "tone" | "size" | "destructiveAction" | "disabled" | "loading";
 
 /** `variant` and `tone` pass straight through to both halves. */
 const VARIANT_OPTIONS = [

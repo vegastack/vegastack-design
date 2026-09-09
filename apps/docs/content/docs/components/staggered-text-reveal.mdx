@@ -1,6 +1,6 @@
 ---
 title: Staggered Text Reveal
-description: Display text whose words rise in on mount, staggered one motion-enter-up step apart — CSS-only.
+description: Display text whose words rise in when they scroll into view, staggered one motion-enter-up step apart.
 audience: public
 preview: staggeredTextReveal
 ---
@@ -41,9 +41,22 @@ never changes your document's semantic structure.
   file="components/preview/staggered-text-reveal.tsx"
 />
 
+### Visibility gate
+
+The reveal waits for the text to scroll into view and then plays once. A reveal below the fold
+that starts on mount has already finished by the time anyone reaches it, so the reader sees
+static text and the animation was pure cost. Pass `whenVisible={false}` for text that is
+definitely above the fold and should play immediately.
+
+The gate only ever REMOVES the reveal: the server-rendered markup animates, and the client pulls
+off-screen words back to the FROM state before the first paint. A page whose JavaScript never
+runs therefore still shows its text.
+
 ### How it works
 
-CSS-only — no JS animation driver. Each word is an `inline-block` span carrying the shared
+The ANIMATION is CSS — there is no JS animation driver; the only JavaScript is the visibility
+gate, a single one-shot `IntersectionObserver` that decides WHEN the CSS starts. Each word is an
+`inline-block` span carrying the shared
 `motion-enter-up` utility with a per-word `animation-delay` derived from `--duration-fast` via
 `calc()`, and `animation-fill-mode: backwards` so a not-yet-started word sits at the animation's
 FROM state instead of flashing visible-then-hidden-then-in. The delay is purely

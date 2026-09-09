@@ -1,4 +1,4 @@
-// @vegastack copy-button@0.6.0 sha256-nkc87Mbyvgpx+lxBx2+B8hRV87P+NoT9e3kFH2ty7tQ=
+// @vegastack copy-button@0.6.0 sha256-Hs3H+9eOl5lTyvgrOogE9qeCdEoQKMl08KS/bKj7AF0=
 
 "use client";
 
@@ -19,54 +19,52 @@ import {
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /** Props accepted by `CopyButton`. */
-export type CopyButtonProps =
-  & Omit<
-    ButtonOwnProps,
-    "aria-label" | "children" | "onClick" | "type" | "value"
-  >
-  & ButtonAppearance
-  & {
-  /**
-   * The text written to the clipboard when the button is pressed.
-   */
-  value: string;
-  /**
+export type CopyButtonProps = Omit<
+  ButtonOwnProps,
+  "aria-label" | "children" | "onClick" | "type" | "value"
+> &
+  ButtonAppearance & {
+    /**
+     * The text written to the clipboard when the button is pressed.
+     */
+    value: string;
+    /**
    * Fired after `value` is successfully copied to the clipboard. Use it to show a
    * toast or analytics event — the transient check feedback is handled internally.
 
    * @default undefined
    */
-  onCopied?: (value: string) => void;
-  /**
-   * How long (in milliseconds) the check icon stays visible before reverting to
-   * the copy icon.
-   * @default 1500
-   */
-  timeout?: number;
-  /**
-   * Accessible label before the value has been copied.
-   * @default 'Copy'
-   */
-  copyLabel?: string;
-  /**
-   * Accessible label while the copied confirmation is visible.
-   * @default 'Copied'
-   */
-  copiedLabel?: string;
-  /**
-   * Show the current copy status as visible text beside the icon. With a label the control is a
-   * text `Button`; without one it is an `IconButton`. An explicit `size` still wins.
-   * @default false
-   */
-  showLabel?: boolean;
-  /**
+    onCopied?: (value: string) => void;
+    /**
+     * How long (in milliseconds) the check icon stays visible before reverting to
+     * the copy icon.
+     * @default 1500
+     */
+    timeout?: number;
+    /**
+     * Accessible label before the value has been copied.
+     * @default 'Copy'
+     */
+    copyLabel?: string;
+    /**
+     * Accessible label while the copied confirmation is visible.
+     * @default 'Copied'
+     */
+    copiedLabel?: string;
+    /**
+     * Show the current copy status as visible text beside the icon. With a label the control is a
+     * text `Button`; without one it is an `IconButton`. An explicit `size` still wins.
+     * @default false
+     */
+    showLabel?: boolean;
+    /**
    * Called when the copy button is pressed before the clipboard write runs.
    * Calling `event.preventDefault()` cancels the write.
 
    * @default undefined
    */
-  onPress?: (event: React.MouseEvent<HTMLElement>) => void;
-};
+    onPress?: (event: React.MouseEvent<HTMLElement>) => void;
+  };
 
 /**
  * `CopyButton` — copy a string to the clipboard with transient check feedback.
@@ -131,9 +129,9 @@ export function CopyButton({
   // label it is a normal text Button.
   // One JSX tree, two hosts: the cast is safe because `aria-label` (IconButton's only extra
   // requirement) is always supplied below.
-  const Control = (showLabel ? Button : IconButton) as React.ComponentType<
-    IconButtonProps
-  >;
+  const Control = (
+    showLabel ? Button : IconButton
+  ) as React.ComponentType<IconButtonProps>;
   // Assembled once and cast once: `variant`/`tone` are a discriminated pair on the Button matrix,
   // and spreading them across separate JSX attributes loses that pairing.
   const controlProps = {

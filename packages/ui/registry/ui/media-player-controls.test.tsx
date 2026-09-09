@@ -5,7 +5,6 @@ import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   MediaPlayerControls,
-  assignRef,
   clampTime,
   formatDefaultTime,
   getMediaDuration,
@@ -394,23 +393,6 @@ test("has no accessibility violations in the overlay variant", async () => {
 /* ---------------------------------------------------------------------------
  * The helpers that used to be duplicated in audio-player and video-player.
  * ------------------------------------------------------------------------- */
-
-test("assignRef writes both callback and object refs", () => {
-  const objectRef = React.createRef<string>();
-  assignRef(objectRef, "value");
-  expect(objectRef.current).toBe("value");
-
-  const seen: (string | null)[] = [];
-  // Braced body on purpose: React 19's `RefCallback` returns void or a cleanup
-  // function, so a concise body returning `push`'s number does not type-check.
-  assignRef((value: string | null) => {
-    seen.push(value);
-  }, "callback");
-  expect(seen).toEqual(["callback"]);
-
-  // A missing ref is a no-op, not a throw.
-  expect(() => assignRef(undefined, "ignored")).not.toThrow();
-});
 
 test("getMediaDuration reports 0 until the duration is finite", () => {
   expect(getMediaDuration(null)).toBe(0);

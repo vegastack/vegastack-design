@@ -1,14 +1,13 @@
-// @vegastack chip-input@0.6.0 sha256-+KDUANSOuRtxFBXqxtQwBCYHGxJ7dD38DC9jqYviZM0=
+// @vegastack chip-input@0.6.0 sha256-gAQ8VVWxAekmKmOscFKDjf6GtNJ89AsMB7AvYEXzWsg=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn, fieldControlGroup } from "@vegastack/design";
+import { cn, fieldControlGroup, mergeRefs } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
 import { Tag } from "@/components/ui/tag-group";
 import { useAnnouncer } from "@/components/ui/use-announcer";
-import { mergeRefs } from "@/components/ui/use-animation-replay";
 
 /* ---
 `ChipInput` exists because nothing in the roster can commit an arbitrary token:

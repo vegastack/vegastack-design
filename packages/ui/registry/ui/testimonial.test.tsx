@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Testimonial } from "./testimonial";
 
-test("renders the quote wrapped in curly quotes inside a blockquote", async () => {
+test("renders the quote in a <q> inside a blockquote, with no literal quote characters", async () => {
   const screen = await render(
     <Testimonial quote="It just works." name="A. Rivera" />,
   );
@@ -12,7 +12,15 @@ test("renders the quote wrapped in curly quotes inside a blockquote", async () =
     '[data-slot="testimonial-quote"]',
   );
   expect(quote?.tagName).toBe("BLOCKQUOTE");
-  expect(quote?.textContent).toBe("“It just works.”");
+  // The quotation marks are CSS `quotes`, inserted by the browser for the ACTIVE language
+  // — so they are NOT in the text content, and a German or French page gets its own pair
+  // instead of English curly quotes.
+  expect(quote?.textContent).toBe("It just works.");
+  const q = quote?.querySelector("q");
+  expect(q).not.toBeNull();
+  expect(q?.textContent).toBe("It just works.");
+  expect(quote?.innerHTML).not.toContain("\u201c");
+  expect(quote?.innerHTML).not.toContain("\u201d");
 });
 
 test("renders serif italic styling on the quote", async () => {

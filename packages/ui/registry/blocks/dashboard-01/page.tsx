@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.6.0 sha256-qC0v10OK4O0fjSpM9jQynC6UCiTW5+WOxSRJIZ7Y9M4=
+// @vegastack dashboard-01@0.6.0 sha256-1x7kwIi0qj3rgWVVHXXFqYSaJS7BabQyDTqYlWNH1MU=
 
 /**
  * `page.tsx` — registry:page, target `app/dashboard/page.tsx`. The dashboard-01 block's sample
@@ -130,8 +130,13 @@ export function DashboardPage({
             </Button>
           }
         >
+          {/* `maxItems={2}` keeps the header ONE line at 320px, where the trail used to
+              wrap under the sidebar trigger. It is a no-op for this two-item trail — the
+              point is that a consumer who extends the trail (the normal thing to do with a
+              starter block) inherits the collapse instead of re-discovering the wrap. */}
           <Breadcrumb>
             <BreadcrumbTrail
+              maxItems={2}
               items={[{ label: "Home", href: "/" }, { label: "Dashboard" }]}
             />
           </Breadcrumb>

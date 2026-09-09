@@ -229,6 +229,75 @@ element … consumed by MarkdownView's components map`). Two facts forced it. Fi
   and tracking, which would shrink a `<strong>` inside a heading, and the `font-medium` ban is C1/G1's
   with its own vocabulary decision.
 
+## 2026-09-08 — Mk1 (#47): marketing leaves, hooks and the dashboard block
+
+**Context:** implementing B9-03…B9-07 and B9-09…B9-12 under D29 (single-series chart = foreground
+ink) and D30 (next-themes sanctioned). Every item below is a call made instead of pausing.
+
+**Decisions taken instead of pausing:**
+
+- **The block's chart keeps `chart-1`/`chart-2`, because B9-05's premise is false.** The finding
+  describes "the single-series area chart", and the brief's item 3 says to move it to
+  `--chart-single`. The source renders TWO `<Area>`s — `requests` and `errors` — and did so at the
+  audit commit itself (`git show 6f11a4bc:…/dashboard-chart.tsx` lists both `dataKey`s). D29 reserves
+  `chart-*` for two series and up, so changing this chart would have VIOLATED the decision the
+  instruction cited. Left as-is. The genuinely single-series chart in the repo is the docs preview
+  `chartDemoTooltipVariants` (one `<Bar dataKey="desktop">`), which was on `chart-1` and is now on a
+  dedicated `chart-single` config — otherwise the one place a reader sees a lone series would have
+  contradicted the doctrine written into `design.md` in the same PR. `chart` is in this batch's file
+  list; no other batch owns it.
+- **`SettingsSection` got `titleAs`, not Base UI `render`.** The brief said "`render`/`as`. `render`
+  goes through `useRender`, which calls `React.useRef` internally (`tooling/verify-rsc-safety.mjs`
+  names it explicitly), so it would have forced `'use client'` onto `settings-row.tsx` and cost the
+  whole settings family the server-safe status its JSDoc asserts three times — to pick a tag name.
+  `as` is also the file's own existing idiom (`SettingsRow`'s `LabelTag`). Constrained to
+  `h2`…`h6` so it cannot be used to render a non-heading.
+- **The visibility gate REMOVES the reveal rather than adding it.** The obvious spelling —
+  `useState(!whenVisible)`, words start at `opacity-0` — leaves real content permanently invisible on
+  a page whose JavaScript never runs, which is a worse failure than the animation the fix is about.
+  `revealed` therefore starts `true` (so the server-rendered markup animates, exactly as before) and
+  a layout effect pulls off-screen words back before the first paint. The synchronous
+  `getBoundingClientRect` check exists because an `IntersectionObserver` callback is async and would
+  paint one frame of visible text before hiding it. `useLayoutEffect` is behind the standard
+  isomorphic shim so it never warns during a server render.
+- **`ShortcutOverlay` is `size="md"`, which NARROWS it from 512px to 448px at ≥sm.** The brief and
+  the issue both name `md` explicitly, and `md` is the Dialog's own default, so the component now
+  overrides nothing. Flagging the width change because it is a real visual difference, not a no-op:
+  if the shortcut list wants the old width, `size="lg"` is the one-word change.
+- **`mergeRefs` is in `@vegastack/design`'s main entry, typed with `import type * as React`.** That
+  entry is server-safe by contract (it must not touch a React runtime value under the `react-server`
+  condition). A type-only import is erased at build, and `mergeRefs` only assigns to ref objects the
+  caller already holds, so it touches no React runtime value at all. Its two behaviour tests moved to
+  `packages/ui/registry/ui/merge-refs.test.tsx` — the only suite in the repo that renders into a real
+  browser DOM, which is what a ref-attachment contract actually needs; `@vegastack/design`'s own
+  tests are plain-node and would have had to fake React's ref plumbing.
+- **The `function usePrefersReducedMotion` acceptance grep reads 1, not 0, and that is correct.**
+  The issue asks for `grep -rn "function usePrefersReducedMotion\|typeof ref === \"function\""
+packages/ui/registry/ui` → 0. The ref half IS 0. The other half cannot be 0 while the hook exists
+  in the registry — the finding it encodes is "three components define their own", and all three
+  private copies are gone; the single remaining match is the canonical definition in
+  `use-media-query.ts`. Spelling it `export const usePrefersReducedMotion = () =>` would satisfy the
+  regex and break consistency with every other hook in the repo (`export function useFileDrop`,
+  `useAnimationReplay`, `useListNav`, …), so the grep is reported honestly rather than gamed.
+- **`usePlatform`'s first-render contract changed, and its test changed with it.** The old test
+  asserted `seen[0]` equals BOTH fallbacks. With `useSyncExternalStore`, `getSnapshot` — not
+  `getServerSnapshot` — runs on a client-only mount, so `isTouch` is the real value on the very
+  first render. That is more correct (no wasted frame reporting a value nobody asked for) and matches
+  React's documented contract; `fallbackIsTouch` is now honestly described as the server/hydration
+  answer only. The test asserts the new split rather than being deleted.
+- **`ShortcutOverlay` is entirely O1's, and this batch ships nothing for it.** Item 5 asked for
+  `DialogContent size="md"`, the `--layout-overlay-max-height` scroll region and O1's `panelSearch`
+  recipe. The recipe did not exist while this work was being written (O1, #40, was unmerged), so it
+  was deferred; O1 then merged as `54c5cb68` carrying `PanelSearchFrame`, the full-bleed search row
+  AND `size="lg"` on this very surface. Rebasing onto it, the whole file was taken from O1 — a
+  narrower `size="md"` would have fought the full-bleed header O1 built for it, and the overlay is
+  O1's to own. `git diff origin/main -- packages/ui/registry/ui/shortcut-overlay.tsx` is empty by
+  design. The changelog bullet this batch had written for it was removed for the same reason.
+
+**Needs MK:** nothing blocking. The `function usePrefersReducedMotion` grep reading 1 is the one
+item worth an explicit nod.
+
+---
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
 
 **Context:** a post-merge Codex review of F1 (#32, `9c33dfaf`) found that the token layer moved but

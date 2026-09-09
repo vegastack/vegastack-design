@@ -9,11 +9,7 @@ import {
 } from "@/components/playground";
 
 type CopyButtonPlaygroundKey =
-  | "variant"
-  | "tone"
-  | "size"
-  | "showLabel"
-  | "disabled";
+  "variant" | "tone" | "size" | "showLabel" | "disabled";
 
 /** The string written to the clipboard — fixed, so the playground stays a props explorer. */
 const COPY_VALUE = "pnpm dlx shadcn@latest add @vegastack/button";

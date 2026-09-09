@@ -42,6 +42,12 @@ const chartConfig = {
   mobile: { label: "Mobile", color: "chart-2" },
 } satisfies ChartConfig;
 
+// D29: a ONE-series chart is drawn in foreground ink, not a categorical hue. `chart-1…8`
+// encode "which series is this" — a distinction that does not exist when there is only one.
+const singleSeriesConfig = {
+  desktop: { label: "Desktop", color: "chart-single" },
+} satisfies ChartConfig;
+
 const chartConfigWithIcons = {
   desktop: { label: "Desktop", color: "chart-1", icon: Monitor },
   mobile: { label: "Mobile", color: "chart-2", icon: Smartphone },
@@ -219,7 +225,7 @@ export function chartDemoTooltipVariants(): ReactNode {
             <p className="text-center text-label-sm text-muted-foreground">
               {indicator}
             </p>
-            <ChartContainer config={chartConfig} className="h-40 w-full">
+            <ChartContainer config={singleSeriesConfig} className="h-40 w-full">
               <BarChart accessibilityLayer data={monthlyData}>
                 <CartesianGrid vertical={false} stroke="var(--border)" />
                 <XAxis

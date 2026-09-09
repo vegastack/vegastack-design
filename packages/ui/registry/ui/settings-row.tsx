@@ -1,7 +1,15 @@
-// @vegastack settings-row@0.6.0 sha256-TJI0O+DLpkDlMb+k5NQvE4zY4aH0xvma13zAUuRsIwg=
+// @vegastack settings-row@0.6.0 sha256-EdRTyD2RyF1Pvu5kkaqNmfgVuG/qxjqIt6LzGEJrxE8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+
+/**
+ * Heading levels `SettingsSection` will render its `title` as. A settings page nests
+ * sections at different depths, and a heading level is a DOCUMENT-STRUCTURE fact the page
+ * owns, not something the component can infer — a screen-reader user navigating by heading
+ * gets a broken outline when every section hard-codes `<h3>`.
+ */
+export type SettingsSectionTitleTag = "h2" | "h3" | "h4" | "h5" | "h6";
 
 /** Props accepted by `SettingsSection`. */
 export interface SettingsSectionProps extends Omit<
@@ -14,6 +22,19 @@ export interface SettingsSectionProps extends Omit<
    * @default undefined
    */
   title?: React.ReactNode;
+  /**
+   * Heading element the `title` renders as. Pick the level that continues the page's
+   * outline — `h2` directly under the page `h1`, `h3` inside an `h2` group, and so on.
+   * The visual size never changes (it is the `text-h4` role either way); only the
+   * document structure does.
+   *
+   * `as` rather than Base UI `render` on purpose: `useRender` calls `React.useRef`
+   * internally, which would force `'use client'` onto this file and cost the whole
+   * settings family its server-safe status for a prop that only picks a tag name.
+   *
+   * @default 'h3'
+   */
+  titleAs?: SettingsSectionTitleTag;
   /**
    * Supporting description rendered under the title (muted).
 
@@ -29,7 +50,7 @@ export interface SettingsSectionProps extends Omit<
  * Pure presentational and server-safe — no hooks, no `'use client'`.
  *
  * @example
- * <SettingsSection title="Notifications" description="Choose what you hear about.">
+ * <SettingsSection titleAs="h2" title="Notifications" description="Choose what you hear about.">
  *   <SettingsCard>
  *     <SettingsRow label="Email" description="Product updates and tips.">
  *       <Switch defaultChecked />
@@ -40,6 +61,7 @@ export interface SettingsSectionProps extends Omit<
 export function SettingsSection({
   className,
   title,
+  titleAs: TitleTag = "h3",
   description,
   children,
   ref,
@@ -58,12 +80,12 @@ export function SettingsSection({
           className="flex flex-col gap-1"
         >
           {title != null && (
-            <h3
+            <TitleTag
               data-slot="settings-section-title"
               className="text-h4 text-foreground"
             >
               {title}
-            </h3>
+            </TitleTag>
           )}
           {description != null && (
             <p

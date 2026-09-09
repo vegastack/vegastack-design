@@ -1,6 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { StaggeredTextReveal } from "./staggered-text-reveal";
 
@@ -57,7 +57,7 @@ test("stepMultiplier scales the --stagger-step custom property", async () => {
   );
 });
 
-test("every word carries the shared motion-enter-up utility", async () => {
+test("every word carries the shared motion-enter-up utility once revealed", async () => {
   const screen = await render(<StaggeredTextReveal text="one two" />);
   const words = screen.container.querySelectorAll(
     '[data-slot="staggered-text-reveal-word"]',
@@ -65,6 +65,57 @@ test("every word carries the shared motion-enter-up utility", async () => {
   words.forEach((w) =>
     expect(w.classList.contains("motion-enter-up")).toBe(true),
   );
+});
+
+test("text rendered on screen reveals immediately — no wasted frame", async () => {
+  // The gate must not hide text that is already in view: the CSS animation has started,
+  // and pulling it back would be a visible flash.
+  const screen = await render(<StaggeredTextReveal text="one two" />);
+  const root = screen.container.querySelector(
+    '[data-slot="staggered-text-reveal"]',
+  ) as HTMLElement;
+  expect(root.hasAttribute("data-revealed")).toBe(true);
+});
+
+test("whenVisible={false} opts out of the gate entirely", async () => {
+  const screen = await render(
+    <StaggeredTextReveal text="one two" whenVisible={false} />,
+  );
+  const root = screen.container.querySelector(
+    '[data-slot="staggered-text-reveal"]',
+  ) as HTMLElement;
+  expect(root.hasAttribute("data-revealed")).toBe(true);
+  const words = screen.container.querySelectorAll(
+    '[data-slot="staggered-text-reveal-word"]',
+  );
+  words.forEach((w) =>
+    expect(w.classList.contains("motion-enter-up")).toBe(true),
+  );
+});
+
+test("text far below the fold holds at the FROM state until it scrolls in", async () => {
+  const screen = await render(
+    <div style={{ paddingTop: "300vh" }}>
+      <StaggeredTextReveal text="one two" />
+    </div>,
+  );
+  const root = screen.container.querySelector(
+    '[data-slot="staggered-text-reveal"]',
+  ) as HTMLElement;
+  // Held: the reveal would otherwise have finished before anyone scrolled to it.
+  await vi.waitFor(() =>
+    expect(root.hasAttribute("data-revealed")).toBe(false),
+  );
+  const words = screen.container.querySelectorAll(
+    '[data-slot="staggered-text-reveal-word"]',
+  );
+  words.forEach((w) => expect(w.classList.contains("opacity-0")).toBe(true));
+
+  root.scrollIntoView();
+  await vi.waitFor(() => expect(root.hasAttribute("data-revealed")).toBe(true));
+  screen.container
+    .querySelectorAll('[data-slot="staggered-text-reveal-word"]')
+    .forEach((w) => expect(w.classList.contains("motion-enter-up")).toBe(true));
 });
 
 test("rendering the same text twice produces identical delay assignments (deterministic)", async () => {

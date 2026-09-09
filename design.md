@@ -1799,9 +1799,16 @@ stepping it. All use **warm-off-white on-fill text** uniformly; `hover`/`active`
 
 ### Charts & data-viz
 
-Three scales, a **separate** system from UI colour (data needs distinction, not meaning):
+Three scales, a **separate** system from UI colour (data needs distinction, not meaning).
 
-- **Categorical** (`chart-1…8`) — qualitative series tuned for separation in each theme. The series intentionally vary in lightness and chroma; direct OKLCH values may exceed sRGB and the build reports clipping used for WCAG calculation. Assign in order, pair hue with labels/patterns, and do not publish duplicate `*-p3` tokens.
+**A single series is drawn in foreground INK, not a hue** (`--chart-single`; D29). The categorical
+ramp encodes _which series is this_ — a distinction that does not exist when there is only one, so
+`chart-1`'s saturated blue on a lone line or area is decoration standing in for information, and it
+reads as a status colour in an otherwise neutral shell. Hue starts at **two** series. The same rule
+is why a KPI number, a sparkline body, and a single-metric bar are all ink: colour arrives when
+there is something to tell apart.
+
+- **Categorical** (`chart-1…8`) — qualitative series, **two or more**, tuned for separation in each theme. The series intentionally vary in lightness and chroma; direct OKLCH values may exceed sRGB and the build reports clipping used for WCAG calculation. Assign in order, pair hue with labels/patterns, and do not publish duplicate `*-p3` tokens.
 - **Sequential** (`sequential`) — ordered low→high (heatmaps, density). One hue: the **blue** mixed into the surface via `color-mix(in oklch …)`, so it re-skins with the blue and the theme (dark inverts dark→light automatically), with zero hand-picked values.
 - **Diverging** (`diverging`) — signed ± around a neutral midpoint: `destructive` ← `muted` (centre) → `success`. The one place reusing status is correct, because the ends genuinely mean negative/positive.
 
@@ -2166,6 +2173,21 @@ color, or a decorative wash beyond one radial. Budget: **guidance, not lint** �
 accent elements on any one marketing page (a `ParticleField` counts as ONE atmospheric accent
 instance, not per-particle, since it reads as a single texture, not N marks).
 
+### Promotion — a ladder rung, never a hue
+
+A promoted plan, a recommended option, a "Popular" card: the thing being promoted is the SAME kind
+of object as the things beside it, so promotion is a difference in **elevation**, not in meaning.
+Lift it one rung of the surface ladder (`surface-3` — the rung selection already uses) and tint its
+hairline with `primary` at `--alpha-outline-border`. The badge stays neutral, or `primary` at most.
+
+Never `info`. `info` means link-or-informational-message everywhere in the system, and borrowing it
+for promotion makes a pricing card claim to be a notice. Never a full-strength chromatic border
+either: at full strength `border-primary` reads as the active/invalid state of a form control, which
+is exactly the wrong signal on a card someone is being invited to choose.
+
+This is the marketing face of the product rule in §Chromatic colour — rationed: a hue has to mean
+something, and "this one is better" is not a meaning the palette carries.
+
 ### Sharp gesture — rationed to CTAs, chips, figure frames
 
 `rounded-(--radius-sharp)` (2px) is the marketing "sharp" signature — rationed to the `cta` Button
@@ -2184,6 +2206,25 @@ long-form body copy. 12px (`text-mono-label`) is the floor; the spec permits an 
 minimum for FIG-style annotations specifically, but no token below 12px ships today —
 `FigureFrame`'s caption intentionally stays at the 12px floor rather than hand-rolling a one-off
 size (see the component's own note).
+
+### Marketing leaves — quotes, marks and reveals
+
+Three conventions the leaf components encode, each because the obvious spelling breaks somewhere
+real:
+
+- **Quotation marks come from CSS, not from characters.** A pull-quote renders its text inside a
+  `<q>` with `quotes: auto`, so the browser inserts the pair the ACTIVE language uses (`„…“`,
+  `« … »`, `「…」`). Typing `“…”` into the markup ships English punctuation to every locale and puts
+  the marks in the text content, where a copy picks them up.
+- **A logo wall shows MARKS, not links.** Wordmarks rest in `text-muted-foreground` and lift to
+  `text-foreground` on hover, with no underline — a wall of underlined text reads as a paragraph of
+  links. Cell seams are logical (`border-s`, `-ms-px`), or RTL doubles the outer edge and erases the
+  inner rules. Column counts are a MAXIMUM over an `auto-fill` track with a cell floor, never a fixed
+  `grid-cols-N`, which squeezes four 80px cells onto a 320px screen.
+- **A scroll reveal waits for the scroll.** An entrance animation that starts on mount has already
+  finished by the time a reader reaches anything below the fold, so the motion was pure cost. Gate it
+  on an `IntersectionObserver` — and gate it so the animation is REMOVED by the client, never added:
+  the server-rendered markup animates, so a page whose JavaScript never runs still shows its text.
 
 ### Serif accent — Newsreader, display emphasis + pull-quotes ONLY
 
