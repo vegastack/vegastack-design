@@ -8,6 +8,7 @@ import {
   selectedChipVariants,
   surfaceInteractive,
 } from "@vegastack/design";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../registry/ui/tabs";
 
 /**
  * Surface-ladder token gate (audit 2026-09-07, F1). Runs against the COMPILED theme so it measures
@@ -276,4 +277,61 @@ describe("selected-chip recipe", () => {
     // …and the chip actually paints, rather than staying transparent on its track.
     expect(getComputedStyle(chip).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
   });
+});
+
+/**
+ * SP-02 — a hover wash never sits on a container hairline.
+ *
+ * The audit's state probe caught the underline Tabs variant painting its trigger hover fill flush
+ * into the `tabs-list` rule the indicator rides on, in both orientations. `design.md` §Hover
+ * geometry is the rule this enforces: a wash is inset ≥4px from any container hairline.
+ *
+ * This assertion was written for `apps/docs/vrt/contracts.spec.ts`, which measured it over the
+ * built docs route. That lane was deleted by the verification rebuild (R3, 2026-09-08); the
+ * measurement is carried here instead, because this file already compiles the real Tailwind theme
+ * against `../registry/ui/**` — so the gap is measured in real compiled CSS, which is the only
+ * place it exists. Mounting the component directly rather than a docs route is the same trade the
+ * geometry lane made: the composition IS the contract, the docs chrome never was.
+ */
+const HOVER_WASH_INSET_PX = 4;
+
+describe("hover wash geometry", () => {
+  for (const orientation of ["horizontal", "vertical"] as const) {
+    test(`a ${orientation} line tab holds its hover wash off the indicator rail`, async () => {
+      const screen = await render(
+        <Tabs defaultValue="one" orientation={orientation}>
+          <TabsList variant="line">
+            <TabsTrigger value="one">One</TabsTrigger>
+            <TabsTrigger value="two">Two</TabsTrigger>
+          </TabsList>
+          <TabsContent value="one">One</TabsContent>
+          <TabsContent value="two">Two</TabsContent>
+        </Tabs>,
+      );
+      const list = screen.baseElement.querySelector<HTMLElement>(
+        '[data-slot="tabs-list"][data-variant="line"]',
+      );
+      expect(list, "the fixture must render a `line` tab list").not.toBeNull();
+      const listRect = list!.getBoundingClientRect();
+      const triggers = [
+        ...list!.querySelectorAll<HTMLElement>('[data-slot="tabs-trigger"]'),
+      ];
+      expect(triggers.length).toBeGreaterThan(0);
+      for (const trigger of triggers) {
+        const rect = trigger.getBoundingClientRect();
+        expect(rect.width * rect.height).toBeGreaterThan(0);
+        // The rule sits on the list's bottom edge (horizontal) or its inline-start edge
+        // (vertical); the wash is the trigger's own border box.
+        const gap =
+          orientation === "vertical"
+            ? Math.abs(rect.left - listRect.left)
+            : listRect.bottom - rect.bottom;
+        expect(
+          gap,
+          `a ${orientation} line tab's hover wash must clear the list rule by ` +
+            `${HOVER_WASH_INSET_PX}px (measured ${gap.toFixed(2)}px)`,
+        ).toBeGreaterThanOrEqual(HOVER_WASH_INSET_PX);
+      }
+    });
+  }
 });
