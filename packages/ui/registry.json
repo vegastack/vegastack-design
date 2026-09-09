@@ -2126,16 +2126,15 @@
       }
     },
     {
-      "name": "audio-player",
+      "name": "media-player-controls",
       "type": "registry:ui",
-      "title": "Audio Player",
-      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
+      "title": "Media Player Controls",
+      "description": "The shared media transport — play/pause, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map — composed by Audio Player and Video Player.",
       "categories": [
         "media"
       ],
       "dependencies": [
         "lucide-react@^1.24.0",
-        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2145,6 +2144,34 @@
         "@vegastack/icon-button",
         "@vegastack/slider",
         "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/media-player-controls.tsx",
+          "type": "registry:ui",
+          "target": "@ui/media-player-controls.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
+        "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "audio-player",
+      "type": "registry:ui",
+      "title": "Audio Player",
+      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
+      "categories": [
+        "media"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/media-player-controls"
       ],
       "files": [
         {
@@ -2172,7 +2199,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/audio-player"
+        "@vegastack/media-player-controls"
       ],
       "files": [
         {

@@ -51,9 +51,9 @@ export and it renders the structure for you:
 <Slider.Root>
   {/* the clickable hit area */}
   <Slider.Control>
-    {/* the rail (bg-muted) */}
+    {/* the rail (surface-1 by default; per-variant) */}
     <Slider.Track>
-      {/* the filled portion (bg-primary) */}
+      {/* the filled portion (primary by default; per-variant) */}
       <Slider.Indicator />
       {/* one draggable handle per value; each owns a hidden <input type="range"> */}
       <Slider.Thumb />
@@ -65,9 +65,10 @@ export and it renders the structure for you:
 - **Root** — owns the value, `min`/`max`/`step`, and `disabled` state. Exposes
   `data-slot="slider"`.
 - **Control** — the interactive hit area; pressing it jumps the nearest thumb.
-- **Track** — the rail spanning the full `min`→`max` range (`bg-muted`).
+- **Track** — the rail spanning the full `min`→`max` range (`surface-1` on the `default`
+  variant; see [Variants](#variants)).
 - **Indicator** — the filled portion from `min` (or the lower thumb) up to the value
-  (`bg-primary`).
+  (`primary` on the `default` variant; see [Variants](#variants)).
 - **Thumb** — the draggable handle. One is rendered per value, so a single number gets
   one thumb and an array gets a range. Each thumb wraps a hidden `<input type="range">`
   for keyboard control and form submission.
@@ -120,10 +121,46 @@ the right tool when the name should reflect live state (for example announcing t
 
 ### Orientation
 
-Slider is **horizontal only**. The Base UI `orientation` prop is inherited on the type,
-but the token styling (track height, indicator fill, thumb geometry) assumes a horizontal
-rail — `orientation="vertical"` is out of scope and not supported. For a vertical control,
-lay sliders out horizontally in your layout instead.
+`orientation="vertical"` runs the rail bottom-to-top; every part keys off `data-orientation`,
+so the track, fill, thumb and tick marks all follow. Give the wrapper a height — a vertical
+rail fills its container the way a horizontal one fills its width. The media players' volume
+control is the canonical use.
+
+<ComponentPreview name="sliderVertical" file="components/preview/slider.tsx" />
+
+### Marks
+
+`marks` draws decorative tick marks on the rail: `true` derives one per `step`, or pass an array
+to place them at exact values. They are `aria-hidden` — the thumb's native range input already
+carries `min`/`max`/`step` for assistive tech, so ticks would only duplicate it.
+
+<ComponentPreview name="sliderMarks" file="components/preview/slider.tsx" />
+
+### Value readout
+
+`showValue` floats the formatted value above the active thumb, on drag and on keyboard focus
+only — a range gets one label per thumb. It is not a replacement for a visible label; it is the
+during-the-gesture feedback that tells you where you landed.
+
+<ComponentPreview name="sliderShowValue" file="components/preview/slider.tsx" />
+
+### Variants
+
+`variant` picks the rail, fill and thumb recipe, and `thumb` decides when the thumb is drawn.
+
+| `variant` | Where                                                                                     |
+| --------- | ----------------------------------------------------------------------------------------- |
+| `default` | The form rail — `surface-1` track, `primary` fill, hollow ringed thumb.                   |
+| `media`   | A transport seek on a normal surface: muted fill that brightens on engagement.            |
+| `overlay` | Chrome drawn over video, on the theme-invariant `--media-*` ink.                          |
+| `bare`    | A transparent hit layer over custom-drawn media (the audio waveform), with no drawn rail. |
+
+`thumb="always"` (the default) draws the thumb at rest. `thumb="hover"` hides it at rest **only
+where a pointer can hover** and reveals it on hover, focus and drag; on a touch device it stays
+visible, because there is no hover to reveal it with. `thumb="none"` draws no thumb at all — for
+a rail where the fill itself is the position cue.
+
+<ComponentPreview name="sliderMedia" file="components/preview/slider.tsx" />
 
 ### Disabled
 

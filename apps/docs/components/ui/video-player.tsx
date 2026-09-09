@@ -1,4 +1,4 @@
-// @vegastack video-player@0.6.0 sha256-Wtffktd+OA6KtGqYzp/RpoooXL/qJEGsOwK4fK7Kmak=
+// @vegastack video-player@0.6.0 sha256-yu5y9fCWvHaMl0q373LTqhRXZfOeV6JNYjmloz13jwE=
 
 "use client";
 
@@ -7,7 +7,9 @@ import { cn } from "@vegastack/design";
 import {
   MediaPlayerControls,
   type MediaPlayerControlsProps,
-} from "@/components/ui/audio-player";
+  assignRef,
+  useMediaShortcuts,
+} from "@/components/ui/media-player-controls";
 
 const VIDEO_CONTROLS_HIDE_DELAY_MS = 1000;
 const VIDEO_CONTROLS_FADE_MS = 150;
@@ -19,25 +21,6 @@ const DEFAULT_VIDEO_QUALITIES = [
   "720p",
   "1080p",
 ] as const;
-
-function assignRef<T>(ref: React.Ref<T> | undefined, value: T | null) {
-  if (typeof ref === "function") {
-    ref(value);
-    return;
-  }
-  if (ref) ref.current = value;
-}
-
-function getMediaDuration(media: HTMLMediaElement | null): number {
-  if (!media || !Number.isFinite(media.duration)) return 0;
-  return media.duration;
-}
-
-function clampTime(media: HTMLMediaElement, value: number): number {
-  const duration = getMediaDuration(media);
-  const upper = duration > 0 ? duration : Number.MAX_SAFE_INTEGER;
-  return Math.min(Math.max(value, 0), upper);
-}
 
 function isTextEntryTarget(target: EventTarget | null): boolean {
   return (
@@ -157,6 +140,15 @@ export interface VideoPlayerProps extends Omit<
    * @default undefined
    */
   onQualityChange?: MediaPlayerControlsProps["onQualityChange"];
+  /**
+   * Force the overlay controls open (`true`) or closed (`false`), taking the
+   * auto hide/reveal out of the loop. Leave it undefined for the default
+   * behaviour: reveal on pointer or focus, fade out a second after the pointer
+   * leaves. Use `true` for a kiosk/always-on player — and for a static docs or
+   * test fixture, which is what lets the contract lane see the chrome at all.
+   * @default undefined
+   */
+  controlsVisible?: boolean;
 }
 
 /**
@@ -186,6 +178,7 @@ export function VideoPlayer({
   onTimeChange,
   onPlaybackRateChange,
   onQualityChange,
+  controlsVisible: controlsVisibleProp,
   preload = "metadata",
   playsInline = true,
   ref,
@@ -200,7 +193,10 @@ export function VideoPlayer({
   );
   const revealFrameRef = React.useRef<number | null>(null);
   const [controlsRendered, setControlsRendered] = React.useState(false);
-  const [controlsVisible, setControlsVisible] = React.useState(false);
+  const [autoControlsVisible, setAutoControlsVisible] = React.useState(false);
+  // A `controlsVisible` prop takes the auto hide/reveal out of the loop entirely.
+  const controlsPinned = controlsVisibleProp != null;
+  const controlsVisible = controlsVisibleProp ?? autoControlsVisible;
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const controlsMediaRef =
     internalMediaRef as React.RefObject<HTMLMediaElement | null>;
@@ -232,6 +228,7 @@ export function VideoPlayer({
 
   const scheduleControlsHide = React.useCallback(
     (preserveFocus = true) => {
+      if (controlsPinned) return;
       clearHideTimer();
 
       hideTimerRef.current = setTimeout(() => {
@@ -244,7 +241,7 @@ export function VideoPlayer({
         if (frameRef.current?.contains(document.activeElement)) {
           frameRef.current.focus();
         }
-        setControlsVisible(false);
+        setAutoControlsVisible(false);
         unmountTimerRef.current = setTimeout(() => {
           setControlsRendered(false);
           unmountTimerRef.current = null;
@@ -252,7 +249,7 @@ export function VideoPlayer({
         hideTimerRef.current = null;
       }, VIDEO_CONTROLS_HIDE_DELAY_MS);
     },
-    [clearHideTimer],
+    [clearHideTimer, controlsPinned],
   );
 
   const handlePointerLeave = React.useCallback(() => {
@@ -265,54 +262,25 @@ export function VideoPlayer({
     clearRevealFrame();
     setControlsRendered(true);
     revealFrameRef.current = requestAnimationFrame(() => {
-      setControlsVisible(true);
+      setAutoControlsVisible(true);
       revealFrameRef.current = null;
     });
   }, [clearHideTimer, clearRevealFrame, clearUnmountTimer]);
 
   const handleControlsFocus = React.useCallback(() => {
     clearHideTimer();
-    setControlsVisible(true);
+    setAutoControlsVisible(true);
   }, [clearHideTimer]);
+
+  // Pinned open: mount the overlay up front so it is in the DOM on first paint
+  // (a static fixture never receives a pointer or focus event to reveal it).
+  React.useEffect(() => {
+    if (controlsVisibleProp === true) setControlsRendered(true);
+  }, [controlsVisibleProp]);
 
   const handleControlsBlur = React.useCallback(() => {
     scheduleControlsHide();
   }, [scheduleControlsHide]);
-
-  const handlePlayStateChange = React.useCallback(
-    (nextPlaying: boolean) => {
-      onPlayStateChange?.(nextPlaying);
-    },
-    [onPlayStateChange],
-  );
-
-  const togglePlayback = React.useCallback(() => {
-    const media = internalMediaRef.current;
-    if (!media) return;
-
-    if (media.paused) {
-      void media.play().catch(() => onPlayStateChange?.(false));
-      return;
-    }
-
-    media.pause();
-  }, [onPlayStateChange]);
-
-  const skipBy = React.useCallback(
-    (offset: number) => {
-      const media = internalMediaRef.current;
-      if (!media) return;
-      media.currentTime = clampTime(media, media.currentTime + offset);
-      onTimeChange?.(media.currentTime, getMediaDuration(media));
-    },
-    [onTimeChange],
-  );
-
-  const toggleMuted = React.useCallback(() => {
-    const media = internalMediaRef.current;
-    if (!media) return;
-    media.muted = !media.muted;
-  }, []);
 
   const toggleFullscreen = React.useCallback(() => {
     const frame = frameRef.current;
@@ -326,54 +294,19 @@ export function VideoPlayer({
     void frame.requestFullscreen();
   }, []);
 
-  const runKeyboardShortcut = React.useCallback(
-    (key: string) => {
-      if (key === " ") {
-        togglePlayback();
-        return true;
-      }
-
-      if (key === "ArrowLeft") {
-        skipBy(-(skipSeconds ?? 15));
-        return true;
-      }
-
-      if (key === "ArrowRight") {
-        skipBy(skipSeconds ?? 15);
-        return true;
-      }
-
-      const normalizedKey = key.toLowerCase();
-
-      if (normalizedKey === "k") {
-        togglePlayback();
-        return true;
-      }
-
-      if (normalizedKey === "j") {
-        skipBy(-(skipSeconds ?? 15));
-        return true;
-      }
-
-      if (normalizedKey === "l") {
-        skipBy(skipSeconds ?? 15);
-        return true;
-      }
-
-      if (normalizedKey === "m") {
-        toggleMuted();
-        return true;
-      }
-
-      if (normalizedKey === "f") {
-        toggleFullscreen();
-        return true;
-      }
-
-      return false;
-    },
-    [skipBy, skipSeconds, toggleFullscreen, toggleMuted, togglePlayback],
-  );
+  /*
+    ONE shortcut map, shared with the controls group (audit B4-02). Space/K
+    play, J/L and the arrows skip, M mutes, F toggles fullscreen. It used to be
+    implemented twice — here and inside the controls — and the two had already
+    drifted: the controls copy never handled F.
+  */
+  const { runShortcut } = useMediaShortcuts({
+    mediaRef: controlsMediaRef,
+    skipSeconds,
+    onFullscreenToggle: toggleFullscreen,
+    onPlayStateChange,
+    onTimeChange,
+  });
 
   const handleFrameKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -388,9 +321,9 @@ export function VideoPlayer({
         return;
       }
 
-      if (runKeyboardShortcut(event.key)) event.preventDefault();
+      if (runShortcut(event.key, "surface")) event.preventDefault();
     },
-    [runKeyboardShortcut],
+    [runShortcut],
   );
 
   React.useEffect(() => {
@@ -429,7 +362,7 @@ export function VideoPlayer({
         return;
       }
 
-      if (!runKeyboardShortcut(event.key)) return;
+      if (!runShortcut(event.key, "surface")) return;
       event.preventDefault();
       showControls();
       scheduleControlsHide(false);
@@ -443,7 +376,7 @@ export function VideoPlayer({
       document.removeEventListener("focusin", handleFocusIn, true);
       document.removeEventListener("keydown", handleDocumentKeyDown);
     };
-  }, [runKeyboardShortcut, scheduleControlsHide, showControls]);
+  }, [runShortcut, scheduleControlsHide, showControls]);
 
   React.useEffect(() => {
     return () => {
@@ -452,8 +385,6 @@ export function VideoPlayer({
       clearRevealFrame();
     };
   }, [clearHideTimer, clearRevealFrame, clearUnmountTimer]);
-
-  const resolvedSkipSeconds = skipSeconds ?? 15;
 
   return (
     <div
@@ -494,10 +425,12 @@ export function VideoPlayer({
         aria-label={`${label} video player`}
         className={cn(
           "relative overflow-hidden rounded-lg bg-muted",
-          // Soft, keyboard-only focus ring on the frame (matches the players'
-          // control chrome). Normal mode swaps the crisp outline for a soft ring;
-          // under forced-colors the base outline stays (box-shadows are stripped).
-          "[@media(forced-colors:none)]:focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/(--alpha-outline-soft)",
+          // The centralized 2px `:focus-visible` outline, pulled INSIDE because
+          // the frame is `overflow-hidden` and would clip it — the one focus
+          // deviation `design.md` permits (audit B4-03, D17). What was here
+          // before was a `ring-2 ring-ring/50` box-shadow glow with a
+          // forced-colours carve-out to keep it legal; both are gone.
+          "focus-visible:-outline-offset-2",
           aspectRatio === "video" && "aspect-video",
           aspectRatio === "square" && "aspect-square",
         )}
@@ -521,7 +454,7 @@ export function VideoPlayer({
           data-slot="video-player-controls-scrim"
           data-state={controlsVisible ? "visible" : "hidden"}
           className={cn(
-            "pointer-events-none absolute inset-x-0 bottom-0 z-(--z-raised) h-24 bg-gradient-to-t from-primary/(--alpha-backdrop-soft) to-transparent transition-opacity duration-fast ease-standard",
+            "pointer-events-none absolute inset-x-0 bottom-0 z-(--z-raised) h-24 bg-gradient-to-t from-media-scrim to-transparent transition-opacity duration-fast ease-standard",
             controlsVisible ? "opacity-100" : "opacity-0",
           )}
         />
@@ -537,14 +470,18 @@ export function VideoPlayer({
           >
             <MediaPlayerControls
               mediaRef={controlsMediaRef}
+              // The frame IS the fullscreen element, so the tooltips and the settings menu have
+              // to portal into it — the browser paints only the fullscreen subtree, and a popup
+              // left on `<body>` simply does not appear.
+              portalContainer={frameRef}
               label={label}
-              skipSeconds={resolvedSkipSeconds}
+              skipSeconds={skipSeconds}
               playbackRates={playbackRates}
               defaultPlaybackRate={defaultPlaybackRate}
               qualityOptions={qualityOptions}
               defaultQuality={defaultQuality}
               formatTime={formatTime}
-              onPlayStateChange={handlePlayStateChange}
+              onPlayStateChange={onPlayStateChange}
               onTimeChange={onTimeChange}
               onPlaybackRateChange={onPlaybackRateChange}
               onQualityChange={onQualityChange}

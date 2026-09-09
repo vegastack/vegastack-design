@@ -1159,6 +1159,64 @@ transparent)`) before committing to the shape. Two consequences worth knowing:
   audit work continues, either raise the per-test timeout for that route or serialise the gate runs;
   do not read this failure as an OTPInput defect.
 
+## 2026-09-07 — M1 judgment calls: the volume panel, `bare`, and a stale audit claim
+
+- **The volume rail is inline, not portaled.** Every other floating panel in the system portals to
+  `<body>`. This one must not: the video frame is the element passed to `requestFullscreen`, and a
+  portal to `<body>` puts the panel outside the fullscreen element, where it is not rendered at all.
+  So the panel is positioned within the frame and the `overflow-hidden` clip is handled by the
+  frame's own padding. Recorded because it reads like a portal that someone forgot to write.
+- **`Slider` gained a fourth variant, `bare`, that the issue did not ask for.** The issue named
+  `default | media | overlay`. The audio waveform draws its own bars and needs the Slider purely as
+  an accessible, keyboard-driven hit layer over them — with a `media` rail underneath it, the
+  waveform gets a second rail drawn through it. `bare` renders no track and no fill, and pairs with
+  `thumb="none"`. The alternative was leaving the waveform on descendant overrides, which is the
+  exact thing B4-05 asks to delete. Consistent with `design.md` §Components ("a variant is a recipe
+  the component owns, not a caller's override"), so taken rather than escalated — flagged for MK.
+- **B4-11's `code-block` and `tool-call-chip` claims were already stale when the audit was written.**
+  The audit says `code-block` has "no headerless" fixture and `tool-call-chip` has "no interactive
+  `render={<button/>}` fixture, no running state". All three already exist on `main` inside the
+  single `codeBlock` / `toolCallChip` preview functions, so the contract lane does see them; the
+  audit appears to have counted exported preview functions rather than specimens. Only the genuinely
+  missing one — a long-line horizontal-overflow fixture for `code-block` — was added. Nothing was
+  deleted or restated to "close" a finding that was already satisfied.
+- **The count ledger in `tooling/verify-component-contracts.mjs` moved, and that is not a relaxed
+  gate.** It holds the second half of a deliberate double-entry check against
+  `component-contracts.json`, so a new registry item must be written into both or the gate fails.
+  559 → 560 items, 112 → 113 components, Content/marketing 22 → 23. No assertion was loosened.
+
+## 2026-09-07 — M1 adversarial review round: what was fixed, what was left
+
+An independent read of the M1 diff against the B4 findings ran before the PR. Everything it found
+that this batch owns was fixed at the root and is listed above in `bugs.md`
+(the overlay rail's specificity tie; the playback-rate reset). Three more were fixed without a
+`bugs.md` entry, being defects of documentation or direction rather than behaviour:
+
+- **`audio-player.mdx` documented shortcuts the diff had deleted.** The keyboard table still listed
+  Space-to-play and ←/→-to-seek "when the media controls group is focused". Those are `surface`
+  scope in `useMediaShortcuts`, the controls group is deliberately no longer a tab stop, and
+  `AudioPlayer` hosts no surface listener — so they no longer exist in the audio player. The rows
+  were removed rather than the behaviour restored: Space and the arrows belong to whichever control
+  has focus, which is exactly why the scope split was drawn there.
+- **Tooltips and the settings menu were invisible in fullscreen.** The volume panel was built inline
+  precisely because a portal to `<body>` is not painted inside a fullscreen element — but the same
+  reasoning was never applied to the other two popups in the same control bar. `MediaPlayerControls`
+  now takes `portalContainer`, `VideoPlayer` passes its frame, and a context carries it to every
+  tooltip without threading a prop through every control.
+- **`showValue` and the volume panel were mis-centred in RTL** — a logical `start-1/2` paired with a
+  physical `-translate-x-1/2`. Fixed on the new surfaces only.
+
+Left out, deliberately:
+
+- **`MEDIA_SUBMENU_RADIO_ITEM_CLASS` still restyles `DropdownMenuSubContent` from outside.** It is
+  the same class of leak as B4-05, relocated rather than removed. The honest fix is a
+  `trailingIndicator` prop on `DropdownMenuRadioItem`, and `dropdown-menu` belongs to **O1**. Flagged
+  for MK; M1 does not touch an overlay component to close it.
+- **B4-11's `copy-button` sub-item** — the implicit `size="sm"` flip under `showLabel` — is
+  untouched. `copy-button` is not an M1 component and the finding asks for a decision (document it
+  or drop it) rather than a mechanical edit. Flagged for MK; the `text-edit.mdx` half of B4-11 is
+  M2's by the do-not-touch list.
+
 ## 2026-09-08 — F2's gate moved to the Ryzen boxes, and the committed receipt was stale
 
 - **The committed receipt did not describe this tree, and said so.** `.gates/receipt.json` on the

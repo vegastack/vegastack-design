@@ -148,7 +148,7 @@
         "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
         "version": "0.6.0",
-        "integrity": "sha256-Lvl5GUKBqBpiBTrYi23o/tPEULkrFk6sBtSutdkcksw="
+        "integrity": "sha256-o0dmj8n5wnbDX2EEIxV2hiFou4+c/tvmecqDmpjJnTY="
       }
     },
     {
@@ -948,7 +948,7 @@
         "whenToUse": "An imprecise value over a bounded range — volume, brightness, a price filter.",
         "whenNotToUse": "Exact values or large/open ranges (number input); on/off (Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-yqdPQTleb/CZFXClWU/ItoYVRxyBslxHeFGvQKPQwRU="
+        "integrity": "sha256-ymGwnurk0I8Y27gSAm7QPCwDFLDG4BYkgX1AXzCGIKQ="
       }
     },
     {
@@ -2218,20 +2218,19 @@
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.6.0",
-        "integrity": "sha256-1+F/DB3rFLb+qi69kWSpCce90HlWWj6mrylGLJrH11c="
+        "integrity": "sha256-E9dnK1A8O1bgwNZbZkfIp7iOKQegtQkQIMENNAWFTcE="
       }
     },
     {
-      "name": "audio-player",
+      "name": "media-player-controls",
       "type": "registry:ui",
-      "title": "Audio Player",
-      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
+      "title": "Media Player Controls",
+      "description": "The shared media transport — play/pause, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map — composed by Audio Player and Video Player.",
       "categories": [
         "media"
       ],
       "dependencies": [
         "lucide-react@^1.24.0",
-        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2244,6 +2243,35 @@
       ],
       "files": [
         {
+          "path": "packages/ui/registry/ui/media-player-controls.tsx",
+          "type": "registry:ui",
+          "target": "@ui/media-player-controls.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
+        "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
+        "version": "0.6.0",
+        "integrity": "sha256-RuBZFcadzluHbvXTkWfxBvvcaIr1s8GPk11+ZHbK2Fk="
+      }
+    },
+    {
+      "name": "audio-player",
+      "type": "registry:ui",
+      "title": "Audio Player",
+      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
+      "categories": [
+        "media"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/media-player-controls"
+      ],
+      "files": [
+        {
           "path": "packages/ui/registry/ui/audio-player.tsx",
           "type": "registry:ui",
           "target": "@ui/audio-player.tsx"
@@ -2253,7 +2281,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control.",
         "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
         "version": "0.6.0",
-        "integrity": "sha256-xH4rrn68NycNrAc9k6DEQBkYBYAVbv8nEr/LDZag9WI="
+        "integrity": "sha256-9PUHfHcbYx2ANU45b4UZJnO3aKr0+0fynocw98ayRZM="
       }
     },
     {
@@ -2269,7 +2297,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/audio-player"
+        "@vegastack/media-player-controls"
       ],
       "files": [
         {
@@ -2282,7 +2310,7 @@
         "whenToUse": "A single video asset that needs a branded frame plus grouped skip controls, mute, and keyboard shortcuts.",
         "whenNotToUse": "Playlists, caption editing, fullscreen-first viewing, or adaptive streaming control surfaces.",
         "version": "0.6.0",
-        "integrity": "sha256-Wtffktd+OA6KtGqYzp/RpoooXL/qJEGsOwK4fK7Kmak="
+        "integrity": "sha256-yu5y9fCWvHaMl0q373LTqhRXZfOeV6JNYjmloz13jwE="
       }
     },
     {

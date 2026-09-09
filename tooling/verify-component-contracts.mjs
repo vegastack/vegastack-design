@@ -552,8 +552,8 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 559,
-  components: 112,
+  totalRegistryItems: 560,
+  components: 113,
   animatedIcons: 439,
   hooks: 7,
   blocks: 1,
@@ -571,7 +571,7 @@ const expectedWaves = {
   "Navigation/layout": 14,
   Overlays: 14,
   "Data display": 11,
-  "Content/marketing": 22,
+  "Content/marketing": 23,
   "AI/chat": 6,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
@@ -695,6 +695,7 @@ const expectedComponentWaveMembers = {
     "page-header",
     "item",
     "marketing-surface",
+    "media-player-controls",
     "section-header",
     "figure-frame",
     "terminal",

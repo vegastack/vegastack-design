@@ -1,4 +1,4 @@
-// @vegastack image@0.6.0 sha256-1+F/DB3rFLb+qi69kWSpCce90HlWWj6mrylGLJrH11c=
+// @vegastack image@0.6.0 sha256-E9dnK1A8O1bgwNZbZkfIp7iOKQegtQkQIMENNAWFTcE=
 
 "use client";
 
@@ -76,6 +76,20 @@ export interface ImageProps
    * @default undefined
    */
   fallback?: React.ReactNode;
+  /**
+   * Native lazy-loading hint. Defaults to `lazy` so an off-screen image costs
+   * nothing until it scrolls near the viewport (audit B4-08 — `MarkdownView`
+   * already did this for its images). Pass `eager` for an above-the-fold hero,
+   * where deferring the fetch delays LCP instead of saving it.
+   * @default 'lazy'
+   */
+  loading?: "lazy" | "eager";
+  /**
+   * Native decoding hint. `async` keeps decode off the main thread so a large
+   * image cannot block the frame it lands in.
+   * @default 'async'
+   */
+  decoding?: "async" | "sync" | "auto";
 }
 
 /**
@@ -103,6 +117,8 @@ export function Image({
   aspectRatio = "auto",
   rounded = "md",
   fallback,
+  loading = "lazy",
+  decoding = "async",
   ref,
   ...props
 }: ImageProps) {
@@ -147,6 +163,8 @@ export function Image({
           data-slot="image-img"
           src={src}
           alt={alt}
+          loading={loading}
+          decoding={decoding}
           onLoad={() => setStatus("loaded")}
           onError={() => setStatus("error")}
           className={cn(

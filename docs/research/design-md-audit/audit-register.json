@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "24980d0c0dae884ce8e6a64ea986c0d80f022e65e71c66deb13886b997fec7e0",
+  "contractSha256": "9ff46ff7b47fd1786462830550a299edbc4f0d3867ec1cf9b847f7e920491ffd",
   "expectedCounts": {
-    "totalRegistryItems": 559,
-    "components": 112,
+    "totalRegistryItems": 560,
+    "components": 113,
     "animatedIcons": 439,
     "hooks": 7,
     "blocks": 1
@@ -823,6 +823,17 @@
         "packages/ui/registry/ui/image.tsx"
       ],
       "docsSlug": "/docs/components/image",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "media-player-controls",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "media",
+      "sourceFiles": [
+        "packages/ui/registry/ui/media-player-controls.tsx"
+      ],
+      "docsSlug": "/docs/components/media-player-controls",
       "contractStatus": "reconciled"
     },
     {

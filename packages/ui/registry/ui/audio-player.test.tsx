@@ -56,10 +56,20 @@ test("renders the audio player with shared controls", async () => {
     within(compact, 'button[aria-label="Play Demo audio"]'),
   ).not.toBeNull();
   expect(within(compact, 'input[type="range"]')).not.toBeNull();
-  // Audio carries no volume control — no mute button on the transport.
+  // Audio now carries mute + a volume rail, in BOTH layouts (audit B4-04 — it
+  // previously had neither and mute was keyboard-only).
+  expect(within(compact, '[data-slot="media-player-volume"]')).not.toBeNull();
   expect(
-    screen.container.querySelector('[data-slot="media-player-volume"]'),
-  ).toBeNull();
+    within(compact, 'button[aria-label="Mute Demo audio"]'),
+  ).not.toBeNull();
+  expect(
+    within(
+      screen.container.querySelector<HTMLElement>(
+        '[data-slot="media-player-actions"]',
+      )!,
+      '[data-slot="media-player-volume"]',
+    ),
+  ).not.toBeNull();
   // Visible rewind/forward transport buttons.
   expect(
     within(compact, 'button[aria-label="Rewind 15 seconds"]'),
@@ -262,6 +272,7 @@ test("supports keyboard playback, skip, and mute from the controls group", async
       onPlayStateChange={onPlayStateChange}
     />,
   );
+  const compact = compactLayout(screen.container);
   const media = mediaRef.current!;
   setMediaState(media, { currentTime: 30, duration: 120, paused: true });
   const play = vi.spyOn(media, "play").mockImplementation(() => {
@@ -274,22 +285,24 @@ test("supports keyboard playback, skip, and mute from the controls group", async
     media.dispatchEvent(new Event("pause"));
   });
 
+  // The controls group is NOT a tab stop (audit TD-4) — every control inside it
+  // is focusable, so a stop on the wrapper only added an empty one. Shortcuts
+  // are therefore exercised from a focused control, in the `controls` scope:
+  // the letter map applies, and Space and the arrows stay with the control the
+  // user is actually on (the play button's own Space, the seek's own arrows).
   const group = screen.getByRole("group", {
     name: "Demo audio media controls",
   });
-  group.element().focus();
-  await userEvent.keyboard(" ");
+  expect(group.element().hasAttribute("tabindex")).toBe(false);
+
+  within(compact, 'button[aria-label="Rewind 15 seconds"]').focus();
+
+  await userEvent.keyboard("k");
   expect(play).toHaveBeenCalledOnce();
   expect(onPlayStateChange).toHaveBeenLastCalledWith(true);
 
   await userEvent.keyboard("k");
   expect(onPlayStateChange).toHaveBeenLastCalledWith(false);
-
-  await userEvent.keyboard("{ArrowRight}");
-  expect(media.currentTime).toBe(45);
-
-  await userEvent.keyboard("{ArrowLeft}");
-  expect(media.currentTime).toBe(30);
 
   await userEvent.keyboard("l");
   expect(media.currentTime).toBe(45);
@@ -297,7 +310,7 @@ test("supports keyboard playback, skip, and mute from the controls group", async
   await userEvent.keyboard("j");
   expect(media.currentTime).toBe(30);
 
-  // Mute has no visible control on audio, but the M shortcut still toggles it.
+  // Mute now has a visible control too, but the M shortcut still toggles it.
   await userEvent.keyboard("m");
   expect(media.muted).toBe(true);
 });

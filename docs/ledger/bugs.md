@@ -938,6 +938,70 @@ name`) pins the role-plus-name query, which is the assertion that actually fails
   listed in the F2 PR: an untyped test directory is exactly where a fixture rots into a
   green-but-empty gate.
 
+## 2026-09-07 — The video overlay chrome inverted in dark mode
+
+- **Symptom:** the video player's control bar read as dark-scrim/light-ink in light mode and
+  near-white-scrim/near-black-ink in dark — the opposite of what chrome over a video should do, and
+  the one place in the system where switching the theme made a surface harder to read rather than
+  easier.
+- **Root cause:** the scrim gradient and the control ink were built from `primary` and
+  `primary-foreground`. Those are theme tokens: `primary` is near-black in light and near-white in
+  dark. A video frame is not a theme token — it is whatever the content is — so chrome laid over it
+  must not follow the theme at all. Measured in dark before the fix: scrim oklab L **0.92**.
+- **Systemic fix:** three theme-invariant tokens (`--media-scrim`, `--media-scrim-strong`,
+  `--media-foreground`, landed with F1) are the only colours media chrome may use, and
+  `packages/ui/test/media-chrome.browser.test.tsx` asserts against the COMPILED CSS in both themes
+  that the scrim resolves under L 0.3 while the overlay ink resolves over L 0.85. The test was
+  confirmed to fail when the pre-fix `primary` recipe is restored — a chrome gate that has never
+  been seen failing is an assumption, and this one was: nothing had ever measured these surfaces.
+
+## 2026-09-07 — Slider was restyled from outside, so the players owned rules Slider should have
+
+- **Symptom:** `audio-player.tsx` and `video-player.tsx` carried ~60 `[&_[data-slot=slider-*]]`
+  descendant overrides between them to build a seek rail, and the hidden-until-hover seek thumb was
+  therefore a caller's rule. On a touch device the thumb was hidden with no hover to reveal it —
+  there was no scrub handle at all.
+- **Root cause:** Slider exposed no variant axis, so every media treatment had to reach through the
+  public API into the internals it deliberately does not own. Two callers meant two copies that
+  could drift, and neither copy could be tested as Slider behaviour.
+- **Systemic fix:** the treatments are Slider's props now (`variant`, `orientation`, `thumb`,
+  `marks`, `showValue`), and `thumb="hover"` hides the thumb ONLY under a hover-capable pointer —
+  `(hover: none)` and `:focus-visible` both keep it drawn. Zero descendant overrides remain in
+  either player (`grep -c "\[&_\[data-slot=slider" → 0`).
+
+## 2026-09-07 — The overlay seek rail rendered at the default thickness (found in M1 review)
+
+- **Symptom:** the video overlay's seek rail rested at 6px instead of 4px, and the "rail thickens on
+  hover/focus" affordance it is supposed to have did nothing at all.
+- **Root cause:** a cascade tie introduced by the same refactor that moved the media recipes into
+  `Slider`. The shared `BaseSlider.Track` declared `data-[orientation=horizontal]:h-1.5`
+  unconditionally, and `trackByVariant.overlay` declared `data-[orientation=horizontal]:h-1`. Both
+  compile to the same specificity, so the winner is decided by Tailwind's utility sort order (`h-1`
+  is emitted before `h-1.5`) rather than by the component — the base won, and the `group-hover` /
+  `group-focus-within` thickening then had nothing to thicken from. The code this replaced was
+  correct by accident: it overrode the track from the ROOT element (`hover:[&_[data-slot=slider-track]]:h-1.5`),
+  a descendant selector that genuinely outranks the track's own rule.
+- **Systemic fix:** the rail's thickness now lives in exactly one place — the per-variant record —
+  and the base Track declares only the length axis. The same tie existed between the control's
+  `py-1.5` and `bare`'s `py-0`; that is now an either/or, not an override.
+  `packages/ui/test/media-chrome.browser.test.tsx` asserts the resting height against the compiled
+  CSS, which is the only place a specificity tie is observable. Structural unit tests cannot see
+  this class of defect: the class string is present and correct in the DOM either way.
+
+## 2026-09-07 — A viewer's playback speed reset several times a second (found in M1 review)
+
+- **Symptom:** selecting 1.5× or 2× held only until playback resumed, then snapped back to 1×.
+- **Root cause:** the media-element effect in `media-player-controls.tsx` listed the consumer's
+  `onTimeChange` in its dependency array (through `syncFromMedia`). `timeupdate` fires ~4×/s while
+  media plays and re-renders the controls; a consumer passing an inline callback — the shape every
+  docs example uses — hands over a new identity on each of those renders, so the effect tore down
+  and re-ran at the same rate, and its first statement was
+  `media.playbackRate = defaultPlaybackRate`.
+- **Systemic fix:** the consumer callbacks are held in a ref updated in a layout effect, so their
+  identity never reaches a dependency array, and applying the default rate is its own effect keyed
+  on the default itself. Pre-existing in `audio-player.tsx`, but the refactor made it one module
+  that both players inherit, which is the moment to fix it rather than duplicate it.
+
 ## 2026-09-08 — A rest-state assertion measured a hovered button, because the pointer never moved
 
 - **Symptom:** `button-matrix.browser.test.tsx > a neutral ghost inherits its host ink; a status

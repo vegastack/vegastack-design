@@ -80,6 +80,18 @@ proportions (use `square`/`video` instead when you need a fixed, shift-free aspe
 <Image src={url} alt="Ada Lovelace" aspectRatio="square" fallback="AL" />
 ```
 
+### Loading
+
+`Image` defaults to `loading="lazy" decoding="async"`, so an off-screen image costs nothing until
+it scrolls near the viewport and its decode never blocks the frame it lands in. A long list of
+thumbnails gets that for free.
+
+Opt out for an above-the-fold hero, where deferring the fetch delays LCP instead of saving it:
+
+```tsx
+<Image src={hero} alt="" loading="eager" aspectRatio="video" />
+```
+
 ## API Reference
 
 <AutoTypeTable

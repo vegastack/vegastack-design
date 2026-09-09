@@ -119,3 +119,64 @@ function ControlledSlider(): ReactNode {
     </Wrapper>
   );
 }
+
+/** Tick marks — `aria-hidden` decoration that makes a stepped range legible. */
+export function sliderMarks(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-64">
+        <Slider
+          defaultValue={4}
+          min={0}
+          max={10}
+          step={1}
+          marks
+          aria-label="Rating"
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/** Floating value readout — appears on drag and on keyboard focus only. */
+export function sliderShowValue(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-64 pt-8">
+        <Slider defaultValue={40} showValue aria-label="Opacity" />
+      </div>
+    </Wrapper>
+  );
+}
+
+/** Vertical — the rail runs bottom-to-top and the arrow keys follow it. */
+export function sliderVertical(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="h-40">
+        <Slider orientation="vertical" defaultValue={60} aria-label="Volume" />
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * The `media` variant with `thumb="hover"` — the seek treatment the audio card uses: a fill that
+ * brightens on engagement, and a thumb hidden at rest ONLY where a pointer can hover (on touch it
+ * stays visible, or there is no scrub affordance at all). The rail THICKENS on engagement in
+ * `overlay` only, which is the variant drawn over video.
+ */
+export function sliderMedia(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-64">
+        <Slider
+          variant="media"
+          thumb="hover"
+          defaultValue={35}
+          aria-label="Seek"
+        />
+      </div>
+    </Wrapper>
+  );
+}

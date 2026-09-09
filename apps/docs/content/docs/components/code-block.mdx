@@ -23,7 +23,20 @@ import { CodeBlock } from "@/components/ui/code-block";
 
 ## Examples
 
+### With and without a header
+
 <ComponentPreview name="codeBlock" file="components/preview/code-block.tsx" />
+
+### Long lines
+
+Code does not wrap. A line wider than the panel scrolls inside the block's own horizontal scroll
+container, so a long command never widens the page around it — which is what keeps a 320px viewport
+reflowing instead of scrolling sideways.
+
+<ComponentPreview
+  name="codeBlockOverflow"
+  file="components/preview/code-block.tsx"
+/>
 
 ## Anatomy
 

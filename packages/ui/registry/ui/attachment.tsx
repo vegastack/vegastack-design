@@ -1,4 +1,4 @@
-// @vegastack attachment@0.6.0 sha256-Lvl5GUKBqBpiBTrYi23o/tPEULkrFk6sBtSutdkcksw=
+// @vegastack attachment@0.6.0 sha256-o0dmj8n5wnbDX2EEIxV2hiFou4+c/tvmecqDmpjJnTY=
 
 "use client";
 
@@ -451,7 +451,7 @@ export function AttachmentTrigger({
     props: {
       "data-slot": "attachment-trigger",
       className: cn(
-        "absolute inset-0 z-(--z-raised) rounded-[inherit] outline-none focus-visible:border-ring/(--alpha-tint-border)",
+        "absolute inset-0 z-(--z-raised) rounded-[inherit] focus-visible:-outline-offset-2",
         className,
       ),
       ...props,

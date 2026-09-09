@@ -1,0 +1,110 @@
+---
+title: Media Player Controls
+description: The shared media transport — play/pause, seek, time, mute + volume, speed, and one keyboard shortcut map.
+audience: public
+preview: mediaPlayerControls
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/media-player-controls
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+`MediaPlayerControls` is the transport that `AudioPlayer` and `VideoPlayer` both compose. Install it
+directly only when the player around it is yours — otherwise reach for one of those two.
+
+```tsx
+import { useRef } from "react";
+import { MediaPlayerControls } from "@/components/ui/media-player-controls";
+
+const mediaRef = useRef<HTMLMediaElement>(null);
+
+<audio ref={mediaRef} src="/media/demo.mp3" aria-label="Demo audio" />
+<MediaPlayerControls mediaRef={mediaRef} label="Demo audio" />;
+```
+
+Two visual treatments. `variant="default"` is the bordered audio card. `variant="overlay"` is chrome
+drawn over video: it paints on the theme-invariant `--media-scrim` / `--media-scrim-strong` /
+`--media-foreground` tokens, so the controls read dark-scrim + light-ink in **both** themes rather
+than inverting in dark.
+
+## Examples
+
+### Default
+
+Wide players lay the transport out on a single line: play/pause, rewind and forward, the
+elapsed·duration readout, the seek rail, mute + volume, and the tappable speed pill.
+
+<ComponentPreview
+  name="mediaPlayerControls"
+  file="components/preview/media-player-controls.tsx"
+/>
+
+### Narrow
+
+Below the `@sm` container width the transport reflows to two lines — seek and timers on top,
+a centred transport below with the transcript and volume controls on the leading edge. It is a
+container query, so a narrow sidebar gets the mobile layout on a wide viewport.
+
+<ComponentPreview
+  name="mediaPlayerControlsCompact"
+  file="components/preview/media-player-controls.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/media-player-controls.tsx"
+  name="MediaPlayerControlsProps"
+/>
+
+### useMediaShortcuts
+
+The single keyboard map, exported so a custom media surface binds the same keys the controls do.
+`runShortcut(key, scope)` returns whether a shortcut ran, so the caller decides whether to
+`preventDefault()`.
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/media-player-controls.tsx"
+  name="UseMediaShortcutsOptions"
+/>
+
+Scope is what keeps a shortcut from stealing a key from the control the user is on. `surface` — the
+player frame, or the document while the frame owns keyboard attention — claims the whole map.
+`controls` — inside the transport, where a focused button already owns Space and a focused seek rail
+already owns the arrows — claims only the letter shortcuts.
+
+## Accessibility
+
+| Key                                 | Action                                                     |
+| ----------------------------------- | ---------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through play/pause, skip, seek, mute, speed, settings |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control                               |
+| <kbd>K</kbd>                        | Play or pause                                              |
+| <kbd>J</kbd> / <kbd>L</kbd>         | Rewind / forward by `skipSeconds`                          |
+| <kbd>M</kbd>                        | Toggle mute                                                |
+| <kbd>F</kbd>                        | Toggle fullscreen (when `onFullscreenToggle` is supplied)  |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Seek by one step while the seek rail is focused            |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Change volume while the volume rail is focused             |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Seek to the beginning / end                                |
+
+- The group is labelled from `label` and is **not** itself a tab stop — every control inside it is
+  focusable, so a stop on the wrapper only added an empty one.
+- Focus is the centralized 2px `:focus-visible` outline. Over video it is pulled inside
+  (`-outline-offset-2`) because the frame clips it; the width, colour and token are unchanged.
+- Icon-only controls compose `IconButton`, which makes a missing accessible name a type error.
+- The seek thumb is hidden at rest only where a pointer can hover. On a touch device it stays
+  visible, because there is no hover to reveal it with.
+- Tooltips name the keyboard shortcut alongside the action.
+
+## Do / Don't
+
+<DoDont
+  do="Compose MediaPlayerControls when you own the media element and want the system's transport, chrome, and keyboard map."
+  dont="Install it to get a plain audio or video player — AudioPlayer and VideoPlayer already compose it for you."
+/>

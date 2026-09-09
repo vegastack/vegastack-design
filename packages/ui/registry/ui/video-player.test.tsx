@@ -12,7 +12,16 @@ const SOURCE = "data:video/mp4;base64,";
 // origin, and Firefox dispatches a pointerenter when the frame appears under the resting pointer
 // (Chromium does not) — which auto-shows the overlay and makes "controls hidden at rest" assertions
 // flake by engine and test order. Parking the pointer away makes the at-rest state deterministic.
-beforeEach(async () => {
+/**
+ * Move the harness pointer to the far bottom-right, well clear of the player.
+ *
+ * `userEvent.unhover(frame)` is NOT equivalent: it parks the pointer at the viewport origin, and
+ * the player renders at the top-left — so in WebKit the pointer lands back INSIDE the frame, no
+ * `pointerleave` fires, and the overlay never hides. (Chromium happened to dispatch the leave
+ * anyway, which is why this only ever failed on the cross-engine lane.) Hovering a real corner
+ * element states where the pointer should go instead of relying on an engine's idea of "nowhere".
+ */
+async function parkPointer() {
   const corner = document.createElement("div");
   corner.style.cssText =
     "position:fixed;right:0;bottom:0;width:8px;height:8px;z-index:2147483647;";
@@ -22,7 +31,13 @@ beforeEach(async () => {
   } finally {
     corner.remove();
   }
-});
+}
+
+// Park the harness pointer in a far corner before every test. The player renders at the top-left
+// origin, and Firefox dispatches a pointerenter when the frame appears under the resting pointer
+// (Chromium does not) — which auto-shows the overlay and makes "controls hidden at rest" assertions
+// flake by engine and test order. Parking the pointer away makes the at-rest state deterministic.
+beforeEach(parkPointer);
 
 function setMediaState(
   media: HTMLMediaElement,
@@ -149,11 +164,19 @@ test("renders the video frame with shared controls", async () => {
   expect(
     playButton.querySelector("svg")?.classList.contains("fill-current"),
   ).toBe(true);
+  // The seek's hidden-until-hover thumb is now `Slider thumb="hover"` on the
+  // `overlay` variant — the ~70 `[&_[data-slot=slider-*]]` descendant overrides
+  // the players used to reach in with are deleted (audit B4-05).
+  const seek = screen.container.querySelector(
+    '[data-slot="media-player-progress"] [data-slot="slider"]',
+  );
+  expect(seek?.getAttribute("data-thumb")).toBe("hover");
+  expect(seek?.getAttribute("data-variant")).toBe("overlay");
   expect(
     screen.container
       .querySelector('[data-slot="media-player-progress"]')
-      ?.classList.contains("[&_[data-slot=slider-thumb]]:opacity-0"),
-  ).toBe(true);
+      ?.className.includes("[&_[data-slot=slider"),
+  ).toBe(false);
 });
 
 test("uses a named, smoothly expanding video progress control", async () => {
@@ -181,25 +204,14 @@ test("uses a named, smoothly expanding video progress control", async () => {
     expect(track).not.toBeNull();
     expect(thumb).not.toBeNull();
     expect(progress?.dataset.variant).toBe("overlay");
-    expect(progress?.classList.contains("group/media-progress")).toBe(true);
-    expect(
-      progress?.classList.contains(
-        "[&_[data-slot=slider-track]]:transition-[height]",
-      ),
-    ).toBe(true);
-    expect(
-      progress?.classList.contains(
-        "[&_[data-slot=slider-thumb]]:transition-opacity",
-      ),
-    ).toBe(true);
-    expect(
-      progress?.classList.contains("hover:[&_[data-slot=slider-track]]:h-1.5"),
-    ).toBe(true);
-    expect(
-      progress?.classList.contains(
-        "hover:[&_[data-slot=slider-thumb]]:opacity-100",
-      ),
-    ).toBe(true);
+    // The growing track and the revealed thumb are the `overlay` variant's own
+    // recipe now: the track carries the height transition, the thumb the
+    // opacity one, and both key off Slider's `group/slider` — not off a
+    // `group/media-progress` the player invented (audit B4-05).
+    expect(track?.className).toContain("transition-[height,width]");
+    expect(track?.className).toContain("group-hover/slider:");
+    expect(thumb?.className).toContain("transition-");
+    expect(progress?.className.includes("[&_[data-slot=slider")).toBe(false);
 
     expect(getComputedStyle(track!).height).toBe("4px");
     expect(getComputedStyle(track!).transitionProperty).toBe("height");
@@ -337,10 +349,18 @@ test("supports keyboard playback, skip, and mute from the controls group", async
   });
 
   await showVideoControls(screen.container);
+  // The controls group is no longer a tab stop (audit TD-4) — the FRAME is the
+  // player's surface, and the `surface` scope is what owns Space and the
+  // arrows. Inside the group those keys stay with the focused control.
   const group = screen.getByRole("group", {
     name: "Demo video media controls",
   });
-  group.element().focus();
+  expect(group.element().hasAttribute("tabindex")).toBe(false);
+  (
+    screen.container.querySelector(
+      '[data-slot="video-player-frame"]',
+    ) as HTMLElement
+  ).focus();
   await userEvent.keyboard(" ");
   expect(play).toHaveBeenCalledOnce();
   expect(onPlayStateChange).toHaveBeenLastCalledWith(true);
@@ -454,7 +474,7 @@ test("shows overlay controls on hover and hides them after pointer leave", async
     });
     await screen.getByRole("button", { name: "Play Demo video" }).click();
 
-    await userEvent.unhover(frame!);
+    await parkPointer();
     await vi.advanceTimersByTimeAsync(999);
     expect(
       screen.container.querySelector(
@@ -525,7 +545,12 @@ test("keeps shortcuts active after the controls fade and unmount", async () => {
 
     await showVideoControls(screen.container);
     await screen.getByRole("button", { name: "Play Demo video" }).click();
-    await userEvent.unhover(frame);
+    // The player deliberately holds the overlay open while focus is inside the frame, and engines
+    // disagree on whether a click focuses the button it hit. Move focus out explicitly, so this
+    // test measures the pointer-driven fade-and-unmount it is named for rather than an engine's
+    // click-focus convention. (Without this it passed in Chromium and hung visible in WebKit.)
+    (document.activeElement as HTMLElement | null)?.blur();
+    await parkPointer();
     await vi.advanceTimersByTimeAsync(1150);
     await vi.waitFor(() =>
       expect(
@@ -620,23 +645,14 @@ test("keeps the volume slider reachable from the mute control", async () => {
     expect(volumeSurface?.classList.contains("py-1")).toBe(true);
     expect(getComputedStyle(volumeSurface!).width).toBe("32px");
     expect(getComputedStyle(volumeSurface!).padding).toBe("4px");
-    expect(
-      volumePanel
-        ?.querySelector('[data-slot="slider"]')
-        ?.classList.contains("[&_[data-slot=slider-control]]:flex-col"),
-    ).toBe(true);
-    expect(
-      volumePanel
-        ?.querySelector('[data-slot="slider"]')
-        ?.classList.contains("[&_[data-slot=slider-thumb]]:size-3"),
-    ).toBe(true);
-    expect(
-      volumePanel
-        ?.querySelector('[data-slot="slider"]')
-        ?.classList.contains(
-          "[&_[data-slot=slider-control]]:h-[calc(var(--size-lg)+var(--spacing)*4)]",
-        ),
-    ).toBe(true);
+    // Vertical layout and overlay ink are Slider props now; the player passes
+    // them instead of restyling Slider's internals from outside (audit B4-05).
+    const volumeSlider = volumePanel?.querySelector('[data-slot="slider"]');
+    expect(volumeSlider?.getAttribute("data-orientation")).toBe("vertical");
+    expect(volumeSlider?.getAttribute("data-variant")).toBe("overlay");
+    expect(volumeSlider?.className.includes("[&_[data-slot=slider")).toBe(
+      false,
+    );
 
     // The volume slider uses Base UI `thumbAlignment="edge"` so the thumb stays
     // inset within the surface at the 0% and 100% extremes instead of letting its

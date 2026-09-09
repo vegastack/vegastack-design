@@ -66,6 +66,18 @@ when the video element should keep its intrinsic height.
   file="components/preview/video-player.tsx"
 />
 
+### Controls always visible
+
+The overlay reveals on pointer or focus and fades a second after the pointer leaves. `controlsVisible`
+takes that out of the loop — `true` pins the chrome open, `false` keeps it closed. Use it for a
+kiosk or always-on player, and for a static fixture: the auto-reveal never fires without a pointer,
+so a screenshot or a contract check would otherwise capture a frame with no controls in it.
+
+<ComponentPreview
+  name="videoPlayerControlsVisible"
+  file="components/preview/video-player.tsx"
+/>
+
 ## API Reference
 
 <AutoTypeTable
