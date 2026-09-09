@@ -25,6 +25,15 @@
 //   shut from every side (wrong image, arbitrary image, the container REMOVED, un-allowlisted job on
 //   the Linux label, allowlisted job moved off it, and the fork guard removed).
 //
+//   TOPOLOGY IS NOT EFFECTIVENESS. Until 2026-09-09 every case here mutated the SHAPE of a workflow —
+//   a runner, an image, a dependency edge — and an adversarial review then built twelve mutations
+//   that left the shape untouched and passed the gate. Three of them made a workflow report success
+//   while executing nothing: `continue-on-error` on the deploy's verify job (a FAILED sweep still
+//   deploys), the same key on ci.yml's `pnpm verify` step (a green check on a red suite), and
+//   `if: false` on `pnpm verify:release` (the step stays in the file and leaves the run). Those
+//   twelve, and the three defects that had to be fixed before they could even be mutated (unbounded
+//   jobs, an over-scoped `publish`, ci.yml's missing SITE_VISIBILITY), are the last block of cases.
+//
 //   One case is not a mutation of policy but of SHAPE: a flow-style job. Regex-over-text discovery
 //   recognised only `  name:` at exactly two spaces followed by a newline, so a job written inline in
 //   flow style was invisible to the gate AND to this harness — both reported clean while it ran on
@@ -82,7 +91,7 @@ const CASES = [
     id: "a flow-style job hiding a banned container on billed capacity",
     file: "ci.yml",
     mutateAfter: (source) =>
-      `${source.trimEnd()}\n  hidden: {runs-on: ubuntu-latest, container: "node:24", steps: [{run: echo bypass}]}\n`,
+      `${source.trimEnd()}\n  hidden: {runs-on: ubuntu-latest, timeout-minutes: 5, container: "node:24", steps: [{run: echo bypass}]}\n`,
     expect: /declares a container but is not in LINUX_JOBS/,
   },
   {
@@ -402,6 +411,203 @@ const CASES = [
     replace: "        run: echo boundary-check-skipped\n",
     expect: /canonical production probe/,
   },
+  // ------------------------------------------------------------- EFFECTIVENESS, not topology
+  //
+  // Every case above mutates the SHAPE of a workflow — a runner, an image, a dependency edge. On
+  // 2026-09-09 an adversarial review built twelve mutations that left the shape untouched and the
+  // gate passed all twelve; three of them made a workflow report success while executing nothing.
+  // The cases below are those twelve plus the three defects that needed a fix before they could be
+  // mutated at all (unbounded jobs, over-broad publish scope, and the missing SITE_VISIBILITY in
+  // ci.yml). A gate that asserts topology and not effectiveness is a gate that can be satisfied by a
+  // workflow which does no work.
+  {
+    // The single worst one. `continue-on-error` at JOB level sets the job's conclusion to `success`,
+    // so `build-sign-deploy` — which `needs: verify` — signs and deploys to production after a full
+    // sweep that FAILED.
+    id: "continue-on-error on deploy.yml's verify job (a failed sweep deploys anyway)",
+    file: "deploy.yml",
+    find: "  verify:\n    needs: ref-guard\n",
+    replace: "  verify:\n    continue-on-error: true\n    needs: ref-guard\n",
+    expect: /forges the job's CONCLUSION/,
+  },
+  {
+    id: "continue-on-error on ci.yml's `pnpm verify` step (green check on a red suite)",
+    file: "ci.yml",
+    find: "      - run: pnpm verify\n",
+    replace: "      - run: pnpm verify\n        continue-on-error: true\n",
+    expect: /its failure is reported as a pass/,
+  },
+  {
+    // `if: false` leaves the step in the file, so every assertion that reads the text is satisfied,
+    // and a skipped step does not fail its job.
+    id: "`if: false` on deploy.yml's `pnpm verify:release` step",
+    file: "deploy.yml",
+    find: "      - run: pnpm verify:release\n",
+    replace: "      - run: pnpm verify:release\n        if: false\n",
+    expect: /under an `if:`/,
+  },
+  {
+    id: "the deploy's verify job made conditional",
+    file: "deploy.yml",
+    find: "  verify:\n    needs: ref-guard\n",
+    replace: "  verify:\n    needs: ref-guard\n    if: false\n",
+    expect: /the `verify` job must carry no `if:`/,
+  },
+  {
+    id: "release quality-gate's condition widened away from publish detection",
+    file: "release.yml",
+    find: "    if: needs.changes.outputs.publish == 'true'\n",
+    replace: "    if: needs.changes.outputs.publish == 'nope'\n",
+    expect: /must be exactly the publish-detection condition/,
+  },
+  {
+    // `command: deploy` was a substring match, so this deployed nothing and reported success.
+    id: "the Cloudflare deploy neutered to `deploy --dry-run`",
+    file: "deploy.yml",
+    find: "          command: deploy\n",
+    replace: "          command: deploy --dry-run\n",
+    expect: /wrangler command must be exactly `deploy`/,
+  },
+  {
+    id: "wranglerVersion drifting from apps/docs/package.json",
+    file: "deploy.yml",
+    find: "          wranglerVersion: 4.113.0\n",
+    replace: "          wranglerVersion: 3.0.0\n",
+    expect: /disagrees with apps\/docs\/package\.json/,
+  },
+  {
+    // The only thing stopping a lifecycle script from running with npm OIDC publishing authority.
+    id: "the publish-time lifecycle guard deleted",
+    file: "release.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        /      - name: Reject publish-time lifecycle code\n[\s\S]*?          NODE\n/,
+        "",
+      ),
+    expect: /exactly one step named "Reject publish-time lifecycle code"/,
+  },
+  {
+    id: "the lifecycle guard stops checking a hook",
+    file: "release.yml",
+    find: "'prepublishOnly', ",
+    replace: "",
+    expect: /no longer checks `prepublishOnly`/,
+  },
+  {
+    id: "npm publish disabled in place with `false &&`",
+    file: "release.yml",
+    find: "            npm publish --access public --no-provenance",
+    replace: "            false && npm publish --access public --no-provenance",
+    expect: /as a whole command on its own line/,
+  },
+  {
+    // Production would export in the private/noindex matrix, and the turbo task hash would stop
+    // matching the other two workflows.
+    id: "SITE_VISIBILITY removed from deploy.yml",
+    file: "deploy.yml",
+    find: "env:\n  SITE_VISIBILITY: public\n",
+    replace: "",
+    expect: /must declare `env\.SITE_VISIBILITY: public`/,
+  },
+  {
+    id: "SITE_VISIBILITY removed from ci.yml (turbo cache key stops matching)",
+    file: "ci.yml",
+    find: "env:\n  SITE_VISIBILITY: public\n",
+    replace: "",
+    expect: /must declare `env\.SITE_VISIBILITY: public`/,
+  },
+  {
+    // Without the pin the job signs and deploys whatever main's tip is when it starts, not the
+    // commit the `verify` job swept.
+    id: "`ref: ${{ github.sha }}` dropped from build-sign-deploy's checkout",
+    file: "deploy.yml",
+    find: "          persist-credentials: false\n          ref: ${{ github.sha }}\n      - uses: pnpm/action-setup",
+    replace:
+      "          persist-credentials: false\n      - uses: pnpm/action-setup",
+    expect: /checks out without `ref: \$\{\{ github\.sha \}\}`/,
+  },
+  {
+    id: "an install unfrozen (`--no-frozen-lockfile`)",
+    file: "ci.yml",
+    find: "pnpm install --frozen-lockfile --store-dir /pnpm-store",
+    replace: "pnpm install --no-frozen-lockfile --store-dir /pnpm-store",
+    expect: /--no-frozen-lockfile/,
+  },
+  {
+    id: "an install with no lockfile flag at all",
+    file: "ci.yml",
+    find: "      - run: pnpm install --frozen-lockfile\n",
+    replace: "      - run: pnpm install\n",
+    expect: /without `--frozen-lockfile`/,
+  },
+  {
+    id: "concurrency removed (a superseded push keeps a runner busy)",
+    file: "ci.yml",
+    find: "concurrency:\n  group: ci-${{ github.ref }}\n  cancel-in-progress: true\n",
+    replace: "",
+    expect: /declares no `concurrency`/,
+  },
+  {
+    id: "timeout-minutes removed (a hung job holds a LAN runner for six hours)",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source.replace(/^ {4}timeout-minutes: \d+\n/gm, ""),
+    expect: /declares no `timeout-minutes`/,
+  },
+  {
+    id: "timeout-minutes set to the Actions default in disguise",
+    file: "deploy.yml",
+    find: "    timeout-minutes: 5\n",
+    replace: "    timeout-minutes: 360\n",
+    expect: /the cap is 60/,
+  },
+  {
+    // Checkout + echo: still green, still self-hosted, still fork-guarded — and the whole
+    // cross-platform static signal plus the only `changeset status` check in CI simply stopped.
+    id: "verify-macos reduced to checkout + echo",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        /      - uses: pnpm\/action-setup@[\s\S]*$/,
+        "      - run: echo ok\n",
+      ),
+    expect: /verify-macos must run `pnpm install --frozen-lockfile`/,
+  },
+  {
+    id: "the changeset presence check dropped from verify-macos",
+    file: "ci.yml",
+    find: "      - run: pnpm exec changeset status --since=origin/main",
+    replace: "      - run: echo skipped",
+    expect: /verify-macos must run `pnpm exec changeset status/,
+  },
+  {
+    // Unused authority in the same job as the npm OIDC token.
+    id: "publish regains contents:write and pull-requests:write",
+    file: "release.yml",
+    find: "    permissions:\n      contents: read\n      id-token: write\n",
+    replace:
+      "    permissions:\n      contents: write\n      pull-requests: write\n      id-token: write\n",
+    expect: /job publish must declare exactly/,
+  },
+  {
+    id: "OIDC granted at workflow level instead of one job",
+    file: "release.yml",
+    find: "permissions:\n  contents: read\n",
+    replace: "permissions:\n  contents: read\n  id-token: write\n",
+    expect:
+      /grants OIDC \(`id-token: write`\) at WORKFLOW level|missing read-only workflow token/,
+  },
+  {
+    id: "the Sigstore OIDC token moved onto a second deploy job",
+    file: "deploy.yml",
+    // The job already declares `permissions:`, so the token is ADDED to that block — inserting a
+    // second `permissions:` key would be unparseable YAML and the gate would reject the mutation
+    // without ever reaching the scope rule.
+    find: "    permissions:\n      contents: read\n    steps:",
+    replace:
+      "    permissions:\n      contents: read\n      id-token: write\n    steps:",
+    expect: /unexpected OIDC permission scope|must declare exactly/,
+  },
 ];
 
 let failures = 0;
@@ -476,5 +682,12 @@ console.log(
     `command actually being invoked on a browser-capable runner in all three workflows, the deploy's ` +
     `dependency on it, \`verify:release\` still running there, shell injection, credential ` +
     `persistence, token scope, pull_request_target, stray OIDC, publish dependencies, and the ` +
-    `unconditional production-boundary chain`,
+    `unconditional production-boundary chain — and, since 2026-09-09, EFFECTIVENESS: no ` +
+    `\`continue-on-error\` anywhere, no \`if:\` on a verification step or on the deploy's sweep, the ` +
+    `Cloudflare command asserted exactly (\`deploy --dry-run\` deploys nothing and reports success), ` +
+    `the wrangler version agreeing with apps/docs/package.json, the publish-time lifecycle guard and ` +
+    `the \`npm publish\` line itself (a \`false &&\` prefix publishes nothing), SITE_VISIBILITY in all ` +
+    `three workflows, the dispatched sha on every outward checkout, \`--frozen-lockfile\` on every ` +
+    `install, a concurrency group and a bounded \`timeout-minutes\` on every job, the macOS lane's ` +
+    `required steps, and exact permission sets on every job that holds more than the default`,
 );

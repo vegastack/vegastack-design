@@ -36,6 +36,9 @@ jobs:
   # `quality-gate` EXECUTES them.
   changes:
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    # A hung job otherwise holds a runner for the Actions default of 360 minutes. This one is a
+    # checkout plus one node script. verify-workflow-security.mjs requires a timeout on every job.
+    timeout-minutes: 10
     outputs:
       publish: ${{ steps.detect.outputs.publish }}
       has_changesets: ${{ steps.detect.outputs.has_changesets }}
@@ -74,6 +77,8 @@ jobs:
     needs: changes
     if: needs.changes.outputs.publish == 'true'
     runs-on: [self-hosted, linux, vsk-runner]
+    # Measured ~3 min for `pnpm verify`; headroom for a cold pnpm store, not a budget.
+    timeout-minutes: 20
     container:
       image: mcr.microsoft.com/playwright:v1.61.0-noble
       volumes:
@@ -123,6 +128,10 @@ jobs:
       needs.changes.outputs.has_changesets == 'true' &&
       needs.quality-gate.result == 'success'
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    timeout-minutes: 15
+    # WRITE SCOPE, AND IT IS USED: the changesets action creates/updates the Version Packages PR
+    # (`contents: write` for the branch it pushes through the GitHub API, `pull-requests: write` for
+    # the PR itself). verify-workflow-security.mjs pins this set exactly.
     permissions:
       contents: write
       pull-requests: write
@@ -179,9 +188,15 @@ jobs:
       needs.changes.outputs.has_changesets == 'false' &&
       needs.quality-gate.result == 'success'
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    timeout-minutes: 20
+    # LEAST PRIVILEGE, READ BACK OFF THE STEPS. This job checks out, installs, builds the two public
+    # packages, and runs `npm publish` — it pushes no commit, opens no PR, and never calls the
+    # changesets action, so the `contents: write` and `pull-requests: write` it used to hold were
+    # unused authority sitting in the same job as the OIDC token. `contents: read` is what the
+    # checkout needs; `id-token: write` is what npm trusted publishing needs.
+    # verify-workflow-security.mjs pins this set exactly, so re-widening it fails the gate.
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
       id-token: write
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6

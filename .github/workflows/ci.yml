@@ -5,6 +5,15 @@ on:
 permissions:
   contents: read
 
+# TURBO CACHE KEY PARITY, not a setting `pnpm verify` reads. `SITE_VISIBILITY` is in turbo.json's
+# `globalEnv`, so it is part of every task hash. release.yml and deploy.yml declare it and ci.yml did
+# not, which made the "byte-for-byte identical command" claim false for turbo's hash even though no
+# task in `pnpm verify` reads the variable (only the docs export in `verify:release` does, and that
+# runs nowhere near this workflow). Declaring the same value in all three workflows makes the claim
+# literally true; verify-workflow-security.mjs asserts the three agree.
+env:
+  SITE_VISIBILITY: public
+
 # Self-hosted capacity is finite: a superseded push must not keep a runner busy.
 concurrency:
   group: ci-${{ github.ref }}
@@ -39,6 +48,10 @@ jobs:
     # nothing in this tree can assert).
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, vsk-runner]
+    # The runner pool is two Debian boxes. Without this, a hung job holds one of them for the Actions
+    # default of 360 minutes. Measured ~3 min; this is generous headroom over a cold pnpm store, not a
+    # budget. verify-workflow-security.mjs requires every job to declare one and caps it.
+    timeout-minutes: 20
     container:
       # Pinned to the `playwright` version in pnpm-lock.yaml; verify-workflow-security.mjs reads the
       # lockfile and fails if the two drift, because a container whose browsers do not match the
@@ -96,12 +109,14 @@ jobs:
     # until this rewrite; they need the same one for the same reason.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    # Measured ~2 min. See the `verify` job above for why every job carries one.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          # FULL HISTORY. `pnpm exec changeset status --since=origin/main` in `verify-macos` needs a
-          # resolvable base, and `tooling/secret-scan.mjs` walks tracked history. A shallow clone
-          # fails both. Kept on the container job too so the two lanes see the identical checkout.
+          # FULL HISTORY. The `changeset status --since=origin/main` step at the bottom of this job
+          # needs a resolvable base, and `tooling/secret-scan.mjs` walks tracked history. A shallow
+          # clone fails both.
           fetch-depth: 0
           persist-credentials: false
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6

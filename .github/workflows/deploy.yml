@@ -46,6 +46,10 @@ concurrency:
 jobs:
   ref-guard:
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    # `cancel-in-progress: false` above means a hung job is never superseded — it would hold a runner
+    # for the Actions default of 360 minutes and block every later deploy behind the concurrency
+    # group. Every job here declares a bound; verify-workflow-security.mjs requires it.
+    timeout-minutes: 5
     steps:
       - name: Require the protected production ref
         env:
@@ -68,6 +72,9 @@ jobs:
   verify:
     needs: ref-guard
     runs-on: [self-hosted, linux, vsk-runner]
+    # `pnpm verify` (~3 min) plus `pnpm verify:release` (~7 min). Headroom over a cold pnpm store and
+    # a cold docs export, not a budget.
+    timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.61.0-noble
       volumes:
@@ -111,6 +118,8 @@ jobs:
   build-sign-deploy:
     needs: verify
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    # Registry build, docs build, Sigstore sign + verify, and the Cloudflare upload: ~10 min measured.
+    timeout-minutes: 30
     permissions:
       contents: read
       id-token: write
@@ -210,6 +219,8 @@ jobs:
   verify-public-boundary:
     needs: build-sign-deploy
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    # A live HTTP probe. If it hangs it is a network fault, and 15 minutes is long enough to say so.
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
