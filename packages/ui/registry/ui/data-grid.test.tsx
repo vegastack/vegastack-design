@@ -163,12 +163,18 @@ test("responsive revelation: an oversized column merges into the primary cell", 
       />
     </div>,
   );
-  // Amount (mobile default hidden) disappears; Stage merges into primary.
+  // Both overflow columns leave the header; neither is LOST — `merge` is now the
+  // default posture (B5-04), so Amount stacks into the primary cell alongside Stage.
   await expect
     .poll(() => document.querySelectorAll('[role="columnheader"]').length)
     .toBe(1);
   const merged = document.querySelector('[data-slot="data-grid-merged"]');
   expect(merged?.textContent).toContain("Open");
+  expect(merged?.textContent).toContain("300");
+  // Nothing was dropped, so there is nothing to report.
+  expect(
+    document.querySelector('[data-slot="data-grid-hidden-hint"]'),
+  ).toBeNull();
 });
 
 test("grouping renders one collapsible tbody section per value", async () => {
@@ -743,4 +749,137 @@ test("columnOrder applies a host-owned order coherently: headers, cells, picker;
       ),
     )
     .toEqual(["Amount", "Name", "Stage"]);
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * Honest narrow rendering (B5-04) and the opt-out column picker (B5-09).
+ * ------------------------------------------------------------------------------------------- */
+
+test("a dropped column is COUNTED and reported in the toolbar", async () => {
+  // `design.md` § DataGrid: data is never silently lost. `mobile: "hidden"` is
+  // the only posture that actually removes a value, so it has to say so.
+  await render(
+    <div style={{ width: "300px" }}>
+      <DataGrid
+        aria-label="Deals"
+        columns={[
+          { key: "name", header: "Name", minWidth: 10, mobile: "visible" },
+          { key: "stage", header: "Stage", minWidth: 10_000, mobile: "hidden" },
+          {
+            key: "amount",
+            header: "Amount",
+            minWidth: 10_000,
+            mobile: "hidden",
+          },
+        ]}
+        data={DEALS}
+        getRowId={(d) => d.id}
+      />
+    </div>,
+  );
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="data-grid-hidden-hint"]')
+          ?.textContent,
+    )
+    .toBe("2 columns hidden");
+  expect(document.querySelector('[data-slot="data-grid-merged"]')).toBeNull();
+});
+
+test("the hidden-columns hint is singular for one column", async () => {
+  await render(
+    <div style={{ width: "300px" }}>
+      <DataGrid
+        aria-label="Deals"
+        columns={[
+          { key: "name", header: "Name", minWidth: 10, mobile: "visible" },
+          { key: "stage", header: "Stage", minWidth: 10_000, mobile: "hidden" },
+        ]}
+        data={DEALS}
+        getRowId={(d) => d.id}
+      />
+    </div>,
+  );
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="data-grid-hidden-hint"]')
+          ?.textContent,
+    )
+    .toBe("1 column hidden");
+});
+
+test("columnPicker={false} removes the Columns control and its toolbar row", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      columnPicker={false}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-toolbar"]'),
+  ).toBeNull();
+  expect(
+    [...screen.container.querySelectorAll("button")].some(
+      (button) => button.textContent === "Columns",
+    ),
+  ).toBe(false);
+});
+
+test("columnPicker={false} still renders a host toolbar", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      columnPicker={false}
+      toolbar={<span>Host controls</span>}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-toolbar"]'),
+  ).not.toBeNull();
+  expect(screen.container.textContent).toContain("Host controls");
+});
+
+test("mono and end-aligned columns keep their cells on one line", async () => {
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        { key: "amount", header: "Amount", align: "end", minWidth: 10 },
+        { key: "stage", header: "Ref", mono: true, minWidth: 10 },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const cells = [
+    ...document.querySelectorAll('[data-slot="data-grid-cell"]'),
+  ] as HTMLElement[];
+  expect(cells[0]!.className).not.toMatch(/(^|\s)whitespace-nowrap(\s|$)/);
+  expect(cells[1]!.className).toContain("whitespace-nowrap");
+  expect(cells[2]!.className).toContain("font-mono");
+});
+
+test("the roving cell's focus ring is pulled inside the scroll viewport", async () => {
+  // SP-03: the viewport clips its own overflow, so an outward outline is cut off.
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const cell = document.querySelector(
+    '[data-slot="data-grid-cell"]',
+  ) as HTMLElement;
+  expect(cell.className).toContain("focus-visible:-outline-offset-2");
 });

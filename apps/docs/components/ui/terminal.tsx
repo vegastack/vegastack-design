@@ -1,10 +1,11 @@
-// @vegastack terminal@0.6.0 sha256-kH6MRORsYHGyoMUjYl3Yl2uFxT/yDUDluVRNdyAE0tQ=
+// @vegastack terminal@0.6.0 sha256-Ev/GYL1tq49stDXoLGXLjbormZ5d22TE2XL7LqhQkbs=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 // `CopyButton` is owned by the sibling CopyButton component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { CopyButton } from "@/components/ui/copy-button";
+import { TerminalBody } from "@/components/ui/terminal-body";
 
 export interface TerminalLine {
   /** Command text, rendered after the prompt glyph. */
@@ -40,10 +41,10 @@ export interface TerminalProps extends Omit<
    */
   copyValue?: string;
   /**
-   * Accessible name for the scrollable command pane, which is a keyboard
-   * focus stop. Overrides the default, which names the pane from the visible
-   * `title`. Mirrors `ScrollArea`: the label is intercepted here and applied to
-   * the focusable element, not to the outer block.
+   * Accessible name for the scrollable command pane, which is a keyboard focus
+   * stop while it overflows. Overrides the default, which names the pane from the
+   * visible `title`. Mirrors `ScrollArea`: the label is intercepted here and
+   * applied to the focusable element, not to the outer block.
    * @default derived from `title`
    */
   "aria-label"?: string;
@@ -64,8 +65,9 @@ function normalizeLine(line: string | TerminalLine): TerminalLine {
  * over command/output lines, each command prefixed with a `--brand` phosphor
  * prompt glyph, plus a composed trailing {@link CopyButton}. The command pane
  * scrolls independently, so the copy action remains visible at the inline end —
- * which makes it a keyboard focus stop, named from the visible `title` and
- * exposed as a `group` (override with `aria-label`/`aria-labelledby`).
+ * which makes it a keyboard focus stop **whenever it actually overflows**, named
+ * from the visible `title` and exposed as a `group` (override with
+ * `aria-label`/`aria-labelledby`). A pane whose commands fit adds no tab stop.
  * Self-scopes to the
  * marketing dark ground (`.vs-marketing`) so it reads correctly even embedded
  * in a light-theme docs page (e.g. an install snippet) — no `MarketingSurface`
@@ -126,33 +128,12 @@ export function Terminal({
         data-slot="terminal-command-row"
         className="grid grid-cols-[minmax(0,1fr)_auto]"
       >
-        <div
-          data-slot="terminal-body"
-          tabIndex={0}
-          // The pane is a keyboard focus stop (a scrollable region must be reachable without a
-          // pointer), so it needs a name and a role that can carry one. A bare `<div tabindex="0">`
-          // maps to `generic`, which PROHIBITS naming — `aria-label` on it is not reliably exposed,
-          // and the pane announces as an unnamed stop. `group` is the right weight: it accepts a
-          // name and is not a landmark. `region` would be, and a docs page with five install
-          // snippets would put five landmarks in the rotor for no navigational value.
-          role="group"
-          // Free correct name from the visible title, overridable in the usual precedence order.
-          // Never emit both: `aria-labelledby` wins in the AT, so a caller passing `aria-label`
-          // would otherwise be silently ignored.
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabel ? undefined : (ariaLabelledBy ?? titleId)}
-          // scroll-fade-x (the CSS-only edge-fade utility from @vegastack/design-tokens/utilities.css,
-          // same family tabs' list uses) masks the clipped edge so a command cut mid-token on
-          // narrow screens reads as "more this way" instead of a hard cut — the fade only
-          // appears on the edge that actually has off-screen content (scroll-driven, zero JS).
-          //
-          // The focus affordance is the shared `:focus-visible` outline, pulled INSIDE the box with
-          // a negative offset. Two things clip an outward outline here: the terminal root is
-          // `overflow-hidden`, and `scroll-fade-x` masks this element to its own border box — an
-          // outline drawn outside that box is not painted at all. A border tint is not an option
-          // either: `forced-colors: active` replaces border-color outright, which left this
-          // scrollable region with no focus indicator whatsoever in the forced palette.
-          className="flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x px-4 py-3 font-mono text-code text-foreground focus-visible:-outline-offset-2"
+        <TerminalBody
+          // The pane is a focus stop only while it actually scrolls, and it is named from the
+          // visible title in the usual precedence order — see `terminal-body.tsx` for why the role
+          // is `group` rather than `region` and why the outline is pulled inside.
+          label={ariaLabel}
+          labelledBy={ariaLabelledBy ?? titleId}
         >
           {normalized.map((line, index) => (
             <div
@@ -176,7 +157,7 @@ export function Terminal({
               )}
             </div>
           ))}
-        </div>
+        </TerminalBody>
         <div
           data-slot="terminal-copy"
           className="flex shrink-0 items-center border-s border-border px-1"

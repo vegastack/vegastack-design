@@ -1,17 +1,9 @@
-// @vegastack data-grid@0.6.0 sha256-JCbYTEI1uKzdQIgZw34hNHhR3SNcXz3ikdUqNLNYATA=
+// @vegastack data-grid@0.6.0 sha256-6nuMtxwPlYUZnhAwPX18MUOop8yA0AXbSQMcu5cYVVc=
 
 "use client";
 
 import * as React from "react";
-import {
-  ArrowDown,
-  ArrowUp,
-  ChevronDown,
-  ChevronRight,
-  ChevronsUpDown,
-  Columns3,
-  Inbox,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Columns3 } from "lucide-react";
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -23,7 +15,18 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  columnCellClass,
+  cycleSort,
+  EmptyRow,
+  SelectAllHead,
+  SelectionCell,
+  SkeletonRows,
+  SortableHead,
+  useControlledState,
+  useRowSelection,
+  type DataTableColumnLayout,
+} from "@/components/ui/data-table-parts";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -35,20 +38,11 @@ import {
   type EditableCellEditor,
 } from "@/components/ui/editable-cell";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -103,9 +97,7 @@ export interface DataGridCellContext {
 }
 
 /** A column definition. */
-export interface DataGridColumn<T> {
-  /** Stable key — sort identity, visibility identity, order identity. */
-  key: string;
+export interface DataGridColumn<T> extends DataTableColumnLayout {
   /** Header label. */
   header: React.ReactNode;
   /**
@@ -142,10 +134,12 @@ export interface DataGridColumn<T> {
    */
   minWidth?: number;
   /**
-   * Responsive posture: `visible` never hides; `hidden` drops on narrow
-   * containers; `merge` stacks the value into the primary (first) column's
-   * cell instead of disappearing.
-   * @default "hidden"
+   * Responsive posture when the column no longer fits: `visible` never hides;
+   * `merge` stacks the value into the primary (first) column's cell; `hidden`
+   * drops it, which is counted and reported in the toolbar so the loss is never
+   * silent. `merge` is the default because `design.md` § DataGrid requires that
+   * data is never silently lost.
+   * @default "merge"
    */
   mobile?: "visible" | "hidden" | "merge";
   /**
@@ -154,11 +148,6 @@ export interface DataGridColumn<T> {
    * @default false
    */
   group?: boolean;
-  /**
-   * Horizontal alignment.
-   * @default "start"
-   */
-  align?: "start" | "center" | "end";
 }
 
 /** Keyboard-continuous load-more contract for the last row boundary. */
@@ -213,6 +202,14 @@ export interface DataGridProps<T> {
    * @default undefined
    */
   onColumnVisibilityChange?: (visibility: Record<string, boolean>) => void;
+  /**
+   * Render the built-in "Columns" picker in the toolbar's trailing slot. Turn it
+   * off for a grid whose columns are fixed, or when the host drives visibility
+   * from its own settings surface — a three-column read-only grid should not
+   * carry a column manager.
+   * @default true
+   */
+  columnPicker?: boolean;
   /**
    * Column order (array of keys), applied left to right. Controlled-only:
    * the grid ships no reorder affordance — the host owns it (a settings
@@ -314,12 +311,13 @@ export interface DataGridProps<T> {
   ref?: React.Ref<HTMLDivElement>;
 }
 
-const alignClass = (align: DataGridColumn<unknown>["align"]) =>
-  align === "end"
-    ? "text-end"
-    : align === "center"
-      ? "text-center"
-      : "text-start";
+// Stable empty defaults. The uncontrolled initial value must be referentially
+// stable across renders: the sorted row model memoizes on `[sorting, rows]` by
+// identity, so a fresh `[]` per render would re-sort every render and invalidate
+// every memo downstream of it.
+const EMPTY_SORT: DataGridSort[] = [];
+const EMPTY_VISIBILITY: Record<string, boolean> = {};
+const EMPTY_GROUPS: Record<string, "expanded" | "collapsed"> = {};
 
 /**
  * A cell rendered as a real component ELEMENT, so column `render`
@@ -373,6 +371,7 @@ export function DataGrid<T>({
   maxSortKeys = 2,
   columnVisibility,
   onColumnVisibilityChange,
+  columnPicker = true,
   columnOrder,
   groupState,
   onGroupStateChange,
@@ -392,51 +391,23 @@ export function DataGrid<T>({
   className,
   ref,
 }: DataGridProps<T>) {
-  // ---- controlled-optional state (the house inline idiom) ------------------
-  const [internalSort, setInternalSort] = React.useState<DataGridSort[]>([]);
-  const isSortControlled = sort !== undefined;
-  const activeSort = isSortControlled ? sort : internalSort;
-  const commitSort = (next: DataGridSort[]) => {
-    if (!isSortControlled) setInternalSort(next);
-    onSortChange?.(next);
-  };
-
-  const [internalVisibility, setInternalVisibility] = React.useState<
+  // ---- controlled-optional state (the shared house idiom) ------------------
+  const [activeSort, commitSort] = useControlledState<DataGridSort[]>(
+    sort,
+    EMPTY_SORT,
+    onSortChange,
+  );
+  const [visibility, commitVisibility] = useControlledState<
     Record<string, boolean>
-  >({});
-  const isVisibilityControlled = columnVisibility !== undefined;
-  const visibility = isVisibilityControlled
-    ? columnVisibility
-    : internalVisibility;
-  const commitVisibility = (next: Record<string, boolean>) => {
-    if (!isVisibilityControlled) setInternalVisibility(next);
-    onColumnVisibilityChange?.(next);
-  };
+  >(columnVisibility, EMPTY_VISIBILITY, onColumnVisibilityChange);
+  const [groups, commitGroups] = useControlledState<
+    Record<string, "expanded" | "collapsed">
+  >(groupState, EMPTY_GROUPS, onGroupStateChange);
 
   // Column order is CONTROLLED-ONLY: the grid applies it, the host owns the
   // reorder affordance (a settings surface). No internal order state exists,
   // so there is deliberately no onColumnOrderChange.
   const order = columnOrder ?? null;
-
-  const [internalGroups, setInternalGroups] = React.useState<
-    Record<string, "expanded" | "collapsed">
-  >({});
-  const isGroupControlled = groupState !== undefined;
-  const groups = isGroupControlled ? groupState : internalGroups;
-  const commitGroups = (next: Record<string, "expanded" | "collapsed">) => {
-    if (!isGroupControlled) setInternalGroups(next);
-    onGroupStateChange?.(next);
-  };
-
-  const [internalSelected, setInternalSelected] = React.useState<Set<string>>(
-    () => new Set(),
-  );
-  const isSelectionControlled = selectedIds != null;
-  const selected = isSelectionControlled ? selectedIds : internalSelected;
-  const commitSelection = (next: Set<string>) => {
-    if (!isSelectionControlled) setInternalSelected(next);
-    onSelectionChange?.(next);
-  };
 
   // ---- responsive column revelation ---------------------------------------
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -473,14 +444,20 @@ export function DataGrid<T>({
   /**
    * The platform-harvested revelation: walk columns in order, keep the ones
    * whose cumulative minWidth fits the measured container; `visible` always
-   * stays, `merge` overflow stacks into the primary cell.
+   * stays, `merge` overflow stacks into the primary cell, and only an explicit
+   * `hidden` actually disappears — where it is COUNTED, so the toolbar can say
+   * so. Data is never silently lost.
    */
-  const { visibleColumns, mergedColumns } = React.useMemo(() => {
+  const { visibleColumns, mergedColumns, hiddenColumns } = React.useMemo(() => {
     const pickerVisible = ordered.filter(
       (column) => visibility[column.key] !== false,
     );
     if (containerWidth == null)
-      return { visibleColumns: pickerVisible, mergedColumns: [] };
+      return {
+        visibleColumns: pickerVisible,
+        mergedColumns: [],
+        hiddenColumns: [],
+      };
     const selectionWidth = selectable ? 40 : 0;
     let used = selectionWidth;
     const shown: DataGridColumn<T>[] = [];
@@ -505,7 +482,10 @@ export function DataGrid<T>({
     }
     return {
       visibleColumns: shown,
-      mergedColumns: overflow.filter((column) => column.mobile === "merge"),
+      mergedColumns: overflow.filter(
+        (column) => (column.mobile ?? "merge") === "merge",
+      ),
+      hiddenColumns: overflow.filter((column) => column.mobile === "hidden"),
     };
   }, [ordered, visibility, containerWidth, selectable]);
 
@@ -584,6 +564,14 @@ export function DataGrid<T>({
       ),
     [sections, groups],
   );
+
+  // ---- selection (the shared preserved-off-view semantics) -----------------
+  const visibleIds = React.useMemo(
+    () => flatVisibleRows.map((row) => row.id),
+    [flatVisibleRows],
+  );
+  const { selected, allSelected, indeterminate, toggleAll, toggleRow } =
+    useRowSelection({ rowIds: visibleIds, selectedIds, onSelectionChange });
 
   // ---- ARIA geometry -------------------------------------------------------
   // aria-rowindex must count EVERY DOM row (header, group rows, data rows) or
@@ -781,40 +769,9 @@ export function DataGrid<T>({
     [flatVisibleRows, visibleColumns, selectable],
   );
 
-  // ---- selection maths (DataList's preserved-off-view semantics) -----------
-  const visibleIds = flatVisibleRows.map((row) => row.id);
-  const allSelected =
-    visibleIds.length > 0 && visibleIds.every((id) => selected.has(id));
-  const someSelected = visibleIds.some((id) => selected.has(id));
-  const toggleAll = () => {
-    const next = new Set(selected);
-    if (allSelected) for (const id of visibleIds) next.delete(id);
-    else for (const id of visibleIds) next.add(id);
-    commitSelection(next);
-  };
-  const toggleRow = (id: string) => {
-    const next = new Set(selected);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    commitSelection(next);
-  };
-
   // ---- header interactions -------------------------------------------------
-  const handleSort = (key: string, additive: boolean) => {
-    const existing = activeSort.find((entry) => entry.key === key);
-    let next: DataGridSort[];
-    if (!existing) {
-      const base = additive ? activeSort : [];
-      next = [...base, { key, direction: "asc" as const }].slice(-maxSortKeys);
-    } else if (existing.direction === "asc") {
-      next = activeSort.map((entry) =>
-        entry.key === key ? { key, direction: "desc" as const } : entry,
-      );
-    } else {
-      next = activeSort.filter((entry) => entry.key !== key);
-    }
-    commitSort(next);
-  };
+  const handleSort = (key: string, additive: boolean) =>
+    commitSort(cycleSort(activeSort, key, { additive, maxKeys: maxSortKeys }));
 
   // ---- render --------------------------------------------------------------
   const renderRow = (
@@ -844,26 +801,22 @@ export function DataGrid<T>({
         )}
       >
         {selectable ? (
-          <TableCell
+          <SelectionCell
             role="gridcell"
             aria-colindex={1}
             tabIndex={
               clampedActive.row === rowIndex && clampedActive.col === 0 ? 0 : -1
             }
-            ref={(node: HTMLElement | null) => {
+            ref={(node: HTMLTableCellElement | null) => {
               if (node) cellRefs.current.set(cellKey(rowIndex, 0), node);
               else cellRefs.current.delete(cellKey(rowIndex, 0));
             }}
             onFocus={() => setActiveCell({ row: rowIndex, col: 0 })}
-            className="w-0"
-          >
-            <Checkbox
-              size="sm"
-              checked={isSelected}
-              onCheckedChange={() => toggleRow(id)}
-              aria-label={`Select row ${rowIndex + 1}`}
-            />
-          </TableCell>
+            className="focus-visible:-outline-offset-2"
+            checked={isSelected}
+            onToggle={() => toggleRow(id)}
+            label={`Select row ${rowIndex + 1}`}
+          />
         ) : null}
         {visibleColumns.map((column, columnIndex) => {
           const col = columnIndex + (selectable ? 1 : 0);
@@ -888,7 +841,13 @@ export function DataGrid<T>({
                 if (event.target === event.currentTarget)
                   setActiveCell({ row: rowIndex, col });
               }}
-              className={cn(alignClass(column.align))}
+              // The roving cell lives inside the table's scroll viewport, which
+              // clips its overflow — an outward focus outline would be cut off,
+              // so it is pulled inside (SP-03).
+              className={cn(
+                columnCellClass(column),
+                "focus-visible:-outline-offset-2",
+              )}
             >
               {column.editable ? (
                 <EditableCell
@@ -945,68 +904,31 @@ export function DataGrid<T>({
   const headerRow = (
     <TableRow aria-rowindex={1}>
       {selectable ? (
-        <TableHead role="columnheader" aria-colindex={1} className="w-0">
-          <Checkbox
-            size="sm"
-            checked={allSelected}
-            indeterminate={someSelected && !allSelected}
-            onCheckedChange={toggleAll}
-            disabled={loading || visibleIds.length === 0}
-            aria-label="Select all rows"
-          />
-        </TableHead>
+        <SelectAllHead
+          role="columnheader"
+          aria-colindex={1}
+          checked={allSelected}
+          indeterminate={indeterminate}
+          onToggle={toggleAll}
+          disabled={loading || visibleIds.length === 0}
+        />
       ) : null}
-      {visibleColumns.map((column, columnIndex) => {
+      {visibleColumns.map((column) => {
         const entryIndex = activeSort.findIndex(
           (entry) => entry.key === column.key,
         );
         const entry = entryIndex === -1 ? null : activeSort[entryIndex]!;
         return (
-          <TableHead
+          <SortableHead
             key={column.key}
             role="columnheader"
             aria-colindex={ariaColIndexByKey.get(column.key)}
             data-slot="data-grid-head"
-            data-sorted={entry?.direction}
-            aria-sort={
-              column.sortable
-                ? entry
-                  ? entry.direction === "asc"
-                    ? "ascending"
-                    : "descending"
-                  : "none"
-                : undefined
-            }
-            className={cn(alignClass(column.align))}
-          >
-            {column.sortable ? (
-              <button
-                type="button"
-                onClick={(event) => handleSort(column.key, event.shiftKey)}
-                className="group/sort -mx-1.5 -my-1 inline-flex items-center gap-1 rounded-md px-1.5 py-1 font-medium text-muted-foreground select-none hover:text-foreground"
-              >
-                {column.header}
-                <span aria-hidden className="inline-flex items-center gap-0.5">
-                  {entry ? (
-                    <>
-                      {entry.direction === "asc" ? (
-                        <ArrowUp className="size-(--icon-inline)" />
-                      ) : (
-                        <ArrowDown className="size-(--icon-inline)" />
-                      )}
-                      {activeSort.length > 1 ? (
-                        <span className="text-sm">{entryIndex + 1}</span>
-                      ) : null}
-                    </>
-                  ) : (
-                    <ChevronsUpDown className="size-(--icon-inline) opacity-0 group-hover/sort:opacity-(--opacity-hint-soft)" />
-                  )}
-                </span>
-              </button>
-            ) : (
-              column.header
-            )}
-          </TableHead>
+            column={column}
+            direction={entry?.direction ?? null}
+            order={entry && activeSort.length > 1 ? entryIndex + 1 : undefined}
+            onSort={(event) => handleSort(column.key, event.shiftKey)}
+          />
         );
       })}
     </TableRow>
@@ -1028,39 +950,52 @@ export function DataGrid<T>({
           : undefined
       }
     >
-      {(toolbar != null || columns.length > 0) && (
+      {(toolbar != null || columnPicker || hiddenColumns.length > 0) && (
         <div
           data-slot="data-grid-toolbar"
-          className="flex min-w-0 items-center justify-between gap-2"
+          className="flex min-w-0 flex-wrap items-center justify-between gap-2"
         >
           <div className="min-w-0 flex-1">{toolbar}</div>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline" size="sm">
-                  <Columns3 /> Columns
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              {ordered.map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.key}
-                  checked={visibility[column.key] !== false}
-                  onCheckedChange={(checked) =>
-                    commitVisibility({
-                      ...visibility,
-                      [column.key]: checked === true,
-                    })
-                  }
-                >
-                  {typeof column.header === "string"
-                    ? column.header
-                    : column.key}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {hiddenColumns.length > 0 ? (
+            // Revelation dropped something. Saying so is the whole point: a
+            // column that vanishes with no affordance is silent data loss.
+            <span
+              data-slot="data-grid-hidden-hint"
+              className="text-sm text-muted-foreground"
+            >
+              {hiddenColumns.length} column
+              {hiddenColumns.length === 1 ? "" : "s"} hidden
+            </span>
+          ) : null}
+          {columnPicker ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="outline" size="sm">
+                    <Columns3 /> Columns
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="end">
+                {ordered.map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.key}
+                    checked={visibility[column.key] !== false}
+                    onCheckedChange={(checked) =>
+                      commitVisibility({
+                        ...visibility,
+                        [column.key]: checked === true,
+                      })
+                    }
+                  >
+                    {typeof column.header === "string"
+                      ? column.header
+                      : column.key}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null}
         </div>
       )}
 
@@ -1090,43 +1025,18 @@ export function DataGrid<T>({
 
         {loading ? (
           <TableBody>
-            {Array.from({ length: 5 }, (_, index) => (
-              <TableRow key={`skeleton-${index}`} aria-hidden="true">
-                {selectable ? (
-                  <TableCell className="w-0">
-                    <Skeleton className="size-(--icon-inline) rounded-sm" />
-                  </TableCell>
-                ) : null}
-                {visibleColumns.map((column, columnIndex) => (
-                  <TableCell key={column.key}>
-                    <Skeleton
-                      className={columnIndex === 0 ? "h-4 w-32" : "h-4 w-20"}
-                    />
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
+            <SkeletonRows
+              columns={visibleColumns}
+              selectable={selectable}
+              slot="data-grid-skeleton-row"
+            />
           </TableBody>
         ) : flatVisibleRows.length === 0 &&
           sections.every((s) => s.rows.length === 0) ? (
           <TableBody>
-            <TableRow className="hover:bg-transparent">
-              <TableCell colSpan={colSpan} className="p-0">
-                {emptyState ?? (
-                  <Empty size="sm">
-                    <EmptyHeader>
-                      <EmptyMedia>
-                        <Inbox />
-                      </EmptyMedia>
-                      <EmptyTitle>No data</EmptyTitle>
-                      <EmptyDescription>
-                        There are no records to display.
-                      </EmptyDescription>
-                    </EmptyHeader>
-                  </Empty>
-                )}
-              </TableCell>
-            </TableRow>
+            <EmptyRow colSpan={colSpan} slot="data-grid-empty-row">
+              {emptyState}
+            </EmptyRow>
           </TableBody>
         ) : canVirtualize ? (
           // Spacer-row windowing: rows stay REAL table rows, so cell widths

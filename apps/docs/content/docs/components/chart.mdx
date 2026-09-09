@@ -109,7 +109,7 @@ plain CSS var scoped by ordinary DOM ancestry (not a global id-keyed selector), 
 ### Styling Recharts primitives directly
 
 `ChartContainer` themes only what a generic sizing wrapper safely can for _every_ chart shape: axis
-tick label color, plus a few outline resets on Recharts' SVG layers. Grid-line, hover-cursor, and
+tick label color and size (12px labels, mono 11px numerals), the plot surface's own focus ring, plus a few outline resets on Recharts' SVG layers. Grid-line, hover-cursor, and
 point-dot colors are Recharts **SVG presentation attributes** baked into the library (`CartesianGrid`
 defaults to `stroke="#ccc"`, a `Line`'s dot defaults to `stroke="#fff"`, the `BarChart` hover cursor
 defaults to `stroke="#ccc"`) — set them directly, with tokens, on the primitive you compose:
@@ -233,11 +233,11 @@ accessible surface is Recharts' own. As of `3.10.1`, `accessibilityLayer` alread
 on every Cartesian/Polar chart — set it explicitly anyway, so it reads as intentional and survives a
 future Recharts version changing that default.
 
-| Key                         | Action                                                               |
-| --------------------------- | -------------------------------------------------------------------- |
-| <kbd>Tab</kbd>              | Move focus into the chart's `<svg>` (`role="application"`).          |
-| <kbd>←</kbd> / <kbd>→</kbd> | Move the active data point (Recharts' built-in accessibility layer). |
-| <kbd>Esc</kbd>              | Clear the active data point / close the tooltip.                     |
+| Key                         | Action                                                                                       |
+| --------------------------- | -------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>              | Move focus into the chart's `<svg>` (`role="application"`), which shows an inset focus ring. |
+| <kbd>←</kbd> / <kbd>→</kbd> | Move the active data point (Recharts' built-in accessibility layer).                         |
+| <kbd>Esc</kbd>              | Clear the active data point / close the tooltip.                                             |
 
 ## Do / Don't
 

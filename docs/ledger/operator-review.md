@@ -701,6 +701,75 @@ idempotency check would fail after anyone ran the formatter.
   `component-contracts.json` and keeping only the _self-test_ hard-coded would remove the class.
 
 ---
+## 2026-09-07 — T1 tables and grids: the judgment calls the issue did not settle
+
+**Decision summary:** the issue's Do-list was followed as written; these are the choices it left open.
+
+- **`role="region"` is emitted only when the viewport has a NAME.** The issue says `role="region"` +
+  `aria-label` from the caption or a prop. A caption is `Table`'s opaque child, so it cannot be read
+  for a name — the name comes from the new `scrollLabel` prop, falling back to the table's own
+  `aria-label`. When neither exists the viewport stays a plain focusable container with **no role**.
+  Rationale: `role="region"` with a name is a landmark, and a docs page showing eight tables would
+  publish eight indistinguishable landmarks — exactly the `landmark-unique` failure B5-08 records
+  against Pagination. Terminal's source already documents the same reasoning. axe's
+  `scrollable-region-focusable` is satisfied by the tab stop alone, so nothing is lost.
+- **`Table` stays server-safe; the viewport is a second file.** Measuring "is it scrollable" needs
+  hooks, and putting them in `table.tsx` would have made the whole Table family (`TableCell`,
+  `TableRow`, …) client-only — against non-negotiable #3 and against `verify-rsc-safety`'s intent.
+  `table-scroll-region.tsx` carries `'use client'` and ships as a second file of the `table`
+  registry item (the `region-select` precedent). `table.tsx` has no directive and still verifies
+  clean under the `react-server` condition.
+- **Terminal aligned to the shared hook, and the "server-safe vs uniformity" trade turned out to be
+  false.** The first pass left Terminal alone, reasoning that adopting a hook would make a
+  server-safe component client-only. That framing was wrong: the same escape hatch `Table` already
+  uses applies here. `terminal-body.tsx` is a `'use client'` leaf holding the measurement, and
+  `terminal.tsx` keeps no directive and still verifies clean under the `react-server` condition —
+  so uniformity cost nothing. What DID need deciding is how much moves with the measurement: the
+  **tab stop** is conditional, the **name and the `group` role are not**. A role that appears and
+  disappears under a screen reader as the viewport changes width is a worse defect than the dead tab
+  stop it would remove, and Terminal's existing tests already encoded the naming contract.
+- **A new `mono` column flag was added.** D18 says "numeric/mono stay nowrap", but no `mono` concept
+  existed on a column — consumers hand-rolled `font-mono` in a `render`. Without a flag the rule
+  could not be implemented honestly, so `DataTableColumnLayout.mono` now applies the mono numeral
+  face and implies `nowrap`.
+- **`PropertyValue` stops truncating.** SP-03 asks for `overflow-clip-margin` or the ring on an
+  inner span; both keep the clipping. Wrapping removes the cause instead: a value is the point of
+  its row, D18's rule is "wrap by default", and the `overflow: hidden` that `truncate` implies was
+  what clipped the focus ring. Callers who genuinely need one line compose `TruncatedText`.
+- **`DataTableFrame` was written and then deleted.** It would have removed ~10 lines from DataList,
+  but DataGrid's root always exists and its toolbar is bespoke, so only one consumer would have used
+  it. A "shared part" with one consumer is a false claim about sharing; the inline stack stayed.
+- **The measured line reduction is 249, not the issue's ≥300.** Gross removal from the two files is
+  **457 lines**; 208 lines of new, documented API went back in (`columnPicker`, the hidden-columns
+  hint, `mobile`/`nowrap`/`mono` documentation, referentially-stable state defaults). Every
+  duplication `02-batch-05-data.md` B5-02 named was moved, plus two it did not (the sort HEADER CELL
+  and the controlled-state idiom). The remaining difference is documentation and new behaviour, and
+  cutting either to reach the number would have been padding. The one further dedup considered and
+  rejected on a second pass: hoisting `SortState`/`DataGridSort` and the two cell-context types into
+  `data-table-parts`. It is ~12 lines, would still miss the number, and renames a published type for
+  no behavioural gain. Sharing DataGrid's `Cell` is not available at all — DataList invokes a column
+  `render` as a plain function inside its own render (documented, so a cell's hooks cannot corrupt
+  DataList's hook order when the loading branch flips), while DataGrid mounts it as a component
+  element precisely so hooks are safe. Two different contracts, not one duplicated. **Needs MK** if
+  the 300 figure was a hard requirement rather than the audit's estimate.
+- **The three new fixtures now gate through the browser suite, not a contract lane (rewritten
+  2026-09-09 for the verification rebuild).** As authored, T1 added a
+  `component contract — table family` describe to `apps/docs/vrt/contracts.spec.ts` naming
+  `tableOverflow`, `tableWrapping` and `dataGridNarrow`, and — because the full sweep's expected
+  count was computed purely as `routes × suffixes × projects` — it also had to teach
+  `tooling/contracts-run.mjs` a `FIXED_TEST_COUNT`. R1/R3 deleted both files on 2026-09-08, so
+  neither edit survives the rebase and neither is reinstated. What replaces them:
+  - The three previews stay, exported from the preview barrel, so
+    `packages/ui/test/geometry.browser.test.tsx` sweeps them for 320px reflow, RTL containment and
+    the 24px target floor on every `pnpm verify` — broader coverage than the deleted lane's
+    first-fixture-per-route probe.
+  - The three behavioural claims move onto the components' own browser tests: a wide viewport is
+    keyboard-scrollable, named and inset-ringed (`table.test.tsx`), a long cell wraps with
+    `wrap-anywhere` over `--table-cell-min-width` (`table.test.tsx`, `data-list.test.tsx`), and a
+    320px grid merges or reports every dropped column (`data-grid.test.tsx`).
+  - The two "Needs MK" items this bullet originally raised — routing a `contracts-run.mjs` edit to
+    its owner, and whether the scoped lane should reach named tests — are **withdrawn**: both files
+    are gone.
 
 ## 2026-09-08 — N1 navigation/layout judgment calls
 

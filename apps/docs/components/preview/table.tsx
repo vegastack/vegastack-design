@@ -208,7 +208,9 @@ export function tableOverflow(): ReactNode {
     // Constrain the width so the wide table must scroll inside its container.
     <Wrapper className="justify-stretch">
       <div className="w-full max-w-md">
-        <Table>
+        {/* Named, so the scroll region a keyboard user lands on announces what
+            it holds. The region takes a tab stop only while it can scroll. */}
+        <Table scrollLabel="Invoice ledger">
           <TableHeader>
             <TableRow>
               {wideColumns.map((col) => (
@@ -364,6 +366,61 @@ export function tableSpreadsheet(): ReactNode {
           ))}
         </TableBody>
       </Table>
+    </Wrapper>
+  );
+}
+
+const notes = [
+  {
+    id: "REQ-4821",
+    subject: "Storage quota exceeded on the production bucket",
+    note: "The nightly export wrote 42 GB of intermediate artefacts before the retention job ran, so the quota alarm fired at 03:14 UTC and paused ingestion for eleven minutes.",
+    amount: "$1,240.00",
+  },
+  {
+    id: "REQ-4822",
+    subject: "Webhook retries exhausted",
+    note: "Six consecutive deliveries to https://hooks.internal.example.com/v2/billing/settlement returned 504; the endpoint is now in cooldown until it answers a probe.",
+    amount: "$86.00",
+  },
+];
+
+export function tableWrapping(): ReactNode {
+  return (
+    // Cells wrap by default: a long value breaks inside its column instead of
+    // forcing the whole table sideways. The id and the figure opt back out.
+    <Wrapper className="justify-stretch">
+      <div className="w-full max-w-lg">
+        <Table scrollLabel="Support requests">
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">Ref</TableHead>
+              <TableHead scope="col">Request</TableHead>
+              <TableHead scope="col" className="text-end">
+                Credit
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {notes.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell className="font-mono tabular-nums whitespace-nowrap">
+                  {row.id}
+                </TableCell>
+                <TableCell>
+                  <span className="text-foreground">{row.subject}</span>
+                  <span className="mt-0.5 block text-sm text-muted-foreground">
+                    {row.note}
+                  </span>
+                </TableCell>
+                <TableCell className="text-end font-mono tabular-nums whitespace-nowrap">
+                  {row.amount}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </Wrapper>
   );
 }

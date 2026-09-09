@@ -63,13 +63,18 @@ explicit `copyValue`; successful writes swap the copy icon for the standard succ
 - The prompt glyph is decorative (`aria-hidden`) — command text itself is real, readable text.
 - The composed `CopyButton` carries its own accessible name (`"Copy command"` / `"Copied
 command"`) and announces the copy via a visually-hidden live region.
-- The command pane scrolls independently, so it is keyboard-focusable — a scrollable region must be
-  reachable without a pointer. Focus is shown as an **inset** outline: an outward one is not painted
+- The command pane is keyboard-focusable **while it actually scrolls**, and not otherwise. A
+  scrollable region that cannot be focused is unreachable without a pointer; a pane whose commands
+  fit needs no tab stop, and adding one would put a dead stop in front of every keyboard user on a
+  page full of one-line install snippets. The pane measures itself live (`useOverflow`), so the tab
+  stop appears and disappears with the viewport width. Focus is shown as an **inset** outline: an outward one is not painted
   at all here, because the block's root is `overflow-hidden` and `scroll-fade-x` masks the pane to
   its own border box. A border tint is not an option either — `forced-colors: active` replaces
   `border-color`, which would leave the pane with no indicator in the forced palette.
-- Because it is a focus stop, the pane is announced as a **named group**, labelled by the visible
-  `title` — so `title="Install"` reads as "Install, group". A bare focusable `div` would announce as
+- The pane is always announced as a **named group**, labelled by the visible
+  `title` — the name and the role do not move with the measurement, because a role that appeared and
+  vanished under a screen reader as the window resized would be a worse defect than the tab stop it
+  removed — so `title="Install"` reads as "Install, group". A bare focusable `div` would announce as
   an unnamed stop: it maps to the `generic` role, which prohibits naming, so an `aria-label` on it is
   not reliably exposed. `group` is deliberate rather than `region`, which is a landmark — several
   install snippets on one page should not add several landmarks. Override the name with `aria-label`
@@ -77,11 +82,11 @@ command"`) and announces the copy via a visually-hidden live region.
 - Content is fully caller-supplied — no timestamps, no randomness — so the block is deterministic
   and safe for visual capture.
 
-| Key                                 | Action                                                                              |
-| ----------------------------------- | ----------------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move focus to the command pane (announced by its name), then on to the copy button. |
-| <kbd>←</kbd> / <kbd>→</kbd>         | Scroll a clipped command horizontally while the pane has focus.                     |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Copy the command, when the copy button has focus.                                   |
+| Key                                 | Action                                                                                              |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move focus to the command pane when it scrolls (announced by its name), then on to the copy button. |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Scroll a clipped command horizontally while the pane has focus.                                     |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Copy the command, when the copy button has focus.                                                   |
 
 ## Do / Don't
 

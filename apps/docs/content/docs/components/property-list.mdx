@@ -40,10 +40,20 @@ import { EmptyValue } from "@/components/ui/empty";
 
 ### Anatomy
 
-A `<dl>` of `<dt>`(label)/`<dd>`(value) pairs on a shared 28-spacing-unit + `1fr` grid — labels align
-down the pane, values own the rest and truncate by default. Values are compositions: plain
-text, a link, a `TagGroup` (set `whitespace-normal` on the value to let chips wrap), or an
-`EmptyValue` for the faint "Set a value…" slot.
+A `<dl>` of `<dt>`(label)/`<dd>`(value) pairs. The list is a named **container**
+(`@container/property-list`), and the row layout follows the PANE's width rather than the viewport's
+— the same facts pane is as often a narrow sidebar on a wide screen as a wide column on a narrow one:
+
+- **At `@xs` and up** — two tracks. The label track shrinks to its content above an 80px floor
+  (`minmax(calc(var(--spacing) * 20), max-content)`), so short labels stop wasting the value column's
+  width and long ones are no longer clipped by a track that never negotiated with them.
+- **Below `@xs`** — the row stacks, and the value gets the full width instead of a sliver.
+
+Values **wrap**; they do not truncate. A value is the point of its row, and the `overflow: hidden`
+that truncation implies also clipped the focus ring of any link inside it. Compose
+[`TruncatedText`](/docs/components/truncated-text) explicitly where a single line is genuinely
+required. Values are compositions: plain text, a link, a `TagGroup`, or an `EmptyValue` for the
+faint "Set a value…" slot.
 
 ### Semantics
 
@@ -59,9 +69,9 @@ decorative (`aria-hidden`); keep the text label present — never an icon-only `
 
 ## Examples
 
-Compose plain values, links, empty values, and wrapping tag groups in the same aligned definition
-list. Long values truncate by default; opt a value into wrapping when its content needs multiple
-lines.
+Compose plain values, links, empty values, and tag groups in the same aligned definition list.
+Long values wrap onto as many lines as they need; the label track sizes itself to the longest label
+above its 80px floor.
 
 <ComponentPreview
   name="propertyList"
@@ -106,6 +116,7 @@ a reader has to interpret.
 - Label icons are decorative; always keep a visible text label.
 - Links and controls inside values keep their native keyboard behavior and focus indicator.
 - Source order remains label then value in both LTR and RTL layouts.
+- Values do not clip their overflow, so a link inside one keeps its full focus outline.
 
 | Key              | Action                                                  |
 | ---------------- | ------------------------------------------------------- |
@@ -116,5 +127,5 @@ a reader has to interpret.
 
 <DoDont
   do="Use PropertyList for stable record facts with concise labels and honest empty values."
-  dont="Use it for a homogeneous record collection or hide a label behind an icon alone."
+  dont="Use it for a homogeneous record collection, hide a label behind an icon alone, or add overflow-hidden to a value — it clips the focus ring of any link inside."
 />

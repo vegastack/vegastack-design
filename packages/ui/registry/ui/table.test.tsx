@@ -195,11 +195,10 @@ test("grid + headerTone=ink + density=compact flow to head and cells via group d
   expect(cell.className).toContain("group-data-[grid]/table:border-e");
 });
 
-test("containerClassName and containerProps reach the scroll container", async () => {
+test("containerProps reach the scroll container", async () => {
   const containerRef = React.createRef<HTMLDivElement>();
   await render(
     <Table
-      containerClassName="test-viewport-cap"
       containerProps={{
         ref: containerRef,
         className: "overscroll-contain",
@@ -217,10 +216,9 @@ test("containerClassName and containerProps reach the scroll container", async (
     '[data-slot="table-container"]',
   ) as HTMLElement;
   expect(container).not.toBeNull();
-  // Base classes survive, both class channels merge, and the ref is the
+  // Base classes survive, the consumer class merges, and the ref is the
   // container itself — the attachment point for sticky headers/virtualizers.
   expect(container.className).toContain("overflow-x-auto");
-  expect(container.className).toContain("test-viewport-cap");
   expect(container.className).toContain("overscroll-contain");
   expect(container.id).toBe("table-viewport");
   expect(containerRef.current).toBe(container);
@@ -267,4 +265,159 @@ test("head and body cells never clip overflow — the checkbox hit-area expansio
     );
   }
   expect(screen).toBeDefined();
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * The scroll region (B5-01 / TD-4) and the wrapping default (D18).
+ * ------------------------------------------------------------------------------------------- */
+
+const WIDE_ROW = (
+  <TableRow>
+    {Array.from({ length: 12 }, (_, index) => (
+      <TableCell key={index} style={{ minWidth: "200px" }}>
+        Column {index}
+      </TableCell>
+    ))}
+  </TableRow>
+);
+
+test("the scroll container adds NO tab stop when the table fits", async () => {
+  await render(
+    <div style={{ width: "800px" }}>
+      <Table aria-label="Narrow">
+        <TableBody>
+          <TableRow>
+            <TableCell>Ada</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>,
+  );
+  const narrow = document.querySelector(
+    '[data-slot="table-container"]',
+  ) as HTMLElement;
+  expect(narrow.hasAttribute("tabindex")).toBe(false);
+  expect(narrow.dataset.scrollable).toBeUndefined();
+});
+
+test("a scrollable table container is keyboard-reachable, named, and inset-ringed", async () => {
+  await render(
+    <div style={{ width: "300px" }}>
+      <Table aria-label="Wide ledger">
+        <TableBody>{WIDE_ROW}</TableBody>
+      </Table>
+    </div>,
+  );
+  const wide = document.querySelector(
+    '[data-slot="table-container"]',
+  ) as HTMLElement;
+  // Scrollable → reachable by keyboard (axe `scrollable-region-focusable`), named,
+  // and with the outline pulled inside so the viewport cannot clip it.
+  await expect.poll(() => wide.getAttribute("tabindex")).toBe("0");
+  expect(wide.dataset.scrollable).toBe("");
+  expect(wide.getAttribute("role")).toBe("region");
+  expect(wide.getAttribute("aria-label")).toBe("Wide ledger");
+  expect(wide.className).toContain("focus-visible:-outline-offset-2");
+});
+
+test("scrollLabel overrides the table's own aria-label for the region", async () => {
+  await render(
+    <Table aria-label="Deals" scrollLabel="Deals table, scrollable">
+      <TableBody>
+        <TableRow>
+          <TableCell>Ada</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+  const container = document.querySelector(
+    '[data-slot="table-container"]',
+  ) as HTMLElement;
+  expect(container.getAttribute("aria-label")).toBe("Deals table, scrollable");
+});
+
+test("an unnamed viewport is NOT published as a landmark", async () => {
+  // An unnamed `role="region"` is worse than none: a page with several tables
+  // would publish several indistinguishable landmarks (the B5-08 class of bug).
+  await render(
+    <Table>
+      <TableBody>
+        <TableRow>
+          <TableCell>Ada</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+  const container = document.querySelector(
+    '[data-slot="table-container"]',
+  ) as HTMLElement;
+  expect(container.getAttribute("role")).toBeNull();
+});
+
+test("body cells wrap by default and keep a minimum column width", async () => {
+  await render(
+    <Table>
+      <TableBody>
+        <TableRow>
+          <TableCell>A very long value indeed</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+  const cell = document.querySelector(
+    '[data-slot="table-cell"]',
+  ) as HTMLElement;
+  // D18: wrap by default, with a floor so one long value cannot squeeze its
+  // siblings to a single character.
+  expect(cell.className).toContain("wrap-anywhere");
+  expect(cell.className).not.toMatch(/(^|\s)whitespace-nowrap(\s|$)/);
+  expect(cell.className).toContain("min-w-(--table-cell-min-width)");
+  const table = document.querySelector('[data-slot="table"]') as HTMLElement;
+  expect(table.className).toContain("[--table-cell-min-width:");
+});
+
+test("a caller opts one column back out of wrapping", async () => {
+  await render(
+    <Table>
+      <TableBody>
+        <TableRow>
+          <TableCell className="whitespace-nowrap">2026-09-07T00:00Z</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+  const cell = document.querySelector(
+    '[data-slot="table-cell"]',
+  ) as HTMLElement;
+  expect(cell.className).toContain("whitespace-nowrap");
+});
+
+test("header rows do not take the row hover tint", async () => {
+  // Hovering a header should do nothing — it is not a row you can act on
+  // (B5-10). `TableRow` carries the hover recipe for every row it renders.
+  await render(
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+        </TableRow>
+      </TableHeader>
+    </Table>,
+  );
+  const header = document.querySelector(
+    '[data-slot="table-header"]',
+  ) as HTMLElement;
+  expect(header.className).toContain("[&_tr]:hover:bg-transparent");
+  expect(header.className).toContain("[&_tr]:active:bg-transparent");
+});
+
+test("a scrollable region has no accessibility violations", async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <Table aria-label="Wide ledger">
+        <TableBody>{WIDE_ROW}</TableBody>
+      </Table>
+    </div>,
+  );
+  await expectNoA11yViolations(screen.container);
 });

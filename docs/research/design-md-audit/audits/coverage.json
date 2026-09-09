@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "a1850f03b5c5415416aee62c9462f180b4b442832dfc78c76d6346497db4d718",
+  "contractSha256": "71e4e061374d703977636aab7d428ae68f7a958b2a33495fecfa53ef142ade04",
   "inventory": {
-    "expected": 566,
-    "actual": 566,
-    "unique": 566
+    "expected": 568,
+    "actual": 568,
+    "unique": 568
   },
   "classes": {
-    "components": 115,
+    "components": 116,
     "animatedIcons": 439,
-    "hooks": 9,
+    "hooks": 10,
     "blocks": 1,
     "libs": 2
   },
@@ -115,8 +115,8 @@
       ]
     },
     "Data display": {
-      "expected": 11,
-      "actual": 11,
+      "expected": 12,
+      "actual": 12,
       "members": [
         "card",
         "chart",
@@ -124,6 +124,7 @@
         "comparison-matrix",
         "data-grid",
         "data-list",
+        "data-table-parts",
         "progress-indicator",
         "property-list",
         "stat",
@@ -173,8 +174,8 @@
       ]
     },
     "Hooks": {
-      "expected": 9,
-      "actual": 9,
+      "expected": 10,
+      "actual": 10,
       "members": [
         "use-animation-replay",
         "use-announcer",
@@ -184,6 +185,7 @@
         "use-list-nav",
         "use-media-query",
         "use-mobile",
+        "use-overflow",
         "use-platform"
       ]
     },
@@ -640,7 +642,7 @@
       ]
     }
   },
-  "componentRoutes": 115,
+  "componentRoutes": 116,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

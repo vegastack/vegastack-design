@@ -52,12 +52,43 @@ which no library ships — is the component's own.
 
 ## Scope
 
-| Behaviour                           | Where it lives                                                                          |
-| ----------------------------------- | --------------------------------------------------------------------------------------- |
-| Data fetching, filters, saved views | Host (G7) — [`FilterBuilder`](/docs/components/filter-bar-managed) + the `toolbar` slot |
-| The cell write + conflict handling  | Host — `onCellCommit` is a request; `cellStatus` is your word                           |
-| Pagination UI                       | The `footer` slot; `loadMore` covers the continuous case                                |
-| Simple presentational tables        | [`DataList`](/docs/components/data-list) — still the right default                      |
+| Behaviour                           | Where it lives                                                                                 |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Data fetching, filters, saved views | Host (G7) — [`FilterBuilder`](/docs/components/filter-bar-managed) + the `toolbar` slot        |
+| The cell write + conflict handling  | Host — `onCellCommit` is a request; `cellStatus` is your word                                  |
+| Pagination UI                       | The `footer` slot; `loadMore` covers the continuous case                                       |
+| Simple presentational tables        | [`DataList`](/docs/components/data-list) — still the right default                             |
+| The shared table chrome             | [`data-table-parts`](/docs/components/data-table-parts) — sort header, selection, async states |
+
+## Responsive revelation
+
+Columns declare a pixel budget (`minWidth`, default 120) and a posture for what happens when they no
+longer fit. **`design.md` § DataGrid: data is never silently lost**, so the default posture is
+`merge`:
+
+| `mobile`    | When the column no longer fits                                                    |
+| ----------- | --------------------------------------------------------------------------------- |
+| `"merge"`   | **Default.** Stacks into the primary (first) column's cell, under its main value. |
+| `"visible"` | Never hides — the column is essential and the grid scrolls instead.               |
+| `"hidden"`  | Drops the column, and the toolbar reports "N columns hidden".                     |
+
+`"hidden"` is the only posture that actually removes a value, which is why it is opt-in and why it
+announces itself. If you choose it, be sure the value is genuinely recoverable elsewhere.
+
+<ComponentPreview
+  name="dataGridNarrow"
+  file="components/preview/data-grid.tsx"
+/>
+
+## The toolbar
+
+The toolbar row holds the host's `toolbar` slot on the leading edge and the grid's own controls on
+the trailing edge: the hidden-columns hint, then the "Columns" picker.
+
+The picker is on by default and turns off with `columnPicker={false}` — a fixed three-column grid
+should not carry a column manager, and a host that drives visibility from its own settings surface
+already has one. With no `toolbar`, no picker and nothing hidden, the toolbar row is not rendered at
+all.
 
 ## Examples
 
@@ -121,8 +152,11 @@ keyboard flow.
   edit-mode entry announces politely.
 - Multi-key sort headers carry `aria-sort` and a visible ordinal per key;
   shift-click adds a secondary key.
-- Responsive revelation never hides data silently on `merge` columns — their
-  values stack into the primary cell.
+- Responsive revelation never hides data silently: `merge` (the default) stacks
+  the value into the primary cell, and the only posture that drops a column
+  (`mobile: "hidden"`) reports the count in the toolbar.
+- The scroll viewport is keyboard-reachable exactly when it scrolls, and the
+  roving cell's focus outline is pulled inside so the viewport cannot clip it.
 
 | Key                                              | Action                                     |
 | ------------------------------------------------ | ------------------------------------------ |
