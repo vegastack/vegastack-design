@@ -1,4 +1,4 @@
-// @vegastack combobox@0.6.0 sha256-2iOLz+SAWe11y1qHkINeSDKert68Z7wSzahK7t3gfA8=
+// @vegastack combobox@0.6.0 sha256-m/LfE+yYIwU23JWjQ9AZMsn+Gx7p3AI3YWLOuPDasfs=
 
 "use client";
 
@@ -546,10 +546,7 @@ export function ComboboxGroupLabel({
   return (
     <BaseCombobox.GroupLabel
       data-slot="combobox-group-label"
-      className={cn(
-        menuLabelClassName,
-        className,
-      )}
+      className={cn(menuLabelClassName, className)}
       {...props}
     />
   );
@@ -748,12 +745,13 @@ export function ComboboxChips({ className, ...props }: ComboboxChipsProps) {
 }
 
 /** Props accepted by `ComboboxChip`. */
-export type ComboboxChipProps =
-  & Omit<React.ComponentProps<typeof BaseCombobox.Chip>, "className">
-  & {
-    /** Classes merged with the shared chip geometry. @default undefined */
-    className?: string;
-  };
+export type ComboboxChipProps = Omit<
+  React.ComponentProps<typeof BaseCombobox.Chip>,
+  "className"
+> & {
+  /** Classes merged with the shared chip geometry. @default undefined */
+  className?: string;
+};
 
 /**
  * `ComboboxChip` — a single selected-value tag inside {@link ComboboxChips}. The `Chip` primitive
@@ -787,17 +785,15 @@ export function ComboboxChip({
 }
 
 /** Props accepted by `ComboboxChipRemove`. */
-export type ComboboxChipRemoveProps =
-  & Omit<
-    React.ComponentProps<typeof BaseCombobox.ChipRemove>,
-    "className" | "aria-label"
-  >
-  & {
-    /** Classes merged with the shared remove-control geometry. @default undefined */
-    className?: string;
-    /** Accessible name announced to assistive tech — required, the `×` has no visible text. */
-    "aria-label": string;
-  };
+export type ComboboxChipRemoveProps = Omit<
+  React.ComponentProps<typeof BaseCombobox.ChipRemove>,
+  "className" | "aria-label"
+> & {
+  /** Classes merged with the shared remove-control geometry. @default undefined */
+  className?: string;
+  /** Accessible name announced to assistive tech — required, the `×` has no visible text. */
+  "aria-label": string;
+};
 
 /**
  * `ComboboxChipRemove` — the trailing `×` control on a {@link ComboboxChip} that removes it from the
