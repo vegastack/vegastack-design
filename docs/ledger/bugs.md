@@ -4,7 +4,7 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
-## 2026-09-10 — The last two geometry-lane exclusions: `timeline` fixed, `resizableNested` accepted
+## 2026-09-09 — The last two geometry-lane exclusions: `timeline` fixed, `resizableNested` accepted
 
 The two entries left open for MK at the head of the 2026-09-09 round are both closed as decisions.
 One was a real defect and is fixed; the other is not a defect and the exclusion stays, with the
@@ -25,12 +25,12 @@ lane still re-checking it in expect-failure mode.
   escapes every ancestor box"; the ancestor that matters is the one _clipping_, which is why the
   scripted probe found that padding on the `<li>` restored ownership while padding on the `<ol>` or
   the wrapper did not.
-- **Measured 2026-09-10, before.** The row's border box ends at y = **267.000**. The centred 24px
+- **Measured 2026-09-09, before.** The row's border box ends at y = **267.000**. The centred 24px
   square's bottom probe point sits at y = **268.00** (1.0px below the row). Its `::before` hit area
   reaches y = **271.000**, so the SIZE fact passed at 60.70×**29.00** — but `elementFromPoint` at
   (263.65, 268.00) resolved to the demo's own wrapper `<div>`, not to the `<time>`. Effective
   target: the row's own 23px, under the 24px floor.
-- **Fix.** `group-last/timeline-item:pb-1` on `timeline-content` — MK's choice, 2026-09-10, as the
+- **Fix.** `group-last/timeline-item:pb-1` on `timeline-content` — MK's choice, 2026-09-09, as the
   smallest visible change that fixes a real 1px shortfall instead of reshaping the row.
 - **4px verified sufficient, not assumed.** With `pb-1` the clipping padding box ends at y =
   **271.000** and the same bottom point at y = **268.00** resolves to the control: **0 of 5** points
@@ -48,7 +48,7 @@ lane still re-checking it in expect-failure mode.
 
 - **Symptom.** `EXCLUDED.resizableNested.target`: control 0, the outer vertical handle, visual
   1.00×254.00, misses **3 of 5** points to the nested horizontal handle.
-- **Measured 2026-09-10.** Outer vertical handle border box x **106.094–107.094**, y
+- **Measured 2026-09-09.** Outer vertical handle border box x **106.094–107.094**, y
   **26.000–280.000**; its `after` hit area (`after:start-1/2 after:w-6 after:-translate-x-1/2`)
   spans x **94.594–118.594** over the full 254px. Nested horizontal handle border box x
   **107.094–294.000**, y **152.500–153.500**; its `after` spans y **141.000–165.000** across that

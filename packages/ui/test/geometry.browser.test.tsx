@@ -119,7 +119,7 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // `elementFromPoint` resolves the probe points to another element. Miss counts are out of the
   // five points probed (four edges of the centred square, plus its centre).
   //
-  // ONE entry left, and it is ACCEPTED rather than outstanding — MK, 2026-09-10. The `timeline`
+  // ONE entry left, and it is ACCEPTED rather than outstanding — MK, 2026-09-09. The `timeline`
   // entry that stood beside it was closed the same day by `group-last/timeline-item:pb-1`.
   //
   // This is the one shape of "obstruction" the probe reports that is not a defect, so read the
@@ -133,10 +133,10 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // gap between the two is a named exclusion here, never a looser probe.
   resizableNested: {
     target:
-      "ACCEPTED overlap, not a defect (MK 2026-09-10, `docs/ledger/bugs.md`). Control 0 is the " +
+      "ACCEPTED overlap, not a defect (MK 2026-09-09, `docs/ledger/bugs.md`). Control 0 is the " +
       "outer vertical handle, visual 1.0x254.0, hit area 24.0x254.0; the nested horizontal " +
       "handle's own 24px hit area crosses it at the T-junction and, being deeper in the DOM, " +
-      "wins the shared band. Measured 2026-09-10: outer `after` spans x 94.6-118.6 over the full " +
+      "wins the shared band. Measured 2026-09-09: outer `after` spans x 94.6-118.6 over the full " +
       "254px; inner `after` spans y 141.0-165.0 from x 107.1 rightwards, so the shared band is " +
       "~11.5x24 and the outer handle keeps 12.5px of exclusive width across it and its full 24px " +
       "over the other 230px of its length. Under §2.5.8's overlap rule both handles still measure " +

@@ -1,4 +1,4 @@
-// @vegastack timeline@0.6.0 sha256-Wli8NXli9Q8CSo66bNVn4x5QozdSIp4wyNHxw5GX+jE=
+// @vegastack timeline@0.6.0 sha256-YOZ6tTBcIwR/CZl0gHCa8X8ZbOorsJE+X0yb0AdJFLM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -145,7 +145,7 @@ export function TimelineItem({
           anything a child paints outside this box is clipped and stops being
           hit-testable. A trailing `RelativeTime` expands its pointer target with
           `before:-inset-y-1` (4px), and on the LAST row `pb-0` put that overhang
-          outside the clip: measured 2026-09-10, the probe point 1.0px below the
+          outside the clip: measured 2026-09-09, the probe point 1.0px below the
           row resolved to the page wrapper and the effective target collapsed to
           the row's own 23px, under the 24px floor. 4px of padding is the exact
           depth of that hit area, and it restores ownership (0 of 5 points
