@@ -6,10 +6,11 @@ import { fileURLToPath } from "node:url";
 const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
 export default defineConfig({
-  // Tailwind v4 compiles the two CSS entries in the suite — `test/contrast.css` (rendered
-  // color-contrast gate) and `test/geometry.css` (the behaviour contracts) — so both run against
-  // REAL token colors and REAL compiled dimensions. Other test files import no CSS, so they stay
-  // fast structural a11y checks, unaffected by this plugin.
+  // Tailwind v4 compiles the three CSS entries in the suite — `test/contrast.css` (rendered
+  // color-contrast gate), `test/geometry.css` (the behaviour contracts) and `test/stacking.css`
+  // (the z-band contract, added by G1-b) — so each runs against REAL token colors and REAL
+  // compiled dimensions. Other test files import no CSS, so they stay fast structural a11y
+  // checks, unaffected by this plugin.
   plugins: [tailwindcss()],
   resolve: {
     // Single React instance — Base UI subpaths (e.g. `@base-ui/react/field`) get

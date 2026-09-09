@@ -42,6 +42,13 @@ const MIRRORED_SELECTORS = [
   // the paint without the stand-down would double-ring every addon field on the docs site.
   "@media (forced-colors: active)>[data-field-group] input:focus,[data-field-group] textarea:focus",
   "@media (prefers-reduced-motion: reduce)>*,::before,::after",
+  // The `*` reset above does NOT reach the ::view-transition-* pseudo-element tree — it lives on
+  // the root's snapshot layer, outside normal element matching — so a route-change cross-fade is
+  // animated by its OWN rule and needs its own kill switch. `base.css` has carried that companion
+  // rule since view transitions landed; the docs copy did not, and this gate mirrored the `*`
+  // reset alone, so the docs site could lose route-change reduced-motion with the mirror green
+  // (audit 2026-09-09, LOW-13). The two rules only work as a pair, so both are mirrored.
+  "@media (prefers-reduced-motion: reduce)>::view-transition-group(*),::view-transition-old(*),::view-transition-new(*)",
 ];
 
 /** Flatten CSS into `selector → declarations` (declarations normalised, nesting joined with `>`). */

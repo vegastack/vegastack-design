@@ -373,6 +373,11 @@ StyleDictionary.registerFormat({
       "  --font-sans: var(--font-family-sans);", // distinct runtime name -> no self-reference (Codex F7)
       "  --font-mono: var(--font-family-mono);",
       "  --font-serif: var(--font-family-serif);",
+      // D17's two brand-voice cuts. They were declared as `--font-family-*` but never bridged, so
+      // `font-display` / `font-pixel` were not utilities and the sanctioned Geist Pixel flourish
+      // was unreachable without a hand-written arbitrary (audit 2026-09-09, LOW-9).
+      "  --font-display: var(--font-family-display);",
+      "  --font-pixel: var(--font-family-pixel);",
       "  --ease-standard: var(--motion-ease-standard);",
       "  --ease-emphasized: var(--motion-ease-emphasized);",
       "  --ease-exit: var(--motion-ease-exit);",

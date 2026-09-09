@@ -14,10 +14,12 @@ const scratch = mkdtempSync(join(tmpdir(), "vegastack-design-lint-"));
 const invalidDir = join(scratch, "packages/ui/registry/ui/invalid");
 const vocabularyDir = join(scratch, "packages/ui/registry/ui/vocabulary");
 const rawStepsDir = join(scratch, "packages/ui/registry/ui/raw-steps");
+const fieldGroupDir = join(scratch, "packages/ui/registry/ui/field-group");
 const validDir = join(scratch, "packages/ui/registry/ui/valid");
 mkdirSync(invalidDir, { recursive: true });
 mkdirSync(vocabularyDir, { recursive: true });
 mkdirSync(rawStepsDir, { recursive: true });
+mkdirSync(fieldGroupDir, { recursive: true });
 mkdirSync(validDir, { recursive: true });
 
 try {
@@ -73,6 +75,7 @@ export function LiteralRules(_props: RenderlessProps) {
     <div className="w-full min-h-screen">Viewport</div>
     <div className="flex  items-center ">Whitespace</div>
     <div className="rounded-md bg-card hover:bg-surface-2">Hover with no pressed rung</div>
+    <div className="bg-destructive-subtle text-destructive">Solid status fill used as body ink</div>
     <div className="${Array.from({ length: 11 }, (_, i) => `[&_p${i}]:hidden [&_[data-slot=part-${i}]]:hidden`).join(" ")}">Reaching in</div>
   </>;
 }
@@ -92,6 +95,10 @@ export function LiteralRules(_props: RenderlessProps) {
     "class-whitespace",
     "hover-without-pressed",
     "descendant-override-density",
+    // A solid status FILL as a text ink. It is outside every pair list `contrast-check.mjs`
+    // knows — the gate only ever measures `<family>-text` — so `bubble`'s destructive variant
+    // shipped 2.56:1 in dark with every gate green (audit 2026-09-09, HIGH-1).
+    "fill-token-as-text",
   ];
   const missingVocabulary = vocabularyIds.filter(
     (id) => !vocabularyOutput.includes(`[${id}]`),
@@ -103,6 +110,61 @@ export function LiteralRules(_props: RenderlessProps) {
     if (missingVocabulary.length > 0)
       console.error(`  missing rule IDs: ${missingVocabulary.join(", ")}`);
     console.error(vocabularyOutput.trim());
+    process.exit(1);
+  }
+
+  // `fieldControlGroup` ↔ `data-field-group` is one contract split across two places: the recipe
+  // paints the wrapper, and `base.css` hangs the forced-colours focus outline off the bare
+  // attribute (the group's `overflow-hidden` clips the inner control's own outline). The rule is
+  // FILE-scoped, so it needs a file of its own — one that uses the recipe and never renders the
+  // attribute, and a sibling that does both and must stay clean.
+  writeFileSync(
+    join(fieldGroupDir, "unpaired.tsx"),
+    `import { cn, fieldControlGroup } from '@vegastack/design';
+
+export function Unpaired() {
+  return <div className={cn(fieldControlGroup, 'flex items-center')} />;
+}
+`,
+  );
+  const fieldGroup = spawnSync(
+    process.execPath,
+    ["tooling/design-lint.mjs", fieldGroupDir],
+    { cwd: ROOT, encoding: "utf8" },
+  );
+  const fieldGroupOutput = `${fieldGroup.stdout ?? ""}\n${fieldGroup.stderr ?? ""}`;
+  if (
+    fieldGroup.status === 0 ||
+    !fieldGroupOutput.includes("[field-group-pairing]")
+  ) {
+    console.error(
+      "✗ design-lint accepted fieldControlGroup with no data-field-group — the forced-colours " +
+        "focus outline would be silently lost",
+    );
+    console.error(fieldGroupOutput.trim());
+    process.exit(1);
+  }
+  writeFileSync(
+    join(fieldGroupDir, "unpaired.tsx"),
+    `import { cn, fieldControlGroup } from '@vegastack/design';
+
+export function Paired() {
+  return <div data-field-group className={cn(fieldControlGroup, 'flex items-center')} />;
+}
+`,
+  );
+  const fieldGroupPaired = spawnSync(
+    process.execPath,
+    ["tooling/design-lint.mjs", fieldGroupDir],
+    { cwd: ROOT, encoding: "utf8" },
+  );
+  if (fieldGroupPaired.status !== 0) {
+    console.error(
+      "✗ design-lint rejected a CORRECTLY paired fieldControlGroup + data-field-group",
+    );
+    console.error(
+      `${fieldGroupPaired.stdout ?? ""}\n${fieldGroupPaired.stderr ?? ""}`.trim(),
+    );
     process.exit(1);
   }
 
@@ -209,7 +271,7 @@ export function Textarea(props: ComponentProps<'textarea'>) {
 
   console.log(
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
-      `token-vocabulary rules fail closed, raw motion steps are rejected as a pairing; the reviewed ` +
+      `token-vocabulary rules fail closed, raw motion steps are rejected as a pairing, an unpaired fieldControlGroup is rejected and a paired one is not; the reviewed ` +
       `Textarea adapter passes, and with it six deliberate non-violations (same-fill hover, ` +
       `hover:bg-transparent, a state-expressed pressed rung, motion-reduce end-state suppression, ` +
       `a token viewport calc, and multi-line prose)`,

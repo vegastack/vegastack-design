@@ -22,12 +22,12 @@ generated:
       sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 35453
-      sha256: "860189b8aee59f857d85e6e8623e8558a60dc03c2e396e37900dd3b28cf828a1"
+      bytes: 36110
+      sha256: "a2b9ca0b54f8dd193d64eae2c1d2ea3702204012d3deb49c5aa1329664f6a4b4"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 11669
-      sha256: "64ce2b3b12d670ba613dc03c30a09e38fe89488a7d0d42bdeda0a76129e4e925"
+      bytes: 11722
+      sha256: "2074bc0926b8611451ec25180f85aca5c174699394833ee8ec6b9b1da5f48479"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -84,8 +84,8 @@ themes:
       description: "Dark-theme input fill tint (bg-input) — see the dark-tint scoping note."
     alpha-link-hover:
       type: "dimension"
-      value: "80%"
-      description: "Hovered link text dim (text-info-text) in rendered rich text."
+      value: "88%"
+      description: "Hovered link text dim, applied to a `<family>-text` ink in rendered rich text and on the `link` Button. 88%, not 80%: at 80% the light composites measured 4.03–4.11:1 for success/info/warning (2026-09-09) — a hover state that drops the link below WCAG 1.4.3 AA. contrast-check gates the composite, not just the solid ink."
     alpha-outline-border:
       type: "dimension"
       value: "50%"
@@ -98,14 +98,6 @@ themes:
       type: "dimension"
       value: "10%"
       description: "The alpha twin of surface-3 (pressed/selected): foreground at 10% measures L 0.921 light / 0.292 dark over card. Theme-invariant."
-    alpha-soft-hover:
-      type: "dimension"
-      value: "20%"
-      description: "Hover wash of soft (subtle-filled) status surfaces. Theme-split: 30% in dark."
-    alpha-soft-surface:
-      type: "dimension"
-      value: "10%"
-      description: "Resting wash of soft status surfaces (chat destructive bubble). Theme-split: 20% in dark."
     alpha-surface-faint:
       type: "dimension"
       value: "5%"
@@ -136,7 +128,11 @@ themes:
     brand:
       type: "color"
       value: "oklch(0.6 0.17 148)"
-      description: "The phosphor-green brand accent, LIGHT half (theme-split per CX-9): marker roles ONLY (live/AI-state dot, sparkline endpoint, eyebrow highlight, terminal prompt glyph). 3.5:1 on card/background — meaningful glyphs pass WCAG 1.4.11. Never fills, borders-at-rest, headlines, or buttons."
+      description: "The phosphor-green brand accent, LIGHT half (theme-split per CX-9): MARKER roles (live/AI-state dot, sparkline endpoint, eyebrow highlight, terminal prompt glyph) plus the `cta` Button's faint wash and its accent outline — the one sanctioned button, D17/D18. 3.5:1 on card/background — meaningful glyphs pass WCAG 1.4.11, and it is NOT a text ink: brand LABELS take `brand-text`. Never a headline colour, a full-strength surface, or a decorative wash beyond one radial."
+    brand-text:
+      type: "color"
+      value: "oklch(0.46 0.17 148)"
+      description: "The PAGE-READABLE brand ink, LIGHT half — the same role every chromatic family ships as `<family>-text`. `brand` itself is a 3.5:1 marker and fails WCAG 1.4.3 as a label (measured 3.41:1 for the `cta` Button's mono label over its own faint wash, 2026-09-09), so any brand-coloured TEXT reads through this token instead. Gated at 4.5:1 by contrast-check over background/card/popover/surface-1–3 and over the brand wash at alpha-surface-faint/hover/pressed."
     card:
       type: "color"
       value: "oklch(0.994 0.002 75)"
@@ -873,8 +869,8 @@ themes:
       description: "Dark-theme input fill tint (bg-input) — see the dark-tint scoping note."
     alpha-link-hover:
       type: "dimension"
-      value: "80%"
-      description: "Hovered link text dim (text-info-text) in rendered rich text."
+      value: "88%"
+      description: "Hovered link text dim, applied to a `<family>-text` ink in rendered rich text and on the `link` Button. 88%, not 80%: at 80% the light composites measured 4.03–4.11:1 for success/info/warning (2026-09-09) — a hover state that drops the link below WCAG 1.4.3 AA. contrast-check gates the composite, not just the solid ink."
     alpha-outline-border:
       type: "dimension"
       value: "50%"
@@ -887,14 +883,6 @@ themes:
       type: "dimension"
       value: "10%"
       description: "The alpha twin of surface-3 (pressed/selected): foreground at 10% measures L 0.921 light / 0.292 dark over card. Theme-invariant."
-    alpha-soft-hover:
-      type: "dimension"
-      value: "30%"
-      description: "Dark half of the theme-split soft-surface hover wash."
-    alpha-soft-surface:
-      type: "dimension"
-      value: "20%"
-      description: "Dark half of the theme-split soft-surface resting wash."
     alpha-surface-faint:
       type: "dimension"
       value: "5%"
@@ -925,7 +913,11 @@ themes:
     brand:
       type: "color"
       value: "oklch(0.86 0.21 148)"
-      description: "The phosphor-green brand accent, DARK half — MK's pick (13.3:1 on the dark canvas). Marker roles only."
+      description: "The phosphor-green brand accent, DARK half — MK's pick (13.3:1 on the dark canvas). Marker roles plus the `cta` Button's wash/outline."
+    brand-text:
+      type: "color"
+      value: "oklch(0.86 0.21 148)"
+      description: "The page-readable brand ink, DARK half. On the dark and marketing grounds the marker value already measures 12.2:1 as a label, so brand-text and brand carry the SAME value here — the split exists because the light half cannot."
     card:
       type: "color"
       value: "oklch(0.205 0.003 75)"
@@ -2246,12 +2238,39 @@ The `--brand` phosphor accent (light `oklch(0.6 0.17 148)`, 3.5:1 on card/backgr
 `oklch(0.86 0.21 148)`, 13.3:1 — MK's phosphor pick) is additive to the product's `info` accent, **not**
 a replacement — `info` still means link/informational UI everywhere; `brand` is the marketing-only
 signature.
-Marker roles ONLY: a live/AI-state dot, a sparkline endpoint, an eyebrow highlight (the small
+Marker roles: a live/AI-state dot, a sparkline endpoint, an eyebrow highlight (the small
 dot before a mono eyebrow), a terminal prompt glyph, and the **one** exception —
-the `cta` Button variant's accent-outline treatment. Never a fill, a border-at-rest, a headline
-color, or a decorative wash beyond one radial. Budget: **guidance, not lint** — aim for ≤~10
+the `cta` Button variant. Never a headline color, a full-strength surface, or a
+decorative wash beyond one radial. Budget: **guidance, not lint** — aim for ≤~10
 accent elements on any one marketing page (a `ParticleField` counts as ONE atmospheric accent
 instance, not per-particle, since it reads as a single texture, not N marks).
+
+**`brand` is a marker value, and a marker value is not a text ink.** 3.5:1 clears WCAG 1.4.11 for a
+glyph and fails 1.4.3 for a label. The family therefore ships the same page-readable half every
+chromatic family ships — **`brand-text`** (light `oklch(0.46 0.17 148)`; on the dark and
+`.vs-marketing` grounds it carries the marker value itself, which already reads at 12.2:1). Any
+brand-coloured **text** — the `cta` label included — takes `brand-text`;
+`brand` stays the dot, the endpoint, the glyph, the outline and the wash.
+`tooling/contrast-check.mjs` gates `brand-text` at 4.5:1 over `background`/`card`/`popover` and
+ladder rungs 1–3, and over the `cta`'s own wash at `--alpha-surface-faint`/`--alpha-hover`/
+`--alpha-pressed` — measured 2026-09-09 at **5.93 / 5.80 / 5.59 light** and **11.41 / 10.90 /
+10.13 dark** over `card`. It was `text-brand` until then, and shipped at **3.41 / 3.33 / 3.21**
+in light on the public docs button playground.
+
+**What the `cta` variant actually paints**, so the prose and the component agree: a faint brand
+wash (`bg-brand/(--alpha-surface-faint)`) inside a brand accent outline
+(`border-brand/(--alpha-outline-border)`, going full-strength on hover), sharp corners
+(`rounded-(--radius-sharp)`), a mono-uppercase `brand-text` label, and the family's alpha
+hover/pressed rungs. The wash and the outline ARE the treatment — the earlier "never a fill, a
+border-at-rest" line described the accent's use _outside_ this one exception and read as forbidding
+the exception itself.
+
+**Open (MK): nothing scopes `cta` to a marketing surface.** Its type is `{ variant: "cta"; tone?:
+never }` with no `MarketingSurface` requirement, so it is legal on a plain product page; the docs
+playground now renders it inside a `MarketingSurface`, which is where the recipe is written to live.
+Making the scope a type error, or resolving the label ink through a `--btn-*` var only
+`MarketingSurface` supplies, is a design decision rather than an accessibility one — `brand-text`
+clears AA on every surface either way.
 
 ### Promotion — a ladder rung, never a hue
 

@@ -64,7 +64,7 @@
   },
   "scripts": {
     "build": "tsup",
-    "lint": "eslint . && pnpm run verify",
+    "lint": "eslint . && node ../../tooling/design-lint.mjs src && pnpm run verify",
     "verify": "node ../../tooling/verify-preset-source.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node test/compare.test.mjs && node test/check-updates.test.mjs && node test/skills-install.test.mjs"

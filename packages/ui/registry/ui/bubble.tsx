@@ -1,4 +1,4 @@
-// @vegastack bubble@0.6.0 sha256-v/sYP7QYxIsZ4T6yEWblbgoWcESqNu4aVv1qm1Tg6QI=
+// @vegastack bubble@0.6.0 sha256-ZAdPW5A3B6aHs5qnRUOlXalEFvcDGOMKIIGKuFohrsw=
 
 "use client";
 
@@ -35,9 +35,20 @@ export function BubbleGroup({ className, ref, ...props }: BubbleGroupProps) {
  * hardcoded colours): `default` is the dark neutral "sent" bubble; `secondary` / `muted` are
  * neutral "received" surfaces; `tinted` is a neutral `accent`-tinted received bubble (kept as a
  * distinct variant name; visually a touch stronger than `muted`); `outline` / `ghost` are quiet;
- * `destructive` flags errors. Interactive bubbles
+ * `destructive` flags errors and is the status family's soft recipe — the PRECOMPOSED
+ * `destructive-subtle` ramp with `destructive-text` ink, exactly what the soft Buttons paint.
+ * (It used to be `bg-destructive/(--alpha-soft-surface)` with `text-destructive`, the one place in
+ * the registry that used a solid FILL token as body text: 5.24/4.31/4.44:1 in light and
+ * 2.56/2.37/1.78:1 in dark, and its light ladder inverted because the pressed step jumped to a
+ * precomposed token on a different ground. Audit 2026-09-09, HIGH-1.) Interactive bubbles
  * (a `button`/`a` as the content) lighten on hover. The variant skins the child
  * `[data-slot=bubble-content]` so the bubble tail/padding stay on the content element.
+ *
+ * Every tone's rest → hover → pressed steps are monotone: the neutral tones climb the surface
+ * ladder (rung 1 → 2 → 3), `tinted` rests ON rung 2 (`accent`) so its pressed step is the ladder's
+ * next alpha tint (`--alpha-ink-tint-strong`, L 0.884 light / 0.333 dark over card — a full rung
+ * past `surface-3`) rather than `--alpha-pressed`, which composites to L 0.921 and was
+ * indistinguishable from the `surface-3` hover it followed.
  * ----------------------------------------------------------------------------------------------*/
 
 export const bubbleVariants = cva(
@@ -56,7 +67,7 @@ export const bubbleVariants = cva(
           "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
         /** Neutral accent-tinted "received" surface, readable in light + dark. */
         tinted:
-          "*:data-[slot=bubble-content]:bg-accent *:data-[slot=bubble-content]:text-accent-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-3 [&>[data-slot=bubble-content]:is(button,a):active]:bg-foreground/(--alpha-pressed)",
+          "*:data-[slot=bubble-content]:bg-accent *:data-[slot=bubble-content]:text-accent-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-3 [&>[data-slot=bubble-content]:is(button,a):active]:bg-foreground/(--alpha-ink-tint-strong)",
         /** Outlined surface on the page background. */
         outline:
           "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
@@ -65,7 +76,7 @@ export const bubbleVariants = cva(
           "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
         /** Error / failed-message surface. */
         destructive:
-          "*:data-[slot=bubble-content]:bg-destructive/(--alpha-soft-surface) *:data-[slot=bubble-content]:text-destructive [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/(--alpha-soft-hover) [&>[data-slot=bubble-content]:is(button,a):active]:bg-destructive-subtle-active",
+          "*:data-[slot=bubble-content]:bg-destructive-subtle *:data-[slot=bubble-content]:text-destructive-text [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive-subtle-hover [&>[data-slot=bubble-content]:is(button,a):active]:bg-destructive-subtle-active",
       },
     },
     defaultVariants: {

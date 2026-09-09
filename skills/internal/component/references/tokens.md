@@ -80,8 +80,9 @@ recipe exists to prevent, not a pattern.
 `bg-primary` / `text-muted-foreground` / `border-border` / per-family
 `{success,warning,destructive,info}` each with
 `-hover`/`-active`/`-subtle`/`-subtle-hover`/`-subtle-active`/`-text`/`-foreground` variants /
-`--brand` (marker-role accent ONLY — never a functional-state color; never hue-alone, see
-`colors.mdx`) / `--chart-single` (a ONE-series chart is drawn in foreground ink; `chart-1…8` start
+`--brand` (marker-role accent — never a functional-state color; never hue-alone, see
+`colors.mdx`) / `--brand-text` (the family's page-readable half: brand-coloured TEXT, the `cta`
+Button label included, never `--brand` itself, which is a 3.5:1 marker and fails 1.4.3 as a label) / `--chart-single` (a ONE-series chart is drawn in foreground ink; `chart-1…8` start
 at two series) / theme-invariant media chrome `bg-media-scrim`, `bg-media-scrim-strong`,
 `text-media-foreground` (never `primary` over video — it inverts with the theme).
 
@@ -139,10 +140,11 @@ Never a raw `/NN` alpha step (`raw-alpha`) or a raw `opacity-NN` (`raw-opacity`;
 Alpha role tokens (not exhaustive — see `theme.css`): `--alpha-tint-border` (focus/invalid border
 tint), `--alpha-input` (dark-mode input wash), `--alpha-wash`/
 `--alpha-wash-faint`/`--alpha-wash-strong` (hover washes), `--alpha-surface-faint`,
-`--alpha-soft-hover`/`--alpha-soft-surface` (theme-split),
 `--alpha-ink-tint`/`--alpha-ink-tint-strong`, `--alpha-border-soft`/`--alpha-border-subtle`/
 `--alpha-outline-border`/`--alpha-outline-soft`, `--alpha-glass`/`--alpha-glass-hover`,
-`--alpha-backdrop-soft`, `--alpha-link-hover`, and the ladder's own twins
+`--alpha-backdrop-soft`, `--alpha-link-hover` (88% — the hovered-link dim; it is 88 and not 80
+because at 80 the light composites of `success-text`/`info-text`/`warning-text` measured
+4.03–4.11:1, below AA), and the ladder's own twins
 `--alpha-hover` (7%) / `--alpha-pressed` (10%) / `--alpha-border` (8% light, 14% dark).
 
 Element-opacity tokens: `--opacity-dim` (50%, the uniform disabled-state opacity — NOT design.md's
