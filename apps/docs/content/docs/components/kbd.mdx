@@ -2,14 +2,16 @@
 title: Kbd
 description: The one keyboard-key chip — deterministic modifier labels resolved by the caller, a keys array, and three inline sizes.
 audience: public
+registry: kbd
+status: stable
+since: 0.1.0
+a11y: native kbd element
 preview: kbd
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/kbd
-```
+<InstallSteps name="kbd" />
 
 ## Usage
 
@@ -23,13 +25,14 @@ import { Kbd, KbdGroup } from '@/components/ui/kbd';
 <Kbd keys={['⌘', 'K']} />;
 ```
 
+## Anatomy
+
+`Kbd` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="kbd" />
+
 ## Examples
-
-### Playground
-
-Change the size and platform to watch the ⌘ glyph swap to Ctrl, then copy the generated JSX.
-
-<KbdPlayground />
 
 ### Anatomy
 
@@ -86,18 +89,21 @@ const { os } = usePlatform();
 <Kbd os="other">⌘</Kbd>             {/* Ctrl */}
 ```
 
+## Playground
+
+Change the size and platform to watch the ⌘ glyph swap to Ctrl, then copy the generated JSX.
+
+<KbdPlayground />
+
 ## API Reference
 
 ### Kbd
 
-<AutoTypeTable path="../../packages/ui/registry/ui/kbd.tsx" name="KbdProps" />
+<ApiTable path="../../packages/ui/registry/ui/kbd.tsx" name="KbdProps" />
 
 ### KbdGroup
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/kbd.tsx"
-  name="KbdGroupProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/kbd.tsx" name="KbdGroupProps" />
 
 The `kbdVariants` CVA helper is also exported for advanced styling — call `kbdVariants({ size })`
 to reuse the chip classes (the single `size` axis: `xs` | `sm` | `md`) on a custom element.
@@ -118,9 +124,15 @@ to reuse the chip classes (the single `size` axis: `xs` | `sm` | `md`) on a cust
 | -------- | ------------------------------------------------------------------ |
 | _(none)_ | `Kbd` is presentational — it has no interactive keyboard behavior. |
 
+<StatesTested name="kbd" />
+
 ## Do / Don't
 
 <DoDont
   do="Use Kbd to display a shortcut alongside the control it triggers, and resolve os once with usePlatform at the call site."
   dont="Make a Kbd clickable or focusable, or hardcode ⌘ in copy that Windows and Linux users will also read."
 />
+
+## Changelog
+
+<ComponentChangelog name="kbd" />

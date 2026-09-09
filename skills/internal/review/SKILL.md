@@ -81,8 +81,9 @@ mismatch means the reference needs re-syncing, not that the script is wrong.
 
 - **Deprecated usage** — `@deprecated` APIs, and any copy-in below its registry item's current
   `meta.version`.
-- **Docs completeness** — a component missing a Fumadocs page, an `AutoTypeTable`, or JSDoc on a
-  public prop (which breaks the API Reference table). Section order per the `component` skill §6.
+- **Docs completeness** — a component missing a Fumadocs page, an `ApiTable`, or JSDoc on a
+  public prop (which breaks the API Reference table). The page canon is `design.md` § Docs canon,
+  enforced by `tooling/content-lint.mjs`; the authoring shape is in the `component` skill §6.
 - **Naming-canon drift** — a new synonym prop for an existing semantic axis (a `color` or `status`
   prop where `intent` is established), or a dotted sub-component export (`Foo.Bar` not `FooBar`).
 - **Coverage honesty** — a matrix cell or contract record claiming coverage the source lacks.
@@ -101,7 +102,7 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
    truly passing is a high finding — this program has shipped several.
 4. **Contract compliance.** Every component: all UI states, the knobs contract
    (`className`/`render`/CVA/`data-*`/ref/slots), a11y (keyboard + ARIA + `:focus-visible` + axe),
-   JSDoc feeding `AutoTypeTable`.
+   JSDoc feeding `ApiTable`.
 5. **Fail-closed gates.** Prove each one fails on a negative case. A gate never observed failing is
    an assumption, not a gate. Four gates in this tree carry their own proof, and they are the models
    to hold a new gate against: `verify-docs-shell --self-test` (mutates the built export and requires

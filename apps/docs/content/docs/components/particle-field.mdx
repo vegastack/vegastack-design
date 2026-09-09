@@ -2,14 +2,16 @@
 title: Particle Field
 description: A deterministic, very-low-alpha canvas field of drifting phosphor dots — hero atmosphere only.
 audience: public
+registry: particle-field
+status: stable
+since: 0.1.0
+a11y: decorative canvas (aria-hidden)
 preview: particleField
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/particle-field
-```
+<InstallSteps name="particle-field" />
 
 ## Usage
 
@@ -65,7 +67,7 @@ wait on that attribute instead of guessing a delay (a VRT harness should).
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/particle-field.tsx"
   name="ParticleFieldProps"
 />
@@ -77,9 +79,15 @@ wait on that attribute instead of guessing a delay (a VRT harness should).
 - Respects `prefers-reduced-motion: reduce` by rendering one static frame — which still follows a
   theme change, so a reduced-motion user never sees the wrong-theme ink.
 
+<StatesTested name="particle-field" />
+
 ## Do / Don't
 
 <DoDont
   do="Use it as subtle hero-background atmosphere over a dark marketing ground — keep the particle count and alpha low."
   dont="Use it as a focal element, or stack more than one ParticleField in the same viewport."
 />
+
+## Changelog
+
+<ComponentChangelog name="particle-field" />

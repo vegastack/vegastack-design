@@ -2,14 +2,16 @@
 title: Settings Row
 description: A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows for building account, workspace, and preference screens.
 audience: public
+registry: settings-row
+status: stable
+since: 0.1.0
+a11y: headings + labelled rows
 preview: settingsRow
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/settings-row
-```
+<InstallSteps name="settings-row" />
 
 ## Usage
 
@@ -35,6 +37,13 @@ import { Switch } from "@/components/ui/switch";
   </SettingsCard>
 </SettingsSection>;
 ```
+
+## Anatomy
+
+`Settings Row` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="settings-row" />
 
 ## Examples
 
@@ -112,21 +121,21 @@ danger-zone intro.
 
 ### SettingsRow
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/settings-row.tsx"
   name="SettingsRowProps"
 />
 
 ### SettingsCard
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/settings-row.tsx"
   name="SettingsCardProps"
 />
 
 ### SettingsSection
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/settings-row.tsx"
   name="SettingsSectionProps"
 />
@@ -149,9 +158,15 @@ danger-zone intro.
 | <kbd>Tab</kbd>                      | Move focus through the controls in each row, top to bottom. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate or toggle the focused control.                     |
 
+<StatesTested name="settings-row" />
+
 ## Do / Don't
 
 <DoDont
   do="Pair each row with a labelled control, using controlId for native inputs and explicit ARIA labels for composite controls."
   dont="Stack bare rows without a card, or rely on visual proximity alone to name an interactive control."
 />
+
+## Changelog
+
+<ComponentChangelog name="settings-row" />

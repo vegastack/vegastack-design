@@ -2,14 +2,16 @@
 title: Pricing Section
 description: Marketing plan cards — mono price display, check feature lists, highlighted-plan treatment.
 audience: public
+registry: pricing-section
+status: stable
+since: 0.3.0
+a11y: headings + feature lists
 preview: pricingSection
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/pricing-section
-```
+<InstallSteps name="pricing-section" />
 
 ## Usage
 
@@ -25,6 +27,26 @@ npx shadcn@latest add @vegastack/pricing-section
   />
 </PricingSection>
 ```
+
+### Notes
+
+- Prices render in mono with tabular numerals — the system's numbers rule (a deliberate
+  improvement over the reference).
+- The grid uses `auto-fit` with the semantic `--container-3xs` width, so cards reflow from the
+  section's actual available width rather than a viewport breakpoint. Narrow preview frames,
+  sidebars, and split panes therefore get the same one-column layout as a small screen.
+- `highlighted` promotes a plan onto the `surface-3` rung with an alpha-`primary`
+  hairline and a bordered neutral `Popular` badge. Promotion is a ladder rung, never a hue —
+  `info` is reserved for links and informational messages.
+- Billing-cycle toggles compose from [`Segmented`](/docs/components/segmented) above the grid.
+- Pair with [`ComparisonMatrix`](/docs/components/comparison-matrix) for the feature detail.
+
+## Anatomy
+
+`Pricing Section` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="pricing-section" />
 
 ## Examples
 
@@ -44,19 +66,6 @@ call site.
   file="components/preview/pricing-section.tsx"
 />
 
-## Notes
-
-- Prices render in mono with tabular numerals — the system's numbers rule (a deliberate
-  improvement over the reference).
-- The grid uses `auto-fit` with the semantic `--container-3xs` width, so cards reflow from the
-  section's actual available width rather than a viewport breakpoint. Narrow preview frames,
-  sidebars, and split panes therefore get the same one-column layout as a small screen.
-- `highlighted` promotes a plan onto the `surface-3` rung with an alpha-`primary`
-  hairline and a bordered neutral `Popular` badge. Promotion is a ladder rung, never a hue —
-  `info` is reserved for links and informational messages.
-- Billing-cycle toggles compose from [`Segmented`](/docs/components/segmented) above the grid.
-- Pair with [`ComparisonMatrix`](/docs/components/comparison-matrix) for the feature detail.
-
 ## API Reference
 
 ### PricingSection
@@ -65,7 +74,7 @@ call site.
 
 ### PlanCard
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/pricing-section.tsx"
   name="PlanCardProps"
 />
@@ -77,9 +86,15 @@ call site.
 - The promoted plan is identified by the visible highlight badge in addition to its categorical surface treatment.
 - Keep CTA labels explicit about the outcome, such as “Start for free” or “Talk to sales.”
 
+<StatesTested name="pricing-section" />
+
 ## Do / Don't
 
 <DoDont
   do="Use parallel feature phrasing and one clear, outcome-labelled CTA per plan."
   dont="Rely on the highlighted border alone to identify the recommended plan or hide material billing details."
 />
+
+## Changelog
+
+<ComponentChangelog name="pricing-section" />

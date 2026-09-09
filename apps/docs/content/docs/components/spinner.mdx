@@ -2,14 +2,16 @@
 title: Spinner
 description: An indeterminate loading indicator — a spinning icon that inherits currentColor, in four sizes, accessible by default.
 audience: public
+registry: spinner
+status: stable
+since: 0.1.0
+a11y: ARIA status region
 preview: spinner
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/spinner
-```
+<InstallSteps name="spinner" />
 
 ## Usage
 
@@ -28,12 +30,6 @@ The spinner inherits `currentColor`, so set its color via the surrounding text c
 ```
 
 ## Examples
-
-### Playground
-
-Step through the four sizes, then copy the generated JSX.
-
-<SpinnerPlayground />
 
 ### With a label
 
@@ -78,9 +74,15 @@ The spinner has no hardcoded color — it draws in `currentColor` and defaults t
 
 <ComponentPreview name="spinnerSizes" file="components/preview/spinner.tsx" />
 
+## Playground
+
+Step through the four sizes, then copy the generated JSX.
+
+<SpinnerPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/spinner.tsx"
   name="SpinnerProps"
 />
@@ -104,9 +106,15 @@ The spinner has no hardcoded color — it draws in `currentColor` and defaults t
 | Accessible name | `aria-label` from the `label` prop (default `"Loading"`) |
 | Reduced motion  | Animation removed under `prefers-reduced-motion: reduce` |
 
+<StatesTested name="spinner" />
+
 ## Do / Don't
 
 <DoDont
   do="Give the spinner a meaningful label (Saving changes…), or pair it with visible loading text and mark it decorative with label=''."
   dont="Render two announced spinners in the same region, or rely on the spinner alone — with no text — to explain what is loading."
 />
+
+## Changelog
+
+<ComponentChangelog name="spinner" />

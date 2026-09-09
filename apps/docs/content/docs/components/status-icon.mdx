@@ -2,14 +2,16 @@
 title: Status Icon
 description: A small status indicator icon for the canonical task states — todo, in progress, blocked, and done.
 audience: public
+registry: status-icon
+status: stable
+since: 0.1.0
+a11y: img role with derived label
 preview: statusIcon
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/status-icon
-```
+<InstallSteps name="status-icon" />
 
 ## Usage
 
@@ -20,12 +22,6 @@ import { StatusIcon } from "@/components/ui/status-icon";
 ```
 
 ## Examples
-
-### Playground
-
-Pick a status and size to preview each state's icon and color, then copy the generated JSX.
-
-<StatusIconPlayground />
 
 ### States
 
@@ -73,9 +69,15 @@ recommended accessible pattern.
 </span>
 ```
 
+## Playground
+
+Pick a status and size to preview each state's icon and color, then copy the generated JSX.
+
+<StatusIconPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/status-icon.tsx"
   name="StatusIconProps"
 />
@@ -97,9 +99,15 @@ recommended accessible pattern.
 | Accessible name | `aria-label` from `label`, or a default derived from `status` |
 | Reduced motion  | `progress` animation frozen by the global `base.css` reset    |
 
+<StatesTested name="status-icon" />
+
 ## Do / Don't
 
 <DoDont
   do="Pair the icon with a text label, or give it a meaningful aria-label so the status is announced — distinct icon shapes back up the color."
   dont="Rely on color alone to convey status, or leave the icon unlabeled when no adjacent text describes the state."
 />
+
+## Changelog
+
+<ComponentChangelog name="status-icon" />

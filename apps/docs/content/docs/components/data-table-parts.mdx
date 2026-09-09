@@ -2,20 +2,16 @@
 title: Data Table Parts
 description: The sort header, selection cells, skeleton rows, empty row, column rules and hooks that DataList and DataGrid are both built from.
 audience: public
+registry: data-table-parts
+status: stable
+since: 0.7.0
+a11y: native table semantics
 preview: dataTableParts
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/data-table-parts
-```
-
-<RegistryInstallCallout />
-
-Adding `@vegastack/data-list` or `@vegastack/data-grid` installs this item automatically — it is
-their shared foundation. Install it directly only when you are building a bespoke table that should
-match them.
+<InstallSteps name="data-table-parts" />
 
 ## Usage
 
@@ -95,6 +91,8 @@ The doctrinal split between the two renderers is unchanged: `DataList` stays pre
 | `cycleSort`          | `asc → desc → cleared`, with optional additive multi-key sorting capped at `maxKeys`.                                        |
 | `columnCellClass`    | Alignment, wrap posture and the mono numeral face for one column.                                                            |
 
+<Anatomy name="data-table-parts" />
+
 ## Examples
 
 Sorting, selection and the column rules composed onto a plain `Table`:
@@ -122,22 +120,22 @@ Sorting, selection and the column rules composed onto a plain `Table`:
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/data-table-parts.tsx"
   name="SortableHeadProps"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/data-table-parts.tsx"
   name="DataTableColumnLayout"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/data-table-parts.tsx"
   name="SelectionCellProps"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/data-table-parts.tsx"
   name="SkeletonRowsProps"
 />
@@ -162,9 +160,15 @@ Sorting, selection and the column rules composed onto a plain `Table`:
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Sort by the focused column, or toggle the focused row.      |
 | <kbd>Shift</kbd> + click            | Add the column as an additional sort key (when `additive`). |
 
+<StatesTested name="data-table-parts" />
+
 ## Do / Don't
 
 <DoDont
   do="Compose these onto Table when neither DataList nor DataGrid fits, and let columnCellClass decide alignment, wrapping and the mono face."
   dont="Reimplement a sort header or selection cell inline — that is the duplication this item exists to end."
 />
+
+## Changelog
+
+<ComponentChangelog name="data-table-parts" />

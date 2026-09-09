@@ -2,14 +2,16 @@
 title: Number Field
 description: Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting, min/max/step, keyboard stepping, wheel scrub.
 audience: public
+registry: number-field
+status: stable
+since: 0.4.0
+a11y: APG spinbutton
 preview: numberField
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/number-field
-```
+<InstallSteps name="number-field" />
 
 ## Usage
 
@@ -76,7 +78,7 @@ message and the invalid shake.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/number-field.tsx"
   name="NumberFieldProps"
 />
@@ -103,9 +105,15 @@ and native form integration via `name`.
 | <kbd>Alt</kbd> + <kbd>↑</kbd>/<kbd>↓</kbd>   | Step by `smallStep`.            |
 | <kbd>Home</kbd> / <kbd>End</kbd>             | Jump to `min` / `max` when set. |
 
+<StatesTested name="number-field" />
+
 ## Do / Don't
 
 <DoDont
   do="Express money, percents, and units through the Intl format prop — one numeric input, locale-correct everywhere."
   dont="Build a separate money-input or hand-parse currency strings out of a text Input — parsing is exactly what this component owns."
 />
+
+## Changelog
+
+<ComponentChangelog name="number-field" />

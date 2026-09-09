@@ -2,14 +2,16 @@
 title: Property List
 description: Record-facts rows — an icon + label column beside a value column, rendered as an accessible definition list.
 audience: public
+registry: property-list
+status: stable
+since: 0.3.0
+a11y: native description list
 preview: propertyList
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/property-list
-```
+<InstallSteps name="property-list" />
 
 ## Usage
 
@@ -67,6 +69,13 @@ decorative (`aria-hidden`); keep the text label present — never an icon-only `
 | Shape | key→value pane         | homogeneous `<table>`  | label + control row |
 | For   | record facts, metadata | collections of records | preference forms    |
 
+## Anatomy
+
+`Property List` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="property-list" />
+
 ## Examples
 
 Compose plain values, links, empty values, and tag groups in the same aligned definition list.
@@ -101,7 +110,7 @@ a reader has to interpret.
 
 ### PropertyLabel
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/property-list.tsx"
   name="PropertyLabelProps"
 />
@@ -123,9 +132,15 @@ a reader has to interpret.
 | <kbd>Tab</kbd>   | Move through links and controls inside property values. |
 | <kbd>Enter</kbd> | Activate the focused link or control.                   |
 
+<StatesTested name="property-list" />
+
 ## Do / Don't
 
 <DoDont
   do="Use PropertyList for stable record facts with concise labels and honest empty values."
   dont="Use it for a homogeneous record collection, hide a label behind an icon alone, or add overflow-hidden to a value — it clips the focus ring of any link inside."
 />
+
+## Changelog
+
+<ComponentChangelog name="property-list" />

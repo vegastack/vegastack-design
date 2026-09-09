@@ -2,14 +2,16 @@
 title: Command Menu
 description: A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
 audience: public
+registry: command
+status: stable
+since: 0.1.0
+a11y: APG combobox (listbox popup)
 preview: command
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/command
-```
+<InstallSteps name="command" />
 
 ## Usage
 
@@ -79,6 +81,8 @@ function Groups() {
 
 `Command` is a compound component built on Base UI's `Combobox`. Compose the parts inside the root:
 
+<Anatomy name="command" />
+
 <Callout title="Anatomy change">
   `CommandEmpty` and `CommandLoading` render `role="status"`, which is not a
   valid child of `CommandList`'s `role="listbox"` (ARIA only permits
@@ -138,6 +142,10 @@ Pass `disabled` to a `CommandItem` to mute it — it stays visible but dimmed (`
 ### Command dialog (⌘K)
 
 Render the palette inside `CommandDialog` for the classic command-menu overlay. Open/close is controlled like `Dialog`; bind the ⌘K shortcut in your app.
+
+> **The live demo below uses ⌘J, not ⌘K.** This documentation site already binds ⌘K to its own
+> search dialog, and two page-level handlers on one chord open both dialogs at once. Your app
+> binds ⌘K, exactly as the snippet shows.
 
 ```tsx
 import {
@@ -532,7 +540,7 @@ const [search, setSearch] = React.useState("");
 
 ### CommandFooter
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/command.tsx"
   name="CommandFooterProps"
 />
@@ -561,9 +569,15 @@ valid options and groups.
 | <kbd>Esc</kbd>                   | Close the dialog (when inside `CommandDialog`).                                                |
 | _typing_                         | Filter the list against the query.                                                             |
 
+<StatesTested name="command" />
+
 ## Do / Don't
 
 <DoDont
   do="Wire each CommandItem's onSelect to a route or action, group related commands with a heading, and keep labels short and scannable."
   dont="Bind the ⌘K shortcut inside the component, or rely on disabled items being skipped by keyboard navigation — the app owns the toggle, and unreachable items must be left out of items entirely."
 />
+
+## Changelog
+
+<ComponentChangelog name="command" />

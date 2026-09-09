@@ -2,14 +2,16 @@
 title: Country Select
 description: A button-triggered searchable country popover returning the ISO 3166-1 alpha-2 code.
 audience: public
+registry: country-select
+status: stable
+since: 0.1.0
+a11y: APG combobox (dialog popup)
 preview: countrySelect
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/country-select
-```
+<InstallSteps name="country-select" />
 
 ## Usage
 
@@ -83,7 +85,7 @@ Pass a `countries` array to restrict or extend the offered list (it defaults to 
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/country-select.tsx"
   name="CountrySelectProps"
 />
@@ -96,10 +98,7 @@ data lands in your tree once. Import from your `lib` alias, not from the compone
 
 #### `Country`
 
-<AutoTypeTable
-  path="../../packages/ui/registry/lib/geo-data.ts"
-  name="Country"
-/>
+<ApiTable path="../../packages/ui/registry/lib/geo-data.ts" name="Country" />
 
 #### `COUNTRIES`
 
@@ -149,9 +148,15 @@ getCountryByCode("ZZ"); // undefined
 | <kbd>Enter</kbd>                    | Select the highlighted country and close.      |
 | <kbd>Esc</kbd>                      | Close without changing the selection.          |
 
+<StatesTested name="country-select" />
+
 ## Do / Don't
 
 <DoDont
   do="Store the ISO 3166-1 alpha-2 code (US, GB, IN) as the value — stable and locale-independent."
   dont="Store the localized display name — it changes with language and breaks lookups."
 />
+
+## Changelog
+
+<ComponentChangelog name="country-select" />

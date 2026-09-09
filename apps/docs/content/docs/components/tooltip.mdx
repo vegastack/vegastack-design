@@ -2,25 +2,16 @@
 title: Tooltip
 description: A floating label that appears on hover or focus — smart shared delay, rich content, optional keyboard hints, and collision-aware positioning.
 audience: public
+registry: tooltip
+status: stable
+since: 0.1.0
+a11y: APG tooltip
 preview: tooltip
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/tooltip
-```
-
-## Provider
-
-`Tooltip` needs a single `Tooltip.Provider` ancestor that owns the shared
-open/close delay. In VegaStack apps it is already mounted inside
-`VegaStackProvider`, so you never render it yourself — just drop tooltips
-anywhere below the app root. Once one tooltip opens, neighbouring tooltips open
-instantly (skip delay).
-
-For a standalone tree (Storybook, tests, an isolated widget) wrap the region in
-the re-exported `TooltipProvider`.
+<InstallSteps name="tooltip" />
 
 ## Usage
 
@@ -37,15 +28,22 @@ import {
 </Tooltip>;
 ```
 
-## Playground
+### Provider
 
-Pick a side and toggle the arrow, hover the trigger, then copy the generated JSX.
+`Tooltip` needs a single `Tooltip.Provider` ancestor that owns the shared
+open/close delay. In VegaStack apps it is already mounted inside
+`VegaStackProvider`, so you never render it yourself — just drop tooltips
+anywhere below the app root. Once one tooltip opens, neighbouring tooltips open
+instantly (skip delay).
 
-<TooltipPlayground />
+For a standalone tree (Storybook, tests, an isolated widget) wrap the region in
+the re-exported `TooltipProvider`.
 
 ## Anatomy
 
 `Tooltip` is a compound component. Compose the flat parts inside the root:
+
+<Anatomy name="tooltip" />
 
 ```tsx
 <Tooltip delay={400}>
@@ -116,39 +114,45 @@ Set `arrow` on the content to render a directional pointer.
 
 <ComponentPreview name="tooltipArrow" file="components/preview/tooltip.tsx" />
 
+## Playground
+
+Pick a side and toggle the arrow, hover the trigger, then copy the generated JSX.
+
+<TooltipPlayground />
+
 ## API Reference
 
 ### Tooltip
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tooltip.tsx"
   name="TooltipProps"
 />
 
 ### TooltipTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tooltip.tsx"
   name="TooltipTriggerProps"
 />
 
 ### TooltipContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tooltip.tsx"
   name="TooltipContentProps"
 />
 
 ### TooltipArrow
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tooltip.tsx"
   name="TooltipArrowProps"
 />
 
 ### TooltipKbd
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tooltip.tsx"
   name="TooltipKbdProps"
 />
@@ -166,9 +170,15 @@ Set `arrow` on the content to render a directional pointer.
 | <kbd>Tab</kbd> | Move focus to the trigger — the tooltip opens. |
 | <kbd>Esc</kbd> | Dismiss the open tooltip.                      |
 
+<StatesTested name="tooltip" />
+
 ## Do / Don't
 
 <DoDont
   do="Use tooltips for short, supplementary labels on icon buttons and toolbar actions."
   dont="Put links, buttons, or essential content inside a tooltip — it isn't focusable or reliably reachable. Use a Popover."
 />
+
+## Changelog
+
+<ComponentChangelog name="tooltip" />

@@ -2,14 +2,16 @@
 title: Markdown View
 description: Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, and GFM tables — XSS-safe with no raw HTML.
 audience: public
+registry: markdown-view
+status: stable
+since: 0.1.0
+a11y: semantic HTML document
 preview: markdownView
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/markdown-view
-```
+<InstallSteps name="markdown-view" />
 
 ## Usage
 
@@ -103,7 +105,7 @@ so the complete prose surface renders in one view.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/markdown-view.tsx"
   name="MarkdownViewProps"
 />
@@ -129,9 +131,15 @@ so the complete prose surface renders in one view.
 | <kbd>Tab</kbd>   | Move focus through rendered links in document order. |
 | <kbd>Enter</kbd> | Follow the focused link.                             |
 
+<StatesTested name="markdown-view" />
+
 ## Do / Don't
 
 <DoDont
   do="Use MarkdownView for trusted-or-untrusted markdown — it escapes raw HTML, so user-authored comments and descriptions render safely without extra sanitization."
   dont="Add rehype-raw to render embedded HTML — it re-enables the XSS vectors this component exists to avoid. Build a dedicated, separately-sanitized renderer if raw HTML is truly required."
 />
+
+## Changelog
+
+<ComponentChangelog name="markdown-view" />

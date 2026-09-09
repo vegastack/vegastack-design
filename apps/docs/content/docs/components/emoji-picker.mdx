@@ -2,14 +2,16 @@
 title: Emoji Picker
 description: A popover with a searchable, category-grouped grid of emoji that returns the selected character.
 audience: public
+registry: emoji-picker
+status: stable
+since: 0.1.0
+a11y: APG dialog (non-modal) picker
 preview: emojiPicker
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/emoji-picker
-```
+<InstallSteps name="emoji-picker" />
 
 ## Usage
 
@@ -24,7 +26,7 @@ import { EmojiPicker } from "@/components/ui/emoji-picker";
   file="components/preview/emoji-picker.tsx"
 />
 
-## How it works
+### How it works
 
 `EmojiPicker` composes our [`Popover`](/docs/components/popover) (trigger + floating panel), a search
 [`Input`](/docs/components/input), and a scrollable grid of icon [`Button`](/docs/components/button)s.
@@ -124,7 +126,7 @@ below is **live** — open it and type a non-matching query like `zzz`.
 
 ### EmojiPicker
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/emoji-picker.tsx"
   name="EmojiPickerProps"
 />
@@ -136,7 +138,7 @@ optional search keywords.
 
 ### EmojiEntry
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/emoji-picker.tsx"
   name="EmojiEntry"
 />
@@ -187,9 +189,15 @@ The exported, curated emoji dataset you extend or replace to support more emoji.
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between the search field and emoji buttons.        |
 | <kbd>Esc</kbd>                                     | Close the picker and return focus to the trigger.             |
 
+<StatesTested name="emoji-picker" />
+
 ## Do / Don't
 
 <DoDont
   do="Use it for lightweight emoji insertion — reactions, comments, status, icon selection. Keep ownership of the value in the parent via onValueChange."
   dont="Rely on it as a complete Unicode emoji browser — it ships a curated subset. Extend the EMOJI dataset if you need full coverage, or use a dedicated library."
 />
+
+## Changelog
+
+<ComponentChangelog name="emoji-picker" />

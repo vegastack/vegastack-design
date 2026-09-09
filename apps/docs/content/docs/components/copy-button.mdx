@@ -2,14 +2,16 @@
 title: Copy Button
 description: Copy a value to the clipboard with transient check feedback — built on Button.
 audience: public
+registry: copy-button
+status: stable
+since: 0.1.0
+a11y: native button + status announcement
 preview: copyButton
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/copy-button
-```
+<InstallSteps name="copy-button" />
 
 ## Usage
 
@@ -20,13 +22,6 @@ import { CopyButton } from "@/components/ui/copy-button";
 ```
 
 ## Examples
-
-### Playground
-
-Try the forwarded `variant × tone` and size axes, the label toggle, and the disabled state — the
-copy action is live — then copy the generated JSX.
-
-<CopyButtonPlayground />
 
 ### Copy feedback
 
@@ -95,13 +90,20 @@ An explicit `size` always wins.
   file="components/preview/copy-button.tsx"
 />
 
+## Playground
+
+Try the forwarded `variant × tone` and size axes, the label toggle, and the disabled state — the
+copy action is live — then copy the generated JSX.
+
+<CopyButtonPlayground />
+
 ## API Reference
 
 `CopyButton` forwards supported [`Button`](/docs/components/button) presentation props
 (`variant`, `size`, `className`, `disabled`, …) and owns the clipboard action, button
 type, accessible labels, and icon children.
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/copy-button.tsx"
   name="CopyButtonProps"
 />
@@ -118,9 +120,15 @@ type, accessible labels, and icon children.
 | <kbd>Tab</kbd>                      | Move focus to the button.      |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Copy `value` to the clipboard. |
 
+<StatesTested name="copy-button" />
+
 ## Do / Don't
 
 <DoDont
   do="Place the CopyButton next to the value it copies and pass onCopied to confirm the action with a toast."
   dont="Use it for long-form content a user should read or edit — copy buttons are for short, opaque values (keys, links, IDs)."
 />
+
+## Changelog
+
+<ComponentChangelog name="copy-button" />

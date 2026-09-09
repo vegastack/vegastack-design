@@ -2,14 +2,16 @@
 title: Combobox
 description: A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.
 audience: public
+registry: combobox
+status: stable
+since: 0.1.0
+a11y: APG combobox
 preview: combobox
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/combobox
-```
+<InstallSteps name="combobox" />
 
 ## Usage
 
@@ -53,13 +55,14 @@ selection with `value` + `onValueChange`, or leave it uncontrolled with `default
 to collect several values into an array and unlock the chip parts (see
 [Multiple selection](#multiple-selection)).
 
+## Anatomy
+
+`Combobox` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="combobox" />
+
 ## Examples
-
-### Playground
-
-Try every size and the disabled state on a filterable list, then copy the generated JSX.
-
-<ComboboxPlayground />
 
 ### Anatomy
 
@@ -288,32 +291,38 @@ that stale clip fall behind the inert backdrop and become unclickable — verifi
 component. Reach for `modal` only for a single-select, button-trigger-style usage that should behave
 like `Select`.
 
+## Playground
+
+Try every size and the disabled state on a filterable list, then copy the generated JSX.
+
+<ComboboxPlayground />
+
 ## API Reference
 
 ### Combobox
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxProps"
 />
 
 ### ComboboxInputGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxInputGroupProps"
 />
 
 ### ComboboxInput
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxInputProps"
 />
 
 ### ComboboxPopupInput
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxPopupInputProps"
 />
@@ -323,91 +332,91 @@ country and region selectors. It deliberately omits the outer trigger-input sizi
 
 ### ComboboxTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxTriggerProps"
 />
 
 ### ComboboxClear
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxClearProps"
 />
 
 ### ComboboxContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxContentProps"
 />
 
 ### ComboboxList
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxListProps"
 />
 
 ### ComboboxItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxItemProps"
 />
 
 ### ComboboxEmpty
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxEmptyProps"
 />
 
 ### ComboboxStatus
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxStatusProps"
 />
 
 ### ComboboxGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxGroupProps"
 />
 
 ### ComboboxGroupLabel
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxGroupLabelProps"
 />
 
 ### ComboboxValue
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxValueProps"
 />
 
 ### ComboboxChips
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxChipsProps"
 />
 
 ### ComboboxChip
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxChipProps"
 />
 
 ### ComboboxChipRemove
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/combobox.tsx"
   name="ComboboxChipRemoveProps"
 />
@@ -435,9 +444,15 @@ country and region selectors. It deliberately omits the outer trigger-input sizi
 | <kbd>Backspace</kbd>        | (Multiple, empty query) Highlight, then remove, the last chip.              |
 | <kbd>←</kbd> / <kbd>→</kbd> | (Multiple) Move between chips when the query is empty at either edge.       |
 
+<StatesTested name="combobox" />
+
 ## Do / Don't
 
 <DoDont
   do="Pass items and render ComboboxList's children as a function so typing actually filters, and keep ComboboxEmpty/ComboboxStatus as siblings of ComboboxList, not its parent."
   dont="Render static ComboboxItem children when you need type-to-filter, or reach for a Combobox when Select's fixed, unsearched list is enough."
 />
+
+## Changelog
+
+<ComponentChangelog name="combobox" />

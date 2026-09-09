@@ -2,18 +2,16 @@
 title: Chart
 description: A themed Recharts wrapper — token-only series colors, a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.
 audience: public
+registry: chart
+status: stable
+since: 0.1.0
+a11y: Recharts accessibility layer
 preview: chartDemoLine
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/chart
-```
-
-This installs `recharts` alongside the component — `Chart` themes Recharts' own primitives
-(`LineChart`, `BarChart`, `AreaChart`, `CartesianGrid`, `XAxis`, …), it doesn't replace them. Import
-those directly from `recharts` in your chart code.
+<InstallSteps name="chart" />
 
 ## Usage
 
@@ -52,35 +50,7 @@ const data = [
 
 <ComponentPreview name="chartDemoLine" file="components/preview/chart.tsx" />
 
-## Anatomy
-
-`Chart` is not a compound wrapper around Recharts — it themes and sizes Recharts' own primitives,
-which you import from `recharts` directly and compose as children:
-
-```tsx
-<ChartContainer config={chartConfig}>
-  <BarChart data={data}>
-    {/* any recharts primitive: CartesianGrid, XAxis, YAxis, Bar, Line, Area, … */}
-    <ChartTooltip content={<ChartTooltipContent />} />
-    <ChartLegend content={<ChartLegendContent />} />
-  </BarChart>
-</ChartContainer>
-```
-
-- `ChartContainer` — sizes the chart (`ResponsiveContainer`) and provides `config` via context
-  (`data-slot="chart"`, `<div>`). Resolves each `config` entry to a `--color-<key>` CSS var — see
-  [Theming](#theming) below.
-- `ChartTooltip` — Recharts' `Tooltip`, re-exported so you don't need a second import from `recharts`.
-- `ChartTooltipContent` — the themed `content` for `ChartTooltip` (`data-slot="chart-tooltip-content"`,
-  `<div>`): a bordered `bg-popover` card with a label row and one row per series (color swatch, label,
-  `font-mono` value).
-- `ChartLegend` — Recharts' `Legend`, re-exported for the same reason as `ChartTooltip`.
-- `ChartLegendContent` — the themed `content` for `ChartLegend` (`data-slot="chart-legend-content"`,
-  `<div>`): a centered row of swatch/icon + label pairs.
-- `ChartConfig` — the type for `config`: maps a data key to a `label`, optional `icon`, and a
-  token-only `color` — see [Theming](#theming).
-
-## Theming
+### Theming
 
 `ChartConfig.color` accepts **only** a chart-token reference: a bare token name (`'chart-1'` …
 `'chart-8'`) or the literal CSS var (`'var(--chart-1)'`) — both resolve to the same
@@ -126,6 +96,36 @@ Every example on this page does this. We don't replicate the shadcn reference's
 literals this repo's design-lint bans outright, and it silently stops matching the moment a future
 Recharts version changes its internal default (verified against the installed `recharts@3.10.1` source
 while building this component).
+
+## Anatomy
+
+`Chart` is not a compound wrapper around Recharts — it themes and sizes Recharts' own primitives,
+which you import from `recharts` directly and compose as children:
+
+<Anatomy name="chart" />
+
+```tsx
+<ChartContainer config={chartConfig}>
+  <BarChart data={data}>
+    {/* any recharts primitive: CartesianGrid, XAxis, YAxis, Bar, Line, Area, … */}
+    <ChartTooltip content={<ChartTooltipContent />} />
+    <ChartLegend content={<ChartLegendContent />} />
+  </BarChart>
+</ChartContainer>
+```
+
+- `ChartContainer` — sizes the chart (`ResponsiveContainer`) and provides `config` via context
+  (`data-slot="chart"`, `<div>`). Resolves each `config` entry to a `--color-<key>` CSS var — see
+  [Theming](#theming) below.
+- `ChartTooltip` — Recharts' `Tooltip`, re-exported so you don't need a second import from `recharts`.
+- `ChartTooltipContent` — the themed `content` for `ChartTooltip` (`data-slot="chart-tooltip-content"`,
+  `<div>`): a bordered `bg-popover` card with a label row and one row per series (color swatch, label,
+  `font-mono` value).
+- `ChartLegend` — Recharts' `Legend`, re-exported for the same reason as `ChartTooltip`.
+- `ChartLegendContent` — the themed `content` for `ChartLegend` (`data-slot="chart-legend-content"`,
+  `<div>`): a centered row of swatch/icon + label pairs.
+- `ChartConfig` — the type for `config`: maps a data key to a `label`, optional `icon`, and a
+  token-only `color` — see [Theming](#theming).
 
 ## Examples
 
@@ -179,14 +179,14 @@ default color swatch, in both the legend and the tooltip.
 
 ### ChartContainer
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/chart.tsx"
   name="ChartContainerProps"
 />
 
 ### ChartGrid
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/chart.tsx"
   name="ChartGridProps"
 />
@@ -196,14 +196,14 @@ the design-system stroke token without falling back to Recharts' hardcoded color
 
 ### ChartTooltipContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/chart.tsx"
   name="ChartTooltipContentProps"
 />
 
 ### ChartLegendContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/chart.tsx"
   name="ChartLegendContentProps"
 />
@@ -239,9 +239,15 @@ future Recharts version changing that default.
 | <kbd>←</kbd> / <kbd>→</kbd> | Move the active data point (Recharts' built-in accessibility layer).                         |
 | <kbd>Esc</kbd>              | Clear the active data point / close the tooltip.                                             |
 
+<StatesTested name="chart" />
+
 ## Do / Don't
 
 <DoDont
   do="Set ChartConfig.color to a chart token ('chart-1' … 'chart-8') and reference it as var(--color-<key>) on your series — it stays correct in both themes automatically."
   dont="Hardcode a hex/oklch color on a series, or reach for a { light, dark } config pair — there is no theme-map escape hatch, and design-lint rejects the literal anyway."
 />
+
+## Changelog
+
+<ComponentChangelog name="chart" />

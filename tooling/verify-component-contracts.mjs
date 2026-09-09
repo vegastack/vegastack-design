@@ -862,23 +862,11 @@ for (const record of components) {
   );
   if (existsSync(docsFile) && existsSync(previewFile)) {
     const docsSource = readFileSync(docsFile, "utf8");
-    for (const heading of [
-      "Installation",
-      "Usage",
-      "Examples",
-      "Accessibility",
-      "Do / Don't",
-    ]) {
-      assert(
-        docsSource.includes(`## ${heading}`),
-        `component ${record.name}: docs page is missing the exact \"## ${heading}\" section`,
-      );
-    }
-    assert(
-      docsSource.includes("## API Reference") ||
-        docsSource.includes("<!-- api-reference-exemption:"),
-      `component ${record.name}: docs page needs \"## API Reference\" or an explicit api-reference-exemption`,
-    );
+    // The page's SECTIONS are `tooling/content-lint.mjs`'s job — it owns `design.md` § Docs canon
+    // (vocabulary, order, the tail rule, generated-not-typed) and proves each rule fails on a
+    // fixture. A second heading list here could only drift out of agreement with it. What stays
+    // here is what only the contract can check: that the page renders a real preview, and that the
+    // preview export the frontmatter names exists.
     assert(
       docsSource.includes("<ComponentPreview"),
       `component ${record.name}: Examples must include a rendered ComponentPreview`,

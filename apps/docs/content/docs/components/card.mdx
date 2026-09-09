@@ -2,14 +2,16 @@
 title: Card
 description: A borders-only content surface for grouping related information — no shadows, with composable header, content, and footer parts.
 audience: public
+registry: card
+status: stable
+since: 0.1.0
+a11y: presentational grouping
 preview: card
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/card
-```
+<InstallSteps name="card" />
 
 ## Usage
 
@@ -33,16 +35,12 @@ import {
 </Card>;
 ```
 
-## Playground
-
-Toggle the density between default and small, then copy the generated JSX.
-
-<CardPlayground />
-
 ## Anatomy
 
 `Card` is a compound component built from plain, server-safe `div`s. Compose the parts inside the
 root — every part forwards its ref and exposes a `data-slot`:
+
+<Anatomy name="card" />
 
 ```tsx
 <Card>
@@ -79,11 +77,17 @@ the header, content, and footer all react via `group-data-[size=sm]`.
 
 <ComponentPreview name="cardSizes" file="components/preview/card.tsx" />
 
+## Playground
+
+Toggle the density between default and small, then copy the generated JSX.
+
+<CardPlayground />
+
 ## API Reference
 
 ### Card
 
-<AutoTypeTable path="../../packages/ui/registry/ui/card.tsx" name="CardProps" />
+<ApiTable path="../../packages/ui/registry/ui/card.tsx" name="CardProps" />
 
 `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, and
 `CardFooter` add no props of their own — each accepts everything a `<div>`
@@ -106,9 +110,15 @@ accepts (`className`, `ref`, `children`, …).
 | <kbd>Tab</kbd>                      | Move focus through interactive controls inside the card (actions, footer buttons). |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control.                                                      |
 
+<StatesTested name="card" />
+
 ## Do / Don't
 
 <DoDont
   do="Group genuinely related content and put primary actions in the footer."
   dont="Add a drop shadow or nest cards inside cards — the design system is borders-only and flat."
 />
+
+## Changelog
+
+<ComponentChangelog name="card" />

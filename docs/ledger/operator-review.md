@@ -4,6 +4,38 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
+## 2026-09-09 — Do1-b docs canon migration: four calls the canon did not settle
+
+**Context:** migrating all 116 component pages to `design.md` § Docs canon. Row 0 makes four
+frontmatter fields required; the tree carried them on three pages. Nothing in the machine
+authorities supplies three of the four, so each needed a derivation rule rather than a lookup.
+
+- **`since` is derived from git, cross-checked against the CHANGELOG.** Rule: the first released
+  version whose date is on or after the item's canonical source first landing in git
+  (`git log --follow --diff-filter=AR`). The alternative — matching CHANGELOG bullets by title —
+  covers only 41 of 116 items, and gets `dialog` wrong (0.1.0, no bullet names it). The git rule
+  reproduces the CHANGELOG's enumerated new-component lists exactly where they exist: 0.3.0 12/12,
+  0.4.0 12/12, 0.5.0 2/2. One override: `provider`'s file landed 2026-07-18 but the CHANGELOG names
+  it new in 0.2.0, and the CHANGELOG wins. Seven items whose source landed after 0.6.0
+  (`checkbox-group`, `chip`, `data-table-parts`, `floating-surface`, `media-player-controls`,
+  `searchable-select`, `toast`) are stamped `0.7.0` — the version this migration itself ships in.
+- **`status` is `stable` on every page.** No contract field records a status, and every one of the
+  116 items is published in the signed registry with an integrity hash. Marking any of them
+  `preview` would have been a guess with no authority behind it. If MK wants a real status axis it
+  belongs in `component-contracts.json`, where a gate can reconcile it — not in 116 hand-typed
+  frontmatter blocks.
+- **`a11y` is a curated per-component pattern name, derived from each page's own Accessibility
+  section.** Base UI's primitive name ("Base UI Accordion") was rejected: canon row 0 asks for a
+  _pattern_, and the three pre-migrated pages set the precedent ("native button", "APG dialog
+  (modal)"). The 116 values were read off the prose already on each page, so the field summarises
+  what the page documents rather than asserting anything new.
+- **Canon row 3's "required when the contract marks it composite" describes a field that does not
+  exist.** `component-contracts.json` has no compositeness marker, so the requirement is
+  unenforceable as written; the table now says the author judges it, and the 13 existing Scope
+  sections were kept as they are. Row 4 (Anatomy) got the machine rule instead — required whenever
+  the contract exposes more than one component part, which is checkable and now checked. **Needs
+  MK:** whether compositeness should become a contract field so Scope can be gated too.
+
 ## 2026-09-09 — D3-1 mechanical majors: three calls the brief did not settle
 
 **Context:** five dependency majors (`motion` 13, `react-dropzone` 20,

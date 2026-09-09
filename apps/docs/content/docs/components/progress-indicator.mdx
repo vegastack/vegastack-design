@@ -2,14 +2,16 @@
 title: Progress Indicator
 description: A compact circular pie-fill progress indicator (0–100%) — a server-safe SVG glyph in circle or squircle shapes.
 audience: public
+registry: progress-indicator
+status: stable
+since: 0.1.0
+a11y: ARIA progressbar
 preview: progressIndicator
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/progress-indicator
-```
+<InstallSteps name="progress-indicator" />
 
 ## Usage
 
@@ -27,12 +29,6 @@ import { ProgressIndicator } from "@/components/ui/progress-indicator";
 The `ProgressIndicator` is the **radial** counterpart to the linear [`Progress`](/docs/components/progress) bar. Reach for it when a tiny determinate percentage glyph fits better than a full-width bar — inline next to a label, in a dense list row, or beside a metric.
 
 It is **server-safe** — pure SVG driven entirely by the `value` prop (no hooks, no `'use client'`, no DOM measurement). The arc is drawn with `stroke-dasharray`, so it renders identically on the server and the client.
-
-## Playground
-
-Adjust the glyph's value, size, and shape — the pie wedge sweeps to each new value — then copy the generated JSX.
-
-<ProgressIndicatorPlayground />
 
 ## Examples
 
@@ -128,9 +124,15 @@ that is the form [`OnboardingChecklist`](/docs/components/onboarding-checklist) 
   file="components/preview/progress-indicator.tsx"
 />
 
+## Playground
+
+Adjust the glyph's value, size, and shape — the pie wedge sweeps to each new value — then copy the generated JSX.
+
+<ProgressIndicatorPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/progress-indicator.tsx"
   name="ProgressIndicatorProps"
 />
@@ -149,9 +151,15 @@ that is the form [`OnboardingChecklist`](/docs/components/onboarding-checklist) 
 | `aria-valuemin` / `aria-valuemax` | Bounds of the announced scale (`0` and `100`)                 |
 | `aria-label`                      | Accessible name (defaults to `"{percent}% complete"`)         |
 
+<StatesTested name="progress-indicator" />
+
 ## Do / Don't
 
 <DoDont
   do="Use ProgressIndicator for a compact, determinate percentage glyph — inline beside a label, metric, or list row."
   dont="Use it for an indefinite wait with no measurable value — use a Spinner there instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="progress-indicator" />

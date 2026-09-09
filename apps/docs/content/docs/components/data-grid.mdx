@@ -9,7 +9,7 @@ a11y: APG grid
 preview: dataGrid
 ---
 
-## Installation
+## Install
 
 <InstallSteps name="data-grid" />
 
@@ -60,27 +60,7 @@ which no library ships — is the component's own.
 | Simple presentational tables        | [`DataList`](/docs/components/data-list) — still the right default                             |
 | The shared table chrome             | [`data-table-parts`](/docs/components/data-table-parts) — sort header, selection, async states |
 
-## Responsive revelation
-
-Columns declare a pixel budget (`minWidth`, default 120) and a posture for what happens when they no
-longer fit. **`design.md` § DataGrid: data is never silently lost**, so the default posture is
-`merge`:
-
-| `mobile`    | When the column no longer fits                                                    |
-| ----------- | --------------------------------------------------------------------------------- |
-| `"merge"`   | **Default.** Stacks into the primary (first) column's cell, under its main value. |
-| `"visible"` | Never hides — the column is essential and the grid scrolls instead.               |
-| `"hidden"`  | Drops the column, and the toolbar reports "N columns hidden".                     |
-
-`"hidden"` is the only posture that actually removes a value, which is why it is opt-in and why it
-announces itself. If you choose it, be sure the value is genuinely recoverable elsewhere.
-
-<ComponentPreview
-  name="dataGridNarrow"
-  file="components/preview/data-grid.tsx"
-/>
-
-## The toolbar
+### The toolbar
 
 The toolbar row holds the host's `toolbar` slot on the leading edge and the grid's own controls on
 the trailing edge: the hidden-columns hint, then the "Columns" picker.
@@ -122,6 +102,26 @@ keyboard flow.
 
 <ComponentPreview
   name="dataGridLoadMore"
+  file="components/preview/data-grid.tsx"
+/>
+
+### Responsive revelation
+
+Columns declare a pixel budget (`minWidth`, default 120) and a posture for what happens when they no
+longer fit. **`design.md` § DataGrid: data is never silently lost**, so the default posture is
+`merge`:
+
+| `mobile`    | When the column no longer fits                                                    |
+| ----------- | --------------------------------------------------------------------------------- |
+| `"merge"`   | **Default.** Stacks into the primary (first) column's cell, under its main value. |
+| `"visible"` | Never hides — the column is essential and the grid scrolls instead.               |
+| `"hidden"`  | Drops the column, and the toolbar reports "N columns hidden".                     |
+
+`"hidden"` is the only posture that actually removes a value, which is why it is opt-in and why it
+announces itself. If you choose it, be sure the value is genuinely recoverable elsewhere.
+
+<ComponentPreview
+  name="dataGridNarrow"
   file="components/preview/data-grid.tsx"
 />
 

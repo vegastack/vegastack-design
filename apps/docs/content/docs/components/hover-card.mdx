@@ -2,14 +2,16 @@
 title: Hover Card
 description: A rich preview panel that opens on hover or focus of a trigger — interactive content, four directions, and forgiving open/close delays.
 audience: public
+registry: hover-card
+status: stable
+since: 0.1.0
+a11y: APG tooltip (hover and focus)
 preview: hoverCard
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/hover-card
-```
+<InstallSteps name="hover-card" />
 
 ## Usage
 
@@ -41,6 +43,8 @@ import { Button } from "@/components/ui/button";
 ## Anatomy
 
 `HoverCard` is a compound component built on Base UI's PreviewCard. Compose the parts inside the root:
+
+<Anatomy name="hover-card" />
 
 ```tsx
 <HoverCard openDelay={700} closeDelay={300}>
@@ -118,28 +122,28 @@ from the trigger into the card, so links and buttons inside stay reachable.
 
 ### HoverCard
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/hover-card.tsx"
   name="HoverCardProps"
 />
 
 ### HoverCardTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/hover-card.tsx"
   name="HoverCardTriggerProps"
 />
 
 ### HoverCardContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/hover-card.tsx"
   name="HoverCardContentProps"
 />
 
 ### HoverCardArrow
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/hover-card.tsx"
   name="HoverCardArrowProps"
 />
@@ -160,9 +164,15 @@ from the trigger into the card, so links and buttons inside stay reachable.
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls inside the open card.    |
 | <kbd>Esc</kbd>                                     | Close the card.                                      |
 
+<StatesTested name="hover-card" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a Hover Card for a rich, optional preview of an entity behind a trigger — a user/agent/team card with an avatar, stats, and a link. Pass already-resolved content as children and keep data-loading in an app-side wrapper."
   dont="Use a Hover Card for short plain-text labels (use a Tooltip), for content that must block the page or demand a decision (use a Dialog), or for anything essential — hover-only content isn't reliably reachable on touch."
 />
+
+## Changelog
+
+<ComponentChangelog name="hover-card" />

@@ -2,16 +2,18 @@
 title: Label
 description: A styled native label for form controls — htmlFor association, disabled-dimming via peer/group, and a data-required styling hook.
 audience: public
+registry: label
+status: stable
+since: 0.1.0
+a11y: native label
 preview: label
 ---
 
 import { story } from "@/components/stories/label.story";
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/label
-```
+<InstallSteps name="label" />
 
 ## Usage
 
@@ -31,14 +33,6 @@ control's `id`, or by wrapping the control as a child.
 <ComponentPreview name="label" file="components/preview/label.tsx" />
 
 ## Examples
-
-### Explorer
-
-Every `Label` prop, auto-generated from its TypeScript types.
-
-<StoryExplorer>
-  <story.WithControl />
-</StoryExplorer>
 
 ### Required
 
@@ -77,12 +71,17 @@ automatically — no extra prop needed. Both dimming paths are shown below.
 
 <ComponentPreview name="labelStates" file="components/preview/label.tsx" />
 
+## Playground
+
+Every `Label` prop, auto-generated from its TypeScript types.
+
+<StoryExplorer>
+  <story.WithControl />
+</StoryExplorer>
+
 ## API Reference
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/label.tsx"
-  name="LabelProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/label.tsx" name="LabelProps" />
 
 ## Accessibility
 
@@ -106,9 +105,15 @@ automatically — no extra prop needed. Both dimming paths are shown below.
 | ------- | ------------------------------------------------------------------------------ |
 | `Click` | Focuses (or toggles) the associated control via the label-control association. |
 
+<StatesTested name="label" />
+
 ## Do / Don't
 
 <DoDont
   do="Associate every label with exactly one control via htmlFor/id (or by wrapping it), and mark the control itself required."
   dont="Use a Label without an associated control, or rely on the data-required styling hook alone — without required on the control — to convey that a field is mandatory."
 />
+
+## Changelog
+
+<ComponentChangelog name="label" />

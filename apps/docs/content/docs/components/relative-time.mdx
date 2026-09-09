@@ -2,14 +2,16 @@
 title: Relative Time
 description: Render a date as a human-relative string ("2 hours ago", "yesterday", "in 3 days") with the native Intl.RelativeTimeFormat — no date library.
 audience: public
+registry: relative-time
+status: stable
+since: 0.1.0
+a11y: native time element
 preview: relativeTime
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/relative-time
-```
+<InstallSteps name="relative-time" />
 
 ## Usage
 
@@ -24,12 +26,6 @@ timer while the date is recent. It uses the platform-native `Intl.RelativeTimeFo
 — no `date-fns` or other date dependency.
 
 ## Examples
-
-### Playground
-
-Switch the formatting mode and the instant being rendered, then copy the generated JSX.
-
-<RelativeTimePlayground />
 
 ### Formats and modes
 
@@ -106,9 +102,15 @@ disables the refresh timer.
 <RelativeTime date={ts} now={Date.UTC(2026, 0, 15, 12, 0, 0)} refresh={false} />
 ```
 
+## Playground
+
+Switch the formatting mode and the instant being rendered, then copy the generated JSX.
+
+<RelativeTimePlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/relative-time.tsx"
   name="RelativeTimeProps"
 />
@@ -145,9 +147,15 @@ Tooltip. It defaults to `true` standalone, and to whatever an enclosing
 otherwise mean 50 extra tab stops on top of that host's own roving focus. The
 machine-readable `dateTime` attribute is there either way.
 
+<StatesTested name="relative-time" />
+
 ## Do / Don't
 
 <DoDont
   do="Use mode='ago' for moments (created/updated timestamps) and mode='day' for calendar-day grouping (activity-feed headers, due dates)."
   dont="Reach for a date library or hardcode the formatting — Intl.RelativeTimeFormat is built in and localizes for free via the locale prop."
 />
+
+## Changelog
+
+<ComponentChangelog name="relative-time" />

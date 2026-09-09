@@ -2,14 +2,16 @@
 title: Sortable List
 description: Reorderable rows with pointer drag, keyboard move mode, a lossless row menu, and server-refusable moves — controlled; the host owns the order.
 audience: public
+registry: sortable-list
+status: stable
+since: 0.4.0
+a11y: keyboard-first drag alternative
 preview: sortableList
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/sortable-list
-```
+<InstallSteps name="sortable-list" />
 
 ## Usage
 
@@ -66,14 +68,14 @@ recipe — the same one `Board` uses, installed once as its own registry item.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/sortable-list.tsx"
   name="SortableListProps"
 />
 
 ### Item
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/sortable-list.tsx"
   name="SortableListItem"
 />
@@ -96,9 +98,15 @@ recipe — the same one `Board` uses, installed once as its own registry item.
 | <kbd>↑</kbd> / <kbd>↓</kbd>         | Commit a one-step move (in move mode).  |
 | <kbd>Escape</kbd>                   | End move mode.                          |
 
+<StatesTested name="sortable-list" />
+
 ## Do / Don't
 
 <DoDont
   do="Keep the list controlled and refuse bad orders by rejecting the onReorder promise — the snap-back and announcement are built in."
   dont="Add selection checkboxes to sortable rows — ambiguous drag intent; compose DataList when rows need selecting."
 />
+
+## Changelog
+
+<ComponentChangelog name="sortable-list" />

@@ -2,14 +2,16 @@
 title: Board
 description: Kanban columns over the drag-reorder seam — pointer drag, keyboard move mode, a lossless per-card Move menu, server-refusable moves, collapsed lanes.
 audience: public
+registry: board
+status: stable
+since: 0.4.0
+a11y: keyboard-first drag alternative
 preview: board
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/board
-```
+<InstallSteps name="board" />
 
 ## Usage
 
@@ -70,17 +72,11 @@ reservation.
 
 ## API Reference
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/board.tsx"
-  name="BoardProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/board.tsx" name="BoardProps" />
 
 ### Column
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/board.tsx"
-  name="BoardColumn"
-/>
+<ApiTable path="../../packages/ui/registry/ui/board.tsx" name="BoardColumn" />
 
 ## Accessibility
 
@@ -107,9 +103,15 @@ reservation.
 | <kbd>M</kbd>                                        | Open the focused card's Move menu.    |
 | <kbd>Escape</kbd>                                   | End move mode.                        |
 
+<StatesTested name="board" />
+
 ## Do / Don't
 
 <DoDont
   do="Keep onMove the single move command and refuse bad moves by rejecting its promise — every input path gets the shimmer and announced snap-back."
   dont="Give a dragged card a drop shadow to 'lift' it — only true overlays get shadow-overlay; separation is the surface ladder and the one border."
 />
+
+## Changelog
+
+<ComponentChangelog name="board" />

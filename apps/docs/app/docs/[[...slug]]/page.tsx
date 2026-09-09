@@ -7,7 +7,6 @@ import {
   ViewOptionsPopover,
 } from "fumadocs-ui/layouts/docs/page";
 import { notFound } from "next/navigation";
-import { existsSync } from "node:fs";
 import { getMDXComponents } from "@/components/mdx";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { ComponentPreview } from "@/components/component-preview";
@@ -21,31 +20,6 @@ import {
 } from "@/lib/metadata";
 import type { Metadata } from "next";
 
-type DocsPageData =
-  ReturnType<typeof source.getPage> extends infer P
-    ? P extends { data: infer D }
-      ? D
-      : never
-    : never;
-
-/**
- * The registry item a component page documents — the `shadcn add @vegastack/<name>` target the
- * "Copy Prompt" button composes. Canon row 0 declares it as `registry:` frontmatter; until Do1-b
- * migrates every page the fallback is the page's own slug when a registry source of that name
- * exists (the same existence check the preview toolbar used to make per frame).
- */
-function getRegistryName(
-  data: DocsPageData,
-  slugs: string[],
-): string | undefined {
-  if (data.registry) return data.registry;
-  if (slugs[0] !== "components") return undefined;
-  const name = slugs.at(-1);
-  return name && existsSync(`../../packages/ui/registry/ui/${name}.tsx`)
-    ? name
-    : undefined;
-}
-
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
   const page = source.getPage(params.slug);
@@ -53,7 +27,9 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 
   const MDX = page.data.body;
   const markdownUrl = getPageMarkdownUrl(page);
-  const registryName = getRegistryName(page.data, page.slugs);
+  // Canon row 0: the `shadcn add @vegastack/<name>` target is declared frontmatter, never
+  // inferred from the slug — an inferred value lets a wrong or missing one pass silently.
+  const registryName = page.data.registry;
   const description = page.data.description ?? defaultDescription;
   const structuredData = createPageStructuredData({
     title: page.data.title,

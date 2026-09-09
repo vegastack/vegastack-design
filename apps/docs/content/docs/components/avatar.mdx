@@ -2,14 +2,16 @@
 title: Avatar
 description: A circular user or entity image with an initials fallback, five sizes, and an overlapping AvatarGroup stack.
 audience: public
+registry: avatar
+status: stable
+since: 0.1.0
+a11y: image with text fallback
 preview: avatar
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/avatar
-```
+<InstallSteps name="avatar" />
 
 ## Usage
 
@@ -28,13 +30,14 @@ import { Avatar, AvatarGroup } from "@/components/ui/avatar";
 > resolve it before passing `src`. The image only paints once it has loaded; until then (or on
 > error) the `fallback` shows, so there is never a broken-image icon.
 
+## Anatomy
+
+`Avatar` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="avatar" />
+
 ## Examples
-
-### Playground
-
-Adjust the avatar size and the group's overlap spacing, then copy the generated JSX.
-
-<AvatarPlayground />
 
 ### Anatomy
 
@@ -97,18 +100,21 @@ The three `spacing` values side by side — `tight` tucks each avatar furthest u
   file="components/preview/avatar.tsx"
 />
 
+## Playground
+
+Adjust the avatar size and the group's overlap spacing, then copy the generated JSX.
+
+<AvatarPlayground />
+
 ## API Reference
 
 ### Avatar
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/avatar.tsx"
-  name="AvatarProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/avatar.tsx" name="AvatarProps" />
 
 ### AvatarGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/avatar.tsx"
   name="AvatarGroupProps"
 />
@@ -128,9 +134,15 @@ The three `spacing` values side by side — `tight` tucks each avatar furthest u
 | ----- | ------------------------------------------------------------------------------------ |
 | `Tab` | Moves focus only when the avatar is wrapped in an interactive element (link/button). |
 
+<StatesTested name="avatar" />
+
 ## Do / Don't
 
 <DoDont
   do="Pass a resolved public src plus an alt with the person's name, and a fallback with their initials so the avatar stays identifiable while loading or on error."
   dont="Pass a raw R2/storage key as src or skip the fallback — resolve keys app-side, and always provide initials so a failed image doesn't leave an empty circle."
 />
+
+## Changelog
+
+<ComponentChangelog name="avatar" />

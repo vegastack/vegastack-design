@@ -2,14 +2,16 @@
 title: Sheet
 description: A dialog that slides in from a screen edge — four sides, a header/footer layout, focus trapping, and an animated slide transition.
 audience: public
+registry: sheet
+status: stable
+since: 0.1.0
+a11y: APG dialog (modal)
 preview: sheet
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/sheet
-```
+<InstallSteps name="sheet" />
 
 ## Usage
 
@@ -41,15 +43,11 @@ import { Button } from "@/components/ui/button";
 </Sheet>;
 ```
 
-## Playground
-
-Choose the edge the panel slides in from and toggle the close button, then copy the generated JSX.
-
-<SheetPlayground />
-
 ## Anatomy
 
 `Sheet` is a compound component built on Base UI's Dialog. Compose the parts inside the root:
+
+<Anatomy name="sheet" />
 
 ```tsx
 <Sheet side="right">
@@ -113,11 +111,17 @@ Choose the edge the panel slides in from and toggle the close button, then copy 
 </SheetContent>;
 ```
 
+## Playground
+
+Choose the edge the panel slides in from and toggle the close button, then copy the generated JSX.
+
+<SheetPlayground />
+
 ## API Reference
 
 ### SheetContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/sheet.tsx"
   name="SheetContentProps"
 />
@@ -145,9 +149,15 @@ accept standard `<div>` props.
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls — trapped within the open sheet. |
 | <kbd>Esc</kbd>                                     | Close the sheet.                                             |
 
+<StatesTested name="sheet" />
+
 ## Do / Don't
 
 <DoDont
   do="Always include a SheetTitle so the sheet has an accessible name, and pick a side that matches the panel's purpose — right/left for forms and detail, top/bottom for navigation or short pickers."
   dont="Cram a long, multi-step flow into a Sheet — route to a dedicated page instead, and don't stack multiple sheets at once."
 />
+
+## Changelog
+
+<ComponentChangelog name="sheet" />

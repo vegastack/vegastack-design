@@ -2337,20 +2337,21 @@ and agents from the same source. The table below is **the standard every compone
 written to** — the shape, the order, and the authority each section is generated from. Approved
 2026-09-07 (audit `08-docs-structure.md` §2; decisions D19, D26, DD-1…DD-5).
 
-**It is the target, not a report on the current tree.** The generated sections shipped as MDX
-components in 0.7.0 and are placed on three reference pages (button, dialog, data-grid); the
-remaining pages are migrated to this shape in the following release, and the section headings move
-from `## Installation` to `## Install` in that same atomic change. What already holds everywhere is
-the API Reference (row 7, rendered flat and expanded on all 110 pages) and the markdown export
-below. Read this table when writing or changing a page; do not read it as a description of what
-every page contains today.
+**Every component page is written to it, and a gate says so.** The generated sections shipped as
+MDX components in 0.7.0; Do1-b (2026-09-09) placed them on all 116 component pages, renamed
+`## Installation` to `## Install` in the same change, and made `tooling/content-lint.mjs` enforce
+the table: the frontmatter of row 0, the section vocabulary and order, "nothing after Do / Don't
+except the generated Changelog", and the rule that the machine-readable half of a section is
+generated rather than typed. Each of those rules has a fixture that violates it in
+`content-lint --self-test`. The API Reference (row 7) and the markdown export below already held
+everywhere before that change.
 
 | #   | Section                          | Required content                                                                                                                                                                                                                                                         | Source of truth                                                 |
 | --- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
 | 0   | **Frontmatter**                  | `title`, `description`, `preview` (hero fixture), `registry` (item name), `status` (`stable \| preview \| deprecated`), `since` (version), `a11y` (pattern name)                                                                                                         | validated by `apps/docs/source.config.ts`                       |
 | 1   | **Install**                      | one `Steps` block: the `shadcn add` command, the item's `registryDependencies`, and the sanctioned engines it pulls in. The registry-auth notice is a site `Banner`, shown ONCE, never per page                                                                          | generated from `registry.json`                                  |
 | 2   | **Usage**                        | the minimal import plus one canonical snippet — the "if you copy one thing" example, ≤12 lines                                                                                                                                                                           | hand-written                                                    |
-| 3   | **Scope** _(composites)_         | three bullets at most: owns / does not own / compose with                                                                                                                                                                                                                | hand-written; required when the contract marks it composite     |
+| 3   | **Scope** _(composites)_         | three bullets at most: owns / does not own / compose with                                                                                                                                                                                                                | hand-written; the author judges compositeness                   |
 | 4   | **Anatomy** _(compounds)_        | every exported part with the `data-slot` names it renders                                                                                                                                                                                                                | generated from the contract's `dataAttributes`                  |
 | 5   | **Examples**                     | one `ComponentPreview` per fixture, each a contract-lane route; the fixture source appears in the markdown export                                                                                                                                                        | `components/preview/<name>.tsx`                                 |
 | 6   | **Playground** _(where curated)_ | the curated `PropsPlayground`. The Story explorer is sanctioned ONLY where no curated playground exists — never both on one page (DD-3)                                                                                                                                  | `components/*-playground.tsx`                                   |
@@ -2364,9 +2365,14 @@ fold into Usage or Scope. Marketing-only leaves skip Scope, Anatomy and Playgrou
 rest.
 
 Row 6 is a permission, not a requirement: a page carries a curated playground, or the Story
-explorer where none exists, or **neither** — and `tooling/verify-docs-export.mjs` enforces only
-"never both, and an Explorer always wrapped". Measured 2026-09-07: 45 curated · 6 Explorer ·
-59 neither · 0 both.
+explorer where none exists, or **neither** — `tooling/verify-docs-export.mjs` enforces "never both,
+an Explorer always wrapped, and whichever one a page carries renders under its `## Playground`
+heading". Re-measured 2026-09-09 over 116 pages: 45 curated · 6 Explorer · 65 neither · 0 both.
+
+Row 0's `registry` is **required** on a component page and is never inferred from the slug: the
+docs route reads `page.data.registry` alone, so a page with a missing or wrong value fails
+content-lint instead of silently composing the wrong `shadcn add` target. Rows 3 and 6 stay
+conditional; row 4 is required wherever the contract exposes more than one component part.
 
 **Humans and agents read the same page.** Every MDX component renders to markdown for the per-page
 `.md` route and `llms-full.txt`: the fixture source, the flat prop tables, the install steps and

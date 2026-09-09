@@ -2,14 +2,16 @@
 title: Section Header
 description: A marketing section lead-in — a mono uppercase eyebrow, a display-scale title, and an optional description.
 audience: public
+registry: section-header
+status: stable
+since: 0.1.0
+a11y: heading with supporting text
 preview: sectionHeader
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/section-header
-```
+<InstallSteps name="section-header" />
 
 ## Usage
 
@@ -81,7 +83,7 @@ inbox and calendar.").
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/section-header.tsx"
   name="SectionHeaderProps"
 />
@@ -95,9 +97,15 @@ inbox and calendar.").
 - Uppercase is applied only to the mono eyebrow (`font-mono` + `text-mono-label`) — never to the
   title or description (uppercase is mono-exclusive, audit 17-brand-direction).
 
+<StatesTested name="section-header" />
+
 ## Do / Don't
 
 <DoDont
   do="Reserve the serif-italic emphasis span for a single word or short phrase per header."
   dont="Set the whole title in font-serif, or uppercase the title/description to match the eyebrow."
 />
+
+## Changelog
+
+<ComponentChangelog name="section-header" />

@@ -2,14 +2,16 @@
 title: Message
 description: Layout primitives for a conversation row — avatar anchoring, a content column, header/footer slots, and start/end alignment. Server-safe.
 audience: public
+registry: message
+status: stable
+since: 0.1.0
+a11y: presentational layout
 preview: message
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/message
-```
+<InstallSteps name="message" />
 
 ## Usage
 
@@ -39,6 +41,8 @@ import {
 `Message` is pure layout — it owns no colours and is server-safe. Compose
 [`Avatar`](/docs/components/avatar), [`Bubble`](/docs/components/bubble), and
 [`Marker`](/docs/components/marker) as children.
+
+<Anatomy name="message" />
 
 - `Message` — one row (`data-slot="message"`, `data-align`). `align="end"`
   reverses the row for the current user's own messages.
@@ -132,7 +136,7 @@ The four chat-family pieces compose a full agent transcript:
 `MessageAvatar`, `MessageContent`, `MessageHeader`, and `MessageFooter` are plain
 layout wrappers — they accept the standard `div` props plus `className`.
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/message.tsx"
   name="MessageProps"
 />
@@ -147,9 +151,15 @@ layout wrappers — they accept the standard `div` props plus `className`.
 - Pair with [`Avatar`](/docs/components/avatar) (which carries the accessible
   name) rather than relying on the avatar image alone.
 
+<StatesTested name="message" />
+
 ## Do / Don't
 
 <DoDont
   do="Compose Avatar, Bubble, and Marker inside Message to build a conversation row, and use align='end' for the user's own messages."
   dont="Use Message for non-conversational list rows — reach for a plain layout, Data List, or Settings Row."
 />
+
+## Changelog
+
+<ComponentChangelog name="message" />

@@ -2,14 +2,16 @@
 title: Action Bar
 description: Floating contextual bar — a status region and actions, for bulk selection, unsaved changes, and batch progress.
 audience: public
+registry: action-bar
+status: stable
+since: 0.4.0
+a11y: APG toolbar
 preview: actionBar
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/action-bar
-```
+<InstallSteps name="action-bar" />
 
 ## Usage
 
@@ -50,6 +52,13 @@ Pass `render` when an action needs a different shape (a destructive button, an
 | The actions themselves | Host, as `ActionBarButton` children (`render` a `Button`, a `DropdownMenu` trigger, an `AlertDialog` trigger) |
 | Outcome persistence    | The `status` slot — not a toast, which discards state the user still holds                                    |
 
+## Anatomy
+
+`Action Bar` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="action-bar" />
+
 ## Examples
 
 ### Unsaved changes
@@ -73,7 +82,7 @@ readable — a bulk operation in flight should not be re-triggerable.
 
 ### ActionBar
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/action-bar.tsx"
   name="ActionBarProps"
 />
@@ -112,6 +121,8 @@ so a horizontal bar gets a vertical rule.
 | <kbd>Shift</kbd> + <kbd>Tab</kbd>   | Leave the bar in one press.                            |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action.                           |
 
+<StatesTested name="action-bar" />
+
 ## Do / Don't
 
 <DoDont
@@ -123,3 +134,7 @@ so a horizontal bar gets a vertical rule.
   do="Compose the actions as ActionBarButton so every one of them joins the bar's single tab stop."
   dont="Drop a bare Button into the bar — it renders, but it keeps its own tab stop and the arrow keys skip it."
 />
+
+## Changelog
+
+<ComponentChangelog name="action-bar" />

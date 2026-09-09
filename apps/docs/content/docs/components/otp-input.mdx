@@ -2,14 +2,16 @@
 title: OTP Input
 description: A multi-slot one-time-passcode input — keyboard navigation, paste distribution, autofill, masking, and a disabled state, built on Base UI OTP Field.
 audience: public
+registry: otp-input
+status: stable
+since: 0.1.0
+a11y: grouped one-time-code inputs
 preview: otpInput
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/otp-input
-```
+<InstallSteps name="otp-input" />
 
 ## Usage
 
@@ -40,12 +42,6 @@ const [code, setCode] = useState("");
 ```
 
 ## Examples
-
-### Playground
-
-Try the 4- and 6-digit lengths, the three slot sizes, and the mask and disabled states, then copy the generated JSX.
-
-<OTPInputPlayground />
 
 ### States
 
@@ -131,9 +127,15 @@ callback.
   file="components/preview/otp-input.tsx"
 />
 
+## Playground
+
+Try the 4- and 6-digit lengths, the three slot sizes, and the mask and disabled states, then copy the generated JSX.
+
+<OTPInputPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/otp-input.tsx"
   name="OTPInputProps"
 />
@@ -159,9 +161,15 @@ callback.
 - Set `mask` to obscure entered characters (each slot becomes a password input)
   for sensitive codes.
 
+<StatesTested name="otp-input" />
+
 ## Do / Don't
 
 <DoDont
   do="Give the field a label, use groups for common split-code layouts, and use onValueComplete to drive submission."
   dont="Render bare slots with no accessible name, or use multiple separate single-character inputs you wire up by hand."
 />
+
+## Changelog
+
+<ComponentChangelog name="otp-input" />

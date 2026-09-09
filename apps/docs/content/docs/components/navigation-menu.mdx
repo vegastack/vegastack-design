@@ -2,14 +2,16 @@
 title: Navigation Menu
 description: Site-nav mega-dropdown — chip triggers, one shared sliding panel, grid links with color-carried hierarchy.
 audience: public
+registry: navigation-menu
+status: stable
+since: 0.3.0
+a11y: APG disclosure navigation
 preview: navigationMenu
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/navigation-menu
-```
+<InstallSteps name="navigation-menu" />
 
 ## Usage
 
@@ -39,6 +41,8 @@ every item's content slides inside that single shared popup (Base UI viewport mo
 - Keyboard/hover open behavior, focus management, and dismissal come from the Base UI
   primitive.
 
+<Anatomy name="navigation-menu" />
+
 ## Examples
 
 The example composes two disclosure triggers and one direct link. Both disclosure contents
@@ -64,46 +68,46 @@ sizes itself to its content:
 
 ### Root and list
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/navigation-menu.tsx"
   name="NavigationMenuProps"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/navigation-menu.tsx"
   name="NavigationMenuListProps"
 />
 
 ### Items, triggers, and links
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/navigation-menu.tsx"
   name="NavigationMenuItemProps"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/navigation-menu.tsx"
   name="NavigationMenuTriggerProps"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/navigation-menu.tsx"
   name="NavigationMenuLinkProps"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/navigation-menu.tsx"
   name="NavigationMenuGridLinkProps"
 />
 
 ### Content and shared panel
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/navigation-menu.tsx"
   name="NavigationMenuContentProps"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/navigation-menu.tsx"
   name="NavigationMenuPanelProps"
 />
@@ -122,9 +126,15 @@ sizes itself to its content:
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the focused trigger or follow a direct link.            |
 | <kbd>Esc</kbd>                      | Close the panel and return focus to its trigger.             |
 
+<StatesTested name="navigation-menu" />
+
 ## Do / Don't
 
 <DoDont
   do="Render one shared NavigationMenuPanel after the list and keep link titles short, specific, and sentence case."
   dont="Mount a separate popup per item or hide essential destinations behind hover-only interaction."
 />
+
+## Changelog
+
+<ComponentChangelog name="navigation-menu" />

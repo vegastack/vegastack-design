@@ -2,16 +2,16 @@
 title: Media Player Controls
 description: The shared media transport — play/pause, seek, time, mute + volume, speed, and one keyboard shortcut map.
 audience: public
+registry: media-player-controls
+status: stable
+since: 0.5.0
+a11y: native media controls
 preview: mediaPlayerControls
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/media-player-controls
-```
-
-<RegistryInstallCallout />
+<InstallSteps name="media-player-controls" />
 
 ## Usage
 
@@ -58,7 +58,7 @@ container query, so a narrow sidebar gets the mobile layout on a wide viewport.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/media-player-controls.tsx"
   name="MediaPlayerControlsProps"
 />
@@ -69,7 +69,7 @@ The single keyboard map, exported so a custom media surface binds the same keys 
 `runShortcut(key, scope)` returns whether a shortcut ran, so the caller decides whether to
 `preventDefault()`.
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/media-player-controls.tsx"
   name="UseMediaShortcutsOptions"
 />
@@ -102,9 +102,15 @@ already owns the arrows — claims only the letter shortcuts.
   visible, because there is no hover to reveal it with.
 - Tooltips name the keyboard shortcut alongside the action.
 
+<StatesTested name="media-player-controls" />
+
 ## Do / Don't
 
 <DoDont
   do="Compose MediaPlayerControls when you own the media element and want the system's transport, chrome, and keyboard map."
   dont="Install it to get a plain audio or video player — AudioPlayer and VideoPlayer already compose it for you."
 />
+
+## Changelog
+
+<ComponentChangelog name="media-player-controls" />

@@ -2,16 +2,16 @@
 title: Searchable Select
 description: The Select-shaped Combobox preset — a full-width trigger, an in-panel search field, a check on the selected row, and an optional clear control.
 audience: public
+registry: searchable-select
+status: stable
+since: 0.7.0
+a11y: APG combobox (dialog popup)
 preview: searchableSelect
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/searchable-select
-```
-
-<RegistryInstallCallout />
+<InstallSteps name="searchable-select" />
 
 ## Usage
 
@@ -113,7 +113,7 @@ an alias.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/searchable-select.tsx"
   name="SearchableSelectProps"
 />
@@ -141,9 +141,15 @@ public ref is its root.
 | <kbd>Enter</kbd>                    | Select the highlighted row and close.     |
 | <kbd>Esc</kbd>                      | Close without changing the selection.     |
 
+<StatesTested name="searchable-select" />
+
 ## Do / Don't
 
 <DoDont
   do="Let the parent size it — the trigger is w-full and the panel follows the anchor width."
   dont="Give the trigger a fixed width; it is the one thing that breaks the control at 320px."
 />
+
+## Changelog
+
+<ComponentChangelog name="searchable-select" />

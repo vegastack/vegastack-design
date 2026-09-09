@@ -2,14 +2,16 @@
 title: Scroll Area
 description: A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, replacing the native browser scrollbar.
 audience: public
+registry: scroll-area
+status: stable
+since: 0.1.0
+a11y: focusable scrollable region
 preview: scrollArea
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/scroll-area
-```
+<InstallSteps name="scroll-area" />
 
 ## Usage
 
@@ -24,17 +26,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 Constrain the viewport with `className` (e.g. `h-72`). Without a bounded height (or width, for
 horizontal) the content cannot overflow and no scrollbar appears.
 
-## Playground
-
-Switch the scrollbar orientation over content that overflows on the matching axis, then copy the generated JSX.
-
-<ScrollAreaPlayground />
-
 ## Anatomy
 
 `ScrollArea` is a thin wrapper over Base UI's compound `ScrollArea` (Root → Viewport → Scrollbar →
 Thumb, plus a Corner for dual-axis). The flat `ScrollArea` composes those parts for you and renders
 the scrollbar(s) for the chosen `orientation`; `ScrollBar` is exported separately for custom layouts.
+
+<Anatomy name="scroll-area" />
 
 ```tsx
 <ScrollArea orientation="both" className="h-72 w-full">
@@ -92,18 +90,24 @@ intersection corner and a second scrollbar.
   file="components/preview/scroll-area.tsx"
 />
 
+## Playground
+
+Switch the scrollbar orientation over content that overflows on the matching axis, then copy the generated JSX.
+
+<ScrollAreaPlayground />
+
 ## API Reference
 
 ### ScrollArea
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/scroll-area.tsx"
   name="ScrollAreaProps"
 />
 
 ### ScrollBar
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/scroll-area.tsx"
   name="ScrollBarProps"
 />
@@ -130,9 +134,15 @@ intersection corner and a second scrollbar.
 | <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Scroll by a page.                                |
 | <kbd>Home</kbd> / <kbd>End</kbd>          | Scroll to the start / end.                       |
 
+<StatesTested name="scroll-area" />
+
 ## Do / Don't
 
 <DoDont
   do="Give the viewport a bounded size via className (e.g. h-72) so its content can overflow and the scrollbar appears."
   dont="Wrap whole-page content in a ScrollArea — let the document scroll natively and reserve this for bounded panels."
 />
+
+## Changelog
+
+<ComponentChangelog name="scroll-area" />

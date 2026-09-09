@@ -2,14 +2,16 @@
 title: Marketing Surface
 description: Opt a subtree into the brand's dark warm ground — independent of the page's .dark class.
 audience: public
+registry: marketing-surface
+status: stable
+since: 0.1.0
+a11y: presentational surface
 preview: marketingSurface
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/marketing-surface
-```
+<InstallSteps name="marketing-surface" />
 
 ## Usage
 
@@ -55,7 +57,7 @@ default `<div>`.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/marketing-surface.tsx"
   name="MarketingSurfaceProps"
 />
@@ -75,9 +77,15 @@ an internal context and applies `.vs-marketing` to each supported portal root, s
 the same semantic dark values without consumer classes. This plumbing is internal; consumers still
 compose the normal overlay APIs.
 
+<StatesTested name="marketing-surface" />
+
 ## Do / Don't
 
 <DoDont
   do="Wrap a marketing hero or section band in MarketingSurface so it stays dark even when the surrounding product page is light."
   dont="Add hardcoded dark colors to descendants or portal content — semantic tokens and the propagated scope already provide the correct theme."
 />
+
+## Changelog
+
+<ComponentChangelog name="marketing-surface" />

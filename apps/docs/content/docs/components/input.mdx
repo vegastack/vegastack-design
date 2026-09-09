@@ -2,14 +2,16 @@
 title: Input
 description: A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus border recolor, and optional prefix/suffix addons.
 audience: public
+registry: input
+status: stable
+since: 0.1.0
+a11y: native input
 preview: input
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/input
-```
+<InstallSteps name="input" />
 
 ## Usage
 
@@ -24,12 +26,6 @@ Base UI `render`, `onValueChange`, Field state data attributes, and
 state-function `className`. Its ref forwards to the underlying input element.
 
 ## Examples
-
-### Playground
-
-Try every type, size, and state — flipping Invalid on replays the built-in shake — then copy the generated JSX.
-
-<InputPlayground />
 
 ### States
 
@@ -104,12 +100,15 @@ for full control.
 
 <ComponentPreview name="inputRender" file="components/preview/input.tsx" />
 
+## Playground
+
+Try every type, size, and state — flipping Invalid on replays the built-in shake — then copy the generated JSX.
+
+<InputPlayground />
+
 ## API Reference
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/input.tsx"
-  name="InputProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/input.tsx" name="InputProps" />
 
 ## Accessibility
 
@@ -122,9 +121,15 @@ for full control.
 - `prefix`/`suffix` addons are decorative label text; keep the meaningful value in
   the input itself so assistive tech reads the field, not the chrome.
 
+<StatesTested name="input" />
+
 ## Do / Don't
 
 <DoDont
   do="Pair every input with a label and, when invalid, an aria-describedby error message."
   dont="Use aria-invalid styling as the only error signal, or rely on placeholder text as a label."
 />
+
+## Changelog
+
+<ComponentChangelog name="input" />

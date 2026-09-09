@@ -97,10 +97,8 @@ export function getMDXComponents(components?: MDXComponents) {
     Files,
     File,
     Folder,
-    // One flat renderer for every API table (DS-02/DS-03). `AutoTypeTable` is the legacy name the
-    // pages still use; Do1-b renames the usages to `ApiTable`.
+    // One flat renderer for every API table (DS-02/DS-03).
     ApiTable,
-    AutoTypeTable: ApiTable,
     TypeTable,
     InstallSteps,
     Anatomy,

@@ -2,16 +2,16 @@
 title: Checkbox Group
 description: Shared state for a set of checkboxes, with first-class "select all" — parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.
 audience: public
+registry: checkbox-group
+status: stable
+since: 0.7.0
+a11y: grouped checkboxes
 preview: checkboxGroup
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/checkbox-group
-```
-
-<RegistryInstallCallout />
+<InstallSteps name="checkbox-group" />
 
 ## Usage
 
@@ -68,6 +68,8 @@ checkboxes with no idea what they belong to.
 </FieldSet>
 ```
 
+<Anatomy name="checkbox-group" />
+
 ## Examples
 
 ### Select all
@@ -111,7 +113,7 @@ is the right shape for a plain list of independent options.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/checkbox-group.tsx"
   name="CheckboxGroupProps"
 />
@@ -131,9 +133,15 @@ is the right shape for a plain list of independent options.
 | <kbd>Tab</kbd>   | Move focus to the next checkbox in the group.                   |
 | <kbd>Space</kbd> | Toggle the focused checkbox — or, on the parent, the whole set. |
 
+<StatesTested name="checkbox-group" />
+
 ## Do / Don't
 
 <DoDont
   do="Name the group with a FieldSet and FieldLegend, and let allValues plus a parent child do the select-all arithmetic."
   dont="Compute the parent's checked and indeterminate state in your own component state, or use a checkbox group for mutually-exclusive choices."
 />
+
+## Changelog
+
+<ComponentChangelog name="checkbox-group" />

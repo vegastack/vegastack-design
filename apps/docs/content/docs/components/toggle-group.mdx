@@ -2,14 +2,16 @@
 title: Toggle Group
 description: A set of joined toggle buttons sharing one selection — single or multiple selection, three sizes, horizontal or vertical layout, full keyboard navigation.
 audience: public
+registry: toggle-group
+status: stable
+since: 0.1.0
+a11y: APG toolbar of toggle buttons
 preview: toggleGroup
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/toggle-group
-```
+<InstallSteps name="toggle-group" />
 
 ## Usage
 
@@ -23,13 +25,14 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 </ToggleGroup>;
 ```
 
+## Anatomy
+
+`Toggle Group` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="toggle-group" />
+
 ## Examples
-
-### Playground
-
-Try both orientations, the three sizes, and single vs multiple selection, then copy the generated JSX.
-
-<ToggleGroupPlayground />
 
 ### Anatomy
 
@@ -132,18 +135,24 @@ disabled the same way — see the Selection example above.)
   file="components/preview/toggle-group.tsx"
 />
 
+## Playground
+
+Try both orientations, the three sizes, and single vs multiple selection, then copy the generated JSX.
+
+<ToggleGroupPlayground />
+
 ## API Reference
 
 ### ToggleGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/toggle-group.tsx"
   name="ToggleGroupProps"
 />
 
 ### ToggleGroupItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/toggle-group.tsx"
   name="ToggleGroupItemProps"
 />
@@ -171,9 +180,15 @@ disabled the same way — see the Selection example above.)
 | <kbd>Home</kbd> / <kbd>End</kbd>    | Move focus to the first / last item.                                      |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the focused item.                                                  |
 
+<StatesTested name="toggle-group" />
+
 ## Do / Don't
 
 <DoDont
   do="Add an aria-label to the group and to each icon-only item, use single-select for mutually exclusive choices (alignment) and multiple for independent ones (bold/italic/underline)."
   dont="Use a Toggle Group for navigation (use Tabs) or for a single on/off control (use a standalone Toggle or Switch)."
 />
+
+## Changelog
+
+<ComponentChangelog name="toggle-group" />

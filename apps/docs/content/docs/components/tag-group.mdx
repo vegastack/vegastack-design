@@ -2,14 +2,16 @@
 title: Tag Group
 description: Hue-tinted label chips on the 10-hue tag palette — bordered tints, +N overflow collapsing, removable tags.
 audience: public
+registry: tag-group
+status: stable
+since: 0.3.0
+a11y: list and listitem semantics
 preview: tagGroup
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/tag-group
-```
+<InstallSteps name="tag-group" />
 
 ## Usage
 
@@ -23,6 +25,13 @@ import { Tag, TagGroup } from "@/components/ui/tag-group";
   <Tag hue="purple">Enterprise</Tag>
 </TagGroup>;
 ```
+
+## Anatomy
+
+`Tag Group` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="tag-group" />
 
 ## Examples
 
@@ -65,14 +74,11 @@ it. Reach for `Chip` directly only when you need a pill that is not one of a gro
 
 ### Tag
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/tag-group.tsx"
-  name="TagProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/tag-group.tsx" name="TagProps" />
 
 ### TagGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tag-group.tsx"
   name="TagGroupProps"
 />
@@ -84,9 +90,15 @@ it. Reach for `Chip` directly only when you need a pill that is not one of a gro
 - The remove control's REAL border box is 24×24 (a round ghost `IconButton`), and the `+N` overflow control is itself a 28px chip — neither relies on an invisible pseudo-element a nested `<button>` would clip.
 - Hue is decorative. Do not rely on a tag color alone to communicate status or meaning.
 
+<StatesTested name="tag-group" />
+
 ## Do / Don't
 
 <DoDont
   do="Use tags for editable labels and decorative categorization, with explicit remove labels."
   dont="Use a tag hue as the only status signal or omit the group’s accessible name."
 />
+
+## Changelog
+
+<ComponentChangelog name="tag-group" />

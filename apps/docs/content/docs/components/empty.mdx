@@ -2,14 +2,16 @@
 title: Empty
 description: A zero-data placeholder — icon, title, description, and actions, with intent tints and a plain, card, or dashed container.
 audience: public
+registry: empty
+status: stable
+since: 0.1.0
+a11y: heading + supporting content
 preview: emptyDemo
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/empty
-```
+<InstallSteps name="empty" />
 
 ## Usage
 
@@ -34,15 +36,11 @@ import { Inbox } from "lucide-react";
 </Empty>;
 ```
 
-## Examples
-
-Combine the container variant and size with the media chip's variant and intent, then copy the generated JSX.
-
-<EmptyPlayground />
-
 ## Anatomy
 
 `Empty` is a compound component. Compose the parts inside the root:
+
+<Anatomy name="empty" />
 
 ```tsx
 <Empty variant="dashed" size="md">
@@ -61,14 +59,16 @@ Combine the container variant and size with the media chip's variant and intent,
 - `EmptyDescription` — supporting body text (`<p>`, `data-slot="empty-description"`).
 - `EmptyContent` — a centered row of call-to-action controls (`data-slot="empty-content"`).
 
-## Sizes
+## Examples
+
+### Sizes
 
 `size` controls vertical density only — `sm` (`py-8`) for empties inside cards, `md` (`py-12`)
 standalone, and `lg` (`py-16`) for full-page zero-data screens.
 
 <ComponentPreview name="emptyDemoSizes" file="components/preview/empty.tsx" />
 
-## Variants
+### Variants
 
 `variant` is the one container axis. `plain` (the default) has no border and no fill, so the block
 blends into the surrounding layout; `dashed` draws the classic drop-zone outline; `card` paints a
@@ -85,7 +85,7 @@ background. There is no way to ask for a dashed card — that combination had no
   file="components/preview/empty.tsx"
 />
 
-## Without an icon
+### Without an icon
 
 `EmptyMedia` and `EmptyContent` are both optional. A title-and-description-only empty is
 a common compact form — for example, a "no filters applied" hint.
@@ -95,14 +95,14 @@ a common compact form — for example, a "no filters applied" hint.
   file="components/preview/empty.tsx"
 />
 
-## Variant × size matrix
+### Variant × size matrix
 
 The two root axes combine freely. This grid crosses `variant` (dashed vs. card) with `size`
 (sm vs. lg) to show how padding, panel fill, and the dashed outline interact.
 
 <ComponentPreview name="emptyDemoMatrix" file="components/preview/empty.tsx" />
 
-## Intents
+### Intents
 
 `EmptyMedia` takes an `intent` that tints the chip — neutral `default`, `info`, or
 `destructive` — each mapping to semantic status tokens (`bg-X-subtle text-X-text`). Use
@@ -111,7 +111,7 @@ zero-data states.
 
 <ComponentPreview name="emptyDemoIntents" file="components/preview/empty.tsx" />
 
-## Illustration & value tiers
+### Illustration & value tiers
 
 The empty-state system spans eight tiers; two are Wave-2 additions. `EmptyIllustration`
 renders one of six built-in monoline drawings (`clipboard`, `bell`, `search`, `box`, `error`,
@@ -124,39 +124,42 @@ single faint phrase for a value slot ("No value", "Set a value…").
   file="components/preview/empty.tsx"
 />
 
+## Playground
+
+Combine the container variant and size with the media chip's variant and intent, then copy the generated JSX.
+
+<EmptyPlayground />
+
 ## API Reference
 
 ### Empty
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/empty.tsx"
-  name="EmptyProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/empty.tsx" name="EmptyProps" />
 
 ### EmptyMedia
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/empty.tsx"
   name="EmptyMediaProps"
 />
 
 ### EmptyTitle
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/empty.tsx"
   name="EmptyTitleProps"
 />
 
 ### EmptyDescription
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/empty.tsx"
   name="EmptyDescriptionProps"
 />
 
 ### EmptyContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/empty.tsx"
   name="EmptyContentProps"
 />
@@ -173,9 +176,15 @@ single faint phrase for a value slot ("No value", "Set a value…").
 | <kbd>Tab</kbd>                      | Move focus to the first action control (when actions are present). |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action control.                               |
 
+<StatesTested name="empty" />
+
 ## Do / Don't
 
 <DoDont
   do="Pair a clear title with a description and a single primary action that resolves the empty state — e.g. Create your first project."
   dont="Leave a blank area or show only a spinner — distinguish empty (no data) from loading and explain what the user can do next."
 />
+
+## Changelog
+
+<ComponentChangelog name="empty" />

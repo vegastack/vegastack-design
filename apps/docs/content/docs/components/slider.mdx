@@ -2,16 +2,18 @@
 title: Slider
 description: Pick a number or a range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.
 audience: public
+registry: slider
+status: stable
+since: 0.1.0
+a11y: APG slider
 preview: slider
 ---
 
 import { story } from "@/components/stories/slider.story";
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/slider
-```
+<InstallSteps name="slider" />
 
 ## Usage
 
@@ -33,14 +35,6 @@ Pass an array for a range (one thumb per value):
 <ComponentPreview name="slider" file="components/preview/slider.tsx" />
 
 ## Examples
-
-### Explorer
-
-Every `Slider` prop, auto-generated from its TypeScript types.
-
-<StoryExplorer>
-  <story.WithControl />
-</StoryExplorer>
 
 ### Anatomy
 
@@ -177,12 +171,17 @@ A disabled range dims both thumbs:
   file="components/preview/slider.tsx"
 />
 
+## Playground
+
+Every `Slider` prop, auto-generated from its TypeScript types.
+
+<StoryExplorer>
+  <story.WithControl />
+</StoryExplorer>
+
 ## API Reference
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/slider.tsx"
-  name="SliderProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/slider.tsx" name="SliderProps" />
 
 ## Accessibility
 
@@ -207,9 +206,15 @@ A disabled range dims both thumbs:
 | <kbd>Home</kbd>                           | Jump to the minimum                   |
 | <kbd>End</kbd>                            | Jump to the maximum                   |
 
+<StatesTested name="slider" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a Slider for an imprecise value over a known range — volume, brightness, a price filter — and give it an aria-label."
   dont="Use a Slider when the exact value matters or the range is large and open-ended — use a number input instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="slider" />

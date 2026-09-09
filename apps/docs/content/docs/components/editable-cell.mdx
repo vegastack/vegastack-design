@@ -2,14 +2,16 @@
 title: Editable Cell
 description: Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, and revert on a rejected write.
 audience: public
+registry: editable-cell
+status: stable
+since: 0.4.0
+a11y: button-to-editor disclosure
 preview: editableCell
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/editable-cell
-```
+<InstallSteps name="editable-cell" />
 
 ## Usage
 
@@ -94,7 +96,7 @@ model through the controlled `editing` / `onEditingChange` pair:
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/editable-cell.tsx"
   name="EditableCellProps"
 />
@@ -103,7 +105,7 @@ model through the controlled `editing` / `onEditingChange` pair:
 
 The `custom` editor receives `EditableCellEditorProps`:
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/editable-cell.tsx"
   name="EditableCellEditorProps"
 />
@@ -127,9 +129,15 @@ The `custom` editor receives `EditableCellEditorProps`:
 | <kbd>Enter</kbd>                    | Commit the draft (text editor).                   |
 | <kbd>Escape</kbd>                   | Cancel and restore the prior value.               |
 
+<StatesTested name="editable-cell" />
+
 ## Do / Don't
 
 <DoDont
   do="Return a promise from onCommit so the cell can run the saving/saved/error lifecycle and revert on rejection."
   dont="Toast the failure and leave the stale optimistic value on screen — the inline status and the revert are the feedback."
 />
+
+## Changelog
+
+<ComponentChangelog name="editable-cell" />

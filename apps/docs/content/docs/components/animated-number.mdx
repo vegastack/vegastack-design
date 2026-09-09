@@ -2,14 +2,16 @@
 title: Animated Number
 description: A number display that tweens from its previous value to a new one on every change — the dashboard stat-card counter.
 audience: public
+registry: animated-number
+status: stable
+since: 0.1.0
+a11y: decorative text (aria-hidden)
 preview: animatedNumber
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/animated-number
-```
+<InstallSteps name="animated-number" />
 
 ## Usage
 
@@ -24,12 +26,6 @@ LATER `value` change tweens the displayed number from whatever is currently show
 value, over the `duration` motion token.
 
 ## Examples
-
-### Playground
-
-Pick a different value preset to watch the tween, try the format and duration options, then copy the generated JSX.
-
-<AnimatedNumberPlayground />
 
 ### Currency and compact formats
 
@@ -69,9 +65,15 @@ currently sits — it never snaps back to an earlier value first.
 />
 ```
 
+## Playground
+
+Pick a different value preset to watch the tween, try the format and duration options, then copy the generated JSX.
+
+<AnimatedNumberPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/animated-number.tsx"
   name="AnimatedNumberProps"
 />
@@ -90,9 +92,15 @@ currently sits — it never snaps back to an earlier value first.
 - Server-safe: the initial render (server AND client) always shows the static final value —
   there is no hydration mismatch to reconcile.
 
+<StatesTested name="animated-number" />
+
 ## Do / Don't
 
 <DoDont
   do="Re-render with a new value prop to trigger the tween (e.g. after a data refetch or a live-update event) — the component owns the animation, not the caller."
   dont="Roll your own setInterval count-up loop, or format intermediate frames with a different Intl.NumberFormat than the settled value — use format/locale so every frame is correct, not just the final one."
 />
+
+## Changelog
+
+<ComponentChangelog name="animated-number" />

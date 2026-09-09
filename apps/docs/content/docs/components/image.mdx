@@ -2,14 +2,16 @@
 title: Image
 description: A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
 audience: public
+registry: image
+status: stable
+since: 0.1.0
+a11y: img with required alt
 preview: image
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/image
-```
+<InstallSteps name="image" />
 
 ## Usage
 
@@ -30,10 +32,6 @@ import { Image } from "@/components/ui/image";
 > (`getR2ImageUrl`) in the app while this component owns only the presentation.
 
 ## Examples
-
-Combine an aspect ratio with a corner radius, then copy the generated JSX.
-
-<ImagePlayground />
 
 ### Aspect ratios
 
@@ -92,12 +90,15 @@ Opt out for an above-the-fold hero, where deferring the fetch delays LCP instead
 <Image src={hero} alt="" loading="eager" aspectRatio="video" />
 ```
 
+## Playground
+
+Combine an aspect ratio with a corner radius, then copy the generated JSX.
+
+<ImagePlayground />
+
 ## API Reference
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/image.tsx"
-  name="ImageProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/image.tsx" name="ImageProps" />
 
 ## Accessibility
 
@@ -107,9 +108,15 @@ Opt out for an above-the-fold hero, where deferring the fetch delays LCP instead
 - The skeleton and fallback layers are `aria-hidden` / decorative, so assistive tech only sees the image (or nothing for decorative ones) — no duplicate announcements.
 - Must pass `axe` with no violations.
 
+<StatesTested name="image" />
+
 ## Do / Don't
 
 <DoDont
   do="Pass a resolved, public URL and a descriptive alt; pick the aspectRatio that matches your layout to avoid shift."
   dont="Pass an R2/storage key or expect this component to fetch or resolve URLs — resolve them app-side first."
 />
+
+## Changelog
+
+<ComponentChangelog name="image" />

@@ -2,14 +2,16 @@
 title: Region Select
 description: A searchable combobox of states/provinces for a country — Combobox-powered filtering, with a free-text fallback for countries with no subdivisions.
 audience: public
+registry: region-select
+status: stable
+since: 0.1.0
+a11y: APG combobox (dialog popup)
 preview: regionSelect
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/region-select
-```
+<InstallSteps name="region-select" />
 
 ## Usage
 
@@ -89,7 +91,7 @@ selection is unchanged until the user picks a matching row.
 
 ### RegionSelect
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/region-select.tsx"
   name="RegionSelectProps"
 />
@@ -117,10 +119,7 @@ getRegions("SG"); // [] — no predefined subdivisions; use the free-text fallba
 
 #### `Region`
 
-<AutoTypeTable
-  path="../../packages/ui/registry/lib/geo-data.ts"
-  name="Region"
-/>
+<ApiTable path="../../packages/ui/registry/lib/geo-data.ts" name="Region" />
 
 <TypeTable
   type={{
@@ -154,9 +153,15 @@ getRegions("SG"); // [] — no predefined subdivisions; use the free-text fallba
 | <kbd>Enter</kbd>                    | Select the highlighted state and close.     |
 | <kbd>Esc</kbd>                      | Close without changing the selection.       |
 
+<StatesTested name="region-select" />
+
 ## Do / Don't
 
 <DoDont
   do="Store the subdivision code (e.g. 'CA') as the value, and pass the country so the right states — or the free-text fallback — are shown."
   dont="Hardcode a single country's state list inline — pass country and let RegionSelect pick the dataset or fall back to a text input."
 />
+
+## Changelog
+
+<ComponentChangelog name="region-select" />

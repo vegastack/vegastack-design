@@ -2,16 +2,18 @@
 title: Video Player
 description: A framed video player with hover-revealed custom transport controls.
 audience: public
+registry: video-player
+status: stable
+since: 0.5.0
+a11y: native media controls
 preview: videoPlayer
 ---
 
 import { story } from "@/components/stories/video-player.story";
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/video-player
-```
+<InstallSteps name="video-player" />
 
 ## Usage
 
@@ -26,14 +28,6 @@ import { VideoPlayer } from "@/components/ui/video-player";
 ```
 
 ## Examples
-
-### Explorer
-
-Every `VideoPlayer` prop, auto-generated from its TypeScript types.
-
-<StoryExplorer>
-  <story.WithControl />
-</StoryExplorer>
 
 ### Basic
 
@@ -78,9 +72,17 @@ so a screenshot or a contract check would otherwise capture a frame with no cont
   file="components/preview/video-player.tsx"
 />
 
+## Playground
+
+Every `VideoPlayer` prop, auto-generated from its TypeScript types.
+
+<StoryExplorer>
+  <story.WithControl />
+</StoryExplorer>
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/video-player.tsx"
   name="VideoPlayerProps"
 />
@@ -119,9 +121,15 @@ so a screenshot or a contract check would otherwise capture a frame with no cont
 - The native `<video>` element is the media engine and visual frame; browser-native controls are
   omitted so audio and video players share the same VegaStack transport.
 
+<StatesTested name="video-player" />
+
 ## Do / Don't
 
 <DoDont
   do="Use VideoPlayer for a single video asset that needs a branded frame and standard transport controls."
   dont="Use VideoPlayer for playlists, caption editing, or multi-source adaptive streaming controls."
 />
+
+## Changelog
+
+<ComponentChangelog name="video-player" />

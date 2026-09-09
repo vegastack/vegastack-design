@@ -2,14 +2,16 @@
 title: Logo Row
 description: A contrast-safe muted logo/wordmark strip that restores to foreground on linked-item hover.
 audience: public
+registry: logo-row
+status: stable
+since: 0.1.0
+a11y: links with visible text
 preview: logoRow
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/logo-row
-```
+<InstallSteps name="logo-row" />
 
 ## Usage
 
@@ -53,7 +55,7 @@ a wall of underlined text reads as a paragraph of links rather than as marks.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/logo-row.tsx"
   name="LogoRowProps"
 />
@@ -64,9 +66,15 @@ a wall of underlined text reads as a paragraph of links rather than as marks.
   label.
 - The optional `label` is a normal text node, read in document order before the list.
 
+<StatesTested name="logo-row" />
+
 ## Do / Don't
 
 <DoDont
   do="Use generic or fictional wordmarks (ACME, NIMBUS, …) until real, cleared partner logos exist."
   dont="Use a real company's name or logo without their explicit clearance — it implies a partnership."
 />
+
+## Changelog
+
+<ComponentChangelog name="logo-row" />

@@ -194,7 +194,12 @@ export function manifestCoverageProblems(manifestSource, stringifierSource) {
     );
 }
 
-/** The DD-3 Explorer policy for ONE page source. Neither is allowed; both never is. */
+/**
+ * The DD-3 Explorer policy for ONE page source. Neither is allowed; both never is. Since Do1-b
+ * this also covers canon row 6's PLACEMENT: whichever of the two a page carries lives under the
+ * page's `## Playground` heading, so the section a reader (or an agent reading the markdown
+ * export) is told to look in is the one that holds it.
+ */
 export function explorerProblems(label, source) {
   const problems = [];
   const playground = /<\w+Playground\s*\/>/.test(source);
@@ -208,6 +213,21 @@ export function explorerProblems(label, source) {
     problems.push(
       `${label}: the Story explorer must render inside <StoryExplorer>`,
     );
+  }
+  if (playground || explorer) {
+    const section = /^## Playground\s*$([\s\S]*?)(?=^## |\s*$(?![\s\S]))/m.exec(
+      source,
+    );
+    const inSection =
+      section &&
+      (playground
+        ? /<\w+Playground\s*\/>/.test(section[1])
+        : /<story\.WithControl\s*\/>/.test(section[1]));
+    if (!inSection) {
+      problems.push(
+        `${label}: the ${playground ? "curated playground" : "Story explorer"} must render under the page's "## Playground" heading (canon row 6)`,
+      );
+    }
   }
   return problems;
 }
@@ -325,9 +345,17 @@ function selfTest() {
   const explorerCases = [
     [
       "both a playground and an Explorer",
-      "<ButtonPlayground />\n\n<StoryExplorer>\n  <story.WithControl />\n</StoryExplorer>\n",
+      "## Playground\n\n<ButtonPlayground />\n\n<StoryExplorer>\n  <story.WithControl />\n</StoryExplorer>\n",
     ],
-    ["an unwrapped Explorer", "<story.WithControl />\n"],
+    ["an unwrapped Explorer", "## Playground\n\n<story.WithControl />\n"],
+    [
+      "a playground outside the Playground section",
+      "## Examples\n\n<ButtonPlayground />\n",
+    ],
+    [
+      "an Explorer outside the Playground section",
+      "## Examples\n\n<StoryExplorer>\n  <story.WithControl />\n</StoryExplorer>\n",
+    ],
   ];
   for (const [label, fixture] of explorerCases) {
     if (explorerProblems("fixture.mdx", fixture).length === 0) {
@@ -338,12 +366,12 @@ function selfTest() {
     }
   }
   for (const [label, fixture] of [
-    ["a curated playground alone", "<ButtonPlayground />\n"],
+    ["a curated playground alone", "## Playground\n\n<ButtonPlayground />\n"],
     [
       "a wrapped Explorer alone",
-      "<StoryExplorer>\n  <story.WithControl />\n</StoryExplorer>\n",
+      "## Playground\n\n<StoryExplorer>\n  <story.WithControl />\n</StoryExplorer>\n",
     ],
-    // DD-2/3 is a PERMISSION, not a requirement: 59 pages carry neither today, by canon.
+    // DD-2/3 is a PERMISSION, not a requirement: 65 pages carry neither today, by canon.
     ["neither (permitted by the canon)", "## Examples\n\nText only.\n"],
   ]) {
     if (explorerProblems("fixture.mdx", fixture).length > 0) {
@@ -390,7 +418,7 @@ function selfTest() {
     process.exit(1);
   }
   console.log(
-    "✓ verify-docs-export self-test: JSX (capitalised, namespaced, custom-element), placeholder, empty-table and inline-JSX fixtures rejected; missing/empty/prose-only API sections rejected and table, no-own-props and subsection forms accepted; both-playground-and-Explorer and unwrapped-Explorer rejected while neither is accepted; an uncovered manifest name rejected; clean fixture (fenced, inline and indented-fence code) accepted",
+    "✓ verify-docs-export self-test: JSX (capitalised, namespaced, custom-element), placeholder, empty-table and inline-JSX fixtures rejected; missing/empty/prose-only API sections rejected and table, no-own-props and subsection forms accepted; both-playground-and-Explorer, unwrapped-Explorer and out-of-section playground/Explorer rejected while neither is accepted; an uncovered manifest name rejected; clean fixture (fenced, inline and indented-fence code) accepted",
   );
 }
 

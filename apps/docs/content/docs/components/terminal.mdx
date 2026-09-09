@@ -2,14 +2,16 @@
 title: Terminal
 description: A dark mono command block with a phosphor prompt glyph and a fixed trailing copy action.
 audience: public
+registry: terminal
+status: stable
+since: 0.1.0
+a11y: decorative prompt + real text
 preview: terminal
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/terminal
-```
+<InstallSteps name="terminal" />
 
 ## Usage
 
@@ -28,6 +30,13 @@ import { Terminal } from "@/components/ui/terminal";
 `Terminal` self-scopes to the marketing dark ground (`.vs-marketing`) — it reads correctly even
 embedded in a light-theme docs page (like this one), with no
 [`MarketingSurface`](/docs/components/marketing-surface) wrapper required.
+
+## Anatomy
+
+`Terminal` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="terminal" />
 
 ## Examples
 
@@ -53,7 +62,7 @@ explicit `copyValue`; successful writes swap the copy icon for the standard succ
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/terminal.tsx"
   name="TerminalProps"
 />
@@ -88,9 +97,15 @@ command"`) and announces the copy via a visually-hidden live region.
 | <kbd>←</kbd> / <kbd>→</kbd>         | Scroll a clipped command horizontally while the pane has focus.                                     |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Copy the command, when the copy button has focus.                                                   |
 
+<StatesTested name="terminal" />
+
 ## Do / Don't
 
 <DoDont
   do="Use Terminal for install snippets and short command sequences with real, copyable text."
   dont="Put a Terminal inside a MarketingSurface expecting a visual change — it already self-scopes to the dark ground; nesting is harmless but redundant."
 />
+
+## Changelog
+
+<ComponentChangelog name="terminal" />

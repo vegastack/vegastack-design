@@ -2,14 +2,16 @@
 title: Accordion
 description: A stack of collapsible sections — single or multiple open, animated height expand/collapse, and a rotating chevron, with full keyboard support.
 audience: public
+registry: accordion
+status: stable
+since: 0.1.0
+a11y: APG accordion
 preview: accordion
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/accordion
-```
+<InstallSteps name="accordion" />
 
 ## Usage
 
@@ -37,6 +39,8 @@ import {
 
 `Accordion` is a compound component built on Base UI Accordion. Compose the parts inside the root,
 pairing each `AccordionTrigger` with its `AccordionContent` inside a single `AccordionItem`:
+
+<Anatomy name="accordion" />
 
 ```tsx
 <Accordion multiple defaultValue={["shipping"]}>
@@ -129,9 +133,15 @@ plus `className`, `ref`, and `render` everywhere.
 | <kbd>↓</kbd> / <kbd>↑</kbd>         | Move focus between triggers.                                          |
 | <kbd>Home</kbd> / <kbd>End</kbd>    | Move focus to the first / last trigger.                               |
 
+<StatesTested name="accordion" />
+
 ## Do / Don't
 
 <DoDont
   do="Keep trigger labels short and scannable, group genuinely related content, and use the default single-open mode when sections are mutually exclusive."
   dont="Nest accordions deeply or hide critical content (primary actions, required form fields) behind a collapsed panel."
 />
+
+## Changelog
+
+<ComponentChangelog name="accordion" />

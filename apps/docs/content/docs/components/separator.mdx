@@ -2,14 +2,16 @@
 title: Separator
 description: A thin rule that visually or semantically divides content — horizontal or vertical, decorative by default.
 audience: public
+registry: separator
+status: stable
+since: 0.1.0
+a11y: ARIA separator
 preview: separator
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/separator
-```
+<InstallSteps name="separator" />
 
 ## Usage
 
@@ -20,12 +22,6 @@ import { Separator } from "@/components/ui/separator";
 ```
 
 ## Examples
-
-### Playground
-
-Flip the orientation and the decorative flag, then copy the generated JSX.
-
-<SeparatorPlayground />
 
 ### Rules in context
 
@@ -47,9 +43,15 @@ it inside a flex row.
   file="components/preview/separator.tsx"
 />
 
+## Playground
+
+Flip the orientation and the decorative flag, then copy the generated JSX.
+
+<SeparatorPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/separator.tsx"
   name="SeparatorProps"
 />
@@ -69,9 +71,15 @@ it inside a flex row.
 | `aria-orientation` | `horizontal` \| `vertical` (semantic only)           |
 | `data-orientation` | `horizontal` \| `vertical`                           |
 
+<StatesTested name="separator" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a semantic separator (decorative={false}) to divide distinct sections of a menu or toolbar so screen readers announce the boundary."
   dont="Add decorative separators between every item — redundant announcements add noise; keep them decorative when layout already implies the grouping."
 />
+
+## Changelog
+
+<ComponentChangelog name="separator" />
