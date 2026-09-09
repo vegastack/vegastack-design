@@ -2952,7 +2952,7 @@
         "data"
       ],
       "dependencies": [
-        "@tanstack/react-table@^8.21.3",
+        "@tanstack/react-table@^9.2.4",
         "@tanstack/react-virtual@^3.14.8",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -2978,7 +2978,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.6.0",
-        "integrity": "sha256-6nuMtxwPlYUZnhAwPX18MUOop8yA0AXbSQMcu5cYVVc="
+        "integrity": "sha256-5AW8IW2+YAup+ZSsjWXwjyjM126SHiZxMgLz56NYiP4="
       }
     },
     {

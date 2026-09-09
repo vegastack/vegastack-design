@@ -2578,7 +2578,7 @@
       "description": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
       "categories": ["data"],
       "dependencies": [
-        "@tanstack/react-table@^8.21.3",
+        "@tanstack/react-table@^9.2.4",
         "@tanstack/react-virtual@^3.14.8",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -12842,7 +12842,10 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/copy-button", "@vegastack/use-overflow"],
+      "registryDependencies": [
+        "@vegastack/copy-button",
+        "@vegastack/use-overflow"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/terminal.tsx",
