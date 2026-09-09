@@ -27,10 +27,11 @@ const sources = Object.fromEntries(
   ]),
 );
 
-// The self-hosted runners are macOS. `runs-on` is an allowlist, not a free choice: a job moved onto
-// GitHub-hosted infrastructure without a recorded reason silently reintroduces the billed capacity
-// this repository deliberately left, and a job moved OFF ubuntu-latest can break publishing or void
-// a boundary proof. Every entry below states why it is where it is.
+// The default runner class is the macOS mac minis. `runs-on` is an ALLOWLIST, not a free choice, and
+// the GitHub-hosted allowlist below is EMPTY in all three workflows: no job here may run on billed
+// capacity, and adding one fails this gate rather than quietly costing money. A job moved off its
+// recorded class in the other direction can break publishing or void a boundary proof, so both
+// directions are rejected. Every entry below states why it is where it is.
 const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //
 // SECOND RUNNER CLASS: the two LAN Debian boxes (`vsk-node-05`, `vsk-node-07`), enrolled by
@@ -182,6 +183,39 @@ const FORK_GUARD =
   "github.event.pull_request.head.repo.full_name == github.repository";
 
 /**
+ * Steps allowed to declare `continue-on-error`, as `<workflow>::<job>::<step identity>`, each with a
+ * recorded reason. EMPTY, and that is the point: the key converts a failed step into a passing one,
+ * which is indistinguishable from the work having succeeded. An entry here is a deliberate widening
+ * and must be reviewed as one.
+ */
+const CONTINUE_ON_ERROR_ALLOWLIST = new Set([]);
+
+/** How a step is named in CONTINUE_ON_ERROR_ALLOWLIST: its `name:`, else its command. */
+function stepIdentity(step) {
+  if (typeof step.name === "string") return step.name;
+  if (typeof step.run === "string") return step.run.trim().split("\n")[0];
+  if (typeof step.uses === "string") return step.uses;
+  return "(unnamed step)";
+}
+
+/** The commands that ARE the verification. A step running one of these may carry no `if:`. */
+const VERIFICATION_COMMANDS = new Set(["pnpm verify", "pnpm verify:release"]);
+
+/**
+ * The ceiling on `timeout-minutes`. Every job must declare one — the Actions default is 360 minutes,
+ * which on this hardware means a LAN Debian box, or a mini, held for six hours by a single hung run.
+ * The cap exists so "declare one" cannot be satisfied by writing the default back down.
+ */
+const MAX_TIMEOUT_MINUTES = 60;
+
+/**
+ * Workflows whose every checkout must pin `ref: ${{ github.sha }}` — the ones that sign, publish, or
+ * deploy a specific commit. `ci.yml` is excluded deliberately: a `pull_request` checkout defaults to
+ * the merge ref, which is what should be tested.
+ */
+const PINNED_CHECKOUT_WORKFLOWS = new Set(["release.yml", "deploy.yml"]);
+
+/**
  * Every step of one job, as parsed YAML.
  *
  * STRUCTURAL, for the same reason `workflowJobs` is. The three checks that walk steps — action
@@ -289,24 +323,21 @@ for (const [name, source] of Object.entries(sources)) {
     /\bTURBO_TOKEN\b|\bTURBO_TEAM\b/,
     `${name}: remote-cache credentials must not be workflow-wide`,
   );
-  // CONTAINERS ARE BANNED OUTRIGHT, and that is now a simplification rather than a restriction.
-  // A container is Linux-only, so it cannot start on the macOS minis at all; and the one job that
-  // legitimately needed one — `release.yml`'s `quality-gate`, which ran the three-engine suite in the
-  // digest-pinned Playwright image because bare `ubuntu-latest` WebKit could not settle the compiled-CSS
-  // Toaster contrast check — no longer runs a browser in CI. That suite now runs locally in 1m39s.
+  // CONTAINERS ARE ALLOWED IN EXACTLY ONE PLACE: a job in LINUX_JOBS, running the pinned Playwright
+  // image whose version is read from pnpm-lock.yaml. That is the entire reason the LAN Debian boxes
+  // exist, and the pin is what makes one box interchangeable with the other. Everywhere else a
+  // container is rejected — it is Linux-only, so it cannot start on the macOS minis at all, and a job
+  // that declares one there is a job that was moved without saying so.
   //
-  // With the image gone, the digest-pinning assertion that used to guard it, and the `shell: bash`
-  // assertion that guarded a container's sh-not-bash default (run 30142154420 died on
-  // "Illegal option -o pipefail" and reported it as registry drift), both guarded nothing. Dead
-  // assertions are worse than absent ones: they read as coverage. So the ban replaces them, and
-  // tooling/verify-workflow-security-negative.mjs proves the ban actually rejects a container.
-  //
-  // ONE NARROW EXCEPTION, added with the Linux runners: a job in LINUX_JOBS may declare a container,
-  // and only the pinned Playwright image whose version matches pnpm-lock.yaml. That is the entire
-  // reason those boxes exist. Everywhere else the ban stands unchanged, and
-  // tooling/verify-workflow-security-negative.mjs proves both halves by mutation.
+  // The exception is REQUIRED, not merely permitted: a LINUX_JOBS job that dropped its `container:`
+  // would run bare on the host against whatever browsers the box happens to have — the exact
+  // "failures that are not defects" the pin exists to prevent. `defaults.run.shell: bash` is asserted
+  // alongside it because a container's default shell is sh, which cannot do `set -o pipefail`
+  // (run 30142154420 died on "Illegal option -o pipefail" and reported it as registry drift).
+  // tooling/verify-workflow-security-negative.mjs proves every side of this by mutation: wrong image,
+  // arbitrary image, container removed, container on a mini job.
   const linuxJobs = new Set(LINUX_JOBS[name] ?? []);
-  const { jobs } = workflowJobs(name, source);
+  const { document, jobs } = workflowJobs(name, source);
   assert.ok(
     jobs.size > 0,
     `${name}: no jobs found — the parser or the file changed shape`,
@@ -361,6 +392,147 @@ for (const [name, source] of Object.entries(sources)) {
           !expression,
           `${name}: \`\${{ ${expression?.[1]} }}\` is interpolated directly into a run: script ` +
             `(${label}) — pass it via env: and reference "$VAR" (shell-injection risk)`,
+        );
+      }
+    }
+  }
+
+  // ------------------------------------------------------------- EFFECTIVENESS, not topology
+  //
+  // Everything above asserts SHAPE — which runner, which image, which job needs which. A workflow can
+  // satisfy every one of those assertions and still execute nothing, and on 2026-09-09 an adversarial
+  // review proved it: twelve mutations passed this gate, three of which made a workflow report
+  // success while running no verification at all. `continue-on-error: true` on deploy.yml's `verify`
+  // job sets that job's conclusion to `success`, so `build-sign-deploy` (which `needs: verify`)
+  // deploys to production after a FAILED full sweep; the same key on ci.yml's `- run: pnpm verify`
+  // turns a red suite into a green check; and `if: false` on `- run: pnpm verify:release` satisfied
+  // the "the step exists" text assertion while removing the step from the run.
+  //
+  // The rules below are about whether the declared work actually RUNS. Each is negative-tested.
+
+  // `continue-on-error` is a success-forging key: at job level it overrides the job's conclusion for
+  // every downstream `needs:`, and at step level it lets the job continue past a failed command.
+  // Nothing in these three workflows has a legitimate use for it — every step here either gates
+  // something or is setup for a step that does — so it is rejected outright. An exception must be
+  // recorded in CONTINUE_ON_ERROR_ALLOWLIST with a reason, and reviewed as the widening it is.
+  for (const [job, body] of jobs) {
+    assert.equal(
+      body["continue-on-error"],
+      undefined,
+      `${name}: job ${job} declares \`continue-on-error\`. That forges the job's CONCLUSION: every ` +
+        `downstream \`needs: ${job}\` sees success no matter what ran. Remove it, or record it in ` +
+        `CONTINUE_ON_ERROR_ALLOWLIST with a reason.`,
+    );
+    for (const { step, label } of jobSteps(name, job, body)) {
+      const key = `${name}::${job}::${stepIdentity(step)}`;
+      if (step["continue-on-error"] === undefined) continue;
+      assert.ok(
+        CONTINUE_ON_ERROR_ALLOWLIST.has(key),
+        `${name}: ${label} declares \`continue-on-error\`, so its failure is reported as a pass. ` +
+          `No step in these workflows is allowed to; add "${key}" to CONTINUE_ON_ERROR_ALLOWLIST ` +
+          `with a recorded reason if that is genuinely deliberate.`,
+      );
+    }
+  }
+
+  // A verification step must be UNCONDITIONAL. `if: false` on `- run: pnpm verify:release` leaves the
+  // step in the file — satisfying any assertion that reads the text — while removing it from the run,
+  // and a skipped step does not fail its job. There is no condition under which skipping the one
+  // command is correct, so the only acceptable `if:` on these steps is none at all.
+  for (const [job, body] of jobs) {
+    for (const { step, label } of jobSteps(name, job, body)) {
+      if (typeof step.run !== "string") continue;
+      const command = step.run.trim();
+      if (!VERIFICATION_COMMANDS.has(command)) continue;
+      assert.equal(
+        step.if,
+        undefined,
+        `${name}: ${label} runs \`${command}\` under an \`if:\` (\`${JSON.stringify(step.if)}\`). ` +
+          `A skipped step does not fail its job, so a condition here is a switch that turns the ` +
+          `verification off while leaving every "it runs here" assertion satisfied.`,
+      );
+    }
+  }
+
+  // EVERY install is frozen. `--no-frozen-lockfile` lets pnpm resolve a dependency the lockfile does
+  // not name, so the tree that is verified, published, or deployed is not the tree that was reviewed
+  // — and on the LAN boxes it also writes that resolution into the shared store.
+  for (const [job, body] of jobs) {
+    for (const { step, label } of jobSteps(name, job, body)) {
+      if (typeof step.run !== "string" || !/\bpnpm install\b/.test(step.run))
+        continue;
+      assert.doesNotMatch(
+        step.run,
+        /--no-frozen-lockfile/,
+        `${name}: ${label} installs with \`--no-frozen-lockfile\` — the run would resolve dependencies ` +
+          `the reviewed lockfile does not name`,
+      );
+      assert.match(
+        step.run,
+        /--frozen-lockfile/,
+        `${name}: ${label} runs \`pnpm install\` without \`--frozen-lockfile\``,
+      );
+    }
+  }
+
+  // A HUNG JOB IS A HELD RUNNER. The pool is a handful of LAN Debian boxes plus the minis, and the
+  // Actions default is 360 minutes — six hours of one of them, per hung job. deploy.yml makes it
+  // worse:
+  // `cancel-in-progress: false` means a hung run is never superseded, so every later deploy queues
+  // behind it. Each job therefore declares its own bound, and the cap keeps "declare one" from being
+  // satisfied with the default in disguise.
+  for (const [job, body] of jobs) {
+    const timeout = body["timeout-minutes"];
+    assert.equal(
+      typeof timeout,
+      "number",
+      `${name}: job ${job} declares no \`timeout-minutes\`, so it inherits the 360-minute Actions ` +
+        `default and can hold one of the self-hosted runners for six hours`,
+    );
+    assert.ok(
+      timeout > 0 && timeout <= MAX_TIMEOUT_MINUTES,
+      `${name}: job ${job} sets \`timeout-minutes: ${timeout}\`; the cap is ${MAX_TIMEOUT_MINUTES}. ` +
+        `Base it on the measured time with headroom, not on the default.`,
+    );
+  }
+
+  // A superseded or duplicated run must not sit on a self-hosted runner. `concurrency` is what makes
+  // that true, and its absence is invisible — the workflow simply runs more often than intended.
+  assert.ok(
+    document.concurrency !== undefined && document.concurrency !== null,
+    `${name}: declares no \`concurrency\`. Self-hosted capacity is finite: without a group, a ` +
+      `superseded push (or a second dispatch) occupies a runner alongside the run that replaced it.`,
+  );
+
+  // SITE_VISIBILITY is in turbo.json's `globalEnv`, so it is part of every turbo task hash. It was
+  // declared in release.yml and deploy.yml and not in ci.yml, which made the "byte-for-byte identical
+  // command" claim false for the cache key even though nothing inside `pnpm verify` reads it. All
+  // three now declare the same value; asserting it keeps the three from drifting apart again, and
+  // keeps production from exporting in the `private`/noindex matrix.
+  assert.equal(
+    document.env?.SITE_VISIBILITY,
+    "public",
+    `${name}: must declare \`env.SITE_VISIBILITY: public\` at workflow level. It is a turbo ` +
+      `globalEnv (so it is part of every task hash) and it selects the docs export's discovery ` +
+      `matrix; a workflow that omits it neither runs the identical command nor exports the public site.`,
+  );
+
+  // EVERY checkout in an outward workflow takes the DISPATCHED SHA. `release.yml` and `deploy.yml`
+  // verify, sign, publish, and deploy a specific commit; a checkout without `ref:` takes the tip of
+  // the branch at the moment that job starts, so a push landing mid-run would be signed and deployed
+  // having been verified by nothing. ci.yml is deliberately excluded: a `pull_request` checkout
+  // defaults to the MERGE ref, which is the thing that should be tested, and `github.sha` there is
+  // that same merge commit only by coincidence of the event payload.
+  if (PINNED_CHECKOUT_WORKFLOWS.has(name)) {
+    for (const [job, body] of jobs) {
+      for (const { step, label } of jobSteps(name, job, body)) {
+        if (typeof step.uses !== "string") continue;
+        if (!/^actions\/checkout@/.test(step.uses)) continue;
+        assert.equal(
+          stepWith(name, label, step).ref,
+          "${{ github.sha }}",
+          `${name}: ${label} checks out without \`ref: \${{ github.sha }}\`. It would take the ` +
+            `branch tip at job-start time rather than the verified commit this run is about.`,
         );
       }
     }
@@ -541,22 +713,37 @@ for (const [name, source] of Object.entries(sources)) {
   );
 }
 
+// deploy.yml mints OIDC for Sigstore, in `build-sign-deploy`; release.yml mints OIDC for npm trusted
+// publishing, in `publish`. Both work on self-hosted runners; ci.yml must mint none.
+//
+// STRUCTURAL, not a text count. Counting `id-token: write` occurrences in the source made the
+// assertion agree with PROSE: a job comment explaining why the job needs the token pushed the count
+// to 2 and failed the gate, and — worse in the other direction — a workflow-level grant and a
+// job-level grant were indistinguishable from each other. The set of jobs that actually hold the
+// token is the thing worth pinning.
+const OIDC_JOBS = {
+  "ci.yml": [],
+  "release.yml": ["publish"],
+  "deploy.yml": ["build-sign-deploy"],
+};
 for (const [name, source] of Object.entries(sources)) {
-  // deploy.yml mints OIDC for Sigstore (sign-curated); release.yml mints OIDC for npm trusted
-  // publishing (publish). Both work on self-hosted runners. ci.yml must mint none.
-  const expectedOidc = name === "deploy.yml" || name === "release.yml" ? 1 : 0;
+  const { document, jobs } = workflowJobs(name, source);
   assert.equal(
-    [...source.matchAll(/id-token:\s*write/g)].length,
-    expectedOidc,
-    `${name}: unexpected OIDC permission count`,
+    document.permissions?.["id-token"],
+    undefined,
+    `${name}: grants OIDC (\`id-token: write\`) at WORKFLOW level, which hands it to every job. ` +
+      `Scope it to the single job that mints a token.`,
+  );
+  const granting = [...jobs]
+    .filter(([, body]) => body.permissions?.["id-token"] === "write")
+    .map(([job]) => job);
+  assert.deepEqual(
+    granting.sort(),
+    [...(OIDC_JOBS[name] ?? [])].sort(),
+    `${name}: unexpected OIDC permission scope — jobs holding \`id-token: write\` are ` +
+      `[${granting.join(", ")}], expected [${(OIDC_JOBS[name] ?? []).join(", ")}]`,
   );
 }
-
-assert.equal(
-  [...sources["deploy.yml"].matchAll(/id-token:\s*write/g)].length,
-  1,
-  "deploy.yml: OIDC must be scoped to the single build-sign-deploy job only",
-);
 assert.match(
   sources["deploy.yml"],
   /DISPATCH_REF[^\n]*\n[\s\S]*refs\/heads\/main/,
@@ -568,7 +755,7 @@ assert.doesNotMatch(
 );
 // build → sign → deploy are one job (`build-sign-deploy`): Actions artifact storage is unavailable
 // under the billing lock, so the built docs cannot be handed between separate jobs. It carries the
-// single OIDC token and runs after the receipt guard.
+// single OIDC token and runs after the `verify` job, which EXECUTES the full sweep.
 const buildSignDeployJob = jobBlock(sources["deploy.yml"], "build-sign-deploy");
 // The deploy cannot start until the full sweep has RUN. `main` has no branch protection and `ci.yml`
 // fires only on `pull_request`, so without this edge a direct push to main could reach production
@@ -645,12 +832,6 @@ assert.equal(
   "deploy.yml: the production boundary probe must run after every deploy",
 );
 
-// release.yml mints exactly one OIDC token, for npm trusted publishing in `publish`.
-assert.equal(
-  [...sources["release.yml"].matchAll(/id-token:\s*write/g)].length,
-  1,
-  "release.yml: npm OIDC must be scoped to publish only",
-);
 const versionJob = jobBlock(sources["release.yml"], "version-pr");
 const publishJob = jobBlock(sources["release.yml"], "publish");
 assert.match(versionJob, /^    needs: \[changes, quality-gate\]$/m);
@@ -686,11 +867,10 @@ assert.match(
   "release.yml: publish must require quality-gate to have SUCCEEDED, not merely completed — a " +
     "skipped or failed dependency reads as neither in an `if:` without this",
 );
-// The quality gate itself must be gated on the receipt: validating the non-browser half while the
-// browser half was never attested is the exact fail-open this topology has to avoid.
-// `quality-gate` is now the verification itself rather than a job gated behind an attestation, so
-// what has to hold is that it EXECUTES the one command. (That it does so on a browser-capable runner
-// is asserted by MUST_RUN_VERIFY above.)
+// `quality-gate` IS the verification in the release chain — nothing upstream of it validates
+// anything — so what has to hold is that it still EXECUTES the one command. (That it does so on a
+// browser-capable runner is asserted by MUST_RUN_VERIFY above; that the step carries no `if:` and no
+// `continue-on-error:` is asserted by the effectiveness rules further down.)
 assert.match(
   jobBlock(sources["release.yml"], "quality-gate"),
   /^      - run: pnpm verify$/m,
@@ -762,5 +942,194 @@ assert.doesNotMatch(sources["release.yml"], /npm@latest/);
     }
   }
 }
+
+// ---------------------------------------------------------------------------------------------
+// TARGETED EFFECTIVENESS RULES — the specific steps whose deletion or neutering would leave every
+// structural assertion above satisfied. Each was reproduced as a mutation against the pre-fix gate on
+// 2026-09-09 and each has a case in tooling/verify-workflow-security-negative.mjs.
+
+/** The parsed jobs of one workflow, by name. */
+function jobsOf(name) {
+  return workflowJobs(name, sources[name]).jobs;
+}
+
+/** The one step of `job` whose `name:` is `stepName`, asserted to exist exactly once. */
+function namedStep(workflow, job, stepName) {
+  const body = jobsOf(workflow).get(job);
+  assert.ok(body, `${workflow}: job ${job} no longer exists`);
+  const matches = jobSteps(workflow, job, body).filter(
+    ({ step }) => step.name === stepName,
+  );
+  assert.equal(
+    matches.length,
+    1,
+    `${workflow}: job ${job} must have exactly one step named "${stepName}"; found ${matches.length}`,
+  );
+  return matches[0].step;
+}
+
+// PERMISSION SETS, PINNED EXACTLY. A job's `permissions:` REPLACES the workflow default rather than
+// intersecting with it, so an over-broad job block is authority the workflow-level `contents: read`
+// does nothing to limit. Each set below was read back off the job's steps: `publish` checks out,
+// installs, builds two packages and runs `npm publish` — it pushes no commit, opens no PR, and never
+// calls the changesets action, so the `contents: write` + `pull-requests: write` it carried until
+// 2026-09-09 was unused authority sharing a job with the npm OIDC token.
+const JOB_PERMISSIONS = {
+  "release.yml": {
+    // The changesets action pushes the version branch and opens/updates the Version PR.
+    "version-pr": { contents: "write", "pull-requests": "write" },
+    // Checkout + npm OIDC trusted publishing. Nothing else.
+    publish: { contents: "read", "id-token": "write" },
+  },
+  "deploy.yml": {
+    // Checkout + the Sigstore signing token.
+    "build-sign-deploy": { contents: "read", "id-token": "write" },
+    // A read-only checkout and a live HTTP probe.
+    "verify-public-boundary": { contents: "read" },
+  },
+};
+for (const [workflow, expected] of Object.entries(JOB_PERMISSIONS)) {
+  const jobs = jobsOf(workflow);
+  for (const [job, permissions] of Object.entries(expected)) {
+    const body = jobs.get(job);
+    assert.ok(
+      body,
+      `${workflow}: JOB_PERMISSIONS names ${job}, which no longer exists`,
+    );
+    assert.deepEqual(
+      body.permissions,
+      permissions,
+      `${workflow}: job ${job} must declare exactly ${JSON.stringify(permissions)}. A job's ` +
+        `permissions block REPLACES the workflow default, so anything extra here is authority ` +
+        `nothing else limits — read it back off the steps before widening it.`,
+    );
+  }
+}
+
+// THE CLOUDFLARE DEPLOY, EXACTLY. `command: deploy` was matched by a substring, so
+// `command: deploy --dry-run` satisfied it: the job would sign, upload nothing, and report a
+// successful production deploy. The version is pinned against apps/docs/package.json rather than
+// asserted as a literal, for the same reason the Playwright tag is derived from pnpm-lock.yaml — two
+// authorities for one version drift silently, and the drift shows up as a mystery on the hardware.
+{
+  const wranglerStep = namedStep(
+    "deploy.yml",
+    "build-sign-deploy",
+    "Deploy to Cloudflare Workers Static Assets",
+  );
+  assert.match(
+    wranglerStep.uses ?? "",
+    /^cloudflare\/wrangler-action@/,
+    "deploy.yml: the deploy step must use cloudflare/wrangler-action",
+  );
+  const withBlock = stepWith("deploy.yml", "the wrangler step", wranglerStep);
+  assert.equal(
+    withBlock.command,
+    "deploy",
+    `deploy.yml: the wrangler command must be exactly \`deploy\`; it is \`${withBlock.command}\`. ` +
+      `A substring match accepted \`deploy --dry-run\`, which uploads nothing and reports success.`,
+  );
+  assert.equal(
+    withBlock.workingDirectory,
+    "apps/docs",
+    "deploy.yml: the wrangler step must deploy from apps/docs, where wrangler.toml and the export live",
+  );
+  const declared = JSON.parse(
+    readFileSync(
+      fileURLToPath(new URL("../apps/docs/package.json", import.meta.url)),
+      "utf8",
+    ),
+  ).devDependencies?.wrangler;
+  assert.ok(
+    typeof declared === "string" && /^\^?\d+\.\d+\.\d+$/.test(declared),
+    `apps/docs/package.json: \`wrangler\` must be a plain version range; it is ${declared}`,
+  );
+  assert.equal(
+    String(withBlock.wranglerVersion),
+    declared.replace(/^\^/, ""),
+    `deploy.yml: wranglerVersion (${withBlock.wranglerVersion}) disagrees with apps/docs/package.json ` +
+      `(${declared}). The action downloads the version named here, so production would deploy through ` +
+      `a wrangler the repository never installs or tests against.`,
+  );
+}
+
+// THE PUBLISH-TIME LIFECYCLE GUARD. `publish` holds the npm OIDC token, so a lifecycle script in
+// either public package would execute with publishing authority. The guard step is the only thing
+// preventing that, and until 2026-09-09 deleting it changed nothing this gate could see.
+{
+  const guard = namedStep(
+    "release.yml",
+    "publish",
+    "Reject publish-time lifecycle code",
+  );
+  for (const hook of ["prepublishOnly", "prepare", "postinstall", "prepack"]) {
+    assert.match(
+      guard.run ?? "",
+      new RegExp(`'${hook}'`),
+      `release.yml: the lifecycle guard no longer checks \`${hook}\` — a script under that name would ` +
+        `run with npm OIDC publishing authority`,
+    );
+  }
+  assert.match(
+    guard.run ?? "",
+    /throw new Error/,
+    "release.yml: the lifecycle guard must THROW on a match; a guard that only reports is not a guard",
+  );
+}
+
+// THE PUBLISH ITSELF. The old assertion matched `npm publish[^\n]*--no-provenance` anywhere in the
+// job block, so `false && npm publish --access public --no-provenance` satisfied it: the release
+// would run green having published nothing, and the omission would surface when a consumer asked why
+// the fix is not on npm. The command must stand alone on its line.
+assert.match(
+  jobBlock(sources["release.yml"], "publish"),
+  /^ +npm publish --access public --no-provenance$/m,
+  "release.yml: publish must invoke `npm publish --access public --no-provenance` as a whole " +
+    "command on its own line — a prefix such as `false &&` or `echo` publishes nothing while " +
+    "matching a substring assertion",
+);
+
+// THE macOS LANE IS THE WHOLE CROSS-PLATFORM SIGNAL, plus the only changeset-presence check in the
+// tree. Reduced to a checkout and an `echo` it still ran, still went green, and still satisfied every
+// runner and fork-guard assertion — while the static half of the suite stopped executing on macOS and
+// a change to a published package could merge with nothing to publish.
+{
+  const required = [
+    "pnpm install --frozen-lockfile",
+    "pnpm typecheck",
+    "pnpm lint",
+    "pnpm design:verify",
+    "pnpm exec changeset status --since=origin/main",
+  ];
+  const body = jobsOf("ci.yml").get("verify-macos");
+  assert.ok(body, "ci.yml: the verify-macos job is missing");
+  const commands = jobSteps("ci.yml", "verify-macos", body)
+    .map(({ step }) => (typeof step.run === "string" ? step.run.trim() : ""))
+    .filter(Boolean);
+  for (const command of required) {
+    assert.ok(
+      commands.includes(command),
+      `ci.yml: verify-macos must run \`${command}\`. It runs [${commands.join(" · ")}]. This job is ` +
+        `the entire cross-platform static signal and the only \`changeset status\` check in CI.`,
+    );
+  }
+}
+
+// The deploy's full-sweep job runs on every dispatch, unconditionally. An `if:` here would be a
+// production deploy that skipped its own verification and called the skip a success.
+assert.equal(
+  jobsOf("deploy.yml").get("verify").if,
+  undefined,
+  "deploy.yml: the `verify` job must carry no `if:` — a skipped job does not fail, and " +
+    "`build-sign-deploy` would proceed",
+);
+// release.yml's quality-gate is conditional BY DESIGN — a push that publishes nothing needs no
+// gate — but the condition is pinned so it cannot quietly become one that is never true.
+assert.equal(
+  normalizeExpression(jobsOf("release.yml").get("quality-gate").if),
+  "needs.changes.outputs.publish == 'true'",
+  "release.yml: quality-gate's `if:` must be exactly the publish-detection condition; any other " +
+    "expression is a gate that can be made never to run",
+);
 
 console.log("verify-workflow-security: passed");
