@@ -1,4 +1,4 @@
-// @vegastack input@0.6.0 sha256-c/0A+LCIDOZhbAvt9XOvoWSPU3qH5cdRS9SEt81D8MI=
+// @vegastack input@0.6.0 sha256-tx3uNmA1NW8BLsqWcvDNv0teSQbZnvi0uWFjUqUVi8Y=
 
 "use client";
 
@@ -68,7 +68,7 @@ export interface InputProps extends Omit<
  * `@vegastack/design-tokens`' `base.css`; this class just refuses to suppress it.
  */
 const standaloneClasses =
-  "w-full min-w-0 px-3 py-1 text-base outline-hidden " +
+  "w-full min-w-0 px-3 py-1 text-base outline-hidden" +
   "file:inline-flex file:h-(--size-xs) file:border-0 file:bg-transparent file:text-base file:font-medium file:text-foreground";
 
 /** Addon-slot classes — muted, non-selectable label text that hugs the field. */

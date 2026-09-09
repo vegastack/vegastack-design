@@ -1,4 +1,4 @@
-// @vegastack number-field@0.6.0 sha256-MOgwBomBHfYlP9BCFK0OJJKMF2mEL3xlvVieO59uJeY=
+// @vegastack number-field@0.6.0 sha256-qFQEf8whKlV1ZHY8rRHdwewN9joIjmSkpt1qWnD0o9o=
 
 "use client";
 
@@ -130,7 +130,7 @@ const addonClasses =
  * root's `overflow-hidden` cannot clip it.
  */
 const stepperClasses =
-  "group/wash flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground " +
+  "group/wash flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground" +
   "hover:text-foreground " +
   "focus-visible:-outline-offset-2 " +
   "disabled:opacity-(--opacity-dim) " +

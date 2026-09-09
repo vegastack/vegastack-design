@@ -12,9 +12,11 @@ import { ROOT } from "./lib/fs.mjs";
 
 const scratch = mkdtempSync(join(tmpdir(), "vegastack-design-lint-"));
 const invalidDir = join(scratch, "packages/ui/registry/ui/invalid");
+const vocabularyDir = join(scratch, "packages/ui/registry/ui/vocabulary");
 const rawStepsDir = join(scratch, "packages/ui/registry/ui/raw-steps");
 const validDir = join(scratch, "packages/ui/registry/ui/valid");
 mkdirSync(invalidDir, { recursive: true });
+mkdirSync(vocabularyDir, { recursive: true });
 mkdirSync(rawStepsDir, { recursive: true });
 mkdirSync(validDir, { recursive: true });
 
@@ -59,12 +61,67 @@ export function LiteralRules(_props: RenderlessProps) {
 }
 `,
   );
+  // ── the G1-b token-vocabulary rules (issue #49 §7) ───────────────────────────────────────────
+  // One specimen, one violation per rule, so a missing rule ID names itself. Every string below is
+  // a class literal on a JSX element, which is the only unit these rules look at.
+  writeFileSync(
+    join(vocabularyDir, "vocabulary.tsx"),
+    `export function Vocabulary() {
+  return <>
+    <div className="rounded-md focus-visible:outline-2 focus-visible:outline-ring">Restated ring</div>
+    <div className="rounded-md motion-reduce:transition-none">Restated reduced motion</div>
+    <div className="w-full min-h-screen">Viewport</div>
+    <div className="flex  items-center ">Whitespace</div>
+    <div className="rounded-md bg-card hover:bg-surface-2">Hover with no pressed rung</div>
+    <div className="${Array.from({ length: 11 }, (_, i) => `[&_p${i}]:hidden [&_[data-slot=part-${i}]]:hidden`).join(" ")}">Reaching in</div>
+  </>;
+}
+`,
+  );
+
+  const vocabulary = spawnSync(
+    process.execPath,
+    ["tooling/design-lint.mjs", vocabularyDir],
+    { cwd: ROOT, encoding: "utf8" },
+  );
+  const vocabularyOutput = `${vocabulary.stdout ?? ""}\n${vocabulary.stderr ?? ""}`;
+  const vocabularyIds = [
+    "restated-focus",
+    "restated-motion-reduce",
+    "viewport-magic",
+    "class-whitespace",
+    "hover-without-pressed",
+    "descendant-override-density",
+  ];
+  const missingVocabulary = vocabularyIds.filter(
+    (id) => !vocabularyOutput.includes(`[${id}]`),
+  );
+  if (vocabulary.status === 0 || missingVocabulary.length > 0) {
+    console.error(
+      "✗ design-lint token-vocabulary specimen did not fail closed",
+    );
+    if (missingVocabulary.length > 0)
+      console.error(`  missing rule IDs: ${missingVocabulary.join(", ")}`);
+    console.error(vocabularyOutput.trim());
+    process.exit(1);
+  }
+
   writeFileSync(
     join(validDir, "textarea.tsx"),
     `import type { ComponentProps } from 'react';
 
 export function Textarea(props: ComponentProps<'textarea'>) {
-  return <><textarea {...props} /><div className="grid-cols-[auto_repeat(3,auto)]" /><div className="transition-opacity duration-fast ease-standard data-[instant]:duration-0" /></>;
+  return <><textarea {...props} /><div className="grid-cols-[auto_repeat(3,auto)]" /><div className="transition-opacity duration-fast ease-standard data-[instant]:duration-0" />
+    {/* Each line below is a DELIBERATE non-violation of a G1-b rule. They are specimens, not
+        decoration: without them a later tightening of one of those rules would start rejecting a
+        real pattern and nothing would say so. */}
+    <div className="bg-primary hover:bg-primary" />{/* restating the SAME fill opts out of the recipe's hover */}
+    <div className="bg-card hover:bg-transparent" />{/* cancelling an inherited hover, not declaring one */}
+    <div className="bg-border hover:bg-primary data-[separator=active]:bg-primary" />{/* the pressed rung is component state */}
+    <div className="translate-x-1 motion-reduce:transform-none" />{/* suppresses the END STATE, which base.css does not */}
+    <div className="max-w-[calc(100vw-var(--spacing)*8)]" />{/* a viewport bound whose inset is a token */}
+    <p>{"a multi-line literal mentioning max-h-40\\n\\nkeeps its blank lines: it is prose, not a class string"}</p>
+  </>;
 }
 `,
   );
@@ -151,8 +208,11 @@ export function Textarea(props: ComponentProps<'textarea'>) {
   }
 
   console.log(
-    `✓ design-lint structural specimens: ${requiredIds.length} negative rules fail closed, raw motion ` +
-      `steps are rejected as a pairing; reviewed Textarea adapter (with a tokenised transition and a structural duration-0) passes`,
+    `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
+      `token-vocabulary rules fail closed, raw motion steps are rejected as a pairing; the reviewed ` +
+      `Textarea adapter passes, and with it six deliberate non-violations (same-fill hover, ` +
+      `hover:bg-transparent, a state-expressed pressed rung, motion-reduce end-state suppression, ` +
+      `a token viewport calc, and multi-line prose)`,
   );
 } finally {
   rmSync(scratch, { recursive: true, force: true });

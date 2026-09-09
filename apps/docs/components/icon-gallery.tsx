@@ -111,7 +111,7 @@ export function IconGallery() {
                     label={label}
                     // A real button: the global `:focus-visible` outline applies, no hand-typed
                     // ring (DC-09/DC-12).
-                    className="flex w-20 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 text-foreground hover:bg-accent"
+                    className="flex w-20 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 text-foreground hover:bg-accent active:bg-surface-3"
                   />
                 ))}
               </div>

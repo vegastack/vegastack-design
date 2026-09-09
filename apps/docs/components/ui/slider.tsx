@@ -1,4 +1,4 @@
-// @vegastack slider@0.6.0 sha256-ymGwnurk0I8Y27gSAm7QPCwDFLDG4BYkgX1AXzCGIKQ=
+// @vegastack slider@0.6.0 sha256-a305cyjnAor3we5oI/y1+kx2JwN/kLG1STpCzwsyklc=
 
 import * as React from "react";
 import { Slider as BaseSlider } from "@base-ui/react/slider";
@@ -98,7 +98,7 @@ const trackByVariant: Record<SliderVariant, string> = {
   // them to `&:is(:where(.group\/slider):hover *)`, and the `:hover` inside `:is()` adds a class
   // to the count.
   overlay:
-    "bg-media-foreground/(--alpha-wash-strong) transition-[height,width] duration-fast ease-standard motion-reduce:transition-none data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-1 group-hover/slider:data-[orientation=horizontal]:h-1.5 group-focus-within/slider:data-[orientation=horizontal]:h-1.5 group-hover/slider:data-[orientation=vertical]:w-1.5 group-focus-within/slider:data-[orientation=vertical]:w-1.5",
+    "bg-media-foreground/(--alpha-wash-strong) transition-[height,width] duration-fast ease-standard data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-1 group-hover/slider:data-[orientation=horizontal]:h-1.5 group-focus-within/slider:data-[orientation=horizontal]:h-1.5 group-hover/slider:data-[orientation=vertical]:w-1.5 group-focus-within/slider:data-[orientation=vertical]:w-1.5",
   bare: "bg-transparent",
 };
 

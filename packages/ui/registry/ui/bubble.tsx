@@ -1,4 +1,4 @@
-// @vegastack bubble@0.6.0 sha256-J3+6R9Twe+lIXwXgNqFZ2cbzeIc+8fcJXPGDctF03sw=
+// @vegastack bubble@0.6.0 sha256-v/sYP7QYxIsZ4T6yEWblbgoWcESqNu4aVv1qm1Tg6QI=
 
 "use client";
 
@@ -181,7 +181,7 @@ export function BubbleContent({
     props: {
       "data-slot": "bubble-content",
       className: cn(
-        "w-fit max-w-full min-w-0 overflow-hidden rounded-lg border border-transparent px-3 py-2.5 text-base leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left  [button,a]:focus-visible:border-ring/(--alpha-tint-border)",
+        "w-fit max-w-full min-w-0 overflow-hidden rounded-lg border border-transparent px-3 py-2.5 text-base leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left [button,a]:focus-visible:border-ring/(--alpha-tint-border)",
         className,
       ),
       ...props,
