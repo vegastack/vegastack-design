@@ -188,8 +188,20 @@ yet is the failure mode above, and reconciling one back into changesets is a day
 `changelog-assemble && changeset version && version-sync && sync-changelog` — assemble the release
 entry, bump, re-stamp the registry, regenerate the docs Changelog page — and that is all it is. The
 carry step it used to end with, and the guard job that made the carry necessary, were removed on
-2026-09-08: CI simply re-runs `pnpm verify` against the Version PR's own commit, which a bot-authored
-branch can pass like any other.
+2026-09-08.
+
+**Do not wait for green checks on the Version PR — they never arrive.** GitHub withholds workflow
+runs on a branch pushed by the changesets action's `GITHUB_TOKEN`, so every `CI` run on
+`changeset-release/main` sits at `action_required` until a maintainer clicks **Approve and run**.
+Verified 2026-09-09: twelve consecutive runs on that branch, none executed. An earlier version of
+this section claimed the bot branch "can pass like any other" — it cannot, and reading it that way
+means merging while believing something ran.
+
+What actually gates the publish is `quality-gate` on `main`, twice: once on the push that created
+the Version PR, and again on the push created by **merging** it, where `publish` lists it in
+`needs:` and cannot start until `pnpm verify` has passed on the merged tree. So the published
+content is verified; the Version PR is simply not where you see it. If you want checks on the PR
+itself, approve the run by hand — it is the same `pnpm verify`.
 
 Changes reach `main` through a **reviewed PR**, not a direct push (`docs/RELEASING.md` step 4 is
 canonical). MK approval is required before the change PR is merged. GitHub Team cannot provide
