@@ -48,9 +48,9 @@ jobs:
     # nothing in this tree can assert).
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, vsk-runner]
-    # The runner pool is two Debian boxes. Without this, a hung job holds one of them for the Actions
-    # default of 360 minutes. Measured ~3 min; this is generous headroom over a cold pnpm store, not a
-    # budget. verify-workflow-security.mjs requires every job to declare one and caps it.
+    # The LAN Debian pool is small and shared. Without this, a hung job holds one of its boxes for the
+    # Actions default of 360 minutes. Measured ~3 min; this is headroom over a cold pnpm store, not a
+    # budget. verify-workflow-security.mjs requires every job to declare one, and caps it.
     timeout-minutes: 20
     container:
       # Pinned to the `playwright` version in pnpm-lock.yaml; verify-workflow-security.mjs reads the

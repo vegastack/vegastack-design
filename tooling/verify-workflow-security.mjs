@@ -203,7 +203,7 @@ const VERIFICATION_COMMANDS = new Set(["pnpm verify", "pnpm verify:release"]);
 
 /**
  * The ceiling on `timeout-minutes`. Every job must declare one — the Actions default is 360 minutes,
- * which on this hardware means one of two Debian boxes, or a mini, held for six hours by a hung run.
+ * which on this hardware means a LAN Debian box, or a mini, held for six hours by a single hung run.
  * The cap exists so "declare one" cannot be satisfied by writing the default back down.
  */
 const MAX_TIMEOUT_MINUTES = 60;
@@ -475,8 +475,9 @@ for (const [name, source] of Object.entries(sources)) {
     }
   }
 
-  // A HUNG JOB IS A HELD RUNNER. The pool is two LAN Debian boxes plus the minis, and the Actions
-  // default is 360 minutes — six hours of one of them, per hung job. deploy.yml makes it worse:
+  // A HUNG JOB IS A HELD RUNNER. The pool is a handful of LAN Debian boxes plus the minis, and the
+  // Actions default is 360 minutes — six hours of one of them, per hung job. deploy.yml makes it
+  // worse:
   // `cancel-in-progress: false` means a hung run is never superseded, so every later deploy queues
   // behind it. Each job therefore declares its own bound, and the cap keeps "declare one" from being
   // satisfied with the default in disguise.
