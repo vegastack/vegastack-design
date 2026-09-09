@@ -24,11 +24,15 @@ export function datePicker(): ReactNode {
   const [date, setDate] = useState<Date | undefined>(SELECTED);
   return (
     <Wrapper className="flex-col items-start gap-4">
-      <DatePicker
-        value={date}
-        onValueChange={setDate}
-        aria-label="Pick a date"
-      />
+      {/* The trigger is `w-full` like every other form control — the PARENT constrains it
+          (audit B8-03). Every example below does the same. */}
+      <div className="w-full max-w-(--panel-width-sm)">
+        <DatePicker
+          value={date}
+          onValueChange={setDate}
+          aria-label="Pick a date"
+        />
+      </div>
       <Calendar
         mode="single"
         selected={date}
@@ -45,12 +49,14 @@ export function datePickerPresets(): ReactNode {
   const [date, setDate] = useState<Date | undefined>(SELECTED);
   return (
     <Wrapper>
-      <DatePicker
-        value={date}
-        onValueChange={setDate}
-        presets={defaultDatePresets()}
-        aria-label="Pick a date"
-      />
+      <div className="w-full max-w-(--panel-width-sm)">
+        <DatePicker
+          value={date}
+          onValueChange={setDate}
+          presets={defaultDatePresets()}
+          aria-label="Pick a date"
+        />
+      </div>
     </Wrapper>
   );
 }
@@ -63,12 +69,14 @@ export function datePickerRange(): ReactNode {
   });
   return (
     <Wrapper>
-      <DateRangePicker
-        value={range}
-        onValueChange={setRange}
-        presets={defaultRangePresets()}
-        aria-label="Pick a date range"
-      />
+      <div className="w-full max-w-(--panel-width-md)">
+        <DateRangePicker
+          value={range}
+          onValueChange={setRange}
+          presets={defaultRangePresets()}
+          aria-label="Pick a date range"
+        />
+      </div>
     </Wrapper>
   );
 }
@@ -108,13 +116,15 @@ export function datePickerDisabledDates(): ReactNode {
   ];
   return (
     <Wrapper className="flex-col items-start gap-4">
-      <DatePicker
-        value={date}
-        onValueChange={setDate}
-        presets={presets}
-        disabledDates={blocked}
-        aria-label="Pick a date"
-      />
+      <div className="w-full max-w-(--panel-width-sm)">
+        <DatePicker
+          value={date}
+          onValueChange={setDate}
+          presets={presets}
+          disabledDates={blocked}
+          aria-label="Pick a date"
+        />
+      </div>
       <Calendar
         mode="single"
         selected={date}
@@ -131,7 +141,9 @@ export function datePickerDisabledDates(): ReactNode {
 export function datePickerDisabled(): ReactNode {
   return (
     <Wrapper>
-      <DatePicker value={SELECTED} disabled aria-label="Pick a date" />
+      <div className="w-full max-w-(--panel-width-sm)">
+        <DatePicker value={SELECTED} disabled aria-label="Pick a date" />
+      </div>
     </Wrapper>
   );
 }
@@ -169,12 +181,14 @@ export function datePickerSingleMonthRange(): ReactNode {
   });
   return (
     <Wrapper>
-      <DateRangePicker
-        value={range}
-        onValueChange={setRange}
-        numberOfMonths={1}
-        aria-label="Pick a date range"
-      />
+      <div className="w-full max-w-(--panel-width-md)">
+        <DateRangePicker
+          value={range}
+          onValueChange={setRange}
+          numberOfMonths={1}
+          aria-label="Pick a date range"
+        />
+      </div>
     </Wrapper>
   );
 }
@@ -240,12 +254,14 @@ function DatePickerFormattingDemo(): ReactNode {
           <span className="text-label-sm text-muted-foreground">
             {row.label}
           </span>
-          <DatePicker
-            value={date}
-            onValueChange={setDate}
-            aria-label={row.label}
-            {...row.props}
-          />
+          <div className="w-full max-w-(--panel-width-sm) shrink-0">
+            <DatePicker
+              value={date}
+              onValueChange={setDate}
+              aria-label={row.label}
+              {...row.props}
+            />
+          </div>
         </div>
       ))}
     </Wrapper>

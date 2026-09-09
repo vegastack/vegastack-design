@@ -1936,3 +1936,42 @@ generated docs page (WP5 made that a build output — the prose now lives in fiv
 `docs(changelog)` sha-repointing commits. The four dependency commits were squashed into one because
 they share a `pnpm-lock.yaml` that had to be regenerated wholesale against the new `main` rather than
 hand-merged.
+
+## P1 · Pickers and drag (#45) — judgment calls
+
+- **`geo-data` and `drag-item` are `registry:lib`, a type the repo did not have.** D27 names a "lib
+  item" and the brief names `registry:lib`, but nothing in the tooling modeled the type: the
+  contract verifier reconciles `registry:ui`/`hook`/`block` and asserts the modeled total equals the
+  registry total, so an unmodeled fourth type is a hard failure by construction. It gained a `libs`
+  bucket (contract records, counts, a canonical-source parity check over `packages/ui/registry/lib`
+  with `utils.ts` — the repo-local `@/lib/utils` shim — as its one documented exemption), and three
+  path-root lists plus one import-specifier regex learned the new root. That is more tooling than
+  the brief's "minimal", and it is the floor: without every one of those edits the new items are
+  invisible to the gates rather than merely unmodeled.
+- **The alternative was cheaper and was rejected.** Both files could have lived in
+  `packages/ui/registry/ui/` with an `@ui/` target and no tooling change at all — the precedent
+  exists, since every `registry:hook` does exactly that. It was rejected because a 60 KB dataset and
+  a class string are not components, and putting them in a consumer's `components/ui/` because it
+  was the path of least resistance is how the drift the audit is removing accumulated in the first
+  place. The type now exists for the next one.
+- **The selected day does NOT use `fillInteractive.primary`.** The brief says "F2's `solid` recipe
+  incl. `fillInteractive.primary`". Those are two different things and only one is right here:
+  `fillInteractive` composites an alpha wash of the ink, and `@vegastack/design`'s own JSDoc states
+  that a solid must not use it because a wash over a solid only thins it. The `solid` recipe is
+  `bg-(--btn-fill) hover:bg-(--btn-fill-hover) active:bg-(--btn-fill-active)`, which for the primary
+  tone is `bg-primary hover:bg-primary-hover active:bg-primary-active` — that is what the day button
+  now spells. Read as a slip in the brief's summary, not a decision to re-open.
+- **`RegionSelect`'s `clearable` defaults to `true`, `CountrySelect`'s to `false`.** Removing the
+  re-select-to-clear toggle without an explicit affordance would have taken away the ability to
+  clear a region entirely, so the replacement is on by default there. Country select never had a
+  clear affordance, so turning one on by default would be a new behaviour no finding asked for.
+- **`Dropzone` gained a `dragState` prop.** The brief asks for "a static `data-dragging` prop for the
+  lane". A prop that exists only for tests is a smell, so it is documented as what it actually is:
+  the two drag-over states cannot be produced without a live `DataTransfer`, which neither a
+  documentation example nor the contract lane can synthesise, so without it they are both
+  undocumented and unverified. It paints only, and a real drag wins.
+- **The `data-slot` on both geography selects moved from the trigger to a wrapper.** Forced, not
+  chosen: the clear control cannot be a child of the trigger button (axe `nested-interactive`), so
+  there has to be a wrapper, and the item's slot belongs on the item's root. The trigger keeps a
+  `-trigger` suffixed slot. Recorded as breaking in the changelog because a probe or selector
+  targeting `[data-slot="country-select"]` for the button now finds the wrapper.

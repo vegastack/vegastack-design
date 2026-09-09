@@ -56,6 +56,7 @@ function resolveDocsCopyPath(target) {
 const registrySourceRoots = [
   join(repoRoot, "packages/ui/registry/ui"),
   join(repoRoot, "packages/ui/registry/blocks"),
+  join(repoRoot, "packages/ui/registry/lib"),
 ];
 function resolveRegistrySourcePath(sourcePath) {
   const candidate = resolveInside(repoRoot, sourcePath);

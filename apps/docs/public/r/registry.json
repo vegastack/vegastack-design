@@ -2045,9 +2045,10 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/drag-item",
+        "@vegastack/dropdown-menu",
         "@vegastack/icon-button",
         "@vegastack/item",
-        "@vegastack/dropdown-menu",
         "@vegastack/use-drag-reorder"
       ],
       "files": [
@@ -2061,7 +2062,7 @@
         "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-ms5/NqaCJ/vnO6CGcmj3E8u3qlbtBM3JeF+NjBe+2xk="
+        "integrity": "sha256-lPHP5ZQHVX0XP2AkK6OGljlY2qrgFwgIwa6F/judS4Y="
       }
     },
     {
@@ -2081,12 +2082,13 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/icon-button",
         "@vegastack/scroll-area",
-        "@vegastack/use-mobile",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-mobile"
       ],
       "files": [
         {
@@ -2099,7 +2101,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.6.0",
-        "integrity": "sha256-SaSoIIFDfnPG1CB7BdhE404PwJj0TAjCeowgSf9DxHo="
+        "integrity": "sha256-DxE3Oo7U6aux7of1ihsMfo94OJSfp4mGXOhwDlK5CzM="
       }
     },
     {
@@ -2128,7 +2130,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
         "version": "0.6.0",
-        "integrity": "sha256-7N//3dA5xP+0e3OhOTOxTH8uJYor0ly9xXKXkE1RrQo="
+        "integrity": "sha256-NdvB0SXkrvo6Gl2IteAbpGkepyKMA0gTc7cQnzkr5q4="
       }
     },
     {
@@ -2718,42 +2720,10 @@
       }
     },
     {
-      "name": "country-select",
+      "name": "searchable-select",
       "type": "registry:ui",
-      "title": "Country Select",
-      "description": "A searchable country combobox returning the ISO 3166-1 alpha-2 code, with flag + name. Built on Combobox.",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.3.2",
-        "@vegastack/design-tokens@^0.2.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/combobox",
-        "@vegastack/button"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/country-select.tsx",
-          "type": "registry:ui",
-          "target": "@ui/country-select.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Collecting a country in an address/billing form — store the ISO code.",
-        "whenNotToUse": "A small fixed option set (Select) or multi-select.",
-        "version": "0.6.0",
-        "integrity": "sha256-sUYfcZM5WtXTZpi8E4Buw1IuHiJK4QvFvN/qxNoAZCY="
-      }
-    },
-    {
-      "name": "region-select",
-      "type": "registry:ui",
-      "title": "Region Select",
-      "description": "A searchable combobox of states/provinces for a country, with a free-text fallback for countries with no subdivisions.",
+      "title": "Searchable Select",
+      "description": "The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.",
       "categories": [
         "form"
       ],
@@ -2766,6 +2736,68 @@
       "registryDependencies": [
         "@vegastack/combobox",
         "@vegastack/button",
+        "@vegastack/icon-button"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/searchable-select.tsx",
+          "type": "registry:ui",
+          "target": "@ui/searchable-select.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A single-select field whose option list is long enough to need a search — countries, regions, projects, repositories, currencies.",
+        "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
+        "version": "0.6.0",
+        "integrity": "sha256-pfHLI74QwOf5aYrXFT9jIYfnecWTmoSndFxtIIGYNzU="
+      }
+    },
+    {
+      "name": "country-select",
+      "type": "registry:ui",
+      "title": "Country Select",
+      "description": "A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/searchable-select",
+        "@vegastack/geo-data"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/country-select.tsx",
+          "type": "registry:ui",
+          "target": "@ui/country-select.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Collecting a country in an address/billing form — store the ISO code.",
+        "whenNotToUse": "A small fixed option set (Select) or multi-select.",
+        "version": "0.6.0",
+        "integrity": "sha256-l7KBhqkZLsGsdeZSTXt4Tq+yR5xYT8FybEtmcW7AP1c="
+      }
+    },
+    {
+      "name": "region-select",
+      "type": "registry:ui",
+      "title": "Region Select",
+      "description": "A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/searchable-select",
+        "@vegastack/geo-data",
         "@vegastack/input"
       ],
       "files": [
@@ -2773,18 +2805,37 @@
           "path": "packages/ui/registry/ui/region-select.tsx",
           "type": "registry:ui",
           "target": "@ui/region-select.tsx"
-        },
-        {
-          "path": "packages/ui/registry/ui/region-select-data.ts",
-          "type": "registry:ui",
-          "target": "@ui/region-select-data.ts"
         }
       ],
       "meta": {
         "whenToUse": "A state/province as part of an address form, dependent on the selected country.",
         "whenNotToUse": "A small country-independent option set (Select) or multi-select.",
         "version": "0.6.0",
-        "integrity": "sha256-COdBQGvaO07GXY6ZmoIEW5oeu7uM/56JHi2/Dycm5w4="
+        "integrity": "sha256-fGG+dByUxOdez0vdjfp88Yf022ffpUj4W3p8dT6+iKo="
+      }
+    },
+    {
+      "name": "geo-data",
+      "type": "registry:lib",
+      "title": "Geo Data",
+      "description": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/geo-data.ts",
+          "type": "registry:lib",
+          "target": "@lib/geo-data.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any surface that needs the country or subdivision lists — the two selects, a shipping-rate table, a billing-address validator.",
+        "whenNotToUse": "A curated subset (pass your own array to the select) or data that has to come from a server.",
+        "version": "0.6.0",
+        "integrity": "sha256-dfBCEH3bjcQveigauCwn5doFtUbEB+ObnW3eDzQHk5s="
       }
     },
     {
@@ -2816,7 +2867,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.6.0",
-        "integrity": "sha256-be2zp7iLpt89AyJ7LzECLsl1UmkVQ8KDKk5eWHmcN9c="
+        "integrity": "sha256-UMmFYPeqo/3Zd1/tpaDJEGFDY2wtPgcZ9mO5+Kttbns="
       }
     },
     {
@@ -3173,6 +3224,30 @@
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.6.0",
         "integrity": "sha256-HxMZDQNzeSUpddV6ANXqisfAjcfW4cjaVk2EmUu0NFc="
+      }
+    },
+    {
+      "name": "drag-item",
+      "type": "registry:lib",
+      "title": "Drag Item",
+      "description": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/drag-item.ts",
+          "type": "registry:lib",
+          "target": "@lib/drag-item.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Building a drag surface on use-drag-reorder — spread it onto the element carrying the hook`s getItemProps() attributes.",
+        "whenNotToUse": "File drag-in (use-file-drop) or any surface that does not use the reorder hook.",
+        "version": "0.6.0",
+        "integrity": "sha256-rJvQqGpWRxJloQ+QvDUVqW3CCOYNTxc9oxljtdA/dR4="
       }
     },
     {

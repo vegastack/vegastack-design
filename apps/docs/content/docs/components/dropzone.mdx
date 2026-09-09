@@ -57,6 +57,21 @@ per-file state vocabulary `Attachment` renders.
   file="components/preview/dropzone.tsx"
 />
 
+### Drag-over states
+
+The **surface** carries the drag feedback — a primary outline while a valid payload hovers, a
+destructive one when it cannot be accepted — so it works with any child, not only an `Empty`. An
+`Empty variant="dashed"` child can tint its dashed border in step through
+`group-data-dragging/dropzone`.
+
+`dragState` paints the two states without a live `DataTransfer`, which neither a static example nor
+an automated check can synthesise. It is presentation only: a real drag always wins.
+
+<ComponentPreview
+  name="dropzoneDragging"
+  file="components/preview/dropzone.tsx"
+/>
+
 ## API Reference
 
 <AutoTypeTable

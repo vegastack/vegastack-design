@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.6.0 sha256-7N//3dA5xP+0e3OhOTOxTH8uJYor0ly9xXKXkE1RrQo=
+// @vegastack dropzone@0.6.0 sha256-NdvB0SXkrvo6Gl2IteAbpGkepyKMA0gTc7cQnzkr5q4=
 
 "use client";
 
@@ -55,6 +55,15 @@ export interface DropzoneProps extends Omit<
   "aria-label"?: string;
   /** The idle affordance — typically `Empty variant="dashed"` content. */
   children: React.ReactNode;
+  /**
+   * Force the drag-over presentation without a real drag. A drag-over state can only be produced
+   * by a live `DataTransfer`, which a static documentation example and the behaviour-contract lane
+   * cannot synthesise — so the two states would otherwise be undocumented and unverified. It
+   * paints only: the engine still owns the real `data-dragging`/`data-drag-invalid` attributes and
+   * a live drag always wins over this prop.
+   * @default undefined
+   */
+  dragState?: "dragging" | "drag-invalid";
   /** Extra classes for the drop surface.
    * @default undefined
    */
@@ -70,8 +79,12 @@ export interface DropzoneProps extends Omit<
 /**
  * `Dropzone` — the visual shell over `use-file-drop`: a click-to-browse,
  * drop-and-paste surface with a real hidden `<input type="file">` as the
- * accessible control. Styling hooks: `data-dragging` and `data-drag-invalid`
- * on the surface for the `group-data-[…]` idiom.
+ * accessible control. The surface itself outlines while a payload hovers —
+ * primary when it can be accepted, destructive when it cannot — so the feedback
+ * does not depend on what is inside it. `data-dragging` and `data-drag-invalid`
+ * stay on the surface for the `group-data-[…]/dropzone` idiom, so a child can
+ * follow the drag state — an `Empty variant="dashed"`, say, tinting its border
+ * in step with the outline.
  *
  * @example
  * <Dropzone
@@ -93,6 +106,7 @@ export function Dropzone({
   onFilesRejected,
   "aria-label": ariaLabel = "Upload files",
   children,
+  dragState,
   className,
   ref,
   ...options
@@ -125,15 +139,22 @@ export function Dropzone({
         data-disabled={options.disabled ? "" : undefined}
         className={cn(
           "group/dropzone relative w-full min-w-0 cursor-pointer rounded-lg",
-          // The whole surface reflects the drag: primary tint while a valid
-          // payload hovers, destructive tint when it cannot be accepted.
-          "data-dragging:[&_[data-slot=empty]]:border-primary/(--alpha-outline-border)",
-          "data-drag-invalid:[&_[data-slot=empty]]:border-destructive/(--alpha-outline-border)",
+          // The SURFACE reflects the drag, not one privileged descendant: an
+          // outline hugging its own `rounded-lg`, primary while a valid payload
+          // hovers and destructive when it cannot be accepted. Before this the
+          // tint was a `[&_[data-slot=empty]]` border override, so a Dropzone
+          // wrapping an image, a card, or any non-`Empty` child showed no
+          // drag-over state at all (audit B8-07). `outline` rather than `border`
+          // so the feedback costs no layout — the child keeps its box.
+          "outline-offset-0 data-dragging:outline-2 data-dragging:outline-primary/(--alpha-outline-border)",
+          "data-drag-invalid:outline-2 data-drag-invalid:outline-destructive/(--alpha-outline-border)",
           options.disabled && "pointer-events-none opacity-(--opacity-dim)",
           className,
         )}
-        data-dragging={dragging}
-        data-drag-invalid={dragInvalid}
+        data-dragging={dragging ?? (dragState === "dragging" ? "" : undefined)}
+        data-drag-invalid={
+          dragInvalid ?? (dragState === "drag-invalid" ? "" : undefined)
+        }
       >
         {children}
       </div>

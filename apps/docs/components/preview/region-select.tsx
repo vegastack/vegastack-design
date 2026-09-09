@@ -4,11 +4,15 @@ import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/region-select` (dogfoods the registry) → auto-scanned.
-import {
-  RegionSelect,
-  getRegionsByCountry,
-  hasRegions,
-} from "@/components/ui/region-select";
+import { RegionSelect } from "@/components/ui/region-select";
+// The dataset is its own registry item now (`shadcn add @vegastack/geo-data`), installed once and
+// shared with CountrySelect (audit B8-02 / decision D27).
+import { getRegions, REGIONS } from "@/lib/geo-data";
+
+/*
+ * The control is `w-full` like every other form field: these examples constrain it with a
+ * `max-w-*` PARENT, which is how a consumer sizes it inside a form column.
+ */
 
 /**
  * Default example — a searchable US-state combobox. Starts empty (placeholder);
@@ -19,7 +23,7 @@ export function regionSelect(): ReactNode {
   const [value, setValue] = React.useState("");
   return (
     <Wrapper>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <RegionSelect country="US" value={value} onValueChange={setValue} />
       </div>
     </Wrapper>
@@ -45,7 +49,7 @@ export function regionSelectStates(): ReactNode {
   const [fallback, setFallback] = React.useState("");
   return (
     <Wrapper>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <RegionSelect
           country="SG"
           value={fallback}
@@ -53,7 +57,7 @@ export function regionSelectStates(): ReactNode {
           placeholder="Enter region"
         />
       </div>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <RegionSelect country="US" value="CA" disabled />
       </div>
     </Wrapper>
@@ -61,15 +65,16 @@ export function regionSelectStates(): ReactNode {
 }
 
 /**
- * Toggle-to-clear — re-selecting the already-selected state fires
- * `onValueChange("")`, clearing the field back to its placeholder. The live
- * code badge echoes the current `value` so the empty-string reset is visible.
+ * Clearing — while a state is selected the trigger carries an explicit clear
+ * control, which fires `onValueChange("")`. It replaces the old
+ * re-select-to-clear toggle, which was invisible and reached the value through
+ * a second code path (audit B8-02). Pass `clearable={false}` to remove it.
  */
-export function regionSelectToggleClear(): ReactNode {
+export function regionSelectClearable(): ReactNode {
   const [value, setValue] = React.useState("CA");
   return (
     <Wrapper>
-      <div className="flex w-64 flex-col gap-2">
+      <div className="flex w-full max-w-(--panel-width-sm) flex-col gap-2">
         <RegionSelect
           country="US"
           value={value}
@@ -96,7 +101,7 @@ export function regionSelectEmptyResults(): ReactNode {
   const [value, setValue] = React.useState("");
   return (
     <Wrapper>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <RegionSelect
           country="US"
           value={value}
@@ -109,17 +114,17 @@ export function regionSelectEmptyResults(): ReactNode {
 }
 
 /**
- * Data API — `hasRegions` / `getRegionsByCountry` drive the same dataset the
- * component reads. Here they decide the helper copy and a count, while the
- * live control consumes the looked-up subdivisions.
+ * Data API — `getRegions` and the `REGIONS` map are the `geo-data` item's exports,
+ * the same dataset the component reads. Here they decide the helper copy and a
+ * count, while the live control consumes the looked-up subdivisions.
  */
 export function regionSelectDataApi(): ReactNode {
   const [value, setValue] = React.useState("");
   const country = "CA";
-  const states = getRegionsByCountry(country);
+  const states = getRegions(country);
   return (
     <Wrapper>
-      <div className="flex w-64 flex-col gap-2">
+      <div className="flex w-full max-w-(--panel-width-sm) flex-col gap-2">
         <RegionSelect
           country={country}
           value={value}
@@ -128,9 +133,9 @@ export function regionSelectDataApi(): ReactNode {
           placeholder="Canadian province"
         />
         <p className="text-sm text-muted-foreground">
-          {hasRegions(country)
-            ? `getRegionsByCountry("${country}") → ${states.length} subdivisions`
-            : `hasRegions("${country}") → free-text fallback`}
+          {country in REGIONS
+            ? `getRegions("${country}") → ${states.length} subdivisions`
+            : `getRegions("${country}") → [] (free-text fallback)`}
         </p>
       </div>
     </Wrapper>
@@ -148,7 +153,7 @@ function CountryDemo({
 }): ReactNode {
   const [value, setValue] = React.useState(initial);
   return (
-    <div className="w-56">
+    <div className="w-full max-w-(--panel-width-sm)">
       <RegionSelect
         country={country}
         value={value}

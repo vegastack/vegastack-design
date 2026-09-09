@@ -1,17 +1,18 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "30237ede0d40991c0d71280e523619d0f4e4995f915dd1e1af8613aff921e5f5",
+  "contractSha256": "a1850f03b5c5415416aee62c9462f180b4b442832dfc78c76d6346497db4d718",
   "inventory": {
-    "expected": 563,
-    "actual": 563,
-    "unique": 563
+    "expected": 566,
+    "actual": 566,
+    "unique": 566
   },
   "classes": {
-    "components": 114,
+    "components": 115,
     "animatedIcons": 439,
     "hooks": 9,
-    "blocks": 1
+    "blocks": 1,
+    "libs": 2
   },
   "waves": {
     "Core controls": {
@@ -45,8 +46,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 22,
-      "actual": 22,
+      "expected": 23,
+      "actual": 23,
       "members": [
         "auto-save-input",
         "chip-input",
@@ -64,6 +65,7 @@
         "otp-input",
         "password-input",
         "region-select",
+        "searchable-select",
         "segmented",
         "select",
         "settings-row",
@@ -638,7 +640,7 @@
       ]
     }
   },
-  "componentRoutes": 114,
+  "componentRoutes": 115,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

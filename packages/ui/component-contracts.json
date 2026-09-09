@@ -12,15 +12,16 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 563,
-    "components": 114,
+    "totalRegistryItems": 566,
+    "components": 115,
     "animatedIcons": 439,
     "hooks": 9,
-    "blocks": 1
+    "blocks": 1,
+    "libs": 2
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 22,
+    "Forms/editing": 23,
     "Navigation/layout": 14,
     "Overlays": 14,
     "Data display": 11,
@@ -67,6 +68,7 @@
       "color-picker",
       "select",
       "combobox",
+      "searchable-select",
       "country-select",
       "region-select",
       "date-picker",
@@ -14478,9 +14480,10 @@
       "engines": [],
       "docsSlug": "/docs/components/sortable-list",
       "registryDependencies": [
+        "@vegastack/drag-item",
+        "@vegastack/dropdown-menu",
         "@vegastack/icon-button",
         "@vegastack/item",
-        "@vegastack/dropdown-menu",
         "@vegastack/use-drag-reorder"
       ],
       "npmDependencies": [
@@ -14646,12 +14649,13 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/icon-button",
         "@vegastack/scroll-area",
-        "@vegastack/use-mobile",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-mobile"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -14715,7 +14719,7 @@
               ]
             }
           ],
-          "cssVariables": ["--board-column-width"]
+          "cssVariables": ["--board-column-max-height", "--board-column-width"]
         }
       }
     },
@@ -14826,11 +14830,11 @@
             },
             {
               "name": "data-drag-invalid",
-              "values": []
+              "values": [""]
             },
             {
               "name": "data-dragging",
-              "values": []
+              "values": [""]
             },
             {
               "name": "data-slot",
@@ -18692,37 +18696,19 @@
       "name": "country-select",
       "registryType": "registry:ui",
       "title": "Country Select",
-      "summary": "A searchable country combobox returning the ISO 3166-1 alpha-2 code, with flag + name. Built on Combobox.",
+      "summary": "A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/country-select.tsx"],
       "publicSymbols": [
-        {
-          "name": "COUNTRIES",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/country-select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "Country",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/country-select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
         {
           "name": "CountrySelect",
           "kind": "component",
           "source": "packages/ui/registry/ui/country-select.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.Trigger",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "SearchableSelect trigger",
+            "rationale": "Source forwards the ref to the composed SearchableSelect's trigger button."
           }
         },
         {
@@ -18732,15 +18718,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "getCountryByCode",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/country-select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],
@@ -18786,10 +18763,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/country-select",
-      "registryDependencies": ["@vegastack/combobox", "@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/searchable-select",
+        "@vegastack/geo-data"
+      ],
       "npmDependencies": [
-        "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -18808,7 +18786,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["country-select", "country-select-item"]
+              "values": ["country-select"]
             }
           ],
           "cssVariables": []
@@ -18819,58 +18797,19 @@
       "name": "region-select",
       "registryType": "registry:ui",
       "title": "Region Select",
-      "summary": "A searchable combobox of states/provinces for a country, with a free-text fallback for countries with no subdivisions.",
+      "summary": "A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.",
       "family": "form",
       "wave": "Forms/editing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/region-select.tsx",
-        "packages/ui/registry/ui/region-select-data.ts"
-      ],
+      "sourceFiles": ["packages/ui/registry/ui/region-select.tsx"],
       "publicSymbols": [
-        {
-          "name": "getRegionsByCountry",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/region-select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "hasRegions",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/region-select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "Region",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/region-select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "REGIONS_BY_COUNTRY",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/region-select-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
         {
           "name": "RegionSelect",
           "kind": "component",
           "source": "packages/ui/registry/ui/region-select.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "SearchableSelect wrapper / fallback div",
+            "rationale": "Source forwards the ref to the component's root element in both the combobox and free-text branches."
           }
         },
         {
@@ -18933,12 +18872,11 @@
       "engines": [],
       "docsSlug": "/docs/components/region-select",
       "registryDependencies": [
-        "@vegastack/combobox",
-        "@vegastack/button",
+        "@vegastack/searchable-select",
+        "@vegastack/geo-data",
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
@@ -18961,12 +18899,124 @@
               "values": [""]
             },
             {
+              "name": "data-slot",
+              "values": ["region-select"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "searchable-select",
+      "registryType": "registry:ui",
+      "title": "Searchable Select",
+      "summary": "The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/searchable-select.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SearchableSelect",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/searchable-select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseCombobox.Trigger",
+            "rationale": "`ref` forwards to the trigger button (the focusable host); `rootRef` forwards to the wrapping div."
+          }
+        },
+        {
+          "name": "SearchableSelectProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/searchable-select.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One shape by design — the preset exists so every data-fed picker looks identical; appearance comes from the composed Button/Combobox."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Height is the composed Button's default control height; width is always the parent's (w-full)."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "open",
+            "filtered",
+            "empty-results",
+            "selected",
+            "cleared",
+            "disabled"
+          ],
+          "evidence": "Observed from the Combobox root's open/value state, the panel search field, ComboboxEmpty, and the clearable branch."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled", "disabled", "expanded", "placeholder"],
+          "evidence": "role=combobox with an explicit aria-label, aria-expanded/aria-haspopup from Base UI, a required searchLabel on the panel field, an aria-labeled clear control rendered as a SIBLING of the trigger (never nested-interactive), and data-placeholder."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "placeholder", "disabled"],
+          "evidence": "Observed from the muted placeholder span, the dimmed chevron under `disabled`, and the shared trailing reserve the chevron and clear control swap within."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink", "anchored-popup-width"],
+        "rationale": "The trigger is w-full with a truncating value span; the panel is sized to --anchor-width, so both follow the parent at 320px."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion — the panel's enter/exit belongs to the shared floating surface."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/searchable-select",
+      "registryDependencies": [
+        "@vegastack/combobox",
+        "@vegastack/button",
+        "@vegastack/icon-button"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/searchable-select.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "searchable-select",
+      "dataAttributes": {
+        "SearchableSelect": {
+          "attributes": [
+            {
               "name": "data-placeholder",
               "values": [""]
             },
             {
               "name": "data-slot",
-              "values": ["region-select"]
+              "values": []
             }
           ],
           "cssVariables": []
@@ -26111,6 +26161,204 @@
         "rendered-a11y-states"
       ],
       "rationale": "Pure hooks have source and browser tests but no independently rendered component surface; use-animation-replay is additionally exercised by the three-engine release run."
+    }
+  ],
+  "libs": [
+    {
+      "name": "geo-data",
+      "registryType": "registry:lib",
+      "title": "Geo Data",
+      "summary": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/geo-data.ts"],
+      "publicSymbols": [
+        {
+          "name": "Country",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Region",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "COUNTRIES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "REGIONS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "getCountryByCode",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "getRegions",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the consuming select owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/geo-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "drag-item",
+      "registryType": "registry:lib",
+      "title": "Drag Item",
+      "summary": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/drag-item.ts"],
+      "publicSymbols": [
+        {
+          "name": "dragItemClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/drag-item.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "A class string: the hook owns the state machine and writes the data attributes this recipe styles."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the announcements and roles belong to use-drag-reorder and its consumers."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "drop-edge-top",
+            "drop-edge-bottom",
+            "dragging",
+            "drag-pending"
+          ],
+          "evidence": "The four data-attribute selectors the string spells: the two ::before drop hairlines, the lift dim, and the pending pulse with its motion-reduce escape."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/sortable-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
     }
   ]
 }

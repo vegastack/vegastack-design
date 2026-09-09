@@ -118,9 +118,11 @@ function walk(dir) {
   return out;
 }
 
-const roots = ["packages/ui/registry/ui", "packages/ui/registry/blocks"].map(
-  (r) => resolve(REPO_ROOT, r),
-);
+const roots = [
+  "packages/ui/registry/ui",
+  "packages/ui/registry/blocks",
+  "packages/ui/registry/lib",
+].map((r) => resolve(REPO_ROOT, r));
 let modulesChecked = 0;
 
 for (const root of roots) {

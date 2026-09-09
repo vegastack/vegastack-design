@@ -122,10 +122,6 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // The control's effective target (border box ∪ ::before/::after hit area) is under 24px on one
   // axis. Each of these still runs reflow AND RTL. Control index is the position in the
   // fixture's `INTERACTIVE_SELECTOR` order, so a failure is locatable without re-deriving it.
-  datePickerDropdownCaption: {
-    target:
-      "size: control 2 (caption dropdown) measures 50.36×21.00 — height short",
-  },
   iconText: {
     target:
       "size: control 0 (focusable truncation trigger) measures 206.00×21.00 — height short",

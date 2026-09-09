@@ -1783,9 +1783,10 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/drag-item",
+        "@vegastack/dropdown-menu",
         "@vegastack/icon-button",
         "@vegastack/item",
-        "@vegastack/dropdown-menu",
         "@vegastack/use-drag-reorder"
       ],
       "files": [
@@ -1816,12 +1817,13 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/icon-button",
         "@vegastack/scroll-area",
-        "@vegastack/use-mobile",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-mobile"
       ],
       "files": [
         {
@@ -2373,10 +2375,10 @@
       }
     },
     {
-      "name": "country-select",
+      "name": "searchable-select",
       "type": "registry:ui",
-      "title": "Country Select",
-      "description": "A searchable country combobox returning the ISO 3166-1 alpha-2 code, with flag + name. Built on Combobox.",
+      "title": "Searchable Select",
+      "description": "The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -2384,7 +2386,38 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/combobox", "@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/combobox",
+        "@vegastack/button",
+        "@vegastack/icon-button"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/searchable-select.tsx",
+          "type": "registry:ui",
+          "target": "@ui/searchable-select.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A single-select field whose option list is long enough to need a search — countries, regions, projects, repositories, currencies.",
+        "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "country-select",
+      "type": "registry:ui",
+      "title": "Country Select",
+      "description": "A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/searchable-select",
+        "@vegastack/geo-data"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/country-select.tsx",
@@ -2402,17 +2435,16 @@
       "name": "region-select",
       "type": "registry:ui",
       "title": "Region Select",
-      "description": "A searchable combobox of states/provinces for a country, with a free-text fallback for countries with no subdivisions.",
+      "description": "A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.",
       "categories": ["form"],
       "dependencies": [
-        "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/combobox",
-        "@vegastack/button",
+        "@vegastack/searchable-select",
+        "@vegastack/geo-data",
         "@vegastack/input"
       ],
       "files": [
@@ -2420,16 +2452,32 @@
           "path": "packages/ui/registry/ui/region-select.tsx",
           "type": "registry:ui",
           "target": "@ui/region-select.tsx"
-        },
-        {
-          "path": "packages/ui/registry/ui/region-select-data.ts",
-          "type": "registry:ui",
-          "target": "@ui/region-select-data.ts"
         }
       ],
       "meta": {
         "whenToUse": "A state/province as part of an address form, dependent on the selected country.",
         "whenNotToUse": "A small country-independent option set (Select) or multi-select.",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "geo-data",
+      "type": "registry:lib",
+      "title": "Geo Data",
+      "description": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
+      "categories": ["form"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/geo-data.ts",
+          "type": "registry:lib",
+          "target": "@lib/geo-data.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any surface that needs the country or subdivision lists — the two selects, a shipping-rate table, a billing-address validator.",
+        "whenNotToUse": "A curated subset (pass your own array to the select) or data that has to come from a server.",
         "version": "0.6.0"
       }
     },
@@ -2767,6 +2815,27 @@
       "meta": {
         "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "drag-item",
+      "type": "registry:lib",
+      "title": "Drag Item",
+      "description": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/drag-item.ts",
+          "type": "registry:lib",
+          "target": "@lib/drag-item.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Building a drag surface on use-drag-reorder — spread it onto the element carrying the hook`s getItemProps() attributes.",
+        "whenNotToUse": "File drag-in (use-file-drop) or any surface that does not use the reorder hook.",
         "version": "0.6.0"
       }
     },

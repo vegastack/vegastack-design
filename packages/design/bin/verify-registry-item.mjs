@@ -408,6 +408,7 @@ const JAVASCRIPT_LIKE_RE = /\.[cm]?[jt]sx?$/i;
 const SHADCN_TRANSFORMED_FILE_TYPES = new Set([
   "registry:ui",
   "registry:hook",
+  "registry:lib",
   "registry:page",
   "registry:component",
 ]);

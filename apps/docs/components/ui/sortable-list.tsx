@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.6.0 sha256-ms5/NqaCJ/vnO6CGcmj3E8u3qlbtBM3JeF+NjBe+2xk=
+// @vegastack sortable-list@0.6.0 sha256-lPHP5ZQHVX0XP2AkK6OGljlY2qrgFwgIwa6F/judS4Y=
 
 "use client";
 
@@ -11,7 +11,7 @@ import {
   EllipsisVertical,
   GripVertical,
 } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { dragItemClasses } from "@/lib/drag-item";
 import { IconButton } from "@/components/ui/icon-button";
 import { Item, ItemContent, ItemGroup } from "@/components/ui/item";
 import {
@@ -174,18 +174,8 @@ export function SortableList({
               data-drop-edge={itemProps["data-drop-edge"]}
               data-drag-pending={itemProps["data-drag-pending"]}
               data-slot="sortable-list-item"
-              className={cn(
-                // Drop indicator: a 2px primary hairline on the closest edge.
-                "relative",
-                "data-[drop-edge=top]:before:absolute data-[drop-edge=top]:before:inset-x-0 data-[drop-edge=top]:before:-top-1 data-[drop-edge=top]:before:h-0.5 data-[drop-edge=top]:before:bg-primary data-[drop-edge=top]:before:content-['']",
-                "data-[drop-edge=bottom]:before:absolute data-[drop-edge=bottom]:before:inset-x-0 data-[drop-edge=bottom]:before:-bottom-1 data-[drop-edge=bottom]:before:h-0.5 data-[drop-edge=bottom]:before:bg-primary data-[drop-edge=bottom]:before:content-['']",
-                // A lifted row dims; separation stays the surface + border
-                // (flat by doctrine — a dragged row gains no shadow).
-                "data-dragging:opacity-(--opacity-dim)",
-                // A server-gated move in flight shimmers (the one sanctioned
-                // loader animation), instantly static under reduced motion.
-                "data-drag-pending:animate-pulse",
-              )}
+              // The ONE drag-item recipe, shared with Board.
+              className={dragItemClasses}
             >
               {rowDisabled ? null : (
                 <IconButton

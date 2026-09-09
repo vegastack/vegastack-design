@@ -28,26 +28,24 @@ compose.
 
 ### Anatomy
 
-The trigger is a `Button variant="outline"` showing the selected flag + name (or the muted
-placeholder), with a `ChevronsUpDown` affordance. It's a thin, data-fed composition of our
-[Combobox](/docs/components/combobox): `items={countries}` drives filtering, and the trigger is
-the "Select-style" pattern — the search input lives inside the popup, not on the always-visible
-trigger:
+`CountrySelect` is a thin, data-fed wrapper over
+[SearchableSelect](/docs/components/searchable-select): the dataset goes in, the ISO code comes
+out, and every structural decision — the Select-shaped trigger, the search field inside the panel,
+the check on the selected row, the clear control — belongs to that preset.
 
 ```tsx
 <CountrySelect value={code} onValueChange={setCode} />
 // ↓ renders, internally:
-//   <Combobox items={countries} value={selected} onValueChange={...}>
-//     <Combobox.Trigger render={<Button variant="outline" />}>  flag + name | placeholder, ChevronsUpDown
-//     <ComboboxContent>
-//       <ComboboxInput placeholder="Search countries…" />
-//       <ComboboxEmpty>No country found.</ComboboxEmpty>  ← empty-results copy
-//       <ComboboxList> … one ComboboxItem per country … </ComboboxList>
+//   <SearchableSelect
+//     items={countries}                    ← the geo-data COUNTRIES array by default
+//     value={selected} onValueChange={…}   ← the ONE selection path
+//     renderItem={…}                       ← flag + name per row
+//     searchLabel="Search countries"       ← the in-panel search field
+//   />
 ```
 
-The trigger defaults to **`w-full`** — it fills its container. Constrain it by wrapping in a
-fixed-width parent (the examples use `w-64`) or pass layout classes via `className`; the popover
-panel matches the trigger width.
+The trigger is **`w-full`**, like every other form control — constrain it with a parent
+(`<div className="max-w-xs">`), not with a width of its own; the panel matches the trigger's width.
 
 ### Country selection
 
@@ -75,8 +73,8 @@ country matches the search, the list shows the empty-results message **"No count
 
 ### Custom dataset
 
-Pass a `countries` array to restrict or extend the offered list (it defaults to the full embedded
-`COUNTRIES` set). The selected value is still the ISO code.
+Pass a `countries` array to restrict or extend the offered list (it defaults to the full
+`COUNTRIES` set from `geo-data`). The selected value is still the ISO code.
 
 <ComponentPreview
   name="countrySelectCustom"
@@ -92,13 +90,14 @@ Pass a `countries` array to restrict or extend the offered list (it defaults to 
 
 ### Data API
 
-The component ships an embedded dataset and a lookup helper, both exported so you can resolve a code
-to a display name (e.g. rendering a stored billing country) without re-deriving the list.
+The dataset is its own registry item, `geo-data`, installed automatically as a dependency of this
+component and shared with [RegionSelect](/docs/components/region-select) — install both and the ISO
+data lands in your tree once. Import from your `lib` alias, not from the component.
 
 #### `Country`
 
 <AutoTypeTable
-  path="../../packages/ui/registry/ui/country-select.tsx"
+  path="../../packages/ui/registry/lib/geo-data.ts"
   name="Country"
 />
 
@@ -109,7 +108,7 @@ to a display name (e.g. rendering a stored billing country) without re-deriving 
     COUNTRIES: {
       type: "Country[]",
       description:
-        "The full embedded dataset — 198 ISO 3166-1 alpha-2 entries (code + English name + flag emoji), covering all regions. The default value of the `countries` prop. Extend it by editing the array; codes are unique.",
+        "The full dataset — 198 ISO 3166-1 alpha-2 entries (code + English name + flag emoji), covering all regions. The default value of the `countries` prop. Extend it by editing the array; codes are unique.",
     },
   }}
 />
@@ -127,7 +126,7 @@ to a display name (e.g. rendering a stored billing country) without re-deriving 
 />
 
 ```tsx
-import { getCountryByCode } from "@/components/ui/country-select";
+import { getCountryByCode } from "@/lib/geo-data";
 
 getCountryByCode("us")?.name; // "United States"  (case-insensitive)
 getCountryByCode("ZZ"); // undefined
@@ -140,6 +139,8 @@ getCountryByCode("ZZ"); // undefined
   pattern — the search input lives inside the popup).
 - The list is keyboard-navigable (↑/↓/Enter); typing filters by country name or code.
 - Flag emoji are `aria-hidden` (decorative); the name carries the accessible text.
+- With `clearable`, the clear control is a sibling of the trigger — never a child — so the trigger
+  never becomes an interactive control containing another one.
 
 | Key                                 | Action                                         |
 | ----------------------------------- | ---------------------------------------------- |

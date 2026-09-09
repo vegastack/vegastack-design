@@ -1,0 +1,149 @@
+---
+title: Searchable Select
+description: The Select-shaped Combobox preset — a full-width trigger, an in-panel search field, a check on the selected row, and an optional clear control.
+audience: public
+preview: searchableSelect
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/searchable-select
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { SearchableSelect } from "@/components/ui/searchable-select";
+
+const [project, setProject] = React.useState<Project | null>(null);
+
+<SearchableSelect
+  items={projects}
+  value={project}
+  onValueChange={setProject}
+  itemToKey={(p) => p.id}
+  itemToStringLabel={(p) => p.name}
+  renderItem={(p) => p.name}
+  searchLabel="Search projects"
+  placeholder="Select project"
+/>;
+```
+
+`SearchableSelect` is the one preset for _"a Select, but the list is too long to scroll"_. It is
+controlled by the **item itself**, not by an id: pass the selected item as `value`, and
+`onValueChange` hands you back an item (or `null` when the clear control is used). Give it
+`isItemEqualToValue` when the value is not the same object reference as the entry in `items`.
+
+Use it instead of restating the recipe: [CountrySelect](/docs/components/country-select) and
+[RegionSelect](/docs/components/region-select) are both thin wrappers over it, and a third data-fed
+picker should be too.
+
+Reach for a plain [Select](/docs/components/select) when the option set is short and fixed, and for
+[Combobox](/docs/components/combobox) directly when you need free text, suggestions, or
+multi-select chips.
+
+## Examples
+
+### Anatomy
+
+Three parts, and one rule that shapes the layout:
+
+```tsx
+<div className="relative w-full">   // the wrapper
+  <Combobox.Trigger render={<Button variant="outline" className="w-full pe-9" />}>
+    <ComboboxValue />               // the selected face, or the muted placeholder
+  </Combobox.Trigger>
+  <ComboboxContent className="w-(--anchor-width) p-0">
+    <ComboboxPopupInput />          // the panel-search row: leading icon, hairline below
+    <ComboboxEmpty />
+    <ComboboxList>{…ComboboxItem per item, check on the selected one…}</ComboboxList>
+  </ComboboxContent>
+  {/* chevron, OR the clear control when `clearable` and a value is set */}
+</div>
+```
+
+The rule: an interactive control may not contain another one, so the clear control can never live
+inside the trigger button. Both it and the chevron are siblings positioned inside the wrapper, and
+they share **one** trailing reserve — so the trigger's text box does not move when a value is set.
+
+The trigger is `w-full`, like every other form control. Constrain it with a parent
+(`<div className="max-w-xs">`), never with a width of its own; the panel matches the trigger width
+through `--anchor-width`.
+
+### Selected and empty
+
+With a value set the trigger shows it and the matching row carries a check; with none it shows the
+muted placeholder and carries `data-placeholder`.
+
+<ComponentPreview
+  name="searchableSelectEmpty"
+  file="components/preview/searchable-select.tsx"
+/>
+
+### Clearable
+
+`clearable` swaps the chevron for a clear control while a value is set. It reports `null`, which is
+the same code path every other selection uses.
+
+<ComponentPreview
+  name="searchableSelectClearable"
+  file="components/preview/searchable-select.tsx"
+/>
+
+### Rich rows
+
+`renderItem` draws a row; `renderValue` draws the trigger face when it should differ. Filtering
+always runs against `itemToStringLabel`, so include everything a user might type — an owner, a code,
+an alias.
+
+<ComponentPreview
+  name="searchableSelectRich"
+  file="components/preview/searchable-select.tsx"
+/>
+
+### Disabled
+
+<ComponentPreview
+  name="searchableSelectDisabled"
+  file="components/preview/searchable-select.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/searchable-select.tsx"
+  name="SearchableSelectProps"
+/>
+
+`className` lands on the trigger; `containerClassName` on the wrapper. `ref` is the trigger button
+(the focusable host — the panel is portaled); `rootRef` is the wrapper, for a component whose own
+public ref is its root.
+
+## Accessibility
+
+- The trigger is `role="combobox"` with `aria-expanded` and `aria-haspopup="dialog"` — Base UI's
+  pattern for a Select-style combobox whose input lives inside the panel. `role="combobox"`
+  prohibits name-from-content, so the trigger always carries an explicit `aria-label`, defaulting
+  to the selected item's label and falling back to the placeholder.
+- The search field is labelled by the required `searchLabel` and focused when the panel opens.
+- The clear control is an `IconButton` **sibling** of the trigger with its own `aria-label`, so the
+  trigger never nests one interactive control inside another.
+- Selection is one code path for pointer and keyboard alike: both go through the Combobox root's
+  `onValueChange`.
+
+| Key                                 | Action                                    |
+| ----------------------------------- | ----------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the panel from the trigger.          |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move the highlight between matching rows. |
+| <kbd>Enter</kbd>                    | Select the highlighted row and close.     |
+| <kbd>Esc</kbd>                      | Close without changing the selection.     |
+
+## Do / Don't
+
+<DoDont
+  do="Let the parent size it — the trigger is w-full and the panel follows the anchor width."
+  dont="Give the trigger a fixed width; it is the one thing that breaks the control at 320px."
+/>

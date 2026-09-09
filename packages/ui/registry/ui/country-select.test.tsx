@@ -3,7 +3,10 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { CountrySelect, getCountryByCode, COUNTRIES } from "./country-select";
+import { CountrySelect } from "./country-select";
+
+/* The dataset assertions (COUNTRIES, getCountryByCode, flags) moved to
+   registry/lib/geo-data.test.ts with the data itself (audit B8-02 / D27). */
 
 test("renders the trigger with a placeholder", async () => {
   const screen = await render(<CountrySelect placeholder="Pick a country" />);
@@ -24,10 +27,8 @@ test("uses the supplied countries array when resolving the selected label", asyn
   expect(screen.container.textContent).not.toContain("Select country");
 });
 
-// DEVIATION: the trigger's accessible role changed from an implicit `<button>` ("button") to an
-// explicit `role="combobox"` — Base UI's own ARIA pattern for a Select-style combobox trigger
-// (input rendered inside the popup). This is the SAME role RegionSelect's trigger already used
-// even before this refactor, so it's a consistency fix, not a regression.
+// DEVIATION: the trigger's accessible role is `combobox`, not `button` — Base UI's own ARIA
+// pattern for a Select-style combobox trigger (the input lives inside the popup).
 test("opens and filters the list, selecting fires onValueChange with the ISO code", async () => {
   const onValueChange = vi.fn();
   const screen = await render(<CountrySelect onValueChange={onValueChange} />);
@@ -39,55 +40,25 @@ test("opens and filters the list, selecting fires onValueChange with the ISO cod
   expect(onValueChange).toHaveBeenCalledWith("CA");
 });
 
-// DEVIATION: see the role note above — `getByRole("button")` no longer matches the trigger.
 test("disabled trigger does not open", async () => {
   const screen = await render(<CountrySelect disabled />);
-  const btn = screen.getByRole("combobox");
-  await expect.element(btn).toBeDisabled();
+  await expect.element(screen.getByRole("combobox")).toBeDisabled();
 });
 
-test("getCountryByCode is case-insensitive", () => {
-  expect(getCountryByCode("us")?.name).toBe("United States");
-  expect(getCountryByCode("GB")?.name).toBe("United Kingdom");
-  expect(getCountryByCode(undefined)).toBeUndefined();
-  expect(COUNTRIES.length).toBeGreaterThan(80);
+test("no clear control unless `clearable` is set", async () => {
+  const screen = await render(<CountrySelect value="FR" />);
+  expect(
+    screen.container.querySelector('[data-slot="country-select-clear"]'),
+  ).toBeNull();
 });
 
-test("ships the full ISO 3166-1 dataset (198 countries, unique codes)", () => {
-  expect(COUNTRIES.length).toBe(198);
-  // No duplicate ISO codes (would break React keys + Base UI Combobox filtering).
-  const codes = new Set(COUNTRIES.map((c) => c.code));
-  expect(codes.size).toBe(198);
-  // Every entry has a 2-letter code, a non-empty name, and a flag emoji.
-  for (const c of COUNTRIES) {
-    expect(c.code).toMatch(/^[A-Z]{2}$/);
-    expect(c.name.length).toBeGreaterThan(0);
-    expect(c.flag.length).toBeGreaterThan(0);
-  }
-});
-
-test("resolves countries that were previously missing from the compact list", () => {
-  // These were absent from the prior 103-country dataset — a real billing/address regression.
-  expect(getCountryByCode("RU")?.name).toBe("Russia");
-  expect(getCountryByCode("SA")?.name).toBe("Saudi Arabia"); // already present, sanity
-  expect(getCountryByCode("YE")?.name).toBe("Yemen");
-  expect(getCountryByCode("UZ")?.name).toBe("Uzbekistan");
-  expect(getCountryByCode("mc")?.name).toBe("Monaco"); // case-insensitive
-  expect(getCountryByCode("VA")?.name).toBe("Vatican City");
-  expect(getCountryByCode("VE")?.name).toBe("Venezuela");
-});
-
-test("derives a flag emoji from the ISO code for every country", () => {
-  // Flags are the regional-indicator pair of the alpha-2 code: 2 codepoints in U+1F1E6..U+1F1FF.
-  for (const c of COUNTRIES) {
-    const cps = [...c.flag];
-    expect(cps).toHaveLength(2);
-    for (const cp of cps) {
-      const point = cp.codePointAt(0)!;
-      expect(point).toBeGreaterThanOrEqual(0x1f1e6);
-      expect(point).toBeLessThanOrEqual(0x1f1ff);
-    }
-  }
+test("the clear control reports an empty code", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <CountrySelect value="FR" clearable onValueChange={onValueChange} />,
+  );
+  await screen.getByRole("button", { name: "Clear country" }).click();
+  expect(onValueChange).toHaveBeenCalledWith("");
 });
 
 test("no a11y violations — disabled", async () => {
@@ -100,7 +71,13 @@ test("no a11y violations (closed)", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-// DEVIATION: see the role note above `getByRole("button")` -> `getByRole("combobox")`.
+// The clear control is a SIBLING of the trigger, never a child: a nested interactive control
+// would fail axe's `nested-interactive` rule.
+test("no a11y violations — clearable with a value", async () => {
+  const screen = await render(<CountrySelect value="FR" clearable />);
+  await expectNoA11yViolations(screen.container);
+});
+
 test("no a11y violations (open)", async () => {
   const screen = await render(<CountrySelect />);
   (screen.getByRole("combobox").element() as HTMLButtonElement).click();
@@ -112,9 +89,9 @@ test("no a11y violations (open)", async () => {
   await expectNoA11yViolations(document.body);
 });
 
-test("forwards ref to the trigger button (data-slot=country-select)", async () => {
+test("forwards ref to the trigger button (data-slot=country-select-trigger)", async () => {
   const ref = React.createRef<HTMLButtonElement>();
   await render(<CountrySelect ref={ref} />);
   expect(ref.current).toBeInstanceOf(HTMLButtonElement);
-  expect(ref.current?.dataset.slot).toBe("country-select");
+  expect(ref.current?.dataset.slot).toBe("country-select-trigger");
 });

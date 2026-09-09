@@ -1,59 +1,25 @@
-// @vegastack region-select@0.6.0 sha256-COdBQGvaO07GXY6ZmoIEW5oeu7uM/56JHi2/Dycm5w4=
+// @vegastack region-select@0.6.0 sha256-fGG+dByUxOdez0vdjfp88Yf022ffpUj4W3p8dT6+iKo=
 
 "use client";
 
 import * as React from "react";
-import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
-import { ChevronsUpDown, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { REGIONS_BY_COUNTRY } from "@/components/ui/region-select-data";
-import {
-  Combobox,
-  ComboboxPopupInput,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxList,
-  ComboboxItem,
-} from "@/components/ui/combobox";
-import { Button } from "@/components/ui/button";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { getRegions, type Region } from "@/lib/geo-data";
 import { Input } from "@/components/ui/input";
 
 /* ------------------------------------------------------------------------------------------------
- * RegionSelect — a searchable combobox of states/provinces for a given country, a THIN data-fed
- * composition of our `Combobox` (search input living inside `ComboboxContent`, the "Select-style"
- * pattern — see combobox.tsx's own JSDoc and country-select.tsx's note on why `ComboboxTrigger`
- * itself isn't used for the label). Countries with a known administrative division set (see
- * {@link REGIONS_BY_COUNTRY}) render the searchable dropdown; countries without one fall back to a
- * plain text `Input` so the value is still captured. Pure presentational + controlled (`value` +
- * `onValueChange`) — the consuming app owns the selected code.
+ * RegionSelect — the subdivision dataset for one country fed into `SearchableSelect`. Countries
+ * with a known administrative-division set (see `geo-data`'s `REGIONS`) get the searchable
+ * dropdown; countries without one fall back to a plain text `Input` so the value is still captured.
  *
- * Re-selecting the already-selected state clears it (a deliberate toggle UX kept from the prior
- * build) — Base UI's Combobox has no built-in "click again to deselect" for single-select, so each
- * item's `onClick` computes the toggle directly and drives `Combobox`'s `value` fully from this
- * component's own controlled `value` prop (the root's `onValueChange` is intentionally left
- * unwired, avoiding a second, conflicting change signal).
+ * Selection runs through `SearchableSelect`'s single `value`/`onValueChange` path. The old
+ * click-again-to-clear toggle is gone: it lived in each item's `onClick` with the Combobox root's
+ * `onValueChange` deliberately unwired, so keyboard Enter and a pointer click reached the value by
+ * two different routes (audit B8-02). Clearing is now the explicit `clearable` control on the
+ * trigger — discoverable, and the same code path for both input modalities.
  * ----------------------------------------------------------------------------------------------*/
-
-/** A single administrative division (state / province / region) with its ISO-ish code and label. */
-export interface Region {
-  /** The subdivision code, stored as the selected `value` (e.g. `"CA"`). */
-  code: string;
-  /** The human-readable subdivision name shown in the list (e.g. `"California"`). */
-  name: string;
-}
-
-/**
- * Look up the states/provinces for a country code (case-insensitive). Returns an empty array when
- * the country has no predefined subdivisions in {@link REGIONS_BY_COUNTRY}.
- */
-export function getRegionsByCountry(country: string): Region[] {
-  return REGIONS_BY_COUNTRY[country.toUpperCase()] ?? [];
-}
-
-/** Whether a country has predefined subdivisions in {@link REGIONS_BY_COUNTRY} (case-insensitive). */
-export function hasRegions(country: string): boolean {
-  return country.toUpperCase() in REGIONS_BY_COUNTRY;
-}
 
 /** Props accepted by `RegionSelect`. */
 export interface RegionSelectProps {
@@ -77,6 +43,12 @@ export interface RegionSelectProps {
    * @default false
    */
   disabled?: boolean;
+  /**
+   * Shows a clear control on the trigger while a state is selected — the explicit replacement for
+   * the old click-again-to-clear toggle. Has no effect on the free-text fallback.
+   * @default true
+   */
+  clearable?: boolean;
   /** `id` forwarded to the trigger / input for label association.
    * @default undefined
    */
@@ -104,10 +76,12 @@ export interface RegionSelectProps {
 }
 
 /**
- * `RegionSelect` — a searchable state/province picker for a country. Renders a `Combobox`-powered
- * dropdown for countries with a known subdivision set, with live filtering and full keyboard
- * navigation; for countries without predefined states it falls back to a plain text `Input` so the
- * value is still captured. Controlled via `value` + `onValueChange`.
+ * `RegionSelect` — a searchable state/province picker for a country, with live filtering and full
+ * keyboard navigation; for countries without predefined states it falls back to a plain text
+ * `Input` so the value is still captured. Controlled via `value` + `onValueChange`.
+ *
+ * The dataset and its lookup (`REGIONS`, `getRegions`, `Region`) are the `geo-data` item's public
+ * API — import them from `@/lib/geo-data`.
  *
  * @example
  * // Country with states → searchable dropdown
@@ -123,18 +97,15 @@ export function RegionSelect({
   onValueChange,
   placeholder = "Select state",
   disabled = false,
+  clearable = true,
   id,
   "aria-label": ariaLabel,
   className,
   containerClassName,
   ref,
 }: RegionSelectProps) {
-  const [open, setOpen] = React.useState(false);
-  const states = getRegionsByCountry(country);
-  const selected = states.find((state) => state.code === value);
-  // `role="combobox"` prohibits name-from-content, so the trigger needs an explicit label —
-  // reflect the current selection (or the placeholder) so the control is always discernible.
-  const triggerLabel = ariaLabel ?? selected?.name ?? placeholder;
+  const states = getRegions(country);
+  const selected = states.find((state) => state.code === value) ?? null;
 
   // Country has no predefined subdivisions — fall back to a free-text input so the value is still
   // captured (e.g. Singapore, Hong Kong, monolithic territories).
@@ -164,74 +135,37 @@ export function RegionSelect({
   }
 
   return (
-    <div ref={ref} data-slot="region-select" className={containerClassName}>
-      <Combobox
-        items={states}
-        value={selected ?? null}
-        open={open}
-        onOpenChange={setOpen}
-        isItemEqualToValue={(a: Region, b: Region) => a.code === b.code}
-        itemToStringLabel={(state: Region) => state.name}
-        autoHighlight
-        disabled={disabled}
-      >
-        <BaseCombobox.Trigger
-          id={id}
-          disabled={disabled}
-          render={
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-between font-normal data-[placeholder]:text-muted-foreground",
-                className,
-              )}
-              data-placeholder={selected ? undefined : ""}
-            />
-          }
-          aria-label={triggerLabel}
-        >
-          <span className="flex min-w-0 items-center gap-2">
-            <MapPin
-              aria-hidden
-              className="size-(--icon-default) shrink-0 text-muted-foreground"
-            />
-            <span className="truncate">
-              {selected ? selected.name : placeholder}
-            </span>
-          </span>
-          <ChevronsUpDown
+    <SearchableSelect<Region>
+      rootRef={ref}
+      id={id}
+      items={states}
+      value={selected}
+      onValueChange={(state) => onValueChange?.(state ? state.code : "")}
+      isItemEqualToValue={(a, b) => a.code === b.code}
+      itemToKey={(state) => state.code}
+      itemToStringLabel={(state) => state.name}
+      renderItem={(state) => state.name}
+      renderValue={(state) => (
+        <>
+          <MapPin
             aria-hidden
             className="size-(--icon-default) shrink-0 text-muted-foreground"
           />
-        </BaseCombobox.Trigger>
-        <ComboboxContent align="start" className="w-(--anchor-width) p-0">
-          <ComboboxPopupInput
-            aria-label="Search states"
-            placeholder="Search states…"
-          />
-          <ComboboxEmpty>No state found.</ComboboxEmpty>
-          <ComboboxList className="p-1">
-            {(state: Region) => (
-              <ComboboxItem
-                key={state.code}
-                value={state}
-                onClick={() => {
-                  // Toggle: re-selecting the already-selected state clears it. Base UI's own
-                  // click→select flow still runs (composed, not replaced) but has no observable
-                  // effect on the PUBLIC value — the root's `onValueChange` is left unwired (see
-                  // this file's header note), so this handler is the only source of truth. The
-                  // leading checkmark is `ComboboxItem`'s own built-in trailing indicator (moved
-                  // here via its logical end/start padding) — no separate manual `<Check>` needed.
-                  onValueChange?.(state.code === value ? "" : state.code);
-                  setOpen(false);
-                }}
-              >
-                {state.name}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-    </div>
+          <span className="truncate">{state.name}</span>
+        </>
+      )}
+      placeholder={placeholder}
+      searchLabel="Search states"
+      searchPlaceholder="Search states…"
+      emptyMessage="No state found."
+      clearable={clearable}
+      clearLabel="Clear state"
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className={className}
+      containerClassName={containerClassName}
+      data-slot="region-select"
+      itemSlot="region-select-item"
+    />
   );
 }
