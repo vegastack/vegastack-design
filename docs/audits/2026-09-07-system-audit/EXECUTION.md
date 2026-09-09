@@ -9,28 +9,51 @@ Started 2026-09-07 from `main` @ `6f11a4bc`. `@vegastack/ui` 0.6.0 (workspace) �
 
 ## Progress snapshot (refreshed at every state change)
 
-_Last refresh: 2026-09-09 13:00 IST (session 4)._ **Completion (effort-weighted): ≈ 70% done · 30% pending** — 8 batches merged, the whole verification rebuild merged, 9 batches code-complete and rebasing now, 5 batches not started, plus the consolidated end round.
+_Last refresh: 2026-09-09 22:00 IST (session 4)._ **Completion (effort-weighted): ≈ 88% done · 12% pending.**
 
-**The topology changed.** WP0–WP6 are all on `main` (#68 #69 #71 #70 #77 #78 #79, plus the geometry-defect ledger #80). That deleted `pnpm gates:*`, `.gates/`/`receipt.json`, `receipt-guard`, `.husky/pre-push`, `apps/docs/vrt/`, `contracts-run.mjs`, `classify-change.mjs`, `vrt-review.mjs`, `verify-gate-receipt*.mjs`, `runner-diagnostics.yml` and the `gates` skill. **There are no receipts, no remote sweeps and no merge train.** A PR now needs: rebase → `pnpm verify` → push → green CI. `pnpm verify` is byte-for-byte what CI runs.
+**Every one of the nine wave batches has merged, plus O2, D2 and the security triage.** `main` is `6d251857` at **568 registry items** — 116 components · 439 animated icons · 10 hooks · 1 block · 2 libs.
 
-| batch                   | issue               | PR                          | stage                                                                                                                            |
-| ----------------------- | ------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| F1 (+ follow-up)        | #32                 | #55, #59                    | **merged**                                                                                                                       |
-| Do1-a                   | #48a                | #54                         | **merged**                                                                                                                       |
-| I1                      | #46                 | #57                         | **merged** `f1d7d2fb`                                                                                                            |
-| F2                      | #33                 | #60                         | **merged** `8ce8de4d`                                                                                                            |
-| Di1                     | #42                 | #62                         | **merged** `42aa455b`                                                                                                            |
-| T2                      | #38                 | #63                         | **merged** `f8ca47ca`                                                                                                            |
-| O1                      | #40                 | #66                         | **merged**                                                                                                                       |
-| G1-a                    | #49a                | #53                         | **closed unmerged by decision** — TG-07 (`tooling/lib/fs.mjs`) and TG-08 (`checkTransitionPairing`) confirmed on `main`; settled |
-| D1 · M1 · T1 · Fo1 · M2 | #34 #35 #37 #39 #36 | #72 · #65 · #61 · #67 · #64 | **wave 1 in flight** — agents rebasing onto post-rebuild `main`, then CI                                                         |
-| N1 · Mk1 · C1 · P1      | #43 #47 #44 #45     | #73 · #74 · #76 · #75       | wave 2 — code-complete, rebase after wave 1 merges                                                                               |
-| O2                      | #41                 | —                           | agent was stopped mid-task; **verify its scope before shipping**                                                                 |
-| D2                      | #50                 | —                           | must rebase `--onto origin/main 203b2229`, NOT onto D1's current head                                                            |
-| D3 (4 sub-PRs)          | #51                 | —                           | not started; **D3-4 opens a PR and STOPS** (MK gate)                                                                             |
-| Do1-b                   | new issue needed    | —                           | #48 is closed; WP6 moved the page canon into `design.md` § Docs canon, so the scope must be re-derived before reopening          |
-| G1-b                    | #49b                | —                           | not started; `briefs/g1b.md` is the one brief written for the post-rebuild world                                                 |
-| Version PR              | —                   | #56                         | CONFLICTING across 100 files and predates WP5 — **recommend close and regenerate**. MK decision.                                 |
+| batch            | issue | PR       | merge                                                        |
+| ---------------- | ----- | -------- | ------------------------------------------------------------ |
+| F1 (+ follow-up) | #32   | #55, #59 | **merged**                                                   |
+| Do1-a            | #48a  | #54      | **merged** `d5c960a3`                                        |
+| I1               | #46   | #57      | **merged** `f1d7d2fb`                                        |
+| F2               | #33   | #60      | **merged** `8ce8de4d`                                        |
+| Di1              | #42   | #62      | **merged** `42aa455b`                                        |
+| T2               | #38   | #63      | **merged** `f8ca47ca`                                        |
+| O1               | #40   | #66      | **merged** `54c5cb68`                                        |
+| M1               | #35   | #65      | **merged** `aa5fa0d5`                                        |
+| Fo1              | #39   | #67      | **merged** `9fbeb655`                                        |
+| M2               | #36   | #64      | **merged** `2a3fc241`                                        |
+| C1               | #44   | #76      | **merged** `8c18d2bb`                                        |
+| Mk1              | #47   | #74      | **merged** `3663f8fa`                                        |
+| D1               | #34   | #72      | **merged** `5b03e3b8`                                        |
+| N1               | #43   | #73      | **merged** `fdaed057`                                        |
+| D2               | #50   | #91      | **merged** `3b37ddee`                                        |
+| O2               | #41   | #90      | **merged** `d5e2de2b`                                        |
+| Security triage  | —     | #93      | **merged** `f54fb92d` — 22 high → **0 high**                 |
+| P1               | #45   | #75      | **merged** `45cde26d`                                        |
+| T1               | #37   | #61      | **merged** `6d251857` — after **ten** rebases                |
+| G1-a             | #49a  | #53      | closed unmerged by decision; TG-07/TG-08 confirmed on `main` |
+
+### In flight
+
+| work           | issue | state                                                                           |
+| -------------- | ----- | ------------------------------------------------------------------------------- |
+| G1-b           | #49b  | running — twelve lint rules plus the four fail-opens found today                |
+| D3-1           | #51   | running — motion 13, react-dropzone 20, pragmatic-dnd 3, jest-dom 7, globals 17 |
+| D3-2           | #51   | running — TanStack Table 9 in `data-grid`, launched once T1 freed the file      |
+| Icons (28 new) | #92   | running — 439 → 467, unblocks `mirror --refresh`                                |
+
+### Not started
+
+| work      | issue | note                                                                                                                                                                                                                                                 |
+| --------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D3-3      | #51   | Vitest 5 — held until G1-b lands; both rebuild test infrastructure                                                                                                                                                                                   |
+| D3-4      | #51   | **needs re-scoping before it runs** — its brief names `tooling/gates.mjs`, `gate-receipt-carry.mjs`, `verify-gate-receipt-negative`, `release-classify.mjs` and `release:preflight`, all deleted by the rebuild. **MK-gated: opens a PR and STOPS.** |
+| Do1-b     | new   | issue still to open; scope must be re-derived against `design.md` § Docs canon (WP6 moved it there)                                                                                                                                                  |
+| CI infra  | #94   | the shared mac-mini pnpm store race                                                                                                                                                                                                                  |
+| End round | —     | reviewers → fix pass → `verify` + `verify:release` → probes → counts → final report                                                                                                                                                                  |
 
 ### Verification rebuild — complete
 
@@ -297,3 +320,5 @@ Rerun after every wave: `04-cross-cutting.md` §2 scan + `probe-states.mjs --all
 - 2026-09-09 20:30 · **O2 merged** (#90 → `d5e2de2b`) and **the audit triage merged** (#93 → `f54fb92d`). O2's step-zero reconstruction was worth doing: item 5 (docs/changelog artefacts) was **half-done and dangerous** — 44 hand-written `/CHANGELOG.md` bullets and one unmarked changeset, both written under pre-WP5 rules — and **no** scope item turned out to be already satisfied on `main` (main still imported `Toaster` from `sonner`, still declared `sonner@^2.0.8`, still carried the sonner registry item). O2 caught three more instances of the header-only trap: `skills/internal/component/SKILL.md` (taking main's side restored two sonner references), `packages/ui/package.json` (`--theirs` reverted D1's Base UI 1.8 bump), and `provider.test.tsx` (would have lost D1's `drainToasts()` helper). It also **re-checked a deferred bug rather than leaving it open**: the Base UI `aria-hidden` + `tabIndex: 0` toast defect persists at 1.8.0 (`ToastRoot.js` 424/428), so the `bugs.md` entry that said "revisit at 1.8" now records the re-check.
 - 2026-09-09 20:35 · T1 (#61) and P1 (#75) both went CONFLICTING on those two merges and were **re-launched as rebase-only agents** — there is no `SendMessage` in this build, so a finished agent cannot be continued. The count arithmetic is the thing to watch: T1 takes items to 565 (115 components, 10 hooks) and P1 adds a component plus two libs, so whichever lands second must recompute — 566 if it goes first, **568** if T1 precedes it. Both prompts carry that arithmetic explicitly with an instruction to verify rather than carry it forward. P1's rebase agent already demonstrated the right resolution for the shared `EXCLUDED` hunk in `geometry.browser.test.tsx`: a **union of deletions**, because N1 removed three breadcrumb entries and P1 removed the date-picker one, and taking either side wholesale resurrects the other batch's defect.
 - 2026-09-09 20:40 · **New infra issue #94** — the shared mac-mini pnpm store races between concurrent jobs. `pnpm/action-setup` fails with `ENOTEMPTY` / `MODULE_NOT_FOUND … pnpm/dist/worker.js` before any repo code builds, every later step reports `skipped`, and the run reads as a failure unrelated to the diff. It hit **three of T1's eight pushes**, across both minis and different store shards, and hit D1 and P1 earlier. In every case the Linux `verify` was green on the same commit and re-running the macOS job alone was green. Recommendation in the issue: a concurrency group on the macOS job first (it is the short lane, ~1m40), measuring before resorting to a per-run store dir that discards the cache. The Linux runners bind-mount `/opt/vsk-runner/pnpm-store` and are unaffected.
+- 2026-09-09 21:55 · **P1 merged** (#75 → `45cde26d`) and **T1 merged** (#61 → `6d251857`). **The whole nine-batch wave is done.** T1 took **ten** rebases; `main` moved under it after every single green run. Its last pass is the cleanest evidence of the day that the count trap is real: in `tooling/verify-component-contracts.mjs`, `components: 115` **auto-merged with no conflict** — `main` said 115 because P1 added `searchable-select`, the branch said 115 because it added `data-table-parts` to a 114 base. Same number, different reasons; the right answer was 116, and only `totalRegistryItems` actually conflicted. Caught by hand, exactly as Fo1's was. Final counts on `main`: **568 = 116 components · 439 animated icons · 10 hooks · 1 block · 2 libs**, contract SHA `71e4e061…`. T1's drop proof was stronger on the last pass than the one before: 81 files both times, identical file set, and all 81 insertion/deletion counts byte-identical, because its semantic delta against the new `main` is exactly what it was against the old one.
+- 2026-09-09 22:00 · Next tier launched: **D3-2** (TanStack Table 9 in `data-grid`, held until T1 freed that file, with the instruction that the APG keyboard layer stays ours and that stopping with evidence is a legitimate outcome if v9 is a bad trade) and **the 28-icon adoption** (#92, 439 → 467 → 596 items). **D3-3 is deliberately held** until G1-b lands — both rebuild test infrastructure. **D3-4 needs re-scoping before it can run at all**: its brief names five things the rebuild deleted (`tooling/gates.mjs`, `gate-receipt-carry.mjs`, `verify-gate-receipt-negative`, `release-classify.mjs`, `release:preflight`), so it will be re-derived against the current release topology and shown to MK before launch, since it is the MK-gated one.
