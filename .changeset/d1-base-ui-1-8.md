@@ -14,4 +14,4 @@ Two user-visible upstream changes are kept as shipped: a `readOnly` Select/Combo
 browses (reached through `editable-cell`), and start/end-aligned popups take their pop-in
 `--transform-origin` from the aligned edge.
 [docs](https://design.vegastack.com/docs/components/message-scroller) ·
-[`3d3643c`](https://github.com/VegaStack/vegastack-design/commit/3d3643c)
+[`e519fa6`](https://github.com/VegaStack/vegastack-design/commit/e519fa6)

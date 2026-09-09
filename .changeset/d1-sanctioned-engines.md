@@ -8,4 +8,4 @@ machine behind `date-picker` — Base UI ships no Calendar, and shadcn's Calenda
 every base; `next-themes` is the theme engine mounted only by `provider`, which `sonner` reads
 through `useTheme()` rather than mounting a second time.
 [docs](https://design.vegastack.com/docs/components/date-picker) ·
-[`2a7440f`](https://github.com/VegaStack/vegastack-design/commit/2a7440f)
+[`0eb7eca`](https://github.com/VegaStack/vegastack-design/commit/0eb7eca)

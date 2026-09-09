@@ -9,4 +9,4 @@ appends a `minimumReleaseAgeExclude` entry to `pnpm-workspace.yaml` and installs
 anyway; explicit, the install fails with `ERR_PNPM_NO_MATURE_MATCHING_VERSION` and writes nothing.
 The two stale `fumadocs-*@16.10.5` excludes were written by pnpm that way, not by a human, and are
 deleted.
-[`8e151d4`](https://github.com/VegaStack/vegastack-design/commit/8e151d4)
+[`dd4173e`](https://github.com/VegaStack/vegastack-design/commit/dd4173e)
