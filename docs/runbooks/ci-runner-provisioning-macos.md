@@ -123,9 +123,8 @@ repository setting; nothing in this tree can assert it.
 
 **Both mac-mini agents are ORG-level runners, so the repository endpoint cannot see them.** This
 runbook used to print `gh api repos/VegaStack/vegastack-design/actions/runners`, which lists only the
-two repo-level Linux boxes (`vsk-node-05`, `vsk-node-07`) — an operator following it saw no mac-mini
-agents and had no way to tell "not registered" from "not visible at this scope". Verified
-2026-09-09.
+repo-level Linux boxes — an operator following it saw no mac-mini agents and had no way to tell
+"not registered" from "not visible at this scope". Verified 2026-09-09.
 
 Ask a recent run which machine actually took the job. This needs only the `repo` scope every operator
 already has:
@@ -137,7 +136,10 @@ gh api "repos/VegaStack/vegastack-design/actions/runs/$RUN/jobs" \
 ```
 
 `verify-macos` must report a `runner_name` of `vsk-runner-mac-mini-1` or `-2`, and `verify` a
-`runner_name` of `vsk-node-05` or `-07`. An agent that has gone offline shows up as a **queued job
+`runner_name` belonging to the Linux class — whichever boxes
+`gh api repos/VegaStack/vegastack-design/actions/runners` lists as online
+(`docs/runbooks/ci-runner-provisioning-linux.md` § Which boxes are enrolled). An agent that has gone
+offline shows up as a **queued job
 that never starts** — a job queued against a label no runner carries waits forever rather than
 failing, so an offline runner looks like a hung pull request, not a red one. `gh run list` showing a
 CI run stuck `in_progress` with no `verify-macos` job started is that symptom. Because both agents

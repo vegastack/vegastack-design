@@ -19,12 +19,25 @@ hand-typed steps on the box.**
 - Runner name: the box's short hostname
 - Runner version pinned in the script, tarball verified against GitHub's published SHA-256
 
-## Currently enrolled
+## Which boxes are enrolled
 
-| host          | address         | admin user | notes                                                                                                                                              |
-| ------------- | --------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `vsk-node-05` | `192.168.88.75` | `admin-05` | primary; `ssh gates`                                                                                                                               |
-| `vsk-node-07` | LAN             | `admin-07` | secondary; `ssh gates2`. Also a k8s control-plane node — keep concurrency low and do not add heavy lanes here without checking cluster load first. |
+**Ask GitHub, not this file.** The fleet changes whenever a box is added or retired, and a
+hand-maintained table here drifts silently — it did, listing two runners while five were online
+(2026-09-09). There is exactly one authority:
+
+```bash
+gh api repos/VegaStack/vegastack-design/actions/runners \
+  --jq '.runners[] | "\(.name)\t\(.status)\t\([.labels[].name] | join(","))"'
+```
+
+Every row must read `online` with `self-hosted,Linux,X64,vsk-runner`; the runner name is the box's
+short hostname, and `ssh <hostname>` or the LAN address resolves the rest. CI concurrency on the
+Linux class is simply how many rows that command prints.
+
+The only per-host fact that is **not** derivable from that command, and that a reader needs:
+
+- **`vsk-node-07` is also a Kubernetes control-plane node.** Keep its job concurrency low, and do
+  not add a heavy lane targeting it without checking cluster load first.
 
 ## Prerequisites
 

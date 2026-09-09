@@ -2430,3 +2430,103 @@ untouched.
 is `Acme renewalPS$12,400` — host-supplied JSX, so not a component defect, and left alone on the
 rule that a preview only composes. The open question is whether a SHIPPED example should model the
 separator, since it is the thing consumers copy. Not decided here.
+
+## 2026-09-09 — Wave PR: a shipped changelog count that was wrong twice, and four drift surfaces removed
+
+The doctrine/ledger wave PR for audit epic #31. Everything here is prose, doctrine or history; no
+runtime behaviour changed, and the registry counts are unmoved at 596.
+
+### The 0.1.0 component count was wrong, and so was the first correction
+
+`/CHANGELOG.md`'s shipped 0.1.0 entry said **75 components**. A previous agent reported the true
+figure as **82**. Both were wrong; the answer is **83**, computed against the release commit
+`8a5bb2a8` itself rather than recalled:
+
+- `git show 8a5bb2a8:packages/ui/registry.json` holds **525** items — 522 `registry:ui`, 2
+  `registry:hook`, 1 `registry:block`, 0 `registry:lib`.
+- **440** items are named `icon-*`. `icon-button` is one of them and **is a component**, not an
+  animated icon (AGENTS.md § Build rules: icon registry items install as `@vegastack/icon-<name>`,
+  so the bare `icon-button` is a component; `verify-component-contracts.mjs` asserts both
+  directions of that).
+- Running the repo's own canonical predicate — `isGeneratedAnimatedIcon` from
+  `tooling/lib/animated-icon-inventory.mjs`, which classifies by **source path** under
+  `packages/ui/registry/ui/icons/` precisely so a hand-written icon-named component can never be
+  mistaken for a mirror — over that historical registry returns **439 animated icons and 83
+  components**, with `icon-button` the only icon-named component. 439 + 83 + 2 + 1 = 525. ✓
+
+The **82** came from counting non-`icon-*` items, i.e. from a name-derived rule the repo
+deliberately does not use. Corroboration from the same commit: `apps/docs/content/docs/components/`
+held exactly **83** `.mdx` pages.
+
+The entry's other figures were checked too. **439 animated-icon items** and **2 hooks** were
+correct. **"91 pages"** in the same entry's Docs section was not: that tree carries **99** `.mdx`
+files under `apps/docs/content/docs` (83 components, 10 foundations, 3 root, 2 utilities, 1 block),
+and no plausible sub-count yields 91. Corrected to 99. No other historical entry states an
+inventory count — grepped.
+
+**Why this cannot recur.** It is not fixed by a gate; it is fixed by the pipeline that already
+exists. Since R5 (2026-09-08) nobody hand-types a count into a release entry:
+`tooling/changelog-assemble.mjs` writes the `/CHANGELOG.md` entry at version time from changesets,
+`sync-changelog.mjs` regenerates the docs page from that file, and AGENTS.md § Numbers is generated
+by `pnpm design:derived` from `component-contracts.json` and fails closed against
+`registry.json`. Editing a **shipped historical** entry to correct a fact is the one legitimate
+hand-edit, and this is it. Adding a gate that re-derives counts for entries dated 2026-07 would be
+machinery guarding a class of error the pipeline no longer produces.
+
+### Four stale-prose items, each fixed by removing the drift surface rather than patching it
+
+1. **`docs/runbooks/ci-runner-provisioning-linux.md` § "Currently enrolled" listed 2 runners; 5 are
+   enrolled** (`vsk-node-01/-05/-06/-07/-08`, all `self-hosted,Linux,X64,vsk-runner`, all online,
+   verified via `gh api`). The table was a hand-maintained mirror of live state, so adding three
+   rows would only reset the clock. **Replaced with the command that produces the truth**, plus the
+   one fact that command cannot return: `vsk-node-07` is also a k8s control-plane node. Two further
+   copies of the same roster — a comment in `tooling/verify-workflow-security.mjs` and the health
+   check in `ci-runner-provisioning-macos.md` — were de-enumerated for the same reason.
+2. **AGENTS.md's "no component writes its own `hover:bg-*`" was narrower than the system and
+   narrower than the lint rule.** Read against `tooling/design-lint.mjs`: the rule is
+   `hover-without-pressed`, which fails a class string that **changes** fill on hover with no
+   pressed rung in the same literal. It does not ban the literal. And 18 non-test registry sources contain
+   one. They fall in three legitimate cases — the component IS the recipe for its family (Button's
+   `--btn-*` tone vars), a variant prefix makes the exported constant unusable
+   (`[&:is(a,button)]:` on Item, `group-data-[variant=line]/tabs-list:` on Tabs,
+   `data-[active=true]:` on Sidebar), or it is cancelling an inherited wash
+   (`hover:bg-transparent`). AGENTS.md § Build rules and design.md § Hover geometry now say that,
+   naming the enforced rule rather than an absolute the code never held. This is broader than Board
+   Needs-MK #11's agreed wording ("except a component that IS the recipe for its family"), which
+   covered only the first case; the other two are equally real and are in the source today.
+3. **`tooling/verify-component-contracts.mjs` told the reader to run `pnpm design:derived`** when an
+   `expectedCounts` key drifted. Nothing generates those keys — `sync-component-derived.mjs` only
+   **reads** `contracts.expectedCounts` (7 read sites, 0 writes), so the advice could never work,
+   for any of the six keys. The message now names the file and the edit.
+4. **design.md § Accessibility gained the `sr-only` separator pattern** (#103/#109), which was a
+   house pattern at nine call sites with no doctrine behind it.
+
+### The audit briefs are now versioned
+
+`/Users/mk/projects/vegastack-design-audit-ops/` held the whole orchestration toolkit with no
+backup (flagged in `MANDATE-SESSION-4.md` § 8.6). `_common.md`, all 24 per-batch briefs,
+`MANDATE-SESSION-4.md` and a README are now in
+`docs/audits/2026-09-07-system-audit/briefs/`. The machine-specific shell scripts and the two dead
+handoffs (`HANDOFF-SESSION-2.md`, `HOLD-STATE.md`) were deliberately left out: they describe the
+pre-2026-09-08 verification topology, and importing them would version the exact stale legacy this
+wave is removing.
+
+### Ledger reconciliation
+
+`docs/ledger/codex-rounds.md` had **nothing** from epic #31 — last entry Round 22, 2026-08-27 —
+while three real Codex rounds (F1 #55, Do1-a #54, I1 #57) had been run and acted on, and every
+round after 2026-09-08 was run by independent Opus reviewers because Codex is rate-limited to
+2026-09-15. Both are now recorded there. `bugs.md` and `operator-review.md` were swept for claims
+of the shape corrected earlier today (a `@vitest/browser` override that never existed; a claim that
+`verify-component-contracts` pins the icon count as a literal); no further live-state claim was
+found to be false. Entries that reference deleted machinery (`pnpm gates:*`, `.gates/receipt.json`,
+`apps/docs/vrt/`) are dated 2026-08/2026-09-07-08 and describe what was true then — that is what an
+append-only ledger is for, and they were left alone.
+
+### Needs MK
+
+- **pnpm 11 vs 12.** AGENTS.md § Locked decisions still says **pnpm 11**, deliberately. D3-4
+  (PR #106) bumps it to 12 and is MK-gated and unmerged; the line flips when #106 lands. Not
+  pre-empted here.
+- **Board Needs-MK #11** (the hover-literal wording) is answered by the reconciliation above, but
+  the answer is wider than the wording MK agreed to. Confirm the wider form.
