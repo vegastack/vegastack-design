@@ -1496,19 +1496,26 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/use-overflow"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/table.tsx",
           "type": "registry:ui",
           "target": "@ui/table.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/table-scroll-region.tsx",
+          "type": "registry:ui",
+          "target": "@ui/table-scroll-region.tsx"
         }
       ],
       "meta": {
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
         "version": "0.6.0",
-        "integrity": "sha256-puH25QBPwr10DK9r/dc3GaqhsLtBbXdQzcN4NDRdU/s="
+        "integrity": "sha256-sCbqtkxrdZrZXMXS2BSfvygVVZ0kJnxmFFgDFU0gF0c="
       }
     },
     {
@@ -1581,7 +1588,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -1594,7 +1602,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.6.0",
-        "integrity": "sha256-kpC4PF0xj1ZSuyNCCgAPg9LBX1M/R1T7v+A/hGzZ5s4="
+        "integrity": "sha256-XdT4pZ1LPFiLFrkpARLnLM41jZbBnlvc4Y/+equyJUs="
       }
     },
     {
@@ -2953,11 +2961,9 @@
       "registryDependencies": [
         "@vegastack/auto-save-input",
         "@vegastack/button",
-        "@vegastack/checkbox",
+        "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
-        "@vegastack/empty",
-        "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/use-announcer"
       ],
@@ -2972,7 +2978,41 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.6.0",
-        "integrity": "sha256-JCbYTEI1uKzdQIgZw34hNHhR3SNcXz3ikdUqNLNYATA="
+        "integrity": "sha256-6nuMtxwPlYUZnhAwPX18MUOop8yA0AXbSQMcu5cYVVc="
+      }
+    },
+    {
+      "name": "data-table-parts",
+      "type": "registry:ui",
+      "title": "Data Table Parts",
+      "description": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/empty",
+        "@vegastack/skeleton",
+        "@vegastack/table"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/data-table-parts.tsx",
+          "type": "registry:ui",
+          "target": "@ui/data-table-parts.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
+        "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
+        "version": "0.6.0",
+        "integrity": "sha256-VFIGdvw/VjcpWpTr0ENlpu1+v0EWyejkHHHzvoIjDeE="
       }
     },
     {
@@ -2984,15 +3024,12 @@
         "data"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/table",
-        "@vegastack/checkbox",
-        "@vegastack/skeleton",
-        "@vegastack/empty"
+        "@vegastack/data-table-parts",
+        "@vegastack/table"
       ],
       "files": [
         {
@@ -3005,7 +3042,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.6.0",
-        "integrity": "sha256-dzg8sk4KVZdBG730x7GbwWN3rarvD2OSE1hlp9yOmRU="
+        "integrity": "sha256-Rmk2vvO7T2Y7C41xGlgIXSUX0VSOpT2/+QD1QPyWejE="
       }
     },
     {
@@ -3031,7 +3068,7 @@
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
         "version": "0.6.0",
-        "integrity": "sha256-ne+6y8LdXj/eE+4T1fz6pinehUUt6ZpGEcEJmsDwwOk="
+        "integrity": "sha256-GWuWsvXc/dNUp/sbL1NgsNHrSc1emEchSyjegurENcA="
       }
     },
     {
@@ -3090,7 +3127,7 @@
         "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area chart that needs to match the design system's theme automatically in light and dark.",
         "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress / ProgressIndicator).",
         "version": "0.6.0",
-        "integrity": "sha256-WM9fz2UnqlEXshewv4rC14nareF8mXDvMpvxru1wvyo="
+        "integrity": "sha256-s4Plp7F5wjEe9hqlO07pkr76M/gv6Y4N9jqMXpCOU8I="
       }
     },
     {
@@ -3376,6 +3413,30 @@
         "whenNotToUse": "CSS-only responsive layout — reach for a Tailwind breakpoint utility instead when no JS branching is needed.",
         "version": "0.6.0",
         "integrity": "sha256-5mXSIDPMEzN4G2HAlhhm+u0oZotx/BcBqL5L02Tcm7w="
+      }
+    },
+    {
+      "name": "use-overflow",
+      "type": "registry:hook",
+      "title": "useOverflow",
+      "description": "Live overflow measurement — report whether an element is clipped on the inline axis, the block axis, or either, across resizes and content changes.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-overflow.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-overflow.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Deciding something only when content is ACTUALLY clipped — offering a reveal affordance for truncated text, or making a scroll viewport focusable only while it can scroll.",
+        "whenNotToUse": "Layout CSS can express on its own (line-clamp, overflow) with no JavaScript branch hanging off the measurement.",
+        "version": "0.6.0",
+        "integrity": "sha256-YyD1wz7bXJ3fX2Bij4Za2bp9xoK177ijOEQujNu+88o="
       }
     },
     {
@@ -15878,20 +15939,26 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/copy-button"
+        "@vegastack/copy-button",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
           "path": "packages/ui/registry/ui/terminal.tsx",
           "type": "registry:ui",
           "target": "@ui/terminal.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/terminal-body.tsx",
+          "type": "registry:ui",
+          "target": "@ui/terminal-body.tsx"
         }
       ],
       "meta": {
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.6.0",
-        "integrity": "sha256-kH6MRORsYHGyoMUjYl3Yl2uFxT/yDUDluVRNdyAE0tQ="
+        "integrity": "sha256-Ev/GYL1tq49stDXoLGXLjbormZ5d22TE2XL7LqhQkbs="
       }
     },
     {
@@ -16058,8 +16125,11 @@
         "whenToUse": "Feature-by-plan comparison under a pricing section.",
         "whenNotToUse": "Data tables (Table) or spec sheets without plan columns.",
         "version": "0.6.0",
-        "integrity": "sha256-yZ4YP4EKUYRnSqLxiLTqseCXBZRwEheetRG1gSS94mA="
-      }
+        "integrity": "sha256-bdnMG84ZSI28+u5sBFaX+Yjtu0cu34ZPY1moSn/Xelw="
+      },
+      "registryDependencies": [
+        "@vegastack/use-overflow"
+      ]
     },
     {
       "name": "staggered-text-reveal",

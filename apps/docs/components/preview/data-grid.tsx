@@ -229,3 +229,37 @@ export function dataGridLoadMore(): ReactNode {
     </Wrapper>
   );
 }
+
+export function dataGridNarrow(): ReactNode {
+  // The honest-narrow contract, forced: a 320px-wide pane. Every column that no
+  // longer fits STACKS into the primary cell (`mobile: "merge"`, the default)
+  // rather than disappearing — `design.md` § DataGrid, "data is never silently
+  // lost". A column that opts into `mobile: "hidden"` is counted and reported in
+  // the toolbar instead.
+  const columns: DataGridColumn<Deal>[] = [
+    { key: "name", header: "Deal", minWidth: 160, mobile: "visible" },
+    { key: "stage", header: "Stage", minWidth: 140 },
+    {
+      key: "amount",
+      header: "Amount",
+      align: "end",
+      minWidth: 140,
+      mono: true,
+      render: (deal) => money(deal.amount),
+    },
+    { key: "owner", header: "Owner", minWidth: 140, mobile: "hidden" },
+  ];
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="w-full max-w-80">
+        <DataGrid
+          aria-label="Deals at 320px"
+          columns={columns}
+          data={DEALS.slice(0, 3)}
+          getRowId={(deal) => deal.id}
+          columnPicker={false}
+        />
+      </div>
+    </Wrapper>
+  );
+}

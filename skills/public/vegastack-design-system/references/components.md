@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**115 components**, plus 439 animated-icon items, 9 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 566 registry items in total.
+**116 components**, plus 439 animated-icon items, 10 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 568 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -78,6 +78,7 @@ component and never an icon.
 
 - **`data-grid`** — The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.
 - **`data-list`** — A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
+- **`data-table-parts`** — The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.
 - **`filter-bar`** — A row of removable filter chips, an "Add filter" dropdown, and an optional search input — for list and table filter toolbars.
 - **`filter-bar-managed`** — The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.

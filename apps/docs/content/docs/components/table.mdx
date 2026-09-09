@@ -68,14 +68,15 @@ their parent. Every part forwards its ref and exposes a `data-slot`:
 </Table>
 ```
 
-- `Table` — wraps a `<table>` in an overflow container (`data-slot="table"`, container is `data-slot="table-container"`). `w-full caption-bottom text-sm`.
+- `Table` — wraps a `<table>` in a `TableScrollRegion` (`data-slot="table"`, container is `data-slot="table-container"`). `w-full caption-bottom text-sm`.
 - `TableHeader` — the `<thead>` group (`data-slot="table-header"`). Adds a bottom border to each header row.
 - `TableBody` — the `<tbody>` group (`data-slot="table-body"`). Drops the last row's border for a clean bottom edge.
 - `TableFooter` — the `<tfoot>` group (`data-slot="table-footer"`). Muted background with a top border for totals.
-- `TableRow` — a `<tr>` (`data-slot="table-row"`). Hover highlight and `data-selected` selected state.
+- `TableRow` — a `<tr>` (`data-slot="table-row"`). Hover highlight and `data-selected` selected state. Rows inside `TableHeader` do not take the hover — a header is not a row you can act on.
 - `TableHead` — a header cell `<th>` (`data-slot="table-head"`). Muted, start-aligned, medium-weight label.
-- `TableCell` — a data cell `<td>` (`data-slot="table-cell"`). Vertically centered with consistent padding.
+- `TableCell` — a data cell `<td>` (`data-slot="table-cell"`). Vertically centered, and **wrapping by default** over the `--table-cell-min-width` floor.
 - `TableCaption` — the `<caption>` (`data-slot="table-caption"`), rendered below the table.
+- `TableScrollRegion` — the scroll viewport (`data-slot="table-container"`), the family's one client leaf. It measures itself and takes a tab stop only while it can actually scroll.
 
 ## Examples
 
@@ -86,11 +87,32 @@ A caption, a selected row, and a footer totals row:
   file="components/preview/table.tsx"
 />
 
-### Horizontal overflow
+### Wrapping is the default
 
-When a table is wider than its parent, the `data-slot="table-container"` wrapper (`overflow-x-auto`)
-scrolls horizontally instead of overflowing — wide tables never break the surrounding layout. Scroll
-the table below sideways to reach the `Amount` column.
+Body cells wrap (`overflow-wrap: anywhere`) over a per-cell minimum width, so one long value breaks
+inside its own column instead of pushing the whole table sideways. Horizontal scrolling is reserved
+for tables that are genuinely wide.
+
+Two column shapes are unreadable when broken and opt back out with `whitespace-nowrap`: figures and
+mono values (ids, refs, timestamps). `DataList` and `DataGrid` express the same rule declaratively —
+`column.nowrap`, which defaults to `true` for `align="end"` and `mono` columns.
+
+Retune the floor per table by overriding `--table-cell-min-width` (default `calc(var(--spacing) * 20)`,
+80px) in the table's `className`.
+
+<ComponentPreview name="tableWrapping" file="components/preview/table.tsx" />
+
+### Horizontal overflow, and reaching it by keyboard
+
+When a table is genuinely wider than its parent, the `data-slot="table-container"` viewport
+(`overflow-x-auto`) scrolls instead of overflowing — wide tables never break the surrounding layout.
+
+A scrollable region that cannot be focused can only be scrolled with a pointer. So the viewport
+**measures itself** and takes `tabIndex={0}` only while it actually scrolls: a table that fits adds
+nothing to the tab order, and a table that does not is reachable with <kbd>Tab</kbd> and scrolled with
+the arrow keys. Name it with `scrollLabel` (it falls back to the table's own `aria-label`) and the
+viewport is exposed as `role="region"`; leave it unnamed and it stays a plain focusable container,
+because an unnamed landmark is worse than none.
 
 <ComponentPreview name="tableOverflow" file="components/preview/table.tsx" />
 
@@ -116,9 +138,9 @@ family stays server-safe.
 ## API Reference
 
 `Table` adds the three spreadsheet-voice props (`grid`, `headerTone`,
-`density`) plus two container hooks — `containerClassName` and
-`containerProps`, both forwarded to the `data-slot="table-container"` scroll
-wrapper that owns `overflow-x-auto`. Use them to attach sticky headers, a
+`density`), the `scrollLabel` that names the scroll viewport, and
+`containerProps` — forwarded to the `data-slot="table-container"` viewport that
+owns `overflow-x-auto`. Use `containerProps` to attach sticky headers, a
 fixed-height viewport, or a virtualizer's scroll element; the `<table>` itself
 cannot own a scroll viewport.
 
@@ -144,15 +166,20 @@ everything its underlying native element accepts (`<thead>`, `<tbody>`,
   `aria-selected` when the rows are interactive so the state is announced.
 - Borders-only by design: rows are distinguished by `border-border`, keeping the table legible in
   high-contrast and forced-colors modes.
+- The scroll viewport is keyboard-reachable exactly when it scrolls, so a wide table can be read
+  without a pointer (axe `scrollable-region-focusable`) and a table that fits adds no dead tab stop.
+  Its focus outline is pulled inside (`focus-visible:-outline-offset-2`) because the viewport clips
+  its own overflow.
 
 | Key                                 | Action                                                                             |
 | ----------------------------------- | ---------------------------------------------------------------------------------- |
 | <kbd>Tab</kbd>                      | Move focus through interactive controls inside cells (links, buttons, checkboxes). |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control.                                                      |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Scroll the focused table viewport horizontally.                                    |
 
 ## Do / Don't
 
 <DoDont
-  do="Use TableCaption and scope='col' headers, and font-mono for numeric/amount columns."
+  do="Use TableCaption and scope='col' headers, name the viewport with scrollLabel, and reserve whitespace-nowrap for figures and mono values."
   dont="Use a Table for page layout — it's for tabular data only; use a grid/flex layout instead."
 />

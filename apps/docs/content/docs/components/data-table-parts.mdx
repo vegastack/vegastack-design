@@ -1,0 +1,170 @@
+---
+title: Data Table Parts
+description: The sort header, selection cells, skeleton rows, empty row, column rules and hooks that DataList and DataGrid are both built from.
+audience: public
+preview: dataTableParts
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/data-table-parts
+```
+
+<RegistryInstallCallout />
+
+Adding `@vegastack/data-list` or `@vegastack/data-grid` installs this item automatically — it is
+their shared foundation. Install it directly only when you are building a bespoke table that should
+match them.
+
+## Usage
+
+```tsx
+import {
+  SelectAllHead,
+  SelectionCell,
+  SortableHead,
+  columnCellClass,
+  cycleSort,
+  useRowSelection,
+} from "@/components/ui/data-table-parts";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+const { selected, allSelected, indeterminate, toggleAll, toggleRow } =
+  useRowSelection({
+    rowIds: rows.map((row) => row.id),
+  });
+
+<Table scrollLabel="Releases">
+  <TableHeader>
+    <TableRow>
+      <SelectAllHead
+        checked={allSelected}
+        indeterminate={indeterminate}
+        onToggle={toggleAll}
+      />
+      <SortableHead
+        column={{ key: "name", header: "Release", sortable: true }}
+        onSort={sortByName}
+      />
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {rows.map((row, index) => (
+      <TableRow key={row.id}>
+        <SelectionCell
+          checked={selected.has(row.id)}
+          onToggle={() => toggleRow(row.id)}
+          label={`Select row ${index + 1}`}
+        />
+        <TableCell>{row.name}</TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>;
+```
+
+## Scope
+
+These are **parts, not a table**. They render chrome and compute set arithmetic; nothing here owns
+data, fetching, filtering or paging. Pick the renderer first — `DataList` for the presentational
+default, `DataGrid` when grouping, inline editing, multi-key sort, column management or 10k+ rows
+earn its engines — and reach for these directly only when you are building a table neither one fits.
+
+The doctrinal split between the two renderers is unchanged: `DataList` stays presentational,
+`DataGrid` keeps its engines. What they share is chrome and set maths, which is what lives here.
+
+## Anatomy
+
+| Part                 | What it is                                                                                                                   |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `SortableHead`       | One header cell, with the sort affordance and the ARIA the sort state owes AT (`aria-sort`, `data-sortable`, `data-sorted`). |
+| `SortHeaderButton`   | The control inside a sortable header — a ghost `Button`, so it inherits the system's hover, pressed and focus steps.         |
+| `SelectAllHead`      | The leading header cell holding the tri-state select-all checkbox.                                                           |
+| `SelectionCell`      | The leading body cell holding one row's checkbox. Stops mouse propagation so selecting never activates the row.              |
+| `SkeletonRows`       | The loading state, `aria-hidden` so a wall of placeholders is not announced.                                                 |
+| `EmptyRow`           | The "no records" state as a real full-width row, so the table keeps valid semantics.                                         |
+| `useRowSelection`    | Controlled-optional selection arithmetic, scoped to the current view.                                                        |
+| `useControlledState` | The house controlled-optional state idiom, once.                                                                             |
+| `cycleSort`          | `asc → desc → cleared`, with optional additive multi-key sorting capped at `maxKeys`.                                        |
+| `columnCellClass`    | Alignment, wrap posture and the mono numeral face for one column.                                                            |
+
+## Examples
+
+Sorting, selection and the column rules composed onto a plain `Table`:
+
+<ComponentPreview
+  name="dataTableParts"
+  file="components/preview/data-table-parts.tsx"
+/>
+
+### Loading and empty
+
+<ComponentPreview
+  name="dataTablePartsAsyncStates"
+  file="components/preview/data-table-parts.tsx"
+/>
+
+### Column rules
+
+`columnCellClass` resolves three facts at once, so header, body and skeleton cells cannot disagree:
+
+- `align` — `start` (default), `center`, `end`.
+- `mono` — the mono numeral face (`font-mono text-code tabular-nums`), so figures line up.
+- `nowrap` — whether the cell stays on one line. Cells **wrap by default**; `align="end"` and `mono`
+  columns opt in automatically, and an explicit `nowrap` overrides the inference in both directions.
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/data-table-parts.tsx"
+  name="SortableHeadProps"
+/>
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/data-table-parts.tsx"
+  name="DataTableColumnLayout"
+/>
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/data-table-parts.tsx"
+  name="SelectionCellProps"
+/>
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/data-table-parts.tsx"
+  name="SkeletonRowsProps"
+/>
+
+## Accessibility
+
+- `SortableHead` emits `aria-sort` on **every** sortable column, `"none"` included — a table that
+  marks only the active column tells a screen-reader user which column is sorted but never which
+  ones they could sort.
+- `SortHeaderButton` is a real `Button`, so it is reachable, activatable and focus-visible without a
+  single hand-rolled rule.
+- `SelectAllHead` is tri-state: partial selection reports `indeterminate` rather than a misleading
+  checked or unchecked box.
+- Every selection checkbox needs a name that identifies its ROW (`Select row 3`, `Select Acme`), not
+  the column.
+- `SkeletonRows` is `aria-hidden`; announce loading once from the table's own busy/live wiring
+  instead of announcing every placeholder.
+
+| Key                                 | Action                                                      |
+| ----------------------------------- | ----------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move to the next sort header or selection checkbox.         |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Sort by the focused column, or toggle the focused row.      |
+| <kbd>Shift</kbd> + click            | Add the column as an additional sort key (when `additive`). |
+
+## Do / Don't
+
+<DoDont
+  do="Compose these onto Table when neither DataList nor DataGrid fits, and let columnCellClass decide alignment, wrapping and the mono face."
+  dont="Reimplement a sort header or selection cell inline — that is the duplication this item exists to end."
+/>

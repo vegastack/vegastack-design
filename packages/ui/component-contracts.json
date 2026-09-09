@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 566,
-    "components": 115,
+    "totalRegistryItems": 568,
+    "components": 116,
     "animatedIcons": 439,
-    "hooks": 9,
+    "hooks": 10,
     "blocks": 1,
     "libs": 2
   },
@@ -24,10 +24,10 @@
     "Forms/editing": 23,
     "Navigation/layout": 14,
     "Overlays": 14,
-    "Data display": 11,
+    "Data display": 12,
     "Content/marketing": 23,
     "AI/chat": 6,
-    "Hooks": 9,
+    "Hooks": 10,
     "Block": 1,
     "Animated icons": 439
   },
@@ -122,6 +122,7 @@
       "comparison-matrix",
       "data-grid",
       "data-list",
+      "data-table-parts",
       "progress-indicator",
       "property-list",
       "stat",
@@ -170,6 +171,7 @@
       "use-list-nav",
       "use-media-query",
       "use-mobile",
+      "use-overflow",
       "use-platform"
     ],
     "Block": ["dashboard-01"],
@@ -11631,7 +11633,10 @@
       "summary": "Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, caption.",
       "family": "data-display",
       "wave": "Data display",
-      "sourceFiles": ["packages/ui/registry/ui/table.tsx"],
+      "sourceFiles": [
+        "packages/ui/registry/ui/table.tsx",
+        "packages/ui/registry/ui/table-scroll-region.tsx"
+      ],
       "publicSymbols": [
         {
           "name": "Table",
@@ -11784,6 +11789,25 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "TableScrollRegion",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/table-scroll-region.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TableScrollRegionProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/table-scroll-region.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -11799,13 +11823,13 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "selected"],
+          "values": ["default", "selected", "scrollable"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
           "status": "observed",
-          "values": ["semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "values": ["semantic-html", "labeled", "keyboard"],
+          "evidence": "Native table semantics; the scroll viewport is measured and becomes a named role=region tab stop only while it can scroll, with the focus outline inset because the viewport clips its own overflow."
         },
         "visual": {
           "status": "observed",
@@ -11816,7 +11840,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["overflow-and-scroll", "grid-wrapping"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "Body cells wrap over a --table-cell-min-width floor so one long value cannot force the whole table sideways; genuinely wide tables scroll inside a keyboard-reachable viewport rather than overflowing the page."
       },
       "motion": {
         "status": "not-applicable",
@@ -11828,7 +11852,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/table",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-overflow"],
       "npmDependencies": [
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
@@ -11860,7 +11884,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["table", "table-container"]
+              "values": ["table"]
             }
           ],
           "cssVariables": []
@@ -11924,6 +11948,19 @@
             {
               "name": "data-slot",
               "values": ["table-caption"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableScrollRegion": {
+          "attributes": [
+            {
+              "name": "data-scrollable",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["table-container"]
             }
           ],
           "cssVariables": []
@@ -12367,7 +12404,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/truncated-text",
-      "registryDependencies": ["@vegastack/tooltip"],
+      "registryDependencies": ["@vegastack/tooltip", "@vegastack/use-overflow"],
       "npmDependencies": [
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
@@ -19679,6 +19716,11 @@
             "name": "direction",
             "values": ["asc", "desc"],
             "evidence": "packages/ui/registry/ui/data-list.tsx: prop union"
+          },
+          {
+            "name": "nowrap",
+            "values": ["true", "false"],
+            "evidence": "packages/ui/registry/ui/data-table-parts.tsx: DataTableColumnLayout.nowrap, defaulting to true for align=end and mono columns (D18)"
           }
         ]
       },
@@ -19742,12 +19784,9 @@
       "docsSlug": "/docs/components/data-list",
       "registryDependencies": [
         "@vegastack/table",
-        "@vegastack/checkbox",
-        "@vegastack/skeleton",
-        "@vegastack/empty"
+        "@vegastack/data-table-parts"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -19776,22 +19815,380 @@
               "name": "data-slot",
               "values": [
                 "data-list",
-                "data-list-empty-row",
                 "data-list-footer",
                 "data-list-head",
                 "data-list-root",
                 "data-list-row",
                 "data-list-row-action",
-                "data-list-skeleton-row",
                 "data-list-toolbar"
               ]
-            },
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "data-table-parts",
+      "registryType": "registry:ui",
+      "title": "Data Table Parts",
+      "summary": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/data-table-parts.tsx"],
+      "publicSymbols": [
+        {
+          "name": "alignClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "columnCellClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "cycleSort",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "DataTableColumnLayout",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataTableHeaderColumn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmptyRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableRow",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "EmptyRowProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "isNowrapColumn",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "SelectAllHead",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableHead",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SelectAllHeadProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SelectionCell",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableCell",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SelectionCellProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SkeletonRows",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a fragment of rows, not a single root."
+          }
+        },
+        {
+          "name": "SkeletonRowsProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortableHead",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableHead",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SortableHeadProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortDirection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortHeaderButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "Button",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SortHeaderButtonProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useControlledState",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "useRowSelection",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseRowSelectionOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseRowSelectionResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "align",
+            "values": ["center", "end", "start"],
+            "evidence": "packages/ui/registry/ui/data-table-parts.tsx: prop union"
+          },
+          {
+            "name": "direction",
+            "values": ["asc", "desc"],
+            "evidence": "packages/ui/registry/ui/data-table-parts.tsx: prop union"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Cell and control sizing is inherited from Table and Button; these parts declare no scale of their own."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "sorted",
+            "multi-sorted",
+            "checked",
+            "indeterminate",
+            "disabled",
+            "loading",
+            "empty"
+          ],
+          "evidence": "cycleSort drives asc/desc/cleared with optional additive keys and ordinals; useRowSelection reports all/some/indeterminate over the current view; SkeletonRows and EmptyRow render the two async states."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled", "keyboard", "semantic-html"],
+          "evidence": "aria-sort is emitted on every sortable column including 'none'; the sort affordance is a real Button; selection checkboxes are named per row; skeleton rows are aria-hidden so placeholders are not announced."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "sorted-header", "loading", "empty"],
+          "evidence": "The sort glyph reveals on hover through the ghost Button's own hover/pressed steps; sorted headers show direction plus a multi-key ordinal; skeleton and Empty cover the async states."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": ["text-truncation-and-flex-shrink", "grid-wrapping"],
+        "rationale": "columnCellClass resolves alignment, the wrap posture and the mono face together, so header, body and skeleton cells cannot disagree; cells wrap by default and only figures and mono values opt back out (D18)."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["tokenized CSS transition"],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "The sort glyph's opacity reveal is a tokenized CSS transition; reduction is enforced globally by packages/design-tokens/src/base.css.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/data-table-parts",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/empty",
+        "@vegastack/skeleton",
+        "@vegastack/table"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/data-table-parts.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "data-table-parts",
+      "dataAttributes": {
+        "SortHeaderButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["data-table-sort"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SortableHead": {
+          "attributes": [
             {
               "name": "data-sortable",
               "values": [""]
             },
             {
               "name": "data-sorted",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectAllHead": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["data-table-select-all"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectionCell": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["data-table-selection-cell"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SkeletonRows": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "EmptyRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
               "values": []
             }
           ],
@@ -19916,7 +20313,7 @@
           "text-truncation-and-flex-shrink",
           "horizontal-scroll-containment"
         ],
-        "rationale": "ResizeObserver-driven column revelation hides/merges below per-column minWidth budgets instead of overflowing; merge columns stack into the primary cell so narrow viewports never silently lose data; the container scrolls, never the page."
+        "rationale": "ResizeObserver-driven column revelation MERGES overflow columns into the primary cell by default; a column that opts into mobile:'hidden' is counted and reported in the toolbar, so narrow viewports never lose data silently. The container scrolls, never the page."
       },
       "motion": {
         "status": "observed",
@@ -19940,11 +20337,9 @@
       "registryDependencies": [
         "@vegastack/auto-save-input",
         "@vegastack/button",
-        "@vegastack/checkbox",
+        "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
-        "@vegastack/empty",
-        "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/use-announcer"
       ],
@@ -19992,6 +20387,7 @@
                 "data-grid-footer",
                 "data-grid-group-row",
                 "data-grid-head",
+                "data-grid-hidden-hint",
                 "data-grid-load-more",
                 "data-grid-merged",
                 "data-grid-row",
@@ -19999,10 +20395,6 @@
                 "data-grid-toolbar",
                 "data-grid-virtual-pad"
               ]
-            },
-            {
-              "name": "data-sorted",
-              "values": []
             }
           ],
           "cssVariables": ["--data-grid-virtual-pad"]
@@ -20129,7 +20521,7 @@
           "viewport-positioning-and-collision",
           "grid-wrapping"
         ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "The row is a container query, not a viewport query: two tracks at @xs and up with the label track sized to its content above a floor, stacked below it, so the list reflows to its PANE rather than to the window. Values wrap instead of truncating — truncation was also clipping the focus ring of links inside them."
       },
       "motion": {
         "status": "not-applicable",
@@ -20767,7 +21159,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["mobile-or-touch-mode", "grid-wrapping"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "Recharts ResponsiveContainer sizes the plot to its parent; axis labels sit on the 12px tier with mono numerals so ticks stay legible as the plot narrows, and the focusable plot svg carries an inset focus ring because the container clips it."
       },
       "motion": {
         "status": "not-applicable",
@@ -21393,7 +21785,10 @@
       "summary": "A dark mono command block with a phosphor prompt glyph and a composed copy button.",
       "family": "marketing",
       "wave": "Content/marketing",
-      "sourceFiles": ["packages/ui/registry/ui/terminal.tsx"],
+      "sourceFiles": [
+        "packages/ui/registry/ui/terminal.tsx",
+        "packages/ui/registry/ui/terminal-body.tsx"
+      ],
       "publicSymbols": [
         {
           "name": "Terminal",
@@ -21403,6 +21798,24 @@
             "status": "observed",
             "target": "div",
             "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TerminalBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/terminal-body.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The pane owns its own callback ref so useOverflow can measure the element; a consumer ref would have to be merged into it, and no consumer needs one."
+          }
+        },
+        {
+          "name": "TerminalBodyProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/terminal-body.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -21460,7 +21873,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["overflow-and-scroll", "viewport-positioning-and-collision"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "The command pane scrolls horizontally inside the block, never the page, and measures itself: it is a keyboard focus stop only while the commands actually overflow. Its name and group role are unconditional so the announced structure does not change under a resize."
       },
       "motion": {
         "status": "not-applicable",
@@ -21472,7 +21885,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/terminal",
-      "registryDependencies": ["@vegastack/copy-button"],
+      "registryDependencies": [
+        "@vegastack/copy-button",
+        "@vegastack/use-overflow"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -21497,13 +21913,25 @@
               "name": "data-slot",
               "values": [
                 "terminal",
-                "terminal-body",
                 "terminal-command-row",
                 "terminal-copy",
                 "terminal-header",
                 "terminal-line",
                 "terminal-prompt"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TerminalBody": {
+          "attributes": [
+            {
+              "name": "data-scrollable",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["terminal-body"]
             }
           ],
           "cssVariables": []
@@ -22197,7 +22625,7 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "success"],
+          "values": ["default", "success", "scrollable"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
@@ -22226,7 +22654,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/comparison-matrix",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-overflow"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -22247,6 +22675,10 @@
           "attributes": [
             {
               "name": "data-highlighted",
+              "values": [""]
+            },
+            {
+              "name": "data-scrollable",
               "values": [""]
             },
             {
@@ -25873,6 +26305,103 @@
         "navigation": "exempt",
         "preview": "exempt",
         "vrt": "exempt"
+      }
+    },
+    {
+      "name": "use-overflow",
+      "registryType": "registry:hook",
+      "title": "useOverflow",
+      "summary": "Live overflow measurement — report whether an element is clipped on the inline axis, the block axis, or either, across resizes and content changes.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-overflow.ts"],
+      "publicSymbols": [
+        {
+          "name": "OverflowAxis",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/use-overflow.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useOverflow",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-overflow.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseOverflowOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-overflow.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "axis",
+            "values": ["block", "either", "inline"],
+            "evidence": "packages/ui/registry/ui/use-overflow.ts: prop union"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A measurement hook has no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "overflowing", "paused"],
+          "evidence": "Returns false until measured (SSR-safe), true once the element is clipped on the requested axis, and freezes the last value while paused."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": ["overflow-and-scroll", "text-truncation-and-flex-shrink"],
+        "rationale": "A ResizeObserver watches the element AND its element children, so the measurement tracks both the viewport resizing and its content growing."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-overflow.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
       }
     }
   ],

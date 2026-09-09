@@ -64,42 +64,54 @@ test("has no accessibility violations", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("a value truncates inside its own column instead of widening the list", async () => {
-  const screen = await render(
+/* ---------------------------------------------------------------------------------------------
+ * The label track negotiates instead of being fixed (B5-12), and values wrap (SP-03 / D18).
+ * ------------------------------------------------------------------------------------------- */
+
+test("the row is a named container that stacks below @xs and shares two tracks above it", async () => {
+  await render(
     <PropertyList aria-label="Record details">
       <PropertyRow>
-        <PropertyLabel icon={<Globe />}>Domains</PropertyLabel>
-        <PropertyValue>
-          marketing.internal.example-corporation.com
-        </PropertyValue>
+        <PropertyLabel>Domains</PropertyLabel>
+        <PropertyValue>attio.com</PropertyValue>
       </PropertyRow>
     </PropertyList>,
   );
-  const value = screen
-    .getByText("marketing.internal.example-corporation.com")
-    .element() as HTMLElement;
-  // `truncate` alone is not enough: without `min-w-0` the grid track is forced to the
-  // value's content width and the whole list widens instead of the value ellipsising.
-  expect(value.className).toContain("truncate");
-  expect(value.className).toContain("min-w-0");
+  const list = document.querySelector(
+    '[data-slot="property-list"]',
+  ) as HTMLElement;
+  // Container query, not a viewport breakpoint: a facts pane is as often a
+  // narrow sidebar on a wide screen as a wide column on a narrow one.
+  expect(list.className).toContain("@container/property-list");
+  const row = document.querySelector(
+    '[data-slot="property-row"]',
+  ) as HTMLElement;
+  expect(row.className).toContain("grid-cols-1");
+  expect(row.className).toContain(
+    "@xs/property-list:grid-cols-[minmax(calc(var(--spacing)*20),max-content)_minmax(0,1fr)]",
+  );
+  // The old fixed 112px track is gone.
+  expect(row.className).not.toContain("grid-cols-[calc(var(--spacing)*28)");
 });
 
-test("a single value can opt into wrapping without the list opting in", async () => {
-  const screen = await render(
-    <PropertyList aria-label="Record details">
+test("values wrap rather than truncate, so nothing clips a link's focus ring", async () => {
+  await render(
+    <PropertyList>
       <PropertyRow>
-        <PropertyLabel icon={<Globe />}>Domains</PropertyLabel>
-        <PropertyValue className="overflow-visible whitespace-normal">
-          a very long value that is allowed to wrap over several lines
+        <PropertyLabel>Link</PropertyLabel>
+        <PropertyValue>
+          <a href="https://example.com">example.com</a>
         </PropertyValue>
       </PropertyRow>
     </PropertyList>,
   );
-  const value = screen
-    .getByText("a very long value that is allowed to wrap over several lines")
-    .element() as HTMLElement;
-  expect(value.className).toContain("whitespace-normal");
-  expect(value.className).toContain("overflow-visible");
+  const value = document.querySelector(
+    '[data-slot="property-value"]',
+  ) as HTMLElement;
+  // `truncate` implies `overflow: hidden`, which clipped the focus outline of any
+  // focusable descendant (SP-03).
+  expect(value.className).not.toMatch(/(^|\s)truncate(\s|$)/);
+  expect(value.className).toContain("wrap-anywhere");
 });
 
 test("each property is one grid row of exactly one dt and one dd", async () => {

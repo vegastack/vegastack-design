@@ -90,10 +90,9 @@ test("has no accessibility violations", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("exposes a labelled keyboard-focusable scroll region and sticky row headers", async () => {
+test("exposes a labelled scroll region and sticky row headers", async () => {
   const screen = await render(<Example />);
   const region = screen.getByRole("region", { name: "Plan comparison table" });
-  await expect.element(region).toHaveAttribute("tabindex", "0");
   expect((region.element() as HTMLElement).className).toContain(
     "overflow-x-auto",
   );
@@ -103,6 +102,33 @@ test("exposes a labelled keyboard-focusable scroll region and sticky row headers
   const rowHeader = screen.getByRole("rowheader", { name: "Seats" });
   expect((rowHeader.element() as HTMLElement).className).toContain("sticky");
   expect((rowHeader.element() as HTMLElement).className).toContain("min-w-40");
+});
+
+test("the scroll region takes a tab stop ONLY while it actually scrolls", async () => {
+  // A region that fits adds nothing to the tab order — an unconditional
+  // `tabIndex` is a dead stop for every keyboard user on every table that fits.
+  const roomy = await render(
+    <div style={{ width: "900px" }}>
+      <Example />
+    </div>,
+  );
+  const fits = roomy.getByRole("region", { name: "Plan comparison table" });
+  await expect.element(fits).not.toHaveAttribute("tabindex");
+  expect((fits.element() as HTMLElement).dataset.scrollable).toBeUndefined();
+  roomy.unmount();
+
+  // Squeezed below its own min-widths the matrix overflows, and the region
+  // becomes reachable — the axe `scrollable-region-focusable` contract.
+  const cramped = await render(
+    <div style={{ width: "200px" }}>
+      <Example />
+    </div>,
+  );
+  const scrolls = cramped.getByRole("region", {
+    name: "Plan comparison table",
+  });
+  await expect.element(scrolls).toHaveAttribute("tabindex", "0");
+  expect((scrolls.element() as HTMLElement).dataset.scrollable).toBe("");
 });
 
 test("keeps columns aligned when availability is shorter or longer than plans", async () => {

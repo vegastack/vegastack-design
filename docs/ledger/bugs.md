@@ -29,6 +29,30 @@ Every bug found + root cause + fix. Append-only.
   flagged rather than changed inside a component batch.
 - **Class:** fail-open verification gap, pre-existing since the lane was written (WP1). Nothing
   reported it because a missing utility makes a contract weaker, never red.
+## 2026-09-09 — A selection checkbox's hit area lived in the NEXT cell, and only the obstruction probe could see it (T1)
+
+- **Symptom.** After T1 moved the sort header onto the system `Button`,
+  `packages/ui/test/geometry.browser.test.tsx` failed on `dataListSelectable` and `dataGrid`:
+  `interactive control 1 … must own a centred >=24px effective pointer target (visual 14.0×14.0px)`,
+  one miss out of five points, the hit resolving to `[data-slot="data-table-sort"]`.
+- **Measured, not reasoned.** Select-all checkbox box `x 37→51`; its `-inset-1.5` hit area
+  `x 31→57`; the sort button's box starting at `x 55`. The probe point at `centre + 11.5 = 55.5`
+  therefore landed on the button.
+- **Two causes, both real, both fixed at the root.**
+  1. `TableHead`/`TableCell` carried `[&:has([role=checkbox])]:pe-0` (pre-existing, from before
+     this batch). A `sm` `Checkbox` is 14px with a 6px `::before` overhang per side, so at `pe-0`
+     the overhang was **outside its own cell** by construction — the cell ended flush with the
+     checkbox. Now `pe-2`: 8px, the least that contains the 24px target.
+  2. `SortHeaderButton` carried `-mx-2`, bleeding 8px into the neighbouring cell. The old raw
+     `<button>` used `-mx-1.5`, whose 6px exactly matched the overhang and hid the first cause.
+     The negative margin is gone; `SortableHead` narrows its own cell to `px-1` instead, so the
+     label still starts 12px in (4px cell + 8px button) and no box leaves its cell.
+- **The class to recognise.** A hit area that extends past its container is invisible to the size
+  assertion (the control measures 26×26 and passes) and invisible to axe (`target-size` measures
+  the element, not ownership). Only a real `elementFromPoint` probe over the centred square catches
+  it — which is why AGENTS.md requires that probe rather than `getComputedStyle`. It also means the
+  first cause was latent on `main` and became visible only when the neighbour's geometry changed
+  by 2px.
 
 ## 2026-09-09 — The geometry lane sweeps every fixture and found 15 pre-existing 24px/reflow defects
 
@@ -264,9 +288,11 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
   follow. First, a `RelativeTime` `dateTime`-hydration change was tried and did NOT stop the failure,
   which is what rules the component out as the sole trigger. Second, the same detach window is open
   on **every** contract route, not just the ones whose fixture keeps a timer — which is the second
-  reason the fix belongs in the probe. Confirming the exact remount trigger inside `<Tabs>` would
-  need a `MutationObserver` probe on the box and is not worth a sweep slot; it would change nothing
-  about the fix.
+  reason the fix belongs in the probe. Reconfirmed on T1's own full sweep, which failed this way on
+  `/docs/components/date-picker` (chromium) AND `/docs/components/relative-time`
+  (mobile-chromium-dark) in one run — two routes T1 does not touch. Confirming the exact remount
+  trigger inside `<Tabs>` would need a `MutationObserver` probe on the box and is not worth a sweep
+  slot; it would change nothing about the fix.
 - **Systemic fix — the probe, not the fixture.** Fixed at the root in `apps/docs/vrt/contracts.spec.ts`
   (the 320px reflow check): the bare `await fixture.scrollIntoViewIfNeeded()` is now a bounded retry —
   `expect.poll` around a 2s-timeout scroll that swallows the detachment and lets the locator re-resolve
@@ -396,6 +422,99 @@ pointer targets` — `mobile-chromium-dark` only, 879/880 passing, with all five
   **532 tests green**. The map re-executes every exclusion in expect-failure mode, so deleting an
   entry is only possible once the assertion genuinely passes.
 - **Left:** 12 of the 15 exclusions, owned by other batches.
+
+## 2026-09-08 — The 320px DataGrid fixture guard raced the revelation it measured (T1)
+
+> **Superseded 2026-09-09 (R1/R3).** The fixture and the whole `apps/docs/vrt/` lane were
+> deleted by the verification rebuild, so the fix described here no longer exists in the tree. The
+> FINDING stands and is the reason it is kept: an assertion about the result of an asynchronous
+> measurement, written as a synchronous read.
+
+- **The 320px DataGrid fixture read its header count as a snapshot and raced the revelation it was
+  measuring.** The test guards itself with "the fixture must actually drop columns at 320px, or it
+  proves nothing" — `headers.length < 4`. It passed on one box and failed on the other in the very
+  next sweep with `Expected: < 4, Received: 4`: DataGrid's responsive revelation is driven by a
+  MEASURED width, so a bare `evaluateAll` read can land before the observer has reacted to the
+  320px viewport and see the full header row. The claim was right; reading it once was wrong. Now a
+  bounded `expect.poll` on `thead th` count — which does not weaken the assertion, because a grid
+  that never drops a column still fails the poll with the same message. **The class to recognise:**
+  an assertion about the RESULT of an asynchronous measurement, written as a synchronous read. Two
+  of the three failures in this batch's sweeps were this same shape.
+
+---
+
+## 2026-09-07 — Five defects found while rebuilding the tables (T1)
+
+- **The chart's own outline reset was what hid its focus ring.** `07-state-probe.md` SP-05 recorded
+  that a focused chart shows nothing and proposed adding an outline. The cause is narrower than
+  "the system's outline rule does not match `svg`": `ChartContainer` ships
+  `[&_.recharts-surface]:outline-hidden`, and `.recharts-surface` **is** the `<svg>` that Recharts'
+  `accessibilityLayer` makes a tab stop (recharts 3.9.2 `container/RootSurface.js` renders `Surface`
+  — which emits `class="recharts-surface"` — with `role="application"` and `tabIndex={0}`). So the
+  component was suppressing the indicator on the one element it made focusable. **The class to
+  recognise:** an `outline-hidden` reset that lands on an element some other layer has made
+  focusable.
+
+- **The first fix for the above did not work, and only re-measuring caught it (same day).** The
+  initial repair added `[&_svg:focus-visible]:outline-2 [&_svg:focus-visible]:outline-ring` on top
+  of the untouched reset, reasoning that higher specificity would win. Specificity was never the
+  problem. In Tailwind v4 `outline-hidden` compiles to `--tw-outline-style: none; outline-style:
+none`, and **every** outline utility — `outline-2` included, and therefore also `base.css`'s
+  global `:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` — emits
+  `outline-style: var(--tw-outline-style)`. Because the reset set that custom property **on the very
+  element that takes focus**, the winning rule still resolved to `outline-style: none`. The ring
+  never painted, in either theme. Confirmed three ways: the state probe (9 `focus-none` on
+  `svg[role="application"]` light, 8 dark), the compiled CSS in `apps/docs/out`, and the recharts
+  source. Fixed at the root by scoping the reset to
+  `[&_.recharts-surface:not(:focus-visible)]:outline-hidden` and deleting the component-local width
+  and colour, leaving only the sanctioned offset inversion. **The lesson:** a Tailwind `*-hidden`
+  reset is not merely a low-specificity declaration to out-rank — it poisons an inherited custom
+  property that the winning rule still reads. And a focus fix that is not re-measured is a claim,
+  not a fix.
+
+- **The wide-table contract pressed the wrong axis' key, and the count guard is why nobody knew.**
+  _(The contract lane it names was deleted on 2026-09-08; the keyboard-scroll claim now lives in
+  `packages/ui/registry/ui/table.test.tsx`.)_
+  The new "a wide table is keyboard-scrollable" fixture focused the scroll viewport, pressed `End`,
+  and asserted `scrollLeft > 0`. `End` scrolls the BLOCK axis; that viewport overflows only on the
+  INLINE one, so the key moved nothing and the assertion could never hold. It failed in all four
+  projects the first time a full sweep actually executed — which, because the count-guard defect
+  above rejected every full sweep, was after both had been written. Two failures hid each other: the
+  guard bug stopped the sweep from running, and the sweep not running stopped the key bug from
+  surfacing. Fixed by pressing `ArrowRight` inside the poll, so a container needing more than one
+  key still passes. **The class to recognise:** a test whose gate has never been observed GREEN is
+  not evidence, and a broken runner is a great place for a broken test to hide.
+
+- **A named test added to `contracts.spec.ts` fails the runner's own count guard.** _(Superseded
+  2026-09-09: `contracts.spec.ts` and `contracts-run.mjs` were both deleted by the verification
+  rebuild; the count guard no longer exists. The class of defect is the reason this is kept.)_ The three new
+  table-family tests carry no route in their title, so the SCOPED grep (route ∧ suffix) cannot
+  select them — but the FULL sweep passes no grep at all and runs everything, and `expected` was
+  computed purely as `routes × suffixes × projects`. `--list` returned 900 against an expectation of
+  888 and `contracts-run.mjs` failed closed, exactly as designed. The guard was right and the
+  arithmetic was incomplete: `FIXED_TEST_COUNT` now joins the full-sweep expectation, and the named
+  titles are additionally verified BY TITLE against `--list` so a rename or deletion fails loudly
+  instead of silently shrinking both the sweep and the expectation by the same amount. **The class
+  to recognise:** a count-based guard whose expectation is derived from only one of the two ways
+  tests get into the file.
+
+- **A scroll region that is always focusable and one that is never focusable are both wrong, and
+  only one of them is visible to axe.** `table.tsx` had no `tabIndex` (axe
+  `scrollable-region-focusable`); ComparisonMatrix and Terminal had an unconditional one, which axe
+  cannot flag because it is not a violation — it is just a dead tab stop on every instance that
+  fits. The measurement (`useOverflow`) is the only thing that distinguishes them, which is why the
+  fix is a hook and not an attribute. Nothing in the gate set would have caught the second half.
+
+- **In the browser-mode harness, `unmount()` followed by another `render()` inside ONE test
+  poisons every later test in the file (test-only).** Three `data-table-parts` tests and five
+  `table` tests failed with `document.querySelector(...)` returning `null`, and every one of them
+  passed in isolation. Bisected to a preceding test that unmounted its first render and rendered
+  again in the same test body; splitting that test into two made all of them pass with no
+  production change. Not investigated further upstream — the house pattern (one render per test) is
+  already the right one, and `comparison-matrix.test.tsx` shows the same shape passing, so the
+  trigger is narrower than "unmount is broken". **Write one render per test.**
+
+---
 
 ## 2026-09-07 — 439 reduced-motion effects with no dependency array, and a reduced-motion assertion that could not fail
 

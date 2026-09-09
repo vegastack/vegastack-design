@@ -1,4 +1,4 @@
-// @vegastack chart@0.6.0 sha256-WM9fz2UnqlEXshewv4rC14nareF8mXDvMpvxru1wvyo=
+// @vegastack chart@0.6.0 sha256-s4Plp7F5wjEe9hqlO07pkr76M/gv6Y4N9jqMXpCOU8I=
 
 "use client";
 
@@ -197,9 +197,22 @@ function ChartContainer({
         className={cn(
           "flex aspect-video justify-center text-sm",
           // Numerals canon: axis tick numerals are mono (SVG <text> takes font-family
-          // via class), matching the tooltip's `font-mono tabular-nums` values.
-          "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:font-mono",
-          "[&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
+          // via class) at the mono 11px tier, matching the tooltip's
+          // `font-mono tabular-nums` values. Labels themselves sit at 12px, not the
+          // 11px the whole container used to inherit — mono owns 11px, prose does not.
+          "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:font-mono [&_.recharts-cartesian-axis-tick_text]:text-code-sm",
+          // Recharts' `accessibilityLayer` makes the root <svg> a tab stop — and that svg IS
+          // `.recharts-surface` (recharts 3.10.1 `RootSurface` renders `Surface` with
+          // `role="application"` + `tabIndex={0}`). So the surface reset must EXCLUDE the focused
+          // state: `outline-hidden` compiles to `--tw-outline-style: none` on the element itself,
+          // and every outline utility — including base.css's global `:focus-visible` — resolves
+          // `outline-style: var(--tw-outline-style)`. Left unscoped it silently defeats the focus
+          // ring on the one element the component made focusable (SP-05).
+          "[&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-surface:not(:focus-visible)]:outline-hidden",
+          // Width, colour and token stay centralized in base.css; only the OFFSET inverts, because
+          // the plot area clips at its own edge. That is the single sanctioned component-local
+          // focus deviation (design.md § Accessibility).
+          "[&_svg:focus-visible]:-outline-offset-2",
           className,
         )}
         {...props}

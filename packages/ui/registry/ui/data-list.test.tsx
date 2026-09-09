@@ -842,7 +842,7 @@ test("Table spreadsheet-voice props (grid, density, headerTone) type-check and f
       grid
       headerTone="ink"
       density="compact"
-      containerClassName="test-viewport-cap"
+      containerProps={{ className: "test-viewport-cap" }}
     />,
   );
   const table = document.querySelector(
@@ -855,4 +855,86 @@ test("Table spreadsheet-voice props (grid, density, headerTone) type-check and f
     '[data-slot="table-container"]',
   ) as HTMLElement;
   expect(container.className).toContain("test-viewport-cap");
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * Wrapping posture per column (D18) and the shared scroll region (B5-01).
+ * ------------------------------------------------------------------------------------------- */
+
+test("cells wrap by default; end-aligned and mono columns stay on one line", async () => {
+  await render(
+    <DataList
+      columns={[
+        { key: "name", header: "Name" },
+        { key: "amount", header: "Amount", align: "end" },
+        { key: "role", header: "Id", mono: true },
+      ]}
+      data={data}
+      getRowId={(r) => r.id}
+    />,
+  );
+  const [name, amount, id] = [
+    ...document.querySelectorAll('[data-slot="table-cell"]'),
+  ] as HTMLElement[];
+  expect(name!.className).not.toMatch(/(^|\s)whitespace-nowrap(\s|$)/);
+  expect(amount!.className).toContain("whitespace-nowrap");
+  expect(id!.className).toContain("whitespace-nowrap");
+  expect(id!.className).toContain("font-mono");
+  expect(id!.className).toContain("tabular-nums");
+});
+
+test("an explicit column.nowrap overrides the inference in both directions", async () => {
+  await render(
+    <DataList
+      columns={[
+        { key: "name", header: "Name", nowrap: true },
+        { key: "role", header: "Notes", align: "end", nowrap: false },
+      ]}
+      data={data}
+      getRowId={(r) => r.id}
+    />,
+  );
+  const [pinned, wrapped] = [
+    ...document.querySelectorAll('[data-slot="table-cell"]'),
+  ] as HTMLElement[];
+  expect(pinned!.className).toContain("whitespace-nowrap");
+  expect(wrapped!.className).not.toMatch(/(^|\s)whitespace-nowrap(\s|$)/);
+});
+
+test("the sortable header composes the system Button", async () => {
+  // B5-02/B5-08 direction: no hand-rolled control in a header cell — the sort
+  // affordance inherits the system's hover, pressed and focus treatment.
+  await render(
+    <DataList
+      columns={[{ key: "name", header: "Name", sortable: true }]}
+      data={data}
+      getRowId={(r) => r.id}
+    />,
+  );
+  const sort = document.querySelector(
+    '[data-slot="data-table-sort"]',
+  ) as HTMLElement;
+  expect(sort).not.toBeNull();
+  expect(sort.tagName).toBe("BUTTON");
+});
+
+test("a wide DataList is keyboard-scrollable through the shared region", async () => {
+  await render(
+    <div style={{ width: "280px" }}>
+      <DataList
+        aria-label="People"
+        columns={Array.from({ length: 10 }, (_, index) => ({
+          key: `c${index}`,
+          header: `Column ${index}`,
+        }))}
+        data={data}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  const container = document.querySelector(
+    '[data-slot="table-container"]',
+  ) as HTMLElement;
+  await expect.poll(() => container.getAttribute("tabindex")).toBe("0");
+  expect(container.getAttribute("aria-label")).toBe("People");
 });

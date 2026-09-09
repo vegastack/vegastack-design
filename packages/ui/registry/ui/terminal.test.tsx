@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Terminal } from "./terminal";
+import { TerminalBody } from "./terminal-body";
 
 let writeText: ReturnType<typeof vi.spyOn>;
 
@@ -36,7 +37,8 @@ test("body scrolls horizontally with a scroll-fade edge affordance (clipped comm
   ) as HTMLElement;
   expect(body.classList.contains("overflow-x-auto")).toBe(true);
   expect(body.classList.contains("scroll-fade-x")).toBe(true);
-  expect(body.tabIndex).toBe(0);
+  // The tab stop itself is measured, not assumed — see the two `TerminalBody` tests at the foot of
+  // this file. The harness compiles no Tailwind, so nothing here can actually overflow.
   // The focus affordance must be an INSET outline, not a border tint and not an outward outline.
   // A border tint is erased by `forced-colors: active` (which replaces border-color outright), and
   // an outward outline is clipped twice — by the terminal root's `overflow-hidden` and by
@@ -47,7 +49,7 @@ test("body scrolls horizontally with a scroll-fade edge affordance (clipped comm
   expect(body.className).not.toMatch(/focus-visible:(outline-none|border-)/);
 });
 
-test("the focusable command pane is a named group, labelled by the visible title", async () => {
+test("the command pane is a named group, labelled by the visible title", async () => {
   const screen = await render(
     <Terminal title="Install" lines={["pnpm install"]} />,
   );
@@ -218,4 +220,52 @@ test("no a11y violations", async () => {
     />,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+// ── the pane is a tab stop only while it actually scrolls ──────────────────────────────────────
+//
+// `TerminalBody` is exercised directly here because the harness compiles no Tailwind: the pane's
+// `overflow-x-auto` and its width both have to be real inline layout for `useOverflow` to measure
+// anything. Driving it through `Terminal` would measure an unconstrained block that can never
+// overflow, and the test would pass for the wrong reason.
+
+test("a command pane that fits adds no tab stop, and keeps its name", async () => {
+  const screen = await render(
+    <TerminalBody
+      label="Install commands"
+      style={{ width: "400px", overflowX: "auto", whiteSpace: "nowrap" }}
+    >
+      <span>ls</span>
+    </TerminalBody>,
+  );
+  const body = screen.container.querySelector(
+    '[data-slot="terminal-body"]',
+  ) as HTMLElement;
+  await expect.element(screen.getByRole("group")).toBeInTheDocument();
+  expect(body.hasAttribute("tabindex")).toBe(false);
+  expect(body.hasAttribute("data-scrollable")).toBe(false);
+  // The name survives whether or not the pane scrolls — a role that appeared and vanished under
+  // the reader on resize would be worse than a stable named group.
+  expect(body.getAttribute("aria-label")).toBe("Install commands");
+});
+
+test("a command pane that overflows becomes a named keyboard-reachable stop with an inset ring", async () => {
+  const screen = await render(
+    <TerminalBody
+      label="Install commands"
+      style={{ width: "120px", overflowX: "auto", whiteSpace: "nowrap" }}
+    >
+      <span>
+        pnpm dlx shadcn@latest add @vegastack/button @vegastack/data-grid
+      </span>
+    </TerminalBody>,
+  );
+  const body = screen.container.querySelector(
+    '[data-slot="terminal-body"]',
+  ) as HTMLElement;
+  await expect.poll(() => body.getAttribute("tabindex")).toBe("0");
+  expect(body.hasAttribute("data-scrollable")).toBe(true);
+  // The outline is pulled inside: the Terminal root is `overflow-hidden` and `scroll-fade-x` masks
+  // this element to its own border box, so an outward ring is not painted at all.
+  expect(body.className).toContain("focus-visible:-outline-offset-2");
 });

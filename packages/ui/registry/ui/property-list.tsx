@@ -1,4 +1,4 @@
-// @vegastack property-list@0.6.0 sha256-ne+6y8LdXj/eE+4T1fz6pinehUUt6ZpGEcEJmsDwwOk=
+// @vegastack property-list@0.6.0 sha256-GWuWsvXc/dNUp/sbL1NgsNHrSc1emEchSyjegurENcA=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -35,7 +35,13 @@ export function PropertyList({ className, ...props }: PropertyListProps) {
   return (
     <dl
       data-slot="property-list"
-      className={cn("m-0 flex min-w-0 flex-col gap-1", className)}
+      className={cn(
+        // Named container: rows stack or sit side by side according to the PANE's
+        // width, not the viewport's — the same facts pane is a narrow sidebar on a
+        // wide screen as often as it is a wide column on a narrow one.
+        "@container/property-list m-0 flex min-w-0 flex-col gap-1",
+        className,
+      )}
       {...props}
     />
   );
@@ -50,9 +56,14 @@ export function PropertyRow({ className, ...props }: PropertyRowProps) {
     <div
       data-slot="property-row"
       className={cn(
-        // 28 spacing units make the teardown's facts-label track; the value column
-        // owns the remaining width and may truncate.
-        "grid min-h-(--size-sm) grid-cols-[calc(var(--spacing)*28)_minmax(0,1fr)] items-center gap-2",
+        // Below @xs the pane is too narrow for two tracks: the row stacks, so the
+        // value gets the full width instead of being squeezed into a sliver.
+        "grid min-h-(--size-sm) grid-cols-1 items-start gap-x-2 gap-y-0.5",
+        // At @xs and up the label track SHRINKS TO ITS CONTENT above a 20-unit
+        // (80px) floor, instead of the old fixed 112px: short labels stop wasting
+        // the value column's width, and long ones are no longer clipped by a
+        // track that never negotiated with them.
+        "@xs/property-list:min-h-(--size-sm) @xs/property-list:grid-cols-[minmax(calc(var(--spacing)*20),max-content)_minmax(0,1fr)] @xs/property-list:items-center @xs/property-list:gap-y-2",
         className,
       )}
       {...props}
@@ -102,7 +113,12 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
     <dd
       data-slot="property-value"
       className={cn(
-        "m-0 min-w-0 truncate text-base text-foreground",
+        // Wraps rather than truncates (D18's rule applied outside the table): a
+        // value is the point of the row, and `truncate` also meant `overflow:
+        // hidden`, which CLIPPED the focus ring of any link inside it (SP-03).
+        // Compose `TruncatedText` explicitly where a single line is genuinely
+        // required.
+        "m-0 min-w-0 text-base wrap-anywhere text-foreground",
         className,
       )}
       {...props}

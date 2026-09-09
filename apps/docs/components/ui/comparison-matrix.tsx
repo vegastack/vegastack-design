@@ -1,10 +1,11 @@
-// @vegastack comparison-matrix@0.6.0 sha256-yZ4YP4EKUYRnSqLxiLTqseCXBZRwEheetRG1gSS94mA=
+// @vegastack comparison-matrix@0.6.0 sha256-bdnMG84ZSI28+u5sBFaX+Yjtu0cu34ZPY1moSn/Xelw=
 
 "use client";
 
 import * as React from "react";
 import { Check, Minus } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { useOverflow } from "@/components/ui/use-overflow";
 
 /* ------------------------------------------------------------------------------------------------
  * ComparisonMatrix — the plan feature matrix (Wave 4, from the pricing-page teardown), with a
@@ -71,12 +72,20 @@ export function ComparisonMatrix({
     () => ({ highlightedIndex, planCount: plans.length }),
     [highlightedIndex, plans.length],
   );
+  const [scrollNode, setScrollNode] = React.useState<HTMLDivElement | null>(
+    null,
+  );
+  // The same measurement Table's scroll region uses: a matrix that fits adds no
+  // tab stop, one that scrolls is reachable without a pointer.
+  const scrollable = useOverflow(scrollNode, { axis: "either" });
   return (
     <div
+      ref={setScrollNode}
       data-slot="comparison-matrix-container"
+      data-scrollable={scrollable ? "" : undefined}
       role="region"
       aria-label={scrollLabel}
-      tabIndex={0}
+      tabIndex={scrollable ? 0 : undefined}
       className="relative w-full overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none focus-visible:-outline-offset-2"
     >
       <table

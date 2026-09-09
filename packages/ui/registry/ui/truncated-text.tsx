@@ -1,9 +1,10 @@
-// @vegastack truncated-text@0.6.0 sha256-kpC4PF0xj1ZSuyNCCgAPg9LBX1M/R1T7v+A/hGzZ5s4=
+// @vegastack truncated-text@0.6.0 sha256-XdT4pZ1LPFiLFrkpARLnLM41jZbBnlvc4Y/+equyJUs=
 
 "use client";
 
 import * as React from "react";
 import { cn, mergeRefs } from "@vegastack/design";
+import { useOverflow } from "@/components/ui/use-overflow";
 import {
   Tooltip,
   TooltipContent,
@@ -281,7 +282,11 @@ export function TruncatedText({
   // mount/remount, on content change, and on every resize. Measurement is PAUSED while
   // `expanded` — expanding removes the clamp, which would otherwise flip this to `false`
   // and immediately re-collapse the disclosure it just opened.
-  const isTruncated = useOverflow(node, [children], lines > 1, expanded);
+  const isTruncated = useOverflow(node, {
+    axis: lines > 1 ? "block" : "inline",
+    paused: expanded,
+    deps: [children],
+  });
   const touchToggleActive = isTruncated && noHover;
   const touchToggleProps = getTouchToggleProps(
     touchToggleActive,
@@ -340,42 +345,6 @@ export function TruncatedText({
       </TooltipContent>
     </Tooltip>
   );
-}
-
-/**
- * Internal hook: report whether `node` is overflowing along the relevant axis.
- * Single-line compares scroll/client width; multi-line compares height. Shared
- * by every variant so the measurement (mount/remount + content + resize) stays
- * identical across `TruncatedText`, `IconText`, and `TableCellText`.
- *
- * `paused` (used by the touch tap-to-toggle disclosure) freezes the last
- * measured value instead of re-observing — while a disclosure is expanded, its
- * clamp is removed, which would otherwise flip this to `false` mid-interaction
- * and immediately re-collapse it. Re-measures for real as soon as `paused`
- * clears (i.e. once re-clamped).
- */
-function useOverflow(
-  node: HTMLElement | null,
-  deps: React.DependencyList,
-  multiline = false,
-  paused = false,
-) {
-  const [isTruncated, setIsTruncated] = React.useState(false);
-  React.useEffect(() => {
-    if (!node || paused) return;
-    const check = () => {
-      const overflowing = multiline
-        ? node.scrollHeight > node.clientHeight + 1
-        : node.scrollWidth > node.clientWidth + 1;
-      setIsTruncated(overflowing);
-    };
-    check();
-    const observer = new ResizeObserver(check);
-    observer.observe(node);
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [node, multiline, paused, ...deps]);
-  return isTruncated;
 }
 
 /** Props accepted by `IconText`. */
@@ -437,7 +406,7 @@ export function IconText({
   const isFocusable = useTruncationFocusable(focusable);
   // Paused while expanded — see `useOverflow`'s doc for why (removing the clamp would
   // otherwise flip `isTruncated` false and immediately re-collapse the disclosure).
-  const isTruncated = useOverflow(node, [text], false, expanded);
+  const isTruncated = useOverflow(node, { paused: expanded, deps: [text] });
   const touchToggleActive = isTruncated && noHover;
   const touchToggleProps = getTouchToggleProps(
     touchToggleActive,

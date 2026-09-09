@@ -303,3 +303,67 @@ test("no a11y violations on a rendered chart with accessibilityLayer", async () 
   // test/contrast.browser.test.tsx.
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
 });
+
+/* ---------------------------------------------------------------------------------------------
+ * The focusable plot (SP-05) and the type tier (B5-13).
+ * ------------------------------------------------------------------------------------------- */
+
+test("the focusable plot surface has a visible, inset focus ring", async () => {
+  // Recharts' `accessibilityLayer` makes the root <svg> a tab stop, and that svg
+  // IS `.recharts-surface` — so an UNSCOPED `[&_.recharts-surface]:outline-hidden`
+  // suppressed the indicator on the one element the component made focusable
+  // (SP-05). Specificity does not rescue it: `outline-hidden` sets
+  // `--tw-outline-style: none` ON that element, and every outline utility —
+  // base.css's global `:focus-visible` included — resolves `outline-style`
+  // through that property, so the winning rule still computes to `none`.
+  //
+  // Tailwind is not compiled in this environment, so this asserts the STRUCTURE
+  // that the defect violated rather than a painted pixel: the reset must exclude
+  // the focused state, and width/colour must stay centralized in base.css. The
+  // empirical arbiter is the state probe (0 flags on this route, light and dark).
+  await render(
+    <ChartContainer config={CONFIG} className="h-40 w-80">
+      <RechartsPrimitive.LineChart accessibilityLayer data={DATA}>
+        <RechartsPrimitive.Line dataKey="desktop" />
+      </RechartsPrimitive.LineChart>
+    </ChartContainer>,
+  );
+  const container = document.querySelector(
+    '[data-slot="chart"]',
+  ) as HTMLElement;
+  // The reset is scoped away from the focused element…
+  expect(container.className).toContain(
+    "[&_.recharts-surface:not(:focus-visible)]:outline-hidden",
+  );
+  // …and never lands on it unscoped, which is exactly what hid the ring.
+  expect(container.className).not.toMatch(
+    /\[&_\.recharts-surface\]:outline-hidden/,
+  );
+  // Only the OFFSET inverts locally; width and colour belong to base.css's
+  // global `:focus-visible`, so a component-local copy is a regression.
+  expect(container.className).toContain(
+    "[&_svg:focus-visible]:-outline-offset-2",
+  );
+  expect(container.className).not.toMatch(
+    /\[&_svg:focus-visible\]:outline-(2|ring)/,
+  );
+});
+
+test("axis labels sit on the 12px tier and their numerals on the mono 11px tier", async () => {
+  await render(
+    <ChartContainer config={CONFIG} className="h-40 w-80">
+      <RechartsPrimitive.LineChart accessibilityLayer data={DATA}>
+        <RechartsPrimitive.Line dataKey="desktop" />
+      </RechartsPrimitive.LineChart>
+    </ChartContainer>,
+  );
+  const container = document.querySelector(
+    '[data-slot="chart"]',
+  ) as HTMLElement;
+  // 11px is reserved for mono (TD-3): prose in a chart reads at 12.
+  expect(container.className).toContain("text-sm");
+  expect(container.className).not.toMatch(/(^|\s)text-xs(\s|$)/);
+  expect(container.className).toContain(
+    "[&_.recharts-cartesian-axis-tick_text]:text-code-sm",
+  );
+});

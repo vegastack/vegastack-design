@@ -1306,12 +1306,17 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-overflow"],
       "files": [
         {
           "path": "packages/ui/registry/ui/table.tsx",
           "type": "registry:ui",
           "target": "@ui/table.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/table-scroll-region.tsx",
+          "type": "registry:ui",
+          "target": "@ui/table-scroll-region.tsx"
         }
       ],
       "meta": {
@@ -1381,7 +1386,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/tooltip"],
+      "registryDependencies": ["@vegastack/tooltip", "@vegastack/use-overflow"],
       "files": [
         {
           "path": "packages/ui/registry/ui/truncated-text.tsx",
@@ -2582,11 +2587,9 @@
       "registryDependencies": [
         "@vegastack/auto-save-input",
         "@vegastack/button",
-        "@vegastack/checkbox",
+        "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
-        "@vegastack/empty",
-        "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/use-announcer"
       ],
@@ -2604,10 +2607,10 @@
       }
     },
     {
-      "name": "data-list",
+      "name": "data-table-parts",
       "type": "registry:ui",
-      "title": "Data List",
-      "description": "A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.",
+      "title": "Data Table Parts",
+      "description": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.24.0",
@@ -2615,10 +2618,38 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/table",
+        "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/empty",
         "@vegastack/skeleton",
-        "@vegastack/empty"
+        "@vegastack/table"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/data-table-parts.tsx",
+          "type": "registry:ui",
+          "target": "@ui/data-table-parts.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
+        "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "data-list",
+      "type": "registry:ui",
+      "title": "Data List",
+      "description": "A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/data-table-parts",
+        "@vegastack/table"
       ],
       "files": [
         {
@@ -2941,6 +2972,27 @@
       "meta": {
         "whenToUse": "Switching a layout between desktop and mobile treatments (e.g. Sidebar's rail vs. Sheet mode) based on real viewport width.",
         "whenNotToUse": "CSS-only responsive layout — reach for a Tailwind breakpoint utility instead when no JS branching is needed.",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "use-overflow",
+      "type": "registry:hook",
+      "title": "useOverflow",
+      "description": "Live overflow measurement — report whether an element is clipped on the inline axis, the block axis, or either, across resizes and content changes.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-overflow.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-overflow.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Deciding something only when content is ACTUALLY clipped — offering a reveal affordance for truncated text, or making a scroll viewport focusable only while it can scroll.",
+        "whenNotToUse": "Layout CSS can express on its own (line-clamp, overflow) with no JavaScript branch hanging off the measurement.",
         "version": "0.6.0"
       }
     },
@@ -12790,12 +12842,17 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/copy-button"],
+      "registryDependencies": ["@vegastack/copy-button", "@vegastack/use-overflow"],
       "files": [
         {
           "path": "packages/ui/registry/ui/terminal.tsx",
           "type": "registry:ui",
           "target": "@ui/terminal.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/terminal-body.tsx",
+          "type": "registry:ui",
+          "target": "@ui/terminal-body.tsx"
         }
       ],
       "meta": {
@@ -12947,7 +13004,8 @@
         "whenToUse": "Feature-by-plan comparison under a pricing section.",
         "whenNotToUse": "Data tables (Table) or spec sheets without plan columns.",
         "version": "0.6.0"
-      }
+      },
+      "registryDependencies": ["@vegastack/use-overflow"]
     },
     {
       "name": "staggered-text-reveal",

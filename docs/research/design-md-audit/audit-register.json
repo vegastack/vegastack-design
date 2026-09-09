@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "a1850f03b5c5415416aee62c9462f180b4b442832dfc78c76d6346497db4d718",
+  "contractSha256": "71e4e061374d703977636aab7d428ae68f7a958b2a33495fecfa53ef142ade04",
   "expectedCounts": {
-    "totalRegistryItems": 566,
-    "components": 115,
+    "totalRegistryItems": 568,
+    "components": 116,
     "animatedIcons": 439,
-    "hooks": 9,
+    "hooks": 10,
     "blocks": 1,
     "libs": 2
   },
@@ -568,7 +568,8 @@
       "wave": "Data display",
       "family": "data-display",
       "sourceFiles": [
-        "packages/ui/registry/ui/table.tsx"
+        "packages/ui/registry/ui/table.tsx",
+        "packages/ui/registry/ui/table-scroll-region.tsx"
       ],
       "docsSlug": "/docs/components/table",
       "contractStatus": "reconciled"
@@ -1080,6 +1081,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "data-table-parts",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/data-table-parts.tsx"
+      ],
+      "docsSlug": "/docs/components/data-table-parts",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "data-grid",
       "inventoryClass": "component",
       "wave": "Data display",
@@ -1184,7 +1196,8 @@
       "wave": "Content/marketing",
       "family": "marketing",
       "sourceFiles": [
-        "packages/ui/registry/ui/terminal.tsx"
+        "packages/ui/registry/ui/terminal.tsx",
+        "packages/ui/registry/ui/terminal-body.tsx"
       ],
       "docsSlug": "/docs/components/terminal",
       "contractStatus": "reconciled"
@@ -6201,6 +6214,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-mobile.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-overflow",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-overflow.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
