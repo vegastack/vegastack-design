@@ -34,8 +34,10 @@ const sources = Object.fromEntries(
 // directions are rejected. Every entry below states why it is where it is.
 const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //
-// SECOND RUNNER CLASS: the two LAN Debian boxes (`vsk-node-05`, `vsk-node-07`), enrolled by
-// tooling/runner/provision-linux-runner.sh with the labels `self-hosted,linux,vsk-runner`. They
+// SECOND RUNNER CLASS: the LAN Debian boxes, enrolled by
+// tooling/runner/provision-linux-runner.sh with the labels `self-hosted,linux,vsk-runner`. How many
+// there are is not recorded here — `gh api repos/VegaStack/vegastack-design/actions/runners` is the
+// only authority, and a roster written into a comment goes stale unobserved. They
 // exist for the one thing the mac mini cannot do: start a container and run a real browser. A job on
 // them is still zero-billable — they are self-hosted hardware on the LAN.
 //

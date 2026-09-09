@@ -775,7 +775,9 @@ for (const [key, value] of Object.entries(expected)) {
   assert(
     contracts.expectedCounts?.[key] === value,
     `expectedCounts.${key} is ${contracts.expectedCounts?.[key]} but packages/ui/registry.json ` +
-      `holds ${value}. Run \`pnpm design:derived\`; if the registry itself is wrong, fix it there.`,
+      `holds ${value}. NOTHING GENERATES expectedCounts — \`pnpm design:derived\` only reads it. ` +
+      `Set "expectedCounts": { "${key}": ${value} } by hand in ${contractsPath}; if the registry ` +
+      `itself is wrong, fix it there instead and re-run.`,
   );
 }
 assert(

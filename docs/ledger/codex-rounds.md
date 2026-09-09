@@ -367,3 +367,56 @@ Firefox and 431 runnable smoke assertions passed (5 capability skips), but this 
 never established its inspector connection and reproduced the same NSXPC listener interruption in a
 minimal launch. No receipt was cleared or claimed; rerun `pnpm gates:push` from a working GUI WebKit
 session before shipping.
+
+## Rounds 23–25 — 2026-09-07/08 · audit epic #31, the three Codex rounds that were run
+
+Recorded 2026-09-09, late. These three rounds happened during the audit epic and were acted on, but
+nothing was appended here at the time; the raw Codex outputs lived only in the orchestration
+directory. The gap in this ledger between Round 22 (2026-08-27) and here was a bookkeeping failure,
+not an absence of review.
+
+- **Round 23 — F1 (#55, merged `9c33dfaf`) — verdict: CHANGES.** Two high findings.
+  (a) The neutral `outline` Button hovers by **fill** (`surfaceInteractive`), while audit proposal
+  P1 had said bordered controls hover by `border → ring/70`, "not fill". The shipped doctrine was
+  internally consistent but silently reversed P1. **Not resolved by an agent** — it is Needs-MK #1
+  and F2 proceeded with fill under that flag. (b) "Every control now has a pressed step" was
+  **false**, with six named counterexamples (`ComboboxChipRemove`, selected calendar days, selected
+  Segmented items, active pill Tabs, and three docs-chrome controls), and no gate could see it.
+  Both halves were fixed: the counterexamples were routed to their owning batches, and the
+  `hover-without-pressed` rule in `tooling/design-lint.mjs` — whose comment names this round as its
+  origin — now fails closed on any class string that changes fill on hover without a pressed rung.
+- **Round 24 — Do1-a (#54) — verdict: CHANGES.** The Explorer gate did not enforce the "exactly
+  one" invariant it was documented as enforcing: 110 pages measured — 45 curated playgrounds, 6
+  explorers, **59 with neither**, 0 with both. Resolved by **deciding, not by widening the gate**:
+  DD-3 now reads "never both, always wrapped, always under `## Playground`", carrying neither is
+  explicitly permitted (the canon's Playground row applies "where curated"), and
+  `tooling/verify-docs-export.mjs` carries negative self-tests for both, unwrapped, and
+  out-of-section. Also found: `stringifyMdxForAgents` silently discarded unknown MDX components, so
+  `markdown-export.ts`'s "unknown names fail the build" claim was false. That one is fixed at the
+  root — `verify-mdx-manifest` now proves in `pnpm lint` that an unknown component, an unrenderable
+  placeholder (nested included) and map/manifest drift each throw rather than degrade.
+- **Round 25 — I1 (#57) — verdict: CHANGES.** One high: the animated-icon "generator-integrity"
+  gate was **fail-open for icon data** — changing Bell's path from `…3-9` to `…3-8` still printed
+  `✓ 439/439 data modules verified` and exited 0, because only manifest hash _shape_ was checked.
+  Fixed at the root: `tooling/verify-animated-icons.mjs` now pins `moduleSha256`, the hash of each
+  generated module body, and the `--self-test` mutation set includes a hand-edited glyph path, a
+  hand-edited choreography, a staggered-duration step, a glyph path in a newly adopted icon, and a
+  reduced-motion store that never subscribes. Four medium findings (removed handle-type exports,
+  the gallery's lost touch trigger, Motion's non-subscribing `useReducedMotion`, missed size
+  thresholds) were separately routed.
+
+## After 2026-09-08 — this epic's reviews were run by independent Opus agents, not Codex
+
+**Codex was rate-limited until 2026-09-15**, so from 2026-09-08 every adversarial round in audit
+epic #31 was run by an independent Opus reviewer against the same checklist Codex is given: verify
+every claim by execution, hunt false coverage claims, fail-open gates and stale generated files,
+classify high/medium/low, fix at the root. Recorded here rather than left as a gap, because a
+ledger that only lists Codex rounds reads as "no review happened" for the period where most of the
+epic's review actually did.
+
+Those rounds are written up where their findings live rather than duplicated here:
+`docs/ledger/operator-review.md` (per-batch judgment calls and round outcomes — M1, C1, D1, O1,
+P1, G1-b, D3-3, #100, #103, Do1-c), `docs/ledger/bugs.md` (root causes and fixes, including the
+15 → 11 → 2 geometry-lane defect sequence), and
+`docs/audits/2026-09-07-system-audit/briefs/fix-round.md` (findings deliberately deferred to a
+later batch, with the owner named). The Codex round format resumes when Codex does.

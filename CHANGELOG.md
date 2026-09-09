@@ -316,7 +316,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
 ### 🧩 New components
 
-- Initial release: **75 components**, **439 animated-icon items**, 2 hooks
+- Initial release: **83 components**, **439 animated-icon items**, 2 hooks
   (`use-mobile`, `use-animation-replay`), and the `dashboard-01` starter block — all Base UI +
   Tailwind v4, semantic-token-only, WCAG 2.1 AA, distributed as copy-in via the private
   registry at `design.vegastack.com/r/*` (Cloudflare Access service-token auth,
@@ -333,7 +333,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
 ### 📚 Docs
 
-- At the 0.1.0 release, the Fumadocs showcase had 91 pages, live previews rendering the real
+- At the 0.1.0 release, the Fumadocs showcase had 99 pages, live previews rendering the real
   shipped source, and complete desktop/mobile VRT coverage; it was deployed behind Cloudflare
   Access SSO. Current route and baseline counts are verified dynamically rather than inferred
   from this historical release entry.
