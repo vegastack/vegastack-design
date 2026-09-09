@@ -414,6 +414,25 @@ classify high/medium/low, fix at the root. Recorded here rather than left as a g
 ledger that only lists Codex rounds reads as "no review happened" for the period where most of the
 epic's review actually did.
 
+### The end round — 2026-09-09, five independent Opus reviewers, five PRs
+
+The epic's final adversarial round, run against the checklist above after every batch had merged.
+Recorded per reviewer, because the point of a rounds ledger is that the reviews are countable.
+
+| PR       | Reviewer scope                                        | Verdict                            | What it actually found                                                                                                                                                                                                                                                                                                                                                               |
+| -------- | ----------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **#113** | tokens, contrast, and the gates over them             | needs-attention (3 high)           | Destructive Bubble body text at **2.56:1** dark; the `cta` Button labelled in the 3.5:1 brand marker (**3.41:1** light, live on the docs playground); the link-hover dim below AA. Root-fixed, and `contrast-check` extended to the composites that hid them. Two more fill-as-text offenders (`radio-group` error copy at **2.95:1** dark, live) were found by the new rule itself. |
+| **#115** | the gates, adversarially — "can `verify` be bypassed" | needs-attention (1 critical-class) | `verify-workflow-security` matched `pnpm verify` with a multiline regex while its effectiveness rules keyed off a whole-body match, so `set +e … pnpm verify … exit 0` **reported green over a red suite**. Plus five more fail-opens. Eleven negative cases added, each observed rejecting.                                                                                         |
+| **#114** | the previous round's own fix (#109)                   | withdrawal (the defect was unreal) | Re-measured #109's premise and overturned it: flex blockifies children, so accname already separated the parts; the flush names were an artifact of a unit realm that loads no CSS. All nine call sites reverted. **A review being wrong is a round outcome, and this is what one looks like written down.**                                                                         |
+| **#117** | the 2026-09-07 appearance probes (117 routes)         | needs-attention (5 real of 7)      | A **dead Toast page in production** — two module-scope managers, the viewport bound to one and every `toast()` writing to the other, silent since the O2 migration. Two of the seven findings were reported as NOT defects (a probe artefact; a cold-build failure that did not reproduce) rather than "fixed".                                                                      |
+| **#116** | component source, structurally                        | needs-attention (2 high)           | Four class-glue defects a formatter had introduced (§ `bugs.md`, 2026-09-09) that `design-lint` printed `✓ clean` over, and `<Field><Textarea/></Field>` producing an **axe-critical unlabelled control**. Both root-fixed with gates observed failing first.                                                                                                                        |
+
+Two facts about this round belong in the ledger and not only in the PRs. **`main` was red for
+~27 minutes** because #115 and #114 were jointly incompatible while each was independently green —
+a class no branch gate can see. And **#116's rebase silently deleted #117's entire ledger
+writing**, which was found and restored during close-out; see `docs/ledger/operator-review.md`,
+2026-09-09 close-out entry.
+
 Those rounds are written up where their findings live rather than duplicated here:
 `docs/ledger/operator-review.md` (per-batch judgment calls and round outcomes — M1, C1, D1, O1,
 P1, G1-b, D3-3, #100, #103, Do1-c), `docs/ledger/bugs.md` (root causes and fixes, including the

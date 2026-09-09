@@ -34,7 +34,7 @@ component and never an icon.
 - **`emoji-picker`** — A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).
 - **`field`** — A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.
 - **`field-inline`** — Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
-- **`input`** — A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus-visible ring, and optional prefix/suffix addons.
+- **`input`** — A styled Base UI input — all input types, Field state data attributes, error and disabled states, a focus border tint, and optional prefix/suffix addons.
 - **`label`** — A styled native label for form controls — htmlFor association, disabled dimming, optional required indicator.
 - **`number-field`** — Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.
 - **`otp-input`** — A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.
@@ -45,7 +45,7 @@ component and never an icon.
 - **`select`** — A dropdown for choosing one option — trigger with value and chevron, grouped scrollable popup, full keyboard navigation, animated enter/exit.
 - **`slider`** — Pick a number or a [from, to] range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.
 - **`switch`** — An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.
-- **`textarea`** — A styled native textarea for multi-line text — error/disabled states, a focus-visible ring, and an optional auto-grow mode.
+- **`textarea`** — A styled native textarea for multi-line text — error/disabled states, a focus border tint, and an optional auto-grow mode.
 
 ## Display
 

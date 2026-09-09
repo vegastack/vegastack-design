@@ -4,6 +4,90 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
+## 2026-09-09 — Close-out of audit epic #31: what the record has to say honestly
+
+The epic's last PR. Its job is doctrine and the record, so this entry is written to be useful to
+whoever reads it cold, including the parts that do not flatter the epic.
+
+### Two MK decisions recorded, with the evidence re-measured before writing them down
+
+- **TypeScript stays at 6.0.3** and **`tw-animate-css` stays in the public preset** — both written
+  into `design.md` § Toolchain, both re-verified here rather than copied from the brief that
+  asked for them. Two numbers in the brief did not survive that check and the document carries the
+  measured ones instead: the typescript peer cap is declared by **the `typescript-eslint` meta
+  package plus six of the ten `@typescript-eslint/*` packages** in the tree (`scope-manager`,
+  `types`, `utils` and `visitor-keys` declare no `typescript` peer at all), not by "all eight"; and
+  fumadocs' direct dependency is `typescript: "~7.0.2"`, a range, not the bare version.
+- **`react-markdown` + `remark-gfm` are sanctioned** into AGENTS.md's renderer-engine list (MK,
+  2026-09-09), replacing the honest "shipped, and NOT sanctioned" placeholder. Verified before
+  moving it: exactly one importer (`packages/ui/registry/ui/markdown-view.tsx`), declared
+  per-component in `registry.json`, and `rehype-raw` deliberately absent. One nit left as-is and
+  flagged rather than silently normalised: `registry.json` declares `remark-gfm@^4.0.0` while both
+  package manifests declare `^4.0.1`. `^4.0.0` is a superset, so no consumer resolves differently,
+  and changing it would move every dependent item's integrity hash for no behavioural gain.
+
+### The `textarea` contract summary — and the second instance nobody had found
+
+`component-contracts.json` claimed `textarea` has "a focus-visible ring". It does not: it wears
+`fieldControl`, whose focus rung is `focus:border-ring/(--alpha-tint-border)`, and AGENTS.md
+§ Build rules says text-entry fields take a border tint _instead of_ an outline. Auditing the other
+115 summaries for the same class of claim found **one more, with the same words**: `input`, whose
+summary also said "focus-visible ring" over the same recipe. Both are fixed. The docs frontmatter
+for both pages had already been corrected — so the machine authority was the last place the false
+claim was still live, and it is the one that feeds the shipped public skill roster.
+
+**Every other numeric or affordance claim in the 116 summaries was checked and holds** (method and
+results in the PR body). One near-miss was deliberately left alone: `alert`'s summary says "five
+semantic variants", which are its five `intent` values — its `variant` axis is `default | strip`.
+The claim is true about the component and imprecise about the prop name; rewriting it would move
+the contract SHA for a wording preference, which is not what a machine authority is for.
+
+### A fix caused four shipped defects, and a review was wrong
+
+Both are written up where they happened (`docs/ledger/bugs.md`), and both belong in the summary of
+this epic rather than only in the fine print:
+
+- **G1-b (#99, `b2c2e964`) caused the class-glue defects.** Its repo-wide `prettier --write`
+  stripped trailing spaces from inside concatenated class literals, welding the utilities either
+  side of each seam into nonsense that compiled to nothing. The **Switch shipped with no track
+  colour in either state, in both themes**, and consumers got it byte-for-byte. `#107` fixed one
+  instance and left a comment saying the linter could not see it; nobody swept. `#116` fixed the
+  rest with `[…].join(" ")` plus a structural `class-glue` rule, proven non-vacuous against a
+  specimen `design-lint` had printed `✓ clean` over.
+- **`#109` was withdrawn: it fixed a defect that does not exist.** Flex blockifies its children, so
+  accname step 2F was already inserting the separating space; the flush names came from a unit suite
+  that loads no CSS. `#114` reverted all nine call sites. The bugs.md entry is preserved verbatim
+  under a `WITHDRAWN` heading with the correction immediately after it — the right shape, and the
+  reason this ledger is worth keeping.
+
+### `main` was red for ~27 minutes, and nothing was wrong with either PR
+
+`#115` (21:35 IST, the gate requiring every compiled-CSS lane to import production's full layer
+set) and `#114` (21:36 IST, a new `accessible-name` lane that did not) were each green on their own
+branch and jointly incompatible the moment both were on `main` — first observed on `64ba720e` and
+fixed at 22:03 by `1e439d98`. **No branch-level gate can see this class**, because the conflict does
+not exist until the merge; the honest mitigation is to notice it fast, which is what happened.
+
+### The conflict trap fired again, and this time it deleted the record
+
+The hash-only conflict trap (`_common.md` C1) was reported by the orchestrator as firing **seven
+times** across this epic, the last on the orchestrator itself; that count is its tally, not
+something re-measured here. **An eighth instance of the same family was found while writing this
+entry, and is repaired in this PR:** `#116`'s rebase dropped `#117`'s ledger writing wholesale — the
+`bugs.md` entry for the dead Toast page (119 lines, including the two findings that were NOT
+defects) and the matching 43-line `operator-review.md` entry. Both are restored here verbatim from
+`1e439d98`. The generalisation is worth stating: the trap is not specific to hash lines. Any file
+two branches both append to resolves "cleanly" by taking one side, and a ledger is the file where
+that loss is least visible and most damaging, because the deleted text is the only evidence the
+work happened.
+
+### Verification note
+
+This PR is doctrine and record only. Per AGENTS.md § Verification it runs the static gates plus the
+two derived-file checks locally and leaves the browser lanes to CI, which has the runners.
+
+---
+
 ## 2026-09-09 — Forms-and-overlays fix round: five calls the brief did not settle
 
 - **`select-trigger` is NOT in the text-entry focus set.** The M1 finding listed
@@ -52,6 +136,49 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
   (`z-(--z-raised)`, `z-(--z-overlay)`, `z-(--z-toast)`). The published skill said the same and was
   corrected here; AGENTS.md is out of this PR's scope by the same rule that keeps doctrine edits in
   the wave PR.
+
+---
+
+## 2026-09-09 — Appearance-probe fixes: five calls made without pausing
+
+- **The docs toast composition: nest the copy-in provider, rather than add a `toastManager` prop to
+  `VegaStackProvider`.** Three options. (a) Drop the package provider and use the registry copy-in
+  end to end — rejected, `verify-provider-dogfood.mjs` exists precisely to keep the published
+  entrypoint consumed by the showcase. (b) Give `VegaStackProvider` (and its canonical registry
+  twin) an optional `toastManager` prop and pass the copy-in's — correct, but it adds public API to
+  a registry item to serve exactly one consumer: `@vegastack/ui` is private, so no external
+  consumer can mix the two modules in the first place, and a copy-in consumer's provider and toast
+  already come from the same module. (c) Nest the copy-in `ToastProvider` — three lines, no API
+  change, one live manager, both dogfoods intact. Chose (c). The cost is that the package's
+  `ToastProvider` above it is inert on this site; nothing in the docs imports the package `toast()`,
+  and the new gate would catch it if that changed.
+- **The Tabs count badge takes body ink, rather than keeping muted ink and changing the fill.**
+  Inheriting the trigger's ink (muted at rest, `foreground` when active — what the prop doc claimed)
+  still leaves an unselected `pill` count at 4.48:1 in dark, under AA by a hair. An opaque fill can
+  read as invisible on the rung the trigger has just hovered to. `text-foreground` clears every
+  stack in both themes with 7.28:1 at the worst, and the badge stays quiet through size and fill.
+  It does mean the count is brighter than its own label on a resting tab — deliberate, and the way
+  GitHub and Linear paint a tab counter.
+- **The contrast gate learned the rung composite for BODY INK only.** Adding `muted-foreground`
+  over a wash on a rung would fail the gate permanently (3.11–4.48:1 dark) and could only be
+  answered by retuning tokens. So the gate asserts what must hold and `design.md` states the
+  prohibition — muted ink is not available there. If MK would rather the tokens moved so muted ink
+  survives a wash on a rung, that is a retune, not a lint.
+- **DatePicker: fixed the `data-day` hook in the component, pinned `locale` in the fixtures, and
+  left the `locale` default alone.** A locale-formatted `data-*` attribute is indefensible and was
+  fixed outright. The visible label is a different question: following the viewer's locale is the
+  right default for a date, and it is inherently unstable under SSR/static export. Pinning the
+  fixtures fixes the public page; the callout tells consumers the rule. **What is left for MK:
+  should `locale` default to a fixed value so a consumer SSR'ing `<DatePicker value={d}/>` cannot
+  hit this?** That changes documented behaviour of a shipped component, so it was not decided here.
+- **Probe changes go beyond the four the brief named.** Dismissing overlays, the `aria-current`
+  rule, the pill-radius rule and the `opacity: 0` rule were asked for. Three more were added
+  because each was producing the same class of false positive on every run: an inset-chip wash
+  (the system's own SP-02 recipe) read as `hover-invisible` on every stepper; a text-entry field
+  whose focus affordance is a border tint on the GROUP read as `focus-none`; and `[tabindex='0']`
+  swept `role="tabpanel"` containers in, demanding hover states from panels and timing out on
+  inactive ones. Net effect on the six routes re-run: split-button 21 → 0 flags, number-field 9 →
+  0, pagination 5 → 0, tabs 6 → 0, date-picker 1 → 0, bubble 3 → 2.
 
 ---
 
