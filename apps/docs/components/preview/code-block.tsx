@@ -12,8 +12,6 @@ FROM companies
 GROUP BY country
 ORDER BY company_count DESC;`;
 
-const LONG_LINE = `pnpm dlx shadcn@latest add https://design.vegastack.com/r/code-block.json --overwrite --cwd ./apps/web --yes`;
-
 export function codeBlock(): ReactNode {
   // The shared code surface: sunken mono panel + mono-label language header + copy.
   return (
@@ -22,10 +20,6 @@ export function codeBlock(): ReactNode {
         {SQL}
       </CodeBlock>
       <CodeBlock>{`# headerless: no language, no copy\npnpm run registry:build`}</CodeBlock>
-      {/* A line too long to wrap: the pre scrolls on its own axis, the panel does not grow. */}
-      <CodeBlock language="bash" copyValue={LONG_LINE}>
-        {LONG_LINE}
-      </CodeBlock>
     </Wrapper>
   );
 }
