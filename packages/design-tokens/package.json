@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@vegastack/typescript-config": "workspace:*",
-    "style-dictionary": "5.5.0",
+    "style-dictionary": "5.5.2",
     "typescript": "catalog:"
   },
   "publishConfig": {

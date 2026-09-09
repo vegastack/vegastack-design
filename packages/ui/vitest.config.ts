@@ -106,6 +106,27 @@ export default defineConfig({
       "react-markdown",
       "remark-gfm",
       "zod",
+      // Everything below was still being DISCOVERED by Vite on a cold cache (a fresh clone or
+      // worktree with no `node_modules/.vite`): three "new dependencies optimized … reloading"
+      // events fired mid-run and reloaded live test pages, failing every test in the file that was
+      // executing (measured 2026-09-07: dropzone 20/20 failed cold, 20/20 passed warm). Listing them
+      // makes the first run behave like every later one. The set is the union of the three reload
+      // events; a new engine or shared runtime import belongs here on the day it is added.
+      "react",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "vitest-browser-react",
+      "axe-core",
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge",
+      "lucide-react",
+      "@tanstack/react-table",
+      "@tanstack/react-virtual",
+      "react-dropzone",
+      "@atlaskit/pragmatic-drag-and-drop/combine",
+      "@atlaskit/pragmatic-drag-and-drop/element/adapter",
+      "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge",
     ],
   },
   test: {
