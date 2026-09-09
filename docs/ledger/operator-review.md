@@ -106,6 +106,72 @@ documented interface to the cleanup `pnpm verify` runs in its `finally`.
 
 ---
 
+## 2026-09-08 — M2 judgment calls (prose recipe shape, Toolbar adoption, the 100ms exit)
+
+**Context:** M2 (#36) implements B4-09 (one prose recipe), B4-10 (Base UI `Toolbar` in TextEdit,
+ActionBar and FilterBar), B8-11/B9-08 (the docked-control motion pair) and B4-11 (fixtures). Four
+calls were made rather than pausing; the third and fourth are deviations from the issue text and are
+flagged in the PR body.
+
+**Decisions taken instead of pausing:**
+
+- **`prose` lives in `@vegastack/design`, not as a registry `lib` item.** The package already holds
+  exactly this kind of thing — `surfaceInteractive`, `fillInteractive`, `TIMINGS`, `FLOATING` — and
+  `preset.css` scans its `dist` through `@source "./dist"`, so the class literals reach a consumer's
+  Tailwind build with no new plumbing. Both consumers already declare `@vegastack/design` as an npm
+  dependency, so `verify-registry-deps` needs nothing new and a `shadcn add markdown-view` still
+  installs a working component. A registry `lib` item would have added a second distribution path for
+  a file with no JSX in it.
+- **The recipe is descendant variants worn on the root, NOT per-element class strings handed to
+  react-markdown's components map** — a deviation from the issue's wording (`class strings per
+element … consumed by MarkdownView's components map`). Two facts forced it. First, TextEdit cannot
+  use per-element classes at all: ProseMirror owns the contenteditable DOM, so its half must be
+  descendant rules, and Tailwind's scanner only emits candidates it can see as literals — so a
+  per-element map plus a descendant map means the whole recipe written **twice**, which is the
+  duplication B4-09 exists to remove. Second, the two forms cannot coexist on one tree:
+  `[&_h1]:mt-6` compiles at specificity (0,1,1) and a plain `.mt-6` on the element at (0,1,0), so any
+  element-level typography class inside a prose root is a silent no-op. `prose` is still a
+  per-element record (the issue's substance); each value is that element's rules already scoped.
+  MarkdownView's map keeps only the four genuinely behavioural entries (`a`, `input`, `pre`,
+  `table`), and the file is ~150 lines shorter. The acceptance criterion — "the same computed styles
+  for h1/p/code" — is now true by construction and asserted by measuring the resolved cascade.
+- **FilterBar keeps `role="group"`; only TextEdit and ActionBar became toolbars.** B4-10 names all
+  three. TextEdit and ActionBar are rows of single-action controls — textbook APG toolbars, and both
+  were announcing a role whose traversal they did not implement. FilterBar is not that shape: a
+  `FilterChip` is a composite (label plus its own remove button), so it is not a single tab stop; the
+  search `Input` under Base UI's composite gains select-all-on-focus, which is not wanted in a filter
+  box; and `trailing` is an arbitrary host slot that cannot register. Converting it would trade a
+  truthful `group` for a `toolbar` whose roving order covers only part of the row — the exact defect
+  B4-10 objects to. It should be re-decided on the shape T2 (#38) leaves behind, since that batch
+  replaces `FilterChip` with the shared `Chip` primitive. **Flagged for MK.**
+- **ActionBar gains `ActionBarButton` / `ActionBarSeparator` rather than auto-wrapping children.**
+  Base UI's toolbar builds its single tab stop from items that register with it, and ActionBar's API
+  is free-form `children`. Auto-wrapping every child in `Toolbar.Button` was considered and rejected:
+  it cannot tell a `Button` from a `Separator`, and it would turn the separator into a focusable
+  button. Explicit parts keep every existing prop working, match the composition Base UI documents,
+  and make the roving promise true for the sanctioned shape. A bare `<Button>` still renders — the
+  page and the JSDoc say plainly that it keeps its own tab stop.
+- **100ms stays inside `motion-dock-out` instead of becoming a fifth `--duration-*` token.** The
+  system's durations are 150/200/300; D11's docked exit introduces a fourth value with exactly one
+  role. A global `--duration-quick` would invite reuse D11 did not sanction, and O1 (#40) is
+  concurrently working the overlay timings, so inventing a shared name here risks two batches naming
+  the same value differently. The utility IS the name of the role; the raw value sits in the token
+  package, where every other raw motion value already sits.
+- **Motion register M-39 / M-49 are dispositioned, in the living register rather than the audit
+  file.** Both rows (action-bar enter/exit; message-scroller button "copy of M-39") called for
+  150 in / 100 out, no scale, and both are now implemented through one shared utility pair, so the
+  duplication the register recorded is gone as well as the timing. The audit batch files are
+  point-in-time records under the truth hierarchy and were deliberately **not** rewritten; the
+  register that governs today is `design.md` §Motion, `foundations/motion.mdx` (a new "Docked
+  presence" mechanism row and a vocabulary row) and `component` skill §2 (a new matrix row) — all
+  three updated in this change.
+- **The recipe uses logical properties and `text-start`** where the two originals used `ml-6`,
+  `pl-4`, `border-l-2`, `mr-1.5` and `text-left`. Prose is the surface most likely to carry
+  translated content and the contract lane already asserts RTL containment, so authoring the new
+  single source physically would have booked avoidable work for G1's `no-physical-direction` lint.
+  `font-medium` on `strong`/`a`/`th` is deliberately NOT touched: `text-label` also changes font-size
+  and tracking, which would shrink a `<strong>` inside a heading, and the `font-medium` ban is C1/G1's
+  with its own vocabulary decision.
 
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
 

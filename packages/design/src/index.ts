@@ -237,3 +237,10 @@ export const FLOATING = {
   sideOffsetDetached: 8,
   collisionPadding: 8,
 } as const;
+
+/**
+ * The prose recipe — one token vocabulary for rendered rich text, worn by `MarkdownView`'s root and
+ * `TextEdit`'s editor surface so both render identical computed styles (audit B4-09). See
+ * `./prose.ts` for why it is expressed as descendant variants rather than per-element classes.
+ */
+export { prose, proseClassName, type ProseElement } from "./prose";

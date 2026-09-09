@@ -139,8 +139,10 @@ above the anchor visible so the position reads as continuous.
 ### A restyled jump button + live visibility count
 
 `MessageScrollerButton` forwards `variant` and `size` from
-[`Button`](/docs/components/button), and accepts custom `children` in place of the
-default arrow. `useMessageScrollerVisibility()` reports every message currently in
+[`Button`](/docs/components/button) — it defaults to `outline`, which already is a
+page-coloured face with the one hairline and the surface-ladder hover — and accepts
+custom `children` in place of the default arrow. It docks in and out with the shared
+`motion-dock-in` / `motion-dock-out` pair: 150ms in, 100ms out, translate and fade. `useMessageScrollerVisibility()` reports every message currently in
 the viewport via its `visibleMessageIds` array.
 
 <ComponentPreview

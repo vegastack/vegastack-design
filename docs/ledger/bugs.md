@@ -4,6 +4,32 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-09 — The geometry lane compiled no `@utility` at all, so custom utilities measured as nothing
+
+- **Symptom.** M2 replaced `MessageScrollerButton`'s inline
+  `data-[active=false]:pointer-events-none` with the shared `data-[active=false]:motion-dock-out`
+  utility, which declares the same `pointer-events: none`. Four `message-scroller` fixtures then
+  failed the 24px obstruction probe: the lane's own exemption for an inactive docked control
+  requires `getComputedStyle(control).pointerEvents === "none"`, and the control now computed
+  `auto`.
+- **Root cause: `packages/ui/test/geometry.css` imported `theme.css` and `base.css` but never
+  `utilities.css`,** which is where every `@utility` in the system is defined and which production
+  (`apps/docs/app/global.css`) does import. A custom utility whose definition is absent compiles to
+  an empty rule with no error, so `motion-dock-in/out`, `scroll-fade-*`, `scrollbar-thin`,
+  `motion-pop-in` and the rest were measured as no-ops across all 523 fixtures. The lane's own
+  `@source` comment warns about exactly this fail-open one layer down ("a missing glob here does not
+  error — it silently drops utilities and turns a real contract into a no-op"); the import list had
+  the same hole.
+- **Fix.** `@import "@vegastack/design-tokens/utilities.css"` in `geometry.css`. All 523 fixtures
+  pass with the layer present and the exclusion map has no stale entries, so no measurement in the
+  `EXCLUDED` map changes — the utilities the lane was missing were not the ones holding those
+  defects open.
+- **Not fixed here:** `packages/ui/test/contrast.css` has the same hole. Adding the import there was
+  trialled and is green (8/8), but the contrast lane has no demonstrated defect from it, so it is
+  flagged rather than changed inside a component batch.
+- **Class:** fail-open verification gap, pre-existing since the lane was written (WP1). Nothing
+  reported it because a missing utility makes a contract weaker, never red.
+
 ## 2026-09-09 — The geometry lane sweeps every fixture and found 15 pre-existing 24px/reflow defects
 
 - **Symptom:** WP1 (#69) moved the reflow, RTL and effective-24px-target contracts into
@@ -115,6 +141,26 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
 
 ---
 
+## 2026-09-08 — TextEdit lit every link in the document when the editor was hovered
+
+- **Symptom.** Hovering anywhere inside a `TextEdit` surface dimmed **every** link in the edited
+  document to the hover ink at once, instead of the one under the pointer. Found while extracting the
+  shared prose recipe (audit B4-09), not reported.
+- **Root cause: the variants were in the wrong order.** `text-edit.tsx` wrote
+  `hover:[&_a]:text-info-text/(--alpha-link-hover)`, which Tailwind compiles to `.editor:hover a` —
+  "when the EDITOR is hovered, every descendant `a`". The intended rule is `[&_a]:hover:…` →
+  `.editor a:hover`. `MarkdownView` never had the bug, because it set the hover on the element
+  itself; that the two sides of one recipe disagreed is exactly what B4-09 predicted.
+- **Fix.** The shared `prose` recipe in `@vegastack/design` states it once, as
+  `[&_a]:hover:text-info-text/(--alpha-link-hover)`, and both surfaces wear the same string. A unit
+  test asserts that **all 116 rules** of `proseClassName` are present on both roots and that the only
+  extras are the five structural classes a contenteditable needs (the editor's own `tiptap` and
+  `ProseMirror` markers are excluded — prosemirror-view writes the second itself) — so the two cannot diverge again
+  without a gate failing. Deliberately structural and not a `getComputedStyle` comparison: the
+  `@vegastack/ui` harness compiles no Tailwind CSS, so a resolved-style comparison would have found
+  both surfaces at browser defaults and passed no matter how far they had drifted.
+- **Class:** silent visual defect, pre-existing since the editor shipped. Not caught by any lint: the
+  variant order is legal Tailwind and both orders compile.
 
 ## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
 
@@ -163,6 +209,16 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
   alone; that remains **G1-b (#49)**'s call. No timeout was widened and nothing retries an assertion:
   only the scroll setup step retries, which is why this is not "re-run until green" — the same failure
   mode the VRT baselines were deleted for.
+- **Second manifestation, same race, still open (observed 2026-09-08, M2 #36).** With the 320px check
+  hardened, the full sweep on `audit/m2-rich-text-toolbars` (a branch that touches nothing on that
+  route) failed instead on `/docs/components/relative-time retains focus visibility and effective 24px
+pointer targets` — `mobile-chromium-dark` only, 879/880 passing, with all five probe points
+  reporting `"hit": null` for a control whose visual box measures 27.0×21.0px. A `null` hit is
+  `document.elementFromPoint` finding nothing at the point, which is what a mid-re-render fixture
+  looks like to the pointer probe. So the probe fix
+  above closed the window on the scroll step but not on the target-floor step, which resolves and
+  measures its own element handles. Owning batch for the second fix: **G1-b (#49)**, alongside the
+  `.first()` fixture-selection call it already holds. Not fixed here — M2 owns no part of that route.
 
 ## 2026-09-07 — `design:sync:check` cannot see prose that names a deleted token
 

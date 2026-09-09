@@ -13595,6 +13595,44 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "ActionBarButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Spreads props onto Base UI Toolbar.Button, which forwards the ref to its rendered element."
+          }
+        },
+        {
+          "name": "ActionBarButtonProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActionBarSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spreads props onto Base UI Toolbar.Separator, which forwards the ref to its rendered element."
+          }
+        },
+        {
+          "name": "ActionBarSeparatorProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -13644,8 +13682,9 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/action-bar",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -13677,6 +13716,24 @@
                 "action-bar-actions",
                 "action-bar-status"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActionBarButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["action-bar-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActionBarSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["action-bar-separator"]
             }
           ],
           "cssVariables": []
@@ -20479,6 +20536,7 @@
       "docsSlug": "/docs/components/text-edit",
       "registryDependencies": ["@vegastack/toggle"],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",

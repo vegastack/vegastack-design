@@ -45,6 +45,29 @@ history, the **bold / italic / strike / code** marks, **headings**, **bullet & o
 />
 ```
 
+## Scope
+
+`TextEdit` is the **presentational base editor** — a controlled HTML value, the StarterKit
+formatting set, the styled toolbar, the placeholder, read-only mode, a `Cmd/Ctrl+Enter` `onSubmit`
+affordance, and `minHeight`/`maxHeight` sizing. Heavier, app-coupled capabilities are intentionally
+**out of this core** (each needs app infrastructure or ships as a separate composed extension),
+mirroring the design system's G7 presentational/app-coupled rule:
+
+| Capability                                                           | Why it's out of the base                                         | Where it lives                            |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
+| Image upload / paste-to-upload                                       | Needs app storage (R2/CDN)                                       | App resolves URLs (same split as `Image`) |
+| @mentions                                                            | Needs the app's user/entity data                                 | App-supplied data source + query          |
+| Markdown import/export, emoji, task lists, code-block language menus | Composed Tiptap extensions                                       | Future composed addons                    |
+| Real-time collaboration (multi-cursor, awareness, Yjs CRDT)          | Needs `@tiptap/extension-collaboration` + `yjs` + a sync backend | Separate `text-edit-collab` component     |
+
+This base ships no `@tiptap/extension-collaboration` and no `yjs` dependency — it is a self-contained
+single-user editor. For richer needs, compose the relevant extension on top or use the dedicated
+follow-up component.
+
+Prose styling is **not** this component's to own: the editor surface wears the shared `prose`
+recipe from `@vegastack/design`, the same string `MarkdownView` puts on its root, so what a person
+types here and what the app renders from markdown are one typography.
+
 ## Examples
 
 ### Anatomy
@@ -130,8 +153,10 @@ fires it with the current HTML. It's presentational only: the **host** decides w
   (or associate a visible label) so the region is announced.
 - Use `aria-invalid` and `aria-describedby` to connect validation state and helper/error text to the
   contenteditable textbox.
-- The toolbar is a `role="toolbar"` labelled “Formatting”; each button is an icon-only `Toggle` with
-  an `aria-label` and `aria-pressed` reflecting the active mark/node.
+- The toolbar is a Base UI `Toolbar` labelled “Formatting” — a real APG toolbar, so the whole row is
+  **one tab stop** and the arrow keys move between controls (wrapping at the ends) across the three
+  `Toolbar.Group` clusters. Each button is an icon-only `Toggle` with an `aria-label` and
+  `aria-pressed` reflecting the active mark or node.
 - Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus re-colors the container
   border with the `ring` token (`focus-within:border-ring/(--alpha-tint-border)`); never styled with `outline: none`.
 - An invalid control (`aria-invalid`) re-colors the container border to destructive
@@ -147,25 +172,8 @@ fires it with the current HTML. It's presentational only: the **host** decides w
 | <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                                           |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current HTML (when set). The host decides what submitting means; plain <kbd>Enter</kbd> still inserts a newline. |
 | <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control.                                                                                         |
-
-## Scope
-
-`TextEdit` is the **presentational base editor** — a controlled HTML value, the StarterKit
-formatting set, the styled toolbar, the placeholder, read-only mode, a `Cmd/Ctrl+Enter` `onSubmit`
-affordance, and `minHeight`/`maxHeight` sizing. Heavier, app-coupled capabilities are intentionally
-**out of this core** (each needs app infrastructure or ships as a separate composed extension),
-mirroring the design system's G7 presentational/app-coupled rule:
-
-| Capability                                                           | Why it's out of the base                                         | Where it lives                            |
-| -------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
-| Image upload / paste-to-upload                                       | Needs app storage (R2/CDN)                                       | App resolves URLs (same split as `Image`) |
-| @mentions                                                            | Needs the app's user/entity data                                 | App-supplied data source + query          |
-| Markdown import/export, emoji, task lists, code-block language menus | Composed Tiptap extensions                                       | Future composed addons                    |
-| Real-time collaboration (multi-cursor, awareness, Yjs CRDT)          | Needs `@tiptap/extension-collaboration` + `yjs` + a sync backend | Separate `text-edit-collab` component     |
-
-This base ships no `@tiptap/extension-collaboration` and no `yjs` dependency — it is a self-contained
-single-user editor. For richer needs, compose the relevant extension on top or use the dedicated
-follow-up component.
+| <kbd>←</kbd> / <kbd>→</kbd> _(in the toolbar)_        | Move between formatting controls; focus wraps at either end.                                                                              |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd> _(in the toolbar)_  | Leave the toolbar in one press, rather than stepping back through every button.                                                           |
 
 ## Do / Don't
 

@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.6.0 sha256-ORl2Dxvlc5f5gQrALylEltoTuA5UhpZwBAfOuROjLTs=
+// @vegastack message-scroller@0.6.0 sha256-iLbnx7bCoGEds2ZKr4lUkcO55zGwzMY4rojquKtGOts=
 
 "use client";
 
@@ -10,7 +10,7 @@ import {
   useMessageScrollerVisibility,
 } from "@shadcn/react/message-scroller";
 import { ArrowDown } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import {
   type ButtonAppearance,
   type ButtonOwnProps,
@@ -181,9 +181,14 @@ export type MessageScrollerButtonProps = React.ComponentPropsWithRef<
 
 /**
  * `MessageScrollerButton` — the floating "scroll to end" (or "start") affordance.
- * Renders our `Button`; it slides in only when the viewport is scrolled away
- * from the target edge (`data-active`) and animates out with our motion-ease
- * tokens. Defaults to a soft `sm` icon button with a down arrow.
+ * Renders our `IconButton`; it docks in only when the viewport is scrolled away
+ * from the target edge (`data-active`), using the shared `motion-dock-in` /
+ * `motion-dock-out` pair — 150ms in, 100ms out, translate and fade, no scale.
+ *
+ * Defaults to an `outline` `sm` icon button with a down arrow: `outline` IS a
+ * page-coloured face with the one hairline and the surface-ladder hover, which
+ * is what this control used to reach by overriding `variant="secondary"` with
+ * `bg-background border-border hover:bg-muted` inline (audit B9-08).
  *
  * **Reduced motion:** the vendored primitive defaults its click-triggered scroll to
  * `behavior: "smooth"` (see `MessageScrollerButtonProps["behavior"]`, from
@@ -202,7 +207,7 @@ export function MessageScrollerButton({
   className,
   children,
   render,
-  variant = "soft",
+  variant = "outline",
   tone,
   size = "sm",
   behavior = "smooth",
@@ -222,8 +227,13 @@ export function MessageScrollerButton({
       direction={direction}
       behavior={resolvedBehavior}
       className={cn(
-        "absolute start-1/2 -translate-x-1/2 border-border bg-background text-foreground transition-[translate,scale,opacity] duration-base hover:text-foreground data-[active=false]:pointer-events-none data-[active=false]:scale-95 data-[active=false]:opacity-0 data-[active=false]:duration-slow data-[active=false]:ease-exit data-[active=true]:translate-y-0 data-[active=true]:scale-100 data-[active=true]:opacity-100 data-[active=true]:ease-emphasized data-[direction=end]:bottom-4 data-[direction=end]:data-[active=false]:translate-y-full data-[direction=start]:top-4 data-[direction=start]:data-[active=false]:-translate-y-full rtl:translate-x-1/2 data-[direction=start]:[&_svg]:rotate-180",
-        surfaceInteractive,
+        // Docked to an edge of the viewport, horizontally centred. The enter/exit grammar is the
+        // shared `motion-dock-*` pair (150 in / 100 out, no scale — audit B9-08/B8-11); only the
+        // per-edge DISTANCE is stated here, which is what the pair deliberately leaves to the dock.
+        "absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2",
+        "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out",
+        "data-[direction=end]:bottom-4 data-[direction=end]:data-[active=false]:translate-y-full",
+        "data-[direction=start]:top-4 data-[direction=start]:data-[active=false]:-translate-y-full data-[direction=start]:[&_svg]:rotate-180",
         className,
       )}
       render={

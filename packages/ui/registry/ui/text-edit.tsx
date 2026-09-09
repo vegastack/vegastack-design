@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.6.0 sha256-2HjCjd+o5bwsA7dgt+L7dDne98B0s2OitgF2VQX5Pds=
+// @vegastack text-edit@0.6.0 sha256-biPOpS2Lo2uXZ6+ExAKW5WjErggxQVg0bXLDTpoulpU=
 
 "use client";
 
@@ -20,40 +20,33 @@ import {
   Quote,
   Code,
 } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { Toolbar } from "@base-ui/react/toolbar";
+import { cn, proseClassName } from "@vegastack/design";
 import { Toggle } from "@/components/ui/toggle";
 
+/** A cluster of related formatting controls inside the toolbar row. */
+const TOOLBAR_GROUP = "flex items-center gap-0.5";
+
 /**
- * Token-only prose styling for the editor surface (the ProseMirror `.tiptap`
- * root). Mirrors `MarkdownView`'s per-element overrides so rendered rich text
- * tracks the active theme — every value is a semantic token, no
- * `@tailwindcss/typography` dependency, no hardcoded colors. Applied to
- * `EditorContent` via the `editorProps.attributes.class` so it styles the
- * contenteditable element directly.
+ * The rule between two clusters. `Toolbar.Separator` defaults to the orientation perpendicular to
+ * the toolbar, so a horizontal bar gets a vertical hairline without stating it.
  */
-const proseClassName = cn(
-  "tiptap min-w-0 text-base text-foreground outline-none",
-  // headings — max weight is `font-medium` (500); mirrors MarkdownView's v2 overrides.
-  "[&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:text-h1 [&_h1]:text-foreground [&_h1]:first:mt-0",
-  "[&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:text-h2 [&_h2]:text-foreground [&_h2]:first:mt-0",
-  "[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:text-h3 [&_h3]:text-foreground [&_h3]:first:mt-0",
-  // paragraphs
-  "[&_p]:my-3 [&_p]:leading-relaxed [&_p]:text-foreground [&_p]:first:mt-0 [&_p]:last:mb-0",
-  // marks — links use `info` (blue) per design.md; strong stays at `font-medium`.
-  "[&_strong]:font-medium [&_strong]:text-foreground [&_em]:italic [&_s]:text-muted-foreground [&_s]:line-through",
-  "[&_a]:font-medium [&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-info-text/(--alpha-link-hover)",
-  // lists
-  "[&_ul]:my-3 [&_ul]:ml-6 [&_ul]:list-disc [&_ul]:text-foreground [&_ul]:marker:text-muted-foreground",
-  "[&_ol]:my-3 [&_ol]:ml-6 [&_ol]:list-decimal [&_ol]:text-foreground [&_ol]:marker:text-muted-foreground",
-  "[&_li]:mt-1.5 [&_li]:leading-relaxed",
-  // blockquote
-  "[&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground [&_blockquote]:italic",
-  // inline code + code blocks — chips round at `sm` (6px), the code-block container at `lg`.
-  "[&_code]:rounded-sm [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-base [&_code]:text-foreground",
-  "[&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-border [&_pre]:bg-muted [&_pre]:p-4 [&_pre]:text-base [&_pre]:text-foreground",
-  "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-foreground",
-  // horizontal rule
-  "[&_hr]:my-6 [&_hr]:border-border",
+const TOOLBAR_SEPARATOR = "mx-0.5 h-4 w-px shrink-0 bg-border";
+
+/**
+ * The editor surface (the ProseMirror `.tiptap` root) wears the shared `prose` recipe from
+ * `@vegastack/design` — the SAME string `MarkdownView` puts on its root, so edited rich text and
+ * rendered markdown are one typography rather than two that agree by review (audit B4-09). It is
+ * applied through `editorProps.attributes.class`, which styles the contenteditable element
+ * directly; ProseMirror owns that DOM, which is why the recipe is expressed as descendant rules.
+ *
+ * Only what is specific to a contenteditable stays here: `tiptap` (the primitive's own hook),
+ * `min-w-0` (the editor is a flex child), `outline-none` (focus is drawn on the container's
+ * border), and the content inset.
+ */
+const editorClassName = cn(
+  proseClassName,
+  "tiptap min-h-24 min-w-0 px-3 py-2.5 outline-none",
 );
 
 /**
@@ -95,13 +88,27 @@ interface ToolbarState {
 }
 
 /**
- * Token-styled toolbar of `Toggle` buttons wired to the editor's chained
- * commands. Active state is derived from `editor.isActive(...)` via
- * `useEditorState` (Tiptap v3 no longer re-renders on every transaction, so the
- * toolbar subscribes to just the marks/nodes it cares about). Disabled while the
- * editor is non-editable.
+ * Token-styled formatting toolbar wired to the editor's chained commands.
+ *
+ * Built on Base UI `Toolbar` (audit B4-10): the row is a real APG toolbar with **one tab stop** and
+ * roving focus — Tab enters at the last-focused control, the arrow keys move between controls (and
+ * wrap), Shift+Tab leaves. Before this it was a hand-written `role="toolbar"` whose every button
+ * was its own tab stop, so a keyboard user paid eight Tab presses to cross a formatting bar and the
+ * announced role promised traversal that did not exist.
+ *
+ * Each control is a `Toolbar.Button` rendering the system `Toggle`, which keeps the pressed
+ * semantics (`aria-pressed` + `data-pressed`) that make a formatting button legible; the clusters
+ * are `Toolbar.Group`s so the arrow keys still cross them while assistive tech announces the
+ * grouping. Active state is derived from `editor.isActive(...)` via `useEditorState` (Tiptap v3 no
+ * longer re-renders on every transaction, so the toolbar subscribes to just the marks and nodes it
+ * cares about).
+ *
+ * `disabled` is declared once on `Toolbar.Root` and reaches every item through context.
+ * `focusableWhenDisabled={false}` is deliberate: it makes a disabled item a natively disabled
+ * `<button>`, which is what `Toggle`'s `disabled:` styling reads. The state is defensive anyway —
+ * the toolbar is not rendered at all when `editable` is false.
  */
-function Toolbar({ editor }: { editor: Editor }) {
+function FormattingToolbar({ editor }: { editor: Editor }) {
   const state = useEditorState({
     editor,
     selector: ({ editor: ed }): ToolbarState => ({
@@ -120,89 +127,149 @@ function Toolbar({ editor }: { editor: Editor }) {
   const disabled = !state.isEditable;
 
   return (
-    <div
+    <Toolbar.Root
       data-slot="text-edit-toolbar"
-      role="toolbar"
       aria-label="Formatting"
+      disabled={disabled}
       className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/(--alpha-wash-faint) px-1.5 py-1"
     >
-      <Toggle
-        size="sm"
-        pressed={state.isBold}
-        disabled={disabled}
-        onPressedChange={() => editor.chain().focus().toggleBold().run()}
-        aria-label="Bold"
+      <Toolbar.Group
+        data-slot="text-edit-toolbar-group"
+        aria-label="Text style"
+        className={TOOLBAR_GROUP}
       >
-        <Bold />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={state.isItalic}
-        disabled={disabled}
-        onPressedChange={() => editor.chain().focus().toggleItalic().run()}
-        aria-label="Italic"
+        <Toolbar.Button
+          focusableWhenDisabled={false}
+          render={
+            <Toggle
+              size="sm"
+              pressed={state.isBold}
+              onPressedChange={() => editor.chain().focus().toggleBold().run()}
+              aria-label="Bold"
+            >
+              <Bold />
+            </Toggle>
+          }
+        />
+        <Toolbar.Button
+          focusableWhenDisabled={false}
+          render={
+            <Toggle
+              size="sm"
+              pressed={state.isItalic}
+              onPressedChange={() =>
+                editor.chain().focus().toggleItalic().run()
+              }
+              aria-label="Italic"
+            >
+              <Italic />
+            </Toggle>
+          }
+        />
+        <Toolbar.Button
+          focusableWhenDisabled={false}
+          render={
+            <Toggle
+              size="sm"
+              pressed={state.isStrike}
+              onPressedChange={() =>
+                editor.chain().focus().toggleStrike().run()
+              }
+              aria-label="Strikethrough"
+            >
+              <Strikethrough />
+            </Toggle>
+          }
+        />
+      </Toolbar.Group>
+      <Toolbar.Separator className={TOOLBAR_SEPARATOR} />
+      <Toolbar.Group
+        data-slot="text-edit-toolbar-group"
+        aria-label="Blocks"
+        className={TOOLBAR_GROUP}
       >
-        <Italic />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={state.isStrike}
-        disabled={disabled}
-        onPressedChange={() => editor.chain().focus().toggleStrike().run()}
-        aria-label="Strikethrough"
+        <Toolbar.Button
+          focusableWhenDisabled={false}
+          render={
+            <Toggle
+              size="sm"
+              pressed={state.isHeading}
+              onPressedChange={() =>
+                editor.chain().focus().toggleHeading({ level: 2 }).run()
+              }
+              aria-label="Heading"
+            >
+              <Heading2 />
+            </Toggle>
+          }
+        />
+        <Toolbar.Button
+          focusableWhenDisabled={false}
+          render={
+            <Toggle
+              size="sm"
+              pressed={state.isBulletList}
+              onPressedChange={() =>
+                editor.chain().focus().toggleBulletList().run()
+              }
+              aria-label="Bullet list"
+            >
+              <List />
+            </Toggle>
+          }
+        />
+        <Toolbar.Button
+          focusableWhenDisabled={false}
+          render={
+            <Toggle
+              size="sm"
+              pressed={state.isOrderedList}
+              onPressedChange={() =>
+                editor.chain().focus().toggleOrderedList().run()
+              }
+              aria-label="Ordered list"
+            >
+              <ListOrdered />
+            </Toggle>
+          }
+        />
+      </Toolbar.Group>
+      <Toolbar.Separator className={TOOLBAR_SEPARATOR} />
+      <Toolbar.Group
+        data-slot="text-edit-toolbar-group"
+        aria-label="Insert"
+        className={TOOLBAR_GROUP}
       >
-        <Strikethrough />
-      </Toggle>
-      <span className="mx-0.5 h-4 w-px bg-border" aria-hidden />
-      <Toggle
-        size="sm"
-        pressed={state.isHeading}
-        disabled={disabled}
-        onPressedChange={() =>
-          editor.chain().focus().toggleHeading({ level: 2 }).run()
-        }
-        aria-label="Heading"
-      >
-        <Heading2 />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={state.isBulletList}
-        disabled={disabled}
-        onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
-        aria-label="Bullet list"
-      >
-        <List />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={state.isOrderedList}
-        disabled={disabled}
-        onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
-        aria-label="Ordered list"
-      >
-        <ListOrdered />
-      </Toggle>
-      <span className="mx-0.5 h-4 w-px bg-border" aria-hidden />
-      <Toggle
-        size="sm"
-        pressed={state.isBlockquote}
-        disabled={disabled}
-        onPressedChange={() => editor.chain().focus().toggleBlockquote().run()}
-        aria-label="Blockquote"
-      >
-        <Quote />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={state.isCode}
-        disabled={disabled}
-        onPressedChange={() => editor.chain().focus().toggleCode().run()}
-        aria-label="Inline code"
-      >
-        <Code />
-      </Toggle>
-    </div>
+        <Toolbar.Button
+          focusableWhenDisabled={false}
+          render={
+            <Toggle
+              size="sm"
+              pressed={state.isBlockquote}
+              onPressedChange={() =>
+                editor.chain().focus().toggleBlockquote().run()
+              }
+              aria-label="Blockquote"
+            >
+              <Quote />
+            </Toggle>
+          }
+        />
+        <Toolbar.Button
+          focusableWhenDisabled={false}
+          render={
+            <Toggle
+              size="sm"
+              pressed={state.isCode}
+              onPressedChange={() => editor.chain().focus().toggleCode().run()}
+              aria-label="Inline code"
+            >
+              <Code />
+            </Toggle>
+          }
+        />
+      </Toolbar.Group>
+    </Toolbar.Root>
   );
 }
 
@@ -320,12 +387,17 @@ export interface TextEditProps {
  * inline code) and markdown-ish input rules (type `**bold**`, `# heading`,
  * `- list`, `> quote`). Built on [Tiptap v3](https://tiptap.dev) `StarterKit`
  * (history, marks, headings, lists, blockquote, code), `@tiptap/react`'s
- * `useEditor` + `EditorContent`, and the design system's `Toggle`.
+ * `useEditor` + `EditorContent`, Base UI `Toolbar`, and the design system's `Toggle`.
+ *
+ * The toolbar is a real APG toolbar: one tab stop, arrow keys between controls,
+ * Shift+Tab out.
  *
  * Controlled via `value` / `onValueChange` (HTML), or uncontrolled via
- * `defaultValue`. The content surface is styled entirely with semantic tokens,
- * so prose tracks the active theme. Server-safe to import (`immediatelyRender:
- * false`); the contenteditable mounts on the client.
+ * `defaultValue`. The content surface wears the shared `prose` recipe from
+ * `@vegastack/design` — the same one `MarkdownView` uses — so edited rich text and
+ * rendered markdown are one typography and both track the active theme.
+ * Server-safe to import (`immediatelyRender: false`); the contenteditable mounts
+ * on the client.
  *
  * **Scope (base editor — G7 app-coupled split).** This is the *presentational* base
  * rich-text editor: a controlled HTML value, the StarterKit formatting set, the styled
@@ -387,7 +459,7 @@ export function TextEdit({
   const invalid = ariaInvalidAttribute !== undefined;
   const editorAttributes = React.useMemo(
     () => ({
-      class: cn(proseClassName, "min-h-24 px-3 py-2.5"),
+      class: editorClassName,
       ...(id ? { id } : {}),
       ...(ariaLabel ? { "aria-label": ariaLabel } : {}),
       ...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {}),
@@ -542,7 +614,7 @@ export function TextEdit({
         className,
       )}
     >
-      {editable && editor ? <Toolbar editor={editor} /> : null}
+      {editable && editor ? <FormattingToolbar editor={editor} /> : null}
       <div
         data-slot="text-edit-content"
         className={cn(

@@ -3,10 +3,13 @@
 import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/action-bar` (dogfoods the registry) → auto-scanned.
-import { ActionBar } from "@/components/ui/action-bar";
+import {
+  ActionBar,
+  ActionBarButton,
+  ActionBarSeparator,
+} from "@/components/ui/action-bar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
 
 const ROWS = ["Acme Corporation", "Globex", "Initech", "Umbrella"];
 
@@ -41,17 +44,11 @@ export function actionBar(): ReactNode {
           aria-label="Bulk actions"
           className="absolute"
         >
-          <Button variant="ghost" size="sm">
-            Tag
-          </Button>
-          <Separator orientation="vertical" className="h-4" />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelected(new Set())}
-          >
+          <ActionBarButton>Tag</ActionBarButton>
+          <ActionBarSeparator />
+          <ActionBarButton onClick={() => setSelected(new Set())}>
             Clear selection
-          </Button>
+          </ActionBarButton>
         </ActionBar>
       </div>
     </Wrapper>
@@ -72,12 +69,15 @@ export function actionBarUnsaved(): ReactNode {
           aria-label="Unsaved changes"
           className="absolute"
         >
-          <Button variant="ghost" size="sm" onClick={() => setDirty(false)}>
+          <ActionBarButton onClick={() => setDirty(false)}>
             Discard
-          </Button>
-          <Button size="sm" onClick={() => setDirty(false)}>
+          </ActionBarButton>
+          <ActionBarButton
+            render={<Button size="sm" />}
+            onClick={() => setDirty(false)}
+          >
             Save
-          </Button>
+          </ActionBarButton>
         </ActionBar>
       </div>
     </Wrapper>
@@ -95,9 +95,7 @@ export function actionBarPending(): ReactNode {
           aria-label="Import progress"
           className="absolute"
         >
-          <Button variant="ghost" size="sm">
-            Cancel
-          </Button>
+          <ActionBarButton>Cancel</ActionBarButton>
         </ActionBar>
       </div>
     </Wrapper>

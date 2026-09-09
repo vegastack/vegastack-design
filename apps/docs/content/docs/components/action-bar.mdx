@@ -14,16 +14,21 @@ npx shadcn@latest add @vegastack/action-bar
 ## Usage
 
 ```tsx
-import { ActionBar } from "@/components/ui/action-bar";
+import {
+  ActionBar,
+  ActionBarButton,
+  ActionBarSeparator,
+} from "@/components/ui/action-bar";
 
 <ActionBar open={count > 0} status={`${count} selected`}>
-  <Button variant="ghost" size="sm">
-    Tag
-  </Button>
-  <Separator orientation="vertical" />
-  <Button variant="soft" tone="destructive" size="sm">
+  <ActionBarButton onClick={tag}>Tag</ActionBarButton>
+  <ActionBarSeparator />
+  <ActionBarButton
+    render={<Button variant="soft" tone="destructive" size="sm" />}
+    onClick={archive}
+  >
     Archive
-  </Button>
+  </ActionBarButton>
 </ActionBar>;
 ```
 
@@ -31,13 +36,19 @@ Bulk selection is the bar's most common recipe — never its identity. The same
 object serves an unsaved-changes bar and a batch-progress bar; only the words
 change.
 
+Compose the actions as `ActionBarButton`. The bar is a Base UI `Toolbar`, and a
+toolbar builds its single tab stop from the items that register with it — a bare
+`<Button>` still renders, but keeps its own tab stop and the arrow keys skip it.
+Pass `render` when an action needs a different shape (a destructive button, an
+`IconButton`, a menu trigger).
+
 ## Scope
 
-| Behaviour              | Where it lives                                                                                          |
-| ---------------------- | ------------------------------------------------------------------------------------------------------- |
-| Selection state        | The host's list — [`DataList`](/docs/components/data-list) owns `selectedIds`; the bar consumes a count |
-| The actions themselves | Host, as children (`Button`, `DropdownMenu` for overflow, `AlertDialog` for destructive confirms)       |
-| Outcome persistence    | The `status` slot — not a toast, which discards state the user still holds                              |
+| Behaviour              | Where it lives                                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Selection state        | The host's list — [`DataList`](/docs/components/data-list) owns `selectedIds`; the bar consumes a count       |
+| The actions themselves | Host, as `ActionBarButton` children (`render` a `Button`, a `DropdownMenu` trigger, an `AlertDialog` trigger) |
+| Outcome persistence    | The `status` slot — not a toast, which discards state the user still holds                                    |
 
 ## Examples
 
@@ -60,16 +71,31 @@ readable — a bulk operation in flight should not be re-triggerable.
 
 ## API Reference
 
+### ActionBar
+
 <AutoTypeTable
   path="../../packages/ui/registry/ui/action-bar.tsx"
   name="ActionBarProps"
 />
 
+### ActionBarButton
+
+One action, registered with the bar's roving focus. Takes every
+[Base UI `Toolbar.Button`](https://base-ui.com/react/components/toolbar) prop;
+`render` defaults to a `ghost` `sm` `Button`.
+
+### ActionBarSeparator
+
+The hairline between two clusters of actions. Takes every Base UI
+`Toolbar.Separator` prop; the orientation defaults to perpendicular to the bar,
+so a horizontal bar gets a vertical rule.
+
 ## Accessibility
 
-- The bar is a labelled `role="group"` (not `toolbar` — that role promises
-  arrow-key traversal); pass a specific `aria-label`
-  ("Bulk actions", "Import progress") rather than the generic default.
+- The bar is a Base UI `Toolbar` labelled by `aria-label` — pass a specific one
+  ("Bulk actions", "Import progress") rather than the generic default. The whole
+  bar is **one tab stop**: the arrow keys move between actions and wrap at the
+  ends, and <kbd>Shift</kbd> + <kbd>Tab</kbd> leaves in a single press.
 - Status changes are announced through a polite live region — a plain-string
   `status` announces itself; composite status markup needs an `announcement`.
 - Actions with visible text must not carry `aria-label` (WCAG 2.5.3) — the
@@ -79,14 +105,21 @@ readable — a bulk operation in flight should not be re-triggerable.
   subtree is `inert` — nothing invisible or in-flight stays focusable or
   activatable.
 
-| Key                                 | Action                          |
-| ----------------------------------- | ------------------------------- |
-| <kbd>Tab</kbd>                      | Move through the bar's actions. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action.    |
+| Key                                 | Action                                                 |
+| ----------------------------------- | ------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Enter the bar at the last-focused action, or leave it. |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Move between actions; focus wraps at either end.       |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd>   | Leave the bar in one press.                            |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action.                           |
 
 ## Do / Don't
 
 <DoDont
   do="Keep outcome summaries in the status slot ('5 dismissed · 1 failed') so retained selection and its explanation live together."
   dont="Own selection state in the bar or announce outcomes only in a toast — the notification disappears while the user still holds the selection."
+/>
+
+<DoDont
+  do="Compose the actions as ActionBarButton so every one of them joins the bar's single tab stop."
+  dont="Drop a bare Button into the bar — it renders, but it keeps its own tab stop and the arrow keys skip it."
 />

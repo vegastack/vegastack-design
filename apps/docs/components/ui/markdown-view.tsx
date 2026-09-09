@@ -1,9 +1,9 @@
-// @vegastack markdown-view@0.6.0 sha256-boJzOSRGDoOtlgHMEXY+LDuL4iQZOSid15HiujC5aaY=
+// @vegastack markdown-view@0.6.0 sha256-JFfko0tyBmuo+CCI9uBOAEaTwqWTmK8Q2WsgdvbMSjQ=
 
 import * as React from "react";
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { cn } from "@vegastack/design";
+import { cn, proseClassName } from "@vegastack/design";
 import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
@@ -20,89 +20,30 @@ function extractText(node: React.ReactNode): string {
 }
 
 /**
- * Element overrides that style react-markdown's output with semantic tokens.
+ * The overrides react-markdown needs for BEHAVIOUR, not for styling.
  *
- * react-markdown maps each markdown node to a plain HTML element; we replace the
- * defaults here so the rendered prose uses the design system's token utilities
- * (no `@tailwindcss/typography` dependency). Every value is a semantic token —
- * `text-foreground`, `bg-muted`, `text-info-text`, `border-border` — so the prose
- * tracks the active theme (light/dark) automatically.
+ * Every typographic rule lives in the shared `prose` recipe (`@vegastack/design`), worn once by
+ * this component's root — the same string `TextEdit` puts on its editor surface, so the two render
+ * identical computed styles (audit B4-09). What remains here is the handful of nodes whose default
+ * output is wrong for a reason no class can fix:
+ *
+ * - `a` — an external link needs `target`/`rel` and an SR-only "opens in new tab" hint.
+ * - `input` — a GFM task-list checkbox must be the system `Checkbox`, not the browser glyph.
+ * - `pre` — fenced code delegates to `CodeBlock` (header + copy affordance).
+ * - `table` — the horizontal scroll container the recipe deliberately does not own.
+ *
+ * None of them sets a typography class, and none should: an element-level class LOSES to the
+ * root's descendant rules (specificity (0,1,0) against (0,1,1)), so it would read as an override
+ * and behave as a no-op. Restyle prose by composing `prose`, never by re-entering this map.
  *
  * Defined at module scope so the same object identity is reused across renders.
  */
 const markdownComponents: Components = {
-  h1: ({ className, ...props }) => (
-    <h1
-      className={cn(
-        "mt-6 mb-3 scroll-m-20 text-h1 text-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  h2: ({ className, ...props }) => (
-    <h2
-      className={cn(
-        "mt-6 mb-3 scroll-m-20 text-h2 text-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  h3: ({ className, ...props }) => (
-    <h3
-      className={cn(
-        "mt-5 mb-2 scroll-m-20 text-h3 text-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  h4: ({ className, ...props }) => (
-    <h4
-      className={cn(
-        "mt-4 mb-2 scroll-m-20 text-h4 text-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  h5: ({ className, ...props }) => (
-    <h5
-      className={cn(
-        "mt-4 mb-2 text-label text-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  h6: ({ className, ...props }) => (
-    <h6
-      className={cn(
-        "mt-4 mb-2 text-label text-muted-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  p: ({ className, ...props }) => (
-    <p
-      className={cn(
-        "my-3 leading-relaxed text-foreground first:mt-0 last:mb-0",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  a: ({ className, href, children, ...props }) => {
+  a: ({ href, children, ...props }) => {
     const isExternal = typeof href === "string" && /^https?:\/\//i.test(href);
     return (
       <a
         href={href}
-        className={cn(
-          "font-medium text-info-text underline underline-offset-4 hover:text-info-text/(--alpha-link-hover)",
-          className,
-        )}
         {...(isExternal
           ? { target: "_blank", rel: "noreferrer noopener" }
           : {})}
@@ -117,20 +58,6 @@ const markdownComponents: Components = {
       </a>
     );
   },
-  ul: ({ className, ...props }) => (
-    <ul
-      className={cn(
-        "my-3 ml-6 list-disc text-foreground marker:text-muted-foreground [&>li]:mt-1.5",
-        // GFM task lists (`- [x] …`) carry `contains-task-list`: the checkbox IS the
-        // marker, so drop the disc (tw-merge resolves the list-style conflict).
-        typeof className === "string" &&
-          className.includes("contains-task-list") &&
-          "list-none",
-        className,
-      )}
-      {...props}
-    />
-  ),
   // GFM task-list checkboxes: react-markdown emits a native `<input type="checkbox" disabled>`,
   // which renders the browser's stock glyph — off-system. Swap in the design-system `Checkbox`
   // instead. It is CONTENT here, not a form control (GitHub parity): inert, but full-contrast —
@@ -142,55 +69,13 @@ const markdownComponents: Components = {
         checked={Boolean(checked)}
         disabled
         className={cn(
-          "pointer-events-none mr-1.5 align-middle disabled:opacity-100",
+          "pointer-events-none me-1.5 align-middle disabled:opacity-100",
           className,
         )}
       />
     ) : (
       <input type={type} className={className} {...props} />
     ),
-  ol: ({ className, ...props }) => (
-    <ol
-      className={cn(
-        "my-3 ml-6 list-decimal text-foreground marker:text-muted-foreground [&>li]:mt-1.5",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  li: ({ className, ...props }) => (
-    <li className={cn("leading-relaxed", className)} {...props} />
-  ),
-  blockquote: ({ className, ...props }) => (
-    <blockquote
-      className={cn(
-        "my-3 border-l-2 border-border pl-4 text-muted-foreground italic",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  code: ({ className, children, ...props }) => {
-    // react-markdown gives inline code a className-less node and fenced code a
-    // `language-*` class. Inline code is a chip; fenced code inherits from <pre>.
-    const isBlock =
-      typeof className === "string" && className.includes("language-");
-    return (
-      <code
-        className={cn(
-          // Block code is re-parented into `CodeBlock`'s own <pre><code> (see `pre`
-          // below), so the class here only matters for the inline chip.
-          isBlock
-            ? "font-mono text-base"
-            : "rounded-sm bg-muted px-1.5 py-0.5 font-mono text-base text-foreground",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </code>
-    );
-  },
   pre: ({ className, children, ...props }) => {
     // Fenced code delegates to `CodeBlock` (Wave 3): derive the language from the
     // code child's `language-*` class and the copy source from its text content,
@@ -218,58 +103,12 @@ const markdownComponents: Components = {
       </CodeBlock>
     );
   },
-  hr: ({ className, ...props }) => (
-    <hr className={cn("my-6 border-border", className)} {...props} />
-  ),
+  // The recipe styles the cells; the scroll container is structure. A wide table must scroll
+  // inside its own box rather than widen the page (the 320px reflow contract).
   table: ({ className, ...props }) => (
     <div className="my-3 w-full overflow-x-auto">
-      <table
-        className={cn(
-          "w-full border-collapse text-base text-foreground",
-          className,
-        )}
-        {...props}
-      />
+      <table className={className} {...props} />
     </div>
-  ),
-  thead: ({ className, ...props }) => (
-    <thead className={cn("border-b border-border", className)} {...props} />
-  ),
-  tr: ({ className, ...props }) => (
-    <tr
-      className={cn("border-b border-border last:border-0", className)}
-      {...props}
-    />
-  ),
-  th: ({ className, ...props }) => (
-    <th
-      className={cn(
-        "px-3 py-2 text-left font-medium text-foreground",
-        className,
-      )}
-      {...props}
-    />
-  ),
-  td: ({ className, ...props }) => (
-    <td
-      className={cn("px-3 py-2 text-muted-foreground", className)}
-      {...props}
-    />
-  ),
-  strong: ({ className, ...props }) => (
-    <strong
-      className={cn("font-medium text-foreground", className)}
-      {...props}
-    />
-  ),
-  em: ({ className, ...props }) => (
-    <em className={cn("italic", className)} {...props} />
-  ),
-  del: ({ className, ...props }) => (
-    <del
-      className={cn("text-muted-foreground line-through", className)}
-      {...props}
-    />
   ),
 };
 
@@ -346,10 +185,9 @@ function componentsWithImagePolicy(
           loading="lazy"
           decoding="async"
           referrerPolicy={remote ? "no-referrer" : undefined}
-          className={cn(
-            "my-3 max-w-full rounded-lg border border-border",
-            className,
-          )}
+          // Frame and rhythm come from `prose.img` on the root; this entry exists only for the
+          // origin policy and the loading hints.
+          className={className}
         />
       );
     },
@@ -394,10 +232,12 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
  * rendered as inert text rather than executed. (`rehype-raw` is intentionally
  * NOT added, as it would re-enable raw HTML.)
  *
- * Prose styling comes from per-element token overrides — headings
- * (`text-foreground`), inline code (`bg-muted font-mono`), links
- * (`text-info-text underline`), blockquotes, lists, and GFM tables — so there is
- * no `@tailwindcss/typography` dependency and the output tracks the theme.
+ * Prose styling is the shared `prose` recipe from `@vegastack/design`, worn as a
+ * single class on the root — headings, paragraphs, marks, lists, blockquotes,
+ * inline code, fenced code, rules, images and GFM tables, every value a semantic
+ * token. There is no `@tailwindcss/typography` dependency, the output tracks the
+ * theme, and `TextEdit` wears the same string, so rendered markdown and edited
+ * rich text are the same typography rather than two that agree by review.
  *
  * Server-safe: no hooks, no `'use client'`. Renders nothing for empty/whitespace
  * input.
@@ -423,7 +263,7 @@ export function MarkdownView({
   return (
     <div
       data-slot="markdown-view"
-      className={cn("text-base text-foreground", className)}
+      className={cn(proseClassName, className)}
       {...props}
     >
       <Markdown

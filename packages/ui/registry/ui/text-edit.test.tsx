@@ -46,6 +46,57 @@ test("renders the formatting toolbar with all command buttons", async () => {
   }
 });
 
+test("toolbar keyboard: one tab stop in, arrows move across groups, Shift+Tab leaves", async () => {
+  const screen = await render(
+    <div>
+      <button type="button">before</button>
+      <TextEdit aria-label="Body" />
+    </div>,
+  );
+  const before = screen
+    .getByRole("button", { name: "before" })
+    .element() as HTMLElement;
+  const bold = screen.getByRole("button", { name: "Bold" }).element();
+  const italic = screen.getByRole("button", { name: "Italic" }).element();
+  const strike = screen
+    .getByRole("button", { name: "Strikethrough" })
+    .element();
+  // Arrow traversal crosses a `Toolbar.Group` boundary and its separator.
+  const heading = screen.getByRole("button", { name: "Heading" }).element();
+
+  // ONE tab stop for the whole bar: every other control is roving.
+  expect(bold.getAttribute("tabindex")).toBe("0");
+  for (const control of [italic, strike, heading])
+    expect(control.getAttribute("tabindex")).toBe("-1");
+
+  before.focus();
+  await userEvent.tab();
+  expect(document.activeElement).toBe(bold);
+
+  await userEvent.keyboard("{ArrowRight}{ArrowRight}");
+  expect(document.activeElement).toBe(strike);
+  await userEvent.keyboard("{ArrowRight}");
+  expect(document.activeElement).toBe(heading);
+  await userEvent.keyboard("{ArrowLeft}");
+  expect(document.activeElement).toBe(strike);
+
+  // Shift+Tab leaves the toolbar outright rather than walking back through eight buttons.
+  await userEvent.tab({ shift: true });
+  expect(document.activeElement).toBe(before);
+});
+
+test("the editor surface and MarkdownView wear the same prose recipe", async () => {
+  const screen = await render(<TextEdit aria-label="Body" />);
+  const editable = screen
+    .getByRole("textbox", { name: "Body" })
+    .element() as HTMLElement;
+  // The shared recipe is the single source of the typography — if TextEdit ever grows its own
+  // `[&_…]` rules again, this is what notices (audit B4-09).
+  expect(editable.className).toContain("[&_h1]:text-h1");
+  expect(editable.className).toContain("[&_p]:leading-relaxed");
+  expect(editable.className).toContain("[&_code]:font-mono");
+});
+
 test("clicking Bold toggles its active state", async () => {
   // Collapsed cursor: toggling Bold sets ProseMirror's stored mark, so editor.isActive('bold') (which
   // drives aria-pressed) flips true — no text selection required. Avoids the prior flake where a

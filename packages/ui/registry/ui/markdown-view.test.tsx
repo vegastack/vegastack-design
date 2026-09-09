@@ -2,7 +2,14 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { proseClassName } from "@vegastack/design";
 import { MarkdownView } from "./markdown-view";
+import { TextEdit } from "./text-edit";
+
+/** The class list of a prose root, as a set, so order never matters. */
+function classes(element: Element): Set<string> {
+  return new Set(element.className.split(/\s+/).filter(Boolean));
+}
 
 test("renders a heading from markdown", async () => {
   const screen = await render(<MarkdownView># Hello world</MarkdownView>);
@@ -41,6 +48,70 @@ test("renders headings, links, code, and list elements", async () => {
   expect(container.querySelector("code")).not.toBeNull();
   expect(container.querySelector("ul")).not.toBeNull();
   expect(container.querySelector("ol")).not.toBeNull();
+});
+
+test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
+  // The B4-09 acceptance — "the two surfaces render the same computed styles" — is guaranteed here
+  // STRUCTURALLY rather than measured: identical class strings on identical elements cannot compile
+  // to different styles. That is deliberate. This harness builds no Tailwind CSS (only
+  // `test/contrast.css`), so a `getComputedStyle` comparison would find both surfaces at browser
+  // defaults and pass no matter how far they had drifted — a green test asserting nothing. The
+  // rendered pixels are covered where real CSS exists: `design-lint --emitted-css`, which reads the
+  // built stylesheet and rejects a prose default no override actually covers.
+  const screen = await render(
+    <div>
+      <MarkdownView>{"# Title\n\nA paragraph with `code` in it."}</MarkdownView>
+      <TextEdit
+        aria-label="Body"
+        defaultValue="<h1>Title</h1><p>A paragraph with <code>code</code> in it.</p>"
+      />
+    </div>,
+  );
+  const rendered = screen.container.querySelector(
+    '[data-slot="markdown-view"]',
+  ) as HTMLElement;
+  await expect
+    .poll(() => screen.container.querySelector(".tiptap"))
+    .not.toBeNull();
+  const edited = screen.container.querySelector(".tiptap") as HTMLElement;
+
+  // Every rule of the recipe is on BOTH roots — neither surface may keep a private copy.
+  const recipe = proseClassName.split(/\s+/).filter(Boolean);
+  expect(recipe.length).toBeGreaterThan(50);
+  const renderedClasses = classes(rendered);
+  const editedClasses = classes(edited);
+  for (const rule of recipe) {
+    expect(renderedClasses.has(rule), `MarkdownView lost ${rule}`).toBe(true);
+    expect(editedClasses.has(rule), `TextEdit lost ${rule}`).toBe(true);
+  }
+
+  // And neither adds typography of its own: what is left over is structural only.
+  // `tiptap` and `ProseMirror` are the editor's own marker classes on the editable root — the first
+  // from @tiptap/react, the second written by prosemirror-view (`attrs.class = "ProseMirror"`).
+  // They carry no typography, and they are not ours to add or remove.
+  const editorMarkers = new Set(["tiptap", "ProseMirror"]);
+  const extras = [...new Set([...renderedClasses, ...editedClasses])].filter(
+    (rule) => !recipe.includes(rule) && !editorMarkers.has(rule),
+  );
+  expect(extras.sort()).toEqual([
+    "min-h-24",
+    "min-w-0",
+    "outline-none",
+    "px-3",
+    "py-2.5",
+  ]);
+
+  // Both actually rendered the elements the recipe styles.
+  for (const selector of ["h1", "p", "code"]) {
+    expect(
+      rendered.querySelector(selector),
+      `MarkdownView is missing ${selector}`,
+    ).not.toBeNull();
+    expect(
+      edited.querySelector(selector),
+      `TextEdit is missing ${selector}`,
+    ).not.toBeNull();
+  }
 });
 
 test("renders fenced code blocks inside a <pre>", async () => {

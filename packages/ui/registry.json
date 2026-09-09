@@ -1794,10 +1794,11 @@
         "feedback"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/action-bar.tsx",
@@ -3126,6 +3127,7 @@
         "rich-text"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",

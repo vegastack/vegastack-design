@@ -605,6 +605,9 @@
  *                         segment of an indeterminate Progress. Looping motion is
  *                         otherwise banned; an indeterminate bar has no other way
  *                         to say "still working" (audit M-06).
+ *
+ * `motion-dock-in` / `motion-dock-out` below are the one PAIR in this family and
+ * the one that is not keyed presence — see their own header.
  * ------------------------------------------------------------------------- */
 @keyframes vs-pop-in {
   from {
@@ -700,6 +703,57 @@
 @utility motion-indeterminate {
   animation: vs-indeterminate var(--duration-indeterminate)
     var(--motion-ease-standard) infinite;
+}
+
+/* ---------------------------------------------------------------------------
+ * motion-dock-in / motion-dock-out — the docked-control enter/exit pair
+ * (audit D11 amendment #7, 2026-09-07).
+ *
+ * A docked control — a bottom action bar, a floating scroll-to-end button —
+ * stays MOUNTED and flips a `data-active` attribute, so its motion is a
+ * transition, not a keyed animation. That is why this is a pair rather than one
+ * `@utility`: the two states carry different timing, which is the whole point.
+ *
+ * The doctrine these encode: **an exit is never slower than its enter.** Both
+ * bars previously entered at `duration-base` and left at `duration-slow` with a
+ * `scale-95`, so dismissing one took half again as long as summoning it and the
+ * bar shrank as it went. Vercel, Linear and Base UI's own defaults all leave at
+ * or faster than they arrive. Enter is 150ms `emphasized`; exit is 100ms `exit`;
+ * a docked bar translates and fades and does not scale — scale reads as a popup,
+ * and a bar sliding off its own edge does not need it.
+ *
+ * 100ms has exactly one role in the system — this exit — so it lives here, in
+ * the utility that names it, rather than becoming a fifth global duration token
+ * that would invite reuse D11 did not sanction.
+ *
+ * These own the timing, the fade and the inert-while-hidden guard. The DISTANCE
+ * stays at the call site as ordinary `translate-*` utilities, because it is
+ * per-dock geometry (a bottom bar clears its own height plus the safe-area
+ * inset; an edge button clears 100%) and because Tailwind composes `translate-x`
+ * and `translate-y` through custom properties that a `translate:` declaration
+ * here would clobber — a horizontally-centred bar would lose its centring.
+ *
+ * The global prefers-reduced-motion reset in base.css collapses both to 0.01ms.
+ *
+ *   <div data-active={open}
+ *        className="data-[active=true]:motion-dock-in  data-[active=true]:translate-y-0
+ *                   data-[active=false]:motion-dock-out data-[active=false]:translate-y-full" />
+ * ------------------------------------------------------------------------- */
+@utility motion-dock-in {
+  transition-property: translate, opacity;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--motion-ease-emphasized);
+  opacity: 1;
+}
+
+@utility motion-dock-out {
+  transition-property: translate, opacity;
+  transition-duration: 100ms;
+  transition-timing-function: var(--motion-ease-exit);
+  opacity: 0;
+  /* A docked-out control is off-screen: it must not swallow clicks on the way
+     out, and it must not be a hit target while parked. */
+  pointer-events: none;
 }
 
 /* ---------------------------------------------------------------------------
