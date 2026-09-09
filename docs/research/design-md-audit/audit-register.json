@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9ff46ff7b47fd1786462830550a299edbc4f0d3867ec1cf9b847f7e920491ffd",
+  "contractSha256": "f1a6b385afc23c1e4b1581799f39632c196a3827dd4809fd27db37b630046019",
   "expectedCounts": {
-    "totalRegistryItems": 560,
-    "components": 113,
+    "totalRegistryItems": 562,
+    "components": 114,
     "animatedIcons": 439,
-    "hooks": 7,
+    "hooks": 8,
     "blocks": 1
   },
   "records": [
@@ -295,6 +295,17 @@
         "packages/ui/registry/ui/checkbox.tsx"
       ],
       "docsSlug": "/docs/components/checkbox",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "checkbox-group",
+      "inventoryClass": "component",
+      "wave": "Core controls",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/checkbox-group.tsx"
+      ],
+      "docsSlug": "/docs/components/checkbox-group",
       "contractStatus": "reconciled"
     },
     {
@@ -6102,6 +6113,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-announcer.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-inline-edit",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-inline-edit.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

@@ -45,6 +45,20 @@ default; the last example below uses `autoGrow` to size to its content instead.
   file="components/preview/textarea.tsx"
 />
 
+### Sizes
+
+`sm` / `md` / `lg`. A multiline field sizes by **minimum height** and padding rather than the fixed
+control heights a single-line [`Input`](/docs/components/input) uses — a textarea grows with its
+content, so a fixed height would be the wrong contract — and `sm` steps the type down a tier with it.
+
+<ComponentPreview name="textareaSizes" file="components/preview/textarea.tsx" />
+
+```tsx
+<Textarea size="sm" aria-label="Compact" />
+<Textarea size="md" aria-label="Default" />
+<Textarea size="lg" aria-label="Roomy" />
+```
+
 ### Auto-grow
 
 Pass `autoGrow` to grow the field to fit its content instead of scrolling, using
@@ -74,11 +88,12 @@ cap, then scrolls.
 
 - Renders a native `<textarea>` — always associate a visible `<label>` (wrap it or
   use `htmlFor`/`id`); use `aria-label` only when a visible label is impossible.
-- The surface sets `outline-none` and replaces it with the text-field focus
-  treatment: on focus the border re-colors with the `ring` token
-  (`focus:border-ring/(--alpha-tint-border)`). The darkened border is the sole
-  focus cue — no ring, matching [`Input`](/docs/components/input) — never
-  `outline: none` with no replacement.
+- The surface uses `outline-hidden` — a **transparent** 2px outline, not a removed one — and
+  replaces it with the text-field focus treatment: on focus the border re-colors with the `ring`
+  token (`focus:border-ring/(--alpha-tint-border)`). The darkened border is the sole focus cue in
+  normal colours, matching [`Input`](/docs/components/input). Under `forced-colors: active` the
+  border tint is erased by the forced palette, and the transparent outline is what that palette
+  repaints — which is why the outline is hidden rather than removed.
 - Set `aria-invalid` (and `aria-describedby` pointing at the error text) to mark a
   field invalid; the styling is token-driven and never relies on color alone.
 - The resize handle and `autoGrow` are visual conveniences only — keyboard and

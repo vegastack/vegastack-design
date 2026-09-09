@@ -88,6 +88,33 @@ Every bug found + root cause + fix. Append-only.
   `/docs/components/button`, click "Fullscreen preview", and press Tab six times.
 
 ---
+## 2026-09-07 — `IconButton` swallows a caller's `data-slot` (Fo1, found by the push gate)
+
+- **Symptom.** `PasswordInput`'s reveal toggle set `data-slot="password-input-toggle"` on the
+  `IconButton` it renders. The DOM said `data-slot="icon-button"`, in all three engines, and the
+  test that asserted the intended value failed on Chromium, Firefox and WebKit alike.
+- **Root cause.** `icon-button.tsx` renders `<Button {...props} size={sizeMap[size]}
+data-slot="icon-button">`. The literal follows the spread, so `IconButton` overwrites any
+  `data-slot` a caller passes — silently, and for every caller. It is not specific to this batch:
+  `page-header.tsx` passes `data-slot="page-header-back"` and has been losing it since it was
+  written, which is why nothing had noticed.
+- **Fix (this batch).** The inert prop is gone from `PasswordInput` and the assertion names what the
+  element actually is. **Not fixed at the root:** `icon-button.tsx` is F2's file boundary, and the
+  root fix is to move the literal ahead of the spread (`data-slot="icon-button" {...props}`) so a
+  caller can name its slot — one line, but it changes a component another batch is actively editing,
+  and it would also un-break `page-header`. Raised for MK in the Fo1 PR rather than taken here.
+- **Why no gate caught it.** Nothing asserts that a `data-slot` a component passes down survives to
+  the DOM; the attribute is only ever checked on the component that owns it. A generic rule is
+  plausible (a component that spreads props must not write a `data-slot` literal after the spread)
+  and belongs with design-lint's AST rules, not here.
+- **Root fix landed elsewhere (2026-09-08).** F2 (#60, `8ce8de4d`) destructured `data-slot` out of
+  the props and now renders `data-slot={dataSlot ?? "icon-button"}`, so a caller's slot survives and
+  `page-header`'s `page-header-back` works again. `PasswordInput` keeps the plain
+  `data-slot="icon-button"`: the toggle is an IconButton and nothing needs to name it otherwise. The
+  design-lint rule above is still unwritten and still belongs with G1-b.
+
+---
+
 
 ## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
 
@@ -420,6 +447,34 @@ re-diagnose it, and because a race that flakes under load is a real race.
   subscribes to. Same visible behaviour, one `<span>` re-rendered instead of a grid.
 
 ---
+## 2026-09-07 — Two defects the audit did not name, found while unifying the field chrome (Fo1)
+
+- **The forced-colours focus outline was being clipped on every field with addons.** F1 fixed B1-01
+  by painting `outline: 2px solid Highlight` on focused `input`/`textarea` under
+  `forced-colors: active`, with `outline-offset: 1px`. That works for a bare field. It does **not**
+  work inside a bordered GROUP — Input's prefix/suffix wrapper, NumberField's stepper group,
+  ChipInput, the Combobox input-group — because the group clips with `overflow-hidden` so its addons
+  follow the rounded corner, and a positive outline-offset draws the ring _outside_ the input and
+  _inside_ that clip. It was painted and then cut, so a High Contrast user still had no focus
+  indicator on exactly the fields most likely to matter (a slug field, a quantity stepper, a
+  recipient list). **Fix:** the group carries the outline via a bare `data-field-group` attribute
+  written by every consumer of `fieldControlGroup`, and `[data-field-group] input:focus` sets
+  `outline: none` so the two never double-ring. The attribute IS the contract; a group wearing the
+  wrapper recipe without it is a silent regression.
+
+- **`design-lint`'s `outline-none` rule does not cover `outline-hidden`, and it matches PROSE.** The
+  rule is a whole-file `/\boutline-none\b/` test paired with a whole-file focus-affordance test.
+  Two consequences met in this batch. First, moving the focus tint out of each component and into
+  `fieldControl` removed the in-file `focus:border-` affordance, so files that merely _mentioned_ the
+  banned utility in a doc comment failed the rule while the code was correct — the comments had to be
+  reworded to say "the outline-removing utility" instead. Second, and more seriously, the rule cannot
+  see `outline-hidden` at all, so nothing stops a future component from hiding its outline with no
+  focus affordance anywhere. Not fixed here (design-lint rules are G1-b's file boundary, and B1-01's
+  own fix note asks for a text-entry-scoped rule): the rule should test the compiled utility rather
+  than the source string, and should recognise `fieldControl` as an imported focus affordance.
+
+---
+
 
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 

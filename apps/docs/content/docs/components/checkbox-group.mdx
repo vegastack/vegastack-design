@@ -1,0 +1,139 @@
+---
+title: Checkbox Group
+description: Shared state for a set of checkboxes, with first-class "select all" — parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.
+audience: public
+preview: checkboxGroup
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/checkbox-group
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Checkbox } from "@/components/ui/checkbox";
+import { CheckboxGroup } from "@/components/ui/checkbox-group";
+import { Label } from "@/components/ui/label";
+
+const ALL = ["read", "write", "admin"];
+
+<CheckboxGroup defaultValue={["read"]} allValues={ALL} aria-labelledby="perms">
+  <Label>
+    <Checkbox parent /> All permissions
+  </Label>
+  <Label>
+    <Checkbox value="read" /> Read
+  </Label>
+  <Label>
+    <Checkbox value="write" /> Write
+  </Label>
+  <Label>
+    <Checkbox value="admin" /> Admin
+  </Label>
+</CheckboxGroup>;
+```
+
+Built on [Base UI Checkbox Group](https://base-ui.com/react/components/checkbox-group). The group
+owns the array of ticked values; each child is a plain
+[`Checkbox`](/docs/components/checkbox) carrying a `value`. There is no `CheckboxGroupItem` — a
+wrapper whose only job is to forward every prop would earn nothing.
+
+Pass `allValues` and mark one child `parent` to get the select-all row. Base UI ticks and unticks
+the whole set from it and drives its mixed (indeterminate) state when only some children are on —
+the arithmetic that used to be written by hand on every settings page and in every grid header.
+
+**Name the group.** It renders no label of its own, so give it a wrapping
+[`FieldSet`](/docs/components/field) + `FieldLegend` (the strongest form, and the one to prefer in a
+form) or an `aria-labelledby` pointing at a heading. An unnamed group announces as a bare list of
+checkboxes with no idea what they belong to.
+
+## Anatomy
+
+```tsx
+<FieldSet>
+  <FieldLegend>Permissions</FieldLegend>
+  <CheckboxGroup value={value} onValueChange={setValue} allValues={ALL}>
+    <Label>
+      <Checkbox parent /> All permissions
+    </Label>
+    <Label>
+      <Checkbox value="read" /> Read
+    </Label>
+  </CheckboxGroup>
+</FieldSet>
+```
+
+## Examples
+
+### Select all
+
+The parent ticks and unticks every value in `allValues`, and reads mixed while only some children
+are on.
+
+<ComponentPreview
+  name="checkboxGroup"
+  file="components/preview/checkbox-group.tsx"
+/>
+
+### States
+
+Nothing ticked, some ticked, all ticked — the parent's own state is derived, never assigned.
+
+<ComponentPreview
+  name="checkboxGroupStates"
+  file="components/preview/checkbox-group.tsx"
+/>
+
+### Uncontrolled
+
+Omit `value`/`onValueChange` and pass `defaultValue`. Without `allValues` there is no parent, which
+is the right shape for a plain list of independent options.
+
+<ComponentPreview
+  name="checkboxGroupUncontrolled"
+  file="components/preview/checkbox-group.tsx"
+/>
+
+### Disabled
+
+`disabled` on the group disables every child, the parent included. The boxes stay hoverable so a
+[`Tooltip`](/docs/components/tooltip) can explain why they are unavailable.
+
+<ComponentPreview
+  name="checkboxGroupDisabled"
+  file="components/preview/checkbox-group.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/checkbox-group.tsx"
+  name="CheckboxGroupProps"
+/>
+
+## Accessibility
+
+- The group renders a `<div>` with no implicit name. Wrap it in a `FieldSet`/`FieldLegend`, or give
+  it `aria-labelledby`.
+- The parent checkbox exposes `aria-checked="mixed"` while only some children are ticked, and
+  `"true"`/`"false"` at the ends.
+- Every checkbox is its own tab stop — a checkbox group is not a roving-tabindex collection, unlike
+  a [`RadioGroup`](/docs/components/radio-group), because the options are not mutually exclusive.
+- `disabled` on the group removes every child from the tab order.
+
+| Key              | Action                                                          |
+| ---------------- | --------------------------------------------------------------- |
+| <kbd>Tab</kbd>   | Move focus to the next checkbox in the group.                   |
+| <kbd>Space</kbd> | Toggle the focused checkbox — or, on the parent, the whole set. |
+
+## Do / Don't
+
+<DoDont
+  do="Name the group with a FieldSet and FieldLegend, and let allValues plus a parent child do the select-all arithmetic."
+  dont="Compute the parent's checked and indeterminate state in your own component state, or use a checkbox group for mutually-exclusive choices."
+/>

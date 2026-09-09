@@ -262,10 +262,11 @@ test("error marks the edit-mode input invalid and renders an associated error me
   const screen = await render(
     <FieldInline value="Ada" onCommit={() => {}} error="Name is required." />,
   );
-  // Shown in display mode too.
-  await expect
-    .element(screen.getByRole("alert"))
-    .toHaveTextContent("Name is required.");
+  // Shown in display mode too, and announced politely rather than as an alert (audit D23).
+  const status = screen.getByRole("status");
+  await expect.element(status).toHaveTextContent("Name is required.");
+  await expect.element(status).toHaveAttribute("aria-live", "polite");
+  expect(screen.container.querySelector('[role="alert"]')).toBeNull();
 
   (
     screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement

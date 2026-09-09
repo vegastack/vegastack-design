@@ -1,15 +1,10 @@
-// @vegastack otp-input@0.6.0 sha256-M8pY6fyRIzeVSXp8UsF2tXMZcfHQWAtqGlNk9mjkpDE=
+// @vegastack otp-input@0.6.0 sha256-EpR0P97KR9H3MGb9cbsTt3Nizbii1JX2v1R/+h0P2z4=
 
 "use client";
 
 import * as React from "react";
 import { OTPField } from "@base-ui/react/otp-field";
-import { cn } from "@vegastack/design";
-import {
-  mergeRefs,
-  useShakeOnInvalid,
-  type ShakeSignal,
-} from "@/components/ui/use-animation-replay";
+import { cn, fieldControl } from "@vegastack/design";
 
 /** Props accepted by `OTPInput`. */
 export interface OTPInputProps extends Omit<
@@ -106,24 +101,16 @@ export interface OTPInputProps extends Omit<
    * @default undefined
    */
   slotClassName?: string;
-  /**
-   * Bump to a new value (e.g. a submit-attempt counter) to re-shake the field while it's
-   * ALREADY invalid — the field already auto-shakes once the moment it first becomes invalid
-   * (Base UI sets `data-invalid` when this is wrapped in a `Field.Root`, or pass `aria-invalid`
-   * manually); this is only for repeat failures against a still-invalid code. See
-   * `useShakeOnInvalid` (`use-animation-replay`).
-
-   * @default undefined
-   */
-  shakeSignal?: ShakeSignal;
 }
 
 /**
- * Per-slot input classes — each slot is a real `<input>` rendered as a square,
- * bordered box. The focused slot raises its z-index and darkens its border to
- * the `ring` token — the border is the sole focus cue (no ring), matching `Input`
- * and the other text-entry fields.
- * Every value is a semantic token (no hardcoded colors, no arbitrary values).
+ * Per-slot input classes — each slot is a real `<input>` rendered as a square, bordered box.
+ * The border/focus/invalid/disabled chrome is `fieldControl` (audit B1-11), identical to
+ * `Input` and `Textarea`; only what is SPECIFIC to a code slot lives here: the mono centred
+ * glyph, the caret ink, and the raised z-index that lifts the focused slot's tinted border
+ * above its neighbours' hairlines. `outline-hidden` rather than the outline-REMOVING utility, so
+ * `forced-colors: active` still has an outline to repaint once it has erased the border tint
+ * (audit B1-01).
  */
 
 /** Slot scale (register P1-04) — the shared 28/32/40 control tier with a type tier to match. */
@@ -134,12 +121,8 @@ const slotSizeClasses = {
 } as const;
 
 const slotClasses =
-  "relative flex items-center justify-center rounded-md border border-input bg-transparent text-center font-mono text-foreground  outline-none " +
-  "dark:bg-input/(--alpha-input) " +
-  "caret-foreground selection:bg-primary selection:text-primary-foreground " +
-  "focus:z-(--z-raised) focus:border-ring/(--alpha-tint-border) " +
-  "data-invalid:border-destructive-border/(--alpha-tint-border) " +
-  "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim) disabled:bg-muted";
+  "relative flex items-center justify-center text-center font-mono text-foreground outline-hidden " +
+  "caret-foreground focus:z-(--z-raised)";
 
 const separatorClasses =
   "select-none px-0.5 font-mono text-base text-muted-foreground";
@@ -191,30 +174,9 @@ export function OTPInput({
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
   size = "md",
-  shakeSignal,
-  onAnimationEnd,
   ref,
   ...props
 }: OTPInputProps) {
-  // Destructured so hook fields (stable across renders) can appear in dependency arrays
-  // without dragging the per-render container object in (react-hooks/exhaustive-deps).
-  const {
-    invalidRef: shakeInvalidRef,
-    className: shakeClassName,
-    onAnimationEnd: shakeAnimationEnd,
-  } = useShakeOnInvalid({ shakeSignal });
-  const rootRef = React.useMemo(
-    () => mergeRefs(ref, shakeInvalidRef),
-    [ref, shakeInvalidRef],
-  );
-  const handleAnimationEnd: NonNullable<OTPInputProps["onAnimationEnd"]> =
-    React.useCallback(
-      (event) => {
-        shakeAnimationEnd(event);
-        onAnimationEnd?.(event);
-      },
-      [onAnimationEnd, shakeAnimationEnd],
-    );
   const firstSlotId = React.useId();
   const groupedLength = groups?.reduce(
     (sum, group) =>
@@ -240,22 +202,25 @@ export function OTPInput({
       aria-label={
         index === 0 ? undefined : `Character ${index + 1} of ${length}`
       }
-      className={cn(slotClasses, slotSizeClasses[size], slotClassName)}
+      className={cn(
+        fieldControl,
+        slotClasses,
+        slotSizeClasses[size],
+        slotClassName,
+      )}
     />
   );
 
   const root = (
     <OTPField.Root
-      ref={rootRef}
+      ref={ref}
       length={length}
       data-slot="otp-input"
       aria-labelledby={ariaLabelledBy}
       className={cn(
         "flex max-w-full items-center gap-2 overflow-x-auto",
-        shakeClassName,
         className,
       )}
-      onAnimationEnd={handleAnimationEnd}
       {...props}
     >
       {inputGroups.map((groupLength, groupIndex) => (

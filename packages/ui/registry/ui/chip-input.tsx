@@ -1,18 +1,14 @@
-// @vegastack chip-input@0.6.0 sha256-ul54z28NcyaN7aoUYFLJmq9stCzVPwRMNO6M/xZeJa8=
+// @vegastack chip-input@0.6.0 sha256-+KDUANSOuRtxFBXqxtQwBCYHGxJ7dD38DC9jqYviZM0=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@vegastack/design";
+import { cn, fieldControlGroup } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
 import { Tag } from "@/components/ui/tag-group";
 import { useAnnouncer } from "@/components/ui/use-announcer";
-import {
-  mergeRefs,
-  useShakeOnInvalid,
-  type ShakeSignal,
-} from "@/components/ui/use-animation-replay";
+import { mergeRefs } from "@/components/ui/use-animation-replay";
 
 /* ---
 `ChipInput` exists because nothing in the roster can commit an arbitrary token:
@@ -41,20 +37,17 @@ Deliberately NOT done here:
 --- */
 
 /**
- * Field chrome — `comboboxInputGroupVariants`' class list, with the state
- * selectors driven by this component (`focus-within`, our own `data-invalid`/
- * `data-disabled`) and the flattening retargeted at the inner `Input`
- * (`data-slot="input"`).
+ * Field chrome — `fieldControlGroup`, the one wrapper recipe (audit B1-11), driven here by
+ * `focus-within` plus this component's own `data-invalid`/`data-disabled`. The flattening of
+ * the inner `Input` (`data-slot="input"`) is what stays local: the group owns the border, so
+ * the input inside it must show none of its own, hover included.
  */
 export const chipInputVariants = cva(
   [
-    "flex w-full min-w-0 flex-wrap items-center gap-1 rounded-md border border-input bg-transparent p-1",
-    "dark:bg-input/(--alpha-input)",
-    "focus-within:border-ring/(--alpha-tint-border)",
-    "data-[invalid]:border-destructive-border/(--alpha-tint-border)",
-    "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim) data-[disabled]:bg-muted",
+    fieldControlGroup,
+    "flex w-full min-w-0 flex-wrap items-center gap-1 p-1",
     // The inner input keeps a 24px minimum box (h-6 tier) — a replaced element cannot host a ::before hit-area, so the box itself must meet the pointer-target floor.
-    "[&_[data-slot=input]]:min-h-6 [&_[data-slot=input]]:h-full [&_[data-slot=input]]:min-w-12 [&_[data-slot=input]]:flex-1 [&_[data-slot=input]]:border-none [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-1.5 [&_[data-slot=input]]:py-0 [&_[data-slot=input]]:focus:border-transparent [&_[data-slot=input]]:dark:bg-transparent",
+    "[&_[data-slot=input]]:min-h-6 [&_[data-slot=input]]:h-full [&_[data-slot=input]]:min-w-12 [&_[data-slot=input]]:flex-1 [&_[data-slot=input]]:border-none [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-1.5 [&_[data-slot=input]]:py-0 [&_[data-slot=input]]:focus:border-transparent [&_[data-slot=input]]:hover:border-transparent [&_[data-slot=input]]:dark:bg-transparent",
   ].join(" "),
   {
     variants: {
@@ -93,7 +86,7 @@ export interface ChipInputProps extends VariantProps<typeof chipInputVariants> {
   /**
    * Per-chip validity. Invalid entries are still **added**, marked with
    * `data-invalid` on their chip, described as invalid for assistive tech, and
-   * flip the whole field invalid (with a shake) until fixed or removed —
+   * flip the whole field invalid until fixed or removed —
    * a pasted list keeps every entry visible instead of silently dropping the
    * malformed ones.
 
@@ -125,13 +118,6 @@ export interface ChipInputProps extends VariantProps<typeof chipInputVariants> {
    * @default false
    */
   disabled?: boolean;
-  /**
-   * Bump to re-shake the field while it is already invalid. See
-   * `useShakeOnInvalid`.
-
-   * @default undefined
-   */
-  shakeSignal?: ShakeSignal;
   /** Extra classes for the field group root.
    * @default undefined
    */
@@ -183,7 +169,6 @@ export function ChipInput({
   "aria-label": ariaLabel,
   disabled = false,
   size = "md",
-  shakeSignal,
   className,
   ref,
   inputRef,
@@ -213,17 +198,11 @@ export function ChipInput({
   );
   const hasInvalidChip = chips.some(isInvalidChip);
 
-  // The reject/invalid cue: the group border flips destructive via
-  // `data-invalid`, and the shake replays on that live transition.
-  const {
-    invalidRef: shakeInvalidRef,
-    className: shakeClassName,
-    onAnimationEnd: shakeAnimationEnd,
-  } = useShakeOnInvalid({ shakeSignal });
-  const rootRef = React.useMemo(
-    () => mergeRefs(ref, shakeInvalidRef),
-    [ref, shakeInvalidRef],
-  );
+  // The reject/invalid cue is the group border flipping destructive via `data-invalid`. The
+  // shake that used to accompany it is gone from here: validation MOTION belongs to `Field`,
+  // which owns it once for every control it wraps (audit D5). A ChipInput inside a `<Field
+  // error=…>` still shakes; a per-chip rejection is a border + a text description, which is
+  // the non-destructive contract this component already documents.
   // Removing a chip via its own button unmounts the focused element — return
   // focus to the field's input instead of letting it fall to <body>.
   const internalInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -302,13 +281,13 @@ export function ChipInput({
 
   return (
     <div
-      ref={rootRef}
+      ref={ref}
       data-slot="chip-input"
       data-size={size}
+      data-field-group=""
       data-invalid={hasInvalidChip ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
-      className={cn(chipInputVariants({ size }), shakeClassName, className)}
-      onAnimationEnd={shakeAnimationEnd}
+      className={cn(chipInputVariants({ size }), className)}
     >
       {chips.map((chip, index) => {
         const invalid = isInvalidChip(chip);

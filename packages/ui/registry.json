@@ -328,9 +328,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/input.tsx",
@@ -359,7 +357,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/use-animation-replay"
       ],
       "files": [
         {
@@ -724,9 +723,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/checkbox.tsx",
@@ -737,6 +734,31 @@
       "meta": {
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "checkbox-group",
+      "type": "registry:ui",
+      "title": "Checkbox Group",
+      "description": "Shared state for a set of checkboxes, with first-class “select all” - parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.",
+      "categories": ["form"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/checkbox-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/checkbox-group.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A set of related checkboxes sharing one value array - permissions, notification channels, filter facets - and any 'select all' row with a mixed state.",
+        "whenNotToUse": "Mutually-exclusive choices (RadioGroup); a single standalone toggle (Checkbox); an instant self-saving setting (Switch).",
         "version": "0.6.0"
       }
     },
@@ -862,9 +884,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/radio-group.tsx",
@@ -1573,9 +1593,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/input"
-      ],
+      "registryDependencies": ["@vegastack/icon-button", "@vegastack/input"],
       "files": [
         {
           "path": "packages/ui/registry/ui/password-input.tsx",
@@ -1602,9 +1620,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/otp-input.tsx",
@@ -1667,7 +1683,8 @@
         "@vegastack/field-inline",
         "@vegastack/select",
         "@vegastack/spinner",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-inline-edit"
       ],
       "files": [
         {
@@ -1696,9 +1713,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/number-field.tsx",
@@ -2028,7 +2043,9 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/use-animation-replay",
+        "@vegastack/use-inline-edit"
       ],
       "files": [
         {
@@ -2960,6 +2977,27 @@
       "meta": {
         "whenToUse": "Replaying a motion-* utility on a user action (error shake, retry pop, etc.), especially on an element that might be focused (form controls) where a key-remount would steal focus.",
         "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "use-inline-edit",
+      "type": "registry:hook",
+      "title": "useInlineEdit",
+      "description": "The click-to-edit state machine - draft, commit, cancel, focus restoration and the double-commit guard - with no opinion about what the editor or the display look like.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-inline-edit.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-inline-edit.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any click-to-edit surface: an inline field, a grid cell, a rename affordance - anywhere Enter commits, Escape cancels, and blur must not commit twice.",
+        "whenNotToUse": "A field that is always in edit mode (Input inside a Field); persistence, async status or optimistic revert, which belong to the component composing this hook.",
         "version": "0.6.0"
       }
     },

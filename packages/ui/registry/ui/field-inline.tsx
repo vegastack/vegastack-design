@@ -1,10 +1,12 @@
-// @vegastack field-inline@0.6.0 sha256-fOPfo1RIRkzYGSFvoqEV4+ny4Q0m5GnpLTzvQg1gbPI=
+// @vegastack field-inline@0.6.0 sha256-WbAylw8DngJJPSNSvuL38t6o+pIWSRlClwSw+hw7z7Y=
 
 "use client";
 
 import * as React from "react";
 import { cn, surfaceInteractive } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
+import { mergeRefs } from "@/components/ui/use-animation-replay";
+import { useInlineEdit } from "@/components/ui/use-inline-edit";
 
 /** Props accepted by `FieldInline`. */
 export interface FieldInlineProps {
@@ -70,8 +72,8 @@ export interface FieldInlineProps {
    * Validation error message. When set: the edit-mode {@link Input} receives `aria-invalid` (which
    * drives its built-in destructive-border styling) plus `aria-describedby` pointing at the error
    * text, and the error text itself renders below the control — same treatment as `field.tsx`'s
-   * `FieldError` (`role="alert"`, `text-sm text-destructive-text`). Shown in both display and edit
-   * mode whenever it's set.
+   * `FieldError` (`role="status"`, `text-sm text-destructive-text`). Shown in both display and
+   * edit mode whenever it's set.
 
    * @default undefined
    */
@@ -121,6 +123,10 @@ export interface FieldInlineProps {
  * `onCommit` (only when changed); <kbd>Escape</kbd> cancels and restores the
  * original value.
  *
+ * The edit machine — draft, commit, cancel, focus restoration, double-commit guard — is
+ * `useInlineEdit`, shared with `EditableCell` (audit B9-06). The two used to keep private
+ * copies of it that had already drifted apart.
+ *
  * Purely presentational — `onCommit` is a callback and the app persists the
  * result. Token-only styling; the display affordance is the shared surface recipe.
  *
@@ -168,97 +174,28 @@ export function FieldInline({
   className,
   ref,
 }: FieldInlineProps) {
-  // Edit mode — controlled when `editing` is provided, else internal (the
-  // house inline controlled/uncontrolled idiom).
-  const [internalEditing, setInternalEditing] = React.useState(false);
-  const isEditingControlled = editing !== undefined;
-  const isEditing = isEditingControlled ? editing : internalEditing;
-  const [draft, setDraft] = React.useState(value);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  // Edit mode: feed both the internal inputRef (focus management) and the consumer ref.
-  const setInputRef = React.useCallback(
-    (node: HTMLInputElement | null) => {
-      inputRef.current = node;
-      if (typeof ref === "function") ref(node);
-      else if (ref) (ref as React.RefObject<HTMLElement | null>).current = node;
-    },
-    [ref],
-  );
-  // Guard against a double-commit: Enter sets isEditing=false → the input
-  // unmounts → the browser fires blur → commit would run a second time.
-  const committedRef = React.useRef(false);
-  // Set when the edit is closed by KEYBOARD (Enter/Escape): focus then returns
-  // to the display element. A blur-commit must NOT steal focus back — the user
-  // has already moved on.
-  const restoreFocusRef = React.useRef(false);
-  const displayRef = React.useRef<HTMLSpanElement | null>(null);
+  // The whole edit machine — draft, commit, cancel, focus restore, double-commit guard —
+  // is `useInlineEdit`, shared with EditableCell. `readOnly` folds into the hook's `disabled`
+  // because both mean the same thing to the machine: an edit may not be entered, and one in
+  // flight reverts. They differ only in chrome, which is this file's job.
+  const edit = useInlineEdit({
+    value,
+    onCommit,
+    editing,
+    onEditingChange,
+    disabled: disabled || readOnly,
+  });
+  const { isEditing } = edit;
   // Associates the edit-mode input with the error text below it (see `error` prop doc).
   const errorId = React.useId();
-
-  const setEditingState = React.useCallback(
-    (next: boolean) => {
-      if (!isEditingControlled) setInternalEditing(next);
-      onEditingChange?.(next);
-    },
-    [isEditingControlled, onEditingChange],
+  const inputRef = React.useMemo(
+    () => mergeRefs(ref as React.Ref<HTMLInputElement>, edit.editRef),
+    [ref, edit.editRef],
   );
-
-  // Keep the draft in sync when the parent updates `value` from outside an edit.
-  React.useEffect(() => {
-    if (!isEditing) setDraft(value);
-  }, [value, isEditing]);
-
-  // When a CONTROLLED host flips `editing` on, seed the draft and re-arm the
-  // commit guard the same way the uncontrolled `startEdit` path does.
-  const previousEditing = React.useRef(isEditing);
-  React.useEffect(() => {
-    if (isEditing && !previousEditing.current) {
-      committedRef.current = false;
-      setDraft(value);
-    }
-    previousEditing.current = isEditing;
-  }, [isEditing, value]);
-
-  const startEdit = React.useCallback(() => {
-    // `disabled`/`readOnly` block entering edit mode entirely.
-    if (disabled || readOnly) return;
-    committedRef.current = false;
-    setDraft(value);
-    setEditingState(true);
-  }, [value, disabled, readOnly, setEditingState]);
-
-  const commit = React.useCallback(() => {
-    if (committedRef.current) return;
-    committedRef.current = true;
-    const next = draft.trim();
-    setEditingState(false);
-    if (next !== value) onCommit(next);
-    else setDraft(value);
-  }, [draft, value, onCommit, setEditingState]);
-
-  const cancel = React.useCallback(() => {
-    committedRef.current = true;
-    setDraft(value);
-    setEditingState(false);
-  }, [value, setEditingState]);
-
-  // If `disabled`/`readOnly` turn on mid-edit, cancel the in-flight edit the same way Escape does
-  // (revert the draft, skip `onCommit`) rather than leaving an now-uneditable field stuck open.
-  React.useEffect(() => {
-    if ((disabled || readOnly) && isEditing) cancel();
-  }, [disabled, readOnly, isEditing, cancel]);
-
-  // Focus + select the whole value when entering edit mode; return focus to
-  // the display element when a keyboard commit/cancel closed the edit.
-  React.useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    } else if (!isEditing && restoreFocusRef.current) {
-      restoreFocusRef.current = false;
-      displayRef.current?.focus();
-    }
-  }, [isEditing]);
+  const displayRef = React.useMemo(
+    () => mergeRefs(ref as React.Ref<HTMLSpanElement>, edit.displayRef),
+    [ref, edit.displayRef],
+  );
 
   const hasDisplayValue = value.length > 0;
   const displayFallback = placeholder ?? "Edit value";
@@ -268,15 +205,18 @@ export function FieldInline({
       : (ariaLabel ?? label ?? (hasDisplayValue ? undefined : displayFallback));
   // `readOnly` drops button semantics entirely (plain text, no edit affordance at all).
   // `disabled` keeps the button role/handlers (so it stays discoverable + defended-in-depth by
-  // `startEdit`'s own guard) but is dimmed, `aria-disabled`, and out of the tab order.
+  // `useInlineEdit`'s own guard) but is dimmed, `aria-disabled`, and out of the tab order.
   const isButton = !readOnly;
 
-  // Same treatment as `field.tsx`'s `FieldError`: an alert role so it's announced, tinted
-  // destructive text. Rendered in both display and edit mode whenever `error` is set.
+  // Same treatment as `field.tsx`'s `FieldError`: a POLITE status role (audit D23 — inline
+  // validation is a user-initiated result, not an interruption), tinted destructive text.
+  // Rendered in both display and edit mode whenever `error` is set.
   const errorText = error ? (
     <span
       id={errorId}
-      role="alert"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
       data-slot="field-inline-error"
       className="mt-1 block text-sm leading-normal text-destructive-text"
     >
@@ -294,27 +234,17 @@ export function FieldInline({
     return (
       <>
         <Input
-          ref={setInputRef}
+          ref={inputRef}
           data-slot="field-inline"
           aria-label={ariaLabelledBy ? undefined : resolvedAriaLabel}
           aria-labelledby={ariaLabelledBy}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
-          value={draft}
+          value={edit.draft}
           placeholder={placeholder}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              restoreFocusRef.current = true;
-              commit();
-            } else if (e.key === "Escape") {
-              e.preventDefault();
-              restoreFocusRef.current = true;
-              cancel();
-            }
-          }}
+          onChange={(e) => edit.setDraft(e.target.value)}
+          onBlur={edit.commit}
+          onKeyDown={edit.onKeyDown}
           className={cn(
             borderless &&
               "h-auto rounded-none border-transparent bg-transparent px-0 py-0 dark:bg-transparent",
@@ -329,25 +259,20 @@ export function FieldInline({
   return (
     <>
       <span
-        ref={(node: HTMLSpanElement | null) => {
-          displayRef.current = node;
-          if (typeof ref === "function") ref(node);
-          else if (ref)
-            (ref as React.RefObject<HTMLElement | null>).current = node;
-        }}
+        ref={displayRef}
         data-slot="field-inline"
         role={isButton ? "button" : undefined}
         tabIndex={readOnly ? undefined : disabled ? -1 : tabIndex}
         aria-disabled={disabled ? true : undefined}
         aria-label={displayAriaLabel}
         aria-labelledby={ariaLabelledBy}
-        onClick={isButton ? startEdit : undefined}
+        onClick={isButton ? edit.start : undefined}
         onKeyDown={
           isButton
             ? (e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  startEdit();
+                  edit.start();
                 }
               }
             : undefined
@@ -358,7 +283,10 @@ export function FieldInline({
           "inline-flex h-(--size-md) max-w-full min-w-0 items-center rounded-md border border-transparent px-3 py-1 text-base",
           borderless && "h-auto rounded-none px-0 py-0",
           !disabled && !readOnly && cn("cursor-text", surfaceInteractive),
-          "aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          // D7: no `pointer-events-none`. A disabled inline field stays hoverable so a Tooltip
+          // can explain WHY it cannot be edited; `useInlineEdit` already no-ops `start()` while
+          // disabled, so the click handler needs no chrome-level defence.
+          "aria-disabled:opacity-(--opacity-dim)",
           className,
         )}
       >

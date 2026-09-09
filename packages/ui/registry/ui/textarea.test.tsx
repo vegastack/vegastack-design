@@ -91,3 +91,44 @@ test("forwards ref to the underlying textarea element", async () => {
   expect(ref.current).toBeInstanceOf(HTMLTextAreaElement);
   expect(ref.current?.dataset.slot).toBe("textarea");
 });
+
+/* ---------------------------------------------------------------------------------------------
+ * Size — the gap audit B1-18 named: `Textarea` had a size scale and no assertion on it.
+ * Multiline fields size by MINIMUM height and padding rather than the fixed control heights,
+ * and `sm` steps the type down a tier with them.
+ * ------------------------------------------------------------------------------------------- */
+
+test("each size reflects on data-size and carries its own min-height tier", async () => {
+  for (const [size, minHeight] of [
+    ["sm", "min-h-12"],
+    ["md", "min-h-16"],
+    ["lg", "min-h-24"],
+  ] as const) {
+    const screen = await render(
+      <Textarea aria-label={`Notes ${size}`} size={size} />,
+    );
+    const textarea = screen.getByLabelText(`Notes ${size}`);
+    await expect.element(textarea).toHaveAttribute("data-size", size);
+    expect((textarea.element() as HTMLElement).className).toContain(minHeight);
+  }
+});
+
+test("md is the default tier", async () => {
+  const screen = await render(<Textarea aria-label="Notes" />);
+  await expect
+    .element(screen.getByLabelText("Notes"))
+    .toHaveAttribute("data-size", "md");
+});
+
+test("disabled and invalid compose without either cue cancelling the other", async () => {
+  const screen = await render(
+    <Textarea aria-label="Notes" disabled aria-invalid />,
+  );
+  const textarea = screen.getByLabelText("Notes");
+  await expect.element(textarea).toBeDisabled();
+  await expect.element(textarea).toHaveAttribute("aria-invalid", "true");
+  // D7: a disabled control keeps its pointer events so a Tooltip can explain it.
+  expect((textarea.element() as HTMLElement).className).not.toContain(
+    "disabled:pointer-events-none",
+  );
+});

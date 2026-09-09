@@ -12,21 +12,21 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 560,
-    "components": 113,
+    "totalRegistryItems": 562,
+    "components": 114,
     "animatedIcons": 439,
-    "hooks": 7,
+    "hooks": 8,
     "blocks": 1
   },
   "expectedWaveCounts": {
-    "Core controls": 23,
+    "Core controls": 24,
     "Forms/editing": 22,
     "Navigation/layout": 14,
     "Overlays": 14,
     "Data display": 11,
     "Content/marketing": 23,
     "AI/chat": 6,
-    "Hooks": 7,
+    "Hooks": 8,
     "Block": 1,
     "Animated icons": 439
   },
@@ -42,6 +42,7 @@
       "input",
       "textarea",
       "checkbox",
+      "checkbox-group",
       "radio-group",
       "switch",
       "slider",
@@ -161,6 +162,7 @@
     "Hooks": [
       "use-animation-replay",
       "use-announcer",
+      "use-inline-edit",
       "use-drag-reorder",
       "use-file-drop",
       "use-list-nav",
@@ -2646,7 +2648,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/input",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -2665,6 +2667,10 @@
       "dataAttributes": {
         "Input": {
           "attributes": [
+            {
+              "name": "data-field-group",
+              "values": [""]
+            },
             {
               "name": "data-size",
               "values": []
@@ -2964,7 +2970,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/field",
-      "registryDependencies": ["@vegastack/input"],
+      "registryDependencies": [
+        "@vegastack/input",
+        "@vegastack/use-animation-replay"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -4345,6 +4354,10 @@
         },
         "ComboboxInputGroup": {
           "attributes": [
+            {
+              "name": "data-field-group",
+              "values": [""]
+            },
             {
               "name": "data-size",
               "values": []
@@ -6547,7 +6560,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/checkbox",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -6575,6 +6588,107 @@
             {
               "name": "data-slot",
               "values": ["checkbox", "checkbox-indicator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "checkbox-group",
+      "registryType": "registry:ui",
+      "title": "Checkbox Group",
+      "summary": "Shared state for a set of checkboxes, with first-class “select all” — parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.",
+      "family": "form",
+      "wave": "Core controls",
+      "sourceFiles": ["packages/ui/registry/ui/checkbox-group.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CheckboxGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/checkbox-group.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseCheckboxGroup",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "CheckboxGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/checkbox-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The group is layout only; the children carry the control size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "checked", "disabled", "indeterminate"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["checked", "focus-visible", "labeled", "semantic-html"],
+          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "disabled", "dark"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/checkbox-group",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/checkbox-group.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected"
+      },
+      "previewModule": "checkbox-group",
+      "dataAttributes": {
+        "CheckboxGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["checkbox-group"]
             }
           ],
           "cssVariables": []
@@ -6970,6 +7084,10 @@
         "Label": {
           "attributes": [
             {
+              "name": "data-layout",
+              "values": []
+            },
+            {
               "name": "data-required",
               "values": [""]
             },
@@ -7217,7 +7335,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/radio-group",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -12599,7 +12717,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/password-input",
-      "registryDependencies": ["@vegastack/input"],
+      "registryDependencies": ["@vegastack/icon-button", "@vegastack/input"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -12624,11 +12742,7 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "password-input",
-                "password-input-requirements",
-                "password-input-toggle"
-              ]
+              "values": ["password-input", "password-input-requirements"]
             }
           ],
           "cssVariables": []
@@ -12721,7 +12835,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/otp-input",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -12995,7 +13109,8 @@
         "@vegastack/field-inline",
         "@vegastack/select",
         "@vegastack/spinner",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-inline-edit"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -13110,7 +13225,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/number-field",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
@@ -13130,6 +13245,10 @@
       "dataAttributes": {
         "NumberField": {
           "attributes": [
+            {
+              "name": "data-field-group",
+              "values": [""]
+            },
             {
               "name": "data-size",
               "values": []
@@ -13426,6 +13545,10 @@
           "attributes": [
             {
               "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-field-group",
               "values": [""]
             },
             {
@@ -14722,7 +14845,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/field-inline",
-      "registryDependencies": ["@vegastack/input"],
+      "registryDependencies": [
+        "@vegastack/input",
+        "@vegastack/use-animation-replay",
+        "@vegastack/use-inline-edit"
+      ],
       "npmDependencies": [
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
@@ -24457,6 +24584,99 @@
         "preview": "exempt",
         "vrt": "exempt"
       }
+    },
+    {
+      "name": "use-inline-edit",
+      "registryType": "registry:hook",
+      "title": "useInlineEdit",
+      "summary": "The click-to-edit state machine — draft, commit, cancel, focus restoration and the double-commit guard — shared by FieldInline and EditableCell, with no opinion about what the editor or the display look like.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-inline-edit.ts"],
+      "publicSymbols": [
+        {
+          "name": "useInlineEdit",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseInlineEditOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseInlineEditResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A hook renders nothing and owns no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "editing", "disabled"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["focus-management"],
+          "evidence": "Focus moves into the editor and selects the value when the edit opens, and returns to the display element only when the KEYBOARD closed it."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-inline-edit.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "docsSlug": "/docs/guides/components",
+      "previewModule": null
     },
     {
       "name": "use-drag-reorder",

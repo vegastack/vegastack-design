@@ -59,8 +59,8 @@ import {
 - `FieldRoot` — groups the parts and wires accessibility between them (`data-slot="field"`). Owns the `orientation` variant. Renders a `<div>`.
 - `FieldLabel` — accessible label, auto-associated with the control (`data-slot="field-label"`). Renders a `<label>`.
 - `FieldControl` — the form control to label and validate (`data-slot="field-control"`). Renders an `<input>`; omit it and drop in any Base UI input/select/checkbox instead.
-- `FieldDescription` — helper text linked via `aria-describedby` (`data-slot="field-description"`). Renders a `<p>`.
-- `FieldError` — validation message shown when the control is invalid (`data-slot="field-error"`, `role="alert"`). Renders a `<div>`.
+- `FieldDescription` — helper text linked via `aria-describedby` (`data-slot="field-description"`). Renders a `<p>`, **below** the control.
+- `FieldError` — validation message shown when the control is invalid (`data-slot="field-error"`, polite atomic `role="status"`). Renders a `<div>`, below the description.
 - `FieldSuccess` — positive confirmation message (`data-slot="field-success"`, polite atomic `role="status"`). Renders a `<p>`.
 - `FieldGroup` — stacks fields with consistent rhythm and provides the `@container` that `orientation="responsive"` responds to (`data-slot="field-group"`). Renders a `<div>`.
 - `FieldSet` / `FieldLegend` — a semantic `<fieldset>`/`<legend>` pair grouping related fields; the set dims as a unit when disabled (`data-slot="field-set"` / `"field-legend"`).
@@ -199,7 +199,16 @@ takes Base UI's `match` to control when the message shows).
 ## Accessibility
 
 - Base UI Field auto-associates the label with the control and links the description and error via `aria-describedby` — no manual `htmlFor`/`id` wiring needed.
-- An `error` (or `invalid`) sets `aria-invalid` on the control and announces the message via `role="alert"`.
+- An `error` (or `invalid`) sets `aria-invalid` on the control and announces the message as a polite
+  `role="status"` live region. Inline validation is a user-initiated result, not an interruption;
+  `alert` is reserved for something that arrives without being asked for.
+- Helper text renders **below** the control, with the error or success message below that. Above the
+  control it pushed the input away from its own label, and a wrapped description put two lines of
+  prose between the two things the eye pairs.
+- `Field` owns the invalid **shake**: one observer on the field root, so every control it wraps
+  reacts identically and the whole field moves as one block. It fires only on a live valid→invalid
+  transition, so a form rendered with server-side errors does not shake on first paint. Pass
+  `shakeSignal` (a submit-attempt counter) to re-shake a field that never stopped being invalid.
 - On focus the control re-colors its border with the `ring` token (`focus:border-ring/(--alpha-tint-border)`) — the border tint is the text-field focus treatment, and it stays even in `borderless` mode.
 - The label is non-selectable and dims when the field is disabled.
 

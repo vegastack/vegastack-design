@@ -126,37 +126,11 @@ test("renders the controlled value into its slots", async () => {
 });
 
 /* ---------------------------------------------------------------------------------------------
- * Phase M — error-shake. See use-animation-replay.test.tsx for the hook's own coverage
- * (mechanism, focus preservation, interruption); these tests only verify the wiring. The shake
- * plays on the root (data-slot="otp-input") — the whole slot row, not each individual slot.
+ * The invalid SHAKE is not here. `Field` owns it (audit D5), so the motion lives in
+ * field.test.tsx; the slot's resting invalid chrome is what this file still asserts.
  * ------------------------------------------------------------------------------------------- */
 
-test("auto-shakes once when it transitions into invalid", async () => {
-  function Harness() {
-    const [invalid, setInvalid] = React.useState(false);
-    return (
-      <div>
-        <button type="button" onClick={() => setInvalid(true)}>
-          invalidate
-        </button>
-        <OTPInput
-          aria-label="Code"
-          length={4}
-          aria-invalid={invalid || undefined}
-        />
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
-  const root = screen.container.querySelector(
-    '[data-slot="otp-input"]',
-  ) as HTMLElement;
-  expect(root.className).not.toContain("motion-shake");
-  await screen.getByRole("button", { name: "invalidate" }).click();
-  await expect.element(root).toHaveClass("motion-shake");
-});
-
-test("does not shake when already invalid at mount", async () => {
+test("aria-invalid marks the field without any motion of its own", async () => {
   const screen = await render(
     <OTPInput aria-label="Code" length={4} aria-invalid />,
   );
@@ -165,33 +139,6 @@ test("does not shake when already invalid at mount", async () => {
   ) as HTMLElement;
   await new Promise((resolve) => setTimeout(resolve, 100));
   expect(root.className).not.toContain("motion-shake");
-});
-
-test("shakeSignal re-shakes a still-invalid field on repeated failure", async () => {
-  function Harness() {
-    const [signal, setSignal] = React.useState(0);
-    return (
-      <div>
-        <button type="button" onClick={() => setSignal((s) => s + 1)}>
-          retry
-        </button>
-        <OTPInput
-          aria-label="Code"
-          length={4}
-          aria-invalid
-          shakeSignal={signal}
-        />
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
-  const root = screen.container.querySelector(
-    '[data-slot="otp-input"]',
-  ) as HTMLElement;
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  expect(root.className).not.toContain("motion-shake");
-  await screen.getByRole("button", { name: "retry" }).click();
-  await expect.element(root).toHaveClass("motion-shake");
 });
 
 test("forwards ref to the underlying otp root element", async () => {

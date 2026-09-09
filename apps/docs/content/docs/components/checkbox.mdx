@@ -84,8 +84,9 @@ sibling inputs and switches.
 ### Invalid
 
 Set `aria-invalid` (or place the checkbox inside a [`Field`](/docs/components/field) with an `error`)
-to show the destructive border. A `Field` error also renders a `role="alert"` message for assistive
-tech.
+to show the destructive border. A `Field` error also renders a polite `role="status"` message for
+assistive tech, and the whole field shakes once on the transition — the motion belongs to `Field`,
+not to the checkbox.
 
 <ComponentPreview
   name="checkboxInvalid"

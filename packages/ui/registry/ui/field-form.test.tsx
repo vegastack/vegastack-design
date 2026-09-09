@@ -83,9 +83,11 @@ test("invalid email surfaces the Zod message via FieldError + aria-invalid", asy
   await screen.getByLabelText("Email").fill("not-an-email");
   await userEvent.click(screen.getByRole("button", { name: "Sign up" }));
 
-  // Submission is blocked; the Zod error message flows through Base UI's Field.Error (role="alert").
+  // Submission is blocked; the Zod message flows through `FieldError`, which is a POLITE live
+  // region (`role="status"`, audit D23): the person just submitted and is looking at the field,
+  // so an `alert` would interrupt the screen reader mid-sentence for news they already expect.
   await expect
-    .element(screen.getByRole("alert"))
+    .element(screen.getByRole("status"))
     .toHaveTextContent("Invalid email");
   await expect
     .element(screen.getByLabelText("Email"))
@@ -104,7 +106,7 @@ test("no a11y violations — error", async () => {
   await screen.getByLabelText("Email").fill("not-an-email");
   await userEvent.click(screen.getByRole("button", { name: "Sign up" }));
   await expect
-    .element(screen.getByRole("alert"))
+    .element(screen.getByRole("status"))
     .toHaveTextContent("Invalid email");
 
   await expectNoA11yViolations(screen.container);

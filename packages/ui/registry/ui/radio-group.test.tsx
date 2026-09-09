@@ -170,73 +170,22 @@ test("forwards ref to the underlying radiogroup root element", async () => {
 });
 
 /* ---------------------------------------------------------------------------------------------
- * Phase M — error-shake. See use-animation-replay.test.tsx for the hook's own coverage
- * (mechanism, focus preservation, interruption); these tests only verify the wiring.
+ * The invalid SHAKE is not here. `Field` owns it (audit D5) — a group's validity belongs to the
+ * field, not to one of its items — so the motion is covered in field.test.tsx.
  * ------------------------------------------------------------------------------------------- */
 
-test("auto-shakes once when the item transitions into invalid", async () => {
-  function Harness() {
-    const [invalid, setInvalid] = React.useState(false);
-    return (
-      <div>
-        <button type="button" onClick={() => setInvalid(true)}>
-          invalidate
-        </button>
-        <RadioGroup aria-label="Density">
-          <RadioGroupItem
-            value="compact"
-            aria-label="Compact"
-            aria-invalid={invalid || undefined}
-          />
-        </RadioGroup>
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
-  const item = screen.getByRole("radio", { name: "Compact" });
-  await expect.element(item).not.toHaveClass("motion-shake");
-  await screen.getByRole("button", { name: "invalidate" }).click();
-  await expect.element(item).toHaveClass("motion-shake");
-});
-
-test("does not shake an item that is already invalid at mount", async () => {
+test("aria-invalid marks an item without any motion of its own", async () => {
   const screen = await render(
     <RadioGroup aria-label="Density">
       <RadioGroupItem value="compact" aria-label="Compact" aria-invalid />
     </RadioGroup>,
   );
   const item = screen.getByRole("radio", { name: "Compact" });
+  await expect.element(item).toHaveAttribute("aria-invalid", "true");
   await new Promise((resolve) => setTimeout(resolve, 100));
   expect((item.element() as HTMLElement).className).not.toContain(
     "motion-shake",
   );
-});
-
-test("shakeSignal re-shakes a still-invalid item on repeated failure", async () => {
-  function Harness() {
-    const [signal, setSignal] = React.useState(0);
-    return (
-      <div>
-        <button type="button" onClick={() => setSignal((s) => s + 1)}>
-          retry
-        </button>
-        <RadioGroup aria-label="Density">
-          <RadioGroupItem
-            value="compact"
-            aria-label="Compact"
-            aria-invalid
-            shakeSignal={signal}
-          />
-        </RadioGroup>
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
-  const item = screen.getByRole("radio", { name: "Compact" });
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  await expect.element(item).not.toHaveClass("motion-shake");
-  await screen.getByRole("button", { name: "retry" }).click();
-  await expect.element(item).toHaveClass("motion-shake");
 });
 
 test("applies the size data attribute", async () => {

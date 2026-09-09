@@ -38,12 +38,12 @@ Step through the four sizes, then copy the generated JSX.
 ### With a label
 
 The recommended pattern: pair the spinner with visible loading text. The text labels the
-loading region, so the spinner itself is marked decorative (`label=""`) to avoid a double
-announcement to assistive tech.
+loading region, so the spinner itself is marked `decorative` to avoid a double announcement
+to assistive tech.
 
 ```tsx
 <span className="flex items-center gap-2 text-muted-foreground">
-  <Spinner size="sm" label="" />
+  <Spinner size="sm" decorative />
   Saving changes…
 </span>
 ```
@@ -90,18 +90,19 @@ The spinner has no hardcoded color — it draws in `currentColor` and defaults t
 - By default the spinner renders `role="status"` with `aria-label="Loading"`, so assistive tech
   announces the loading state. Override the wording with the `label` prop (e.g. `"Saving changes"`).
 - When the surrounding UI already labels the loading region — for example a button that swaps its text
-  to "Saving…" — pass `label=""` to make the spinner decorative (`aria-hidden`) and avoid a double
-  announcement.
+  to "Saving…" — pass `decorative` to hide the spinner from assistive tech (`aria-hidden`) and avoid a
+  double announcement. That is the sanctioned spelling: `label=""` means the same thing but says it by
+  passing a value that reads as a mistake at the call site.
 - Motion respects user preference: the spin animation is disabled under
   `prefers-reduced-motion: reduce` (`motion-reduce:animate-none`).
 - Color is conveyed through `currentColor` only — never rely on the spinner alone to communicate
   meaning; pair it with text where the state matters.
 
-| Concern         | Behavior                                                     |
-| --------------- | ------------------------------------------------------------ |
-| Role            | `role="status"` (live region) unless `label=""` (decorative) |
-| Accessible name | `aria-label` from the `label` prop (default `"Loading"`)     |
-| Reduced motion  | Animation removed under `prefers-reduced-motion: reduce`     |
+| Concern         | Behavior                                                 |
+| --------------- | -------------------------------------------------------- |
+| Role            | `role="status"` (live region) unless `decorative`        |
+| Accessible name | `aria-label` from the `label` prop (default `"Loading"`) |
+| Reduced motion  | Animation removed under `prefers-reduced-motion: reduce` |
 
 ## Do / Don't
 

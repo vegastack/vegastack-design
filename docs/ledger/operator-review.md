@@ -76,6 +76,36 @@ boundary contract every deploy probes. `pnpm run clean` was kept for the same re
 documented interface to the cleanup `pnpm verify` runs in its `finally`.
 
 ---
+## 2026-09-08 — Fo1 fix round: the stepper wash climbs the ladder through a group-scoped twin
+
+**Context:** the Codex review of F1 routed two items to Fo1 — `number-field.tsx` hand-wrote
+`hover:bg-surface-2 active:bg-surface-3` instead of spreading `surfaceInteractive`, and the
+`auto-save-input` preview painted a legacy `hover:bg-accent` wash with no pressed step.
+
+**Decisions taken instead of pausing:**
+
+- **A new export, `surfaceInteractiveGroup`, rather than a literal or a restructure.** The stepper's
+  wash is deliberately an inset chip inside the button (SP-02: a full-bleed fill ran into the field's
+  hairline), so the two rungs must fire on the BUTTON's hover while painting on a child — which
+  `surfaceInteractive` cannot express. Three options were weighed: (a) keep the literal, which is the
+  defect the finding names; (b) drop the child and use `p-1 bg-clip-content` on the button, which does
+  inset the paint natively but silently changes the chip's corner radius and needs a `not-disabled:`
+  re-write of the recipe to keep a disabled stepper from lighting up — a pixel change on a one-sweep
+  budget; (c) export the group-scoped twin once, documented as the single geometry that needs it.
+  Chose (c): the rungs stay written once, the shipped geometry is unchanged, and the API cost is one
+  named export with an explicit "everything else spreads `surfaceInteractive`" note. The group is
+  named `wash` (not left unnamed) so a consumer's own `group` on an ancestor of a copied-in component
+  cannot fire it.
+- **The preview's record selector became a real `Button`, not a re-tokenised `<button>`.** The chip
+  was a hand-rolled `border + hover:bg-accent` with no pressed step. Rather than swap the wash for a
+  recipe and keep the hand-rolled element, it is now `Button variant="soft" | "outline" size="sm"`
+  with `aria-pressed` — the selected/rest pair the system already ships, hover and pressed rungs
+  included. A preview that hand-rolls a control the system exports is itself the finding.
+
+**Needs MK:** nothing. Both are corrections routed by review; neither re-opens a decision.
+
+---
+
 
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
 
@@ -378,6 +408,42 @@ idempotency check would fail after anyone ran the formatter.
   `component-contracts.json` and keeping only the _self-test_ hard-coded would remove the class.
 
 ---
+
+## 2026-09-07 — Fo1 forms: five calls the issue did not settle
+
+- **`fieldControl` is a class STRING in `@vegastack/design`, not a `cva` exported from `input.tsx`.**
+  B1-11's fix note suggested the latter. Two reasons against it: `input.tsx` is a registry item, so
+  every consumer of the recipe would have taken a `registryDependency` on Input purely to import a
+  string (the Select trigger does not otherwise depend on Input), and the recipe is chrome with no
+  variant axis of its own — each control still adds its own size and layout classes, which is what a
+  `cva` would have implied it owned. It lives beside `surfaceInteractive` and `fillInteractive`,
+  which are the same shape and the same idea.
+
+- **A second recipe, `fieldControlGroup`, rather than one recipe with `has-*` selectors.** The
+  wrapper reads its state through `focus-within` / `has-aria-invalid` / Base UI's `data-focused`; the
+  control reads its own pseudo-classes. Folding both into one string would have every field carrying
+  the selectors it cannot use, and `twMerge` cannot collapse them because they are different
+  variants. Two strings, one comment each explaining which is which.
+
+- **`Spinner` keeps accepting `label=""`.** B8-09 asked for a `decorative` prop "instead of an empty
+  string", which reads as a removal. It was not removed: an empty accessible name is how the whole
+  system says "this has no name" (`StatusIcon` does the same), so removing it here would make Spinner
+  the exception rather than the model, and the remaining `label=""` call sites are in `command.tsx`,
+  which is O1's file boundary. `decorative` is now the sanctioned spelling and the docs say so.
+  **For MK:** if the intent was a hard removal, it is a one-line change plus four call sites, and it
+  should be done in one pass across `Spinner` and `StatusIcon` together rather than half of it here.
+
+- **`FieldInline`'s `readOnly` folds into the hook's `disabled`.** The hook has one blocking flag, not
+  two. To its state machine `readOnly` and `disabled` mean the identical thing — an edit may not be
+  entered, and one in flight reverts — and they differ only in chrome, which stays in the component
+  (`readOnly` drops button semantics entirely; `disabled` keeps the role and dims). A second flag
+  would have been a distinction the machine never uses.
+
+- **`CheckboxGroup` has no `orientation` and no `CheckboxGroupItem`.** A checkbox list reads
+  vertically; a horizontal row of independent tick boxes is a toolbar or a ToggleGroup. And a child is
+  a plain `Checkbox` with a `value`, exactly as Base UI composes it — a wrapper whose only job is to
+  forward every prop adds a component and hides where `value` goes. Both are reversible if a consumer
+  needs them; neither is worth shipping speculatively.
 
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 

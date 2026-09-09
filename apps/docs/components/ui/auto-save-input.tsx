@@ -1,11 +1,11 @@
-// @vegastack auto-save-input@0.6.0 sha256-7sLs/JCNhxNXiFct37KinWGIdlS/mkU9+W44m7US0iQ=
+// @vegastack auto-save-input@0.6.0 sha256-W4gija8stOr1+H/Fu3A1iUoY+i0cQu5XGW6l1ljmWmo=
 
 "use client";
 
 import * as React from "react";
 import { Check, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import { cn, TIMINGS } from "@vegastack/design";
+import { TIMINGS } from "@vegastack/design";
 // `Input` is owned by the sibling Input component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { Input } from "@/components/ui/input";
@@ -74,7 +74,8 @@ export interface AutoSaveInputProps extends Omit<
 }
 
 /** Trailing status-slot classes — fixed-width so the field doesn't shift as the icon swaps. */
-const statusSlotClasses = "flex size-4 shrink-0 items-center justify-center";
+const statusSlotClasses =
+  "flex size-(--icon-default) shrink-0 items-center justify-center";
 
 /**
  * `AutoSaveInput` — an {@link Input} that debounces edits and persists them via
@@ -232,7 +233,11 @@ export function AutoSaveInput({
            * here for visual consistency between the two success checks.
            */}
           {status === "saving" ? (
-            <Spinner key="saving" label="" className="text-muted-foreground" />
+            <Spinner
+              key="saving"
+              decorative
+              className="text-muted-foreground"
+            />
           ) : status === "saved" ? (
             <Check
               key="saved"
@@ -263,7 +268,7 @@ export function AutoSaveInput({
           )}
         </span>
       }
-      className={cn(className)}
+      className={className}
       {...props}
     />
   );

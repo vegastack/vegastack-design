@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { cn } from "@/lib/cn";
 import { Wrapper } from "./wrapper";
+import { Button } from "@/components/ui/button";
 // Copied INTO apps/docs via `shadcn add @vegastack/auto-save-input` (dogfoods the registry) → auto-scanned.
 import { AutoSaveInput } from "@/components/ui/auto-save-input";
 
@@ -151,23 +151,23 @@ function AutoSaveInputControlledDemo(): ReactNode {
     <Wrapper className="flex-col items-stretch">
       <div className="flex flex-wrap justify-center gap-2">
         {records.map((record) => (
-          <button
+          <Button
             key={record.id}
             type="button"
+            // The record selector is a toggle, not a navigation: `soft` is the selected rung and
+            // `outline` the rest one, so both climb the system's hover/pressed ladder instead of a
+            // hand-written wash.
+            variant={record.id === activeId ? "soft" : "outline"}
+            size="sm"
+            aria-pressed={record.id === activeId}
             onClick={() => {
               // External baseline update — switches records without auto-saving.
               setActiveId(record.id);
               setName(record.name);
             }}
-            className={cn(
-              "rounded-md border px-2.5 py-1 text-sm",
-              record.id === activeId
-                ? "border-ring bg-accent text-accent-foreground"
-                : "border-input text-muted-foreground hover:bg-accent",
-            )}
           >
             {record.name}
-          </button>
+          </Button>
         ))}
       </div>
       <AutoSaveInput

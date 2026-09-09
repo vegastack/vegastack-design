@@ -552,10 +552,10 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 560,
-  components: 113,
+  totalRegistryItems: 562,
+  components: 114,
   animatedIcons: 439,
-  hooks: 7,
+  hooks: 8,
   blocks: 1,
 };
 for (const [key, value] of Object.entries(expected)) {
@@ -566,7 +566,7 @@ for (const [key, value] of Object.entries(expected)) {
 }
 
 const expectedWaves = {
-  "Core controls": 23,
+  "Core controls": 24,
   "Forms/editing": 22,
   "Navigation/layout": 14,
   Overlays: 14,
@@ -599,6 +599,7 @@ const expectedComponentWaveMembers = {
     "input",
     "textarea",
     "checkbox",
+    "checkbox-group",
     "radio-group",
     "switch",
     "slider",
@@ -915,6 +916,7 @@ sameStrings(
     "use-animation-replay",
     "use-announcer",
     "use-drag-reorder",
+    "use-inline-edit",
     "use-file-drop",
     "use-list-nav",
     "use-mobile",
@@ -933,8 +935,8 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 7,
-  "expectedWaveCounts.Hooks must be 7",
+  contracts.expectedWaveCounts?.Hooks === 8,
+  "expectedWaveCounts.Hooks must be 8",
 );
 assert(
   contracts.expectedWaveCounts?.Block === 1,

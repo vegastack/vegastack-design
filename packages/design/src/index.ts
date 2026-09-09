@@ -74,6 +74,27 @@ export type { ClassValue };
 export const surfaceInteractive = "hover:bg-surface-2 active:bg-surface-3";
 
 /**
+ * The GROUP-SCOPED twin of {@link surfaceInteractive}, for the one geometry where the two rungs
+ * cannot live on the interactive element itself: a wash painted by an INNER chip inset from a
+ * container hairline (`design.md` §Hover geometry — "a wash is inset ≥4px from a container hairline
+ * and inherits its inner radius"). NumberField's steppers are the case: the button is full-height and
+ * flush to the field's border, so its own background would run into that hairline; a `size-full` chip
+ * inside the button's `p-1` paints the inset wash instead, and it must react to the BUTTON's hover.
+ *
+ * The group is named `wash` rather than left unnamed so a consumer's own `group` on an ancestor of a
+ * copied-in component cannot fire it. Put `group/wash` on the interactive element, this string on the
+ * chip. Everything else spreads {@link surfaceInteractive} directly — a group indirection where the
+ * element can carry the rungs itself is noise.
+ *
+ * @example
+ * <button className="group/wash p-1">
+ *   <span className={cn("size-full rounded-sm", surfaceInteractiveGroup)} />
+ * </button>
+ */
+export const surfaceInteractiveGroup =
+  "group-hover/wash:bg-surface-2 group-active/wash:bg-surface-3";
+
+/**
  * The inks a translucent hover/pressed wash can be composited from — the neutral ink and the five
  * chromatic families the Button matrix and its outline/soft variants use.
  */
@@ -117,6 +138,66 @@ export const fillInteractive: Record<FillTone, string> = {
   info: "hover:bg-info/(--alpha-hover) active:bg-info/(--alpha-pressed)",
   brand: "hover:bg-brand/(--alpha-hover) active:bg-brand/(--alpha-pressed)",
 };
+
+/**
+ * THE field chrome — the one border/fill/hover/focus/invalid/disabled grammar every text-entry
+ * control wears (audit B1-11, 2026-09-07). Input, Textarea, NumberField's input, OTP slots, the
+ * Select trigger and the Combobox input all spread this string; before it existed the same nine
+ * declarations were copy-pasted in four files and restated a fifth time as slot overrides, so
+ * retuning the field meant finding every copy.
+ *
+ * It is CHROME only — no width, padding, height or type. Those differ per control (a square OTP
+ * slot is not `w-full`; a Textarea sizes by min-height, not `--size-*`), so each component adds its
+ * own layout and size classes after this string.
+ *
+ * The three border rungs, in ascending weight:
+ * - rest `border-input` (the derived `foreground` alpha hairline),
+ * - hover `foreground` at `--alpha-border-subtle` — neutral ink, one step darker, guarded by
+ *   `not-disabled:not-data-disabled:` because D7 keeps pointer events ON a disabled control so a
+ *   Tooltip can explain it, which would otherwise let a dead field light up under the cursor,
+ * - focus `ring` at `--alpha-tint-border`, on plain `focus` (not `focus-visible`) — a raw text field
+ *   cannot tell mouse from keyboard, so the tint is the one cue for both. Forced colours erase a
+ *   border tint outright, so the outline fallback for that case is written ONCE, unlayered, in
+ *   `@vegastack/design-tokens`' `base.css` — never per component.
+ *
+ * @example
+ * <input className={cn(fieldControl, "h-(--size-md) w-full min-w-0 px-3 text-base")} />
+ */
+export const fieldControl = [
+  "rounded-md border border-input bg-transparent dark:bg-input/(--alpha-input)",
+  "placeholder:text-muted-foreground-faint",
+  "not-disabled:not-data-disabled:hover:border-foreground/(--alpha-border-subtle)",
+  "focus:border-ring/(--alpha-tint-border)",
+  "aria-invalid:border-destructive-border/(--alpha-tint-border)",
+  "data-invalid:border-destructive-border/(--alpha-tint-border)",
+  "disabled:cursor-not-allowed disabled:bg-surface-1 disabled:opacity-(--opacity-dim)",
+  "data-disabled:cursor-not-allowed data-disabled:bg-surface-1 data-disabled:opacity-(--opacity-dim)",
+].join(" ");
+
+/**
+ * The WRAPPER twin of {@link fieldControl}: the identical chrome on a bordered group whose state
+ * comes from a descendant — Input's prefix/suffix group, NumberField's stepper group, ChipInput and
+ * the Combobox input-group. Same three border rungs, read through `focus-within` / `has-*` /
+ * Base UI's `data-focused` instead of the control's own pseudo-classes.
+ *
+ * Every element carrying this string must also carry `data-field-group` (a bare attribute). That is
+ * the hook `base.css` uses to paint the forced-colours focus outline on the GROUP: the inner input's
+ * own outline would be clipped by the group's `overflow-hidden`, which is exactly how a High
+ * Contrast user lost the caret location on an addon field.
+ *
+ * @example
+ * <div data-field-group className={cn(fieldControlGroup, "flex h-(--size-md) items-center")} />
+ */
+export const fieldControlGroup = [
+  "rounded-md border border-input bg-transparent dark:bg-input/(--alpha-input)",
+  "not-has-disabled:not-data-disabled:hover:border-foreground/(--alpha-border-subtle)",
+  "focus-within:border-ring/(--alpha-tint-border)",
+  "data-focused:border-ring/(--alpha-tint-border)",
+  "has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
+  "data-invalid:border-destructive-border/(--alpha-tint-border)",
+  "has-disabled:cursor-not-allowed has-disabled:bg-surface-1 has-disabled:opacity-(--opacity-dim)",
+  "data-disabled:cursor-not-allowed data-disabled:bg-surface-1 data-disabled:opacity-(--opacity-dim)",
+].join(" ");
 
 /**
  * @internal Registry theme-scope plumbing lives at `@vegastack/design/theme-scope`, NOT here.

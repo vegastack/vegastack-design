@@ -239,64 +239,24 @@ test("a point just outside the visual box, inside the expanded hit area, still h
 });
 
 /* ---------------------------------------------------------------------------------------------
- * Phase M — error-shake. See use-animation-replay.test.tsx for the hook's own coverage
- * (mechanism, focus preservation, interruption); these tests only verify the wiring.
+ * The invalid SHAKE is not here. `Field` owns it (audit D5) — one observer per field instead of
+ * the same wiring in five controls — so its coverage lives in field.test.tsx. What stays here is
+ * the resting invalid CHROME, which is the checkbox's own.
  * ------------------------------------------------------------------------------------------- */
 
-test("auto-shakes once when it transitions into invalid", async () => {
-  function Harness() {
-    const [invalid, setInvalid] = React.useState(false);
-    return (
-      <div>
-        <button type="button" onClick={() => setInvalid(true)}>
-          invalidate
-        </button>
-        <Checkbox
-          aria-label="Accept terms"
-          aria-invalid={invalid || undefined}
-        />
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-  await expect.element(checkbox).not.toHaveClass("motion-shake");
-  await screen.getByRole("button", { name: "invalidate" }).click();
-  await expect.element(checkbox).toHaveClass("motion-shake");
-});
-
-test("does not shake when already invalid at mount", async () => {
+test("aria-invalid tints the border without any motion of its own", async () => {
   const screen = await render(
     <Checkbox aria-label="Accept terms" aria-invalid />,
   );
   const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
+  await expect.element(checkbox).toHaveAttribute("aria-invalid", "true");
   await new Promise((resolve) => setTimeout(resolve, 100));
   expect((checkbox.element() as HTMLElement).className).not.toContain(
     "motion-shake",
   );
 });
 
-test("shakeSignal re-shakes a still-invalid checkbox on repeated failure", async () => {
-  function Harness() {
-    const [signal, setSignal] = React.useState(0);
-    return (
-      <div>
-        <button type="button" onClick={() => setSignal((s) => s + 1)}>
-          retry
-        </button>
-        <Checkbox aria-label="Accept terms" aria-invalid shakeSignal={signal} />
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  await expect.element(checkbox).not.toHaveClass("motion-shake");
-  await screen.getByRole("button", { name: "retry" }).click();
-  await expect.element(checkbox).toHaveClass("motion-shake");
-});
-
-test("forwards ref alongside the internal shake ref (both land on the root element)", async () => {
+test("forwards ref to the root element", async () => {
   const ref = React.createRef<HTMLElement>();
   const screen = await render(
     <Checkbox ref={ref} aria-label="Accept terms" aria-invalid />,

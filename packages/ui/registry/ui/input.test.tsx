@@ -82,114 +82,29 @@ test("addon mode wraps the input in a group and renders prefix/suffix", async ()
 });
 
 /* ---------------------------------------------------------------------------------------------
- * Phase M — error-shake. See use-animation-replay.test.tsx for the hook's own coverage
- * (mechanism, focus preservation, interruption); these tests only verify the wiring, including
- * the standalone-vs-addon-mode shake TARGET (the input itself vs. the group wrapper that
- * actually carries the visible border).
+ * The invalid SHAKE is not here. `Field` owns it (audit D5), so the motion — including that it
+ * never steals focus or the caret from someone mid-type — is covered in field.test.tsx. What the
+ * Input still owns is the resting invalid chrome, in both modes.
  * ------------------------------------------------------------------------------------------- */
 
-test("auto-shakes once when it transitions into invalid", async () => {
-  function Harness() {
-    const [invalid, setInvalid] = React.useState(false);
-    return (
-      <div>
-        <button type="button" onClick={() => setInvalid(true)}>
-          invalidate
-        </button>
-        <Input aria-label="Name" aria-invalid={invalid || undefined} />
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
-  const input = screen.getByLabelText("Name");
-  await expect.element(input).not.toHaveClass("motion-shake");
-  await screen.getByRole("button", { name: "invalidate" }).click();
-  await expect.element(input).toHaveClass("motion-shake");
-});
-
-test("does not shake when already invalid at mount", async () => {
-  const screen = await render(<Input aria-label="Name" aria-invalid />);
-  const input = screen.getByLabelText("Name");
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  expect((input.element() as HTMLElement).className).not.toContain(
-    "motion-shake",
+test("aria-invalid tints the field, and the group in addon mode, with no motion", async () => {
+  const screen = await render(
+    <div>
+      <Input aria-label="Name" aria-invalid />
+      <Input aria-label="Slug" prefix="app.vegastack.com/" aria-invalid />
+    </div>,
   );
-});
-
-test("shakeSignal re-shakes a still-invalid input on repeated failure", async () => {
-  function Harness() {
-    const [signal, setSignal] = React.useState(0);
-    return (
-      <div>
-        <button type="button" onClick={() => setSignal((s) => s + 1)}>
-          retry
-        </button>
-        <Input aria-label="Name" aria-invalid shakeSignal={signal} />
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
   const input = screen.getByLabelText("Name");
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  await expect.element(input).not.toHaveClass("motion-shake");
-  await screen.getByRole("button", { name: "retry" }).click();
-  await expect.element(input).toHaveClass("motion-shake");
-});
-
-test("in addon mode, the shake plays on the group wrapper (the bordered box), not the bare input", async () => {
-  function Harness() {
-    const [invalid, setInvalid] = React.useState(false);
-    return (
-      <div>
-        <button type="button" onClick={() => setInvalid(true)}>
-          invalidate
-        </button>
-        <Input
-          aria-label="Slug"
-          prefix="app.vegastack.com/"
-          aria-invalid={invalid || undefined}
-        />
-      </div>
-    );
-  }
-  const screen = await render(<Harness />);
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
   const group = screen.container.querySelector(
     '[data-slot="input-group"]',
   ) as HTMLElement;
-  const input = screen.getByLabelText("Slug");
-  await expect.element(input).not.toHaveClass("motion-shake");
-  expect(group.className).not.toContain("motion-shake");
-  await screen.getByRole("button", { name: "invalidate" }).click();
-  await expect.element(group).toHaveClass("motion-shake");
+  expect(group.querySelector("[aria-invalid]")).not.toBeNull();
+  await new Promise((resolve) => setTimeout(resolve, 100));
   expect((input.element() as HTMLElement).className).not.toContain(
     "motion-shake",
   );
-});
-
-test("shaking a focused, mid-typed input does not steal focus or reset the caret", async () => {
-  // The realistic trigger: the user is actively typing in a focused field and it fails live
-  // validation — the shake must not interrupt them.
-  function Harness() {
-    const [invalid, setInvalid] = React.useState(false);
-    return (
-      <Input
-        aria-label="Email"
-        aria-invalid={invalid || undefined}
-        onValueChange={(value) =>
-          setInvalid(value.length > 0 && !value.includes("@"))
-        }
-      />
-    );
-  }
-  const screen = await render(<Harness />);
-  const input = screen.getByLabelText("Email").element() as HTMLInputElement;
-  input.focus();
-  await screen.getByLabelText("Email").fill("not-an-email");
-  await expect
-    .poll(() => input.className, { timeout: 2000 })
-    .toContain("motion-shake");
-  expect(document.activeElement).toBe(input);
-  expect(input.value).toBe("not-an-email");
+  expect(group.className).not.toContain("motion-shake");
 });
 
 test("forwards ref to the underlying input element", async () => {
@@ -236,4 +151,57 @@ test("no a11y violations — invalid", async () => {
     </label>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * RTL and state combinations — the gaps audit B1-17/B1-18 named. Addon padding is LOGICAL
+ * (`ps`/`pe`), so a prefix stays on the reading-start side in Arabic or Hebrew rather than
+ * jumping across the field; and `disabled` + `aria-invalid` must both still read.
+ * ------------------------------------------------------------------------------------------- */
+
+test("addon padding is logical, so prefix and suffix survive RTL", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Input aria-label="Slug" prefix="app.vegastack.com/" suffix=".dev" />
+    </div>,
+  );
+  const input = screen.getByLabelText("Slug").element() as HTMLElement;
+  expect(input.className).toMatch(/\bps-/);
+  expect(input.className).toMatch(/\bpe-/);
+  expect(input.className).not.toMatch(/\bpl-\d/);
+  expect(input.className).not.toMatch(/\bpr-\d/);
+
+  const prefix = screen.container.querySelector(
+    '[data-slot="input-prefix"]',
+  ) as HTMLElement;
+  const suffix = screen.container.querySelector(
+    '[data-slot="input-suffix"]',
+  ) as HTMLElement;
+  expect(prefix.className).toContain("ps-3");
+  expect(suffix.className).toContain("pe-3");
+});
+
+test("the addon group reads its state from the input in RTL as in LTR", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Input aria-label="Slug" prefix="https://" disabled aria-invalid />
+    </div>,
+  );
+  const input = screen.getByLabelText("Slug");
+  await expect.element(input).toBeDisabled();
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  const group = screen.container.querySelector(
+    '[data-slot="input-group"]',
+  ) as HTMLElement;
+  // The forced-colours outline is painted on the GROUP, whose overflow-hidden would
+  // otherwise clip the inner input's own outward-offset outline (audit B1-01).
+  expect(group.hasAttribute("data-field-group")).toBe(true);
+  expect(group.className).toContain("overflow-hidden");
+});
+
+test("disabled keeps pointer events so a Tooltip can explain it (audit D7)", async () => {
+  const screen = await render(<Input aria-label="Name" disabled />);
+  const input = screen.getByLabelText("Name").element() as HTMLElement;
+  expect(input.className).toContain("disabled:cursor-not-allowed");
+  expect(input.className).not.toContain("disabled:pointer-events-none");
 });
