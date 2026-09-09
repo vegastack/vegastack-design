@@ -13,6 +13,12 @@
 @import "tailwindcss";
 @import "@vegastack/design-tokens/theme.css";
 @import "@vegastack/design-tokens/base.css";
+/* The @utility layer, which production imports (`apps/docs/app/global.css`) and this lane did not.
+   Omitting it does not error — it silently drops every custom utility a fixture wears, so
+   `scroll-fade-*`, `scrollbar-thin` and the `motion-dock-*` pair compiled to NOTHING here and the
+   lane measured a layout no user ever sees. That is the same fail-open the @source comment above
+   warns about, one layer up. Motion is still neutralised by the reduced-motion block below. */
+@import "@vegastack/design-tokens/utilities.css";
 
 @source '../registry/ui/**/*.tsx';
 @source '../registry/blocks/**/*.tsx';

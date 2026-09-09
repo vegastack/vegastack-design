@@ -4,6 +4,32 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-09 — The geometry lane compiled no `@utility` at all, so custom utilities measured as nothing
+
+- **Symptom.** M2 replaced `MessageScrollerButton`'s inline
+  `data-[active=false]:pointer-events-none` with the shared `data-[active=false]:motion-dock-out`
+  utility, which declares the same `pointer-events: none`. Four `message-scroller` fixtures then
+  failed the 24px obstruction probe: the lane's own exemption for an inactive docked control
+  requires `getComputedStyle(control).pointerEvents === "none"`, and the control now computed
+  `auto`.
+- **Root cause: `packages/ui/test/geometry.css` imported `theme.css` and `base.css` but never
+  `utilities.css`,** which is where every `@utility` in the system is defined and which production
+  (`apps/docs/app/global.css`) does import. A custom utility whose definition is absent compiles to
+  an empty rule with no error, so `motion-dock-in/out`, `scroll-fade-*`, `scrollbar-thin`,
+  `motion-pop-in` and the rest were measured as no-ops across all 523 fixtures. The lane's own
+  `@source` comment warns about exactly this fail-open one layer down ("a missing glob here does not
+  error — it silently drops utilities and turns a real contract into a no-op"); the import list had
+  the same hole.
+- **Fix.** `@import "@vegastack/design-tokens/utilities.css"` in `geometry.css`. All 523 fixtures
+  pass with the layer present and the exclusion map has no stale entries, so no measurement in the
+  `EXCLUDED` map changes — the utilities the lane was missing were not the ones holding those
+  defects open.
+- **Not fixed here:** `packages/ui/test/contrast.css` has the same hole. Adding the import there was
+  trialled and is green (8/8), but the contrast lane has no demonstrated defect from it, so it is
+  flagged rather than changed inside a component batch.
+- **Class:** fail-open verification gap, pre-existing since the lane was written (WP1). Nothing
+  reported it because a missing utility makes a contract weaker, never red.
+
 ## 2026-09-09 — The geometry lane sweeps every fixture and found 15 pre-existing 24px/reflow defects
 
 - **Symptom:** WP1 (#69) moved the reflow, RTL and effective-24px-target contracts into
