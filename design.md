@@ -22,8 +22,8 @@ generated:
       sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 34780
-      sha256: "bf0997bdef1c56a426d936b6aaa4d0b8564d9b0c415c7054e641d10cb3504b4f"
+      bytes: 35453
+      sha256: "860189b8aee59f857d85e6e8623e8558a60dc03c2e396e37900dd3b28cf828a1"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 11669
@@ -53,7 +53,7 @@ themes:
     alpha-border-soft:
       type: "dimension"
       value: "30%"
-      description: "Toast (sonner) status border tint (border-<family>)."
+      description: "The softer of the two border-tint steps. Introduced for the sonner toast surface; since the Base UI Toast migration (O2) the toast tint uses `alpha-border-subtle` like Alert, so this step currently has NO in-repo caller. Kept because it is published token surface — retiring it is a token-batch decision, not a component one."
     alpha-border-subtle:
       type: "dimension"
       value: "20%"
@@ -815,11 +815,15 @@ themes:
     z-overlay:
       type: "number"
       value: 50
-      description: "The single portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order — Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts (sonner) are the documented exemption ABOVE this band (library-managed z; a toast must outrank a modal regardless of mount order)."
+      description: "The portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order — Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts are the ONE surface above it, on their own `z-toast` band."
     z-raised:
       type: "number"
       value: 10
       description: "Local raise WITHIN a component's own stacking context (focused OTP slot / segmented item, floating label, bubble reactions, select scroll arrows). Never for portaled surfaces."
+    z-toast:
+      type: "number"
+      value: 60
+      description: "The toast band, one step above `z-overlay`. A toast is the only surface that must outrank a modal REGARDLESS of mount order — the viewport mounts with the app provider, so DOM order would otherwise put every later-opened dialog on top of it. Within the band the stack counts DOWN from this value by `--toast-index`, so the frontmost toast is the highest. Nothing else may claim this band."
   dark:
     accent:
       type: "color"
@@ -838,7 +842,7 @@ themes:
     alpha-border-soft:
       type: "dimension"
       value: "30%"
-      description: "Toast (sonner) status border tint (border-<family>)."
+      description: "The softer of the two border-tint steps. Introduced for the sonner toast surface; since the Base UI Toast migration (O2) the toast tint uses `alpha-border-subtle` like Alert, so this step currently has NO in-repo caller. Kept because it is published token surface — retiring it is a token-batch decision, not a component one."
     alpha-border-subtle:
       type: "dimension"
       value: "20%"
@@ -1587,11 +1591,15 @@ themes:
     z-overlay:
       type: "number"
       value: 50
-      description: "The single portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order — Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts (sonner) are the documented exemption ABOVE this band (library-managed z; a toast must outrank a modal regardless of mount order)."
+      description: "The portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order — Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts are the ONE surface above it, on their own `z-toast` band."
     z-raised:
       type: "number"
       value: 10
       description: "Local raise WITHIN a component's own stacking context (focused OTP slot / segmented item, floating label, bubble reactions, select scroll arrows). Never for portaled surfaces."
+    z-toast:
+      type: "number"
+      value: 60
+      description: "The toast band, one step above `z-overlay`. A toast is the only surface that must outrank a modal REGARDLESS of mount order — the viewport mounts with the app provider, so DOM order would otherwise put every later-opened dialog on top of it. Within the band the stack counts DOWN from this value by `--toast-index`, so the frontmost toast is the highest. Nothing else may claim this band."
 recipes:
   button-primary:
     background: "{primary}"
@@ -1944,6 +1952,15 @@ Depth comes from surface contrast, not shadow. The rungs and their values are de
 (wells, code blocks, tracks). `surface-2` and `surface-3` are interaction rungs, not elevation —
 never build a static panel out of them.
 
+**Three z bands, and the third is only for toasts** (audit O2, 2026-09-08). `--z-raised` (10) is a
+local raise inside a component's own stacking context; `--z-overlay` (50) is every portaled floating
+surface, where DOM order resolves nesting because Base UI appends portals to `<body>`; `--z-toast`
+(60) is the toast stack alone. That third band is not a convenience — it is the one rule DOM order
+cannot express. The toast viewport mounts with the app provider, before any dialog exists, so on
+mount order every later-opened dialog would cover it, and a toast fired from inside a modal has to
+stay visible. Toasts used to get this from sonner's private z-index, which is why the elevation
+doctrine carried a library-shaped exception; now it is a token, one band, claimed by one file.
+
 ## Motion
 
 Use motion only to clarify a change. Most interactions feel instant. Durations (measured against
@@ -2067,6 +2084,7 @@ private size vocabulary.
 - **Badge** — the SAME variant vocabulary as Button: `solid` (family fill + on-colour ink) · `soft` (`{family}.subtle` + `{family}.text`, the default) · `outline` (hairline, no fill — the Attio tag chip, also reachable as `bordered` on `soft`) · `minimal`. Radius `full`, except `minimal`, which has no container at all. Neutral resolves to `muted`. **Three REAL size tiers — `sm` 16px · `md` 20px · `lg` 24px** (D8, 2026-09-07): `sm` used to be `md` with 2px less horizontal padding, which is a padding value, not a size; it is now the dense-table chip. **`minimal` is ink only** — no background, no border, and no horizontal padding, so it aligns flush in a table cell instead of faking a pill — and it carries a **leading dot by default**, because a badge with no container has nothing but colour left to signal status with (1.4.1). An `icon` takes the dot's place; `dot={false}` opts out. The dot is 6px (8px at `lg`).
 - **Chip** — the LABEL/SELECTION voice, and there is exactly **one** of it (audit B5-03, 2026-09-07): `hue` (the 10 decorative `--tag-*` trios, or neutral) × `size` (`sm` 28px inline tier · `md` 32px control tier) × `active` (the neutral chip's promotion to the selection rung `surface-2`). `Tag`, `FilterChip`, `ComboboxChip` and ChipInput's chips are all that one primitive composed through Base UI `render` — nothing re-derives a pill's height, radius or rest fill. **A chip's root is not interactive and therefore has no hover and no pressed step**; clicking one does nothing, and the ladder is reserved for controls. **Its remove control is a round ghost `IconButton size="xs"` whose REAL border box is 24×24** — the WCAG 2.5.8 target is the button, never an invisible `::before` (Preflight's `appearance: button` clips a nested `<button>`'s generated content to its own border box, so a pseudo hit area there is measurable and un-hittable). At the `sm` tier that 24px control inside a 28px pill leaves a 2px inset rather than the ≥4px §Hover geometry asks for: 24px is a floor and 28px is the tier, so the two cannot both be honoured, and the target wins.
 - **Alert** — `{family}.subtle` background + `{family}.text`, radius `md`, **always paired with an icon** (never colour alone). Info alerts use `info` (blue). Its live role follows §Accessibility: polite `status` by default, assertive `alert` only for a `live` destructive/warning banner.
+- **Toast is Alert's transient twin, on Base UI Toast** (audit D13, 2026-09-08). The renderer is Base UI's `Toast` primitive — sonner is gone, and with it a rendering engine, a CSS override layer that fought the library's own greys, a z-index exemption, and a focus ring that was a box-shadow glow in a system that bans them. The surface is the floating-family recipe: the `popover` ground, the one hairline, radius `lg`, `shadow-overlay`, 16px padding (D14) — a floating surface is never a ladder rung of its own. A typed toast then takes **Alert's exact tint recipe** (`{family}.subtle` + `{family}.text` + the family's icon), because a status message should not read as two different designs depending on whether it is transient. **The type vocabulary follows the engine, not our token names:** Base UI's `promise()` writes `loading` / `success` / `error` itself and keys its auto-dismiss timer off the `loading` string, so the destructive type is spelled `error` and paints `destructive`. Motion is ours and tokenized at `duration-base ease-standard` — a toast travels in from beyond an edge, the same gesture as a Sheet, and 150ms reads clipped over that distance. Stacking, expand-on-hover, swipe-to-dismiss, `F6` into the viewport landmark and `Escape` on the focused toast all come from the primitive. **D23 is enforced in code:** `error` and `warning` announce urgently, everything else politely, derived from the type — including the branches the engine's own `promise()` writes.
 - **Overlays are one module, not eight lookalikes** (audit B3, 2026-09-07). Every anchored surface — popover, hover-card, tooltip, dropdown menu, context menu, select, combobox, navigation menu — composes `floating-surface`: one `Portal → Positioner → Popup (→ Viewport)` composer, one theme-scope hand-off across the portal boundary, one arrow, and four painted surfaces. `panel` is the bordered popover face at the 16px tier; `menu` is the same face at list density with a 4px inset floor; `tooltip` is the inverted ink chip; `navigation` is the morphing mega-menu panel. A component that restates the plumbing has drifted by definition. `DropdownMenu` and `ContextMenu` differ ONLY in how they open: Base UI's `ContextMenu` namespace re-exports `Menu`'s item, checkbox-item, radio-item, group-label, submenu-trigger and separator parts verbatim, so one implementation is bound to both slot prefixes rather than copied.
 - **Padding has two tiers, not per-surface literals** (D14). Modal family — dialog, alert-dialog, sheet — is **24px** (`p-6`); the floating family — popover, hover-card, toast — is **16px** (`p-4`); menus keep list density (`p-1` on the list, rows at `px-2 py-1.5`). Panel widths come from `--panel-width-{sm,md,lg}`, never a `w-*` literal, and a popup capped to the viewport uses Base UI's `--available-height`, never a hand-written `100dvh` calc.
 - **Dialog / Modal** — `popover` surface, the one `border`, radius `lg`, `shadow-overlay`, over the `overlay` scrim. Title `text-h3`/`h4`; actions right-aligned (`ghost` Cancel + intent button). `DialogContent` sizes through `size` (`xs · sm · md · lg · full`); `AlertDialogAction` is the single owner of a confirmation's `intent` — the popup carries none.

@@ -674,6 +674,65 @@ re-diagnose it, and because a race that flakes under load is a real race.
 
 ---
 
+
+## 2026-09-08 — Base UI leaves an urgent toast `aria-hidden` while it is still focusable
+
+- **Symptom:** the browser-unit axe pass on an `error` toast with an action reports a **serious**
+  `aria-hidden-focus` violation: `<div role="alertdialog" tabindex="0" aria-hidden="true">` holding
+  a focusable action and dismiss button.
+- **Root cause is upstream, and it is deliberate on Base UI's side.**
+  `@base-ui/react/toast/root/ToastRoot.js` sets `'aria-hidden': isHighPriority && !focused ? true :
+undefined`. A high-priority toast is announced by the visually hidden `role="alert"` mirror the
+  viewport renders, so hiding the visible copy is what stops it being announced twice. What it does
+  not do is make the hidden subtree unfocusable — `tabIndex: 0` stays — which is precisely the
+  pairing axe forbids.
+- **Why we did not "fix" it locally.** Three options, all worse than the defect: stripping
+  `aria-hidden` restores the double announcement the attribute exists to prevent; `tabIndex={-1}` on
+  the root leaves the action and close buttons focusable, so axe still fails; `inert` satisfies axe
+  but removes the error toast's Retry button from the tab order entirely, which is a real
+  regression for a keyboard user who does not know about F6.
+- **What we did instead.** The state does not survive contact with a keyboard: the viewport's
+  `onFocus` bubbles from any descendant (`ToastViewport.js` `handleFocus`), and the global F6
+  handler calls `store.setFocused(true)` outright — either drops the attribute. So the rule is
+  disabled in exactly one test, on exactly the urgent-toast case, and a second test asserts the
+  transition (`aria-hidden="true"` → F6 → attribute gone) and then re-runs axe on the same toast
+  with the rule **enabled**. A suppression with a passing positive assertion behind it is coverage;
+  one without is a hole.
+- **Re-checked at Base UI 1.8.0 (D1, issue #34, 2026-09-09): still present.**
+  `@base-ui/react/toast/root/ToastRoot.js` in 1.8.0 still emits `tabIndex: 0` (line 424) beside
+  `'aria-hidden': isHighPriority && !focused ? true : undefined` (line 428); its only `inert` is
+  keyed off `toast.limited`, not off the hidden state. The suppression and its compensating test
+  stay. Revisit again if upstream starts pairing the attribute with `inert` or drops `tabIndex`
+  while hidden.
+
+---
+
+## 2026-09-08 — Two latent defects the sonner→Base UI toast migration exposed
+
+- **The compiled-CSS toast contrast audit never measured a description line.** `auditToast` in
+  `test/contrast.browser.test.tsx` fired each variant with a message and no `description`, so the
+  muted description ink — one of the three token pairs the block comment claims the test covers
+  ("the base toast, the muted description, and the per-status tints") — was never actually rendered
+  in the audited DOM. A description whose ink failed on a tinted surface would have passed this gate
+  silently. Pre-existing; nothing about the migration caused it. **Fix:** every audited toast now
+  carries a description, so the claim in the comment and the DOM under axe finally agree. This also
+  raised the stakes on the tint decision above: typed toasts keep their family ink for the
+  description rather than dropping to `text-muted-foreground` over a tint, which is the pair the
+  gate can actually validate.
+
+- **`verify-preset-source` asserted on two classes that a rewrite could delete without failing it.**
+  The gate proves the published Tailwind preset scans `@vegastack/ui/dist`, and it did so by looking
+  for `group-[.toaster]:bg-popover` and `group-[.toaster]:text-popover-foreground` — sonner
+  override classes. Those exist only because sonner needed overriding, so the moment toasts stopped
+  being sonner the assertions described nothing. Had they been written against a class the Toaster
+  emits for its own sake, they would have survived the rewrite. **Fix:** the assertions now target
+  `bg-success-subtle` / `bg-destructive-subtle`, which the toast surface paints because it is the
+  toast surface, not because it is patching a library. **Lesson for this class of gate:** assert on
+  the thing being proved (a class the package emits), never on a workaround that exists incidentally
+  — a workaround's disappearance is a fix, and a gate that dies with it was never load-bearing.
+
+---
+
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 
 - **A light-only alias leaks the light value into `.dark`.** `chart-single` was authored once, in

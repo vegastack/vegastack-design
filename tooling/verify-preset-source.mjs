@@ -4,8 +4,8 @@
 //
 // Round-5 HIGH (Codex): `@vegastack/design/preset.css` imports Tailwind + tokens
 // but, before this gate, never told Tailwind to scan the classes shipped INSIDE our own
-// packages — the compiled `Toaster` in `@vegastack/ui/dist` (sonner `classNames` like
-// `group-[.toaster]:bg-popover`) and `BrandIcon` in this package's own dist
+// packages — the compiled `Toaster` in `@vegastack/ui/dist` (the toast surface and stacking
+// classes) and `BrandIcon` in this package's own dist
 // (`inline-flex shrink-0 [&>svg]:size-full`). The docs app papered over this with its own
 // manual workspace `@source` entries, so the showcase looked correct while a real consumer
 // importing ONLY the preset would get partially-unstyled provider/icon UI.
@@ -44,15 +44,16 @@ const ENTRY = '@import "@vegastack/design/preset.css";\n';
 // Classes that ONLY exist because the preset's `@source` scanned our published package dist.
 // (Escaped form is how Tailwind emits the selector in the compiled stylesheet.)
 const ASSERTIONS = [
+  // The toast surface is the only thing in `@vegastack/ui/dist` that paints the status tints,
+  // so these two prove the preset scanned that dist. (They replaced the sonner-era
+  // `group-[.toaster]:*` overrides, which the Base UI Toast migration deleted.)
   {
-    label: "Toaster (@vegastack/ui dist) — group-[.toaster]:bg-popover",
-    test: (css) => css.includes("group-\\[\\.toaster\\]\\:bg-popover"),
+    label: "Toaster (@vegastack/ui dist) — bg-success-subtle",
+    test: (css) => /\.bg-success-subtle\s*\{/.test(css),
   },
   {
-    label:
-      "Toaster (@vegastack/ui dist) — group-[.toaster]:text-popover-foreground",
-    test: (css) =>
-      css.includes("group-\\[\\.toaster\\]\\:text-popover-foreground"),
+    label: "Toaster (@vegastack/ui dist) — bg-destructive-subtle",
+    test: (css) => /\.bg-destructive-subtle\s*\{/.test(css),
   },
   {
     label: "BrandIcon (@vegastack/design/icons dist) — .shrink-0",

@@ -10,7 +10,7 @@ import {
   RotateCcw,
   Search,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { Wrapper } from "./wrapper";
 import { Spinner } from "@/components/ui/spinner";
 // Copied INTO apps/docs via `shadcn add @vegastack/marker` (dogfoods the registry) → auto-scanned.

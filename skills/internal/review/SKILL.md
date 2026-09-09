@@ -60,7 +60,7 @@ on legitimate `oklch()`/custom-property CSS.
 
 `pnpm lint` includes three integrity gates worth knowing by name:
 
-- **`verify-portal-theme-scope`** — discovers every direct Base UI `Portal` and the Sonner engine
+- **`verify-portal-theme-scope`** — discovers every direct Base UI `Portal`
   host, compares them to the reviewed inventory, and requires the owning component to call
   `useInternalThemeScope()` and attach it through a `className` inside the host. A missing, added, or
   unscoped portal fails.

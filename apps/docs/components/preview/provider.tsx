@@ -13,7 +13,7 @@ import {
 // CAPABILITIES the provider unlocks (theme, toasts, tooltip coordination) rather than
 // mounting a second VegaStackProvider — its Toaster is a mount-once portal.
 import { useVegaStackTheme } from "@/components/ui/provider";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/components/ui/toast";
 
 export function providerDemo(): ReactNode {
   return (

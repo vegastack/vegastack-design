@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "a550d6f511a539a8d09a6fb1c39f795fb3d7241872247b173728b0e89441d8ac",
+  "contractSha256": "30237ede0d40991c0d71280e523619d0f4e4995f915dd1e1af8613aff921e5f5",
   "inventory": {
     "expected": 563,
     "actual": 563,
@@ -108,7 +108,7 @@
         "provider",
         "sheet",
         "shortcut-overlay",
-        "sonner",
+        "toast",
         "tooltip"
       ]
     },
@@ -640,5 +640,5 @@
   },
   "componentRoutes": 114,
   "blockRoutes": 1,
-  "modeledExemptions": 3
+  "modeledExemptions": 2
 }

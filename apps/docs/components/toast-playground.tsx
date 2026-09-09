@@ -1,17 +1,17 @@
 "use client";
 
 import type { ReactNode } from "react";
-// `toast` is re-exported from the copied-in Sonner component. The `<Toaster />`
+// `toast` is re-exported from the copied-in Toast component. The `<Toaster />`
 // itself is already mounted in the docs provider (mirrors `VegaStackProvider`),
 // so the playground just calls toast() — no local toaster needed.
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type SonnerPlaygroundKey = "intent" | "description";
+type ToastPlaygroundKey = "intent" | "description";
 
 type ToastIntent = "default" | "success" | "error" | "warning" | "info";
 
@@ -55,7 +55,7 @@ function fireToast(intent: ToastIntent, withDescription: boolean) {
   else toast[intent](message, options);
 }
 
-const sonnerPlaygroundConfig: PlaygroundConfig<SonnerPlaygroundKey> = {
+const toastPlaygroundConfig: PlaygroundConfig<ToastPlaygroundKey> = {
   controls: [
     {
       type: "select",
@@ -93,11 +93,11 @@ const sonnerPlaygroundConfig: PlaygroundConfig<SonnerPlaygroundKey> = {
 };
 
 /**
- * `SonnerPlayground` — interactive props playground for Toast (the `sonner` registry item):
+ * `ToastPlayground` — interactive props playground for Toast (the `toast` registry item):
  * pick an intent (`toast()` / `toast.success` / `toast.error` / `toast.warning` / `toast.info`)
  * and an optional description, then fire it from the button. Registered in `mdx.tsx`, adopted in
  * `content/docs/components/toast.mdx`.
  */
-export function SonnerPlayground() {
-  return <PropsPlayground {...sonnerPlaygroundConfig} />;
+export function ToastPlayground() {
+  return <PropsPlayground {...toastPlaygroundConfig} />;
 }

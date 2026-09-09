@@ -1,6 +1,6 @@
 ---
 title: Toast
-description: Brief, non-blocking notifications — a token-styled Sonner toaster with success, error, warning, and info variants that follows the active theme.
+description: Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.
 audience: public
 preview: toastDemo
 ---
@@ -8,35 +8,37 @@ preview: toastDemo
 ## Installation
 
 ```npm
-npx shadcn@latest add @vegastack/sonner
+npx shadcn@latest add @vegastack/toast
 ```
 
 ## Usage
 
-The component is documented as Toast because that is the design-system pattern; the
-registry item is named `sonner` because it wraps and re-exports Sonner.
-The package provider mirrors the same canonical `sonner` implementation so docs/registry and provider
-toasts share the same icons, token CSS variables, and variant classes.
+Toast is built on [Base UI's Toast](https://base-ui.com/react/components/toast) primitive. Two
+things have to be mounted, and `<VegaStackProvider>` mounts both, so most apps do neither by hand:
 
-The `<Toaster />` is **already mounted** in `<VegaStackProvider>`, so you rarely
-render it yourself — just import `toast` and call it from anywhere.
+- `<ToastProvider>` — the context every `toast()` call writes into.
+- `<Toaster />` — the one visible viewport the stack renders in.
+
+Then import `toast` and call it from anywhere, including outside the React tree.
 
 ```tsx
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/components/ui/toast";
 
 <Button onClick={() => toast.success("Saved")}>Save</Button>;
 ```
 
-If you are not using `<VegaStackProvider>`, mount the toaster once at your app root:
+If you are not using `<VegaStackProvider>`, mount the pair once at your app root:
 
 ```tsx
-import { Toaster } from "@/components/ui/sonner";
+import { ToastProvider, Toaster } from "@/components/ui/toast";
 
 export default function RootLayout({ children }) {
   return (
     <body>
-      {children}
-      <Toaster />
+      <ToastProvider>
+        {children}
+        <Toaster />
+      </ToastProvider>
     </body>
   );
 }
@@ -44,31 +46,63 @@ export default function RootLayout({ children }) {
 
 ## Playground
 
-Compose an intent and an optional description, fire the toast, then copy the matching call.
+Compose a type and an optional description, fire the toast, then copy the matching call.
 
-<SonnerPlayground />
+<ToastPlayground />
+
+## Anatomy
+
+The default `<Toast>` assembles these parts; export them individually to build your own list.
+
+```tsx
+<ToastProvider>
+  <ToastPortal>
+    <ToastViewport>
+      <ToastRoot toast={item}>
+        <ToastContent>
+          <ToastTitle />
+          <ToastDescription />
+          <ToastAction />
+          <ToastClose />
+        </ToastContent>
+      </ToastRoot>
+    </ToastViewport>
+  </ToastPortal>
+</ToastProvider>
+```
 
 ## Examples
 
-`toast.success` / `toast.error` / `toast.warning` / `toast.info` carry a matching
-lucide icon and a tinted surface; the bare `toast()` is neutral.
+### Types
 
-<ComponentPreview name="sonnerVariants" file="components/preview/sonner.tsx" />
+`toast.success` / `toast.error` / `toast.warning` / `toast.info` carry a matching lucide icon and
+the family's tinted surface — the same recipe `Alert` uses, so the two status surfaces read as one
+design. The bare `toast()` is neutral.
 
-Toasts support a `description`, an `action` button, and `toast.promise(...)` to
-drive loading → success / error from an async call automatically.
+The type strings follow Base UI's engine rather than our token families, which is why the
+destructive type is spelled `error`: Base UI's own `promise()` writes `type: "loading"` and then
+`type: "success" | "error"`, and its auto-dismiss timer is keyed off the `loading` string. The
+tokens still follow the house families — an `error` toast paints `destructive`.
 
-<ComponentPreview name="sonnerStates" file="components/preview/sonner.tsx" />
+<ComponentPreview name="toastTypes" file="components/preview/toast.tsx" />
+
+### Description, action and promise
+
+A toast takes a `description`, an `actionProps` button, and `toast.promise(...)` to drive
+loading → success / error from an async call automatically.
+
+<ComponentPreview name="toastStates" file="components/preview/toast.tsx" />
 
 ```tsx
 toast.success("File uploaded", { description: "2.5 MB saved" });
 
 toast("Invitation sent", {
   description: "sent to jane@vegastack.com",
-  action: { label: "Undo", onClick: () => toast("Invitation revoked") },
+  actionProps: { children: "Undo", onClick: () => toast("Invitation revoked") },
 });
 
-toast.promise(saveData(), {
+// Resolves/rejects with the original promise, so it composes with `await`.
+await toast.promise(saveData(), {
   loading: "Saving…",
   success: "Saved!",
   error: "Save failed",
@@ -77,140 +111,179 @@ toast.promise(saveData(), {
 
 ### Loading toasts
 
-`toast.loading(...)` shows a pending spinner and returns the toast id. Resolve it
-in place by calling `toast.success` / `toast.error` (or `toast.dismiss`) with the
-same id once the async work finishes — this updates the existing toast instead of
-stacking a new one.
+`toast.loading(...)` shows a spinner and returns the toast id. A `loading` toast never
+auto-dismisses — that is Base UI's timer rule, not a duration we picked — so you must resolve it:
+call `toast.update` with the same id to swap the type in place, or `toast.dismiss` to drop it.
 
-<ComponentPreview name="sonnerLoading" file="components/preview/sonner.tsx" />
+<ComponentPreview name="toastLoading" file="components/preview/toast.tsx" />
 
 ```tsx
 const id = toast.loading("Uploading file…");
 await uploadFile();
-toast.success("File uploaded", { id });
+toast.update(id, { type: "success", title: "File uploaded" });
 ```
 
-### Message and custom toasts
+### Stacking
 
-`toast.message(...)` renders a neutral, non-status notification (no tinted
-surface or status icon). `toast.custom((id) => …)` renders fully custom JSX for
-branded or richly-structured toasts — call `toast.dismiss(id)` from inside to
-close it.
+Toasts stack collapsed, scaled and peeking behind the frontmost one, and expand to their natural
+heights when the viewport is hovered or focused. Past the provider's `limit` (3 by default) older
+toasts stay mounted but `inert` so they can animate out rather than vanish.
+
+Passing an `id` that already exists updates that toast in place and refreshes its timer, instead of
+stacking a duplicate — the fix for a retry loop that would otherwise fire twenty identical toasts.
+
+<ComponentPreview name="toastStacking" file="components/preview/toast.tsx" />
+
+### Custom body
+
+`toast.custom((item) => …)` replaces the toast's body while keeping everything that makes it a
+toast: stacking, swipe-to-dismiss, `Escape`, and the live-region announcement.
+
+<ComponentPreview name="toastCustom" file="components/preview/toast.tsx" />
+
+```tsx
+toast.custom((item) => <PlanNotice onDismiss={() => toast.dismiss(item.id)} />);
+```
+
+### Timing and lifetime
+
+Mount exactly **one** `<Toaster />` per app (usually via `<VegaStackProvider>`). Host-level
+defaults — `position`, `limit`, `timeout` — live on that single mount; per-toast overrides go on
+the `toast()` call. `timeout: 0` disables auto-dismiss for one toast.
 
 <ComponentPreview
-  name="sonnerMessageCustom"
-  file="components/preview/sonner.tsx"
+  name="toastToasterOptions"
+  file="components/preview/toast.tsx"
 />
 
 ```tsx
-toast.message("New comment", { description: "Jane replied to your thread." });
-
-toast.custom((id) => <CustomToast onDismiss={() => toast.dismiss(id)} />);
-```
-
-### Toaster options
-
-Mount exactly **one** `<Toaster />` per app (usually at the root via
-`<VegaStackProvider>`) — Sonner broadcasts every `toast()` to every mounted
-toaster, so a second mount shows every toast twice. Host-level defaults
-(`position`, `expand`) live on that single mount; toasts are **dismissable by
-default** (the close X on the toast's top-right — pass `closeButton={false}` to
-opt out). Per-toast overrides — including `position` — go on the `toast()` call
-itself, as in the demo below.
-
-<ComponentPreview
-  name="sonnerToasterOptions"
-  file="components/preview/sonner.tsx"
-/>
-
-```tsx
-// App root — the single Toaster mount sets the defaults…
-<Toaster expand position="bottom-right" />;
+// App root — the single mount sets the defaults…
+<ToastProvider limit={5} timeout={8000}>
+  {children}
+  <Toaster position="top-end" />
+</ToastProvider>;
 
 // …and a specific toast can override per call:
-toast("Deployment queued", { position: "top-center" });
+toast("Deployment queued", { timeout: 15000 });
 ```
+
+### Position and RTL
+
+`position` names are logical on the inline axis: `bottom-end` is bottom-right in an LTR document
+and bottom-left in an RTL one, so a single value is correct in both. The stack's growth direction,
+transform origin, and enter/exit travel all follow from it.
+
+Swipe directions default to the stack's own block direction plus both inline directions, which
+reads the same under either text direction. Pass `swipeDirection` to narrow it.
+
+### Reduced motion
+
+The enter, exit, stack and expand transitions are CSS transitions, so the design system's global
+`prefers-reduced-motion` reset neutralizes them: a toast appears and disappears without travel. The
+`loading` spinner carries `motion-reduce:animate-none`. Nothing about dismissal depends on an
+animation completing.
 
 ## API Reference
 
-`toast(message, options?)` is re-exported directly from
-[Sonner](https://sonner.emilkowal.ski/). It is an imperative function, so its
-methods are documented by hand below rather than via `<AutoTypeTable>`. The
-`ToasterProps` table that follows configures the `Toaster` host.
+`toast(title, options?)` is an imperative function, so its methods are documented by hand below.
+`options` is Base UI's add-options object: `description`, `actionProps`, `timeout`, `priority`,
+`id`, `onClose`, `data`, and the rest.
 
 ### `toast` function
 
 <TypeTable
   type={{
-    "toast(message, options?)": {
-      type: "(message, options?) => string | number",
+    "toast(title, options?)": {
+      type: "(title, options?) => string",
       description:
-        "Show a neutral toast. Returns the toast id. `options` accepts `description`, `action`, `cancel`, `duration`, `id`, and more (Sonner ExternalToast).",
+        "Show a neutral toast. Returns the toast id. Passing an `id` that already exists updates that toast in place.",
     },
-    "toast.success(message, options?)": {
-      type: "(message, options?) => string | number",
+    "toast.success(title, options?)": {
+      type: "(title, options?) => string",
       description: "Success toast — success tint + CircleCheck icon.",
     },
-    "toast.error(message, options?)": {
-      type: "(message, options?) => string | number",
-      description: "Error toast — destructive tint + OctagonX icon.",
+    "toast.error(title, options?)": {
+      type: "(title, options?) => string",
+      description:
+        "Error toast — destructive tint + XCircle icon. Announced urgently.",
     },
-    "toast.warning(message, options?)": {
-      type: "(message, options?) => string | number",
-      description: "Warning toast — warning tint + TriangleAlert icon.",
+    "toast.warning(title, options?)": {
+      type: "(title, options?) => string",
+      description:
+        "Warning toast — warning tint + AlertTriangle icon. Announced urgently.",
     },
-    "toast.info(message, options?)": {
-      type: "(message, options?) => string | number",
+    "toast.info(title, options?)": {
+      type: "(title, options?) => string",
       description: "Info toast — info tint + Info icon.",
     },
-    "toast.loading(message, options?)": {
-      type: "(message, options?) => string | number",
+    "toast.loading(title, options?)": {
+      type: "(title, options?) => string",
       description:
-        "Pending toast with a spinner. Resolve it in place by reusing the returned id with `toast.success` / `toast.error` / `toast.dismiss`.",
-    },
-    "toast.message(message, options?)": {
-      type: "(message, options?) => string | number",
-      description:
-        "Neutral, non-status notification — no tinted surface or status icon.",
+        "Pending toast with a spinner. Never auto-dismisses; resolve it with toast.update or toast.dismiss using the returned id.",
     },
     "toast.promise(promise, options)": {
-      type: "(promise, { loading, success, error }) => string | number",
+      type: "(promise, { loading, success, error }) => Promise",
       description:
-        "Drive a toast through loading → success / error from an async call automatically.",
+        "Drive one toast through loading → success / error from an async call. Resolves/rejects with the original promise's value.",
     },
-    "toast.custom(jsx, options?)": {
-      type: "((id) => ReactElement, options?) => string | number",
+    "toast.custom(render, options?)": {
+      type: "((item) => ReactNode, options?) => string",
       description:
-        "Render fully custom JSX instead of the default toast surface. Receives the toast id for self-dismissal.",
+        "Render the toast body yourself inside a real toast — stacking, swipe, Escape and the live region all still apply.",
+    },
+    "toast.update(id, options)": {
+      type: "(id: string, options) => void",
+      description:
+        "Update a live toast in place and refresh its timer. Changing the type re-derives the announcement priority.",
     },
     "toast.dismiss(id?)": {
-      type: "(id?: string | number) => void",
+      type: "(id?: string) => void",
       description:
-        "Dismiss a toast by id, or all toasts when called with no argument.",
+        "Dismiss a toast by id, or every toast when called with no argument.",
     },
   }}
+/>
+
+### `useToast`
+
+`useToast()` is Base UI's `useToastManager` typed to our toast data. It returns the reactive
+`toasts` array plus `add` / `close` / `update` / `promise` — use it to render your own list. Firing
+a toast needs no hook.
+
+### `ToastProviderProps`
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/toast.tsx"
+  name="ToastProviderProps"
 />
 
 ### `ToasterProps`
 
 <AutoTypeTable
-  path="../../packages/ui/registry/ui/sonner.tsx"
+  path="../../packages/ui/registry/ui/toast.tsx"
   name="ToasterProps"
 />
 
 ## Accessibility
 
-- The toaster renders an `aria-live` notifications region — new toasts are
-  announced by screen readers without stealing focus.
-- Status variants pair color with an icon, so meaning is not conveyed by color
-  alone; the surface uses semantic tokens (`bg-popover` / `text-popover-foreground`).
-- Toasts are non-modal and dismiss on a timer; provide an `action` (or
-  `closeButton`) for anything that requires a user decision rather than a Toast.
-- Theme follows `next-themes`, so contrast holds in both light and dark modes.
+- The viewport is a labelled landmark region (`role="region"`, `aria-label="Notifications"`) with
+  `aria-live="polite"`, so a new toast is announced without stealing focus.
+- **Live-region policy:** `error` and `warning` toasts are announced urgently — Base UI renders a
+  visually hidden `role="alert"` mirror of their title and description; every other type stays
+  polite. This is derived from the type, so callers get it right by default; pass `priority`
+  explicitly to override.
+- `F6` jumps focus into the viewport from anywhere on the page, and `Escape`
+  dismisses the toast that has focus. Each toast is a focusable `role="dialog"` (or `alertdialog`
+  when urgent), so the action and dismiss controls are reachable without a pointer.
+- Status types pair colour with an icon, so meaning is never carried by colour alone; the surface
+  uses semantic tokens and its contrast is gated in both themes by the compiled-CSS suite.
+- Swipe-to-dismiss is an addition, never the only route: every toast keeps a dismiss control and
+  Escape.
+- The dismiss control is 24px, meeting the pointer-target floor without an extra hit area.
 
 ## Do / Don't
 
 <DoDont
-  do="Use Toast for brief, non-blocking confirmations — 'Saved', 'Copied', 'Invitation sent'."
+  do="Use Toast for brief, non-blocking confirmations — 'Saved', 'Copied', 'Invitation sent' — and for the loading → success arc of an async action."
   dont="Use Toast for errors the user must resolve or destructive confirmations — use an inline message or a Dialog."
 />

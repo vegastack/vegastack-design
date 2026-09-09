@@ -736,7 +736,12 @@
   "z-overlay": {
     "$type": "number",
     "$value": 50,
-    "$description": "The single portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order \u2014 Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts (sonner) are the documented exemption ABOVE this band (library-managed z; a toast must outrank a modal regardless of mount order)."
+    "$description": "The portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order \u2014 Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts are the ONE surface above it, on their own `z-toast` band."
+  },
+  "z-toast": {
+    "$type": "number",
+    "$value": 60,
+    "$description": "The toast band, one step above `z-overlay`. A toast is the only surface that must outrank a modal REGARDLESS of mount order \u2014 the viewport mounts with the app provider, so DOM order would otherwise put every later-opened dialog on top of it. Within the band the stack counts DOWN from this value by `--toast-index`, so the frontmost toast is the highest. Nothing else may claim this band."
   },
   "opacity-dim": {
     "$type": "dimension",
@@ -824,7 +829,7 @@
       "value": 30,
       "unit": "%"
     },
-    "$description": "Toast (sonner) status border tint (border-<family>)."
+    "$description": "The softer of the two border-tint steps. Introduced for the sonner toast surface; since the Base UI Toast migration (O2) the toast tint uses `alpha-border-subtle` like Alert, so this step currently has NO in-repo caller. Kept because it is published token surface — retiring it is a token-batch decision, not a component one."
   },
   "alpha-surface-faint": {
     "$type": "dimension",

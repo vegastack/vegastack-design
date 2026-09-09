@@ -112,10 +112,10 @@ component and never an icon.
 - **`alert`** — A status banner — five semantic variants, an optional icon, and an optional dismiss button.
 - **`progress`** — A horizontal progress bar for measurable, ongoing tasks — determinate or a sweeping indeterminate segment, built on Base UI Progress.
 - **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.
-- **`provider`** — The single app-root wrapper — theme (next-themes), Sonner toasts, tooltip coordination, and text direction in one mount-once component.
+- **`provider`** — The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.
 - **`skeleton`** — A token-driven loading placeholder — line, circle, rect, card shapes, a configurable count, and a pulse that stops under reduced motion.
-- **`sonner`** — Brief, non-blocking notifications — a token-styled Sonner toaster with success/error/warning/info variants that follows the theme.
 - **`spinner`** — An indeterminate loading indicator — a spinning icon inheriting currentColor, four sizes, role=status by default.
+- **`toast`** — Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.
 
 ## Layout
 

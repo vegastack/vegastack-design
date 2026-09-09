@@ -4,10 +4,10 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 
-const canonicalPath = "packages/ui/registry/ui/sonner.tsx";
+const canonicalPath = "packages/ui/registry/ui/toast.tsx";
 const mirrorPath = "packages/ui/src/provider/toaster.tsx";
 const check = process.argv.includes("--check");
-const headerPattern = /^\/\/ @vegastack sonner@[^\n]+\n\n/;
+const headerPattern = /^\/\/ @vegastack toast@[^\n]+\n\n/;
 
 const canonical = readFileSync(canonicalPath, "utf8");
 if (!headerPattern.test(canonical)) {

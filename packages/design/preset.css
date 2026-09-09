@@ -13,7 +13,7 @@
  *
  * This package's own `dist` ships the icon runtime (`BrandIcon`'s
  * `inline-flex shrink-0 [&>svg]:size-full`), and `@vegastack/ui` ships a compiled
- * provider + `Toaster` whose sonner `classNames` (e.g. `group-[.toaster]:bg-popover`)
+ * provider + `Toaster` whose Base UI Toast classes (e.g. `bg-popover shadow-overlay`)
  * live in its published `dist/*.js`, NOT in the consumer's own source — so without
  * an explicit `@source` a real npm consumer importing ONLY this preset would get
  * a partially-unstyled provider/Toaster + icon UI.

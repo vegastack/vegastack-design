@@ -24,7 +24,10 @@ const EXPECTED_HOSTS = new Map([
   ["packages/ui/registry/ui/dialog.tsx", ["BaseDialog.Portal"]],
   // Sheet moved from Base UI's Dialog to its Drawer (D15); the portal host moved with it.
   ["packages/ui/registry/ui/sheet.tsx", ["Drawer.Portal"]],
-  ["packages/ui/registry/ui/sonner.tsx", ["SonnerToaster"]],
+  // Toasts moved from sonner (whose own root WAS the portal host, hence the retired
+  // `SonnerToaster` special case) to Base UI Toast, so the host is now a real `Portal` part like
+  // every other one — no engine-shaped exception left in this gate.
+  ["packages/ui/registry/ui/toast.tsx", ["BaseToast.Portal"]],
 ]);
 
 function walk(dir, out = []) {
@@ -42,7 +45,7 @@ function walk(dir, out = []) {
 
 function isPortalHost(tag, portalAliases) {
   const leaf = tag.split(".").at(-1);
-  return leaf === "Portal" || portalAliases.has(tag) || tag === "SonnerToaster";
+  return leaf === "Portal" || portalAliases.has(tag);
 }
 
 function nearestFunction(ancestors) {

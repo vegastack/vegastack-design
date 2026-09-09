@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 // @vegastack/ui ships ONE entry (src/index.ts) and it is 100% client-only: every module it
-// re-exports — the provider (next-themes/Base UI context), the Toaster (Sonner + useTheme), and
+// re-exports — the provider (next-themes/Base UI context), the Toaster (Base UI Toast), and
 // useVegaStackTheme (a React hook) — begins with `'use client'` and uses client-only React APIs.
 //
 // tsup/esbuild STRIP the `'use client'` directive when they bundle (the emitted dist/index.js starts

@@ -4,9 +4,9 @@ import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/copy-button` (dogfoods the registry) → auto-scanned.
 import { CopyButton } from "@/components/ui/copy-button";
-// `toast` is re-exported from the copied-in Sonner component. The `<Toaster />`
+// `toast` is re-exported from the copied-in Toast component. The `<Toaster />`
 // itself is already mounted in `VegaStackProvider`, so previews just call toast().
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/components/ui/toast";
 
 export function copyButton(): ReactNode {
   return (

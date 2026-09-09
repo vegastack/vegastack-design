@@ -66,11 +66,16 @@ everything else is a `transition-*` + token pair. Raw motion values —
 (`raw-motion`); every `transition-*` must carry `duration-*` **and** `ease-*` in the same class
 string (`transition-pairing`).
 
+### Toast motion is on the scale
+
+Toasts used to be the one documented exception here, because sonner owned their motion. Since the
+Base UI Toast migration they are ours and they are tokenized: the enter, exit, stack and expand
+transitions all run `duration-base ease-standard`, the same pair as the modal family. A toast
+travels the same distance a Sheet does — in from beyond an edge — and 150ms reads clipped over that
+distance, which is the whole reason it is not `duration-fast` like the anchored surfaces.
+
 ## Documented exceptions
 
-- **Toasts (sonner)** — motion is owned by the sonner library on purpose: a toast is an
-  interruption that should feel considered, not snappy, and sonner's tuning is the well-regarded
-  reference implementation. Not on the token scale; do not "fix" it.
 - **Indeterminate loaders** — `animate-spin` (Spinner) and `animate-pulse` (Skeleton) are platform
   defaults, allowed as-is.
 - **Animated icons** — the `registry/ui/icons/*` mirrors carry their own Motion-driven variants

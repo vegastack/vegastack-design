@@ -32,15 +32,16 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "../registry/ui/tooltip";
-import { Toaster, toast } from "../registry/ui/sonner";
+import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
 import { Button } from "../registry/ui/button";
 
 /**
  * Nested-overlay stacking contract (plan v5 T3, CX-8): every portaled surface sits in the ONE
  * `--z-overlay` band and nesting resolves by DOM order (Base UI appends portals to <body>).
  * These are real-browser hit tests — `document.elementFromPoint` at the inner popup's centre
- * must land inside the inner popup, proving it paints ABOVE the outer overlay. Toasts are the
- * documented exemption above the band (library-managed z).
+ * must land inside the inner popup, proving it paints ABOVE the outer overlay. Toasts sit one
+ * band higher, on `--z-toast`, because their viewport mounts before any dialog opens and DOM order
+ * would therefore bury them.
  */
 
 function centerOf(el: Element) {
@@ -160,9 +161,9 @@ test("nested Dialog paints above its parent Dialog", async () => {
   await expect.poll(() => hitTestInside(inner)).toBe(true);
 });
 
-test("a toast fired while a Dialog is open stays visible above it (documented sonner exemption)", async () => {
+test("a toast fired while a Dialog is open stays visible above it (the --z-toast band)", async () => {
   const screen = await render(
-    <>
+    <ToastProvider>
       <Toaster />
       <Dialog>
         <DialogTrigger>Open dialog</DialogTrigger>
@@ -173,7 +174,7 @@ test("a toast fired while a Dialog is open stays visible above it (documented so
           </Button>
         </DialogContent>
       </Dialog>
-    </>,
+    </ToastProvider>,
   );
   await screen.getByRole("button", { name: "Open dialog" }).click();
   await screen.getByRole("button", { name: "Fire toast" }).click();

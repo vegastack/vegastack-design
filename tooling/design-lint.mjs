@@ -156,12 +156,13 @@ const RULES = [
     msg: "interaction color changes are immediate; reserve motion for opacity, transform, indicators, disclosure, overlays, progress, and causal feedback",
   },
   // (T4's transition-pairing rule is string-literal-scoped — see checkTransitionPairing below.)
-  // T3 — z-index is two token bands (`z-(--z-raised)` local raises, `z-(--z-overlay)` portaled
-  // surfaces; DOM order resolves nesting within the band). Raw `z-N` literals are banned.
+  // T3 — z-index is three token bands (`z-(--z-raised)` local raises, `z-(--z-overlay)` portaled
+  // surfaces, `z-(--z-toast)` the toast stack alone; DOM order resolves nesting within a band).
+  // Raw `z-N` literals are banned.
   {
     id: "raw-z-index",
     re: /\bz-\d+\b/g,
-    msg: "raw z-index literal (use z-(--z-raised) or z-(--z-overlay) — see foundations/elevation §Stacking)",
+    msg: "raw z-index literal (use z-(--z-raised), z-(--z-overlay) or z-(--z-toast) — see foundations/elevation §Stacking)",
   },
   // T2 — zero hardcoded opacity: color-alpha modifiers must route through an `--alpha-*` token
   // (`bg-destructive/(--alpha-surface-faint)`), never a raw `/NN` step.
@@ -829,7 +830,7 @@ for (const root of tokenCssRoots) {
       if (
         canonicalRegistryFile &&
         /(?:^|\n)['"]use client['"];/.test(src) &&
-        !/@base-ui|motion(?:\/react)?|sonner|react-day-picker|tiptap|recharts|react-resizable-panels|@shadcn\/react|React\.(?:use[A-Z]|createContext)|\buse[A-Z]\w*\s*\(|\bon[A-Z]\w*\s*=|\b(?:window|document|IntersectionObserver|ResizeObserver|MutationObserver|requestAnimationFrame)\b/.test(
+        !/@base-ui|motion(?:\/react)?|react-day-picker|tiptap|recharts|react-resizable-panels|@shadcn\/react|React\.(?:use[A-Z]|createContext)|\buse[A-Z]\w*\s*\(|\bon[A-Z]\w*\s*=|\b(?:window|document|IntersectionObserver|ResizeObserver|MutationObserver|requestAnimationFrame)\b/.test(
           src,
         )
       ) {
