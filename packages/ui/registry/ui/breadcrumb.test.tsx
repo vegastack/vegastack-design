@@ -59,6 +59,17 @@ test('current page sets aria-current="page"', async () => {
   await expect.element(page).toHaveAttribute("data-slot", "breadcrumb-page");
 });
 
+test("the current page is NOT announced as a disabled link (B6-04)", async () => {
+  const screen = await render(<Trail />);
+  const page = screen.getByText("Billing").element();
+  // Inherited from shadcn: `role="link" aria-disabled="true"` made screen readers say "Billing,
+  // dimmed link" for a span that is not, and never was, interactive.
+  expect(page.getAttribute("role")).toBeNull();
+  expect(page.getAttribute("aria-disabled")).toBeNull();
+  // …and it must not turn up in the accessibility tree's link list at all.
+  expect(screen.container.querySelectorAll('[role="link"]').length).toBe(0);
+});
+
 test("separators are decorative (aria-hidden)", async () => {
   const screen = await render(<Trail />);
   const list = screen.container.querySelector('[data-slot="breadcrumb-list"]')!;

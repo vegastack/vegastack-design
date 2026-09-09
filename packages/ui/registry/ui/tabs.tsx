@@ -1,9 +1,11 @@
-// @vegastack tabs@0.6.0 sha256-oVeNOfzPaH/RRqTG13zdCrAs7W46YuBgxF3sCd1i2QY=
+// @vegastack tabs@0.6.0 sha256-XvOmHb4qspaPz6imIubTRsdVD3z+A8bECVCOplV8S9A=
+
+"use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
-import { cn } from "@vegastack/design";
+import { cn, selectedChipVariants } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Tabs (Root) — groups the list and the panels, owns orientation.
@@ -57,7 +59,7 @@ export function Tabs({
 /* ------------------------------------------------------------------------------------------------
  * TabsList — the row/column of triggers. `variant` drives the active treatment:
  *   - line: transparent track with a moving underline `Indicator`.
- *   - pill: muted track; the active trigger gets a raised `bg-background` chip.
+ *   - pill: muted track; the active trigger raises on the shared selected-chip recipe.
  * ----------------------------------------------------------------------------------------------*/
 
 export const tabsListVariants = cva(
@@ -79,15 +81,26 @@ export const tabsListVariants = cva(
           // …or an inline-start rule (vertical), mirrored in RTL.
           "group-data-[orientation=vertical]/tabs:border-s group-data-[orientation=vertical]/tabs:border-border",
         ),
-        pill: "gap-1 rounded-lg bg-surface-1 p-1 text-muted-foreground group-data-[orientation=vertical]/tabs:w-fit",
+        pill: cn(
+          "gap-1 rounded-lg p-1 text-muted-foreground group-data-[orientation=vertical]/tabs:w-fit",
+          selectedChipVariants.track,
+        ),
         /** Free-standing chip tabs (Wave 2 — the record-page treatment): no track;
-         * the active trigger raises to a secondary chip with the one hairline. */
+         * the active trigger raises on the shared selected-chip recipe. */
         chip: "gap-1 bg-transparent group-data-[orientation=vertical]/tabs:w-fit",
       },
     },
     defaultVariants: { variant: "line" },
   },
 );
+
+/**
+ * Carries the list's `variant` down to each trigger. The geometry rides the list's `data-variant`
+ * through `group-data-*`, but the SELECTED-state recipe cannot: it is one opaque literal exported
+ * by `@vegastack/design` (Tailwind v4's scanner only sees literals, so the string can neither be
+ * built up nor variant-prefixed here), which means the trigger has to pick it in JS.
+ */
+const TabsListContext = React.createContext<"line" | "pill" | "chip">("line");
 
 /** Props accepted by `TabsList`. */
 export interface TabsListProps
@@ -97,9 +110,10 @@ export interface TabsListProps
   /**
    * Active-tab treatment.
    * - `line`: transparent track with a moving underline indicator (default).
-   * - `pill`: muted track; the active tab becomes a raised `bg-background` chip.
-   * - `chip`: free-standing tabs, no track; the active tab raises to a
-   *   hairline-ringed `secondary` chip (the dense record-page treatment).
+   * - `pill`: muted track; the active tab raises on the shared selected-chip
+   *   recipe (`selectedChipVariants`) it holds in common with `Segmented`.
+   * - `chip`: the same raised chip free-standing, with no track (the dense
+   *   record-page treatment).
    * @default 'line'
    */
   variant?: "line" | "pill" | "chip";
@@ -129,7 +143,9 @@ export function TabsList({
       className={cn(tabsListVariants({ variant }), className)}
       {...props}
     >
-      {children}
+      <TabsListContext.Provider value={variant}>
+        {children}
+      </TabsListContext.Provider>
       {variant === "line" ? (
         <BaseTabs.Indicator
           data-slot="tabs-indicator"
@@ -195,6 +211,7 @@ export function TabsTrigger({
   ref,
   ...props
 }: TabsTriggerProps) {
+  const variant = React.useContext(TabsListContext);
   return (
     <BaseTabs.Tab
       ref={ref}
@@ -209,21 +226,28 @@ export function TabsTrigger({
         "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
         "data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-        // line: flush, sized to align with the list rule on the 32px control scale;
-        // active color only (the moving Indicator paints the primary underline).
+        // line: sized on the 32px control scale; active colour only (the moving Indicator paints
+        // the primary underline). The wash is held OFF the list rule — a hover fill that runs flush
+        // into a container hairline reads as a rendering bug, not a state (design.md §Hover
+        // geometry, SP-02). A logical margin does it with no pseudo-element and no stacking
+        // games: 4px below the trigger for the horizontal bottom rail, 4px inside the
+        // inline-start rail for the vertical one (which mirrors itself in RTL). The Indicator is
+        // positioned against the LIST, so it stays welded to the rule either way.
         "group-data-[variant=line]/tabs-list:h-(--size-md) group-data-[variant=line]/tabs-list:rounded-md group-data-[variant=line]/tabs-list:px-3",
+        "group-data-[orientation=horizontal]/tabs:group-data-[variant=line]/tabs-list:mb-1",
+        "group-data-[orientation=vertical]/tabs:group-data-[variant=line]/tabs-list:ms-1",
         "group-data-[variant=line]/tabs-list:hover:bg-surface-2 group-data-[variant=line]/tabs-list:active:bg-surface-3",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=line]/tabs-list:justify-start",
-        // pill: raised chip on active, on the 32px control scale.
+        // pill + chip: geometry only on the 32px / 28px scales — the LOOK is the one shared
+        // raised-chip recipe below (B6-02), which both variants take verbatim so a pill tab, a chip
+        // tab, a Segmented chip and a pressed Toggle can never drift into four selected looks again.
         "group-data-[variant=pill]/tabs-list:h-(--size-md) group-data-[variant=pill]/tabs-list:rounded-md group-data-[variant=pill]/tabs-list:px-3",
-        "group-data-[variant=pill]/tabs-list:not-data-[active]:hover:bg-surface-2 group-data-[variant=pill]/tabs-list:not-data-[active]:active:bg-surface-3",
-        "group-data-[variant=pill]/tabs-list:data-[active]:bg-background group-data-[variant=pill]/tabs-list:data-[active]:text-foreground",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=pill]/tabs-list:justify-start",
-        // chip: free-standing on the 28px scale; active = secondary chip + the one border.
-        "group-data-[variant=chip]/tabs-list:h-(--size-sm) group-data-[variant=chip]/tabs-list:rounded-md group-data-[variant=chip]/tabs-list:border group-data-[variant=chip]/tabs-list:border-transparent group-data-[variant=chip]/tabs-list:px-2.5 group-data-[variant=chip]/tabs-list:text-label-sm",
-        "group-data-[variant=chip]/tabs-list:hover:bg-surface-2 group-data-[variant=chip]/tabs-list:active:bg-surface-3",
-        "group-data-[variant=chip]/tabs-list:data-[active]:border-border group-data-[variant=chip]/tabs-list:data-[active]:bg-secondary group-data-[variant=chip]/tabs-list:data-[active]:text-foreground",
+        "group-data-[variant=chip]/tabs-list:h-(--size-sm) group-data-[variant=chip]/tabs-list:rounded-md group-data-[variant=chip]/tabs-list:px-2.5 group-data-[variant=chip]/tabs-list:text-label-sm",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=chip]/tabs-list:justify-start",
+        // The recipe reserves its hairline transparently, so selecting a tab adds no layout shift.
+        variant !== "line" &&
+          cn(selectedChipVariants.item, selectedChipVariants.active),
         className,
       )}
       {...props}
@@ -234,9 +258,10 @@ export function TabsTrigger({
           data-slot="tabs-trigger-count"
           className={cn(
             // The count sits one rung above WHATEVER the trigger currently paints (rest, hover,
-            // pressed, active chip) — the alpha twin of the ladder does that in one class.
+            // pressed, active chip) — the alpha twin of the ladder does that in one class, on
+            // every variant now that the selected chip is itself an ink tint rather than a
+            // translucent `background` plate that needed its own counter-tint.
             "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-foreground/(--alpha-hover) px-1 text-label-sm tabular-nums text-muted-foreground",
-            "group-data-[variant=pill]/tabs-list:bg-background/(--alpha-backdrop-soft)",
           )}
         >
           {count}
@@ -267,10 +292,9 @@ export function TabsContent({ className, ref, ...props }: TabsContentProps) {
     <BaseTabs.Panel
       ref={ref}
       data-slot="tabs-content"
-      className={cn(
-        "flex-1 text-base focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring",
-        className,
-      )}
+      // The focus ring is the GLOBAL `:focus-visible` rule; restating it here (B6-10) only invited
+      // the two to drift.
+      className={cn("flex-1 text-base", className)}
       {...props}
     />
   );

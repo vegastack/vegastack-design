@@ -282,8 +282,9 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
     "/sidebar.tsx",
     {
-      counts: { button: 3 },
-      rationale: "useRender fallbacks and resize rail control",
+      counts: { button: 2 },
+      rationale:
+        "SidebarMenuButton's useRender fallback and the resize rail control — SidebarTrigger's hand-rolled button became an IconButton in N1",
     },
   ],
   [

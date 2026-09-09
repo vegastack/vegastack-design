@@ -98,8 +98,8 @@ rail out next to your page content; everything else composes inside the `<nav>` 
 
 - `SidebarProvider` — owns the open state (controlled `open`/`onOpenChange` or uncontrolled
   `defaultOpen`), the mobile Sheet's `openMobile` state, and exposes both via `useSidebar()`.
-  Registers <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> to toggle, and writes the `sidebar_state`
-  cookie on every desktop toggle (see "SSR persistence" below).
+  Registers <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> to toggle, and — unless `persist={false}` —
+  writes the `sidebar_state` cookie on every desktop toggle (see "Persistence" below).
 - `Sidebar` — the `<nav>` rail (`data-slot="sidebar"`). Carries `data-state="expanded|collapsed"`,
   `data-collapsible`, and `data-variant` for descendant styling, and animates its width between
   states. On desktop it stays anchored to the viewport while the adjacent document scrolls. Below
@@ -229,13 +229,24 @@ window.
 
 <ComponentPreview name="sidebarMobile" file="components/preview/sidebar.tsx" />
 
-## SSR persistence
+## Persistence
 
-Every desktop toggle writes a `sidebar_state` cookie (`path=/`, ~1 year) so the sidebar can restore
-its state across page loads — but `SidebarProvider` only ever WRITES it, client-side, in response to
-a user action; it never reads `document.cookie` at render (that would differ between server and
-client and trigger a hydration mismatch). To restore state on the next load, read the cookie in your
-server layout and pass it as `defaultOpen`:
+While `persist` is on — it is by default — every desktop toggle writes a `sidebar_state` cookie
+(`path=/`, `max-age` ~1 year) so the sidebar can restore its state across page loads. The cookie is
+the only piece of application policy this component holds, so it is deliberately switchable:
+
+| you want                                           | pass                                                        |
+| -------------------------------------------------- | ----------------------------------------------------------- |
+| the default — restore the rail across reloads      | nothing; `persist` defaults to `true`                       |
+| no cookie at all (consent regimes, your own store) | `persist={false}`, and persist from `onOpenChange` yourself |
+
+`persist={false}` gates the **write only**. `onOpenChange` still fires on every toggle either way,
+so nothing about the component's behaviour changes except that it stops touching `document.cookie`.
+
+`SidebarProvider` only ever WRITES the cookie, client-side, in response to a user action; it never
+reads `document.cookie` at render (that would differ between server and client and trigger a
+hydration mismatch). To restore state on the next load, read the cookie in your server layout and
+pass it as `defaultOpen`:
 
 ```tsx
 // app/layout.tsx (Server Component)

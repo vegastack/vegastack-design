@@ -43,10 +43,13 @@ Try the three sizes and the disabled and default-pressed states, then copy the g
 ### Sizes & States
 
 One look (**no variant prop**) in three sizes (`sm`, `md`, `lg`). Icons compose as children via
-`lucide-react`. The toggle is a borderless ghost at rest; when pressed it takes an evident neutral fill
-(a light grey — not a brand colour, and no border) so the "on" state reads clearly. The states row shows
-off, on (`defaultPressed`), disabled, and disabled+on. A genuine selection (single/multi) belongs in
-`ToggleGroup`, whose pressed items take the exact same fill.
+`lucide-react`. The toggle is a ghost at rest; when pressed it takes the system's one selected-chip
+look — an evident neutral ink tint with a hairline, never a brand colour — so the "on" state reads
+clearly. That look is the shared `selectedChipVariants` recipe, so a pressed `Toggle`, a pressed
+`ToggleGroup` item, a `Segmented` chip and an active pill tab are the same thing by construction; a
+pressed toggle also still hovers (the tint strengthens) and still presses (it drops back, previewing
+the release). The states row shows off, on (`defaultPressed`), disabled, and disabled+on. A genuine
+selection (single/multi) belongs in `ToggleGroup`, whose pressed items take the exact same fill.
 
 <ComponentPreview
   name="toggleSizesAndStates"

@@ -122,18 +122,6 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // The control's effective target (border box ∪ ::before/::after hit area) is under 24px on one
   // axis. Each of these still runs reflow AND RTL. Control index is the position in the
   // fixture's `INTERACTIVE_SELECTOR` order, so a failure is locatable without re-deriving it.
-  breadcrumbCollapsed: {
-    target:
-      "size: control 1 (collapsed-crumb trigger) measures 20.00×20.00 — both axes short",
-  },
-  breadcrumbEllipsisMenu: {
-    target:
-      "size: control 1 (ellipsis menu trigger) measures 20.00×20.00 — both axes short",
-  },
-  breadcrumbTrail: {
-    target:
-      "size: control 1 (ellipsis trigger) measures 20.00×20.00 — both axes short",
-  },
   datePickerDropdownCaption: {
     target:
       "size: control 2 (caption dropdown) measures 50.36×21.00 — height short",

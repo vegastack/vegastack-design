@@ -110,8 +110,13 @@ intersection corner and a second scrollbar.
 
 ## Accessibility
 
-- The viewport is explicitly keyboard-focusable (`tabIndex={0}`). Pass `aria-label` or
-  `aria-labelledby` to `ScrollArea`; the component applies it to the focusable viewport.
+- The viewport is keyboard-focusable **only while it can actually scroll** — overflow is measured on
+  mount and on resize, and the viewport carries `data-scrollable` while it is a tab stop. Keyboard
+  users need somewhere for the arrow keys to land, but a region whose content fits would otherwise
+  add a stop that announces nothing and does nothing. Pass `aria-label` or `aria-labelledby` to
+  `ScrollArea`; the component applies it to that viewport.
+- Its focus ring is drawn **inside** the viewport (`focus-visible:-outline-offset-2`). The root
+  clips its overflow, so an outward-offset outline would be cut in half.
 - The focused viewport uses the global `:focus-visible` ring (`outline-ring`) — never `outline: none`.
 - Scrollbars are pointer affordances only and stay out of the tab order; the native scroll keys remain
   fully functional, so the custom scrollbar never blocks keyboard access.

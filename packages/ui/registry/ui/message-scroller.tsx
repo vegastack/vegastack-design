@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.6.0 sha256-sTyOqyPNGHY0S5oWwZDnL+HT9eECMNtAu9lvPVv3IcU=
+// @vegastack message-scroller@0.6.0 sha256-NSU1WXWnT4rVXlqYmItI+aXfc6gQzIQ4YeEvXDGhMzo=
 
 "use client";
 
@@ -93,7 +93,9 @@ export function MessageScrollerViewport({
     <MessageScrollerPrimitive.Viewport
       data-slot="message-scroller-viewport"
       className={cn(
-        "size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content data-autoscrolling:scrollbar-none data-pending-scroll:invisible",
+        // The ring turns inward: the scroller root clips (`overflow-hidden`), so an
+        // outward-offset outline on the viewport was being cut off (SP-03).
+        "size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content focus-visible:-outline-offset-2 data-autoscrolling:scrollbar-none data-pending-scroll:invisible",
         className,
       )}
       {...props}

@@ -654,6 +654,31 @@ test("SidebarProvider writes the sidebar_state cookie on every desktop toggle", 
   expect(document.cookie).toContain("sidebar_state=true");
 });
 
+test("persist={false} keeps the provider out of document.cookie, but still reports every toggle", async () => {
+  document.cookie = "sidebar_state=; path=/; max-age=0";
+  const onOpenChange = vi.fn();
+  const screen = await render(
+    <SidebarProvider persist={false} onOpenChange={onOpenChange}>
+      <Sidebar aria-label="Main navigation">
+        <SidebarHeader>
+          <SidebarTrigger />
+        </SidebarHeader>
+        <SidebarContent />
+      </Sidebar>
+    </SidebarProvider>,
+  );
+
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  // D22: the write is the ONLY thing `persist` gates — the host still learns about the toggle and
+  // can persist it wherever its own policy says to.
+  expect(document.cookie).not.toContain("sidebar_state=");
+  expect(onOpenChange).toHaveBeenCalledWith(false);
+
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  expect(document.cookie).not.toContain("sidebar_state=");
+  expect(onOpenChange).toHaveBeenCalledWith(true);
+});
+
 /* ---------------------------------------------------------------------------------------------
  * Phase S — `SidebarTrigger` touch-target remediation (WCAG 2.5.8) — same "compiled-Tailwind
  * mirror + real elementFromPoint hit-test" technique as checkbox.test.tsx's suite.

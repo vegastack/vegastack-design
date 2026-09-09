@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.6.0 sha256-6XGWR6bwovmcPV9R2cgt/tIGNmVqfxPeLvTnac/V+gk=
+// @vegastack sidebar@0.6.0 sha256-3RFiLer8aF88+iTeaiFwPsxj41fH7iEcAmpyNdoahOY=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { useRender } from "@base-ui/react/use-render";
 import { PanelLeft } from "lucide-react";
 import { cn, surfaceInteractive } from "@vegastack/design";
+import { IconButton } from "@/components/ui/icon-button";
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
@@ -18,7 +19,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/components/ui/use-mobile";
 
-/** `document.cookie` key `SidebarProvider` writes on every toggle (see the "Cookie persistence" section below). */
+/** `document.cookie` key `SidebarProvider` writes on every toggle while `persist` is on (see the "Cookie persistence" section below). */
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 /** ~1 year, matching the other long-lived first-party cookies in the house pattern. */
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
@@ -86,6 +87,17 @@ export interface SidebarProviderProps extends React.ComponentProps<"div"> {
    * @default 768
    */
   mobileBreakpoint?: number;
+  /**
+   * Whether a desktop toggle writes the `sidebar_state` cookie so the next page
+   * load can restore the rail. On by default, because the flash of a wrongly
+   * collapsed rail is the thing everyone hits first. Persistence policy is the
+   * HOST's, though — cookie banners, consent regimes, a store of your own — so
+   * pass `persist={false}` to keep the component out of `document.cookie`
+   * entirely and drive the state yourself from `onOpenChange`, which fires
+   * identically either way.
+   * @default true
+   */
+  persist?: boolean;
 }
 
 /**
@@ -97,13 +109,16 @@ export interface SidebarProviderProps extends React.ComponentProps<"div"> {
  * separate from desktop `open`/`state`, since collapsing to icons and sliding
  * a Sheet in are different interactions that can't share one boolean.
  *
- * **Cookie persistence (SSR-safe pattern):** every desktop toggle writes a
- * `sidebar_state` cookie (`path=/`, ~1yr) so the NEXT page load can restore it
- * without a flash of the wrong state. This component only ever WRITES the
- * cookie, client-side, in response to a user action — it never reads
- * `document.cookie` at render (that would differ between server and client
- * and trigger a hydration mismatch). To restore state across reloads, read the
- * cookie in your server layout and pass it as `defaultOpen`:
+ * **Cookie persistence (SSR-safe pattern, opt-OUT):** while `persist` is true
+ * (the default) every desktop toggle writes the `sidebar_state` cookie
+ * (`path=/`, `max-age` ~1yr) so the NEXT page load can restore it without a
+ * flash of the wrong state. This component only ever WRITES the cookie,
+ * client-side, in response to a user action — it never reads `document.cookie`
+ * at render (that would differ between server and client and trigger a
+ * hydration mismatch). Persistence is nonetheless an application policy, so
+ * `persist={false}` switches the write off completely and leaves `onOpenChange`
+ * as the single hook for a store of your own. To restore state across reloads,
+ * read the cookie in your server layout and pass it as `defaultOpen`:
  * ```tsx
  * // app/layout.tsx (Server Component)
  * import { cookies } from 'next/headers';
@@ -121,6 +136,7 @@ export function SidebarProvider({
   onOpenChange,
   keyboardShortcut = true,
   mobileBreakpoint = 768,
+  persist = true,
   className,
   style,
   children,
@@ -138,11 +154,13 @@ export function SidebarProvider({
       if (openProp === undefined) setOpenState(next);
       onOpenChange?.(next);
       // Write-only, client-side, on toggle — see the SSR-safe cookie pattern documented above.
-      if (typeof document !== "undefined") {
+      // `persist` gates ONLY this write: `onOpenChange` above has already fired, so a host that
+      // opts out still learns about every toggle and can persist it wherever it likes.
+      if (persist && typeof document !== "undefined") {
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${next}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       }
     },
-    [open, openProp, onOpenChange],
+    [open, openProp, onOpenChange, persist],
   );
 
   const toggleSidebar = React.useCallback(
@@ -741,11 +759,15 @@ export function SidebarSeparator({
 }
 
 /** Props accepted by `SidebarTrigger`. */
-export interface SidebarTriggerProps extends React.ComponentPropsWithRef<"button"> {
-  /** Replace the rendered element (Base UI composition).
+export interface SidebarTriggerProps extends Omit<
+  React.ComponentPropsWithRef<"button">,
+  "render"
+> {
+  /** Replace the rendered element (Base UI composition). Typed from `IconButton`, which renders
+   * this control, so a render function receives the real `ButtonState`.
    * @default undefined
    */
-  render?: useRender.RenderProp;
+  render?: React.ComponentProps<typeof IconButton>["render"];
 }
 
 /**
@@ -774,27 +796,26 @@ export function SidebarTrigger({
   ...props
 }: SidebarTriggerProps) {
   const { toggleSidebar } = useSidebar();
-  return useRender({
-    render: render ?? <button />,
-    defaultTagName: "button",
-    ref, // forward the consumer ref onto the rendered (or composed) element
-    props: {
-      type: "button",
-      "data-slot": "sidebar-trigger",
-      "aria-label": "Toggle sidebar",
-      onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+  return (
+    <IconButton
+      ref={ref}
+      render={render}
+      variant="ghost"
+      size="sm"
+      data-slot="sidebar-trigger"
+      aria-label="Toggle sidebar"
+      onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
         onClick?.(event);
         toggleSidebar();
-      },
-      className: cn(
-        "relative inline-flex size-(--size-sm) shrink-0 items-center justify-center rounded-md text-sidebar-foreground before:absolute before:-inset-2 hover:text-sidebar-accent-foreground [&_svg]:size-(--icon-default) [&_svg]:shrink-0",
-        surfaceInteractive,
-        className,
-      ),
-      children: <PanelLeft aria-hidden />,
-      ...props,
-    },
-  });
+      }}
+      // Only the hit-area expansion is local; the box, the ink and the hover/pressed steps are
+      // `IconButton`'s (B6-05 — this used to hand-roll all three from `useRender`).
+      className={cn("relative before:absolute before:-inset-2", className)}
+      {...props}
+    >
+      <PanelLeft aria-hidden />
+    </IconButton>
+  );
 }
 
 /** Props accepted by `SidebarRail`. */
@@ -828,7 +849,10 @@ export function SidebarRail({ className, ...props }: SidebarRailProps) {
       title="Toggle sidebar"
       onClick={toggleSidebar}
       className={cn(
-        "absolute inset-y-0 z-(--z-raised) hidden w-4 -translate-x-1/2 cursor-col-resize items-center justify-center  md:flex",
+        // The ring turns INWARD. The rail is a 16px strip straddling the sidebar's outer edge, so
+        // an outward-offset outline is half-eaten by the sidebar's own clipping box (SP-03) —
+        // exactly the Terminal pattern every focusable scroll region here now uses.
+        "absolute inset-y-0 z-(--z-raised) hidden w-4 -translate-x-1/2 cursor-col-resize items-center justify-center focus-visible:-outline-offset-2 md:flex",
         "group-data-[side=left]/sidebar:-right-2 group-data-[side=right]/sidebar:-left-2",
         "before:absolute before:inset-y-0 before:left-1/2 before:w-px before:-translate-x-1/2 before:bg-transparent  hover:before:bg-border",
         className,
@@ -839,7 +863,23 @@ export function SidebarRail({ className, ...props }: SidebarRailProps) {
 }
 
 /** Props accepted by `SidebarInset`. */
-export interface SidebarInsetProps extends React.ComponentProps<"main"> {}
+// Typed off `div`, not `main`: `landmark` decides which of the two is actually rendered, and a
+// `div` ref narrows to either element while a `main` (HTMLElement) ref does not.
+export interface SidebarInsetProps extends React.ComponentProps<"div"> {
+  /**
+   * Which landmark this region claims. `main` (the default) is what a real application wants —
+   * one `<main>` per document.
+   *
+   * `region` renders a `<div role="region">` instead, for the case where the shell is EMBEDDED in
+   * a page that already owns a `<main>`: a docs preview, a design gallery, a shell shown inside a
+   * larger document. Two `<main>` elements in one document is a real defect (axe
+   * `landmark-no-duplicate-main`). A `region` needs an accessible name to be exposed as a landmark
+   * at all, so pass `aria-label` with it; without one it is simply a plain container, which is
+   * also a correct outcome here. Mirrors `AppShellContent`'s prop of the same name.
+   * @default 'main'
+   */
+  landmark?: "main" | "region";
+}
 
 /**
  * `SidebarInset` — the main-content wrapper to render as `Sidebar`'s sibling when using
@@ -856,9 +896,15 @@ export interface SidebarInsetProps extends React.ComponentProps<"main"> {}
  *   <SidebarInset>…page content…</SidebarInset>
  * </SidebarProvider>
  */
-export function SidebarInset({ className, ...props }: SidebarInsetProps) {
+export function SidebarInset({
+  className,
+  landmark = "main",
+  ...props
+}: SidebarInsetProps) {
+  const Element = landmark === "main" ? "main" : "div";
   return (
-    <main
+    <Element
+      role={landmark === "region" ? "region" : undefined}
       data-slot="sidebar-inset"
       className={cn(
         "relative flex min-h-svh w-full flex-1 flex-col bg-background",

@@ -1,9 +1,11 @@
-// @vegastack toggle@0.6.0 sha256-Q4OrjK/TmTL7piH/p4muRr/lh1L57FnmAnvTm0t8+YM=
+// @vegastack toggle@0.6.0 sha256-32IKMzGtsEp0rPvyP6tFEvz+IesxLhxZf0DyCuu/1AE=
+
+"use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Toggle as BaseToggle } from "@base-ui/react/toggle";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn, selectedChipVariants } from "@vegastack/design";
 
 /**
  * Toggle variants — a two-state pressed button. The pressed state is driven by
@@ -11,18 +13,16 @@ import { cn, surfaceInteractive } from "@vegastack/design";
  * hardcoded colors). Shared verbatim by `ToggleGroup` (one look, no drift).
  */
 export const toggleVariants = cva(
-  // ONE look (no variant axis): a borderless ghost at rest, and an evident neutral fill
-  // when pressed (`bg-foreground/(--alpha-ink-tint)` — a clear light grey, NOT a brand colour and not the
-  // heavy solid `primary`), so the "on" state reads clearly without any border. The flat
-  // `accent` token is ~white in this theme, so a foreground overlay carries the contrast.
-  // Controls round at `md` (8px). ToggleGroup shares this exact treatment — a standalone
-  // Toggle and a group item look identical when on.
+  // ONE look (no variant axis): a borderless ghost at rest, and the shared SELECTED-CHIP recipe
+  // when pressed. Toggle used to spell that recipe out by hand, which is how the system ended up
+  // with four different "selected" looks across Toggle, Segmented and the two chip-shaped Tabs
+  // variants (audit B6-02); it now imports the one formula, so a pressed Toggle, a pressed
+  // ToggleGroup item, a Segmented chip and an active pill tab are the same thing by construction.
+  // Controls round at `md` (8px).
   cn(
-    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-transparent text-label whitespace-nowrap select-none hover:text-foreground disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-    surfaceInteractive,
-    // Pressed ("on") keeps the ink tint; hovering it strengthens the tint and pressing it again
-    // previews the release by dropping back to the resting tint — a step in every state.
-    "data-pressed:bg-foreground/(--alpha-ink-tint) data-pressed:text-foreground hover:data-pressed:bg-foreground/(--alpha-ink-tint-strong) active:data-pressed:bg-foreground/(--alpha-ink-tint)",
+    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-transparent text-label whitespace-nowrap select-none disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+    selectedChipVariants.item,
+    selectedChipVariants.pressed,
   ),
   {
     variants: {

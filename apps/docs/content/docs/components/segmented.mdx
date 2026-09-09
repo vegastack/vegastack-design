@@ -45,8 +45,12 @@ callback never fires with "nothing selected": clicking the active segment is a n
 
 ### Anatomy & geometry
 
-The track is `bg-muted rounded-md p-0.5`; the active chip is `rounded-sm bg-background` with
-the one hairline border — the nested-radius formula (container radius minus padding). Sizes:
+The track and chip are the system's one selected-chip recipe (`selectedChipVariants`), shared with
+Tabs `pill`/`chip` and pressed `Toggle`/`ToggleGroup` so the four cannot drift apart: the track is
+`rounded-md p-0.5` on the ladder's well rung, and the chip is `rounded-sm` on the pressed/selected
+rung with the one hairline border — the nested-radius formula (container radius minus padding). The
+selected chip is not exempt from interaction: hovering it strengthens the tint and pressing it drops
+back to the resting tint, previewing the release. Sizes:
 `default` (24px chips in a 28px track — dense chrome) and `lg` (28px chips — form rows).
 Keyboard: arrow keys move focus, Space/Enter selects (Base UI Toggle Group contract);
 `aria-pressed` marks the active segment.
