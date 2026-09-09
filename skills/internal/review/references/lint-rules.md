@@ -142,35 +142,43 @@ in both directions, so an added or removed rule fails the build until this file 
     React hook/context, an event binding, or a browser API. Pure presentational wrappers stay
     server-safe.
 
-33. **`restated-focus`** — `focus-visible:outline-*` or `focus-visible:ring-*` in component source.
+33. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
+    assigned through `x.current = …` in one file. That pair is a ref fan-out and nothing else. Under
+    React 19 ref-as-prop, "I need the node and must also forward it" is the normal case, so the
+    pattern reappears constantly; `mergeRefs` from `@vegastack/design` is the one implementation
+    (wrap the call in `useMemo` — it is not memoized). Mk1 swept nine hand-inlined copies and
+    `table-scroll-region.tsx` grew a tenth in T1 with nothing to notice, which is why this is a rule
+    and not a grep.
+
+34. **`restated-focus`** — `focus-visible:outline-*` or `focus-visible:ring-*` in component source.
     `@vegastack/design-tokens/base.css` owns ONE `:focus-visible` rule for the whole system, so a
     component that writes its own re-skins it locally and a component that strips it on
     `focus-visible` removes the indicator outright. The sanctioned text-entry alternative is
     `focus:border-ring/(--alpha-tint-border)`, which never touches the outline and is unaffected.
-34. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
+35. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
     `motion-reduce:duration-0` or `motion-reduce:transition-duration-*`. base.css already collapses
     animation and transition duration to 0.01ms under `prefers-reduced-motion`. Scoped on purpose:
     `motion-reduce:transform-none` and other END-STATE suppressions are NOT restatements — they
     remove the displacement itself, which the global reset does not — and stay legal.
-35. **`viewport-magic`** — `h-screen`/`w-screen`/`min-h-screen`/… or a raw viewport unit (`100vh`,
+36. **`viewport-magic`** — `h-screen`/`w-screen`/`min-h-screen`/… or a raw viewport unit (`100vh`,
     `50dvw`). Size from the container or a token. The one legal form is a calc whose inset is itself
     a token — a `max-w` arbitrary value whose `calc()` subtracts `var(--spacing)` scaled by a
     step, as `sheet.tsx` and `floating-surface.tsx` write it.
-36. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
+37. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
     review, survives every merge, and defeats grep (`"a  b"` does not match `/a b/`, which is how
     audit sweeps undercounted). Applies to plain string literals only: a template's spans are joined
     with a synthetic space by the parser, and a multi-line literal is prose, not a class string.
-37. **`hover-without-pressed`** — a `hover:bg-*` that CHANGES the fill with no pressed rung in the
+38. **`hover-without-pressed`** — a `hover:bg-*` that CHANGES the fill with no pressed rung in the
     same class literal. Every control has a pressed step (AGENTS.md § Build rules); take it from
     `surfaceInteractive` / `fillInteractive.<tone>`. Three deliberate non-violations: restating the
     SAME fill (`bg-primary hover:bg-primary`, how a control opts out of the recipe's hover),
     `hover:bg-transparent` (cancelling an inherited hover), and a pressed rung expressed as component
     state (`data-[separator=active]:`, `data-pressed:`, `aria-pressed:`).
-38. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
+39. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
     the component has stopped styling itself and started styling its children's internals from the
     outside (`audio-player` held 76). Give the child a `data-slot` and let it own the rule.
 
-39. **`fill-token-as-text`** — a solid status fill used as a text ink: `text-destructive`,
+40. **`fill-token-as-text`** — a solid status fill used as a text ink: `text-destructive`,
     `text-success`, `text-warning`, `text-info` (bare — every suffixed form, `-text`, `-foreground`,
     `-border`, `-subtle*`, is untouched). Each family ships `<family>-text` as its page-readable
     half, and that is the token `contrast-check.mjs` measures; a FILL used as text sits outside
@@ -181,7 +189,7 @@ in both directions, so an added or removed rule fails the build until this file 
     sites set `currentColor` for a GRAPHIC — a radial progress arc, a copied-state icon, the
     `ParticleField` canvas, the terminal prompt sigil — not for prose. Brand LABELS take
     `brand-text`.
-40. **`field-group-pairing`** — a file that names `fieldControlGroup` and never renders
+41. **`field-group-pairing`** — a file that names `fieldControlGroup` and never renders
     `data-field-group`. The recipe paints the bordered field WRAPPER and `base.css` hangs the
     forced-colours focus outline off the bare attribute, because the group's `overflow-hidden`
     clips the inner control's own outline. It is one contract in two places, and nothing enforced

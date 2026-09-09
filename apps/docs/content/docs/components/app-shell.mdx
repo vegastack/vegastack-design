@@ -82,8 +82,9 @@ focusable element; you compose `AppShellSidebar` as one child and your own conte
   `aria-label="Main navigation"` and passes `variant`/`collapsible`/`side` straight through.
 - `AppShellHeader` — a `<header>` `banner` landmark (`data-slot="app-shell-header"`): always-visible
   `SidebarTrigger` + a `min-w-0` middle slot (`children`) + a `shrink-0` `actions` slot.
-- `AppShellContent` — the `<main id="main-content" tabIndex={-1}>` `data-slot="app-shell-content"` —
-  the skip link's target, carrying `@container/app-shell-content` for width-aware grids.
+- `AppShellContent` — the `<main tabIndex={-1}>` `data-slot="app-shell-content"` — this shell's
+  skip-link target, carrying `@container/app-shell-content` for width-aware grids. Its `id` is
+  generated per shell by `AppShell` (`contentId` pins it), never a fixed literal.
 - `AppShellSkeleton` — a full-shell loading composition for `loading.tsx` (`data-slot="app-shell-skeleton"`).
 
 **Why no `AppShellBody`/column component?** Keeping the content column a plain, undecorated
@@ -154,8 +155,8 @@ make it visible without resizing your window.
 `AppShell` is deliberately router-agnostic — it has no dependency on Next.js/React Router and
 never imports one. Moving keyboard focus to the new page's heading on a client-side route change
 is standard SPA accessibility practice, and it's the DOWNSTREAM app's responsibility: focus your
-`PageHeader`'s title (give it `tabIndex={-1}`) or `AppShellContent`'s `#main-content` itself,
-keyed on the router's pathname:
+`PageHeader`'s title (give it `tabIndex={-1}`) or `AppShellContent` itself — pass `contentId` to
+`AppShell` when you need a known id to focus — keyed on the router's pathname:
 
 ```tsx
 "use client";
@@ -216,14 +217,21 @@ function RouteFocus() {
 ## Accessibility
 
 - **Skip link.** The very first focusable element in the shell (`sr-only focus:not-sr-only`),
-  targeting `AppShellContent`'s `#main-content`. Tab once on page load to reach it.
+  targeting THIS shell's `AppShellContent`. Tab once on page load to reach it. The target id is
+  generated with `React.useId()` and shared down, so a page holding several shells gives each one
+  its own target rather than sending every link to the first; pass `contentId` on `AppShell` to pin
+  it. Setting `id` on `AppShellContent` moves the element but does not rewire the link.
 - **Landmark trio.** `AppShellHeader` is a `banner` (`<header>`, never nested inside `<main>`),
   `AppShellSidebar` is a `navigation` (`<nav aria-label="Main navigation">`, overridable), and
   `AppShellContent` is the single `main` on the page. If the shell is **embedded** in a page that
   already owns a `<main>` — a docs preview, a gallery, a shell shown inside a larger document — pass
   `landmark="region"` (with an `aria-label`) so it renders a `<div role="region">` instead. Two
   `<main>` elements in one document is a real defect; this escape exists so the answer is never to
-  delete the landmark from the component. `SidebarInset` carries the same prop.
+  delete the landmark from the component. `SidebarInset` carries the same prop. **Every preview on
+  this page is an embedded shell and therefore uses `landmark="region"`** — this page already owns
+  the site's one `<main>`, so no preview here can demonstrate the `main` landmark, and the skip
+  links you can try below land on a `region`. In a real application the default applies and the
+  target is a `<main>`.
 - **Mobile trigger.** `SidebarTrigger` always renders in `AppShellHeader` — below the mobile
   breakpoint it's the only way to open the sidebar, and it's never nested inside the collapsible
   rail it controls (see `sidebar.tsx`'s own composition note).
@@ -236,7 +244,7 @@ function RouteFocus() {
 | Key                                       | Action                                                                                              |
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | <kbd>Tab</kbd> (on page load)             | Focus the skip link.                                                                                |
-| <kbd>Enter</kbd> on the skip link         | Move focus to `AppShellContent`'s `<main>`.                                                         |
+| <kbd>Enter</kbd> on the skip link         | Move focus to this shell's `AppShellContent` region.                                                |
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> | Toggle the sidebar (desktop) or the mobile sheet — customizable/disableable via `keyboardShortcut`. |
 
 <StatesTested name="app-shell" />

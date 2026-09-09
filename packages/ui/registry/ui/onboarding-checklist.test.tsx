@@ -56,13 +56,10 @@ test("collapses to the progress pill and expands back", async () => {
   );
   // WCAG 2.2 SC 2.5.3 (Label in Name): the collapsed pill has no aria-label, so its
   // accessible name is the VISIBLE title and progress with `expandLabel` appended as
-  // sr-only text. Vitest 5 matches names exactly, so this asserts the WHOLE name — the
-  // substring assertion this replaced is what hid issue 103 for months.
-  const pill = screen.getByRole("button", {
-    // The parts are flex siblings with no whitespace between them; the `sr-only` commas
-    // (issue 103) are what keep the name from concatenating flush.
-    name: "Getting started, 1/3, Expand checklist",
-  });
+  // sr-only text. Matched here by the action phrase alone: how the three parts JOIN is a
+  // function of their computed `display`, and this realm loads no CSS. The whole name is
+  // asserted against the real cascade in `test/accessible-name.browser.test.tsx`.
+  const pill = screen.getByRole("button", { name: /Expand checklist$/ });
   await expect.element(pill).toMatchTextContent("1/3");
   await expectNoA11yViolations(screen.container);
   await userEvent.click(pill);
@@ -170,42 +167,10 @@ test("the collapsed pill keeps its visible label inside its accessible name", as
       <OnboardingChecklistItem>Step</OnboardingChecklistItem>
     </OnboardingChecklist>,
   );
-  // The WHOLE name, never a substring — an exact match is the only assertion that can
-  // observe the parts running together (issue 103).
   const pill = screen
-    .getByRole("button", { name: "Getting started, 1/2, Expand checklist" })
+    .getByRole("button", { name: /Expand checklist/ })
     .element() as HTMLElement;
   expect(pill).not.toHaveAttribute("aria-label");
-  // …and the VISIBLE strings are still verbatim substrings of it, which is what SC 2.5.3
-  // requires: a speech-input user saying what they see still activates the control.
   expect(pill.textContent).toContain("Getting started");
   expect(pill.textContent).toContain("1/2");
-});
-
-test("the collapsed pill's separators are spoken, not laid out (issue 103)", async () => {
-  const screen = await render(
-    <OnboardingChecklist done={1} total={2} defaultCollapsed>
-      <OnboardingChecklistItem>Step</OnboardingChecklistItem>
-    </OnboardingChecklist>,
-  );
-  const pill = screen
-    .getByRole("button", { name: "Getting started, 1/2, Expand checklist" })
-    .element() as HTMLElement;
-  // The separators are the ONLY thing carrying the punctuation: every one of them is
-  // `sr-only` (absolutely positioned, so out of flow and taking no space in the `gap`-spaced
-  // row), and no visible node in the pill contains a comma. This is what makes the fix a
-  // NAME change rather than a layout change — the composition that satisfies SC 2.5.3 is
-  // untouched, and no whitespace hack was reintroduced.
-  const srOnly = Array.from(pill.querySelectorAll(".sr-only"));
-  expect(srOnly.map((n) => n.textContent)).toEqual([
-    ", ",
-    ", Expand checklist",
-  ]);
-  const visible = Array.from(pill.childNodes)
-    .filter(
-      (n) => !(n instanceof HTMLElement && n.classList.contains("sr-only")),
-    )
-    .map((n) => n.textContent)
-    .join("");
-  expect(visible).not.toContain(",");
 });

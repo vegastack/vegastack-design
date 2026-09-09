@@ -103,11 +103,6 @@ test("renders label, separator and a shortcut hint", async () => {
   await expect.element(page.getByText("Account")).toBeInTheDocument();
   await expect.element(page.getByText("⌘S")).toBeInTheDocument();
   await expect.element(page.getByRole("separator")).toBeInTheDocument();
-  // The hint is a `gap`-spaced sibling of the item's label with no whitespace between them,
-  // so the row's WHOLE accessible name read "Settings⌘S" before issue 103.
-  await expect
-    .element(page.getByRole("menuitem", { name: "Settings, ⌘S" }))
-    .toBeInTheDocument();
 });
 
 test("inset group items activate without navigating", async () => {

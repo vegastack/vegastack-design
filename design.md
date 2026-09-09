@@ -1914,11 +1914,21 @@ recipe deliberately excludes so the panel is not drawn twice.
 - **RTL:** use logical properties and start/end alignment, keep directional icons semantic, and test
   mirrored navigation, mixed-script content, numbers, and long localized labels.
 - **One `<main>` per document, and the shell says so out loud.** `AppShellContent` and
-  `SidebarInset` both render a real `<main id="main-content" tabIndex={-1}>` — correct in an
-  application, wrong the moment a shell is EMBEDDED in a page that already owns one, which is what
-  the docs showcase does on every shell and sidebar fixture (axe `landmark-no-duplicate-main`,
-  B6-07). Both take `landmark="region"` for that case; it renders a `<div role="region">` and wants
-  an `aria-label`. Never solve a duplicate landmark by deleting the landmark from the component.
+  `SidebarInset` both render a real `<main>` — correct in an application, wrong the moment a shell
+  is EMBEDDED in a page that already owns one, which is what the docs showcase does on every shell
+  and sidebar fixture (axe `landmark-no-duplicate-main`, B6-07). Both take `landmark="region"` for
+  that case; it renders a `<div role="region">` and wants an `aria-label`. Never solve a duplicate
+  landmark by deleting the landmark from the component.
+- **A skip link's target id is generated, never a literal.** `AppShell` mints the id with
+  `React.useId()` and shares it to `AppShellContent`, because the pair used to hard-code
+  `#main-content` on both halves: a page holding two shells then published the id twice and every
+  skip link resolved to the FIRST region — measured on this system's own `app-shell` docs page,
+  where four embedded previews each carried it. An id in the document is a global name; anything a
+  component can render more than once per page must generate it. Sharing that id is why
+  `app-shell.tsx` carries a client boundary at the shell root: `createContext`/`useContext` are
+  `undefined` under the `react-server` condition, and the shell root is where `SidebarProvider`'s
+  own client context already lives. Nothing else in the file earns it, and the consumer's page
+  content still renders on the server and arrives as `children`.
 - **A scroll region is a tab stop only once it can scroll.** Keyboard users need somewhere for the
   arrow keys to land, so a scrollable viewport is focusable — but an unconditional `tabIndex={0}`
   puts a stop in every region whose content happens to fit, announcing nothing and doing nothing

@@ -2016,7 +2016,13 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
 
 ---
 
-## 2026-09-09 — FIXED: composite controls announced as one run-together string (#103)
+## 2026-09-09 — WITHDRAWN (the defect did not exist): composite controls "announced as one run-together string" (#103)
+
+> **Read the correction first.** The entry below is preserved verbatim as the record of what was
+> believed on 2026-09-09; every Before column in its table is WRONG. The correction, with the
+> measurements that overturn it, is the entry immediately following this one.
+
+### What was believed, at the time
 
 - **Mechanism.** Where a control takes its accessible name from contents, and those contents are
   sibling ELEMENTS spaced by CSS `gap` rather than by whitespace, there is no whitespace text node
@@ -2064,3 +2070,58 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
   composes.
 - **Assertions state WHOLE names.** Every touched test asserts the complete accessible name; none
   asserts a substring, and `browser.locators.exact` stays at its Vitest 5 default.
+
+---
+
+## 2026-09-09 — CORRECTION: the run-together names were an artifact of the test realm, and #109 is reverted
+
+- **The premise of the entry above was false.** It assumed that contents spaced by CSS `gap` carry
+  no whitespace text node and therefore concatenate flush. Accessible-name computation does not work
+  that way. Accname step 2F walks an element's children and, for every child whose **computed
+  `display` is not `inline`**, wraps that child's contribution in spaces — and a flex container
+  **blockifies its children**. Every one of the nine call sites is a flex or inline-flex container,
+  so every one of them was already separated.
+- **Where the flush names came from: the unit suite loads no CSS.** Every test file in
+  `packages/ui` except the three compiled-CSS lanes imports no stylesheet, so a `<span>` keeps its
+  UA `display: inline` and the parts really do run together — in that realm and nowhere else. The
+  strings that "proved" the defect (`Activity3`, `Getting started1/3Expand checklist`, `Profile⌘P`)
+  are readings of an unstyled page. No screen-reader user has ever heard one.
+- **Measured, per call site, with the real cascade.** A new lane (`packages/ui/test/
+accessible-name.browser.test.tsx` + `accessible-name.css`) imports the production token layers and
+  reports the whole name through the same Playwright accname implementation the browser locators
+  use. All nine, before (as #109 shipped them) and after the revert:
+
+  | Call site                                      | With #109's separator                      | Reverted (what ships)                  |
+  | ---------------------------------------------- | ------------------------------------------ | -------------------------------------- |
+  | `TabsTrigger` with `count`                     | `Activity , 12`                            | `Activity 12`                          |
+  | `OnboardingChecklist` collapsed pill           | `Getting started , 1/3 , Expand checklist` | `Getting started 1/3 Expand checklist` |
+  | `Stepper` navigable step                       | `Upload file , Completed`                  | `Upload file Completed`                |
+  | `Board` collapsed column                       | `1 , Won , Expand column, read-only`       | `1 Won Expand column, read-only`       |
+  | `DataGrid` primary cell, merged mobile columns | `Acme , Open , 300`                        | `Acme Open 300`                        |
+  | `CommandShortcut`                              | `Profile , ⌘P`                             | `Profile ⌘P`                           |
+  | `createMenuParts` shortcut (`DropdownMenu`)    | `Settings , ⌘S`                            | `Settings ⌘S`                          |
+  | `Kbd` multi-key                                | `Command , S`                              | `Command S`                            |
+  | `ToolCallChip` composed as a button            | `Search files , 1.2s`                      | `Search files 1.2s`                    |
+
+  **Nothing was kept.** Not one site's container is non-flex, and `Kbd` — the one worth checking
+  hardest, because it renders `<kbd>` elements whose UA display is `inline` — is safe for a stronger
+  reason than the rest: `kbdVariants`' base class is `inline-flex`, so each chip carries a
+  non-`inline` display of its own regardless of what wraps it.
+
+- **So #109 made the names marginally worse.** A screen reader now reads "Activity comma 12". The
+  separators are reverted at all nine call sites, along with the five tests that asserted the
+  post-#109 strings and the two that asserted the post-#109 `textContent`.
+- **SC 2.5.3 is unaffected either way.** The visible label remains a verbatim leading substring of
+  the name in both the pre- and post-#109 readings, so speech input never broke.
+- **The real defect this exposed, and where it is closed.** An accessible-name assertion in a
+  CSS-less realm is meaningless, and five of them passed for months while asserting strings nobody
+  hears — the same false-coverage shape as the 2026-07-25 forced-colors focus check. Name assertions
+  now live in the compiled-CSS lane above, which **fails closed by construction**: every name it
+  asserts is the space-separated one, so a stylesheet that stopped reaching the page turns the whole
+  file red rather than quietly re-blessing the flush reading. Its first test asserts the mechanism in
+  both directions in one fixture — styled and `display: inline`-forced — so the lane also documents
+  why the premise was wrong. Three pre-#109 assertions in the unit lane that had the same flaw
+  (`tabs.test.tsx`, `command.test.tsx`, `onboarding-checklist.test.tsx`) now match on the visible
+  label alone and say why.
+- **Observed failing.** Re-adding the `tabs` separator alone turns 2 of the lane's 10 tests red
+  (`Activity 12` no longer resolves); removing it returns a clean sweep.

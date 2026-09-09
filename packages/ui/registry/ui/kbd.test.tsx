@@ -83,18 +83,3 @@ test("multi-key form forwards ref to the group root (not fanned across chips)", 
     2,
   );
 });
-
-test("multi-key chips are separated in the accessible name (issue 103)", async () => {
-  // The button contains the chips and NOTHING else, so its name is exactly what `Kbd`
-  // contributes. The chips are `gap`-spaced siblings with no whitespace between them, so
-  // this read "CommandS" before the separator was added; the mac glyph itself stays
-  // aria-hidden and speaks through its sr-only word.
-  const screen = await render(
-    <button type="button">
-      <Kbd keys={["\u2318", "S"]} os="mac" />
-    </button>,
-  );
-  await expect
-    .element(screen.getByRole("button", { name: "Command, S" }))
-    .toBeInTheDocument();
-});

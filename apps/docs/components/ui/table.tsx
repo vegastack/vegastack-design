@@ -1,4 +1,4 @@
-// @vegastack table@0.6.0 sha256-sCbqtkxrdZrZXMXS2BSfvygVVZ0kJnxmFFgDFU0gF0c=
+// @vegastack table@0.6.0 sha256-7fyRVbJNSYyg+69Y6ezBkgXyTItqszXI2W1B1Osq8dA=
 
 import * as React from "react";
 import { cn, surfaceInteractive } from "@vegastack/design";

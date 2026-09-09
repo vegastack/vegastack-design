@@ -1,4 +1,4 @@
-// @vegastack board@0.6.0 sha256-8YU6gMKJNHts86fh6l9dbwLhc9Fyi5X0d0hMp6vlWTY=
+// @vegastack board@0.6.0 sha256-DxE3Oo7U6aux7of1ihsMfo94OJSfp4mGXOhwDlK5CzM=
 
 "use client";
 
@@ -374,18 +374,13 @@ export function Board<T>({
                 <Badge variant="soft" size="sm">
                   {column.items.length}
                 </Badge>
-                {/* The count, the title and the action text are flex siblings spaced by `gap`,
-                    so without these separators the button's accessible name concatenates flush
-                    ("1LostExpand column, read-only" — issue 103). `sr-only` is out of flow, so
-                    the punctuation is spoken and never laid out. */}
-                <span className="sr-only">, </span>
                 <span
                   data-slot="board-column-collapsed-title"
                   className="min-h-0 flex-1 [writing-mode:vertical-rl] text-label-sm text-muted-foreground"
                 >
                   {column.title}
                 </span>
-                <span className="sr-only">, Expand column, read-only</span>
+                <span className="sr-only">Expand column, read-only</span>
               </Button>
             );
           }

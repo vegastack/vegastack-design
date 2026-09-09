@@ -1,4 +1,4 @@
-// @vegastack floating-surface@0.6.0 sha256-YzAg6iqECkwlCGp0S0DYLC5dZQ1QL5W51Xfz3e28yjg=
+// @vegastack floating-surface@0.6.0 sha256-2U2Y3Y7txMmdMMSmWcE/qsH0JI1HKfLVjzrrVfe8GFk=
 
 "use client";
 
@@ -678,18 +678,11 @@ export function createMenuParts(prefix: string): MenuParts {
 
   function Shortcut({ className, ...props }: MenuPartShortcutProps) {
     return (
-      <>
-        {/* Same fix as `CommandShortcut` (issue 103): the hint is a sibling of the item's label
-            with no whitespace text node between them, so the row's accessible name would
-            otherwise concatenate flush ("Copy⌘C"). `sr-only` is out of flow — spoken, never
-            laid out — and the visible label still leads the name (WCAG 2.2 SC 2.5.3). */}
-        <span className="sr-only">, </span>
-        <span
-          data-slot={`${prefix}-shortcut`}
-          className={cn(menuShortcutClassName, className)}
-          {...props}
-        />
-      </>
+      <span
+        data-slot={`${prefix}-shortcut`}
+        className={cn(menuShortcutClassName, className)}
+        {...props}
+      />
     );
   }
 

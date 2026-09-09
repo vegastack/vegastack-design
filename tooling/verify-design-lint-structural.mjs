@@ -42,6 +42,16 @@ type RenderlessProps = Omit<
   'render'
 >;
 
+// A ref fanned out by hand. Deliberately hook-free: adding a hook here would EARN the client
+// boundary and silently retire the presentational-client-boundary specimen in the same file.
+export function HandRolledRefMerge({ ref }: { ref?: React.Ref<HTMLDivElement> }) {
+  const setRefs = (element: HTMLDivElement | null) => {
+    if (typeof ref === 'function') ref(element);
+    else if (ref) ref.current = element;
+  };
+  return <div ref={setRefs} />;
+}
+
 export function LiteralRules(_props: RenderlessProps) {
   return <>
     {/* Don't let an apostrophe disable later literal rules on this line. */}<div className="transition-opacity">Transition</div>
@@ -209,6 +219,7 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     "render-contract",
     "arbitrary-value",
     "raw-effect",
+    "hand-rolled-ref-merge",
   ];
   const missing = requiredIds.filter(
     (id) => !invalidOutput.includes(`[${id}]`),

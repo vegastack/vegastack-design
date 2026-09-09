@@ -1,0 +1,24 @@
+/* Compiled-CSS entry for the accessible-name contracts (accessible-name.browser.test.tsx).
+
+   Accessible-name computation is CSS-DEPENDENT. Step 2F of accname walks an element's
+   children and, for every child whose COMPUTED `display` is not `inline`, wraps that
+   child's contribution in spaces. A flex container blockifies its children, so
+   `<button class="inline-flex gap-1"><span>Activity</span><span>12</span></button>`
+   names "Activity 12" in a real browser and "Activity12" in a realm that loaded no CSS.
+
+   That difference is not cosmetic: it is the whole finding of issue 103's reversal. The
+   unit lane imports no CSS, so every accessible-name assertion written there measured a
+   name no user ever hears. This stylesheet exists so those assertions run against the
+   real compiled cascade instead. See `accessible-name.browser.test.tsx`.
+
+   The layer set is kept in lockstep with `@vegastack/design/preset.css` by
+   `tooling/verify-test-css-layers.mjs`; a missing `@utility` layer compiles to nothing
+   and raises no error. */
+@import "tailwindcss";
+@import "@vegastack/design-tokens/theme.css";
+@import "@vegastack/design-tokens/base.css";
+@import "@vegastack/design-tokens/utilities.css";
+
+@source '../registry/ui/**/*.tsx';
+@source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */
+@source './accessible-name.browser.test.tsx';
