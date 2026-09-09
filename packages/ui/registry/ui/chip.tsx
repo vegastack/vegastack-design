@@ -89,8 +89,10 @@ const SIZE_CLASSES: Record<ChipSize, string> = {
 };
 
 /** Props accepted by `Chip`. */
-export interface ChipProps
-  extends Omit<React.ComponentPropsWithRef<"span">, "children"> {
+export interface ChipProps extends Omit<
+  React.ComponentPropsWithRef<"span">,
+  "children"
+> {
   /**
    * Decorative hue from the tag palette. Never a status signal — that is `Badge`.
    * @default 'neutral'

@@ -12,10 +12,7 @@ import {
   type ButtonAppearance,
   type ButtonOwnProps,
 } from "@/components/ui/button";
-import {
-  IconButton,
-  type IconButtonProps,
-} from "@/components/ui/icon-button";
+import { IconButton, type IconButtonProps } from "@/components/ui/icon-button";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /** Props accepted by `CopyButton`. */

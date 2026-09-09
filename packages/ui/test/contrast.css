@@ -6,6 +6,12 @@
 @import "tailwindcss";
 @import "@vegastack/design-tokens/theme.css";
 @import "@vegastack/design-tokens/base.css";
+/* The @utility layer, which `@vegastack/design/preset.css` ships to every consumer and this lane
+   did not. A custom `@utility` with no definition compiles to NOTHING and raises no error, so any
+   fixture wearing `scroll-fade-*`, `scrollbar-thin` or `motion-dock-*` was measured stripped of it
+   — axe then evaluated colours no user ever sees. Kept in lockstep with production by
+   `tooling/verify-test-css-layers.mjs`. */
+@import "@vegastack/design-tokens/utilities.css";
 
 @source '../registry/ui/**/*.tsx';
 @source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */

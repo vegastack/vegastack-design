@@ -12,8 +12,12 @@ pnpm-lock.yaml
 # reverses, so prettier and `design:derived:check` would each undo the other with whichever ran last
 # "winning". These files all declare themselves generated in their first lines.
 #
-# NOT ignored, deliberately: `packages/ui/component-contracts.json` is a hand-maintained AUTHORITY
-# rather than an output, so it should be formatted like any other source file.
+# NOT ignored, deliberately: `packages/ui/component-contracts.json` AND `packages/ui/registry.json`
+# are hand-maintained AUTHORITIES rather than outputs, so they are formatted like any other source
+# file. (G1-b weighed ignoring registry.json — it is the input to a generator, and the pre-commit
+# hook reflows it for any branch that stages it. Ignoring it would make the churn permanent instead
+# of ending it: nothing would ever bring the file to a canonical shape, and every batch would keep
+# rediscovering the same diff. `prettier --check .` in `pnpm lint` ends it once, repo-wide.)
 *.generated.ts
 *.generated.tsx
 *.generated.json

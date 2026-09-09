@@ -8,10 +8,22 @@
 //
 //   1. The body OPENS with exactly one of the eight CHANGELOG section emoji, and something
 //      follows it. `tooling/changelog-assemble.mjs` owns the vocabulary and the parser.
-//   2. The body is valid CHANGELOG prose: every commit link's sha exists in this repo and every
-//      /docs link resolves to a real content page. `tooling/changelog-lint.mjs` owns those rules
-//      and exports them as `proseProblems`; a changeset body becomes a bullet verbatim, so a dead
-//      link caught here is a link not caught on release day with the entry already written.
+//   2. The body is valid CHANGELOG prose: every /docs link resolves to a real content page.
+//      `tooling/changelog-lint.mjs` owns that rule and exports it as `proseProblems`; a changeset
+//      body becomes a bullet verbatim, so a dead link caught here is a link not caught on release
+//      day with the entry already written.
+//   3. The body carries NO commit link at all.
+//
+// WHY RULE 3 IS A BAN AND NOT A CHECK
+//   `changelog-lint`'s sha rule is reachability from HEAD, which is the right question for the
+//   ASSEMBLED file: `changelog-assemble` writes shas of commits already on `main`. It is an
+//   unanswerable question for a CHANGESET, which is written BEFORE its own commit exists. Whatever
+//   sha an author can name at that point is a pre-merge sha, and the squash or rebase that lands
+//   the PR orphans it — so a changeset commit link is wrong by construction, not merely at risk of
+//   rotting. The predecessor probe (`git cat-file -e`) could not see that: an orphan stays in the
+//   local object database, so the link passed for its author and 404'd for every reader
+//   (bugs.md, 2026-09-07). Forbidding the link is the only rule that is true for every changeset.
+//   The release entry still links commits — `changelog-assemble` adds them, from merged history.
 //
 // An EMPTY changeset (`---\n---`) with body text is VALID: it is how a change with no package
 // bump (tooling, CI, a repo-wide refactor) still gets a CHANGELOG line. It needs a marker like
@@ -28,7 +40,7 @@ import {
   resolveSection,
   SECTIONS,
 } from "./changelog-assemble.mjs";
-import { proseProblems } from "./changelog-lint.mjs";
+import { proseProblems, commitShas } from "./changelog-lint.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -62,7 +74,15 @@ export function lintChangesets({
       problems.push(`${changeset.file}: ${resolved.problem}`);
       continue;
     }
-    for (const problem of prose(resolved.text))
+    for (const sha of commitShas(resolved.text)) {
+      problems.push(
+        `${changeset.file}: commit link (${sha}) — a changeset must not link a commit. The sha it ` +
+          `can name is always a pre-merge one, and the squash/rebase that lands the PR orphans it; ` +
+          `the release entry gets its commit links from merged history at assembly time. Describe ` +
+          `the change instead, or link the docs page.`,
+      );
+    }
+    for (const problem of prose(resolved.text, { skipCommitShas: true }))
       problems.push(`${changeset.file}: ${problem}`);
   }
   return { problems, linted };
@@ -91,7 +111,8 @@ function main() {
           "\n",
         ) +
         "\n  The marker selects the CHANGELOG.md section; the entry is assembled at version time." +
-        "\n  Commit links and /docs links in the body are checked the same way the assembled file's are.",
+        "\n  /docs links are checked the same way the assembled file's are. Commit links are BANNED:" +
+        "\n  a changeset can only name a pre-merge sha, which the squash/rebase then orphans.",
     );
     process.exit(1);
   }

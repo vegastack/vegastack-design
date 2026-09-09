@@ -8,5 +8,4 @@ with it, because the ladder is now the one hover mechanism and nothing reference
 `--alpha-fill-hover` (the secondary button's `/80` opacity dim), `--alpha-input-hover` (the dark-only
 input hover wash) and `--alpha-surface-subtle` (the outline button's hover tint, now `--alpha-hover`
 in the family's own hue).
-[docs](https://design.vegastack.com/docs/foundations/colors) ·
-[`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+[docs](https://design.vegastack.com/docs/foundations/colors)

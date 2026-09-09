@@ -18,5 +18,4 @@ controller contract once against the factory, holds every module to a schema who
 that a data module contains no controller at all, pins each generated module by SHA-256 in
 `packages/ui/animated-icon-sources.json` so a hand-edited path or timing value is rejected outright,
 and carries a `--self-test` that proves fifteen distinct regressions are rejected.
-[docs](https://design.vegastack.com/docs/foundations/icons) ·
-[`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
+[docs](https://design.vegastack.com/docs/foundations/icons)

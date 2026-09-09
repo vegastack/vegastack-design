@@ -4,6 +4,14 @@
    can't see z/position utilities at all. Mirrors test/contrast.css. */
 @import "tailwindcss";
 @import "@vegastack/design-tokens/theme.css";
+/* base.css (the layered element resets, the global :focus-visible outline, the pointer-cursor
+   rules) and utilities.css (every custom `@utility`) — both shipped by
+   `@vegastack/design/preset.css`, both previously absent here. A missing custom utility compiles
+   to an empty rule with no error, so an overlay wearing one was stacked without it and this lane
+   measured a z-order no user ever sees. Kept in lockstep with production by
+   `tooling/verify-test-css-layers.mjs`. */
+@import "@vegastack/design-tokens/base.css";
+@import "@vegastack/design-tokens/utilities.css";
 
 @source '../registry/ui/**/*.tsx';
 @source './stacking.browser.test.tsx';

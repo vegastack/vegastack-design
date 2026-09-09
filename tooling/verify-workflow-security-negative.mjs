@@ -75,6 +75,25 @@ const WORKFLOWS = join(ROOT, ".github/workflows");
   );
 }
 
+/**
+ * Replace one job's step list, bounded by the NEXT job header rather than by end of file.
+ *
+ * Several mutations gut a job. Expressing that as `/<anchor>[\s\S]*$/` is only equivalent while
+ * the job happens to be the last one in its workflow: append a job and the same mutation deletes
+ * that one too, so the case stops testing what it is named for. The bound here is structural.
+ */
+function replaceJobSteps(source, job, steps) {
+  const header = new RegExp(`^ {2}${job}:\\n`, "m");
+  const start = header.exec(source);
+  if (!start) return source;
+  const stepsKey = source.indexOf("\n    steps:\n", start.index);
+  if (stepsKey === -1) return source;
+  const bodyStart = stepsKey + "\n    steps:\n".length;
+  const next = /^ {2}\S[^\n]*:\s*$/m.exec(source.slice(bodyStart));
+  const bodyEnd = next ? bodyStart + next.index : source.length;
+  return source.slice(0, bodyStart) + steps + source.slice(bodyEnd);
+}
+
 const CASES = [
   {
     id: "container on a mac-mini job",
@@ -144,10 +163,9 @@ const CASES = [
     mutateAfter: (source) =>
       source
         .replace("      - run: pnpm verify\n", "      - run: echo skipped\n")
-        .replace(
-          "      - run: pnpm design:verify\n",
-          "      - run: pnpm design:verify\n      - run: pnpm verify\n",
-        ),
+        // Re-added at the END of the file, which lands in the last job — a mac mini — rather
+        // than after a named step that is free to move or be renamed.
+        .replace(/\n*$/, "\n      - run: pnpm verify\n"),
     expect: /none of which is a LINUX_JOBS\s+entry/,
   },
   {
@@ -336,11 +354,15 @@ const CASES = [
     expect: /token-free OIDC trusted publishing/,
   },
   {
+    // Inserted before the FIRST `- run:` step in the file, whichever it is. Anchoring on
+    // `pnpm design:verify` tied the case to a step it is not about.
     id: "shell injection through a run: body",
     file: "ci.yml",
-    find: "      - run: pnpm design:verify",
-    replace:
-      "      - run: echo ${{ github.event.pull_request.title }}\n      - run: pnpm design:verify",
+    mutateAfter: (source) =>
+      source.replace(
+        /^( +)- run: /m,
+        "$1- run: echo ${{ github.event.pull_request.title }}\n$1- run: ",
+      ),
     expect: /interpolated directly into a run: script/,
   },
   {
@@ -374,19 +396,32 @@ const CASES = [
   {
     id: "publish no longer requires the quality gate to have succeeded",
     file: "release.yml",
-    // Scoped to the publish job's `if` — the has_changesets=='false' line precedes it there, whereas
-    // version-pr's identical quality-gate check is preceded by has_changesets=='true'.
-    find: "      needs.changes.outputs.has_changesets == 'false' &&\n      needs.quality-gate.result == 'success'",
-    replace:
-      "      needs.changes.outputs.has_changesets == 'false' &&\n      true",
+    // Scoped to the publish job's `if` — the has_changesets=='false' clause precedes it there,
+    // whereas version-pr's identical quality-gate check is preceded by has_changesets=='true'.
+    // Matched with tolerant whitespace: the exact line wrapping of a multi-line `if:` is the
+    // formatter's business, not the policy's.
+    mutateAfter: (source) =>
+      source.replace(
+        /(has_changesets == 'false' &&\s*)needs\.quality-gate\.result == 'success'/,
+        "$1true",
+      ),
     expect: /quality-gate to have SUCCEEDED/,
   },
   {
+    // The mutation ADDS the fragile form and KEEPS the canonical one, so the only assertion that
+    // can reject it is the ban this case is named for.
+    //
+    // The predecessor replaced the canonical line, which deleted it — and then accepted the
+    // resulting rejection under an alternation (`/command-substitution clean check|git status
+    // --porcelain/`) whose second branch matched the MISSING-canonical-form message instead. The
+    // case reported green for four months without ever exercising the ban. Tightening the `expect`
+    // is what surfaced it; that is the whole argument for never writing an alternation here.
     id: "the fragile clean-tree check reintroduced",
     file: "deploy.yml",
     find: '          git status --porcelain > "$RUNNER_TEMP/git-status"',
-    replace: '          test -z "$(git status --porcelain)"',
-    expect: /command-substitution clean check|git status --porcelain/,
+    replace:
+      '          test -z "$(git status --porcelain)"\n          git status --porcelain > "$RUNNER_TEMP/git-status"',
+    expect: /command-substitution clean check can pass when git itself fails/,
   },
   {
     id: "an obsolete cutover phase reintroduced",
@@ -490,10 +525,11 @@ const CASES = [
     expect: /exactly one step named "Reject publish-time lifecycle code"/,
   },
   {
+    // The hook NAME is the policy; the comma-and-space that happens to follow it in today's array
+    // literal is formatting.
     id: "the lifecycle guard stops checking a hook",
     file: "release.yml",
-    find: "'prepublishOnly', ",
-    replace: "",
+    mutateAfter: (source) => source.replace(/'prepublishOnly',?\s*/, ""),
     expect: /no longer checks `prepublishOnly`/,
   },
   {
@@ -524,16 +560,22 @@ const CASES = [
     // commit the `verify` job swept.
     id: "`ref: ${{ github.sha }}` dropped from build-sign-deploy's checkout",
     file: "deploy.yml",
-    find: "          persist-credentials: false\n          ref: ${{ github.sha }}\n      - uses: pnpm/action-setup",
-    replace:
-      "          persist-credentials: false\n      - uses: pnpm/action-setup",
+    // Matched on the checkout input alone. Naming the step that FOLLOWS it made the case hostage
+    // to step order, which is not the policy.
+    mutateAfter: (source) =>
+      source.replace(/^ {10}ref: \$\{\{ github\.sha \}\}\n/m, ""),
     expect: /checks out without `ref: \$\{\{ github\.sha \}\}`/,
   },
   {
+    // `--frozen-lockfile` is the policy; `--store-dir /pnpm-store` is a container detail that
+    // travels with the image and would orphan a literal `find`.
     id: "an install unfrozen (`--no-frozen-lockfile`)",
     file: "ci.yml",
-    find: "pnpm install --frozen-lockfile --store-dir /pnpm-store",
-    replace: "pnpm install --no-frozen-lockfile --store-dir /pnpm-store",
+    mutateAfter: (source) =>
+      source.replace(
+        /pnpm install --frozen-lockfile/,
+        "pnpm install --no-frozen-lockfile",
+      ),
     expect: /--no-frozen-lockfile/,
   },
   {
@@ -544,10 +586,11 @@ const CASES = [
     expect: /without `--frozen-lockfile`/,
   },
   {
+    // The group's NAME is incidental; that a group exists is the policy.
     id: "concurrency removed (a superseded push keeps a runner busy)",
     file: "ci.yml",
-    find: "concurrency:\n  group: ci-${{ github.ref }}\n  cancel-in-progress: true\n",
-    replace: "",
+    mutateAfter: (source) =>
+      source.replace(/^concurrency:\n(?: {2}.*\n)+/m, ""),
     expect: /declares no `concurrency`/,
   },
   {
@@ -558,10 +601,12 @@ const CASES = [
     expect: /declares no `timeout-minutes`/,
   },
   {
+    // The cap is the policy; the number any one job happens to carry is not. A `find` of
+    // `timeout-minutes: 5` orphaned itself the day that job was retuned.
     id: "timeout-minutes set to the Actions default in disguise",
     file: "deploy.yml",
-    find: "    timeout-minutes: 5\n",
-    replace: "    timeout-minutes: 360\n",
+    mutateAfter: (source) =>
+      source.replace(/^ {4}timeout-minutes: \d+$/m, "    timeout-minutes: 360"),
     expect: /the cap is 60/,
   },
   {
@@ -569,11 +614,11 @@ const CASES = [
     // cross-platform static signal plus the only `changeset status` check in CI simply stopped.
     id: "verify-macos reduced to checkout + echo",
     file: "ci.yml",
+    // Scoped to the verify-macos job's own step list. The predecessor matched to END OF FILE,
+    // which is only equivalent while verify-macos happens to be the last job in ci.yml — append
+    // one job and the mutation silently guts that job instead.
     mutateAfter: (source) =>
-      source.replace(
-        /      - uses: pnpm\/action-setup@[\s\S]*$/,
-        "      - run: echo ok\n",
-      ),
+      replaceJobSteps(source, "verify-macos", "      - run: echo ok\n"),
     expect: /verify-macos must run `pnpm install --frozen-lockfile`/,
   },
   {

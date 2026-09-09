@@ -106,11 +106,7 @@ function createAnnouncerComponent(
         className: cn("sr-only", className),
         ...props,
       },
-      React.createElement(
-        "span",
-        { key: announcement.seq },
-        announcement.text,
-      ),
+      React.createElement("span", { key: announcement.seq }, announcement.text),
     );
   }
   Announcer.displayName = "Announcer";
@@ -166,8 +162,5 @@ export function useAnnouncer(): UseAnnouncerResult {
     [store],
   );
 
-  return React.useMemo(
-    () => ({ announce, Announcer }),
-    [announce, Announcer],
-  );
+  return React.useMemo(() => ({ announce, Announcer }), [announce, Announcer]);
 }

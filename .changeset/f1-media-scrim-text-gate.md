@@ -9,5 +9,4 @@ white worst case, so nothing moves today and a future scrim retune that thins it
 build instead of silently demoting its labels. The `media-scrim`, `media-scrim-strong` and
 `media-foreground` descriptions state where text is allowed and which floor enforces it. No token
 value changes.
-[docs](https://design.vegastack.com/docs/foundations/colors) ·
-[`65975e1`](https://github.com/VegaStack/vegastack-design/commit/65975e1)
+[docs](https://design.vegastack.com/docs/foundations/colors)

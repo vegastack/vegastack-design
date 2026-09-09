@@ -315,9 +315,7 @@ test("no a11y violations with the menu open", async () => {
         <DropdownMenuGroup>
           <DropdownMenuLabel>Account</DropdownMenuLabel>
           <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem tone="destructive">
-            Delete account
-          </DropdownMenuItem>
+          <DropdownMenuItem tone="destructive">Delete account</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>,

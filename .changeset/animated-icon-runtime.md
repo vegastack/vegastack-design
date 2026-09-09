@@ -19,5 +19,4 @@ reduction on top; the override is one-way, because an explicit `reducedMotion="n
 byte-identical to no provider at all and honouring it would switch reduced motion off for everyone
 who configured nothing. Public icon names, the `size` prop and the `startAnimation`/`stopAnimation`
 handle are unchanged.
-[docs](https://design.vegastack.com/docs/foundations/icons) ·
-[`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
+[docs](https://design.vegastack.com/docs/foundations/icons)

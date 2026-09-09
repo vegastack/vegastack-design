@@ -59,7 +59,9 @@ test("aria-label is overridable, so two pagers on a page stay landmark-unique", 
     </div>,
   );
   await expect
-    .element(screen.getByRole("navigation", { name: "Search results pagination" }))
+    .element(
+      screen.getByRole("navigation", { name: "Search results pagination" }),
+    )
     .toBeInTheDocument();
   await expect
     .element(screen.getByRole("navigation", { name: "Invoices pagination" }))

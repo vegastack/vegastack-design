@@ -7,5 +7,4 @@ transparent base border rather than a card fill plus border; Input/Select/Textar
 a dark-only wash rather than a `secondary` fill; and the switch off-track as `surface-3` rather than
 the removed `track` token. The Sidebar page's active-row description matches the shipped `surface-3`
 rest / `surface-2` hover behaviour.
-[docs](https://design.vegastack.com/docs/foundations/colors) ·
-[`65975e1`](https://github.com/VegaStack/vegastack-design/commit/65975e1)
+[docs](https://design.vegastack.com/docs/foundations/colors)
