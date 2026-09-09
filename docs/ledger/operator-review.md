@@ -4,6 +4,48 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
+## 2026-09-09 — D3-1 mechanical majors: three calls the brief did not settle
+
+**Context:** five dependency majors (`motion` 13, `react-dropzone` 20,
+`@atlaskit/pragmatic-drag-and-drop` 3 + `-hitbox` 2.2, `@testing-library/jest-dom` 7, `globals` 17),
+each read against its own migration guide for the version actually installed.
+
+- **`@testing-library/dom` is declared explicitly, not left to `auto-install-peers`.** jest-dom 7
+  makes it a REQUIRED peer (it was an undeclared transitive of `@testing-library/user-event`
+  before). `.npmrc`'s `auto-install-peers=true` would have resolved it silently, which is exactly
+  the shape that produced the duplicate-`@playwright/test` failure this epic already hit. It is now
+  a pinned devDependency of `@vegastack/ui` at `10.4.1`, matching how the two other
+  testing-library packages are pinned exactly rather than caret-ranged.
+- **Pragmatic's per-function entry points, not the compatibility shims.** pdnd 3.0.0 renamed every
+  entry point and kept the old ones as deprecated shims, and hitbox 2.1.0 deprecated its barrel in
+  favour of per-function paths. Taking the shims would have typechecked and passed every test —
+  which is why they were not taken: the repo's rule is no aliases kept "for safety", and the
+  deprecation is upstream's stated removal path. `use-drag-reorder` now imports
+  `/adapter/element-adapter`, `/utils/combine`, `/closest-edge/attach-closest-edge`,
+  `/closest-edge/extract-closest-edge` and the `Edge` type from `/types`.
+  `packages/ui/vitest.config.ts`'s `optimizeDeps.include` list was updated in lockstep — it names
+  entry points literally, and a stale name there fails the browser lane rather than degrading.
+- **`motion` stays an OPTIONAL peer of `@vegastack/design`, and the range moves to `^13.2.0` with
+  no `^12 ||` fallback.** The optional-peer shape is what keeps the root entry RSC-safe; only the
+  `create-animated-icon` subpath needs the engine. The range is a public-facing change, so
+  `@vegastack/design` takes a minor.
+
+**One migration-guide item verified as not applying.** Motion 13.0's single documented breaking
+change is the removal of the optional `@emotion/is-prop-valid` dependency in favour of explicit
+`<MotionConfig isValidProp>`. It affects consumers who wrap a `motion` component in Styled
+Components or Emotion; this repo has neither, and the factory renders `motion.svg` and friends
+directly. Nothing was injected. Separately, the factory's comment asserting that Motion's
+`useReducedMotion()` is a one-shot `useState(prefersReducedMotion.current)` with a standing `TODO`
+was re-verified against the installed `framer-motion@13.2.0` source — still true, so the live
+`useSyncExternalStore` subscription stays; only the version cited in the comment was updated.
+
+**Registry churn.** The `motion@^12.42.2` → `motion@^13.2.0` range is embedded in all 439 animated
+icons' registry items, so `registry:build` restamped 441 items, their sources and their copy-ins.
+That is expected: `verify-registry-deps` requires an item's declared range to be satisfiable by
+`packages/ui/package.json`'s own, so the ranges and the integrity hashes have to move together.
+
+---
+
 ## 2026-09-09 — post-rebuild audit: two fail-opens, a wrong plan target, and main left unprotected
 
 **Context:** after WP0–WP6 landed, an adversarial audit went through the three workflows and the two
