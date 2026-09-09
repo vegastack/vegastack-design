@@ -27,6 +27,16 @@ preferWorkspacePackages: true
 overrides:
   "@playwright/test": "1.63.0"
 
+  # GHSA-rgj7-g3m4-5g8c (high) — sharp <0.35.4 bundles a libheif with GHSA-g89c-p67h-r497 and
+  # GHSA-2jg2-4ch7-h545. Every other high advisory in this tree cleared by re-resolving the lockfile
+  # inside the ranges its parents already declare; this one cannot, because miniflare (wrangler's
+  # local Workers simulator, a devDependency of apps/docs) hard-pins `sharp: 0.35.2` with no range.
+  # 0.35.4 is a patch of the same minor, and `next` already resolves it, so this scoped override
+  # also collapses two copies of sharp's native binaries into one. Scoped rather than global so a
+  # future `next` bump owns its own sharp range. Drop it once miniflare ships a version that does
+  # not pin 0.35.2.
+  "miniflare>sharp": "^0.35.4"
+
 allowBuilds:
   esbuild: true
   msw: false
