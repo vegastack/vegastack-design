@@ -46,6 +46,48 @@ That is expected: `verify-registry-deps` requires an item's declared range to be
 
 ---
 
+## 2026-09-09 — D3-2: TanStack Table 9 keeps the row-model exception honest; two judgement calls
+
+**Context:** batch D3-2 of epic #31 bumps `@tanstack/react-table` 8.21.3 → 9.2.4 in `data-grid`
+only. v9's headline change — a table must declare its features, and row models are feature slots
+rather than table options — turns AGENTS.md § Sanctioned dependency exceptions from a claim into
+something the module states: `data-grid` registers `rowSortingFeature` + `createSortedRowModel()`
+and nothing else, so `columnVisibilityFeature`, `columnOrderingFeature` and `rowSelectionFeature`
+are visibly not adopted. **No DataGrid behaviour, prop or type changed**; the APG grid keyboard
+layer was not touched, and v9 pulls no DOM or focus behaviour into the library that would have
+tempted us to.
+
+**Two calls made instead of pausing.**
+
+1. **The library's `TData` constraint is not allowed to reach `DataGrid<T>`.** v9 constrains
+   `TData extends Record<string, any> | Array<any>`, which a consumer's `interface` does not satisfy
+   (TypeScript gives interfaces no implicit index signature). Constraining `DataGrid<T>` to match
+   would have been a silent breaking change for every consumer whose row type is an interface. The
+   engine is fed an opaque `EngineRow = Record<string, unknown>` instead, and the row model comes
+   back as a local `GridRow<T>` carrying the only two fields the rest of the file reads — `id` and
+   `original`. `DataGrid<T>` stays unconstrained, and no `Row<…>` from the library escapes the
+   `useTable` call. Alternative rejected: constrain the public generic.
+2. **The four built-in comparators are registered explicitly rather than importing the whole
+   `sortFns` registry.** v8 kept every built-in permanently available; v9 makes registration
+   explicit for tree-shaking, and an unregistered comparator silently degrades to `basic` (a dev
+   warning only). `column_getAutoSortFn` can resolve `datetime`, `alphanumeric` or `text`, falling
+   back to `basic`, so exactly those four are registered — identical comparator selection to v8,
+   without pulling in the case-sensitive variants. Alternative rejected: register the full `sortFns`
+   object, which is simpler but bundles every built-in.
+
+**AGENTS.md § Sanctioned dependency exceptions corrected.** Its `@tanstack/react-table` line said
+the engine's state machine covered "sorting, visibility, order". Visibility and order were never
+the engine's — `data-grid` computes both and applies them before the engine sees a column — and v9
+makes the discrepancy checkable. The line now names the one registered feature and the three
+deliberately unadopted ones.
+
+**Transitive additions:** v9 is built on TanStack Store, so `@tanstack/react-store` and
+`@tanstack/store` (both 0.11.1) enter the lockfile as transitive dependencies of the existing
+sanctioned exception. This is not a new exception and needs no sign-off; noted so the lockfile diff
+is not mistaken for one.
+
+---
+
 ## 2026-09-09 — post-rebuild audit: two fail-opens, a wrong plan target, and main left unprotected
 
 **Context:** after WP0–WP6 landed, an adversarial audit went through the three workflows and the two
@@ -743,6 +785,7 @@ idempotency check would fail after anyone ran the formatter.
   `component-contracts.json` and keeping only the _self-test_ hard-coded would remove the class.
 
 ---
+
 ## 2026-09-07 — T1 tables and grids: the judgment calls the issue did not settle
 
 **Decision summary:** the issue's Do-list was followed as written; these are the choices it left open.

@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.6.0 sha256-6nuMtxwPlYUZnhAwPX18MUOop8yA0AXbSQMcu5cYVVc=
+// @vegastack data-grid@0.6.0 sha256-5AW8IW2+YAup+ZSsjWXwjyjM126SHiZxMgLz56NYiP4=
 
 "use client";
 
@@ -6,9 +6,14 @@ import * as React from "react";
 import { ChevronDown, ChevronRight, Columns3 } from "lucide-react";
 import {
   createColumnHelper,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
+  createSortedRowModel,
+  rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_basic,
+  sortFn_datetime,
+  sortFn_text,
+  tableFeatures,
+  useTable,
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
@@ -57,13 +62,14 @@ does NOT own data fetching, filter state, view persistence, or the mutation — 
 holds; `onCellCommit` is a request and `cellStatus` is the host's word on it.
 
 Engine split (the D1/D2 sanction): TanStack Table computes the SORTED ROW MODEL
-(multi-key, typed comparators) and carries visibility/order state; TanStack Virtual
-measures the windowed rows behind the `virtualize` flag. Neither touches DOM or
-focus — the APG keyboard layer (roving gridcell tabindex, Enter/F2 edit mode with
-grid-nav suspension, Escape restore) is this file's own, because no library ships
-it. Grouping is computed here over the sorted
-leaves (a section per group value, collapsible, its own <tbody> — valid HTML where a
-Collapsible div between tbody and tr is not).
+(multi-key, typed comparators) and nothing else — column visibility and column
+order are this file's own state, applied before the engine sees a column;
+TanStack Virtual measures the windowed rows behind the `virtualize` flag. Neither
+touches DOM or focus — the APG keyboard layer (roving gridcell tabindex, Enter/F2
+edit mode with grid-nav suspension, Escape restore) is this file's own, because no
+library ships it. Grouping is computed here over the sorted leaves (a section per
+group value, collapsible, its own <tbody> — valid HTML where a Collapsible div
+between tbody and tr is not).
 
 Two behaviours are deliberately DIFFERENT from DataList, documented for migrators:
 - Cells render as ELEMENTS (`<Cell/>`), so a `render` implementation may use hooks —
@@ -79,6 +85,56 @@ Deliberately NOT done here:
 - Virtualization and grouping are mutually exclusive (documented): windowing grouped
   section rows adds complexity no current consumer needs.
 --- */
+
+/* ---
+The engine boundary. TanStack Table v9 requires an EXPLICIT feature set (v8
+bundled every feature into every table), which makes the sanctioned exception's
+promise checkable rather than asserted: the only feature registered here is row
+sorting. Column visibility, column order, row selection, grouping, and the whole
+APG keyboard layer are absent from this list because they are computed in this
+file — v9 ships `columnVisibilityFeature`, `columnOrderingFeature` and
+`rowSelectionFeature`, and none of them is adopted.
+
+`sortFns` registers the four built-ins v8 kept permanently in its registry.
+`column_getAutoSortFn` samples the first ten values and resolves `datetime`,
+`alphanumeric` or `text`, falling back to `basic`; registering exactly those four
+keeps v8's comparator selection identical while leaving the case-sensitive
+variants out of the bundle.
+
+Declared at module scope, as v9 requires, so the feature set is a static
+constant rather than a per-render object.
+--- */
+const gridFeatures = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    basic: sortFn_basic,
+    datetime: sortFn_datetime,
+    text: sortFn_text,
+  },
+});
+type GridFeatures = typeof gridFeatures;
+
+/**
+ * v9 constrains `TData` to `Record<string, any> | Array<any>`, which a consumer's
+ * `interface` does not satisfy. `DataGrid<T>` stays unconstrained and the engine
+ * is fed this opaque record type instead, so the library's type constraint never
+ * reaches the public API.
+ */
+type EngineRow = Record<string, unknown>;
+
+/**
+ * Everything the rest of this file consumes from an engine row. Narrowing it here
+ * is what keeps "swapping the engine touches one file" true: no `Row<…>` from the
+ * library escapes the `useTable` call below.
+ */
+interface GridRow<T> {
+  /** The stable id produced by `getRowId`. */
+  id: string;
+  /** The consumer's own row object, handed back untouched. */
+  original: T;
+}
 
 /** One sort key. Multi-sort holds up to `maxSortKeys` of these, in priority order. */
 export interface DataGridSort {
@@ -490,14 +546,19 @@ export function DataGrid<T>({
   }, [ordered, visibility, containerWidth, selectable]);
 
   // ---- sorting via the TanStack row model ----------------------------------
-  const columnHelper = React.useMemo(() => createColumnHelper<T>(), []);
-  const tanColumns = React.useMemo<ColumnDef<T, unknown>[]>(
+  const columnHelper = React.useMemo(
+    () => createColumnHelper<GridFeatures, EngineRow>(),
+    [],
+  );
+  const tanColumns = React.useMemo<
+    ColumnDef<GridFeatures, EngineRow, unknown>[]
+  >(
     () =>
       columns.map((column) =>
         columnHelper.accessor(
           (row) =>
             column.accessor
-              ? column.accessor(row)
+              ? column.accessor(row as T)
               : (row as Record<string, unknown>)[column.key],
           { id: column.key },
         ),
@@ -515,17 +576,20 @@ export function DataGrid<T>({
       })),
     [activeSort],
   );
-  const table = useReactTable({
-    data,
+  // `sorting` is fully controlled by `activeSort` and is never written through
+  // the engine — the header buttons call `cycleSort`/`commitSort` — so no
+  // `onSortingChange` is wired. v9 removed the `getCoreRowModel()` option (the
+  // core model is automatic) and `manualPagination`, which lives on
+  // `rowPaginationFeature` and was already inert here.
+  const table = useTable<GridFeatures, EngineRow>({
+    features: gridFeatures,
+    data: data as unknown as EngineRow[],
     columns: tanColumns,
     state: { sorting: sortingState },
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    manualPagination: true,
     enableSortingRemoval: true,
-    getRowId: (row) => getRowId(row),
+    getRowId: (row) => getRowId(row as T),
   });
-  const sortedRows = table.getSortedRowModel().rows;
+  const sortedRows = table.getSortedRowModel().rows as unknown as GridRow<T>[];
 
   // ---- grouping over the sorted leaves ------------------------------------
   const groupColumn = columns.find((column) => column.group);
