@@ -166,6 +166,17 @@ export const fillInteractive: Record<FillTone, string> = {
  *   border tint outright, so the outline fallback for that case is written ONCE, unlayered, in
  *   `@vegastack/design-tokens`' `base.css` — never per component.
  *
+ * **FOCUS OUTRANKS INVALID, and it has to be said in the selector** (#100, 2026-09-09). The invalid
+ * tint and the focus tint are the same property at the same specificity, and Tailwind v4 emits
+ * `aria-invalid:`/`data-invalid:` AFTER `focus:`, so an invalid field simply kept its destructive
+ * border when focused. Text entry carries `outline-hidden`, so that border IS the whole affordance:
+ * a focused invalid field had NO focus indicator at all, which is a WCAG 2.2 §2.4.7 failure the
+ * geometry lane's focus assertion found on its first run. `not-focus:` makes the invalid tint stand
+ * down while the field is focused rather than fighting the cascade — the error is still carried by
+ * `aria-invalid`, by Field's message and icon, and by the tint returning on blur, whereas focus has
+ * exactly one channel. design.md § Accessibility ("focus is the neutral `ring`, never a colour")
+ * settles which one owns the border when both want it.
+ *
  * @example
  * <input className={cn(fieldControl, "h-(--size-md) w-full min-w-0 px-3 text-base")} />
  */
@@ -174,8 +185,8 @@ export const fieldControl = [
   "placeholder:text-muted-foreground-faint",
   "not-disabled:not-data-disabled:hover:border-foreground/(--alpha-border-subtle)",
   "focus:border-ring/(--alpha-tint-border)",
-  "aria-invalid:border-destructive-border/(--alpha-tint-border)",
-  "data-invalid:border-destructive-border/(--alpha-tint-border)",
+  "not-focus:aria-invalid:border-destructive-border/(--alpha-tint-border)",
+  "not-focus:data-invalid:border-destructive-border/(--alpha-tint-border)",
   "disabled:cursor-not-allowed disabled:bg-surface-1 disabled:opacity-(--opacity-dim)",
   "data-disabled:cursor-not-allowed data-disabled:bg-surface-1 data-disabled:opacity-(--opacity-dim)",
 ].join(" ");
@@ -199,8 +210,8 @@ export const fieldControlGroup = [
   "not-has-disabled:not-data-disabled:hover:border-foreground/(--alpha-border-subtle)",
   "focus-within:border-ring/(--alpha-tint-border)",
   "data-focused:border-ring/(--alpha-tint-border)",
-  "has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
-  "data-invalid:border-destructive-border/(--alpha-tint-border)",
+  "not-focus-within:has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
+  "not-focus-within:data-invalid:border-destructive-border/(--alpha-tint-border)",
   "has-disabled:cursor-not-allowed has-disabled:bg-surface-1 has-disabled:opacity-(--opacity-dim)",
   "data-disabled:cursor-not-allowed data-disabled:bg-surface-1 data-disabled:opacity-(--opacity-dim)",
 ].join(" ");

@@ -1,4 +1,4 @@
-// @vegastack input@0.6.0 sha256-tx3uNmA1NW8BLsqWcvDNv0teSQbZnvi0uWFjUqUVi8Y=
+// @vegastack input@0.6.0 sha256-OFrTOddF2OMGXiKwbCAZ6f+q3ooWABddGN+IhzbtUvM=
 
 "use client";
 
@@ -67,9 +67,15 @@ export interface InputProps extends Omit<
  * palette (audit B1-01). The one-and-only visible fallback is the unlayered block in
  * `@vegastack/design-tokens`' `base.css`; this class just refuses to suppress it.
  */
-const standaloneClasses =
-  "w-full min-w-0 px-3 py-1 text-base outline-hidden" +
-  "file:inline-flex file:h-(--size-xs) file:border-0 file:bg-transparent file:text-base file:font-medium file:text-foreground";
+const standaloneClasses = [
+  // `.join(" ")`, not `+`. This was written as two concatenated literals with no separator, so it
+  // compiled to `outline-hiddenfile:inline-flex` and BOTH utilities silently vanished — an Input
+  // that kept the global `:focus-visible` outline the doctrine bans on text entry, and a file input
+  // with none of its file: styling (#100, 2026-09-09). `class-whitespace` cannot see a missing
+  // space between two literals; it can only see a stray one inside one. An array removes the seam.
+  "w-full min-w-0 px-3 py-1 text-base outline-hidden",
+  "file:inline-flex file:h-(--size-xs) file:border-0 file:bg-transparent file:text-base file:font-medium file:text-foreground",
+].join(" ");
 
 /** Addon-slot classes — muted, non-selectable label text that hugs the field. */
 const addonClasses =

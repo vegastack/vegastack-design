@@ -1729,7 +1729,7 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
 
 ---
 
-## 2026-09-09 — Textarea, grouped Input and TextEdit show no focus indicator (OPEN)
+## 2026-09-09 — CLOSED: Textarea, grouped Input and TextEdit show no focus indicator (#100)
 
 - **Found by** the focus-indicator assertion G1-b added to
   `packages/ui/test/geometry.browser.test.tsx`, on its first run. 540 of 550 fixtures pass; the ten
@@ -1763,6 +1763,54 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
     value. Which declaration actually wins is the open question — and the shape of the surviving
     three groups (a wrapper-owned surface, a composite editor, and a native `textarea`) says the
     answer is about WHERE the tint is applied, not whether the utility works.
+- **CLOSED 2026-09-09 by #100.** All ten `EXCLUDED.focus` entries are deleted; the geometry lane is
+  554/554 with none of them. The ten fixtures were **three** causes, not one, and the first-run write-up
+  above guessed wrong about two of them — recorded here so the guess is not carried forward:
+
+  1. **Focus lost the cascade to `aria-invalid` (7 of the 10 controls).** Exactly ONE control failed in
+     each of `textareaStates`, `inputAddonStates`, `passwordInput` and `passwordInputStates`, and it was
+     the **invalid** specimen every time. `focus:border-ring/(--alpha-tint-border)` and
+     `aria-invalid:border-destructive-border/(--alpha-tint-border)` are the same property at the same
+     specificity (0,2,0) and Tailwind v4 emits `aria-invalid:` later, so a focused invalid field kept its
+     destructive border — and with `outline-hidden` in force that is no indicator at all. Fixed by
+     `not-focus:` / `not-focus-within:` on the invalid tints in `fieldControl` and `fieldControlGroup`
+     (`@vegastack/design`) and on TextEdit's container. The non-invalid specimens were never broken.
+  2. **`Field borderless` ate the tint it documents as kept (`fieldBorderless`).** `BORDERLESS`'s
+     `[&_[data-slot=textarea]]:border-transparent` outranked the tint in every state, so the JSDoc claim
+     "the control keeps its focus border tint" was false. Scoped to `:not(:focus)`.
+  3. **TextEdit was a LANE false negative, not a component defect (all 5 `textEdit*` fixtures).** The
+     container `[data-slot="text-edit"]` tints correctly on `focus-within` — measured
+     `oklch(0.145 0.003 75 / 0.08)` → `oklab(0.353 … / 0.7)`. The sweep walked a fixture's controls
+     without releasing focus, and TextEdit's formatting toolbar lives INSIDE the tinted container, so
+     the editor's "rest" signature was captured while a toolbar button still held focus and already had
+     the tint. Fixed in the lane by blurring before every baseline.
+
+- **Two more defects the same investigation surfaced, both fixed here.**
+  - `input.tsx`'s `standaloneClasses` was `"… outline-hidden" + "file:inline-flex …"` — no space, so
+    the compiled class was `outline-hiddenfile:inline-flex` and **neither utility existed**. A standalone
+    `Input` therefore kept the global `:focus-visible` outline, which is why `inputStates` passed the new
+    assertion: for the wrong reason, and against doctrine (design.md § Accessibility bans an outline on
+    text entry). Fixed; the invalid standalone Input now depends on fix 1 above, and passes.
+  - The focus assertion measured `border-color` in the same task as `.focus()`, which reports the value
+    the transition STARTS from, serialised in the interpolation space — so a field whose tint really
+    landed read back `oklab(0.145 … / 0.08)` against a resting `oklch(0.145 0.003 75 / 0.08)`: the same
+    colour, a different string, a pass on a serialisation artefact. The sweep now freezes transitions,
+    so it compares settled colours.
+
+- **Re-proved non-vacuous after the lane changes** (both branches, on this tree):
+  deleting `:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` from
+  `packages/design-tokens/src/base.css` → **263 of 554 red**, each naming `outline-style: auto`;
+  restored → 554/554. Deleting `focus:border-ring/(--alpha-tint-border)` from `fieldControl` → text-entry
+  fixtures red naming "no border-colour change"; restored → 554/554.
+
+- **The composite is now gated.** `tooling/contrast-check.mjs` measured `ring` SOLID and never
+  `ring/(--alpha-tint-border)`, which is what a text field actually paints. Added, over every focus
+  surface: **4.04–4.51:1 light, 6.31–7.72:1 dark** (3:1 floor, WCAG 1.4.11).
+
+- **Superseded, for the record:** the first-run note below reads "the shape of the surviving three groups
+  says the answer is about WHERE the tint is applied". It was not — the tint is applied in the right
+  place in all three. It was about WHICH declaration wins, plus one lane artefact.
+
 - **Not fixed here, deliberately.** This is component and token work across Textarea, the input
   group, and TextEdit; G1-b is gate work, and the batch that fixes it needs the visual reviewer this
   repository's lanes do not provide. Recorded as `EXCLUDED.focus` entries with the measurement,

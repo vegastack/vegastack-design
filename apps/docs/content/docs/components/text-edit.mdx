@@ -159,7 +159,10 @@ fires it with the current HTML. It's presentational only: the **host** decides w
 - Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus re-colors the container
   border with the `ring` token (`focus-within:border-ring/(--alpha-tint-border)`); never styled with `outline: none`.
 - An invalid control (`aria-invalid`) re-colors the container border to destructive
-  (`has-aria-invalid:border-destructive/70`) and sets `data-invalid` for downstream styling.
+  (`has-aria-invalid:border-destructive-border/(--alpha-tint-border)`) and sets `data-invalid` for
+  downstream styling. **Focus outranks invalid**: while anything inside the editor holds focus the
+  container carries the `ring` tint instead, and the destructive tint returns on blur — the
+  contenteditable has no outline, so the container border is its only focus cue.
 - `editable={false}` removes the toolbar and marks the surface read-only.
 
 | Key                                                   | Action                                                                                                                                    |

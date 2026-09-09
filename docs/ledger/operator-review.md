@@ -2324,3 +2324,37 @@ walk, its `NEVER_DESCEND` set and the `.vitest-attachments/` ignore line are gon
 override; `pnpm-workspace.yaml` has never contained one (`git log -S'@vitest/browser'` over that
 file is empty). `@vitest/browser` is a dependency of the pinned `@vitest/browser-playwright`, so
 pinning the provider is what moved it, and it moves to 5.0.0 the same way.
+
+## 2026-09-09 — #100, the text-entry focus affordance: one decision taken, one gap closed
+
+**The uncovered decision: when a text field is both INVALID and FOCUSED, which state owns the
+border?** Nothing in `design.md`, `AGENTS.md` or `00-decisions.md` had ever said. It has to be
+decided rather than deferred, because a text-entry control carries `outline-hidden` — the border is
+its ONLY focus channel — and because whichever declaration is emitted later wins by accident today.
+
+Taken: **focus wins the border while the field is focused; the invalid tint returns on blur.** The
+reasoning is design.md's own — focus is the neutral `ring`, never a colour, and it has exactly one
+channel on a text field, whereas the error keeps `aria-invalid` to assistive tech, `Field`'s message
+and icon, the invalid shake, and the border back the instant focus leaves. The alternative
+considered and rejected was keeping the destructive hue and stepping it to full alpha on focus: it
+preserves both hues, but it makes the focus indicator a 70%→100% alpha step of the same colour,
+which is a far weaker cue than the ring, and it invents a border weight the system does not
+otherwise have. **Flagged for MK** — it is a visible behaviour change on every invalid field in the
+system, and the strongest reason to look at it on the docs site.
+
+**A gap in the contrast gate, closed the same way it was found — by measuring.** `contrast-check`
+gated `ring` SOLID, but no text field ever renders it solid; the affordance is
+`border-ring/(--alpha-tint-border)`, `ring` composited at 70%. It is now gated over every focus
+surface in both themes: 4.04–4.51:1 light, 6.31–7.72:1 dark, against the 3:1 WCAG 1.4.11 floor. The
+gate would have caught nothing today — it exists so a future `ring` retune cannot quietly take the
+composite under the floor while the solid token still passes.
+
+**The lane's focus assertion had a false negative and a serialisation artefact, both fixed without
+loosening it.** It captured a control's "rest" signature without releasing focus, so a control
+sharing a tinted surface with an already-focused sibling measured as unindicated (TextEdit, whose
+toolbar sits inside the tinted container). And it read `border-color` in the same task as
+`.focus()`, which reports the value the transition starts from, serialised in the interpolation
+space — the same colour as rest, a different string, so several fixtures passed on the artefact
+rather than on the colour. Both re-proved after the change: deleting the `:focus-visible` rule
+still turns 263 of 554 red naming `outline-style: auto`, and deleting the tint from `fieldControl`
+turns the text-entry fixtures red naming "no border-colour change".

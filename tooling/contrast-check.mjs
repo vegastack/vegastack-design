@@ -467,6 +467,39 @@ for (const [theme, vars] of Object.entries(themes)) {
     }
   }
 
+  // TEXT-ENTRY FOCUS BORDER (WCAG 1.4.11, >=3:1) — added by #100, 2026-09-09.
+  // `ring` was already gated SOLID above, but no text-entry control ever renders it solid: a text
+  // field cannot tell mouse from keyboard, so it carries `outline-hidden` and signals focus with
+  // `focus:border-ring/(--alpha-tint-border)` — `ring` COMPOSITED at 70%. That composite is the
+  // entire focus affordance of every Input, Textarea, Field control, OTP slot, Select trigger,
+  // Combobox input, input group and TextEdit in the system, and until this block it was the one
+  // focus indicator the contrast gate did not measure. Same shape as the invalid-state border
+  // above, same 3:1 non-text floor, same surface list as the solid ring.
+  {
+    const ink = vars.ring;
+    const a = alphas["alpha-tint-border"];
+    if (!ink || a == null) {
+      fail(`${theme}: ring/alpha-tint-border missing — fail-closed`);
+    } else {
+      for (const surface of FOCUS_SURFACES) {
+        const bg = vars[surface];
+        if (!bg) {
+          fail(
+            `${theme}: ${surface} missing for text-entry focus border contrast — fail-closed`,
+          );
+          continue;
+        }
+        checked++;
+        const composite = compositeLinear(ink, a, bg);
+        const ratio = contrastCompositeBg(bg, composite);
+        if (ratio < AA_NONTEXT)
+          fail(
+            `${theme}: text-entry focus border ring@${Math.round(a * 100)}% on ${surface} = ${ratio.toFixed(2)}:1 (WCAG 1.4.11 needs ${AA_NONTEXT}:1)`,
+          );
+      }
+    }
+  }
+
   // SURFACE LADDER alpha twins (2026-09-07): `bg-foreground/(--alpha-hover|pressed)` painted over
   // every host surface must keep body ink AND muted text at AA — this is what a hovered/pressed
   // kbd, chip or row actually renders as.

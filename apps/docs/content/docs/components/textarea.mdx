@@ -97,7 +97,9 @@ Try every size with the auto-grow, disabled, and invalid states, then copy the g
   border tint is erased by the forced palette, and the transparent outline is what that palette
   repaints — which is why the outline is hidden rather than removed.
 - Set `aria-invalid` (and `aria-describedby` pointing at the error text) to mark a
-  field invalid; the styling is token-driven and never relies on color alone.
+  field invalid; the styling is token-driven and never relies on color alone. **Focus outranks
+  invalid**: while the textarea is focused the border carries the `ring` tint, and the destructive
+  tint returns on blur — the border is the field's only focus cue, so nothing else may hold it.
 - The resize handle and `autoGrow` are visual conveniences only — keyboard and
   screen-reader interaction is the standard native `<textarea>` behavior.
 

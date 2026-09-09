@@ -221,7 +221,7 @@ test("FieldSuccess announces a polite atomic status by default", async () => {
   await expect.element(status).toHaveAttribute("aria-atomic", "true");
 });
 
-test("borderless fields keep a transparent border for the text-entry focus tint", async () => {
+test("borderless flattens the RESTING border only, so the focus tint survives", async () => {
   const screen = await render(
     <Field label="Title" borderless>
       <FieldControl />
@@ -230,8 +230,14 @@ test("borderless fields keep a transparent border for the text-entry focus tint"
   const root = screen.container.querySelector(
     '[data-slot="field"]',
   ) as HTMLElement;
+  // `:not(:focus)` is the whole point (#100). Unscoped, this override and `fieldControl`'s
+  // `focus:border-ring/(--alpha-tint-border)` are the same property at the same specificity and
+  // Tailwind v4 emits the arbitrary variant last, so `border-transparent` won in every state — and
+  // a text-entry control carries `outline-hidden`, so a borderless field had no focus affordance at
+  // all. This file has no compiled CSS, so it can only assert the class contract; the rendered
+  // proof is `fieldBorderless` in `test/geometry.browser.test.tsx`, which failed until this landed.
   expect(root.className).toContain(
-    "[&_[data-slot=field-control]]:border-transparent",
+    "[&_[data-slot=field-control]:not(:focus)]:border-transparent",
   );
   expect(root.className).not.toContain(
     "[&_[data-slot=field-control]]:border-none",
