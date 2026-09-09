@@ -1,13 +1,12 @@
-// @vegastack video-player@0.6.0 sha256-yu5y9fCWvHaMl0q373LTqhRXZfOeV6JNYjmloz13jwE=
+// @vegastack video-player@0.6.0 sha256-8pHHRuXXEFM8gBRTI5p/WxaP2B4irplOT+0QxO7LC2s=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import {
   MediaPlayerControls,
   type MediaPlayerControlsProps,
-  assignRef,
   useMediaShortcuts,
 } from "@/components/ui/media-player-controls";
 
@@ -200,11 +199,8 @@ export function VideoPlayer({
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const controlsMediaRef =
     internalMediaRef as React.RefObject<HTMLMediaElement | null>;
-  const setVideoRef = React.useCallback(
-    (node: HTMLVideoElement | null) => {
-      internalMediaRef.current = node;
-      assignRef(mediaRef, node);
-    },
+  const setVideoRef = React.useMemo(
+    () => mergeRefs(internalMediaRef, mediaRef),
     [mediaRef],
   );
 

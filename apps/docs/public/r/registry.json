@@ -149,7 +149,7 @@
         "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
         "version": "0.6.0",
-        "integrity": "sha256-Lvl5GUKBqBpiBTrYi23o/tPEULkrFk6sBtSutdkcksw="
+        "integrity": "sha256-o0dmj8n5wnbDX2EEIxV2hiFou4+c/tvmecqDmpjJnTY="
       }
     },
     {
@@ -344,9 +344,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/input.tsx",
@@ -358,7 +356,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.6.0",
-        "integrity": "sha256-Cii3x5vZ3cPNaGNubN8emlKs+UOdmlwN3FyuoQU9WWY="
+        "integrity": "sha256-c/0A+LCIDOZhbAvt9XOvoWSPU3qH5cdRS9SEt81D8MI="
       }
     },
     {
@@ -376,7 +374,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/use-animation-replay"
       ],
       "files": [
         {
@@ -389,7 +388,7 @@
         "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.6.0",
-        "integrity": "sha256-Iy48xrScYcPyBz8Ztswx9eECVYvfGSYtfEbsskM3gSs="
+        "integrity": "sha256-4MG0yMcgOyaIcttaUudvXCsEcfJSGZTrDSOvHlOBbZU="
       }
     },
     {
@@ -453,7 +452,7 @@
         "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
         "version": "0.6.0",
-        "integrity": "sha256-N2PUAP5BZ2kK1wMKk7u3d1LXpIiAbrKl4oMFW+//Pss="
+        "integrity": "sha256-kFSROGOEMhy+UK7CTAg/Fpqe0hRpCPGVwUNDoNhJxcI="
       }
     },
     {
@@ -486,7 +485,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.6.0",
-        "integrity": "sha256-2iOLz+SAWe11y1qHkINeSDKert68Z7wSzahK7t3gfA8="
+        "integrity": "sha256-m/LfE+yYIwU23JWjQ9AZMsn+Gx7p3AI3YWLOuPDasfs="
       }
     },
     {
@@ -690,7 +689,7 @@
         "whenToUse": "Signal an indeterminate, in-progress load — inside a button or a loading region.",
         "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
         "version": "0.6.0",
-        "integrity": "sha256-dciZg44WV0OIq/3XuUO4OMvB2LLXM5WuV2lfHUbwJCE="
+        "integrity": "sha256-lG0UYoRhqFGlhUx/98lsOiKB5JRQY4xARHg4ZuktWOI="
       }
     },
     {
@@ -764,9 +763,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/checkbox.tsx",
@@ -778,7 +775,35 @@
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-xvM/afg2RcXKPvY3C9Tkw6Dhu3I5pQU+DpX1kDubF9A="
+        "integrity": "sha256-yb+wm31o31vUuQhsKM7U00CwFJzWhBb+ulsP0TZEYPI="
+      }
+    },
+    {
+      "name": "checkbox-group",
+      "type": "registry:ui",
+      "title": "Checkbox Group",
+      "description": "Shared state for a set of checkboxes, with first-class “select all” - parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/checkbox-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/checkbox-group.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A set of related checkboxes sharing one value array - permissions, notification channels, filter facets - and any 'select all' row with a mixed state.",
+        "whenNotToUse": "Mutually-exclusive choices (RadioGroup); a single standalone toggle (Checkbox); an instant self-saving setting (Switch).",
+        "version": "0.6.0",
+        "integrity": "sha256-3XDtW01eqpWXftgh3amuVqeDHlMOj/REv6jSHOi/i1o="
       }
     },
     {
@@ -807,7 +832,7 @@
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
         "version": "0.6.0",
-        "integrity": "sha256-qqIPwrBKlW/xvqMAR7RIFATw0aWYo4rR6DeXRoN7Uyc="
+        "integrity": "sha256-zf3sWxAtDHsY+RuvSCXQkk7Hvf8sIqoEQn96EJhBnN0="
       }
     },
     {
@@ -863,7 +888,7 @@
         "whenToUse": "Label any form control — pair via htmlFor/id or by wrapping. Use required for mandatory fields.",
         "whenNotToUse": "As a heading, or when you need a full field layout — use Field.",
         "version": "0.6.0",
-        "integrity": "sha256-4FUFA5WvUImfNXs7A5vFkQdQnSd++/v5zBzsdq/CeuA="
+        "integrity": "sha256-M07NnoZtpqp9W7IWohb/kETllRpDOso78i7CcrD8x4s="
       }
     },
     {
@@ -890,7 +915,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.6.0",
-        "integrity": "sha256-qkBzcntDnHXUos8V7JwDz4PA3EyGlV3bKiahnjjISnM="
+        "integrity": "sha256-0VtRCzDrVBtUMD5Q+sICrKCZd6kCwYn6HmzNqk8rdgA="
       }
     },
     {
@@ -907,9 +932,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/radio-group.tsx",
@@ -921,7 +944,7 @@
         "whenToUse": "2–5 mutually-exclusive choices all visible at once.",
         "whenNotToUse": "Many options (Select) or non-exclusive multi-select (Checkboxes).",
         "version": "0.6.0",
-        "integrity": "sha256-qaNqU4KjkSc4/kZWNQqdnd82jh2FCZEQVyRkHVDf08w="
+        "integrity": "sha256-CFESMdwKHnNUPw4pr9LvtIa6AtqsJEwBaOEVr1AdIo0="
       }
     },
     {
@@ -949,7 +972,7 @@
         "whenToUse": "An imprecise value over a bounded range — volume, brightness, a price filter.",
         "whenNotToUse": "Exact values or large/open ranges (number input); on/off (Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-yqdPQTleb/CZFXClWU/ItoYVRxyBslxHeFGvQKPQwRU="
+        "integrity": "sha256-ymGwnurk0I8Y27gSAm7QPCwDFLDG4BYkgX1AXzCGIKQ="
       }
     },
     {
@@ -1648,6 +1671,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/icon-button",
         "@vegastack/input"
       ],
       "files": [
@@ -1661,7 +1685,7 @@
         "whenToUse": "Any password entry — login, signup, reset, settings. Use requirements for enforced rules.",
         "whenNotToUse": "Non-secret text (Input) or one-time codes (OTP Input).",
         "version": "0.6.0",
-        "integrity": "sha256-jJlYoomG8TtBGUhlatfurVL6gOIqBMU/wQuRetLZ3u8="
+        "integrity": "sha256-yWC8qOQdlUsMYlCAiv+sWW0x61imL+7K3uOrPz2ZKwg="
       }
     },
     {
@@ -1677,9 +1701,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/otp-input.tsx",
@@ -1691,7 +1713,7 @@
         "whenToUse": "A short fixed-length verification code — 2FA/MFA, email/SMS OTP.",
         "whenNotToUse": "Free-form/variable-length text (Input) or a single masked secret (Password Input).",
         "version": "0.6.0",
-        "integrity": "sha256-Zhr3nohecRdLwc513lbVQUg9tnPEcLAwOb8/kpNUbG0="
+        "integrity": "sha256-EpR0P97KR9H3MGb9cbsTt3Nizbii1JX2v1R/+h0P2z4="
       }
     },
     {
@@ -1744,7 +1766,8 @@
         "@vegastack/field-inline",
         "@vegastack/select",
         "@vegastack/spinner",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-inline-edit"
       ],
       "files": [
         {
@@ -1757,7 +1780,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
         "version": "0.6.0",
-        "integrity": "sha256-AmGXK2vvytY6hmOQRcw1qmrZIDjn5Xcd0lFc4sfEA2A="
+        "integrity": "sha256-X4R1h3mD8Oj2S3BffLDCR/KyMLD6Gi6SE3Wiiw8QV0c="
       }
     },
     {
@@ -1774,9 +1797,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/number-field.tsx",
@@ -1788,7 +1809,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.6.0",
-        "integrity": "sha256-p9tNDb1mOMv3Fe/KrI6Qkk0qVm3fqMim+1yuDbFyaC8="
+        "integrity": "sha256-MOgwBomBHfYlP9BCFK0OJJKMF2mEL3xlvVieO59uJeY="
       }
     },
     {
@@ -1838,7 +1859,6 @@
       "registryDependencies": [
         "@vegastack/input",
         "@vegastack/tag-group",
-        "@vegastack/use-animation-replay",
         "@vegastack/use-announcer"
       ],
       "files": [
@@ -1852,7 +1872,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-eAglbK9CyE7oxJ7HEx1RZeetcH1NW/UIOlE4hbnpwK4="
+        "integrity": "sha256-gAQ8VVWxAekmKmOscFKDjf6GtNJ89AsMB7AvYEXzWsg="
       }
     },
     {
@@ -2121,7 +2141,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/use-inline-edit"
       ],
       "files": [
         {
@@ -2134,7 +2155,7 @@
         "whenToUse": "Inline-edit a single text value in place — table cells, titles, detail rows.",
         "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation — use Field.",
         "version": "0.6.0",
-        "integrity": "sha256-dBSrT9F7c1nl3Nm5iBKl76yV4UfC6YIRrQLg7AcEMsU="
+        "integrity": "sha256-wPTgAjLEoTpDkVcX/UboZQkgwtvJUl31AP3exdHReyA="
       }
     },
     {
@@ -2219,20 +2240,19 @@
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.6.0",
-        "integrity": "sha256-CEeJDjBj8BQ7HFP3MKHTuBMTTPfk0ys+E9j/dc8XVpU="
+        "integrity": "sha256-Cwvfno/wavRrv8YXnA+yDejNBuw5A8NKGW2Ei/SwV4A="
       }
     },
     {
-      "name": "audio-player",
+      "name": "media-player-controls",
       "type": "registry:ui",
-      "title": "Audio Player",
-      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
+      "title": "Media Player Controls",
+      "description": "The shared media transport — play/pause, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map — composed by Audio Player and Video Player.",
       "categories": [
         "media"
       ],
       "dependencies": [
         "lucide-react@^1.24.0",
-        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2245,6 +2265,35 @@
       ],
       "files": [
         {
+          "path": "packages/ui/registry/ui/media-player-controls.tsx",
+          "type": "registry:ui",
+          "target": "@ui/media-player-controls.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
+        "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
+        "version": "0.6.0",
+        "integrity": "sha256-AipO7c7hp843NBQ/cymB4n+5iONfrlyKyuaAeu9xG1U="
+      }
+    },
+    {
+      "name": "audio-player",
+      "type": "registry:ui",
+      "title": "Audio Player",
+      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
+      "categories": [
+        "media"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/media-player-controls"
+      ],
+      "files": [
+        {
           "path": "packages/ui/registry/ui/audio-player.tsx",
           "type": "registry:ui",
           "target": "@ui/audio-player.tsx"
@@ -2254,7 +2303,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control.",
         "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
         "version": "0.6.0",
-        "integrity": "sha256-nbX1dw7JoRHMMQDqLZc0yPRIJy6LCn2TI/5HjlHvaME="
+        "integrity": "sha256-URixfOP+M6BoQ6/nr2RwH9jwc0qtR+KCYR24cVnSwNc="
       }
     },
     {
@@ -2270,7 +2319,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/audio-player"
+        "@vegastack/media-player-controls"
       ],
       "files": [
         {
@@ -2283,7 +2332,7 @@
         "whenToUse": "A single video asset that needs a branded frame plus grouped skip controls, mute, and keyboard shortcuts.",
         "whenNotToUse": "Playlists, caption editing, fullscreen-first viewing, or adaptive streaming control surfaces.",
         "version": "0.6.0",
-        "integrity": "sha256-OfYtN4CBMXFRd58Lt7ySocYq41f5aHG5cVi4RgT14DU="
+        "integrity": "sha256-8pHHRuXXEFM8gBRTI5p/WxaP2B4irplOT+0QxO7LC2s="
       }
     },
     {
@@ -2658,7 +2707,7 @@
         "whenToUse": "Settings-style fields that save on pause without a Save button — names, slugs, inline fields.",
         "whenNotToUse": "Form submission with a Save button, secrets, or one-time codes.",
         "version": "0.6.0",
-        "integrity": "sha256-7sLs/JCNhxNXiFct37KinWGIdlS/mkU9+W44m7US0iQ="
+        "integrity": "sha256-W4gija8stOr1+H/Fu3A1iUoY+i0cQu5XGW6l1ljmWmo="
       }
     },
     {
@@ -3064,6 +3113,30 @@
         "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
         "version": "0.6.0",
         "integrity": "sha256-lxjSS0ABnJkF+4Qclk8IcHeCrwQXnpOjYKkes5VHDA0="
+      }
+    },
+    {
+      "name": "use-inline-edit",
+      "type": "registry:hook",
+      "title": "useInlineEdit",
+      "description": "The click-to-edit state machine - draft, commit, cancel, focus restoration and the double-commit guard - with no opinion about what the editor or the display look like.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-inline-edit.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-inline-edit.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any click-to-edit surface: an inline field, a grid cell, a rename affordance - anywhere Enter commits, Escape cancels, and blur must not commit twice.",
+        "whenNotToUse": "A field that is always in edit mode (Input inside a Field); persistence, async status or optimistic revert, which belong to the component composing this hook.",
+        "version": "0.6.0",
+        "integrity": "sha256-CqCKX77i73AGEs+ZKZQr6Q4aLGB6yVLFYVYJZfklLGE="
       }
     },
     {

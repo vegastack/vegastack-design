@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 562,
+    "totalRegistryItems": 563,
     "components": 114,
     "animatedIcons": 439,
-    "hooks": 8,
+    "hooks": 9,
     "blocks": 1
   },
   "expectedWaveCounts": {
@@ -26,7 +26,7 @@
     "Data display": 11,
     "Content/marketing": 23,
     "AI/chat": 6,
-    "Hooks": 8,
+    "Hooks": 9,
     "Block": 1,
     "Animated icons": 439
   },
@@ -166,6 +166,7 @@
       "use-drag-reorder",
       "use-file-drop",
       "use-list-nav",
+      "use-media-query",
       "use-mobile",
       "use-platform"
     ],
@@ -1039,7 +1040,11 @@
         }
       ],
       "docsSlug": "/docs/components/message-scroller",
-      "registryDependencies": ["@vegastack/button", "@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/icon-button",
+        "@vegastack/use-media-query"
+      ],
       "npmDependencies": [
         "@shadcn/react@^0.2.1",
         "@vegastack/design@^0.3.2",
@@ -13548,7 +13553,6 @@
       "registryDependencies": [
         "@vegastack/input",
         "@vegastack/tag-group",
-        "@vegastack/use-animation-replay",
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
@@ -14930,7 +14934,6 @@
       "docsSlug": "/docs/components/field-inline",
       "registryDependencies": [
         "@vegastack/input",
-        "@vegastack/use-animation-replay",
         "@vegastack/use-inline-edit"
       ],
       "npmDependencies": [
@@ -15397,15 +15400,6 @@
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/media-player-controls.tsx"],
       "publicSymbols": [
-        {
-          "name": "assignRef",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/media-player-controls.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
         {
           "name": "clampTime",
           "kind": "function",
@@ -20446,7 +20440,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/animated-number",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
       "npmDependencies": [
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
@@ -22006,7 +22000,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/particle-field",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
       "npmDependencies": [
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
@@ -24474,15 +24468,6 @@
       "sourceFiles": ["packages/ui/registry/ui/use-animation-replay.ts"],
       "publicSymbols": [
         {
-          "name": "mergeRefs",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
           "name": "ShakeSignal",
           "kind": "type",
           "source": "packages/ui/registry/ui/use-animation-replay.ts",
@@ -25237,7 +25222,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/guides/components",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
       "npmDependencies": [],
       "testFiles": ["packages/ui/registry/ui/use-platform.test.tsx"],
       "coverage": {
@@ -25250,10 +25235,102 @@
       }
     },
     {
+      "name": "use-media-query",
+      "registryType": "registry:hook",
+      "title": "useMediaQuery / usePrefersReducedMotion",
+      "summary": "The system's one matchMedia subscription — useSyncExternalStore with a declared serverFallback, so SSR renders the branch the caller chose instead of a hard-coded false. usePrefersReducedMotion is the named reduced-motion reader over it.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-media-query.ts"],
+      "publicSymbols": [
+        {
+          "name": "useMediaQuery",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-media-query.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseMediaQueryOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-media-query.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "usePrefersReducedMotion",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-media-query.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["fallback", "matched", "unmatched"],
+          "evidence": "getServerSnapshot reports the caller's serverFallback on the server render and the hydration render; getSnapshot reports the live matchMedia result thereafter, and an environment without matchMedia never subscribes and keeps reporting the fallback."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["viewport-breakpoint", "SSR-hydration"],
+        "rationale": "This IS the system's media-query seam: it owns the live subscription and the declared server fallback that every responsive JS branch reads."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "usePrefersReducedMotion is the system-wide reader for (prefers-reduced-motion: reduce); it reports the preference rather than owning a motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-media-query.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
       "name": "use-mobile",
       "registryType": "registry:hook",
       "title": "useIsMobile",
-      "summary": "SSR-safe viewport-width hook — reports whether the viewport is below a breakpoint (default 768px), live across resizes.",
+      "summary": "SSR-safe viewport-width hook over use-media-query — reports whether the viewport is below a breakpoint (default 768px), live across resizes, with a caller-declared server fallback.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-mobile.ts"],
@@ -25265,6 +25342,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseIsMobileOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-mobile.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -25310,7 +25396,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/guides/components",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
       "npmDependencies": [],
       "testFiles": ["packages/ui/registry/ui/use-mobile.test.tsx"],
       "coverage": {

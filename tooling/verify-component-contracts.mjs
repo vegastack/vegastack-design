@@ -552,10 +552,10 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 562,
+  totalRegistryItems: 563,
   components: 114,
   animatedIcons: 439,
-  hooks: 8,
+  hooks: 9,
   blocks: 1,
 };
 for (const [key, value] of Object.entries(expected)) {
@@ -919,6 +919,7 @@ sameStrings(
     "use-inline-edit",
     "use-file-drop",
     "use-list-nav",
+    "use-media-query",
     "use-mobile",
     "use-platform",
   ],
@@ -935,8 +936,8 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 8,
-  "expectedWaveCounts.Hooks must be 8",
+  contracts.expectedWaveCounts?.Hooks === 9,
+  "expectedWaveCounts.Hooks must be 9",
 );
 assert(
   contracts.expectedWaveCounts?.Block === 1,

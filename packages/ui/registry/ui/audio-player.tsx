@@ -1,13 +1,12 @@
-// @vegastack audio-player@0.6.0 sha256-9PUHfHcbYx2ANU45b4UZJnO3aKr0+0fynocw98ayRZM=
+// @vegastack audio-player@0.6.0 sha256-URixfOP+M6BoQ6/nr2RwH9jwc0qtR+KCYR24cVnSwNc=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import {
   MediaPlayerControls,
   type MediaPlayerControlsProps,
-  assignRef,
 } from "@/components/ui/media-player-controls";
 
 // Audio's tappable speed control cycles these in order, starting at 1x:
@@ -243,11 +242,8 @@ export function AudioPlayer({
     internalMediaRef as React.RefObject<HTMLMediaElement | null>;
   const isWaveform = variant === "waveform";
   const waveformPeaks = useAudioPeaks(src, isWaveform);
-  const setAudioRef = React.useCallback(
-    (node: HTMLAudioElement | null) => {
-      internalMediaRef.current = node;
-      assignRef(mediaRef, node);
-    },
+  const setAudioRef = React.useMemo(
+    () => mergeRefs(internalMediaRef, mediaRef),
     [mediaRef],
   );
 

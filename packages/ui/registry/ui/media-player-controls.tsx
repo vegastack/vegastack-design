@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.6.0 sha256-RuBZFcadzluHbvXTkWfxBvvcaIr1s8GPk11+ZHbK2Fk=
+// @vegastack media-player-controls@0.6.0 sha256-AipO7c7hp843NBQ/cymB4n+5iONfrlyKyuaAeu9xG1U=
 
 "use client";
 
@@ -39,7 +39,7 @@ import {
 /* ------------------------------------------------------------------------------------------------
  * MediaPlayerControls — the shared transport surface for AudioPlayer and VideoPlayer (audit B4-02,
  * 2026-09-07). It used to live inside `audio-player.tsx` (1,431 lines) and be imported from there
- * by `video-player.tsx`, with `assignRef`/`getMediaDuration`/`clampTime` duplicated in both files
+ * by `video-player.tsx`, with `getMediaDuration`/`clampTime` duplicated in both files
  * and the keyboard shortcuts implemented TWICE. This module is now the single home for all three:
  * the controls, the media helpers, and `useMediaShortcuts` — one shortcut map, two scopes.
  * ----------------------------------------------------------------------------------------------*/
@@ -88,19 +88,6 @@ const MEDIA_OVERLAY_CHROME_CLASS = cn(
  */
 const MEDIA_INSET_FOCUS_CLASS =
   "focus-visible:-outline-offset-2 [&_*:focus-visible]:-outline-offset-2";
-
-/**
- * Merge a forwarded ref with an internal one. Kept local on purpose: `mergeRefs` is not exported
- * from `@vegastack/design` today, and consolidating the system's ten inline ref merges into one is
- * Mk1's change (audit 04 §1), not this one.
- */
-export function assignRef<T>(ref: React.Ref<T> | undefined, value: T | null) {
-  if (typeof ref === "function") {
-    ref(value);
-    return;
-  }
-  if (ref) ref.current = value;
-}
 
 /** Duration in seconds, or `0` while the media element has not reported a finite one. */
 export function getMediaDuration(media: HTMLMediaElement | null): number {
@@ -812,7 +799,9 @@ export function MediaPlayerControls({
       <DropdownMenuContent
         align="end"
         className="min-w-52"
-        portalProps={portalContainer ? { container: portalContainer } : undefined}
+        portalProps={
+          portalContainer ? { container: portalContainer } : undefined
+        }
       >
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
@@ -1145,26 +1134,26 @@ export function MediaPlayerControls({
 
   return (
     <MediaPortalContainerContext.Provider value={portalContainer ?? null}>
-    <div
-      ref={ref}
-      data-slot="media-player-controls"
-      data-state={playing ? "playing" : "paused"}
-      data-variant={variant}
-      role="group"
-      aria-label={`${label} media controls`}
-      onKeyDown={handleKeyDown}
-      className={cn(
-        "@container/media-controls w-full min-w-0 rounded-lg border p-2",
-        // The transport reads one emphasis step below the page: `ghost` takes its
-        // rest ink from `--btn-ghost-ink` (`inherit`), so setting the container's
-        // ink once makes every control subdued at rest and brightens each to
-        // `foreground` on hover through the ghost recipe's own `--btn-tint`.
-        "border-border bg-background text-muted-foreground",
-        className,
-      )}
-      {...props}
-    >
-      {/*
+      <div
+        ref={ref}
+        data-slot="media-player-controls"
+        data-state={playing ? "playing" : "paused"}
+        data-variant={variant}
+        role="group"
+        aria-label={`${label} media controls`}
+        onKeyDown={handleKeyDown}
+        className={cn(
+          "@container/media-controls w-full min-w-0 rounded-lg border p-2",
+          // The transport reads one emphasis step below the page: `ghost` takes its
+          // rest ink from `--btn-ghost-ink` (`inherit`), so setting the container's
+          // ink once makes every control subdued at rest and brightens each to
+          // `foreground` on hover through the ghost recipe's own `--btn-tint`.
+          "border-border bg-background text-muted-foreground",
+          className,
+        )}
+        {...props}
+      >
+        {/*
         Audio transport has two layouts, switched by the `@sm` container width.
         Both are always in the DOM; the container query shows exactly one, so a
         screen reader (and the tab order) only ever sees the visible layout.
@@ -1177,27 +1166,27 @@ export function MediaPlayerControls({
         never falls under the speed button — the 320px effective-target contract
         probes exactly this.
       */}
-      <div
-        data-slot="media-player-actions"
-        className="hidden w-full min-w-0 items-center gap-2 @sm/media-controls:flex"
-      >
-        {playButton}
         <div
-          data-slot="media-player-skip-controls"
-          className="flex shrink-0 items-center"
+          data-slot="media-player-actions"
+          className="hidden w-full min-w-0 items-center gap-2 @sm/media-controls:flex"
         >
-          {rewindButton}
-          {forwardButton}
+          {playButton}
+          <div
+            data-slot="media-player-skip-controls"
+            className="flex shrink-0 items-center"
+          >
+            {rewindButton}
+            {forwardButton}
+          </div>
+          {timeReadout}
+          <div data-slot="media-player-seek" className="min-w-0 flex-1 px-2">
+            {seekControl}
+          </div>
+          {volumeControl}
+          {speedButton}
         </div>
-        {timeReadout}
-        <div data-slot="media-player-seek" className="min-w-0 flex-1 px-2">
-          {seekControl}
-        </div>
-        {volumeControl}
-        {speedButton}
-      </div>
 
-      {/*
+        {/*
         NARROW (below `@sm`) — two lines, for a mobile-width player. Top line:
         elapsed · seek · duration, the seek flexing between the two edge-pinned
         readouts in a smaller font (`formatTime` still promotes to h:mm:ss past
@@ -1206,50 +1195,50 @@ export function MediaPlayerControls({
         controls pinned to the leading edge, and the tappable speed to the
         trailing edge.
       */}
-      <div
-        data-slot="media-player-actions-compact"
-        className="flex w-full min-w-0 flex-col gap-1.5 @sm/media-controls:hidden"
-      >
         <div
-          data-slot="media-player-seek"
-          className="flex min-w-0 items-center gap-2"
+          data-slot="media-player-actions-compact"
+          className="flex w-full min-w-0 flex-col gap-1.5 @sm/media-controls:hidden"
         >
-          <span
-            data-slot="media-player-time-elapsed"
-            className="shrink-0 text-sm tabular-nums"
+          <div
+            data-slot="media-player-seek"
+            className="flex min-w-0 items-center gap-2"
           >
-            {formatTime(currentTime)}
-          </span>
-          {/*
+            <span
+              data-slot="media-player-time-elapsed"
+              className="shrink-0 text-sm tabular-nums"
+            >
+              {formatTime(currentTime)}
+            </span>
+            {/*
             `px-1` insets the seek track from the flanking timers so the seek
             thumb at either extreme (it overhangs the track end by half its
             width) does not crowd the elapsed/duration labels.
           */}
-          <div className="min-w-0 flex-1 px-1">{seekControl}</div>
-          <span
-            data-slot="media-player-time-duration"
-            className="shrink-0 text-sm tabular-nums"
-          >
-            {formatTime(displayedDuration)}
-          </span>
-        </div>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-          <div className="flex items-center justify-self-start">
-            {transcriptButton}
-            {volumeControl}
+            <div className="min-w-0 flex-1 px-1">{seekControl}</div>
+            <span
+              data-slot="media-player-time-duration"
+              className="shrink-0 text-sm tabular-nums"
+            >
+              {formatTime(displayedDuration)}
+            </span>
           </div>
-          <div
-            data-slot="media-player-transport"
-            className="flex items-center gap-1 justify-self-center"
-          >
-            {rewindButton}
-            {playButtonCompact}
-            {forwardButton}
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+            <div className="flex items-center justify-self-start">
+              {transcriptButton}
+              {volumeControl}
+            </div>
+            <div
+              data-slot="media-player-transport"
+              className="flex items-center gap-1 justify-self-center"
+            >
+              {rewindButton}
+              {playButtonCompact}
+              {forwardButton}
+            </div>
+            <div className="flex justify-self-end">{speedButtonCompact}</div>
           </div>
-          <div className="flex justify-self-end">{speedButtonCompact}</div>
         </div>
       </div>
-    </div>
     </MediaPortalContainerContext.Provider>
   );
 }
