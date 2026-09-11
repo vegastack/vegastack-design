@@ -1,4 +1,4 @@
-// @vegastack separator@0.7.4 sha256-SeU7ig4ICrvIE6qzcWEUI6xBv7SBAWVqFmYKcuxIAmc=
+// @vegastack separator@0.7.5 sha256-BvU+Uq+ABBurr9pyJw6kRTgmPnvxiVLeBIstB7wsdb0=
 
 import * as React from "react";
 import { Separator as BaseSeparator } from "@base-ui/react/separator";

@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.7.5
+
+### Patch Changes
+
+- [#128](https://github.com/vegastack/vegastack-design/pull/128) [`e5ba405`](https://github.com/vegastack/vegastack-design/commit/e5ba405a8f312187f96d8b80150c18b5d3e7f848) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Dropzone** — paint drag feedback with an inset overlay that cannot expand WebKit scrollable
+  overflow.
+
 ## 0.7.4
 
 ### Patch Changes
