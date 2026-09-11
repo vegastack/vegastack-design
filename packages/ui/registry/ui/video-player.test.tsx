@@ -474,6 +474,10 @@ test("shows overlay controls on hover and hides them after pointer leave", async
     });
     await screen.getByRole("button", { name: "Play Demo video" }).click();
 
+    // Focus retention and pointer-leave hiding are separate contracts. WebKit focuses the Play
+    // button it clicks, so move focus out before asking this test to measure pointer-only hiding;
+    // the adjacent fade/unmount test carries the same precondition.
+    (document.activeElement as HTMLElement | null)?.blur();
     await parkPointer();
     await vi.advanceTimersByTimeAsync(999);
     expect(

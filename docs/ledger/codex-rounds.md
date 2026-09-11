@@ -544,3 +544,13 @@ DC-03 corrections. **Verdict:** needs-attention (1 high · 1 medium), root-fixed
   clamps `currentTime` to zero without a decoded timeline, so three transport tests never received
   their synthetic starting clock. The helper now defines a writable clock property; runtime media
   behavior is untouched.
+
+## 2026-09-11 — deployment recovery: VideoPlayer pointer/focus precondition
+
+**Scope:** deploy run 34623313629 after Dropzone and AudioPlayer passed WebKit. **Verdict:**
+needs-attention (1 medium), root-fixed.
+
+- **Medium · fixed — pointer-hide test also exercised focus retention.** WebKit focuses the Play
+  button on click, correctly keeping controls visible despite pointer leave. The test now blurs
+  before moving the pointer, matching the adjacent cross-engine precedent and isolating the behavior
+  named by the test. No runtime component change.

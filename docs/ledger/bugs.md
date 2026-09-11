@@ -2562,3 +2562,15 @@ changed for any of these test repairs.
   codec loading.
 - **AudioPlayer fix.** The shared test helper defines a configurable, writable `currentTime` clock,
   matching the adjacent multi-hour test precedent. Component runtime code is unchanged.
+
+## 2026-09-11 — CLOSED: VideoPlayer's pointer-hide test retained WebKit focus
+
+- **Symptom.** After the Dropzone and AudioPlayer fixes passed, WebKit shard 1 still failed
+  `shows overlay controls on hover and hides them after pointer leave` twice with the overlay
+  visible after the one-second delay.
+- **Root cause.** WebKit focuses the Play button on click. VideoPlayer intentionally holds its
+  controls open while focus remains inside the frame, so the test mixed the pointer-leave contract
+  with the opposite focus-retention contract. The adjacent fade/unmount test already blurred for
+  exactly this engine difference.
+- **Systemic fix.** The pointer-only test now moves focus out before parking the pointer. Runtime
+  behavior is unchanged; focus retention remains covered separately.
