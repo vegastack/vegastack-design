@@ -10,6 +10,21 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.8.0] — September 12, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.7.5 → 0.8.0.
+
+### 🐛 Fixed
+
+- **Keep Dropzone drag feedback inside narrow WebKit viewports.** The drag-state stroke now sits
+  one stroke-width inside the surface and uses explicit border-box sizing. This avoids WebKit counting
+  the stroke's two edges as horizontal scroll overflow at 320px while preserving the design system's
+  independent focus-visible outline.
+  [docs](/docs/components/dropzone) ·
+  [`f4fec28`](https://github.com/VegaStack/vegastack-design/commit/f4fec28)
+
 ## [0.7.5] — September 11, 2026
 
 ### 📦 npm
