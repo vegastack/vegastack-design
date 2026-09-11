@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.7.3
+
+### Patch Changes
+
+- [#124](https://github.com/vegastack/vegastack-design/pull/124) [`7c5a9e8`](https://github.com/vegastack/vegastack-design/commit/7c5a9e8ac998a26339d542d235d649ef5cbeafc9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **WebKit release contracts** — keep Dropzone drag outlines inside the viewport and make
+  AudioPlayer media-time tests use an engine-independent writable clock.
+
 ## 0.7.2
 
 ### Patch Changes

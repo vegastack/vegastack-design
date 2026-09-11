@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.7.3] — September 11, 2026
+
+<!-- assembled from 1 changeset: c20ecb6cfb27 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.7.2 → 0.7.3.
+
+### 🐛 Fixed
+
+- **WebKit release contracts** — keep Dropzone drag outlines inside the viewport and make
+  AudioPlayer media-time tests use an engine-independent writable clock.
+  [`7c5a9e8`](https://github.com/VegaStack/vegastack-design/commit/7c5a9e8)
+
 ## [0.7.2] — September 11, 2026
 
 <!-- assembled from 1 changeset: 67513024ce2d -->
