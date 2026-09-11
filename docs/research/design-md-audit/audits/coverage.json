@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "abd937e40d8a7f15569354a3f685456c6a212c845e978a03a82375380c442cd8",
+  "contractSha256": "ec2b850021e3447a7cd9a40e69ccf5d240a57dbab7e15a5ec27752a86ab77b0a",
   "inventory": {
-    "expected": 596,
-    "actual": 596,
-    "unique": 596
+    "expected": 597,
+    "actual": 597,
+    "unique": 597
   },
   "classes": {
     "components": 116,
     "animatedIcons": 467,
-    "hooks": 10,
+    "hooks": 11,
     "blocks": 1,
     "libs": 2
   },
@@ -174,8 +174,8 @@
       ]
     },
     "Hooks": {
-      "expected": 10,
-      "actual": 10,
+      "expected": 11,
+      "actual": 11,
       "members": [
         "use-animation-replay",
         "use-announcer",
@@ -185,6 +185,7 @@
         "use-list-nav",
         "use-media-query",
         "use-mobile",
+        "use-modal-inert",
         "use-overflow",
         "use-platform"
       ]

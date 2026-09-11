@@ -25,11 +25,6 @@
 //   `--self-test` is wired into the same release stage, directly after the real run: it needs the
 //   same built export, so it cannot live in `pnpm test:tooling`, which runs with no docs build.
 //
-//   One half of DC-03 — the fullscreen focus TRAP — is deliberately NOT asserted, because it does
-//   not hold: measured against this tree, focus leaves the dialog and reaches the docs navigation.
-//   The script prints a `NOT ASSERTED` line for it on every run rather than quietly weakening the
-//   check. Evidence, reproduction and the four-run trace: `docs/ledger/bugs.md`, 2026-09-09.
-//
 // USAGE
 //   node tooling/verify-docs-shell.mjs              assert the shell (requires apps/docs/out)
 //   node tooling/verify-docs-shell.mjs --self-test  prove each assertion fails on its own defect
@@ -52,6 +47,7 @@ const OUT = join(DOCS, "out");
 const HOME = "/";
 const COMPONENT = "/docs/components/button";
 const FOUNDATIONS = "/docs/foundations/icons";
+const GALLERY = "/docs/foundations/icons/gallery";
 // The fullscreen preview lives on every component page; the deleted spec measured it on Button.
 const FULLSCREEN = COMPONENT;
 
@@ -99,6 +95,15 @@ function reservePort() {
 }
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+
+async function assertEventually(read, message, timeoutMs = 2_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await read()) return;
+    await sleep(50);
+  }
+  assert.fail(message);
+}
 
 async function waitForServer(port, timeoutMs = 60_000) {
   const deadline = Date.now() + timeoutMs;
@@ -301,7 +306,7 @@ const ASSERTIONS = [
   {
     id: "DC-02",
     title: "no rendered text exceeds the 400/500 weight ladder",
-    routes: [HOME, COMPONENT, FOUNDATIONS],
+    routes: [HOME, COMPONENT, FOUNDATIONS, GALLERY],
     async check(page, ctx, route) {
       await page.evaluate(() => document.fonts.ready);
 
@@ -378,13 +383,16 @@ const ASSERTIONS = [
   {
     id: "DC-03",
     title:
-      "the fullscreen preview closes on Escape and isolates the background (the trap is reported, not asserted)",
+      "the fullscreen preview traps focus, closes on Escape, restores focus, and isolates the background",
     routes: [FULLSCREEN],
     async check(page, ctx) {
       const article = page.locator("article").first();
       await article.waitFor({ state: "attached", timeout: 15_000 });
+      const trigger = page
+        .getByRole("button", { name: "Fullscreen preview" })
+        .first();
 
-      // MEASURED, not assumed. Base UI 1.6.0 isolates with `aria-hidden` + `data-base-ui-inert`,
+      // MEASURED, not assumed. Base UI 1.8.0 isolates with `aria-hidden` + `data-base-ui-inert`,
       // never the `inert` attribute (`FloatingFocusManager` calls
       // `markOthers(…, { ariaHidden: modal, mark: false })` and never passes `inert: true`), and it
       // applies the two markers at DIFFERENT DEPTHS: the outside subtree ROOT (`#nd-docs-layout`)
@@ -422,27 +430,42 @@ const ASSERTIONS = [
         "the dialog's own content is caught by its background isolation",
       );
 
-      // THE FOCUS TRAP IS NOT ASSERTED HERE, AND THAT IS DELIBERATE — see `docs/ledger/bugs.md`,
-      // 2026-09-09. The deleted spec walked 25 Tabs and allowed only dialog/guard/body. Measured
-      // against a fresh public export of this tree, four consecutive runs: focus leaves the dialog
-      // every time, and in three of the four it reaches the docs NAVIGATION inside
-      // `#nd-docs-layout` — e.g. `D g body chrome chrome chrome NAV NAV NAV D …`. Base UI 1.6.0
-      // hides outside elements with `aria-hidden` and never sets `inert`, so they stay in the tab
-      // order, and the inside guard drops focus to `<body>` instead of cycling. It is an OPEN
-      // defect in the shell (or in Base UI), it predates WP3, and asserting it would ship a red
-      // gate; asserting a watered-down version of it would ship a false coverage claim, which is
-      // the exact failure mode the forced-colors focus check taught this repo. So it is reported,
-      // loudly, and left unasserted until the shell is fixed — at which point the walk above goes
-      // back in with `dialog|guard|body` and nothing else.
-      unasserted.push(
-        "DC-03 focus trap: focus leaves the fullscreen dialog and reaches the docs navigation " +
-          "(measured, reproducible; docs/ledger/bugs.md 2026-09-09). NOT asserted — open defect.",
+      // Base UI's guards transiently hand focus to <body>, so body itself is accepted. No
+      // interactive outside element is: native inert on the body roots must make the next Tab
+      // return to the popup/guard instead of restarting in the docs chrome.
+      const escaped = [];
+      for (let step = 0; step < 25; step += 1) {
+        await page.keyboard.press("Tab");
+        const outside = await page.evaluate(() => {
+          const active = document.activeElement;
+          if (!active || active === document.body) return null;
+          if (active.closest("[data-preview-fullscreen]")) return null;
+          if (active.hasAttribute("data-base-ui-focus-guard")) return null;
+          return {
+            tag: active.tagName.toLowerCase(),
+            role: active.getAttribute("role"),
+            label:
+              active.getAttribute("aria-label") ??
+              active.textContent?.trim().slice(0, 40) ??
+              "",
+          };
+        });
+        if (outside) escaped.push({ step: step + 1, ...outside });
+      }
+      assert.deepEqual(
+        escaped,
+        [],
+        `focus escaped the fullscreen dialog: ${JSON.stringify(escaped)}`,
       );
 
       await page.keyboard.press("Escape");
       await dialog.waitFor({ state: "hidden", timeout: 5_000 });
       // A leaked `aria-hidden` silences the whole page, so release is asserted too.
       assert.deepEqual(await isolation(), { ariaHidden: false, marked: false });
+      await assertEventually(
+        () => trigger.evaluate((element) => document.activeElement === element),
+        "focus did not return to the fullscreen trigger",
+      );
     },
     defects: [
       {
@@ -455,6 +478,20 @@ const ASSERTIONS = [
             )) {
               element.removeAttribute("data-base-ui-inert");
               element.removeAttribute("aria-hidden");
+            }
+          }),
+      },
+      {
+        name: "native inert is removed from the outside roots",
+        phase: "afterOpen",
+        apply: (page) =>
+          page.evaluate(() => {
+            const popup = document.querySelector("[data-preview-fullscreen]");
+            const portal = popup?.closest("[data-base-ui-portal]");
+            for (const child of document.body.children) {
+              if (!(child instanceof HTMLElement)) continue;
+              if (child === portal || child.contains(portal)) continue;
+              child.inert = false;
             }
           }),
       },
@@ -478,7 +515,7 @@ const ASSERTIONS = [
   {
     id: "DC-06",
     title: "the skip link is the first tab stop and reaches the content",
-    routes: [HOME, COMPONENT, FOUNDATIONS],
+    routes: [HOME, COMPONENT, FOUNDATIONS, GALLERY],
     async check(page, ctx, route) {
       await page.keyboard.press("Tab");
       const first = await page.evaluate(() => {
@@ -493,13 +530,9 @@ const ASSERTIONS = [
       });
       assert.notEqual(first, null, `${route}: Tab reached nothing`);
       assert.equal(
-        first.tag,
-        "a",
-        `${route}: the first tab stop is <${first.tag}>, not the skip link`,
-      );
-      assert.ok(
-        first.href?.startsWith("#"),
-        `${route}: the first tab stop links to ${first.href}, not an in-page target`,
+        first.href,
+        "#content",
+        `${route}: the first tab stop is <${first.tag}> linking to ${first.href}, not the #content skip link`,
       );
       const reached = await page.evaluate(
         (selector) => document.querySelector(selector) !== null,
@@ -515,9 +548,11 @@ const ASSERTIONS = [
         name: "the skip link is removed, so Tab lands in the chrome",
         phase: "before",
         apply: (page) =>
-          page.evaluate(() => {
-            document.querySelector("a[href='#content']")?.remove();
-          }),
+          // Hiding the link through a persistent rule models its absence without racing Next's
+          // hydration. Removing the server-rendered node here used to be fail-open: hydration
+          // could recreate it before the following Tab press, so the injected defect vanished
+          // and the self-test reported a false pass.
+          addStyle(page, "a[href='#content'] { display: none !important; }"),
       },
       {
         name: "the skip link targets an anchor that does not exist",
@@ -535,7 +570,7 @@ const ASSERTIONS = [
   {
     id: "DC-12",
     title: "every tab stop has a role and an accessible name",
-    routes: [COMPONENT, FOUNDATIONS],
+    routes: [COMPONENT, FOUNDATIONS, GALLERY],
     async check(page, ctx, route) {
       // A focusable div is legitimate when it carries a role that explains it (Fumadocs'
       // `role="tabpanel"` panels and `role="region"` scroll containers are the correct pattern);
@@ -622,8 +657,6 @@ async function runOnce(assertion, route, defect) {
 }
 
 let failures = 0;
-/** Properties this script deliberately does NOT assert, and why. Printed on every run. */
-const unasserted = [];
 const started = Date.now();
 
 if (options.selfTest) {
@@ -669,10 +702,6 @@ if (options.selfTest) {
 await context.close();
 await browser.close();
 reapServer();
-
-// Printed BEFORE the verdict, on pass and on fail alike. A gap nobody reads is a gap nobody fixes.
-for (const gap of [...new Set(unasserted)])
-  console.error(`  ! NOT ASSERTED — ${gap}`);
 
 const seconds = ((Date.now() - started) / 1000).toFixed(1);
 const label = options.selfTest

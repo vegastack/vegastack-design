@@ -118,6 +118,59 @@ test("no a11y violations when open", async () => {
   await expectNoA11yViolations(document.body);
 });
 
+test("modal mirrors Base UI's outside markers to native inert and restores them on close", async () => {
+  const outside = document.createElement("button");
+  outside.textContent = "Outside action";
+  document.body.prepend(outside);
+  try {
+    const screen = await render(<Example />);
+    await screen.getByRole("button", { name: "Open dialog" }).click();
+    const dialog = screen.getByRole("dialog").element();
+    await expect.poll(() => outside.inert).toBe(true);
+
+    // Base UI may transiently hand focus to body/its guards, but no outside control may receive it.
+    for (let step = 0; step < 12; step += 1) {
+      await userEvent.keyboard("{Tab}");
+      const active = document.activeElement;
+      expect(
+        active === document.body ||
+          dialog.contains(active) ||
+          active?.hasAttribute("data-base-ui-focus-guard"),
+      ).toBe(true);
+      expect(active).not.toBe(outside);
+    }
+
+    clickBySlot("dialog-close-action");
+    await vi_waitForClosed();
+    await expect.poll(() => outside.inert).toBe(false);
+  } finally {
+    outside.remove();
+  }
+});
+
+test.each([false, "trap-focus"] as const)(
+  "modal=%s does not make outside roots natively inert",
+  async (modal) => {
+    const outside = document.createElement("button");
+    outside.textContent = "Outside action";
+    document.body.prepend(outside);
+    try {
+      const screen = await render(
+        <Dialog defaultOpen modal={modal}>
+          <DialogContent>
+            <DialogTitle>Preferences</DialogTitle>
+            <DialogDescription>Non-blocking settings.</DialogDescription>
+          </DialogContent>
+        </Dialog>,
+      );
+      await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(outside.inert).toBe(false);
+    } finally {
+      outside.remove();
+    }
+  },
+);
+
 test("DialogContent forwards ref to its host element", async () => {
   // The portaled popup is the host element DialogContent owns.
   const ref = React.createRef<HTMLDivElement>();

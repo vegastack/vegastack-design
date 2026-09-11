@@ -161,8 +161,10 @@ own — they accept everything the underlying Base UI part or element accepts (`
 - The popup renders with `role="alertdialog"` + `aria-modal="true"`. `AlertDialogTitle` and
   `AlertDialogDescription` are auto-wired as its `aria-labelledby` / `aria-describedby` — always
   include a title.
-- Focus is trapped inside the popup while open and restored to the trigger on close. Page scroll is
-  locked.
+- Focus is trapped inside the popup while open and restored to the trigger on close. VegaStack
+  mirrors Base UI's live outside-tree markers to native `inert`, shared with Dialog and Sheet
+  through reference-counted ownership, so focus cannot restart in page chrome after a transient
+  `<body>` hand-off. Page scroll is locked.
 - The backdrop is non-dismissable by design — closing requires `AlertDialogCancel`,
   `AlertDialogAction`, or <kbd>Esc</kbd> as a cancel request, so a confirmation is never dismissed by
   accident.

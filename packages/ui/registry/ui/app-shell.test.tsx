@@ -188,7 +188,9 @@ test("two shells on one page each skip to their OWN content region", async () =>
       '[data-slot="app-shell-skip-link"]',
     )!;
     expect(link.getAttribute("href")).toBe(`#${ids[index]}`);
-    link.click();
+    // Use a trusted browser interaction. Firefox does not move fragment focus for the raw
+    // `HTMLElement.click()` shortcut, even though activating the same anchor as a user does.
+    await userEvent.click(link);
     expect(document.activeElement).toBe(regions[index]);
   }
 });

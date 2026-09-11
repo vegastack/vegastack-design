@@ -34,16 +34,11 @@ const BRANDS = [github, slack, figma];
 /**
  * Live gallery — renders `Icon` (lucide) + `BrandIcon` (thesvg) from `@vegastack/design/icons`.
  *
- * PERF (measured, unresolved): this is registered in the GLOBAL MDX component map, so the 467
- * motion client components behind `AnimatedIconWall` reach the client graph of EVERY docs route —
- * `/docs/components/button` ships ~2.27 MB of icon-wall JS for a wall it never renders.
- *
- * A dynamic `import()` of the wall was tried and rejected: it isolates the icons into their own
- * 921 KB chunk, but button.html still fetches that chunk and its total script payload is unchanged
- * at 3873 KB — because the catch-all `app/docs/[[...slug]]` route has a single client-reference
- * manifest shared by every docs page. A real fix needs either a dedicated route segment for
- * `/docs/foundations/icons` or a server-rendered (non-client) icon wall, so it is left as an
- * explicit decision rather than a half-measure.
+ * PERF: this component is imported ONLY by `/docs/foundations/icons/gallery`, a dedicated App
+ * Router segment. It must not enter the global MDX component map: doing so puts every generated
+ * client components back into every catch-all docs route's client graph. The public export gate
+ * finds this wall by its `data-icon-chunk` sentinel and proves no ordinary docs HTML references
+ * the chunk.
  */
 export function IconGallery() {
   return (
@@ -93,7 +88,7 @@ export function IconGallery() {
           {ANIMATED_ICON_CHUNKS.map((chunk, chunkIndex) => (
             <section
               key={chunkIndex}
-              data-vrt-icon-chunk={chunkIndex}
+              data-icon-chunk={chunkIndex}
               aria-label={`Animated icons ${chunkIndex * ANIMATED_ICON_CHUNK_SIZE + 1}–${chunkIndex * ANIMATED_ICON_CHUNK_SIZE + chunk.length}`}
               className="rounded-lg border border-border p-3"
             >

@@ -16,7 +16,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "prettier --check . && node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && node tooling/changeset-lint.mjs && node tooling/sync-package-skills.mjs --check && node tooling/security-boundaries.test.mjs && node tooling/verify-workflow-security.mjs && node tooling/verify-workflow-security-negative.mjs && node tooling/secret-scan.mjs && pnpm test:tooling && pnpm design:verify && turbo run lint",
+    "lint": "prettier --check . && node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && node tooling/changeset-lint.mjs && node tooling/sync-package-skills.mjs --check && node tooling/security-boundaries.test.mjs && node tooling/verify-workflow-security.mjs && node tooling/verify-workflow-security-negative.mjs && node tooling/verify-all-browser-runner.mjs && node tooling/verify-all-browser-runner.mjs --self-test && node tooling/secret-scan.mjs && pnpm test:tooling && pnpm design:verify && turbo run lint",
     "test:tooling": "vitest run --config vitest.tooling.config.ts",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",

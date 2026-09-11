@@ -1,4 +1,4 @@
-// @vegastack dialog@0.6.0 sha256-u8Oophs/1H1iKkRbyd0/RtINWIWGnHUlBIPQCxKVKIg=
+// @vegastack dialog@0.6.0 sha256-ty7KJoBNsmAt5erV/n26fxCSqvlg4HvqRnB69ruS7G4=
 
 "use client";
 
@@ -9,6 +9,9 @@ import { X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { IconButton } from "@/components/ui/icon-button";
+import { useModalInert } from "@/components/ui/use-modal-inert";
+
+const NativeInertContext = React.createContext(true);
 
 /* ------------------------------------------------------------------------------------------------
  * Dialog — a modal overlay built on Base UI's Dialog. Exported FLAT (shadcn-style):
@@ -86,8 +89,15 @@ export type DialogProps = React.ComponentProps<typeof BaseDialog.Root>;
  * @example
  * <Dialog />
  */
-export function Dialog(props: DialogProps) {
-  return <BaseDialog.Root {...props} />;
+export function Dialog({ modal, ...props }: DialogProps) {
+  // Native inert would also block outside pointer interaction, which is explicitly NOT the
+  // contract of `modal="trap-focus"`; non-modal roots likewise leave the page interactive.
+  const nativeInert = modal === undefined || modal === true;
+  return (
+    <NativeInertContext.Provider value={nativeInert}>
+      <BaseDialog.Root modal={modal} {...props} />
+    </NativeInertContext.Provider>
+  );
 }
 
 /** Props accepted by `DialogTrigger`. */
@@ -159,9 +169,15 @@ export function DialogContent({
   placement = "center",
   showCloseButton = true,
   closeLabel = "Close",
+  ref,
   ...props
 }: DialogContentProps) {
   const themeScope = useInternalThemeScope();
+  const nativeInert = React.useContext(NativeInertContext);
+  const mergedRef = useModalInert<HTMLDivElement>({
+    ref,
+    enabled: nativeInert,
+  });
 
   return (
     <BaseDialog.Portal>
@@ -185,6 +201,7 @@ export function DialogContent({
         )}
       >
         <BaseDialog.Popup
+          ref={mergedRef}
           data-slot="dialog-content"
           data-size={size}
           data-placement={placement}

@@ -30,7 +30,7 @@
     "design-lint": "node ../../tooling/design-lint.mjs registry",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:all-browsers": "vitest run --config vitest.all-browsers.config.ts"
+    "test:all-browsers": "node run-all-browsers.ts"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^3.1.0",

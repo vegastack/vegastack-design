@@ -159,7 +159,11 @@ wrappers that accept standard `<div>` props.
 ## Accessibility
 
 - The popup renders with `role="dialog"` + `aria-modal="true"`. `DialogTitle` and `DialogDescription` are auto-wired as its `aria-labelledby` / `aria-describedby` — always include a title.
-- Focus is trapped inside the popup while open and restored to the trigger on close. Page scroll is locked.
+- Focus is trapped inside the popup while open and restored to the trigger on close. For the default
+  modal, VegaStack mirrors Base UI's live outside-tree markers to native `inert`; this keeps focus
+  contained even when the browser transiently hands it to `<body>`, and preserves nested portal
+  stacking through reference-counted ownership. Page scroll is locked. `modal={false}` and
+  `modal="trap-focus"` keep their Base UI outside-interaction contracts and do not add native inert.
 - The close button is a native button with an accessible label (`closeLabel`, default `"Close"`); meaning of the `X` icon is carried by that label.
 - Controls composed with `Button` (trigger, footer actions) carry `Button`'s own `:focus-visible` ring. The top-right `X` close button keeps the browser's default focus outline and changes colour on hover/focus — it never sets `outline: none`.
 

@@ -407,7 +407,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button"
+        "@vegastack/icon-button",
+        "@vegastack/use-modal-inert"
       ],
       "files": [
         {
@@ -420,7 +421,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or full-screen mobile scroll (Drawer/Sheet).",
         "version": "0.6.0",
-        "integrity": "sha256-u8Oophs/1H1iKkRbyd0/RtINWIWGnHUlBIPQCxKVKIg="
+        "integrity": "sha256-ty7KJoBNsmAt5erV/n26fxCSqvlg4HvqRnB69ruS7G4="
       }
     },
     {
@@ -1194,7 +1195,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/use-modal-inert"
       ],
       "files": [
         {
@@ -1207,7 +1209,7 @@
         "whenToUse": "Destructive/irreversible confirmations (delete, discard, reset) — backdrop non-dismissable.",
         "whenNotToUse": "Routine dismissable modal content — use Dialog.",
         "version": "0.6.0",
-        "integrity": "sha256-QjOAiQwvWB1wPvjRiFIpNWeptyvl/0Nx7oJXdsEh8ew="
+        "integrity": "sha256-bUcd9UmcfoAAJ8ePWLkQu2X6p6AUENf3xzGOTOc1teU="
       }
     },
     {
@@ -1317,7 +1319,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button"
+        "@vegastack/icon-button",
+        "@vegastack/use-modal-inert"
       ],
       "files": [
         {
@@ -1330,7 +1333,7 @@
         "whenToUse": "A panel anchored to a screen edge — filters, detail/inspector panels, slide-in nav.",
         "whenNotToUse": "A centered confirmation or short form (Dialog), or a long multi-step flow (a page).",
         "version": "0.6.0",
-        "integrity": "sha256-EjDtApCNDEYPgElSKKg136OPkbD8GnHoeLIUjT0RPds="
+        "integrity": "sha256-hfDSmkvPIJyzGkEeKWdZFoiNS9LCEEm6LlXPthgl104="
       }
     },
     {
@@ -3208,6 +3211,33 @@
         "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
         "version": "0.6.0",
         "integrity": "sha256-lxjSS0ABnJkF+4Qclk8IcHeCrwQXnpOjYKkes5VHDA0="
+      }
+    },
+    {
+      "name": "use-modal-inert",
+      "type": "registry:hook",
+      "title": "useModalInert",
+      "description": "Mirror Base UI's live modal-stack markers to native inert with reference-counted ownership while preserving region-level notifications.",
+      "categories": [
+        "hook",
+        "accessibility"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-modal-inert.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-modal-inert.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Inside a Base UI modal popup wrapper whose outside subtrees carry data-base-ui-inert but remain keyboard-focusable without the native inert property; region-level live notification surfaces remain exempt.",
+        "whenNotToUse": "Non-modal or trap-focus-only popups that intentionally preserve outside pointer interaction; component consumers install it transitively rather than calling it directly.",
+        "version": "0.6.0",
+        "integrity": "sha256-eZl1rwXxlMKADfJeyj+/f1fg+dSc8amf0FEZLiZnexc="
       }
     },
     {

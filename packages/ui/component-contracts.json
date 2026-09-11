@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 596,
+    "totalRegistryItems": 597,
     "components": 116,
     "animatedIcons": 467,
-    "hooks": 10,
+    "hooks": 11,
     "blocks": 1,
     "libs": 2
   },
@@ -27,7 +27,7 @@
     "Data display": 12,
     "Content/marketing": 23,
     "AI/chat": 6,
-    "Hooks": 10,
+    "Hooks": 11,
     "Block": 1,
     "Animated icons": 467
   },
@@ -170,6 +170,7 @@
       "use-file-drop",
       "use-list-nav",
       "use-media-query",
+      "use-modal-inert",
       "use-mobile",
       "use-overflow",
       "use-platform"
@@ -3180,8 +3181,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by DialogContent in packages/ui/registry/ui/dialog.tsx; incidental internal nodes are not part of its API."
+            "status": "observed",
+            "target": "BaseDialog.Popup",
+            "rationale": "DialogContent merges the caller ref with its native-inert lifecycle ref and forwards both to BaseDialog.Popup."
           }
         },
         {
@@ -3392,7 +3394,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/dialog",
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/use-modal-inert"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -9155,8 +9160,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by AlertDialogContent in packages/ui/registry/ui/alert-dialog.tsx; incidental internal nodes are not part of its API."
+            "status": "observed",
+            "target": "BaseAlertDialog.Popup",
+            "rationale": "AlertDialogContent merges the caller ref with useModalInert and forwards both to BaseAlertDialog.Popup."
           }
         },
         {
@@ -9350,7 +9356,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/alert-dialog",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/use-modal-inert"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -10244,8 +10253,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/sheet.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by SheetContent in packages/ui/registry/ui/sheet.tsx; incidental internal nodes are not part of its API."
+            "status": "observed",
+            "target": "Drawer.Popup",
+            "rationale": "SheetContent merges the caller ref with useModalInert and forwards both to Drawer.Popup."
           }
         },
         {
@@ -10482,7 +10492,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/sheet",
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/use-modal-inert"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -25846,6 +25859,94 @@
       "registryDependencies": [],
       "npmDependencies": [],
       "testFiles": ["packages/ui/registry/ui/use-animation-replay.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "use-modal-inert",
+      "registryType": "registry:hook",
+      "title": "useModalInert",
+      "summary": "Mirror Base UI's live modal-stack markers to native inert with reference-counted ownership while preserving region-level notifications.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-modal-inert.ts"],
+      "publicSymbols": [
+        {
+          "name": "UseModalInertOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-modal-inert.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useModalInert",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-modal-inert.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No visual variant dimension; enabled only follows the owning modal root's interaction mode."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Pure behavior hook does not own a size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "active",
+            "disabled",
+            "nested",
+            "notification-region-exempt"
+          ],
+          "evidence": "Tracks live Base UI inert markers, preserves disabled/non-modal operation and region-level notifications, keeps control-local announcers inside the inert background, and reference-counts overlapping owners."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "Pure behavior hook does not own responsive layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": ["@vegastack/design@^0.3.2"],
+      "testFiles": ["packages/ui/registry/ui/use-modal-inert.test.tsx"],
       "coverage": {
         "source": "required",
         "test": "required",

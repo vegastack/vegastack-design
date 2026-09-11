@@ -2515,7 +2515,11 @@ the do/don't pairs are all there, and a browser-only surface is replaced by an e
 note rather than dropped silently. `tooling/verify-docs-export.mjs` fails the build on any JSX tag
 that survives outside a code fence, any unresolved placeholder, and any empty API table.
 `llms.txt` additionally carries the registry roster — every installable item with its page and its
-`shadcn add` target — and the public skill roster.
+`shadcn add` target — and the public skill roster. The generated animated-icon wall is deliberately
+NOT an MDX component: the Icons foundation page links to its dedicated
+`/docs/foundations/icons/gallery` route, so the wall's client chunk cannot enter every catch-all
+docs page. The public-export gate identifies that chunk from an owned gallery-card sentinel and
+requires exactly the dedicated route — and no ordinary docs HTML — to reference it.
 
 **The docs shell obeys this system end to end (DD-1).** Fumadocs' chrome and the typography plugin
 are compiled against Tailwind's stock theme, so their weights, radii and shadows are remapped to
@@ -2523,13 +2527,19 @@ system values once in `apps/docs/app/global.css`, and `design-lint --docs-shell 
 reads the BUILT stylesheet to prove it — source linting cannot see a value this repo never wrote.
 `tooling/verify-docs-shell.mjs` asserts the rest in a real browser against the built public export,
 in `pnpm verify:release`: the product type scope (including inside a portal), the weight ladder as
-computed, the fullscreen preview's background isolation and Escape, the skip link as the first tab
-stop, and named tab stops. Its `--self-test` runs in the same stage and injects, per assertion, the
-defect that assertion exists to catch — so none of them can quietly go fail-open. **One half of
-DC-03 is a known open defect and is deliberately NOT asserted:** the fullscreen focus trap does not
-hold — focus leaves the dialog and reaches the docs navigation — and the script prints a
-`NOT ASSERTED` line for it on every run rather than claiming coverage it does not have. Measurement,
-four-run trace and reproduction: `docs/ledger/bugs.md`, 2026-09-09.
+computed, the fullscreen preview's background isolation, 25-step focus containment, Escape and
+focus return, the skip link as the first tab stop, and named tab stops. Base UI marks outside roots
+but does not make them natively inert, so Dialog, AlertDialog and Sheet share the internal
+`use-modal-inert` hook: each popup observes Base UI's live `data-base-ui-inert` stack markers and
+mirrors them to native `inert`. Ownership is reference-counted and restores each element's prior
+value, so nested portals follow Base UI's own modality decision instead of an independently guessed
+body-sibling list. Subtrees containing a region-level live surface (`[aria-live][role="region"]`)
+preserve Base UI's live-region exception, so portaled notifications remain announced and
+interactive above the modal without control-local status announcers reopening the background.
+Non-modal and `modal="trap-focus"` Dialog/Sheet roots retain their
+outside-interaction contracts. The `--self-test` runs in the same stage and injects, per assertion,
+the defect that assertion exists to catch — including removing native inert — so none of them can
+quietly go fail-open.
 
 ---
 

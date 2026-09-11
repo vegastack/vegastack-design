@@ -131,6 +131,45 @@ test("no a11y violations when open", async () => {
   await expectNoA11yViolations(document.body);
 });
 
+test("modal mirrors Base UI's outside markers to native inert and restores them", async () => {
+  const outside = document.createElement("button");
+  outside.textContent = "Outside action";
+  document.body.prepend(outside);
+  try {
+    const screen = await render(<Example />);
+    await screen.getByRole("button", { name: "Open sheet" }).click();
+    await expect.poll(() => outside.inert).toBe(true);
+    clickBySlot("sheet-close-action");
+    await vi_waitForClosed();
+    await expect.poll(() => outside.inert).toBe(false);
+  } finally {
+    outside.remove();
+  }
+});
+
+test.each([false, "trap-focus"] as const)(
+  "modal=%s does not make outside roots natively inert",
+  async (modal) => {
+    const outside = document.createElement("button");
+    outside.textContent = "Outside action";
+    document.body.prepend(outside);
+    try {
+      const screen = await render(
+        <Sheet defaultOpen modal={modal}>
+          <SheetContent>
+            <SheetTitle>Preferences</SheetTitle>
+            <SheetDescription>Non-blocking settings.</SheetDescription>
+          </SheetContent>
+        </Sheet>,
+      );
+      await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(outside.inert).toBe(false);
+    } finally {
+      outside.remove();
+    }
+  },
+);
+
 test("SheetContent forwards ref to its host element", async () => {
   // The portaled popup is the host element SheetContent owns.
   const ref = React.createRef<HTMLDivElement>();

@@ -137,7 +137,10 @@ accept standard `<div>` props.
 ## Accessibility
 
 - The panel renders with `role="dialog"` + `aria-modal="true"`. `SheetTitle` and `SheetDescription` are auto-wired as its `aria-labelledby` / `aria-describedby` — always include a title.
-- Focus is trapped inside the panel while open and restored to the trigger on close. Page scroll is locked.
+- Focus is trapped inside the panel while open and restored to the trigger on close. For the default
+  modal, VegaStack mirrors Base UI's live outside-tree markers to native `inert`, shared with Dialog
+  and AlertDialog through reference-counted ownership. `modal={false}` and
+  `modal="trap-focus"` retain their Base UI outside-interaction contracts. Page scroll is locked.
 - The close button is a native button with an accessible label (`closeLabel`, default `"Close"`); meaning of the `X` icon is carried by that label. On hover it shifts to `bg-muted text-foreground`, and the browser's default focus outline is preserved (no `outline: none`).
 - The trigger and footer actions render as native buttons (or your composed `Button` via `render`), so they keep their own focus-visible treatment — the panel itself never suppresses focus indicators.
 - Swipe-to-dismiss is an addition, never the only way out: <kbd>Esc</kbd>, the close button, and a backdrop press all still close the sheet, so a pointer gesture is never required.

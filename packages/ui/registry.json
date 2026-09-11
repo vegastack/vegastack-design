@@ -354,7 +354,10 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/use-modal-inert"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/dialog.tsx",
@@ -1047,7 +1050,10 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/use-modal-inert"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/alert-dialog.tsx",
@@ -1152,7 +1158,10 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/use-modal-inert"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/sheet.tsx",
@@ -2801,6 +2810,27 @@
       "meta": {
         "whenToUse": "Replaying a motion-* utility on a user action (error shake, retry pop, etc.), especially on an element that might be focused (form controls) where a key-remount would steal focus.",
         "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "name": "use-modal-inert",
+      "type": "registry:hook",
+      "title": "useModalInert",
+      "description": "Mirror Base UI's live modal-stack markers to native inert with reference-counted ownership while preserving region-level notifications.",
+      "categories": ["hook", "accessibility"],
+      "dependencies": ["@vegastack/design@^0.3.2"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-modal-inert.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-modal-inert.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Inside a Base UI modal popup wrapper whose outside subtrees carry data-base-ui-inert but remain keyboard-focusable without the native inert property; region-level live notification surfaces remain exempt.",
+        "whenNotToUse": "Non-modal or trap-focus-only popups that intentionally preserve outside pointer interaction; component consumers install it transitively rather than calling it directly.",
         "version": "0.6.0"
       }
     },

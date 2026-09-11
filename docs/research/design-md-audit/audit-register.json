@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "abd937e40d8a7f15569354a3f685456c6a212c845e978a03a82375380c442cd8",
+  "contractSha256": "ec2b850021e3447a7cd9a40e69ccf5d240a57dbab7e15a5ec27752a86ab77b0a",
   "expectedCounts": {
-    "totalRegistryItems": 596,
+    "totalRegistryItems": 597,
     "components": 116,
     "animatedIcons": 467,
-    "hooks": 10,
+    "hooks": 11,
     "blocks": 1,
     "libs": 2
   },
@@ -6434,6 +6434,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-animation-replay.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-modal-inert",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-modal-inert.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

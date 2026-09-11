@@ -798,6 +798,21 @@ async function verifyPage(file, record, kind) {
 
 const publicRecords = await contentRecords(PUBLIC_CONTENT_DIR, "/docs");
 const internalRecords = await contentRecords(INTERNAL_CONTENT_DIR, "/internal");
+// Reviewed App Router pages that intentionally sit outside the MDX/agent-export corpus. Keep each
+// one explicit: adding a raw route must not weaken the exact HTML/sitemap reconciliation below.
+const manualPublicRecords = [
+  {
+    file: path.join(APP_DIR, "app/docs/foundations/icons/gallery/page.tsx"),
+    route: "/docs/foundations/icons/gallery",
+    title: "Animated icon gallery",
+    description:
+      "Browse and replay every lucide-animated icon available through the VegaStack registry.",
+    audience: "public",
+    body: "",
+    lastModified: undefined,
+  },
+];
+const publicHtmlRecords = [...publicRecords, ...manualPublicRecords];
 assert.equal(
   publicRecords.every(({ audience }) => audience === "public"),
   true,
@@ -807,8 +822,8 @@ assert.equal(
   true,
 );
 assert.equal(
-  new Set(publicRecords.map(({ title }) => title)).size,
-  publicRecords.length,
+  new Set(publicHtmlRecords.map(({ title }) => title)).size,
+  publicHtmlRecords.length,
   "public titles must be unique",
 );
 assert.equal(
@@ -818,7 +833,7 @@ assert.equal(
 );
 
 const publicByRoute = new Map(
-  publicRecords.map((record) => [record.route, record]),
+  publicHtmlRecords.map((record) => [record.route, record]),
 );
 const internalByRoute = new Map(
   internalRecords.map((record) => [record.route, record]),
@@ -832,7 +847,7 @@ const internalHtml = await walk(path.join(OUT_DIR, "internal"), (file) =>
 );
 assert.equal(
   docsHtml.length,
-  publicRecords.length,
+  publicHtmlRecords.length,
   "public HTML count does not match source",
 );
 assert.equal(
@@ -840,6 +855,52 @@ assert.equal(
   internalRecords.length,
   "internal HTML count does not match source",
 );
+
+// DC-16 / issue #58: the generated animated-icon modules belong to ONE dedicated route. The
+// old global MDX-map import made every catch-all docs page reference this chunk even when it never
+// rendered the gallery. Find the built chunk by an owned DOM sentinel rather than by its hash, then
+// prove the gallery route references it and every other public docs page does not.
+const galleryHtmlFile = path.join(
+  OUT_DIR,
+  "docs/foundations/icons/gallery.html",
+);
+const galleryHtmlSource = await readFile(galleryHtmlFile, "utf8");
+const galleryScriptUrls = [
+  ...new Set(
+    [
+      ...galleryHtmlSource.matchAll(
+        /(?:src|href)="(\/_next\/static\/chunks\/[^"]+\.js)"/g,
+      ),
+    ].map((match) => match[1]),
+  ),
+];
+const iconGalleryChunks = [];
+for (const url of galleryScriptUrls) {
+  if (
+    (
+      await readFile(path.join(OUT_DIR, url.replace(/^\//, "")), "utf8")
+    ).includes("animated-icon-card")
+  ) {
+    iconGalleryChunks.push(url);
+  }
+}
+assert.equal(
+  iconGalleryChunks.length,
+  1,
+  `expected one animated-icon gallery chunk, found ${iconGalleryChunks.length}`,
+);
+const iconGalleryChunkUrl = iconGalleryChunks[0];
+for (const file of docsHtml) {
+  const route = routeForHtml(file);
+  const referencesGallery = (await readFile(file, "utf8")).includes(
+    iconGalleryChunkUrl,
+  );
+  assert.equal(
+    referencesGallery,
+    route === "/docs/foundations/icons/gallery",
+    `${route}: animated-icon gallery chunk isolation drifted`,
+  );
+}
 
 await verifyPage(path.join(OUT_DIR, "index.html"), undefined, "home");
 for (const file of docsHtml) {
@@ -1011,7 +1072,7 @@ const sitemapEntries = [...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(
 const sitemapUrls = sitemapEntries.map(({ url }) => url);
 const expectedSitemapUrls = [
   `${BASE_URL}/`,
-  ...publicRecords.map(({ route }) => canonicalForRoute(route)),
+  ...publicHtmlRecords.map(({ route }) => canonicalForRoute(route)),
 ];
 assert.deepEqual(
   new Set(sitemapUrls),
@@ -1023,7 +1084,7 @@ assert.equal(
   expectedSitemapUrls.length,
   "sitemap has duplicate or extra URLs",
 );
-for (const record of publicRecords) {
+for (const record of publicHtmlRecords) {
   const entry = sitemapEntries.find(
     ({ url }) => url === canonicalForRoute(record.route),
   );
@@ -1371,5 +1432,5 @@ for (const character of new Set(publicOgText)) {
 }
 
 console.log(
-  `✓ Metadata verified (${SITE_VISIBILITY}): ${publicRecords.length} public docs, ${internalRecords.length} internal docs, ${ogImages.length + 1} OG images`,
+  `✓ Metadata verified (${SITE_VISIBILITY}): ${publicHtmlRecords.length} public HTML routes (${publicRecords.length} agent-exported docs + ${manualPublicRecords.length} dedicated), ${internalRecords.length} internal docs, ${ogImages.length + 1} OG images`,
 );

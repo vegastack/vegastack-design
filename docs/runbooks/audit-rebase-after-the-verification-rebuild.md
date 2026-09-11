@@ -191,17 +191,15 @@ and is not part of landing a batch.
 
 ## 5. Known state you do not need to rediscover
 
-- **15 real geometry defects** — the new lane measures every fixture, not the first per route, and
-  found 24px-target and obstruction failures in breadcrumb, combobox chip, date-picker caption,
-  icon-text, marker, message-scroller, stepper, tabs chip, action bar, attachment thumbnail,
-  resizable, and timeline. They are listed with measurements in `docs/ledger/bugs.md` and in the
-  `EXCLUDED` map in `packages/ui/test/geometry.browser.test.tsx`. Fixing one means deleting its
-  entry from that map; the map's guard fails if an exclusion no longer describes a real failure, so
-  a stale entry cannot survive.
-- **The docs fullscreen focus trap does not hold** — measured, reproducible, recorded in
-  `docs/ledger/bugs.md` (2026-09-09). `tooling/verify-docs-shell.mjs` reports it on every release
-  run rather than asserting it, so it is visible and not silently green.
+- **The geometry defects are closed.** The lane still carries one explicitly accepted entry,
+  `resizableNested`: nested handles overlap by design and both remain independently operable. The
+  `EXCLUDED` guard in `packages/ui/test/geometry.browser.test.tsx` still executes that assertion in
+  expect-failure mode, so the acceptance turns red if the geometry changes and cannot rot silently.
+- **The docs fullscreen focus trap is closed.** The composition makes pre-existing outside body
+  roots natively inert while preserving later nested demo portals. `tooling/verify-docs-shell.mjs`
+  asserts a 25-Tab containment walk, Escape, focus return and background isolation; its self-test
+  removes inert and must observe the assertion fail.
 - **PR #53 (G1-a) is closed unmerged.** Its two surviving pieces, `tooling/lib/fs.mjs` and the
   motion-pairing lint anchor, landed in `09b2107e`. Do not reopen it.
-- **80 changesets are pending** on `main` and assemble cleanly into `[0.7.0]`. Check with
-  `node tooling/changelog-assemble.mjs --check`.
+- **Never copy a pending changeset count from this runbook.** Read the live count and assembly
+  target with `node tooling/changelog-assemble.mjs --check`.

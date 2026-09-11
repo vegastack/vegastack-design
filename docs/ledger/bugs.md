@@ -2411,3 +2411,112 @@ accessible-name.browser.test.tsx` + `accessible-name.css`) imports the productio
   label alone and say why.
 - **Observed failing.** Re-adding the `tabs` separator alone turns 2 of the lane's 10 tests red
   (`Activity 12` no longer resolves); removing it returns a clean sweep.
+
+## 2026-09-11 — the docs-shell skip-link negative mutation raced hydration
+
+- **Symptom.** `pnpm verify:release` failed because DC-06 passed after `--self-test` removed the
+  skip link. The positive assertion was green, but its negative proof could no longer demonstrate
+  that it rejected the missing-link state.
+- **Root cause.** The mutation removed the server-rendered `a[href='#content']` immediately after
+  `load`. Next hydration could recreate that node before the following Tab press, erasing the
+  injected defect. The assertion was also broader than the contract: it accepted any first-tabbed
+  in-page anchor with an existing target, not specifically the site's `#content` skip link.
+- **Systemic fix.** The absence mutation now installs a persistent `display: none` rule, which
+  survives hydration, and DC-06 requires the first tab stop's href to be exactly `#content` before
+  checking that target exists. The normal assertion passes; all eight docs-shell mutations,
+  including both DC-06 cases, were observed failing under `--self-test`.
+
+## 2026-09-11 — two Firefox tests made the release lane red for test-only reasons
+
+- **AppShell symptom.** The two-shell skip-link test failed twice in Firefox while the adjacent
+  single-shell activation test passed. Both links and both generated target ids were correct, but
+  `document.activeElement` remained `<body>`.
+- **AppShell root cause and fix.** Only the two-shell loop called raw `HTMLElement.click()`.
+  Firefox does not transfer fragment focus for that script shortcut, while a trusted user click
+  does. The test now uses the already-imported `userEvent.click`, matching the passing single-shell
+  case and the behavior the test claims to cover.
+- **Animated-icon symptom.** The touch-hover negative case occasionally reported animation in the
+  complete Firefox suite, including after its one retry, but passed 12/12 focused runs with retries
+  disabled. Firefox preserved `PointerEvent.pointerType === 'touch'`, and the factory's only hover
+  branch explicitly rejects that value.
+- **Animated-icon root cause and fix.** `didAnimate` captured `outerHTML` immediately after render
+  and called any later change event-driven animation. Under full-suite load, Motion's initial
+  `normal` projection can finish after render resolves, so delayed mount bookkeeping impersonated
+  hover. The negative case now requires three stable frames (within a bounded 60-frame window)
+  before dispatch. The focused Chromium + Firefox pair passes all 82 tests without retry.
+
+## 2026-09-11 — the all-browser config serializes files, not browser engines
+
+- **Symptom.** Two `pnpm verify:release` attempts reached the complete browser phase and failed in
+  disjoint timing-sensitive files. The first lost animated-icon/AppShell tests. After their
+  test-specific roots were fixed, the second lost five Chromium ParticleField tests before their
+  first `requestAnimationFrame` and a Firefox DropdownMenu submenu-close poll. Both failures
+  survived the release retry. Focused reruns passed 82/82 and 44/44 with retry disabled.
+- **Root cause.** `vitest.all-browsers.config.ts` sets `maxWorkers: 1`, which prevents parallel test
+  files inside an engine, but Vitest browser `instances` still execute Chromium, Firefox, and
+  WebKit concurrently. The configuration comment says "one file at a time" but the machine still
+  services two or three browser event loops at once; full-suite scheduling pressure can exceed
+  short polling/rAF windows in whichever files happen to overlap.
+- **Planned systemic fix.** Resolve the WebKit policy once and run one complete engine at a time,
+  stopping on the first failure. Preserve `WEBKIT_LANE=require` in CI and the explicit local skip;
+  do not lengthen individual test timeouts. See
+  `docs/plans/2026-09-11-audit-tail-closeout.md`, work package 0.
+
+### Resolution and correction
+
+The diagnosis above was incomplete. Concurrent engine instances were real, but serializing them
+while retaining the old single file worker exposed a second failure mode: one browser page carrying
+all 143 files accumulates document-level focus/viewport state. Conversely, Firefox alone with four
+workers still produced unrelated trusted-action timeouts. The final topology is therefore:
+
+- one engine process at a time;
+- Chromium once with the same four workers as `pnpm verify`;
+- Firefox and WebKit in four sequential shards, one worker each, so each gets a fresh browser
+  process every roughly 36 files;
+- focused commands stay unsharded; CI still requires WebKit; every non-zero child exit propagates.
+
+`verify-all-browser-runner.mjs` pins that topology and rejects eight mutations: bypassed runner,
+dropped Firefox, dropped WebKit, first-engine-only execution, removed sharding, swallowed failure,
+direct unsafe config use, and restored slow-engine concurrency. A full no-retry orchestration passed
+Chromium 2,393/2,393 and all four Firefox shards (2,378 passed + 15 intentionally skipped = 2,393).
+
+Two more test preconditions were corrected while proving the topology. RelativeTime's focus tests
+used document-level Tab traversal even though a separate assertion already proves the `<time>` is a
+tab stop; Firefox's Tab cursor can persist independently of DOM cleanup. They now focus the exact
+trigger and test the named behavior. AppShell's two-shell test likewise uses a trusted click, and
+animated-icon's negative interaction starts from stable markup. No component runtime behavior was
+changed for any of these test repairs.
+
+## 2026-09-11 — CLOSED: fullscreen preview focus escaped its modal
+
+- **Symptom.** Four fresh 25-Tab walks on the built Base UI 1.8.0 docs page escaped the fullscreen
+  popup into `<body>`, the global skip link/banner and `#nd-docs-layout` every time.
+- **Root cause.** Base UI marked outside body roots with `aria-hidden` and `data-base-ui-inert` but
+  did not set native `inert`; its guards transiently handed focus to `<body>`, so the following Tab
+  restarted in still-focusable page chrome. The same walk on the ordinary Dialog demo leaked too,
+  overturning the initial assumption that this was fullscreen-specific.
+- **Systemic fix.** Canonical `DialogContent` observes Base UI's own live
+  `data-base-ui-inert` stack markers outside its portal and mirrors them to native inert.
+  Reference-counted ownership restores each element's exact prior value after its final modal owner
+  releases it; subtrees containing a region-level live surface preserve Base UI's exemption so toast
+  portals stay announced and interactive above a modal, while control-local status announcers remain
+  inside the inert background; non-modal and `trap-focus` roots do not add native inert.
+  DC-03 now asserts 25-step
+  containment, background isolation, Escape and focus return; its new negative mutation removes
+  native inert and reproduces the escape. The component test covers acquisition/restoration plus
+  the two non-native-inert modes, and nested Dialog-in-fullscreen behavior was executed separately.
+
+## 2026-09-11 — CLOSED: the animated-icon wall shipped in every docs client graph (#58)
+
+- **Symptom.** `IconGallery` lived in the global MDX map used by the catch-all route, so Button,
+  Input and every other docs page referenced the generated animated-icon client chunk without
+  rendering the wall.
+- **Root cause.** A dynamic import cannot isolate a module from a client-reference manifest shared
+  by one catch-all route entry. The gallery needed its own App Router segment and had never received
+  one.
+- **Systemic fix.** `/docs/foundations/icons/gallery` directly owns the gallery; the MDX page only
+  links to it; the global MDX map/agent manifest no longer know the component. The metadata gate
+  models the one non-MDX public route exactly and discovers the gallery chunk from the owned
+  `animated-icon-card` sentinel, requiring that route and forbidding every other docs HTML file from
+  referencing it. Raw directly referenced JS fell from 3,756,660 to 3,313,238 bytes on ordinary
+  docs routes: 443,422 bytes removed (11.8%).

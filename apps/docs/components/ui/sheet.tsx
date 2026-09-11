@@ -1,4 +1,4 @@
-// @vegastack sheet@0.6.0 sha256-EjDtApCNDEYPgElSKKg136OPkbD8GnHoeLIUjT0RPds=
+// @vegastack sheet@0.6.0 sha256-hfDSmkvPIJyzGkEeKWdZFoiNS9LCEEm6LlXPthgl104=
 
 "use client";
 
@@ -9,6 +9,7 @@ import { X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { IconButton } from "@/components/ui/icon-button";
+import { useModalInert } from "@/components/ui/use-modal-inert";
 
 /* ------------------------------------------------------------------------------------------------
  * Sheet — a panel that slides in from a screen edge, built on Base UI's `Drawer` (audit D15).
@@ -37,6 +38,7 @@ export type SheetSize = "sm" | "md" | "lg" | "full";
 // The edge is a root concern (it picks the dismiss gesture) but the content paints it, so it
 // travels by context rather than being restated on both parts.
 const SheetSideContext = React.createContext<SheetSide>("right");
+const SheetNativeInertContext = React.createContext(true);
 
 const SWIPE_DIRECTION = {
   top: "up",
@@ -172,13 +174,20 @@ export interface SheetProps extends Omit<Drawer.Root.Props, "swipeDirection"> {
  *   </SheetContent>
  * </Sheet>
  */
-export function Sheet({ side = "right", ...props }: SheetProps) {
+export function Sheet({ side = "right", modal, ...props }: SheetProps) {
+  const nativeInert = modal === undefined || modal === true;
   // The provider wraps the root rather than its children so `children` reaches Base UI untouched —
   // `Drawer.Root` also accepts a payload render function for detached triggers.
   return (
-    <SheetSideContext.Provider value={side}>
-      <Drawer.Root swipeDirection={SWIPE_DIRECTION[side]} {...props} />
-    </SheetSideContext.Provider>
+    <SheetNativeInertContext.Provider value={nativeInert}>
+      <SheetSideContext.Provider value={side}>
+        <Drawer.Root
+          modal={modal}
+          swipeDirection={SWIPE_DIRECTION[side]}
+          {...props}
+        />
+      </SheetSideContext.Provider>
+    </SheetNativeInertContext.Provider>
   );
 }
 
@@ -265,10 +274,16 @@ export function SheetContent({
   size = "md",
   showCloseButton = true,
   closeLabel = "Close",
+  ref,
   ...props
 }: SheetContentProps) {
   const themeScope = useInternalThemeScope();
   const side = React.useContext(SheetSideContext);
+  const nativeInert = React.useContext(SheetNativeInertContext);
+  const mergedRef = useModalInert<HTMLDivElement>({
+    ref,
+    enabled: nativeInert,
+  });
 
   return (
     <Drawer.Portal>
@@ -290,6 +305,7 @@ export function SheetContent({
         )}
       >
         <Drawer.Popup
+          ref={mergedRef}
           data-slot="sheet-content"
           data-side={side}
           data-size={size}

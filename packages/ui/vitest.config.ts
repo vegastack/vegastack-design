@@ -102,6 +102,7 @@ export default defineConfig({
       // smoke subset. Prebundle them up front so Vite never reloads an active
       // browser test page and splits React module identity mid-run.
       "motion/react",
+      "react-dom",
       "react-dom/server",
       "react-markdown",
       "remark-gfm",
