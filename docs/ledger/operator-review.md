@@ -2836,3 +2836,11 @@ remove WebKit's 4px scrollable overflow while preserving the system focus gramma
 WebKit's zero is valid before a timeline exists, and a timeout cannot turn the data URI into the
 transport-state fixture these tests intend. A configurable writable `currentTime` property lets the
 same code path seek and mutate normally without asking the codec engine to synthesize metadata.
+
+## 2026-09-11 — VideoPlayer pointer hiding does not override focus retention
+
+The WebKit failure after the media-clock fix was not resolved by changing the one-second timer or
+weakening the visible-state assertion. A focused Play button is a legitimate reason for controls to
+remain visible, and WebKit focuses it where Chromium does not. The pointer-only test now blurs before
+parking the pointer—the same precondition the adjacent fade/unmount test already documents—so focus
+retention and pointer hiding remain separately falsifiable.
