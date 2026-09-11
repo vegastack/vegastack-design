@@ -171,9 +171,9 @@ export function dropzoneRejections(): ReactNode {
 
 /**
  * Drag-over states — `dragState` paints them without a live `DataTransfer`, which neither a static
- * documentation example nor the behaviour-contract lane can synthesise. The OUTLINE is on the
+ * documentation example nor the behaviour-contract lane can synthesise. The STROKE is on the
  * dropzone surface itself (audit B8-07), so the feedback survives a child that is not an `Empty`:
- * the third card here holds a plain panel and still outlines. An `Empty variant="dashed"` child can tint
+ * the third card here holds a plain panel and still gains it. An `Empty variant="dashed"` child can tint
  * its dashed border in step through `group-data-dragging/dropzone`.
  */
 export function dropzoneDragging(): ReactNode {
@@ -219,7 +219,7 @@ export function dropzoneDragging(): ReactNode {
         onFilesAccepted={noop}
       >
         <div className="rounded-lg bg-surface-1 p-4 text-center text-sm text-muted-foreground">
-          A non-Empty child still shows the drag state — the outline belongs to
+          A non-Empty child still shows the drag state — the stroke belongs to
           the surface.
         </div>
       </Dropzone>
