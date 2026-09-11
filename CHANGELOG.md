@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.7.4] — September 11, 2026
+
+<!-- assembled from 1 changeset: afeba87453eb -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.7.3 → 0.7.4.
+
+### 🐛 Fixed
+
+- **VideoPlayer WebKit contract** — separate pointer-leave hiding from the intentional
+  focus-retention behavior in the browser test.
+  [`e45defd`](https://github.com/VegaStack/vegastack-design/commit/e45defd)
+
 ## [0.7.3] — September 11, 2026
 
 <!-- assembled from 1 changeset: c20ecb6cfb27 -->

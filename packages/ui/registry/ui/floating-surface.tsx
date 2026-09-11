@@ -1,4 +1,4 @@
-// @vegastack floating-surface@0.7.3 sha256-/stM0KW2u6vtEJK7Zl7Y3V01lAVPNTAP6OPmgFuEhc4=
+// @vegastack floating-surface@0.7.4 sha256-GxMdQijTFGDwOoFWluzW+IQMiIdMGFkwZwor+BgK3A8=
 
 "use client";
 

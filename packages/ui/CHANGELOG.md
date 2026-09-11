@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.7.4
+
+### Patch Changes
+
+- [#126](https://github.com/vegastack/vegastack-design/pull/126) [`e45defd`](https://github.com/vegastack/vegastack-design/commit/e45defd2a5769e877eeb5baf747b9e40c93a9dfc) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **VideoPlayer WebKit contract** — separate pointer-leave hiding from the intentional
+  focus-retention behavior in the browser test.
+
 ## 0.7.3
 
 ### Patch Changes

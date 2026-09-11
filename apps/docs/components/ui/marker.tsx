@@ -1,4 +1,4 @@
-// @vegastack marker@0.7.3 sha256-N0b8TD/XHe+S6QhH9nv5lITiKshInv4WbKvoR/IyJO8=
+// @vegastack marker@0.7.4 sha256-LK66O9qMfeSgeufi9FjtnPVwddaCgcyhtj7AU3pnM9w=
 
 "use client";
 
