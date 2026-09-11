@@ -45,12 +45,16 @@ assert.ok(
 );
 
 const internal = internalArtifactPaths("/internal/internal-projects");
-assert.ok(internal.includes("/internal/internal-projects.html"));
-assert.ok(
-  internal.includes(
-    "/internal/internal-projects/__next.internal.$c$slug.__PAGE__.txt",
-  ),
-);
+assert.deepEqual(internal, [
+  "/internal/internal-projects",
+  "/internal/internal-projects.html",
+  "/internal/internal-projects.md",
+  "/internal/internal-projects.txt",
+  "/internal/internal-projects/__next._full.txt",
+  "/internal/internal-projects/__next._index.txt",
+  "/internal/internal-projects/__next._tree.txt",
+  "/internal/internal-projects/__next.internal.$c$slug.__PAGE__.txt",
+]);
 
 assert.equal(
   isAccessChallenge(

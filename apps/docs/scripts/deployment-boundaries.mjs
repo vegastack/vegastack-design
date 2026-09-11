@@ -57,12 +57,9 @@ export function internalArtifactPaths(route) {
     `${route}.md`,
     `${route}.txt`,
     `${route}/__next._full.txt`,
-    `${route}/__next._head.txt`,
     `${route}/__next._index.txt`,
     `${route}/__next._tree.txt`,
     `${route}/__next.internal.$c$slug.__PAGE__.txt`,
-    `${route}/__next.internal.$c$slug.txt`,
-    `${route}/__next.internal.txt`,
   ];
 }
 
