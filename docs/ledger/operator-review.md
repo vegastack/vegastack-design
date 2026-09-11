@@ -2844,3 +2844,12 @@ weakening the visible-state assertion. A focused Play button is a legitimate rea
 remain visible, and WebKit focuses it where Chromium does not. The pointer-only test now blurs before
 parking the pointer—the same precondition the adjacent fade/unmount test already documents—so focus
 retention and pointer hiding remain separately falsifiable.
+
+## 2026-09-11 — Dropzone drag feedback uses an inset overlay, not CSS outline
+
+The negative-offset outline was visibly inset in Chromium but WebKit still counted its width in
+scrollable overflow, so increasing the negative offset again was rejected: it changes appearance
+without changing the failing engine's accounting. An absolute `inset-0` pseudo-element border is the
+same two-pixel, radius-following surface cue, costs no layout, and cannot extend the scroll box. The
+real focus outline remains on the host at its existing offset; only drag-state paint uses the
+overlay.

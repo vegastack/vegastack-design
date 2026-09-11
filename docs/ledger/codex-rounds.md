@@ -554,3 +554,13 @@ needs-attention (1 medium), root-fixed.
   button on click, correctly keeping controls visible despite pointer leave. The test now blurs
   before moving the pointer, matching the adjacent cross-engine precedent and isolating the behavior
   named by the test. No runtime component change.
+
+## 2026-09-11 — deployment recovery: WebKit outline overflow accounting
+
+**Scope:** deploy run 34627283957 after the media and VideoPlayer fixes held. **Verdict:**
+needs-attention (1 high), root-fixed.
+
+- **High · fixed — negative outline offset did not change WebKit scrollable overflow.** Direct
+  Chromium inspection proved the class resolved to -2px, while WebKit still counted the two-pixel
+  outline on both edges. Dropzone now paints the same inset drag cue with an absolute pseudo-element
+  border, which contributes neither layout nor outside overflow and leaves focus styling unchanged.
