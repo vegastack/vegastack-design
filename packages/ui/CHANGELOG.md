@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.7.1
+
+### Patch Changes
+
+- [#120](https://github.com/vegastack/vegastack-design/pull/120) [`ae881cc`](https://github.com/vegastack/vegastack-design/commit/ae881ccca4c230905ec8f299b1df3fb7f6bc3181) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Docs-shell verification** — make the modal native-inert negative proof remove every outside
+  descendant and keep the injected defect active for the full focus walk.
+
 ## 0.7.0
 
 ### Minor Changes

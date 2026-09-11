@@ -1,4 +1,4 @@
-// @vegastack staggered-text-reveal@0.7.0 sha256-wKbRXWeUw6NKQjIwKH7BrXoDwKY0a3StKwofJd52A5A=
+// @vegastack staggered-text-reveal@0.7.1 sha256-hrWiqNgSUOsGGm6AKc+kFgXZxwkiRMJKUlv6yJpxN+0=
 
 "use client";
 
