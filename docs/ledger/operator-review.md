@@ -2804,3 +2804,12 @@ The final runner resolves WebKit policy once, executes engines sequentially, kee
 proven four-worker topology, and splits Firefox/WebKit into four fresh one-worker processes. Direct
 multi-instance config use fails. The static verifier plus eight negative mutations makes engine
 membership, sharding and child-exit propagation reviewable in `pnpm lint`.
+
+## 2026-09-11 — the native-inert defect injection is persistent and depth-agnostic
+
+The first 0.7.0 deploy proved the DC-03 mutation still encoded the pre-Toast DOM shape: clearing
+native inert only from direct body children was no longer equivalent to removing the modal boundary,
+because the live-region carve-out correctly places inert on sibling descendants. Widening the
+positive assertion or accepting the Linux pass was rejected. The negative case now removes every
+outside `[inert]` descendant and observes that attribute until the focus walk ends, so neither a
+deeper target nor a later hook recomputation can silently heal the injected defect.

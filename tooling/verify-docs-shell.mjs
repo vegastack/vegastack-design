@@ -488,11 +488,29 @@ const ASSERTIONS = [
           page.evaluate(() => {
             const popup = document.querySelector("[data-preview-fullscreen]");
             const portal = popup?.closest("[data-base-ui-portal]");
-            for (const child of document.body.children) {
-              if (!(child instanceof HTMLElement)) continue;
-              if (child === portal || child.contains(portal)) continue;
-              child.inert = false;
-            }
+            const clearOutsideInert = () => {
+              for (const element of document.querySelectorAll("[inert]")) {
+                if (!(element instanceof HTMLElement)) continue;
+                if (
+                  element === portal ||
+                  element.contains(portal) ||
+                  portal?.contains(element)
+                )
+                  continue;
+                element.inert = false;
+              }
+            };
+            clearOutsideInert();
+            // The modal hook may legitimately recompute its descendant targets after a live-region
+            // or portal mutation. Keep the injected defect present for the entire focus walk so
+            // this self-test proves the contract, not one transient DOM snapshot.
+            const observer = new MutationObserver(clearOutsideInert);
+            observer.observe(document.body, {
+              subtree: true,
+              childList: true,
+              attributes: true,
+              attributeFilter: ["inert"],
+            });
           }),
       },
       {
