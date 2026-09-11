@@ -522,6 +522,47 @@ const settle = () =>
   );
 
 /**
+ * Failure-only geometry detail. `scrollWidth` identifies the fact but not its owner, which made the
+ * WebKit-only Dropzone overflow look like three different paint defects in succession. Keep this
+ * eager with the first measurement, just like the headline numbers below, and cap it so a failure
+ * remains readable in an Actions annotation.
+ */
+function horizontalOverflowDetail() {
+  const root = document.documentElement;
+  const edge = root.clientWidth;
+  const candidates = [
+    document.body,
+    ...document.body.querySelectorAll<HTMLElement>("*"),
+  ]
+    .map((element) => {
+      const rect = element.getBoundingClientRect();
+      const ownOverflow = element.scrollWidth > element.clientWidth + 1;
+      const outsideViewport = rect.left < -1 || rect.right > edge + 1;
+      if (!ownOverflow && !outsideViewport) return null;
+      const slot = element.getAttribute("data-slot");
+      const label = `${element.tagName.toLowerCase()}${slot ? `[data-slot=${slot}]` : ""}`;
+      return (
+        `${label} rect=${rect.left.toFixed(1)}..${rect.right.toFixed(1)} ` +
+        `client/scroll=${element.clientWidth}/${element.scrollWidth}`
+      );
+    })
+    .filter((value): value is string => value !== null)
+    .slice(0, 8);
+  const dropzone = document.querySelector<HTMLElement>(
+    '[data-slot="dropzone"]',
+  );
+  const stroke = dropzone ? getComputedStyle(dropzone, "::after") : null;
+  return (
+    `; candidates=${candidates.join(" | ") || "none"}` +
+    (dropzone && stroke
+      ? `; dropzone=${dropzone.clientWidth}/${dropzone.scrollWidth}, ` +
+        `after inset=${stroke.top}/${stroke.right}/${stroke.bottom}/${stroke.left}, ` +
+        `box=${stroke.boxSizing}, border=${stroke.borderTopWidth}`
+      : "")
+  );
+}
+
+/**
  * The 320px containment fact, polled.
  *
  * Polling is not defensive padding — it is what the Playwright original did (`expect.poll`), and
@@ -544,7 +585,8 @@ async function expectContained(name: string, lane: string) {
         // never moved off it.
         message:
           `${name} overflows horizontally at 320px${lane} ` +
-          `(first measured scrollWidth ${document.documentElement.scrollWidth} > clientWidth ${document.documentElement.clientWidth})`,
+          `(first measured scrollWidth ${document.documentElement.scrollWidth} > clientWidth ${document.documentElement.clientWidth})` +
+          horizontalOverflowDetail(),
       },
     )
     .toBe(true);
