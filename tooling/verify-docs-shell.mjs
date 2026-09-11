@@ -391,6 +391,12 @@ const ASSERTIONS = [
       const trigger = page
         .getByRole("button", { name: "Fullscreen preview" })
         .first();
+      const triggerElement = await trigger.elementHandle();
+      assert.notEqual(
+        triggerElement,
+        null,
+        "the fullscreen trigger was not found before opening the dialog",
+      );
 
       // MEASURED, not assumed. Base UI 1.8.0 isolates with `aria-hidden` + `data-base-ui-inert`,
       // never the `inert` attribute (`FloatingFocusManager` calls
@@ -429,6 +435,13 @@ const ASSERTIONS = [
         { ariaHidden: false, marked: false },
         "the dialog's own content is caught by its background isolation",
       );
+      assert.equal(
+        await triggerElement.evaluate(
+          (element) => element.closest("[inert]") !== null,
+        ),
+        true,
+        "the fullscreen trigger behind the dialog does not have a native inert ancestor",
+      );
 
       // Base UI's guards transiently hand focus to <body>, so body itself is accepted. No
       // interactive outside element is: native inert on the body roots must make the next Tab
@@ -463,7 +476,10 @@ const ASSERTIONS = [
       // A leaked `aria-hidden` silences the whole page, so release is asserted too.
       assert.deepEqual(await isolation(), { ariaHidden: false, marked: false });
       await assertEventually(
-        () => trigger.evaluate((element) => document.activeElement === element),
+        () =>
+          triggerElement.evaluate(
+            (element) => document.activeElement === element,
+          ),
         "focus did not return to the fullscreen trigger",
       );
     },
@@ -488,29 +504,16 @@ const ASSERTIONS = [
           page.evaluate(() => {
             const popup = document.querySelector("[data-preview-fullscreen]");
             const portal = popup?.closest("[data-base-ui-portal]");
-            const clearOutsideInert = () => {
-              for (const element of document.querySelectorAll("[inert]")) {
-                if (!(element instanceof HTMLElement)) continue;
-                if (
-                  element === portal ||
-                  element.contains(portal) ||
-                  portal?.contains(element)
-                )
-                  continue;
-                element.inert = false;
-              }
-            };
-            clearOutsideInert();
-            // The modal hook may legitimately recompute its descendant targets after a live-region
-            // or portal mutation. Keep the injected defect present for the entire focus walk so
-            // this self-test proves the contract, not one transient DOM snapshot.
-            const observer = new MutationObserver(clearOutsideInert);
-            observer.observe(document.body, {
-              subtree: true,
-              childList: true,
-              attributes: true,
-              attributeFilter: ["inert"],
-            });
+            for (const element of document.querySelectorAll("[inert]")) {
+              if (!(element instanceof HTMLElement)) continue;
+              if (
+                element === portal ||
+                element.contains(portal) ||
+                portal?.contains(element)
+              )
+                continue;
+              element.inert = false;
+            }
           }),
       },
       {

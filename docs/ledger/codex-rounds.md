@@ -519,3 +519,15 @@ versioned 0.7.0 tree. **Verdict:** needs-attention (1 high), root-fixed.
   supposed defect. The mutation now removes all outside `[inert]` descendants and continuously
   re-clears them during the focus walk. This is a gate-only correction; the positive modal behavior
   and published packages are unchanged.
+
+## 2026-09-11 — deployment recovery: direct native-inert invariant
+
+**Scope:** failed deploy run 34615492056 after the depth fix. **Verdict:** needs-attention (1 high),
+root-fixed.
+
+- **High · fixed — DC-03 used a platform-dependent negative oracle.** Clearing all outside inert
+  targets was correct, but Linux Base UI guards still contained the Tab walk, so the injected defect
+  did not have to produce the macOS escape symptom. The contract now directly requires the known
+  background fullscreen trigger to have an inert ancestor. Native-inert removal deterministically
+  violates that invariant; the 25-step focus walk remains as separate positive evidence. The
+  persistent mutation observer from the prior attempt is removed as unnecessary.

@@ -2813,3 +2813,14 @@ because the live-region carve-out correctly places inert on sibling descendants.
 positive assertion or accepting the Linux pass was rejected. The negative case now removes every
 outside `[inert]` descendant and observes that attribute until the focus walk ends, so neither a
 deeper target nor a later hook recomputation can silently heal the injected defect.
+
+## 2026-09-11 — native isolation is asserted directly, not inferred from an escape
+
+The next Linux deploy disproved the assumption behind the persistent mutation: removing native
+inert does not force Base UI's own focus guards to fail on every platform. Requiring the injected
+defect to recreate macOS's escape symptom made a valid Linux guard behavior look like a fail-open
+test. The direct contract is simpler and stronger: while fullscreen is open, its known background
+trigger must have an inert ancestor. The negative case removes all outside inert targets and fails
+on that invariant; the 25-Tab walk remains a separate positive behavior check. The persistent
+observer from the prior attempt is removed because extending the lifetime of an indirect symptom
+does not turn it into a cross-platform invariant.
