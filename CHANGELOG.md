@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.7.2] — September 11, 2026
+
+<!-- assembled from 1 changeset: 67513024ce2d -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.7.1 → 0.7.2.
+
+### 🐛 Fixed
+
+- **Docs-shell verification** — assert native modal isolation directly instead of requiring a
+  platform-dependent focus-guard escape after the injected defect.
+  [`9a1c6ec`](https://github.com/VegaStack/vegastack-design/commit/9a1c6ec)
+
 ## [0.7.1] — September 11, 2026
 
 <!-- assembled from 1 changeset: 8ba479c80bc5 -->

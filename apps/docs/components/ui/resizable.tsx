@@ -1,4 +1,4 @@
-// @vegastack resizable@0.7.1 sha256-5KeRh8wT4EpIaRN65vKI7cJ1qa8BYNHqfH96cj3a7Wk=
+// @vegastack resizable@0.7.2 sha256-AbUvjzdZ9GBIYiwcpBthtFYMWnNSGzApKQmDb4c8OPA=
 
 import * as React from "react";
 import { GripVertical } from "lucide-react";
