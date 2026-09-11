@@ -439,3 +439,71 @@ P1, G1-b, D3-3, #100, #103, Do1-c), `docs/ledger/bugs.md` (root causes and fixes
 15 → 11 → 2 geometry-lane defect sequence), and
 `docs/audits/2026-09-07-system-audit/briefs/fix-round.md` (findings deliberately deferred to a
 later batch, with the owner named). The Codex round format resumes when Codex does.
+
+## 2026-09-11 — release-readiness recovery after the audit epic
+
+**Scope:** `.github/workflows`, release/tooling gates, generated registry/contract surfaces, current
+GitHub PR/issue state, and the built docs shell. **Verdict:** needs-attention (2 high · 4 medium): one
+high and two medium findings fixed in the round; one high and two medium remain planned.
+
+- **High · fixed — `tooling/verify-docs-shell.mjs:493`.** DC-06's missing-skip-link negative case
+  passed because Next hydration recreated the removed server node. The injection is now persistent
+  and the assertion requires the actual `#content` link. Observed: all eight self-test mutations
+  reject.
+- **High · open — `apps/docs/components/preview-controls.tsx:148`.** The fullscreen preview says
+  the system Dialog owns focus trapping, but four fresh 25-Tab walks on the current Base UI 1.8.0
+  build escaped into body chrome and `#nd-docs-layout` every time. The release gate names this but
+  deliberately asserts nothing. Root fix and a falsifiable DC-03 assertion are planned in
+  `docs/plans/2026-09-11-audit-tail-closeout.md`.
+- **Medium · open — `apps/docs/components/mdx.tsx:30`.** `IconGallery` still lives in the global MDX
+  map, keeping the 467-icon generated module in the catch-all docs client graph. GitHub issue #58
+  remains valid; dedicated-route isolation and a measured payload delta are in the same plan.
+- **Medium · fixed — `packages/ui/registry/ui/app-shell.test.tsx:191`.** The two-shell test used raw
+  `HTMLElement.click()` and expected Firefox to apply trusted fragment-navigation focus semantics.
+  It now uses `userEvent.click`, as the adjacent passing activation test does.
+- **Medium · fixed — `packages/ui/registry/ui/animated-icons.test.tsx:382`.** A negative touch-hover
+  assertion sampled before Motion's Firefox mount projection settled, so delayed mount markup was
+  misclassified as hover animation under full-suite load. It now takes a bounded stable baseline;
+  the focused Chromium + Firefox set passes 82/82 without retries.
+- **Medium · open — `packages/ui/vitest.all-browsers.config.ts:21`.** `maxWorkers: 1` serializes test
+  files per engine but leaves engines concurrent. Two complete release attempts failed in disjoint
+  timing-sensitive files; the second lost five Chromium ParticleField first frames and a Firefox
+  submenu close, while their focused two-engine rerun passed 44/44. Sequential per-engine
+  orchestration, with no timeout inflation and WebKit still fail-closed in CI, is work package 0 of
+  the close-out plan.
+
+Deterministic evidence kept green: `pnpm verify` (143 files / 2,393 tests), all three direct
+design-lint passes, 596/596 registry rebuild and contract reconciliation with a clean tree. The
+release gate passed both private/public exports, metadata, agent-clean markdown, links, emitted CSS,
+and the positive docs-shell contracts before its negative harness correctly stopped the run.
+
+## 2026-09-11 — audit-tail close-out after implementation
+
+**Scope:** the three findings left open by the release-readiness recovery, plus every gate that can
+falsify their fixes. **Verdict:** release-ready locally (0 open findings).
+
+- **High · closed — modal focus containment.** The defect was systemic across Dialog, AlertDialog
+  and Sheet, not fullscreen-specific. Their canonical popup roots now share a reference-counted
+  native-inert hook driven by Base UI's live modal-stack markers. The built docs pass background
+  isolation, a 25-step focus walk, Escape and focus return; removing native inert makes DC-03 fail.
+  The complete Chromium run also caught the first over-broad implementation making Toast inert,
+  and the built docs caught the next `[aria-live]` carve-out reopening CopyButton controls. The
+  final boundary preserves only region-level live notification surfaces and keeps control-local
+  announcers inside the inert background. The final adversarial pass also caught that the selector
+  depends on `role` while the observer initially watched only `aria-live`; role changes are now
+  observed and exercised in both directions.
+- **Medium · closed — animated-icon client payload.** The 467-icon gallery moved out of the global
+  MDX client map into its own explicit App Router route. The metadata gate requires the gallery
+  chunk there and forbids it in every ordinary docs HTML route. Directly referenced raw JavaScript
+  on ordinary routes fell 443,422 bytes, from 3,756,660 to 3,313,238 (11.8%).
+- **Medium · closed — cross-engine load.** Release browsers now run sequentially; Firefox and
+  WebKit use four fresh one-worker shards, while Chromium retains four workers. A static verifier
+  plus eight negative mutations rejects bypass, dropped engines/shards, swallowed exits and restored
+  slow-engine concurrency.
+
+Final executed evidence: `pnpm verify` passed 144 browser files / 2,407 tests; registry rebuild was
+idempotent over 597 items; derived generation left the tracked diff unchanged; and
+`pnpm verify:release` passed in 429.3s through both docs visibility matrices, all nine docs-shell
+negative mutations, the complete registry consume proof, Chromium 2,407/2,407, and Firefox 2,392
+passed + 15 intentional skips. WebKit emitted its expected local host-incompatibility skip;
+`WEBKIT_LANE=require` remains enforced in CI and deploy.

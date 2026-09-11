@@ -1,7 +1,6 @@
 import * as React from "react";
 import { renderToString } from "react-dom/server";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
@@ -179,8 +178,10 @@ test("reveals the absolute date-time on focus", async () => {
       <RelativeTime date={date} now={NOW} locale="en-US" />
     </TooltipProvider>,
   );
-  // Keyboard focus opens the tooltip instantly (no hover delay).
-  await userEvent.tab();
+  // Focus opens the tooltip instantly (no hover delay). The preceding test separately proves the
+  // projected <time> is a real tab stop; target it here so this assertion measures the focus
+  // behavior rather than inheriting Firefox's document-level Tab cursor from earlier tests.
+  (screen.getByText("2 hours ago").element() as HTMLElement).focus();
   const tip = screen.getByRole("tooltip");
   await expect.element(tip).toBeInTheDocument();
   // The tooltip also renders the time of day, which depends on the host timezone —
@@ -198,7 +199,7 @@ test("accepts a custom tooltip label", async () => {
       />
     </TooltipProvider>,
   );
-  await userEvent.tab();
+  (screen.getByText("1 hour ago").element() as HTMLElement).focus();
   await expect
     .element(screen.getByRole("tooltip"))
     .toHaveTextContent("Created at launch");
@@ -228,7 +229,7 @@ test("no a11y violations (tooltip open)", async () => {
       <RelativeTime date={new Date(ms(-90 * 60_000))} now={NOW} />
     </TooltipProvider>,
   );
-  await userEvent.tab();
+  (screen.getByText("1 hour ago").element() as HTMLElement).focus();
   await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
   // axe the portaled popup, which lands outside the test container.
   await expectNoA11yViolations(screen.container.ownerDocument.body);

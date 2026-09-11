@@ -936,6 +936,7 @@ sameStrings(
     "use-file-drop",
     "use-list-nav",
     "use-media-query",
+    "use-modal-inert",
     "use-mobile",
     "use-overflow",
     "use-platform",
@@ -953,8 +954,8 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 10,
-  "expectedWaveCounts.Hooks must be 10",
+  contracts.expectedWaveCounts?.Hooks === 11,
+  "expectedWaveCounts.Hooks must be 11",
 );
 assert(
   contracts.expectedWaveCounts?.Block === 1,
@@ -1328,8 +1329,25 @@ assert(existsSync(iconDocsFile), "shared animated-icon docs page is missing");
 if (existsSync(iconDocsFile)) {
   const iconDocs = readFileSync(iconDocsFile, "utf8");
   assert(
-    iconDocs.includes("<IconGallery"),
-    "shared animated-icon docs page must render IconGallery",
+    iconDocs.includes("(/docs/foundations/icons/gallery)"),
+    "shared animated-icon docs page must link to the dedicated IconGallery route",
+  );
+}
+const iconGalleryRouteFile = join(
+  root,
+  "apps/docs/app/docs/foundations/icons/gallery/page.tsx",
+);
+assert(
+  existsSync(iconGalleryRouteFile),
+  "dedicated animated-icon gallery route is missing",
+);
+if (existsSync(iconGalleryRouteFile)) {
+  const iconGalleryRoute = readFileSync(iconGalleryRouteFile, "utf8");
+  assert(
+    iconGalleryRoute.includes(
+      'import { IconGallery } from "@/components/icon-gallery"',
+    ) && iconGalleryRoute.includes("<IconGallery />"),
+    "dedicated animated-icon gallery route must directly import and render IconGallery",
   );
 }
 const generatedIconGallery = readFileSync(

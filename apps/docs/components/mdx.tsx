@@ -27,7 +27,6 @@ import {
   TypeCoreLadder,
   FocusRingSpecimen,
 } from "@/components/foundations";
-import { IconGallery } from "@/components/icon-gallery";
 import { RegistryInstallCallout } from "@/components/registry-install-callout";
 import { AlertPlayground } from "@/components/alert-playground";
 import { AnimatedNumberPlayground } from "@/components/animated-number-playground";
@@ -118,7 +117,6 @@ export function getMDXComponents(components?: MDXComponents) {
     TypeScaleSizes,
     TypeCoreLadder,
     FocusRingSpecimen,
-    IconGallery,
     AlertPlayground,
     AnimatedNumberPlayground,
     AttachmentPlayground,

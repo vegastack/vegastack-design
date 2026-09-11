@@ -7,6 +7,11 @@ export const revalidate = false;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const url = (path: string) => new URL(path, siteUrl).toString();
+  const iconGallery: MetadataRoute.Sitemap[number] = {
+    url: url("/docs/foundations/icons/gallery"),
+    changeFrequency: "weekly",
+    priority: 0.4,
+  };
 
   // `source.getPages()` already includes the `/docs` index page (content/docs/index.mdx), so no
   // separate entry for it is needed here.
@@ -21,5 +26,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: page.url === "/docs" ? 0.8 : 0.5,
     }));
 
-  return [{ url: url("/"), changeFrequency: "monthly", priority: 1 }, ...pages];
+  return [
+    { url: url("/"), changeFrequency: "monthly", priority: 1 },
+    ...pages,
+    iconGallery,
+  ];
 }

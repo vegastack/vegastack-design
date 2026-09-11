@@ -65,6 +65,7 @@ export function AnimatedIconCard({
   return (
     <button
       type="button"
+      data-slot="animated-icon-card"
       aria-label={`${label} icon — play animation`}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}

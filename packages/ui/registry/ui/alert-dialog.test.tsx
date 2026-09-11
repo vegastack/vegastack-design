@@ -212,6 +212,22 @@ test("no a11y violations when open", async () => {
   await expectNoA11yViolations(document.body);
 });
 
+test("modal mirrors Base UI's outside markers to native inert and restores them", async () => {
+  const outside = document.createElement("button");
+  outside.textContent = "Outside action";
+  document.body.prepend(outside);
+  try {
+    const screen = await render(<Example />);
+    await screen.getByRole("button", { name: "Delete project" }).click();
+    await expect.poll(() => outside.inert).toBe(true);
+    clickBySlot("alert-dialog-cancel");
+    await vi_waitForClosed();
+    await expect.poll(() => outside.inert).toBe(false);
+  } finally {
+    outside.remove();
+  }
+});
+
 test("AlertDialogContent forwards ref to its host element", async () => {
   // The portaled popup is the host element AlertDialogContent owns.
   const ref = React.createRef<HTMLDivElement>();

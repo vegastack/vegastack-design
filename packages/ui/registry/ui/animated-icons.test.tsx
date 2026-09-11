@@ -130,6 +130,35 @@ async function waitForMarkupChange(
   }
 }
 
+/**
+ * Wait until Motion's mount bookkeeping stops changing the rendered geometry.
+ *
+ * A negative interaction assertion must take its baseline from a settled icon. Under the complete
+ * cross-engine suite Firefox can finish the initial `normal` projection several frames after
+ * `render()` resolves; sampling before that and then waiting for any markup change attributes the
+ * delayed mount work to the synthetic event the test is trying to reject.
+ */
+async function waitForMarkupToSettle(
+  element: Element,
+  maximumFrames = 60,
+  requiredStableFrames = 3,
+) {
+  let previous = element.outerHTML;
+  let stableFrames = 0;
+  for (let frame = 0; frame < maximumFrames; frame += 1) {
+    await nextFrame();
+    const current = element.outerHTML;
+    if (current === previous) {
+      stableFrames += 1;
+      if (stableFrames >= requiredStableFrames) return;
+    } else {
+      previous = current;
+      stableFrames = 0;
+    }
+  }
+  throw new Error("animated icon markup did not settle before the interaction");
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -353,6 +382,7 @@ test("hover does not play on a touch pointer; pointer-down does", async () => {
     </>,
   );
   const hovered = screen.getByTestId("hovered").element();
+  await waitForMarkupToSettle(hovered);
   hovered.dispatchEvent(
     new PointerEvent("pointerover", { bubbles: true, pointerType: "touch" }),
   );

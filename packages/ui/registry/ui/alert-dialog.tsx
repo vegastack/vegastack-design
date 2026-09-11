@@ -1,4 +1,4 @@
-// @vegastack alert-dialog@0.6.0 sha256-QjOAiQwvWB1wPvjRiFIpNWeptyvl/0Nx7oJXdsEh8ew=
+// @vegastack alert-dialog@0.6.0 sha256-bUcd9UmcfoAAJ8ePWLkQu2X6p6AUENf3xzGOTOc1teU=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { AlertDialog as BaseAlertDialog } from "@base-ui/react/alert-dialog";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button, type ButtonAppearance } from "@/components/ui/button";
+import { useModalInert } from "@/components/ui/use-modal-inert";
 
 /* ------------------------------------------------------------------------------------------------
  * AlertDialog — a modal confirmation dialog built on Base UI's AlertDialog. Exported FLAT
@@ -118,9 +119,11 @@ export type AlertDialogContentProps = React.ComponentProps<
 export function AlertDialogContent({
   className,
   children,
+  ref,
   ...props
 }: AlertDialogContentProps) {
   const themeScope = useInternalThemeScope();
+  const mergedRef = useModalInert<HTMLDivElement>({ ref });
 
   return (
     <BaseAlertDialog.Portal>
@@ -141,6 +144,7 @@ export function AlertDialogContent({
         )}
       >
         <BaseAlertDialog.Popup
+          ref={mergedRef}
           data-slot="alert-dialog-content"
           className={cn(
             themeScope,

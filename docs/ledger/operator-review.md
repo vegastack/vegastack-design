@@ -2744,3 +2744,63 @@ sibling components to share a generated id. Flagged for MK in the PR.
 `mergeRefs` from `@vegastack/design`; `table-scroll-region.tsx` then landed in T1 with a fresh one
 and nothing noticed, because the sweep was a one-time grep and not a gate. `design-lint` now owns
 the rule (`hand-rolled-ref-merge`) with a fixture in the structural negative harness.
+
+## 2026-09-11 — DC-06's negative proof must survive hydration
+
+**Decision:** model a missing skip link with a persistent CSS exclusion and assert the canonical
+`#content` href, instead of deleting the server-rendered node or accepting any in-page anchor.
+
+- **Options:** delete the node after a guessed hydration delay; add a global network-idle delay to
+  every docs-shell case; or make this mutation persistent and tighten the assertion to the actual
+  site contract.
+- **Choice:** the third. A timeout/network-idle heuristic still tests scheduling, and slowing every
+  case does not improve its subject. A stylesheet remains in force if hydration replaces the DOM
+  node, while the exact href ensures a different first-tabbed hash link cannot impersonate the skip
+  link.
+- **Observed proof:** before the change, `verify:release` reported DC-06 passed with the defect;
+  after it, the case fails on the first `/` navigation link and all eight negative cases reject.
+
+## 2026-09-11 — cross-engine tests must use trusted interactions and settled baselines
+
+**Decision:** correct the two Firefox-only release failures in their test mechanisms, with no
+component behavior change.
+
+- AppShell's contract is user activation of a fragment link, so its two-shell test now uses a
+  trusted `userEvent.click`, not `HTMLElement.click()`. The former is already the suite's convention
+  and the adjacent single-shell proof.
+- Animated-icon's contract is no animation from touch hover. Source inspection and a live Firefox
+  `PointerEvent` measurement refuted an event-routing defect; 12/12 focused runs passed without
+  retry. The negative probe now waits for three unchanged frames before taking its baseline, so
+  Motion mount work cannot be attributed to the later event.
+- A retry is not treated as the fix. The focused two-engine run passes all 82 tests with
+  `--retry=0`; the complete release lane remains the load-bearing follow-up.
+
+## 2026-09-11 — close-out decisions: modal inert, route isolation, engine shards
+
+**Dialog modality — corrected after adversarial expansion.** The initial docs-leaf decision was
+rejected after the identical 25-Tab walk leaked from the ordinary Dialog demo. Canonical
+`DialogContent` now mirrors Base UI's own live `data-base-ui-inert` markers instead of guessing body
+siblings. A module-level ownership count preserves nested/overlapping modal lifecycles and each
+element's prior inert value; observing the upstream marker handles open, close and stack changes,
+including keep-mounted content. `modal={false}` and `modal="trap-focus"` intentionally do not add
+native inert because both promise different outside-pointer behavior. The hook also preserves Base
+UI's region-level live-surface exception: the first full-suite run proved that mirroring the marker
+literally made the toast viewport inert and violated the existing above-modal hit-test contract. A
+blanket `[aria-live]` carve-out was rejected by the built docs gate because the control-local
+announcer inside each CopyButton reopened its focusable ancestor. Recursing only toward
+`[aria-live][role="region"]` keeps notification landmarks announced and interactive without
+special-casing Toast by component name or reopening inline controls. Because both attributes define
+that selector, the observer watches `role` as well as `aria-live`; the hook test changes a mounted
+surface from status to region and back so stale ownership cannot hide behind atomic initial mount.
+
+**Gallery isolation.** A dedicated App Router page was chosen over another dynamic import. The old
+audit already measured dynamic import as ineffective under the shared catch-all client manifest;
+the dedicated route is the boundary the bundler can preserve. It is public, indexed, included in
+the sitemap, verified as one explicit non-MDX HTML route, and deliberately excluded from the agent
+markdown corpus because that corpus already carries the generated registry roster.
+
+**Cross-engine execution.** Timeout inflation and retries as the primary mechanism were rejected.
+The final runner resolves WebKit policy once, executes engines sequentially, keeps Chromium at its
+proven four-worker topology, and splits Firefox/WebKit into four fresh one-worker processes. Direct
+multi-instance config use fails. The static verifier plus eight negative mutations makes engine
+membership, sharding and child-exit propagation reviewable in `pnpm lint`.

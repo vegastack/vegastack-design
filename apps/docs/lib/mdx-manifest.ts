@@ -32,8 +32,6 @@ export const RUNTIME_PLACEHOLDERS = new Set([
 
 /** Browser-only surfaces, replaced by an explicit note (never dropped silently). */
 export const BROWSER_ONLY_NOTES: Record<string, string> = {
-  IconGallery:
-    "_Icon gallery — browser only. The icon inventory is listed under Registry items in llms.txt._",
   ColorPalette:
     "_Colour token specimen — browser only; the values are in design.md §Colours._",
   SurfaceLadder:

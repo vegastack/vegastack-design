@@ -88,7 +88,7 @@ check("an unknown name is unclassified", () => {
 check("the known kinds still classify", () => {
   const expected: [string, string][] = [
     ["ComponentPreview", "runtime-placeholder"],
-    ["IconGallery", "browser-only"],
+    ["ColorPalette", "browser-only"],
     ["ButtonPlayground", "playground"],
     ["story.WithControl", "story-explorer"],
     ["Callout", "rendered"],

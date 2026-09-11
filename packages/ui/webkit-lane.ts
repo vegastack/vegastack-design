@@ -25,6 +25,8 @@
 
 const SKIP_BANNER = "WEBKIT-LANE-SKIPPED";
 
+export type BrowserEngine = "chromium" | "firefox" | "webkit";
+
 function skip(reason: string): false {
   console.warn(
     `\n${SKIP_BANNER} — WebKit could not launch on this host; the cross-engine lane is running ` +
@@ -110,12 +112,14 @@ function includeWebkit(): Promise<boolean> {
   })());
 }
 
-// The engines a cross-engine lane adds on top of the base Chromium config: Firefox always, WebKit
-// only when it can actually launch on this host. mergeConfig UNIONS these with the base
-// [{ browser: "chromium" }], so the lane runs chromium+firefox(+webkit).
-export async function crossEngineInstances(): Promise<
-  Array<{ browser: string }>
-> {
+/**
+ * The complete release-engine order, resolved once by the sequential runner.
+ *
+ * Chromium goes first because it is the base/PR engine, WebKit follows when this host is allowed
+ * to run it, and Firefox closes the lane. CI still reaches `includeWebkit()` in `require` mode, so
+ * an unavailable WebKit fails before any suite can be reported as complete.
+ */
+export async function allBrowserEngines(): Promise<BrowserEngine[]> {
   const webkit = await includeWebkit();
-  return [...(webkit ? [{ browser: "webkit" }] : []), { browser: "firefox" }];
+  return ["chromium", ...(webkit ? (["webkit"] as const) : []), "firefox"];
 }
