@@ -1,4 +1,4 @@
-// @vegastack split-button@0.7.1 sha256-+mVVlT/muQvVNmfU3cQJbYLpGlLYSKG7XQNBe5a5XoY=
+// @vegastack split-button@0.7.2 sha256-pBTFkTFaD1ycMTZ2wPA7if9WIJnYfiS75k2yNV8OBAs=
 
 "use client";
 

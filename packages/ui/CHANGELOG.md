@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.7.2
+
+### Patch Changes
+
+- [#122](https://github.com/vegastack/vegastack-design/pull/122) [`9a1c6ec`](https://github.com/vegastack/vegastack-design/commit/9a1c6ece991f3537450a95c1d1705776842ea591) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Docs-shell verification** — assert native modal isolation directly instead of requiring a
+  platform-dependent focus-guard escape after the injected defect.
+
 ## 0.7.1
 
 ### Patch Changes

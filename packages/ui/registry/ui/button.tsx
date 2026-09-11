@@ -1,4 +1,4 @@
-// @vegastack button@0.7.1 sha256-9yiniNQv2r+4KRhZN9cF7zjC9UNPqQ/OcIwSaT5wmWQ=
+// @vegastack button@0.7.2 sha256-U4JGW06G/kiraNWLU0wS0UrfJpf8aI3vIblvzI5vq2k=
 
 import * as React from "react";
 import { cva } from "class-variance-authority";

@@ -1,4 +1,4 @@
-// @vegastack slider@0.7.1 sha256-FJOsnmqSBuKsd4RoOLAsXO2bVuh/MN+bg5UP5C8Y0Kw=
+// @vegastack slider@0.7.2 sha256-jpXOcvmbtGfwanntela7IIaMnXbJ0cdW/dBfI4xhaQU=
 
 import * as React from "react";
 import { Slider as BaseSlider } from "@base-ui/react/slider";
