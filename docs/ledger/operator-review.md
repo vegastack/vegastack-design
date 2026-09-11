@@ -2824,3 +2824,15 @@ trigger must have an inert ancestor. The negative case removes all outside inert
 on that invariant; the 25-Tab walk remains a separate positive behavior check. The persistent
 observer from the prior attempt is removed because extending the lifetime of an indirect symptom
 does not turn it into a cross-platform invariant.
+
+## 2026-09-11 — WebKit fixes preserve the product contracts
+
+**Dropzone:** inset only the drag-state outline, not the component's base outline offset. Applying
+`-outline-offset-2` unconditionally would also pull the centralized focus-visible outline inward,
+creating a component-local focus deviation with no clipping justification. State-qualified offsets
+remove WebKit's 4px scrollable overflow while preserving the system focus grammar.
+
+**AudioPlayer tests:** stub the media clock rather than change runtime seeking or wait longer.
+WebKit's zero is valid before a timeline exists, and a timeout cannot turn the data URI into the
+transport-state fixture these tests intend. A configurable writable `currentTime` property lets the
+same code path seek and mutate normally without asking the codec engine to synthesize metadata.

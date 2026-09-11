@@ -339,6 +339,18 @@ test("ref forwards to the drop surface", async () => {
   expect(ref.current?.dataset.slot).toBe("dropzone");
 });
 
+test("insets drag-state outlines without changing the resting focus offset", async () => {
+  await render(
+    <Dropzone dragState="dragging" onFilesAccepted={() => {}}>
+      <p>Drop here</p>
+    </Dropzone>,
+  );
+  const classes = surface().getAttribute("class") ?? "";
+  expect(classes).toContain("outline-offset-0");
+  expect(classes).toContain("data-dragging:-outline-offset-2");
+  expect(classes).toContain("data-drag-invalid:-outline-offset-2");
+});
+
 test("focus lands on the surface via keyboard and nothing strips its outline", async () => {
   await render(
     <Dropzone onFilesAccepted={() => {}}>
