@@ -507,3 +507,15 @@ idempotent over 597 items; derived generation left the tracked diff unchanged; a
 negative mutations, the complete registry consume proof, Chromium 2,407/2,407, and Firefox 2,392
 passed + 15 intentional skips. WebKit emitted its expected local host-incompatibility skip;
 `WEBKIT_LANE=require` remains enforced in CI and deploy.
+
+## 2026-09-11 — deployment recovery: DC-03 negative depth
+
+**Scope:** failed deploy run 34611572881, specifically the docs-shell DC-03 self-test against the
+versioned 0.7.0 tree. **Verdict:** needs-attention (1 high), root-fixed.
+
+- **High · fixed — `tooling/verify-docs-shell.mjs`.** The native-inert mutation cleared direct body
+  children, while the Toast live-region carve-out moved some owned inert targets onto descendants of
+  the marked docs root. Linux therefore retained a working boundary and the contract passed with the
+  supposed defect. The mutation now removes all outside `[inert]` descendants and continuously
+  re-clears them during the focus walk. This is a gate-only correction; the positive modal behavior
+  and published packages are unchanged.

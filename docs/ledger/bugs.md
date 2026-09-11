@@ -2520,3 +2520,16 @@ changed for any of these test repairs.
   `animated-icon-card` sentinel, requiring that route and forbidding every other docs HTML file from
   referencing it. Raw directly referenced JS fell from 3,756,660 to 3,313,238 bytes on ordinary
   docs routes: 443,422 bytes removed (11.8%).
+
+## 2026-09-11 — CLOSED: DC-03's native-inert negative proof only cleared body children
+
+- **Symptom.** The first deploy of 0.7.0 stopped before signing because the Linux docs-shell
+  self-test reported that DC-03 still passed after its native-inert defect was injected.
+- **Root cause.** The final modal hook carves a path to the region-level Toast live surface and
+  applies native inert to sibling descendants inside the marked docs root. The negative mutation
+  still cleared only direct `body` children, so those descendant inert targets survived. Local Tab
+  order happened to reach another cleared root and fail; the Linux order stayed contained, exposing
+  the mutation as nondeterministic and fail-open.
+- **Systemic fix.** The mutation now clears every `[inert]` element outside the active modal portal
+  and observes the inert attribute for the duration of the 25-step walk, so hook recomputation cannot
+  heal the injected defect. The positive contract is unchanged.
