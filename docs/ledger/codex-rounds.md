@@ -531,3 +531,16 @@ root-fixed.
   background fullscreen trigger to have an inert ancestor. Native-inert removal deterministically
   violates that invariant; the 25-step focus walk remains as separate positive evidence. The
   persistent mutation observer from the prior attempt is removed as unnecessary.
+
+## 2026-09-11 — deployment recovery: WebKit geometry and media state
+
+**Scope:** deploy run 34618991123 attempt 2, which reached the serialized WebKit shard after both
+DC-03 corrections. **Verdict:** needs-attention (1 high · 1 medium), root-fixed.
+
+- **High · fixed — Dropzone drag state overflowed by four pixels in WebKit.** A zero-offset 2px
+  outline contributes both outside edges to WebKit's scrollable overflow. Drag-state outlines are
+  now inset by their own width while the ordinary focus outline remains at the system offset.
+- **Medium · fixed — AudioPlayer tests depended on Chromium's pre-metadata media setter.** WebKit
+  clamps `currentTime` to zero without a decoded timeline, so three transport tests never received
+  their synthetic starting clock. The helper now defines a writable clock property; runtime media
+  behavior is untouched.

@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.7.2 sha256-i5MJ3dIxRHH1gNnuFkgQ5IV5XilrJx0kzKEPxNY8J5g=
+// @vegastack dropzone@0.7.2 sha256-U4BwqJeVswhkXQ6ElRUuM/VxtbDVORk8/Vmox7TECF0=
 
 "use client";
 
@@ -146,8 +146,8 @@ export function Dropzone({
           // wrapping an image, a card, or any non-`Empty` child showed no
           // drag-over state at all (audit B8-07). `outline` rather than `border`
           // so the feedback costs no layout — the child keeps its box.
-          "outline-offset-0 data-dragging:outline-2 data-dragging:outline-primary/(--alpha-outline-border)",
-          "data-drag-invalid:outline-2 data-drag-invalid:outline-destructive/(--alpha-outline-border)",
+          "outline-offset-0 data-dragging:-outline-offset-2 data-dragging:outline-2 data-dragging:outline-primary/(--alpha-outline-border)",
+          "data-drag-invalid:-outline-offset-2 data-drag-invalid:outline-2 data-drag-invalid:outline-destructive/(--alpha-outline-border)",
           options.disabled && "pointer-events-none opacity-(--opacity-dim)",
           className,
         )}

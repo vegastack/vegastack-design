@@ -12,7 +12,16 @@ function setMediaState(
   media: HTMLMediaElement,
   state: { currentTime?: number; duration?: number; paused?: boolean },
 ) {
-  if (state.currentTime != null) media.currentTime = state.currentTime;
+  if (state.currentTime != null) {
+    // WebKit clamps the native setter to zero until it owns a real media timeline. These tests
+    // exercise our transport state machine, so provide the same writable clock stub used by the
+    // adjacent multi-hour cases rather than depending on an engine decoder accepting the data URI.
+    Object.defineProperty(media, "currentTime", {
+      configurable: true,
+      writable: true,
+      value: state.currentTime,
+    });
+  }
   if (state.duration != null) {
     Object.defineProperty(media, "duration", {
       configurable: true,

@@ -2546,3 +2546,19 @@ changed for any of these test repairs.
   the invariant immediately, while the 25-step walk remains the independent positive behavior
   contract. This supersedes the persistent-observer mechanism in the preceding entry; that observer
   was removed because persistence cannot make an indirect symptom deterministic.
+
+## 2026-09-11 — CLOSED: WebKit exposed outside drag overflow and native media-test clamping
+
+- **Dropzone symptom/root cause.** The containerized WebKit geometry lane measured
+  `dropzoneDragging` at 324px inside a 320px viewport. Its 2px drag outline used zero offset, and
+  WebKit includes both outside outline edges in scrollable overflow. Chromium did not, so the
+  existing local lane missed the four-pixel expansion.
+- **Dropzone fix.** Only the `data-dragging` and `data-drag-invalid` outlines move to a -2 inset
+  offset; the resting/global focus outline retains offset zero. The component test locks that split,
+  and the compiled geometry fixture remains the cross-engine proof.
+- **AudioPlayer symptom/root cause.** Three WebKit tests seeded `currentTime` through the native
+  media setter before the engine had decoded a real timeline. WebKit correctly clamped it to zero,
+  while Chromium accepted the synthetic value. The tests exercise the transport state machine, not
+  codec loading.
+- **AudioPlayer fix.** The shared test helper defines a configurable, writable `currentTime` clock,
+  matching the adjacent multi-hour test precedent. Component runtime code is unchanged.

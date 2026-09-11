@@ -61,9 +61,10 @@ per-file state vocabulary `Attachment` renders.
 
 ### Drag-over states
 
-The **surface** carries the drag feedback — a primary outline while a valid payload hovers, a
-destructive one when it cannot be accepted — so it works with any child, not only an `Empty`. An
-`Empty variant="dashed"` child can tint its dashed border in step through
+The **surface** carries the drag feedback — an inset primary outline while a valid payload hovers,
+an inset destructive one when it cannot be accepted — so it works with any child, not only an
+`Empty`. Keeping the outline inside the surface prevents WebKit from adding its two outside pixels
+per edge to scrollable overflow. An `Empty variant="dashed"` child can tint its dashed border in step through
 `group-data-dragging/dropzone`.
 
 `dragState` paints the two states without a live `DataTransfer`, which neither a static example nor
