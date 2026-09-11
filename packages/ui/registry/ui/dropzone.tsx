@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.7.5 sha256-nvC7DwH9RrUySGWTmAUw6doHWnOa1eBrmZm7emrxoAE=
+// @vegastack dropzone@0.7.5 sha256-LN33bDPnuoVJ1SqdIJuvNhELSSoTRrY44PDA3DE6dQo=
 
 "use client";
 
@@ -79,12 +79,12 @@ export interface DropzoneProps extends Omit<
 /**
  * `Dropzone` — the visual shell over `use-file-drop`: a click-to-browse,
  * drop-and-paste surface with a real hidden `<input type="file">` as the
- * accessible control. The surface itself outlines while a payload hovers —
+ * accessible control. The surface itself gains an inset stroke while a payload hovers —
  * primary when it can be accepted, destructive when it cannot — so the feedback
  * does not depend on what is inside it. `data-dragging` and `data-drag-invalid`
  * stay on the surface for the `group-data-[…]/dropzone` idiom, so a child can
  * follow the drag state — an `Empty variant="dashed"`, say, tinting its border
- * in step with the outline.
+ * in step with the stroke.
  *
  * @example
  * <Dropzone
@@ -140,14 +140,15 @@ export function Dropzone({
         className={cn(
           "group/dropzone relative w-full min-w-0 cursor-pointer rounded-lg",
           // The SURFACE reflects the drag, not one privileged descendant: an
-          // outline hugging its own `rounded-lg`, primary while a valid payload
+          // stroke following its own `rounded-lg`, primary while a valid payload
           // hovers and destructive when it cannot be accepted. Before this the
           // tint was a `[&_[data-slot=empty]]` border override, so a Dropzone
           // wrapping an image, a card, or any non-`Empty` child showed no
-          // drag-over state at all (audit B8-07). The absolute inset pseudo-element paints a
-          // border without layout cost or WebKit's outside-outline scroll overflow — the child
-          // keeps its box, and the host's real focus outline stays independent.
-          "outline-offset-0 after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:content-['']",
+          // drag-over state at all (audit B8-07). The border-box pseudo-element is inset by its
+          // own stroke width: WebKit counts even an `inset-0` pseudo-element's two border edges in
+          // scrollable overflow. Moving both edges one spacing step inward keeps the paint inside
+          // without clipping arbitrary children; the host's real focus outline stays independent.
+          "outline-offset-0 after:pointer-events-none after:absolute after:inset-0.5 after:box-border after:rounded-[inherit] after:content-['']",
           "data-dragging:after:border-2 data-dragging:after:border-primary/(--alpha-outline-border)",
           "data-drag-invalid:after:border-2 data-drag-invalid:after:border-destructive/(--alpha-outline-border)",
           options.disabled && "pointer-events-none opacity-(--opacity-dim)",
