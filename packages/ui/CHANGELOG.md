@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.8.1
+
+### Patch Changes
+
+- [#132](https://github.com/vegastack/vegastack-design/pull/132) [`9390ce4`](https://github.com/vegastack/vegastack-design/commit/9390ce4654317f0b687138bf225e8656064d61c4) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 **Geometry diagnostics** — name the elements and computed paint geometry that own a horizontal
+  overflow, so a cross-engine failure identifies its cause instead of reporting only the page width.
+
 ## 0.8.0
 
 ### Minor Changes
