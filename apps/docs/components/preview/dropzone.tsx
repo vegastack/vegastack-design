@@ -179,7 +179,7 @@ export function dropzoneRejections(): ReactNode {
 export function dropzoneDragging(): ReactNode {
   const noop = () => {};
   return (
-    <Wrapper className="grid gap-3 sm:grid-cols-3">
+    <Wrapper className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       <Dropzone
         aria-label="Valid payload"
         dragState="dragging"
