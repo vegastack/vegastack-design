@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.8.2
+
+### Patch Changes
+
+- [#134](https://github.com/vegastack/vegastack-design/pull/134) [`c371d09`](https://github.com/vegastack/vegastack-design/commit/c371d09e2508a35b6023d9794f26326d747aade1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Dropzone docs** — keep the three-state drag preview within 320px by giving its narrow layout
+  an explicit zero-minimum grid track before the three-column breakpoint.
+  [docs](https://design.vegastack.com/docs/components/dropzone)
+
 ## 0.8.1
 
 ### Patch Changes

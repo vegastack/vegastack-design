@@ -1,4 +1,4 @@
-// @vegastack pagination@0.8.1 sha256-WuA5Z7pIttsIE+g1JvOnMGG80nqkmeia6bZpIIzRfIg=
+// @vegastack pagination@0.8.2 sha256-v6Fdb9PGRYj3kQwPZ8EfLUMdg96L3cKQyjU1Q0e4rBs=
 
 "use client";
 
