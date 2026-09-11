@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.8.1] — September 12, 2026
+
+<!-- assembled from 1 changeset: e2fdfb7dd95c -->
+
+### 🛠 CLI & tooling
+
+- **Geometry diagnostics** — name the elements and computed paint geometry that own a horizontal
+  overflow, so a cross-engine failure identifies its cause instead of reporting only the page width.
+  [`9390ce4`](https://github.com/VegaStack/vegastack-design/commit/9390ce4)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.8.0 → 0.8.1.
+
 ## [0.8.0] — September 12, 2026
 
 <!-- assembled from 1 changeset: 45a3bc510f59 -->

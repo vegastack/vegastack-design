@@ -1,4 +1,4 @@
-// @vegastack region-select@0.8.0 sha256-9pvogpX+Gl+fpYIxHSEHfVNko7Jj0l2Qfl1WKvoA04U=
+// @vegastack region-select@0.8.1 sha256-0iF7RDrCjo4M83U2J3lBqBinTm1gBzQDi4NONWs6spI=
 
 "use client";
 
