@@ -1,4 +1,4 @@
-// @vegastack icon-button@0.7.4 sha256-C6i+4Vb765KuvhlcDGh52e11Ik2iG+l+JAVRU6HTsmM=
+// @vegastack icon-button@0.7.5 sha256-LGQnNnlEcBJUMz7/iWX75g1hTV69zA8CZ09ZGnRa7kQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

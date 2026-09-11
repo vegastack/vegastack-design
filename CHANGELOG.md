@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.7.5] — September 11, 2026
+
+<!-- assembled from 1 changeset: 5c78e1272289 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.7.4 → 0.7.5.
+
+### 🐛 Fixed
+
+- **Dropzone** — paint drag feedback with an inset overlay that cannot expand WebKit scrollable
+  overflow.
+  [`e5ba405`](https://github.com/VegaStack/vegastack-design/commit/e5ba405)
+
 ## [0.7.4] — September 11, 2026
 
 <!-- assembled from 1 changeset: afeba87453eb -->
