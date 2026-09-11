@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.7.4 sha256-GoiV4hHAc5rwEftNi2NDyGHMx2IFDUE4tzFx3DmNgM0=
+// @vegastack dropzone@0.7.4 sha256-tVmK/MKdZZsXv+12QW6mCLMxsUbCVTVRN5EdcM11yvY=
 
 "use client";
 
@@ -144,10 +144,12 @@ export function Dropzone({
           // hovers and destructive when it cannot be accepted. Before this the
           // tint was a `[&_[data-slot=empty]]` border override, so a Dropzone
           // wrapping an image, a card, or any non-`Empty` child showed no
-          // drag-over state at all (audit B8-07). `outline` rather than `border`
-          // so the feedback costs no layout — the child keeps its box.
-          "outline-offset-0 data-dragging:-outline-offset-2 data-dragging:outline-2 data-dragging:outline-primary/(--alpha-outline-border)",
-          "data-drag-invalid:-outline-offset-2 data-drag-invalid:outline-2 data-drag-invalid:outline-destructive/(--alpha-outline-border)",
+          // drag-over state at all (audit B8-07). The absolute inset pseudo-element paints a
+          // border without layout cost or WebKit's outside-outline scroll overflow — the child
+          // keeps its box, and the host's real focus outline stays independent.
+          "outline-offset-0 after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:content-['']",
+          "data-dragging:after:border-2 data-dragging:after:border-primary/(--alpha-outline-border)",
+          "data-drag-invalid:after:border-2 data-drag-invalid:after:border-destructive/(--alpha-outline-border)",
           options.disabled && "pointer-events-none opacity-(--opacity-dim)",
           className,
         )}

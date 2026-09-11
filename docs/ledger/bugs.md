@@ -2574,3 +2574,15 @@ changed for any of these test repairs.
   exactly this engine difference.
 - **Systemic fix.** The pointer-only test now moves focus out before parking the pointer. Runtime
   behavior is unchanged; focus retention remains covered separately.
+
+## 2026-09-11 — CLOSED: WebKit counts outline width despite negative outline offset
+
+- **Symptom.** Dropzone still measured 324px in a 320px WebKit viewport at registry 0.7.4, while
+  AudioPlayer and VideoPlayer both passed. Chromium computed the intended `outline-offset: -2px`
+  and measured 320px, proving the class was emitted rather than dropped.
+- **Root cause.** WebKit includes outline width in scrollable overflow even when a negative offset
+  moves the visible paint inside the border edge. The first fix changed paint position but not the
+  engine's overflow accounting.
+- **Systemic fix.** Drag feedback is now an absolutely positioned `inset-0` pseudo-element border
+  with inherited radius and no pointer events. It overlays the surface without layout or scrollable
+  overflow; the actual focus outline and its offset remain untouched.

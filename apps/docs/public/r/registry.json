@@ -2141,7 +2141,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
         "version": "0.7.4",
-        "integrity": "sha256-GoiV4hHAc5rwEftNi2NDyGHMx2IFDUE4tzFx3DmNgM0="
+        "integrity": "sha256-tVmK/MKdZZsXv+12QW6mCLMxsUbCVTVRN5EdcM11yvY="
       }
     },
     {
