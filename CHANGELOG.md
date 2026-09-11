@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.8.2] — September 12, 2026
+
+<!-- assembled from 1 changeset: 14d1b1a72337 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.8.1 → 0.8.2.
+
+### 🐛 Fixed
+
+- **Dropzone docs** — keep the three-state drag preview within 320px by giving its narrow layout
+  an explicit zero-minimum grid track before the three-column breakpoint.
+  [docs](https://design.vegastack.com/docs/components/dropzone) ·
+  [`c371d09`](https://github.com/VegaStack/vegastack-design/commit/c371d09)
+
 ## [0.8.1] — September 12, 2026
 
 <!-- assembled from 1 changeset: e2fdfb7dd95c -->

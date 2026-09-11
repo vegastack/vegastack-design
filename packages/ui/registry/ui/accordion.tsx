@@ -1,4 +1,4 @@
-// @vegastack accordion@0.8.1 sha256-jZQofuc7jutcIHj/625jqHZv90FHgxAE4VJF76gfMwo=
+// @vegastack accordion@0.8.2 sha256-TO88oUDbGe7TbGafD3YNlU10TAIGOZ0iZEoC0XrTEUE=
 
 "use client";
 
