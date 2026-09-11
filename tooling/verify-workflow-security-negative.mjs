@@ -183,6 +183,18 @@ const CASES = [
     expect: /must run `pnpm verify:release`/,
   },
   {
+    id: "the deploy loses Firefox's owned Actions home",
+    file: "deploy.yml",
+    find:
+      "      - name: Own the Actions home inside the container\n" +
+      "        run: |\n" +
+      "          set -euo pipefail\n" +
+      '          test "$HOME" = "/github/home"\n' +
+      '          chown "$(id -u):$(id -g)" /github/home\n',
+    replace: "",
+    expect: /Own the Actions home inside the container/,
+  },
+  {
     id: "the deploy no longer waits for the verify job",
     file: "deploy.yml",
     find: "  build-sign-deploy:\n    needs: verify\n",

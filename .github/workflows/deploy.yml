@@ -96,6 +96,15 @@ jobs:
       # refusal, and the registry integrity test's restore proof.
       - name: Trust the checkout inside the container
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      # Actions starts a job container as root but mounts `/github/home` from the host runner. The
+      # LAN boxes do not agree on that mount's owner: one presents it as `ubuntu`, and Firefox then
+      # refuses to launch as root (deploy run 34645879931, after all four WebKit shards passed).
+      # Normalize the mount point itself, not its contents, and keep HOME at Actions' canonical path.
+      - name: Own the Actions home inside the container
+        run: |
+          set -euo pipefail
+          test "$HOME" = "/github/home"
+          chown "$(id -u):$(id -g)" /github/home
       - name: Enable corepack
         run: |
           set -euo pipefail

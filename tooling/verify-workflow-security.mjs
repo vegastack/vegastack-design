@@ -1103,6 +1103,44 @@ function namedStep(workflow, job, stepName) {
   return matches[0].step;
 }
 
+// GitHub Actions runs the pinned Playwright job container as root but mounts `/github/home` from
+// whichever LAN runner accepted the job. The hosts do not agree on that mount's owner; Firefox
+// refuses to launch as root when it arrives owned by `ubuntu` (deploy run 34645879931). Keep the
+// normalization exact and before either browser command so an interchangeable runner cannot turn a
+// release red after WebKit has already passed.
+{
+  const workflow = "deploy.yml";
+  const job = "verify";
+  const ownership = namedStep(
+    workflow,
+    job,
+    "Own the Actions home inside the container",
+  );
+  assert.equal(
+    ownership.run.trim(),
+    'set -euo pipefail\ntest "$HOME" = "/github/home"\nchown "$(id -u):$(id -g)" /github/home',
+    "deploy.yml: the Firefox home-ownership normalization must validate Actions' canonical home " +
+      "and change only that mount point to the container user's uid/gid",
+  );
+  const body = jobsOf(workflow).get(job);
+  assert.ok(body, `${workflow}: job ${job} no longer exists`);
+  const steps = jobSteps(workflow, job, body).map(({ step }) => step);
+  const ownershipIndex = steps.findIndex(
+    (step) => step.name === "Own the Actions home inside the container",
+  );
+  const firstBrowserIndex = steps.findIndex(
+    (step) =>
+      step.run?.trim() === "pnpm verify" ||
+      step.run?.trim() === "pnpm verify:release",
+  );
+  assert.ok(
+    ownershipIndex >= 0 &&
+      firstBrowserIndex >= 0 &&
+      ownershipIndex < firstBrowserIndex,
+    "deploy.yml: the Firefox home-ownership normalization must run before both browser gates",
+  );
+}
+
 // PERMISSION SETS, PINNED EXACTLY. A job's `permissions:` REPLACES the workflow default rather than
 // intersecting with it, so an over-broad job block is authority the workflow-level `contents: read`
 // does nothing to limit. Each set below was read back off the job's steps: `publish` checks out,
