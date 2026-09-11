@@ -1,4 +1,4 @@
-// @vegastack collapsible@0.7.2 sha256-wK9C4UKEVocmyALsJJr5sbk63h6YsjGAw08ZGCgVloA=
+// @vegastack collapsible@0.7.3 sha256-0D7GyvkBkWV0NdOSLKXXdATTDWsE4QUcJGUUAUze5ps=
 
 import * as React from "react";
 import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible";
