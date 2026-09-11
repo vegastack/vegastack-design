@@ -221,7 +221,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: apps/docs
-          wranglerVersion: 4.129.0
+          wranglerVersion: 4.129.1
           command: deploy
 
   # Live route-boundary verification: every non-registry HTML/Markdown/LLM/search/OG/internal route

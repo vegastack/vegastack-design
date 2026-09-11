@@ -1181,9 +1181,12 @@ for (const [workflow, expected] of Object.entries(JOB_PERMISSIONS)) {
 
 // THE CLOUDFLARE DEPLOY, EXACTLY. `command: deploy` was matched by a substring, so
 // `command: deploy --dry-run` satisfied it: the job would sign, upload nothing, and report a
-// successful production deploy. The version is pinned against apps/docs/package.json rather than
-// asserted as a literal, for the same reason the Playwright tag is derived from pnpm-lock.yaml — two
-// authorities for one version drift silently, and the drift shows up as a mystery on the hardware.
+// successful production deploy. The version is pinned exactly in apps/docs/package.json and read
+// back here rather than asserted as a second literal, for the same reason the Playwright tag is
+// derived from pnpm-lock.yaml — two authorities for one version drift silently. A caret is not a pin:
+// deploy run 34648084419 installed 4.129.1 from `^4.129.0`, then wrangler-action requested 4.129.0,
+// treated the installed CLI as incompatible, and fell into an npm install that cannot parse this
+// pnpm workspace's `workspace:*` dependencies.
 {
   const wranglerStep = namedStep(
     "deploy.yml",
@@ -1214,12 +1217,12 @@ for (const [workflow, expected] of Object.entries(JOB_PERMISSIONS)) {
     ),
   ).devDependencies?.wrangler;
   assert.ok(
-    typeof declared === "string" && /^\^?\d+\.\d+\.\d+$/.test(declared),
-    `apps/docs/package.json: \`wrangler\` must be a plain version range; it is ${declared}`,
+    typeof declared === "string" && /^\d+\.\d+\.\d+$/.test(declared),
+    `apps/docs/package.json: \`wrangler\` must be an exact version; it is ${declared}`,
   );
   assert.equal(
     String(withBlock.wranglerVersion),
-    declared.replace(/^\^/, ""),
+    declared,
     `deploy.yml: wranglerVersion (${withBlock.wranglerVersion}) disagrees with apps/docs/package.json ` +
       `(${declared}). The action downloads the version named here, so production would deploy through ` +
       `a wrangler the repository never installs or tests against.`,
