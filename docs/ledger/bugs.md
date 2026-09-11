@@ -2533,3 +2533,16 @@ changed for any of these test repairs.
 - **Systemic fix.** The mutation now clears every `[inert]` element outside the active modal portal
   and observes the inert attribute for the duration of the 25-step walk, so hook recomputation cannot
   heal the injected defect. The positive contract is unchanged.
+
+## 2026-09-11 — CLOSED: DC-03 inferred native isolation from platform-specific focus guards
+
+- **Symptom.** Deploy run 34615492056 again reported that DC-03 passed after native inert removal,
+  even though the corrected mutation cleared every outside inert descendant.
+- **Root cause.** The negative oracle still required focus to escape during 25 Tabs. On Linux,
+  Base UI's focus guards can contain that walk without native inert; on macOS they do not. A valid
+  platform difference therefore decided whether the self-test detected the injected defect.
+- **Systemic fix.** DC-03 now directly asserts that the known background fullscreen trigger has an
+  inert ancestor while the modal is open. The negative mutation removes that property and fails on
+  the invariant immediately, while the 25-step walk remains the independent positive behavior
+  contract. This supersedes the persistent-observer mechanism in the preceding entry; that observer
+  was removed because persistence cannot make an indirect symptom deterministic.
