@@ -9,6 +9,23 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.8.0] — September 12, 2026
+
+<!-- assembled from 1 changeset: 45a3bc510f59 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.7.5 → 0.8.0.
+
+### 🐛 Fixed
+
+- **Keep Dropzone drag feedback inside narrow WebKit viewports.** The drag-state stroke now sits
+  one stroke-width inside the surface and uses explicit border-box sizing. This avoids WebKit counting
+  the stroke's two edges as horizontal scroll overflow at 320px while preserving the design system's
+  independent focus-visible outline.
+  [docs](https://design.vegastack.com/docs/components/dropzone) ·
+  [`f4fec28`](https://github.com/VegaStack/vegastack-design/commit/f4fec28)
+
 ## [0.7.5] — September 11, 2026
 
 <!-- assembled from 1 changeset: 5c78e1272289 -->

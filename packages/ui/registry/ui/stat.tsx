@@ -1,4 +1,4 @@
-// @vegastack stat@0.7.5 sha256-yAi8+nqymx30EynEO87O6YCSJTdDY6HZIOeOlSa6XyQ=
+// @vegastack stat@0.8.0 sha256-oSRZGh6HWl+gRm46s/XAavVqpSRU0h+kL4ovgv8u+ZQ=
 
 "use client";
 

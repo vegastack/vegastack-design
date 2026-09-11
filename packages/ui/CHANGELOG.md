@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.8.0
+
+### Minor Changes
+
+- [#130](https://github.com/vegastack/vegastack-design/pull/130) [`f4fec28`](https://github.com/vegastack/vegastack-design/commit/f4fec283450bd2e10bea297033a5f5f85f8d3d86) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Keep Dropzone drag feedback inside narrow WebKit viewports.** The drag-state stroke now sits
+  one stroke-width inside the surface and uses explicit border-box sizing. This avoids WebKit counting
+  the stroke's two edges as horizontal scroll overflow at 320px while preserving the design system's
+  independent focus-visible outline.
+  [docs](https://design.vegastack.com/docs/components/dropzone)
+
 ## 0.7.5
 
 ### Patch Changes

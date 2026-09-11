@@ -1,4 +1,4 @@
-// @vegastack pricing-section@0.7.5 sha256-4NbvYuREO+3jobmo1U7VjxP0H4A5eJZguFgdDqb1pgs=
+// @vegastack pricing-section@0.8.0 sha256-WHcdO4+Q12D9wC2ru8PbPwyg92H8yzYg6hO+XAbO3qg=
 
 import * as React from "react";
 import { Check } from "lucide-react";
