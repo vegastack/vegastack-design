@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.7.1] — September 11, 2026
+
+<!-- assembled from 1 changeset: 8ba479c80bc5 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.7.0 → 0.7.1.
+
+### 🐛 Fixed
+
+- **Docs-shell verification** — make the modal native-inert negative proof remove every outside
+  descendant and keep the injected defect active for the full focus walk.
+  [`ae881cc`](https://github.com/VegaStack/vegastack-design/commit/ae881cc)
+
 ## [0.7.0] — September 11, 2026
 
 <!-- assembled from 177 changesets: a5d2f8f746f5 -->
