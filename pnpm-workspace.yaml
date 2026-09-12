@@ -1,3 +1,7 @@
+# EVERY KEY IN THIS FILE MUST BE ONE pnpm RECOGNISES. Since pnpm 12 an unknown setting is no longer
+# ignored in silence: because `packageManager` pins a version the running pnpm satisfies, pnpm rules
+# out "meant for another pnpm" and fails the command with ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS.
+# A typo here therefore stops an install rather than quietly dropping the policy it was meant to set.
 packages:
   - "packages/*"
   - "apps/*"
@@ -66,7 +70,7 @@ allowBuilds:
 # stops and asks for a decision instead of quietly granting itself one.
 #
 # Scope. The floor covers transitive dependencies and exact pins, not just direct ranges. It is NOT
-# limited to fresh resolutions: pnpm 11.7 runs a post-resolution lockfile verifier ("Lockfile passes
+# limited to fresh resolutions: pnpm runs a post-resolution lockfile verifier ("Lockfile passes
 # supply-chain policies") that re-checks already-locked versions in BOTH modes, so a lockfile
 # carrying an immature version fails `--frozen-lockfile` in CI with
 # ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION. That check already ran before this key was set; strict
