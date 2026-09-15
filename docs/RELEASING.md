@@ -9,8 +9,9 @@ behind Cloudflare Access at `design.vegastack.com/r/*`.
 ## One authorization
 
 One explicit **ship it** authorizes the current reviewed change through commit, push, PR, exact-SHA
-squash merge, versioning, npm publication, public registry/docs deployment, and production
-verification. No Version Packages PR or second deployment approval is used.
+squash merge, the generated Version Packages PR and its exact-SHA merge, npm publication, public
+registry/docs deployment, and production verification. The Version PR is a protected review
+boundary, not a second authorization prompt.
 
 The authorization includes at most three surgical corrective patch iterations. It does not permit
 changes to secrets, Cloudflare Access, authentication policy, workflow permissions, runner trust,
@@ -45,34 +46,37 @@ The `VegaStack main` GitHub ruleset requires:
 - Linear history.
 - No force pushes or deletion.
 - Zero mandatory human approvals.
-- A narrow GitHub Actions app bypass for the generated direct release commit.
+- No bypass actor.
 
-Check it with `pnpm ruleset:check`. Apply the reviewed configuration only after the affected CI
-workflow exists on `main`, using `pnpm ruleset:apply`.
+Check it with `pnpm ruleset:check`; apply the reviewed configuration with `pnpm ruleset:apply` only
+after the `PR quality` workflow exists on `main`.
 
 ## Release sequence
 
 1. A change PR carries the canonical source, generated registry surfaces where applicable, tests,
    docs, and a changeset. CI runs the one authoritative affected proof.
 2. The shipping agent squash-merges the exact green head SHA.
-3. It dispatches `release.yml` with the resulting `main` SHA as `expected_sha`.
-4. The workflow rejects a stale SHA, assembles every pending changeset, versions packages, refreshes
-   generated release metadata, and pushes one direct release commit to `main`.
-5. The publish job checks out that exact commit, builds the two public packages, verifies exports and
-   lifecycle safety, then publishes missing versions through npm OIDC.
-6. Release dispatches `deploy.yml` for the release commit.
-7. Deploy proves the public distribution on Linux, rebuilds/signs/deploys on the credential-bearing
+3. The resulting `main` push runs `release.yml`. If pending changesets exist, Changesets creates or
+   updates `changeset-release/main` and opens the Version Packages PR.
+4. Because a PR created by `GITHUB_TOKEN` does not recursively trigger workflows, the coordinator
+   explicitly dispatches `PR quality` for the exact generated head. That check runs static and
+   affected verification, then proves every generated path and content change is release output.
+5. The shipping agent squash-merges the exact green Version PR head under the original `ship it`.
+6. The next `main` push has no pending changesets. The publish job builds the two public packages,
+   verifies exports and lifecycle safety, then publishes only missing versions through npm OIDC.
+7. Release dispatches `deploy.yml` for that exact Version PR merge commit.
+8. Deploy proves the public distribution on Linux, rebuilds/signs/deploys on the credential-bearing
    macOS runner, then probes production from outside the trusted network.
 
-The GitHub Actions release-commit push deliberately does not start another push workflow; the same
-authorized workflow continues. No automatic main quality gate is needed because the ruleset prevents
-unverified source from reaching `main`.
+There is no automatic quality rerun on `main`: the ruleset ensures both the source change and the
+generated version output were green PR heads before either entered `main`. A manual
+`workflow_dispatch` with `expected_sha` exists only to resume an interrupted coordinator at the
+current main tip.
 
-The version job has only `contents: write`. `@changesets/changelog-github` requires its
-`GITHUB_TOKEN` to read PR/author metadata while generating package changelogs, and the same job must
-push because Actions artifact storage is unavailable. Exact-SHA main binding, the required ruleset,
-the generated-output allowlist, non-persisted checkout credentials and the isolated final push step
-bound that authority; no pull-request or OIDC permission is present.
+The Version PR job has `contents: write` and `pull-requests: write`, which Changesets uses to update
+its branch and PR through the GitHub API. It has no OIDC authority. A separate job has
+`actions: write` only to dispatch the exact generated head's `PR quality` run. Publication has OIDC
+and read-only repository access, so PR mutation and npm authority never coexist.
 
 ## Changesets and changelog
 
@@ -85,7 +89,7 @@ At release time:
 .changeset/*.md → changelog-assemble → changeset version → version-sync → sync-changelog
 ```
 
-All pending changesets ship together. The direct release commit contains package versions, package
+All pending changesets ship together. The Version Packages PR contains package versions, package
 changelogs, the assembled root changelog, synchronized docs, registry versions, and regenerated
 registry output.
 
@@ -132,8 +136,8 @@ publication jobs use the two runner agents on the one mac mini. No job uses GitH
 
 OIDC exists only in `release.yml:publish` and `deploy.yml:build-sign-deploy`. Workflow permissions,
 runner classes, container placement, immutable action pins, frozen installs, non-persisted checkout
-credentials, exact-SHA guards, and the ban on automatic full-suite execution are enforced by
-`verify-workflow-security` and its mutation harness.
+credentials, exact-SHA guards, generated-Version-PR dispatch, the no-bypass ruleset, and the ban on
+automatic full-suite execution are enforced by `verify-workflow-security` and its mutation harness.
 
 ## Recovery
 

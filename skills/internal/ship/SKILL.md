@@ -1,13 +1,14 @@
 ---
 name: ship
-description: Release VegaStack Design end to end from one explicit ship instruction — affected PR proof, exact-SHA merge, direct release commit, npm OIDC publish, public registry/docs deploy, production verification, and bounded corrective retries.
+description: Release VegaStack Design end to end from one explicit ship instruction — affected change-PR proof, generated Version Packages PR proof, exact-SHA merges, npm OIDC publish, public registry/docs deploy, production verification, and bounded corrective retries.
 ---
 
 # Ship VegaStack Design
 
 One explicit **ship it** from MK authorizes the current reviewed change through completion: commit,
-push, PR, exact-SHA squash merge, direct release commit, npm publication, public registry/docs
-deployment, and production verification. Do not stop for another approval between those steps.
+push, change PR, exact-SHA squash merge, generated Version Packages PR, its exact-SHA squash merge,
+npm publication, public registry/docs deployment, and production verification. Do not stop for
+another approval between those steps.
 
 The authorization also covers at most three surgical corrective iterations. It never authorizes a
 change to secrets, Cloudflare Access, authentication policy, workflow permissions, runner trust, a
@@ -59,28 +60,26 @@ Read the affected plan in the log. A missing owner, unclassified path, empty geo
 generated drift, or unexpected affected closure is a failed gate, not a waiver candidate.
 
 When the check passes, re-read the PR head SHA and squash-merge with that exact SHA. The `main`
-ruleset requires PR quality, invalidates stale checks, enforces linear history, and blocks force
-pushes. `pnpm ruleset:check` verifies the external rule before shipping.
+ruleset requires PR quality, invalidates stale checks, enforces linear history, blocks force pushes,
+and has no bypass actor. `pnpm ruleset:check` verifies the external rule before shipping.
 
 ## 3. Release, publish, and deploy
 
-After merge, obtain the new `main` SHA and dispatch the release workflow with it:
+The merged change's `main` push starts the release coordinator. When pending changesets exist it:
 
-```bash
-gh workflow run release.yml \
-  --repo VegaStack/vegastack-design \
-  --ref main \
-  -f expected_sha=<merged-main-sha>
-```
+1. Assembles and versions every pending changeset as one batch on `changeset-release/main`.
+2. Creates or updates the generated Version Packages PR through the GitHub API.
+3. Explicitly dispatches `PR quality` for the exact generated head. This dispatch is load-bearing:
+   ordinary events created by `GITHUB_TOKEN` do not recursively start workflows.
+4. Runs the positive release-output scope guard in place of the ordinary changeset requirement.
 
-The workflow fails if `main` moved. It then:
+Wait for the Version PR's required check, inspect its generated diff, re-read its head SHA, and
+squash-merge that exact SHA. The original `ship it` already authorizes this boundary.
 
-1. Assembles and versions every pending changeset as one batch.
-2. Pushes one generated release commit directly to `main` through the narrow GitHub Actions ruleset
-   bypass.
-3. Builds and verifies only the two public npm packages.
-4. Publishes versions missing from npm with OIDC and `--no-provenance`.
-5. Dispatches `deploy.yml` for the exact release commit.
+The Version PR merge starts the coordinator again with no pending changesets. It builds and verifies
+only the two public npm packages, publishes versions missing from npm with OIDC and
+`--no-provenance`, then dispatches `deploy.yml` for the exact merge commit. Use the manual
+`expected_sha` dispatch only to resume an interrupted run at the current main tip.
 
 Deployment runs public distribution proof, not component regression: registry build/idempotency,
 real `shadcn add` consume, public docs export/metadata/links/emitted CSS, focused docs-shell browser
@@ -98,8 +97,9 @@ npm view @vegastack/design-tokens version
 cd ../vegastack-design-starter && pnpm check-updates
 ```
 
-Report the merged change SHA, generated release SHA, package versions, deployed registry version,
-production-boundary result, and whether the reference consumer sees the expected changed items.
+Report the merged change SHA, Version PR number and merge SHA, package versions, deployed registry
+version, production-boundary result, and whether the reference consumer sees the expected changed
+items.
 
 ## 5. Bounded recovery
 
@@ -111,7 +111,7 @@ For a real code or configuration defect:
 1. Diagnose and reproduce the root cause.
 2. Create a surgical correction branch from current `main`.
 3. Add the appropriate changeset.
-4. Run affected PR CI, exact-SHA merge, and dispatch another release.
+4. Run affected PR CI, exact-SHA merge, then let the Version PR coordinator continue the release.
 5. Count that source-changing release as one of at most three corrective iterations.
 
 If some npm packages are already live, never overwrite or unpublish them. Resume unpublished packages

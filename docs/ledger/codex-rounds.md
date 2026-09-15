@@ -631,3 +631,30 @@ rule exists.
   custom-runner-label diagnostics) and the clean-diff check passed. Targeted light/dark,
   narrow/wide interaction inspection also covered the concurrently changed bordered selection
   surfaces; temporary captures were removed.
+
+## 2026-09-15 — release protection corrective iteration 1
+
+**Scope:** live main-ruleset activation and the release coordinator. **Round 1 verdict:**
+needs-attention (1 high), root-fixed.
+
+- **High — the direct release bypass actor does not exist in the repository's trust domain.** The
+  live GitHub API rejected global Actions integration `15368` as a bypass actor. The corrected
+  topology creates a Version Packages PR, explicitly dispatches `PR quality` for its exact head,
+  validates generated output positively, and publishes only after that green PR is merged. The
+  main ruleset now requires the same check with an empty bypass list.
+
+**Round 2 verdict:** needs-attention (1 high), root-fixed.
+
+- **High — the internal CI dispatch trusted caller-selected comparison inputs.** It is now restricted
+  to `changeset-release/main` and binds the event SHA, checkout SHA, supplied head and live main base
+  before running. Branch-binding and stale-base mutations are rejected independently.
+
+**Round 3 verdict:** clean (0 high · 0 medium).
+
+- The active GitHub ruleset (`23470280`) was accepted and read back with required PR, `PR quality`,
+  linear history, deletion/non-fast-forward protection, and an empty bypass list.
+- Exact-range `pnpm verify:affected` passed in 43.2s with 106 tooling tests; this static-only correction selected no
+  browser files. Workflow syntax passed and 36/36 security/topology mutations were rejected.
+- An isolated three-changeset rehearsal generated the `0.9.1` Version PR delta across 1,816 files.
+  Changelog validation, the positive output-scope guard and affected planning passed; post-version
+  release detection selected only unpublished `@vegastack/design@0.4.1` for publication.

@@ -1,6 +1,10 @@
 # Deterministic affected CI and one-instruction shipping
 
-**Date:** 2026-09-15 · **Status:** implemented · **Owner:** MK
+**Date:** 2026-09-15 · **Status:** partially superseded · **Owner:** MK
+
+> The affected-CI architecture remains current. The direct-main release-commit sections were
+> superseded after GitHub rejected the assumed Actions bypass actor; see
+> `2026-09-15-version-packages-pr-release-correction.md`.
 
 This plan supersedes the full-component sweep on every pull request, the duplicate static/browser
 verification on `main` and deploy, the private-site export matrix while production is public-only,

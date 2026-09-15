@@ -2650,3 +2650,27 @@ changed for any of these test repairs.
 - **Systemic fix.** Both probes now use `if cosign verify-blob; then exit 1; fi`. Workflow security
   structurally requires each exact branch, and independent mutations removing either exit are
   rejected.
+
+## 2026-09-15 — CLOSED: the built-in Actions identity cannot bypass a repository ruleset
+
+- **Symptom.** After PR #142 landed the new `PR quality` workflow, `pnpm ruleset:apply` failed with
+  HTTP 422: the GitHub Actions integration was not part of the ruleset source or owner organization.
+- **Root cause.** The implementation treated the global Actions integration ID used to identify a
+  required status check as though it were also an installed GitHub App eligible for bypass. Static
+  schema and mutation tests cannot prove an external actor belongs to an organization; the live API
+  was the first authority asked that question.
+- **Systemic fix.** Generated versions return to a Version Packages PR. It receives exact-head
+  `PR quality` plus the positive release-output guard, and `main` has no bypass actor. Changesets PR
+  mutation, CI dispatch, npm OIDC and deployment remain separate least-privilege jobs.
+
+## 2026-09-15 — CLOSED: an unbound CI dispatch could manufacture the required status
+
+- **Symptom.** The first Version-PR correction exposed `base_sha`, `head_sha`, and a release-mode
+  boolean on `workflow_dispatch` without independently binding them to repository state.
+- **Root cause.** The generated PR coordinator supplied honest inputs, but the required-check
+  workflow treated caller claims as authority. A write-capable caller could dispatch the check on a
+  different same-repository ref and choose a convenient comparison base.
+- **Systemic fix.** Internal dispatch is now exclusively the `changeset-release/main` path. Before
+  repository verification it requires the dispatch ref, event SHA, checked-out SHA, supplied head,
+  and live `origin/main` base to agree. The release-output allowlist then validates that exact range;
+  independent mutations remove the branch and live-base bindings and must fail.

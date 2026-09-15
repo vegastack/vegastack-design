@@ -76,8 +76,8 @@ optional feedback. The pre-commit hook remains only staged design-lint plus Pret
 ## Releasing
 
 Use the **ship skill** (`skills/internal/ship/SKILL.md` — auto-discovered by Claude Code and Codex):
-affected PR proof → exact-SHA merge → direct release commit → **npm OIDC publish** → automatic
-public registry/docs deploy → production verification.
+affected PR proof → exact-SHA merge → generated Version Packages PR proof and merge → **npm OIDC
+publish** → automatic public registry/docs deploy → production verification.
 
 One explicit **ship it** authorizes the complete current chain and its bounded corrective loop. Full
 reference: [docs/RELEASING.md](docs/RELEASING.md).

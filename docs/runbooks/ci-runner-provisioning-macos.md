@@ -16,7 +16,7 @@ jobs. Pull-request CI no longer runs a duplicate macOS static job.
 
 **It is not PR CI.** Affected browser checks and public distribution proof run on the LAN Linux
 boxes in the pinned Playwright container. The mini exists for work that needs a credential rather
-than a browser: direct release commit, npm OIDC publish, Sigstore signing, Cloudflare deploy, and the
+than a browser: Version Packages PR creation, npm OIDC publish, Sigstore signing, Cloudflare deploy, and the
 production boundary probe.
 
 ## What must be installed

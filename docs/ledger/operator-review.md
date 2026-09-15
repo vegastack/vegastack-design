@@ -2913,3 +2913,23 @@ checks before the commit. Per-file `git show` was rejected as needless process a
 **Sigstore oracle.** Explicit success branches are required for negative verification. Shell
 inversion was shorter but actionlint proved it could suppress errexit, so both tamper and wrong-ID
 probes now name and exit their unexpected-success path and the mutation harness owns them.
+
+## 2026-09-15 — Version Packages PR is the release protection boundary
+
+Live ruleset creation disproved the direct-commit plan's central external assumption: GitHub's
+built-in Actions integration can own a required check context, but it is not an installed VegaStack
+GitHub App and cannot be granted repository-ruleset bypass. Adding an app secret solely to bypass
+the PR rule, granting a human/role bypass, and weakening the rule were rejected.
+
+MK selected the conventional generated Version Packages PR. Both source and generated output now
+enter `main` through exact-head `PR quality`; the latter substitutes the positive release-output
+scope check for the ordinary pending-changeset check. Because `GITHUB_TOKEN`-created PR events do
+not recursively trigger workflows, a separate actions-write/read-only-content job dispatches CI for
+the exact generated branch SHA. The ruleset has no bypass actor, publication retains only OIDC plus
+contents-read, and the original `ship it` covers the Version PR merge without another prompt.
+
+**Dispatch authority.** Inputs are transport, never proof. The first correction draft accepted a
+caller-supplied release-mode flag and base/head pair, which could create a green required context for
+the wrong comparison. The final CI entrypoint has no mode input: every manual dispatch is the
+generated-Version-PR path and must prove `github.ref_name`, the event SHA, the checkout, the supplied
+head, and current `origin/main` before it executes the exact-range verifier.
