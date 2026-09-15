@@ -2463,11 +2463,10 @@ written to** — the shape, the order, and the authority each section is generat
 **Every component page is written to it, and a gate says so.** The generated sections shipped as
 MDX components in 0.7.0; Do1-b (2026-09-09) placed them on all 116 component pages, renamed
 `## Installation` to `## Install` in the same change, and made `tooling/content-lint.mjs` enforce
-the table: the frontmatter of row 0, the section vocabulary and order, "nothing after Do / Don't
-except the generated Changelog", and the rule that the machine-readable half of a section is
-generated rather than typed. Each of those rules has a fixture that violates it in
-`content-lint --self-test`. The API Reference (row 7) and the markdown export below already held
-everywhere before that change.
+the table: the frontmatter of row 0, the section vocabulary and order, Do / Don't as the final
+section, and the rule that the machine-readable half of a section is generated rather than typed.
+Each of those rules has a fixture that violates it in `content-lint --self-test`. The API Reference
+(row 7) and the markdown export below already held everywhere before that change.
 
 | #   | Section                          | Required content                                                                                                                                                                                                                                                         | Source of truth                                                                                                 |
 | --- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
@@ -2481,11 +2480,12 @@ everywhere before that change.
 | 7   | **API Reference**                | one flat, expanded table per exported part — name · the literal union · default · description. Own props only; a part with no own props gets ONE sentence, never placeholder rows. A second small table lists the `data-*` attributes and CSS variables the part exposes | `fumadocs-typescript` + the contract's `dataAttributes`                                                         |
 | 8   | **Accessibility**                | the pattern name, the keyboard table, screen-reader announcements, and the states the lanes exercise                                                                                                                                                                     | keyboard table hand-written; states generated from the contract                                                 |
 | 9   | **Do / Don't**                   | at least two pairs                                                                                                                                                                                                                                                       | `DoDont`                                                                                                        |
-| 10  | **Changelog** _(generated)_      | the item's entries, filtered by name                                                                                                                                                                                                                                     | `/CHANGELOG.md`                                                                                                 |
 
-Nothing follows Do / Don't except the generated Changelog. "Notes", "Voice" and "How it works"
-fold into Usage or Scope. Marketing-only leaves skip Scope, Anatomy and Playground and keep the
-rest.
+Do / Don't is the final section. "Notes", "Voice" and "How it works" fold into Usage or Scope.
+Marketing-only leaves skip Scope, Anatomy and Playground and keep the rest. Component pages do not
+repeat release history: at retirement on 2026-09-15, 25 of 116 pages produced only an empty state,
+while broad release bullets were repeated across every component title they happened to mention.
+The canonical Changelog page remains the complete history.
 
 Row 6 is a permission, not a requirement: a page carries a curated playground, or the Story
 explorer where none exists, or **neither** — `tooling/verify-docs-export.mjs` enforces "never both,

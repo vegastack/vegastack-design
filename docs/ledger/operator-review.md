@@ -2853,3 +2853,14 @@ without changing the failing engine's accounting. An absolute `inset-0` pseudo-e
 same two-pixel, radius-following surface cue, costs no layout, and cannot extend the scroll box. The
 real focus outline remains on the host at its existing offset; only drag-state paint uses the
 overlay.
+
+## 2026-09-15 — component release history stays centralized
+
+**Decision:** remove generated changelog sections from component pages and keep `/docs/changelog` as
+the single complete release-history surface.
+
+Keeping the section only when entries existed was rejected: the title/link matcher still repeats
+broad multi-component bullets and cannot promise a component-complete history. Improving the parser
+was also rejected because it would create a second release taxonomy and maintenance path for
+information already available in the canonical changelog. The page canon now ends at Do / Don't,
+and content-lint rejects any later heading, including the retired Changelog section.

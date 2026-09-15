@@ -295,9 +295,8 @@ For component `<name>` (PascalCase `<Name>`), in dependency order:
    part) → Examples (`<ComponentPreview …/>`) → Playground (a curated `<…Playground />`, or the
    Story explorer where none exists, or neither — never both, DD-3) → API Reference
    (`<ApiTable path="../../packages/ui/registry/ui/<name>.tsx" name="<Name>Props" />`) →
-   Accessibility (keyboard table + `<StatesTested name="<name>" />`) → Do/Don't (`<DoDont …/>`) →
-   Changelog (`<ComponentChangelog name="<name>" />`). Nothing follows Do/Don't except Changelog,
-   and the generated halves are never hand-typed.
+   Accessibility (keyboard table + `<StatesTested name="<name>" />`) → Do/Don't (`<DoDont …/>`).
+   Do/Don't is final, and the generated halves are never hand-typed.
    **No `{@link}`** — MDX parses `{…}` as JS; use inline code.
 5. **`registry.json` item** — `type`, `title`, `description`, `categories`, `dependencies`, and
    **`registryDependencies` namespaced `@vegastack/<name>`**

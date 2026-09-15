@@ -7,7 +7,6 @@ import {
   getAnatomy,
   getStatesTested,
 } from "@/lib/generated-sections";
-import { getComponentChangelog } from "@/lib/changelog";
 import {
   RUNTIME_PLACEHOLDERS,
   assertKnownPlaceholders,
@@ -138,17 +137,6 @@ const RENDERERS: Record<
           `| ${row.label} | ${row.values.map((v) => `\`${v}\``).join(", ")} |`,
       ),
     ].join("\n");
-  },
-  ComponentChangelog: (data) => {
-    const entries = getComponentChangelog(attr(data, "name")!);
-    if (entries.length === 0)
-      return "_No changelog entries name this item yet._";
-    return entries
-      .map(
-        (entry) =>
-          `- **${entry.version}** (${entry.date}) — ${entry.section}: ${entry.text}`,
-      )
-      .join("\n");
   },
 };
 

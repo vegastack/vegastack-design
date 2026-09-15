@@ -2586,3 +2586,15 @@ changed for any of these test repairs.
 - **Systemic fix.** Drag feedback is now an absolutely positioned `inset-0` pseudo-element border
   with inherited radius and no pointer events. It overlays the surface without layout or scrollable
   overflow; the actual focus outline and its offset remain untouched.
+
+## 2026-09-15 — CLOSED: install commands painted a white code-line strip in dark mode
+
+- **Symptom.** Generated component Install commands looked correct in light mode but painted a
+  white rectangle directly behind the highlighted command in dark mode.
+- **Root cause.** `InstallSteps` passed Fumadocs' `Pre` to `highlight()` and then wrapped the
+  resulting highlighted pre in a separate `CodeBlock`. Shiki's light-theme inline background stayed
+  on that child, so the accidental nested surface was only visible against the dark outer figure.
+- **Systemic fix.** Generated commands use Fumadocs' installed `ServerCodeBlock`, which maps the
+  highlighted pre props onto the outer figure and puts only its children in the inner pre. A linted
+  renderer check asserts one figure/one pre, theme variables on the figure, and no child
+  `background-color`; its negative fixture observes the old markup failing.

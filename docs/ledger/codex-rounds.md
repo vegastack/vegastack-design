@@ -564,3 +564,26 @@ needs-attention (1 high), root-fixed.
   Chromium inspection proved the class resolved to -2px, while WebKit still counted the two-pixel
   outline on both edges. Dropzone now paints the same inset drag cue with an absolute pseudo-element
   border, which contributes neither layout nor outside overflow and leaves focus styling unchanged.
+
+## 2026-09-15 — docs install code block and component-page canon
+
+**Scope:** generated Install sections, all 116 component MDX pages, the MDX/agent-export manifest,
+and the enforced docs canon. **Verdict:** clean (0 high · 0 medium).
+
+- **High · fixed — `apps/docs/components/generated-sections.tsx`.** `InstallSteps` nested Shiki's
+  highlighted `<pre>` inside Fumadocs' `CodeBlock`, leaving the light theme's inline white
+  background on the code lines in dark mode. It now uses Fumadocs 16.15.8's `ServerCodeBlock`
+  composition. `verify-install-codeblock` renders the real helper, requires one themed figure and
+  one transparent pre, and its negative self-test rejects the pre-fix nested white surface.
+- **Low · fixed — component-page changelog duplication.** The generated per-component history was
+  retired at its authority: 25 pages had no matched entries, and broad release bullets were repeated
+  on every page whose title they mentioned. Do / Don't is now the enforced final section; the root
+  Changelog remains canonical and unchanged.
+
+Executed evidence: focused code-block positive/negative checks, content-lint and its 15-case
+self-test, MDX manifest verification, `pnpm verify` (144 files / 2,409 tests), and
+`pnpm verify:release` (private/public exports, agent-clean Markdown, docs-shell contracts, registry
+round-trip, Chromium 2,409/2,409, Firefox 2,394 passed + 15 intentional skips). Local WebKit emitted
+the repository's expected macOS 26.6 host-incompatibility skip. A built dark-theme page inspection
+measured the figure on the dark surface with transparent pre/line backgrounds and no pre inline
+style; the final heading was Do / Don't.
