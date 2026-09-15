@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.9.0
+
+### Minor Changes
+
+- [#139](https://github.com/vegastack/vegastack-design/pull/139) [`31e915d`](https://github.com/vegastack/vegastack-design/commit/31e915d0e09ec8226f16e66572b50a288f1940b9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Toast** — center the copy and controls vertically in single- and two-line notifications,
+  give the labelled action the same quiet ghost treatment as dismissal, and complete the docs
+  Scope and part API sections.
+  [docs](https://design.vegastack.com/docs/components/toast)
+
 ## 0.8.2
 
 ### Patch Changes
