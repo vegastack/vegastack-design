@@ -639,9 +639,9 @@ needs-attention (1 high), root-fixed.
 
 - **High — the direct release bypass actor does not exist in the repository's trust domain.** The
   live GitHub API rejected global Actions integration `15368` as a bypass actor. The corrected
-  topology creates a Version Packages PR, explicitly dispatches `PR quality` for its exact head,
-  validates generated output positively, and publishes only after that green PR is merged. The
-  main ruleset now requires the same check with an empty bypass list.
+  topology creates a Version Packages PR, validates generated output positively through its native
+  PR check, and publishes only after that green PR is merged. The main ruleset requires the same
+  check with an empty bypass list.
 
 **Round 2 verdict:** needs-attention (1 high), root-fixed.
 
@@ -649,7 +649,7 @@ needs-attention (1 high), root-fixed.
   to `changeset-release/main` and binds the event SHA, checkout SHA, supplied head and live main base
   before running. Branch-binding and stale-base mutations are rejected independently.
 
-**Round 3 verdict:** clean (0 high · 0 medium).
+**Round 3 verdict:** needs-attention (1 high), root-fixed in corrective iteration 3.
 
 - The active GitHub ruleset (`23470280`) was accepted and read back with required PR, `PR quality`,
   linear history, deletion/non-fast-forward protection, and an empty bypass list.
@@ -658,6 +658,8 @@ needs-attention (1 high), root-fixed.
 - An isolated three-changeset rehearsal generated the `0.9.1` Version PR delta across 1,816 files.
   Changelog validation, the positive output-scope guard and affected planning passed; post-version
   release detection selected only unpublished `@vegastack/design@0.4.1` for publication.
+- **High — a passing dispatched check was not a PR status.** GitHub left the check absent from
+  #144's status rollup, so the no-bypass ruleset correctly refused the merge.
 
 ## 2026-09-15 — release protection corrective iteration 2
 
@@ -670,4 +672,16 @@ needs-attention (1 high), root-fixed.
   guard and no component browsers; source PRs retain static plus affected Chromium. Two workflow
   mutations independently reject restoring component selection or dropping static proof.
 
-**Round 2 verdict:** pending live rerun.
+**Round 2 verdict:** needs-attention (1 high), root-fixed in corrective iteration 3.
+
+- The live rerun correctly skipped component selection, passed full static proof and accepted the
+  generated release delta. The ruleset still refused the merge because a `workflow_dispatch` check
+  is not a PR-associated required context.
+
+## 2026-09-15 — release protection corrective iteration 3
+
+**Scope:** native Version Packages PR status production. **Round 1 verdict:** pending live proof.
+
+- CI is `pull_request`-only, the duplicate dispatch job and `actions: write` permission are removed,
+  and the ship procedure approves GitHub's exact `action_required` bot run. The resulting check is
+  attached to the PR and therefore eligible to satisfy the no-bypass ruleset.

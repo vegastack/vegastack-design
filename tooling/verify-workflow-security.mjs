@@ -22,7 +22,6 @@ const EXPECTED_RUNNERS = {
   "release.yml": {
     changes: MAC,
     "version-pr": MAC,
-    "dispatch-version-pr-quality": MAC,
     publish: MAC,
     "dispatch-deploy": MAC,
   },
@@ -41,10 +40,6 @@ const EXPECTED_PERMISSIONS = {
   "release.yml:version-pr": {
     contents: "write",
     "pull-requests": "write",
-  },
-  "release.yml:dispatch-version-pr-quality": {
-    actions: "write",
-    contents: "read",
   },
   "release.yml:publish": { contents: "read", "id-token": "write" },
   "release.yml:dispatch-deploy": { actions: "write", contents: "read" },
@@ -293,16 +288,11 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
     ci.on?.pull_request !== undefined,
     "ci.yml: must trigger on pull_request",
   );
-  assert.ok(
+  assert.equal(
     ci.on?.workflow_dispatch,
-    "ci.yml: must accept an internal Version PR dispatch",
+    undefined,
+    "ci.yml: required PR status must come from a pull_request run",
   );
-  for (const input of ["base_sha", "head_sha"])
-    assert.equal(
-      ci.on.workflow_dispatch.inputs[input]?.required,
-      true,
-      `ci.yml: ${input} dispatch input must be required`,
-    );
   const quality = ci.jobs.quality;
   assert.equal(
     quality.name,
@@ -311,8 +301,8 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   );
   assert.equal(
     String(quality.if).replace(/^\$\{\{\s*|\s*\}\}$/g, ""),
-    "github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository",
-    "ci.yml: persistent runner requires the fork guard or trusted internal dispatch",
+    "github.event.pull_request.head.repo.full_name == github.repository",
+    "ci.yml: persistent runner requires the exact fork guard",
   );
   assert.ok(
     hasCommand(
@@ -330,7 +320,7 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   );
   assert.match(
     String(affectedStep?.if),
-    /head\.ref != 'changeset-release\/main'[\s\S]*ref_name != 'changeset-release\/main'/,
+    /^github\.event\.pull_request\.head\.ref != 'changeset-release\/main'$/,
     "ci.yml: component selection must exclude generated Version PR output",
   );
   assert.equal(
@@ -340,7 +330,7 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   );
   assert.match(
     String(versionStaticStep?.if),
-    /head\.ref == 'changeset-release\/main'[\s\S]*event_name == 'workflow_dispatch'/,
+    /^github\.event\.pull_request\.head\.ref == 'changeset-release\/main'$/,
     "ci.yml: the static-only path must be restricted to generated Version PRs",
   );
   assert.ok(
@@ -359,12 +349,12 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   );
   assert.match(
     String(changesetStep?.if),
-    /event_name == 'pull_request'[\s\S]*head\.ref != 'changeset-release\/main'/,
+    /^github\.event\.pull_request\.head\.ref != 'changeset-release\/main'$/,
     "ci.yml: ordinary PRs alone must require a changeset",
   );
   assert.match(
     String(releaseOutputStep?.if),
-    /head\.ref == 'changeset-release\/main'[\s\S]*event_name == 'workflow_dispatch'/,
+    /^github\.event\.pull_request\.head\.ref == 'changeset-release\/main'$/,
     "ci.yml: generated Version PRs alone must use the release-output guard",
   );
   const qualityCheckout = steps(quality).find((step) =>
@@ -372,30 +362,9 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   );
   assert.match(
     qualityCheckout?.with?.ref ?? "",
-    /pull_request\.head\.sha[\s\S]*inputs\.head_sha/,
-    "ci.yml: PR quality must check out the exact event or dispatched head",
+    /^\$\{\{ github\.event\.pull_request\.head\.sha \}\}$/,
+    "ci.yml: PR quality must check out the exact pull-request head",
   );
-  const dispatchBinding = steps(quality).find(
-    (step) =>
-      step.name ===
-      "Bind an internal dispatch to the generated Version Packages branch",
-  );
-  assert.equal(
-    String(dispatchBinding?.if),
-    "github.event_name == 'workflow_dispatch'",
-    "ci.yml: exact generated-branch binding must run on every internal dispatch",
-  );
-  for (const pattern of [
-    /"\$DISPATCH_REF" = "changeset-release\/main"/,
-    /"\$EVENT_SHA" = "\$HEAD_SHA"/,
-    /git rev-parse HEAD\)" = "\$HEAD_SHA"/,
-    /git rev-parse origin\/main\)" = "\$BASE_SHA"/,
-  ])
-    assert.match(
-      dispatchBinding?.run ?? "",
-      pattern,
-      "ci.yml: internal dispatch must bind branch, event head, checkout, and live main",
-    );
 
   const full = parsed["full-suite.yml"];
   assert.ok(full.on?.workflow_dispatch, "full-suite.yml: must be manual-only");
@@ -465,22 +434,10 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
     hasCommand(versionPr, /git\/ref\/heads\/\$VERSION_BRANCH/),
     "release.yml: Version PR resolution must bind the branch to its exact head",
   );
-  const versionPrDispatch = release.jobs["dispatch-version-pr-quality"];
-  assert.deepEqual(
-    versionPrDispatch.needs,
-    ["changes", "version-pr"],
-    "release.yml: Version PR quality dispatch must wait for exact release state and generated head",
-  );
-  assert.ok(
-    hasCommand(
-      versionPrDispatch,
-      /gh workflow run ci\.yml[\s\S]*-f base_sha="\$BASE_SHA"[\s\S]*-f head_sha="\$HEAD_SHA"/,
-    ),
-    "release.yml: the GITHUB_TOKEN-created Version PR must receive exact-SHA PR quality",
-  );
-  assert.ok(
-    hasCommand(versionPrDispatch, /for attempt in 1 2 3/),
-    "release.yml: Version PR quality dispatch retries must be bounded to three",
+  assert.equal(
+    release.jobs["dispatch-version-pr-quality"],
+    undefined,
+    "release.yml: Version PR checks must use the native pull_request run, not a duplicate dispatch",
   );
   assert.doesNotMatch(
     sources["release.yml"],

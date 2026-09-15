@@ -2928,11 +2928,11 @@ not recursively trigger workflows, a separate actions-write/read-only-content jo
 the exact generated branch SHA. The ruleset has no bypass actor, publication retains only OIDC plus
 contents-read, and the original `ship it` covers the Version PR merge without another prompt.
 
-**Dispatch authority.** Inputs are transport, never proof. The first correction draft accepted a
-caller-supplied release-mode flag and base/head pair, which could create a green required context for
-the wrong comparison. The final CI entrypoint has no mode input: every manual dispatch is the
-generated-Version-PR path and must prove `github.ref_name`, the event SHA, the checkout, the supplied
-head, and current `origin/main` before it executes the exact-range verifier.
+**Native PR status.** A check on the same head SHA is not automatically a PR check. The bound manual
+dispatch passed but remained absent from #144's status rollup, while approving GitHub's existing
+`action_required` run immediately created the required native context. The final CI entrypoint is
+therefore `pull_request`-only; the shipping operator approves the exact bot-created run and no
+workflow holds `actions: write` merely to produce a duplicate result.
 
 **Generated-output verification.** The affected planner is intentionally not taught that a global
 version rewrite is a component source change. PR #144 proved why filename pairing is the wrong

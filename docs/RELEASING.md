@@ -58,10 +58,10 @@ after the `PR quality` workflow exists on `main`.
 2. The shipping agent squash-merges the exact green head SHA.
 3. The resulting `main` push runs `release.yml`. If pending changesets exist, Changesets creates or
    updates `changeset-release/main` and opens the Version Packages PR.
-4. Because a PR created by `GITHUB_TOKEN` does not recursively trigger workflows, the coordinator
-   explicitly dispatches `PR quality` for the exact generated head. That check runs full static
-   verification, then proves every generated path and content change is release output. Component
-   browsers remain owned by the originating source PRs.
+4. GitHub records the bot-created `pull_request` run as `action_required`. The shipping agent
+   approves that native run under the existing authorization; its `PR quality` check runs full
+   static verification, then proves every generated path and content change is release output.
+   Component browsers remain owned by the originating source PRs.
 5. The shipping agent squash-merges the exact green Version PR head under the original `ship it`.
 6. The next `main` push has no pending changesets. The publish job builds the two public packages,
    verifies exports and lifecycle safety, then publishes only missing versions through npm OIDC.
@@ -75,9 +75,9 @@ generated version output were green PR heads before either entered `main`. A man
 current main tip.
 
 The Version PR job has `contents: write` and `pull-requests: write`, which Changesets uses to update
-its branch and PR through the GitHub API. It has no OIDC authority. A separate job has
-`actions: write` only to dispatch the exact generated head's `PR quality` run. Publication has OIDC
-and read-only repository access, so PR mutation and npm authority never coexist.
+its branch and PR through the GitHub API. It has no OIDC authority. The native PR workflow is
+approved by the shipping operator rather than another workflow token. Publication has OIDC and
+read-only repository access, so PR mutation and npm authority never coexist.
 
 ## Changesets and changelog
 
@@ -137,7 +137,7 @@ publication jobs use the two runner agents on the one mac mini. No job uses GitH
 
 OIDC exists only in `release.yml:publish` and `deploy.yml:build-sign-deploy`. Workflow permissions,
 runner classes, container placement, immutable action pins, frozen installs, non-persisted checkout
-credentials, exact-SHA guards, generated-Version-PR dispatch, the no-bypass ruleset, and the ban on
+credentials, exact-SHA guards, native Version-PR validation, the no-bypass ruleset, and the ban on
 automatic full-suite execution are enforced by `verify-workflow-security` and its mutation harness.
 
 ## Recovery
