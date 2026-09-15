@@ -42,20 +42,14 @@ const cases = [
   {
     name: "fork guard is removed",
     file: "ci.yml",
-    find: "    if: >-\n      github.event_name == 'workflow_dispatch' ||\n      github.event.pull_request.head.repo.full_name == github.repository\n",
+    find: "    if: github.event.pull_request.head.repo.full_name == github.repository\n",
     replace: "",
   },
   {
-    name: "internal dispatch accepts an arbitrary branch",
+    name: "PR quality gains a manual trigger",
     file: "ci.yml",
-    find: '          test "$DISPATCH_REF" = "changeset-release/main"\n',
-    replace: '          test -n "$DISPATCH_REF"\n',
-  },
-  {
-    name: "internal dispatch accepts a stale main base",
-    file: "ci.yml",
-    find: '          test "$(git rev-parse origin/main)" = "$BASE_SHA"\n',
-    replace: '          test -n "$BASE_SHA"\n',
+    find: "on:\n  pull_request:\n",
+    replace: "on:\n  pull_request:\n  workflow_dispatch:\n",
   },
   {
     name: "PR job moves to hosted capacity",
@@ -136,10 +130,11 @@ const cases = [
     replace: "    if: always()",
   },
   {
-    name: "Version PR quality is not dispatched",
+    name: "release adds a duplicate Version PR quality dispatch",
     file: "release.yml",
-    find: "            if gh workflow run ci.yml \\\n",
-    replace: "            if true \\\n",
+    find: "\n  publish:\n",
+    replace:
+      "\n  dispatch-version-pr-quality:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n    timeout-minutes: 5\n    steps:\n      - run: gh workflow run ci.yml\n\n  publish:\n",
   },
   {
     name: "Changesets loses the GitHub metadata token",
@@ -152,19 +147,6 @@ const cases = [
     file: "ci.yml",
     find: '        run: node tooling/verify-release-output-scope.mjs --base "$BASE_SHA"\n',
     replace: "",
-  },
-  {
-    name: "Version PR quality loses exact head input",
-    file: "release.yml",
-    find: '              -f head_sha="$HEAD_SHA"; then\n',
-    replace: '              -f head_sha="$BASE_SHA"; then\n',
-  },
-  {
-    name: "Version PR quality dispatch becomes unbounded",
-    file: "release.yml",
-    find: '          BEFORE=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch "$VERSION_BRANCH" --limit 20 --json databaseId --jq \'.[].databaseId\')\n          for attempt in 1 2 3; do',
-    replace:
-      '          BEFORE=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch "$VERSION_BRANCH" --limit 20 --json databaseId --jq \'.[].databaseId\')\n          while true; do',
   },
   {
     name: "publish can run while changesets remain",

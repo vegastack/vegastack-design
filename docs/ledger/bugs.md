@@ -2663,17 +2663,17 @@ changed for any of these test repairs.
   `PR quality` plus the positive release-output guard, and `main` has no bypass actor. Changesets PR
   mutation, CI dispatch, npm OIDC and deployment remain separate least-privilege jobs.
 
-## 2026-09-15 — CLOSED: an unbound CI dispatch could manufacture the required status
+## 2026-09-15 — CLOSED: a duplicate CI dispatch could not satisfy the PR ruleset
 
-- **Symptom.** The first Version-PR correction exposed `base_sha`, `head_sha`, and a release-mode
-  boolean on `workflow_dispatch` without independently binding them to repository state.
-- **Root cause.** The generated PR coordinator supplied honest inputs, but the required-check
-  workflow treated caller claims as authority. A write-capable caller could dispatch the check on a
-  different same-repository ref and choose a convenient comparison base.
-- **Systemic fix.** Internal dispatch is now exclusively the `changeset-release/main` path. Before
-  repository verification it requires the dispatch ref, event SHA, checked-out SHA, supplied head,
-  and live `origin/main` base to agree. The release-output allowlist then validates that exact range;
-  independent mutations remove the branch and live-base bindings and must fail.
+- **Symptom.** The first correction dispatched a bound `workflow_dispatch` run for the generated PR
+  head. Its checks passed, but GitHub did not attach that status to PR #144, so the ruleset still
+  prohibited the merge.
+- **Root cause.** Matching head SHA and check name is not sufficient for GitHub's PR status rollup;
+  the required context must come from the PR-associated check suite. The bot-created native run was
+  present as `action_required` and became a valid PR check as soon as the operator approved it.
+- **Systemic fix.** CI is `pull_request`-only again and the duplicate dispatch job is removed. The
+  ship procedure approves the exact bot-created run, while the workflow gate rejects restoring a
+  manual trigger or duplicate dispatch.
 
 ## 2026-09-15 — CLOSED: Version PR provenance rewrites looked like hand-edited registry copies
 

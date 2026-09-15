@@ -69,9 +69,11 @@ The merged change's `main` push starts the release coordinator. When pending cha
 
 1. Assembles and versions every pending changeset as one batch on `changeset-release/main`.
 2. Creates or updates the generated Version Packages PR through the GitHub API.
-3. Explicitly dispatches `PR quality` for the exact generated head. This dispatch is load-bearing:
-   ordinary events created by `GITHUB_TOKEN` do not recursively start workflows.
-4. Runs full static proof plus the positive release-output scope guard in place of the ordinary
+3. Leaves GitHub's bot-created `pull_request` run in `action_required`. Find the run for the exact PR
+   head and approve it with `gh api --method POST repos/VegaStack/vegastack-design/actions/runs/<id>/approve`.
+   The existing `ship it` authorizes this operator action; do not ask again.
+4. The resulting native `PR quality` run performs full static proof plus the positive release-output
+   scope guard in place of the ordinary
    affected-browser and changeset requirements. Runtime behavior was already tested on the source
    PRs; the generated branch may change only release metadata and provenance.
 
