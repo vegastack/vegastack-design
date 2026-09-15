@@ -15,13 +15,8 @@ preview: toastDemo
 
 ## Usage
 
-Toast is built on [Base UI's Toast](https://base-ui.com/react/components/toast) primitive. Two
-things have to be mounted, and `<VegaStackProvider>` mounts both, so most apps do neither by hand:
-
-- `<ToastProvider>` — the context every `toast()` call writes into.
-- `<Toaster />` — the one visible viewport the stack renders in.
-
-Then import `toast` and call it from anywhere, including outside the React tree.
+`<VegaStackProvider>` mounts the toast host. Import `toast` and call it from anywhere, including
+outside the React tree:
 
 ```tsx
 import { toast } from "@/components/ui/toast";
@@ -29,7 +24,15 @@ import { toast } from "@/components/ui/toast";
 <Button onClick={() => toast.success("Saved")}>Save</Button>;
 ```
 
-If you are not using `<VegaStackProvider>`, mount the pair once at your app root:
+## Scope
+
+- **Owns:** brief notifications, their stack, placement, live announcements, and dismissal.
+- **Does not own:** errors that need an inline resolution or a confirmation before a destructive action.
+- **Compose with:** `<VegaStackProvider>` for the usual app root; otherwise mount `<ToastProvider>`
+  and one `<Toaster />` yourself.
+
+Toast uses [Base UI's Toast](https://base-ui.com/react/components/toast) primitive. If you do not
+use `<VegaStackProvider>`, mount the pair once at your app root:
 
 ```tsx
 import { ToastProvider, Toaster } from "@/components/ui/toast";
@@ -88,6 +91,8 @@ tokens still follow the house families — an `error` toast paints `destructive`
 
 A toast takes a `description`, an `actionProps` button, and `toast.promise(...)` to drive
 loading → success / error from an async call automatically.
+The labelled action and the dismiss X share a quiet ghost face and family-coloured hover/pressed
+wash; the action remains distinct through its text label.
 
 <ComponentPreview name="toastStates" file="components/preview/toast.tsx" />
 
@@ -261,11 +266,74 @@ a toast needs no hook.
   name="ToastProviderProps"
 />
 
+### `ToastViewportProps`
+
+<ApiTable
+  path="../../packages/ui/registry/ui/toast.tsx"
+  name="ToastViewportProps"
+/>
+
+### `ToastRootProps`
+
+<ApiTable
+  path="../../packages/ui/registry/ui/toast.tsx"
+  name="ToastRootProps"
+/>
+
+### `ToastContent`
+
+`ToastContent` adds no own props beyond Base UI's content part.
+
+### `ToastTitle`
+
+`ToastTitle` adds no own props beyond Base UI's title part.
+
+### `ToastDescription`
+
+`ToastDescription` adds no own props beyond Base UI's description part.
+
+### `ToastActionProps`
+
+<ApiTable
+  path="../../packages/ui/registry/ui/toast.tsx"
+  name="ToastActionProps"
+/>
+
+### `ToastCloseProps`
+
+<ApiTable
+  path="../../packages/ui/registry/ui/toast.tsx"
+  name="ToastCloseProps"
+/>
+
+### `ToastPositioner`
+
+`ToastPositioner` adds no own props beyond Base UI's anchored positioner.
+
+### `ToastArrow`
+
+`ToastArrow` adds no own props beyond Base UI's anchored arrow.
+
+### `ToastPortal`
+
+`ToastPortal` adds no own props beyond Base UI's portal.
+
+### `ToastProps`
+
+<ApiTable path="../../packages/ui/registry/ui/toast.tsx" name="ToastProps" />
+
 ### `ToasterProps`
 
 <ApiTable path="../../packages/ui/registry/ui/toast.tsx" name="ToasterProps" />
 
 ## Accessibility
+
+| Key                 | Effect                                                                 |
+| ------------------- | ---------------------------------------------------------------------- |
+| `F6`                | Move focus into the notifications viewport from elsewhere on the page. |
+| `Tab` / `Shift+Tab` | Reach the labelled action and the dismiss X.                           |
+| `Enter` / `Space`   | Activate the focused action or dismiss control.                        |
+| `Escape`            | Dismiss the toast that currently has focus.                            |
 
 - The viewport is a labelled landmark region (`role="region"`, `aria-label="Notifications"`) with
   `aria-live="polite"`, so a new toast is announced without stealing focus.
@@ -289,6 +357,11 @@ a toast needs no hook.
 <DoDont
   do="Use Toast for brief, non-blocking confirmations — 'Saved', 'Copied', 'Invitation sent' — and for the loading → success arc of an async action."
   dont="Use Toast for errors the user must resolve or destructive confirmations — use an inline message or a Dialog."
+/>
+
+<DoDont
+  do="Give a reversible result a labelled Undo action when the user can still change the outcome."
+  dont="Rely on colour or swipe alone to convey status or dismiss a notification."
 />
 
 ## Changelog
