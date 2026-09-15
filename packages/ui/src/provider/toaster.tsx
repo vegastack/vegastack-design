@@ -423,9 +423,16 @@ function toastTypeOf(type: string | undefined): ToastType {
 
 /** Props accepted by `ToastViewport`. */
 export interface ToastViewportProps
-  extends
-    BaseToast.Viewport.Props,
-    VariantProps<typeof toastViewportVariants> {}
+  extends BaseToast.Viewport.Props, VariantProps<typeof toastViewportVariants> {
+  /** Logical corner for this viewport's stack. @default 'bottom-end' */
+  position?:
+    | "top-start"
+    | "top-center"
+    | "top-end"
+    | "bottom-start"
+    | "bottom-center"
+    | "bottom-end";
+}
 
 /**
  * `ToastViewport` — the fixed, labelled notifications region the stack lives in. Base UI gives it
@@ -458,6 +465,8 @@ export interface ToastRootProps
     VariantProps<typeof toastVariants> {
   /** The toast to render. */
   toast: ToastItem;
+  /** Surface tint, normally inferred from the toast item. @default 'default' */
+  type?: "default" | "loading" | "success" | "error" | "warning" | "info";
 }
 
 /**
@@ -561,13 +570,20 @@ export interface ToastActionProps extends BaseToast.Action.Props {
    * control inside a tinted toast washes in its own family rather than a borrowed neutral.
    * @default 'foreground'
    */
-  tone?: FillTone;
+  tone?:
+    | "foreground"
+    | "primary"
+    | "destructive"
+    | "success"
+    | "warning"
+    | "info"
+    | "brand";
 }
 
 /**
- * `ToastAction` — the toast's one affirmative control ("Undo", "Retry"). It wears the `soft` button
- * face in the toast's own family, so a toast never introduces a second hue. Its label and handler
- * come from the toast's `actionProps`.
+ * `ToastAction` — the toast's one affirmative control ("Undo", "Retry"). It shares the
+ * dismiss control's quiet ghost face and family-coloured hover/pressed wash; its text label
+ * distinguishes the action from dismissal. Its label and handler come from `actionProps`.
  *
  * @example
  * <ToastAction tone="destructive" />
@@ -581,8 +597,7 @@ export function ToastAction({
     <BaseToast.Action
       data-slot="toast-action"
       className={cn(
-        "inline-flex h-(--size-xs) shrink-0 items-center justify-center rounded-md px-2 text-base font-medium",
-        "border border-current/(--alpha-border-subtle) bg-current/(--alpha-surface-faint)",
+        "inline-flex h-(--size-xs) shrink-0 self-center items-center justify-center rounded-md border border-transparent px-2 text-label-sm whitespace-nowrap",
         fillInteractive[tone],
         className,
       )}
@@ -597,7 +612,14 @@ export interface ToastCloseProps extends BaseToast.Close.Props {
    * Which ink the hover/pressed wash composites from. `Toast` sets it from the toast's type.
    * @default 'foreground'
    */
-  tone?: FillTone;
+  tone?:
+    | "foreground"
+    | "primary"
+    | "destructive"
+    | "success"
+    | "warning"
+    | "info"
+    | "brand";
 }
 
 /**
@@ -617,7 +639,7 @@ export function ToastClose({
     <BaseToast.Close
       data-slot="toast-close"
       className={cn(
-        "inline-flex size-(--size-xs) shrink-0 items-center justify-center rounded-md",
+        "inline-flex size-(--size-xs) shrink-0 self-center items-center justify-center rounded-md",
         fillInteractive[tone],
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
         className,
@@ -729,7 +751,7 @@ export function Toast({
                 )}
               />
             ) : null}
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex min-w-0 flex-1 self-center flex-col gap-1">
               <ToastTitle />
               <ToastDescription />
             </div>
@@ -755,7 +777,13 @@ export interface ToasterProps extends Omit<ToastViewportProps, "children"> {
    * an LTR document and bottom-left in an RTL one.
    * @default 'bottom-end'
    */
-  position?: ToastPosition;
+  position?:
+    | "top-start"
+    | "top-center"
+    | "top-end"
+    | "bottom-start"
+    | "bottom-center"
+    | "bottom-end";
   /**
    * Direction(s) a toast can be swiped to dismiss. Defaults to the stack's own block direction
    * plus both inline directions, which reads the same under either text direction.

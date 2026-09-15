@@ -1,7 +1,7 @@
 import "./contrast.css"; // compiled Tailwind + @vegastack token theme (Vite via @tailwindcss/vite)
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { beforeAll, describe, expect, test } from "vitest";
+import { afterEach, beforeAll, describe, expect, test } from "vitest";
 
 import { Field } from "../registry/ui/field";
 import { Input } from "../registry/ui/input";
@@ -9,6 +9,7 @@ import { NumberField } from "../registry/ui/number-field";
 import { OTPInput } from "../registry/ui/otp-input";
 import { Switch } from "../registry/ui/switch";
 import { Textarea } from "../registry/ui/textarea";
+import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
 
 /**
  * CONTROL-PAINT CONTRACTS — what the browser paints, not what the source authored.
@@ -58,6 +59,81 @@ const within = (container: Element) => ({
   slot: (name: string) =>
     container.querySelector(`[data-slot="${name}"]`) as HTMLElement,
   one: (selector: string) => container.querySelector(selector) as HTMLElement,
+});
+
+describe("toast content geometry", () => {
+  afterEach(() => toast.dismiss());
+
+  test("copy and controls stay centered with and without a description", async () => {
+    await render(
+      <ToastProvider>
+        <Toaster style={{ pointerEvents: "none" }} />
+      </ToastProvider>,
+    );
+
+    const measure = (title: string) => {
+      const root = [
+        ...document.querySelectorAll<HTMLElement>('[data-slot="toast"]'),
+      ].find((element) => element.textContent?.includes(title));
+      const row = root?.querySelector<HTMLElement>(
+        '[data-slot="toast-content"]',
+      );
+      const copy = root?.querySelector<HTMLElement>(
+        '[data-slot="toast-title"]',
+      )?.parentElement;
+      const close = root?.querySelector<HTMLElement>(
+        '[data-slot="toast-close"]',
+      );
+      expect(root && row && copy && close).toBeTruthy();
+      expect(getComputedStyle(root!).paddingTop).toBe("16px");
+      const center = (element: Element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.top + rect.height / 2;
+      };
+      expect(Math.abs(center(copy!) - center(row!))).toBeLessThan(1);
+      expect(Math.abs(center(close!) - center(row!))).toBeLessThan(1);
+      return { root: root!, row: row! };
+    };
+
+    toast("Event created", { timeout: 0 });
+    await expect
+      .poll(
+        () => document.querySelector('[data-slot="toast-title"]')?.textContent,
+      )
+      .toBe("Event created");
+    measure("Event created");
+
+    toast.dismiss();
+    await expect
+      .poll(() => document.querySelectorAll('[data-slot="toast"]').length)
+      .toBe(0);
+    toast("Invitation sent", {
+      description: "sent to jane@vegastack.com",
+      actionProps: { children: "Undo", onClick: () => {} },
+      timeout: 0,
+    });
+    await expect
+      .poll(() =>
+        [...document.querySelectorAll('[data-slot="toast"]')].some((element) =>
+          element.textContent?.includes("Invitation sent"),
+        ),
+      )
+      .toBe(true);
+    const { root, row } = measure("Invitation sent");
+    const action = root.querySelector<HTMLElement>(
+      '[data-slot="toast-action"]',
+    )!;
+    const close = root.querySelector<HTMLElement>('[data-slot="toast-close"]')!;
+    const center = (element: Element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.top + rect.height / 2;
+    };
+    expect(Math.abs(center(action) - center(row))).toBeLessThan(1);
+    expect(getComputedStyle(action).backgroundColor).toBe(
+      getComputedStyle(close).backgroundColor,
+    );
+    expect(action.getBoundingClientRect().height).toBe(24);
+  });
 });
 
 /**
