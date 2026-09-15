@@ -27,7 +27,6 @@ export const RUNTIME_PLACEHOLDERS = new Set([
   "InstallSteps",
   "Anatomy",
   "StatesTested",
-  "ComponentChangelog",
 ]);
 
 /** Browser-only surfaces, replaced by an explicit note (never dropped silently). */

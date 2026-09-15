@@ -62,7 +62,7 @@ function walk(dir, ext = /\.(md|mdx)$/) {
 // explorer, and an Explorer always wrapped"). `tooling/verify-docs-export.mjs` owns it, with its
 // own self-test; duplicating it would give two rules that can disagree.
 
-/** Canon section order (rows 1–10). Row 0 is frontmatter. */
+/** Canon section order (rows 1–9). Row 0 is frontmatter. */
 export const CANON_SECTIONS = [
   "Install",
   "Usage",
@@ -73,7 +73,6 @@ export const CANON_SECTIONS = [
   "API Reference",
   "Accessibility",
   "Do / Don't",
-  "Changelog",
 ];
 
 /** Row -> the generated component that owns its machine-readable half. */
@@ -81,7 +80,6 @@ const GENERATED_SECTIONS = {
   Install: "InstallSteps",
   Anatomy: "Anatomy",
   Accessibility: "StatesTested",
-  Changelog: "ComponentChangelog",
 };
 /** Sections every component page must carry. Scope/Anatomy/Playground are conditional. */
 const REQUIRED_SECTIONS = [
@@ -91,7 +89,6 @@ const REQUIRED_SECTIONS = [
   "API Reference",
   "Accessibility",
   "Do / Don't",
-  "Changelog",
 ];
 
 function frontmatterOf(source) {
@@ -184,7 +181,7 @@ export function canonProblems(relative, source, componentParts, contract) {
       );
   }
 
-  // Rows 1–10 — the sections, their vocabulary, and their order.
+  // Rows 1–9 — the sections, their vocabulary, and their order.
   const found = sectionsOf(source);
   const titles = found.map((section) => section.title);
   for (const section of found) {
@@ -216,15 +213,14 @@ export function canonProblems(relative, source, componentParts, contract) {
     }
   }
 
-  // "Nothing follows Do / Don't except the generated Changelog."
+  // Do / Don't closes the component page. Release history belongs to the canonical changelog.
   const tail = titles.slice(titles.indexOf("Do / Don't") + 1);
   if (titles.includes("Do / Don't"))
     for (const title of tail) {
-      if (title !== "Changelog")
-        say(
-          "docs-canon-tail",
-          `"## ${title}" follows Do / Don't — nothing does, except the generated Changelog.`,
-        );
+      say(
+        "docs-canon-tail",
+        `"## ${title}" follows Do / Don't — it is the final component-page section.`,
+      );
     }
 
   // The machine-readable half of a section is GENERATED, never typed.
@@ -255,16 +251,6 @@ export function canonProblems(relative, source, componentParts, contract) {
     say(
       "docs-canon-generated",
       "canon row 1: the install command is generated from registry.json by <InstallSteps>, never a hand-typed `shadcn add` fence.",
-    );
-  if (
-    titles.includes("Changelog") &&
-    sectionBody(source, "Changelog")
-      .replace(/<ComponentChangelog\s+name="[^"]+"\s*\/>/, "")
-      .trim()
-  )
-    say(
-      "docs-canon-generated",
-      "canon row 10: the Changelog section holds the generated entries and nothing else.",
     );
   if (componentParts > 1 && !titles.includes("Anatomy"))
     say(
@@ -334,10 +320,6 @@ function selfTest() {
     "## Do / Don't",
     "",
     '<DoDont do="a" dont="b" />',
-    "",
-    "## Changelog",
-    "",
-    '<ComponentChangelog name="widget" />',
     "",
   ].join("\n");
 
@@ -409,12 +391,9 @@ function selfTest() {
       "docs-canon-generated",
     ],
     [
-      "prose in the generated Changelog",
-      good.replace(
-        '<ComponentChangelog name="widget" />',
-        '<ComponentChangelog name="widget" />\n\nAnd a hand-written note.',
-      ),
-      "docs-canon-generated",
+      "the retired Changelog section after Do / Don't",
+      `${good}\n## Changelog\n\n<ComponentChangelog name="widget" />\n`,
+      "docs-canon-tail",
     ],
     [
       "a compound with no Anatomy section",

@@ -1,20 +1,18 @@
 import { Steps, Step } from "fumadocs-ui/components/steps";
 import { Files, File } from "fumadocs-ui/components/files";
-import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
-import { highlight } from "fumadocs-core/highlight";
+import { ServerCodeBlock } from "fumadocs-ui/components/codeblock.rsc";
 import { inlineCode } from "@/components/api-table";
 import {
   getAnatomy,
   getInstallSteps,
   getStatesTested,
 } from "@/lib/generated-sections";
-import { getComponentChangelog } from "@/lib/changelog";
 
 /**
- * The canon's generated sections (`08-docs-structure.md` §2 rows 1, 4, 8, 10) as MDX
+ * The canon's generated sections (`design.md` § Docs canon rows 1, 4, and 8) as MDX
  * components. Each takes the registry item name and reads the machine authorities through
- * `lib/generated-sections.ts` / `lib/changelog.ts` — the same functions the markdown export
- * renders from, so `button.md` and `/docs/components/button` show identical content.
+ * `lib/generated-sections.ts` — the same functions the markdown export renders from, so
+ * `button.md` and `/docs/components/button` show identical content.
  *
  * Usage (Do1-b places these on every page; the button, dialog and data-grid pages carry them now):
  *
@@ -24,21 +22,18 @@ import { getComponentChangelog } from "@/lib/changelog";
  *   <Anatomy name="dialog" />
  *   ## Accessibility
  *   <StatesTested name="button" />
- *   ## Changelog
- *   <ComponentChangelog name="button" />
  */
 export interface GeneratedSectionProps {
   /** Registry item name — `data-grid`, never the title. */
   name: string;
 }
 
-async function Command({ command }: { command: string }) {
-  const node = await highlight(command, {
+export async function Command({ command }: { command: string }) {
+  return await ServerCodeBlock({
+    code: command,
     lang: "bash",
     themes: { light: "github-light", dark: "github-dark" },
-    components: { pre: Pre },
   });
-  return <CodeBlock>{node}</CodeBlock>;
 }
 
 export function InstallSteps({ name }: GeneratedSectionProps) {
@@ -99,22 +94,5 @@ export function StatesTested({ name }: GeneratedSectionProps) {
         ))}
       </tbody>
     </table>
-  );
-}
-
-export function ComponentChangelog({ name }: GeneratedSectionProps) {
-  const entries = getComponentChangelog(name);
-  if (entries.length === 0) {
-    return <p>No changelog entries name this item yet.</p>;
-  }
-  return (
-    <ul>
-      {entries.map((entry, index) => (
-        <li key={index}>
-          <strong>{entry.version}</strong> ({entry.date}) — {entry.section}:{" "}
-          {inlineCode(entry.text)}
-        </li>
-      ))}
-    </ul>
   );
 }

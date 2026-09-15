@@ -6,7 +6,6 @@ import * as Twoslash from "fumadocs-twoslash/ui";
 import { ApiTable, TypeTable } from "@/components/api-table";
 import {
   Anatomy,
-  ComponentChangelog,
   InstallSteps,
   StatesTested,
 } from "@/components/generated-sections";
@@ -102,7 +101,6 @@ export function getMDXComponents(components?: MDXComponents) {
     InstallSteps,
     Anatomy,
     StatesTested,
-    ComponentChangelog,
     ComponentPreview,
     StoryExplorer,
     RegistryInstallCallout,
