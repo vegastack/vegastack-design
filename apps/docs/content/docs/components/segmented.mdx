@@ -1,6 +1,6 @@
 ---
 title: Segmented
-description: A single-select, always-one-selected view/mode switcher — a muted track with a raised active chip. The canonical segmented-control formula.
+description: A single-select, always-one-selected view/mode switcher — a bounded muted track with a raised active chip. The canonical segmented-control formula.
 audience: public
 registry: segmented
 status: stable
@@ -56,8 +56,9 @@ callback never fires with "nothing selected": clicking the active segment is a n
 
 The track and chip are the system's one selected-chip recipe (`selectedChipVariants`), shared with
 Tabs `pill`/`chip` and pressed `Toggle`/`ToggleGroup` so the four cannot drift apart: the track is
-`rounded-md p-0.5` on the ladder's well rung, and the chip is `rounded-sm` on the pressed/selected
-rung with the one hairline border — the nested-radius formula (container radius minus padding). The
+`rounded-md p-0.5` on the ladder's well rung with a visible `border-border` boundary, and the chip
+is `rounded-sm` on the pressed/selected rung with its own hairline — the nested-radius formula
+(container radius minus padding). The
 selected chip is not exempt from interaction: hovering it strengthens the tint and pressing it drops
 back to the resting tint, previewing the release. Sizes:
 `default` (24px chips in a 28px track — dense chrome) and `lg` (28px chips — form rows).

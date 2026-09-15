@@ -1,8 +1,8 @@
-// Host-conditional WebKit for the cross-engine browser lane — the full three-engine suite
-// (vitest.all-browsers.config.ts), run by `pnpm verify:release`. It adds WebKit + Firefox on top of
+// Host-conditional WebKit for the manual cross-engine audit — the full three-engine suite
+// (`vitest.all-browsers.config.ts`), run by `pnpm test:full --engines all`. It adds WebKit + Firefox on top of
 // the base Chromium config; this module decides whether WebKit is actually included on the current
 // host. (There was a second consumer, the risk-selected smoke subset; it was deleted with the
-// attestation stack, since the release run covers everything it sampled.)
+// attestation stack.)
 //
 // WHY (2026-08-28): Playwright's WebKit render child (WebContent) links the system WebKit.framework
 // by ABSOLUTE path and needs the `_OBJC_CLASS_$__WKBrowserContext` symbol. webkit-2311 targets the
@@ -20,7 +20,7 @@
 //                                known-good host where an unlaunchable WebKit SHOULD fail the lane
 //   (SMOKE_WEBKIT is accepted as a backward-compatible alias for WEBKIT_LANE.)
 //
-// The skip is never silent: it prints a WEBKIT-LANE-SKIPPED banner to stderr so a receipt reviewer
+// The skip is never silent: it prints a WEBKIT-LANE-SKIPPED banner to stderr so an audit operator
 // can see the run covered two engines, not three.
 
 const SKIP_BANNER = "WEBKIT-LANE-SKIPPED";
@@ -87,13 +87,10 @@ function includeWebkit(): Promise<boolean> {
     // `auto` exists for one reason: a developer Mac outside WebKit's ~26.2–26.5 window physically
     // cannot launch it, and failing the whole cross-engine lane there would be noise. CI is the
     // opposite case. The Linux runners launch all three engines (measured on vsk-node-05), and
-    // `AGENTS.md`, `tooling/verify.mjs` and the `ship` skill all describe `verify:release` as running
-    // "the complete suite in all three engines" — a claim a deploy is allowed to rely on.
+    // `AGENTS.md` and the ship skill describe the manual `all` audit as three-engine coverage.
     //
     // Under `auto`, a WebKit that stopped launching in CI would print a banner nobody reads and the
-    // lane would quietly become two engines, with the release gate still reporting success. Nothing
-    // in the workflows set `WEBKIT_LANE`, so that was the live behaviour: a fail-open in the one lane
-    // whose entire purpose is to catch engine-specific defects. CI therefore defaults to `require`
+    // lane would quietly become two engines while still reporting a complete audit. CI therefore defaults to `require`
     // and fails closed; an explicit `WEBKIT_LANE` still wins everywhere, so a runner with a genuinely
     // broken WebKit can be unblocked deliberately and visibly rather than by accident.
     const mode = (
@@ -113,9 +110,9 @@ function includeWebkit(): Promise<boolean> {
 }
 
 /**
- * The complete release-engine order, resolved once by the sequential runner.
+ * The complete manual-audit engine order, resolved once by the sequential runner.
  *
- * Chromium goes first because it is the base/PR engine, WebKit follows when this host is allowed
+ * Chromium goes first because it is the ordinary PR engine, WebKit follows when this host is allowed
  * to run it, and Firefox closes the lane. CI still reaches `includeWebkit()` in `require` mode, so
  * an unavailable WebKit fails before any suite can be reported as complete.
  */

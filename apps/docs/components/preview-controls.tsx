@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Maximize2, Monitor, Smartphone, Tablet } from "lucide-react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Segmented, SegmentedItem } from "@/components/ui/segmented";
 import { IconButton } from "@/components/ui/icon-button";
 import {
   Dialog,
@@ -95,25 +95,22 @@ export function usePreviewFrameWidth(): FrameWidth {
 export function FrameWidthToggle() {
   const { width, setWidth } = usePreviewControls();
   return (
-    <ToggleGroup
-      value={[width]}
-      onValueChange={(next) => {
-        const nextWidth = next[0] as FrameWidth | undefined;
-        if (nextWidth) setWidth(nextWidth);
-      }}
-      size="sm"
+    <Segmented
+      value={width}
+      onValueChange={(next) => setWidth(next as FrameWidth)}
+      size="md"
       aria-label="Preview frame width"
     >
-      <ToggleGroupItem value="mobile" aria-label="Mobile width, 375 pixels">
+      <SegmentedItem value="mobile" aria-label="Mobile width, 375 pixels">
         <Smartphone />
-      </ToggleGroupItem>
-      <ToggleGroupItem value="tablet" aria-label="Tablet width, 768 pixels">
+      </SegmentedItem>
+      <SegmentedItem value="tablet" aria-label="Tablet width, 768 pixels">
         <Tablet />
-      </ToggleGroupItem>
-      <ToggleGroupItem value="full" aria-label="Full width">
+      </SegmentedItem>
+      <SegmentedItem value="full" aria-label="Full width">
         <Monitor />
-      </ToggleGroupItem>
-    </ToggleGroup>
+      </SegmentedItem>
+    </Segmented>
   );
 }
 

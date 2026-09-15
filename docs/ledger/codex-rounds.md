@@ -587,3 +587,47 @@ round-trip, Chromium 2,409/2,409, Firefox 2,394 passed + 15 intentional skips). 
 the repository's expected macOS 26.6 host-incompatibility skip. A built dark-theme page inspection
 measured the figure on the dark surface with transparent pre/line backgrounds and no pre inline
 style; the final heading was Do / Don't.
+
+## 2026-09-15 — deterministic affected CI and one-instruction shipping
+
+**Scope:** component/test ownership, geometry selection, verification commands, all Actions
+workflows, main protection authority, release/deploy policy and maintainer doctrine.
+
+**Round 1 verdict:** needs-attention (4 high · 1 low), root-fixed.
+
+- **High — direct cross-cutting ownership could lie.** The accessible-name suite imported
+  DropdownMenu through `@/components/ui/*`, but reconciliation understood only relative registry
+  imports. Alias and relative imports are now parsed from the TypeScript AST, the owners were
+  corrected, and a missing-direct-owner mutation fails.
+- **High — Changesets lacked its runtime credential.** An isolated release rehearsal executed the
+  installed GitHub changelog adapter and proved that version generation requires `GITHUB_TOKEN`.
+  The exact-SHA version job now supplies its contents-write-only token; pull-request and OIDC
+  permissions remain absent.
+- **High — the generated release commit used a deny list.** A new positive output-scope verifier
+  now accepts only consumed changesets, semver-increasing package metadata and explicitly generated
+  provenance, registry, contract, Numbers and changelog surfaces. It rejects unknown paths, runtime
+  edits, file-mode changes and unexpected adds/deletes/renames. A two-changeset 0.9.1 rehearsal
+  produced 1,814 allowed generated paths.
+- **High — Sigstore defect probes used shell inversion.** Actionlint exposed that `! cosign` under
+  `set -e` was not a reliable assertion. Tampered-manifest and wrong-identity probes now have
+  explicit unexpected-success branches, each owned by a workflow mutation.
+- **Low — maintained prose and redundant work had drifted.** Live requirements, runbooks, skills
+  and comments still named the superseded full-sweep/release topology, and static verification ran
+  two negative self-tests twice. Current authorities now describe affected CI and direct release;
+  historical records are explicitly marked; each self-test has one home.
+
+**Round 2 verdict:** clean (0 high · 0 medium). External main-ruleset activation is intentionally
+ordered after the new `PR quality` workflow lands, and `release.yml` refuses to version until the
+rule exists.
+
+- `pnpm verify` passed the complete static boundary and the 142-test working-tree Chromium plan in
+  55.4s. The selector, tooling and policy suites passed 88 tests; 8 affected-guard and 32 workflow
+  mutations were rejected.
+- `pnpm test:full --engines all` passed in 235.7s: Chromium 2,412/2,412; Firefox 2,397 passed with
+  15 intentional skips; WebKit emitted the repository's expected macOS host-incompatibility skip.
+- `pnpm verify:distribution` passed in 161.2s: public metadata/links/docs-shell, nine negative shell
+  defects, 28 real shadcn graphs and 597/597 simulated items across both consumer layouts.
+- Generated design/component surfaces, formatting, workflow syntax (apart from actionlint's known
+  custom-runner-label diagnostics) and the clean-diff check passed. Targeted light/dark,
+  narrow/wide interaction inspection also covered the concurrently changed bordered selection
+  surfaces; temporary captures were removed.

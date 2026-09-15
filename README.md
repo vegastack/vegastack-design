@@ -32,8 +32,8 @@ tooling/           verify.mjs (the one command) · registry hashing/verification
 skills/internal/   maintainer skills — component · review · ship
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
 .github/workflows/ ci · release (npm OIDC) · deploy
-                   every job is self-hosted: the LAN Linux boxes run `pnpm verify` in the
-                   pinned Playwright container, the mac mini runs the static half
+                   every job is self-hosted: Linux runs affected browser/distribution proof;
+                   the mac mini owns credential-bearing publish/deploy work
 ```
 
 Skills are symlinked into `.claude/skills/` and `.agents/skills/`, so both Claude Code and Codex
@@ -60,47 +60,45 @@ regenerates the docs page (CI fails on drift). Nobody hand-edits `/CHANGELOG.md`
 ```bash
 pnpm install                   # also wires the git hooks (husky, via `prepare`)
 pnpm dev                       # docs showcase on :3000
-pnpm check:component <name>    # the inner loop: design-lint · typecheck · that unit test
-pnpm verify                    # THE command: typecheck · lint · design:verify · browser suite
-pnpm verify:release            # the outward-step extras: both docs matrices · docs shell · consume · 3 engines
+pnpm check:component <name>    # optional item + reverse dependents + targeted geometry
+pnpm check:affected            # optional working-tree affected feedback
+pnpm verify                    # full static + working-tree affected Chromium proof
+pnpm verify:distribution       # public export/registry proof, no component regression
+pnpm test:full --engines all   # rare manual complete audit
 pnpm run clean                 # report only; `pnpm run clean --after-run|--weekly` reclaims
 pnpm registry:build            # after any canonical component edit
 ```
 
-`pnpm verify` is byte-for-byte what CI executes on the Linux runner, so a green local run and a
-green check mean the same thing. The pre-commit hook (design-lint + prettier on the staged set,
-~4s) is convenience, not a gate — nothing is attested any more, and everything CI trusts, CI ran.
+PR CI runs full static proof once, then uses the exact base/head range to select changed components,
+transitive reverse dependents, cross-cutting contracts and preview fixtures. Local checks are
+optional feedback. The pre-commit hook remains only staged design-lint plus Prettier.
 
 ## Releasing
 
 Use the **ship skill** (`skills/internal/ship/SKILL.md` — auto-discovered by Claude Code and Codex):
-preflight → changesets → Version PR (which assembles the changelog entry) → **npm OIDC publish**
-(tokenless, 2FA intact) → registry deploy → Access verification.
+affected PR proof → exact-SHA merge → direct release commit → **npm OIDC publish** → automatic
+public registry/docs deploy → production verification.
 
-**Shipping is always MK's decision** — agents prepare and stop for an explicit
-"yes proceed" per outward step. Full reference: [docs/RELEASING.md](docs/RELEASING.md).
+One explicit **ship it** authorizes the complete current chain and its bounded corrective loop. Full
+reference: [docs/RELEASING.md](docs/RELEASING.md).
 
 ## Verification culture
 
-Fail-closed gates end to end: design-lint (token-only styling) · browser-mode unit tests + axe ·
-geometry contracts over every preview fixture (320px reflow, RTL containment, 24px pointer
-targets) in the same browser suite ·
+Fail-closed gates end to end: design-lint (token-only styling) · affected browser-mode unit tests +
+axe · targeted geometry contracts (320px reflow, RTL containment, 24px pointer targets) with global
+CSS/token and metadata sentinels ·
 real-CLI consume verification (contract-driven across every registry item and both layouts) ·
 registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints. The **reference
 consumer** (`vegastack-design-starter`, local repo) is the executable ground truth for every guide
 claim.
 
-**Everything CI trusts, CI executed.** There is one command — `pnpm verify` — and the LAN Linux
-runners run it inside the pinned Playwright container (`mcr.microsoft.com/playwright:v1.61.0-noble`)
-on every pull request, on the release push, and before every deploy. The mac mini — one machine
-hosting two runner agents — runs the static half in parallel for the cross-platform signal. Nothing is bound to a tree hash and nothing is
-attested; the attestation system that used to stand in for a browser was removed on 2026-09-08, once
-free runners could launch one.
+**Every proof has one owner.** Pull requests run static checks once and affected Chromium tests in the
+pinned Linux container. Publish builds and verifies public npm artifacts only. Deploy proves the
+public distribution artifact only. The complete component suite is manual-only with selectable
+engines. Nothing is attested or repeated on `main`.
 
-No lane in this repository takes a screenshot. The blocking visual-surface gate is
-`packages/ui/test/geometry.browser.test.tsx`, which measures reflow, RTL containment, and effective
-pointer-target size against the real compiled token CSS — so it cannot be cleared by regenerating its
-own evidence. See AGENTS.md § Verification — three loops.
+No CI lane commits screenshots. The shipping agent may create temporary affected-page captures for
+light/dark and narrow/wide judgment. See AGENTS.md § Verification — owned boundaries.
 
 Counts are generated from `packages/ui/component-contracts.json` — see AGENTS.md § Numbers rather
 than trusting a number written down here.

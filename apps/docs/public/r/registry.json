@@ -1033,7 +1033,7 @@
         "whenToUse": "Related toggle buttons sharing one selection — alignment, or multi-select formatting.",
         "whenNotToUse": "Navigation between views (Tabs) or a single on/off control (Toggle/Switch).",
         "version": "0.9.0",
-        "integrity": "sha256-t8Y0nNHD9P8PCczzjnnIu6lfKLMdmLLoshAmif/DXpM="
+        "integrity": "sha256-4EToIqE4MOBe26uJtVOMiR1RlqNdkKYxrE8KloEK904="
       }
     },
     {
@@ -1061,7 +1061,7 @@
         "whenToUse": "Peer view/mode switches where one option is always active — view modes, billing cycles, filter scopes.",
         "whenNotToUse": "Content panels swapping (Tabs), meaningful empty/multi selection (ToggleGroup), or on/off (Switch).",
         "version": "0.9.0",
-        "integrity": "sha256-vVUDinGYPdgm4tpFlPOcYM++7W0JGku8WSoEsIF0rz8="
+        "integrity": "sha256-q5aLcatYQ5NgU4k1/7UPWDDSZOEHHfYlvb2IxT7Gjik="
       }
     },
     {

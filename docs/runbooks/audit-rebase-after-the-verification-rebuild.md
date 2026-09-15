@@ -1,5 +1,9 @@
 # Rebasing an audit batch after the verification rebuild
 
+> Historical runbook for the 2026-09-08 full-sweep topology. It was superseded on 2026-09-15 by
+> deterministic affected PR CI and one-instruction shipping. Do not follow its verification or
+> release procedure; the conflict guidance remains only for branches that predate that rebuild.
+
 **For:** the session finishing epic #31 (batches on `audit/*`). **Written:** 2026-09-09, against
 `main` at `c40cc68d`.
 

@@ -117,20 +117,18 @@ call site. The compiled-CSS contrast gate covers real contrast separately.
 ## Running tests
 
 ```bash
-cd packages/ui && pnpm exec vitest run registry/ui/<name>.test.tsx   # scoped, while iterating
-pnpm test                                                            # full suite, before the gate
+pnpm check:component <name>      # component + transitive reverse dependents + geometry fixtures
+pnpm check:affected              # derive the same scope from local changes
 ```
 
 ## Cross-browser
 
 ```bash
-pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines
+pnpm test:full --engines chromium # manual complete Chromium audit
+pnpm test:full --engines all      # manual Chromium + WebKit + Firefox audit
 ```
 
-There is **no smoke subset any more**. The risk-selected WebKit/Firefox lane
-(`vitest.smoke.config.ts`, `test:smoke`, and the `coverage.crossBrowserSmoke` selection that
-generated its file list) was removed on 2026-09-08 with the attestation stack: it existed to keep a
-local pre-commit-time hook cheap, and no hook runs a browser now. `pnpm verify` runs the complete
-suite in Chromium on every push and pull request; `pnpm verify:release` runs the complete suite in all three engines before a
-deploy. Nothing to opt a new component into — the release run already covers everything the subset
-sampled.
+Pull-request CI runs full static verification once, then Chromium tests selected from
+`component-contracts.json`: changed registry items, transitive reverse dependents, owned
+cross-cutting suites and exact preview fixtures. Broad inputs run dedicated contracts plus fixed
+canaries. The complete component suite is manual-only and never part of ordinary release/deploy.

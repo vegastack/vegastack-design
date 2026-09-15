@@ -54,8 +54,8 @@ additive-only, so a renamed or removed item's stale JSON would otherwise linger 
 source file with a dead identity.
 
 Changing an existing component follows the same path: edit canonical → `registry:build` (the
-re-stamped integrity IS the change signal downstream) → tests → `pnpm verify` → a look at the page →
-changeset.
+re-stamped integrity IS the change signal downstream) → affected tests → a targeted look at the page
+→ changeset. Pull-request CI supplies the one authoritative full-static plus affected-browser proof.
 
 ## 1. Tokens
 
@@ -337,35 +337,30 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
 
 ## 7. Verify
 
-**Two commands, and one of them is a person.** `pnpm check:component <name>` is the inner loop —
-design-lint over the registry, a workspace typecheck, and this component's own unit test, measured
-~10s — so run it after every meaningful edit rather than saving verification for the end. `pnpm verify`
-is what you run before opening the PR: typecheck, lint, `design:verify`, and the whole browser suite
-including the geometry contracts. It is byte-for-byte what CI executes, so there is nothing further to
-run and nothing to attest.
+Local tests are optional feedback. `check:component` delegates to the affected planner: it runs the
+component, its transitive reverse dependents, their owned cross-cutting suites, and only their preview
+geometry fixtures. `check:affected` derives the same scope from the working tree. Both use an
+incremental UI typecheck.
 
 ```bash
-pnpm check:component <name>                    # ~10s, after every edit
+pnpm check:component <name>                    # explicit component + reverse dependents
+pnpm check:affected                            # derive from staged, unstaged, and untracked work
 pnpm registry:build                            # after any canonical edit: validate → hash → stamp → verify-deps
 pnpm design:derived                            # after any contract-record edit; commit what it changes
-pnpm verify                                    # BLOCKING, before the PR. Includes 320px reflow · RTL · 24px targets
-pnpm -F @vegastack/docs dev                    # REVIEW. open the page and look at it
+pnpm -F @vegastack/docs dev                    # targeted light/dark + narrow/wide agent review
 ```
 
-A green `design-lint` + `tsc` + `vitest` + `registry:build` is **not** the gate: `pnpm design:verify`
-(inside `pnpm verify`) can fail while all four are green, because it owns RSC safety, contract
-reconciliation, public API docs, theme parity, and the portal/mirror checks. Two release-only checks
-are worth running by hand when a change touches distribution — `pnpm registry:verify-consume` (the
-real `shadcn add` round-trip) and `pnpm dlx shadcn@latest add @vegastack/<name> -y -o` against a
-locally served `public/r` — but `pnpm verify:release` runs both before any deploy.
+The required PR job runs `verify:static` once, then `verify:affected --base <sha> --head <sha>` in
+Chromium. `component-contracts.json` supplies source, test, preview and dependency ownership;
+`verify-registry-deps` reconciles dependency declarations against real imports. An unknown path,
+stale owner, empty fixture selection, or generated-file drift fails rather than selecting nothing.
 
 1. The geometry contracts are the blocking visual-surface gate, in
-   `packages/ui/test/geometry.browser.test.tsx` — inside the vitest browser suite, so `pnpm verify`
-   runs them and so does CI, on the LAN Linux runners in the pinned Playwright container. A red result
-   is a defect in the component, not in the suite. Reproduce one fixture with
+   `packages/ui/test/geometry.browser.test.tsx`. Affected CI mounts only fixtures exported by the
+   changed component and its dependents, while always running the CSS/token sentinels and metadata
+   guards. Reproduce one fixture with
    `pnpm --filter @vegastack/ui exec vitest run test/geometry.browser.test.tsx -t <fixture>`.
-2. There is **no pixel-capture tool** — that lane was removed on 2026-09-08
-   (`docs/plans/2026-09-08-verification-rebuild.md` § 3.3) and no screenshot is taken or committed
-   anywhere. The visual half is a person opening the docs page in light and dark, at narrow and wide,
-   exercising every state — rest, hover, pressed, focus-visible, disabled.
-3. "The gate is green" is not a visual verdict. Say what you looked at, or say you did not look.
+2. Agent visual review is targeted and temporary: inspect the affected previews in light/dark and
+   narrow/wide, exercising applicable states. Never commit captures.
+3. The complete suite is manual-only: `pnpm test:full --engines chromium|all`. It is for rare audits
+   and diagnosis, not a normal PR or release requirement.

@@ -1,4 +1,4 @@
-// @vegastack segmented@0.9.0 sha256-vVUDinGYPdgm4tpFlPOcYM++7W0JGku8WSoEsIF0rz8=
+// @vegastack segmented@0.9.0 sha256-q5aLcatYQ5NgU4k1/7UPWDDSZOEHHfYlvb2IxT7Gjik=
 
 "use client";
 
@@ -11,7 +11,8 @@ import { cn, selectedChipVariants } from "@vegastack/design";
 /* ------------------------------------------------------------------------------------------------
  * Segmented — the canonical segmented control (Wave 2, promoted from the ToggleGroup recipe after
  * the Attio teardown found the identical formula on marketing AND app surfaces): a muted track with
- * a raised active chip. Radio semantics — exactly one segment is always selected; a click on the
+ * a raised active chip inside a visible semantic track boundary. Radio semantics — exactly one
+ * segment is always selected; a click on the
  * active segment is a no-op (unlike ToggleGroup, which allows an empty selection). Built on Base UI
  * ToggleGroup/Toggle so keyboard arrows, focus management, and `aria-pressed` come from the
  * primitive. The nested-radius formula: track `rounded-md` + `p-0.5` → chip `rounded-sm`.
@@ -102,7 +103,7 @@ export interface SegmentedProps
 
 /**
  * `Segmented` — a segmented control: single-select, always-one-selected view/mode
- * switcher on a muted track. Use it where the options are peers and one is always
+ * switcher on a bounded muted track. Use it where the options are peers and one is always
  * active (view modes, billing cycles, filter scopes); use `Tabs` when panels of
  * content swap, and `ToggleGroup` when empty/multiple selection is meaningful.
  *

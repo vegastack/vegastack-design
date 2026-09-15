@@ -3,9 +3,9 @@
 #
 # WHY THIS EXISTS
 #   The mac minis cannot launch a browser (no per-user Mach bootstrap namespace — AGENTS.md
-#   § Locked decisions), so every browser lane is attested rather than executed in CI. A Linux
-#   runner CAN start the pinned Playwright container, which is the whole point of enrolling these
-#   boxes: browser lanes become independently re-executed instead of trusted.
+#   § Locked decisions). A Linux runner CAN start the pinned Playwright container, which is the
+#   whole point of enrolling these boxes: affected Chromium tests execute in PR CI, and the optional
+#   complete component audit can execute Chromium, Firefox, and WebKit on demand.
 #
 #   One committed, idempotent script is the enrolment contract. Re-running it must be safe: it
 #   converges Docker, the runner tarball, the registration, and the systemd service, and it never

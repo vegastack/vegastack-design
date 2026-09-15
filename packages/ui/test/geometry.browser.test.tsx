@@ -188,9 +188,47 @@ const ALL_FIXTURES = Object.entries(Preview).filter(
   (entry): entry is [string, Fixture] => typeof entry[1] === "function",
 );
 
-const FIXTURES = ALL_FIXTURES.filter(([name]) => !(name in UNSWEPT)).sort(
-  ([a], [b]) => a.localeCompare(b),
-);
+const requestedFixtureNames = (() => {
+  const raw = (
+    import.meta as ImportMeta & {
+      env: Record<string, string | undefined>;
+    }
+  ).env.VEGASTACK_GEOMETRY_FIXTURES?.trim();
+  if (!raw) return null;
+  return new Set(
+    raw
+      .split(",")
+      .map((name) => name.trim())
+      .filter(Boolean),
+  );
+})();
+
+const SWEPT_FIXTURES = ALL_FIXTURES.filter(([name]) => !(name in UNSWEPT));
+const FIXTURES = SWEPT_FIXTURES.filter(
+  ([name]) => requestedFixtureNames === null || requestedFixtureNames.has(name),
+).sort(([a], [b]) => a.localeCompare(b));
+
+test("the requested geometry fixture selection is valid", () => {
+  if (requestedFixtureNames === null) return;
+  const known = new Set(ALL_FIXTURES.map(([name]) => name));
+  const swept = new Set(SWEPT_FIXTURES.map(([name]) => name));
+  const unknown = [...requestedFixtureNames].filter((name) => !known.has(name));
+  const unswept = [...requestedFixtureNames].filter(
+    (name) => known.has(name) && !swept.has(name),
+  );
+  expect(
+    unknown,
+    "VEGASTACK_GEOMETRY_FIXTURES names fixture exports that do not exist in the preview barrel",
+  ).toEqual([]);
+  expect(
+    unswept,
+    "VEGASTACK_GEOMETRY_FIXTURES selected fixtures that are explicitly UNSWEPT",
+  ).toEqual([]);
+  expect(
+    FIXTURES.length,
+    "VEGASTACK_GEOMETRY_FIXTURES selected no swept fixtures; targeted geometry must never pass vacuously",
+  ).toBeGreaterThan(0);
+});
 
 test("the exclusion map has no stale entries", () => {
   const known = new Set(ALL_FIXTURES.map(([name]) => name));
@@ -211,7 +249,7 @@ test("the preview barrel actually resolved", () => {
   // A broken alias or a barrel that failed to load would make `FIXTURES` empty and every
   // assertion below vacuous. Fail loudly instead of reporting a green sweep over nothing.
   expect(
-    FIXTURES.length,
+    ALL_FIXTURES.length,
     "the preview barrel resolved to fewer than 100 fixtures — the alias is broken or the barrel " +
       "failed to load, and every geometry assertion in this file is running over nothing",
   ).toBeGreaterThan(100);

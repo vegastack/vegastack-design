@@ -37,7 +37,8 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 ### Anatomy
 
 `ToggleGroup` is a compound component built on Base UI Toggle Group. Compose the items inside the
-root; set `size` once on the root and it flows to every item via context. Selection is an
+root; its visible outer hairline keeps the joined options legible at rest, while `size` set once on
+the root flows to every item via context. Selection is an
 array of item `value`s:
 
 ```tsx
@@ -84,8 +85,9 @@ checkboxes. Common for formatting toolbars where bold, italic, and underline can
 ### Sizes
 
 `size` (`sm` / `default` / `lg`) is set once on the root and flows to every item. Items render flush
-with shared rounded ends so the group reads as a single control; the pressed item takes the same
-evident neutral fill as a standalone `Toggle`.
+inside one visible `border-border` boundary with shared rounded ends, so the group reads as a single
+control even when nothing is selected; the pressed item takes the same evident neutral fill as a
+standalone `Toggle`.
 
 <ComponentPreview
   name="toggleGroupSizes"

@@ -97,6 +97,7 @@ test("size flows from the track to items via context and is exposed as data-size
   const track = screen.getByRole("group", { name: "Billing cycle" });
   await expect.element(track).toHaveAttribute("data-size", "lg");
   expect(track.element().className).toContain("rounded-md");
+  expect(track.element().className).toContain("after:border-border");
   expect(item.element().className).toContain("rounded-sm");
 });
 

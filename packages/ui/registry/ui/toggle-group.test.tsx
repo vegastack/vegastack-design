@@ -2,6 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
+import { selectedChipVariants } from "@vegastack/design";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
@@ -39,6 +40,17 @@ test("renders all items as toggle buttons", async () => {
   await expect
     .element(screen.getByRole("button", { name: "Right" }))
     .toBeInTheDocument();
+});
+
+test("draws one visible group boundary without changing item sizing", async () => {
+  const screen = await render(<Basic size="sm" />);
+  const group = screen.container.querySelector(
+    '[data-slot="toggle-group"]',
+  ) as HTMLElement;
+  const item = screen.getByRole("button", { name: "Left" }).element();
+  for (const rule of selectedChipVariants.track.split(" "))
+    expect(group.className).toContain(rule);
+  expect(item.className).toContain("h-(--size-sm)");
 });
 
 test("selecting an item presses it and fires onValueChange", async () => {

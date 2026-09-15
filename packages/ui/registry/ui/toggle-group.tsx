@@ -1,4 +1,4 @@
-// @vegastack toggle-group@0.9.0 sha256-t8Y0nNHD9P8PCczzjnnIu6lfKLMdmLLoshAmif/DXpM=
+// @vegastack toggle-group@0.9.0 sha256-4EToIqE4MOBe26uJtVOMiR1RlqNdkKYxrE8KloEK904=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import type { VariantProps } from "class-variance-authority";
 import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
 import { Toggle as BaseToggle } from "@base-ui/react/toggle";
-import { cn } from "@vegastack/design";
+import { cn, selectedChipVariants } from "@vegastack/design";
 // `toggleVariants` is owned by the sibling Toggle component; shadcn rewrites this
 // alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { toggleVariants } from "@/components/ui/toggle";
@@ -83,7 +83,8 @@ export interface ToggleGroupProps
  * `ToggleGroupItem`. Single-select by default (radio-like); pass `multiple`
  * for multi-select (checkbox-like). `size` set once on the root flows to every item
  * via context. Items render flush with shared rounded ends so the group reads as one
- * control; the pressed item takes the same evident neutral fill as a standalone Toggle.
+ * control inside one visible semantic boundary; the pressed item takes the same evident neutral
+ * fill as a standalone Toggle.
  *
  * @example
  * <ToggleGroup defaultValue={['bold']} aria-label="Text formatting">
@@ -106,8 +107,12 @@ export function ToggleGroup({
     () => ({ size }),
     [size],
   );
-  const rootClassName =
-    "group/toggle-group flex w-fit items-center rounded-md data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch";
+  // Draw the group boundary without adding to the items' control-height box. A real root border
+  // would make a 28px `sm` group 30px tall and break alignment with other dense chrome.
+  const rootClassName = cn(
+    "group/toggle-group flex w-fit items-center rounded-md data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch",
+    selectedChipVariants.track,
+  );
   const resolvedClassName: React.ComponentProps<
     typeof BaseToggleGroup
   >["className"] =

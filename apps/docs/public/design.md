@@ -2526,7 +2526,7 @@ are compiled against Tailwind's stock theme, so their weights, radii and shadows
 system values once in `apps/docs/app/global.css`, and `design-lint --docs-shell --emitted-css`
 reads the BUILT stylesheet to prove it — source linting cannot see a value this repo never wrote.
 `tooling/verify-docs-shell.mjs` asserts the rest in a real browser against the built public export,
-in `pnpm verify:release`: the product type scope (including inside a portal), the weight ladder as
+in `pnpm verify:distribution`: the product type scope (including inside a portal), the weight ladder as
 computed, the fullscreen preview's background isolation, 25-step focus containment, Escape and
 focus return, the skip link as the first tab stop, and named tab stops. Base UI marks outside roots
 but does not make them natively inert, so Dialog, AlertDialog and Sheet share the internal
