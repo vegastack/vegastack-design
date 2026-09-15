@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Fail if a build changed the working tree, naming exactly what it changed.
 //
-// Used by `pnpm verify:release` around `pnpm registry:build`: that build stamps three surfaces (the
+// Used by affected PR registry verification and `pnpm verify:distribution` around
+// `pnpm registry:build`: that build stamps three surfaces (the
 // registry JSON under apps/docs/public/r, the registry SOURCE, and the docs copy-in), and it must be
 // idempotent. A file that differs afterwards means a generated file in git disagrees with what the
 // generator produces — the drift `shadcn add --diff` would then hand to a consumer.

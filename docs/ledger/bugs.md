@@ -2598,3 +2598,55 @@ changed for any of these test repairs.
   highlighted pre props onto the outer figure and puts only its children in the inner pre. A linted
   renderer check asserts one figure/one pre, theme variables on the figure, and no child
   `background-color`; its negative fixture observes the old markup failing.
+
+## 2026-09-15 — CLOSED: component-local changes paid the complete-suite cost repeatedly
+
+- **Symptom.** A targeted component edit ran every component test locally, again on the PR, again on
+  `main`, and once more across engines before deploy.
+- **Root cause.** Test ownership stopped at the package boundary. Turbo saw one UI package, the
+  geometry suite imported one all-preview barrel, and release workflows treated repeated execution
+  as proof instead of assigning each proof to one boundary.
+- **Systemic fix.** Component contracts now own source, tests, previews, transitive registry edges,
+  cross-cutting suites and broad-input canaries. The affected planner emits its exact selection and
+  fails unknown paths; geometry filters fixture bodies while retaining global sentinels. PR CI owns
+  static and affected component proof once, while publish and deploy verify only their artifacts.
+
+## 2026-09-15 — CLOSED: affected ownership missed alias imports
+
+- **Symptom.** A DropdownMenu change could skip `accessible-name.browser.test.tsx`, while unrelated
+  Separator changes selected it.
+- **Root cause.** Cross-cutting ownership was seeded from test names and the validator parsed only
+  `../registry/*` imports, not the suite's `@/components/ui/*` aliases.
+- **Systemic fix.** Ownership reconciliation now parses both specifier families with the TypeScript
+  AST. The accessible-name owner is `dropdown-menu`; redundant owners already reached through the
+  reverse graph were removed. A mutation test deletes a direct owner and observes policy failure.
+
+## 2026-09-15 — CLOSED: generated release could not run Changesets
+
+- **Symptom.** An isolated authenticated release rehearsal reached `changeset version` and failed
+  because `@changesets/changelog-github` had no `GITHUB_TOKEN` for PR/author metadata.
+- **Root cause.** Token isolation was designed without executing the installed changelog adapter.
+- **Systemic fix.** The exact-SHA/ruleset-bound version job exposes its contents-write token to the
+  Changesets step, with no pull-request or OIDC permission. Workflow mutation coverage rejects
+  removing that required input; metadata checks run before the generated commit is pushed.
+
+## 2026-09-15 — CLOSED: release-output deny list was not a boundary
+
+- **Symptom.** The version job blocked a few protected directories but would commit a new or
+  modified path outside that short deny list through `git add -A`.
+- **Root cause.** It described known-dangerous paths instead of the complete generated output set.
+- **Systemic fix.** `verify-release-output-scope` positively allows consumed changesets, increasing
+  package versions/internal ranges, provenance-only source changes, the generated Numbers block,
+  generated registry/contracts and changelogs. It rejects untracked/add/delete/rename output, file
+  mode changes, runtime edits, package-policy edits and any unknown path. Base blobs are read in one
+  `git cat-file --batch` process.
+
+## 2026-09-15 — CLOSED: Sigstore negative checks could ignore unexpected success
+
+- **Symptom.** Standalone `! cosign verify-blob` commands triggered actionlint SC2251 under
+  `set -e`; an unexpectedly valid tampered manifest or wrong identity was not guaranteed to stop the
+  job.
+- **Root cause.** Command inversion was used as an assertion without an explicit failure branch.
+- **Systemic fix.** Both probes now use `if cosign verify-blob; then exit 1; fi`. Workflow security
+  structurally requires each exact branch, and independent mutations removing either exit are
+  rejected.

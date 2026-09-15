@@ -209,24 +209,22 @@ hand if the box is being retired.
 
 `tooling/verify-workflow-security.mjs` parses every workflow with the `yaml` package — structurally,
 not by regex over text, because a flow-style job slipped past line-based discovery entirely — and
-treats the Linux runners as a second allowlisted runner class (`LINUX_JOBS`). Since the verification
-rebuild that allowlist is `ci.yml`'s `verify`, `release.yml`'s `quality-gate`, and `deploy.yml`'s
-`verify`; the WP0 acceptance workflow `verify-linux.yml` was folded into the first of those and
-deleted. For each of those jobs the gate requires:
+treats the Linux runners as a second allowlisted runner class. The allowlist is `ci.yml:quality`,
+`full-suite.yml:full-component-suite`, and `deploy.yml:distribution-proof`. For each job the gate
+requires:
 
 - `runs-on: [self-hosted, linux, vsk-runner]`, and no other job may use that label;
 - a `container:` — **required**, not merely permitted — whose image equals
   `mcr.microsoft.com/playwright:v<version>-noble` for the `playwright` version resolved in
   `pnpm-lock.yaml`;
 - `defaults.run.shell: bash`, because the container's default shell is `sh`;
-- that one of them actually runs `pnpm verify` — the one command — so a workflow cannot quietly stop
-  executing the browser lanes and still report a pass.
+- the exact affected, manual-full, or distribution command owned by that boundary; automatic
+  workflows are forbidden from invoking the complete component suite.
 
 Separately, the fork guard
 `if: github.event.pull_request.head.repo.full_name == github.repository` is required, **exactly**, on
-**every** job of a workflow with a `pull_request` trigger — the mac-mini jobs included. `release.yml`
-(push to main) and `deploy.yml` (dispatch from a ref `ref-guard` pins to main) carry no
-fork-authored code and are exempt.
+the pull-request quality job. Release, deploy, and full audit are explicit dispatches bound to exact
+commit SHAs and cannot carry a fork-authored ref.
 
 `tooling/verify-workflow-security-negative.mjs` proves each of those rejections by mutation, including
 the flow-style job the pre-fix gate accepted. Containers remain banned outright on the mac-mini jobs.

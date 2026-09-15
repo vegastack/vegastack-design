@@ -1,157 +1,57 @@
 name: CI
+
 on:
   pull_request:
 
 permissions:
   contents: read
 
-# TURBO CACHE KEY PARITY, not a setting `pnpm verify` reads. `SITE_VISIBILITY` is in turbo.json's
-# `globalEnv`, so it is part of every task hash. release.yml and deploy.yml declare it and ci.yml did
-# not, which made the "byte-for-byte identical command" claim false for turbo's hash even though no
-# task in `pnpm verify` reads the variable (only the docs export in `verify:release` does, and that
-# runs nowhere near this workflow). Declaring the same value in all three workflows makes the claim
-# literally true; verify-workflow-security.mjs asserts the three agree.
 env:
   SITE_VISIBILITY: public
 
-# Self-hosted capacity is finite: a superseded push must not keep a runner busy.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# THIS WORKFLOW COSTS NOTHING, AND IT EXECUTES EVERYTHING IT CLAIMS.
-#
-# Until 2026-09-08 the browser lanes ran only in `.husky/pre-push` and were ATTESTED here by
-# `.gates/receipt.json`, because no free runner could launch a browser: the mac mini's Actions runner
-# has no per-user Mach bootstrap namespace, so every Chromium launch died with `bootstrap_look_up …
-# Unknown service name (1102)`. On 2026-09-07 the two LAN Debian boxes ran Chromium, Firefox and
-# WebKit under Playwright inside the pinned image. The premise of the receipt system was gone, so the
-# receipt system is gone (docs/plans/2026-09-08-verification-rebuild.md, R1).
-#
-# What replaces it is one command. `pnpm verify` here is byte-for-byte the command a developer runs
-# before pushing and the command `release.yml` and `deploy.yml` run — typecheck, lint, design:verify,
-# and the @vegastack/ui browser suite (unit + axe + the geometry contracts). Nothing is bound to a
-# tree hash, nothing is attested, and everything trusted was executed.
-#
-# Both jobs are self-hosted, so a pull request still costs zero billable minutes. The runner
-# allowlist in tooling/verify-workflow-security.mjs enforces that — `ci.yml` maps to an EMPTY set of
-# GitHub-hosted jobs, so adding one fails that gate rather than quietly costing money.
 jobs:
-  # The real gate: the full command, browsers included, on the LAN Linux boxes in the pinned
-  # Playwright image. Budget 3-4 minutes.
-  verify:
-    # FORK GUARD. This repository is PUBLIC, and these are LAN boxes with a pnpm store that persists
-    # across jobs. A pull request from a fork would execute attacker-authored code on the network — so
-    # it never reaches them. verify-workflow-security.mjs requires this condition on every job in
-    # LINUX_JOBS, and its negative harness proves the removal is rejected. MK should additionally set
-    # Settings → Actions → "Require approval for all outside collaborators" (a repo setting, which
-    # nothing in this tree can assert).
+  quality:
+    name: PR quality
+    # Never execute fork-authored code on a persistent LAN runner.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, vsk-runner]
-    # The LAN Debian pool is small and shared. Without this, a hung job holds one of its boxes for the
-    # Actions default of 360 minutes. Measured ~3 min; this is headroom over a cold pnpm store, not a
-    # budget. verify-workflow-security.mjs requires every job to declare one, and caps it.
     timeout-minutes: 20
     container:
-      # Pinned to the `playwright` version in pnpm-lock.yaml; verify-workflow-security.mjs reads the
-      # lockfile and fails if the two drift, because a container whose browsers do not match the
-      # installed Playwright reports failures that are not defects.
       image: mcr.microsoft.com/playwright:v1.63.0-noble
-      # Persistent host store, created by tooling/runner/provision-linux-runner.sh. Without it every
-      # run re-downloads the whole dependency graph into a throwaway container.
       volumes:
         - /opt/vsk-runner/pnpm-store:/pnpm-store
-    # A container's default shell is `sh`, not bash: without this, `set -o pipefail` in any run body
-    # dies with "Illegal option -o pipefail" and the job fails for a reason that is not a defect.
-    # Observed on the first proof run (34249693688). verify-workflow-security.mjs now requires it.
     defaults:
       run:
         shell: bash
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          # FULL HISTORY, for `tooling/changelog-lint.mjs` (inside `pnpm lint` → `turbo run lint` →
-          # apps/docs). It probes every commit sha the CHANGELOG links with
-          # `git merge-base --is-ancestor <sha> HEAD`, which a shallow clone answers wrongly.
-          #
-          # NOT for the secret scan. `tooling/secret-scan.mjs` reads `git ls-files --cached --others`
-          # and then the FILES ON DISK — the working tree, never a historical blob — so a key that
-          # was committed and later deleted passes it (reproduced 2026-09-09). Three comments in this
-          # repository claimed otherwise; the claim, not the scanner, was the defect.
           fetch-depth: 0
           persist-credentials: false
-      # The runner's work directory is owned by the HOST runner user; inside the container the job
-      # runs as root, so every `git` call refuses the repository with "detected dubious ownership"
-      # (observed in run 34275909973: `tooling/secret-scan.mjs` shells out to `git ls-files` and died
-      # with exit 128 mid-`pnpm lint`). This is git's uid check, not a permissions problem, and it hits
-      # every tool in the chain that reads git — the secret scan, workspace-clean's tracked-path
-      # refusal, and the registry integrity test's restore proof.
       - name: Trust the checkout inside the container
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      # The image ships Node 24.16 and corepack; no setup-node step is needed (and setup-node's tool
-      # cache would be thrown away with the container anyway).
       - name: Enable corepack
         run: |
           set -euo pipefail
           corepack enable
           node -v
           pnpm -v
-      # `--store-dir` rather than `pnpm config set`: the container has no PNPM_HOME on PATH, so
-      # `pnpm config set --global` exits 1 ("global bin directory is not in PATH"). The flag is the
-      # only form that works here, and it must name the same host path the volume above mounts.
       - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
-      - run: pnpm verify
-
-  # The cross-platform static signal the mac mini already gave, at ~2 minutes instead of ~13. No
-  # browser (they cannot launch one) and NO `setup-node` cache step: restoring the pnpm cache was
-  # measured at 7-7.7 of that 13 minutes, and Node is preinstalled on the mac mini per
-  # docs/runbooks/ci-runner-provisioning-macos.md.
-  #
-  # It is deliberately NOT the whole of `pnpm verify` — the browser suite is the one part that cannot
-  # run here, and the Linux job above already executed it against the same tree.
-  verify-macos:
-    # The mac mini is also LAN hardware with a persistent workspace. Its jobs carried no fork guard at all
-    # until this rewrite; they need the same one for the same reason.
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, vsk-runners-mac-mini]
-    # Measured ~2 min. See the `verify` job above for why every job carries one.
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          # FULL HISTORY. The `changeset status --since=origin/main` step at the bottom of this job
-          # needs a resolvable base, and `tooling/changelog-lint.mjs` (inside `pnpm lint`) needs the
-          # ancestry of every commit sha the CHANGELOG links. A shallow clone fails both. It is NOT
-          # for the secret scan — see the `verify` job above for why that claim was false.
-          fetch-depth: 0
-          persist-credentials: false
-      # JOB-PRIVATE BOOTSTRAP DIRECTORY, AND A PER-AGENT STORE. Both mini runners
-      # (`vsk-runner-mac-mini-1` and `-2`) are agents on ONE machine — `patrick-mac-mini`, per the
-      # runner banner in any job log — sharing the home directory `/Users/vegastack-runners`. With
-      # `dest` left at its `~/setup-pnpm` default, both agents bootstrap pnpm into the same path, and
-      # the action opens with `rm(dest, {recursive: true})`: a concurrent job's install turns that
-      # into `ENOTEMPTY: rmdir …/setup-pnpm/node_modules/.bin/store/v11/files/NN` before a single
-      # line of repository code has run. Worse, the action exports `PNPM_HOME` pointing INSIDE that
-      # directory, and pnpm derives its default store from `PNPM_HOME` — so the wiped bootstrap
-      # directory was also the project store. That is why every macOS install logged
-      # `reused 0, downloaded 1136`: the "persistent store" on the mac mini never survived a job.
-      # `runner.temp` is per-agent and cleared per job, so the bootstrap can never collide;
-      # `$RUNNER_WORKSPACE` is per-agent and PERSISTS, so the store is a real cache again.
-      # Issue #94.
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
-        with:
-          dest: ${{ runner.temp }}/setup-pnpm
-      - run: pnpm install --frozen-lockfile --store-dir "$RUNNER_WORKSPACE/pnpm-store"
-      # ORDER MATTERS: typecheck runs `prepare:content` for @vegastack/docs, which the docs lint
-      # chain needs. `pnpm lint` ends in `turbo run lint`, and `design:verify` builds the token dist
-      # the parity and contrast checks read.
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm design:verify
-      # CHANGESET PRESENCE, RESTORED VERBATIM. It ran on every PR until the receipt topology was
-      # removed and nothing replaced it: a change to a published package merged without a changeset
-      # publishes nothing, and the omission surfaces when a consumer asks why the fix is not on npm.
-      # It is blocking, exactly as before — that is the point — and it exits 0 for a PR that touches
-      # no published package (docs, CI, tooling), so it costs those nothing but a second.
-      # `fetch-depth: 0` above is what makes `--since` resolvable.
-      - run: pnpm exec changeset status --since=origin/main
+      - name: Static proof plus affected Chromium tests
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pnpm verify:affected --base "$BASE_SHA" --head "$HEAD_SHA"
+      - name: Require an applicable changeset
+        run: pnpm exec changeset status --since=origin/main
+      - name: Require generators to leave the checkout unchanged
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain)" || {
+            git status --short
+            exit 1
+          }

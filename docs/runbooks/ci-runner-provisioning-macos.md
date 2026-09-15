@@ -11,14 +11,13 @@ one host**, not two hosts: there is no second machine to fail over to, the two a
 same CPU, disk and `$HOME`, and that shared `$HOME` is the fact every path below exists to respect.
 
 **Purpose.** What that machine must have installed, and — more importantly — what it must NOT. It
-runs one job: `verify-macos` in `ci.yml`, plus the credential-only jobs in `release.yml` and
-`deploy.yml`.
+runs the credential-bearing version, npm publish, Sigstore/Cloudflare deploy, and production probe
+jobs. Pull-request CI no longer runs a duplicate macOS static job.
 
-**It is not the primary CI.** The browser lanes run on the LAN Linux boxes in the pinned Playwright
-container — see `ci-runner-provisioning-linux.md`. The mini exists for the cross-platform static
-signal (does this tree typecheck, lint, and satisfy the design invariants on macOS/ARM64 as well as
-on Linux/x86_64) and for the jobs that need a credential rather than a browser: npm OIDC publish,
-Sigstore signing, the Cloudflare deploy, and the production boundary probe.
+**It is not PR CI.** Affected browser checks and public distribution proof run on the LAN Linux
+boxes in the pinned Playwright container. The mini exists for work that needs a credential rather
+than a browser: direct release commit, npm OIDC publish, Sigstore signing, Cloudflare deploy, and the
+production boundary probe.
 
 ## What must be installed
 
@@ -40,13 +39,11 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
   the current topology asks it to, so this is a fact to respect rather than a bug to fix. If you
   ever want the mini re-running the browser lanes, the fix is on that host — reinstall the agents as
   **LaunchAgents in a logged-in session** — not in any workflow file.
-- **No `actions/setup-node` cache step in any mac-mini job.** Measured 2026-09-08: restoring the pnpm
-  cache took **7–7.7 minutes of a ~13-minute job**. Node is preinstalled per the table above, so
-  `setup-node` buys nothing and the cache costs more than the install it replaces. Three jobs
-  (`version-pr`, `publish`, `build-sign-deploy`) carried `cache: pnpm` anyway until 2026-09-09; it is
-  gone, and `verify-workflow-security.mjs` now rejects a `cache:` input on any `setup-node` step in a
-  mac-mini job. See **The pnpm store** below for the second reason: the path it cached was a
-  directory the next job deleted.
+- **No `actions/setup-node` cache input in any mac-mini job.** Measured 2026-09-08: restoring that
+  cache took **7–7.7 minutes of a ~13-minute job** and targeted the throwaway pnpm bootstrap path.
+  `setup-node` remains where a credential job needs an exact host Node/npm or npm registry setup; it
+  simply does not own package caching. The persistent per-agent pnpm store below is the cache, and
+  `verify-workflow-security.mjs` rejects any `cache:` input on macOS setup-node steps.
 - **No job containers.** Containers are Linux-only and cannot start on macOS at all.
   `tooling/verify-workflow-security.mjs` bans a `container:` on every job outside its `LINUX_JOBS`
   allowlist, and the negative harness proves the ban rejects one.
@@ -104,17 +101,14 @@ paying one cold install.
 
 ## Fork pull requests
 
-This repository is public. `ci.yml` fires on `pull_request`, so both its jobs — the Linux one and
-`verify-macos` — carry
+This repository is public. Only the Linux `PR quality` job runs on pull requests, and it carries
 
 ```yaml
 if: github.event.pull_request.head.repo.full_name == github.repository
 ```
 
-`verify-workflow-security.mjs` requires that condition, **exactly**, on every job of a workflow with
-a `pull_request` trigger, and the negative harness proves that `|| true`, `!(…) || true`, and
-deleting it are all rejected. Until 2026-09-08 the mac-mini jobs carried no guard at all: a fork PR
-ran on the hardware on every push.
+`verify-workflow-security.mjs` requires that condition exactly and the negative harness proves its
+removal is rejected. No macOS job is reachable from a fork-authored pull request.
 
 Set **Settings → Actions → "Require approval for all outside collaborators"** as well. That is a
 repository setting; nothing in this tree can assert it.
@@ -130,19 +124,19 @@ Ask a recent run which machine actually took the job. This needs only the `repo`
 already has:
 
 ```bash
-RUN=$(gh run list --workflow=ci.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+RUN=$(gh run list --workflow=release.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 gh api "repos/VegaStack/vegastack-design/actions/runs/$RUN/jobs" \
   --jq '.jobs[] | {name, runner_name, conclusion}'
 ```
 
-`verify-macos` must report a `runner_name` of `vsk-runner-mac-mini-1` or `-2`, and `verify` a
-`runner_name` belonging to the Linux class — whichever boxes
+Release and deploy credential jobs must report `vsk-runner-mac-mini-1` or `-2`; PR quality and
+distribution proof use the Linux class — whichever boxes
 `gh api repos/VegaStack/vegastack-design/actions/runners` lists as online
 (`docs/runbooks/ci-runner-provisioning-linux.md` § Which boxes are enrolled). An agent that has gone
 offline shows up as a **queued job
 that never starts** — a job queued against a label no runner carries waits forever rather than
 failing, so an offline runner looks like a hung pull request, not a red one. `gh run list` showing a
-CI run stuck `in_progress` with no `verify-macos` job started is that symptom. Because both agents
+release run stuck `in_progress` with no macOS job started is that symptom. Because both agents
 are on one machine, that machine being down takes the whole macOS class with it.
 
 The direct runner listing needs the `admin:org` scope, which the default `gh auth login` does not

@@ -180,7 +180,7 @@ Token names (CSS variables) are a **public API**: stale copied-in components ref
 1. **Additive-only within a major (F1a).** Within a major version we **never rename or remove** a token in a routine release. New tokens are added freely; superseded token names remain available until a major cleanup. Guarantee: _a token release can never visually break a stale component copy or a consumer override._
 2. **Per-component token-version binding (F1b).** Each `registry-item.json` declares `@vegastack/design-tokens` as an npm **dependency with a compatible range** (e.g. `^2`). `shadcn add` installs/raises tokens to a compatible version, so a copied component always lands against compatible tokens.
 3. **Version/hash header in generated files.** Every copied component carries a header (`// @vegastack <name>@<version> <sha>`). The **review skill** flags components stale vs the latest registry — the drift detector.
-4. **Honest, automated propagation.** Ship a **Renovate preset** consumers extend; token/util bumps arrive as **auto-PRs** (CI + VRT gate; additive token bumps may auto-merge). No "instant repaint" anywhere.
+4. **Honest propagation.** Consumers update the public npm layer through their dependency-update tooling and ordinary CI. This repository does not currently ship a VegaStack Renovate preset or a VRT gate, and nothing "instant repaints" a consumer.
 5. **Token changelog + removed/superseded table** on the docs site so consumers and agents see what changed.
 
 > Net: the npm layer propagates brand on a dependency PR (additive-safe by policy), the registry layer is token-pinned + drift-detected, and nothing silently breaks.
@@ -307,13 +307,23 @@ A component that misses any of these does not ship — checked in CI, not left t
 
 ### 7.7 Testing & CI gates (day-one — gap G13, Codex F2)
 
-Visual regression is **not** deferred (only Storybook is). Every PR runs:
+Every PR runs repository-wide typecheck, lint and design invariants once. Browser work is
+deterministically affected:
 
-- **Vitest + @testing-library/react** — component behavior + state logic.
-- **vitest-axe / axe-core** — automated a11y; zero violations required.
-- **Playwright `toHaveScreenshot`** — visual regression over the Fumadocs component previews (which render the real shipped source), catching token/visual regressions before release. This is the guard behind the "never silently break" promise.
-- **typecheck + lint** (incl. design-lint rules: no hex/px, sanctioned icon sources only — G18).
-  Wired into Turborepo `test` + release CI; a red gate blocks publish. Storybook/Chromatic remains a later workbench (§8.4), not a v1 dependency.
+- **Vitest browser tests + axe-core** for changed registry items and their transitive reverse
+  dependents, from the test ownership in `component-contracts.json`.
+- **Owned cross-cutting suites** whenever an affected component or declared global input reaches
+  them. A new unowned suite is a hard failure.
+- **Targeted geometry over real previews** — 320px reflow, RTL containment, effective 24px pointer
+  targets and owned focus indication. Only selected fixture bodies run, while the compiled-CSS/token
+  sentinels and selection/exclusion/dynamic metadata guards always execute.
+- **Broad inputs** run named system contracts plus fixed geometry canaries; they do not claim a
+  complete per-component sweep.
+
+There is no screenshot baseline. Targeted agent visual review covers light/dark, narrow/wide and
+applicable states with temporary, uncommitted captures. The complete component suite is a manual
+audit (`pnpm test:full --engines chromium|all`), never an automatic PR, publish or deploy step.
+Unknown changed paths fail classification rather than silently skipping tests.
 
 ---
 
@@ -411,13 +421,13 @@ Fumadocs live previews cover variant display, and **Playwright visual-regression
 ## 10. Release & versioning (never break downstream)
 
 - **Authority:** **Changesets** (not commit-message inference — a visual break can hide under `fix:`). Every change ships a reviewed changeset declaring the bump.
-- **Config highlights:** `@changesets/changelog-github`, **`access: public`** for the token layer (F5; a private `ui` package, if any, stays `restricted`), `linked: [["@vegastack/design-tokens","@vegastack/tailwind-preset","@vegastack/icons"]]` so the token layer moves together, `bumpVersionsWithWorkspaceProtocolOnly: true`. _(Registry components are versioned via their item header + token range — §5.4 — not a Changesets group with `ui`; Codex F1.)_
-- **Automation:** `changesets/action` → on merge to `main`, opens a "Version Packages" PR (human gate); merging it publishes changed packages + redeploys docs/registry.
+- **Config highlights:** `@changesets/changelog-github`, `access: public`, linked public packages `@vegastack/design-tokens` + `@vegastack/design`, docs ignored, and internal workspace dependencies bumped at patch. Private `@vegastack/ui` is versioned by Changesets to supply the registry-wide `meta.version` but is never npm-published.
+- **Automation:** one explicit `ship it` drives affected PR proof, exact-SHA merge, a direct generated release commit for every pending changeset, token-free npm OIDC publication, public docs/registry deploy, and production verification. The complete component suite is manual-only; no Version Packages PR or repeated outward approval remains.
 - **Update semantics by change type:**
-  - _Token/brand_ → **additive-only** release → **Renovate auto-PR** bumps the dep (CI + VRT gate); no code change, can't break stale copies (§5.4).
+  - _Token/runtime_ → publish the linked public packages; downstream dependency tooling may propose the semver update.
   - _Component fix/improvement_ → downstream re-runs `shadcn add @vegastack/<x> --diff` / `--overwrite` (pull-based, never silent); audit flags stale copies.
-  - _Breaking API / token removal_ → **major + `MIGRATION.md` + a published codemod** (`@vegastack/ui-codemod`). Never a hard break.
-- **Pre-release lanes:** `changeset version --snapshot canary` for ephemeral per-PR test builds; `pre enter next` (on a dedicated branch only) for real beta→rc→stable major runways.
+  - _Breaking API / token removal_ → an explicit breaking changeset plus migration guidance; add a codemod only when a concrete migration benefits from one.
+- **Pre-release lanes:** none are configured. Snapshot packages or a beta/rc channel require their own explicit plan; ordinary affected PR CI never manufactures publishable packages.
 - **Breaking cleanup policy:** remove wrong, unsafe, stale, or unnecessary APIs from the source of truth instead of preserving aliases. For legitimate consumer migrations, ship a codemod with the major release notes.
 
 ---

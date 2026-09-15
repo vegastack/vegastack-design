@@ -2864,3 +2864,52 @@ broad multi-component bullets and cannot promise a component-complete history. I
 was also rejected because it would create a second release taxonomy and maintenance path for
 information already available in the canonical changelog. The page canon now ends at Do / Don't,
 and content-lint rejects any later heading, including the retired Changelog section.
+
+## 2026-09-15 — affected CI owns component proof; one instruction owns shipping
+
+**Verification decision.** Replace the automatic complete component sweep with a fail-closed affected
+plan. `component-contracts.json` now owns every component test/preview/dependency edge plus every
+cross-cutting suite. The selector walks transitive reverse dependents, extracts preview exports with
+the TypeScript AST, and fails unknown paths. Broad inputs run named contracts plus nine fixed
+geometry canaries; they explicitly do not claim complete component coverage. Full static proof stays
+repository-wide and runs once on the PR. Complete Chromium or three-engine component audits are
+manual-only.
+
+Filename-only and Vitest `--changed` selection were rejected: the monolithic preview barrel makes
+every component related to the geometry file, while filenames cannot express cross-cutting tests.
+Automatic full fallback was also rejected by MK; an unclassified input fails instead.
+
+**Release decision.** One explicit `ship it` supersedes the separate push, Version PR merge, and
+deploy approvals. After affected PR proof, automation exact-SHA merges, creates one generated release
+commit directly on protected `main`, publishes missing npm versions through OIDC, dispatches the
+public-only distribution deploy, and verifies production. All pending changesets release together.
+Transient stages retry three times; at most three surgical corrective patch releases are authorized.
+Secrets, Cloudflare Access, auth policy, workflow permissions, runner trust, sanctioned dependencies,
+destructive data and version reversal remain hard stops.
+
+The Version Packages PR and automatic `main` quality rerun were removed because they existed as
+separate decision/proof boundaries MK no longer wants. The main ruleset instead requires the exact
+`PR quality` check and gives only GitHub Actions a bypass for the generated release commit.
+
+## 2026-09-15 — adversarial validation tightened affected and release authorities
+
+**Cross-cutting ownership.** Direct import reconciliation, not test-title inference, is the minimum
+authority. `@/components/ui/dropdown-menu` was missing from the accessible-name owners while two
+indirect/unrelated names were present. Both alias and registry-relative imports are now parsed; extra
+owners remain only where the suite genuinely exercises a package mirror (`provider`).
+
+**Release credentials.** Fully isolating version generation from contents-write would require a
+cross-job artifact channel that is unavailable, or replacing the installed GitHub changelog adapter.
+The lean choice is the prior proven shape with less authority: Changesets receives `GITHUB_TOKEN` in
+the exact-SHA version job, whose only permission is `contents: write`; pull-request and OIDC scopes
+are absent. The ruleset, generated-output allowlist and isolated final push bound the risk.
+
+**Generated commit boundary.** A positive path/content contract replaces the deny list. It accepts
+only what an executed two-changeset 0.9.1 rehearsal produced, validates header-only and package-only
+changes semantically, rejects untracked and file-mode output, and runs changelog/derived/contract
+checks before the commit. Per-file `git show` was rejected as needless process amplification; one
+`git cat-file --batch` reads every base blob.
+
+**Sigstore oracle.** Explicit success branches are required for negative verification. Shell
+inversion was shorter but actionlint proved it could suppress errexit, so both tamper and wrong-ID
+probes now name and exit their unexpected-success path and the mutation harness owns them.

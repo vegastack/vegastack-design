@@ -22,6 +22,7 @@ import {
   isGeneratedAnimatedIcon,
   registryFilePaths,
 } from "./lib/animated-icon-inventory.mjs";
+import { validateAffectedPolicy } from "./affected-tests.mjs";
 
 // This verifier reads the contract-derived BUILD OUTPUTS (the icon gallery and the home catalog)
 // and asserts they reconcile with the contract. They are untracked since WP4/R4, so in a fresh
@@ -826,6 +827,72 @@ assert(
   "every modeled item name must be globally unique",
 );
 sameStrings(modeledNames, registryNames, "modeled/registry item names");
+for (const problem of validateAffectedPolicy(contracts, { cwd: root }))
+  fail(`affectedTestPolicy: ${problem}`);
+
+// Affected-test ownership is part of the same component authority, not a second hand-maintained
+// graph. Every cross-cutting browser file must appear exactly once, every owner must be a modeled
+// registry item, and every declared group must be one the selector understands. Without the
+// filesystem reconciliation a newly added browser suite would be silently absent from targeted CI.
+const affectedPolicy = contracts.affectedTestPolicy;
+assert(
+  affectedPolicy && typeof affectedPolicy === "object",
+  "affectedTestPolicy is required",
+);
+assert(
+  typeof affectedPolicy?.geometryTestFile === "string",
+  "affectedTestPolicy.geometryTestFile is required",
+);
+assert(
+  Array.isArray(affectedPolicy?.geometryCanaries) &&
+    affectedPolicy.geometryCanaries.length > 0,
+  "affectedTestPolicy.geometryCanaries must be non-empty",
+);
+assert(
+  Array.isArray(affectedPolicy?.crossCuttingTests),
+  "affectedTestPolicy.crossCuttingTests must be an array",
+);
+const crossCuttingBrowserFiles = readdirSync(join(root, "packages/ui/test"))
+  .filter((name) => name.endsWith(".browser.test.tsx"))
+  .map((name) => `packages/ui/test/${name}`);
+sameStrings(
+  (affectedPolicy?.crossCuttingTests ?? []).map((entry) => entry.file),
+  crossCuttingBrowserFiles,
+  "affected cross-cutting browser inventory",
+);
+const knownAffectedGroups = new Set(["tokens", "shared-runtime"]);
+for (const entry of affectedPolicy?.crossCuttingTests ?? []) {
+  assert(
+    typeof entry.file === "string" && existsSync(join(root, entry.file)),
+    `affected test entry points at a missing file: ${entry.file}`,
+  );
+  assert(
+    Array.isArray(entry.owners),
+    `${entry.file}: affected test owners must be an array`,
+  );
+  for (const owner of entry.owners ?? []) {
+    assert(
+      modeledNames.includes(owner),
+      `${entry.file}: affected test owner ${owner} is not a modeled registry item`,
+    );
+  }
+  assert(
+    Array.isArray(entry.globalInputGroups),
+    `${entry.file}: globalInputGroups must be an array`,
+  );
+  for (const group of entry.globalInputGroups ?? []) {
+    assert(
+      knownAffectedGroups.has(group),
+      `${entry.file}: unknown affected-test input group ${group}`,
+    );
+  }
+}
+assert(
+  (affectedPolicy?.crossCuttingTests ?? []).some(
+    (entry) => entry.file === affectedPolicy?.geometryTestFile,
+  ),
+  "affectedTestPolicy.geometryTestFile must be owned by crossCuttingTests",
+);
 
 const waveCounts = Object.fromEntries(
   Object.keys(expectedWaves).map((wave) => [wave, 0]),
@@ -1239,6 +1306,22 @@ sameStrings(
   [...components, ...blocks].map((record) => record.previewModule),
   "preview module inventory",
 );
+const allPreviewFixtureExports = new Set(
+  previewFiles.flatMap((module) =>
+    extractExports(
+      readFileSync(
+        join(root, "apps/docs/components/preview", `${module}.tsx`),
+        "utf8",
+      ),
+    ),
+  ),
+);
+for (const fixture of affectedPolicy?.geometryCanaries ?? []) {
+  assert(
+    allPreviewFixtureExports.has(fixture),
+    `affected geometry canary ${fixture} is not exported by a preview module`,
+  );
+}
 
 // The homepage catalog is a contract-derived build output, and until WP4 nothing
 // reconciled it: a generator mutated to drop a component, mis-group one, or emit a wrong title

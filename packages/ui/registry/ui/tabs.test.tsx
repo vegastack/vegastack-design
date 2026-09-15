@@ -265,6 +265,12 @@ test("pill and chip tabs wear the SHARED selected-chip recipe; line does not (B6
     for (const rule of selectedChipVariants.active.split(" ")) {
       expect(tab.className).toContain(rule);
     }
+    const list = tab.closest('[data-slot="tabs-list"]') as HTMLElement;
+    if (variant === "pill") {
+      expect(list.className).toContain("after:border-border");
+    } else {
+      expect(list.className).not.toContain("after:border-border");
+    }
   }
   // `line` has no chip at all — its active state is the moving underline, so taking the chip fill
   // would paint a plate under the indicator.

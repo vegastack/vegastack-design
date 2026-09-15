@@ -30,25 +30,27 @@ For a full-system round, scope to a named surface set (`packages/*`, `apps/docs`
 `skills/`, the built registry under `apps/docs/public/r`) rather than "everything", so coverage is
 checkable afterwards.
 
-## 2. Run `pnpm verify`, then read the one report
+## 2. Run affected verification, then read the plan and report
 
-Never open with a code read. The audit half is one command and its output: `pnpm verify` names the
-stage it failed at, and every stage below is inside it. A finding the build already catches is not
-worth a review slot, and a green claim that is actually red is the most valuable finding available.
+Never open with a code read. `pnpm verify` runs full repository static verification once, derives the
+working-tree component graph, prints its auditable selection, and executes only affected Chromium
+tests. In CI the same planner receives the PR's exact base/head SHAs. A finding the gate already
+catches is not worth a review slot, and a green claim that is actually red is the most valuable
+finding available.
 
 ```bash
 node tooling/design-lint.mjs packages/ui/registry                    # component source, all rules
 node tooling/design-lint.mjs --token-css packages/design-tokens/src  # token CSS (!important only)
 node tooling/design-lint.mjs --token-css apps/docs/app               # docs app CSS (!important only)
-pnpm verify                                      # the whole gate: typecheck · lint · design:verify · browser suite
+pnpm verify                                      # full static + working-tree affected Chromium tests
 pnpm registry:build && git status --porcelain    # must be idempotent — clean tree after
 pnpm design:derived && git status --porcelain    # contract-derived surfaces must be current
 ```
 
-`pnpm verify` subsumes the browser lanes, including the geometry contracts. It is the same command
-CI runs, so "CI was green" and "I ran it" are now the same evidence — which is the point. Add
-`pnpm verify:release` when the round touches the docs export, the registry's consumability, or
-anything cross-engine; it is otherwise a deploy-time cost.
+Read the affected list, not just the exit code. Confirm every changed item, transitive reverse
+dependent, owned cross-cutting suite, and preview fixture is present. An unknown path must fail.
+`pnpm verify:distribution` is the public artifact proof used by deploy; use it only when reviewing
+distribution. The complete component suite is manual-only through `pnpm test:full`.
 
 Any error is a finding. **A gate that passes while its subject is broken is a `high` finding about
 the gate.**
@@ -104,8 +106,9 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
    (`className`/`render`/CVA/`data-*`/ref/slots), a11y (keyboard + ARIA + `:focus-visible` + axe),
    JSDoc feeding `ApiTable`.
 5. **Fail-closed gates.** Prove each one fails on a negative case. A gate never observed failing is
-   an assumption, not a gate. Four gates in this tree carry their own proof, and they are the models
-   to hold a new gate against: `verify-docs-shell --self-test` (mutates the built export and requires
+   an assumption, not a gate. These gates carry their own proof and are the models to hold a new gate
+   against: `verify-affected-tests --self-test` (selection and geometry wiring),
+   `verify-docs-shell --self-test` (mutates the built export and requires
    its own contracts to fail), `verify-workflow-security-negative.mjs` (proves a move back onto a
    hosted runner, or a dropped container, is rejected in both directions),
    `verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` (negative
@@ -166,38 +169,32 @@ severity. **If the task was an audit, stop here — report, never auto-fix.**
 
 ## 8. Visual review discipline
 
-Visual verification is one thing now: the geometry contracts in
+Blocking visual verification is the affected geometry selection in
 `packages/ui/test/geometry.browser.test.tsx` (320px reflow, RTL containment, the effective 24px
-pointer target), which run inside `pnpm verify` and therefore inside CI, taking no screenshots and
-needing no baselines. There is no pixel lane and no baseline of any kind — a claim that "the pixel
-review passed" describes a tool that no longer exists.
+pointer target, and the owned focus contract). It always executes its compiled-CSS/token sentinels
+and metadata guards, then mounts the fixtures selected from changed preview modules and reverse
+dependents. Agent visual review may use temporary captures, but no capture is committed or used as a
+CI baseline.
 
-**Attestation is gone, and so is the review obligation it created.** Until 2026-09-08 no CI runner
-executed a browser and the lanes were attested by a committed evidence file, so a review that
-accepted "CI was green" had accepted an attestation rather than a run. CI now executes the same
-`pnpm verify` on the LAN Linux runners, and the reviewable question is simply whether the check ran
-and what it said. Prose naming any of the removed machinery — the evidence file and its guard jobs,
-the change classifier, route scoping, the pixel lane, the Playwright-over-the-export contract runner
-— is a finding: it describes a mechanism that no longer exists.
+**Selection is evidence.** CI executes affected tests rather than accepting an attestation, but a
+green subset is credible only when its plan is correct. Cross-check the changed paths, seed items,
+reverse closure, cross-cutting ownership, and fixture list. Broad inputs intentionally run dedicated
+contracts plus fixed canaries; they do not claim complete per-component coverage.
 
-- **No committed screenshot, and no capture lane to produce one.**
-  `tooling/verify-workflow-security.mjs` rejects any workflow reaching for the removed baseline
-  machinery. A PR reintroducing either is a high finding.
+- **No committed screenshot or baseline.** Targeted agent captures are temporary review material.
 - **No skipped visual test.** `tooling/content-lint.mjs` rejects one; also flag prose that still
   describes deferred visual coverage as acceptable.
 
 Reviewing the contract gate:
 
-- It is the only blocking visual-surface gate. Weakening an assertion in
+- It is the blocking component visual-surface gate. Weakening an assertion in
   `packages/ui/test/geometry.browser.test.tsx` without a recorded reason removes coverage nothing
   else replaces.
-- A gate run that executed zero tests is not passing evidence. It now iterates the preview barrel, so
-  a fixture silently dropped from that barrel is a fixture silently dropped from the gate — check the
-  reported test count against the fixture count rather than the exit code.
-- **Scope risk is gone, and that is the design.** There is no route scoping and no classifier
-  deciding which lanes a change requires: every run is the full loop. A green run therefore cannot mean "the wrong subset passed". Any
-  proposal to reintroduce scoping needs its own plan, because the two-minute loop is what made
-  scoping pointless in the first place.
+- A selected geometry run that executes zero fixtures is red. The barrel, exclusions, dynamic
+  declarations, requested names, and CSS/token sentinels remain global guards on every invocation.
+- **Scope risk is explicit.** `component-contracts.json` owns the graph and cross-cutting tests;
+  `verify-registry-deps` proves registry edges against imports; `affected-tests` fails unknown paths.
+  A missing owner or dependency edge is a high finding about the selector.
 
 ## 9. Fix at the root
 
@@ -219,7 +216,7 @@ Append-only, never rewrite history:
 
 ## 11. Loop
 
-Repeat until a full round returns **0 high · 0 medium** with no prior finding re-raised. A round that
+Repeat until a complete review round returns **0 high · 0 medium** with no prior finding re-raised. A round that
 finds nothing is only credible if the previous round found something and the scope did not shrink —
 if both rounds are empty, widen the scope or change the attack angle rather than declaring victory.
 

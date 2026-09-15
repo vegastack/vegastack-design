@@ -6,6 +6,13 @@ import { fileURLToPath } from "node:url";
 const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
 export default defineConfig({
+  // The affected runner passes an explicit geometry fixture allowlist. Define it at config time so
+  // browser-mode tests never depend on a Node `process` global that does not exist in the page.
+  define: {
+    "import.meta.env.VEGASTACK_GEOMETRY_FIXTURES": JSON.stringify(
+      process.env.VEGASTACK_GEOMETRY_FIXTURES ?? "",
+    ),
+  },
   // Tailwind v4 compiles the three CSS entries in the suite — `test/contrast.css` (rendered
   // color-contrast gate), `test/geometry.css` (the behaviour contracts) and `test/stacking.css`
   // (the z-band contract, added by G1-b) — so each runs against REAL token colors and REAL
@@ -138,7 +145,7 @@ export default defineConfig({
     // Keep browser-file concurrency bounded. On high-core hosts Vitest otherwise
     // launches most of the 100+ files together; trusted click/focus operations
     // then queue behind one Chromium process and produce false 15s timeouts.
-    // Four workers keeps the full and three-engine release lanes deterministic.
+    // Four workers keeps affected Chromium and the manual all-engine audit deterministic.
     maxWorkers: 4,
     browser: {
       enabled: true,

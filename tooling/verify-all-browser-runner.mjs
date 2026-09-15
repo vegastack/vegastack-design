@@ -38,7 +38,7 @@ function verify(sources) {
   assert.match(
     sources.selector,
     /return \["chromium", \.\.\.\(webkit \? \(\["webkit"\] as const\) : \[\]\), "firefox"\];/,
-    "webkit-lane: release engine order must include Chromium, conditional WebKit, and Firefox",
+    "webkit-lane: manual audit engine order must include Chromium, conditional WebKit, and Firefox",
   );
 
   assert.match(
@@ -85,7 +85,7 @@ function verify(sources) {
   assert.match(
     sources.config,
     /new Set\(\["chromium", "firefox", "webkit"\]\)/,
-    "all-browser config must accept exactly the three release engines",
+    "all-browser config must accept exactly the three manual-audit engines",
   );
   assert.match(
     sources.config,
@@ -95,7 +95,7 @@ function verify(sources) {
   assert.match(
     sources.config,
     /retry: 1/,
-    "all-browser config must keep one bounded release retry",
+    "all-browser config must keep one bounded audit retry",
   );
 }
 
@@ -112,13 +112,13 @@ if (process.argv.includes("--self-test")) {
         '"test:all-browsers": "vitest run --config vitest.all-browsers.config.ts"',
     },
     {
-      name: "Firefox is dropped from the release engine order",
+      name: "Firefox is dropped from the manual audit order",
       file: "selector",
       find: 'return ["chromium", ...(webkit ? (["webkit"] as const) : []), "firefox"];',
       replace: 'return ["chromium", ...(webkit ? (["webkit"] as const) : [])];',
     },
     {
-      name: "WebKit is dropped from the release engine order",
+      name: "WebKit is dropped from the manual audit order",
       file: "selector",
       find: '...(webkit ? (["webkit"] as const) : []),',
       replace: "",
@@ -175,6 +175,6 @@ if (process.argv.includes("--self-test")) {
   );
 } else {
   console.log(
-    "✓ verify-all-browser-runner: sequential release topology intact",
+    "✓ verify-all-browser-runner: sequential manual-audit topology intact",
   );
 }

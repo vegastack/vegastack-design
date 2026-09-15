@@ -1,7 +1,12 @@
-name: Deploy (docs + signed registry)
-# Manual by design: every outward deploy still requires a fresh MK decision.
+name: Deploy public docs and signed registry
+
 on:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact release commit to deploy
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -9,72 +14,15 @@ permissions:
 env:
   SITE_VISIBILITY: public
 
-# Serialize the complete build/sign/deploy/verify chain so an older run cannot deploy after or
-# attest a newer run. The manual dispatch from main is the explicit outward-deploy approval.
 concurrency:
   group: production-docs
   cancel-in-progress: false
 
-# RUNNER TOPOLOGY. Every job runs on self-hosted hardware — the mac mini, except `verify`, which
-# needs the pinned Playwright container and therefore the LAN Linux boxes. No GitHub-hosted job,
-# because an account-level billing lock suspended hosted runners. That lock also
-# exhausts Actions artifact storage, so build → sign → deploy can no longer hand the built docs between
-# jobs as artifacts; they are merged into one `build-sign-deploy` job (see its header for the tradeoff).
-# Notes per job:
-#
-#   build-sign-deploy  builds the docs + registry, Sigstore-signs the integrity manifest (the only OIDC
-#                      use; identity is the workflow ref, not the runner, so cosign verification is
-#                      unchanged), and deploys to Cloudflare with the existing repository secrets.
-#   verify-public-boundary  CORRECTNESS, not caution. It proves every non-registry route is public,
-#                      `/internal/*` remains undiscoverable, and anonymous registry requests are
-#                      rejected. Its proof needs an OUTSIDE-the-network origin, so the runner must NOT be
-#                      enrolled in Cloudflare Access device posture / WARP — otherwise device posture
-#                      could silently authenticate an "anonymous" request. Fail-safe if it were: such a
-#                      request returns 200 and expectProtected() fails the deploy loudly.
-#
-# THE FULL SWEEP RUNS HERE, AND IT IS EXECUTED RATHER THAN ATTESTED.
-# `main` carries no branch protection and `ci.yml` fires only on `pull_request`, so a direct push to
-# main could otherwise reach a deploy having never executed a single browser assertion. The `verify`
-# job below closes that hole by RUNNING the work: `pnpm verify` (typecheck, lint, design:verify, the
-# browser suite) followed by `pnpm verify:release` (the docs export, link and metadata checks, the
-# docs-shell contracts in a real browser over that export, the registry build and its idempotency,
-# the shadcn consume round-trip, and the complete unit suite in all three engines) in the pinned
-# Playwright container on the LAN Linux boxes. It replaces the
-# `receipt-guard` job, which demanded a receipt from a local `pnpm gates:ship` sweep and could only
-# ever be attestation (docs/plans/2026-09-08-verification-rebuild.md, R1).
-
 jobs:
-  ref-guard:
-    runs-on: [self-hosted, vsk-runners-mac-mini]
-    # `cancel-in-progress: false` above means a hung job is never superseded — it would hold a runner
-    # for the Actions default of 360 minutes and block every later deploy behind the concurrency
-    # group. Every job here declares a bound; verify-workflow-security.mjs requires it.
-    timeout-minutes: 5
-    steps:
-      - name: Require the protected production ref
-        env:
-          DISPATCH_REF: ${{ github.ref }}
-        run: |
-          set -euo pipefail
-          test "$DISPATCH_REF" = "refs/heads/main" || {
-            echo "::error title=Untrusted deployment ref::Production deploys must be dispatched from refs/heads/main, not $DISPATCH_REF."
-            exit 1
-          }
-
-  # The whole verification ladder, executed. This is the one place `verify:release` runs: it is
-  # measured in the tens of minutes (the docs export alone is ~3 min cold, the consume round-trip
-  # ~4 min, the three-engine suite ~2 min), which is affordable exactly once, at the outward step,
-  # and nowhere else.
-  #
-  # No fork guard: deploy.yml is `workflow_dispatch` from a ref `ref-guard` has already pinned to
-  # main, so no fork-authored code can reach it. verify-workflow-security.mjs requires the guard on
-  # the jobs of a workflow with a `pull_request` trigger.
-  verify:
-    needs: ref-guard
+  distribution-proof:
+    name: Verify public distribution
     runs-on: [self-hosted, linux, vsk-runner]
-    # `pnpm verify` (~3 min) plus `pnpm verify:release` (~7 min). Headroom over a cold pnpm store and
-    # a cold docs export, not a budget.
-    timeout-minutes: 30
+    timeout-minutes: 20
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       volumes:
@@ -87,47 +35,31 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ github.sha }}
-      # The runner's work directory is owned by the HOST runner user; inside the container the job
-      # runs as root, so every `git` call refuses the repository with "detected dubious ownership"
-      # (observed in run 34275909973: `tooling/secret-scan.mjs` shells out to `git ls-files` and died
-      # with exit 128 mid-`pnpm lint`). This is git's uid check, not a permissions problem, and it hits
-      # every tool in the chain that reads git — the secret scan, workspace-clean's tracked-path
-      # refusal, and the registry integrity test's restore proof.
+          ref: ${{ inputs.expected_sha }}
+      - name: Require the exact public release commit
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          git fetch origin main
+          git merge-base --is-ancestor "$EXPECTED_SHA" origin/main || {
+            echo "::error title=Untrusted deploy commit::$EXPECTED_SHA is not in main history"
+            exit 1
+          }
       - name: Trust the checkout inside the container
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      # Actions starts a job container as root but mounts `/github/home` from the host runner. The
-      # LAN boxes do not agree on that mount's owner: one presents it as `ubuntu`, and Firefox then
-      # refuses to launch as root (deploy run 34645879931, after all four WebKit shards passed).
-      # Normalize the mount point itself, not its contents, and keep HOME at Actions' canonical path.
-      - name: Own the Actions home inside the container
-        run: |
-          set -euo pipefail
-          test "$HOME" = "/github/home"
-          chown "$(id -u):$(id -g)" /github/home
       - name: Enable corepack
-        run: |
-          set -euo pipefail
-          corepack enable
+        run: corepack enable
       - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
-      - run: pnpm verify
-      - run: pnpm verify:release
+      # Public export, registry integrity, real consume and focused docs-shell browser contracts.
+      # No complete component suite runs in a deploy workflow.
+      - run: pnpm verify:distribution
 
-  # Build, sign, and deploy in ONE job. These were three isolated jobs (build-curated → sign-curated →
-  # deploy-curated) that passed the built docs between them as artifacts. Actions artifact storage is
-  # unavailable under the billing lock (upload fails with a quota/ETIMEDOUT error), so the hand-off is
-  # impossible — the steps run in a single job instead, in the same build → sign → reverify → deploy
-  # order. TRADEOFF: repository build code now shares a job with the OIDC signing token and the
-  # Cloudflare deploy credential, which the three-job split deliberately kept apart. It is bounded by
-  # ref-guard (main only), the `verify` job (a full sweep, executed), and the fact that dispatching this
-  # workflow is an explicit MK action. Restore the isolated split once artifact storage is available.
-  # GitHub OIDC is minted by the Actions control plane and works on self-hosted runners; the Sigstore
-  # signer identity is the workflow ref (deploy.yml@refs/heads/main), not the runner, so the certificate
-  # identity probe-deployment.mjs pins is unchanged.
   build-sign-deploy:
-    needs: verify
+    name: Build, sign, and deploy exact artifact
+    needs: distribution-proof
     runs-on: [self-hosted, vsk-runners-mac-mini]
-    # Registry build, docs build, Sigstore sign + verify, and the Cloudflare upload: ~10 min measured.
     timeout-minutes: 30
     permissions:
       contents: read
@@ -137,15 +69,14 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ github.sha }}
-      # Job-private pnpm bootstrap and a per-agent store; see ci.yml's `verify-macos` for the
-      # mechanism. Both mini runners share one machine and one home directory, and this action wipes
-      # `dest` — which is also where `PNPM_HOME` puts the store — on every job. Issue #94.
+          ref: ${{ inputs.expected_sha }}
+      - name: Require the exact public release commit
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
         with:
           dest: ${{ runner.temp }}/setup-pnpm
-      # NO `cache: pnpm` — it caches the throwaway bootstrap directory. See release.yml's
-      # `version-pr`, and the store flag on the install below.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24 }
       - run: pnpm install --frozen-lockfile --store-dir "$RUNNER_WORKSPACE/pnpm-store"
@@ -153,30 +84,27 @@ jobs:
       - name: Require registry build idempotency
         run: |
           set -euo pipefail
-          git status --porcelain > "$RUNNER_TEMP/git-status"
-          if [ -s "$RUNNER_TEMP/git-status" ]; then
-            echo "::error title=Generated registry drift::registry:build changed the checked-out deploy commit."
-            cat "$RUNNER_TEMP/git-status"
+          test -z "$(git status --porcelain)" || {
+            git status --short
             exit 1
-          fi
+          }
       - run: node tooling/verify-registry-integrity-negative.mjs
       - run: pnpm build
-      - name: Assert the unsigned build is complete
+      - name: Assert the unsigned public artifact is complete
         run: |
           set -euo pipefail
           test -f apps/docs/out/r/integrity-manifest.json
           test ! -e apps/docs/out/r/integrity-manifest.sigstore
           BIG=$(find apps/docs/out -type f -size +24M | head -20)
           if [ -n "$BIG" ]; then
-            echo "::error title=Asset over 25MiB::These exported files exceed Cloudflare's per-asset limit:"
-            echo "$BIG" | while read -r file; do ls -lh "$file" | awk '{print "  "$5" "$9}'; done
+            echo "::error title=Asset over 25MiB::$BIG"
             exit 1
           fi
       - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
       - name: Sign and verify the exported integrity manifest
         env:
           SIGNER_REPOSITORY: ${{ github.repository }}
-          SIGNER_REF: ${{ github.ref }}
+          SIGNER_REF: refs/heads/main
         run: |
           set -euo pipefail
           MANIFEST=apps/docs/out/r/integrity-manifest.json
@@ -190,30 +118,28 @@ jobs:
             --certificate-github-workflow-ref "$SIGNER_REF"
           )
           cosign verify-blob "${COMMON[@]}" --certificate-identity "$IDENTITY" "$MANIFEST"
-
           cp "$MANIFEST" "$RUNNER_TEMP/tampered-manifest.json"
           printf '\n' >> "$RUNNER_TEMP/tampered-manifest.json"
           if cosign verify-blob "${COMMON[@]}" --certificate-identity "$IDENTITY" "$RUNNER_TEMP/tampered-manifest.json"; then
             echo "::error::Tampered manifest unexpectedly verified"
             exit 1
           fi
-          WRONG_IDENTITY="https://github.com/${SIGNER_REPOSITORY}/.github/workflows/release.yml@${SIGNER_REF}"
-          if cosign verify-blob "${COMMON[@]}" --certificate-identity "$WRONG_IDENTITY" "$MANIFEST"; then
+          WRONG="https://github.com/${SIGNER_REPOSITORY}/.github/workflows/release.yml@${SIGNER_REF}"
+          if cosign verify-blob "${COMMON[@]}" --certificate-identity "$WRONG" "$MANIFEST"; then
             echo "::error::Wrong signer identity unexpectedly verified"
             exit 1
           fi
-      - name: Reverify the exact artifact immediately before deployment
+      - name: Reverify the exact artifact before deployment
         env:
           SIGNER_REPOSITORY: ${{ github.repository }}
-          SIGNER_REF: ${{ github.ref }}
         run: |
           set -euo pipefail
           cosign verify-blob \
             --bundle apps/docs/out/r/integrity-manifest.sigstore \
-            --certificate-identity "https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@${SIGNER_REF}" \
+            --certificate-identity "https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@refs/heads/main" \
             --certificate-oidc-issuer https://token.actions.githubusercontent.com \
             --certificate-github-workflow-repository "$SIGNER_REPOSITORY" \
-            --certificate-github-workflow-ref "$SIGNER_REF" \
+            --certificate-github-workflow-ref refs/heads/main \
             apps/docs/out/r/integrity-manifest.json
       - name: Deploy to Cloudflare Workers Static Assets
         uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
@@ -224,18 +150,10 @@ jobs:
           wranglerVersion: 4.129.1
           command: deploy
 
-  # Live route-boundary verification: every non-registry HTML/Markdown/LLM/search/OG/internal route
-  # must be anonymously reachable, internal operations pages must remain outside discovery and carry
-  # noindex/no-store headers, and `/r/*` must reject anonymous requests while accepting the service
-  # token. The signed manifest and the deployed tree's exact registry version are also verified.
-  # Runs on the mac mini. The proof depends on the request originating OUTSIDE the trusted network:
-  # the mac mini must NOT be enrolled in Cloudflare Access device posture / WARP. This is fail-safe if they
-  # were — an authenticated "anonymous" /r/* request would return 200 and expectProtected() would fail
-  # the deploy loudly (probe-deployment.mjs), rather than passing falsely.
   verify-public-boundary:
+    name: Verify production boundary
     needs: build-sign-deploy
     runs-on: [self-hosted, vsk-runners-mac-mini]
-    # A live HTTP probe. If it hangs it is a network fault, and 15 minutes is long enough to say so.
     timeout-minutes: 15
     permissions:
       contents: read
@@ -244,11 +162,11 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.expected_sha }}
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24 }
       - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
-      - name: Verify the public/internal/registry boundary (fail-closed)
+      - name: Verify public, internal, and protected registry routes
         env:
           DOCS_URL: ${{ vars.DOCS_URL }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}

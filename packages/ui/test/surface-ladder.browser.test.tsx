@@ -229,7 +229,8 @@ describe("hover/pressed recipe", () => {
  */
 describe("selected-chip recipe", () => {
   test("the chip is the ladder's PRESSED rung in alpha form, on a rung-1 track", () => {
-    expect(selectedChipVariants.track).toBe("bg-surface-1");
+    expect(selectedChipVariants.track).toContain("bg-surface-1");
+    expect(selectedChipVariants.track).toContain("after:border-border");
     // `--alpha-ink-tint` (10%) is the same alpha as `--alpha-pressed`; the ink-tint names are what
     // the chip's own hover step (`-strong`) hangs off, which the ladder twins do not have.
     expect(selectedChipVariants.pressed).toContain(
@@ -238,6 +239,19 @@ describe("selected-chip recipe", () => {
     expect(selectedChipVariants.active).toContain(
       "data-[active]:bg-foreground/(--alpha-ink-tint)",
     );
+  });
+
+  test("the shared grouped-control track compiles its boundary without changing the border box", async () => {
+    const screen = await render(
+      <div
+        data-testid="selection-group"
+        className={selectedChipVariants.track}
+      />,
+    );
+    const group = screen.getByTestId("selection-group").element();
+    expect(getComputedStyle(group).borderTopWidth).toBe("0px");
+    expect(getComputedStyle(group, "::after").borderTopStyle).toBe("solid");
+    expect(getComputedStyle(group, "::after").borderTopWidth).toBe("1px");
   });
 
   test("a SELECTED chip still hovers and still presses", () => {
@@ -292,6 +306,8 @@ describe("selected-chip recipe", () => {
       </div>,
     );
     const chip = screen.getByRole("button").element() as HTMLButtonElement;
+    const track = chip.parentElement as HTMLDivElement;
+    expect(getComputedStyle(track, "::after").borderTopStyle).toBe("solid");
     const sheet = [...document.styleSheets].flatMap((s) => {
       try {
         return [...s.cssRules].map((r) => r.cssText);

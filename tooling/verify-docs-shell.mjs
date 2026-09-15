@@ -13,16 +13,15 @@
 //   lockfile still resolves exactly one `playwright` and `verify-workflow-security.mjs` can keep
 //   deriving the container tag from it — plus `node:assert`. One runner, one dependency, no config.
 //
-//   It is a RELEASE-STAGE check (`pnpm verify:release`), not part of `pnpm verify`, because it reads
-//   `apps/docs/out` — which only the release chain builds. It runs immediately after
-//   `docs lint:links (public)`, the other step that consumes the public export left on disk.
+//   It is a DISTRIBUTION check (`pnpm verify:distribution`), not part of affected PR verification,
+//   because it reads `apps/docs/out`. It runs immediately after the public export and link check.
 //
 // WHAT IT REFUSES TO DO
 //   Pass without having measured anything. `--self-test` injects, per assertion, the exact defect
 //   that assertion exists to catch and requires the assertion to FAIL on it. An assertion that
 //   cannot fail is not coverage — that is the lesson of the forced-colors focus check
 //   (`docs/ledger/bugs.md`, 2026-07-25), which ran green over a deleted focus ring for months.
-//   `--self-test` is wired into the same release stage, directly after the real run: it needs the
+//   `--self-test` is wired into the same distribution stage, directly after the real run: it needs the
 //   same built export, so it cannot live in `pnpm test:tooling`, which runs with no docs build.
 //
 // USAGE

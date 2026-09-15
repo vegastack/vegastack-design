@@ -1,11 +1,10 @@
 # Runbook — setting up a developer machine
 
-**Purpose.** Take a machine from "has git" to "can run `pnpm verify` green". Budget ~10 minutes, most
-of it the browser download.
+**Purpose.** Take a machine from "has git" to optional local affected verification. Budget ~10
+minutes, most of it the browser download.
 
-There is one command in this repository — `pnpm verify` — and it is the same command CI runs. If it
-passes here, it passes there; if it fails here, that is the failure CI will report. Everything below
-exists to make that true.
+PR CI is authoritative: full static proof once plus exact-range affected Chromium tests. Local
+commands derive affected scope from the working tree and are optional feedback.
 
 ## 1. Node
 
@@ -51,8 +50,7 @@ This also runs `husky`, which installs the git hooks. Two hooks, both cheap:
   staged set. ~4 s, never a browser.
 - **`commit-msg`** — the conventional-commit prefix.
 
-There is no `pre-push` hook. CI executes the same `pnpm verify` you do, so a local run before pushing
-is a convenience, not a gate, and `--no-verify` stops being a policy word.
+There is no `pre-push` hook. A local affected run is convenience, not a gate.
 
 ## 4. Browsers
 
@@ -60,9 +58,9 @@ is a convenience, not a gate, and `--no-verify` stops being a policy word.
 pnpm --filter @vegastack/ui exec playwright install chromium firefox webkit
 ```
 
-`chromium` alone is enough for `pnpm verify`. `firefox` and `webkit` are needed only by
-`pnpm --filter @vegastack/ui test:all-browsers`, which runs inside `pnpm verify:release` — a deploy
-step, not a daily one. Install all three anyway if you have the disk; it is a one-time ~1 GB.
+`chromium` is enough for affected verification. Firefox and WebKit are needed only for the rare
+manual `pnpm test:full --engines all` audit. Install all three only if this machine will run that
+audit.
 
 **This is deliberately NOT wired into `prepare`.** `prepare` runs on every `pnpm install`, including
 in the CI container, and the container already ships the browsers — a `playwright install` there
@@ -72,35 +70,37 @@ ever want to typecheck. One explicit step, run once, is the correct trade; the f
 skip it is a legible "Executable doesn't exist" from Playwright naming this exact command, not a
 mystery.
 
-## 5. Verify
+## 5. Verify affected work
 
 ```bash
-pnpm verify
+pnpm check:affected
 ```
 
-typecheck → lint → design:verify → the `@vegastack/ui` browser suite (unit, axe, and the geometry
-contracts), then `tooling/workspace-clean.mjs --after-run` unconditionally, pass or fail. Target:
-under two minutes on a developer machine.
+This uses incremental UI typechecking, then runs changed registry items, transitive reverse
+dependents, owned cross-cutting tests and exact geometry fixtures. `pnpm verify` adds the complete
+static proof when a local reproduction of PR CI is useful.
 
 ## The rest of the ladder
 
 ```bash
-pnpm check:component button    # ~5s   design-lint · typecheck · that one component's test
-pnpm verify                    # <2min the whole thing — this is what CI runs
-pnpm verify:release            # ~7min  BOTH docs matrices · links · docs shell · registry · consume · 3 engines
+pnpm check:component button          # explicit item + reverse dependents
+pnpm check:affected                  # working-tree affected feedback
+pnpm verify                          # full static + working-tree affected Chromium
+pnpm verify:distribution             # public artifact proof; no component suite
+pnpm test:full --engines chromium    # rare manual full audit (`all` for 3 engines)
 pnpm clean                     # dry-run report of reclaimable local scratch
 node tooling/workspace-clean.mjs --weekly   # actually reclaim it
 ```
 
-`verify:release` runs in `deploy.yml` before anything outward happens. You rarely need it locally.
+Deploy runs `verify:distribution`; ordinary component tests have already run once on the PR.
 
 ## Troubleshooting
 
-| Symptom                                                       | Cause                                                                                                                                                    |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Unsupported engine` at install                               | Node outside `engines` (`>=24.14.0 <26`). Rare now that pnpm downloads the pinned runtime — see §1.                                                      |
-| `pnpm install` picks a different pnpm                         | A global pnpm shadows corepack. `npm rm -g pnpm`, then `corepack enable`.                                                                                |
-| The browser suite HANGS instead of failing                    | You ran `pnpm --filter @vegastack/ui test` directly. Go through `pnpm verify` — turbo's `^build` is what builds `@vegastack/design`'s gitignored `dist`. |
-| `Executable doesn't exist at …/ms-playwright/…`               | §4 was skipped.                                                                                                                                          |
-| `ENOENT … design-tokens/dist/theme.css` from a bare turbo run | Run `pnpm verify` (or `pnpm design:verify`) — the token dist is generated, not committed.                                                                |
-| Disk filling up                                               | `node tooling/workspace-clean.mjs --weekly`. It refuses any agent worktree with uncommitted work and never touches `node_modules` or the pnpm store.     |
+| Symptom                                                       | Cause                                                                                                                                                |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Unsupported engine` at install                               | Node outside `engines` (`>=24.14.0 <26`). Rare now that pnpm downloads the pinned runtime — see §1.                                                  |
+| `pnpm install` picks a different pnpm                         | A global pnpm shadows corepack. `npm rm -g pnpm`, then `corepack enable`.                                                                            |
+| The browser suite HANGS instead of failing                    | You ran bare package tests without building dependencies. Use `pnpm check:affected` or `pnpm test:full`.                                             |
+| `Executable doesn't exist at …/ms-playwright/…`               | §4 was skipped.                                                                                                                                      |
+| `ENOENT … design-tokens/dist/theme.css` from a bare turbo run | Run `pnpm verify` (or `pnpm design:verify`) — the token dist is generated, not committed.                                                            |
+| Disk filling up                                               | `node tooling/workspace-clean.mjs --weekly`. It refuses any agent worktree with uncommitted work and never touches `node_modules` or the pnpm store. |

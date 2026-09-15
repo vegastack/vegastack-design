@@ -1,16 +1,14 @@
 # Visual review during a release
 
-**There is no capture tool.** The before/after pixel lane — its script, its output directory, and its
-Playwright fixture and full-page projects — was removed on 2026-09-08 with the rest of the
-attestation stack (`docs/plans/2026-09-08-verification-rebuild.md` § 3.3). Nothing in this repository
-takes a screenshot, and nothing ever committed one.
+**There is no committed capture lane or baseline.** A shipping agent may make temporary targeted
+captures for visual judgment; they are never committed or accepted as a CI result.
 
-What remains is a gate and a human, and this file is about the human half.
+What remains is affected geometry plus targeted agent judgment.
 
 ## What the gate already covers
 
-`packages/ui/test/geometry.browser.test.tsx`, inside `pnpm verify` — so on every pull request, on the
-release push, and before every deploy:
+`packages/ui/test/geometry.browser.test.tsx`, selected by affected PR CI for changed components and
+their transitive reverse dependents:
 
 - **320px reflow** — no horizontal overflow at the narrowest supported viewport.
 - **RTL containment** — nothing escapes its container under `dir="rtl"`.
@@ -18,18 +16,17 @@ release push, and before every deploy:
   `getComputedStyle`, so an invisible hit area counts and a visually-large-but-unhittable control
   does not.
 
-It mounts the preview fixtures directly with the real compiled token CSS. It takes no screenshots and
-needs no baselines, so it cannot be cleared by regenerating its own evidence — which is exactly what
-made the old baseline gate worthless.
+It mounts only the selected preview fixtures with real compiled token CSS, while its CSS/token
+sentinels and barrel/exclusion/dynamic metadata guards always run.
 
 `contrast.browser.test.tsx` covers colour contrast in both themes. `stacking.browser.test.tsx` and
 `overlay-portal.browser.test.tsx` cover z-order and portal theme scope.
 
 ## What the gate does not cover, and you must
 
-Layout drift that is legal, contained, contrasting, and still wrong: a changed rhythm, a wrong
+Layout drift can be legal, contained, contrasting, and still wrong: a changed rhythm, a wrong
 alignment, a hover wash that lost its inset, a radius that no longer matches its neighbour. No
-assertion in this repository can see any of that. A person has to look.
+assertion in this repository can see all of that. The shipping agent must look.
 
 ## Protocol
 
@@ -46,17 +43,18 @@ assertion in this repository can see any of that. A person has to look.
    surface: rest, hover, pressed, focus-visible, disabled.
 4. Describe what changed, route by route, and classify each: **intended** (consistent with the
    changeset), **unintended**, or **uncertain**.
-5. Present the list — route, what changed, verdict, one-line reasoning.
-6. **Stop. The developer decides.** Never self-clear a visual change, and never report "looks fine"
-   for a route you did not open.
+5. Record the list — route, what changed, verdict, one-line reasoning — in the ship report.
+6. Under an explicit `ship it`, continue automatically when every route is intended. Treat an
+   unintended or uncertain result as a defect and enter the bounded corrective loop. Never report
+   "looks fine" for a route you did not open.
 
 ## Division of labour
 
-| Stage          | Who                    | Why                                      |
-| -------------- | ---------------------- | ---------------------------------------- |
-| Detection      | the geometry contracts | Deterministic, blocking, in CI           |
-| Interpretation | the developer's agent  | Opens the routes, judges intended vs not |
-| Decision       | the developer          | Authority never leaves the human         |
+| Stage          | Who                    | Why                                        |
+| -------------- | ---------------------- | ------------------------------------------ |
+| Detection      | the geometry contracts | Deterministic, blocking, in CI             |
+| Interpretation | the developer's agent  | Opens the routes, judges intended vs not   |
+| Decision       | the shipping agent     | Bounded by the explicit ship authorization |
 
 ## The cost, stated plainly
 

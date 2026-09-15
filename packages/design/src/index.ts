@@ -233,7 +233,8 @@ export const fieldControlGroup = [
  * existed the four wrote four different selected looks (`bg-background`, `bg-secondary` + hairline,
  * `bg-foreground/10`); audit 2026-09-07 B6-02.
  *
- * The track is the ladder's well rung (`surface-1`); the chip is the ladder's alpha form of the
+ * The track is the ladder's well rung (`surface-1`) with one inset semantic boundary; the chip is
+ * the ladder's alpha form of the
  * pressed/selected step (§Surfaces) — `bg-foreground/(--alpha-ink-tint)`, which doctrine reaches
  * for exactly here ("a chip on a well"). Over the `surface-1` track it composites to L 0.899 light
  * / 0.318 dark, which is Δ0.023 / Δ0.028 PAST `surface-3` — a full extra rung, since the ladder's
@@ -257,8 +258,13 @@ export const fieldControlGroup = [
  * </div>
  */
 export const selectedChipVariants = {
-  /** The muted track the chips sit in — the ladder's well rung. */
-  track: "bg-surface-1",
+  /**
+   * The muted track the chips sit in — the ladder's well rung with a drawn inset boundary. The
+   * pseudo-element keeps the 28 / 32px track boxes unchanged; a real root border would add 2px and
+   * silently break the shared control scale.
+   */
+  track:
+    "relative bg-surface-1 after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:border after:border-border after:content-['']",
   /**
    * Chrome shared by every chip: a transparent hairline reserved at rest (so selecting adds no
    * layout shift) and the muted→ink text step.
