@@ -1,4 +1,4 @@
-// @vegastack particle-field@0.8.2 sha256-Yzgvlnn8jonxdw1Lc5XO6sDSNUguYfbBoO1ujS+bFVA=
+// @vegastack particle-field@0.9.0 sha256-jmzjqS1EEZ4gAiKF+hHBWPlFUSzXufn/tv6hGHgIr9c=
 
 "use client";
 

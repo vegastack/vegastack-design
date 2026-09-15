@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.9.0] — September 15, 2026
+
+<!-- assembled from 1 changeset: c6eb1f2480aa -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.8.2 → 0.9.0.
+
+### 🐛 Fixed
+
+- **Toast** — center the copy and controls vertically in single- and two-line notifications,
+  give the labelled action the same quiet ghost treatment as dismissal, and complete the docs
+  Scope and part API sections.
+  [docs](https://design.vegastack.com/docs/components/toast) ·
+  [`31e915d`](https://github.com/VegaStack/vegastack-design/commit/31e915d)
+
 ## [0.8.2] — September 12, 2026
 
 <!-- assembled from 1 changeset: 14d1b1a72337 -->
