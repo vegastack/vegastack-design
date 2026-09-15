@@ -59,8 +59,9 @@ after the `PR quality` workflow exists on `main`.
 3. The resulting `main` push runs `release.yml`. If pending changesets exist, Changesets creates or
    updates `changeset-release/main` and opens the Version Packages PR.
 4. Because a PR created by `GITHUB_TOKEN` does not recursively trigger workflows, the coordinator
-   explicitly dispatches `PR quality` for the exact generated head. That check runs static and
-   affected verification, then proves every generated path and content change is release output.
+   explicitly dispatches `PR quality` for the exact generated head. That check runs full static
+   verification, then proves every generated path and content change is release output. Component
+   browsers remain owned by the originating source PRs.
 5. The shipping agent squash-merges the exact green Version PR head under the original `ship it`.
 6. The next `main` push has no pending changesets. The publish job builds the two public packages,
    verifies exports and lifecycle safety, then publishes only missing versions through npm OIDC.

@@ -69,10 +69,18 @@ jobs:
           pnpm -v
       - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
       - name: Static proof plus affected Chromium tests
+        if: >-
+          (github.event_name == 'pull_request' && github.event.pull_request.head.ref != 'changeset-release/main') ||
+          github.event_name == 'workflow_dispatch' && github.ref_name != 'changeset-release/main'
         env:
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.base_sha }}
           HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.head_sha }}
         run: pnpm verify:affected --base "$BASE_SHA" --head "$HEAD_SHA"
+      - name: Static proof for generated Version Packages output
+        if: >-
+          (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'changeset-release/main') ||
+          github.event_name == 'workflow_dispatch'
+        run: pnpm verify:static
       - name: Require an applicable changeset
         if: >-
           github.event_name == 'pull_request' &&

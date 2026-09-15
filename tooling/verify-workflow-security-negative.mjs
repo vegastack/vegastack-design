@@ -27,6 +27,19 @@ const cases = [
     replace: "run: pnpm verify:static",
   },
   {
+    name: "Version PR restores component selection",
+    file: "ci.yml",
+    find: "        run: pnpm verify:static\n",
+    replace:
+      '        run: pnpm verify:affected --base "$BASE_SHA" --head "$HEAD_SHA"\n',
+  },
+  {
+    name: "Version PR drops static proof",
+    file: "ci.yml",
+    find: "      - name: Static proof for generated Version Packages output\n",
+    replace: "      - name: Generated Version Packages output\n",
+  },
+  {
     name: "fork guard is removed",
     file: "ci.yml",
     find: "    if: >-\n      github.event_name == 'workflow_dispatch' ||\n      github.event.pull_request.head.repo.full_name == github.repository\n",

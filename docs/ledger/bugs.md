@@ -2674,3 +2674,17 @@ changed for any of these test repairs.
   repository verification it requires the dispatch ref, event SHA, checked-out SHA, supplied head,
   and live `origin/main` base to agree. The release-output allowlist then validates that exact range;
   independent mutations remove the branch and live-base bindings and must fail.
+
+## 2026-09-15 — CLOSED: Version PR provenance rewrites looked like hand-edited registry copies
+
+- **Symptom.** Version Packages PR #144 passed its exact dispatch binding and full static proof, then
+  the affected planner rejected `table-scroll-region` and `terminal-body` as generated items changed
+  without their canonical source.
+- **Root cause.** `version-sync` legitimately rewrites every provenance header and registry item.
+  Most item names match a canonical filename, but these two registry items are secondary exports of
+  shared source files, so the ordinary source-to-copy drift heuristic cannot pair their names. More
+  importantly, version output contains no runtime change to select component tests for.
+- **Systemic fix.** PR quality now has exclusive modes: source PRs run static plus affected Chromium;
+  generated Version PRs run static plus `verify-release-output-scope`. The latter semantically limits
+  every path, version, package field and provenance-only source change, so weakening the ordinary
+  planner would provide less assurance than using the release-specific authority.
