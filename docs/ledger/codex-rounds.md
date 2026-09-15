@@ -658,3 +658,16 @@ needs-attention (1 high), root-fixed.
 - An isolated three-changeset rehearsal generated the `0.9.1` Version PR delta across 1,816 files.
   Changelog validation, the positive output-scope guard and affected planning passed; post-version
   release detection selected only unpublished `@vegastack/design@0.4.1` for publication.
+
+## 2026-09-15 — release protection corrective iteration 2
+
+**Scope:** live Version Packages PR #144 verification. **Round 1 verdict:** needs-attention
+(1 high), root-fixed.
+
+- **High — the generic affected planner rejected valid global provenance output.** Full static proof
+  passed, but filename-based generated-copy pairing cannot model secondary registry items whose
+  canonical files have different names. Version PRs now run static plus the positive release-output
+  guard and no component browsers; source PRs retain static plus affected Chromium. Two workflow
+  mutations independently reject restoring component selection or dropping static proof.
+
+**Round 2 verdict:** pending live rerun.

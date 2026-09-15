@@ -321,6 +321,28 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
     ),
     "ci.yml: PR quality must run exact-SHA affected verification",
   );
+  const affectedStep = steps(quality).find(
+    (step) => step.name === "Static proof plus affected Chromium tests",
+  );
+  const versionStaticStep = steps(quality).find(
+    (step) =>
+      step.name === "Static proof for generated Version Packages output",
+  );
+  assert.match(
+    String(affectedStep?.if),
+    /head\.ref != 'changeset-release\/main'[\s\S]*ref_name != 'changeset-release\/main'/,
+    "ci.yml: component selection must exclude generated Version PR output",
+  );
+  assert.equal(
+    versionStaticStep?.run,
+    "pnpm verify:static",
+    "ci.yml: generated Version PR output must still receive full static proof",
+  );
+  assert.match(
+    String(versionStaticStep?.if),
+    /head\.ref == 'changeset-release\/main'[\s\S]*event_name == 'workflow_dispatch'/,
+    "ci.yml: the static-only path must be restricted to generated Version PRs",
+  );
   assert.ok(
     hasCommand(quality, /pnpm exec changeset status --since=origin\/main/),
     "ci.yml: PR quality must enforce changeset applicability",

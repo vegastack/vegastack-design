@@ -71,7 +71,9 @@ The merged change's `main` push starts the release coordinator. When pending cha
 2. Creates or updates the generated Version Packages PR through the GitHub API.
 3. Explicitly dispatches `PR quality` for the exact generated head. This dispatch is load-bearing:
    ordinary events created by `GITHUB_TOKEN` do not recursively start workflows.
-4. Runs the positive release-output scope guard in place of the ordinary changeset requirement.
+4. Runs full static proof plus the positive release-output scope guard in place of the ordinary
+   affected-browser and changeset requirements. Runtime behavior was already tested on the source
+   PRs; the generated branch may change only release metadata and provenance.
 
 Wait for the Version PR's required check, inspect its generated diff, re-read its head SHA, and
 squash-merge that exact SHA. The original `ship it` already authorizes this boundary.

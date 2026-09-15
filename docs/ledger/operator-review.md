@@ -2933,3 +2933,9 @@ caller-supplied release-mode flag and base/head pair, which could create a green
 the wrong comparison. The final CI entrypoint has no mode input: every manual dispatch is the
 generated-Version-PR path and must prove `github.ref_name`, the event SHA, the checkout, the supplied
 head, and current `origin/main` before it executes the exact-range verifier.
+
+**Generated-output verification.** The affected planner is intentionally not taught that a global
+version rewrite is a component source change. PR #144 proved why filename pairing is the wrong
+abstraction: two registry item names are secondary exports of differently named canonical files.
+The generated PR instead runs the complete static boundary followed by the stricter positive release
+delta validator. Runtime browser evidence remains owned by the originating source PRs.

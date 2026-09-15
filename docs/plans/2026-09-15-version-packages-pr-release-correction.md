@@ -21,9 +21,10 @@ the same `PR quality` check as every other change and needs no `main` bypass.
    coordinator explicitly dispatches `PR quality` for that bot-created branch. This explicit
    dispatch is required because events created by `GITHUB_TOKEN` do not recursively start ordinary
    workflows.
-3. The Version PR's check runs full static verification once, affected Chromium selection, and the
-   positive generated-output scope check. It does not require a new changeset because its purpose is
-   to consume the reviewed pending changesets.
+3. The Version PR's check runs full static verification once and the positive generated-output
+   scope check. It does not run component browsers or require a new changeset: the version command
+   changes only versions, changelogs and generated provenance, while runtime behavior was already
+   exercised on the originating change PRs.
 4. The shipping agent merges the Version PR only after the exact head is green. That merge is the
    publication boundary covered by the original `ship it` authorization.
 5. The resulting `main` push has no pending changesets. The coordinator publishes only missing npm
