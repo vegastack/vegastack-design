@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.9.1
+
+### Patch Changes
+
+- [#142](https://github.com/vegastack/vegastack-design/pull/142) [`6ec9d54`](https://github.com/vegastack/vegastack-design/commit/6ec9d54fd6b53e1b60c3b25705b4bfea3779be6b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **Selection controls** — Give ToggleGroup, Segmented, and pill Tabs a persistent semantic boundary, and use Segmented for the documentation preview's device modes.
+
+- [#142](https://github.com/vegastack/vegastack-design/pull/142) [`6ec9d54`](https://github.com/vegastack/vegastack-design/commit/6ec9d54fd6b53e1b60c3b25705b4bfea3779be6b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 **Verification and release** — Run deterministic affected component tests once on pull requests and automate the authorized publish-and-deploy chain.
+
+- Updated dependencies [[`6ec9d54`](https://github.com/vegastack/vegastack-design/commit/6ec9d54fd6b53e1b60c3b25705b4bfea3779be6b)]:
+  - @vegastack/design@0.4.1
+
 ## 0.9.0
 
 ### Minor Changes

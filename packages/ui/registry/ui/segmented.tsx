@@ -1,4 +1,4 @@
-// @vegastack segmented@0.9.0 sha256-q5aLcatYQ5NgU4k1/7UPWDDSZOEHHfYlvb2IxT7Gjik=
+// @vegastack segmented@0.9.1 sha256-Iv+/dk7VK+6od4+jriV+8ZlT1rn7wlyE2nf1B+5EpEU=
 
 "use client";
 
