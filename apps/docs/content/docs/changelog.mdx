@@ -10,6 +10,29 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.9.1] — September 15, 2026
+
+### 🧩 New components
+
+- **Selection controls** — Give ToggleGroup, Segmented, and pill Tabs a persistent semantic boundary, and use Segmented for the documentation preview's device modes.
+  [`6ec9d54`](https://github.com/VegaStack/vegastack-design/commit/6ec9d54)
+
+### 🛠 CLI & tooling
+
+- **Verification and release** — Run deterministic affected component tests once on pull requests and automate the authorized publish-and-deploy chain.
+  [`6ec9d54`](https://github.com/VegaStack/vegastack-design/commit/6ec9d54)
+- **Version PR checks** — Use GitHub's native approval gate for the bot-created pull-request run so its `PR quality` result satisfies protected-main status checks without a duplicate dispatch.
+  [`22cc795`](https://github.com/VegaStack/vegastack-design/commit/22cc795)
+- **Version PR verification** — Route generated version metadata through static and positive output checks without misclassifying provenance-only registry rewrites as component edits.
+  [`ed2aa8f`](https://github.com/VegaStack/vegastack-design/commit/ed2aa8f)
+- **Release automation** — Restore a generated Version Packages PR so protected `main` needs no automated direct-push bypass.
+  [`3dd6a85`](https://github.com/VegaStack/vegastack-design/commit/3dd6a85)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.4.1`** (was `0.4.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.9.0 → 0.9.1.
+
 ## [0.9.0] — September 15, 2026
 
 ### 📦 npm

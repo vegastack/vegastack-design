@@ -1,4 +1,4 @@
-// @vegastack section-header@0.9.0 sha256-dn/pJuw1B8PIJ2oHojbKlkF8+nscjWTTRQFJm9DTm/Q=
+// @vegastack section-header@0.9.1 sha256-weez0+eS340U/+hHx1kW5CmFSdNm2j9ypVucHJmjcJI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
