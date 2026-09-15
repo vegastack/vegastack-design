@@ -20,7 +20,9 @@ const EXPECTED_RUNNERS = {
   "ci.yml": { quality: LINUX },
   "full-suite.yml": { "full-component-suite": LINUX },
   "release.yml": {
-    version: MAC,
+    changes: MAC,
+    "version-pr": MAC,
+    "dispatch-version-pr-quality": MAC,
     publish: MAC,
     "dispatch-deploy": MAC,
   },
@@ -36,7 +38,14 @@ const LINUX_JOBS = new Set([
   "deploy.yml:distribution-proof",
 ]);
 const EXPECTED_PERMISSIONS = {
-  "release.yml:version": { contents: "write" },
+  "release.yml:version-pr": {
+    contents: "write",
+    "pull-requests": "write",
+  },
+  "release.yml:dispatch-version-pr-quality": {
+    actions: "write",
+    contents: "read",
+  },
   "release.yml:publish": { contents: "read", "id-token": "write" },
   "release.yml:dispatch-deploy": { actions: "write", contents: "read" },
   "deploy.yml:build-sign-deploy": {
@@ -284,6 +293,16 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
     ci.on?.pull_request !== undefined,
     "ci.yml: must trigger on pull_request",
   );
+  assert.ok(
+    ci.on?.workflow_dispatch,
+    "ci.yml: must accept an internal Version PR dispatch",
+  );
+  for (const input of ["base_sha", "head_sha"])
+    assert.equal(
+      ci.on.workflow_dispatch.inputs[input]?.required,
+      true,
+      `ci.yml: ${input} dispatch input must be required`,
+    );
   const quality = ci.jobs.quality;
   assert.equal(
     quality.name,
@@ -292,8 +311,8 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   );
   assert.equal(
     String(quality.if).replace(/^\$\{\{\s*|\s*\}\}$/g, ""),
-    "github.event.pull_request.head.repo.full_name == github.repository",
-    "ci.yml: persistent runner requires the exact fork guard",
+    "github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository",
+    "ci.yml: persistent runner requires the fork guard or trusted internal dispatch",
   );
   assert.ok(
     hasCommand(
@@ -306,6 +325,55 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
     hasCommand(quality, /pnpm exec changeset status --since=origin\/main/),
     "ci.yml: PR quality must enforce changeset applicability",
   );
+  assert.ok(
+    hasCommand(quality, /verify-release-output-scope\.mjs --base "\$BASE_SHA"/),
+    "ci.yml: generated Version PRs must pass the positive output allowlist",
+  );
+  const changesetStep = steps(quality).find(
+    (step) => step.name === "Require an applicable changeset",
+  );
+  const releaseOutputStep = steps(quality).find(
+    (step) => step.name === "Restrict generated Version Packages output",
+  );
+  assert.match(
+    String(changesetStep?.if),
+    /event_name == 'pull_request'[\s\S]*head\.ref != 'changeset-release\/main'/,
+    "ci.yml: ordinary PRs alone must require a changeset",
+  );
+  assert.match(
+    String(releaseOutputStep?.if),
+    /head\.ref == 'changeset-release\/main'[\s\S]*event_name == 'workflow_dispatch'/,
+    "ci.yml: generated Version PRs alone must use the release-output guard",
+  );
+  const qualityCheckout = steps(quality).find((step) =>
+    /^actions\/checkout@/.test(step.uses ?? ""),
+  );
+  assert.match(
+    qualityCheckout?.with?.ref ?? "",
+    /pull_request\.head\.sha[\s\S]*inputs\.head_sha/,
+    "ci.yml: PR quality must check out the exact event or dispatched head",
+  );
+  const dispatchBinding = steps(quality).find(
+    (step) =>
+      step.name ===
+      "Bind an internal dispatch to the generated Version Packages branch",
+  );
+  assert.equal(
+    String(dispatchBinding?.if),
+    "github.event_name == 'workflow_dispatch'",
+    "ci.yml: exact generated-branch binding must run on every internal dispatch",
+  );
+  for (const pattern of [
+    /"\$DISPATCH_REF" = "changeset-release\/main"/,
+    /"\$EVENT_SHA" = "\$HEAD_SHA"/,
+    /git rev-parse HEAD\)" = "\$HEAD_SHA"/,
+    /git rev-parse origin\/main\)" = "\$BASE_SHA"/,
+  ])
+    assert.match(
+      dispatchBinding?.run ?? "",
+      pattern,
+      "ci.yml: internal dispatch must bind branch, event head, checkout, and live main",
+    );
 
   const full = parsed["full-suite.yml"];
   assert.ok(full.on?.workflow_dispatch, "full-suite.yml: must be manual-only");
@@ -335,94 +403,78 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   const release = parsed["release.yml"];
   assert.ok(
     release.on?.workflow_dispatch,
-    "release.yml: must be explicitly dispatched",
+    "release.yml: must allow exact-SHA recovery dispatch",
   );
-  assert.equal(
-    release.on?.push,
-    undefined,
-    "release.yml: must not run on main pushes",
+  assert.deepEqual(
+    release.on?.push?.branches,
+    ["main"],
+    "release.yml: must coordinate releases on main pushes",
   );
   assert.ok(
     release.on.workflow_dispatch.inputs.expected_sha?.required,
     "release.yml: exact authorized SHA input is required",
   );
-  const version = release.jobs.version;
+  const changes = release.jobs.changes;
   assert.ok(
-    hasCommand(version, /git rev-parse origin\/main/),
-    "release.yml: version job must bind authorization to the current main tip",
+    hasCommand(changes, /git rev-parse origin\/main/),
+    "release.yml: release state must bind to the current main tip",
   );
   assert.ok(
-    hasCommand(version, /main-ruleset\.mjs --check-file/),
-    "release.yml: direct release commit requires the enforced affected-PR ruleset",
+    hasCommand(changes, /release-detect\.mjs[\s\S]*--check-npm/),
+    "release.yml: one tested authority must classify Version PR, publish, and resume state",
+  );
+  const versionPr = release.jobs["version-pr"];
+  assert.equal(
+    String(versionPr.if).replace(/^\$\{\{\s*|\s*\}\}$/g, ""),
+    "needs.changes.outputs.has_changesets == 'true'",
+    "release.yml: Version PR creation must require pending changesets",
   );
   assert.ok(
-    hasCommand(version, /pnpm version-packages/),
-    "release.yml: version job must assemble and version every pending changeset",
+    steps(versionPr).some(
+      (step) =>
+        /^changesets\/action@/.test(step.uses ?? "") &&
+        step.with?.version === "pnpm run version-packages" &&
+        step.with?.commitMode === "github-api" &&
+        step.env?.GITHUB_TOKEN === "${{ secrets.GITHUB_TOKEN }}",
+    ),
+    "release.yml: Changesets must create the Version Packages PR through the GitHub API",
+  );
+  assert.ok(
+    hasCommand(versionPr, /git\/ref\/heads\/\$VERSION_BRANCH/),
+    "release.yml: Version PR resolution must bind the branch to its exact head",
+  );
+  const versionPrDispatch = release.jobs["dispatch-version-pr-quality"];
+  assert.deepEqual(
+    versionPrDispatch.needs,
+    ["changes", "version-pr"],
+    "release.yml: Version PR quality dispatch must wait for exact release state and generated head",
   );
   assert.ok(
     hasCommand(
-      version,
-      /verify-release-output-scope\.mjs --base "\$EXPECTED_SHA"/,
+      versionPrDispatch,
+      /gh workflow run ci\.yml[\s\S]*-f base_sha="\$BASE_SHA"[\s\S]*-f head_sha="\$HEAD_SHA"/,
     ),
-    "release.yml: generated release commit must pass the positive output allowlist",
-  );
-  for (const required of [
-    "tooling/changelog-lint.mjs",
-    "tooling/sync-changelog.mjs --check",
-    "pnpm design:derived:check",
-    "tooling/verify-component-contracts.mjs",
-  ])
-    assert.ok(
-      commands(version).some((command) => command.includes(required)),
-      `release.yml: generated metadata must run ${required}`,
-    );
-  assert.ok(
-    hasCommand(version, /git log -1 --format=%s/),
-    "release.yml: no-changeset resume must require a generated release commit",
-  );
-  const versioningStep = steps(version).find((step) =>
-    String(step.name).startsWith("Version every pending changeset"),
-  );
-  const pushStep = steps(version).find(
-    (step) => step.name === "Push the generated release commit",
+    "release.yml: the GITHUB_TOKEN-created Version PR must receive exact-SHA PR quality",
   );
   assert.ok(
-    versioningStep && pushStep,
-    "release.yml: version and push steps are required",
-  );
-  assert.equal(
-    versioningStep.env?.GITHUB_TOKEN,
-    "${{ secrets.GITHUB_TOKEN }}",
-    "release.yml: Changesets requires GitHub metadata while generating package changelogs",
-  );
-  assert.equal(
-    pushStep.env?.GH_TOKEN,
-    "${{ secrets.GITHUB_TOKEN }}",
-    "release.yml: only the inert push step receives the repository write token",
-  );
-  assert.ok(
-    hasCommand(version, /git push .*HEAD:main/),
-    "release.yml: version job must push the direct release commit",
-  );
-  assert.ok(
-    hasCommand(version, /gh auth setup-git/),
-    "release.yml: direct push must use gh's environment-backed credential helper",
+    hasCommand(versionPrDispatch, /for attempt in 1 2 3/),
+    "release.yml: Version PR quality dispatch retries must be bounded to three",
   );
   assert.doesNotMatch(
     sources["release.yml"],
-    /x-access-token:/,
-    "release.yml: never put the GitHub token in git's process arguments",
-  );
-  assert.equal(
-    release.jobs["version-pr"],
-    undefined,
-    "release.yml: Version PR must stay removed",
+    /git push[^\n]*HEAD:main|main-ruleset\.mjs --check-file/,
+    "release.yml: Version PR topology may not retain a direct-main push or bypass dependency",
   );
   const publish = release.jobs.publish;
   assert.equal(
     publish.needs,
-    "version",
-    "release.yml: publish must use the release commit",
+    "changes",
+    "release.yml: publish must use the inspected Version PR merge",
+  );
+  assert.match(
+    String(publish.if),
+    /publish == 'true'[\s\S]*has_changesets == 'false'/,
+    "release.yml: publication requires an unpublished, changeset-free Version PR merge",
   );
   assert.ok(
     hasCommand(publish, /for attempt in 1 2 3/),
@@ -437,8 +489,8 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   );
   assert.deepEqual(
     release.jobs["dispatch-deploy"].needs,
-    ["version", "publish"],
-    "release.yml: deploy dispatch must wait for version and publication",
+    ["changes", "publish"],
+    "release.yml: deploy dispatch must wait for release inspection and publication",
   );
   assert.ok(
     hasCommand(release.jobs["dispatch-deploy"], /gh workflow run deploy\.yml/),

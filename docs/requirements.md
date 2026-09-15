@@ -422,7 +422,7 @@ Fumadocs live previews cover variant display, and **Playwright visual-regression
 
 - **Authority:** **Changesets** (not commit-message inference — a visual break can hide under `fix:`). Every change ships a reviewed changeset declaring the bump.
 - **Config highlights:** `@changesets/changelog-github`, `access: public`, linked public packages `@vegastack/design-tokens` + `@vegastack/design`, docs ignored, and internal workspace dependencies bumped at patch. Private `@vegastack/ui` is versioned by Changesets to supply the registry-wide `meta.version` but is never npm-published.
-- **Automation:** one explicit `ship it` drives affected PR proof, exact-SHA merge, a direct generated release commit for every pending changeset, token-free npm OIDC publication, public docs/registry deploy, and production verification. The complete component suite is manual-only; no Version Packages PR or repeated outward approval remains.
+- **Automation:** one explicit `ship it` drives affected change-PR proof and merge, a generated Version Packages PR with its own exact-head proof and merge, token-free npm OIDC publication, public docs/registry deploy, and production verification. The complete component suite is manual-only; the Version PR is a protected review boundary but does not require a second authorization prompt.
 - **Update semantics by change type:**
   - _Token/runtime_ → publish the linked public packages; downstream dependency tooling may propose the semver update.
   - _Component fix/improvement_ → downstream re-runs `shadcn add @vegastack/<x> --diff` / `--overwrite` (pull-based, never silent); audit flags stale copies.

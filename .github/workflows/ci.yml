@@ -2,6 +2,16 @@ name: CI
 
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      base_sha:
+        description: Exact base commit for an internally generated Version Packages PR
+        required: true
+        type: string
+      head_sha:
+        description: Exact generated PR head
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -17,7 +27,9 @@ jobs:
   quality:
     name: PR quality
     # Never execute fork-authored code on a persistent LAN runner.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, vsk-runner]
     timeout-minutes: 20
     container:
@@ -32,8 +44,23 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.head_sha }}
       - name: Trust the checkout inside the container
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Bind an internal dispatch to the generated Version Packages branch
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          BASE_SHA: ${{ inputs.base_sha }}
+          DISPATCH_REF: ${{ github.ref_name }}
+          EVENT_SHA: ${{ github.sha }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+        run: |
+          set -euo pipefail
+          test "$DISPATCH_REF" = "changeset-release/main"
+          test "$EVENT_SHA" = "$HEAD_SHA"
+          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "$BASE_SHA"
       - name: Enable corepack
         run: |
           set -euo pipefail
@@ -43,11 +70,21 @@ jobs:
       - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
       - name: Static proof plus affected Chromium tests
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.base_sha }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.head_sha }}
         run: pnpm verify:affected --base "$BASE_SHA" --head "$HEAD_SHA"
       - name: Require an applicable changeset
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.ref != 'changeset-release/main'
         run: pnpm exec changeset status --since=origin/main
+      - name: Restrict generated Version Packages output
+        if: >-
+          (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'changeset-release/main') ||
+          github.event_name == 'workflow_dispatch'
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.base_sha }}
+        run: node tooling/verify-release-output-scope.mjs --base "$BASE_SHA"
       - name: Require generators to leave the checkout unchanged
         run: |
           set -euo pipefail

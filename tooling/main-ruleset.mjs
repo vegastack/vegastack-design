@@ -11,20 +11,14 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const RULESET_NAME = "VegaStack main";
-export const GITHUB_ACTIONS_APP_ID = 15368;
+export const GITHUB_ACTIONS_INTEGRATION_ID = 15368;
 
 export function expectedMainRuleset() {
   return {
     name: RULESET_NAME,
     target: "branch",
     enforcement: "active",
-    bypass_actors: [
-      {
-        actor_id: GITHUB_ACTIONS_APP_ID,
-        actor_type: "Integration",
-        bypass_mode: "always",
-      },
-    ],
+    bypass_actors: [],
     conditions: {
       ref_name: { include: ["refs/heads/main"], exclude: [] },
     },
@@ -48,7 +42,10 @@ export function expectedMainRuleset() {
         parameters: {
           do_not_enforce_on_create: false,
           required_status_checks: [
-            { context: "PR quality", integration_id: GITHUB_ACTIONS_APP_ID },
+            {
+              context: "PR quality",
+              integration_id: GITHUB_ACTIONS_INTEGRATION_ID,
+            },
           ],
           strict_required_status_checks_policy: true,
         },
@@ -67,20 +64,28 @@ function stable(value) {
   );
 }
 
-export function comparableRuleset(actual, { requireBypass = true } = {}) {
+export function comparableRuleset(actual) {
   const expected = expectedMainRuleset();
   return stable({
     name: actual.name,
     target: actual.target,
     enforcement: actual.enforcement,
-    ...(requireBypass ? { bypass_actors: actual.bypass_actors } : {}),
+    bypass_actors: actual.bypass_actors ?? [],
     conditions: actual.conditions,
     rules: (actual.rules ?? []).map((rule) => {
       const expectedRule = expected.rules.find(
         (entry) => entry.type === rule.type,
       );
       return expectedRule?.parameters
-        ? { type: rule.type, parameters: rule.parameters }
+        ? {
+            type: rule.type,
+            parameters: Object.fromEntries(
+              Object.keys(expectedRule.parameters).map((key) => [
+                key,
+                rule.parameters?.[key],
+              ]),
+            ),
+          }
         : { type: rule.type };
     }),
   });
@@ -119,14 +124,10 @@ function currentRuleset(repo) {
     : null;
 }
 
-export function assertMainRuleset(actual, { requireBypass = true } = {}) {
+export function assertMainRuleset(actual) {
   assert.ok(actual, `${RULESET_NAME} ruleset is missing`);
   const expected = expectedMainRuleset();
-  if (!requireBypass) delete expected.bypass_actors;
-  assert.deepEqual(
-    comparableRuleset(actual, { requireBypass }),
-    stable(expected),
-  );
+  assert.deepEqual(comparableRuleset(actual), stable(expected));
 }
 
 const isMain =
@@ -152,12 +153,7 @@ if (isMain) {
   }
   try {
     if (checkFile) {
-      // A workflow GITHUB_TOKEN has metadata access but GitHub may omit bypass_actors unless the
-      // caller has Administration permission. The generated push itself remains the fail-closed
-      // proof of the Actions bypass. Local/admin `--check` validates the complete object.
-      assertMainRuleset(JSON.parse(readFileSync(checkFile, "utf8")), {
-        requireBypass: false,
-      });
+      assertMainRuleset(JSON.parse(readFileSync(checkFile, "utf8")));
       console.log("main-ruleset: supplied ruleset verified");
       process.exit(0);
     }
@@ -188,6 +184,8 @@ if (isMain) {
         );
       current = currentRuleset(repo);
     }
+    // GitHub may add response-only/defaulted parameters. comparableRuleset retains every field we
+    // submit and intentionally ignores only unowned server additions.
     assertMainRuleset(current);
     console.log(`main-ruleset: ${apply ? "applied and verified" : "verified"}`);
   } catch (error) {
