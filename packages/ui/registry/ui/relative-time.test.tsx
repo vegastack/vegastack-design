@@ -1,10 +1,24 @@
 import * as React from "react";
 import { renderToString } from "react-dom/server";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
 import { RelativeTime } from "./relative-time";
+
+/**
+ * The open tooltip popup, by slot.
+ *
+ * Base UI's Tooltip popup carries NO `role="tooltip"` and its trigger gets no `aria-describedby` —
+ * deliberate upstream behaviour ("tooltips are visual-only"), inherited when Batch 2 of the shadcn
+ * reset put Tooltip back on upstream's file. The accessible copy lives on the `<time>` itself,
+ * which the tests above assert directly; the popup is located by its slot.
+ */
+async function openTooltip(container: Element) {
+  return vi.waitUntil(() =>
+    container.ownerDocument.querySelector('[data-slot="tooltip-content"]'),
+  );
+}
 
 // A fixed reference instant so every relative string is deterministic.
 const NOW = Date.UTC(2026, 0, 15, 12, 0, 0); // 2026-01-15T12:00:00Z
@@ -182,11 +196,13 @@ test("reveals the absolute date-time on focus", async () => {
   // projected <time> is a real tab stop; target it here so this assertion measures the focus
   // behavior rather than inheriting Firefox's document-level Tab cursor from earlier tests.
   (screen.getByText("2 hours ago").element() as HTMLElement).focus();
-  const tip = screen.getByRole("tooltip");
-  await expect.element(tip).toBeInTheDocument();
-  // The tooltip also renders the time of day, which depends on the host timezone —
-  // `toHaveTextContent` is whole-string in Vitest 5, so this is the partial matcher.
-  await expect.element(tip).toMatchTextContent("January 15, 2026");
+  // Base UI's Tooltip popup carries NO `role="tooltip"` and the trigger gets no
+  // `aria-describedby` — deliberate upstream behaviour ("tooltips are visual-only"), inherited
+  // when Batch 2 of the shadcn reset put Tooltip back on upstream's file. Locate the popup by its
+  // slot; `relative-time.tsx` is what carries the accessible copy, on the <time> itself.
+  const tip = await openTooltip(screen.container);
+  // The tooltip also renders the time of day, which depends on the host timezone.
+  expect(tip?.textContent ?? "").toContain("January 15, 2026");
 });
 
 test("accepts a custom tooltip label", async () => {
@@ -200,9 +216,9 @@ test("accepts a custom tooltip label", async () => {
     </TooltipProvider>,
   );
   (screen.getByText("1 hour ago").element() as HTMLElement).focus();
-  await expect
-    .element(screen.getByRole("tooltip"))
-    .toHaveTextContent("Created at launch");
+  expect((await openTooltip(screen.container)).textContent).toBe(
+    "Created at launch",
+  );
 });
 
 test("renders a bare <time> with no tooltip when title is false", async () => {
@@ -230,7 +246,7 @@ test("no a11y violations (tooltip open)", async () => {
     </TooltipProvider>,
   );
   (screen.getByText("1 hour ago").element() as HTMLElement).focus();
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
+  await openTooltip(screen.container);
   // axe the portaled popup, which lands outside the test container.
   await expectNoA11yViolations(screen.container.ownerDocument.body);
 });

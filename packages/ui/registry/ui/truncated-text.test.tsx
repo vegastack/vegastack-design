@@ -6,6 +6,19 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
 import { IconText, TableCellText, TruncatedText } from "./truncated-text";
 
+/**
+ * The open tooltip popup, by slot.
+ *
+ * Base UI's Tooltip popup carries NO `role="tooltip"` and its trigger gets no `aria-describedby` —
+ * deliberate upstream behaviour ("tooltips are visual-only"), inherited when Batch 2 of the shadcn
+ * reset put Tooltip back on upstream's file.
+ */
+async function openTooltip(container: Element) {
+  return vi.waitUntil(() =>
+    container.ownerDocument.querySelector('[data-slot="tooltip-content"]'),
+  );
+}
+
 // TruncatedText wraps its content in a Tooltip when the text overflows, and
 // Base UI's Tooltip reads its shared delay from a Provider. Even though the
 // tooltip only mounts on overflow, we wrap every subject in TooltipProvider so
@@ -185,7 +198,7 @@ test("no a11y violations (tooltip open on overflow)", async () => {
   // Overflow measurement is async (ResizeObserver) — poll until the trigger upgrade lands.
   await expect.element(el).toHaveAttribute("tabindex", "0");
   await userEvent.hover(el);
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
+  await openTooltip(screen.container);
   // axe the portaled popup, which lands outside the test container.
   await expectNoA11yViolations(screen.container.ownerDocument.body);
 });

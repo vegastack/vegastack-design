@@ -1,11 +1,11 @@
 ---
 title: Tooltip
-description: A popup that labels an element when it is hovered or receives keyboard focus — four sides, a shared delay, and an arrow.
+description: A visual popup that explains an element on hover or keyboard focus — four sides, a shared delay, and a collision-aware arrow.
 audience: public
 registry: tooltip
 status: stable
 since: 0.1.0
-a11y: role=tooltip described by the trigger
+a11y: visual-only popup; the trigger carries the name
 preview: tooltip
 ---
 
@@ -61,7 +61,8 @@ TooltipProvider
 ### Composition
 
 `TooltipTrigger` renders the element you give it, and `TooltipContent` renders in a portal — so the
-popup escapes any `overflow: hidden` ancestor while staying described by its trigger.
+popup escapes any `overflow: hidden` ancestor. The trigger keeps its own accessible name; see
+Accessibility for why that is not optional.
 
 <ComponentPreview
   name="tooltipComposition"
@@ -124,12 +125,16 @@ content when the tooltip's text runs the other way from the page.
 
 ## Accessibility
 
-- The popup renders `role="tooltip"` and the trigger points at it with `aria-describedby`, so the
-  text is announced as a description of the control, never as its name.
+- **The popup is visual-only.** Base UI renders it with no `role="tooltip"` and wires no
+  `aria-describedby` on the trigger — that is its documented design, not an oversight. The tooltip's
+  text therefore reaches no screen reader on its own.
+- **So the trigger must carry the name itself.** Give every trigger an `aria-label` that closely
+  matches the popup's text, exactly as the fixtures on this page do. Without it, an icon-only
+  trigger is unnamed for assistive technology even though the tooltip looks informative.
 - It opens on hover **and** on keyboard focus, and <kbd>Escape</kbd> closes it — a tooltip that only
-  answers the mouse is inaccessible by construction.
-- A tooltip is a description, not a label and not content: an icon-only control still needs its own
-  `aria-label`, and nothing interactive belongs inside the popup.
+  answers the mouse is unreachable by keyboard.
+- Nothing interactive belongs inside the popup: it disappears on blur, so a link or button in there
+  can never be reached.
 - The popup is portaled out of the trigger's DOM subtree; `TooltipContent` re-applies the nested
   theme scope on the positioner (OVL-13), so a tooltip raised inside a scoped surface keeps that
   surface's palette.
@@ -146,7 +151,7 @@ content when the tooltip's text runs the other way from the page.
 ## Do / Don't
 
 <DoDont
-  do="Use a tooltip for a short description of a control that is already named — a shortcut, a unit, a reason."
+  do="Give the trigger an aria-label matching the tooltip's text — the popup itself is visual-only and announces nothing."
   dont="Put a link, a button or any content the user must reach inside a tooltip — it disappears on blur."
 />
 

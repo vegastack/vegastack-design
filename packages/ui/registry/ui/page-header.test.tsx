@@ -6,6 +6,19 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
 import { PageHeader } from "./page-header";
 
+/**
+ * The open tooltip popup, by slot.
+ *
+ * Base UI's Tooltip popup carries NO `role="tooltip"` and its trigger gets no `aria-describedby` —
+ * deliberate upstream behaviour ("tooltips are visual-only"), inherited when Batch 2 of the shadcn
+ * reset put Tooltip back on upstream's file.
+ */
+async function openTooltip(container: Element) {
+  return vi.waitUntil(() =>
+    container.ownerDocument.querySelector('[data-slot="tooltip-content"]'),
+  );
+}
+
 test("renders the title as an h1", async () => {
   const screen = await render(<PageHeader title="Settings" />);
   const heading = screen.getByRole("heading", { level: 1, name: "Settings" });
@@ -248,7 +261,7 @@ test("hovering an overlong title reveals the full text via a Tooltip", async () 
   const title = screen.getByText(long);
   await expect.element(title).toHaveAttribute("tabindex", "0");
   await userEvent.hover(title);
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
+  await openTooltip(screen.container);
 });
 
 test("no a11y violations — truncated title with the tooltip open", async () => {
@@ -263,7 +276,7 @@ test("no a11y violations — truncated title with the tooltip open", async () =>
   const title = screen.getByText(long);
   await expect.element(title).toHaveAttribute("tabindex", "0");
   await userEvent.hover(title);
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
+  await openTooltip(screen.container);
   // axe the portaled tooltip too, which lands outside the render container.
   await expectNoA11yViolations(screen.container.ownerDocument.body);
 });

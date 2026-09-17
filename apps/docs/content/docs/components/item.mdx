@@ -183,3 +183,8 @@ Upstream's file plus `packages/ui/upstream/patches/item.patch`. Every hunk:
   Truncation goes on an inner span instead.
 - **DOC-2** — `cn` is imported from `@vegastack/design`, and the file carries the registry
   provenance header.
+- **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the
+  module throws on import in a React Server Component without the boundary.
+- **A11Y-7** — `ItemGroup` licenses `role="listitem"` on the items inside it, through context, and
+  hides the separator's rule from assistive tech. `role="list"` admits only `listitem` children, so
+  upstream's own composition is a critical `aria-required-children` violation as shipped.

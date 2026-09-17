@@ -383,7 +383,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "Anything clickable — use a Button; a Badge is a non-interactive label.",
         "version": "0.9.1",
-        "integrity": "sha256-AAOZSoQcfK7X1nMp+IF27FrLjdijRqr/JeVMJvMxT7o="
+        "integrity": "sha256-BYLQYh+m6B3cfhlUDkZZgEG1GZifTRU3waXoFJ6yGOY="
       }
     },
     {
@@ -544,7 +544,7 @@
         "whenToUse": "Join related controls into one unit — a split action, a segmented action bar, an input with a leading or trailing control.",
         "whenNotToUse": "A single selection among peers (ToggleGroup) or unrelated actions that only happen to sit together.",
         "version": "0.9.1",
-        "integrity": "sha256-V1V+YI7XuJ6Hx1u61yhZAuAmyxWMBSeF+snkIy2oBxM="
+        "integrity": "sha256-2OqLRuNKcaZfInH8GkK4VbLwAq+ydQPdVeQBclPnOk4="
       }
     },
     {
@@ -14853,7 +14853,7 @@
         "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.9.1",
-        "integrity": "sha256-zWenKNOdIOjOwp/rEkeTFN7kL2JuPKzBuATHUY5v1IY="
+        "integrity": "sha256-amawgDXbSi4FtA/eqtHH8JhOeQ1cP6h0RnwvDStflJY="
       }
     },
     {
@@ -15656,7 +15656,7 @@
         "whenToUse": "A timestamp relative to now — comment/activity times (ago) or calendar-day grouping (day).",
         "whenNotToUse": "A fixed absolute date that should never change — just format it once.",
         "version": "0.9.1",
-        "integrity": "sha256-47XCm+j+qQMXWNDtLRlNrqWrlVfoT0uu/ypJ2hcHXPE="
+        "integrity": "sha256-/H/Bmy/5SFagrhoJA6CcxAN/ktjoIRpDZljm5pBqT9k="
       }
     },
     {

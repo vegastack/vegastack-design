@@ -1,4 +1,6 @@
-// @vegastack item@0.9.1 sha256-zWenKNOdIOjOwp/rEkeTFN7kL2JuPKzBuATHUY5v1IY=
+// @vegastack item@0.9.1 sha256-amawgDXbSi4FtA/eqtHH8JhOeQ1cP6h0RnwvDStflJY=
+
+"use client";
 
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
@@ -8,7 +10,20 @@ import { cn } from "@vegastack/design";
 
 import { Separator } from "@/components/ui/separator";
 
-function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
+/**
+ * A11Y-7 — a context-licensed role. `ItemGroup` is `role="list"`, and `role="list"` admits only
+ * `listitem` children: a bare `Item` inside one is a CRITICAL `aria-required-children` violation
+ * (measured by axe on every `ItemGroup` composition in this repository). An `Item` outside a group
+ * is a plain row and must NOT claim `listitem`, which is why the role is granted by context rather
+ * than hard-coded on the part.
+ */
+const ItemGroupContext = React.createContext(false);
+
+function ItemGroup({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"div">) {
   return (
     <div
       role="list"
@@ -18,7 +33,11 @@ function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
         className,
       )}
       {...props}
-    />
+    >
+      <ItemGroupContext.Provider value={true}>
+        {children}
+      </ItemGroupContext.Provider>
+    </div>
   );
 }
 
@@ -30,6 +49,11 @@ function ItemSeparator({
     <Separator
       data-slot="item-separator"
       orientation="horizontal"
+      // A11Y-7, same rule from the other side: a `role="separator"` between two rows is not a
+      // `listitem`, so inside `ItemGroup` it is the second thing axe rejects. The rule it draws is
+      // decorative — the rows are already announced as list items — so it is hidden by default and
+      // a caller who needs a semantic boundary passes `aria-hidden={false}`.
+      aria-hidden="true"
       className={cn("my-2", className)}
       {...props}
     />
@@ -65,10 +89,13 @@ function Item({
   render,
   ...props
 }: useRender.ComponentProps<"div"> & VariantProps<typeof itemVariants>) {
+  const inGroup = React.useContext(ItemGroupContext);
+
   return useRender({
     defaultTagName: "div",
     props: mergeProps<"div">(
       {
+        role: inGroup ? "listitem" : undefined,
         className: cn(itemVariants({ variant, size, className })),
       },
       props,

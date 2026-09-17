@@ -100,17 +100,19 @@ export function skeletonRtl(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
       <div className="flex items-center justify-center gap-4" dir="ltr">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[250px]" />
-          <Skeleton className="h-4 w-[200px]" />
+        <Skeleton className="size-12 shrink-0 rounded-full" />
+        {/* `min-w-0` + fluid widths: a fixed 250px row plus the avatar overflows a 320px
+            viewport, which the geometry lane measures at its narrow breakpoint. */}
+        <div className="min-w-0 flex-1 space-y-2">
+          <Skeleton className="h-4 w-full max-w-[250px]" />
+          <Skeleton className="h-4 w-4/5 max-w-[200px]" />
         </div>
       </div>
       <div className="flex items-center justify-center gap-4" dir="rtl">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[250px]" />
-          <Skeleton className="h-4 w-[200px]" />
+        <Skeleton className="size-12 shrink-0 rounded-full" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <Skeleton className="h-4 w-full max-w-[250px]" />
+          <Skeleton className="h-4 w-4/5 max-w-[200px]" />
         </div>
       </div>
     </Wrapper>

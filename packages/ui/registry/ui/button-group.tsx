@@ -1,4 +1,6 @@
-// @vegastack button-group@0.9.1 sha256-V1V+YI7XuJ6Hx1u61yhZAuAmyxWMBSeF+snkIy2oBxM=
+// @vegastack button-group@0.9.1 sha256-2OqLRuNKcaZfInH8GkK4VbLwAq+ydQPdVeQBclPnOk4=
+
+"use client";
 
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";

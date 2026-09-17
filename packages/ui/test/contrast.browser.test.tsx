@@ -178,6 +178,16 @@ async function integrationFailures(container: Element) {
     ) {
       await userEvent.tab();
     }
+    // Upstream's Button carries `transition-all` (MOT-2 = shadcn), so the focus outline ANIMATES
+    // in — measuring on the tick after the tab reads a half-drawn ring and reports a width and an
+    // offset the user never sees. Wait for the control's own running animations instead of
+    // sleeping: it is exact, and it is why this gate stopped being flaky when upstream's
+    // transition vocabulary came back in Batch 2.
+    await Promise.all(
+      button
+        .getAnimations()
+        .map((animation) => animation.finished.catch(() => {})),
+    );
     const style = getComputedStyle(button);
     if (!button.matches(":focus-visible")) {
       failures.push(
@@ -347,15 +357,16 @@ async function auditAllToasts(dark: boolean) {
 test("rendered color-contrast passes WCAG 2.2 AA — light theme", async () => {
   const screen = await render(<Surfaces />);
   // give the compiled stylesheet a tick to apply
-  await expect.element(screen.getByText("solid warning")).toBeInTheDocument();
+  await expect.element(screen.getByText("tinted warning")).toBeInTheDocument();
   const violations = await contrastViolations(screen.container);
   expect(
     violations,
     `color-contrast failures (light):\n  ${violations.join("\n  ")}`,
   ).toEqual([]);
+  const lightIntegration = await integrationFailures(screen.container);
   expect(
-    await integrationFailures(screen.container),
-    "focus/categorical integration failures (light)",
+    lightIntegration,
+    `focus/categorical integration failures (light):\n  ${lightIntegration.join("\n  ")}`,
   ).toEqual([]);
 });
 
@@ -365,7 +376,7 @@ test("rendered color-contrast passes WCAG 2.2 AA — dark theme", async () => {
       <Surfaces />
     </div>,
   );
-  await expect.element(screen.getByText("solid warning")).toBeInTheDocument();
+  await expect.element(screen.getByText("tinted warning")).toBeInTheDocument();
   const violations = await contrastViolations(screen.container);
   expect(
     violations,

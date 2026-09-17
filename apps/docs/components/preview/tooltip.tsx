@@ -18,7 +18,10 @@ export function tooltip(): ReactNode {
     <Wrapper className="min-h-40">
       <TooltipProvider>
         <Tooltip defaultOpen>
-          <TooltipTrigger render={<Button variant="outline" />}>
+          <TooltipTrigger
+            aria-label="Add to library"
+            render={<Button variant="outline" />}
+          >
             Hover
           </TooltipTrigger>
           <TooltipContent>
@@ -35,7 +38,10 @@ export function tooltipComposition(): ReactNode {
     <Wrapper className="min-h-40">
       <TooltipProvider>
         <Tooltip defaultOpen>
-          <TooltipTrigger render={<Button variant="outline" />}>
+          <TooltipTrigger
+            aria-label="Content"
+            render={<Button variant="outline" />}
+          >
             Trigger
           </TooltipTrigger>
           <TooltipContent>Content</TooltipContent>
@@ -52,6 +58,7 @@ export function tooltipSide(): ReactNode {
         {(["left", "top", "bottom", "right"] as const).map((side) => (
           <Tooltip key={side} defaultOpen>
             <TooltipTrigger
+              aria-label={`Add to library, ${side}`}
               render={<Button variant="outline" className="w-fit capitalize" />}
             >
               {side}
@@ -73,7 +80,11 @@ export function tooltipWithKeyboardShortcut(): ReactNode {
         <Tooltip defaultOpen>
           <TooltipTrigger
             render={
-              <Button variant="outline" size="icon-sm" aria-label="Save" />
+              <Button
+                variant="outline"
+                size="icon-sm"
+                aria-label="Save Changes"
+              />
             }
           >
             <SaveIcon />
@@ -110,10 +121,13 @@ export function tooltipRtl(): ReactNode {
   return (
     <Wrapper className="min-h-52 flex-col items-stretch gap-10">
       <TooltipProvider>
+        {/* One popup open per direction. Four open at once overlapped their neighbours' pointer
+            targets, which the geometry lane reads — correctly — as an obstructed control. */}
         <div className="flex flex-wrap justify-center gap-8" dir="ltr">
           {(["left", "top", "bottom", "right"] as const).map((side) => (
-            <Tooltip key={side} defaultOpen>
+            <Tooltip key={side} defaultOpen={side === "top"}>
               <TooltipTrigger
+                aria-label={`Add to library, ${side}`}
                 render={<Button variant="outline" className="capitalize" />}
               >
                 {side}
@@ -122,10 +136,15 @@ export function tooltipRtl(): ReactNode {
             </Tooltip>
           ))}
         </div>
-        <div className="flex flex-wrap justify-center gap-8" dir="rtl">
+        {/* Stacked, not in a row: an inline-start/inline-end popup opens sideways, straight over
+            the neighbouring trigger's pointer target when the two sit side by side. */}
+        <div className="flex flex-col items-center gap-10" dir="rtl">
           {(["inline-start", "inline-end"] as const).map((side) => (
-            <Tooltip key={side} defaultOpen>
-              <TooltipTrigger render={<Button variant="outline" />}>
+            <Tooltip key={side} defaultOpen={side === "inline-end"}>
+              <TooltipTrigger
+                aria-label="إضافة إلى المكتبة"
+                render={<Button variant="outline" />}
+              >
                 {side === "inline-start" ? "بداية السطر" : "نهاية السطر"}
               </TooltipTrigger>
               <TooltipContent side={side} dir="rtl">

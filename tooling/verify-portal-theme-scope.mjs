@@ -28,6 +28,11 @@ const EXPECTED_HOSTS = new Map([
   // `SonnerToaster` special case) to Base UI Toast, so the host is now a real `Portal` part like
   // every other one — no engine-shaped exception left in this gate.
   ["packages/ui/registry/ui/toast.tsx", ["BaseToast.Portal"]],
+  // Tooltip left `floating-surface.tsx` in Batch 2 of the shadcn reset: it is now upstream's file,
+  // which hosts its own `Tooltip.Portal`. OVL-13 is the patch hunk that makes that host scoped —
+  // `TooltipContent` reads `useInternalThemeScope()` and attaches it to the Positioner INSIDE the
+  // portal. Each of Batches 4 and 5 moves the remaining anchored overlays here the same way.
+  ["packages/ui/registry/ui/tooltip.tsx", ["TooltipPrimitive.Portal"]],
 ]);
 
 function walk(dir, out = []) {

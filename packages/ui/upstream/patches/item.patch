@@ -1,6 +1,11 @@
 # component: item
-# decisions: DOC-2, FOC-1, FOC-6, LAY-11
+# decisions: A11Y-7, API-16, DOC-2, FOC-1, FOC-6, LAY-11
 # hunks:
+#   A11Y-7: `ItemGroup` licenses `role="listitem"` on the `Item`s inside it through context, and
+#           hides the separator's rule. `role="list"` admits only `listitem` children, so upstream's
+#           own composition is a CRITICAL `aria-required-children` violation as shipped.
+#   API-16: `"use client"` is added — `useRender` calls `React.useRef` internally, so the module
+#           throws on import in an RSC without the boundary (`verify-rsc-safety.mjs`).
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-[3px]
 #     focus-visible:ring-ring/50` is removed from `itemVariants`. `base.css` owns the one
 #     `:focus-visible` outline and nothing restates it; `outline-none` would suppress it.
@@ -11,18 +16,21 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/item.tsx b/item.tsx
-index edb2ea3..4df73fa 100644
+index edb2ea3..38de7d6 100644
 --- a/item.tsx
 +++ b/item.tsx
-@@ -1,10 +1,12 @@
+@@ -1,23 +1,44 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+// @vegastack item@0.9.1 sha256-zWenKNOdIOjOwp/rEkeTFN7kL2JuPKzBuATHUY5v1IY=
++// @vegastack item@0.9.1 sha256-amawgDXbSi4FtA/eqtHH8JhOeQ1cP6h0RnwvDStflJY=
  
 -import { Separator } from "@/components/ui/separator"
++"use client";
+ 
+-function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
 +import * as React from "react";
 +import { mergeProps } from "@base-ui/react/merge-props";
 +import { useRender } from "@base-ui/react/use-render";
@@ -30,10 +38,24 @@ index edb2ea3..4df73fa 100644
 +import { cn } from "@vegastack/design";
 +
 +import { Separator } from "@/components/ui/separator";
- 
- function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
++
++/**
++ * A11Y-7 — a context-licensed role. `ItemGroup` is `role="list"`, and `role="list"` admits only
++ * `listitem` children: a bare `Item` inside one is a CRITICAL `aria-required-children` violation
++ * (measured by axe on every `ItemGroup` composition in this repository). An `Item` outside a group
++ * is a plain row and must NOT claim `listitem`, which is why the role is granted by context rather
++ * than hard-coded on the part.
++ */
++const ItemGroupContext = React.createContext(false);
++
++function ItemGroup({
++  className,
++  children,
++  ...props
++}: React.ComponentProps<"div">) {
    return (
-@@ -13,11 +15,11 @@ function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
+     <div
+       role="list"
        data-slot="item-group"
        className={cn(
          "group/item-group flex w-full flex-col gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
@@ -41,13 +63,26 @@ index edb2ea3..4df73fa 100644
 +        className,
        )}
        {...props}
-     />
+-    />
 -  )
++    >
++      <ItemGroupContext.Provider value={true}>
++        {children}
++      </ItemGroupContext.Provider>
++    </div>
 +  );
  }
  
  function ItemSeparator({
-@@ -31,11 +33,11 @@ function ItemSeparator({
+@@ -28,14 +49,19 @@ function ItemSeparator({
+     <Separator
+       data-slot="item-separator"
+       orientation="horizontal"
++      // A11Y-7, same rule from the other side: a `role="separator"` between two rows is not a
++      // `listitem`, so inside `ItemGroup` it is the second thing axe rejects. The rule it draws is
++      // decorative — the rows are already announced as list items — so it is hidden by default and
++      // a caller who needs a semantic boundary passes `aria-hidden={false}`.
++      aria-hidden="true"
        className={cn("my-2", className)}
        {...props}
      />
@@ -61,7 +96,7 @@ index edb2ea3..4df73fa 100644
    {
      variants: {
        variant: {
-@@ -53,8 +55,8 @@ const itemVariants = cva(
+@@ -53,8 +79,8 @@ const itemVariants = cva(
        variant: "default",
        size: "default",
      },
@@ -72,8 +107,17 @@ index edb2ea3..4df73fa 100644
  
  function Item({
    className,
-@@ -69,7 +71,7 @@ function Item({
+@@ -63,13 +89,16 @@ function Item({
+   render,
+   ...props
+ }: useRender.ComponentProps<"div"> & VariantProps<typeof itemVariants>) {
++  const inGroup = React.useContext(ItemGroupContext);
++
+   return useRender({
+     defaultTagName: "div",
+     props: mergeProps<"div">(
        {
++        role: inGroup ? "listitem" : undefined,
          className: cn(itemVariants({ variant, size, className })),
        },
 -      props
@@ -81,7 +125,7 @@ index edb2ea3..4df73fa 100644
      ),
      render,
      state: {
-@@ -77,7 +79,7 @@ function Item({
+@@ -77,7 +106,7 @@ function Item({
        variant,
        size,
      },
@@ -90,7 +134,7 @@ index edb2ea3..4df73fa 100644
  }
  
  const itemMediaVariants = cva(
-@@ -94,8 +96,8 @@ const itemMediaVariants = cva(
+@@ -94,8 +123,8 @@ const itemMediaVariants = cva(
      defaultVariants: {
        variant: "default",
      },
@@ -101,7 +145,7 @@ index edb2ea3..4df73fa 100644
  
  function ItemMedia({
    className,
-@@ -109,7 +111,7 @@ function ItemMedia({
+@@ -109,7 +138,7 @@ function ItemMedia({
        className={cn(itemMediaVariants({ variant, className }))}
        {...props}
      />
@@ -110,7 +154,7 @@ index edb2ea3..4df73fa 100644
  }
  
  function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -118,11 +120,11 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -118,11 +147,11 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-content"
        className={cn(
          "flex flex-1 flex-col gap-1 group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none",
@@ -124,7 +168,7 @@ index edb2ea3..4df73fa 100644
  }
  
  function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
-@@ -130,12 +132,12 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
+@@ -130,12 +159,12 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
      <div
        data-slot="item-title"
        className={cn(
@@ -140,7 +184,7 @@ index edb2ea3..4df73fa 100644
  }
  
  function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
-@@ -144,11 +146,11 @@ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
+@@ -144,11 +173,11 @@ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
        data-slot="item-description"
        className={cn(
          "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
@@ -154,7 +198,7 @@ index edb2ea3..4df73fa 100644
  }
  
  function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
-@@ -158,7 +160,7 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
+@@ -158,7 +187,7 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex items-center gap-2", className)}
        {...props}
      />
@@ -163,7 +207,7 @@ index edb2ea3..4df73fa 100644
  }
  
  function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -167,11 +169,11 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -167,11 +196,11 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-header"
        className={cn(
          "flex basis-full items-center justify-between gap-2",
@@ -177,7 +221,7 @@ index edb2ea3..4df73fa 100644
  }
  
  function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -180,11 +182,11 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -180,11 +209,11 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-footer"
        className={cn(
          "flex basis-full items-center justify-between gap-2",
@@ -191,7 +235,7 @@ index edb2ea3..4df73fa 100644
  }
  
  export {
-@@ -198,4 +200,4 @@ export {
+@@ -198,4 +227,4 @@ export {
    ItemDescription,
    ItemHeader,
    ItemFooter,

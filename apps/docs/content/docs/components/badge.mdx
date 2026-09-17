@@ -112,3 +112,7 @@ Upstream's file plus `packages/ui/upstream/patches/badge.patch`. Every hunk:
   `text-<family>` measures between 3.98:1 and 4.35:1, under the AA floor A11Y-1 enforces.
 - **A11Y-8** — a badge is a labelled chip: the tint never carries the meaning alone.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the
+  module throws on import in a React Server Component without the boundary.
+- **A11Y-2** — an interactive badge (rendered as a link or a button) gets an invisible `::after`
+  hit area and drops `overflow-hidden`, so its pointer target clears 24px. Upstream's is 20px tall.
