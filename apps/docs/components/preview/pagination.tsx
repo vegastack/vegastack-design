@@ -86,7 +86,7 @@ export function paginationSizes(): ReactNode {
     <Wrapper className="flex-col gap-4">
       {(["sm", "md", "lg", "icon"] as const).map((size) => (
         <div key={size} className="flex items-center gap-3">
-          <span className="text-muted-foreground w-14 text-right font-mono text-sm">
+          <span className="text-muted-foreground w-14 text-right font-mono text-xs">
             {size}
           </span>
           <Pagination aria-label={`${size} pages pagination`}>

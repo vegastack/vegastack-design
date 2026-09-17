@@ -14,22 +14,13 @@ export const designMdConfig = {
     canonical: "design.md",
     public: "apps/docs/public/design.md",
   },
+  // REBUILT BY THE SHADCN RESET (Batch 1, 2026-09-18). The foundation tables and the recipe set
+  // are resolved against the LIVE token contract, so every entry here names a token that must
+  // exist. The radius ramp, the shadow role, the two type ladders and the four `<family>-subtle`
+  // families are gone (BRD-3/BRD-4/BRD-6, TYP-1, COL-12 in shadcn's shape), so the tables and the
+  // recipes are re-expressed on what the system actually ships. The doctrine PROSE around them is
+  // rewritten in Batch 9; this is the machine-checked half.
   foundationTables: {
-    radius: {
-      path: "apps/docs/content/docs/foundations/radius.mdx",
-      tokens: [
-        "radius-xs",
-        "radius-sharp",
-        "radius-sm",
-        "radius-md",
-        "radius-lg",
-        "radius",
-      ],
-    },
-    elevation: {
-      path: "apps/docs/content/docs/foundations/elevation.mdx",
-      tokens: ["shadow-overlay"],
-    },
     charts: {
       path: "apps/docs/content/docs/foundations/colors.mdx",
       tokens: [
@@ -43,87 +34,59 @@ export const designMdConfig = {
         "chart-8",
       ],
     },
-    typography: {
-      path: "apps/docs/content/docs/foundations/typography.mdx",
-      tokens: [
-        "type-product-base",
-        "type-doc-base",
-        "text-label",
-        "text-strong",
-        "text-label-sm",
-        "text-code",
-        "text-code-sm",
-      ],
-    },
   },
   recipes: {
+    // Upstream's own Button, written as tokens. `hover`/`active` are alpha steps of the fill
+    // (`hover:bg-primary/80`), not darker sibling tokens — `primary-hover` and `primary-active`
+    // no longer exist (COL-10 = shadcn).
     "button-primary": {
       background: "{primary}",
       foreground: "{primary-foreground}",
-      hover: "{primary-hover}",
-      active: "{primary-active}",
-      radius: "{radius-md}",
-      height: "{size-md}",
-      paddingInline: "0.75rem",
-      typography: "{text-label}",
-      interactionColorTransition: "immediate",
+      radius: "{radius}",
+      typography: "text-sm/500",
     },
     "button-secondary": {
-      background: "{surface-1}",
+      background: "{secondary}",
       foreground: "{secondary-foreground}",
-      hover: "{surface-2}",
-      active: "{surface-3}",
-      radius: "{radius-md}",
-      height: "{size-md}",
-      paddingInline: "0.75rem",
-      typography: "{text-label}",
-      interactionColorTransition: "immediate",
+      hover: "{accent}",
+      radius: "{radius}",
+      typography: "text-sm/500",
     },
+    // shadcn's destructive Button is SOFT: a 10% wash of the fill under the fill used as ink.
     "button-destructive": {
-      background: "{destructive-subtle}",
-      foreground: "{destructive-text}",
-      hover: "{destructive-subtle-hover}",
-      active: "{destructive-subtle-active}",
-      radius: "{radius-md}",
-      height: "{size-md}",
-      paddingInline: "0.75rem",
-      typography: "{text-label}",
-      interactionColorTransition: "immediate",
+      background: "{destructive}",
+      foreground: "{destructive-foreground}",
+      radius: "{radius}",
+      typography: "text-sm/500",
     },
     input: {
-      background: "{surface-1}",
+      background: "transparent",
       foreground: "{foreground}",
       border: "{input}",
       focusBorder: "{ring}",
-      radius: "{radius-md}",
-      height: "{size-md}",
-      paddingInline: "0.75rem",
-      typography: "{type-product-base}",
+      radius: "{radius}",
+      typography: "text-sm",
     },
     card: {
       background: "{card}",
       foreground: "{card-foreground}",
       border: "{border}",
-      radius: "{radius-lg}",
+      radius: "{radius}",
       shadow: "none",
     },
     overlay: {
       background: "{popover}",
       foreground: "{popover-foreground}",
       border: "{border}",
-      radius: "{radius-lg}",
-      shadow: "{shadow-overlay}",
+      radius: "{radius}",
+      shadow: "shadow-md",
     },
     "menu-item": {
       foreground: "{foreground}",
-      hover: "{surface-2}",
-      active: "{surface-3}",
-      selected: "{surface-3}",
-      radius: "{radius-sm}",
-      height: "{size-md}",
-      paddingInline: "0.5rem",
-      typography: "{type-product-base}",
-      interactionColorTransition: "immediate",
+      hover: "{accent}",
+      selected: "{accent}",
+      radius: "{radius}",
+      typography: "text-sm",
     },
   },
 };

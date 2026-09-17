@@ -38,19 +38,19 @@ export function statusIconSizes(): ReactNode {
 export function statusIconWithLabel(): ReactNode {
   return (
     <Wrapper className="flex-col items-start gap-3">
-      <span className="flex items-center gap-2 text-base text-muted-foreground">
+      <span className="flex items-center gap-2 text-sm text-muted-foreground">
         <StatusIcon status="todo" label="" />
         To do
       </span>
-      <span className="flex items-center gap-2 text-base text-info-text">
+      <span className="flex items-center gap-2 text-sm text-info-text">
         <StatusIcon status="progress" label="" />
         In progress
       </span>
-      <span className="flex items-center gap-2 text-base text-destructive-text">
+      <span className="flex items-center gap-2 text-sm text-destructive-text">
         <StatusIcon status="blocked" label="" />
         Blocked
       </span>
-      <span className="flex items-center gap-2 text-base text-success-text">
+      <span className="flex items-center gap-2 text-sm text-success-text">
         <StatusIcon status="done" label="" />
         Done
       </span>

@@ -51,24 +51,24 @@ export function kbdPlatformLabels(): ReactNode {
           className="grid w-max grid-cols-[auto_auto_auto] items-center gap-x-4 gap-y-4 sm:gap-x-8"
           role="presentation"
         >
-          <span className="text-sm text-muted-foreground">Shortcut</span>
-          <span className="text-sm text-muted-foreground">mac (default)</span>
-          <span className="text-sm text-muted-foreground">other</span>
+          <span className="text-xs text-muted-foreground">Shortcut</span>
+          <span className="text-xs text-muted-foreground">mac (default)</span>
+          <span className="text-xs text-muted-foreground">other</span>
 
-          <span className="text-sm text-muted-foreground">Command palette</span>
+          <span className="text-xs text-muted-foreground">Command palette</span>
           <Kbd os="mac" keys={["⌘", "K"]} />
           <Kbd os="other" keys={["⌘", "K"]} />
 
-          <span className="text-sm text-muted-foreground">Save</span>
+          <span className="text-xs text-muted-foreground">Save</span>
           <Kbd os="mac" keys={["⌘", "⇧", "S"]} />
           <Kbd os="other" keys={["⌘", "⇧", "S"]} />
 
-          <span className="text-sm text-muted-foreground">Delete back</span>
+          <span className="text-xs text-muted-foreground">Delete back</span>
           <Kbd os="mac" keys={["⌃", "⌫"]} />
           <Kbd os="other" keys={["⌃", "⌫"]} />
 
           {/* Single string child is rewritten too — ⌘ becomes "Ctrl" under `other`. */}
-          <span className="text-sm text-muted-foreground">Single key</span>
+          <span className="text-xs text-muted-foreground">Single key</span>
           <Kbd os="mac">⌘</Kbd>
           <Kbd os="other">⌘</Kbd>
         </div>

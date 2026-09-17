@@ -1,4 +1,4 @@
-// @vegastack sheet@0.9.1 sha256-V+yegcfH4CYnmeTHtEqclMWR9V4C6oh7LYXg0j/7XKE=
+// @vegastack sheet@0.9.1 sha256-MHOyh1E5rvkMpRBHkas2+ltb/VSJX6Vb6IQBAk5Ww4Y=
 
 "use client";
 
@@ -65,11 +65,11 @@ export const sheetVariants = cva(
   [
     // No `outline-none`: Base UI focuses the panel on open, so the centralized base.css
     // `:focus-visible` outline stays as the keyboard-focus indicator (WCAG 2.4.7, register P0-02).
-    // `z-(--z-overlay)` is load-bearing, not decoration: the Sheet popup is a portalled overlay
+    // `z-50` is load-bearing, not decoration: the Sheet popup is a portalled overlay
     // and must sit in the overlay band. Base UI's Drawer popup, unlike the Dialog popup this
     // replaced, does NOT carry a z-index of its own, so dropping it let a sheet render beneath
     // other overlay-band content (caught by test/overlay-portal.browser.test.tsx).
-    "relative z-(--z-overlay) flex flex-col gap-4 overflow-y-auto overscroll-contain bg-popover text-base text-popover-foreground shadow-overlay",
+    "relative z-50 flex flex-col gap-4 overflow-y-auto overscroll-contain bg-popover text-sm text-popover-foreground shadow-lg",
     // D11: a modal-family surface moves at `base` (200ms), not the floating tier's 150ms.
     "transition-transform duration-base ease-standard data-[swiping]:duration-0",
   ],
@@ -110,24 +110,24 @@ export const sheetVariants = cva(
         {
           side,
           size: "sm" as const,
-          class: "w-(--panel-width-sm) max-w-[calc(100vw-var(--spacing)*8)]",
+          class: "w-56 max-w-[calc(100vw-var(--spacing)*8)]",
         },
         {
           side,
           size: "md" as const,
-          class: "w-(--panel-width-md) max-w-[calc(100vw-var(--spacing)*8)]",
+          class: "w-72 max-w-[calc(100vw-var(--spacing)*8)]",
         },
         {
           side,
           size: "lg" as const,
-          class: "w-(--panel-width-lg) max-w-[calc(100vw-var(--spacing)*8)]",
+          class: "w-80 max-w-[calc(100vw-var(--spacing)*8)]",
         },
         { side, size: "full" as const, class: "w-full" },
       ]),
       ...(["top", "bottom"] as const).flatMap((side) => [
-        { side, size: "sm" as const, class: "max-h-(--panel-width-sm)" },
-        { side, size: "md" as const, class: "max-h-(--panel-width-md)" },
-        { side, size: "lg" as const, class: "max-h-(--panel-width-lg)" },
+        { side, size: "sm" as const, class: "max-h-56" },
+        { side, size: "md" as const, class: "max-h-72" },
+        { side, size: "lg" as const, class: "max-h-80" },
         { side, size: "full" as const, class: "max-h-full" },
       ]),
     ],
@@ -291,7 +291,7 @@ export function SheetContent({
         data-slot="sheet-backdrop"
         className={cn(
           themeScope,
-          "fixed inset-0 z-(--z-overlay) bg-overlay",
+          "fixed inset-0 z-50 bg-black/10",
           "transition-opacity duration-base ease-standard data-[swiping]:duration-0",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
@@ -300,7 +300,7 @@ export function SheetContent({
         data-slot="sheet-viewport"
         className={cn(
           themeScope,
-          "fixed inset-0 z-(--z-overlay) flex",
+          "fixed inset-0 z-50 flex",
           VIEWPORT_ALIGNMENT[side],
         )}
       >
@@ -400,7 +400,7 @@ export function SheetTitle({ className, ...props }: SheetTitleProps) {
   return (
     <Drawer.Title
       data-slot="sheet-title"
-      className={cn("text-h4 text-foreground", className)}
+      className={cn("text-base font-medium text-foreground", className)}
       {...props}
     />
   );
@@ -423,10 +423,7 @@ export function SheetDescription({
   return (
     <Drawer.Description
       data-slot="sheet-description"
-      className={cn(
-        "text-base leading-relaxed text-muted-foreground",
-        className,
-      )}
+      className={cn("text-sm leading-relaxed text-muted-foreground", className)}
       {...props}
     />
   );

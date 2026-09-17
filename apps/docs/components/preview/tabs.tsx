@@ -207,19 +207,13 @@ export function tabsChip(): ReactNode {
             Files
           </TabsTrigger>
         </TabsList>
-        <TabsContent
-          value="overview"
-          className="text-base text-muted-foreground"
-        >
+        <TabsContent value="overview" className="text-sm text-muted-foreground">
           Record overview panel.
         </TabsContent>
-        <TabsContent
-          value="activity"
-          className="text-base text-muted-foreground"
-        >
+        <TabsContent value="activity" className="text-sm text-muted-foreground">
           Activity timeline panel.
         </TabsContent>
-        <TabsContent value="files" className="text-base text-muted-foreground">
+        <TabsContent value="files" className="text-sm text-muted-foreground">
           Files panel.
         </TabsContent>
       </Tabs>

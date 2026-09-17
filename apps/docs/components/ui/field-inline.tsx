@@ -1,9 +1,9 @@
-// @vegastack field-inline@0.9.1 sha256-e1ttWP4UhwbVGKS70b63f1WfA6iJP0CqBDUSHpIj/tU=
+// @vegastack field-inline@0.9.1 sha256-Ob9RGgX6LMpXL9Ez1Y7g4CJyRe5eyva0i8OkDUsYzoM=
 
 "use client";
 
 import * as React from "react";
-import { cn, mergeRefs, surfaceInteractive } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
 import { useInlineEdit } from "@/components/ui/use-inline-edit";
 
@@ -69,9 +69,9 @@ export interface FieldInlineProps {
   readOnly?: boolean;
   /**
    * Validation error message. When set: the edit-mode {@link Input} receives `aria-invalid` (which
-   * drives its built-in destructive-border styling) plus `aria-describedby` pointing at the error
+   * drives its built-in destructive styling) plus `aria-describedby` pointing at the error
    * text, and the error text itself renders below the control — same treatment as `field.tsx`'s
-   * `FieldError` (`role="status"`, `text-sm text-destructive-text`). Shown in both display and
+   * `FieldError` (`role="status"`, `text-xs text-destructive-text`). Shown in both display and
    * edit mode whenever it's set.
 
    * @default undefined
@@ -217,7 +217,7 @@ export function FieldInline({
       aria-live="polite"
       aria-atomic="true"
       data-slot="field-inline-error"
-      className="mt-1 block text-sm leading-normal text-destructive-text"
+      className="mt-1 block text-xs leading-normal text-destructive-text"
     >
       {error}
     </span>
@@ -279,13 +279,13 @@ export function FieldInline({
         className={cn(
           // Mirror Input's default 32px box, 1px border reservation, and horizontal padding so
           // swapping display text for the focused editor never moves adjacent layout or text.
-          "inline-flex h-(--size-md) max-w-full min-w-0 items-center rounded-md border border-transparent px-3 py-1 text-base",
+          "inline-flex h-8 max-w-full min-w-0 items-center rounded-md border border-transparent px-3 py-1 text-sm",
           borderless && "h-auto rounded-none px-0 py-0",
-          !disabled && !readOnly && cn("cursor-text", surfaceInteractive),
+          !disabled && !readOnly && cn("cursor-text", "hover:bg-accent"),
           // D7: no `pointer-events-none`. A disabled inline field stays hoverable so a Tooltip
           // can explain WHY it cannot be edited; `useInlineEdit` already no-ops `start()` while
           // disabled, so the click handler needs no chrome-level defence.
-          "aria-disabled:opacity-(--opacity-dim)",
+          "aria-disabled:opacity-50",
           className,
         )}
       >

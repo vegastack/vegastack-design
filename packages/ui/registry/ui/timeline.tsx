@@ -1,4 +1,4 @@
-// @vegastack timeline@0.9.1 sha256-765Yodf1rCmCCrBMVmx7uo3zVBabogLdhx0Tz/qbfVU=
+// @vegastack timeline@0.9.1 sha256-OyryMr0PNZJTkZc64c4NEetQ6nZrU2+4HdgKnCX7Kr4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -51,7 +51,7 @@ export interface TimelineProps extends React.ComponentPropsWithRef<"ol"> {
  *         <ItemTitle>Priya closed the deal</ItemTitle>
  *         <ItemDescription>Acme renewal · $12,400</ItemDescription>
  *       </ItemContent>
- *       <ItemContent className="text-sm text-muted-foreground">
+ *       <ItemContent className="text-xs text-muted-foreground">
  *         <RelativeTime date={closedAt} refresh={false} now={now} />
  *       </ItemContent>
  *     </Item>
@@ -125,7 +125,7 @@ export function TimelineItem({
       <span
         aria-hidden
         data-slot="timeline-rail"
-        className="flex w-(--icon-default) shrink-0 flex-col items-center gap-1"
+        className="flex w-4 shrink-0 flex-col items-center gap-1"
       >
         {/* h-5 = the title's leading-snug first-line box: every node shape —
             dot, status icon, avatar — centers on the row's first text line. */}
@@ -174,7 +174,7 @@ export interface TimelineSeparatorProps extends React.ComponentPropsWithRef<"li"
  *
  * @example
  * <TimelineSeparator>
- *   <h3 className="text-label-sm">Today</h3>
+ *   <h3 className="text-xs font-medium">Today</h3>
  * </TimelineSeparator>
  */
 export function TimelineSeparator({

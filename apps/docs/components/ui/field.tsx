@@ -1,4 +1,4 @@
-// @vegastack field@0.9.1 sha256-o/a0uNPd5e/CBX6yxZFZrdFlXJ97BE+7Sp4HFszKwMI=
+// @vegastack field@0.9.1 sha256-vWQbhFg42ZjIIQrjQuoF1942WRF72+fnluUB6UWb72c=
 
 "use client";
 
@@ -116,7 +116,7 @@ export type FieldLabelProps = React.ComponentProps<typeof BaseField.Label>;
 
 /**
  * `FieldLabel` — accessible label, auto-associated with the field control.
- * Renders a `<label>`. Uses the `text-label-sm` token (12/500) in `foreground`,
+ * Renders a `<label>`. Uses the `text-xs font-medium` token (12/500) in `foreground`,
  * non-selectable; dims when the field group is disabled.
  *
  * @example
@@ -128,8 +128,8 @@ export function FieldLabel({ className, ref, ...props }: FieldLabelProps) {
       ref={ref}
       data-slot="field-label"
       className={cn(
-        "flex items-center gap-2 text-label-sm text-foreground select-none",
-        "group-has-disabled/field:opacity-(--opacity-dim)",
+        "flex items-center gap-2 text-xs font-medium text-foreground select-none",
+        "group-has-disabled/field:opacity-50",
         className,
       )}
       {...props}
@@ -182,7 +182,7 @@ export function FieldDescription({
       ref={ref}
       data-slot="field-description"
       className={cn(
-        "text-sm leading-normal text-muted-foreground",
+        "text-xs leading-normal text-muted-foreground",
         "[&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4",
         className,
       )}
@@ -222,7 +222,7 @@ export function FieldError({ className, ref, ...props }: FieldErrorProps) {
       aria-live="polite"
       aria-atomic="true"
       data-slot="field-error"
-      className={cn("text-sm leading-normal text-destructive-text", className)}
+      className={cn("text-xs leading-normal text-destructive-text", className)}
       {...props}
     />
   );
@@ -247,7 +247,7 @@ export function FieldSuccess({ className, ref, ...props }: FieldSuccessProps) {
       aria-live="polite"
       aria-atomic="true"
       data-slot="field-success"
-      className={cn("text-sm leading-normal text-success-text", className)}
+      className={cn("text-xs leading-normal text-success-text", className)}
       {...props}
     />
   );
@@ -291,10 +291,7 @@ export function FieldSet({ className, ...props }: FieldSetProps) {
   return (
     <fieldset
       data-slot="field-set"
-      className={cn(
-        "flex flex-col gap-4 disabled:opacity-(--opacity-dim)",
-        className,
-      )}
+      className={cn("flex flex-col gap-4 disabled:opacity-50", className)}
       {...props}
     />
   );
@@ -313,7 +310,7 @@ export function FieldLegend({ className, ...props }: FieldLegendProps) {
   return (
     <legend
       data-slot="field-legend"
-      className={cn("mb-1.5 text-label text-foreground", className)}
+      className={cn("mb-1.5 text-sm font-medium text-foreground", className)}
       {...props}
     />
   );
@@ -395,21 +392,21 @@ export interface FieldProps extends FieldRootProps {
 
 /** Child-control styling hooks, keyed by the control's own `data-slot`. */
 const CONTROL_SLOTS =
-  "[&_[data-slot=field-control]]:text-base [&_[data-slot=input]]:text-base";
+  "[&_[data-slot=field-control]]:text-sm [&_[data-slot=input]]:text-sm";
 
 /**
  * Borderless overrides — flatten inputs/textareas/select-triggers for inline edit.
  *
  * The transparent border is scoped to `:not(:focus)` (#100, 2026-09-09). `borderless` documents
  * that "the control keeps its focus border tint", and it did not: these descendant selectors and
- * `fieldControl`'s `focus:border-ring/(--alpha-tint-border)` are the same property at the same
+ * the shared field chrome's `focus:border-ring/70` are the same property at the same
  * specificity, and Tailwind v4 emits an arbitrary variant AFTER a plain one, so `border-transparent`
  * won in every state. A text-entry control carries `outline-hidden`, so a borderless field had no
  * focus affordance at all. Standing the override down on focus restores the documented behaviour
  * without giving the flattened control a resting border.
  *
  * It is scoped past the INVALID state for the same reason (2026-09-09). `border-transparent`
- * outranked `fieldControl`'s invalid tint identically, so a borderless field that failed validation
+ * outranked the shared field chrome's invalid tint identically, so a borderless field that failed validation
  * measured a resting `border-color: rgba(0, 0, 0, 0)` — error copy and the shake fired, but the
  * control itself carried no resting cue at all, which is the one state where a flattened field most
  * needs one. Both attribute forms are excluded because the two halves of the recipe are spelled
@@ -513,7 +510,7 @@ export function Field({
               {labelAction != null ? (
                 <span
                   data-slot="field-label-action"
-                  className="text-label-sm text-muted-foreground [&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4"
+                  className="text-xs font-medium text-muted-foreground [&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4"
                 >
                   {labelAction}
                 </span>

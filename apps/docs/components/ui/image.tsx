@@ -1,4 +1,4 @@
-// @vegastack image@0.9.1 sha256-MftLnGKA6HCYlWaY4umODkRIG6BQBkpmvsCFL/I9474=
+// @vegastack image@0.9.1 sha256-f1JuTUTX+xybTw1HlxmEe90EFYdov2oxzouBcwTImOA=
 
 "use client";
 
@@ -186,7 +186,7 @@ export function Image({
           {...(alt
             ? { role: "img", "aria-label": alt }
             : { "aria-hidden": true })}
-          className="absolute inset-0 flex items-center justify-center text-base font-medium text-muted-foreground [&_svg]:size-1/3"
+          className="absolute inset-0 flex items-center justify-center text-sm font-medium text-muted-foreground [&_svg]:size-1/3"
         >
           {fallback}
         </span>

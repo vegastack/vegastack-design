@@ -28,8 +28,8 @@ export function floatingSurface(): ReactNode {
           "static max-w-full",
         )}
       >
-        <p className="text-label text-foreground">Panel surface</p>
-        <p className="text-base text-muted-foreground">
+        <p className="text-sm font-medium text-foreground">Panel surface</p>
+        <p className="text-sm text-muted-foreground">
           The 16px popover tier — Popover and HoverCard.
         </p>
       </div>

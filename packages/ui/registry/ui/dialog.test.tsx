@@ -232,7 +232,7 @@ test("DialogTitleBar renders the window-chrome header row", async () => {
     <Dialog defaultOpen>
       <DialogContent showCloseButton={false} aria-describedby={undefined}>
         <DialogTitleBar>
-          <DialogTitle className="text-sm">Untitled note</DialogTitle>
+          <DialogTitle className="text-xs">Untitled note</DialogTitle>
         </DialogTitleBar>
       </DialogContent>
     </Dialog>,

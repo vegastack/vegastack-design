@@ -87,11 +87,9 @@ test("invalid carries no visual treatment on the control — only aria-invalid",
   await expect.element(sw).toHaveAttribute("aria-invalid", "true");
   const root = sw.element();
   // No destructive track border …
-  expect(
-    root.classList.contains(
-      "aria-invalid:border-destructive-border/(--alpha-tint-border)",
-    ),
-  ).toBe(false);
+  expect(root.classList.contains("aria-invalid:border-destructive/70")).toBe(
+    false,
+  );
   // … and no status-dot pseudo-element either. The Field's error copy is the only invalid cue.
   const hasInvalidDot = Array.from(root.classList).some((c) =>
     c.startsWith("aria-invalid:after:"),

@@ -60,7 +60,7 @@ export function avatarGroupSpacing(): ReactNode {
           <Avatar src={GRACE} alt="Grace Hopper" fallback="GH" />
           <Avatar fallback="+5" />
         </AvatarGroup>
-        <span className="text-sm text-muted-foreground">tight</span>
+        <span className="text-xs text-muted-foreground">tight</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <AvatarGroup spacing="default">
@@ -69,7 +69,7 @@ export function avatarGroupSpacing(): ReactNode {
           <Avatar src={GRACE} alt="Grace Hopper" fallback="GH" />
           <Avatar fallback="+5" />
         </AvatarGroup>
-        <span className="text-sm text-muted-foreground">default</span>
+        <span className="text-xs text-muted-foreground">default</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <AvatarGroup spacing="loose">
@@ -78,7 +78,7 @@ export function avatarGroupSpacing(): ReactNode {
           <Avatar src={GRACE} alt="Grace Hopper" fallback="GH" />
           <Avatar fallback="+5" />
         </AvatarGroup>
-        <span className="text-sm text-muted-foreground">loose</span>
+        <span className="text-xs text-muted-foreground">loose</span>
       </div>
     </Wrapper>
   );
@@ -91,7 +91,7 @@ export function avatarFallback(): ReactNode {
     <Wrapper>
       <div className="flex flex-col items-center gap-2">
         <Avatar fallback="AL" />
-        <span className="text-sm text-muted-foreground">no src</span>
+        <span className="text-xs text-muted-foreground">no src</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Avatar
@@ -99,11 +99,11 @@ export function avatarFallback(): ReactNode {
           alt="Ada Lovelace"
           fallback="AL"
         />
-        <span className="text-sm text-muted-foreground">broken src</span>
+        <span className="text-xs text-muted-foreground">broken src</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Avatar fallback={<UserRound aria-hidden />} />
-        <span className="text-sm text-muted-foreground">icon fallback</span>
+        <span className="text-xs text-muted-foreground">icon fallback</span>
       </div>
     </Wrapper>
   );

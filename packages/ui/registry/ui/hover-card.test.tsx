@@ -101,7 +101,7 @@ test("forwards portal, positioner, and optional viewport props", async () => {
   const positioner = document.querySelector(
     '[data-slot="hover-card-positioner"]',
   )!;
-  expect(positioner.className).toContain("z-(--z-overlay)");
+  expect(positioner.className).toContain("z-50");
   expect(positioner.className).toContain("consumer-positioner");
   expect(document.querySelector(".hover-card-portal-prop")).not.toBeNull();
   expect(

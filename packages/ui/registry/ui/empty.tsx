@@ -1,4 +1,4 @@
-// @vegastack empty@0.9.1 sha256-5t3dzeajxtdosB6RktNM/RUyZBbHH/f1f0D8V6AMYeM=
+// @vegastack empty@0.9.1 sha256-D6rIZyh/652hPQaXRx4mfqwhHUedXQcGQDfkpHJ5W1o=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -48,7 +48,7 @@ export type EmptyVariant = NonNullable<
  * Media variants — `variant` follows the shadcn Empty anatomy (`default` bare /
  * `icon` chip) and `intent` drives the tinted chip color. `default` renders
  * children as-is (an illustration, an avatar); `icon` wraps a `lucide-react`
- * icon in a tinted circular chip at the `--icon-feature` size.
+ * icon in a tinted circular chip at the `size-6` size.
  */
 export const emptyMediaVariants = cva(
   "flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -56,7 +56,7 @@ export const emptyMediaVariants = cva(
     variants: {
       variant: {
         default: "bg-transparent",
-        icon: "rounded-full p-3 [&_svg:not([class*='size-'])]:size-(--icon-feature)",
+        icon: "rounded-full p-3 [&_svg:not([class*='size-'])]:size-6",
       },
       intent: {
         default: "",
@@ -73,12 +73,12 @@ export const emptyMediaVariants = cva(
       {
         variant: "icon",
         intent: "info",
-        class: "bg-info-subtle text-info-text",
+        class: "bg-info/10 text-info-text",
       },
       {
         variant: "icon",
         intent: "destructive",
-        class: "bg-destructive-subtle text-destructive-text",
+        class: "bg-destructive/10 text-destructive-text",
       },
     ],
     defaultVariants: { variant: "icon", intent: "default" },
@@ -251,7 +251,7 @@ function EmptyTitle({ className, as: Tag = "h3", ...props }: EmptyTitleProps) {
   return (
     <Tag
       data-slot="empty-title"
-      className={cn("text-base font-medium text-foreground", className)}
+      className={cn("text-sm font-medium text-foreground", className)}
       {...props}
     />
   );
@@ -270,7 +270,7 @@ function EmptyDescription({ className, ...props }: EmptyDescriptionProps) {
     <p
       data-slot="empty-description"
       className={cn(
-        "max-w-sm text-sm leading-normal text-muted-foreground",
+        "max-w-sm text-xs leading-normal text-muted-foreground",
         className,
       )}
       {...props}
@@ -326,11 +326,7 @@ export interface EmptyIllustrationProps extends React.ComponentPropsWithRef<"svg
 /** Faint grid-paper ground shared by every drawing (opacity via the track token). */
 function IllustrationGround() {
   return (
-    <g
-      className="opacity-(--opacity-track)"
-      stroke="currentColor"
-      strokeWidth="1"
-    >
+    <g className="opacity-25" stroke="currentColor" strokeWidth="1">
       <line x1="24" y1="8" x2="24" y2="88" />
       <line x1="72" y1="8" x2="72" y2="88" />
       <line x1="8" y1="24" x2="88" y2="24" />
@@ -440,7 +436,7 @@ function EmptyValue({ className, children, ...props }: EmptyValueProps) {
   return (
     <span
       data-slot="empty-value"
-      className={cn("text-base text-muted-foreground", className)}
+      className={cn("text-sm text-muted-foreground", className)}
       {...props}
     >
       {children ?? "No value"}

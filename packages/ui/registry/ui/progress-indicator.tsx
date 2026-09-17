@@ -1,4 +1,4 @@
-// @vegastack progress-indicator@0.9.1 sha256-wZlH2kLEMT2xpehh5reysqH1nnpk1RgtikUkZEc2b30=
+// @vegastack progress-indicator@0.9.1 sha256-azt7Vr0/wxFpA3t+guDX4lDo5XfWibdGtgt0dWhfAB4=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -231,16 +231,16 @@ export function ProgressIndicator({
     lg: "size-6",
   }[size ?? "md"];
   const valueLabelClassName = {
-    xs: "text-sm",
-    sm: "text-base",
-    md: "text-xl",
-    lg: "text-2xl",
+    xs: "text-xs",
+    sm: "text-sm",
+    md: "text-lg",
+    lg: "text-xl",
   }[size ?? "md"];
   const containedValueLabelClassName = {
-    xs: "text-sm",
-    sm: "text-sm",
-    md: "text-base",
-    lg: "text-xl",
+    xs: "text-xs",
+    sm: "text-xs",
+    md: "text-sm",
+    lg: "text-lg",
   }[size ?? "md"];
   const rootClassName = progressIndicatorVariants({
     size,
@@ -290,7 +290,7 @@ export function ProgressIndicator({
               // `segmentsFill` keeps the per-size HEIGHT and drops the fixed width so the row of
               // bars shares the container's inline size evenly.
               segmentsFill && "w-auto min-w-0 flex-1",
-              i < filled ? undefined : "opacity-(--opacity-track)",
+              i < filled ? undefined : "opacity-25",
             )}
           />
         ))}
@@ -343,7 +343,7 @@ export function ProgressIndicator({
             r={center - outlineInset}
             stroke="currentColor"
             strokeWidth={2}
-            className="opacity-(--opacity-track)"
+            className="opacity-25"
           />
         ) : (
           <rect
@@ -355,7 +355,7 @@ export function ProgressIndicator({
             ry={squircleRadius}
             stroke="currentColor"
             strokeWidth={2}
-            className="opacity-(--opacity-track)"
+            className="opacity-25"
           />
         )}
 

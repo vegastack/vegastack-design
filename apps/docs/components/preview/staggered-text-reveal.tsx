@@ -9,7 +9,7 @@ export function staggeredTextReveal(): ReactNode {
   return (
     <Wrapper className="p-0">
       <MarketingSurface className="w-full rounded-lg p-8">
-        <h1 className="text-display-md text-foreground">
+        <h1 className="text-5xl text-foreground">
           <StaggeredTextReveal text="Ship agentic UI, fast." />
         </h1>
       </MarketingSurface>
@@ -21,7 +21,7 @@ export function staggeredTextRevealStep(): ReactNode {
   return (
     <Wrapper className="p-0">
       <MarketingSurface className="w-full rounded-lg p-8">
-        <h1 className="text-display-md text-foreground">
+        <h1 className="text-5xl text-foreground">
           <StaggeredTextReveal
             text="Slower per-word stagger"
             stepMultiplier={2}

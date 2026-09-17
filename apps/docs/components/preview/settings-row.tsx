@@ -143,7 +143,7 @@ export function settingsRowControlTypes(): ReactNode {
         </SettingsRow>
         {/* Read-only value */}
         <SettingsRow label="Workspace ID" description="Used in API requests.">
-          <span className="font-mono text-base text-muted-foreground">
+          <span className="font-mono text-sm text-muted-foreground">
             ws_8f3a1c
           </span>
         </SettingsRow>

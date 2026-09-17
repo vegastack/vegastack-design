@@ -3,11 +3,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { describe, expect, test } from "vitest";
-import {
-  cn,
-  fillInteractive,
-  surfaceInteractiveGroup,
-} from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { Button, type ButtonTone } from "../registry/ui/button";
 import { IconButton } from "../registry/ui/icon-button";
 
@@ -238,20 +234,20 @@ test("IconButton is a true square at every size, and shape=round is round", asyn
  *
  * `contrast.css` and `geometry.css` both declared
  * an `@source` glob pointing at `packages/design/src/index.ts`, commented as the one that compiles
- * the surfaceInteractive / fillInteractive recipe literals,
+ * the "hover:bg-accent" / the family's own hover wash recipe literals,
  * and an adversarial review (2026-09-09) deleted it from BOTH and got 590/590 green: the glob was a
  * comment, not a gate. Two things made it inert.
  *
  *   1. Tailwind v4 AUTO-DETECTS sources under the Vite root, which here is `packages/ui`. Every
- *      `hover:bg-surface-2` / `active:bg-surface-3` written literally in a component or a `.test.tsx`
+ *      `hover:bg-accent` / `active:bg-accent` written literally in a component or a `.test.tsx`
  *      (there are many — `item.tsx`, `tabs.tsx`, `data-list.tsx`, several `toContain` assertions)
  *      compiles those two utilities whether or not the recipe file is ever scanned.
  *   2. The one place that DID assert "the recipe classes compile"
- *      (`surface-ladder.browser.test.tsx`) writes the same two literals into its own source three
+ *      (`contrast.browser.test.tsx`) writes the same two literals into its own source three
  *      lines above, so it was measuring its own file.
  *
  * The classes that exist ONLY in `packages/design/src/index.ts` are the ones asserted below:
- * `surfaceInteractiveGroup`'s two group-scoped wash rungs and every CHROMATIC `fillInteractive` tone
+ * `"group-hover/wash:bg-accent"`'s two group-scoped wash rungs and every CHROMATIC the family's own hover wash tone
  * (primary, destructive, success, warning, info — `foreground` and `brand` are also written
  * literally elsewhere in this package, so they prove nothing on their own). Delete the glob and
  * these rules are absent from the compiled sheet; change a rung in the recipe and the value
@@ -309,79 +305,35 @@ function selectorFor(className: string) {
   );
 }
 
-/**
- * The custom properties a `bg-*` recipe class must resolve through, derived from the class STRING
- * rather than restated — writing `--color-primary`'s utility here would put the candidate back in
- * this file's source and re-create the exact self-measurement this block exists to avoid.
- */
-function expectedVariables(className: string) {
-  const match =
-    /:bg-([a-z0-9-]+)(?:\/\((--[a-z-]+)\))?$/.exec(className) ?? undefined;
-  expect(
-    match,
-    `${className} is not a recognisable bg-* recipe class`,
-  ).toBeTruthy();
-  // Tailwind emits the RAW token variable (`var(--surface-2)`), not the `--color-*` theme alias.
-  return [`--${match![1]}`, ...(match![2] ? [match![2]] : [])];
-}
+describe("a chromatic hover wash is compiled and painted", () => {
+  // Rewritten by the shadcn reset (Batch 1). It used to assert that every class string in
+  // `@vegastack/design`'s the family's own hover wash record compiled with the right ladder variable. That
+  // record is deleted — COL-6 is decided as **shadcn**, so a component owns its own hover chrome —
+  // and the claim that survives it is the one that catches a real defect: a wash that COMPILES but
+  // never paints, which is what a missing `@source` glob or a dropped token produces.
+  const WASH = "hover:bg-success/10 active:bg-success/20";
 
-describe("the hover/pressed recipes compile from @vegastack/design", () => {
-  // The chromatic tones only. `foreground` and `brand` are ALSO written as literals elsewhere under
-  // the Vite root, so they would compile with the glob deleted and prove nothing.
-  const CHROMATIC = [
-    "primary",
-    "destructive",
-    "success",
-    "warning",
-    "info",
-  ] as const;
-
-  test("every recipe class the design package owns has a compiled rule with its token", async () => {
-    // Mount them, so the assertion is over classes something in this page actually wears rather
-    // than over a stylesheet nobody uses.
+  test("the wash classes have compiled rules that resolve through their token", async () => {
     await render(
-      <div>
-        <div className={cn("size-8", surfaceInteractiveGroup)} />
-        {CHROMATIC.map((tone) => (
-          <button
-            key={tone}
-            type="button"
-            aria-label={tone}
-            className={cn("size-8", fillInteractive[tone])}
-          />
-        ))}
-      </div>,
+      <button
+        type="button"
+        aria-label="Approve"
+        className={cn("size-8", WASH)}
+      />,
     );
-
     const rules = compiledRules();
-    const classes = [
-      ...surfaceInteractiveGroup.split(" "),
-      ...CHROMATIC.flatMap((tone) => fillInteractive[tone].split(" ")),
-    ];
-    expect(classes.length, "the recipes resolved to nothing").toBeGreaterThan(
-      10,
-    );
-
-    for (const className of classes) {
+    for (const className of WASH.split(" ")) {
       const selector = selectorFor(className);
       const rule = rules.find((text) => selector.test(text));
-      expect(
-        rule,
-        `\`${className}\` has NO compiled rule. It exists only in packages/design/src/index.ts, so ` +
-          `the \`@source '../../design/src/index.ts'\` glob in test/contrast.css is what makes it ` +
-          `compile — a missing glob drops the rule silently and every hover/pressed assertion over ` +
-          `it passes against nothing.`,
-      ).toBeTruthy();
+      expect(rule, `\`${className}\` has NO compiled rule`).toBeTruthy();
       expect(
         rule,
         `${className} compiled without a background-color`,
       ).toContain("background-color");
-      for (const variable of expectedVariables(className)) {
-        expect(
-          rule,
-          `${className} compiled without ${variable} — the rung it paints moved`,
-        ).toContain(variable);
-      }
+      // Tailwind emits the RAW token variable (`var(--success)`), not the `--color-*` alias.
+      expect(rule, `${className} does not resolve through --success`).toContain(
+        "--success",
+      );
     }
   });
 
@@ -394,7 +346,7 @@ describe("the hover/pressed recipes compile from @vegastack/design", () => {
           type="button"
           data-testid="washed"
           aria-label="Approve"
-          className={cn("size-8", fillInteractive.success)}
+          className={cn("size-8", WASH)}
         />
       </div>,
     );
@@ -409,7 +361,7 @@ describe("the hover/pressed recipes compile from @vegastack/design", () => {
 
     expect(
       hovered,
-      "the fillInteractive hover rung painted nothing — the recipe compiled but does not apply",
+      "the hover wash painted nothing — it compiled but does not apply",
     ).not.toBe(rest);
   });
 });

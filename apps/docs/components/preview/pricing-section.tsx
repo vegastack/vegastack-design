@@ -69,7 +69,7 @@ export function pricingSection(): ReactNode {
 /**
  * The billing-cycle toggle above the grid — the composition the docs page recommends but had
  * no preview for. `Segmented` owns the cycle; `PricingSection` is presentational, so the price
- * and note are just derived state at the call site. The promoted plan keeps its `surface-3`
+ * and note are just derived state at the call site. The promoted plan keeps its `accent`
  * rung and alpha-`primary` hairline through the switch.
  */
 export function pricingSectionBillingCycle(): ReactNode {

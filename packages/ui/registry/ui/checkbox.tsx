@@ -1,4 +1,4 @@
-// @vegastack checkbox@0.9.1 sha256-A6k4NJ4Z396UIrj4efZKMZCfKG+8Ycx9NgYTSn3mW8Q=
+// @vegastack checkbox@0.9.1 sha256-DlHB8+gQYvKlEHXGCt+Q3DirFJ8Ouh4RL3Xpk7obHxw=
 
 "use client";
 
@@ -24,25 +24,25 @@ import { cn } from "@vegastack/design";
 export const checkboxVariants = cva(
   [
     "peer relative inline-flex shrink-0 items-center justify-center rounded-sm border border-input bg-transparent text-current",
-    "dark:bg-input/(--alpha-input)",
-    // Hover is the SAME neutral border rung every field wears (`fieldControl`'s
-    // `--alpha-border-subtle`), not the `ring` tint — `ring` is reserved for focus, and a
+    "dark:bg-input/30",
+    // Hover is the SAME neutral border rung every field wears (the shared field chrome's
+    // `20%`), not the `ring` tint — `ring` is reserved for focus, and a
     // checkbox sitting beside an Input must not hover in a different language (audit SP-04).
-    "not-disabled:hover:border-foreground/(--alpha-border-subtle)",
+    "not-disabled:hover:border-foreground/20",
     "data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground",
     "data-indeterminate:border-primary data-indeterminate:bg-primary data-indeterminate:text-primary-foreground",
     // …and once it is FILLED the neutral tint has nothing to tint, so the checked box steps
     // through the solid's own darker rungs instead — the doctrine's "a solid fill does not use
     // the alpha twins" rule. F1 left this half undone; a ticked checkbox read dead under the
     // cursor while an unticked one moved.
-    "not-disabled:data-checked:hover:border-primary-hover not-disabled:data-checked:hover:bg-primary-hover",
-    "not-disabled:data-checked:active:border-primary-active not-disabled:data-checked:active:bg-primary-active",
-    "not-disabled:data-indeterminate:hover:border-primary-hover not-disabled:data-indeterminate:hover:bg-primary-hover",
-    "aria-invalid:border-destructive-border/(--alpha-tint-border) data-invalid:border-destructive-border/(--alpha-tint-border)",
+    "not-disabled:data-checked:hover:border-primary/90 not-disabled:data-checked:hover:bg-primary/90",
+    "not-disabled:data-checked:active:border-primary/80 not-disabled:data-checked:active:bg-primary/80",
+    "not-disabled:data-indeterminate:hover:border-primary/90 not-disabled:data-indeterminate:hover:bg-primary/90",
+    "aria-invalid:border-destructive/70 data-invalid:border-destructive/70",
     // D7: no `pointer-events-none`. A disabled control must stay hoverable so a Tooltip can
     // say why it is unavailable; Base UI suppresses the activation either way.
-    "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
-    "group-has-disabled/field:opacity-(--opacity-dim)",
+    "disabled:cursor-not-allowed disabled:opacity-50",
+    "group-has-disabled/field:opacity-50",
   ].join(" "),
   {
     variants: {
@@ -148,9 +148,7 @@ export function Checkbox({
         data-slot="checkbox-indicator"
         className={cn(
           "flex items-center justify-center text-current [&_svg]:shrink-0",
-          size === "sm"
-            ? "[&_svg]:size-(--icon-compact)"
-            : "[&_svg]:size-(--icon-inline)",
+          size === "sm" ? "[&_svg]:size-3" : "[&_svg]:size-3.5",
         )}
       >
         {props.indeterminate ? (

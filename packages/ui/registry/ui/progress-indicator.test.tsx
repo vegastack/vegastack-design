@@ -209,8 +209,6 @@ test("segments mode renders the dash row with the filled count from value/max", 
     "span[aria-hidden]",
   );
   expect(bars.length).toBe(6);
-  const filled = [...bars].filter(
-    (b) => !b.className.includes("opacity-(--opacity-track)"),
-  );
+  const filled = [...bars].filter((b) => !b.className.includes("opacity-25"));
   expect(filled.length).toBe(2);
 });

@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
-import { selectedChipVariants } from "@vegastack/design";
+
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 
@@ -262,14 +262,18 @@ test("pill and chip tabs wear the SHARED selected-chip recipe; line does not (B6
     const tabLocator = screen.getByRole("tab", { name: `Overview ${variant}` });
     await expect.element(tabLocator).toBeInTheDocument();
     const tab = tabLocator.element();
-    for (const rule of selectedChipVariants.active.split(" ")) {
+    for (const rule of "data-[active]:border-input data-[active]:bg-background data-[active]:text-foreground data-[active]:shadow-sm dark:data-[active]:bg-input/30".split(
+      " ",
+    )) {
       expect(tab.className).toContain(rule);
     }
     const list = tab.closest('[data-slot="tabs-list"]') as HTMLElement;
+    // The track's drawn `after:` hairline went with the surface ladder (COL-9 = shadcn): upstream's
+    // tab list is a plain `bg-muted` well, and `chip` is the variant that has no track at all.
     if (variant === "pill") {
-      expect(list.className).toContain("after:border-border");
+      expect(list.className).toContain("bg-muted");
     } else {
-      expect(list.className).not.toContain("after:border-border");
+      expect(list.className).not.toContain("bg-muted");
     }
   }
   // `line` has no chip at all — its active state is the moving underline, so taking the chip fill

@@ -34,7 +34,7 @@ export function searchableSelect(): ReactNode {
   const [value, setValue] = React.useState<Repo | null>(REPOS[0]!);
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-md)">
+      <div className="w-full max-w-72">
         <SearchableSelect<Repo>
           items={REPOS}
           value={value}
@@ -58,7 +58,7 @@ export function searchableSelectEmpty(): ReactNode {
   const [value, setValue] = React.useState<Repo | null>(null);
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-md)">
+      <div className="w-full max-w-72">
         <SearchableSelect<Repo>
           items={REPOS}
           value={value}
@@ -84,7 +84,7 @@ export function searchableSelectClearable(): ReactNode {
   const [value, setValue] = React.useState<Repo | null>(REPOS[1]!);
   return (
     <Wrapper>
-      <div className="flex w-full max-w-(--panel-width-md) flex-col gap-2">
+      <div className="flex w-full max-w-72 flex-col gap-2">
         <SearchableSelect<Repo>
           items={REPOS}
           value={value}
@@ -98,7 +98,7 @@ export function searchableSelectClearable(): ReactNode {
           clearable
           clearLabel="Clear repository"
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           value:{" "}
           <code className="font-mono text-foreground">
             {value ? `"${value.name}"` : "null (cleared)"}
@@ -117,7 +117,7 @@ export function searchableSelectRich(): ReactNode {
   const [value, setValue] = React.useState<Repo | null>(REPOS[2]!);
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-md)">
+      <div className="w-full max-w-72">
         <SearchableSelect<Repo>
           items={REPOS}
           value={value}
@@ -128,7 +128,7 @@ export function searchableSelectRich(): ReactNode {
           renderItem={(repo) => (
             <span className="flex min-w-0 flex-col">
               <span className="truncate">{repo.name}</span>
-              <span className="truncate text-label-sm text-muted-foreground">
+              <span className="truncate text-xs font-medium text-muted-foreground">
                 {repo.owner}
               </span>
             </span>
@@ -137,7 +137,7 @@ export function searchableSelectRich(): ReactNode {
             <>
               <GitBranch
                 aria-hidden
-                className="size-(--icon-default) shrink-0 text-muted-foreground"
+                className="size-4 shrink-0 text-muted-foreground"
               />
               <span className="truncate">{repo.name}</span>
             </>
@@ -154,7 +154,7 @@ export function searchableSelectRich(): ReactNode {
 export function searchableSelectDisabled(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-md)">
+      <div className="w-full max-w-72">
         <SearchableSelect<Repo>
           items={REPOS}
           value={REPOS[0]}

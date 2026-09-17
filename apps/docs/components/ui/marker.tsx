@@ -1,4 +1,4 @@
-// @vegastack marker@0.9.1 sha256-KHGej5THoOBsUq3ozQ7ZbZusZp1u52Wk34vZJgYmjRM=
+// @vegastack marker@0.9.1 sha256-54qoHdgBgvOKpz82YnXU/OQmjmd3TtWIVrZe9Ler2Yw=
 
 "use client";
 
@@ -16,7 +16,7 @@ import { cn } from "@vegastack/design";
  * ----------------------------------------------------------------------------------------------*/
 
 export const markerVariants = cva(
-  "group/marker relative flex min-h-4 w-full items-center gap-2 text-left text-base text-muted-foreground [&_svg:not([class*='size-'])]:size-(--icon-default) [a]:underline [a]:underline-offset-3 [a]:hover:text-foreground",
+  "group/marker relative flex min-h-4 w-full items-center gap-2 text-left text-sm text-muted-foreground [&_svg:not([class*='size-'])]:size-4 [a]:underline [a]:underline-offset-3 [a]:hover:text-foreground",
   {
     variants: {
       variant: {
@@ -24,7 +24,7 @@ export const markerVariants = cva(
          * A plain inline marker for status, notes, and actions.
          *
          * A marker rendered as a link or a button IS the control, and one line of
-         * `text-base` is a 21px box — under the 24px pointer-target floor (WCAG 2.2
+         * `text-sm` is a 21px box — under the 24px pointer-target floor (WCAG 2.2
          * §2.5.8). `:is(a, button)` adds an invisible `::before` hit area to exactly
          * those cases, so the row measures 29px to the pointer and not one pixel
          * differently to the eye. It is scoped to this variant (and `border`) rather
@@ -143,7 +143,7 @@ export function MarkerIcon({ className, ref, ...props }: MarkerIconProps) {
       data-slot="marker-icon"
       aria-hidden="true"
       className={cn(
-        "size-(--icon-default) shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+        "size-4 shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}

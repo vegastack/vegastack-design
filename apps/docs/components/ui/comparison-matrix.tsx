@@ -1,4 +1,4 @@
-// @vegastack comparison-matrix@0.9.1 sha256-V8Tmw7A8KlRf3adC7LYfaeh/PXPk9AGREWtPxesyv2s=
+// @vegastack comparison-matrix@0.9.1 sha256-KyfS5EfNMa29KBO9Cny8AUXpP0gc7f1w8fBVrgiYz5w=
 
 "use client";
 
@@ -91,7 +91,7 @@ export function ComparisonMatrix({
       <table
         ref={ref}
         data-slot="comparison-matrix"
-        className={cn("w-full min-w-max caption-bottom text-base", className)}
+        className={cn("w-full min-w-max caption-bottom text-sm", className)}
         {...props}
       >
         <thead>
@@ -103,8 +103,8 @@ export function ComparisonMatrix({
                 scope="col"
                 data-highlighted={i === highlightedIndex ? "" : undefined}
                 className={cn(
-                  "px-3 py-3 text-start align-top text-label whitespace-nowrap",
-                  i === highlightedIndex && "bg-surface-2",
+                  "px-3 py-3 text-start align-top text-sm font-medium whitespace-nowrap",
+                  i === highlightedIndex && "bg-accent",
                 )}
               >
                 <span className="flex flex-col items-start gap-2">
@@ -147,7 +147,7 @@ export function ComparisonGroup({
         // assistive tech the heading spans columns that do not exist.
         colSpan={planCount + 1}
         scope="colgroup"
-        className="px-3 pt-6 pb-2 text-start text-lg font-medium"
+        className="px-3 pt-6 pb-2 text-start text-base font-medium"
       >
         {children}
       </th>
@@ -199,12 +199,12 @@ export function ComparisonRow({
   return (
     <tr
       data-slot="comparison-row"
-      className={cn("h-(--size-lg) border-b border-border", className)}
+      className={cn("h-10 border-b border-border", className)}
       {...props}
     >
       <th
         scope="row"
-        className="sticky start-0 z-(--z-raised) min-w-40 bg-background px-3 text-start text-sm font-medium text-muted-foreground whitespace-nowrap"
+        className="sticky start-0 z-10 min-w-40 bg-background px-3 text-start text-xs font-medium text-muted-foreground whitespace-nowrap"
       >
         {feature}
       </th>
@@ -213,23 +213,17 @@ export function ComparisonRow({
           key={i}
           className={cn(
             "px-3 whitespace-nowrap",
-            i === highlightedIndex && "bg-surface-2",
+            i === highlightedIndex && "bg-accent",
           )}
         >
           {value === true ? (
             <>
-              <Check
-                aria-hidden
-                className="size-(--icon-inline) text-success-text"
-              />
+              <Check aria-hidden className="size-3.5 text-success-text" />
               <span className="sr-only">{includedLabel}</span>
             </>
           ) : value === false ? (
             <>
-              <Minus
-                aria-hidden
-                className="size-(--icon-inline) text-muted-foreground-faint"
-              />
+              <Minus aria-hidden className="size-3.5 text-muted-foreground" />
               <span className="sr-only">{notIncludedLabel}</span>
             </>
           ) : value === UNKNOWN_AVAILABILITY ? (
@@ -237,13 +231,13 @@ export function ComparisonRow({
             // the row, and say the value is unknown instead of asserting "not included" — the
             // author simply did not supply it.
             <>
-              <span aria-hidden className="text-sm text-muted-foreground-faint">
+              <span aria-hidden className="text-xs text-muted-foreground">
                 —
               </span>
               <span className="sr-only">{unknownLabel}</span>
             </>
           ) : (
-            <span className="text-sm">{value}</span>
+            <span className="text-xs">{value}</span>
           )}
         </td>
       ))}

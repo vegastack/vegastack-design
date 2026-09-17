@@ -107,7 +107,7 @@ function ControlledSlider(): ReactNode {
   return (
     <Wrapper>
       <div className="flex w-64 flex-col gap-2">
-        <span className="font-mono text-base text-muted-foreground">
+        <span className="font-mono text-sm text-muted-foreground">
           {display}
         </span>
         <Slider

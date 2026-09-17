@@ -43,7 +43,7 @@ const separatorPlaygroundConfig: PlaygroundConfig<SeparatorPlaygroundKey> = {
     // the horizontal one divides two stacked text blocks.
     if (state.orientation === "vertical") {
       return (
-        <div className="flex h-(--size-md) items-center gap-3">
+        <div className="flex h-(h-8) items-center gap-3">
           <span>Docs</span>
           {separator}
           <span>API</span>

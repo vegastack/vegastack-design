@@ -1,4 +1,4 @@
-// @vegastack breadcrumb@0.9.1 sha256-tKp+EKVOCwG88ELIP/zB09TMmpCtOML/9NzuFZ8euSQ=
+// @vegastack breadcrumb@0.9.1 sha256-9XUgXNz2oaXzEeYm6JA1FItlgp0n0i4gFW7YinKeEO0=
 
 "use client";
 
@@ -64,7 +64,7 @@ function BreadcrumbList({ className, ...props }: BreadcrumbListProps) {
     <ol
       data-slot="breadcrumb-list"
       className={cn(
-        "flex flex-wrap items-center gap-1.5 text-base break-words text-muted-foreground",
+        "flex flex-wrap items-center gap-1.5 text-sm break-words text-muted-foreground",
         className,
       )}
       {...props}
@@ -123,7 +123,7 @@ function BreadcrumbLink({
     props: {
       "data-slot": "breadcrumb-link",
       className: cn(
-        "inline-flex min-h-(--size-xs) min-w-(--size-xs) items-center justify-center rounded-sm hover:text-foreground",
+        "inline-flex min-h-6 min-w-6 items-center justify-center rounded-sm hover:text-foreground",
         className,
       ),
       ...props,
@@ -179,10 +179,7 @@ function BreadcrumbSeparator({
       data-slot="breadcrumb-separator"
       role="presentation"
       aria-hidden="true"
-      className={cn(
-        "[&>svg]:size-(--icon-inline) text-muted-foreground-faint",
-        className,
-      )}
+      className={cn("[&>svg]:size-3.5 text-muted-foreground", className)}
       {...props}
     >
       {children ?? <ChevronRight />}
@@ -214,7 +211,7 @@ function BreadcrumbEllipsis({ className, ...props }: BreadcrumbEllipsisProps) {
       role="presentation"
       aria-hidden="true"
       className={cn(
-        "flex size-5 items-center justify-center [&>svg]:size-(--icon-default)",
+        "flex size-5 items-center justify-center [&>svg]:size-4",
         className,
       )}
       {...props}

@@ -1,4 +1,4 @@
-// @vegastack message@0.9.1 sha256-HSishsoELzWUkpQVD4lyJ+bWXy98SZ/c+nf9VWv/Ilk=
+// @vegastack message@0.9.1 sha256-fnKj1HndLyhDYNaYbAKVLw7MiVNkOgW8ODLHBOHzWF8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -79,7 +79,7 @@ export function Message({
       data-slot="message"
       data-align={align}
       className={cn(
-        "group/message relative flex w-full min-w-0 gap-2 text-base data-[align=end]:flex-row-reverse",
+        "group/message relative flex w-full min-w-0 gap-2 text-sm data-[align=end]:flex-row-reverse",
         animateIn && "motion-enter-up",
         className,
       )}
@@ -106,7 +106,7 @@ export function MessageAvatar({
       ref={ref}
       data-slot="message-avatar"
       className={cn(
-        "flex w-fit min-w-(--size-md) shrink-0 items-center justify-center self-end overflow-hidden rounded-full bg-muted group-has-data-[slot=message-footer]/message:-translate-y-8",
+        "flex w-fit min-w-8 shrink-0 items-center justify-center self-end overflow-hidden rounded-full bg-muted group-has-data-[slot=message-footer]/message:-translate-y-8",
         className,
       )}
       {...props}
@@ -158,7 +158,7 @@ export function MessageHeader({
       ref={ref}
       data-slot="message-header"
       className={cn(
-        "flex max-w-full min-w-0 items-center px-3 text-sm font-medium text-muted-foreground group-has-data-[variant=ghost]/message:px-0",
+        "flex max-w-full min-w-0 items-center px-3 text-xs font-medium text-muted-foreground group-has-data-[variant=ghost]/message:px-0",
         className,
       )}
       {...props}
@@ -184,7 +184,7 @@ export function MessageFooter({
       ref={ref}
       data-slot="message-footer"
       className={cn(
-        "flex max-w-full min-w-0 items-center px-3 text-sm font-medium text-muted-foreground group-has-data-[variant=ghost]/message:px-0 group-data-[align=end]/message:justify-end",
+        "flex max-w-full min-w-0 items-center px-3 text-xs font-medium text-muted-foreground group-has-data-[variant=ghost]/message:px-0 group-data-[align=end]/message:justify-end",
         className,
       )}
       {...props}

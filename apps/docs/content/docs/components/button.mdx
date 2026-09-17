@@ -70,7 +70,7 @@ TypeScript error.
 
 `cta` is the ONE sanctioned use of the `--brand` phosphor accent as a button (audit
 17-brand-direction §Color & surface) — an accent-outline treatment, sharp corners
-(`rounded-(--radius-sharp)`), and a mono-uppercase label (the brand voice layer). Reserve it for
+(`rounded-(rounded-[2px])`), and a mono-uppercase label (the brand voice layer). Reserve it for
 marketing surfaces, typically inside a [`MarketingSurface`](/docs/components/marketing-surface).
 Compose a trailing icon (e.g. `lucide-react`'s `ChevronRight`) as a **child** — the variant is
 style-only and never bakes one in. `cta` is brand-locked and takes no `tone`.
@@ -115,7 +115,7 @@ Pick a `variant`, a `tone`, and a `size`, flip `disabled` / `loading`, then copy
 ## Accessibility
 
 - Renders a native `<button type="button">` by default; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
-- On `:focus-visible` every variant keeps the design system's global 2px focus ring (`outline-ring`) — `Button` sets no `outline: none` of its own, so the single global focus rule applies. The `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`).
+- On `:focus-visible` every variant keeps the design system's global 2px focus ring (`outline-ring`) — `Button` sets no `outline: none` of its own, so the single global focus rule applies. The `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(70%)`).
 - `loading` sets `aria-busy="true"`, prevents interaction, and remains focusable through Base UI `focusableWhenDisabled`.
 - `disabled` renders `aria-disabled` rather than the native attribute, so the control keeps its pointer events and stays focusable — wrap it in a `Tooltip` to say why it is unavailable. Base UI still suppresses activation.
 - `render` is for action elements. Do not render links through `Button`; style anchors with `buttonVariants({ variant, tone, size })` when navigation should look like a button.

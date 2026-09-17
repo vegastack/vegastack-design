@@ -1,4 +1,4 @@
-// @vegastack hover-card@0.9.1 sha256-i2wAwbcUhEow55oStvatBSjzGYBzP6Y02vA44YiKcFI=
+// @vegastack hover-card@0.9.1 sha256-UBh2BmBNfYQhvDjkiHwMa0VzrTaIRt7Zs9HhNvBv2ko=
 
 "use client";
 
@@ -186,11 +186,11 @@ export interface HoverCardContentProps extends React.ComponentProps<
  * `HoverCardContent` — the floating preview panel. Bundles Base UI PreviewCard's `Portal` +
  * `Positioner` + `Popup` so consumers render a single part, while exposing pass-through props for
  * advanced portal, positioner, and viewport configuration. Themed with `bg-popover` /
- * `text-popover-foreground`, a bordered `rounded-lg` `w-(--panel-width-md)` surface with the 16px popover padding (D14), and
+ * `text-popover-foreground`, a bordered `rounded-lg` `w-72` surface with the 16px popover padding (D14), and
  * animated in/out via `data-[starting-style]` / `data-[ending-style]`.
  *
  * Place arbitrary, app-resolved content inside — an avatar + name + stats row, a team summary, an
- * agent card. Override `className` (e.g. `w-(--panel-width-lg)`) when the preview needs more room.
+ * agent card. Override `className` (e.g. `w-80`) when the preview needs more room.
 
  *
  * @example

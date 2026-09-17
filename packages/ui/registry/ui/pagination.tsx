@@ -1,4 +1,4 @@
-// @vegastack pagination@0.9.1 sha256-bVyP1kX5L1QCklUWUs+pa2rKgmYyWKXdin8vjUp8lGE=
+// @vegastack pagination@0.9.1 sha256-0Pce2op/KLfOQ3rJuD1wSrbBGU3pyPGRiYFypcz37uc=
 
 "use client";
 
@@ -12,7 +12,7 @@ import {
   ChevronUp,
   MoreHorizontal,
 } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { IconButton } from "@/components/ui/icon-button";
 
 /** Props accepted by `Pagination`. */
@@ -109,10 +109,10 @@ function PaginationItem({ className, ...props }: PaginationItemProps) {
  */
 export const paginationLinkVariants = cva(
   cn(
-    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap tabular-nums select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap tabular-nums select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     // A page link is a transparent control on a known surface, so its two steps come from THE
     // recipe rather than a restated `hover:bg-*` literal (`design.md` §Hover geometry).
-    surfaceInteractive,
+    "hover:bg-accent",
   ),
   {
     variants: {
@@ -121,10 +121,10 @@ export const paginationLinkVariants = cva(
         false: "",
       },
       size: {
-        md: "h-(--size-md) min-w-(--size-md) gap-1.5 px-2.5",
-        sm: "h-(--size-sm) min-w-(--size-sm) gap-1 px-2.5 text-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
-        lg: "h-(--size-lg) min-w-(--size-lg) gap-1.5 px-3",
-        icon: "size-(--size-md)",
+        md: "h-8 min-w-8 gap-1.5 px-2.5",
+        sm: "h-7 min-w-7 gap-1 px-2.5 text-xs [&_svg:not([class*='size-'])]:size-3.5",
+        lg: "h-10 min-w-10 gap-1.5 px-3",
+        icon: "size-8",
       },
     },
     defaultVariants: { isActive: false, size: "icon" },
@@ -284,7 +284,7 @@ function PaginationEllipsis({ className, ...props }: PaginationEllipsisProps) {
       role="presentation"
       aria-hidden="true"
       className={cn(
-        "flex size-(--size-md) items-center justify-center [&>svg]:size-(--icon-default)",
+        "flex size-8 items-center justify-center [&>svg]:size-4",
         className,
       )}
       {...props}
@@ -374,7 +374,7 @@ function PaginationPager({
       </IconButton>
       <span
         role="status"
-        className="text-sm whitespace-nowrap text-muted-foreground"
+        className="text-xs whitespace-nowrap text-muted-foreground"
       >
         <span className="tabular-nums">{clamped}</span> of{" "}
         <span className="tabular-nums">{clampedTotal}</span>

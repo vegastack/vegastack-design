@@ -58,7 +58,7 @@ test("size maps to the tokenized display scale", async () => {
   const heading = screen
     .getByRole("heading", { level: 2 })
     .element() as HTMLElement;
-  expect(heading.classList.contains("text-display-xl")).toBe(true);
+  expect(heading.classList.contains("text-7xl")).toBe(true);
 });
 
 test("supports a composed serif-italic emphasis span in the title", async () => {

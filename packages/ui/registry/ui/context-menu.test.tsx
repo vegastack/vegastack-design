@@ -272,7 +272,7 @@ test("merges positioner className and forwards portal props", async () => {
   const positioner = document.querySelector(
     '[data-slot="context-menu-positioner"]',
   )!;
-  expect(positioner.className).toContain("z-(--z-overlay)");
+  expect(positioner.className).toContain("z-50");
   expect(positioner.className).toContain("outline-none");
   expect(positioner.className).toContain("consumer-positioner");
   expect(document.querySelector(".context-menu-portal-prop")).not.toBeNull();

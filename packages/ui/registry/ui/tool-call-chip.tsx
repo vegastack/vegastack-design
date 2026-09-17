@@ -1,4 +1,4 @@
-// @vegastack tool-call-chip@0.9.1 sha256-OHrLN4a2xl/eLfQMRWn9GcAs20y61Kn81FOE37XMcjc=
+// @vegastack tool-call-chip@0.9.1 sha256-6z2QiK2o9nXzMWesTOnEoY18bFdyvtgDQB94ea5ob+E=
 
 "use client";
 
@@ -58,10 +58,10 @@ export function ToolCallChip({
     props: {
       "data-slot": "tool-call-chip",
       className: cn(
-        "inline-flex h-(--size-sm) w-fit max-w-full min-w-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-label-sm text-foreground",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline) [&_svg]:text-muted-foreground",
+        "inline-flex h-7 w-fit max-w-full min-w-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-xs font-medium text-foreground",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 [&_svg]:text-muted-foreground",
         // Interactive composition (render={<button/>}): hover + press follow the ghost grammar.
-        "[&:is(button)]:hover:bg-surface-2 [&:is(button)]:active:bg-surface-3",
+        "[&:is(button)]:hover:bg-accent [&:is(button)]:active:bg-accent",
         className,
       ),
       children: (

@@ -65,7 +65,7 @@ export function attachmentImageThumbnail(): ReactNode {
           <AttachmentDescription>1920×1080 · 3.4 MB</AttachmentDescription>
         </AttachmentContent>
         {/* The trigger comes FIRST: it and `AttachmentActions` share the
-            `z-(--z-raised)` band, so DOM order decides who owns the pointer. With the
+            `z-10` band, so DOM order decides who owns the pointer. With the
             actions second, the remove button stays clickable; the other way round the
             full-card overlay swallows all 24x24 of it. */}
         <AttachmentTrigger aria-label="Open cover-photo.png" />
@@ -190,7 +190,7 @@ export function attachmentComposeList(): ReactNode {
             ))}
           </AttachmentGroup>
         ) : (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             No attachments — removed them all.
           </p>
         )}

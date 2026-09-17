@@ -96,7 +96,7 @@ export function command(): ReactNode {
     <Wrapper>
       <Command
         items={COMMAND_GROUPS}
-        className="w-full max-w-sm border border-border shadow-overlay"
+        className="w-full max-w-sm border border-border shadow-lg"
       >
         <CommandInput placeholder="Type a command or search…" />
         <CommandEmpty>No results found.</CommandEmpty>
@@ -116,10 +116,12 @@ export function commandStates(): ReactNode {
   return (
     <Wrapper className="flex-col gap-6 sm:flex-row sm:items-start">
       <div className="flex w-full max-w-sm flex-col gap-2">
-        <span className="text-label-sm text-muted-foreground">Item states</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          Item states
+        </span>
         <Command
           items={SETTINGS}
-          className="w-full border border-border shadow-overlay"
+          className="w-full border border-border shadow-lg"
         >
           <CommandInput placeholder="Type a command or search…" />
           <CommandEmpty>No results found.</CommandEmpty>
@@ -141,11 +143,13 @@ export function commandStates(): ReactNode {
         </Command>
       </div>
       <div className="flex w-full max-w-sm flex-col gap-2">
-        <span className="text-label-sm text-muted-foreground">Empty state</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          Empty state
+        </span>
         <Command
           items={emptyItems}
           defaultInputValue="no-such-command"
-          className="w-full border border-border shadow-overlay"
+          className="w-full border border-border shadow-lg"
         >
           <CommandInput placeholder="Search…" />
           <CommandEmpty>No results found.</CommandEmpty>
@@ -212,7 +216,7 @@ export function commandAdvanced(): ReactNode {
     <Wrapper>
       <Command
         items={ADVANCED_ITEMS}
-        className="w-full max-w-sm border border-border shadow-overlay"
+        className="w-full max-w-sm border border-border shadow-lg"
         inputValue={search}
         onInputValueChange={setSearch}
         filter={(item: Item, query) => {
@@ -270,10 +274,7 @@ function CommandAsyncDemo() {
         <RefreshCw />
         {loaded ? "Reset results" : "Load results"}
       </Button>
-      <Command
-        items={items}
-        className="w-full border border-border shadow-overlay"
-      >
+      <Command items={items} className="w-full border border-border shadow-lg">
         <CommandInput placeholder="Search remote commands…" />
         <CommandLoading>
           {!loaded ? (

@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.9.1 sha256-09On4UffU5zN/8X/vHBxNLKxOQ9m85jaRUmagYoZZJE=
+// @vegastack editable-cell@0.9.1 sha256-8Ud5UB4J9rDqAqHhnFT6ydjl4ITTYH8XjXiY1LqBrSY=
 
 "use client";
 
@@ -377,13 +377,13 @@ export function EditableCell({
         ) : status === "saved" ? (
           <Check
             key="saved"
-            className="motion-pop-in size-(--icon-compact) text-success-text"
+            className="motion-pop-in size-3 text-success-text"
             aria-hidden
           />
         ) : status === "error" ? (
           <X
             key="error"
-            className="motion-pop-in size-(--icon-compact) text-destructive-text"
+            className="motion-pop-in size-3 text-destructive-text"
             aria-hidden
           />
         ) : null}

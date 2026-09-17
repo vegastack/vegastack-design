@@ -1,11 +1,11 @@
-// @vegastack navigation-menu@0.9.1 sha256-GRJA/q0G8UtxfeOVw47apbmQjrBcTcUWUSYtrBVFc3w=
+// @vegastack navigation-menu@0.9.1 sha256-0KtEP+jI84DljBguQxoUrGd1iEiErwtF0Yr7R+rdLJc=
 
 "use client";
 
 import * as React from "react";
 import { NavigationMenu as BaseNavigationMenu } from "@base-ui/react/navigation-menu";
 import { ChevronDown } from "lucide-react";
-import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
+import { cn, FLOATING } from "@vegastack/design";
 import {
   FloatingSurface,
   mergeStateClassName,
@@ -16,7 +16,7 @@ import {
  * chip triggers in a row; a single shared popup panel whose content swaps as the pointer moves
  * between triggers. Built on the Base UI NavigationMenu primitive (Root/List/Item/Trigger/
  * Content + Portal/Positioner/Popup/Viewport), styled to the system's overlay grammar:
- * `popover` surface, the one hairline, `--shadow-overlay`, `z-overlay`, fast scale/fade
+ * `popover` surface, the one hairline, `--shadow-lg`, `z-overlay`, fast scale/fade
  * enter with a 1px directional nudge (the teardown's menu-enter signature).
  * ----------------------------------------------------------------------------------------------*/
 
@@ -86,12 +86,12 @@ export function NavigationMenuItem(props: NavigationMenuItemProps) {
 }
 
 const navTriggerClasses = cn(
-  "inline-flex h-(--size-md) items-center gap-1 rounded-md px-3 text-label text-muted-foreground select-none",
+  "inline-flex h-8 items-center gap-1 rounded-md px-3 text-sm font-medium text-muted-foreground select-none",
   "hover:text-foreground",
-  surfaceInteractive,
+  "hover:bg-accent",
   // Open trigger stays lit (the teardown's open-equals-hover rule).
-  "data-[popup-open]:bg-surface-2 data-[popup-open]:text-foreground",
-  "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+  "data-[popup-open]:bg-accent data-[popup-open]:text-foreground",
+  "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
 );
 
 /** Props forwarded to a disclosure trigger. */
@@ -173,7 +173,7 @@ export type NavigationMenuPanelProps = React.ComponentProps<
 /**
  * `NavigationMenuPanel` — the SHARED floating panel every item's content renders
  * into (Base UI Portal → Positioner → Popup → Viewport). Render it once, after
- * the list. Overlay grammar: popover surface + hairline + `--shadow-overlay` +
+ * the list. Overlay grammar: popover surface + hairline + `--shadow-lg` +
  * scale-0.97/1px-nudge enter.
  * @example <NavigationMenuPanel />
  */
@@ -242,8 +242,8 @@ export function NavigationMenuGridLink({
       data-slot="navigation-menu-grid-link"
       className={cn(
         "flex items-start gap-3 rounded-md p-3 no-underline select-none",
-        surfaceInteractive,
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default) [&_svg]:text-muted-foreground",
+        "hover:bg-accent",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg]:text-muted-foreground",
         className,
       )}
       {...props}
@@ -254,9 +254,9 @@ export function NavigationMenuGridLink({
         </span>
       ) : null}
       <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-label text-foreground">{title}</span>
+        <span className="text-sm font-medium text-foreground">{title}</span>
         {description ? (
-          <span className="text-base font-normal text-muted-foreground">
+          <span className="text-sm font-normal text-muted-foreground">
             {description}
           </span>
         ) : null}

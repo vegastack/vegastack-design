@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.9.1 sha256-dXCaSucZKmHV/Sm+B0dWb6g+PHs8vkfz+bCEuuWinpI=
+// @vegastack filter-bar@0.9.1 sha256-DfVDbxFtyIg5vTRBVBOxWahJhIrA5NPGfTAuiaPYfw0=
 
 "use client";
 
@@ -44,7 +44,7 @@ export interface FilterBarFilter {
   /** Invoked when the chip's remove (`×`) control is activated. */
   onRemove: () => void;
   /**
-   * Whether the chip reads as an active selection (the `surface-2` selection
+   * Whether the chip reads as an active selection (the `accent` selection
    * rung). An applied filter is a selection, so this defaults to `true`; set
    * `false` for a presence-only chip on the rest fill.
    * @default true
@@ -176,8 +176,8 @@ export interface FilterChipProps extends Omit<
   removeLabel?: string;
   /**
    * Whether the chip reads as an active selection. An active chip takes the
-   * selection rung (`surface-2`); an inactive chip keeps a filled control's rest
-   * fill (`surface-1`).
+   * selection rung (`accent`); an inactive chip keeps a filled control's rest
+   * fill (`muted`).
    * @default true
    */
   active?: boolean;
@@ -338,7 +338,7 @@ export function FilterBar({
           aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
           data-slot="filter-bar-search"
           className={cn(
-            "ml-auto h-(--size-md) w-auto min-w-0 basis-48",
+            "ml-auto h-8 w-auto min-w-0 basis-48",
             searchInputProps?.className,
           )}
         />

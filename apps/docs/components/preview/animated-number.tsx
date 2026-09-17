@@ -23,7 +23,7 @@ export function animatedNumber(): ReactNode {
       <Card className="w-full max-w-xs">
         <CardHeader>
           <CardDescription>Total signups</CardDescription>
-          <CardTitle className="text-3xl">
+          <CardTitle className="text-2xl">
             <AnimatedNumber value={count} />
           </CardTitle>
         </CardHeader>
@@ -47,7 +47,7 @@ export function animatedNumberCurrency(): ReactNode {
       <Card className="w-full max-w-xs">
         <CardHeader>
           <CardDescription>Revenue this month</CardDescription>
-          <CardTitle className="text-3xl">
+          <CardTitle className="text-2xl">
             <AnimatedNumber
               value={revenue}
               format={{ style: "currency", currency: "USD" }}
@@ -73,7 +73,7 @@ export function animatedNumberCompact(): ReactNode {
       <Card className="w-full max-w-xs">
         <CardHeader>
           <CardDescription>Followers</CardDescription>
-          <CardTitle className="text-3xl">
+          <CardTitle className="text-2xl">
             <AnimatedNumber
               value={followers}
               format={{ notation: "compact", maximumFractionDigits: 1 }}

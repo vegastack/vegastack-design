@@ -7,7 +7,7 @@ import { VideoPlayer } from "../registry/ui/video-player";
 /**
  * Rendered media-chrome gate (audit 2026-09-07, B4-01 / D16). The TOKEN contract — the
  * `--media-*` trio is theme-invariant, dark-scrim + light-ink — is asserted in
- * `surface-ladder.browser.test.tsx`. This file asserts the other half, which no token test can
+ * `contrast.browser.test.tsx`. This file asserts the other half, which no token test can
  * reach: that the video player actually PAINTS those tokens.
  *
  * The defect it pins is concrete. The overlay was built on `primary` /

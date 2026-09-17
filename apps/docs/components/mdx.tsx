@@ -23,7 +23,6 @@ import {
   SpacingScale,
   MotionSpecimen,
   TypeScaleSizes,
-  TypeCoreLadder,
   FocusRingSpecimen,
 } from "@/components/foundations";
 import { RegistryInstallCallout } from "@/components/registry-install-callout";
@@ -113,7 +112,6 @@ export function getMDXComponents(components?: MDXComponents) {
     SpacingScale,
     MotionSpecimen,
     TypeScaleSizes,
-    TypeCoreLadder,
     FocusRingSpecimen,
     AlertPlayground,
     AnimatedNumberPlayground,

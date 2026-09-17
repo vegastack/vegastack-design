@@ -1,4 +1,4 @@
-// @vegastack icon-button@0.9.1 sha256-2pqvb4v/mv1M63c0kF/Lu4ylQP7mVJKzqdmAmn1m6NA=
+// @vegastack icon-button@0.9.1 sha256-CrHd9OwrWhAds978rfvKt11BcV0ki1dzxiKLoO87uSM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -18,14 +18,14 @@ export type IconButtonShape = "square" | "round";
 /**
  * Icon-only geometry: pin the width to the height so the control is a perfect square, drop the
  * horizontal padding a text button needs, and give the two larger tiers the standalone 16px glyph
- * (`--icon-default`) rather than the 14px one a text button pairs with its label. `Button` owns the
+ * (`size-4`) rather than the 14px one a text button pairs with its label. `Button` owns the
  * height; these classes are merged after it, so `w-*` / `px-0` win.
  */
 const squareBySize: Record<IconButtonSize, string> = {
-  xs: "w-(--size-xs) px-0",
-  sm: "w-(--size-sm) px-0",
-  md: "w-(--size-md) px-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-  lg: "w-(--size-lg) px-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  xs: "w-6 px-0",
+  sm: "w-7 px-0",
+  md: "w-8 px-0 [&_svg:not([class*='size-'])]:size-4",
+  lg: "w-10 px-0 [&_svg:not([class*='size-'])]:size-4",
 };
 
 /**

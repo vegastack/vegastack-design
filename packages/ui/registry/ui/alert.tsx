@@ -1,4 +1,4 @@
-// @vegastack alert@0.9.1 sha256-Az8K2MwE9cmvEGVFaQR/K1W5wiAGwtUzq7jrXxmx9Rs=
+// @vegastack alert@0.9.1 sha256-GM5CTJgUplrFBbT3ZVMfTCWyLiCBVJU+k0C1ir6Km7Y=
 
 "use client";
 
@@ -22,7 +22,7 @@ import { IconButton } from "@/components/ui/icon-button";
  * with a leading icon. Every value is a semantic token, never a hardcoded color.
  */
 export const alertVariants = cva(
-  "relative flex w-full items-start gap-3 rounded-md border p-4 text-base [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  "relative flex w-full items-start gap-3 rounded-md border p-4 text-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       /**
@@ -33,17 +33,15 @@ export const alertVariants = cva(
       variant: {
         default: "",
         strip:
-          "items-center gap-2 px-3 py-2 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+          "items-center gap-2 px-3 py-2 [&_svg:not([class*='size-'])]:size-3.5",
       },
       intent: {
         default: "border-border bg-card text-card-foreground",
-        info: "border-info/(--alpha-border-subtle) bg-info-subtle text-info-text",
-        success:
-          "border-success/(--alpha-border-subtle) bg-success-subtle text-success-text",
-        warning:
-          "border-warning/(--alpha-border-subtle) bg-warning-subtle text-warning-text",
+        info: "border-info/20 bg-info/10 text-info-text",
+        success: "border-success/20 bg-success/10 text-success-text",
+        warning: "border-warning/20 bg-warning/10 text-warning-text",
         destructive:
-          "border-destructive/(--alpha-border-subtle) bg-destructive-subtle text-destructive-text",
+          "border-destructive/20 bg-destructive/10 text-destructive-text",
       },
     },
     defaultVariants: { variant: "default", intent: "default" },
@@ -262,7 +260,7 @@ function AlertDescription({ className, ...props }: AlertDescriptionProps) {
     <div
       data-slot="alert-description"
       className={cn(
-        "text-base leading-relaxed [&_p:not(:last-child)]:mb-2",
+        "text-sm leading-relaxed [&_p:not(:last-child)]:mb-2",
         className,
       )}
       {...props}

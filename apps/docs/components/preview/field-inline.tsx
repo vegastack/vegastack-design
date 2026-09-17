@@ -10,16 +10,14 @@ export function fieldInline(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-base font-medium text-foreground">
-          Task title
-        </span>
+        <span className="text-sm font-medium text-foreground">Task title</span>
         <FieldInline
           value={value}
           onCommit={setValue}
           label="Task title"
           placeholder="Add a title…"
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Click the value to rename. Enter to save, Esc to cancel.
         </p>
       </div>
@@ -32,7 +30,7 @@ export function fieldInlineBorderless(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Document name
         </span>
         <FieldInline
@@ -41,7 +39,7 @@ export function fieldInlineBorderless(): ReactNode {
           label="Document name"
           placeholder="Untitled"
           borderless
-          className="text-lg font-medium text-foreground"
+          className="text-base font-medium text-foreground"
         />
       </div>
     </Wrapper>
@@ -58,7 +56,7 @@ export function fieldInlineEmpty(): ReactNode {
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Empty + placeholder
           </span>
           <FieldInline
@@ -69,7 +67,7 @@ export function fieldInlineEmpty(): ReactNode {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Empty, no placeholder
           </span>
           <FieldInline value={bare} onCommit={setBare} label="Task title" />
@@ -89,7 +87,7 @@ export function fieldInlineAccessibleName(): ReactNode {
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Named by <code className="font-mono">label</code> (invisible)
           </span>
           <FieldInline
@@ -99,7 +97,7 @@ export function fieldInlineAccessibleName(): ReactNode {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Named by <code className="font-mono">placeholder</code> (visible)
           </span>
           <FieldInline

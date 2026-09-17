@@ -1,4 +1,4 @@
-// @vegastack spinner@0.9.1 sha256-TI8+t0J4cYzkLYT0ySPB3JaOXr+/t2oZ3pqiTn0FFZc=
+// @vegastack spinner@0.9.1 sha256-4O9R0Ehas/c3opxW1qmVmOndQRI/sFvR09HZie4xx88=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -19,10 +19,10 @@ export const spinnerVariants = cva(
   {
     variants: {
       size: {
-        xs: "size-(--icon-compact)",
-        sm: "size-(--icon-inline)",
-        md: "size-(--icon-default)",
-        lg: "size-(--icon-feature)",
+        xs: "size-3",
+        sm: "size-3.5",
+        md: "size-4",
+        lg: "size-6",
         /**
          * No size class — the host's `[&_svg]` selector sizing applies (Button/Badge) —
          * and `text-current` so the spinner spins in the host's ink, not detached gray.

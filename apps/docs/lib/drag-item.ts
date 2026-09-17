@@ -1,4 +1,4 @@
-// @vegastack drag-item@0.9.1 sha256-okL8Ck0ZGZFE8cQWGCccZxzGZo11HQO+smSpGlwVmRQ=
+// @vegastack drag-item@0.9.1 sha256-2u1FfY0/4w1xyXhXoB7I8CteFiIqwPNUlcrOtiOTtSQ=
 
 /**
  * drag-item — the ONE visual recipe for an item that `use-drag-reorder` can move. The hook owns
@@ -35,7 +35,7 @@ export const dragItemClasses = [
   "data-[drop-edge=top]:before:absolute data-[drop-edge=top]:before:inset-x-0 data-[drop-edge=top]:before:-top-1 data-[drop-edge=top]:before:h-0.5 data-[drop-edge=top]:before:bg-primary data-[drop-edge=top]:before:content-['']",
   "data-[drop-edge=bottom]:before:absolute data-[drop-edge=bottom]:before:inset-x-0 data-[drop-edge=bottom]:before:-bottom-1 data-[drop-edge=bottom]:before:h-0.5 data-[drop-edge=bottom]:before:bg-primary data-[drop-edge=bottom]:before:content-['']",
   // Lift = dim on the ORIGIN item. Flat by doctrine: a dragged item never gains a shadow.
-  "data-dragging:opacity-(--opacity-dim)",
+  "data-dragging:opacity-50",
   // A server-gated move in flight shimmers — the one sanctioned loader animation. The global
   // reduced-motion rule stops it; a per-component `motion-reduce:` copy would be dead weight.
   "data-drag-pending:animate-pulse",

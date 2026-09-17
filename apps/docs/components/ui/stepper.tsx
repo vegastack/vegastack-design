@@ -1,4 +1,4 @@
-// @vegastack stepper@0.9.1 sha256-p14iB0IedPGi91Ll9LO0zwaddKS6kIPSWUaEe6bYPCw=
+// @vegastack stepper@0.9.1 sha256-CzgRogaE/5flf0H3L3yLVY2KMVO/hTqqec0mJHKKD2s=
 
 "use client";
 
@@ -280,7 +280,7 @@ export function Stepper({
                   // A navigable step label IS a link-shaped control, so it takes the `link`
                   // variant rather than a `ghost` Button reshaped into inline text by stripping
                   // its height and padding (B7-09). `size="md"` keeps the label at the same
-                  // `text-base` the static label uses; nothing about the control box is
+                  // `text-sm` the static label uses; nothing about the control box is
                   // overridden here, only its alignment.
                   className={cn(
                     "min-w-0 justify-start gap-1",
@@ -299,12 +299,12 @@ export function Stepper({
                   // Focus target when the step becomes current — not a tab stop.
                   tabIndex={isCurrent ? -1 : undefined}
                   className={cn(
-                    "inline-flex min-w-0 items-center gap-1 rounded-sm text-base",
+                    "inline-flex min-w-0 items-center gap-1 rounded-sm text-sm",
                     orientation === "horizontal" && "w-full",
                     isCurrent || step.state === "error"
                       ? "font-medium text-foreground"
                       : "text-muted-foreground",
-                    step.disabled && "opacity-(--opacity-dim)",
+                    step.disabled && "opacity-50",
                   )}
                 >
                   {labelContent}
@@ -313,7 +313,7 @@ export function Stepper({
               {step.description ? (
                 <span
                   data-slot="stepper-description"
-                  className="min-w-0 truncate text-sm text-muted-foreground"
+                  className="min-w-0 truncate text-xs text-muted-foreground"
                 >
                   {step.description}
                 </span>
@@ -328,7 +328,7 @@ export function Stepper({
                   role="status"
                   aria-live="polite"
                   className={cn(
-                    "mt-0.5 text-sm text-warning-text",
+                    "mt-0.5 text-xs text-warning-text",
                     !blockedReason && "sr-only",
                   )}
                 >

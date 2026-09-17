@@ -1,4 +1,4 @@
-// @vegastack badge@0.9.1 sha256-yjFgCl418g5sVLav33JA6tsBkTaJxpZkyzkfF9vB9HM=
+// @vegastack badge@0.9.1 sha256-9IkUlboQOQTW/RAwfMu6H2Y1R4hunMxvjbdOsGam4io=
 
 "use client";
 
@@ -51,9 +51,9 @@ export const badgeVariants = cva(
       size: {
         // `sm` is a REAL 16px tier (audit D8), not `md` with 2px less padding: it is the
         // dense-table chip. `leading-none` keeps the 12px label inside a 16px box.
-        sm: "h-4 gap-1 px-1.5 text-label-sm leading-none [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-        md: "h-5 gap-1 px-2 py-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-        lg: "h-6 gap-1 px-2.5 py-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+        sm: "h-4 gap-1 px-1.5 text-xs font-medium leading-none [&_svg:not([class*='size-'])]:size-3",
+        md: "h-5 gap-1 px-2 py-0.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3",
+        lg: "h-6 gap-1 px-2.5 py-0.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3.5",
       },
     },
     compoundVariants: [
@@ -66,22 +66,22 @@ export const badgeVariants = cva(
       {
         variant: "soft",
         intent: "success",
-        class: "bg-success-subtle text-success-text",
+        class: "bg-success/10 text-success-text",
       },
       {
         variant: "soft",
         intent: "warning",
-        class: "bg-warning-subtle text-warning-text",
+        class: "bg-warning/10 text-warning-text",
       },
       {
         variant: "soft",
         intent: "destructive",
-        class: "bg-destructive-subtle text-destructive-text",
+        class: "bg-destructive/10 text-destructive-text",
       },
       {
         variant: "soft",
         intent: "info",
-        class: "bg-info-subtle text-info-text",
+        class: "bg-info/10 text-info-text",
       },
 
       // ── solid: family fill + on-color foreground ──────────────────────────
@@ -145,23 +145,22 @@ export const badgeVariants = cva(
       {
         variant: "outline",
         intent: "success",
-        class: "border-success/(--alpha-outline-border) text-success-text",
+        class: "border-success/50 text-success-text",
       },
       {
         variant: "outline",
         intent: "warning",
-        class: "border-warning/(--alpha-outline-border) text-warning-text",
+        class: "border-warning/50 text-warning-text",
       },
       {
         variant: "outline",
         intent: "destructive",
-        class:
-          "border-destructive/(--alpha-outline-border) text-destructive-text",
+        class: "border-destructive/50 text-destructive-text",
       },
       {
         variant: "outline",
         intent: "info",
-        class: "border-info/(--alpha-outline-border) text-info-text",
+        class: "border-info/50 text-info-text",
       },
 
       // ── bordered soft: tint fill + matching-hue border (Attio chip formula)
@@ -175,25 +174,25 @@ export const badgeVariants = cva(
         variant: "soft",
         bordered: true,
         intent: "success",
-        class: "border-success/(--alpha-outline-border)",
+        class: "border-success/50",
       },
       {
         variant: "soft",
         bordered: true,
         intent: "warning",
-        class: "border-warning/(--alpha-outline-border)",
+        class: "border-warning/50",
       },
       {
         variant: "soft",
         bordered: true,
         intent: "destructive",
-        class: "border-destructive/(--alpha-outline-border)",
+        class: "border-destructive/50",
       },
       {
         variant: "soft",
         bordered: true,
         intent: "info",
-        class: "border-info/(--alpha-outline-border)",
+        class: "border-info/50",
       },
     ],
     defaultVariants: {
@@ -369,11 +368,7 @@ export function Badge({
       children: (
         <>
           {loading ? (
-            <Spinner
-              size="inherit"
-              label=""
-              className="size-(--icon-compact)"
-            />
+            <Spinner size="inherit" label="" className="size-3" />
           ) : icon != null ? (
             <span className="shrink-0" aria-hidden>
               {icon}

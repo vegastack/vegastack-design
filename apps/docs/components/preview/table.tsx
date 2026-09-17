@@ -359,7 +359,7 @@ export function tableSpreadsheet(): ReactNode {
             <TableRow key={company}>
               <TableCell className="font-medium">{company}</TableCell>
               <TableCell>{owner}</TableCell>
-              <TableCell className="text-right font-mono text-code-sm tabular-nums">
+              <TableCell className="text-right font-mono font-mono text-xs tabular-nums">
                 {arr}
               </TableCell>
             </TableRow>
@@ -409,7 +409,7 @@ export function tableWrapping(): ReactNode {
                 </TableCell>
                 <TableCell>
                   <span className="text-foreground">{row.subject}</span>
-                  <span className="mt-0.5 block text-sm text-muted-foreground">
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
                     {row.note}
                   </span>
                 </TableCell>

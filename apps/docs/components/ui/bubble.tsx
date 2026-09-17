@@ -1,4 +1,4 @@
-// @vegastack bubble@0.9.1 sha256-WTEjkhVMhLw1WzfCpK6rhUOYOAdj6qvQrJmEOeZ8ZVA=
+// @vegastack bubble@0.9.1 sha256-hEWdszqhp1x8p8HJ5xx64GDUXz7vDtT+YxcmGcL2Oz4=
 
 "use client";
 
@@ -36,8 +36,8 @@ export function BubbleGroup({ className, ref, ...props }: BubbleGroupProps) {
  * neutral "received" surfaces; `tinted` is a neutral `accent`-tinted received bubble (kept as a
  * distinct variant name; visually a touch stronger than `muted`); `outline` / `ghost` are quiet;
  * `destructive` flags errors and is the status family's soft recipe — the PRECOMPOSED
- * `destructive-subtle` ramp with `destructive-text` ink, exactly what the soft Buttons paint.
- * (It used to be `bg-destructive/(--alpha-soft-surface)` with `text-destructive`, the one place in
+ * `destructive/10` ramp with `destructive-text` ink, exactly what the soft Buttons paint.
+ * (It used to be `bg-destructive/5` with `text-destructive-text`, the one place in
  * the registry that used a solid FILL token as body text: 5.24/4.31/4.44:1 in light and
  * 2.56/2.37/1.78:1 in dark, and its light ladder inverted because the pressed step jumped to a
  * precomposed token on a different ground. Audit 2026-09-09, HIGH-1.) Interactive bubbles
@@ -46,9 +46,9 @@ export function BubbleGroup({ className, ref, ...props }: BubbleGroupProps) {
  *
  * Every tone's rest → hover → pressed steps are monotone: the neutral tones climb the surface
  * ladder (rung 1 → 2 → 3), `tinted` rests ON rung 2 (`accent`) so its pressed step is the ladder's
- * next alpha tint (`--alpha-ink-tint-strong`, L 0.884 light / 0.333 dark over card — a full rung
- * past `surface-3`) rather than `--alpha-pressed`, which composites to L 0.921 and was
- * indistinguishable from the `surface-3` hover it followed.
+ * next alpha tint (`15%`, L 0.884 light / 0.333 dark over card — a full rung
+ * past `accent`) rather than `10%`, which composites to L 0.921 and was
+ * indistinguishable from the `accent` hover it followed.
  * ----------------------------------------------------------------------------------------------*/
 
 export const bubbleVariants = cva(
@@ -58,25 +58,25 @@ export const bubbleVariants = cva(
       variant: {
         /** Dark neutral surface — the current user's own ("sent") messages. */
         default:
-          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary-hover [&>[data-slot=bubble-content]:is(button,a):active]:bg-primary-active",
+          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/90 [&>[data-slot=bubble-content]:is(button,a):active]:bg-primary/80",
         /** Neutral "received" surface. */
         secondary:
-          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
+          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-accent [&>[data-slot=bubble-content]:is(button,a):active]:bg-accent",
         /** Quieter neutral "received" surface. */
         muted:
-          "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
+          "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-accent [&>[data-slot=bubble-content]:is(button,a):active]:bg-accent",
         /** Neutral accent-tinted "received" surface, readable in light + dark. */
         tinted:
-          "*:data-[slot=bubble-content]:bg-accent *:data-[slot=bubble-content]:text-accent-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-3 [&>[data-slot=bubble-content]:is(button,a):active]:bg-foreground/(--alpha-ink-tint-strong)",
+          "*:data-[slot=bubble-content]:bg-accent *:data-[slot=bubble-content]:text-accent-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-accent [&>[data-slot=bubble-content]:is(button,a):active]:bg-foreground/15",
         /** Outlined surface on the page background. */
         outline:
-          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
+          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-accent [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-accent",
         /** No surface — plain text, no padding (e.g. for rich/markdown content). */
         ghost:
-          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
+          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-accent [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-accent",
         /** Error / failed-message surface. */
         destructive:
-          "*:data-[slot=bubble-content]:bg-destructive-subtle *:data-[slot=bubble-content]:text-destructive-text [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive-subtle-hover [&>[data-slot=bubble-content]:is(button,a):active]:bg-destructive-subtle-active",
+          "*:data-[slot=bubble-content]:bg-destructive/10 *:data-[slot=bubble-content]:text-destructive-text [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/20 [&>[data-slot=bubble-content]:is(button,a):active]:bg-destructive/30",
       },
     },
     defaultVariants: {
@@ -192,7 +192,7 @@ export function BubbleContent({
     props: {
       "data-slot": "bubble-content",
       className: cn(
-        "w-fit max-w-full min-w-0 overflow-hidden rounded-lg border border-transparent px-3 py-2.5 text-base leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left [button,a]:focus-visible:border-ring/(--alpha-tint-border)",
+        "w-fit max-w-full min-w-0 overflow-hidden rounded-lg border border-transparent px-3 py-2.5 text-sm leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left [button,a]:focus-visible:border-ring/70",
         className,
       ),
       ...props,
@@ -205,7 +205,7 @@ export function BubbleContent({
  * ----------------------------------------------------------------------------------------------*/
 
 export const bubbleReactionsVariants = cva(
-  "absolute z-(--z-raised) flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-base ring-3 ring-card has-[button]:p-0",
+  "absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-sm outline-3 outline-card has-[button]:p-0",
   {
     variants: {
       side: {

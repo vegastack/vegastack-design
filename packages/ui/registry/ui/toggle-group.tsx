@@ -1,4 +1,4 @@
-// @vegastack toggle-group@0.9.1 sha256-OxF8xHQ1QLaMn5GnKx3WI8isPvvuTJK1M6dholZAfzc=
+// @vegastack toggle-group@0.9.1 sha256-kmka887Gz8uMhzswYizoYjUapjoqZdKUngCcyHe41/g=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import type { VariantProps } from "class-variance-authority";
 import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
 import { Toggle as BaseToggle } from "@base-ui/react/toggle";
-import { cn, selectedChipVariants } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 // `toggleVariants` is owned by the sibling Toggle component; shadcn rewrites this
 // alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { toggleVariants } from "@/components/ui/toggle";
@@ -111,7 +111,7 @@ export function ToggleGroup({
   // would make a 28px `sm` group 30px tall and break alignment with other dense chrome.
   const rootClassName = cn(
     "group/toggle-group flex w-fit items-center rounded-md data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch",
-    selectedChipVariants.track,
+    "bg-muted",
   );
   const resolvedClassName: React.ComponentProps<
     typeof BaseToggleGroup
@@ -190,7 +190,7 @@ export function ToggleGroupItem({
     // Joined geometry: square the inner corners, keep the group's outer ends
     // rounded at `md`. Horizontal rounds the left of the first / right of the last;
     // vertical rounds the top of the first / bottom of the last.
-    "min-w-0 shrink-0 rounded-none focus:z-(--z-raised) focus-visible:z-(--z-raised)",
+    "min-w-0 shrink-0 rounded-none focus:z-10 focus-visible:z-10",
     "group-data-[orientation=horizontal]/toggle-group:first:rounded-s-md group-data-[orientation=horizontal]/toggle-group:last:rounded-e-md",
     "group-data-[orientation=vertical]/toggle-group:first:rounded-t-md group-data-[orientation=vertical]/toggle-group:last:rounded-b-md",
   );

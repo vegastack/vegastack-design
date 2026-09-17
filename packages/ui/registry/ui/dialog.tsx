@@ -1,4 +1,4 @@
-// @vegastack dialog@0.9.1 sha256-Fqe7GVUAXfmpa3Yzy912L1gcrwcUfQX6QxZu6FuVekk=
+// @vegastack dialog@0.9.1 sha256-sgUAcMOEy8w/n2GFPbE+9KyakOcZ2kjte4nHmkk7YFA=
 
 "use client";
 
@@ -33,11 +33,11 @@ export const dialogContentVariants = cva(
   [
     // `max-h-full` rather than a `100dvh` calc: the viewport below is `fixed inset-0 p-4`, so its
     // content box IS the available height and the popup can simply fill it (audit B3-09).
-    "relative z-(--z-overlay) flex max-h-full w-full flex-col gap-4",
+    "relative z-50 flex max-h-full w-full flex-col gap-4",
     // No `outline-none`: Base UI focuses the popup on open, so the centralized base.css
     // `:focus-visible` outline stays as the keyboard-focus indicator (WCAG 2.4.7, register P0-02).
     // 24px is the modal-family padding tier (D14); popovers and hover cards take 16.
-    "rounded-lg border border-border bg-popover p-6 text-base text-popover-foreground shadow-overlay",
+    "rounded-lg border border-border bg-popover p-6 text-sm text-popover-foreground shadow-lg",
     // Enter/exit — scale + fade. D11: modals move at `base` (200ms), floating surfaces at 150.
     "origin-center transition-[opacity,transform] duration-base ease-standard",
     "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
@@ -185,7 +185,7 @@ export function DialogContent({
         data-slot="dialog-backdrop"
         className={cn(
           themeScope,
-          "fixed inset-0 z-(--z-overlay) bg-overlay",
+          "fixed inset-0 z-50 bg-black/10",
           // The backdrop moves with its panel — D11 pairs both at `base` (200ms).
           "transition-opacity duration-base ease-standard",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
@@ -196,7 +196,7 @@ export function DialogContent({
         data-placement={placement}
         className={cn(
           themeScope,
-          "fixed inset-0 z-(--z-overlay) flex justify-center overflow-y-auto overscroll-contain p-4 outline-none",
+          "fixed inset-0 z-50 flex justify-center overflow-y-auto overscroll-contain p-4 outline-none",
           placement === "top" ? "items-start pt-16" : "items-center",
         )}
       >
@@ -290,7 +290,7 @@ export function DialogTitle({ className, ...props }: DialogTitleProps) {
   return (
     <BaseDialog.Title
       data-slot="dialog-title"
-      className={cn("text-h4 text-foreground", className)}
+      className={cn("text-base font-medium text-foreground", className)}
       {...props}
     />
   );
@@ -316,10 +316,7 @@ export function DialogDescription({
   return (
     <BaseDialog.Description
       data-slot="dialog-description"
-      className={cn(
-        "text-base leading-relaxed text-muted-foreground",
-        className,
-      )}
+      className={cn("text-sm leading-relaxed text-muted-foreground", className)}
       {...props}
     />
   );
@@ -360,7 +357,7 @@ export type DialogTitleBarProps = React.ComponentProps<"div">;
  * @example
  * <DialogContent size="lg" showCloseButton={false} className="p-0">
  *   <DialogTitleBar>
- *     <span className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
+ *     <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
  *       <FileText aria-hidden /> <span className="truncate">Meeting notes</span>
  *     </span>
  *     <span className="flex items-center gap-0.5">…icon buttons…</span>
@@ -374,7 +371,7 @@ export function DialogTitleBar({ className, ...props }: DialogTitleBarProps) {
       data-slot="dialog-title-bar"
       className={cn(
         "flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2",
-        "[&_svg:not([class*='size-'])]:size-(--icon-inline)",
+        "[&_svg:not([class*='size-'])]:size-3.5",
         className,
       )}
       {...props}

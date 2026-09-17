@@ -1,4 +1,4 @@
-// @vegastack testimonial@0.9.1 sha256-Wap/aCAfpFDJFCqsD6IXXr4p3c2L7702/eYmc13rgC4=
+// @vegastack testimonial@0.9.1 sha256-IjznqzhKEpIQ4Wkji4bNYT79VsKxIYBACmZUWr8FmW4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -13,7 +13,7 @@ export interface TestimonialProps extends Omit<
    * so the browser inserts the pair the ACTIVE LANGUAGE uses (`„…“`, `« … »`,
    * `「…」`) rather than English curly quotes everywhere. Set `lang` on this
    * element or an ancestor to pick the pair. Rendered serif italic (`font-serif italic`, the
-   * Newsreader display-emphasis accent) at `text-display-sm` — the sanctioned
+   * Newsreader display-emphasis accent) at `text-4xl` — the sanctioned
    * pull-quote use of the serif accent (audit 17-brand-direction §Typography
    * roles: display emphasis + pull-quotes ONLY, never running body text).
    */
@@ -57,13 +57,13 @@ export function Testimonial({
           language-driven behaviour. */}
       <blockquote
         data-slot="testimonial-quote"
-        className="text-balance font-serif text-display-sm text-foreground italic"
+        className="text-balance font-serif text-4xl text-foreground italic"
       >
         <q className="[quotes:auto]">{quote}</q>
       </blockquote>
       <figcaption
         data-slot="testimonial-attribution"
-        className="flex items-center gap-2 font-mono text-mono-label text-muted-foreground uppercase"
+        className="flex items-center gap-2 font-mono font-mono text-xs text-muted-foreground uppercase"
       >
         <span data-slot="testimonial-name" className="text-foreground">
           {name}

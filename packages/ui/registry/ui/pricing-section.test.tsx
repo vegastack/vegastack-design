@@ -37,10 +37,8 @@ test("renders plan cards with mono price and check features", async () => {
   expect(highlightedCard).not.toBeNull();
   // Promotion = ladder rung + tinted hairline. Never `info` (links/informational only),
   // and never a full-strength `border-primary`, which read as an active-form state.
-  expect(highlightedCard!.classList).toContain("bg-surface-3");
-  expect(highlightedCard!.className).toContain(
-    "border-primary/(--alpha-outline-border)",
-  );
+  expect(highlightedCard!.classList).toContain("bg-accent");
+  expect(highlightedCard!.className).toContain("border-primary/50");
   expect(highlightedCard!.className).not.toContain("border-info");
   expect(highlightedCard!.className).not.toMatch(/\bborder-primary\b(?!\/)/);
   await expect.element(screen.getByText("Popular")).toBeInTheDocument();

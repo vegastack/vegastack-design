@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.9.1 sha256-6q98AUG1MYoqJDEXUZb7y+vp0eCFYAR8e0hUJEEtOdQ=
+// @vegastack data-grid@0.9.1 sha256-d1i1nE/3iY64V+NnDcwO19xyw15V8rA4wPOjg9X4op8=
 
 "use client";
 
@@ -861,7 +861,7 @@ export function DataGrid<T>({
           isSelected &&
             // A selected row still has to move under the cursor (SP-06): it rests on the pressed
             // rung, hovers DOWN one rung, and returns to rest while pressed.
-            "bg-surface-3 hover:bg-surface-2 active:bg-surface-3 data-selected:bg-surface-3 data-selected:hover:bg-surface-2",
+            "bg-accent hover:bg-accent active:bg-accent data-selected:bg-accent data-selected:hover:bg-accent",
         )}
       >
         {selectable ? (
@@ -945,7 +945,7 @@ export function DataGrid<T>({
               {isPrimary && mergedColumns.length > 0 ? (
                 <span
                   data-slot="data-grid-merged"
-                  className="mt-0.5 flex min-w-0 flex-col gap-0.5 text-sm text-muted-foreground"
+                  className="mt-0.5 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
                 >
                   {mergedColumns.map((merged) => (
                     <span key={merged.key} className="min-w-0 truncate">
@@ -1025,7 +1025,7 @@ export function DataGrid<T>({
             // column that vanishes with no affordance is silent data loss.
             <span
               data-slot="data-grid-hidden-hint"
-              className="text-sm text-muted-foreground"
+              className="text-xs text-muted-foreground"
             >
               {hiddenColumns.length} column
               {hiddenColumns.length === 1 ? "" : "s"} hidden
@@ -1080,9 +1080,7 @@ export function DataGrid<T>({
         }}
       >
         <TableHeader
-          className={cn(
-            maxHeight != null && "sticky top-0 z-(--z-raised) bg-background",
-          )}
+          className={cn(maxHeight != null && "sticky top-0 z-10 bg-background")}
         >
           {headerRow}
         </TableHeader>
@@ -1160,7 +1158,7 @@ export function DataGrid<T>({
                   <TableRow
                     data-slot="data-grid-group-row"
                     aria-rowindex={ariaGroupRowIndex.get(section.id)}
-                    className="bg-surface-1 hover:bg-surface-1 active:bg-surface-1"
+                    className="bg-muted hover:bg-muted active:bg-muted"
                   >
                     <TableCell colSpan={colSpan} className="py-1">
                       <button
@@ -1172,12 +1170,12 @@ export function DataGrid<T>({
                             [section.id!]: collapsed ? "expanded" : "collapsed",
                           })
                         }
-                        className="relative flex min-w-0 items-center gap-1 rounded-sm text-label-sm text-muted-foreground before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] hover:text-foreground"
+                        className="relative flex min-w-0 items-center gap-1 rounded-sm text-xs font-medium text-muted-foreground before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] hover:text-foreground"
                       >
                         {collapsed ? (
-                          <ChevronRight className="size-(--icon-compact) rtl:rotate-180" />
+                          <ChevronRight className="size-3 rtl:rotate-180" />
                         ) : (
-                          <ChevronDown className="size-(--icon-compact)" />
+                          <ChevronDown className="size-3" />
                         )}
                         <span className="min-w-0 truncate">
                           {section.label}
@@ -1214,7 +1212,7 @@ export function DataGrid<T>({
               Load more
             </Button>
           ) : (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               All rows loaded
             </span>
           )}

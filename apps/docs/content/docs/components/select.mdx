@@ -250,7 +250,7 @@ Try every trigger size and the disabled state on a small option list, then copy 
 - The trigger exposes `role="combobox"` with `aria-haspopup="listbox"`; the popup is a `role="listbox"` of `role="option"` items — no manual ARIA wiring needed.
 - Selection is announced via `aria-selected`; the selected option shows a check indicator. Disabled options carry `aria-disabled` and are skipped by keyboard navigation.
 - Full keyboard support: open/close, arrow navigation, type-ahead, and `Esc` to dismiss. Focus returns to the trigger on close.
-- On `:focus` the trigger re-colors its border with the `ring` token (`focus:border-ring/(--alpha-tint-border)`) rather than removing the outline; highlighted options use the `accent` token. `aria-invalid` (or `data-invalid`) tints the trigger border destructive for use inside a `Field`.
+- On `:focus` the trigger re-colors its border with the `ring` token (`focus:border-ring/(70%)`) rather than removing the outline; highlighted options use the `accent` token. `aria-invalid` (or `data-invalid`) tints the trigger border destructive for use inside a `Field`.
 
 | Key                                 | Action                                                              |
 | ----------------------------------- | ------------------------------------------------------------------- |

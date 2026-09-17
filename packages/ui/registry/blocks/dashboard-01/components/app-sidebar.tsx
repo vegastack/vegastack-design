@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.9.1 sha256-RuID/kEb8I7cZv4w10CmKv6vs+CHURA+0z++nvOvQyE=
+// @vegastack dashboard-01@0.9.1 sha256-f6Vq5O+Imnm+CAC7eA+eo0Gjkgs0KP66oA+V2hMEWfs=
 
 "use client";
 
@@ -29,7 +29,7 @@ import {
   User,
   type LucideIcon,
 } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { AppShellSidebar } from "@/components/ui/app-shell";
 import { Avatar } from "@/components/ui/avatar";
 import {
@@ -131,11 +131,11 @@ export function AppSidebar({
         <div className="flex items-center gap-2 px-2 py-1.5">
           <div
             aria-hidden
-            className="flex size-(--icon-feature) shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground"
+            className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground"
           >
-            <Bot className="size-(--icon-default)" />
+            <Bot className="size-4" />
           </div>
-          <span className="truncate text-label font-medium text-foreground group-data-[state=collapsed]/sidebar:hidden">
+          <span className="truncate text-sm font-medium font-medium text-foreground group-data-[state=collapsed]/sidebar:hidden">
             VegaStack AI
           </span>
         </div>
@@ -165,7 +165,7 @@ export function AppSidebar({
           <DropdownMenuTrigger
             className={cn(
               "flex w-full items-center gap-2 rounded-md p-2 text-start",
-              surfaceInteractive,
+              "hover:bg-accent",
             )}
           >
             <Avatar
@@ -178,23 +178,19 @@ export function AppSidebar({
                 sibling, so the name/email column needs min-w-0 to truncate instead of overflowing
                 (the same flex-discipline footgun the app-shell audit flags for stat cards/cards). */}
             <span className="flex min-w-0 flex-1 flex-col group-data-[state=collapsed]/sidebar:hidden">
-              <span className="truncate text-sm font-medium text-sidebar-foreground">
+              <span className="truncate text-xs font-medium text-sidebar-foreground">
                 {user.name}
               </span>
-              <span className="truncate text-sm text-muted-foreground">
+              <span className="truncate text-xs text-muted-foreground">
                 {user.email}
               </span>
             </span>
             <ChevronsUpDown
               aria-hidden
-              className="size-(--icon-inline) shrink-0 text-muted-foreground group-data-[state=collapsed]/sidebar:hidden"
+              className="size-3.5 shrink-0 text-muted-foreground group-data-[state=collapsed]/sidebar:hidden"
             />
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            side="top"
-            className="w-(--panel-width-sm)"
-          >
+          <DropdownMenuContent align="start" side="top" className="w-56">
             <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

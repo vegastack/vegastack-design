@@ -1,4 +1,4 @@
-// @vegastack pricing-section@0.9.1 sha256-4+wnerMXAXznu7Qu6vAQXW7LzI2zHRNem+KD+KYKukQ=
+// @vegastack pricing-section@0.9.1 sha256-Cy3S/3IESRGHUqmiHW0Wj2Juz3mblCvgk6XZ6DWOx8U=
 
 import * as React from "react";
 import { Check } from "lucide-react";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
  * PricingSection / PlanCard — the marketing pricing family (Wave 4, from the pricing-page
  * teardown): hairline plan cards with a mono price display (an IMPROVEMENT over the reference —
  * numerals are mono per the system's numbers rule), check feature lists, in-card CTA slot, and
- * a `surface-3` rung + alpha-`primary` hairline + neutral "Popular" badge for the promoted plan
+ * a `accent` rung + alpha-`primary` hairline + neutral "Popular" badge for the promoted plan
  * (promotion is neutral primary/ladder, never `info` — blue is links and informational UI only).
  * Server-safe;
  * billing toggles compose from `Segmented` at the call site.
@@ -54,7 +54,7 @@ export interface PlanCardProps extends React.ComponentPropsWithRef<"div"> {
   /** The plan's CTA (a full-width Button). @default undefined */
   action?: React.ReactNode;
   /**
-   * Promote this plan: lifts the card onto the `surface-3` rung, tints its hairline
+   * Promote this plan: lifts the card onto the `accent` rung, tints its hairline
    * `primary`, and shows the "Popular" badge.
    * @default false
    */
@@ -98,17 +98,17 @@ export function PlanCard({
       className={cn(
         "relative flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4 text-card-foreground",
         // Promotion is a LADDER RUNG plus a tinted hairline, never a hue: the promoted card
-        // lifts off the page onto `surface-3` (the same rung selection uses) and draws its
+        // lifts off the page onto `accent` (the same rung selection uses) and draws its
         // border as `primary` at the outline-border alpha. A full-strength `border-primary`
         // read as an error/active-form state next to the neutral cards, and `info` — which
         // this used before F1 — is reserved for links and informational messages.
-        highlighted && "bg-surface-3 border-primary/(--alpha-outline-border)",
+        highlighted && "bg-accent border-primary/50",
         className,
       )}
       {...props}
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-label">{name}</h3>
+        <h3 className="text-sm font-medium">{name}</h3>
         {highlighted ? (
           <Badge intent="default" bordered>
             {highlightLabel}
@@ -118,24 +118,24 @@ export function PlanCard({
       <div className="flex min-w-0 flex-col gap-1">
         <div
           data-slot="plan-card-price"
-          className="font-mono text-3xl tabular-nums"
+          className="font-mono text-2xl tabular-nums"
         >
           {price}
         </div>
         {priceNote ? (
-          <p className="text-sm text-muted-foreground">{priceNote}</p>
+          <p className="text-xs text-muted-foreground">{priceNote}</p>
         ) : null}
       </div>
       {description ? (
-        <p className="text-base text-muted-foreground">{description}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       ) : null}
       {features?.length ? (
         <ul className="m-0 flex list-none flex-col gap-2 p-0">
           {features.map((feature, i) => (
-            <li key={i} className="flex items-start gap-2 text-base">
+            <li key={i} className="flex items-start gap-2 text-sm">
               <Check
                 aria-hidden
-                className="mt-1 size-(--icon-inline) shrink-0 text-success-text"
+                className="mt-1 size-3.5 shrink-0 text-success-text"
               />
               <span className="min-w-0">{feature}</span>
             </li>

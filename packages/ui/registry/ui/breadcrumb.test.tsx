@@ -99,8 +99,8 @@ test("link render prop swaps the element (routing)", async () => {
   await expect.element(link).toHaveAttribute("href", "/x");
   await expect.element(link).toHaveAttribute("data-router", "");
   await expect.element(link).toHaveAttribute("data-slot", "breadcrumb-link");
-  await expect.element(link).toHaveClass("min-h-(--size-xs)");
-  await expect.element(link).toHaveClass("min-w-(--size-xs)");
+  await expect.element(link).toHaveClass("min-h-6");
+  await expect.element(link).toHaveClass("min-w-6");
   await expect.element(link).toHaveClass("justify-center");
 });
 

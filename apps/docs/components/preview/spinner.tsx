@@ -29,7 +29,7 @@ export function spinnerLabelled(): ReactNode {
   return (
     <Wrapper>
       {/* The visible text labels the loading region, so the spinner is decorative (label=""). */}
-      <span className="flex items-center gap-2 text-base text-muted-foreground">
+      <span className="flex items-center gap-2 text-sm text-muted-foreground">
         <Spinner size="sm" label="" />
         Saving changes…
       </span>

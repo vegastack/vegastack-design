@@ -171,7 +171,7 @@ export function messageScrollerCommands(): ReactNode {
 function ScrollableStatus() {
   const { start, end } = useMessageScrollerScrollable();
   return (
-    <p className="text-sm text-muted-foreground">
+    <p className="text-xs text-muted-foreground">
       Can scroll up: <span className="font-mono">{String(start)}</span> · down:{" "}
       <span className="font-mono">{String(end)}</span>
     </p>
@@ -282,11 +282,11 @@ function VisibilityOutline({ ids }: { ids: string[] }) {
           type="button"
           onClick={() => scrollToMessage(id, { align: "start" })}
           className={cn(
-            // A 16px `text-sm` line box is under the 24px pointer-target floor
+            // A 16px `text-xs` line box is under the 24px pointer-target floor
             // (WCAG 2.2 §2.5.8), and at a 20px pitch an invisible hit area could only
             // reach 24px by overlapping its neighbour's. So the entry itself is 24px
             // tall, which puts the pitch at 28px and leaves each target its own square.
-            "flex min-h-(--size-xs) items-center text-left text-sm hover:text-foreground",
+            "flex min-h-6 items-center text-left text-xs hover:text-foreground",
             currentAnchorId === id
               ? "font-medium text-foreground"
               : "text-muted-foreground",
@@ -396,7 +396,7 @@ export function messageScrollerLastAnchor(): ReactNode {
             <MessageScrollerButton direction="end" />
           </MessageScroller>
         </MessageScrollerProvider>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Opens at the anchored turn (tinted) rather than the top or bottom,
           with a peek of the previous message above it.
         </p>
@@ -412,7 +412,7 @@ export function messageScrollerLastAnchor(): ReactNode {
 function VisibleCount({ total }: { total: number }) {
   const { visibleMessageIds } = useMessageScrollerVisibility();
   return (
-    <p className="text-sm text-muted-foreground">
+    <p className="text-xs text-muted-foreground">
       Visible now: <span className="font-mono">{visibleMessageIds.length}</span>{" "}
       of <span className="font-mono">{total}</span> messages
     </p>

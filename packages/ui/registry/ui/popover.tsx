@@ -1,4 +1,4 @@
-// @vegastack popover@0.9.1 sha256-7PObW96Du+SxR+GeSdFCU8Jevy5/R8sLl7h1occ8JZ4=
+// @vegastack popover@0.9.1 sha256-cYiy6wU3pm16kWyEleRDN7eWGEDDCxf8pJQNhB+RcVc=
 
 "use client";
 
@@ -236,7 +236,7 @@ export function PopoverTitle({ className, ...props }: PopoverTitleProps) {
   return (
     <BasePopover.Title
       data-slot="popover-title"
-      className={cn("text-label text-foreground", className)}
+      className={cn("text-sm font-medium text-foreground", className)}
       {...props}
     />
   );
@@ -262,10 +262,7 @@ export function PopoverDescription({
   return (
     <BasePopover.Description
       data-slot="popover-description"
-      className={cn(
-        "text-base leading-relaxed text-muted-foreground",
-        className,
-      )}
+      className={cn("text-sm leading-relaxed text-muted-foreground", className)}
       {...props}
     />
   );

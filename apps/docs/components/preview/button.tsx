@@ -40,7 +40,7 @@ export function buttonMatrix(): ReactNode {
         <div key={variant} className="flex flex-wrap items-center gap-3">
           {TONES.map((tone) =>
             variant === "solid" && tone === "destructive" ? (
-              <span key={tone} className="text-sm text-muted-foreground">
+              <span key={tone} className="text-xs text-muted-foreground">
                 (no solid destructive)
               </span>
             ) : (

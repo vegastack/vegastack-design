@@ -11,10 +11,10 @@ export function marketingSurface(): ReactNode {
   return (
     <Wrapper className="p-0">
       <MarketingSurface className="flex w-full flex-col items-start gap-3 rounded-lg p-8">
-        <p className="font-mono text-mono-label text-muted-foreground uppercase">
+        <p className="font-mono font-mono text-xs text-muted-foreground uppercase">
           VegaStack
         </p>
-        <p className="text-display-sm text-foreground">
+        <p className="text-4xl text-foreground">
           Always the dark brand ground.
         </p>
         <p className="max-w-md text-muted-foreground">
@@ -32,7 +32,7 @@ export function marketingSurfaceRender(): ReactNode {
   return (
     <Wrapper className="p-0">
       <MarketingSurface render={<section />} className="w-full rounded-lg p-6">
-        <p className="font-mono text-mono-label text-muted-foreground uppercase">
+        <p className="font-mono font-mono text-xs text-muted-foreground uppercase">
           Composed as a &lt;section&gt;
         </p>
       </MarketingSurface>

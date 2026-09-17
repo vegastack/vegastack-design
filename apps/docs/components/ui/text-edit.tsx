@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.9.1 sha256-ADmMlce4KutbeSDqPNBWSV8/PSG7JTU4kfjVo9BmtqM=
+// @vegastack text-edit@0.9.1 sha256-gW7G9nxlSDAeOMEQ+kutROVtvSxeUORq4v7XjWt6QLc=
 
 "use client";
 
@@ -131,7 +131,7 @@ function FormattingToolbar({ editor }: { editor: Editor }) {
       data-slot="text-edit-toolbar"
       aria-label="Formatting"
       disabled={disabled}
-      className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/(--alpha-wash-faint) px-1.5 py-1"
+      className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/40 px-1.5 py-1"
     >
       <Toolbar.Group
         data-slot="text-edit-toolbar-group"
@@ -609,12 +609,12 @@ export function TextEdit({
       data-invalid={invalid ? "" : undefined}
       className={cn(
         "relative overflow-hidden rounded-lg border border-input bg-background",
-        "focus-within:border-ring/(--alpha-tint-border)",
-        // Focus outranks invalid — same reasoning, same mechanism as `fieldControl`
+        "focus-within:border-ring/70",
+        // Focus outranks invalid — same reasoning, same mechanism as the shared field chrome
         // (`@vegastack/design`, #100): the contenteditable carries `outline-none`, so this
         // container border is the editor's whole focus affordance and the invalid tint must
         // stand down while it holds focus rather than win the cascade.
-        "not-focus-within:has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
+        "not-focus-within:has-aria-invalid:border-destructive/70",
         className,
       )}
     >
@@ -629,7 +629,7 @@ export function TextEdit({
         style={contentStyle}
       >
         {showPlaceholder ? (
-          <p className="pointer-events-none absolute top-2.5 start-3 z-(--z-raised) text-base leading-relaxed text-muted-foreground select-none">
+          <p className="pointer-events-none absolute top-2.5 start-3 z-10 text-sm leading-relaxed text-muted-foreground select-none">
             {placeholder}
           </p>
         ) : null}

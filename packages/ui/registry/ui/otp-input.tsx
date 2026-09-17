@@ -1,10 +1,10 @@
-// @vegastack otp-input@0.9.1 sha256-Qg0OyHOBzuepDRr6PU6uN4/M5c5ompE7V1vqe3HGvLg=
+// @vegastack otp-input@0.9.1 sha256-jnzv9cTQhj1cMcTrUiSUMskjVOa3i2Zzj6o9g4f8BsE=
 
 "use client";
 
 import * as React from "react";
 import { OTPField } from "@base-ui/react/otp-field";
-import { cn, fieldControl } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /** Props accepted by `OTPInput`. */
 export interface OTPInputProps extends Omit<
@@ -105,7 +105,7 @@ export interface OTPInputProps extends Omit<
 
 /**
  * Per-slot input classes — each slot is a real `<input>` rendered as a square, bordered box.
- * The border/focus/invalid/disabled chrome is `fieldControl` (audit B1-11), identical to
+ * The border/focus/invalid/disabled chrome is the shared field chrome (audit B1-11), identical to
  * `Input` and `Textarea`; only what is SPECIFIC to a code slot lives here: the mono centred
  * glyph, the caret ink, and the raised z-index that lifts the focused slot's tinted border
  * above its neighbours' hairlines. `outline-hidden` rather than the outline-REMOVING utility, so
@@ -115,9 +115,9 @@ export interface OTPInputProps extends Omit<
 
 /** Slot scale (register P1-04) — the shared 28/32/40 control tier with a type tier to match. */
 const slotSizeClasses = {
-  sm: "size-(--size-sm) text-base",
-  md: "size-(--size-md) text-lg",
-  lg: "size-(--size-lg) text-xl",
+  sm: "size-7 text-sm",
+  md: "size-8 text-base",
+  lg: "size-10 text-lg",
 } as const;
 
 // `.join(" ")`, not `+`. These two fragments were concatenated with no separator, so the slot
@@ -127,11 +127,11 @@ const slotSizeClasses = {
 // (2026-09-09). `class-glue` in `design-lint` now rejects the seam.
 const slotClasses = [
   "relative flex items-center justify-center text-center font-mono text-foreground outline-hidden",
-  "caret-foreground focus:z-(--z-raised)",
+  "caret-foreground focus:z-10",
 ].join(" ");
 
 const separatorClasses =
-  "select-none px-0.5 font-mono text-base text-muted-foreground";
+  "select-none px-0.5 font-mono text-sm text-muted-foreground";
 
 function normalizeGroups(
   length: number,
@@ -211,13 +211,13 @@ export function OTPInput({
       }
       // `aria-invalid` is forwarded to every SLOT, not left on the root (2026-09-09). The root is a
       // plain container: `aria-invalid` there is ignored by assistive tech AND invisible to
-      // `fieldControl`, whose destructive tint is a `aria-invalid:` variant on the control itself —
+      // the shared field chrome, whose destructive tint is a `aria-invalid:` variant on the control itself —
       // so `<OTPInput aria-invalid />` measured the neutral `--input` border and announced nothing.
       // The `Field` path is unaffected: there the invalid state arrives through Base UI's context
-      // as `data-invalid` on each slot, which `fieldControl` already reads.
+      // as `data-invalid` on each slot, which the shared field chrome already reads.
       aria-invalid={ariaInvalid}
       className={cn(
-        fieldControl,
+        "rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring/70 not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80",
         slotClasses,
         slotSizeClasses[size],
         slotClassName,

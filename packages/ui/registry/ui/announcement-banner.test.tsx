@@ -57,9 +57,9 @@ test("has no accessibility violations", async () => {
   const actionSlot = action
     .element()
     .closest('[data-slot="announcement-banner-action"]');
-  expect(actionSlot?.className).toContain("[&_a]:min-h-(--size-xs)");
-  expect(actionSlot?.className).toContain("[&_a]:min-w-(--size-xs)");
-  expect(actionSlot?.className).toContain("[&_button]:min-w-(--size-xs)");
+  expect(actionSlot?.className).toContain("[&_a]:min-h-6");
+  expect(actionSlot?.className).toContain("[&_a]:min-w-6");
+  expect(actionSlot?.className).toContain("[&_button]:min-w-6");
 });
 
 test("wraps long announcements instead of clipping their text at narrow widths", async () => {
@@ -112,7 +112,7 @@ test("the dismiss control is an IconButton, so it inherits the 24px geometry", a
   // the target floor is IconButton's contract rather than this file's. Measured geometry lives in
   // the contract lane — this env has no compiled sheet, so every rect here would be 0.
   expect(dismiss.dataset.slot).toBe("announcement-banner-dismiss");
-  expect(dismiss.className).toContain("(--size-xs)");
+  expect(dismiss.className).toContain("6");
 });
 
 test("the strip flips foreground and background against the page", async () => {

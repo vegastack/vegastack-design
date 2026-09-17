@@ -110,7 +110,7 @@ test("forwards portal, positioner, viewport props, and accepts functional offset
   const positioner = document.querySelector(
     '[data-slot="tooltip-positioner"]',
   )!;
-  expect(positioner.className).toContain("z-(--z-overlay)");
+  expect(positioner.className).toContain("z-50");
   expect(positioner.className).toContain("consumer-positioner");
   expect(document.querySelector(".tooltip-portal-prop")).not.toBeNull();
   expect(

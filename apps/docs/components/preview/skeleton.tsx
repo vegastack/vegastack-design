@@ -48,15 +48,15 @@ export function skeletonShapeCount(): ReactNode {
     <Wrapper className="justify-start">
       <div className="grid w-full max-w-2xl grid-cols-3 gap-6">
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium text-muted-foreground">line</p>
+          <p className="text-xs font-medium text-muted-foreground">line</p>
           <Skeleton shape="line" count={3} />
         </div>
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium text-muted-foreground">circle</p>
+          <p className="text-xs font-medium text-muted-foreground">circle</p>
           <Skeleton shape="circle" count={3} />
         </div>
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium text-muted-foreground">rect</p>
+          <p className="text-xs font-medium text-muted-foreground">rect</p>
           <Skeleton shape="rect" count={3} />
         </div>
       </div>
@@ -85,7 +85,7 @@ export function skeletonReveal(): ReactNode {
             <Avatar fallback="AL" />
             <div className="flex min-w-0 flex-col">
               <span className="font-medium">Ada Lovelace</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Analytical Engine, v2
               </span>
             </div>
@@ -119,8 +119,8 @@ export function skeletonCard(): ReactNode {
         </div>
         {/* Footer actions */}
         <div className="mt-4 flex items-center gap-2">
-          <Skeleton className="h-(--size-md) w-20 rounded-md" />
-          <Skeleton className="h-(--size-md) w-20 rounded-md" />
+          <Skeleton className="h-8 w-20 rounded-md" />
+          <Skeleton className="h-8 w-20 rounded-md" />
         </div>
       </div>
     </Wrapper>

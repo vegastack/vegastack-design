@@ -1,4 +1,4 @@
-// @vegastack segmented@0.9.1 sha256-Iv+/dk7VK+6od4+jriV+8ZlT1rn7wlyE2nf1B+5EpEU=
+// @vegastack segmented@0.9.1 sha256-uOiGhoqri8unh9RxjHZ/RXo6LMPi02V1iw4JWUSrX+o=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
 import { Toggle as BaseToggle } from "@base-ui/react/toggle";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn, selectedChipVariants } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Segmented — the canonical segmented control (Wave 2, promoted from the ToggleGroup recipe after
@@ -31,7 +31,7 @@ const SegmentedContext = React.createContext<{ size: "md" | "lg" }>({
 export const segmentedVariants = cva(
   cn(
     "inline-flex w-fit items-center gap-0.5 rounded-md p-0.5 text-muted-foreground",
-    selectedChipVariants.track,
+    "bg-muted",
   ),
   {
     variants: {
@@ -48,22 +48,22 @@ export const segmentedVariants = cva(
 
 export const segmentedItemVariants = cva(
   cn(
-    "inline-flex min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-sm text-label-sm whitespace-nowrap select-none",
+    "inline-flex min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-sm text-xs font-medium whitespace-nowrap select-none",
     // The look — rest, hover, pressed AND selected — is the shared recipe, so a Segmented chip and
     // a pill/chip tab cannot drift apart again (B6-02). It also keeps the SELECTED chip stepping:
     // before this, `not-data-pressed:` excluded the selected chip from hover and press entirely, so
     // the one chip a user is most likely to click was the one that answered nothing (the probe's
     // `active-same-as-hover`).
-    selectedChipVariants.item,
-    selectedChipVariants.pressed,
-    "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
-    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-compact)",
+    "border border-transparent hover:text-foreground",
+    "data-pressed:border-input data-pressed:bg-background data-pressed:text-foreground data-pressed:shadow-sm dark:data-pressed:bg-input/30",
+    "disabled:pointer-events-none disabled:opacity-50",
+    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3",
   ),
   {
     variants: {
       size: {
-        md: "h-(--size-xs) px-2.5",
-        lg: "h-(--size-sm) px-3 text-label [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+        md: "h-6 px-2.5",
+        lg: "h-7 px-3 text-sm font-medium [&_svg:not([class*='size-'])]:size-3.5",
       },
     },
     defaultVariants: { size: "md" },
@@ -189,7 +189,7 @@ export interface SegmentedItemProps
 
 /**
  * `SegmentedItem` — one chip in a `Segmented` control. Identify it with `value`;
- * the selected chip raises on the shared `selectedChipVariants` recipe — the
+ * the selected chip raises on the shared the selected-chip recipe recipe — the
  * pressed/selected rung with the one hairline border
  * (`data-pressed`). Compose a leading icon as the first child.
  *

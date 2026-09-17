@@ -1,4 +1,4 @@
-// @vegastack figure-frame@0.9.1 sha256-GnRQfwKD7yOumeO+F75cxsDEsoxQiZW9Em0ZB3leWOE=
+// @vegastack figure-frame@0.9.1 sha256-giphKOpL2gbZ9vOBKH0yyjcquvCL3Mp0HTnN/86s6yY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -12,7 +12,7 @@ export interface FigureFrameProps extends React.ComponentPropsWithRef<"figure"> 
   children: React.ReactNode;
   /**
    * FIG-annotation caption text. Rendered in the mono voice
-   * (`font-mono` + `text-mono-label`, uppercase — the spec's 12px floor;
+   * (`font-mono` + `font-mono text-xs`, uppercase — the spec's 12px floor;
    * this component intentionally does not reach for the spec's optional
    * 10px FIG-annotation minimum, since no token below 12px is shipped yet —
    * see the component's audit note).
@@ -34,7 +34,7 @@ export interface FigureFrameProps extends React.ComponentPropsWithRef<"figure"> 
 }
 
 /**
- * `FigureFrame` — a sharp-cornered (`rounded-(--radius-sharp)`) media frame
+ * `FigureFrame` — a sharp-cornered (`rounded-[2px]`) media frame
  * with an optional mono FIG-annotation caption below it (audit
  * 17-brand-direction §Shape: the marketing "sharp" gesture is rationed to
  * CTAs, chips, and figure frames — never applied wholesale). Use it to frame
@@ -59,7 +59,7 @@ export function FigureFrame({
       ref={ref}
       data-slot="figure-frame"
       className={cn(
-        "overflow-hidden rounded-(--radius-sharp) border border-border bg-card",
+        "overflow-hidden rounded-[2px] border border-border bg-card",
         className,
       )}
       {...props}
@@ -74,7 +74,7 @@ export function FigureFrame({
       {caption ? (
         <figcaption
           data-slot="figure-frame-caption"
-          className="flex items-center gap-2 border-t border-border px-3 py-2 font-mono text-mono-label text-muted-foreground uppercase"
+          className="flex items-center gap-2 border-t border-border px-3 py-2 font-mono font-mono text-xs text-muted-foreground uppercase"
         >
           {figureNumber !== undefined ? (
             <span

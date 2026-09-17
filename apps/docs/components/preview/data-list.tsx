@@ -187,7 +187,7 @@ export function dataListClickable(): ReactNode {
         onSortChange={setSort}
         onRowClick={(person) => setLastActivated(person.name)}
         footer={
-          <p className="text-base text-muted-foreground" aria-live="polite">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
             {lastActivated
               ? `Activated: ${lastActivated}`
               : "Click a row, or Tab to its first cell and press Enter."}
@@ -255,7 +255,7 @@ export function dataListInteractiveColumn(): ReactNode {
         getRowId={(p) => p.id}
         onRowClick={(person) => setLastActivated(person.name)}
         footer={
-          <p className="text-base text-muted-foreground" aria-live="polite">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
             {lastActivated
               ? `Row activated: ${lastActivated}`
               : "Tab to the name link to activate by keyboard; click elsewhere on the row for mouse."}
@@ -311,7 +311,7 @@ export function dataListComposed(): ReactNode {
             type="search"
             placeholder="Search people…"
             value={query}
-            prefix={<Search className="size-(--icon-default)" aria-hidden />}
+            prefix={<Search className="size-4" aria-hidden />}
             aria-label="Search people"
             containerClassName="max-w-xs"
             onChange={(e) => {
@@ -322,7 +322,7 @@ export function dataListComposed(): ReactNode {
         }
         footer={
           <div className="flex items-center justify-between">
-            <p className="text-base text-muted-foreground" aria-live="polite">
+            <p className="text-sm text-muted-foreground" aria-live="polite">
               {filtered.length} {filtered.length === 1 ? "result" : "results"}
             </p>
             <div className="flex items-center gap-2">
@@ -334,7 +334,7 @@ export function dataListComposed(): ReactNode {
               >
                 Previous
               </Button>
-              <span className="text-base tabular-nums text-muted-foreground">
+              <span className="text-sm tabular-nums text-muted-foreground">
                 Page {safePage + 1} of {pageCount}
               </span>
               <Button

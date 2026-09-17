@@ -1,4 +1,4 @@
-// @vegastack floating-surface@0.9.1 sha256-WEb1u+MK392Y7qBMptLh5qn/G6PpCWwes2OP3o8PdWM=
+// @vegastack floating-surface@0.9.1 sha256-2y+AeuOPZGX4ps/nqaPPyFHXTkIFaHsoBEerzjDS4ZM=
 
 "use client";
 
@@ -56,7 +56,7 @@ export function mergeStateClassName<State>(
  * The positioner class shared by every anchored overlay: the overlay z-band, and no focus outline
  * on a container that is never itself focusable (the popup inside it keeps the global indicator).
  */
-export const FLOATING_POSITIONER = "z-(--z-overlay) outline-none";
+export const FLOATING_POSITIONER = "z-50 outline-none";
 
 /**
  * The four floating popup recipes. All four share the overlay z-band, the Base UI transform origin,
@@ -72,25 +72,25 @@ export const FLOATING_POSITIONER = "z-(--z-overlay) outline-none";
  * the one large morphing panel (NavigationMenu resizes between items, which reads wrong at 150ms).
  */
 export const floatingPopupVariants = cva(
-  "z-(--z-overlay) origin-(--transform-origin) data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
+  "z-50 origin-(--transform-origin) data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
   {
     variants: {
       surface: {
         panel:
-          "w-(--panel-width-md) max-w-[calc(100vw-var(--spacing)*8)] rounded-lg border border-border bg-popover p-4 text-base text-popover-foreground shadow-overlay",
+          "w-72 max-w-[calc(100vw-var(--spacing)*8)] rounded-lg border border-border bg-popover p-4 text-sm text-popover-foreground shadow-lg",
         menu: [
           "max-h-[var(--available-height)] min-w-32 max-w-[var(--available-width)]",
           "overflow-x-hidden overflow-y-auto overscroll-contain",
-          "rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-overlay outline-none",
+          "rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg outline-none",
           // Menus nudge in from the side they opened against; the starting/ending offsets below
           // reset it so the popup settles flush.
           "data-[side=top]:translate-y-1 data-[side=bottom]:-translate-y-1 data-[side=left]:translate-x-1 data-[side=right]:-translate-x-1",
           "data-[starting-style]:translate-x-0 data-[starting-style]:translate-y-0 data-[ending-style]:translate-x-0 data-[ending-style]:translate-y-0",
         ].join(" "),
         tooltip:
-          "flex w-fit max-w-xs items-center gap-2 rounded-md bg-foreground px-2.5 py-1 text-sm text-background shadow-overlay select-none data-[instant]:duration-0",
+          "flex w-fit max-w-xs items-center gap-2 rounded-md bg-foreground px-2.5 py-1 text-xs text-background shadow-lg select-none data-[instant]:duration-0",
         navigation:
-          "h-(--popup-height) w-full rounded-lg border border-border bg-popover text-popover-foreground shadow-overlay data-[starting-style]:-translate-y-px sm:w-(--popup-width)",
+          "h-(--popup-height) w-full rounded-lg border border-border bg-popover text-popover-foreground shadow-lg data-[starting-style]:-translate-y-px sm:w-(--popup-width)",
       },
       motion: {
         // `scale` is listed explicitly — Tailwind v4's `scale-*` sets the CSS `scale` property,
@@ -362,8 +362,8 @@ export function FloatingArrow({
       <span
         className={
           tone === "panel"
-            ? "block size-2.5 rotate-45 rounded-xs border-r border-b border-border bg-popover"
-            : "block size-2 rotate-45 rounded-xs bg-foreground"
+            ? "block size-2.5 rotate-45 rounded-sm border-r border-b border-border bg-popover"
+            : "block size-2 rotate-45 rounded-sm bg-foreground"
         }
       />
     </Arrow>
@@ -387,23 +387,23 @@ export function FloatingArrow({
  */
 export const menuItemVariants = cva(
   [
-    "group/menu-item relative flex w-full items-center gap-2 rounded-md text-base outline-none select-none",
-    "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
+    "group/menu-item relative flex w-full items-center gap-2 rounded-md text-sm outline-none select-none",
+    "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
     "data-[inset]:ps-8",
-    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   ].join(" "),
   {
     variants: {
       tone: {
         default: [
           "text-popover-foreground [&_svg]:text-muted-foreground",
-          "data-[highlighted]:bg-surface-2 data-[popup-open]:bg-surface-2",
+          "data-[highlighted]:bg-accent data-[popup-open]:bg-accent",
           "data-[highlighted]:[&_svg]:text-foreground data-[popup-open]:[&_svg]:text-foreground",
-          "active:bg-surface-3 data-[selected]:bg-surface-3 data-[highlighted]:data-[selected]:bg-surface-3",
+          "active:bg-accent data-[selected]:bg-accent data-[highlighted]:data-[selected]:bg-accent",
         ].join(" "),
         destructive: [
           "text-destructive-text [&_svg]:text-destructive-text",
-          "data-[highlighted]:bg-destructive/(--alpha-hover) active:bg-destructive/(--alpha-pressed)",
+          "data-[highlighted]:bg-destructive/7 active:bg-destructive/10",
         ].join(" "),
       },
       indicator: {
@@ -430,7 +430,7 @@ export type MenuItemTone = NonNullable<MenuItemVariantProps["tone"]>;
 
 /** `menuLabelClassName` — the non-interactive group heading shared by every list surface. */
 export const menuLabelClassName =
-  "px-2 py-1.5 text-label-sm text-muted-foreground data-[inset]:ps-8";
+  "px-2 py-1.5 text-xs font-medium text-muted-foreground data-[inset]:ps-8";
 
 /** `menuSeparatorClassName` — the divider between item groups, bled to the list's 4px padding. */
 export const menuSeparatorClassName = "-mx-1 my-1 h-px bg-border";
@@ -441,11 +441,11 @@ export const menuSeparatorClassName = "-mx-1 my-1 h-px bg-border";
  * longer has to restate a highlighted colour.
  */
 export const menuShortcutClassName =
-  "ms-auto text-mono-label text-muted-foreground group-data-[tone=destructive]/menu-item:text-destructive-text";
+  "ms-auto font-mono text-xs text-muted-foreground group-data-[tone=destructive]/menu-item:text-destructive-text";
 
 /** `menuIndicatorWellClassName` — the fixed leading well a check or dot indicator sits in. */
 export const menuIndicatorWellClassName =
-  "pointer-events-none absolute start-2 flex size-(--icon-default) items-center justify-center";
+  "pointer-events-none absolute start-2 flex size-4 items-center justify-center";
 
 /** Props accepted by a shared menu `Item`. */
 export interface MenuPartItemProps extends React.ComponentProps<
@@ -626,7 +626,7 @@ export function createMenuParts(prefix: string): MenuParts {
       >
         <span className={menuIndicatorWellClassName}>
           <Menu.CheckboxItemIndicator>
-            <CheckIcon className="size-(--icon-default) text-foreground" />
+            <CheckIcon className="size-4 text-foreground" />
           </Menu.CheckboxItemIndicator>
         </span>
         {children}
@@ -764,9 +764,9 @@ export function PanelSearchFrame({
     <div
       data-slot="panel-search"
       className={cn(
-        "sticky top-0 z-(--z-raised) flex items-center gap-2 border-b border-border bg-popover px-3",
-        size === "lg" ? "h-(--size-lg)" : "h-(--size-md)",
-        focusTint && "focus-within:border-ring/(--alpha-tint-border)",
+        "sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-popover px-3",
+        size === "lg" ? "h-10" : "h-8",
+        focusTint && "focus-within:border-ring/70",
         className,
       )}
       {...props}
@@ -775,7 +775,7 @@ export function PanelSearchFrame({
         aria-hidden
         className={cn(
           "shrink-0 text-muted-foreground",
-          size === "lg" ? "size-(--icon-action)" : "size-(--icon-default)",
+          size === "lg" ? "size-5" : "size-4",
         )}
       />
       {children}
@@ -788,9 +788,9 @@ export function PanelSearchFrame({
  * it to whichever input the panel owns.
  */
 export const panelSearchInputClassName = cn(
-  "h-full w-full min-w-0 bg-transparent text-base text-foreground outline-none",
-  "placeholder:text-muted-foreground-faint",
-  "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
+  "h-full w-full min-w-0 bg-transparent text-sm text-foreground outline-none",
+  "placeholder:text-muted-foreground",
+  "disabled:cursor-not-allowed disabled:opacity-50",
 );
 
 /** Props accepted by `PanelSearchInput`. */

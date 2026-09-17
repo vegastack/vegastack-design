@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.9.1 sha256-0naImWoH1lMiBdCo2Jq7tWBpsdpmrQdY/nZqqEUNm6Q=
+// @vegastack searchable-select@0.9.1 sha256-EFsTMGS3tDYrSN3WQ2o7R/vM0BcR8Fo/GF/gQOGqKMc=
 
 "use client";
 
@@ -278,8 +278,8 @@ export function SearchableSelect<Item>({
         <ChevronsUpDown
           aria-hidden
           className={cn(
-            "pointer-events-none absolute end-3 top-1/2 size-(--icon-default) -translate-y-1/2 text-muted-foreground",
-            disabled && "opacity-(--opacity-dim)",
+            "pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground",
+            disabled && "opacity-50",
           )}
         />
       )}

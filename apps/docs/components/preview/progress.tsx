@@ -90,7 +90,7 @@ export function progressTrack(): ReactNode {
     <Wrapper>
       <Progress
         value={50}
-        trackClassName="bg-info-subtle"
+        trackClassName="bg-info/10"
         indicatorClassName="bg-info"
         aria-label="Custom track"
         className="max-w-xs"
@@ -107,7 +107,7 @@ export function progressMatrix(): ReactNode {
     <Wrapper className="flex-col items-stretch gap-4">
       {sizes.map((size) => (
         <div key={size} className="flex flex-col gap-2">
-          <span className="text-sm text-muted-foreground">{size}</span>
+          <span className="text-xs text-muted-foreground">{size}</span>
           {values.map((value) => (
             <Progress
               key={value}

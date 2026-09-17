@@ -98,7 +98,7 @@ test("disabled trigger dims via data-disabled (Base UI surfaces root-level disab
   const el = screen.container.querySelector(
     '[data-slot="collapsible-trigger"]',
   )!;
-  expect(el.className).toContain("data-disabled:opacity-(--opacity-dim)");
+  expect(el.className).toContain("data-disabled:opacity-50");
   expect(el.className).toContain("data-disabled:pointer-events-none");
 });
 
@@ -149,8 +149,9 @@ test("the trigger hovers with the row wash, not a link underline", async () => {
     '[data-slot="collapsible-trigger"]',
   ) as HTMLElement;
   expect(trigger.className).not.toContain("hover:underline");
-  expect(trigger.className).toContain("hover:bg-surface-2");
-  expect(trigger.className).toContain("active:bg-surface-3");
+  expect(trigger.className).toContain("hover:bg-accent");
+  // No pressed rung is asserted: INT-4 is decided as **shadcn**, so a hover wash no longer owes
+  // one, and `design-lint`'s `hover-without-pressed` rule went with that decision.
   expect(trigger.className).toContain("rounded-md");
   // Positive padding only — a negative margin would bleed the wash past the root at 320px.
   expect(trigger.className).toContain("px-2");

@@ -129,7 +129,7 @@ arrow keys automatically.
 ### States
 
 Pass `disabled` on the root to disable the whole group — it flows to every item, dims the group via
-`disabled:opacity-(--opacity-dim)`, and skips it for pointer and keyboard interaction. (A single item can be
+`disabled:opacity-(opacity-50)`, and skips it for pointer and keyboard interaction. (A single item can be
 disabled the same way — see the Selection example above.)
 
 <ComponentPreview
@@ -172,7 +172,7 @@ Try both orientations, the three sizes, and single vs multiple selection, then c
   order (`focus-visible:z-10`) so that ring is painted on top and never clipped by the adjacent
   joined buttons.
 - A disabled group (or item) sets `disabled` on the underlying button, is skipped by pointer and
-  keyboard interaction, and is dimmed via `disabled:opacity-(--opacity-dim)`.
+  keyboard interaction, and is dimmed via `disabled:opacity-(opacity-50)`.
 
 | Key                                 | Action                                                                    |
 | ----------------------------------- | ------------------------------------------------------------------------- |

@@ -45,7 +45,7 @@ export and it renders the structure for you:
 <Slider.Root>
   {/* the clickable hit area */}
   <Slider.Control>
-    {/* the rail (surface-1 by default; per-variant) */}
+    {/* the rail (muted by default; per-variant) */}
     <Slider.Track>
       {/* the filled portion (primary by default; per-variant) */}
       <Slider.Indicator />
@@ -59,7 +59,7 @@ export and it renders the structure for you:
 - **Root** — owns the value, `min`/`max`/`step`, and `disabled` state. Exposes
   `data-slot="slider"`.
 - **Control** — the interactive hit area; pressing it jumps the nearest thumb.
-- **Track** — the rail spanning the full `min`→`max` range (`surface-1` on the `default`
+- **Track** — the rail spanning the full `min`→`max` range (`muted` on the `default`
   variant; see [Variants](#variants)).
 - **Indicator** — the filled portion from `min` (or the lower thumb) up to the value
   (`primary` on the `default` variant; see [Variants](#variants)).
@@ -144,7 +144,7 @@ during-the-gesture feedback that tells you where you landed.
 
 | `variant` | Where                                                                                     |
 | --------- | ----------------------------------------------------------------------------------------- |
-| `default` | The form rail — `surface-1` track, `primary` fill, hollow ringed thumb.                   |
+| `default` | The form rail — `muted` track, `primary` fill, hollow ringed thumb.                       |
 | `media`   | A transport seek on a normal surface: muted fill that brightens on engagement.            |
 | `overlay` | Chrome drawn over video, on the theme-invariant `--media-*` ink.                          |
 | `bare`    | A transparent hit layer over custom-drawn media (the audio waveform), with no drawn rail. |

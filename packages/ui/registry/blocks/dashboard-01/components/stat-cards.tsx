@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.9.1 sha256-RuID/kEb8I7cZv4w10CmKv6vs+CHURA+0z++nvOvQyE=
+// @vegastack dashboard-01@0.9.1 sha256-f6Vq5O+Imnm+CAC7eA+eo0Gjkgs0KP66oA+V2hMEWfs=
 
 "use client";
 
@@ -81,7 +81,7 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
                       one thing on a stat card that must never be clipped — the number is
                       meaningless without it — so the badge moved down to the value row,
                       where it sits beside a short, mono, predictable-width figure. */}
-                  <CardTitle className="line-clamp-2 text-label-sm font-normal text-muted-foreground">
+                  <CardTitle className="line-clamp-2 text-xs font-medium font-normal text-muted-foreground">
                     {stat.label}
                   </CardTitle>
                 </CardHeader>
@@ -100,7 +100,7 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
                             }
                           : { maximumFractionDigits: 0 }
                       }
-                      className="min-w-0 font-mono text-2xl text-foreground"
+                      className="min-w-0 font-mono text-xl text-foreground"
                     />
                     <Badge
                       variant="soft"

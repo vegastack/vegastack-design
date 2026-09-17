@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.9.1 sha256-KYEgpSarYgZE/2xTSYyJ/jL9kAgukn3+BHGFqnTFYyk=
+// @vegastack media-player-controls@0.9.1 sha256-9tJxx95QHtQBrryMq4VypM/RYV4nits0wKkssLTgLyw=
 
 "use client";
 
@@ -46,13 +46,11 @@ import {
 
 const DEFAULT_PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 2] as const;
 const DEFAULT_SKIP_SECONDS = 15;
-const MEDIA_ACTION_ICON_CLASS =
-  "[&_svg:not([class*='size-'])]:size-(--icon-action)";
-// One icon step up (`--icon-action` 20px → `--icon-feature` 24px) for the
+const MEDIA_ACTION_ICON_CLASS = "[&_svg:not([class*='size-'])]:size-5";
+// One icon step up (`size-5` 20px → `size-6` 24px) for the
 // play/pause glyph on the narrow, two-line audio layout only, so the primary
 // control reads larger than the flanking skip buttons on a phone.
-const MEDIA_PLAY_ICON_LG_CLASS =
-  "[&_svg:not([class*='size-'])]:size-(--icon-feature)";
+const MEDIA_PLAY_ICON_LG_CLASS = "[&_svg:not([class*='size-'])]:size-6";
 // Media settings submenu: left-align the option label and move the selected dot
 // to the trailing edge (default radio items lead with the dot). Shared by the
 // audio card and the video overlay so both settings menus read identically.
@@ -75,8 +73,8 @@ const MEDIA_SUBMENU_RADIO_ITEM_CLASS =
 const MEDIA_OVERLAY_CHROME_CLASS = cn(
   "text-media-foreground",
   "[--btn-tint:var(--media-foreground)]",
-  "[--btn-soft-hover:color-mix(in_oklab,var(--media-foreground)_var(--alpha-hover),transparent)]",
-  "[--btn-soft-active:color-mix(in_oklab,var(--media-foreground)_var(--alpha-pressed),transparent)]",
+  "[--btn-soft-hover:color-mix(in_oklab,var(--media-foreground)_7%,transparent)]",
+  "[--btn-soft-active:color-mix(in_oklab,var(--media-foreground)_10%,transparent)]",
 );
 
 /**
@@ -806,7 +804,7 @@ export function MediaPlayerControls({
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <span className="min-w-0 flex-1 truncate">Playback speed</span>
-            <span className="font-mono text-code-sm text-muted-foreground">
+            <span className="font-mono font-mono text-xs text-muted-foreground">
               {playbackRate === 1 ? "Normal" : formatPlaybackRate(playbackRate)}
             </span>
           </DropdownMenuSubTrigger>
@@ -834,7 +832,7 @@ export function MediaPlayerControls({
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <span className="min-w-0 flex-1 truncate">Quality</span>
-              <span className="font-mono text-code-sm text-muted-foreground">
+              <span className="font-mono font-mono text-xs text-muted-foreground">
                 {selectedQuality}
               </span>
             </DropdownMenuSubTrigger>
@@ -887,7 +885,10 @@ export function MediaPlayerControls({
   const timeReadout = (
     <span
       data-slot="media-player-time"
-      className={cn("shrink-0 tabular-nums", isOverlay ? "text-lg" : "text-sm")}
+      className={cn(
+        "shrink-0 tabular-nums",
+        isOverlay ? "text-base" : "text-xs",
+      )}
     >
       {formatTime(currentTime)} / {formatTime(displayedDuration)}
     </span>
@@ -985,7 +986,7 @@ export function MediaPlayerControls({
         aria-label={`Change playback speed (currently ${formatPlaybackRate(playbackRate)})`}
         onClick={cyclePlaybackRate}
         className={cn(
-          "shrink-0 justify-center rounded-full font-mono text-code-sm tabular-nums",
+          "shrink-0 justify-center rounded-full font-mono font-mono text-xs tabular-nums",
           sizeClass,
         )}
       >
@@ -1032,7 +1033,7 @@ export function MediaPlayerControls({
       {volumeOpen ? (
         <div
           data-slot="media-player-volume-panel"
-          className="absolute bottom-full start-1/2 z-(--z-raised) flex -translate-x-1/2 rtl:translate-x-1/2 pb-2"
+          className="absolute bottom-full start-1/2 z-10 flex -translate-x-1/2 rtl:translate-x-1/2 pb-2"
         >
           <div
             data-slot="media-player-volume-surface"
@@ -1055,9 +1056,7 @@ export function MediaPlayerControls({
               aria-label={`${label} volume`}
               onValueChange={setVolumeValue}
               className={
-                isOverlay
-                  ? "h-[calc(var(--size-lg)+var(--spacing)*4)] w-6"
-                  : "h-20 w-6"
+                isOverlay ? "h-[calc(2.5rem+var(--spacing)*4)] w-6" : "h-20 w-6"
               }
             />
           </div>
@@ -1205,7 +1204,7 @@ export function MediaPlayerControls({
           >
             <span
               data-slot="media-player-time-elapsed"
-              className="shrink-0 text-sm tabular-nums"
+              className="shrink-0 text-xs tabular-nums"
             >
               {formatTime(currentTime)}
             </span>
@@ -1217,7 +1216,7 @@ export function MediaPlayerControls({
             <div className="min-w-0 flex-1 px-1">{seekControl}</div>
             <span
               data-slot="media-player-time-duration"
-              className="shrink-0 text-sm tabular-nums"
+              className="shrink-0 text-xs tabular-nums"
             >
               {formatTime(displayedDuration)}
             </span>

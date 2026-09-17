@@ -230,8 +230,8 @@ test("borderless flattens the RESTING border only, so the focus tint survives", 
   const root = screen.container.querySelector(
     '[data-slot="field"]',
   ) as HTMLElement;
-  // `:not(:focus)` is the whole point (#100). Unscoped, this override and `fieldControl`'s
-  // `focus:border-ring/(--alpha-tint-border)` are the same property at the same specificity and
+  // `:not(:focus)` is the whole point (#100). Unscoped, this override and `"rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring/70 not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80"`'s
+  // `focus:border-ring/70` are the same property at the same specificity and
   // Tailwind v4 emits the arbitrary variant last, so `border-transparent` won in every state — and
   // a text-entry control carries `outline-hidden`, so a borderless field had no focus affordance at
   // all. This file has no compiled CSS, so it can only assert the class contract; the rendered

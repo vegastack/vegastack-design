@@ -260,7 +260,7 @@ Re-exported from `react-day-picker`. `DateRange` is the shape of a range `value`
 - Built on `react-day-picker`, which renders the month as a `grid` of `gridcell` day buttons with descriptive `aria-label`s ("Saturday, June 21st, 2026").
 - The selected day, range ends, today, and disabled days are all distinguishable by state — not by color alone — via `data-*` driven surfaces (`bg-primary`, `ring`, `bg-accent`, reduced opacity).
 - Opening the picker moves focus into the calendar; arrow keys move day-to-day, and selection restores focus to the trigger. Pressing <kbd>Esc</kbd> closes the popover.
-- Focus is always visible: the outline `Button` trigger brightens its border on `:focus-visible` (`focus-visible:border-ring/(--alpha-tint-border)`), and the day grid manages roving focus itself (react-day-picker focuses the active day on keyboard navigation). Today's cell additionally carries a neutral `ring` (`ring-ring/(--alpha-outline-soft)`).
+- Focus is always visible: the outline `Button` trigger brightens its border on `:focus-visible` (`focus-visible:border-ring/(70%)`), and the day grid manages roving focus itself (react-day-picker focuses the active day on keyboard navigation). Today's cell additionally carries a neutral `ring` (`ring-ring/(50%)`).
 - The trigger has no visible text label when empty beyond its placeholder, so pass `aria-label` (or wrap it in a `Field`) to name it for assistive tech.
 
 | Key                                                 | Action                                                                    |

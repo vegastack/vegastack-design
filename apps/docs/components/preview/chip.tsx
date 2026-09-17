@@ -95,7 +95,7 @@ function ChipRemovableExample() {
         ))}
       </div>
       {labels.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No labels</p>
+        <p className="text-xs text-muted-foreground">No labels</p>
       ) : null}
     </Wrapper>
   );

@@ -1,4 +1,4 @@
-// @vegastack card@0.9.1 sha256-U8K5KtHspmfQOimkAO/8TpQ9uq7eYYmLxbQiSaklaZ0=
+// @vegastack card@0.9.1 sha256-wt4ABC2u7imRv0zlRyUclqENdK8UnDXcsih34Ct3Z7M=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -41,7 +41,7 @@ function Card({ className, size = "md", ref, ...props }: CardProps) {
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col gap-4 overflow-hidden rounded-lg border border-border bg-card py-4 text-base text-card-foreground",
+        "group/card flex flex-col gap-4 overflow-hidden rounded-lg border border-border bg-card py-4 text-sm text-card-foreground",
         "has-data-[slot=card-footer]:pb-0",
         "data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0",
         className,
@@ -91,7 +91,10 @@ function CardTitle({ className, ref, ...props }: CardTitleProps) {
     <div
       ref={ref}
       data-slot="card-title"
-      className={cn("text-h4 group-data-[size=sm]/card:text-label", className)}
+      className={cn(
+        "text-base font-medium group-data-[size=sm]/card:text-sm group-data-[size=sm]/card:font-medium",
+        className,
+      )}
       {...props}
     />
   );
@@ -110,7 +113,7 @@ function CardDescription({ className, ref, ...props }: CardDescriptionProps) {
     <div
       ref={ref}
       data-slot="card-description"
-      className={cn("text-base text-muted-foreground", className)}
+      className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
   );
@@ -177,7 +180,7 @@ function CardFooter({ className, ref, ...props }: CardFooterProps) {
       ref={ref}
       data-slot="card-footer"
       className={cn(
-        "flex items-center rounded-b-lg border-t border-border bg-surface-1 p-4 group-data-[size=sm]/card:p-3",
+        "flex items-center rounded-b-lg border-t border-border bg-muted p-4 group-data-[size=sm]/card:p-3",
         className,
       )}
       {...props}

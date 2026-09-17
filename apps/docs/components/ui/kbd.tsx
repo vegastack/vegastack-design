@@ -1,4 +1,4 @@
-// @vegastack kbd@0.9.1 sha256-2Jpk8tBjEOn2jpKLdnqqzuKrIuRRgUqfBFKxsMPebXI=
+// @vegastack kbd@0.9.1 sha256-OQLpqHL4bpGrOVT0CMETA3rujoN+5Aj6RvRGqG026iI=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -10,8 +10,8 @@ import { cn } from "@vegastack/design";
  * tight `rounded-sm` (6px) used for inline controls. Sizes mirror the lower end
  * of the shared scale (`xs` / `sm` / `md`).
  *
- * ONE type role across all three tiers: `text-code-sm` (the dense tabular mono
- * figure). `md` used to reach the same 12px through `text-sm` instead — the same
+ * ONE type role across all three tiers: `font-mono text-xs` (the dense tabular mono
+ * figure). `md` used to reach the same 12px through `text-xs` instead — the same
  * pixel size named by two different roles, which is how a scale drifts (audit
  * B2-07). No `pointer-events-none`: a `<kbd>` has no pointer behaviour to
  * suppress, and blocking events on it also blocks the hover of whatever wraps it.
@@ -21,9 +21,9 @@ export const kbdVariants = cva(
   {
     variants: {
       size: {
-        xs: "h-4 min-w-4 px-1 py-0.5 text-code-sm leading-none",
-        sm: "h-5 min-w-5 px-1 py-0.5 text-code-sm leading-none",
-        md: "h-6 min-w-6 px-1.5 py-0.5 text-code-sm leading-none",
+        xs: "h-4 min-w-4 px-1 py-0.5 font-mono text-xs leading-none",
+        sm: "h-5 min-w-5 px-1 py-0.5 font-mono text-xs leading-none",
+        md: "h-6 min-w-6 px-1.5 py-0.5 font-mono text-xs leading-none",
       },
     },
     defaultVariants: { size: "md" },

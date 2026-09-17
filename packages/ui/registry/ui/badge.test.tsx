@@ -135,7 +135,7 @@ test("bordered subtle badge carries the matching-hue border class", async () => 
   const el = screen.getByText("Active");
   await expect.element(el).toHaveAttribute("data-bordered", "");
   expect((el.element() as HTMLElement).className).toContain(
-    "border-success/(--alpha-outline-border)",
+    "border-success/50",
   );
 });
 

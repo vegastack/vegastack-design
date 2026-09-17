@@ -1,10 +1,10 @@
-// @vegastack textarea@0.9.1 sha256-zzc0b318FCypxiVdWPMLl4YIqvorJDjluwZgZuO+yfU=
+// @vegastack textarea@0.9.1 sha256-NAKjSO0HFw1QYcyYu72JXBkk3Z/iqG4Qi5ZBcBqbWro=
 
 "use client";
 
 import * as React from "react";
 import { Field as BaseField } from "@base-ui/react/field";
-import { cn, fieldControl } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /** Props accepted by `Textarea`. */
 export interface TextareaProps extends React.ComponentProps<"textarea"> {
@@ -35,19 +35,19 @@ export interface TextareaProps extends React.ComponentProps<"textarea"> {
  * padding rather than the fixed control heights; `sm` steps the type down a tier.
  */
 const sizeClasses = {
-  sm: "min-h-12 px-2.5 py-1.5 text-sm",
+  sm: "min-h-12 px-2.5 py-1.5 text-xs",
   md: "min-h-16 px-3 py-2",
   lg: "min-h-24 px-3 py-2.5",
 } as const;
 
 /**
- * Layout only — the border/focus/invalid/disabled chrome is `fieldControl`, the one recipe
+ * Layout only — the border/focus/invalid/disabled chrome is the shared field chrome, the one recipe
  * every text-entry control in the system shares (audit B1-11), so `Input` and `Textarea` can
  * no longer drift apart. `outline-hidden` rather than the outline-REMOVING utility: it compiles to a
  * transparent 2px outline that `forced-colors: active` repaints, which is what keeps a focused
  * textarea locatable once the forced palette has erased the border tint (audit B1-01).
  */
-const layoutClasses = "w-full min-w-0 text-base outline-hidden";
+const layoutClasses = "w-full min-w-0 text-sm outline-hidden";
 
 /**
  * `Textarea` — a styled `<textarea>` for multi-line text entry, with `error` (`aria-invalid`) and
@@ -92,7 +92,7 @@ export function Textarea({
       data-slot="textarea"
       data-size={size}
       className={cn(
-        fieldControl,
+        "rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring/70 not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80",
         layoutClasses,
         sizeClasses[size],
         autoGrow ? "resize-none field-sizing-content" : "resize-y",

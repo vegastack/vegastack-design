@@ -442,7 +442,7 @@ test("rendered color-contrast passes WCAG 2.2 AA — dark theme", async () => {
 // ── Toaster ────────────────────────────────────────────────────────────────────────────────────
 // Toasts portal to <body>, so audit the whole document. Each variant exercises a different token
 // pair: the base toast (bg-popover / text-popover-foreground), the muted description, and the
-// per-status tints (bg-success-subtle + text-success-text, etc.) plus their lucide status icons.
+// per-status tints (bg-success/10 + text-success, etc.) plus their lucide status icons.
 // Audited one fully-settled toast at a time (see `auditToast` — avoids the stacking-dim false
 // positive).
 
@@ -545,9 +545,9 @@ test("ColorPicker chrome color-contrast passes WCAG AA — dark theme", async ()
 });
 
 // ── Tabs count badge ───────────────────────────────────────────────────────────────────────────
-// `[data-slot="tabs-trigger-count"]` paints a TRANSLUCENT ink wash (`bg-foreground/(--alpha-hover)`)
+// `[data-slot="tabs-trigger-count"]` paints a TRANSLUCENT ink wash (`bg-foreground/7`)
 // on top of whatever the trigger itself paints. On a `pill`/`chip` list the SELECTED trigger is
-// already `bg-foreground/(--alpha-ink-tint)` over the `surface-1` track, so the badge composites two
+// already `bg-foreground/10` over the `muted` track, so the badge composites two
 // washes over a rung — a stack that `tooling/contrast-check.mjs` cannot see, because that gate
 // checks TOKEN pairs (and its ladder composite deliberately hosts only background/card/popover).
 // Measured dark, pre-fix: muted-foreground over that stack = 3.40:1 (needs 4.5:1) — the appearance

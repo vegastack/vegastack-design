@@ -1,4 +1,4 @@
-// @vegastack combobox@0.9.1 sha256-pO9W3pAOj0GZAqx4LGhGgV/9A0ya5wXmITcmBfCz/6Y=
+// @vegastack combobox@0.9.1 sha256-Jt484oyeIHX/r/BQw4j9Mk5t1rT5nrg9ZA+gy46if08=
 
 "use client";
 
@@ -6,13 +6,7 @@ import * as React from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronsUpDown, X } from "lucide-react";
-import {
-  cn,
-  fieldControl,
-  fieldControlGroup,
-  FLOATING,
-  surfaceInteractive,
-} from "@vegastack/design";
+import { cn, FLOATING } from "@vegastack/design";
 import { Chip, ChipRemove } from "@/components/ui/chip";
 import {
   FloatingSurface,
@@ -154,15 +148,15 @@ export const comboboxInputVariants = cva(
     // dark inset fill — shared with Input, Textarea, NumberField, OTP and the Select trigger.
     // `outline-hidden` (not `outline-none`) leaves a transparent outline for `forced-colors:
     // active` to repaint, since the forced palette erases the border tint entirely (B1-01).
-    fieldControl,
-    "w-full min-w-0 px-3 py-1 text-base outline-hidden",
+    "rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring/70 not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80",
+    "w-full min-w-0 px-3 py-1 text-sm outline-hidden",
   ].join(" "),
   {
     variants: {
       size: {
-        sm: "h-(--size-sm) text-sm",
-        md: "h-(--size-md)",
-        lg: "h-(--size-lg)",
+        sm: "h-7 text-xs",
+        md: "h-8",
+        lg: "h-10",
       },
     },
     defaultVariants: { size: "md" },
@@ -242,7 +236,7 @@ export const comboboxInputGroupVariants = cva(
     // The wrapper twin of the field chrome — same border grammar, read through Base UI's
     // `data-focused`/`data-invalid`/`data-disabled` instead of the input's own pseudo-classes.
     // Pair it with `data-field-group` on the element (see `ComboboxInputGroup`).
-    fieldControlGroup,
+    "rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring/70 data-focused:border-ring/70 not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30",
     "flex w-full min-w-0 flex-wrap items-center gap-1 p-1",
     // Flatten the nested ComboboxInput into the group's own chrome (same technique as
     // field.tsx's CONTROL_SLOTS) — the group owns the border/ring, the input becomes borderless.
@@ -251,9 +245,9 @@ export const comboboxInputGroupVariants = cva(
   {
     variants: {
       size: {
-        sm: "min-h-(--size-sm)",
-        md: "min-h-(--size-md)",
-        lg: "min-h-(--size-lg)",
+        sm: "min-h-7",
+        md: "min-h-8",
+        lg: "min-h-10",
       },
     },
     defaultVariants: { size: "md" },
@@ -307,16 +301,16 @@ export const comboboxTriggerVariants = cva(
   [
     "inline-flex shrink-0 items-center justify-center rounded-md text-muted-foreground select-none",
     "hover:text-foreground",
-    surfaceInteractive,
-    "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim)",
-    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+    "hover:bg-accent",
+    "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   ].join(" "),
   {
     variants: {
       size: {
-        sm: "size-(--size-sm)",
-        md: "size-(--size-md)",
-        lg: "size-(--size-lg)",
+        sm: "size-7",
+        md: "size-8",
+        lg: "size-10",
       },
     },
     defaultVariants: { size: "md" },
@@ -355,9 +349,7 @@ export function ComboboxTrigger({
         data-slot="combobox-icon"
         className="flex items-center justify-center"
       >
-        {children ?? (
-          <ChevronsUpDown className="size-(--icon-default)" aria-hidden />
-        )}
+        {children ?? <ChevronsUpDown className="size-4" aria-hidden />}
       </BaseCombobox.Icon>
     </BaseCombobox.Trigger>
   );
@@ -490,9 +482,9 @@ export function ComboboxItem({
       className={cn(menuItemVariants({ indicator: "trailing" }), className)}
       {...props}
     >
-      <span className="absolute end-2 flex size-(--icon-default) items-center justify-center text-foreground">
+      <span className="absolute end-2 flex size-4 items-center justify-center text-foreground">
         <BaseCombobox.ItemIndicator data-slot="combobox-item-indicator">
-          <Check className="size-(--icon-default)" aria-hidden />
+          <Check className="size-4" aria-hidden />
         </BaseCombobox.ItemIndicator>
       </span>
       {children}
@@ -619,7 +611,7 @@ export function ComboboxEmpty({ className, ...props }: ComboboxEmptyProps) {
     <BaseCombobox.Empty
       data-slot="combobox-empty"
       className={cn(
-        "py-6 text-center text-base text-muted-foreground empty:hidden",
+        "py-6 text-center text-sm text-muted-foreground empty:hidden",
         className,
       )}
       {...props}
@@ -652,7 +644,7 @@ export function ComboboxStatus({ className, ...props }: ComboboxStatusProps) {
     <BaseCombobox.Status
       data-slot="combobox-status"
       className={cn(
-        "flex items-center justify-center gap-2 py-6 text-base text-muted-foreground empty:hidden",
+        "flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground empty:hidden",
         className,
       )}
       {...props}
@@ -688,16 +680,16 @@ export function ComboboxClear({
     <BaseCombobox.Clear
       data-slot="combobox-clear"
       className={cn(
-        "inline-flex size-(--size-xs) shrink-0 items-center justify-center rounded-md text-muted-foreground transition-opacity duration-fast ease-standard",
+        "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-opacity duration-fast ease-standard",
         "hover:text-foreground",
         "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
-        "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim)",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-compact)",
+        "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3",
         className,
       )}
       {...props}
     >
-      {children ?? <X className="size-(--icon-compact)" aria-hidden />}
+      {children ?? <X className="size-3" aria-hidden />}
     </BaseCombobox.Clear>
   );
 }

@@ -1,4 +1,4 @@
-// @vegastack region-select@0.9.1 sha256-7EKSEiNgfl+1hFVXojMdHob3+1jkNmfr0O1UhKcURQM=
+// @vegastack region-select@0.9.1 sha256-uCPncc1OQJg2P8/CDr6lnQXDMuFxxe7GrsBaZ408oLI=
 
 "use client";
 
@@ -128,7 +128,7 @@ export function RegionSelect({
         />
         <MapPin
           aria-hidden
-          className="pointer-events-none absolute top-1/2 start-3 size-(--icon-default) -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground"
         />
       </div>
     );
@@ -149,7 +149,7 @@ export function RegionSelect({
         <>
           <MapPin
             aria-hidden
-            className="size-(--icon-default) shrink-0 text-muted-foreground"
+            className="size-4 shrink-0 text-muted-foreground"
           />
           <span className="truncate">{state.name}</span>
         </>

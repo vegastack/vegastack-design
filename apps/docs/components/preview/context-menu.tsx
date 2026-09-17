@@ -37,7 +37,7 @@ export function contextMenu(): ReactNode {
   return (
     <Wrapper>
       <ContextMenu>
-        <ContextMenuTrigger className="flex h-32 w-64 items-center justify-center rounded-lg border border-dashed border-border text-base text-muted-foreground select-none">
+        <ContextMenuTrigger className="flex h-32 w-64 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground select-none">
           Right-click here
         </ContextMenuTrigger>
         <ContextMenuContent>
@@ -70,7 +70,7 @@ export function contextMenuRich(): ReactNode {
   return (
     <Wrapper>
       <ContextMenu>
-        <ContextMenuTrigger className="flex h-32 w-72 items-center justify-center rounded-lg border border-dashed border-border text-base text-muted-foreground select-none">
+        <ContextMenuTrigger className="flex h-32 w-72 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground select-none">
           Right-click here
         </ContextMenuTrigger>
         <ContextMenuContent className="min-w-56">
@@ -167,7 +167,7 @@ export function contextMenuInset(): ReactNode {
   return (
     <Wrapper>
       <ContextMenu>
-        <ContextMenuTrigger className="flex h-32 w-64 items-center justify-center rounded-lg border border-dashed border-border text-base text-muted-foreground select-none">
+        <ContextMenuTrigger className="flex h-32 w-64 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground select-none">
           Right-click here
         </ContextMenuTrigger>
         <ContextMenuContent className="min-w-52">

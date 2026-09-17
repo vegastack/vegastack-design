@@ -49,7 +49,7 @@ export function CopyPromptButton({
       variant="outline"
       size="sm"
       data-slot="copy-prompt-button"
-      className="gap-1.5 [&_svg]:size-(--icon-inline)"
+      className="gap-1.5 [&_svg]:size-(size-3.5)"
       disabled={status === "loading"}
       aria-busy={status === "loading"}
       onClick={() =>

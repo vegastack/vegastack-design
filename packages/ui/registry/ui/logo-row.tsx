@@ -1,4 +1,4 @@
-// @vegastack logo-row@0.9.1 sha256-ilQ46KmVJRs6/zB2YNMWvOha9ISCN8B2PfBN7UOt0cQ=
+// @vegastack logo-row@0.9.1 sha256-D+E1JojpWhnNmHl/+5b5nFZCfhhUz0PfrfUaoz0KhvE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -81,7 +81,7 @@ export function LogoRow({
       {label ? (
         <p
           data-slot="logo-row-label"
-          className="font-mono text-mono-label text-muted-foreground uppercase"
+          className="font-mono font-mono text-xs text-muted-foreground uppercase"
         >
           {label}
         </p>
@@ -119,12 +119,12 @@ export function LogoRow({
                 // A wall of underlined text reads as a paragraph of links, not as marks.
                 // Marks rest in the muted role and LIFT to full ink on hover; the hover
                 // change is the affordance, so no underline is needed to signal the link.
-                className="text-lg font-medium text-muted-foreground no-underline hover:text-foreground"
+                className="text-base font-medium text-muted-foreground no-underline hover:text-foreground"
               >
                 {item.name}
               </a>
             ) : (
-              <span className="text-lg font-medium text-muted-foreground">
+              <span className="text-base font-medium text-muted-foreground">
                 {item.name}
               </span>
             )}

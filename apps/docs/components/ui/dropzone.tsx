@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.9.1 sha256-0vu2LGhlvyB53XvUtyi0OR6r0Hlff/EMb6lGtktQIbk=
+// @vegastack dropzone@0.9.1 sha256-b7sPA/GD8x/Q60bPxY/ORRVvlOzA33LFWfA8g1au0s8=
 
 "use client";
 
@@ -149,9 +149,9 @@ export function Dropzone({
           // scrollable overflow. Moving both edges one spacing step inward keeps the paint inside
           // without clipping arbitrary children; the host's real focus outline stays independent.
           "outline-offset-0 after:pointer-events-none after:absolute after:inset-0.5 after:box-border after:rounded-[inherit] after:content-['']",
-          "data-dragging:after:border-2 data-dragging:after:border-primary/(--alpha-outline-border)",
-          "data-drag-invalid:after:border-2 data-drag-invalid:after:border-destructive/(--alpha-outline-border)",
-          options.disabled && "pointer-events-none opacity-(--opacity-dim)",
+          "data-dragging:after:border-2 data-dragging:after:border-primary/50",
+          "data-drag-invalid:after:border-2 data-drag-invalid:after:border-destructive/50",
+          options.disabled && "pointer-events-none opacity-50",
           className,
         )}
         data-dragging={dragging ?? (dragState === "dragging" ? "" : undefined)}

@@ -14,20 +14,20 @@ generated:
       sha256: "e89e7b952e08607c080e027176a784f27bd2a104c52590a46008e65058bf74ab"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3569
-      sha256: "613dccee60a24fa29905ea12001cb656d7a3303669edd148de3ccba73569a9dd"
+      bytes: 3050
+      sha256: "007c1c983158ab75c4e4c708fd1c79d43eee7e639a9f12bea138d71598f3f295"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
-      bytes: 9953
-      sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
+      bytes: 2974
+      sha256: "b1200c778288683d702c27cc4b713aefc6afc075790a16adac428fdc64499748"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 36110
-      sha256: "a2b9ca0b54f8dd193d64eae2c1d2ea3702204012d3deb49c5aa1329664f6a4b4"
+      bytes: 20237
+      sha256: "6a8d36d00e9f778853a08534f5c1727d531a5ea5b28e6ca6be19124b5513ffbc"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 11722
-      sha256: "2074bc0926b8611451ec25180f85aca5c174699394833ee8ec6b9b1da5f48479"
+      bytes: 11748
+      sha256: "9277ae2cc40e29747729c3635d114447cef016c9d193cd5085b53858f4c54cd1"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -36,95 +36,16 @@ themes:
   light:
     accent:
       type: "color"
-      value: "oklch(0.945 0.003 75)"
-      description: "ALIAS of surface-2, the hover/highlight rung (shadcn's `accent` — a NEUTRAL, never a hue). Menu/select/command `data-highlighted` rides on it."
+      value: "oklch(0.97 0 0)"
     accent-foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
-      description: "ALIAS of foreground."
-    alpha-backdrop-soft:
-      type: "dimension"
-      value: "60%"
-      description: "Translucent surface backdrop (bg-background) — pill tab list."
-    alpha-border:
-      type: "dimension"
-      value: "8%"
-      description: "The hairline alpha (D14): `border` is DERIVED as foreground at this alpha, so one hairline reads on page, card, well and dark band. 8% light (L 0.936, Geist gray-400 territory) / 14% dark (L 0.325 over card)."
-    alpha-border-soft:
-      type: "dimension"
-      value: "30%"
-      description: "The softer of the two border-tint steps. Introduced for the sonner toast surface; since the Base UI Toast migration (O2) the toast tint uses `alpha-border-subtle` like Alert, so this step currently has NO in-repo caller. Kept because it is published token surface — retiring it is a token-batch decision, not a component one."
-    alpha-border-subtle:
-      type: "dimension"
-      value: "20%"
-      description: "Alert variant border tint (border-<family>)."
-    alpha-glass:
-      type: "dimension"
-      value: "90%"
-      description: "Glass button surface (bg-background + backdrop-blur)."
-    alpha-glass-hover:
-      type: "dimension"
-      value: "95%"
-      description: "Glass button surface on hover."
-    alpha-hover:
-      type: "dimension"
-      value: "7%"
-      description: "The alpha twin of surface-2: `bg-<ink>/(--alpha-hover)` composites the hover rung onto ANY backdrop (a kbd inside a hovered row, a chip on a well, a control over media). foreground at 7% over the page measures L 0.943 light / 0.267 dark over card — within 0.003 of the opaque rung. Theme-invariant."
-    alpha-ink-tint:
-      type: "dimension"
-      value: "10%"
-      description: "Neutral pressed/hover ink tint (bg-foreground) — toggle pressed, chip remove hover."
-    alpha-ink-tint-strong:
-      type: "dimension"
-      value: "15%"
-      description: "Hovered pressed-state ink tint (bg-foreground)."
-    alpha-input:
-      type: "dimension"
-      value: "30%"
-      description: "Dark-theme input fill tint (bg-input) — see the dark-tint scoping note."
-    alpha-link-hover:
-      type: "dimension"
-      value: "88%"
-      description: "Hovered link text dim, applied to a `<family>-text` ink in rendered rich text and on the `link` Button. 88%, not 80%: at 80% the light composites measured 4.03–4.11:1 for success/info/warning (2026-09-09) — a hover state that drops the link below WCAG 1.4.3 AA. contrast-check gates the composite, not just the solid ink."
-    alpha-outline-border:
-      type: "dimension"
-      value: "50%"
-      description: "Resting border of the outline button family (border-<family>)."
-    alpha-outline-soft:
-      type: "dimension"
-      value: "50%"
-      description: "Soft neutral outline/ring (base outline default, date-picker today ring)."
-    alpha-pressed:
-      type: "dimension"
-      value: "10%"
-      description: "The alpha twin of surface-3 (pressed/selected): foreground at 10% measures L 0.921 light / 0.292 dark over card. Theme-invariant."
-    alpha-surface-faint:
-      type: "dimension"
-      value: "5%"
-      description: "Resting wash of the outline button family (bg-<family>)."
-    alpha-tint-border:
-      type: "dimension"
-      value: "70%"
-      description: "Border tint for focus (ring) and error (destructive) borders — design.md's ring/70 pattern."
-    alpha-wash:
-      type: "dimension"
-      value: "50%"
-      description: "Neutral wash (bg-muted) — card/table footers, ghost dark hover."
-    alpha-wash-faint:
-      type: "dimension"
-      value: "40%"
-      description: "Faint neutral wash (bg-muted) — rich-text toolbar."
-    alpha-wash-strong:
-      type: "dimension"
-      value: "60%"
-      description: "Stronger neutral wash (bg-muted) — line-tab hover."
+      value: "oklch(0.205 0 0)"
     background:
       type: "color"
-      value: "oklch(0.994 0.002 75)"
+      value: "oklch(1 0 0)"
     border:
       type: "color"
-      value: "oklch(0.145 0.003 75 / 0.08)"
-      description: "DERIVED: foreground at 8% (alpha-border) — the one alpha hairline (D14)."
+      value: "oklch(0.922 0 0)"
     brand:
       type: "color"
       value: "oklch(0.6 0.17 148)"
@@ -135,73 +56,57 @@ themes:
       description: "The PAGE-READABLE brand ink, LIGHT half — the same role every chromatic family ships as `<family>-text`. `brand` itself is a 3.5:1 marker and fails WCAG 1.4.3 as a label (measured 3.41:1 for the `cta` Button's mono label over its own faint wash, 2026-09-09), so any brand-coloured TEXT reads through this token instead. Gated at 4.5:1 by contrast-check over background/card/popover/surface-1–3 and over the brand wash at alpha-surface-faint/hover/pressed."
     card:
       type: "color"
-      value: "oklch(0.994 0.002 75)"
-      description: "Light cards are PAGE-COLOURED and separated by the alpha hairline alone (surface-ladder decision 2026-09-07, P1): no reference system lifts or sinks a light card. Dark keeps the one-step lift (neutral.900)."
+      value: "oklch(1 0 0)"
     card-foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
+      value: "oklch(0.145 0 0)"
     chart-1:
       type: "color"
       value: "oklch(0.546 0.245 262.88)"
+      description: "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
     chart-2:
       type: "color"
-      value: "oklch(0.6 0.118 184.7)"
+      value: "oklch(0.581 0.118 184.7)"
+      description: "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
     chart-3:
       type: "color"
       value: "oklch(0.398 0.07 227.39)"
+      description: "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
     chart-4:
       type: "color"
-      value: "oklch(0.646 0.222 41.12)"
+      value: "oklch(0.623 0.222 41.12)"
+      description: "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
     chart-5:
       type: "color"
-      value: "oklch(0.645 0.246 16.44)"
+      value: "oklch(0.632 0.246 16.44)"
+      description: "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
     chart-6:
       type: "color"
       value: "oklch(0.505 0.213 27.52)"
+      description: "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
     chart-7:
       type: "color"
-      value: "oklch(0.6 0.127 104.2)"
-      description: "Olive (hue 104) — reassigned from green.600, which collided with the brand phosphor hue (CX-9)."
+      value: "oklch(0.598 0.127 104.2)"
+      description: "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
     chart-8:
       type: "color"
       value: "oklch(0.531 0.182 256)"
+      description: "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
     chart-single:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
+      value: "oklch(0.145 0 0)"
       description: "Single-series chart ink (D29): one series is drawn in foreground ink; the categorical chart-1…8 hues start at two series."
     destructive:
       type: "color"
-      value: "oklch(0.505 0.213 27.52)"
-    destructive-active:
-      type: "color"
-      value: "oklch(0.415 0.213 27.52)"
-      description: "DERIVED: destructive fill at L-0.09 (active step)."
-    destructive-border:
-      type: "color"
-      value: "oklch(0.505 0.213 27.52)"
-      description: "Invalid-state border ink, composited at --alpha-tint-border. A DEDICATED role because the fill hue cannot serve both: on the dark ground, destructive at 70% measures 1.92:1, far under the 3:1 WCAG 1.4.11 floor for a non-text UI indicator, and lightening `destructive` itself would drop destructive-foreground on the solid button below 4.5:1. Light keeps the fill hue (4.24:1); dark re-grounds to red.400 (4.00:1)."
+      value: "oklch(0.577 0.245 27.325)"
+      description: "shadcn base-nova's value, verbatim."
     destructive-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    destructive-hover:
-      type: "color"
-      value: "oklch(0.455 0.213 27.52)"
-      description: "DERIVED: destructive fill at L-0.05 (hover step)."
-    destructive-subtle:
-      type: "color"
-      value: "oklch(0.949 0.022 24)"
-    destructive-subtle-active:
-      type: "color"
-      value: "oklch(0.883 0.046 19.3)"
-      description: "DERIVED: destructive fill @12% composited over destructive-subtle (soft-pressed surface, AA-gated against destructive-text)."
-    destructive-subtle-hover:
-      type: "color"
-      value: "oklch(0.91 0.036 20.4)"
-      description: "DERIVED: destructive fill @7.000000000000001% composited over destructive-subtle (soft-hover surface, AA-gated against destructive-text)."
+      value: "oklch(1 0 0)"
     destructive-text:
       type: "color"
-      value: "oklch(0.496 0.2 25)"
-      description: "Page-readable red ink (was red.650, L 0.521). Re-tuned -0.025 L on 2026-09-07 so the soft PRESSED rung (`destructive-subtle-active`, fill @12% over subtle) still clears 4.5:1 — at the old ink the soft family sat at the AA edge on hover (4.60:1) and had no room for a pressed step. Every other pair only gains contrast."
+      value: "oklch(0.446 0.182 27.325)"
+      description: "COL-12 (ours), the page-readable half of the family. A status FILL is tuned to carry its own `-foreground` on top of it; used AS TEXT on the page or on the family's own 10-20% tint it lands between 3.98 and 4.35:1, which is a live WCAG 1.4.3 failure (measured by the rendered axe lane, 2026-09-18, on Alert, Badge, Toast and the soft Button). This is the ink those surfaces read through, AA-gated by contrast-check on background, card, popover and on the /10, /20 and /30 composites over each. Upstream has no tinted status surface at all, so this token is an addition to shadcn rather than a deviation from it."
     duration-base:
       type: "duration"
       value: "200ms"
@@ -215,10 +120,6 @@ themes:
     duration-slow:
       type: "duration"
       value: "300ms"
-    effect-blur-glass:
-      type: "dimension"
-      value: "8px"
-      description: "Backdrop blur for chrome that floats over content (the Attachment upload veil). The Button `glass` variant it was introduced for was deleted 2026-09-07 (audit D16)."
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -226,10 +127,6 @@ themes:
     font-family-mono:
       type: "fontFamily"
       value: "'Geist Mono', monospace"
-    font-family-pixel:
-      type: "fontFamily"
-      value: "'Geist Pixel Square', monospace"
-      description: "THE single sanctioned Geist Pixel flourish cut (D17: one deliberate hero use per surface, no more)."
     font-family-sans:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -239,71 +136,23 @@ themes:
       description: "Serif ACCENT (D17): display emphasis words + pull-quotes only, never running text. Newsreader (opsz axis) until Geist Serif ships."
     foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
-    icon-action:
-      type: "dimension"
-      value: "1.25rem"
-      description: "20px icon — standalone action icons (design.md 'action')."
-    icon-compact:
-      type: "dimension"
-      value: "0.75rem"
-      description: "12px icon — inside xs controls only (below design.md's named scale; exists for the kept Button xs tier)."
-    icon-default:
-      type: "dimension"
-      value: "1rem"
-      description: "16px icon — the default control icon (design.md 'default')."
-    icon-feature:
-      type: "dimension"
-      value: "1.5rem"
-      description: "24px icon — feature/empty-state glyphs (design.md 'feature')."
-    icon-inline:
-      type: "dimension"
-      value: "0.875rem"
-      description: "14px icon — inline with body text and sm controls (design.md §Iconography 'inline')."
+      value: "oklch(0.145 0 0)"
     info:
       type: "color"
-      value: "oklch(0.531 0.182 256)"
-    info-active:
-      type: "color"
-      value: "oklch(0.441 0.182 256)"
-      description: "DERIVED: info fill at L-0.09 (active step)."
+      value: "oklch(0.55 0.19 256)"
+      description: "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
     info-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    info-hover:
-      type: "color"
-      value: "oklch(0.481 0.182 256)"
-      description: "DERIVED: info fill at L-0.05 (hover step)."
-    info-subtle:
-      type: "color"
-      value: "oklch(0.961 0.018 253)"
-    info-subtle-active:
-      type: "color"
-      value: "oklch(0.906 0.038 250.5)"
-      description: "DERIVED: info fill @12% composited over info-subtle (soft-pressed surface, AA-gated against info-text)."
-    info-subtle-hover:
-      type: "color"
-      value: "oklch(0.929 0.03 251.1)"
-      description: "DERIVED: info fill @7.000000000000001% composited over info-subtle (soft-hover surface, AA-gated against info-text)."
+      value: "oklch(1 0 0)"
     info-text:
       type: "color"
-      value: "oklch(0.5 0.171 256)"
-      description: "Link / informational blue ink (was blue.650, L 0.52); -0.02 L for the soft pressed rung — see destructive-text."
+      value: "oklch(0.456 0.156 256)"
     input:
       type: "color"
-      value: "oklch(0.145 0.003 75 / 0.08)"
-      description: "ALIAS of border (the alpha hairline). `border` itself is DERIVED by the SD preprocessor: foreground at --alpha-border (D14) so one hairline survives on page, card, well and dark band alike."
-    layout-header-height:
-      type: "dimension"
-      value: "3.5rem"
-      description: "56px app-shell header band (was a raw `h-14`, B6-08). Sticky/fixed content below the header offsets by this."
-    layout-overlay-max-height:
-      type: "dimension"
-      value: "calc(100dvh - 16rem)"
-      description: "The tallest a scrolling overlay body (Command list, Board column, ShortcutOverlay) may grow: the dynamic viewport minus a 16rem chrome allowance. DTCG 2025.10 has no calc expression type, so this dimension is authored as the CSS string it resolves to and passed through verbatim (the same precedent as the `easing` linear() token)."
+      value: "oklch(0.922 0 0)"
     media-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
+      value: "oklch(0.985 0 0)"
       description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
     media-scrim:
       type: "color"
@@ -313,10 +162,6 @@ themes:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.8)"
       description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
-    motion-blur:
-      type: "dimension"
-      value: "2px"
-      description: "Motion-blur amount for blur-fade entrances (Phase M text/element reveals)."
     motion-ease-emphasized:
       type: "cubicBezier"
       value: "cubic-bezier(0.3, 0, 0, 1)"
@@ -332,191 +177,70 @@ themes:
       value: "cubic-bezier(0.2, 0, 0, 1)"
     muted:
       type: "color"
-      value: "oklch(0.97 0.003 75)"
-      description: "ALIAS of surface-1 (shadcn name). muted-foreground stays a real text role."
+      value: "oklch(0.97 0 0)"
     muted-foreground:
       type: "color"
-      value: "oklch(0.439 0.003 75)"
-    muted-foreground-faint:
-      type: "color"
-      value: "oklch(0.63 0.003 75)"
-    opacity-dim:
-      type: "dimension"
-      value: "50%"
-      description: "Element opacity for disabled controls and dimmed affordances (outside-month days, decorative chevrons)."
-    opacity-hint:
-      type: "dimension"
-      value: "70%"
-      description: "Element opacity for resting secondary controls that reach 100% on hover (e.g. alert close)."
-    opacity-hint-soft:
-      type: "dimension"
-      value: "60%"
-      description: "Element opacity for hover-revealed hints (e.g. sort affordance on row hover)."
-    opacity-track:
-      type: "dimension"
-      value: "25%"
-      description: "Element opacity of the circular progress track ring."
-    overlay:
-      type: "color"
-      value: "oklch(0.13 0.002 75 / 0.28)"
-      description: "Modal scrim — an alpha-composite literal (a translucent wash has no primitive step; alpha is intrinsic to the role). Theme-split: the dark scrim is deeper."
-    panel-width-lg:
-      type: "dimension"
-      value: "20rem"
-      description: "320px floating panel (rich HoverCard previews)."
-    panel-width-md:
-      type: "dimension"
-      value: "18rem"
-      description: "288px floating panel — the default Popover, EmojiPicker, checklist card, range date trigger."
-    panel-width-sm:
-      type: "dimension"
-      value: "14rem"
-      description: "224px floating panel (compact popover, small menu, single-value date trigger)."
+      value: "oklch(0.539 0 0)"
     popover:
       type: "color"
-      value: "oklch(0.994 0.002 75)"
-      description: "Every floating surface is the card surface + shadow-overlay; never a lighter or darker rung of its own."
+      value: "oklch(1 0 0)"
     popover-foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
+      value: "oklch(0.145 0 0)"
     primary:
       type: "color"
-      value: "oklch(0.353 0.003 75)"
-    primary-active:
-      type: "color"
-      value: "oklch(0.236 0.003 75)"
+      value: "oklch(0.205 0 0)"
     primary-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    primary-hover:
-      type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.985 0 0)"
     radius:
       type: "dimension"
-      value: "0.75rem"
-    radius-lg:
-      type: "dimension"
-      value: "0.75rem"
-    radius-md:
-      type: "dimension"
-      value: "0.5rem"
-    radius-sharp:
-      type: "dimension"
-      value: "2px"
-      description: "The rationed marketing 'sharp' gesture (audit 17/D18): CTAs, chips, figure frames on marketing surfaces. 2px, not 0 — sharp at a glance, kin to the product scale."
-    radius-sm:
-      type: "dimension"
-      value: "0.375rem"
-    radius-xs:
-      type: "dimension"
-      value: "0.125rem"
-      description: "Micro radius — caret/arrow triangles and other sub-control geometry (was a silent Tailwind fallback, register P1-10)."
+      value: "0.625rem"
+      description: "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are DERIVED from it in the @theme bridge exactly as upstream derives them (0.6/0.8/1/1.4/1.8/2.2/2.6x), so `rounded-xl` on a card is upstream's 14px. The pre-reset 12px cap and the `rounded-xl` ban are gone (BRD-6/BRD-7 = shadcn)."
     ring:
       type: "color"
-      value: "oklch(0.353 0.003 75)"
+      value: "oklch(0.205 0 0)"
+      description: "FOC-2 (ours): the focus ring is the near-black/near-white INK, not shadcn's mid-grey (0.708 light / 0.556 dark). FOC-1 paints it as one global 2px `:focus-visible` outline, so it is the whole focus affordance and has to carry real contrast."
     secondary:
       type: "color"
-      value: "oklch(0.97 0.003 75)"
-      description: "ALIAS of surface-1 (kept so shadcn-shaped code keeps compiling). Never retune independently."
+      value: "oklch(0.97 0 0)"
     secondary-foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
-      description: "ALIAS of foreground — one ink on every neutral rung."
-    shadow-overlay:
-      type: "shadow"
-      value: "0 4px 14px -4px oklch(0.13 0.002 75 / 0.1), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)"
+      value: "oklch(0.205 0 0)"
     sidebar:
       type: "color"
-      value: "oklch(0.994 0.002 75)"
-      description: "The sidebar-* family is ALIASES ONLY (B6-01): the rail is a card surface on the ladder, not a second palette. Names kept for shadcn-shaped code."
+      value: "oklch(0.985 0 0)"
     sidebar-accent:
       type: "color"
-      value: "oklch(0.945 0.003 75)"
-      description: "ALIAS of surface-2 — the rail's hover rung; the active row sits one rung higher on surface-3 so active+hover still moves (SP-06)."
+      value: "oklch(0.97 0 0)"
     sidebar-accent-foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
+      value: "oklch(0.205 0 0)"
     sidebar-border:
       type: "color"
-      value: "oklch(0.145 0.003 75 / 0.08)"
+      value: "oklch(0.922 0 0)"
     sidebar-foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
+      value: "oklch(0.145 0 0)"
     sidebar-primary:
       type: "color"
-      value: "oklch(0.353 0.003 75)"
+      value: "oklch(0.205 0 0)"
     sidebar-primary-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
+      value: "oklch(0.985 0 0)"
     sidebar-ring:
       type: "color"
-      value: "oklch(0.353 0.003 75)"
-    sidebar-width:
-      type: "dimension"
-      value: "15rem"
-      description: "Expanded sidebar rail width (was a JS constant invisible to design-lint, register P2-13)."
-    sidebar-width-icon:
-      type: "dimension"
-      value: "3rem"
-      description: "Collapsed icon-only rail width."
-    sidebar-width-mobile:
-      type: "dimension"
-      value: "18rem"
-      description: "Width of the sidebar when it renders as an off-canvas sheet below the md breakpoint (was an inline `18rem` fallback, B6-08)."
-    size-lg:
-      type: "dimension"
-      value: "2.5rem"
-    size-md:
-      type: "dimension"
-      value: "2rem"
-    size-sm:
-      type: "dimension"
-      value: "1.75rem"
-    size-xs:
-      type: "dimension"
-      value: "1.5rem"
-      description: "24px — the compact control tier (Button xs, icon-only affordances like the password eye)."
+      value: "oklch(0.205 0 0)"
     success:
       type: "color"
-      value: "oklch(0.5 0.16 150)"
-    success-active:
-      type: "color"
-      value: "oklch(0.41 0.16 150)"
-      description: "DERIVED: success fill at L-0.09 (active step)."
+      value: "oklch(0.53 0.15 150)"
+      description: "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
     success-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    success-hover:
-      type: "color"
-      value: "oklch(0.45 0.16 150)"
-      description: "DERIVED: success fill at L-0.05 (hover step)."
-    success-subtle:
-      type: "color"
-      value: "oklch(0.951 0.051 150)"
-    success-subtle-active:
-      type: "color"
-      value: "oklch(0.896 0.065 151.7)"
-      description: "DERIVED: success fill @12% composited over success-subtle (soft-pressed surface, AA-gated against success-text)."
-    success-subtle-hover:
-      type: "color"
-      value: "oklch(0.919 0.059 151.1)"
-      description: "DERIVED: success fill @7.000000000000001% composited over success-subtle (soft-hover surface, AA-gated against success-text)."
+      value: "oklch(1 0 0)"
     success-text:
       type: "color"
-      value: "oklch(0.48 0.13 150)"
-      description: "Page-readable green ink (was green.650, L 0.5); -0.02 L for the soft pressed rung — see destructive-text."
-    surface-1:
-      type: "color"
-      value: "oklch(0.97 0.003 75)"
-      description: "Surface ladder rung 1 — the REST fill of a filled control (secondary/soft button, kbd, chip, segmented rail, tab-list pill) and the sunken well (code block, skeleton, disabled field, slider/progress track). `secondary` and `muted` are aliases of this rung."
-    surface-2:
-      type: "color"
-      value: "oklch(0.945 0.003 75)"
-      description: "Surface ladder rung 2 — the HOVER step: a transparent row/item/ghost control hovers to it, a rung-1 control hovers to it. `accent` and `sidebar-accent` are aliases. Alpha twin: bg-foreground/(--alpha-hover)."
-    surface-3:
-      type: "color"
-      value: "oklch(0.922 0.003 75)"
-      description: "Surface ladder rung 3 — the PRESSED / SELECTED step (active:, data-selected, the active sidebar row, the switch off-track). Alpha twin: bg-foreground/(--alpha-pressed)."
+      value: "oklch(0.44 0.121 150)"
     tag-blue:
       type: "color"
       value: "oklch(0.6 0.16 256)"
@@ -608,308 +332,29 @@ themes:
     tag-yellow-text:
       type: "color"
       value: "oklch(0.51 0.1 86)"
-    text-code:
-      type: "typography"
-      value:
-        fontSize: "0.8125rem"
-        lineHeight: "1.25rem"
-        fontWeight: "400"
-        letterSpacing: "0em"
-    text-code-sm:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "1rem"
-        fontWeight: "400"
-        letterSpacing: "0em"
-    text-display-lg:
-      type: "typography"
-      value:
-        fontSize: "3.5rem"
-        lineHeight: "3.75rem"
-        fontWeight: "400"
-        letterSpacing: "-0.05em"
-    text-display-md:
-      type: "typography"
-      value:
-        fontSize: "2.5rem"
-        lineHeight: "2.75rem"
-        fontWeight: "400"
-        letterSpacing: "-0.045em"
-    text-display-sm:
-      type: "typography"
-      value:
-        fontSize: "2rem"
-        lineHeight: "2.25rem"
-        fontWeight: "400"
-        letterSpacing: "-0.04em"
-    text-display-xl:
-      type: "typography"
-      value:
-        fontSize: "4.5rem"
-        lineHeight: "4.75rem"
-        fontWeight: "400"
-        letterSpacing: "-0.06em"
-    text-h1:
-      type: "typography"
-      value:
-        fontSize: "1.5rem"
-        lineHeight: "2rem"
-        fontWeight: "400"
-        letterSpacing: "-0.02em"
-    text-h2:
-      type: "typography"
-      value:
-        fontSize: "1.25rem"
-        lineHeight: "1.75rem"
-        fontWeight: "400"
-        letterSpacing: "-0.015em"
-    text-h3:
-      type: "typography"
-      value:
-        fontSize: "1.125rem"
-        lineHeight: "1.5rem"
-        fontWeight: "400"
-        letterSpacing: "-0.01em"
-    text-h4:
-      type: "typography"
-      value:
-        fontSize: "1rem"
-        lineHeight: "1.375rem"
-        fontWeight: "500"
-        letterSpacing: "0em"
-    text-label:
-      type: "typography"
-      value:
-        fontSize: "0.875rem"
-        lineHeight: "1.25rem"
-        fontWeight: "500"
-        letterSpacing: "-0.01em"
-      description: "Label voice tracking -1% (Wave 1, T3 final): chrome text only, never prose — matches the app-teardown 14/500 chrome standard."
-    text-label-sm:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "1rem"
-        fontWeight: "500"
-        letterSpacing: "-0.01em"
-    text-mono-label:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "1rem"
-        fontWeight: "400"
-        letterSpacing: "0.05em"
-      description: "The mono VOICE layer (audit 17/D20): uppercase Geist Mono eyebrows, section numbers, live-state labels, terminal annotations. 12px floor; uppercase is applied at the call site and is mono-exclusive (lint)."
-    text-strong:
-      type: "typography"
-      value:
-        fontSize: "0.875rem"
-        lineHeight: "1.25rem"
-        fontWeight: "600"
-        letterSpacing: "-0.01em"
-      description: "Rare 600-weight emphasis role. Use text-strong only when 500 cannot carry the hierarchy; raw font-semibold/font-bold utilities remain forbidden."
-    type-doc-2xl:
-      type: "typography"
-      value:
-        fontSize: "1.5rem"
-        lineHeight: "calc(2 / 1.5)"
-    type-doc-3xl:
-      type: "typography"
-      value:
-        fontSize: "1.875rem"
-        lineHeight: "calc(2.25 / 1.875)"
-    type-doc-base:
-      type: "typography"
-      value:
-        fontSize: "1rem"
-        lineHeight: "calc(1.5 / 1)"
-    type-doc-lg:
-      type: "typography"
-      value:
-        fontSize: "1.125rem"
-        lineHeight: "calc(1.75 / 1.125)"
-    type-doc-sm:
-      type: "typography"
-      value:
-        fontSize: "0.875rem"
-        lineHeight: "calc(1.25 / 0.875)"
-    type-doc-xl:
-      type: "typography"
-      value:
-        fontSize: "1.25rem"
-        lineHeight: "calc(1.75 / 1.25)"
-    type-doc-xs:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "calc(1 / 0.75)"
-    type-product-2xl:
-      type: "typography"
-      value:
-        fontSize: "1.25rem"
-        lineHeight: "calc(28 / 20)"
-    type-product-3xl:
-      type: "typography"
-      value:
-        fontSize: "1.5rem"
-        lineHeight: "calc(32 / 24)"
-    type-product-base:
-      type: "typography"
-      value:
-        fontSize: "0.875rem"
-        lineHeight: "calc(21 / 14)"
-    type-product-lg:
-      type: "typography"
-      value:
-        fontSize: "1rem"
-        lineHeight: "calc(24 / 16)"
-    type-product-sm:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "calc(16 / 12)"
-    type-product-xl:
-      type: "typography"
-      value:
-        fontSize: "1.125rem"
-        lineHeight: "calc(26 / 18)"
-    type-product-xs:
-      type: "typography"
-      value:
-        fontSize: "0.6875rem"
-        lineHeight: "calc(16 / 11)"
     warning:
       type: "color"
-      value: "oklch(0.52 0.145 52)"
-    warning-active:
-      type: "color"
-      value: "oklch(0.43 0.145 52)"
-      description: "DERIVED: warning fill at L-0.09 (active step)."
+      value: "oklch(0.55 0.12 70)"
+      description: "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
     warning-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    warning-hover:
-      type: "color"
-      value: "oklch(0.47 0.145 52)"
-      description: "DERIVED: warning fill at L-0.05 (hover step)."
-    warning-subtle:
-      type: "color"
-      value: "oklch(0.96 0.019 42)"
-    warning-subtle-active:
-      type: "color"
-      value: "oklch(0.906 0.034 51.5)"
-      description: "DERIVED: warning fill @12% composited over warning-subtle (soft-pressed surface, AA-gated against warning-text)."
-    warning-subtle-hover:
-      type: "color"
-      value: "oklch(0.929 0.027 48.8)"
-      description: "DERIVED: warning fill @7.000000000000001% composited over warning-subtle (soft-hover surface, AA-gated against warning-text)."
+      value: "oklch(1 0 0)"
     warning-text:
       type: "color"
-      value: "oklch(0.505 0.139 42)"
-      description: "Page-readable amber ink (was amber.650, L 0.52); -0.015 L for the soft pressed rung — see destructive-text."
-    z-overlay:
-      type: "number"
-      value: 50
-      description: "The portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order — Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts are the ONE surface above it, on their own `z-toast` band."
-    z-raised:
-      type: "number"
-      value: 10
-      description: "Local raise WITHIN a component's own stacking context (focused OTP slot / segmented item, floating label, bubble reactions, select scroll arrows). Never for portaled surfaces."
-    z-toast:
-      type: "number"
-      value: 60
-      description: "The toast band, one step above `z-overlay`. A toast is the only surface that must outrank a modal REGARDLESS of mount order — the viewport mounts with the app provider, so DOM order would otherwise put every later-opened dialog on top of it. Within the band the stack counts DOWN from this value by `--toast-index`, so the frontmost toast is the highest. Nothing else may claim this band."
+      value: "oklch(0.462 0.1 70)"
   dark:
     accent:
       type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.269 0 0)"
     accent-foreground:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
-    alpha-backdrop-soft:
-      type: "dimension"
-      value: "60%"
-      description: "Translucent surface backdrop (bg-background) — pill tab list."
-    alpha-border:
-      type: "dimension"
-      value: "14%"
-      description: "Dark half of the hairline alpha (D14): near-white ink needs more alpha than near-black to read as a line — foreground at 14% over card measures L 0.325, over the page 0.302."
-    alpha-border-soft:
-      type: "dimension"
-      value: "30%"
-      description: "The softer of the two border-tint steps. Introduced for the sonner toast surface; since the Base UI Toast migration (O2) the toast tint uses `alpha-border-subtle` like Alert, so this step currently has NO in-repo caller. Kept because it is published token surface — retiring it is a token-batch decision, not a component one."
-    alpha-border-subtle:
-      type: "dimension"
-      value: "20%"
-      description: "Alert variant border tint (border-<family>)."
-    alpha-glass:
-      type: "dimension"
-      value: "90%"
-      description: "Glass button surface (bg-background + backdrop-blur)."
-    alpha-glass-hover:
-      type: "dimension"
-      value: "95%"
-      description: "Glass button surface on hover."
-    alpha-hover:
-      type: "dimension"
-      value: "7%"
-      description: "The alpha twin of surface-2: `bg-<ink>/(--alpha-hover)` composites the hover rung onto ANY backdrop (a kbd inside a hovered row, a chip on a well, a control over media). foreground at 7% over the page measures L 0.943 light / 0.267 dark over card — within 0.003 of the opaque rung. Theme-invariant."
-    alpha-ink-tint:
-      type: "dimension"
-      value: "10%"
-      description: "Neutral pressed/hover ink tint (bg-foreground) — toggle pressed, chip remove hover."
-    alpha-ink-tint-strong:
-      type: "dimension"
-      value: "15%"
-      description: "Hovered pressed-state ink tint (bg-foreground)."
-    alpha-input:
-      type: "dimension"
-      value: "30%"
-      description: "Dark-theme input fill tint (bg-input) — see the dark-tint scoping note."
-    alpha-link-hover:
-      type: "dimension"
-      value: "88%"
-      description: "Hovered link text dim, applied to a `<family>-text` ink in rendered rich text and on the `link` Button. 88%, not 80%: at 80% the light composites measured 4.03–4.11:1 for success/info/warning (2026-09-09) — a hover state that drops the link below WCAG 1.4.3 AA. contrast-check gates the composite, not just the solid ink."
-    alpha-outline-border:
-      type: "dimension"
-      value: "50%"
-      description: "Resting border of the outline button family (border-<family>)."
-    alpha-outline-soft:
-      type: "dimension"
-      value: "50%"
-      description: "Soft neutral outline/ring (base outline default, date-picker today ring)."
-    alpha-pressed:
-      type: "dimension"
-      value: "10%"
-      description: "The alpha twin of surface-3 (pressed/selected): foreground at 10% measures L 0.921 light / 0.292 dark over card. Theme-invariant."
-    alpha-surface-faint:
-      type: "dimension"
-      value: "5%"
-      description: "Resting wash of the outline button family (bg-<family>)."
-    alpha-tint-border:
-      type: "dimension"
-      value: "70%"
-      description: "Border tint for focus (ring) and error (destructive) borders — design.md's ring/70 pattern."
-    alpha-wash:
-      type: "dimension"
-      value: "50%"
-      description: "Neutral wash (bg-muted) — card/table footers, ghost dark hover."
-    alpha-wash-faint:
-      type: "dimension"
-      value: "40%"
-      description: "Faint neutral wash (bg-muted) — rich-text toolbar."
-    alpha-wash-strong:
-      type: "dimension"
-      value: "60%"
-      description: "Stronger neutral wash (bg-muted) — line-tab hover."
+      value: "oklch(0.985 0 0)"
     background:
       type: "color"
-      value: "oklch(0.175 0.003 75)"
+      value: "oklch(0.145 0 0)"
     border:
       type: "color"
-      value: "oklch(0.922 0.003 75 / 0.14)"
-      description: "DERIVED: foreground at 14% (alpha-border) — the one alpha hairline (D14)."
+      value: "oklch(1 0 0 / 0.1)"
     brand:
       type: "color"
       value: "oklch(0.86 0.21 148)"
@@ -920,10 +365,10 @@ themes:
       description: "The page-readable brand ink, DARK half. On the dark and marketing grounds the marker value already measures 12.2:1 as a label, so brand-text and brand carry the SAME value here — the split exists because the light half cannot."
     card:
       type: "color"
-      value: "oklch(0.205 0.003 75)"
+      value: "oklch(0.205 0 0)"
     card-foreground:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.985 0 0)"
     chart-1:
       type: "color"
       value: "oklch(0.623 0.214 259.81)"
@@ -950,41 +395,18 @@ themes:
       value: "oklch(0.72 0.13 256)"
     chart-single:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.985 0 0)"
       description: "Repeated here on purpose: an alias is resolved per run, so a light-only alias would leak the LIGHT ink into `.dark` through the cascade (the contrast gate caught exactly that)."
     destructive:
       type: "color"
-      value: "oklch(0.505 0.213 27.52)"
-    destructive-active:
-      type: "color"
-      value: "oklch(0.415 0.213 27.52)"
-      description: "DERIVED: destructive fill at L-0.09 (active step)."
-    destructive-border:
-      type: "color"
-      value: "oklch(0.72 0.16 25)"
-      description: "Dark-ground invalid-state border ink. red.400 at --alpha-tint-border measures 4.00:1 on background and 3.86:1 on card, clearing the 3:1 WCAG 1.4.11 floor the shared destructive fill misses (1.92:1)."
+      value: "oklch(0.704 0.191 22.216)"
     destructive-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    destructive-hover:
-      type: "color"
-      value: "oklch(0.455 0.213 27.52)"
-      description: "DERIVED: destructive fill at L-0.05 (hover step)."
-    destructive-subtle:
-      type: "color"
-      value: "oklch(0.275 0.07 25)"
-    destructive-subtle-active:
-      type: "color"
-      value: "oklch(0.364 0.137 26.9)"
-      description: "DERIVED: destructive fill @40% composited over destructive-subtle (soft-pressed surface, AA-gated against destructive-text)."
-    destructive-subtle-hover:
-      type: "color"
-      value: "oklch(0.34 0.123 26.3)"
-      description: "DERIVED: destructive fill @30% composited over destructive-subtle (soft-hover surface, AA-gated against destructive-text)."
+      value: "oklch(0.145 0 0)"
     destructive-text:
       type: "color"
-      value: "oklch(0.74 0.16 25)"
-      description: "Dark red ink (was red.400, L 0.72); +0.02 L so the soft pressed rung (fill @40% over subtle) clears 4.5:1 — see the light destructive-text note."
+      value: "oklch(0.756 0.146 22.216)"
+      description: "COL-12 (ours), the page-readable half of the family. A status FILL is tuned to carry its own `-foreground` on top of it; used AS TEXT on the page or on the family's own 10-20% tint it lands between 3.98 and 4.35:1, which is a live WCAG 1.4.3 failure (measured by the rendered axe lane, 2026-09-18, on Alert, Badge, Toast and the soft Button). This is the ink those surfaces read through, AA-gated by contrast-check on background, card, popover and on the /10, /20 and /30 composites over each. Upstream has no tinted status surface at all, so this token is an addition to shadcn rather than a deviation from it."
     duration-base:
       type: "duration"
       value: "200ms"
@@ -998,10 +420,6 @@ themes:
     duration-slow:
       type: "duration"
       value: "300ms"
-    effect-blur-glass:
-      type: "dimension"
-      value: "8px"
-      description: "Backdrop blur for chrome that floats over content (the Attachment upload veil). The Button `glass` variant it was introduced for was deleted 2026-09-07 (audit D16)."
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -1009,10 +427,6 @@ themes:
     font-family-mono:
       type: "fontFamily"
       value: "'Geist Mono', monospace"
-    font-family-pixel:
-      type: "fontFamily"
-      value: "'Geist Pixel Square', monospace"
-      description: "THE single sanctioned Geist Pixel flourish cut (D17: one deliberate hero use per surface, no more)."
     font-family-sans:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -1022,70 +436,22 @@ themes:
       description: "Serif ACCENT (D17): display emphasis words + pull-quotes only, never running text. Newsreader (opsz axis) until Geist Serif ships."
     foreground:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
-    icon-action:
-      type: "dimension"
-      value: "1.25rem"
-      description: "20px icon — standalone action icons (design.md 'action')."
-    icon-compact:
-      type: "dimension"
-      value: "0.75rem"
-      description: "12px icon — inside xs controls only (below design.md's named scale; exists for the kept Button xs tier)."
-    icon-default:
-      type: "dimension"
-      value: "1rem"
-      description: "16px icon — the default control icon (design.md 'default')."
-    icon-feature:
-      type: "dimension"
-      value: "1.5rem"
-      description: "24px icon — feature/empty-state glyphs (design.md 'feature')."
-    icon-inline:
-      type: "dimension"
-      value: "0.875rem"
-      description: "14px icon — inline with body text and sm controls (design.md §Iconography 'inline')."
+      value: "oklch(0.985 0 0)"
     info:
       type: "color"
-      value: "oklch(0.531 0.182 256)"
-    info-active:
-      type: "color"
-      value: "oklch(0.441 0.182 256)"
-      description: "DERIVED: info fill at L-0.09 (active step)."
+      value: "oklch(0.72 0.15 256)"
     info-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    info-hover:
-      type: "color"
-      value: "oklch(0.481 0.182 256)"
-      description: "DERIVED: info fill at L-0.05 (hover step)."
-    info-subtle:
-      type: "color"
-      value: "oklch(0.275 0.059 255)"
-    info-subtle-active:
-      type: "color"
-      value: "oklch(0.38 0.114 254.5)"
-      description: "DERIVED: info fill @40% composited over info-subtle (soft-pressed surface, AA-gated against info-text)."
-    info-subtle-hover:
-      type: "color"
-      value: "oklch(0.354 0.101 254.3)"
-      description: "DERIVED: info fill @30% composited over info-subtle (soft-hover surface, AA-gated against info-text)."
+      value: "oklch(0.145 0 0)"
     info-text:
       type: "color"
-      value: "oklch(0.76 0.13 256)"
-      description: "Dark link / informational blue ink (was blue.400, L 0.72); +0.04 L for the soft pressed rung — blue had the least headroom (4.50:1 at hover)."
+      value: "oklch(0.76 0.124 256)"
     input:
       type: "color"
-      value: "oklch(0.922 0.003 75 / 0.14)"
-    layout-header-height:
-      type: "dimension"
-      value: "3.5rem"
-      description: "56px app-shell header band (was a raw `h-14`, B6-08). Sticky/fixed content below the header offsets by this."
-    layout-overlay-max-height:
-      type: "dimension"
-      value: "calc(100dvh - 16rem)"
-      description: "The tallest a scrolling overlay body (Command list, Board column, ShortcutOverlay) may grow: the dynamic viewport minus a 16rem chrome allowance. DTCG 2025.10 has no calc expression type, so this dimension is authored as the CSS string it resolves to and passed through verbatim (the same precedent as the `easing` linear() token)."
+      value: "oklch(1 0 0 / 0.15)"
     media-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
+      value: "oklch(0.985 0 0)"
       description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
     media-scrim:
       type: "color"
@@ -1095,10 +461,6 @@ themes:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.8)"
       description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
-    motion-blur:
-      type: "dimension"
-      value: "2px"
-      description: "Motion-blur amount for blur-fade entrances (Phase M text/element reveals)."
     motion-ease-emphasized:
       type: "cubicBezier"
       value: "cubic-bezier(0.3, 0, 0, 1)"
@@ -1114,183 +476,70 @@ themes:
       value: "cubic-bezier(0.2, 0, 0, 1)"
     muted:
       type: "color"
-      value: "oklch(0.236 0.003 75)"
+      value: "oklch(0.269 0 0)"
     muted-foreground:
       type: "color"
-      value: "oklch(0.66 0.003 75)"
-    muted-foreground-faint:
-      type: "color"
-      value: "oklch(0.559 0.003 75)"
-    opacity-dim:
-      type: "dimension"
-      value: "50%"
-      description: "Element opacity for disabled controls and dimmed affordances (outside-month days, decorative chevrons)."
-    opacity-hint:
-      type: "dimension"
-      value: "70%"
-      description: "Element opacity for resting secondary controls that reach 100% on hover (e.g. alert close)."
-    opacity-hint-soft:
-      type: "dimension"
-      value: "60%"
-      description: "Element opacity for hover-revealed hints (e.g. sort affordance on row hover)."
-    opacity-track:
-      type: "dimension"
-      value: "25%"
-      description: "Element opacity of the circular progress track ring."
-    overlay:
-      type: "color"
-      value: "oklch(0 0 0 / 0.55)"
-    panel-width-lg:
-      type: "dimension"
-      value: "20rem"
-      description: "320px floating panel (rich HoverCard previews)."
-    panel-width-md:
-      type: "dimension"
-      value: "18rem"
-      description: "288px floating panel — the default Popover, EmojiPicker, checklist card, range date trigger."
-    panel-width-sm:
-      type: "dimension"
-      value: "14rem"
-      description: "224px floating panel (compact popover, small menu, single-value date trigger)."
+      value: "oklch(0.708 0 0)"
     popover:
       type: "color"
-      value: "oklch(0.205 0.003 75)"
+      value: "oklch(0.205 0 0)"
     popover-foreground:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.985 0 0)"
     primary:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
-    primary-active:
-      type: "color"
-      value: "oklch(0.994 0.002 75)"
+      value: "oklch(0.922 0 0)"
     primary-foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
-    primary-hover:
-      type: "color"
-      value: "oklch(0.97 0.003 75)"
+      value: "oklch(0.205 0 0)"
     radius:
       type: "dimension"
-      value: "0.75rem"
-    radius-lg:
-      type: "dimension"
-      value: "0.75rem"
-    radius-md:
-      type: "dimension"
-      value: "0.5rem"
-    radius-sharp:
-      type: "dimension"
-      value: "2px"
-      description: "The rationed marketing 'sharp' gesture (audit 17/D18): CTAs, chips, figure frames on marketing surfaces. 2px, not 0 — sharp at a glance, kin to the product scale."
-    radius-sm:
-      type: "dimension"
-      value: "0.375rem"
-    radius-xs:
-      type: "dimension"
-      value: "0.125rem"
-      description: "Micro radius — caret/arrow triangles and other sub-control geometry (was a silent Tailwind fallback, register P1-10)."
+      value: "0.625rem"
+      description: "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are DERIVED from it in the @theme bridge exactly as upstream derives them (0.6/0.8/1/1.4/1.8/2.2/2.6x), so `rounded-xl` on a card is upstream's 14px. The pre-reset 12px cap and the `rounded-xl` ban are gone (BRD-6/BRD-7 = shadcn)."
     ring:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.922 0 0)"
+      description: "FOC-2 (ours) — the dark half of the ink ring."
     secondary:
       type: "color"
-      value: "oklch(0.236 0.003 75)"
+      value: "oklch(0.269 0 0)"
     secondary-foreground:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
-    shadow-overlay:
-      type: "shadow"
-      value: "0 8px 28px -6px oklch(0 0 0 / 0.48), 0 2px 8px -2px oklch(0 0 0 / 0.4)"
-      description: "DARK overlay shadow, strengthened (Wave 1 — Attio-calibrated): the old single 24px layer was near-invisible on the dark canvas; this two-layer ramp restores the floating cue while staying below Attio's 88px maximal ramp."
+      value: "oklch(0.985 0 0)"
     sidebar:
       type: "color"
-      value: "oklch(0.205 0.003 75)"
+      value: "oklch(0.205 0 0)"
     sidebar-accent:
       type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.269 0 0)"
     sidebar-accent-foreground:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.985 0 0)"
     sidebar-border:
       type: "color"
-      value: "oklch(0.922 0.003 75 / 0.14)"
+      value: "oklch(1 0 0 / 0.1)"
     sidebar-foreground:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.985 0 0)"
     sidebar-primary:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.488 0.243 264.376)"
+      description: "shadcn base-nova's dark sidebar-primary, verbatim — the one chromatic value in the neutral base (COL-15 = shadcn)."
     sidebar-primary-foreground:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
+      value: "oklch(0.985 0 0)"
     sidebar-ring:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
-    sidebar-width:
-      type: "dimension"
-      value: "15rem"
-      description: "Expanded sidebar rail width (was a JS constant invisible to design-lint, register P2-13)."
-    sidebar-width-icon:
-      type: "dimension"
-      value: "3rem"
-      description: "Collapsed icon-only rail width."
-    sidebar-width-mobile:
-      type: "dimension"
-      value: "18rem"
-      description: "Width of the sidebar when it renders as an off-canvas sheet below the md breakpoint (was an inline `18rem` fallback, B6-08)."
-    size-lg:
-      type: "dimension"
-      value: "2.5rem"
-    size-md:
-      type: "dimension"
-      value: "2rem"
-    size-sm:
-      type: "dimension"
-      value: "1.75rem"
-    size-xs:
-      type: "dimension"
-      value: "1.5rem"
-      description: "24px — the compact control tier (Button xs, icon-only affordances like the password eye)."
+      value: "oklch(0.922 0 0)"
     success:
       type: "color"
-      value: "oklch(0.5 0.16 150)"
-    success-active:
-      type: "color"
-      value: "oklch(0.41 0.16 150)"
-      description: "DERIVED: success fill at L-0.09 (active step)."
+      value: "oklch(0.72 0.17 150)"
     success-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    success-hover:
-      type: "color"
-      value: "oklch(0.45 0.16 150)"
-      description: "DERIVED: success fill at L-0.05 (hover step)."
-    success-subtle:
-      type: "color"
-      value: "oklch(0.276 0.061 150)"
-    success-subtle-active:
-      type: "color"
-      value: "oklch(0.371 0.101 148.5)"
-      description: "DERIVED: success fill @40% composited over success-subtle (soft-pressed surface, AA-gated against success-text)."
-    success-subtle-hover:
-      type: "color"
-      value: "oklch(0.348 0.092 148.9)"
-      description: "DERIVED: success fill @30% composited over success-subtle (soft-hover surface, AA-gated against success-text)."
+      value: "oklch(0.145 0 0)"
     success-text:
       type: "color"
-      value: "oklch(0.74 0.17 150)"
-      description: "Dark green ink (was green.500, L 0.72); +0.02 L for the soft pressed rung."
-    surface-1:
-      type: "color"
-      value: "oklch(0.236 0.003 75)"
-      description: "Dark ladder: card 0.205 -> surface-1 0.236 -> surface-2 0.269 -> surface-3 0.29 (lighter = higher, ~0.03 L per rung, the Radix/Linear dark step)."
-    surface-2:
-      type: "color"
-      value: "oklch(0.269 0.003 75)"
-    surface-3:
-      type: "color"
-      value: "oklch(0.29 0.003 75)"
+      value: "oklch(0.748 0.17 150)"
     tag-blue:
       type: "color"
       value: "oklch(0.72 0.14 256)"
@@ -1381,282 +630,80 @@ themes:
     tag-yellow-text:
       type: "color"
       value: "oklch(0.75 0.13 86)"
-    text-code:
-      type: "typography"
-      value:
-        fontSize: "0.8125rem"
-        lineHeight: "1.25rem"
-        fontWeight: "400"
-        letterSpacing: "0em"
-    text-code-sm:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "1rem"
-        fontWeight: "400"
-        letterSpacing: "0em"
-    text-display-lg:
-      type: "typography"
-      value:
-        fontSize: "3.5rem"
-        lineHeight: "3.75rem"
-        fontWeight: "400"
-        letterSpacing: "-0.05em"
-    text-display-md:
-      type: "typography"
-      value:
-        fontSize: "2.5rem"
-        lineHeight: "2.75rem"
-        fontWeight: "400"
-        letterSpacing: "-0.045em"
-    text-display-sm:
-      type: "typography"
-      value:
-        fontSize: "2rem"
-        lineHeight: "2.25rem"
-        fontWeight: "400"
-        letterSpacing: "-0.04em"
-    text-display-xl:
-      type: "typography"
-      value:
-        fontSize: "4.5rem"
-        lineHeight: "4.75rem"
-        fontWeight: "400"
-        letterSpacing: "-0.06em"
-    text-h1:
-      type: "typography"
-      value:
-        fontSize: "1.5rem"
-        lineHeight: "2rem"
-        fontWeight: "400"
-        letterSpacing: "-0.02em"
-    text-h2:
-      type: "typography"
-      value:
-        fontSize: "1.25rem"
-        lineHeight: "1.75rem"
-        fontWeight: "400"
-        letterSpacing: "-0.015em"
-    text-h3:
-      type: "typography"
-      value:
-        fontSize: "1.125rem"
-        lineHeight: "1.5rem"
-        fontWeight: "400"
-        letterSpacing: "-0.01em"
-    text-h4:
-      type: "typography"
-      value:
-        fontSize: "1rem"
-        lineHeight: "1.375rem"
-        fontWeight: "500"
-        letterSpacing: "0em"
-    text-label:
-      type: "typography"
-      value:
-        fontSize: "0.875rem"
-        lineHeight: "1.25rem"
-        fontWeight: "500"
-        letterSpacing: "-0.01em"
-      description: "Label voice tracking -1% (Wave 1, T3 final): chrome text only, never prose — matches the app-teardown 14/500 chrome standard."
-    text-label-sm:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "1rem"
-        fontWeight: "500"
-        letterSpacing: "-0.01em"
-    text-mono-label:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "1rem"
-        fontWeight: "400"
-        letterSpacing: "0.05em"
-      description: "The mono VOICE layer (audit 17/D20): uppercase Geist Mono eyebrows, section numbers, live-state labels, terminal annotations. 12px floor; uppercase is applied at the call site and is mono-exclusive (lint)."
-    text-strong:
-      type: "typography"
-      value:
-        fontSize: "0.875rem"
-        lineHeight: "1.25rem"
-        fontWeight: "600"
-        letterSpacing: "-0.01em"
-      description: "Rare 600-weight emphasis role. Use text-strong only when 500 cannot carry the hierarchy; raw font-semibold/font-bold utilities remain forbidden."
-    type-doc-2xl:
-      type: "typography"
-      value:
-        fontSize: "1.5rem"
-        lineHeight: "calc(2 / 1.5)"
-    type-doc-3xl:
-      type: "typography"
-      value:
-        fontSize: "1.875rem"
-        lineHeight: "calc(2.25 / 1.875)"
-    type-doc-base:
-      type: "typography"
-      value:
-        fontSize: "1rem"
-        lineHeight: "calc(1.5 / 1)"
-    type-doc-lg:
-      type: "typography"
-      value:
-        fontSize: "1.125rem"
-        lineHeight: "calc(1.75 / 1.125)"
-    type-doc-sm:
-      type: "typography"
-      value:
-        fontSize: "0.875rem"
-        lineHeight: "calc(1.25 / 0.875)"
-    type-doc-xl:
-      type: "typography"
-      value:
-        fontSize: "1.25rem"
-        lineHeight: "calc(1.75 / 1.25)"
-    type-doc-xs:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "calc(1 / 0.75)"
-    type-product-2xl:
-      type: "typography"
-      value:
-        fontSize: "1.25rem"
-        lineHeight: "calc(28 / 20)"
-    type-product-3xl:
-      type: "typography"
-      value:
-        fontSize: "1.5rem"
-        lineHeight: "calc(32 / 24)"
-    type-product-base:
-      type: "typography"
-      value:
-        fontSize: "0.875rem"
-        lineHeight: "calc(21 / 14)"
-    type-product-lg:
-      type: "typography"
-      value:
-        fontSize: "1rem"
-        lineHeight: "calc(24 / 16)"
-    type-product-sm:
-      type: "typography"
-      value:
-        fontSize: "0.75rem"
-        lineHeight: "calc(16 / 12)"
-    type-product-xl:
-      type: "typography"
-      value:
-        fontSize: "1.125rem"
-        lineHeight: "calc(26 / 18)"
-    type-product-xs:
-      type: "typography"
-      value:
-        fontSize: "0.6875rem"
-        lineHeight: "calc(16 / 11)"
     warning:
       type: "color"
-      value: "oklch(0.52 0.145 52)"
-    warning-active:
-      type: "color"
-      value: "oklch(0.43 0.145 52)"
-      description: "DERIVED: warning fill at L-0.09 (active step)."
+      value: "oklch(0.75 0.15 70)"
     warning-foreground:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
-    warning-hover:
-      type: "color"
-      value: "oklch(0.47 0.145 52)"
-      description: "DERIVED: warning fill at L-0.05 (hover step)."
-    warning-subtle:
-      type: "color"
-      value: "oklch(0.28 0.069 42)"
-    warning-subtle-active:
-      type: "color"
-      value: "oklch(0.381 0.1 47.3)"
-      description: "DERIVED: warning fill @40% composited over warning-subtle (soft-pressed surface, AA-gated against warning-text)."
-    warning-subtle-hover:
-      type: "color"
-      value: "oklch(0.356 0.093 46.6)"
-      description: "DERIVED: warning fill @30% composited over warning-subtle (soft-hover surface, AA-gated against warning-text)."
+      value: "oklch(0.145 0 0)"
     warning-text:
       type: "color"
-      value: "oklch(0.769 0.188 70.08)"
-    z-overlay:
-      type: "number"
-      value: 50
-      description: "The portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order — Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts are the ONE surface above it, on their own `z-toast` band."
-    z-raised:
-      type: "number"
-      value: 10
-      description: "Local raise WITHIN a component's own stacking context (focused OTP slot / segmented item, floating label, bubble reactions, select scroll arrows). Never for portaled surfaces."
-    z-toast:
-      type: "number"
-      value: 60
-      description: "The toast band, one step above `z-overlay`. A toast is the only surface that must outrank a modal REGARDLESS of mount order — the viewport mounts with the app provider, so DOM order would otherwise put every later-opened dialog on top of it. Within the band the stack counts DOWN from this value by `--toast-index`, so the frontmost toast is the highest. Nothing else may claim this band."
+      value: "oklch(0.776 0.15 70)"
 recipes:
   button-primary:
     background: "{primary}"
     foreground: "{primary-foreground}"
-    hover: "{primary-hover}"
-    active: "{primary-active}"
-    radius: "{radius-md}"
-    height: "{size-md}"
-    paddingInline: "0.75rem"
-    typography: "{text-label}"
-    interactionColorTransition: "immediate"
+    radius: "{radius}"
+    typography: "text-sm/500"
   button-secondary:
-    background: "{surface-1}"
+    background: "{secondary}"
     foreground: "{secondary-foreground}"
-    hover: "{surface-2}"
-    active: "{surface-3}"
-    radius: "{radius-md}"
-    height: "{size-md}"
-    paddingInline: "0.75rem"
-    typography: "{text-label}"
-    interactionColorTransition: "immediate"
+    hover: "{accent}"
+    radius: "{radius}"
+    typography: "text-sm/500"
   button-destructive:
-    background: "{destructive-subtle}"
-    foreground: "{destructive-text}"
-    hover: "{destructive-subtle-hover}"
-    active: "{destructive-subtle-active}"
-    radius: "{radius-md}"
-    height: "{size-md}"
-    paddingInline: "0.75rem"
-    typography: "{text-label}"
-    interactionColorTransition: "immediate"
+    background: "{destructive}"
+    foreground: "{destructive-foreground}"
+    radius: "{radius}"
+    typography: "text-sm/500"
   input:
-    background: "{surface-1}"
+    background: "transparent"
     foreground: "{foreground}"
     border: "{input}"
     focusBorder: "{ring}"
-    radius: "{radius-md}"
-    height: "{size-md}"
-    paddingInline: "0.75rem"
-    typography: "{type-product-base}"
+    radius: "{radius}"
+    typography: "text-sm"
   card:
     background: "{card}"
     foreground: "{card-foreground}"
     border: "{border}"
-    radius: "{radius-lg}"
+    radius: "{radius}"
     shadow: "none"
   overlay:
     background: "{popover}"
     foreground: "{popover-foreground}"
     border: "{border}"
-    radius: "{radius-lg}"
-    shadow: "{shadow-overlay}"
+    radius: "{radius}"
+    shadow: "shadow-md"
   menu-item:
     foreground: "{foreground}"
-    hover: "{surface-2}"
-    active: "{surface-3}"
-    selected: "{surface-3}"
-    radius: "{radius-sm}"
-    height: "{size-md}"
-    paddingInline: "0.5rem"
-    typography: "{type-product-base}"
-    interactionColorTransition: "immediate"
+    hover: "{accent}"
+    selected: "{accent}"
+    radius: "{radius}"
+    typography: "text-sm"
 ---
 
 # VegaStack design
+
+> **SUPERSEDED FOR THE FOUNDATIONS, 2026-09-18 — the shadcn reset is under way.**
+>
+> This document still describes the pre-reset system: a warm neutral ramp, a three-rung surface
+> ladder, a 22-entry alpha ladder, a 14px product type scale with named role utilities, a 400/500
+> weight ladder, a 12px radius cap, one overlay shadow role, named z-index bands and a ban on colour
+> transitions. **None of that is true any more.** Batch 1 of
+> `docs/plans/2026-09-18-shadcn-reset/` rebuilt the token contract on shadcn `base-nova`'s `neutral`
+> base, and what this system keeps on top of upstream is the 58 decisions that register marks
+> **ours** — the focus outline with no glow anywhere, the hand cursor, the accessibility set, the
+> four status families in shadcn's own shape, our chart and tag palettes, and our own motion
+> utilities.
+>
+> The parts of this file that ARE current are the generated ones: the token tables, the recipe set
+> and the resolved values, all of which `pnpm design:sync:check` re-derives from the live DTCG
+> sources on every PR. The PROSE is rewritten in Batch 9, deliberately and in one pass, because a
+> half-rewritten design contract is worse than an openly stale one. Until then: for a token name or
+> a value, trust the tables here and `packages/design-tokens/dist/theme.css`; for a RULE, trust
+> `tooling/design-lint.mjs`, `skills/internal/review/references/lint-rules.md` and
+> `skills/internal/component/references/tokens.md`, all three of which were rebuilt in Batch 1.
 
 ## Overview
 

@@ -70,17 +70,57 @@ Adding to either list needs MK sign-off, tracked the same way.
 
 ## Build rules
 
-Enforced by `tooling/design-lint.mjs` and the `review` skill. Full token vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule: `skills/internal/review/references/lint-rules.md`.
+**Rebuilt 2026-09-18 by Batch 1 of the shadcn reset** (`docs/plans/2026-09-18-shadcn-reset/`), which
+replaced the token contract with shadcn `base-nova`'s `neutral` base and deleted seventeen lint
+rules whose decision row resolved to **shadcn**. Enforced by `tooling/design-lint.mjs`. Full token
+vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
+`skills/internal/review/references/lint-rules.md`.
 
-- **Colour** — semantic tokens only (`bg-primary`, `text-muted-foreground`, `border-border`); no hex, no raw palette. `text-muted-foreground-faint` is sub-AA: placeholder and disabled copy only. `info` is links and informational UI only — promotion and selection take a ladder rung or `primary`. **Surfaces are one ladder** — `background` → `card` (= `popover` = `sidebar`) → `surface-1` (rest fill / well) → `surface-2` (hover) → `surface-3` (pressed / selected); `secondary`/`muted`/`accent`/`sidebar-*` are ALIASES of those rungs with no independent values, so name the rung in new code, and `border` is derived as `foreground` at `--alpha-border`.
-- **Hover/pressed values come from the recipe, and the two rungs travel together** — `surfaceInteractive` and `fillInteractive.<tone>` from `@vegastack/design` own the values. A component spells `hover:bg-*` out itself in exactly three cases, and then it repeats the recipe's rungs rather than inventing a value: it **is** the recipe for its family (Button's `--btn-*` tone vars); a variant prefix makes the exported constant unusable (`group-data-[variant=line]/tabs-list:`, `[&:is(a,button)]:`, `data-[active=true]:`); or it is cancelling an inherited wash (`hover:bg-transparent`). What `design-lint` actually enforces is the **pair**: `hover-without-pressed` fails any class string that changes fill on hover without a pressed rung beside it (`active:`, `data-pressed:`, `data-selected:`, `aria-pressed:`, `data-[state=open]:`). Every control has a pressed step; a hover wash is inset ≥4px from a container hairline and inherits its inner radius.
-- **Size, radius, alpha, z-index** — `--size-*` for control heights and `--icon-*` for icon sizes (never pass `size`/`width`/`height` to a lucide component); radius caps at `rounded-lg` and `rounded-xl` is banned; colour compositing takes `--alpha-*` while whole-element opacity takes `--opacity-*` (never a raw `/NN` or `opacity-NN`); three z-bands only, `z-(--z-raised)`, `z-(--z-overlay)` and `z-(--z-toast)` for the toast stack alone, never a raw `z-N`.
-- **Type** — the weight ladder is 400/500, so `font-bold`/`font-semibold` are banned. Letter-spacing, blur, and shadow are owned by named roles — raw `tracking-*`/`blur-*`/`shadow-*` are banned. `text-4xl`+ is off-scale; use the display tier. **Uppercase is mono-exclusive** and ≤14px.
-- **Motion** (see also the `component` skill's mechanism matrix) — `duration-fast/base/slow` paired with `ease-standard/emphasized/exit/spring` in the same class literal, or `motion-pop-in`/`motion-enter-up`/`motion-shake`/`motion-flash`. No raw `duration-[…]`/`ease-[…]`/`cubic-bezier()`; `animate-spin`/`animate-pulse` are the one loader exception. Colour changes are immediate: `transition-colors` and `transition-all` are banned.
-- **Structure and icons** — CVA for variants, `cn()` from `@vegastack/design`, `data-*` for state, ref-as-prop (React 19 — never `React.forwardRef`), and Base UI `render` for composition, where a single-polymorphic-root component must not `Omit<…, 'render'>`. Icons are `lucide-react`, the lucide-animated mirrors, and `thesvg` via `Icon`/`BrandIcon` — no other library, no inline `<svg>` as an icon; icon registry items install as `@vegastack/icon-<name>`, so the bare `icon-button` is a component.
-- **Responsive and layout** — `min-w-0` on a truncating flex child with `truncate` on an inner span, never on the same element as `flex`; touch targets ≥24px via an invisible hit area, verified with a real `elementFromPoint` probe rather than `getComputedStyle`; and compose `AppShell` (`packages/ui/registry/ui/app-shell.tsx`) rather than hand-rolling a sidebar + header + main shell, since it owns the landmark trio, the skip link, and the content container query.
-- **Server-safe by default** — a _runtime_ claim enforced by `tooling/verify-rsc-safety.mjs`: under the `react-server` condition most React hooks are `undefined`, so touching one without `'use client'` throws on import in an RSC. Which hooks, and why `@vegastack/design/theme-scope` is a separate subpath: `component` skill § 3.
-- **Accessibility** — WCAG 2.2 AA while preserving every existing 2.1 assertion; visible `:focus-visible` (text-entry fields use a border tint instead), enforced per control by the geometry lane, which rejects the user agent's own ring (`outline-style: auto`) by name; must pass `axe`; every applicable state implemented — default, hover, focus, loading, empty, error, success, disabled.
+- **Colour** — semantic tokens only (`bg-primary`, `text-muted-foreground`, `border-border`); no hex,
+  no NUMBERED Tailwind palette. `bg-black/10` and `bg-white` pass, because they are upstream's own
+  scrim vocabulary. There is no surface ladder: `background` → `card`/`popover`/`sidebar` → `muted`
+  (well, track, skeleton) → `accent` (hover). `muted`, `accent` and `secondary` share one value and
+  are all kept, so a consumer can retune one role without moving the others.
+- **Status colour has two inks** — `<family>-foreground` on the solid fill, `<family>-text` on the
+  page and on the family's own `/10`–`/30` tint. Using the fill as text on its own tint measures
+  3.98–4.35:1; `contrast-check.mjs` gates the `-text` role on every surface and every tint.
+- **Focus is one outline, and there is no glow anywhere** — `base.css` owns
+  `:focus-visible { outline-2 outline-offset-1 outline-ring }` with `ring` bound to the near-black /
+  near-white ink (FOC-1, FOC-2); text entry shows `focus:border-ring/70` and no outline (FOC-3).
+  `design-lint`'s `no-focus-ring-glow` rejects `ring-3`, `ring-[3px]`, `ring-ring/NN`,
+  `focus-visible:ring-*` and `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`. This is the
+  one rule that keeps upstream's halo from returning on the next pull.
+- **Size, radius, shadow, z-index, alpha, opacity are plain Tailwind** — `h-8`, `size-4`,
+  `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. Radius derives from one
+  `--radius` (0.625rem) exactly as upstream derives it. The `--size-*`, `--icon-*`, `--panel-width-*`,
+  `--z-*`, `--alpha-*`, `--opacity-*` and `--shadow-overlay` families are deleted.
+- **Type is Tailwind's stock scale** — `text-sm` is 14px, `text-base` is 16px, everywhere, including
+  the docs shell. The role utilities (`text-h1`…`h4`, `text-label*`, `text-code*`,
+  `text-mono-label`, `text-display-*`) and the 400/500 weight ladder are gone: `font-semibold`,
+  `tracking-tight` and `text-4xl` are ordinary utilities. Fonts stay Geist (TYP-10).
+- **Motion pairs nothing** — `transition-all`, `transition-colors`, `duration-100` and `ease-in-out`
+  are upstream's vocabulary and are legal. Our `duration-fast|base|slow` and
+  `ease-standard|emphasized|exit|spring` tokens remain for the keyed-presence and docked utilities
+  (`motion-pop-in`, `motion-enter-up`, `motion-shake`, `motion-flash`, `motion-dock-in/out`,
+  `motion-indeterminate`), which are ours. The global reduced-motion reset in `base.css` is the one
+  sanctioned `!important`, and a `motion-reduce:` restatement of it is still a violation.
+- **Structure and icons** — CVA for variants, `cn()` from `@vegastack/design`, `data-*` for state,
+  ref-as-prop (React 19 — never `React.forwardRef`), and Base UI `render` for composition, where a
+  single-polymorphic-root component must not `Omit<…, 'render'>`. Icons are `lucide-react`, the
+  lucide-animated mirrors, and `thesvg` via `Icon`/`BrandIcon` — no other library, no inline `<svg>`
+  as an icon.
+- **Responsive and layout** — `min-w-0` on a truncating flex child with `truncate` on an inner span,
+  never on the same element as `flex`; touch targets ≥24px via an invisible hit area, verified with a
+  real `elementFromPoint` probe rather than `getComputedStyle`.
+- **Server-safe by default** — a _runtime_ claim enforced by `tooling/verify-rsc-safety.mjs`: under
+  the `react-server` condition most React hooks are `undefined`, so touching one without
+  `'use client'` throws on import in an RSC. Which hooks, and why `@vegastack/design/theme-scope` is a
+  separate subpath: `component` skill § 3.
+- **Accessibility** — WCAG 2.2 AA while preserving every existing 2.1 assertion; visible
+  `:focus-visible` (text-entry fields use a border tint instead), enforced per control by the
+  geometry lane, which rejects the user agent's own ring (`outline-style: auto`) by name; must pass
+  `axe`; every applicable state implemented — default, hover, focus, loading, empty, error, success,
+  disabled.
 
 ## Single source of truth
 
@@ -152,7 +192,7 @@ docs/                    requirements · gap analysis · plans · ledgers · res
 <!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
 
 - **Registry items: 597** — 116 components · 467 animated icons · 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`) · 1 block (`dashboard-01`) · 2 libs (`geo-data`, `drag-item`)
-- Contract SHA-256: `957f3e36bd8bb100b8088837c1a150461ff4e385b31ff0f07e10216b266bdfe5`
+- Contract SHA-256: `5b75b6b2ae0d22c4d0ff39b4ec45bea66356bb8047d425fe38cea4b36cbad3e1`
 
 <!-- NUMBERS:END -->
 

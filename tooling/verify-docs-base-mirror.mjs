@@ -28,7 +28,9 @@ const docsPath = "apps/docs/app/global.css";
  */
 const MIRRORED_SELECTORS = [
   'button,[role="button"],[role="tab"],[role="switch"],[role="checkbox"],[role="radio"],[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"],[role="option"],summary',
-  ':disabled,[aria-disabled="true"],[data-disabled]',
+  // The `:disabled,[aria-disabled=true],[data-disabled] { cursor: default }` rule was mirrored here
+  // until the shadcn reset. INT-2 is decided as **shadcn** and upstream has no such rule, so it is
+  // gone from base.css and from the docs copy together.
   ":focus-visible",
   "@media (forced-colors: active)>:focus-visible",
   // F1's B1-01 block covers every text-entry control, not just TextEdit: the tint is the focus

@@ -19,15 +19,15 @@ above the page; each is one even step (~0.025 L in light, ~0.03 L in dark).
 | -------------- | ------------------------------------------------------------------------------ |
 | `--background` | the page                                                                       |
 | `--card`       | every surface — card, popover, sheet, dialog, the sidebar rail                 |
-| `--surface-1`  | the rest fill of a filled control (soft button, kbd, chip, tab rail) and wells |
-| `--surface-2`  | **hover**                                                                      |
-| `--surface-3`  | **pressed / selected**                                                         |
+| `--muted`      | the rest fill of a filled control (soft button, kbd, chip, tab rail) and wells |
+| `--accent`     | **hover**                                                                      |
+| `--accent`     | **pressed / selected**                                                         |
 
 **Light surfaces are page-coloured** — a light card is separated by its hairline alone. **Dark keeps
 the one-step lift** (0.175 → 0.205). `--popover` and `--sidebar` _are_ `--card`; a floating surface is
-the card surface plus `--shadow-overlay`, never a rung of its own.
+the card surface plus `--shadow-md`, never a rung of its own.
 
-Each interaction rung also exists as an **alpha twin** — `--alpha-hover` (7%) and `--alpha-pressed`
+Each interaction rung also exists as an **alpha twin** — `7%` (7%) and `10%`
 (10%) on an ink. Over the page they land within 0.003 L of the opaque rungs, so reach for the alpha
 form when the backdrop is _not_ a ladder surface (a `Kbd` inside a hovered row, a chip on a well,
 chrome over video) or when a control hovers in its own hue.
@@ -36,16 +36,16 @@ Consume the two rungs through the recipes exported from `@vegastack/design` rath
 classes by hand:
 
 ```tsx
-import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
+import { cn, the hover wash, the family's own hover wash } from "@vegastack/design";
 
 // A transparent control on a known surface: hover = rung 2, pressed = rung 3.
-<button className={cn("rounded-md px-2", surfaceInteractive)} />;
+<button className={cn("rounded-md px-2", the hover wash)} />;
 
 // A control on an unknown backdrop, or one that hovers in its own hue.
 <button
   className={cn(
-    "bg-destructive-subtle text-destructive-text",
-    fillInteractive.destructive,
+    "bg-destructive/10 text-destructive-text",
+    the family's own hover wash.destructive,
   )}
 />;
 ```
@@ -54,13 +54,13 @@ import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
   `--secondary`, `--muted`, `--accent` and the whole `--sidebar-*` family are
   **aliases** of ladder rungs, kept so shadcn-shaped code keeps compiling. They
   have no independent values and must never be retuned on their own: `secondary`
-  = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar`
-  = `card`.
+  = `muted` = `muted`, `accent` = `sidebar-accent` = `accent`, `sidebar` =
+  `card`.
 </Callout>
 
 ## One hairline, and it is an alpha
 
-`--border` is **derived**, not authored: it is `--foreground` at `--alpha-border` (8% light / 14%
+`--border` is **derived**, not authored: it is `--foreground` at `8%` (8% light / 14%
 dark). One translucent hairline therefore reads correctly on the page, on a card, inside a well and
 on a dark band, and it can never drift from the ink it tints. `--input` and `--sidebar-border` alias
 it.
@@ -73,10 +73,10 @@ Each chromatic family (`info`, `destructive`, `success`, `warning`) ships **eigh
 
 - **fill** (`--info`) + **foreground** (`--info-foreground`) — the solid surface and its on-fill text.
 - **hover** / **active** (`--info-hover`, `--info-active`) — the interaction-state fills of the **solid** (`hover:bg-info-hover active:bg-info-active`).
-- **subtle** (`--info-subtle`) + **text** (`--info-text`) — the soft tinted background (badges, alerts) and the page-readable on-surface color.
-- **subtle-hover** / **subtle-active** (`--info-subtle-hover`, `--info-subtle-active`) — the hover and pressed steps of the **soft** fill. Both are precomposed at build time (the fill composited over `subtle`) and AA-gated against `--info-text`, because an alpha wash such as `active:bg-info/(--alpha-pressed)` would _replace_ the tint rather than step it.
+- **subtle** (`--info/10`) + **text** (`--info-text`) — the soft tinted background (badges, alerts) and the page-readable on-surface color.
+- **subtle-hover** / **subtle-active** (`--info/10-hover`, `--info/10-active`) — the hover and pressed steps of the **soft** fill. Both are precomposed at build time (the fill composited over `subtle`) and AA-gated against `--info-text`, because an alpha wash such as `active:bg-info/(10%)` would _replace_ the tint rather than step it.
 
-`subtle`, `subtle-hover`, `subtle-active` and `text` are **theme-aware** (distinct light/dark values); `fill` / `hover` / `active` / `foreground` are **theme-independent** — the same saturated mark with white text in both themes, so a `bg-destructive` button reads the same way on a light or dark page. The neutral action color mirrors this with `--primary-hover` / `--primary-active`, and `--muted-foreground-faint` is the deliberately sub-AA tone reserved for placeholders.
+`subtle`, `subtle-hover`, `subtle-active` and `text` are **theme-aware** (distinct light/dark values); `fill` / `hover` / `active` / `foreground` are **theme-independent** — the same saturated mark with white text in both themes, so a `bg-destructive` button reads the same way on a light or dark page. The neutral action color mirrors this with `--primary/80` / `--primary/70`, and `--muted-foreground` is the deliberately sub-AA tone reserved for placeholders.
 
 ## Charts — categorical series
 
@@ -96,12 +96,12 @@ is no per-token foreground; use surface tokens for text and axes and never rely 
 | Token | Light | Dark |
 |---|---|---|
 | `--chart-1` | `oklch(0.546 0.245 262.88)` | `oklch(0.623 0.214 259.81)` |
-| `--chart-2` | `oklch(0.6 0.118 184.7)` | `oklch(0.696 0.17 162.48)` |
+| `--chart-2` | `oklch(0.581 0.118 184.7)` | `oklch(0.696 0.17 162.48)` |
 | `--chart-3` | `oklch(0.398 0.07 227.39)` | `oklch(0.769 0.188 70.08)` |
-| `--chart-4` | `oklch(0.646 0.222 41.12)` | `oklch(0.75 0.183 55.93)` |
-| `--chart-5` | `oklch(0.645 0.246 16.44)` | `oklch(0.645 0.246 16.44)` |
+| `--chart-4` | `oklch(0.623 0.222 41.12)` | `oklch(0.75 0.183 55.93)` |
+| `--chart-5` | `oklch(0.632 0.246 16.44)` | `oklch(0.645 0.246 16.44)` |
 | `--chart-6` | `oklch(0.505 0.213 27.52)` | `oklch(0.69 0.21 25)` |
-| `--chart-7` | `oklch(0.6 0.127 104.2)` | `oklch(0.72 0.15 103.9)` |
+| `--chart-7` | `oklch(0.598 0.127 104.2)` | `oklch(0.72 0.15 103.9)` |
 | `--chart-8` | `oklch(0.531 0.182 256)` | `oklch(0.72 0.13 256)` |
 {/* DESIGN-TOKENS:charts:END */}
 
@@ -139,8 +139,8 @@ the only real hover step in the system):
 
 - **`--sidebar`** = `--card` · **`--sidebar-foreground`** = `--foreground` — the rail is a surface like any other.
 - **`--sidebar-primary`** = `--primary` · **`--sidebar-primary-foreground`** = `--primary-foreground` — the active-item marker rail.
-- **`--sidebar-accent`** = `--surface-2` — the hover rung. The **current** row rests one rung higher on
-  `--surface-3`, so hovering an already-active row still moves.
+- **`--sidebar-accent`** = `--accent` — the hover rung. The **current** row rests one rung higher on
+  `--accent`, so hovering an already-active row still moves.
 - **`--sidebar-border`** = `--border` · **`--sidebar-ring`** = `--ring`.
 
 They stay bridged through `@theme inline`, so `bg-sidebar`, `text-sidebar-foreground` and
@@ -154,7 +154,7 @@ extends to the rest of the system:
 
 - **[Radius](/docs/foundations/radius)** — one base radius (`--radius`, `0.75rem`) plus the
   `--radius-sm` / `--radius-md` / `--radius-lg` scale, bridged to Tailwind `rounded-*`.
-- **[Elevation](/docs/foundations/elevation)** — borders-only by default; `--shadow-overlay` is the
+- **[Elevation](/docs/foundations/elevation)** — borders-only by default; `--shadow-md` is the
   single shadow role, and it is for floating overlays alone.
 
 ## Override model
@@ -169,8 +169,8 @@ Redefine a single variable in your app's global CSS and **every component repain
 
 Because components reference `--primary` through the `@theme inline` bridge (`--color-primary:
 var(--primary)`), the override flows to `bg-primary`, the ladder's alpha washes
-(`hover:bg-primary/(--alpha-hover)` / `active:bg-primary/(--alpha-pressed)` — the
-`fillInteractive.primary` recipe), and focus outlines everywhere.
+(`hover:bg-primary/(7%)` / `active:bg-primary/(10%)` — the
+the family's own hover wash recipe), and focus outlines everywhere.
 
 <DoDont
   do="Use semantic tokens: bg-primary, text-muted-foreground, border-border."

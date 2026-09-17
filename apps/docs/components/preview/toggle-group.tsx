@@ -14,7 +14,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function toggleGroup(): ReactNode {
-  // Single-select (radio-like): exactly one item is pressed; the selected item fills an evident neutral grey (bg-foreground/(--alpha-ink-tint)).
+  // Single-select (radio-like): exactly one item is pressed; the selected item fills an evident neutral grey (bg-foreground/10).
   return (
     <Wrapper className="flex-col items-center gap-6">
       <ToggleGroup defaultValue={["center"]} aria-label="Text alignment">
@@ -49,7 +49,7 @@ export function toggleGroup(): ReactNode {
 }
 
 export function toggleGroupMultiple(): ReactNode {
-  // Multi-select (checkbox-like): any number of items can be pressed; each selected item fills an evident neutral grey (bg-foreground/(--alpha-ink-tint)).
+  // Multi-select (checkbox-like): any number of items can be pressed; each selected item fills an evident neutral grey (bg-foreground/10).
   return (
     <Wrapper className="flex-col items-center gap-6">
       <ToggleGroup

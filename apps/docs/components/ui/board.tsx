@@ -1,10 +1,10 @@
-// @vegastack board@0.9.1 sha256-HW3fl1X/4nrjzEMHdw1l4Rsvg4wEXnUAU3yV5UkKqGI=
+// @vegastack board@0.9.1 sha256-67pF6xNwy+x8Q87kFtAUn+bsiXHoOYHMlVeDqQFqkOk=
 
 "use client";
 
 import * as React from "react";
 import { EllipsisVertical } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { dragItemClasses } from "@/lib/drag-item";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,7 @@ construction. Every card's menu lists every droppable column with per-target loc
 reasons; `M` on a focused card opens it directly.
 
 Elevation: a dragged card must NOT gain a shadow — only true overlays get
-`shadow-overlay` (design.md §Elevation). Lift is expressed by dimming the origin card;
+`shadow-lg` (design.md §Elevation). Lift is expressed by dimming the origin card;
 the native drag preview is the browser's snapshot of the flat card, so separation
 comes from the surface ladder + the one border. This will feel wrong to anyone coming
 from other kanbans; it is the system's position.
@@ -63,7 +63,7 @@ Deliberately NOT done here:
   (`onMove` may return a promise → pending shimmer, announced snap-back on rejection).
 - No virtualization — columns are bounded by design at this component's scale.
 - No custom drag-preview portal. The native preview is the flat card snapshot; a
-  custom `z-(--z-overlay)` portal preview is a consumer option, not built-in chrome.
+  custom `z-50` portal preview is a consumer option, not built-in chrome.
 --- */
 
 /** One board column. */
@@ -130,7 +130,7 @@ export interface BoardProps<T> {
    * through the `--board-column-max-height` custom property. The default is the
    * shared overlay ceiling token — a board inside a shorter shell passes its own
    * length rather than the component assuming a viewport reservation.
-   * @default "var(--layout-overlay-max-height)"
+   * @default "calc(100dvh - 16rem)"
    */
   columnMaxHeight?: string;
   /**
@@ -188,7 +188,7 @@ export function Board<T>({
   onMove,
   onCardActivate,
   columnWidth = "18rem",
-  columnMaxHeight = "var(--layout-overlay-max-height)",
+  columnMaxHeight = "calc(100dvh - 16rem)",
   renderColumnAction,
   dragDisabled = false,
   "aria-label": ariaLabel = "Board",
@@ -369,14 +369,14 @@ export function Board<T>({
                 // positioned ancestor it resolves against the ICB, and inside this
                 // horizontally scrolled row its static x (~900px) would extend the
                 // PAGE's scroll width (measured; the 320px reflow contract catches it).
-                className="relative h-auto min-h-48 w-(--size-lg) shrink-0 flex-col items-center gap-2 rounded-lg bg-card px-1 py-3"
+                className="relative h-auto min-h-48 w-10 shrink-0 flex-col items-center gap-2 rounded-lg bg-card px-1 py-3"
               >
                 <Badge variant="soft" size="sm">
                   {column.items.length}
                 </Badge>
                 <span
                   data-slot="board-column-collapsed-title"
-                  className="min-h-0 flex-1 [writing-mode:vertical-rl] text-label-sm text-muted-foreground"
+                  className="min-h-0 flex-1 [writing-mode:vertical-rl] text-xs font-medium text-muted-foreground"
                 >
                   {column.title}
                 </span>
@@ -397,14 +397,14 @@ export function Board<T>({
                   : containerProps["data-drop-over"]
               }
               className={cn(
-                "w-(--board-column-width) shrink-0 gap-2 bg-surface-1 py-2",
-                "data-drop-over:border-primary/(--alpha-outline-border)",
+                "w-(--board-column-width) shrink-0 gap-2 bg-muted py-2",
+                "data-drop-over:border-primary/50",
               )}
             >
               <CardHeader className="px-3">
                 <CardTitle
                   data-slot="board-column-title"
-                  className="flex min-w-0 items-center gap-2 text-label-sm text-muted-foreground"
+                  className="flex min-w-0 items-center gap-2 text-xs font-medium text-muted-foreground"
                 >
                   <span className="min-w-0 truncate">{column.title}</span>
                   <Badge variant="soft" size="sm">
@@ -504,8 +504,8 @@ export function Board<T>({
                                 }}
                                 onClick={() => onCardActivate?.(item)}
                                 className={cn(
-                                  "flex w-full min-w-0 flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-base",
-                                  surfaceInteractive,
+                                  "flex w-full min-w-0 flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-sm",
+                                  "hover:bg-accent",
                                   // The grab cursor promises a pointer drag, so it appears
                                   // only where one can actually start: not in `readOnly`, and
                                   // not when the pointer path is off (`dragDisabled`, or below
@@ -620,7 +620,7 @@ export function Board<T>({
                                                 : target.id}
                                             </span>
                                             {locked && target.lockedReason ? (
-                                              <span className="text-sm text-muted-foreground">
+                                              <span className="text-xs text-muted-foreground">
                                                 {target.lockedReason}
                                               </span>
                                             ) : null}

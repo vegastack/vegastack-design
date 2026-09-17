@@ -94,7 +94,7 @@ export function dropzone(): ReactNode {
           </AttachmentGroup>
         ) : null}
         {rejections.length > 0 ? (
-          <ul className="flex flex-col gap-1 text-sm text-destructive-text">
+          <ul className="flex flex-col gap-1 text-xs text-destructive-text">
             {rejections.map((rejection, index) => (
               <li key={`${rejection}-${index}`} className="min-w-0">
                 {rejection}
@@ -149,7 +149,7 @@ export function dropzoneRejections(): ReactNode {
           </Empty>
         </Dropzone>
         {log.length > 0 ? (
-          <ul className="flex flex-col gap-1 text-sm">
+          <ul className="flex flex-col gap-1 text-xs">
             {log.slice(-4).map((entry, i) => (
               <li
                 key={i}
@@ -188,7 +188,7 @@ export function dropzoneDragging(): ReactNode {
         <Empty
           size="sm"
           variant="dashed"
-          className="group-data-dragging/dropzone:border-primary/(--alpha-outline-border)"
+          className="group-data-dragging/dropzone:border-primary/50"
         >
           <EmptyHeader>
             <EmptyTitle>Release to upload</EmptyTitle>
@@ -205,7 +205,7 @@ export function dropzoneDragging(): ReactNode {
         <Empty
           size="sm"
           variant="dashed"
-          className="group-data-drag-invalid/dropzone:border-destructive/(--alpha-outline-border)"
+          className="group-data-drag-invalid/dropzone:border-destructive/50"
         >
           <EmptyHeader>
             <EmptyTitle>Not accepted</EmptyTitle>
@@ -218,7 +218,7 @@ export function dropzoneDragging(): ReactNode {
         dragState="dragging"
         onFilesAccepted={noop}
       >
-        <div className="rounded-lg bg-surface-1 p-4 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg bg-muted p-4 text-center text-xs text-muted-foreground">
           A non-Empty child still shows the drag state — the stroke belongs to
           the surface.
         </div>

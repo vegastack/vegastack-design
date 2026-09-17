@@ -1,4 +1,4 @@
-// @vegastack button@0.9.1 sha256-Ood+nbd5djqlMamanG14IdSyvS+psDEc/WAfcqMKuTQ=
+// @vegastack button@0.9.1 sha256-8cQQEmPCIb4PUnh1bbluynvZn87QI8A7SuEF9KLeqVw=
 
 import * as React from "react";
 import { cva } from "class-variance-authority";
@@ -28,7 +28,7 @@ export type ButtonTone =
  * | -------------------- | ---------------------- | ------------------------ |
  * | `--btn-fill/-hover/-active` | `solid`         | the `primary` ramp       |
  * | `--btn-ink`          | `solid`                | `primary-foreground`     |
- * | `--btn-soft`         | `soft`                 | `secondary` (= surface-1)|
+ * | `--btn-soft`         | `soft`                 | `secondary` (= muted)|
  * | `--btn-soft-hover/-active` | `soft` `outline` `ghost` | surface ladder rungs 2/3 |
  * | `--btn-tint`         | `soft` `outline` `link` ink | `foreground`        |
  * | `--btn-ghost-ink`    | `ghost` rest ink       | `inherit` (ghost keeps its host's ink) |
@@ -40,18 +40,18 @@ export type ButtonTone =
  * (derived per-theme in `sd-hooks.mjs` and AA-gated against `<family>-text`), never a live wash —
  * a wash would replace the subtle fill instead of climbing off it.
  *
- * Every reference is to the RAW token variable (`var(--destructive-text)`), never Tailwind's
+ * Every reference is to the RAW token variable (`var(--destructive)`), never Tailwind's
  * `--color-*` alias. The aliases are declared once on `:root`, so their value is computed there and
  * a NESTED theme scope (`<div class="dark">`, `MarketingSurface`) never re-resolves them — a button
  * inside one would paint light-theme ink on a dark ground. The raw tokens are redeclared in every
  * scope, so they resolve at the button. Measured by the dark half of the rendered-contrast gate.
  */
 export const buttonVariants = cva(
-  // `text-label` is the chrome-control voice (14/500, −1% tracking) — the same voice every
+  // `text-sm font-medium` is the chrome-control voice (14/500, −1% tracking) — the same voice every
   // other control label uses, so buttons don't read fractionally looser than tabs/segments/
-  // menu items sitting beside them. Size variants below layer `text-sm`, which overrides only
-  // font-size + line-height; the weight and tracking from `text-label` persist, so the small
-  // tiers land on the `text-label-sm` metrics (12/500, −1%) without restating them.
+  // menu items sitting beside them. Size variants below layer `text-xs`, which overrides only
+  // font-size + line-height; the weight and tracking from `text-sm font-medium` persist, so the small
+  // tiers land on the `text-xs font-medium` metrics (12/500, −1%) without restating them.
   //
   // `relative` anchors the loading spinner, which is absolutely positioned OVER the label so the
   // button's width does not move when `loading` flips (audit B1-08).
@@ -61,67 +61,67 @@ export const buttonVariants = cva(
   // `pointer-events-none`: a disabled control has to be hoverable for a Tooltip to explain why it
   // is disabled (audit D7 / B1-09). `not-data-loading:` keeps the dim off the pending state, which
   // is disabled-but-not-unavailable.
-  "relative inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap select-none data-disabled:cursor-not-allowed data-disabled:not-data-loading:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  "relative inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap select-none data-disabled:cursor-not-allowed data-disabled:not-data-loading:opacity-50 aria-invalid:border-destructive/70 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       tone: {
         neutral: cn(
-          "[--btn-fill:var(--primary)] [--btn-fill-hover:var(--primary-hover)] [--btn-fill-active:var(--primary-active)] [--btn-ink:var(--primary-foreground)]",
-          "[--btn-soft:var(--secondary)] [--btn-soft-hover:var(--surface-2)] [--btn-soft-active:var(--surface-3)]",
+          "[--btn-fill:var(--primary)] [--btn-fill-hover:color-mix(in_oklab,var(--primary)_80%,transparent)] [--btn-fill-active:color-mix(in_oklab,var(--primary)_70%,transparent)] [--btn-ink:var(--primary-foreground)]",
+          "[--btn-soft:var(--secondary)] [--btn-soft-hover:color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] [--btn-soft-active:color-mix(in_oklch,var(--secondary),var(--foreground)_10%)]",
           "[--btn-tint:var(--foreground)] [--btn-ghost-ink:inherit] [--btn-link:var(--info-text)]",
           "[--btn-face:var(--background)] [--btn-line:var(--border)] [--btn-line-hover:var(--border)]",
         ),
         destructive: cn(
-          "[--btn-fill:var(--destructive)] [--btn-fill-hover:var(--destructive-hover)] [--btn-fill-active:var(--destructive-active)] [--btn-ink:var(--destructive-foreground)]",
-          "[--btn-soft:var(--destructive-subtle)] [--btn-soft-hover:var(--destructive-subtle-hover)] [--btn-soft-active:var(--destructive-subtle-active)]",
+          "[--btn-fill:var(--destructive)] [--btn-fill-hover:color-mix(in_oklab,var(--destructive)_80%,transparent)] [--btn-fill-active:color-mix(in_oklab,var(--destructive)_70%,transparent)] [--btn-ink:var(--destructive-foreground)]",
+          "[--btn-soft:color-mix(in_oklab,var(--destructive)_10%,transparent)] [--btn-soft-hover:color-mix(in_oklab,var(--destructive)_20%,transparent)] [--btn-soft-active:color-mix(in_oklab,var(--destructive)_30%,transparent)]",
           "[--btn-tint:var(--destructive-text)] [--btn-ghost-ink:var(--destructive-text)] [--btn-link:var(--destructive-text)]",
-          "[--btn-face:color-mix(in_oklab,var(--destructive)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--destructive)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--destructive)]",
+          "[--btn-face:color-mix(in_oklab,var(--destructive)_5%,transparent)] [--btn-line:color-mix(in_oklab,var(--destructive)_50%,transparent)] [--btn-line-hover:var(--destructive)]",
         ),
         success: cn(
-          "[--btn-fill:var(--success)] [--btn-fill-hover:var(--success-hover)] [--btn-fill-active:var(--success-active)] [--btn-ink:var(--success-foreground)]",
-          "[--btn-soft:var(--success-subtle)] [--btn-soft-hover:var(--success-subtle-hover)] [--btn-soft-active:var(--success-subtle-active)]",
+          "[--btn-fill:var(--success)] [--btn-fill-hover:color-mix(in_oklab,var(--success)_80%,transparent)] [--btn-fill-active:color-mix(in_oklab,var(--success)_70%,transparent)] [--btn-ink:var(--success-foreground)]",
+          "[--btn-soft:color-mix(in_oklab,var(--success)_10%,transparent)] [--btn-soft-hover:color-mix(in_oklab,var(--success)_20%,transparent)] [--btn-soft-active:color-mix(in_oklab,var(--success)_30%,transparent)]",
           "[--btn-tint:var(--success-text)] [--btn-ghost-ink:var(--success-text)] [--btn-link:var(--success-text)]",
-          "[--btn-face:color-mix(in_oklab,var(--success)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--success)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--success)]",
+          "[--btn-face:color-mix(in_oklab,var(--success)_5%,transparent)] [--btn-line:color-mix(in_oklab,var(--success)_50%,transparent)] [--btn-line-hover:var(--success)]",
         ),
         warning: cn(
-          "[--btn-fill:var(--warning)] [--btn-fill-hover:var(--warning-hover)] [--btn-fill-active:var(--warning-active)] [--btn-ink:var(--warning-foreground)]",
-          "[--btn-soft:var(--warning-subtle)] [--btn-soft-hover:var(--warning-subtle-hover)] [--btn-soft-active:var(--warning-subtle-active)]",
+          "[--btn-fill:var(--warning)] [--btn-fill-hover:color-mix(in_oklab,var(--warning)_80%,transparent)] [--btn-fill-active:color-mix(in_oklab,var(--warning)_70%,transparent)] [--btn-ink:var(--warning-foreground)]",
+          "[--btn-soft:color-mix(in_oklab,var(--warning)_10%,transparent)] [--btn-soft-hover:color-mix(in_oklab,var(--warning)_20%,transparent)] [--btn-soft-active:color-mix(in_oklab,var(--warning)_30%,transparent)]",
           "[--btn-tint:var(--warning-text)] [--btn-ghost-ink:var(--warning-text)] [--btn-link:var(--warning-text)]",
-          "[--btn-face:color-mix(in_oklab,var(--warning)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--warning)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--warning)]",
+          "[--btn-face:color-mix(in_oklab,var(--warning)_5%,transparent)] [--btn-line:color-mix(in_oklab,var(--warning)_50%,transparent)] [--btn-line-hover:var(--warning)]",
         ),
         info: cn(
-          "[--btn-fill:var(--info)] [--btn-fill-hover:var(--info-hover)] [--btn-fill-active:var(--info-active)] [--btn-ink:var(--info-foreground)]",
-          "[--btn-soft:var(--info-subtle)] [--btn-soft-hover:var(--info-subtle-hover)] [--btn-soft-active:var(--info-subtle-active)]",
+          "[--btn-fill:var(--info)] [--btn-fill-hover:color-mix(in_oklab,var(--info)_80%,transparent)] [--btn-fill-active:color-mix(in_oklab,var(--info)_70%,transparent)] [--btn-ink:var(--info-foreground)]",
+          "[--btn-soft:color-mix(in_oklab,var(--info)_10%,transparent)] [--btn-soft-hover:color-mix(in_oklab,var(--info)_20%,transparent)] [--btn-soft-active:color-mix(in_oklab,var(--info)_30%,transparent)]",
           "[--btn-tint:var(--info-text)] [--btn-ghost-ink:var(--info-text)] [--btn-link:var(--info-text)]",
-          "[--btn-face:color-mix(in_oklab,var(--info)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--info)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--info)]",
+          "[--btn-face:color-mix(in_oklab,var(--info)_5%,transparent)] [--btn-line:color-mix(in_oklab,var(--info)_50%,transparent)] [--btn-line-hover:var(--info)]",
         ),
       },
       variant: {
         // A solid owns its own darker hover/pressed steps — an alpha wash over a solid only thins
-        // it (F1's `fillInteractive` note).
+        // it (F1's the family's own hover wash note).
         solid:
           "bg-(--btn-fill) text-(--btn-ink) hover:bg-(--btn-fill-hover) active:bg-(--btn-fill-active)",
         // Filled and bordered controls alike climb the same two rungs: hover = rung 2, pressed =
         // rung 3 (F1's surface ladder, expressed once through the tone vars).
         soft: "bg-(--btn-soft) text-(--btn-tint) hover:bg-(--btn-soft-hover) active:bg-(--btn-soft-active)",
         outline:
-          "border-(--btn-line) bg-(--btn-face) text-(--btn-tint) hover:border-(--btn-line-hover) hover:bg-(--btn-soft-hover) focus-visible:border-ring/(--alpha-tint-border) active:bg-(--btn-soft-active)",
+          "border-(--btn-line) bg-(--btn-face) text-(--btn-tint) hover:border-(--btn-line-hover) hover:bg-(--btn-soft-hover) focus-visible:border-ring/70 active:bg-(--btn-soft-active)",
         // A ghost has no rest ink of its own in the neutral tone: `--btn-ghost-ink` is `inherit`,
         // so a ghost dismiss control inside muted chrome keeps the muted ink until it is hovered.
         ghost:
           "text-(--btn-ghost-ink) hover:text-(--btn-tint) hover:bg-(--btn-soft-hover) active:bg-(--btn-soft-active)",
         // A text link dims on hover and re-inks on press — the pressed step of a link is solid ink.
-        link: "text-(--btn-link) underline underline-offset-4 hover:text-(--btn-link)/(--alpha-link-hover) active:text-(--btn-link)",
+        link: "text-(--btn-link) underline underline-offset-4 hover:text-(--btn-link)/88 active:text-(--btn-link)",
         // Marketing CTA (audit 17-brand-direction §Color & surface + §Shape): the ONE sanctioned
         // use of the `--brand` phosphor accent as a button — accent-outline over a faint brand
-        // wash, sharp corners (rounded-(--radius-sharp), rationed per D18), mono-uppercase label
-        // (the brand voice layer). `rounded-(--radius-sharp)` / `text-mono-label` win over the base
-        // string's `rounded-md` / `text-label` via later-in-source-order cascade — the SAME
+        // wash, sharp corners (rounded-[2px], rationed per D18), mono-uppercase label
+        // (the brand voice layer). `rounded-[2px]` / `font-mono text-xs` win over the base
+        // string's `rounded-md` / `text-sm font-medium` via later-in-source-order cascade — the SAME
         // mechanism the `outline` variant above relies on. `cta` is brand-locked: it reads no tone
         // var, and the type forbids passing `tone` with it. Compose a trailing chevron as a CHILD
         // (e.g. `<ChevronRight />`) — this variant is style-only, it never bakes in an icon.
         //
-        // The LABEL is `brand-text`, not `brand`. `--text-mono-label` is 0.75rem/400 — normal text
+        // The LABEL is `brand-text`, not `brand`. `--font-mono text-xs` is 0.75rem/400 — normal text
         // under WCAG 1.4.3, so 4.5:1 — and `brand` is a 3.5:1 MARKER value: `text-brand` over this
         // variant's own faint wash measured 3.41 rest / 3.33 hover / 3.21 pressed in light
         // (2026-09-09, HIGH-2), shipped live on the docs button playground. `brand-text` is the
@@ -133,19 +133,19 @@ export const buttonVariants = cva(
         // NOT settled here: whether `cta` should be TYPE-BOUND to `MarketingSurface`. Nothing
         // scopes it today, and the doctrine calls it a marketing recipe — an open question for MK
         // (see the PR that introduced `brand-text`). The ink fix stands either way.
-        cta: "rounded-(--radius-sharp) border-brand/(--alpha-outline-border) bg-brand/(--alpha-surface-faint) font-mono text-mono-label text-brand-text uppercase hover:border-brand hover:bg-brand/(--alpha-hover) active:bg-brand/(--alpha-pressed)",
+        cta: "rounded-[2px] border-brand/50 bg-brand/5 font-mono font-mono text-xs text-brand-text uppercase hover:border-brand hover:bg-brand/7 active:bg-brand/10",
       },
       size: {
         // One vocabulary, `xs · sm · md · lg`, the same names the `--size-*` tokens carry
         // (audit B1-05). Text-bearing sizes pair their composed icon with the TEXT —
-        // `--icon-inline` (14px, matching the 14px label) — because a 16px stroke-2 lucide glyph
+        // `size-3.5` (14px, matching the 14px label) — because a 16px stroke-2 lucide glyph
         // next to a 14px label reads disproportionately heavy. Icon-only geometry lives in
         // `IconButton`, which is the ONLY sanctioned icon-only path (it makes the missing
         // `aria-label` a type error).
-        xs: "h-(--size-xs) gap-1 px-2 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-        sm: "h-(--size-sm) gap-1 px-2.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
-        md: "h-(--size-md) gap-1.5 px-3 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
-        lg: "h-(--size-lg) gap-1.5 px-4 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+        xs: "h-6 gap-1 px-2 text-xs font-medium [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-7 gap-1 px-2.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3.5",
+        md: "h-8 gap-1.5 px-3 [&_svg:not([class*='size-'])]:size-3.5",
+        lg: "h-10 gap-1.5 px-4 [&_svg:not([class*='size-'])]:size-3.5",
       },
     },
     defaultVariants: { variant: "solid", tone: "neutral", size: "md" },

@@ -40,7 +40,7 @@ export function otpInputStates(): ReactNode {
         aria-label="Invalid code"
         groups={[3, 3]}
         defaultValue="123456"
-        slotClassName="border-destructive/(--alpha-tint-border)"
+        slotClassName="border-destructive/70"
       />
       {/* Disabled — dimmed, `not-allowed`, non-interactive. */}
       <OTPInput aria-label="Disabled code" defaultValue="123456" disabled />
@@ -115,7 +115,7 @@ export function otpInputComplete(): ReactNode {
         onValueComplete={(value) => setCompleted(value)}
         onValueChange={() => setCompleted(null)}
       />
-      <p className="text-base font-mono text-muted-foreground">
+      <p className="text-sm font-mono text-muted-foreground">
         {completed
           ? `Completed: ${completed}`
           : "Fill all six slots to fire onValueComplete."}

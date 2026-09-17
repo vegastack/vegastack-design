@@ -144,7 +144,7 @@ export function FullscreenToggle() {
  * In fullscreen the same frame renders inside the system `Dialog` — the component being
  * dogfooded, and the one that already owns the focus trap, background isolation on the page behind
  * (`aria-hidden` + `data-base-ui-inert`; Base UI 1.6.0 does not set the `inert` attribute), scroll
- * lock, Esc, and portal ordering (`DialogContent` paints in the same `--z-overlay` band as the
+ * lock, Esc, and portal ordering (`DialogContent` paints in the same `z-50` band as the
  * demo popups, which append later to `body` and therefore above it). Deliberately NOT the native
  * `requestFullscreen()` API: a natively fullscreened element would hide every portaled Dialog/
  * Select/Tooltip demo.
@@ -191,7 +191,7 @@ export function PreviewFrameContainer({
         <DialogDescription className="sr-only">
           The live demo without the docs chrome. Press Escape to return.
         </DialogDescription>
-        <div className="vs-type-product flex min-h-0 flex-1 flex-col justify-center overflow-auto p-6 pt-12">
+        <div className="flex min-h-0 flex-1 flex-col justify-center overflow-auto p-6 pt-12">
           {frame}
         </div>
       </DialogContent>

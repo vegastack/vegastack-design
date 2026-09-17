@@ -67,10 +67,10 @@ test("each type carries its own tint, icon and data-type", async () => {
   await waitForToast("Storage almost full");
   await waitForToast("Update available");
   for (const [text, type, tint] of [
-    ["Changes saved", "success", "bg-success-subtle"],
-    ["Could not save", "error", "bg-destructive-subtle"],
-    ["Storage almost full", "warning", "bg-warning-subtle"],
-    ["Update available", "info", "bg-info-subtle"],
+    ["Changes saved", "success", "bg-success/10"],
+    ["Could not save", "error", "bg-destructive/10"],
+    ["Storage almost full", "warning", "bg-warning/10"],
+    ["Update available", "info", "bg-info/10"],
   ] as const) {
     const element = toastEl(text);
     expect(element?.getAttribute("data-type")).toBe(type);

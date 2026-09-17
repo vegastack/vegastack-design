@@ -149,10 +149,7 @@ export function itemDemoLink(): ReactNode {
           </ItemDescription>
         </ItemContent>
         <ItemActions>
-          <ChevronRight
-            aria-hidden
-            className="size-(--icon-default) text-muted-foreground"
-          />
+          <ChevronRight aria-hidden className="size-4 text-muted-foreground" />
         </ItemActions>
       </Item>
     </Wrapper>
@@ -170,7 +167,7 @@ export function itemDemoGroup(): ReactNode {
           <ItemContent>
             <ItemHeader>
               <ItemTitle>Ada Lovelace</ItemTitle>
-              <span className="text-sm text-muted-foreground">2m ago</span>
+              <span className="text-xs text-muted-foreground">2m ago</span>
             </ItemHeader>
             <ItemDescription>Approved the pull request.</ItemDescription>
           </ItemContent>
@@ -183,7 +180,7 @@ export function itemDemoGroup(): ReactNode {
           <ItemContent>
             <ItemHeader>
               <ItemTitle>Grace Hopper</ItemTitle>
-              <span className="text-sm text-muted-foreground">1h ago</span>
+              <span className="text-xs text-muted-foreground">1h ago</span>
             </ItemHeader>
             <ItemDescription>Left a comment on the design doc.</ItemDescription>
             <ItemFooter>

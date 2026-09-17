@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.9.1 sha256-zX6K+xbBNdOFmcg4Nsb2aExeIfcJcORZ2542YhTMlG8=
+// @vegastack auto-save-input@0.9.1 sha256-iO5Z/SkecSXb036zE+JnI9SKVxL4cT/ULdQycoLUc18=
 
 "use client";
 
@@ -74,8 +74,7 @@ export interface AutoSaveInputProps extends Omit<
 }
 
 /** Trailing status-slot classes — fixed-width so the field doesn't shift as the icon swaps. */
-const statusSlotClasses =
-  "flex size-(--icon-default) shrink-0 items-center justify-center";
+const statusSlotClasses = "flex size-4 shrink-0 items-center justify-center";
 
 /**
  * `AutoSaveInput` — an {@link Input} that debounces edits and persists them via
@@ -241,13 +240,13 @@ export function AutoSaveInput({
           ) : status === "saved" ? (
             <Check
               key="saved"
-              className="size-(--icon-default) text-success-text motion-pop-in"
+              className="size-4 text-success-text motion-pop-in"
               aria-hidden
             />
           ) : status === "error" ? (
             <X
               key="error"
-              className="size-(--icon-default) text-destructive-text motion-pop-in"
+              className="size-4 text-destructive-text motion-pop-in"
               aria-hidden
             />
           ) : null}

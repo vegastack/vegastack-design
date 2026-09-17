@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.9.1 sha256-EhqLSpgYz4cJ12xuyDdi7AjesuseHmSj7SaeQobUwyA=
+// @vegastack color-picker@0.9.1 sha256-CCJ4eThOqXchPbDy7fqXWUfxYnhuTPiZKGUyGOKnF0w=
 
 "use client";
 
@@ -264,7 +264,7 @@ export function ColorPicker({
                       data-slot="color-picker-check"
                       className="flex size-3.5 items-center justify-center rounded-full bg-background text-foreground"
                     >
-                      <Check className="size-(--icon-compact)" aria-hidden />
+                      <Check className="size-3" aria-hidden />
                     </span>
                   ) : null}
                 </span>

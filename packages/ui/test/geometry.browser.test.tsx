@@ -4,6 +4,7 @@ import { render } from "vitest-browser-react";
 import { page } from "vitest/browser";
 import { afterEach, beforeAll, beforeEach, expect, test } from "vitest";
 import * as Preview from "@/components/preview";
+import contracts from "../component-contracts.json";
 import {
   dynamicMountCount,
   pendingDynamicImports,
@@ -153,15 +154,8 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
  * separate map so it can never be confused with a recorded defect, and guarded against staleness
  * by the same name check.
  */
-const UNSWEPT: Record<string, string> = {
-  // Omits `now` so the component reads the real clock and its refresh timer ticks — that IS the
-  // feature being demonstrated. A self-rescheduling `setTimeout` re-renders the fixture between
-  // the assertion and the measurement: the detach race in `docs/ledger/bugs.md` (2026-09-08).
-  // Every other `relative-time` fixture pins `now` to a fixed instant and is swept normally, so
-  // the component's geometry IS covered; only this one demo's live clock is not.
-  relativeTimeLive:
-    "live clock: re-renders on its own timer, geometry is not stable",
-};
+const UNSWEPT: Record<string, string> =
+  contracts.affectedTestPolicy.geometryUnswept;
 
 /**
  * Fixtures that mount a `next/dynamic` component, and the DOM that proves the REAL component —
@@ -408,7 +402,7 @@ const AUTHORED_OUTLINE =
  * listed it. Measured 2026-09-09: a focused `[data-slot=select-trigger]` computes
  * `outline-style: solid`, `outline-width: 2px`. That is by design and documented on the component
  * ("button-style trigger: the centralized base.css `:focus-visible` outline also applies for
- * keyboard nav", select.tsx) — it wears `fieldControl` for its CHROME while remaining a button.
+ * keyboard nav", select.tsx) — it wears `"rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80"` for its CHROME while remaining a button.
  * Adding it here would fail a correct control.
  */
 const TEXT_ENTRY_SLOTS =
@@ -420,7 +414,7 @@ const TEXT_ENTRY_SLOTS =
  *
  * AGENTS.md § Accessibility: "visible `:focus-visible` (text-entry fields use a border tint
  * instead)". The tint is applied by `fieldSurface` / `fieldGroupSurface` in `@vegastack/design` —
- * `focus:border-ring/(--alpha-tint-border)` on the control, `focus-within:border-…` on the group —
+ * `focus:border-ring/70` on the control, `focus-within:border-…` on the group —
  * so the element whose border changes may be an ancestor of the focused control.
  */
 function tintCarriers(control: Element): Element[] {
@@ -806,15 +800,17 @@ beforeAll(async () => {
       overflow: "hidden",
       whiteSpace: "nowrap",
     });
-    // …and the token theme itself, which the utilities above do not depend on: a missing
-    // `@vegastack/design-tokens/theme.css` leaves every `--size-*`/`--icon-*` sizing utility
-    // resolving to nothing while plain Tailwind utilities still compile.
+    // …and the token theme itself, which the utilities above do not depend on. The sentinel used
+    // to be `h-8`; the shadcn reset deleted the `--size-*` family (LAY-1 = shadcn: upstream
+    // writes `h-8`), so it is `--background` now — the one token whose absence means the theme
+    // did not load at all, while plain Tailwind utilities still compile and every measurement in
+    // this file silently reads unthemed values.
     expect(
       getComputedStyle(document.documentElement)
-        .getPropertyValue("--size-md")
+        .getPropertyValue("--background")
         .trim(),
-      "the @vegastack token theme is not on this page (--size-md is unset), so every control " +
-        "sized with `h-(--size-md)` collapses and the 24px floor is meaningless.",
+      "the @vegastack token theme is not on this page (--background is unset), so every colour " +
+        "and surface measured in this file is an unthemed default.",
     ).not.toBe("");
   } finally {
     sentinel.remove();

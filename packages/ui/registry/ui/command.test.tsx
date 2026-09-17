@@ -389,7 +389,7 @@ test("CommandFooter renders the hairline-topped action bar inside the palette", 
         )}
       </CommandList>
       <CommandFooter>
-        <span className="text-sm text-muted-foreground">Navigate</span>
+        <span className="text-xs text-muted-foreground">Navigate</span>
       </CommandFooter>
     </Command>,
   );

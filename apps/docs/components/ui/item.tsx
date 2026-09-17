@@ -1,4 +1,4 @@
-// @vegastack item@0.9.1 sha256-2WU+gKnHHeBh5aMPecC+FEIH1vh76BWx5LrnIeupcF0=
+// @vegastack item@0.9.1 sha256-CYTAr0qVTToS4onVy/CHYISeTVYdovWnU5NZy0RMWyA=
 
 "use client";
 
@@ -25,7 +25,7 @@ import { Separator } from "@/components/ui/separator";
 const ItemGroupContext = React.createContext(false);
 
 export const itemVariants = cva(
-  "group/item relative flex w-full flex-wrap items-center rounded-md border border-transparent text-base [&_svg]:pointer-events-none [&_svg]:shrink-0 [&:is(a,button)]:hover:bg-surface-2 [&:is(a,button)]:active:bg-surface-3",
+  "group/item relative flex w-full flex-wrap items-center rounded-md border border-transparent text-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&:is(a,button)]:hover:bg-accent [&:is(a,button)]:active:bg-accent",
   {
     variants: {
       variant: {
@@ -34,7 +34,7 @@ export const itemVariants = cva(
         /** A hairline border around the row. */
         outline: "border-border",
         /** A filled neutral wash — reads as a self-contained block. */
-        muted: "bg-surface-1",
+        muted: "bg-muted",
       },
       size: {
         /** Roomy padding — the standard row density. */
@@ -158,10 +158,10 @@ export const itemMediaVariants = cva(
         /** Bare — renders children as-is (e.g. an `Avatar`, a custom glyph). */
         default: "bg-transparent",
         /** A bordered, muted square chip around a `lucide-react` icon. */
-        icon: "size-(--size-md) rounded-sm border border-border bg-muted [&_svg:not([class*='size-'])]:size-(--icon-default)",
+        icon: "size-8 rounded-sm border border-border bg-muted [&_svg:not([class*='size-'])]:size-4",
         /** A clipped square tile for a thumbnail `<img>`. */
         image:
-          "size-(--size-lg) overflow-hidden rounded-sm [&_img]:size-full [&_img]:object-cover",
+          "size-10 overflow-hidden rounded-sm [&_img]:size-full [&_img]:object-cover",
       },
     },
     defaultVariants: { variant: "default" },
@@ -255,11 +255,11 @@ export function ItemTitle({ className, ref, ...props }: ItemTitleProps) {
       ref={ref}
       data-slot="item-title"
       className={cn(
-        // D24: the row title is the system's list-row type — `text-label` (14/500), matching
+        // D24: the row title is the system's list-row type — `text-sm font-medium` (14/500), matching
         // Sidebar menu rows, DataList cells, menu items and Message rows. The denser `size="sm"`
-        // tier drops to `text-label-sm` (12/500) so a compact list keeps its 12/12 rhythm.
-        "flex w-fit items-center gap-2 leading-snug text-label text-foreground",
-        "group-data-[size=sm]/item:text-label-sm",
+        // tier drops to `text-xs font-medium` (12/500) so a compact list keeps its 12/12 rhythm.
+        "flex w-fit items-center gap-2 leading-snug text-sm font-medium text-foreground",
+        "group-data-[size=sm]/item:text-xs group-data-[size=sm]/item:font-medium",
         className,
       )}
       {...props}
@@ -285,7 +285,7 @@ export function ItemDescription({
       ref={ref}
       data-slot="item-description"
       className={cn(
-        "line-clamp-2 text-sm leading-normal font-normal text-pretty text-muted-foreground [&>a]:underline [&>a]:underline-offset-3 [&>a:hover]:text-foreground",
+        "line-clamp-2 text-xs leading-normal font-normal text-pretty text-muted-foreground [&>a]:underline [&>a]:underline-offset-3 [&>a:hover]:text-foreground",
         className,
       )}
       {...props}

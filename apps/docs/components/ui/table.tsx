@@ -1,7 +1,7 @@
-// @vegastack table@0.9.1 sha256-bcGnmXGVfKnFEi8v7O5yIe0i/NckNk/SSSg+LBRO/RM=
+// @vegastack table@0.9.1 sha256-2flQWYzNAErNdkpj1jHC1nWzEDRfTFNLDKtnIXLRJYw=
 
 import * as React from "react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { TableScrollRegion } from "@/components/ui/table-scroll-region";
 
 /** Props for `Table` — a native `<table>` rendered inside an overflow container. */
@@ -14,7 +14,7 @@ export interface TableProps extends React.ComponentProps<"table"> {
    */
   grid?: boolean;
   /**
-   * Header voice. `muted` (default) keeps the 12/500 `text-label-sm`
+   * Header voice. `muted` (default) keeps the 12/500 `text-xs font-medium`
    * muted-foreground headers; `ink` switches to 14/500 foreground headers — the
    * denser "spreadsheet" read for data-heavy screens.
    * @default 'muted'
@@ -102,7 +102,7 @@ function Table({
         // `group/table` lets head/cell parts react to the root's data flags without
         // React context — the whole family stays server-safe.
         className={cn(
-          "group/table w-full caption-bottom text-base",
+          "group/table w-full caption-bottom text-sm",
           // The floor a wrapping column may shrink to. `overflow-wrap: anywhere`
           // drops a cell's min-content width to a single character, so without a
           // floor one long value could squeeze every sibling column to nothing.
@@ -135,7 +135,7 @@ function TableHeader({ className, ref, ...props }: TableHeaderProps) {
       className={cn(
         "[&_tr]:border-b [&_tr]:border-border",
         // A header row is not a row you can act on, so it does not take the row
-        // hover. `TableRow` carries `surfaceInteractive` for every row it renders
+        // hover. `TableRow` carries `"hover:bg-accent"` for every row it renders
         // — including the header row DataList/DataGrid build with it — and these
         // descendant selectors outrank it on specificity, which a class on the
         // row itself could not do (twMerge only resolves conflicts within ONE
@@ -187,7 +187,7 @@ function TableFooter({ className, ref, ...props }: TableFooterProps) {
       ref={ref}
       data-slot="table-footer"
       className={cn(
-        "border-t border-border bg-muted/(--alpha-wash) font-medium [&>tr]:last:border-b-0",
+        "border-t border-border bg-muted/50 font-medium [&>tr]:last:border-b-0",
         className,
       )}
       {...props}
@@ -215,9 +215,9 @@ function TableRow({ className, ref, ...props }: TableRowProps) {
         // A SELECTED row rests on the pressed rung, so hovering it steps DOWN to the hover rung and
         // pressing returns it to rest — otherwise `data-selected` simply outranks `hover:` at equal
         // specificity and a selected row reads dead under the cursor (SP-06).
-        "border-b border-border data-selected:bg-surface-3",
-        "data-selected:hover:bg-surface-2 data-selected:active:bg-surface-3",
-        surfaceInteractive,
+        "border-b border-border data-selected:bg-accent",
+        "data-selected:hover:bg-accent data-selected:active:bg-accent",
+        "hover:bg-accent",
         className,
       )}
       {...props}
@@ -229,8 +229,8 @@ function TableRow({ className, ref, ...props }: TableRowProps) {
 export type TableHeadProps = React.ComponentProps<"th">;
 
 /**
- * `TableHead` — a header cell (`<th>`). A compact (32px, `--size-md`), start-aligned
- * `text-label-sm` (12/500) header in `muted-foreground`, rendered title-case as
+ * `TableHead` — a header cell (`<th>`). A compact (32px, `h-8`), start-aligned
+ * `text-xs font-medium` (12/500) header in `muted-foreground`, rendered title-case as
  * authored (sortable + non-sortable match); collapses inline-end padding for a checkbox.
 
  *
@@ -249,7 +249,7 @@ function TableHead({
       scope={scope}
       data-slot="table-head"
       className={cn(
-        "h-(--size-md) min-w-(--table-cell-min-width) px-3 text-start align-middle text-label-sm text-muted-foreground",
+        "h-8 min-w-(--table-cell-min-width) px-3 text-start align-middle text-xs font-medium text-muted-foreground",
         // A control column (the selection checkbox) is shrink-to-fit: it opts out
         // of the wrapping floor and tightens its trailing padding. `pe-2`, not
         // `pe-0`: a `sm` Checkbox is 14px with a `-inset-1.5` hit area, so 8px is
@@ -258,7 +258,7 @@ function TableHead({
         // `docs/ledger/bugs.md`, 2026-09-09.
         "[&:has([role=checkbox])]:min-w-0 [&:has([role=checkbox])]:pe-2",
         // ink header voice (root data-header-tone=ink): body-size foreground headers.
-        "group-data-[header-tone=ink]/table:text-label group-data-[header-tone=ink]/table:text-foreground",
+        "group-data-[header-tone=ink]/table:text-sm group-data-[header-tone=ink]/table:font-medium group-data-[header-tone=ink]/table:text-foreground",
         // spreadsheet grid (root data-grid): trailing hairline per column, none on the last.
         "group-data-[grid]/table:border-e group-data-[grid]/table:border-border group-data-[grid]/table:last:border-e-0",
         className,
@@ -317,7 +317,7 @@ function TableCaption({ className, ref, ...props }: TableCaptionProps) {
     <caption
       ref={ref}
       data-slot="table-caption"
-      className={cn("mt-4 text-base text-muted-foreground", className)}
+      className={cn("mt-4 text-sm text-muted-foreground", className)}
       {...props}
     />
   );

@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.9.1 sha256-RuID/kEb8I7cZv4w10CmKv6vs+CHURA+0z++nvOvQyE=
+// @vegastack dashboard-01@0.9.1 sha256-f6Vq5O+Imnm+CAC7eA+eo0Gjkgs0KP66oA+V2hMEWfs=
 
 "use client";
 
@@ -78,7 +78,7 @@ const columns: DataListColumn<ActivityRow>[] = [
     render: (row) => (
       <span className="flex items-center gap-1.5">
         <StatusIcon status={row.status} size="sm" />
-        <span className="text-base text-foreground">
+        <span className="text-sm text-foreground">
           {row.status === "progress"
             ? "In progress"
             : row.status === "todo"

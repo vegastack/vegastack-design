@@ -1,4 +1,4 @@
-// @vegastack resizable@0.9.1 sha256-l1gT21mpsy+So7q0C/9NPURR6ulGWqKVl37mOJ38N/k=
+// @vegastack resizable@0.9.1 sha256-eergihBEUJ7t6fY/QNdZSyTd0aSCW2iM6Dc7zDCsj90=
 
 import * as React from "react";
 import { GripVertical } from "lucide-react";
@@ -113,7 +113,7 @@ export interface ResizableHandleProps
  * Resting state is a 1px `bg-border` line; it fills `bg-primary` on hover, drag,
  * or keyboard focus (mirrored via the primitive's own `data-separator` state, so
  * touch/keyboard interactions get the same feedback as a pointer hover), and dims
- * to `--opacity-dim` with the cursor reset when `disabled`. The centralized
+ * to `opacity-50` with the cursor reset when `disabled`. The centralized
  * `base.css` `:focus-visible` outline (no ring of its own — same convention as
  * `Slider`/`Separator`) supplies the focus affordance.
  *
@@ -136,7 +136,7 @@ export function ResizableHandle({
         // on hover / drag / keyboard-focus (the primitive's own hit-test state, exposed
         // as `data-separator`) and dims when `aria-disabled`. `group/handle` lets the
         // grip glyph below react to this element's own `aria-orientation`.
-        "group/handle relative flex shrink-0 touch-none items-center justify-center bg-border select-none hover:bg-primary focus-visible:bg-primary data-[separator=active]:bg-primary aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+        "group/handle relative flex shrink-0 touch-none items-center justify-center bg-border select-none hover:bg-primary focus-visible:bg-primary data-[separator=active]:bg-primary aria-disabled:pointer-events-none aria-disabled:opacity-50",
         // Default (aria-orientation="vertical" — a vertical bar between horizontally
         // arranged panels): full height, 1px wide, column-resize cursor. A wider
         // invisible `after` hit target (24px) meets WCAG 2.2 target-size guidance
@@ -150,9 +150,9 @@ export function ResizableHandle({
       {...props}
     >
       {withHandle && (
-        <div className="z-(--z-raised) flex size-4 items-center justify-center rounded-xs border bg-border group-aria-[orientation=horizontal]/handle:rotate-90">
+        <div className="z-10 flex size-4 items-center justify-center rounded-sm border bg-border group-aria-[orientation=horizontal]/handle:rotate-90">
           <GripVertical
-            className="size-(--icon-compact) text-muted-foreground"
+            className="size-3 text-muted-foreground"
             aria-hidden="true"
           />
         </div>

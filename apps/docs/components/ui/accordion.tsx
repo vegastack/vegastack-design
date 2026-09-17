@@ -1,11 +1,11 @@
-// @vegastack accordion@0.9.1 sha256-OazYh0N/yW3tErBVNoixEk95zDnyjKsjOlfkag/gYyE=
+// @vegastack accordion@0.9.1 sha256-ocudYfjlvZ8rzVG/ZpJlqYOx9tg9YhhaG92bhjgtRts=
 
 "use client";
 
 import * as React from "react";
 import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
 import { ChevronDown } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Accordion (Root) — groups the collapsible items and owns single/multiple open behavior.
@@ -116,7 +116,7 @@ export function AccordionTrigger({
         ref={ref}
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger flex flex-1 items-center justify-between gap-4 rounded-md py-2 text-start text-label text-foreground",
+          "group/accordion-trigger flex flex-1 items-center justify-between gap-4 rounded-md py-2 text-start text-sm font-medium text-foreground",
           // Underline-on-hover is the LINK affordance and belongs to links only (B7-08). A
           // disclosure hovers with the row wash, which needs the geometry design.md § Hover
           // geometry demands: an inner radius and a ≥4px inset from the item hairline. The
@@ -127,12 +127,12 @@ export function AccordionTrigger({
           // outward past the item's content box overflows the root at 320px. `AccordionContent`
           // carries the same `px-2` so the label stays aligned with the panel body.
           "px-2",
-          surfaceInteractive,
+          "hover:bg-accent",
           // Base UI surfaces item/root-level `disabled` as a `data-disabled` attribute
           // on the trigger (no native `disabled` attribute), so style both.
-          "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
-          "data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)",
-          "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+          "disabled:pointer-events-none disabled:opacity-50",
+          "data-disabled:pointer-events-none data-disabled:opacity-50",
+          "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
           className,
         )}
         {...props}
@@ -183,7 +183,7 @@ export function AccordionContent({
       data-slot="accordion-content"
       className={cn(
         // Height animates the wrapper from 0 → measured height (and back).
-        "h-[var(--accordion-panel-height)] overflow-hidden text-base text-muted-foreground",
+        "h-[var(--accordion-panel-height)] overflow-hidden text-sm text-muted-foreground",
         "transition-[height] duration-fast ease-standard",
         "data-[starting-style]:h-0 data-[ending-style]:h-0",
         className,

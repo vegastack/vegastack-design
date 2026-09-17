@@ -82,7 +82,7 @@ export function collapsibleControlled(): ReactNode {
   const [open, setOpen] = useState(false);
   return (
     <Wrapper className="flex-col items-stretch gap-3">
-      <p className="text-base text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         State owned by the parent:{" "}
         <span className="font-mono text-foreground">{String(open)}</span>
       </p>

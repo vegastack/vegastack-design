@@ -253,8 +253,11 @@ function verifyFactory(source, failures) {
     );
   if (!/^\s*return preference;$/m.test(source))
     fail("the OS preference must be the value that falls through");
-  if (!source.includes('size = "var(--icon-default)"'))
-    fail("default size must resolve from --icon-default at runtime");
+  // The default size was `var(--icon-default)` until the shadcn reset deleted the `--icon-*` role
+  // family (ICO-2 = shadcn). It is a literal rem value now, so the assertion is that the factory
+  // still HAS a default size rather than leaving it undefined — an unsized animated icon collapses.
+  if (!/size = "[0-9.]+rem"/.test(source))
+    fail("the factory must default `size` to a concrete rem value");
   if (
     /Number\.POSITIVE_INFINITY|\bInfinity\b|setInterval\s*\(|requestAnimationFrame\s*\(/.test(
       source,
@@ -369,14 +372,13 @@ function verifyWrapper(source, failures) {
   if (/\bforwardRef\b|ForwardRefExoticComponent/.test(source)) {
     fail("wrapper must use React 19 ref-as-prop types and implementation");
   }
-  for (const token of [
-    "--icon-inline",
-    "--icon-default",
-    "--icon-action",
-    "--icon-feature",
-  ]) {
-    if (!source.includes(`var(${token})`))
-      fail(`missing runtime token ${token}`);
+  // The four sizes were `var(--icon-inline|default|action|feature)` until the shadcn reset deleted
+  // the `--icon-*` role family (ICO-2 = shadcn). They are literal rem values now — 14 / 16 / 20 /
+  // 24px, unchanged in what they render — and the contract this gate keeps is that all four tiers
+  // exist with a concrete value, because a missing entry ships an icon with no size at all.
+  for (const tier of ["xs", "sm", "md", "lg"]) {
+    if (!new RegExp(`${tier}: "[0-9.]+rem"`).test(source))
+      fail(`missing icon size tier ${tier}`);
   }
   if (!source.includes("ref?: React.Ref<AnimatedIconHandle>"))
     fail("wrapper props must expose the imperative ref");

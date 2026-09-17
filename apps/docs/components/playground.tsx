@@ -88,7 +88,7 @@ export function PropsPlayground<Keys extends string>({
 
   return (
     <div className="not-prose my-4 overflow-hidden rounded-lg border border-border bg-secondary">
-      <div className="vs-type-product flex min-h-32 items-center justify-center border-b border-border bg-background p-6">
+      <div className="flex min-h-32 items-center justify-center border-b border-border bg-background p-6">
         {render(state)}
       </div>
       <div className="flex flex-wrap items-end gap-4 border-b border-border p-4">

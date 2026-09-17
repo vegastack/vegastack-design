@@ -1,4 +1,4 @@
-// @vegastack chart@0.9.1 sha256-V5u94RFZYwLTPROUTw1aZYUpMjvjtH/JgEYmHMb2bF4=
+// @vegastack chart@0.9.1 sha256-HEptxDwnILes/47GsAxz8Twq7tKmcorwLIGmkKCaxvs=
 
 "use client";
 
@@ -195,12 +195,12 @@ function ChartContainer({
         data-slot="chart"
         style={{ ...chartStyle, ...style } as React.CSSProperties}
         className={cn(
-          "flex aspect-video justify-center text-sm",
+          "flex aspect-video justify-center text-xs",
           // Numerals canon: axis tick numerals are mono (SVG <text> takes font-family
           // via class) at the mono 11px tier, matching the tooltip's
           // `font-mono tabular-nums` values. Labels themselves sit at 12px, not the
           // 11px the whole container used to inherit — mono owns 11px, prose does not.
-          "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:font-mono [&_.recharts-cartesian-axis-tick_text]:text-code-sm",
+          "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:font-mono [&_.recharts-cartesian-axis-tick_text]:font-mono [&_.recharts-cartesian-axis-tick_text]:text-xs",
           // Recharts' `accessibilityLayer` makes the root <svg> a tab stop — and that svg IS
           // `.recharts-surface` (recharts 3.10.1 `RootSurface` renders `Surface` with
           // `role="application"` + `tabIndex={0}`). So the surface reset must EXCLUDE the focused
@@ -334,7 +334,7 @@ function ChartTooltipContent({
     <div
       data-slot="chart-tooltip-content"
       className={cn(
-        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border bg-popover px-2.5 py-1.5 text-sm text-popover-foreground shadow-overlay",
+        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-lg",
         className,
       )}
     >
@@ -351,7 +351,7 @@ function ChartTooltipContent({
               <div
                 key={index}
                 className={cn(
-                  "flex w-full flex-wrap items-stretch gap-2 [&>svg]:size-(--icon-compact) [&>svg]:text-muted-foreground",
+                  "flex w-full flex-wrap items-stretch gap-2 [&>svg]:size-3 [&>svg]:text-muted-foreground",
                   indicator === "dot" && "items-center",
                 )}
               >
@@ -366,7 +366,7 @@ function ChartTooltipContent({
                         <div
                           data-slot="chart-tooltip-indicator"
                           className={cn(
-                            "shrink-0 rounded-xs border-(--color-border) bg-(--color-bg)",
+                            "shrink-0 rounded-sm border-(--color-border) bg-(--color-bg)",
                             {
                               "size-2.5": indicator === "dot",
                               "w-1": indicator === "line",
@@ -476,14 +476,14 @@ function ChartLegendContent({
           return (
             <div
               key={index}
-              className="flex items-center gap-1.5 [&>svg]:size-(--icon-compact) [&>svg]:text-muted-foreground"
+              className="flex items-center gap-1.5 [&>svg]:size-3 [&>svg]:text-muted-foreground"
             >
               {itemConfig?.icon && !hideIcon ? (
                 <itemConfig.icon />
               ) : (
                 <div
                   data-slot="chart-legend-indicator"
-                  className="size-2 shrink-0 rounded-xs bg-(--color-bg)"
+                  className="size-2 shrink-0 rounded-sm bg-(--color-bg)"
                   style={{ "--color-bg": item.color } as React.CSSProperties}
                 />
               )}

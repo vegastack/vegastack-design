@@ -73,7 +73,7 @@ export function sidebar(): ReactNode {
       <SidebarProvider className="h-full min-h-0">
         <Sidebar aria-label="Demo navigation">
           <SidebarHeader>
-            <span className="px-1 text-label font-medium group-data-[state=collapsed]/sidebar:hidden">
+            <span className="px-1 text-sm font-medium font-medium group-data-[state=collapsed]/sidebar:hidden">
               VegaStack
             </span>
           </SidebarHeader>
@@ -115,11 +115,11 @@ export function sidebar(): ReactNode {
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
             <SidebarTrigger />
-            <span className="min-w-0 truncate text-label font-medium text-foreground">
+            <span className="min-w-0 truncate text-sm font-medium font-medium text-foreground">
               Workspace
             </span>
           </header>
-          <main className="flex min-h-0 flex-1 items-center justify-center p-4 text-base text-muted-foreground">
+          <main className="flex min-h-0 flex-1 items-center justify-center p-4 text-sm text-muted-foreground">
             Select a navigation item
           </main>
         </div>
@@ -144,7 +144,9 @@ export function sidebarMobile(): ReactNode {
       >
         <Sidebar aria-label="Mobile demo navigation">
           <SidebarHeader>
-            <span className="px-1 text-label font-medium">VegaStack</span>
+            <span className="px-1 text-sm font-medium font-medium">
+              VegaStack
+            </span>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
@@ -168,11 +170,11 @@ export function sidebarMobile(): ReactNode {
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
             <SidebarTrigger />
-            <span className="truncate text-label font-medium text-foreground">
+            <span className="truncate text-sm font-medium font-medium text-foreground">
               Mobile workspace
             </span>
           </header>
-          <main className="p-4 text-base text-muted-foreground">
+          <main className="p-4 text-sm text-muted-foreground">
             Navigation opens over this content.
           </main>
         </div>
@@ -219,13 +221,13 @@ export function sidebarRight(): ReactNode {
     <Wrapper className="block overflow-hidden p-0">
       <SidebarProvider mobileBreakpoint={DEMO_MOBILE_BREAKPOINT}>
         {/* page content sits before the rail; the right-side rail orders itself last */}
-        <div className="flex-1 p-4 text-base text-muted-foreground">
+        <div className="flex-1 p-4 text-sm text-muted-foreground">
           Page content sits to the left of a right-edge rail.
         </div>
         <Sidebar side="right" aria-label="Right-edge navigation">
           <SidebarHeader>
             <div className="flex items-center justify-between px-1">
-              <span className="text-label font-medium group-data-[state=collapsed]/sidebar:hidden">
+              <span className="text-sm font-medium font-medium group-data-[state=collapsed]/sidebar:hidden">
                 VegaStack
               </span>
               <SidebarTrigger />
@@ -298,7 +300,7 @@ function ExternalControls(): ReactNode {
   const { state, open, toggleSidebar } = useSidebar();
   return (
     <div className="flex flex-1 flex-col gap-3 p-4">
-      <p className="text-base text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         State from <code>useSidebar()</code>:{" "}
         <span className="font-mono text-foreground">{state}</span> (open:{" "}
         <span className="font-mono text-foreground">{String(open)}</span>)
@@ -395,7 +397,7 @@ export function sidebarFloating(): ReactNode {
         <Sidebar variant="floating" aria-label="Floating navigation">
           <SidebarHeader>
             <div className="flex items-center justify-between px-1">
-              <span className="text-label font-medium group-data-[state=collapsed]/sidebar:hidden">
+              <span className="text-sm font-medium font-medium group-data-[state=collapsed]/sidebar:hidden">
                 VegaStack
               </span>
               <SidebarTrigger />
@@ -438,7 +440,7 @@ export function sidebarInset(): ReactNode {
         <Sidebar variant="inset" aria-label="Inset navigation">
           <SidebarHeader>
             <div className="flex items-center justify-between px-1">
-              <span className="text-label font-medium group-data-[state=collapsed]/sidebar:hidden">
+              <span className="text-sm font-medium font-medium group-data-[state=collapsed]/sidebar:hidden">
                 VegaStack
               </span>
               <SidebarTrigger />
@@ -465,7 +467,7 @@ export function sidebarInset(): ReactNode {
           <SidebarRail />
         </Sidebar>
         <SidebarInset landmark="region" aria-label="Page content">
-          <div className="p-4 text-base text-muted-foreground">
+          <div className="p-4 text-sm text-muted-foreground">
             Page content sits in the rounded inset panel; drag the thin edge
             strip (<code>SidebarRail</code>) or use the trigger to collapse the
             rail.
@@ -484,7 +486,7 @@ export function sidebarOffcanvas(): ReactNode {
         <Sidebar aria-label="Off-canvas navigation" collapsible="offcanvas">
           <SidebarHeader>
             <div className="flex items-center justify-between px-1">
-              <span className="text-label font-medium">VegaStack</span>
+              <span className="text-sm font-medium font-medium">VegaStack</span>
               <SidebarTrigger />
             </div>
           </SidebarHeader>
@@ -504,7 +506,7 @@ export function sidebarOffcanvas(): ReactNode {
             </SidebarGroup>
           </SidebarContent>
         </Sidebar>
-        <div className="flex-1 p-4 text-base text-muted-foreground">
+        <div className="flex-1 p-4 text-sm text-muted-foreground">
           Toggle the trigger — the rail slides fully off-screen instead of
           shrinking to icons.
         </div>

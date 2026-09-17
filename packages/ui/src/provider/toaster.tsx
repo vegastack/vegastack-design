@@ -24,7 +24,7 @@ import {
   XCircle,
   type LucideIcon,
 } from "lucide-react";
-import { cn, fillInteractive, type FillTone } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 /* ------------------------------------------------------------------------------------------------
@@ -295,7 +295,7 @@ export type ToastPosition =
  */
 const toastViewportVariants = cva(
   [
-    "fixed z-(--z-toast) mx-auto w-[calc(100vw-var(--spacing)*8)] sm:w-(--panel-width-lg)",
+    "fixed z-60 mx-auto w-[calc(100vw-var(--spacing)*8)] sm:w-80",
     "[--toast-gap:calc(var(--spacing)*3)] [--toast-peek:calc(var(--spacing)*3)]",
     "top-[calc(var(--spacing)*6+env(safe-area-inset-top))]",
     "bottom-[calc(var(--spacing)*6+env(safe-area-inset-bottom))]",
@@ -321,10 +321,10 @@ const toastViewportVariants = cva(
  * The toast surface. Two things are happening here, and they are worth keeping apart:
  *
  * 1. **The surface** — the floating-family recipe: the popover ground, the one hairline border,
- *    `rounded-lg`, `shadow-overlay`, and 16px padding (D14). A tinted type swaps the ground for
+ *    `rounded-lg`, `shadow-lg`, and 16px padding (D14). A tinted type swaps the ground for
  *    its `{family}-subtle` fill and its ink for `{family}-text`, exactly as `Alert` does, so the
  *    two status surfaces stay one design. Per the surface-ladder decision, a floating surface is
- *    never a rung of its own — no `surface-2` here.
+ *    never a rung of its own — no `accent` here.
  *
  * 2. **The stack** — Base UI publishes `--toast-index`, `--toast-offset-y`,
  *    `--toast-height`/`--toast-frontmost-height` and the two swipe-movement vars; the transforms
@@ -342,8 +342,8 @@ const toastVariants = cva(
     "[--toast-offset:calc(var(--toast-swipe-movement-y)+var(--toast-dir)*(var(--toast-offset-y)+var(--toast-index)*var(--toast-gap)))]",
     "h-(--toast-h) data-expanded:h-(--toast-height)",
     // The stacking order mirrors the visual order: index 0 is the frontmost toast.
-    "z-[calc(var(--z-toast)-var(--toast-index))]",
-    "rounded-lg border p-4 text-base shadow-overlay",
+    "z-[calc(60-var(--toast-index))]",
+    "rounded-lg border p-4 text-sm shadow-lg",
     // Collapsed: scale each toast behind the front one down and let it peek out by --toast-peek.
     "[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+var(--toast-dir)*(var(--toast-index)*var(--toast-peek)+var(--toast-shrink)*var(--toast-h))))_scale(var(--toast-scale))]",
     // Expanded (viewport hovered or focused): lay the stack out at its natural heights.
@@ -372,13 +372,10 @@ const toastVariants = cva(
           "border-border bg-popover text-popover-foreground [&_[data-slot=toast-description]]:text-muted-foreground",
         loading:
           "border-border bg-popover text-popover-foreground [&_[data-slot=toast-description]]:text-muted-foreground",
-        success:
-          "border-success/(--alpha-border-subtle) bg-success-subtle text-success-text",
-        error:
-          "border-destructive/(--alpha-border-subtle) bg-destructive-subtle text-destructive-text",
-        warning:
-          "border-warning/(--alpha-border-subtle) bg-warning-subtle text-warning-text",
-        info: "border-info/(--alpha-border-subtle) bg-info-subtle text-info-text",
+        success: "border-success/20 bg-success/10 text-success-text",
+        error: "border-destructive/20 bg-destructive/10 text-destructive-text",
+        warning: "border-warning/20 bg-warning/10 text-warning-text",
+        info: "border-info/20 bg-info/10 text-info-text",
       },
       /** Which edge the stack grows from — sets `origin` so the collapsed scale reads right. */
       anchor: {
@@ -400,9 +397,33 @@ const TYPE_ICON: Record<Exclude<ToastType, "default">, LucideIcon> = {
 };
 
 /**
- * The ink each type's hover/pressed wash composites from. `fillInteractive` is the house recipe —
- * a control inside a tinted toast washes in its OWN family, never in a borrowed neutral.
+ * The ink each type's hover/pressed wash composites from — a control inside a tinted toast washes
+ * in its OWN family, never in a borrowed neutral.
+ *
+ * This used to read the family's own hover wash from `@vegastack/design`, a shared recipe over the deleted
+ * `7%`/`10%` ladder. The shadcn reset removed that ladder (COL-6 = shadcn:
+ * the component owns its own hover chrome), so the seven strings live here, at their one call site,
+ * as upstream's literal `/10` and `/20` washes.
  */
+type FillTone =
+  | "foreground"
+  | "primary"
+  | "destructive"
+  | "success"
+  | "warning"
+  | "info"
+  | "brand";
+
+const FILL_INTERACTIVE: Record<FillTone, string> = {
+  foreground: "hover:bg-foreground/10 active:bg-foreground/20",
+  primary: "hover:bg-primary/10 active:bg-primary/20",
+  destructive: "hover:bg-destructive/10 active:bg-destructive/20",
+  success: "hover:bg-success/10 active:bg-success/20",
+  warning: "hover:bg-warning/10 active:bg-warning/20",
+  info: "hover:bg-info/10 active:bg-info/20",
+  brand: "hover:bg-brand/10 active:bg-brand/20",
+};
+
 const TYPE_FILL: Record<ToastType, FillTone> = {
   default: "foreground",
   loading: "foreground",
@@ -533,7 +554,7 @@ export function ToastTitle({ className, ...props }: ToastTitleProps) {
   return (
     <BaseToast.Title
       data-slot="toast-title"
-      className={cn("text-base font-medium leading-tight", className)}
+      className={cn("text-sm font-medium leading-tight", className)}
       {...props}
     />
   );
@@ -557,7 +578,7 @@ export function ToastDescription({
   return (
     <BaseToast.Description
       data-slot="toast-description"
-      className={cn("text-base", className)}
+      className={cn("text-sm", className)}
       {...props}
     />
   );
@@ -597,8 +618,8 @@ export function ToastAction({
     <BaseToast.Action
       data-slot="toast-action"
       className={cn(
-        "inline-flex h-(--size-xs) shrink-0 self-center items-center justify-center rounded-md border border-transparent px-2 text-label-sm whitespace-nowrap",
-        fillInteractive[tone],
+        "inline-flex h-6 shrink-0 self-center items-center justify-center rounded-md border border-transparent px-2 text-xs font-medium whitespace-nowrap",
+        FILL_INTERACTIVE[tone],
         className,
       )}
       {...props}
@@ -639,9 +660,9 @@ export function ToastClose({
     <BaseToast.Close
       data-slot="toast-close"
       className={cn(
-        "inline-flex size-(--size-xs) shrink-0 self-center items-center justify-center rounded-md",
-        fillInteractive[tone],
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+        "inline-flex size-6 shrink-0 self-center items-center justify-center rounded-md",
+        FILL_INTERACTIVE[tone],
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         className,
       )}
       {...props}
@@ -666,7 +687,7 @@ export function ToastPositioner({ className, ...props }: ToastPositionerProps) {
   return (
     <BaseToast.Positioner
       data-slot="toast-positioner"
-      className={cn("z-(--z-toast)", className)}
+      className={cn("z-60", className)}
       {...props}
     />
   );
@@ -746,7 +767,7 @@ export function Toast({
                 data-slot="toast-icon"
                 aria-hidden
                 className={cn(
-                  "mt-0.5 size-(--icon-default) shrink-0",
+                  "mt-0.5 size-4 shrink-0",
                   type === "loading" && "animate-spin",
                 )}
               />

@@ -191,7 +191,7 @@ export function dataGridEditable(): ReactNode {
             )
           }
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Focus a cell, press Enter or F2 to edit; Escape restores grid
           navigation. Commits are async — watch the cell status.
         </p>

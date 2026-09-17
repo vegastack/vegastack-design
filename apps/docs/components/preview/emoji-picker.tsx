@@ -23,9 +23,9 @@ function EmojiPickerDemo() {
   return (
     <div className="flex items-center gap-2">
       <EmojiPicker onValueChange={setValue} />
-      <span className="min-w-12 text-3xl leading-none" aria-live="polite">
+      <span className="min-w-12 text-2xl leading-none" aria-live="polite">
         {value || (
-          <span className="text-base text-muted-foreground">Pick one →</span>
+          <span className="text-sm text-muted-foreground">Pick one →</span>
         )}
       </span>
     </div>
@@ -91,11 +91,11 @@ function EmojiPickerMultiPickDemo() {
         align="center"
         onValueChange={(emoji) => setPicked((prev) => [...prev, emoji])}
       />
-      <div className="flex min-h-(--size-md) min-w-24 flex-wrap items-center gap-1 text-2xl leading-none">
+      <div className="flex min-h-8 min-w-24 flex-wrap items-center gap-1 text-xl leading-none">
         {picked.length > 0 ? (
           picked.map((emoji, i) => <span key={`${emoji}-${i}`}>{emoji}</span>)
         ) : (
-          <span className="text-base text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             No reactions yet
           </span>
         )}
@@ -115,7 +115,7 @@ export function emojiPickerEmptyState(): ReactNode {
     <Wrapper>
       <div className="flex flex-col items-center gap-2">
         <EmojiPicker onValueChange={() => {}} triggerLabel="Search emoji" />
-        <p className="text-base text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Open the picker and type <span className="font-mono">zzz</span> in the
           search field to see the empty state.
         </p>

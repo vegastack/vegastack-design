@@ -137,7 +137,7 @@ export function alertDialogScrollable(): ReactNode {
               keep using the workspace.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="-mx-1 flex flex-col gap-3 overflow-y-auto px-1 text-base leading-relaxed text-muted-foreground">
+          <div className="-mx-1 flex flex-col gap-3 overflow-y-auto px-1 text-sm leading-relaxed text-muted-foreground">
             {TERMS_SECTIONS.map((paragraph, index) => (
               <p key={index}>
                 <span className="font-medium text-foreground">

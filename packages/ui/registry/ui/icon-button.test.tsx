@@ -48,7 +48,7 @@ test("defaults to the md square and drops the text button's padding", async () =
   await expect.element(btn).toHaveAttribute("data-size", "md");
   // The rendered square is measured in test/button-matrix.browser.test.tsx (compiled CSS).
   const className = (btn.element() as HTMLElement).className;
-  expect(className).toContain("w-(--size-md)");
+  expect(className).toContain("w-8");
   expect(className).toContain("px-0");
   expect(className).not.toContain("px-3");
 });

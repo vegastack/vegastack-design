@@ -417,10 +417,13 @@ test("ItemTitle is the system list-row type — 14/500, dropping to 12/500 at si
   const description = screen.container.querySelector(
     '[data-slot="item-description"]',
   ) as HTMLElement;
-  expect(title.className).toContain("text-label");
-  expect(title.className).toContain("group-data-[size=sm]/item:text-label-sm");
-  expect(description.className).toContain("text-sm");
-  // The old 12px title read `text-sm font-medium`; both are gone from the roomy tier.
-  expect(title.className).not.toContain("text-sm ");
-  expect(title.className).not.toContain("font-medium");
+  expect(title.className).toContain("text-sm font-medium");
+  expect(title.className).toContain(
+    "group-data-[size=sm]/item:text-xs group-data-[size=sm]/item:font-medium",
+  );
+  expect(description.className).toContain("text-xs");
+  // The roomy tier is 14/500 and the compact tier 12/500, so the compact size appears ONLY behind
+  // the `group-data-[size=sm]/item:` variant — an unprefixed `text-xs` on the title would mean the
+  // roomy tier had collapsed to the compact one.
+  expect(title.className).not.toMatch(/(^|\s)text-xs(\s|$)/);
 });

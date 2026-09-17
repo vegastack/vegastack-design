@@ -22,7 +22,7 @@ export function propertyList(): ReactNode {
           <PropertyLabel icon={<Globe />}>Domains</PropertyLabel>
           <PropertyValue>
             <a
-              className="text-info-text hover:text-info-text/(--alpha-link-hover)"
+              className="text-info-text hover:text-info-text/88"
               href="#property-list"
             >
               attio.com

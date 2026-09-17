@@ -135,7 +135,7 @@ test("focus: the input carries the text-entry focus affordance on the group bord
     '[data-slot="number-field"]',
   ) as HTMLElement;
   // The group chrome carries the focus-within border tint (Input's addon idiom).
-  expect(root.className).toContain("focus-within:border-ring");
+  expect(root.className).toContain("focus-within:border-ring/70");
   const input = document.querySelector(
     '[data-slot="number-field-input"]',
   ) as HTMLInputElement;

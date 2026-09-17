@@ -1,4 +1,4 @@
-// @vegastack label@0.9.1 sha256-yhCF/XXGR2IyYa1m9xyq6UOL45TDYOyyLzgFoixSgmE=
+// @vegastack label@0.9.1 sha256-BQaiX6OCT2PN75+lfchrI+VRNUu1ir1tQ49un1EI4wY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -40,8 +40,8 @@ export interface LabelProps extends React.ComponentProps<"label"> {
  * as a child. It is `inline-flex` by default so it composes into a sentence or sits beside a
  * control; pass `layout="block"` for the stacked form row. Dims to 50% opacity when the
  * labelled/peer control is disabled
- * (`peer-disabled:opacity-(--opacity-dim)`) or sits inside a disabled group
- * (`group-data-[disabled=true]:opacity-(--opacity-dim)`). Pass `required` to set a
+ * (`peer-disabled:opacity-50`) or sits inside a disabled group
+ * (`group-data-[disabled=true]:opacity-50`). Pass `required` to set a
  * `data-required` hook (no visual asterisk).
  *
  * Pure presentational and server-safe — no hooks, no `'use client'`. Forwards
@@ -82,9 +82,9 @@ export function Label({
         layoutClasses[layout],
         // 12px (audit D3): a form label is dense metadata about the control beneath it, not a
         // peer of the 14px value the user types into it. The doctrine moved to match.
-        "items-center gap-2 text-label-sm text-foreground select-none",
-        "peer-disabled:opacity-(--opacity-dim) peer-disabled:cursor-not-allowed",
-        "group-data-[disabled=true]:opacity-(--opacity-dim) group-data-[disabled=true]:pointer-events-none",
+        "items-center gap-2 text-xs font-medium text-foreground select-none",
+        "peer-disabled:opacity-50 peer-disabled:cursor-not-allowed",
+        "group-data-[disabled=true]:opacity-50 group-data-[disabled=true]:pointer-events-none",
         className,
       )}
       {...props}

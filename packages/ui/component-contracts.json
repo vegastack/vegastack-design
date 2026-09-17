@@ -191,6 +191,9 @@
       "appShellMobile",
       "toastStacking"
     ],
+    "geometryUnswept": {
+      "relativeTimeLive": "Omits `now`, so the component reads the real clock and its refresh timer ticks — that IS the feature being demonstrated. A self-rescheduling setTimeout re-renders the fixture between the assertion and the measurement (the detach race in docs/ledger/bugs.md, 2026-09-08). Every other relative-time fixture pins `now` and is swept normally, so the component's geometry IS covered; only this one demo's live clock is not."
+    },
     "crossCuttingTests": [
       {
         "file": "packages/ui/test/accessible-name.browser.test.tsx",
@@ -271,11 +274,6 @@
           "button"
         ],
         "globalInputGroups": ["shared-runtime"]
-      },
-      {
-        "file": "packages/ui/test/surface-ladder.browser.test.tsx",
-        "owners": ["tabs"],
-        "globalInputGroups": ["tokens", "shared-runtime"]
       },
       {
         "file": "packages/ui/test/toast-manager-binding.browser.test.tsx",

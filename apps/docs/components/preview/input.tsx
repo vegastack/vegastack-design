@@ -49,7 +49,7 @@ export function inputWithAddon(): ReactNode {
       <Input
         aria-label="Search"
         type="search"
-        prefix={<Search aria-hidden className="size-(--icon-default)" />}
+        prefix={<Search aria-hidden className="size-4" />}
         placeholder="Search…"
       />
     </Wrapper>
@@ -67,7 +67,7 @@ export function inputAddonStates(): ReactNode {
       />
       <Input
         aria-label="Invalid handle"
-        prefix={<AtSign aria-hidden className="size-(--icon-default)" />}
+        prefix={<AtSign aria-hidden className="size-4" />}
         defaultValue="bad handle"
         aria-invalid
       />
@@ -105,7 +105,7 @@ function InputValueChangeDemo(): ReactNode {
         value={value}
         onValueChange={(next) => setValue(next)}
       />
-      <p className="text-center text-base text-muted-foreground">
+      <p className="text-center text-sm text-muted-foreground">
         {value
           ? `Slug: ${value.trim().toLowerCase().replace(/\s+/g, "-")}`
           : "Slug preview appears here"}

@@ -1,15 +1,11 @@
-// @vegastack number-field@0.9.1 sha256-gNwEG6AkZQTi6uktdg9y/4G5pmgpDPo1B+Lq3JI3qJA=
+// @vegastack number-field@0.9.1 sha256-T0ygbhfpXtDWpPTbLOd8GpOWrzqHpkZwE/fHqvwg5C4=
 
 "use client";
 
 import * as React from "react";
 import { Minus, Plus } from "lucide-react";
 import { NumberField as BaseNumberField } from "@base-ui/react/number-field";
-import {
-  cn,
-  fieldControlGroup,
-  surfaceInteractiveGroup,
-} from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /* ---
 `NumberField` exists because the roster had no numeric input at all: quantities, limits,
@@ -31,7 +27,7 @@ Deliberately NOT done here:
   or touch equivalent; consumers who want it compose `BaseNumberField.ScrubArea`
   directly inside a custom `prefix`.
 - No native `size` attribute. Like `Input`, the `size` prop is the control-height
-  variant (`--size-sm/md/lg`) and deliberately replaces the numeric HTML attribute.
+  variant (`h-7/md/lg`) and deliberately replaces the numeric HTML attribute.
 - No re-exposed `Group` part. The root IS the bordered group here; splitting parts
   would only invite layouts the chrome cannot honour.
 --- */
@@ -42,7 +38,7 @@ export interface NumberFieldProps extends Omit<
   "className" | "prefix"
 > {
   /**
-   * Control height on the shared 28/32/40 scale (`--size-sm/md/lg`), matching
+   * Control height on the shared 28/32/40 scale (`h-7/md/lg`), matching
    * `Input`/Button/Select. (The native numeric `size` attribute is intentionally
    * replaced by this variant prop, exactly as on `Input`.)
    * @default 'md'
@@ -103,18 +99,17 @@ export interface NumberFieldProps extends Omit<
 
 /**
  * Group layout only. The border, focus tint, invalid tint, disabled wash and dark input tint
- * are `fieldControlGroup` — the one wrapper recipe `Input`'s addon mode, ChipInput and the
+ * are the bordered field-GROUP chrome — the one wrapper recipe `Input`'s addon mode, ChipInput and the
  * Combobox input-group also wear (audit B1-11), so the four can no longer drift apart.
  * `data-field-group` on the root is what lets `base.css` paint the forced-colours focus outline
  * on the GROUP instead of on the inner input, whose own outline this `overflow-hidden` clips.
  */
-const groupClasses =
-  "flex w-full min-w-0 items-center overflow-hidden text-base";
+const groupClasses = "flex w-full min-w-0 items-center overflow-hidden text-sm";
 
 const sizeClasses = {
-  sm: "h-(--size-sm) text-sm",
-  md: "h-(--size-md)",
-  lg: "h-(--size-lg)",
+  sm: "h-7 text-xs",
+  md: "h-8",
+  lg: "h-10",
 } as const;
 
 /**
@@ -159,29 +154,29 @@ const addonClasses = [
  * root's `overflow-hidden` cannot clip it.
  */
 const stepperClasses = [
-  "group/wash flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground",
+  "group/wash flex h-full w-7 shrink-0 items-center justify-center p-1 text-muted-foreground",
   "hover:text-foreground",
   "focus-visible:-outline-offset-2",
-  "disabled:opacity-(--opacity-dim)",
-  "data-disabled:opacity-(--opacity-dim)",
+  "disabled:opacity-50",
+  "data-disabled:opacity-50",
 ].join(" ");
 
 /**
  * The stepper's wash is an INSET CHIP inside the button, never the button's own background
- * (audit SP-02). Full-bleed `hover:bg-surface-2` ran the fill flush into the field's hairline on
+ * (audit SP-02). Full-bleed `hover:bg-accent` ran the fill flush into the field's hairline on
  * three sides and met the rounded outer corner with a square one; `design.md`'s hover-geometry
  * rule ("a wash is inset ≥4px from a container hairline and inherits its inner radius") exists
  * because of exactly this defect. `p-1` on the button insets the chip by 4px and `rounded-sm`
  * gives it a corner of its own, so a 28×32 stepper hovers as a 20×24 chip. The button keeps the
  * full pointer target and the ink step; only the paint moved inward.
  *
- * The two rungs themselves are NOT written here: `surfaceInteractiveGroup` is the group-scoped
- * twin of `@vegastack/design`'s `surfaceInteractive`, so this chip climbs the same ladder as every
+ * The two rungs themselves are NOT written here: `"group-hover/wash:bg-accent"` is the group-scoped
+ * twin of `@vegastack/design`'s `"hover:bg-accent"`, so this chip climbs the same ladder as every
  * other transparent control and retuning the ladder is still one edit.
  */
 const stepperFillClasses = cn(
   "flex size-full items-center justify-center rounded-sm",
-  surfaceInteractiveGroup,
+  "group-hover/wash:bg-accent",
   "group-disabled/wash:bg-transparent group-data-disabled/wash:bg-transparent",
 );
 
@@ -226,7 +221,7 @@ export function NumberField({
       data-size={size}
       data-field-group=""
       className={cn(
-        fieldControlGroup,
+        "rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring/70 data-focused:border-ring/70 not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30",
         groupClasses,
         sizeClasses[size],
         className,
@@ -240,7 +235,7 @@ export function NumberField({
           className={cn(stepperClasses, "border-e border-input")}
         >
           <span className={stepperFillClasses}>
-            <Minus className="size-(--icon-compact)" aria-hidden />
+            <Minus className="size-3" aria-hidden />
           </span>
         </BaseNumberField.Decrement>
       )}
@@ -259,7 +254,7 @@ export function NumberField({
         placeholder={placeholder}
         className={cn(
           "h-full w-full min-w-0 flex-1 bg-transparent py-1 text-inherit outline-hidden",
-          "placeholder:text-muted-foreground-faint",
+          "placeholder:text-muted-foreground",
           "disabled:cursor-not-allowed",
           prefix != null ? "ps-1.5" : "ps-3",
           suffix != null ? "pe-1.5" : "pe-3",
@@ -281,7 +276,7 @@ export function NumberField({
           className={cn(stepperClasses, "border-s border-input")}
         >
           <span className={stepperFillClasses}>
-            <Plus className="size-(--icon-compact)" aria-hidden />
+            <Plus className="size-3" aria-hidden />
           </span>
         </BaseNumberField.Increment>
       )}

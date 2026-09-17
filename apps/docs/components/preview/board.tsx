@@ -68,7 +68,7 @@ export function board(): ReactNode {
         renderCard={(deal) => (
           <>
             <span className="min-w-0 truncate font-medium">{deal.name}</span>
-            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
               <Avatar size="xs" fallback={deal.owner} />
               {deal.amount}
             </span>
@@ -155,7 +155,7 @@ export function boardLanes(): ReactNode {
         renderCard={(deal) => (
           <>
             <span className="min-w-0 truncate font-medium">{deal.name}</span>
-            <span className="text-sm text-muted-foreground">{deal.amount}</span>
+            <span className="text-xs text-muted-foreground">{deal.amount}</span>
           </>
         )}
         onMove={({ id, to }) =>

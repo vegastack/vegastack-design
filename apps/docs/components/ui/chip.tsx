@@ -1,4 +1,4 @@
-// @vegastack chip@0.9.1 sha256-iEVyViVOSa8k3gk8f6NoAjO+9WyDjFkc3elS0B3brhg=
+// @vegastack chip@0.9.1 sha256-cz/fNCxO+iDOjExAsL3YG1ENOu5EcgzbhlXHEH/QCnw=
 
 "use client";
 
@@ -53,26 +53,22 @@ export type ChipSize = "sm" | "md";
  * Static class literals per hue, so the Tailwind scanner sees every string.
  */
 const HUE_CLASSES: Record<ChipHue, string> = {
-  neutral: "border-border bg-surface-1 text-foreground",
-  blue: "border-tag-blue-text/(--alpha-outline-border) bg-tag-blue-subtle text-tag-blue-text",
-  cyan: "border-tag-cyan-text/(--alpha-outline-border) bg-tag-cyan-subtle text-tag-cyan-text",
-  green:
-    "border-tag-green-text/(--alpha-outline-border) bg-tag-green-subtle text-tag-green-text",
-  lime: "border-tag-lime-text/(--alpha-outline-border) bg-tag-lime-subtle text-tag-lime-text",
-  yellow:
-    "border-tag-yellow-text/(--alpha-outline-border) bg-tag-yellow-subtle text-tag-yellow-text",
-  orange:
-    "border-tag-orange-text/(--alpha-outline-border) bg-tag-orange-subtle text-tag-orange-text",
-  red: "border-tag-red-text/(--alpha-outline-border) bg-tag-red-subtle text-tag-red-text",
-  pink: "border-tag-pink-text/(--alpha-outline-border) bg-tag-pink-subtle text-tag-pink-text",
+  neutral: "border-border bg-muted text-foreground",
+  blue: "border-tag-blue-text/50 bg-tag-blue-subtle text-tag-blue-text",
+  cyan: "border-tag-cyan-text/50 bg-tag-cyan-subtle text-tag-cyan-text",
+  green: "border-tag-green-text/50 bg-tag-green-subtle text-tag-green-text",
+  lime: "border-tag-lime-text/50 bg-tag-lime-subtle text-tag-lime-text",
+  yellow: "border-tag-yellow-text/50 bg-tag-yellow-subtle text-tag-yellow-text",
+  orange: "border-tag-orange-text/50 bg-tag-orange-subtle text-tag-orange-text",
+  red: "border-tag-red-text/50 bg-tag-red-subtle text-tag-red-text",
+  pink: "border-tag-pink-text/50 bg-tag-pink-subtle text-tag-pink-text",
   magenta:
-    "border-tag-magenta-text/(--alpha-outline-border) bg-tag-magenta-subtle text-tag-magenta-text",
-  purple:
-    "border-tag-purple-text/(--alpha-outline-border) bg-tag-purple-subtle text-tag-purple-text",
+    "border-tag-magenta-text/50 bg-tag-magenta-subtle text-tag-magenta-text",
+  purple: "border-tag-purple-text/50 bg-tag-purple-subtle text-tag-purple-text",
 };
 
 /** The neutral chip's selection rung — rung 2, the same step every selected surface takes. */
-const ACTIVE_NEUTRAL = "border-border bg-surface-2 text-foreground";
+const ACTIVE_NEUTRAL = "border-border bg-accent text-foreground";
 
 /**
  * Two tiers only. `sm` (28px) is the INLINE tag tier — Tag, ChipInput's chips, Combobox's selected
@@ -84,8 +80,8 @@ const ACTIVE_NEUTRAL = "border-border bg-surface-2 text-foreground";
  * label's own optical padding.
  */
 const SIZE_CLASSES: Record<ChipSize, string> = {
-  sm: "h-(--size-sm) gap-1 ps-2 pe-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-  md: "h-(--size-md) gap-1 ps-2.5 pe-1 text-label [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+  sm: "h-7 gap-1 ps-2 pe-0.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3",
+  md: "h-8 gap-1 ps-2.5 pe-1 text-sm font-medium [&_svg:not([class*='size-'])]:size-3.5",
 };
 
 /** Props accepted by `Chip`. */
@@ -106,7 +102,7 @@ export interface ChipProps extends Omit<
   size?: ChipSize;
   /**
    * Marks the chip as an applied selection — the neutral chip takes the selection rung
-   * (`surface-2`) instead of its rest fill. Ignored for chromatic hues, whose tint already
+   * (`accent`) instead of its rest fill. Ignored for chromatic hues, whose tint already
    * carries the meaning.
    * @default false
    */
@@ -184,7 +180,7 @@ export function Chip({
         "[&_svg]:pointer-events-none [&_svg]:shrink-0",
         SIZE_CLASSES[size],
         active && hue === "neutral" ? ACTIVE_NEUTRAL : HUE_CLASSES[hue],
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
+        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className,
       ),
       children: (
@@ -236,7 +232,7 @@ export function ChipRemove({
       className={cn("shrink-0", className)}
       {...props}
     >
-      {children ?? <X className="size-(--icon-compact)" aria-hidden />}
+      {children ?? <X className="size-3" aria-hidden />}
     </IconButton>
   );
 }

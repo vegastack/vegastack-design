@@ -1,4 +1,4 @@
-// @vegastack select@0.9.1 sha256-Fkw6czoVzpYFw1W/mKMbMYgLhLaXjbbieNJitF8Kakg=
+// @vegastack select@0.9.1 sha256-NpYylYDpoK0u0UK57QrU4tclvAXezf/eLIjcaT/iDzM=
 
 "use client";
 
@@ -6,12 +6,7 @@ import * as React from "react";
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import {
-  cn,
-  fieldControl,
-  FLOATING,
-  surfaceInteractive,
-} from "@vegastack/design";
+import { cn, FLOATING } from "@vegastack/design";
 import {
   FloatingSurface,
   menuItemVariants,
@@ -20,8 +15,8 @@ import {
 } from "@/components/ui/floating-surface";
 
 /**
- * Trigger variants. `size` mirrors the input/button scale — `sm` (h-(--size-sm)),
- * `default` (h-(--size-md), 32px baseline), and `lg` (h-(--size-lg)) — so selects line up with
+ * Trigger variants. `size` mirrors the input/button scale — `sm` (h-7),
+ * `default` (h-8, 32px baseline), and `lg` (h-10) — so selects line up with
  * sibling form controls. Radius `md` (8) matches inputs/buttons. Every value is
  * a semantic token (no hardcoded colors or sizes).
  */
@@ -30,22 +25,22 @@ export const selectTriggerVariants = cva(
     // The trigger is a FIELD, so it wears the same chrome as Input/Textarea/OTP — one border
     // grammar across every control a form row can contain (audit B1-11): rest hairline, neutral
     // hover tint, `ring` focus tint, destructive invalid, dimmed disabled, dark inset fill.
-    fieldControl,
-    "group/select-trigger flex w-full items-center justify-between gap-2 text-base whitespace-nowrap select-none",
+    "rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring/70 not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80",
+    "group/select-trigger flex w-full items-center justify-between gap-2 text-sm whitespace-nowrap select-none",
     // …and it is also a BUTTON, which a text field is not: it is pressable, so it takes the
     // surface ladder's wash and pressed rung on top of the field chrome. That is the whole
-    // distinction — `fieldControl` says what it IS, `surfaceInteractive` says it can be pushed.
+    // distinction — the shared field chrome says what it IS, `"hover:bg-accent"` says it can be pushed.
     // (SP-04: it used to hover ONLY in dark, via `dark:hover:bg-input/…`.)
-    surfaceInteractive,
+    "hover:bg-accent",
     "data-[placeholder]:text-muted-foreground",
-    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   ].join(" "),
   {
     variants: {
       size: {
-        sm: "h-(--size-sm) px-2.5 text-sm",
-        md: "h-(--size-md) px-3",
-        lg: "h-(--size-lg) px-3",
+        sm: "h-7 px-2.5 text-xs",
+        md: "h-8 px-3",
+        lg: "h-10 px-3",
       },
     },
     defaultVariants: { size: "md" },
@@ -173,7 +168,7 @@ export function SelectTrigger({
         data-slot="select-icon"
         className="flex items-center justify-center text-muted-foreground transition-transform duration-fast ease-standard group-data-[popup-open]/select-trigger:rotate-180"
       >
-        <ChevronDown className="size-(--icon-default)" aria-hidden />
+        <ChevronDown className="size-4" aria-hidden />
       </BaseSelect.Icon>
     </BaseSelect.Trigger>
   );
@@ -273,16 +268,16 @@ export function SelectContent({
     >
       <BaseSelect.ScrollUpArrow
         data-slot="select-scroll-up"
-        className="z-(--z-raised) flex h-6 w-full cursor-default items-center justify-center rounded-t-lg bg-popover text-muted-foreground"
+        className="z-10 flex h-6 w-full cursor-default items-center justify-center rounded-t-lg bg-popover text-muted-foreground"
       >
-        <ChevronUp className="size-(--icon-default)" aria-hidden />
+        <ChevronUp className="size-4" aria-hidden />
       </BaseSelect.ScrollUpArrow>
       <SelectList {...listProps}>{children}</SelectList>
       <BaseSelect.ScrollDownArrow
         data-slot="select-scroll-down"
-        className="z-(--z-raised) flex h-6 w-full cursor-default items-center justify-center rounded-b-lg bg-popover text-muted-foreground"
+        className="z-10 flex h-6 w-full cursor-default items-center justify-center rounded-b-lg bg-popover text-muted-foreground"
       >
-        <ChevronDown className="size-(--icon-default)" aria-hidden />
+        <ChevronDown className="size-4" aria-hidden />
       </BaseSelect.ScrollDownArrow>
     </FloatingSurface>
   );
@@ -311,9 +306,9 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
       className={cn(menuItemVariants({ indicator: "trailing" }), className)}
       {...props}
     >
-      <span className="absolute end-2 flex size-(--icon-default) items-center justify-center text-foreground">
+      <span className="absolute end-2 flex size-4 items-center justify-center text-foreground">
         <BaseSelect.ItemIndicator data-slot="select-item-indicator">
-          <Check className="size-(--icon-default)" aria-hidden />
+          <Check className="size-4" aria-hidden />
         </BaseSelect.ItemIndicator>
       </span>
       <BaseSelect.ItemText

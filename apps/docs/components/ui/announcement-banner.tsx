@@ -1,4 +1,4 @@
-// @vegastack announcement-banner@0.9.1 sha256-z/gQ4PiULNervmwkpZFIMdaoakhFvzDpS6Xo5ZcYI2o=
+// @vegastack announcement-banner@0.9.1 sha256-qUavbP0TPaYg0aOPw8DLKalGz0CfzKPWLfQfXWvjajI=
 
 "use client";
 
@@ -88,8 +88,8 @@ export function AnnouncementBanner({
       data-live={live ? "" : undefined}
       data-slot="announcement-banner"
       className={cn(
-        "flex w-full items-center justify-center gap-3 bg-foreground px-4 py-2 text-base text-background",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+        "flex w-full items-center justify-center gap-3 bg-foreground px-4 py-2 text-sm text-background",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         className,
       )}
       {...props}
@@ -98,7 +98,7 @@ export function AnnouncementBanner({
       {action ? (
         <span
           data-slot="announcement-banner-action"
-          className="shrink-0 [&_a]:inline-flex [&_a]:min-h-(--size-xs) [&_a]:min-w-(--size-xs) [&_a]:items-center [&_a]:justify-center [&_button]:inline-flex [&_button]:min-h-(--size-xs) [&_button]:min-w-(--size-xs) [&_button]:items-center [&_button]:justify-center"
+          className="shrink-0 [&_a]:inline-flex [&_a]:min-h-6 [&_a]:min-w-6 [&_a]:items-center [&_a]:justify-center [&_button]:inline-flex [&_button]:min-h-6 [&_button]:min-w-6 [&_button]:items-center [&_button]:justify-center"
         >
           {action}
         </span>

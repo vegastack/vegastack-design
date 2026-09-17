@@ -62,25 +62,26 @@ rg -n 'style=\{\{' --glob '!components/ui/**'
 ## 3. Off-system utilities
 
 ```bash
-rg -n '\b(rounded-xl|rounded-2xl|rounded-3xl|text-4xl|text-5xl|text-6xl|font-bold|font-semibold|transition-all|transition-colors|z-[0-9]+|opacity-[0-9]+|tracking-[a-z]+|shadow-[a-z]+|blur-[a-z]+)\b' --glob '!components/ui/**'
+rg -n '#[0-9a-fA-F]{3,8}\b|\b(bg|text|border|ring|fill|stroke)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}\b' --glob '!components/ui/**'
+rg -n 'ring-3\b|ring-\[3px\]|ring-ring/[0-9]+|focus-visible:ring-|shadow-\[0_0_0_' --glob '!components/ui/**'
 ```
 
-- `rounded-xl` and larger do not exist — the scale caps at `rounded-lg`. **error**
-- `text-4xl` and larger are off-scale — use `text-display-sm/md/lg/xl`. **error**
-- `font-bold`/`font-semibold` — the weight ladder is 400/500, owned by the type roles. **error**
-- `transition-all` / `transition-colors` — colour changes are immediate; enumerate the causal
-  opacity, transform, or geometry properties. **error**
-- a raw `z-N` — three token bands only: `z-(--z-raised)` (local raises), `z-(--z-overlay)` (portaled
-  surfaces), `z-(--z-toast)` (the toast stack alone). DOM order resolves nesting within a band.
-  **error**
-- a raw `opacity-NN` — use an `--opacity-*` role (`opacity-0`/`opacity-100` are exempt). **warning**
-- raw `tracking-*`, `shadow-*`, `blur-*` — owned by the type and effect roles. **warning**
-- a raw `/NN` colour-alpha step — use an `--alpha-*` role. Alpha and opacity are different roles and
-  are not interchangeable. **warning**
-- `uppercase` on non-mono type, or above 14px. Uppercase is mono-exclusive. **warning**
+- a hex literal or a numbered Tailwind palette utility — use a semantic token. **error**
+- **a focus-ring glow** — `ring-3`, `ring-[3px]`, `ring-ring/NN`, `focus-visible:ring-*` or a
+  `0 0 0` box-shadow ring. The system has ONE focus affordance, the global `:focus-visible` outline;
+  text entry tints its border instead. A glow usually means a component was pasted from upstream's
+  docs without the patch. **error**
+- a status FILL used as a text ink on that family's own tint — `bg-destructive/10 text-destructive`
+  measures 3.98:1. The readable half is `text-destructive-text`. **error**
+- `text-brand` used as a label — `brand` is a 3:1 marker; labels take `text-brand-text`. **error**
+- a raw `<svg>` used as an icon — use lucide or `Icon`/`BrandIcon`. **error**
+- `React.forwardRef` — React 19 takes `ref` as a normal prop. **error**
 
-Every `transition*` utility must pair a `duration-*` **and** an `ease-*` token in the same class
-string, or it silently inherits a default curve. **warning**
+**Things that are NOT findings any more**, and reporting them is noise: `rounded-xl`, `shadow-md`,
+`text-4xl`, `font-semibold`, `tracking-tight`, `transition-all`, `transition-colors`,
+`duration-100`, `ease-in-out`, `z-50`, `opacity-50`, a raw `/NN` alpha, `h-8`/`size-4`,
+`cursor-default` on a menu row, an arbitrary `h-[18.4px]`, and a `hover:` with no `active:` beside
+it. Every one of those is upstream's own vocabulary, which this system now adopts.
 
 ## 4. Component substitution and accessibility
 

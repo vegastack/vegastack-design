@@ -137,8 +137,10 @@ test("cta variant carries the sharp radius, brand outline, and mono-uppercase cl
   const btn = screen
     .getByRole("button", { name: "Get started" })
     .element() as HTMLElement;
-  expect(btn.classList.contains("rounded-(--radius-sharp)")).toBe(true);
-  expect(btn.classList.contains("text-mono-label")).toBe(true);
+  expect(btn.classList.contains("rounded-[2px]")).toBe(true);
+  // `classList.contains` takes ONE token, so the mono-label role's two utilities are asserted
+  // separately now that it is no longer a single `font-mono text-xs` class.
+  expect(btn.classList.contains("text-xs")).toBe(true);
   expect(btn.classList.contains("font-mono")).toBe(true);
   expect(btn.classList.contains("uppercase")).toBe(true);
   // The label ink is `brand-text`, the page-readable half of the family — never the 3.5:1
@@ -165,7 +167,7 @@ test("cta variant does not disturb the solid variant classes", async () => {
   const btn = screen
     .getByRole("button", { name: "Save" })
     .element() as HTMLElement;
-  expect(btn.classList.contains("rounded-(--radius-sharp)")).toBe(false);
+  expect(btn.classList.contains("rounded-[2px]")).toBe(false);
   expect(btn.classList.contains("font-mono")).toBe(false);
   expect(btn.classList.contains("uppercase")).toBe(false);
 });
@@ -228,6 +230,6 @@ test("the dim is keyed off data-disabled and excluded while loading", async () =
   const btn = screen.getByRole("button", { name: "Save" });
   await expect.element(btn).toHaveAttribute("data-loading", "");
   expect((btn.element() as HTMLElement).className).toContain(
-    "data-disabled:not-data-loading:opacity-(--opacity-dim)",
+    "data-disabled:not-data-loading:opacity-50",
   );
 });

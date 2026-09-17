@@ -58,43 +58,44 @@ Rules that decide most component questions:
 
 ## Tokens
 
-Semantic CSS custom properties from `@vegastack/design-tokens/theme.css` (OKLCH, `:root` + `.dark`).
-Always use the utility, never a raw value.
+Semantic CSS custom properties from `@vegastack/design-tokens/theme.css` (OKLCH, `:root` + `.dark`),
+on shadcn's `neutral` base. Always use the utility, never a raw value.
 
-| Role     | Utilities                                                                                        |
-| -------- | ------------------------------------------------------------------------------------------------ |
-| Surface  | `bg-background` (page) · `bg-card` (every surface; `popover`/`sidebar` ARE `card`)               |
-| Ladder   | `bg-surface-1` (rest fill / well) · `bg-surface-2` (hover) · `bg-surface-3` (pressed / selected) |
-| Text     | `text-foreground` `text-muted-foreground` `text-{primary,accent,popover}-foreground`             |
-| Status   | `bg-{destructive,success,warning,info}` + `-subtle` / `-hover` / `-text` / `-foreground`         |
-| Border   | `border-border` `border-input` — there are no rings; focus is the native outline                 |
-| Radius   | `rounded-{xs,sm,md,lg}` — `lg` is the cap, `xl` does not exist                                   |
-| Type     | `text-{xs…3xl}` · `text-h1…h4` · `text-label` · `text-mono-label` · `text-display-{sm,md,lg,xl}` |
-| Font     | `font-sans` `font-mono` `font-serif`                                                             |
-| Motion   | `duration-{fast,base,slow}` paired with `ease-{standard,emphasized,exit,spring}`                 |
-| Entrance | `motion-pop-in` `motion-enter-up` `motion-shake` `motion-flash`                                  |
-| Docked   | `motion-dock-in` / `motion-dock-out` — a control parked at a viewport edge, 150ms in / 100ms out |
-| Prose    | `proseClassName` from `@vegastack/design` — the whole rendered-rich-text recipe, one class       |
+| Role     | Utilities                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Surface  | `bg-background` (page) · `bg-card` · `bg-popover` · `bg-sidebar`                                                                      |
+| Fill     | `bg-primary` (solid action, every checked control) · `bg-secondary` (soft) · `bg-muted` (well, track, skeleton) · `bg-accent` (hover) |
+| Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                               |
+| Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)     |
+| Border   | `border-border` · `border-input` — there are no rings; focus is one global outline                                                    |
+| Radius   | `rounded-{sm,md,lg,xl,2xl}` — all derived from the single `--radius`                                                                  |
+| Type     | Tailwind's own `text-{xs…7xl}`. `text-sm` is 14px, `text-base` is 16px                                                                |
+| Font     | `font-sans` `font-mono` `font-serif` `font-heading`                                                                                   |
+| Motion   | `duration-{fast,base,slow}` · `ease-{standard,emphasized,exit,spring}` — or Tailwind's own steps                                      |
+| Entrance | `motion-pop-in` `motion-enter-up` `motion-shake` `motion-flash`                                                                       |
+| Docked   | `motion-dock-in` / `motion-dock-out` — a control parked at a viewport edge, 150ms in / 100ms out                                      |
+| Prose    | `proseClassName` from `@vegastack/design` — the whole rendered-rich-text recipe, one class                                            |
 
-**Hover and pressed come from a recipe, never a literal.** Import the two class strings rather than
-writing `hover:bg-*` by hand — that is how a control gets both steps and stays on the ladder:
+**Hover and pressed are written, not imported.** A component owns its own interaction chrome, the
+way shadcn writes it:
 
 ```tsx
-import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
-
 // A transparent control on a known surface.
-<button className={cn("rounded-md px-2", surfaceInteractive)} />;
-// hover:bg-surface-2 active:bg-surface-3
+<button className="rounded-md px-2 hover:bg-accent hover:text-accent-foreground" />;
 
-// A control on an unknown backdrop, or one that hovers in its own hue.
-<button className={cn("bg-destructive-subtle", fillInteractive.destructive)} />;
-// hover:bg-destructive/(--alpha-hover) active:bg-destructive/(--alpha-pressed)
+// A solid.
+<button className="bg-primary text-primary-foreground hover:bg-primary/80" />;
+
+// A tinted status control. The ink on a tint is `-text`, never the fill.
+<button className="bg-destructive/10 text-destructive-text hover:bg-destructive/20" />;
 ```
 
-A **solid** fill uses neither — it steps through its own darker `-hover` / `-active` tokens.
+A pressed step is optional. `surfaceInteractive`, `fillInteractive`, `fieldControl`,
+`fieldControlGroup` and `selectedChipVariants` were **deleted** from `@vegastack/design` with no
+alias; if you are upgrading, replace each with the literal it expanded to.
 
-**Rendered rich text comes from a recipe too.** Anything the system did not author element by element
-— markdown, a contenteditable, CMS copy — wears one class on its root:
+**Rendered rich text comes from a recipe.** Anything the system did not author element by element —
+markdown, a contenteditable, CMS copy — wears one class on its root:
 
 ```tsx
 import { cn, proseClassName } from "@vegastack/design";
@@ -110,40 +111,15 @@ descendant rules (`[&_h1]:…`), which means an element-level class on a child *
 (specificity (0,1,0) against (0,1,1)) — restyle by composing `prose` (the per-element record), never
 by setting a class on the rendered element.
 
-**A selected chip on a muted track has a third recipe.** If you are building a view switcher, a
-segmented control or chip-shaped tabs of your own, take `selectedChipVariants` rather than inventing
-a selected look — it is the same formula `Tabs`, `Segmented` and `Toggle` use:
+`muted`, `accent` and `secondary` share one value in this base, and all three are kept: name the one
+whose ROLE you mean, so a consumer can retune one without moving the others.
 
-```tsx
-import { cn, selectedChipVariants } from "@vegastack/design";
+**Status colour has two inks.** `-foreground` is the ink on the solid fill; `-text` is the ink on the
+page and on the family's own `/10`-`/30` tint. Using the fill itself as text on a tint measures
+3.98-4.35:1, which the contrast gate rejects. `info` is links and informational UI only.
 
-<div className={cn("rounded-md p-0.5", selectedChipVariants.track)}>
-  <Toggle
-    className={cn(
-      "rounded-sm",
-      selectedChipVariants.item,
-      selectedChipVariants.pressed,
-    )}
-  />
-</div>;
-```
-
-Use `.pressed` for a control whose selected state is Base UI's `data-pressed` and `.active` for one
-using `data-active`. The selected chip keeps its own hover and pressed steps — never guard them off.
-
-`secondary`, `muted`, `accent` and the `sidebar-*` family are **aliases** of ladder rungs
-(`secondary` = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`).
-They still compile; name the rung in new code.
-
-`border` is one translucent hairline — `foreground` at `--alpha-border` — so it reads on the page, on
-a card and inside a well alike. `info` is **links and informational UI only**: promotion and
-selection take a ladder rung or `primary`.
-
-Alpha and opacity are **different roles**: colour compositing takes an `--alpha-*` token
-(`bg-foreground/(--alpha-ink-tint)`), whole-element opacity takes an `--opacity-*` token
-(`opacity-(--opacity-dim)`). A raw `/20` or `opacity-50` is wrong in both cases.
-
-`--brand` is a marker-role accent only — never a functional state colour.
+`--brand` is a marker-role accent only — never a functional state colour, and never a text ink
+(`--brand-text` is the readable half).
 
 **Overriding tokens:** redefine one runtime variable in your global CSS and every component repaints
 in both themes:

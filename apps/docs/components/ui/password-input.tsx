@@ -1,4 +1,4 @@
-// @vegastack password-input@0.9.1 sha256-tfupQHNMe25WLQ+spy9VTk2nlzw0kTmIeaeIVq9BbJ4=
+// @vegastack password-input@0.9.1 sha256-4SlnGLjFQICwYQHC4fbK3pIBZw4F46XbNVlKZymhffQ=
 
 "use client";
 
@@ -37,7 +37,7 @@ export interface PasswordInputProps extends Omit<
 }
 
 /** Checklist-row classes — small, muted by default, success when the rule is met. */
-const requirementClasses = "flex items-center gap-1.5 text-sm";
+const requirementClasses = "flex items-center gap-1.5 text-xs";
 
 /**
  * `PasswordInput` — a password field with a show/hide eye toggle and an optional
@@ -138,12 +138,9 @@ export function PasswordInput({
                 )}
               >
                 {req.met ? (
-                  <Check
-                    className="size-(--icon-inline) shrink-0"
-                    aria-hidden
-                  />
+                  <Check className="size-3.5 shrink-0" aria-hidden />
                 ) : (
-                  <X className="size-(--icon-inline) shrink-0" aria-hidden />
+                  <X className="size-3.5 shrink-0" aria-hidden />
                 )}
                 <span className="sr-only">
                   {req.met ? "Met: " : "Not met: "}

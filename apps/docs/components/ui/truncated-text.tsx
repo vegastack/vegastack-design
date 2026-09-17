@@ -1,4 +1,4 @@
-// @vegastack truncated-text@0.9.1 sha256-L9T6gXKxsdpbn/HIEBZMhThh4IUD+jvqRiei6R4Zol0=
+// @vegastack truncated-text@0.9.1 sha256-7+13FXyGTH4TMExjMznQB2fbpdO2scwe19WURp30XNY=
 
 "use client";
 
@@ -318,7 +318,7 @@ export function TruncatedText({
         // A pseudo-element cannot extend beyond the `overflow-hidden` required
         // by `truncate`, so the focusable single-line box itself owns the 24px
         // target floor. Multiline clamps naturally exceed this minimum.
-        "min-h-(--size-xs)",
+        "min-h-6",
         className,
       )}
       {...props}
@@ -415,7 +415,7 @@ export function IconText({
   );
   // A clipped row becomes a real control — a Tooltip trigger, and on a no-hover device a
   // `role="button"` disclosure — so it has to meet the 24px pointer-target floor. A single
-  // line of `text-base` is 21px, so the row carries an invisible `::before` hit area
+  // line of `text-sm` is 21px, so the row carries an invisible `::before` hit area
   // (`-inset-y-1`) exactly as `RelativeTime` does; unlike `TruncatedText`, whose focusable box
   // IS the `truncate`d (and therefore `overflow-hidden`) element, this row only wraps the
   // clipped span, so a pseudo-element can extend past it. Measured: 206.00x21.00 -> 206.00x29.00.
@@ -448,7 +448,7 @@ export function IconText({
       </span>
       <span
         ref={setNode as React.Ref<never>}
-        data-slot="icon-text-label"
+        data-slot="icon-text-sm font-medium"
         className={cn(
           "min-w-0",
           expanded ? "break-words whitespace-normal" : "truncate",
@@ -538,7 +538,7 @@ export function TableCellText({
       data-slot="table-cell-text"
       className={cn(
         width && "max-w-[var(--cell-w)]",
-        mono && "font-mono text-sm",
+        mono && "font-mono text-xs",
         className,
       )}
       style={

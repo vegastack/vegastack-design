@@ -1,4 +1,4 @@
-// @vegastack code-block@0.9.1 sha256-qTVDsNJWbg1Wq3iogZXr0S01qix/yBKotpOXhZ/3KJQ=
+// @vegastack code-block@0.9.1 sha256-ioue79MJM9ogB39H7xrDbL9cbpTUkcTKrdEWjJ8KqoY=
 
 import * as React from "react";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -61,7 +61,7 @@ export function CodeBlock({
           data-slot="code-block-header"
           className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5"
         >
-          <span className="font-mono text-mono-label text-muted-foreground uppercase">
+          <span className="font-mono font-mono text-xs text-muted-foreground uppercase">
             {language ?? "code"}
           </span>
           {copyValue != null ? (
@@ -74,8 +74,8 @@ export function CodeBlock({
           ) : null}
         </figcaption>
       ) : null}
-      <pre data-slot="code-block-pre" className="overflow-x-auto p-4 text-base">
-        <code className="font-mono text-code">{children}</code>
+      <pre data-slot="code-block-pre" className="overflow-x-auto p-4 text-sm">
+        <code className="font-mono font-mono text-sm">{children}</code>
       </pre>
     </figure>
   );

@@ -189,7 +189,7 @@ export function markerAnimateIn(): ReactNode {
             <MarkerContent>Pull request merged into main</MarkerContent>
           </Marker>
         ) : (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Waiting for the merge…
           </p>
         )}

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 
 function Pane({ children }: { children: ReactNode }) {
   return (
-    <div className="flex size-full items-center justify-center bg-muted p-4 text-base text-muted-foreground">
+    <div className="flex size-full items-center justify-center bg-muted p-4 text-sm text-muted-foreground">
       {children}
     </div>
   );
@@ -141,7 +141,7 @@ function CollapsibleSidebarDemo(): ReactNode {
           <ResizableHandle withHandle />
           <ResizablePanel>
             <div className="flex size-full flex-col items-center justify-center gap-3 p-4">
-              <p className="text-base text-muted-foreground">Main content</p>
+              <p className="text-sm text-muted-foreground">Main content</p>
               <Button
                 size="sm"
                 variant="outline"

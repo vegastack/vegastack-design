@@ -35,7 +35,7 @@ export function datePicker(): ReactNode {
     <Wrapper className="flex-col items-start gap-4">
       {/* The trigger is `w-full` like every other form control — the PARENT constrains it
           (audit B8-03). Every example below does the same. */}
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <DatePicker
           value={date}
           onValueChange={setDate}
@@ -48,7 +48,7 @@ export function datePicker(): ReactNode {
         selected={date}
         onSelect={setDate}
         defaultMonth={REF}
-        className="rounded-lg border border-border bg-popover shadow-overlay"
+        className="rounded-lg border border-border bg-popover shadow-lg"
       />
     </Wrapper>
   );
@@ -59,7 +59,7 @@ export function datePickerPresets(): ReactNode {
   const [date, setDate] = useState<Date | undefined>(SELECTED);
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <DatePicker
           value={date}
           onValueChange={setDate}
@@ -80,7 +80,7 @@ export function datePickerRange(): ReactNode {
   });
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-md)">
+      <div className="w-full max-w-72">
         <DateRangePicker
           value={range}
           onValueChange={setRange}
@@ -103,7 +103,7 @@ export function calendarInline(): ReactNode {
         selected={date}
         onSelect={setDate}
         defaultMonth={REF}
-        className="rounded-lg border border-border bg-popover shadow-overlay"
+        className="rounded-lg border border-border bg-popover shadow-lg"
       />
     </Wrapper>
   );
@@ -128,7 +128,7 @@ export function datePickerDisabledDates(): ReactNode {
   ];
   return (
     <Wrapper className="flex-col items-start gap-4">
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <DatePicker
           value={date}
           onValueChange={setDate}
@@ -144,7 +144,7 @@ export function datePickerDisabledDates(): ReactNode {
         onSelect={setDate}
         defaultMonth={REF}
         disabled={blocked}
-        className="rounded-lg border border-border bg-popover shadow-overlay"
+        className="rounded-lg border border-border bg-popover shadow-lg"
       />
     </Wrapper>
   );
@@ -154,7 +154,7 @@ export function datePickerDisabledDates(): ReactNode {
 export function datePickerDisabled(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <DatePicker
           value={SELECTED}
           disabled
@@ -182,7 +182,7 @@ export function datePickerDropdownCaption(): ReactNode {
         captionLayout="dropdown"
         startMonth={new Date(2024, 0)}
         endMonth={new Date(2027, 11)}
-        className="rounded-lg border border-border bg-popover shadow-overlay"
+        className="rounded-lg border border-border bg-popover shadow-lg"
       />
     </Wrapper>
   );
@@ -199,7 +199,7 @@ export function datePickerSingleMonthRange(): ReactNode {
   });
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-md)">
+      <div className="w-full max-w-72">
         <DateRangePicker
           value={range}
           onValueChange={setRange}
@@ -270,10 +270,10 @@ function DatePickerFormattingDemo(): ReactNode {
           key={row.label}
           className="flex items-center justify-between gap-4"
         >
-          <span className="text-label-sm text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             {row.label}
           </span>
-          <div className="w-full max-w-(--panel-width-sm) shrink-0">
+          <div className="w-full max-w-56 shrink-0">
             <DatePicker
               value={date}
               onValueChange={setDate}

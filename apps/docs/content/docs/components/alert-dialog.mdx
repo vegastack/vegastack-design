@@ -168,7 +168,7 @@ own — they accept everything the underlying Base UI part or element accepts (`
 - The backdrop is non-dismissable by design — closing requires `AlertDialogCancel`,
   `AlertDialogAction`, or <kbd>Esc</kbd> as a cancel request, so a confirmation is never dismissed by
   accident.
-- Every interactive control is a `Button` and follows `Button`'s focus treatment: each keeps the global 2px `:focus-visible` ring (`outline-ring`), and the bordered `AlertDialogCancel` (`outline` variant) additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`) — never `outline: none`.
+- Every interactive control is a `Button` and follows `Button`'s focus treatment: each keeps the global 2px `:focus-visible` ring (`outline-ring`), and the bordered `AlertDialogCancel` (`outline` variant) additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(70%)`) — never `outline: none`.
 
 | Key                                                | Action                                                                 |
 | -------------------------------------------------- | ---------------------------------------------------------------------- |

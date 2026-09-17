@@ -162,7 +162,7 @@ export async function ApiTable({ path, name }: ApiTableProps) {
         )}
         {dataAttributes ? (
           <>
-            <p className="text-label text-foreground">
+            <p className="text-sm font-medium text-foreground">
               Data attributes and CSS variables on <code>{doc.part}</code>
             </p>
             <DataAttributesRows data={dataAttributes} />

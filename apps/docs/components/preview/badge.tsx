@@ -124,7 +124,7 @@ export function badgeAnimateIn(): ReactNode {
   return (
     <Wrapper className="flex-col gap-4">
       <div className="flex h-6 items-center gap-2">
-        <span className="text-sm text-muted-foreground">Status:</span>
+        <span className="text-xs text-muted-foreground">Status:</span>
         {verified ? (
           <Badge key="verified" variant="solid" intent="success" animateIn>
             <Check />

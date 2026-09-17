@@ -92,7 +92,7 @@ Try every size with the auto-grow, disabled, and invalid states, then copy the g
   use `htmlFor`/`id`); use `aria-label` only when a visible label is impossible.
 - The surface uses `outline-hidden` — a **transparent** 2px outline, not a removed one — and
   replaces it with the text-field focus treatment: on focus the border re-colors with the `ring`
-  token (`focus:border-ring/(--alpha-tint-border)`). The darkened border is the sole focus cue in
+  token (`focus:border-ring/(70%)`). The darkened border is the sole focus cue in
   normal colours, matching [`Input`](/docs/components/input). Under `forced-colors: active` the
   border tint is erased by the forced palette, and the transparent outline is what that palette
   repaints — which is why the outline is hidden rather than removed.

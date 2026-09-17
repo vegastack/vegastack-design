@@ -1,21 +1,56 @@
 #!/usr/bin/env node
-// Fail-closed WCAG contrast gate for the generated token theme. Runs AFTER `build-tokens.mjs`
-// (reads packages/design-tokens/dist/theme.css) and asserts every canonical foreground/background token
-// pair clears WCAG 2.2 AA (the contrast thresholds are unchanged from 2.1). This is the
-// compiled-CSS contrast gate the design contract requires —
-// the unit a11y tests deliberately run without compiled CSS, so token contrast is gated HERE (and
-// in CI via `pnpm build`) rather than left to a deferred VRT pass.
+// Fail-closed WCAG contrast gate for the generated token theme (A11Y-1).
 //
-// Contrast is computed deterministically from the OKLCH token values (OKLCH → linear sRGB →
-// relative luminance → WCAG ratio). Any sRGB clipping is reported rather than silent.
-import { readFileSync } from "node:fs";
+//   node tooling/contrast-check.mjs [theme.css]
+//   node tooling/contrast-check.mjs --self-test
+//
+// Runs AFTER `build-tokens.mjs` and asserts that every canonical foreground/background token pair
+// clears WCAG 2.2 AA in BOTH themes. This is the compiled-CSS contrast gate the design contract
+// requires — the unit a11y tests deliberately run without compiled CSS, so token contrast is gated
+// HERE (and in CI via `pnpm build`) rather than left to a deferred VRT pass.
+//
+// REBUILT BY THE SHADCN RESET (Batch 1, 2026-09-18)
+//   The old gate measured a token set that no longer exists: a three-rung surface ladder, a
+//   22-entry alpha ladder, `<family>-subtle`/`-text`/`-border` for four chromatic families, and a
+//   `brand` wash composited at three named alphas. All of it is gone. What is checked now is the
+//   token contract this system actually ships:
+//     * the neutral core's foreground/background pairs, including secondary ink on every neutral
+//       surface a component can be mounted on;
+//     * the four status families, which are written in shadcn's `destructive` shape — one fill, one
+//       on-fill foreground — as page text AND as a fill under that foreground;
+//     * the focus ring and the checked-control fill as non-text graphics (1.4.11);
+//     * the 8 categorical chart hues and the 10-hue tag palette;
+//     * the brand pair and the theme-invariant media chrome.
+//
+// WHAT THIS GATE DOES NOT CLAIM, stated so the absence is a decision rather than an oversight.
+//   It gates the TOKEN CONTRACT, not every composition a component can build from it. Upstream's
+//   soft status pattern — `bg-destructive/10 text-destructive` on the destructive Button, and the
+//   same shape on Alert and Field — composites to 3.99:1 in light with shadcn's own red, below the
+//   AA text floor. COL-13 and COL-17 are both decided as **shadcn**, so that composition ships as
+//   upstream wrote it; it is named in the Batch 1 report rather than silently gated away, and no
+//   VegaStack token can be retuned to fix it because `destructive` is adopted verbatim.
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const AA_NORMAL = 4.5; // WCAG 2.2 AA, normal text
-const THEME_CSS = process.argv[2] ?? "packages/design-tokens/dist/theme.css";
+const AA_NONTEXT = 3; // WCAG 1.4.11, non-text UI parts
 
-// Canonical (background, foreground) token pairs every component relies on as a readable contract.
-// FAIL-CLOSED: every listed token must exist in both themes — a missing token is itself a failure
-// (the old `continue` guard let a typo'd pair silently pass; register P2-24).
+// Every neutral surface a control or a piece of copy can be mounted on. `muted`, `accent` and
+// `secondary` share one value in shadcn's neutral base, and they are all listed anyway: the gate
+// must keep holding if a consumer retunes one of them away from the others.
+const NEUTRAL_SURFACES = [
+  "background",
+  "card",
+  "popover",
+  "muted",
+  "accent",
+  "secondary",
+  "sidebar",
+];
+
+// Canonical (background, foreground) pairs. FAIL-CLOSED: every listed token must exist in both
+// themes — a missing token is itself a failure.
 const PAIRS = [
   ["background", "foreground"],
   ["card", "card-foreground"],
@@ -24,143 +59,75 @@ const PAIRS = [
   ["secondary", "secondary-foreground"],
   ["muted", "muted-foreground"],
   ["accent", "accent-foreground"],
-  ["destructive", "destructive-foreground"],
-  ["success", "success-foreground"],
-  ["warning", "warning-foreground"],
-  ["info", "info-foreground"],
   ["sidebar", "sidebar-foreground"],
   ["sidebar-primary", "sidebar-primary-foreground"],
   ["sidebar-accent", "sidebar-accent-foreground"],
-  // The secondary-text workhorse must read on the page surfaces it actually sits on (P2-25).
-  ["background", "muted-foreground"],
-  ["card", "muted-foreground"],
-  // The surface ladder (2026-09-07, P1): body ink AND the secondary-text workhorse must read on
-  // every rung, because a hovered row, a pressed chip and a selected cell all carry both.
-  ["surface-1", "foreground"],
-  ["surface-2", "foreground"],
-  ["surface-3", "foreground"],
-  ["surface-1", "muted-foreground"],
-  ["surface-2", "muted-foreground"],
-  ["surface-3", "muted-foreground"],
 ];
 
-// The ladder's ALPHA twins (`bg-foreground/(--alpha-hover|pressed)`) composite onto the resting
-// surfaces a TRANSPARENT control sits on; the ink must still read once they are painted over each.
-// A FILLED control (rest = surface-1) steps the opaque rungs instead (P1), so the well is not a
-// host here — dark muted-foreground over foreground@10% over surface-1 measured 4.11:1.
-const LADDER_ALPHAS = ["alpha-hover", "alpha-pressed"];
-const LADDER_HOSTS = ["background", "card", "popover"];
-const LADDER_INKS = ["foreground", "muted-foreground"];
+// The secondary-text workhorse carries real copy on every neutral surface, not just its own.
+// `muted-foreground` on `muted` is why this repository's `--muted-foreground` is 0.547 rather than
+// shadcn's 0.556: upstream's value measures 4.34:1 there.
+const SECONDARY_INK_SURFACES = NEUTRAL_SURFACES;
 
-// The washes ALSO land on the opaque rungs, and they stack: a Tabs count badge paints
-// `--alpha-hover` on top of a `pill` trigger that is itself `--alpha-ink-tint` over the
-// `surface-1` track (`selectedChipVariants`), so its real backdrop is two washes deep on a rung.
-// The block above cannot see that — it hosts only the resting surfaces — and that blind spot is
-// how a 3.43:1 count badge shipped (appearance probe 2026-09-07, axe serious on
-// /docs/components/tabs, 1280-dark-ltr).
-//
-// So gate the deeper stack too, at BODY INK only. Muted ink is deliberately absent, and that
-// absence is the rule rather than an omission: measured dark, muted-foreground reads 4.48:1 on a
-// single hover wash over `surface-1`, 4.05:1 as axe renders the same stack, and 3.43:1 once a
-// selected chip's ink tint is under it — all below AA. **`text-muted-foreground` is not available
-// on a translucent wash over a rung.** A component that wants a quiet badge there keeps body ink
-// and stays quiet through size and fill (Tabs' count does exactly that). `alpha-ink-tint*` is
-// listed here only over the rungs, because the selected chip is by definition a chip on the
-// `surface-1` well.
-const CHIP_ALPHAS = [
-  "alpha-hover",
-  "alpha-pressed",
-  "alpha-ink-tint",
-  "alpha-ink-tint-strong",
-];
-const CHIP_HOSTS = ["surface-1", "surface-2", "surface-3"];
-const CHIP_INKS = ["foreground"];
+// The four status families (COL-12). Each is one fill plus one on-fill foreground, exactly the
+// shape shadcn gives `destructive`. The fill doubles as page text (`text-destructive` in upstream's
+// Field and Alert), so it takes the AA text floor on the page surfaces, and the foreground takes it
+// on the fill.
+const STATUS_FAMILIES = ["destructive", "success", "warning", "info"];
+const STATUS_TEXT_SURFACES = ["background", "card", "popover"];
+// The tint alphas a status surface is actually painted at: `bg-<family>/10` at rest, `/20` on
+// hover, `/30` pressed — upstream's own vocabulary, and what Alert, Badge, Toast and the soft
+// Button wear. The ink on them is `<family>-text`, never the fill: the fill measured 3.98-4.35:1 on
+// its own tint in the rendered axe lane (2026-09-18), which is why the `-text` role exists.
+const STATUS_TINT_ALPHAS = [0.1, 0.2, 0.3];
 
-// Theme-invariant media chrome (B4-01): the off-white ink over the two scrims, measured against
-// the WORST backdrop a scrim can sit on (the light page — a scrim over a bright frame is the
-// weakest case; over dark video it only improves).
-//
-// BOTH scrims are gated at AA TEXT (4.5:1), not just the strong one (F1 follow-up, 2026-09-07).
-// `media-foreground` is documented as the ink for "every icon, LABEL and track" over the soft
-// scrim, so the soft scrim carries text in practice (the timestamp and title over a video's
-// gradient); gating it at the 1.4.11 non-text floor (3:1) let the token contract permit text the
-// gate never checked. It already measures ~5.2:1 over the white worst case, so the stricter floor
-// is free today and simply stops a future retune from thinning the scrim under AA. A scrim that
-// can no longer clear 4.5:1 must move its text to `media-scrim-strong` rather than relax this.
-// Floors are literal here because `AA_NONTEXT` is declared further down.
-const MEDIA_CASES = [
-  ["media-scrim-strong", 4.5, "pill text"],
-  ["media-scrim", 4.5, "overlay icons AND labels"],
-];
-
-// muted-foreground-faint is DELIBERATELY sub-AA (placeholders/disabled only — design.md), but it
-// still needs a legibility floor so a retune can never render placeholders invisible.
-const FAINT_FLOOR = 2.5;
-
-// Non-text UI parts (WCAG 1.4.11, >=3:1): the focus ring, the checked-control fill (`primary`
-// carries switch/checkbox/radio/tab/slider selection), and the brand marker. Each must survive
-// every neutral surface where a control can actually be mounted, not just the page background.
-// NOT gated: `border` hairlines and the switch off-`track` — decorative separation / redundant
-// affordances (thumb + layout identify the control), the documented industry-standard exemption.
-const AA_NONTEXT = 3;
-// Focus rings and checked controls can sit on ANY rung (a focused control inside a hovered or
-// selected row); the brand marker and the single-series chart ink only ever sit on the resting
-// surfaces (page, card, popover, well) — nobody draws a chart on a hovered row, and the locked
-// brand value (CX-9) measures 2.92:1 on the light pressed rung, so it is deliberately not gated
-// there.
-//
-// `brand` is a MARKER value and nothing here promotes it: the comment used to add that it "only
-// ever sits on the resting surfaces", which a shipped component falsified — the `cta` Button
-// painted its 0.75rem/400 mono label in `text-brand` over its own faint brand wash and measured
-// 3.41:1 in light, a live WCAG 1.4.3 failure on the public docs site (audit 2026-09-09, HIGH-2).
-// Brand TEXT now reads through `brand-text`, gated at AA in the BRAND_TEXT block below; `brand`
-// itself keeps the 3:1 marker floor for the dot/sparkline/prompt-glyph roles and for the cta's
-// outline and wash, which are non-text.
+// Non-text UI parts (1.4.11): the focus ring (FOC-1/FOC-2 make it the ONLY focus affordance in the
+// system) and `primary`, which carries switch/checkbox/radio/tab/slider selection.
 const NONTEXT = ["ring", "primary"];
-const FOCUS_SURFACES = [
-  "background",
-  "card",
-  "popover",
-  "surface-1",
-  "surface-2",
-  "surface-3",
-  "sidebar",
-];
+// FOC-3: text entry tints its BORDER with the ring at 70% rather than painting the outline, because
+// a raw text field cannot tell a mouse click from a Tab. FOC-10 gates that composite.
+const FOCUS_TINT_ALPHA = 0.7;
+
+// Markers only ever sit on resting surfaces — nobody draws a chart or a status dot on a hovered row.
 const MARKERS = ["brand", "chart-single"];
-const MARKER_SURFACES = [
-  "background",
-  "card",
-  "popover",
-  "surface-1",
-  "sidebar",
-];
-// Brand TEXT (`brand-text`) is not a marker: it is the `cta` Button's label ink, so it takes the
-// AA text floor on every surface a CTA can be mounted on — including the hover/pressed rungs a
-// CTA inside a hovered card can sit over.
-const BRAND_TEXT_SURFACES = [
-  "background",
-  "card",
-  "popover",
-  "surface-1",
-  "surface-2",
-  "surface-3",
-];
-// The three washes the `cta` variant itself paints under its own label.
-const BRAND_WASH_ALPHAS = [
-  "alpha-surface-faint",
-  "alpha-hover",
-  "alpha-pressed",
+const MARKER_SURFACES = ["background", "card", "popover", "muted", "sidebar"];
+
+// `brand` is a MARKER value: the cta Button painted its label in `text-brand` over its own wash and
+// measured 3.41:1 in light, a live WCAG 1.4.3 failure on the public docs site (audit 2026-09-09,
+// HIGH-2). Brand TEXT reads through `brand-text`, which takes the AA floor on every neutral surface.
+const BRAND_TEXT_SURFACES = NEUTRAL_SURFACES;
+
+// Charts and tags are categorical colour, not status or action colour. Their strokes, dots and
+// swatches still communicate data, so every palette member must clear the non-text floor on the
+// neutral surfaces ChartContainer and Card actually use. This does not claim pairwise hue
+// distinguishability: charts retain labels, legends and `accessibilityLayer` as the non-colour cue
+// 1.4.1 requires.
+const CHART_TOKENS = Array.from({ length: 8 }, (_, i) => `chart-${i + 1}`);
+const CATEGORICAL_SURFACES = ["background", "card", "muted"];
+const TAG_HUES = [
+  "blue",
+  "cyan",
+  "green",
+  "lime",
+  "yellow",
+  "orange",
+  "red",
+  "pink",
+  "magenta",
+  "purple",
 ];
 
-// Charts and tags are categorical color, not status or action color. Their strokes, dots, and
-// swatches still communicate data, so every palette member must clear the non-text floor on the
-// neutral surfaces used by ChartContainer/Card. This does not claim pairwise hue distinguishability:
-// charts retain labels/legends and `accessibilityLayer` as the non-color cue required by 1.4.1.
-const CHART_TOKENS = Array.from(
-  { length: 8 },
-  (_, index) => `chart-${index + 1}`,
-);
-const CATEGORICAL_SURFACES = ["background", "card", "muted"];
+// Theme-invariant media chrome: the off-white ink over the two scrims, measured against the WORST
+// backdrop a scrim can sit on (the light page — a scrim over a bright frame is the weakest case;
+// over dark video it only improves). BOTH scrims are gated at AA TEXT, because `media-foreground`
+// is documented as the ink for "every icon, LABEL and track", so the soft scrim carries text in
+// practice (a timestamp or title over a video's gradient).
+const MEDIA_CASES = [
+  ["media-scrim-strong", AA_NORMAL, "pill text"],
+  ["media-scrim", AA_NORMAL, "overlay icons AND labels"],
+];
+
+// ── colour maths ────────────────────────────────────────────────────────────────────────────────
 
 function oklchToLinearSrgb(L, C, H) {
   const hr = (H * Math.PI) / 180;
@@ -183,86 +150,8 @@ function contrast(fg, bg) {
   const b = relLum(oklchToLinearSrgb(...bg)) + 0.05;
   return Math.max(a, b) / Math.min(a, b);
 }
-
-// Chromatic families that ship a flat `-subtle` tint + a page-readable `-text` token. Both are now
-// real opaque tokens (no opacity compositing), so contrast is a direct OKLCH→WCAG ratio.
-const SUBTLE_FAMILIES = ["destructive", "success", "warning", "info"];
-
-// The 10-hue tag palette (Wave 1) — each hue must ship base + subtle + text in both themes.
-const TAG_HUES = [
-  "blue",
-  "cyan",
-  "green",
-  "lime",
-  "yellow",
-  "orange",
-  "red",
-  "pink",
-  "magenta",
-  "purple",
-];
-
-function parseBlock(css, selector) {
-  const re = new RegExp(selector.replace(".", "\\.") + "\\s*\\{([^}]*)\\}");
-  const m = css.match(re);
-  const out = {};
-  if (m) {
-    for (const declaration of m[1].matchAll(/--([a-z0-9-]+):\s*([^;]+);/g)) {
-      const [, name, value] = declaration;
-      if (!value.trim().startsWith("oklch(")) continue;
-      const color = value
-        .trim()
-        .match(
-          /^oklch\(\s*([+-]?(?:\d+\.?\d*|\.\d+))\s+([+-]?(?:\d+\.?\d*|\.\d+))\s+([+-]?(?:\d+\.?\d*|\.\d+))(?:\s*\/\s*([+-]?(?:\d+\.?\d*|\.\d+)))?\s*\)$/,
-        );
-      if (!color)
-        throw new Error(
-          `${selector}: cannot parse generated OKLCH token --${name}: ${value}`,
-        );
-      const [, L, C, H, alpha = "1"] = color;
-      const parsed = [L, C, H, alpha].map(Number);
-      if (!parsed.every(Number.isFinite))
-        throw new Error(
-          `${selector}: non-finite OKLCH token --${name}: ${value}`,
-        );
-      if (
-        parsed[0] < 0 ||
-        parsed[0] > 1 ||
-        parsed[1] < 0 ||
-        parsed[3] < 0 ||
-        parsed[3] > 1
-      ) {
-        throw new Error(
-          `${selector}: invalid OKLCH components in --${name}: ${value}`,
-        );
-      }
-      // Keep the alpha as a 4th element: solid checks spread only L/C/H, the alpha-composite
-      // checks (border, media scrims) read it explicitly.
-      out[name] = parsed;
-    }
-  }
-  return out;
-}
-
-// The alpha tokens (`--alpha-*: NN%`) drive translucent washes (T2). Parse them per theme so the
-// composited checks below use the values that actually render (e.g. soft-hover is theme-split).
-function parseAlphas(css, selector) {
-  const re = new RegExp(selector.replace(".", "\\.") + "\\s*\\{([^}]*)\\}");
-  const m = css.match(re);
-  const out = {};
-  if (m) {
-    for (const mm of m[1].matchAll(
-      /--((?:alpha|opacity)-[a-z0-9-]+):\s*([0-9.]+)%/g,
-    )) {
-      out[mm[1]] = Number(mm[2]) / 100;
-    }
-  }
-  return out;
-}
-
-// Alpha compositing the way the browser paints a `color-mix(in oklab, C p%, transparent)` wash
-// over an opaque backdrop: blending happens in gamma-encoded sRGB. Returns the composite as
-// LINEAR sRGB, ready for relative luminance.
+// Alpha compositing the way the browser paints a translucent colour over an opaque backdrop:
+// blending happens in gamma-encoded sRGB. Returns the composite as LINEAR sRGB.
 const lin2gam = (x) =>
   x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(clamp(x), 1 / 2.4) - 0.055;
 const gam2lin = (x) =>
@@ -282,504 +171,451 @@ function contrastCompositeBg(fgOklch, compositeLin) {
   return Math.max(a, b) / Math.min(a, b);
 }
 
-const css = readFileSync(THEME_CSS, "utf8");
-const light = parseBlock(css, ":root");
-const darkRaw = parseBlock(css, ".dark");
-// `.dark` carries only theme-VARYING overrides; theme-independent tokens (the chromatic fills +
-// foregrounds + hover/active) inherit `:root` through the CSS cascade. Resolve dark the way the
-// browser does so every pair is checked against the values that actually render.
-const themes = { light, dark: { ...light, ...darkRaw } };
-const lightAlphas = parseAlphas(css, ":root");
-const darkAlphas = { ...lightAlphas, ...parseAlphas(css, ".dark") };
-const themeAlphas = { light: lightAlphas, dark: darkAlphas };
-
-let failures = 0;
-let checked = 0;
-const fail = (msg) => {
-  failures++;
-  console.error(`✗ ${msg}`);
-};
-
-// WCAG 2.1 is evaluated in sRGB. Surface every valid OKLCH value whose conversion is clipped.
-const clippedForSrgb = new Map();
-for (const [theme, vars] of Object.entries(themes)) {
-  for (const [name, color] of Object.entries(vars)) {
-    const channels = oklchToLinearSrgb(...color);
-    if (!channels.every(Number.isFinite)) {
-      fail(
-        `${theme}: --${name} converts to non-finite linear-sRGB channels — fail-closed`,
-      );
-      continue;
-    }
-    const excursion = Math.max(
-      0,
-      ...channels.map((c) => -c),
-      ...channels.map((c) => c - 1),
-    );
-    if (excursion > 1e-7) {
-      const key = `${name}=${color.join(" ")}`;
-      const previous = clippedForSrgb.get(key);
-      clippedForSrgb.set(key, {
-        excursion: Math.max(previous?.excursion ?? 0, excursion),
-        themes: new Set([...(previous?.themes ?? []), theme]),
-      });
+export function parseBlock(css, selector) {
+  const re = new RegExp(selector.replace(".", "\\.") + "\\s*\\{([^}]*)\\}");
+  const m = css.match(re);
+  const out = {};
+  if (m) {
+    for (const declaration of m[1].matchAll(/--([a-z0-9-]+):\s*([^;]+);/g)) {
+      const [, name, value] = declaration;
+      if (!value.trim().startsWith("oklch(")) continue;
+      const color = value
+        .trim()
+        .match(
+          /^oklch\(\s*([+-]?(?:\d+\.?\d*|\.\d+))\s+([+-]?(?:\d+\.?\d*|\.\d+))\s+([+-]?(?:\d+\.?\d*|\.\d+))(?:\s*\/\s*([+-]?(?:\d+\.?\d*|\.\d+)))?\s*\)$/,
+        );
+      if (!color) {
+        throw new Error(
+          `${selector}: cannot parse generated OKLCH token --${name}: ${value}`,
+        );
+      }
+      const [, L, C, H, alpha = "1"] = color;
+      const parsed = [L, C, H, alpha].map(Number);
+      if (!parsed.every(Number.isFinite)) {
+        throw new Error(
+          `${selector}: non-finite OKLCH token --${name}: ${value}`,
+        );
+      }
+      if (
+        parsed[0] < 0 ||
+        parsed[0] > 1 ||
+        parsed[1] < 0 ||
+        parsed[3] < 0 ||
+        parsed[3] > 1
+      ) {
+        throw new Error(
+          `${selector}: invalid OKLCH components in --${name}: ${value}`,
+        );
+      }
+      // Keep the alpha as a 4th element: solid checks spread only L/C/H, the alpha-composite
+      // checks (the dark hairline, the media scrims) read it explicitly.
+      out[name] = parsed;
     }
   }
+  return out;
 }
-for (const [theme, vars] of Object.entries(themes)) {
-  for (const [bg, fg] of PAIRS) {
-    if (!vars[bg] || !vars[fg]) {
-      fail(
-        `${theme}: pair (${bg}, ${fg}) references a token that does not exist — fail-closed`,
-      );
-      continue;
+
+/**
+ * The whole gate as a pure function of one theme.css string.
+ * Returns `{ failures, checked, clipped }` — never throws on a contrast miss, so `--self-test` can
+ * observe the misses it deliberately creates.
+ */
+export function checkTheme(css) {
+  const light = parseBlock(css, ":root");
+  const darkRaw = parseBlock(css, ".dark");
+  // `.dark` carries only theme-VARYING overrides; anything it omits inherits `:root` through the
+  // cascade. Resolve dark the way the browser does, so every pair is checked against the values
+  // that actually render.
+  const themes = { light, dark: { ...light, ...darkRaw } };
+
+  const failures = [];
+  let checked = 0;
+  const fail = (msg) => failures.push(msg);
+
+  const need = (theme, vars, name, why) => {
+    if (!vars[name]) {
+      fail(`${theme}: ${name} is missing (${why}) — fail-closed`);
+      return null;
     }
+    return vars[name];
+  };
+  const gate = (theme, ink, surface, floor, label) => {
     checked++;
-    const ratio = contrast(vars[fg], vars[bg]);
-    if (ratio < AA_NORMAL)
-      fail(
-        `${theme}: ${fg} on ${bg} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
+    const ratio = contrast(ink, surface);
+    if (ratio < floor)
+      fail(`${theme}: ${label} = ${ratio.toFixed(2)}:1 (needs ${floor}:1)`);
+  };
+
+  // WCAG 2.1 is evaluated in sRGB. Surface every valid OKLCH value whose conversion is clipped.
+  const clipped = new Map();
+  for (const [theme, vars] of Object.entries(themes)) {
+    for (const [name, color] of Object.entries(vars)) {
+      const channels = oklchToLinearSrgb(...color);
+      if (!channels.every(Number.isFinite)) {
+        fail(
+          `${theme}: --${name} converts to non-finite linear-sRGB channels — fail-closed`,
+        );
+        continue;
+      }
+      const excursion = Math.max(
+        0,
+        ...channels.map((c) => -c),
+        ...channels.map((c) => c - 1),
       );
-  }
-  // Placeholder floor — sub-AA by design, but never illegible.
-  for (const surface of ["background", "card"]) {
-    if (!vars["muted-foreground-faint"] || !vars[surface]) {
-      fail(`${theme}: muted-foreground-faint/${surface} missing — fail-closed`);
-      continue;
+      if (excursion > 1e-7) {
+        const key = `${name}=${color.join(" ")}`;
+        const previous = clipped.get(key);
+        clipped.set(key, {
+          excursion: Math.max(previous?.excursion ?? 0, excursion),
+          themes: new Set([...(previous?.themes ?? []), theme]),
+        });
+      }
     }
-    checked++;
-    const ratio = contrast(vars["muted-foreground-faint"], vars[surface]);
-    if (ratio < FAINT_FLOOR)
-      fail(
-        `${theme}: muted-foreground-faint on ${surface} = ${ratio.toFixed(2)}:1 (below the ${FAINT_FLOOR}:1 placeholder floor)`,
+  }
+
+  for (const [theme, vars] of Object.entries(themes)) {
+    // 1. The neutral core's canonical pairs.
+    for (const [bg, fg] of PAIRS) {
+      const surface = need(theme, vars, bg, `the ${fg}/${bg} pair`);
+      const ink = need(theme, vars, fg, `the ${fg}/${bg} pair`);
+      if (surface && ink)
+        gate(theme, ink, surface, AA_NORMAL, `${fg} on ${bg}`);
+    }
+
+    // 2. Secondary ink on every neutral surface, and body ink on the tinted ones.
+    for (const inkName of ["muted-foreground", "foreground"]) {
+      const ink = need(theme, vars, inkName, "the neutral ink sweep");
+      if (!ink) continue;
+      for (const name of SECONDARY_INK_SURFACES) {
+        const surface = need(theme, vars, name, `${inkName} on ${name}`);
+        if (surface)
+          gate(theme, ink, surface, AA_NORMAL, `${inkName} on ${name}`);
+      }
+    }
+
+    // 3. Status families: fill as page text, foreground on the fill.
+    for (const family of STATUS_FAMILIES) {
+      const fill = need(theme, vars, family, "a status family fill");
+      const ink = need(
+        theme,
+        vars,
+        `${family}-foreground`,
+        "a status family foreground",
       );
-  }
-  // Non-text UI parts (1.4.11), including the real focus-ring surfaces.
-  for (const [part, surfaces] of [
-    ...NONTEXT.map((part) => [part, FOCUS_SURFACES]),
-    ...MARKERS.map((part) => [part, MARKER_SURFACES]),
-  ]) {
-    if (!vars[part]) {
-      fail(`${theme}: non-text token ${part} missing — fail-closed`);
-      continue;
-    }
-    for (const surface of surfaces) {
-      if (!vars[surface]) {
-        fail(
-          `${theme}: ${surface} missing for non-text ${part} contrast — fail-closed`,
-        );
-        continue;
+      if (!fill || !ink) continue;
+      for (const name of STATUS_TEXT_SURFACES) {
+        const surface = need(theme, vars, name, `${family} as text`);
+        if (surface)
+          gate(theme, fill, surface, AA_NORMAL, `${family} as text on ${name}`);
       }
-      checked++;
-      const ratio = contrast(vars[part], vars[surface]);
-      if (ratio < AA_NONTEXT)
-        fail(
-          `${theme}: non-text ${part} on ${surface} = ${ratio.toFixed(2)}:1 (WCAG 1.4.11 needs ${AA_NONTEXT}:1)`,
-        );
-    }
-  }
-  // Categorical chart colors are meaningful non-text graphics, checked independently in both
-  // themes against every supported neutral chart surface.
-  for (const token of CHART_TOKENS) {
-    if (!vars[token]) {
-      fail(`${theme}: categorical token ${token} missing — fail-closed`);
-      continue;
-    }
-    for (const surface of CATEGORICAL_SURFACES) {
-      if (!vars[surface]) {
-        fail(
-          `${theme}: ${surface} missing for categorical ${token} contrast — fail-closed`,
-        );
-        continue;
-      }
-      checked++;
-      const ratio = contrast(vars[token], vars[surface]);
-      if (ratio < AA_NONTEXT)
-        fail(
-          `${theme}: categorical ${token} on ${surface} = ${ratio.toFixed(2)}:1 (WCAG 1.4.11 needs ${AA_NONTEXT}:1)`,
-        );
-    }
-  }
-  // Chromatic -text coverage: it must read both as page text (on background/card) AND on its own
-  // flat -subtle tint (the badge/alert pattern), in both themes.
-  for (const family of SUBTLE_FAMILIES) {
-    const text = vars[`${family}-text`];
-    if (!text) {
-      fail(`${theme}: ${family}-text missing — fail-closed`);
-      continue;
-    }
-    for (const surface of [
-      "background",
-      "card",
-      `${family}-subtle`,
-      `${family}-subtle-hover`,
-      `${family}-subtle-active`,
-    ]) {
-      if (!vars[surface]) {
-        fail(
-          `${theme}: ${surface} missing for ${family}-text contrast — fail-closed`,
-        );
-        continue;
-      }
-      checked++;
-      const ratio = contrast(text, vars[surface]);
-      if (ratio < AA_NORMAL)
-        fail(
-          `${theme}: ${family}-text on ${surface} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
-        );
-    }
-  }
-  // COMPOSITED pairs (T2/CX-7): the translucent washes must stay readable once composited over
-  // the backdrop they actually render on — the outline-button family (`bg-<family>/(faint|subtle)`
-  // over `background`), carrying `<family>-text`. (The soft-button hover is now a PRECOMPOSED
-  // `<family>-subtle-hover` token, checked directly above.)
-  const alphas = themeAlphas[theme];
-  for (const family of SUBTLE_FAMILIES) {
-    const text = vars[`${family}-text`];
-    const fill = vars[family];
-    if (!text || !fill) {
-      fail(
-        `${theme}: ${family} fill/text incomplete for composited contrast — fail-closed`,
-      );
-      continue;
-    }
-    // These outline-button washes are documented for the page/card/popover families. `muted` is
-    // intentionally excluded here: it is itself a tinted surface rather than an approved parent
-    // for another tinted control, and compositing two tints is not part of the component contract.
-    // Rest is the faint wash; hover and pressed are the ladder's alpha twins in the family's own
-    // hue (`fillInteractive.<family>`, F1 2026-09-07).
-    const cases = ["background", "card", "popover"].flatMap((surface) => [
-      ["alpha-surface-faint", surface, "outline rest"],
-      ["alpha-hover", surface, "outline hover"],
-      ["alpha-pressed", surface, "outline pressed"],
-    ]);
-    for (const [alphaName, surface, label] of cases) {
-      const a = alphas[alphaName];
-      const bg = vars[surface];
-      if (a == null || !bg) {
-        fail(
-          `${theme}: ${alphaName}/${surface} missing for ${family} composite — fail-closed`,
-        );
-        continue;
-      }
-      checked++;
-      const composite = compositeLinear(fill, a, bg);
-      const ratio = contrastCompositeBg(text, composite);
-      if (ratio < AA_NORMAL)
-        fail(
-          `${theme}: ${family}-text on ${family}@${Math.round(a * 100)}% over ${surface} (${label}) = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
-        );
-    }
-  }
-  // BRAND TEXT (WCAG 1.4.3, >=4.5:1) — added 2026-09-09 after HIGH-2.
-  // The `cta` Button is the one sanctioned brand button (design.md §Brand). Its label is
-  // `--text-mono-label`, 0.75rem/400 — NORMAL text, so it takes the 4.5:1 floor, not the 3:1
-  // large-text or non-text one. It renders on whatever ground the CTA is placed on: the marketing
-  // ground (`.vs-marketing`, which re-binds these same vars to the dark half), and — until the
-  // scoping question is settled — a plain product surface. So `brand-text` is gated on every
-  // resting surface AND on the three brand washes the cta itself paints underneath its own label
-  // (`alpha-surface-faint` at rest, `alpha-hover`, `alpha-pressed`), in both themes.
-  {
-    const ink = vars["brand-text"];
-    const wash = vars.brand;
-    if (!ink || !wash) {
-      fail(`${theme}: brand-text/brand missing — fail-closed`);
-    } else {
-      for (const surface of BRAND_TEXT_SURFACES) {
-        const bg = vars[surface];
-        if (!bg) {
-          fail(
-            `${theme}: ${surface} missing for brand-text contrast — fail-closed`,
-          );
-          continue;
-        }
-        checked++;
-        const plain = contrast(ink, bg);
-        if (plain < AA_NORMAL)
-          fail(
-            `${theme}: brand-text on ${surface} = ${plain.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
-          );
-        for (const alphaName of BRAND_WASH_ALPHAS) {
-          const a = alphas[alphaName];
-          if (a == null) {
-            fail(
-              `${theme}: ${alphaName} missing for the brand wash — fail-closed`,
-            );
-            continue;
-          }
+      gate(theme, ink, fill, AA_NORMAL, `${family}-foreground on ${family}`);
+
+      // …and the page-readable ink, on the page AND on every tint the family paints.
+      const text = need(theme, vars, `${family}-text`, "a status family ink");
+      if (!text) continue;
+      for (const name of STATUS_TEXT_SURFACES) {
+        const surface = need(theme, vars, name, `${family}-text`);
+        if (!surface) continue;
+        gate(theme, text, surface, AA_NORMAL, `${family}-text on ${name}`);
+        for (const alpha of STATUS_TINT_ALPHAS) {
           checked++;
-          const composite = compositeLinear(wash, a, bg);
-          const ratio = contrastCompositeBg(ink, composite);
-          if (ratio < AA_NORMAL)
+          const ratio = contrastCompositeBg(
+            text,
+            compositeLinear(fill, alpha, surface),
+          );
+          if (ratio < AA_NORMAL) {
             fail(
-              `${theme}: brand-text on brand@${Math.round(a * 100)}% over ${surface} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
+              `${theme}: ${family}-text on ${family}@${Math.round(alpha * 100)}% over ${name} = ${ratio.toFixed(2)}:1 (needs ${AA_NORMAL}:1)`,
             );
+          }
         }
       }
     }
-  }
 
-  // LINK HOVER DIM (WCAG 1.4.3, >=4.5:1) — added 2026-09-09 after MEDIUM-3.
-  // `hover:text-(--btn-link)/(--alpha-link-hover)` (Button `link`), `prose.a`'s hover, and
-  // PropertyList's link all composite a `<family>-text` ink against the page at
-  // `--alpha-link-hover`. The gate measured the SOLID ink and never the composite — the same
-  // shape as bug #100 on the focus border — and at 80% the light composites shipped at
-  // 4.03–4.11:1 for success/info/warning. A hover state is still text.
-  for (const family of [...SUBTLE_FAMILIES, "primary"]) {
-    const ink = vars[`${family}-text`] ?? vars[family];
-    const a = alphas["alpha-link-hover"];
-    if (!ink || a == null) {
-      fail(`${theme}: ${family}-text/alpha-link-hover missing — fail-closed`);
-      continue;
-    }
-    for (const surface of ["background", "card", "popover"]) {
-      const bg = vars[surface];
-      if (!bg) {
-        fail(
-          `${theme}: ${surface} missing for the link-hover composite — fail-closed`,
-        );
-        continue;
+    // 4. Non-text UI parts (1.4.11).
+    for (const part of NONTEXT) {
+      const ink = need(theme, vars, part, "a non-text UI part");
+      if (!ink) continue;
+      for (const name of NEUTRAL_SURFACES) {
+        const surface = need(theme, vars, name, `non-text ${part}`);
+        if (surface)
+          gate(theme, ink, surface, AA_NONTEXT, `non-text ${part} on ${name}`);
       }
-      checked++;
-      const composite = compositeLinear(ink, a, bg);
-      const ratio = contrastCompositeBg(bg, composite);
-      if (ratio < AA_NORMAL)
-        fail(
-          `${theme}: link hover ${family}-text@${Math.round(a * 100)}% on ${surface} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
-        );
     }
-  }
+    for (const part of MARKERS) {
+      const ink = need(theme, vars, part, "a marker");
+      if (!ink) continue;
+      for (const name of MARKER_SURFACES) {
+        const surface = need(theme, vars, name, `marker ${part}`);
+        if (surface)
+          gate(theme, ink, surface, AA_NONTEXT, `marker ${part} on ${name}`);
+      }
+    }
 
-  // INVALID-STATE BORDER (WCAG 1.4.11, >=3:1). This is the ONE error affordance on every text
-  // entry and choice control — Input, Textarea, Select, Combobox, Checkbox, Radio, OTP, Switch,
-  // Toggle, Button, TextEdit all render `border-destructive-border/(--alpha-tint-border)`. It is a
-  // non-text UI indicator, so it must clear 3:1 against every surface a field can be mounted on.
-  //
-  // It went ungated for a reason worth recording: the check above only measures SOLID tokens, and
-  // this border is COMPOSITED at 70%. Un-gated, the dark ground shipped at 1.92:1 — the fill hue
-  // (`destructive`) is tuned for a solid button with light text and is simply too dark to serve as
-  // a border on a dark background, which is why `destructive-border` exists as its own role.
-  {
-    const ink = vars["destructive-border"];
-    const a = alphas["alpha-tint-border"];
-    if (!ink || a == null) {
-      fail(
-        `${theme}: destructive-border/alpha-tint-border missing — fail-closed`,
+    // 4b. TEXT-ENTRY FOCUS BORDER (FOC-3 + FOC-10, WCAG 1.4.11 >= 3:1).
+    //     No text-entry control ever renders the ring SOLID: a text field cannot tell mouse from
+    //     keyboard, so it carries `outline-hidden` and signals focus with `focus:border-ring/70` —
+    //     the ring COMPOSITED at 70%. That composite is the entire focus affordance of every Input,
+    //     Textarea, Field control, OTP slot, Select trigger, Combobox input, input group and
+    //     TextEdit in the system, so it is measured rather than inferred from the solid token.
+    {
+      const ink = need(theme, vars, "ring", "the text-entry focus border");
+      if (ink) {
+        for (const name of NEUTRAL_SURFACES) {
+          const surface = need(
+            theme,
+            vars,
+            name,
+            "the text-entry focus border",
+          );
+          if (!surface) continue;
+          checked++;
+          const ratio = contrastCompositeBg(
+            surface,
+            compositeLinear(ink, FOCUS_TINT_ALPHA, surface),
+          );
+          if (ratio < AA_NONTEXT) {
+            fail(
+              `${theme}: text-entry focus border ring@${Math.round(FOCUS_TINT_ALPHA * 100)}% on ${name} = ${ratio.toFixed(2)}:1 (needs ${AA_NONTEXT}:1)`,
+            );
+          }
+        }
+      }
+    }
+
+    // 5. Categorical chart hues.
+    for (const token of CHART_TOKENS) {
+      const hue = need(theme, vars, token, "a categorical chart hue");
+      if (!hue) continue;
+      for (const name of CATEGORICAL_SURFACES) {
+        const surface = need(theme, vars, name, `categorical ${token}`);
+        if (surface)
+          gate(
+            theme,
+            hue,
+            surface,
+            AA_NONTEXT,
+            `categorical ${token} on ${name}`,
+          );
+      }
+    }
+
+    // 6. Brand text.
+    {
+      const ink = need(theme, vars, "brand-text", "the brand ink");
+      if (ink) {
+        for (const name of BRAND_TEXT_SURFACES) {
+          const surface = need(theme, vars, name, "brand-text");
+          if (surface)
+            gate(theme, ink, surface, AA_NORMAL, `brand-text on ${name}`);
+        }
+      }
+    }
+
+    // 7. The tag palette: text on its own subtle fill and as page text, base as a non-text accent.
+    for (const hue of TAG_HUES) {
+      const base = need(theme, vars, `tag-${hue}`, "a tag base");
+      const subtle = need(
+        theme,
+        vars,
+        `tag-${hue}-subtle`,
+        "a tag subtle fill",
       );
-    } else {
-      for (const surface of [
-        "background",
-        "card",
-        "popover",
-        "muted",
-        "secondary",
-      ]) {
-        const bg = vars[surface];
-        if (!bg) {
-          fail(
-            `${theme}: ${surface} missing for invalid-state border contrast — fail-closed`,
-          );
-          continue;
-        }
-        checked++;
-        // The composited BORDER is measured against the surface it sits on. `contrastCompositeBg`
-        // takes (oklchToken, linearComposite) — the surface is the token here, the border is the
-        // composite. Contrast is symmetric, so this reads the ratio between them.
-        const composite = compositeLinear(ink, a, bg);
-        const ratio = contrastCompositeBg(bg, composite);
-        if (ratio < AA_NONTEXT)
-          fail(
-            `${theme}: invalid-state border destructive-border@${Math.round(a * 100)}% on ${surface} = ${ratio.toFixed(2)}:1 (WCAG 1.4.11 needs ${AA_NONTEXT}:1)`,
-          );
-      }
-    }
-  }
-
-  // TEXT-ENTRY FOCUS BORDER (WCAG 1.4.11, >=3:1) — added by #100, 2026-09-09.
-  // `ring` was already gated SOLID above, but no text-entry control ever renders it solid: a text
-  // field cannot tell mouse from keyboard, so it carries `outline-hidden` and signals focus with
-  // `focus:border-ring/(--alpha-tint-border)` — `ring` COMPOSITED at 70%. That composite is the
-  // entire focus affordance of every Input, Textarea, Field control, OTP slot, Select trigger,
-  // Combobox input, input group and TextEdit in the system, and until this block it was the one
-  // focus indicator the contrast gate did not measure. Same shape as the invalid-state border
-  // above, same 3:1 non-text floor, same surface list as the solid ring.
-  {
-    const ink = vars.ring;
-    const a = alphas["alpha-tint-border"];
-    if (!ink || a == null) {
-      fail(`${theme}: ring/alpha-tint-border missing — fail-closed`);
-    } else {
-      for (const surface of FOCUS_SURFACES) {
-        const bg = vars[surface];
-        if (!bg) {
-          fail(
-            `${theme}: ${surface} missing for text-entry focus border contrast — fail-closed`,
-          );
-          continue;
-        }
-        checked++;
-        const composite = compositeLinear(ink, a, bg);
-        const ratio = contrastCompositeBg(bg, composite);
-        if (ratio < AA_NONTEXT)
-          fail(
-            `${theme}: text-entry focus border ring@${Math.round(a * 100)}% on ${surface} = ${ratio.toFixed(2)}:1 (WCAG 1.4.11 needs ${AA_NONTEXT}:1)`,
-          );
-      }
-    }
-  }
-
-  // SURFACE-LADDER washes ON THE RUNGS (see CHIP_* above): body ink over a wash painted on a well,
-  // a hovered row or a selected chip. Body ink only — muted ink is not permitted here.
-  for (const alphaName of CHIP_ALPHAS) {
-    const a = alphas[alphaName];
-    const wash = vars.foreground;
-    if (a == null || !wash) {
-      fail(
-        `${theme}: ${alphaName}/foreground missing for the rung composite — fail-closed`,
+      const text = need(theme, vars, `tag-${hue}-text`, "a tag ink");
+      if (!base || !subtle || !text) continue;
+      gate(
+        theme,
+        text,
+        subtle,
+        AA_NORMAL,
+        `tag-${hue}-text on tag-${hue}-subtle`,
       );
-      continue;
-    }
-    for (const host of CHIP_HOSTS) {
-      const bg = vars[host];
-      if (!bg) {
-        fail(`${theme}: ${host} missing for the rung composite — fail-closed`);
-        continue;
+      for (const name of CATEGORICAL_SURFACES) {
+        const surface = need(theme, vars, name, `tag-${hue}`);
+        if (!surface) continue;
+        gate(theme, text, surface, AA_NORMAL, `tag-${hue}-text on ${name}`);
+        gate(
+          theme,
+          base,
+          surface,
+          AA_NONTEXT,
+          `categorical tag-${hue} on ${name}`,
+        );
       }
-      const composite = compositeLinear(wash, a, bg);
-      for (const inkName of CHIP_INKS) {
-        const ink = vars[inkName];
-        if (!ink) {
+    }
+
+    // 8. Media chrome, measured over the light page as the worst-case backdrop in both runs.
+    {
+      const ink = need(theme, vars, "media-foreground", "the media ink");
+      const worstBackdrop = light.background;
+      for (const [scrimName, floor, label] of MEDIA_CASES) {
+        const scrim = need(theme, vars, scrimName, "a media scrim");
+        if (!ink || !scrim || !worstBackdrop) continue;
+        const scrimAlpha = scrim[3];
+        if (!(scrimAlpha > 0 && scrimAlpha < 1)) {
           fail(
-            `${theme}: ${inkName} missing for the rung composite — fail-closed`,
+            `${theme}: ${scrimName} must be an alpha colour (got alpha ${scrimAlpha}) — fail-closed`,
           );
           continue;
         }
         checked++;
+        const composite = compositeLinear(scrim, scrimAlpha, worstBackdrop);
         const ratio = contrastCompositeBg(ink, composite);
-        if (ratio < AA_NORMAL)
+        if (ratio < floor) {
           fail(
-            `${theme}: ${inkName} on foreground@${Math.round(a * 100)}% (${alphaName}) over ${host} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
+            `${theme}: media-foreground on ${scrimName} over a light page (${label}) = ${ratio.toFixed(2)}:1 (needs ${floor}:1)`,
           );
-      }
-    }
-  }
-
-  // SURFACE LADDER alpha twins (2026-09-07): `bg-foreground/(--alpha-hover|pressed)` painted over
-  // every host surface must keep body ink AND muted text at AA — this is what a hovered/pressed
-  // kbd, chip or row actually renders as.
-  for (const alphaName of LADDER_ALPHAS) {
-    const a = alphas[alphaName];
-    const wash = vars.foreground;
-    if (a == null || !wash) {
-      fail(
-        `${theme}: ${alphaName}/foreground missing for the ladder composite — fail-closed`,
-      );
-      continue;
-    }
-    for (const host of LADDER_HOSTS) {
-      const bg = vars[host];
-      if (!bg) {
-        fail(
-          `${theme}: ${host} missing for the ladder composite — fail-closed`,
-        );
-        continue;
-      }
-      const composite = compositeLinear(wash, a, bg);
-      for (const inkName of LADDER_INKS) {
-        const ink = vars[inkName];
-        if (!ink) {
-          fail(
-            `${theme}: ${inkName} missing for the ladder composite — fail-closed`,
-          );
-          continue;
         }
-        checked++;
-        const ratio = contrastCompositeBg(ink, composite);
-        if (ratio < AA_NORMAL)
-          fail(
-            `${theme}: ${inkName} on foreground@${Math.round(a * 100)}% (${alphaName}) over ${host} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
-          );
       }
-    }
-  }
-  // MEDIA CHROME (B4-01): theme-invariant ink over theme-invariant scrims, measured over the
-  // LIGHT page as the worst-case backdrop in both theme runs (the scrim never changes with theme).
-  {
-    const ink = vars["media-foreground"];
-    const worstBackdrop = light.background;
-    for (const [scrimName, floor, label] of MEDIA_CASES) {
-      const scrim = vars[scrimName];
-      if (!ink || !scrim || !worstBackdrop) {
-        fail(`${theme}: media-foreground/${scrimName} missing — fail-closed`);
-        continue;
-      }
-      const scrimAlpha = scrim[3];
-      if (!(scrimAlpha > 0 && scrimAlpha < 1)) {
-        fail(
-          `${theme}: ${scrimName} must be an alpha colour (got alpha ${scrimAlpha}) — fail-closed`,
-        );
-        continue;
-      }
-      checked++;
-      const composite = compositeLinear(scrim, scrimAlpha, worstBackdrop);
-      const ratio = contrastCompositeBg(ink, composite);
-      if (ratio < floor)
-        fail(
-          `${theme}: media-foreground on ${scrimName} over a light page (${label}) = ${ratio.toFixed(2)}:1 (needs ${floor}:1)`,
-        );
     }
   }
 
-  // Tag palette (Wave 1): every hue ships base/subtle/text. text must read on its own subtle
-  // fill AND as page text; base is a non-text accent (dots/icons, 1.4.11). Fail-closed: a
-  // missing hue token is a build error, not a skipped check.
-  for (const hue of TAG_HUES) {
-    const base = vars[`tag-${hue}`];
-    const subtle = vars[`tag-${hue}-subtle`];
-    const text = vars[`tag-${hue}-text`];
-    if (!base || !subtle || !text) {
-      fail(`${theme}: tag-${hue} base/subtle/text incomplete — fail-closed`);
-      continue;
-    }
-    for (const surface of [
-      subtle,
-      ...CATEGORICAL_SURFACES.map((name) => vars[name]),
-    ]) {
-      checked++;
-      const ratio = contrast(text, surface);
-      if (ratio < AA_NORMAL)
-        fail(
-          `${theme}: tag-${hue}-text = ${ratio.toFixed(2)}:1 on a required surface`,
-        );
-    }
-    for (const surface of CATEGORICAL_SURFACES) {
-      checked++;
-      const ratio = contrast(base, vars[surface]);
-      if (ratio < AA_NONTEXT)
-        fail(
-          `${theme}: categorical tag-${hue} on ${surface} = ${ratio.toFixed(2)}:1 (WCAG 1.4.11 needs ${AA_NONTEXT}:1)`,
-        );
-    }
-  }
+  return { failures, checked, clipped };
 }
 
-if (failures) {
+// ── self-test ───────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Observe the gate failing. A contrast gate that has never been seen rejecting a colour is
+ * indistinguishable from one that cannot. Each claim mutates the REAL generated theme in a temp
+ * copy, so the fixtures stay honest as the token set evolves.
+ */
+function selfTest(themePath) {
+  const base = readFileSync(themePath, "utf8");
+  const problems = [];
+  const claim = (label, ok) => {
+    console.log(
+      `contrast-check:selftest ${ok ? "observed" : "DID NOT OBSERVE"} — ${label}`,
+    );
+    if (!ok) problems.push(label);
+  };
+  const failsWith = (mutate) => checkTheme(mutate(base)).failures.length > 0;
+  const swap =
+    (name, value, scope = ":root") =>
+    (css) => {
+      const block = css.match(
+        new RegExp(scope.replace(".", "\\.") + "\\s*\\{[^}]*\\}"),
+      )[0];
+      return css.replace(
+        block,
+        block.replace(new RegExp(`--${name}:[^;]+;`), `--${name}: ${value};`),
+      );
+    };
+  const drop =
+    (name, scope = ":root") =>
+    (css) => {
+      const block = css.match(
+        new RegExp(scope.replace(".", "\\.") + "\\s*\\{[^}]*\\}"),
+      )[0];
+      return css.replace(
+        block,
+        block.replace(new RegExp(`\\s*--${name}:[^;]+;`), ""),
+      );
+    };
+
+  claim("the shipped theme passes", checkTheme(base).failures.length === 0);
+  claim(
+    "secondary ink lightened past AA on `muted` is rejected",
+    failsWith(swap("muted-foreground", "oklch(0.62 0 0)")),
+  );
+  claim(
+    "body ink dimmed past AA on the page is rejected",
+    failsWith(swap("foreground", "oklch(0.62 0 0)")),
+  );
+  claim(
+    "a status fill too pale to read as text is rejected",
+    failsWith(swap("success", "oklch(0.82 0.15 150)")),
+  );
+  claim(
+    "a status foreground that vanishes on its own fill is rejected",
+    failsWith(swap("warning-foreground", "oklch(0.78 0 0)")),
+  );
+  claim(
+    "a status ink that fails on its own 10% tint is rejected",
+    failsWith(swap("info-text", "oklch(0.64 0.169 256)")),
+  );
+  claim(
+    "a focus ring below the 1.4.11 non-text floor is rejected",
+    failsWith(swap("ring", "oklch(0.95 0 0)")),
+  );
+  claim(
+    "a focus ring too pale to survive the 70% text-entry tint is rejected",
+    failsWith(swap("ring", "oklch(0.86 0 0)")),
+  );
+  claim(
+    "a chart hue below the 1.4.11 non-text floor is rejected",
+    failsWith(swap("chart-4", "oklch(0.95 0.05 41)")),
+  );
+  claim(
+    "a tag ink that fails on its own subtle fill is rejected",
+    failsWith(swap("tag-blue-text", "oklch(0.88 0.04 256)")),
+  );
+  claim(
+    "a media scrim thinned below the AA text floor is rejected",
+    failsWith(swap("media-scrim", "oklch(0.13 0.002 75 / 0.12)")),
+  );
+  claim(
+    "a scrim authored as an opaque colour is rejected",
+    failsWith(swap("media-scrim", "oklch(0.13 0.002 75)")),
+  );
+  claim(
+    "a DARK-only regression is caught (the light half alone is not enough)",
+    failsWith(swap("muted-foreground", "oklch(0.36 0 0)", ".dark")),
+  );
+  claim(
+    "a missing token is rejected rather than skipped",
+    failsWith(drop("brand-text")),
+  );
+
+  // A malformed value must throw rather than be quietly ignored.
+  let threw = false;
+  try {
+    checkTheme(swap("primary", "oklch(bogus)")(base));
+  } catch {
+    threw = true;
+  }
+  claim("an unparseable OKLCH token throws instead of being skipped", threw);
+
+  if (problems.length) {
+    console.error(
+      `✗ contrast-check:selftest: ${problems.length} claim(s) not observed`,
+    );
+    return 1;
+  }
+  console.log("✓ contrast-check:selftest: 15 claims observed");
+  return 0;
+}
+
+// ── cli ─────────────────────────────────────────────────────────────────────────────────────────
+
+const argv = process.argv.slice(2);
+const themePath =
+  argv.find((a) => !a.startsWith("-")) ??
+  "packages/design-tokens/dist/theme.css";
+
+if (argv.includes("--self-test")) {
+  process.exit(selfTest(themePath));
+}
+
+const { failures, checked, clipped } = checkTheme(
+  readFileSync(themePath, "utf8"),
+);
+for (const failure of failures) console.error(`✗ ${failure}`);
+if (failures.length) {
   console.error(
-    `\n✗ contrast-check: ${failures} contrast/gamut contract failure(s)`,
+    `\n✗ contrast-check: ${failures.length} contrast/gamut contract failure(s)`,
   );
   process.exit(1);
 }
-if (clippedForSrgb.size) {
-  const clipped = [...clippedForSrgb.entries()];
-  const maxExcursion = Math.max(
-    ...clipped.map(([, report]) => report.excursion),
-  );
+if (clipped.size) {
+  const rows = [...clipped.entries()];
+  const maxExcursion = Math.max(...rows.map(([, report]) => report.excursion));
   console.warn(
-    `⚠ contrast-check gamut: ${clipped.length} unique OKLCH token value(s) require sRGB clipping for WCAG calculation (max linear-channel excursion ${maxExcursion.toFixed(4)}): ${clipped
+    `⚠ contrast-check gamut: ${rows.length} unique OKLCH token value(s) require sRGB clipping for WCAG calculation (max linear-channel excursion ${maxExcursion.toFixed(4)}): ${rows
       .map(([token, report]) => `--${token} [${[...report.themes].join("+")}]`)
       .join(", ")}`,
   );
 }
 console.log(
-  `✓ contrast-check: all ${checked} token contrast checks pass — WCAG 2.2 AA text pairs (${AA_NORMAL}:1), placeholder floor (${FAINT_FLOOR}:1), focus/control + categorical chart/tag graphics (1.4.11 ${AA_NONTEXT}:1), chromatic text on opaque + alpha-composited surfaces, both themes, fail-closed on missing tokens`,
+  `✓ contrast-check: all ${checked} token contrast checks pass — WCAG 2.2 AA text pairs (${AA_NORMAL}:1) for the neutral core, the secondary-ink sweep and the four status families; WCAG 1.4.11 (${AA_NONTEXT}:1) for the focus ring, the checked fill, 8 chart hues and 10 tag hues; media chrome at the AA text floor; both themes, fail-closed on missing tokens`,
 );

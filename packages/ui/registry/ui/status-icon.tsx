@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.9.1 sha256-16U1Eq6MVoHPyO8m/EQ0D9Vwei7fg1y6U/krx4hx0ho=
+// @vegastack status-icon@0.9.1 sha256-P+8zQcOn247aExW5FFWFOuyLihUcqlw+A+5Kyiu6SJk=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -25,10 +25,10 @@ export const statusIconVariants = cva("inline-block shrink-0", {
       done: "text-success-text",
     },
     size: {
-      xs: "size-(--icon-inline)",
-      sm: "size-(--icon-default)",
-      md: "size-(--icon-action)",
-      lg: "size-(--icon-feature)",
+      xs: "size-3.5",
+      sm: "size-4",
+      md: "size-5",
+      lg: "size-6",
     },
   },
   defaultVariants: { status: "todo", size: "md" },

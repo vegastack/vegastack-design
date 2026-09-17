@@ -1,4 +1,4 @@
-// @vegastack radio-group@0.9.1 sha256-RxGXW9o33ycrvn9zrj51vNVcHiCiU5kxIKFe2D68obE=
+// @vegastack radio-group@0.9.1 sha256-ZbxCN90yAKgnz+5JSyLnLwB7Y+w73VEHt4S77yOrd5A=
 
 "use client";
 
@@ -192,18 +192,18 @@ export function RadioGroupItem({
       className={cn(
         "peer relative inline-flex shrink-0 items-center justify-center rounded-full border border-input bg-transparent text-current",
         itemSizeClasses[size],
-        "dark:bg-input/(--alpha-input)",
+        "dark:bg-input/30",
         // The one field hover rung (see `checkbox.tsx`) — neutral ink, never the `ring` tint
         // that means focus; and the SELECTED item steps through the solid's own darker rungs,
         // so a chosen radio still moves under the cursor (audit SP-04).
-        "not-disabled:hover:border-foreground/(--alpha-border-subtle)",
+        "not-disabled:hover:border-foreground/20",
         "data-checked:border-primary",
-        "not-disabled:data-checked:hover:border-primary-hover",
-        "not-disabled:data-checked:active:border-primary-active",
-        "aria-invalid:border-destructive-border/(--alpha-tint-border) data-invalid:border-destructive-border/(--alpha-tint-border)",
+        "not-disabled:data-checked:hover:border-primary/90",
+        "not-disabled:data-checked:active:border-primary/80",
+        "aria-invalid:border-destructive/70 data-invalid:border-destructive/70",
         // D7: no `pointer-events-none` — a disabled control stays hoverable for its Tooltip.
-        "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
-        "group-has-disabled/field:opacity-(--opacity-dim)",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        "group-has-disabled/field:opacity-50",
         className,
       )}
       {...props}

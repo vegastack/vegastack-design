@@ -93,8 +93,10 @@ export function TraceInputLayers({
         {patternHeader}
         <div className="flex min-h-44 flex-1 items-center justify-center rounded-lg border border-border bg-background p-5">
           <div className="w-full max-w-sm">
-            <p className="text-label text-foreground">Project identity</p>
-            <p className="mt-1 truncate text-h3 text-foreground">
+            <p className="text-sm font-medium text-foreground">
+              Project identity
+            </p>
+            <p className="mt-1 truncate text-xl font-semibold text-foreground">
               {normalizedName}
             </p>
             <p className="mt-1 truncate font-mono text-sm text-muted-foreground">

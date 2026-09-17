@@ -1,4 +1,4 @@
-// @vegastack ruled-band@0.9.1 sha256-uvLSFxWOQuczhIIJFuboXuvqYiJkVZX4ZC0Ct9Ij+HM=
+// @vegastack ruled-band@0.9.1 sha256-YJgzahZ+WR8ygSs2f/n7la+EwLRhvug0g96IUpOW8Pc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -64,7 +64,7 @@ export function RuledBandLabel({ className, ...props }: RuledBandLabelProps) {
     <span
       data-slot="ruled-band-label"
       className={cn(
-        "font-mono text-mono-label text-muted-foreground",
+        "font-mono font-mono text-xs text-muted-foreground",
         className,
       )}
       {...props}

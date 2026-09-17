@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.9.1 sha256-80s1vUcTUJ2uCdyhx+BnxPC4w7zS6GSeVwgNPl5IqWA=
+// @vegastack shortcut-overlay@0.9.1 sha256-RXXJ/9nzYWLr6+XUNTgUFvIfg1iR5anJBLGkV/BO1jk=
 
 "use client";
 
@@ -222,12 +222,12 @@ export function ShortcutOverlay({
             />
           </PanelSearchFrame>
         ) : null}
-        <ScrollArea className="max-h-(--layout-overlay-max-height)">
+        <ScrollArea className="max-h-[calc(100dvh-16rem)]">
           <div className="flex flex-col gap-4 p-6 pt-4 pe-3">
             {categories.length === 0 ? (
               <p
                 data-slot="shortcut-overlay-empty"
-                className="py-4 text-center text-sm text-muted-foreground"
+                className="py-4 text-center text-xs text-muted-foreground"
               >
                 No shortcuts match your filter
               </p>
@@ -237,7 +237,7 @@ export function ShortcutOverlay({
                   key={category.name}
                   data-slot="shortcut-overlay-category"
                 >
-                  <h3 className="mb-2 text-label-sm text-muted-foreground">
+                  <h3 className="mb-2 text-xs font-medium text-muted-foreground">
                     {category.name}
                   </h3>
                   {/* A description list so each label/keys pair is announced
@@ -251,7 +251,7 @@ export function ShortcutOverlay({
                           "flex min-w-0 items-center justify-between gap-4 border-b border-border py-1.5 last:border-b-0",
                         )}
                       >
-                        <dt className="min-w-0 text-base">
+                        <dt className="min-w-0 text-sm">
                           <span className="block truncate">
                             {shortcut.label}
                           </span>

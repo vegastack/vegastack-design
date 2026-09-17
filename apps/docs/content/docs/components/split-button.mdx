@@ -159,7 +159,7 @@ destructive, and toggle the disabled / loading states, then copy the generated J
 
 - Two distinct buttons: the primary runs the default action on <kbd>Enter</kbd> / <kbd>Space</kbd>; the chevron trigger opens the menu. The chevron is icon-only, so it carries an `aria-label` (`menuLabel`, default `"More options"`).
 - The popup renders with `role="menu"` and its rows as `menuitem`; Base UI provides roving focus, the highlighted item uses `data-highlighted`, and focus returns to the trigger on close.
-- Each half is a real `Button`, so `:focus-visible` follows `Button`'s treatment: every variant keeps the design system's global 2px focus ring (`outline-ring`), and the `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`) — never `outline: none`.
+- Each half is a real `Button`, so `:focus-visible` follows `Button`'s treatment: every variant keeps the design system's global 2px focus ring (`outline-ring`), and the `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(70%)`) — never `outline: none`.
 - `loading` / `disabled` disable both halves and remove them from the tab order.
 
 | Key                                 | Action                                                                |

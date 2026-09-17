@@ -245,7 +245,7 @@ test("uses larger video actions and a sans time readout", async () => {
   const time = screen.container.querySelector(
     '[data-slot="media-player-time"]',
   );
-  expect(time?.classList.contains("text-lg")).toBe(true);
+  expect(time?.classList.contains("text-base")).toBe(true);
   expect(time?.classList.contains("font-mono")).toBe(false);
   expect(time?.classList.contains("tabular-nums")).toBe(true);
 });

@@ -114,7 +114,7 @@ test("the footer is a real wash, not a bare row", async () => {
   expect(footer).not.toBeNull();
   // The footer reads as a distinct band; a card is flat (borders-only canon), so the separation
   // is a surface rung PLUS the hairline — never a shadow.
-  expect(footer.className).toContain("bg-surface-1");
+  expect(footer.className).toContain("bg-muted");
   expect(footer.className).toContain("border-t");
   expect(footer.className).not.toContain("shadow-");
 });

@@ -78,7 +78,7 @@ export function accordionControlled(): ReactNode {
   return (
     <Wrapper>
       <div className="flex w-full max-w-md flex-col gap-3">
-        <div className="flex items-center gap-2 text-base text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>Open section:</span>
           <span className="font-medium text-foreground">
             {value.length > 0 ? value.join(", ") : "none"}

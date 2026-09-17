@@ -1,4 +1,4 @@
-// @vegastack terminal@0.9.1 sha256-xDc2je7d1eOhNMiHdm3zUKxCkgTw1R2uIreaeJJXNt8=
+// @vegastack terminal@0.9.1 sha256-n2r9SiRRUaH4qpHRHGfOMhsrn2BtwOQAjjSX9BP0Ts4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -108,7 +108,7 @@ export function Terminal({
       ref={ref}
       data-slot="terminal"
       className={cn(
-        "vs-marketing overflow-hidden rounded-(--radius-sharp) border border-border bg-card",
+        "vs-marketing overflow-hidden rounded-[2px] border border-border bg-card",
         className,
       )}
       {...props}
@@ -119,7 +119,7 @@ export function Terminal({
       >
         <span
           id={titleId}
-          className="font-mono text-mono-label text-muted-foreground uppercase"
+          className="font-mono font-mono text-xs text-muted-foreground uppercase"
         >
           {title}
         </span>

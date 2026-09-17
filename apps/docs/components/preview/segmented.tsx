@@ -63,7 +63,7 @@ function SegmentedControlledExample() {
         <SegmentedItem value="mine">Mine</SegmentedItem>
         <SegmentedItem value="archived">Archived</SegmentedItem>
       </Segmented>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Scope: <span className="font-medium text-foreground">{scope}</span> —
         clicking the active segment is a no-op (always-one-selected).
       </p>

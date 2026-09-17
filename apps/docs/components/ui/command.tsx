@@ -1,4 +1,4 @@
-// @vegastack command@0.9.1 sha256-sDIRcAhTK2yVl+xJWejfNuNupggVgm619KWa5TJ22Lk=
+// @vegastack command@0.9.1 sha256-R4h1WSHQPsnw5JX/cBE26Ve9ZEVtW90u1k3yqjCMlnk=
 
 "use client";
 
@@ -336,7 +336,7 @@ export function CommandEmpty({ className, ...props }: CommandEmptyProps) {
     <BaseCombobox.Empty
       data-slot="command-empty"
       className={cn(
-        "py-6 text-center text-base text-muted-foreground empty:hidden",
+        "py-6 text-center text-sm text-muted-foreground empty:hidden",
         className,
       )}
       {...props}
@@ -370,7 +370,7 @@ export function CommandLoading({ className, ...props }: CommandLoadingProps) {
     <BaseCombobox.Status
       data-slot="command-loading"
       className={cn(
-        "flex items-center justify-center gap-2 py-6 text-base text-muted-foreground empty:hidden",
+        "flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground empty:hidden",
         className,
       )}
       {...props}
@@ -529,7 +529,10 @@ export function CommandShortcut({ className, ...props }: CommandShortcutProps) {
   return (
     <span
       data-slot="command-shortcut"
-      className={cn("ms-auto text-mono-label text-muted-foreground", className)}
+      className={cn(
+        "ms-auto font-mono text-xs text-muted-foreground",
+        className,
+      )}
       {...props}
     />
   );
@@ -549,7 +552,7 @@ export type CommandFooterProps = React.ComponentProps<"div">;
  *   <CommandInput placeholder="Search…" />
  *   <CommandList>{…}</CommandList>
  *   <CommandFooter>
- *     <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+ *     <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
  *       <Kbd keys="↑" size="sm" /> <Kbd keys="↓" size="sm" /> Navigate
  *     </span>
  *     <Button size="sm">Open<Kbd keys="↵" size="sm" className="ms-1" /></Button>

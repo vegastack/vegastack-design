@@ -112,7 +112,7 @@ type, accessible labels, and icon children.
 
 - Renders a native `<button type="button">`; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
 - The accessible name switches from `Copy` to `Copied` on success so screen readers announce the result; the icon is decorative (`aria-hidden`).
-- Inherits the underlying `Button`'s focus treatment: the default `ghost` variant shows the design system's global 2px focus ring (`outline-ring`) on `:focus-visible` and never sets `outline: none`. The bordered `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`).
+- Inherits the underlying `Button`'s focus treatment: the default `ghost` variant shows the design system's global 2px focus ring (`outline-ring`) on `:focus-visible` and never sets `outline: none`. The bordered `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(70%)`).
 - A failed clipboard write (denied permission or insecure context) leaves the button in its default state instead of showing a false success.
 
 | Key                                 | Action                         |

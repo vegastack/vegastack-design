@@ -1,4 +1,4 @@
-// @vegastack avatar@0.9.1 sha256-Kw/orhYVtjD59QCwWS7uMzAuVXaCcQGBrvz+PO9Fvc0=
+// @vegastack avatar@0.9.1 sha256-EDcn0Y4eYUol1EKpmOp/sBsK7XksGBWt4dkKo8rxI1I=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -19,11 +19,11 @@ export const avatarVariants = cva(
   {
     variants: {
       size: {
-        xs: "size-6 text-sm",
-        sm: "size-(--size-sm) text-base",
-        md: "size-(--size-md) text-base",
-        lg: "size-(--size-lg) text-lg",
-        xl: "size-12 text-xl",
+        xs: "size-6 text-xs",
+        sm: "size-7 text-sm",
+        md: "size-8 text-sm",
+        lg: "size-10 text-base",
+        xl: "size-12 text-lg",
       },
     },
     defaultVariants: { size: "md" },

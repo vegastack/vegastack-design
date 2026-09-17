@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.9.1 sha256-/XFurOfqTVMFdPFazSrcwF5mcK6e1JC43Wzx6sy/wGA=
+// @vegastack emoji-picker@0.9.1 sha256-wzepccxw7+5TI4pTb1DBNSnw/Dc3nS26Z0UECie79KI=
 
 "use client";
 
@@ -612,7 +612,7 @@ export function EmojiPicker({
         align={align}
         sideOffset={FLOATING.sideOffsetAttached}
         className={cn(
-          "w-(--panel-width-md) max-w-[calc(100vw-var(--spacing)*8)] p-0",
+          "w-72 max-w-[calc(100vw-var(--spacing)*8)] p-0",
           className,
         )}
       >
@@ -650,7 +650,7 @@ export function EmojiPicker({
                 let flatIndex = -1;
                 return filtered.map(({ category, entries }) => (
                   <div key={category} className="mb-2 last:mb-0">
-                    <div className="px-1 py-1 text-label-sm text-muted-foreground">
+                    <div className="px-1 py-1 text-xs font-medium text-muted-foreground">
                       {category}
                     </div>
                     <div
@@ -680,7 +680,7 @@ export function EmojiPicker({
                               setActiveIndex(index);
                               handleSelect(entry.char);
                             }}
-                            className="text-xl leading-none"
+                            className="text-lg leading-none"
                           >
                             <span aria-hidden>{entry.char}</span>
                           </IconButton>
@@ -694,7 +694,7 @@ export function EmojiPicker({
               <div
                 data-slot="emoji-picker-empty"
                 aria-hidden="true"
-                className="py-6 text-center text-base text-muted-foreground"
+                className="py-6 text-center text-sm text-muted-foreground"
               >
                 No emoji found.
               </div>

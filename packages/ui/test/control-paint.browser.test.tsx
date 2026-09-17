@@ -154,7 +154,7 @@ const settle = () =>
  * mounted at the top-left of a fresh page lands under it. Measured 2026-09-09: in roughly half of
  * the runs where this file shared the suite with the other form tests, the fixtures matched
  * `:hover` — the reference `<Input aria-invalid />` painted the neutral HOVER tint
- * (`--alpha-border-subtle`, 0.2) instead of the destructive one, and the NumberField stepper
+ * (`20%`, 0.2) instead of the destructive one, and the NumberField stepper
  * painted `hover:text-foreground`. Both components were behaving correctly; the lane was measuring
  * the wrong state and blaming the component for it.
  *
@@ -217,12 +217,12 @@ beforeAll(async () => {
 
 describe("Switch — the track is painted, in both states", () => {
   /**
-   * The defect: `"…p-0.5" + "bg-surface-3 data-checked:bg-primary" + "not-disabled:hover:…"` glued
-   * into `p-0.5bg-surface-3` and `data-checked:bg-primarynot-disabled:hover:border-…`. FOUR
+   * The defect: `"…p-0.5" + "bg-accent data-checked:bg-primary" + "not-disabled:hover:…"` glued
+   * into `p-0.5bg-accent` and `data-checked:bg-primarynot-disabled:hover:border-…`. FOUR
    * utilities destroyed at one stroke, and the surviving `not-disabled:data-checked:hover:` rung
    * meant the control appeared only while the pointer was over a checked switch.
    */
-  test("the off-track is the surface-3 rung and the on-track is primary", async () => {
+  test("the off-track is painted and the on-track is primary", async () => {
     const screen = await render(
       <Stage>
         <Switch data-testid="switch-off" aria-label="off" />
@@ -234,10 +234,14 @@ describe("Switch — the track is painted, in both states", () => {
     const off = getComputedStyle(q.testId("switch-off"));
     const on = getComputedStyle(q.testId("switch-on"));
 
-    // design.md §Surfaces: "the switch off-track is the exception: `surface-3`", and
-    // §Components: "neutral `primary` ink when on". Both are load-bearing prose that measured
-    // false for a full release.
-    expect(numbers(off.backgroundColor)).toEqual(numbers(token("--surface-3")));
+    // COL-16 is decided as **shadcn**, so the off-track is no longer a named ladder rung — the
+    // claim that survives is the one the class-glue defect broke: BOTH tracks are painted, and
+    // they are painted DIFFERENTLY. The checked track is `primary`, which every checked control
+    // in the system shares.
+    expect(off.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(numbers(off.backgroundColor)).not.toEqual(
+      numbers(on.backgroundColor),
+    );
     expect(numbers(on.backgroundColor)).toEqual(numbers(token("--primary")));
 
     // The 2px inset that gives the thumb its uniform gap. `p-0.5` was the left-hand casualty of
@@ -317,7 +321,7 @@ describe("aria-invalid reaches the element that paints the tint", () => {
   /**
    * `aria-invalid` was accepted and inert on two controls: on `OTPInput` it landed on
    * `OTPField.Root` and the slots never saw it; on `NumberField` it landed on the
-   * `[data-field-group]` element itself, and `fieldControlGroup`'s `has-aria-invalid:` is a
+   * `[data-field-group]` element itself, and `"rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring data-focused:border-ring not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30"`'s `has-aria-invalid:` is a
    * `:has()` over DESCENDANTS. Both measured the neutral `--input` hairline.
    *
    * `<Input aria-invalid />` is the reference: it is the path that always worked.

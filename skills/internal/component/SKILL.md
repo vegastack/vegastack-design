@@ -62,13 +62,18 @@ re-stamped integrity IS the change signal downstream) → affected tests → a t
 Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full vocabulary in
 [references/tokens.md](references/tokens.md). The rules that bite most often:
 
-- Semantic colors only — no hex, no raw Tailwind palette.
-- `--size-*` for control heights, `--icon-*` for icon sizes, `rounded-lg` is the cap.
-- `--alpha-*` for colour compositing, `--opacity-*` for whole-element opacity; never interchangeable.
-- Two z-bands: `z-(--z-raised)`, `z-(--z-overlay)`.
-- A `transition*` must pair a `duration-*` AND an `ease-*` in the same string literal.
-- Weight ladder is 400/500; uppercase is mono-exclusive and ≤14px.
-- Arbitrary values only for `var()`, token-bearing `calc()`, layout primitives, CSS keywords.
+- Semantic colours only — no hex, no numbered Tailwind palette. `bg-black/10` and `bg-white` are
+  upstream's own scrim vocabulary and are fine.
+- **No focus-ring glow, anywhere** — no `ring-3`, no `ring-ring/NN`, no `focus-visible:ring-*`, no
+  `shadow-[0_0_0_…]`. base.css owns the one `:focus-visible` outline; text entry tints its border at
+  `focus:border-ring/70`. This is the rule that keeps the reset from unwinding on the next pull.
+- Sizes, radii, shadows, z-index, alpha and opacity are **plain Tailwind** now: `h-8`, `size-4`,
+  `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The token families that used
+  to own them are deleted.
+- Type is Tailwind's stock scale. `font-semibold`, `tracking-tight` and `text-4xl` are ordinary
+  utilities; the role tokens (`text-h1`, `text-label`, `text-code`, `text-mono-label`) are gone.
+- Motion pairs nothing: `transition-all duration-100 ease-in-out` is upstream's own vocabulary and
+  is legal. Our `duration-fast`/`ease-standard` tokens remain for the `motion-*` utilities.
 
 ## 2. Motion mechanism matrix
 

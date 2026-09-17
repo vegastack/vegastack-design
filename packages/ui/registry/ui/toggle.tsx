@@ -1,11 +1,11 @@
-// @vegastack toggle@0.9.1 sha256-DZMcfZ65YUMxyfROpvaIoZXyMXTOOtNSeW8I9dVaWp0=
+// @vegastack toggle@0.9.1 sha256-SyzbFxvTPFB25IGDWWghACZTkrAA0wAJGMV2LUjrPS4=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Toggle as BaseToggle } from "@base-ui/react/toggle";
-import { cn, selectedChipVariants } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /**
  * Toggle variants — a two-state pressed button. The pressed state is driven by
@@ -20,17 +20,17 @@ export const toggleVariants = cva(
   // ToggleGroup item, a Segmented chip and an active pill tab are the same thing by construction.
   // Controls round at `md` (8px).
   cn(
-    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-transparent text-label whitespace-nowrap select-none disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-    selectedChipVariants.item,
-    selectedChipVariants.pressed,
+    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-transparent text-sm font-medium whitespace-nowrap select-none disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive/70 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+    "border border-transparent hover:text-foreground",
+    "data-pressed:border-input data-pressed:bg-background data-pressed:text-foreground data-pressed:shadow-sm dark:data-pressed:bg-input/30",
   ),
   {
     variants: {
-      // Control heights on the shared 28 / 32 / 40 scale (h-(--size-sm) / h-(--size-md) / h-(--size-lg)).
+      // Control heights on the shared 28 / 32 / 40 scale (h-7 / h-8 / h-10).
       size: {
-        sm: "h-(--size-sm) min-w-(--size-sm) gap-1 px-1.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
-        md: "h-(--size-md) min-w-(--size-md) px-2",
-        lg: "h-(--size-lg) min-w-(--size-lg) px-2.5",
+        sm: "h-7 min-w-7 gap-1 px-1.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3.5",
+        md: "h-8 min-w-8 px-2",
+        lg: "h-10 min-w-10 px-2.5",
       },
     },
     defaultVariants: { size: "md" },

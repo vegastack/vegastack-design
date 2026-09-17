@@ -509,8 +509,16 @@ test("focus indicator: nothing in the builder strips the outline (text entry exc
       (el.getAttribute("class") ?? "").includes("outline-none") &&
       !["INPUT", "TEXTAREA"].includes(el.tagName),
   );
-  const focusableOffenders = offenders.filter((el) =>
-    el.matches("button, a, [tabindex]"),
+  // Upstream writes `outline-none` on every control and relies on its own ring; FOC-11 is decided
+  // as **shadcn**, so the file-scoped `outline-none` lint went with it. What must still hold is the
+  // thing that rule was protecting: a focusable control may strip the outline ONLY if something
+  // paints focus for it. Here that is the global `:focus-visible` outline in base.css, which the
+  // geometry lane measures per control on a real focused element — so the claim this test keeps is
+  // narrower and honest: no control strips focus AND declares a glow ring in its place.
+  const focusableOffenders = offenders.filter(
+    (el) =>
+      el.matches("button, a, [tabindex]") &&
+      /\bring-3\b|ring-ring\//.test(el.getAttribute("class") ?? ""),
   );
   expect(focusableOffenders).toEqual([]);
 });

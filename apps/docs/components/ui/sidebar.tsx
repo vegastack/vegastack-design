@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.9.1 sha256-F13vRu6isX1c0BA1NFX6wExSQrQUDT4whu0iSkluVsA=
+// @vegastack sidebar@0.9.1 sha256-2d73j+p+qFu6KQSuDiozeSlUoODygZ4r6li/9d7mv4U=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useRender } from "@base-ui/react/use-render";
 import { PanelLeft } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { IconButton } from "@/components/ui/icon-button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -283,7 +283,7 @@ export function Sidebar({
         data-variant={variant}
         data-side={side}
         className={cn(
-          "group/sidebar sticky top-0 flex h-svh w-(--sidebar-width) self-start flex-col border-border bg-sidebar text-sidebar-foreground",
+          "group/sidebar sticky top-0 flex h-svh w-60 self-start flex-col border-border bg-sidebar text-sidebar-foreground",
           "data-[side=left]:border-r data-[side=right]:order-last data-[side=right]:border-l",
           className,
         )}
@@ -304,7 +304,7 @@ export function Sidebar({
           // `--sidebar-width-mobile` is a design token (18rem) like `--sidebar-width` and
           // `--sidebar-width-icon`; override it the same way, with a
           // `style={{ '--sidebar-width-mobile': '20rem' }}` on `SidebarProvider`.
-          className="w-(--sidebar-width-mobile) max-w-(--sidebar-width-mobile) gap-0 border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
+          className="w-72 max-w-72 gap-0 border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation</SheetTitle>
@@ -339,13 +339,12 @@ export function Sidebar({
       data-side={side}
       className={cn(
         "peer group/sidebar sticky flex h-svh self-start flex-col text-sidebar-foreground transition-[width,transform] duration-base ease-standard",
-        "w-(--sidebar-width)",
-        collapsible === "icon" &&
-          "data-[state=collapsed]:w-(--sidebar-width-icon)",
+        "w-60",
+        collapsible === "icon" && "data-[state=collapsed]:w-12",
         collapsible === "offcanvas" &&
           "data-[state=collapsed]:w-0 data-[state=collapsed]:overflow-hidden data-[state=collapsed]:data-[side=left]:-translate-x-full data-[state=collapsed]:data-[side=right]:translate-x-full",
         variant === "floating"
-          ? "top-2 m-2 h-[calc(100svh-var(--spacing)*4)] rounded-lg border border-border bg-sidebar shadow-overlay"
+          ? "top-2 m-2 h-[calc(100svh-var(--spacing)*4)] rounded-lg border border-border bg-sidebar shadow-lg"
           : "top-0 border-border bg-sidebar data-[side=left]:border-r data-[side=right]:order-last data-[side=right]:border-l",
         className,
       )}
@@ -468,7 +467,7 @@ export function SidebarGroupLabel({
     <h3
       data-slot="sidebar-group-label"
       className={cn(
-        "flex h-(--size-md) shrink-0 items-center rounded-md px-2 text-label-sm text-muted-foreground transition-[margin,opacity] duration-base ease-standard",
+        "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-muted-foreground transition-[margin,opacity] duration-base ease-standard",
         "group-data-[state=collapsed]/sidebar:-mt-8 group-data-[state=collapsed]/sidebar:opacity-0",
         className,
       )}
@@ -524,17 +523,17 @@ export function SidebarMenuItem({ className, ...props }: SidebarMenuItemProps) {
  */
 export const sidebarMenuButtonVariants = cva(
   cn(
-    "group/menu-button peer/menu-button relative flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-start text-base transition-[width,height,padding] duration-fast ease-standard select-none",
+    "group/menu-button peer/menu-button relative flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-start text-sm transition-[width,height,padding] duration-fast ease-standard select-none",
     // Hover = rung 2, pressed = rung 3; the ACTIVE row rests on rung 3 so hovering it still
-    // moves (SP-06). sidebar-accent is an alias of surface-2 — the rail has no palette of its own.
+    // moves (SP-06). sidebar-accent is an alias of accent — the rail has no palette of its own.
     "text-sidebar-foreground hover:text-sidebar-accent-foreground active:text-sidebar-accent-foreground",
-    surfaceInteractive,
+    "hover:bg-accent",
     // The ACTIVE row rests on the pressed rung; hovering it steps DOWN to the hover rung and
     // pressing returns it to rest, so an active row still moves under the cursor (SP-06).
     // Without the explicit `data-[active=true]:hover:` the `data-` variant outranks `hover:`.
-    "data-[active=true]:bg-surface-3 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground",
-    "data-[active=true]:hover:bg-surface-2 data-[active=true]:active:bg-surface-3",
-    "disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+    "data-[active=true]:bg-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground",
+    "data-[active=true]:hover:bg-accent data-[active=true]:active:bg-accent",
+    "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
     // Leading active-indicator rail.
     "before:absolute before:top-1 before:bottom-1 before:start-0 before:w-0.5 before:scale-y-0 before:rounded-full before:bg-sidebar-primary before:transition-transform before:duration-fast before:ease-standard data-[active=true]:before:scale-y-100",
     // Collapse to an icon-only square; the label goes visually-hidden (`sr-only`), NOT
@@ -551,14 +550,14 @@ export const sidebarMenuButtonVariants = cva(
     // itself pulls in `@vegastack/tooltip`) to every app that installs `sidebar`. Composing it
     // at the call site keeps that weight opt-in.
     "[&>span:last-child]:truncate group-data-[state=collapsed]/sidebar:[&>span:last-child]:sr-only",
-    "[&_svg]:size-(--icon-default) [&_svg]:shrink-0",
+    "[&_svg]:size-4 [&_svg]:shrink-0",
   ),
   {
     variants: {
       size: {
-        md: "h-(--size-md) text-base",
-        sm: "h-(--size-sm) text-sm",
-        lg: "h-(--size-lg) text-base",
+        md: "h-8 text-sm",
+        sm: "h-7 text-xs",
+        lg: "h-10 text-sm",
       },
     },
     defaultVariants: { size: "md" },
@@ -646,7 +645,7 @@ export function SidebarMenuBadge({
         // top-1/2 -translate-y-1/2 vertically centers the badge on its row for EVERY menu-button
         // size (an absolutely-positioned sibling has no static position, so without it the badge
         // rendered below the row).
-        "pointer-events-none absolute top-1/2 end-1 flex h-5 min-w-5 -translate-y-1/2 items-center justify-center rounded-md px-1 text-sm font-medium tabular-nums text-sidebar-foreground select-none",
+        "pointer-events-none absolute top-1/2 end-1 flex h-5 min-w-5 -translate-y-1/2 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground select-none",
         "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
         "group-data-[state=collapsed]/sidebar:top-0.5 group-data-[state=collapsed]/sidebar:end-0.5 group-data-[state=collapsed]/sidebar:size-2 group-data-[state=collapsed]/sidebar:min-w-0 group-data-[state=collapsed]/sidebar:translate-y-0 group-data-[state=collapsed]/sidebar:overflow-hidden group-data-[state=collapsed]/sidebar:rounded-full group-data-[state=collapsed]/sidebar:bg-sidebar-primary group-data-[state=collapsed]/sidebar:p-0 group-data-[state=collapsed]/sidebar:text-transparent",
         className,
@@ -718,14 +717,11 @@ export function SidebarMenuSkeleton({
   return (
     <div
       data-slot="sidebar-menu-skeleton"
-      className={cn(
-        "flex h-(--size-md) items-center gap-2 rounded-md px-2",
-        className,
-      )}
+      className={cn("flex h-8 items-center gap-2 rounded-md px-2", className)}
       {...props}
     >
       {showIcon ? (
-        <Skeleton shape="circle" className="size-(--icon-default) shrink-0" />
+        <Skeleton shape="circle" className="size-4 shrink-0" />
       ) : null}
       <Skeleton shape="line" className={cn("h-4 flex-1", widthClass)} />
     </div>
@@ -775,7 +771,7 @@ export interface SidebarTriggerProps extends Omit<
  * Sheet) between open and closed. Renders a `PanelLeft` icon with an accessible label; place
  * it in the page header or the sidebar header.
  *
- * The visible box is `size-(--size-sm)` (28px) — below the WCAG 2.5.8 24×24 CSS px minimum
+ * The visible box is `size-7` (28px) — below the WCAG 2.5.8 24×24 CSS px minimum
  * target on its own once you count typical adjacent spacing, and well short of the ~44px
  * comfortable mobile target where this button doubles as the Sheet's open control. Like
  * `checkbox.tsx`'s size variants, it adds an invisible `::before` hit-area expansion
@@ -852,7 +848,7 @@ export function SidebarRail({ className, ...props }: SidebarRailProps) {
         // The ring turns INWARD. The rail is a 16px strip straddling the sidebar's outer edge, so
         // an outward-offset outline is half-eaten by the sidebar's own clipping box (SP-03) —
         // exactly the Terminal pattern every focusable scroll region here now uses.
-        "absolute inset-y-0 z-(--z-raised) hidden w-4 -translate-x-1/2 cursor-col-resize items-center justify-center focus-visible:-outline-offset-2 md:flex",
+        "absolute inset-y-0 z-10 hidden w-4 -translate-x-1/2 cursor-col-resize items-center justify-center focus-visible:-outline-offset-2 md:flex",
         "group-data-[side=left]/sidebar:-right-2 group-data-[side=right]/sidebar:-left-2",
         "before:absolute before:inset-y-0 before:left-1/2 before:w-px before:-translate-x-1/2 before:bg-transparent  hover:before:bg-border",
         className,
@@ -908,7 +904,7 @@ export function SidebarInset({
       data-slot="sidebar-inset"
       className={cn(
         "relative flex min-h-svh w-full flex-1 flex-col bg-background",
-        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ms-0 md:peer-data-[variant=inset]:rounded-lg md:peer-data-[variant=inset]:border md:peer-data-[variant=inset]:border-border md:peer-data-[variant=inset]:shadow-overlay",
+        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ms-0 md:peer-data-[variant=inset]:rounded-lg md:peer-data-[variant=inset]:border md:peer-data-[variant=inset]:border-border md:peer-data-[variant=inset]:shadow-lg",
         className,
       )}
       {...props}

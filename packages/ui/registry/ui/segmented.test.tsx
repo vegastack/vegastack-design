@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
-import { selectedChipVariants } from "@vegastack/design";
+
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Segmented, SegmentedItem } from "./segmented";
 
@@ -97,7 +97,9 @@ test("size flows from the track to items via context and is exposed as data-size
   const track = screen.getByRole("group", { name: "Billing cycle" });
   await expect.element(track).toHaveAttribute("data-size", "lg");
   expect(track.element().className).toContain("rounded-md");
-  expect(track.element().className).toContain("after:border-border");
+  // The track's drawn `after:` hairline went with the surface ladder (COL-9 = shadcn): upstream's
+  // track is a plain `bg-muted` well with no boundary of its own.
+  expect(track.element().className).toContain("bg-muted");
   expect(item.element().className).toContain("rounded-sm");
 });
 
@@ -106,22 +108,14 @@ test("the SELECTED chip keeps a hover and a pressed step (B6-02, active-same-as-
   const selected = screen.getByRole("button", { name: "Monthly" });
   await expect.element(selected).toHaveAttribute("aria-pressed", "true");
   const className = selected.element().className;
-  // The chip used to be excluded from both states by `not-data-pressed:`, so the one segment a
-  // user is most likely to press answered nothing at all. Hover strengthens the ink tint;
-  // pressing drops back to the resting tint to preview the release.
-  expect(className).toContain(
-    "data-pressed:hover:bg-foreground/(--alpha-ink-tint-strong)",
-  );
-  expect(className).toContain(
-    "data-pressed:active:bg-foreground/(--alpha-ink-tint)",
-  );
-  // …and the unselected chips keep their own two rungs, guarded so the two sets never collide.
-  expect(className).toContain(
-    "not-data-pressed:hover:bg-foreground/(--alpha-hover)",
-  );
-  expect(className).toContain(
-    "not-data-pressed:active:bg-foreground/(--alpha-pressed)",
-  );
+  // COL-9 and INT-6 are decided as **shadcn**, so the alpha ink-tint ladder the selected chip
+  // climbed is gone and the selected chip is upstream's raised pill: its own surface, its own
+  // hairline, and a shadow. The claim that survives is that SELECTED is visibly a different
+  // surface from unselected, which is what the recipe has to deliver.
+  expect(className).toContain("data-pressed:bg-background");
+  expect(className).toContain("data-pressed:border-input");
+  expect(className).toContain("data-pressed:shadow-sm");
+  expect(className).toContain("hover:text-foreground");
 });
 
 test("Segmented, Tabs and Toggle share ONE selected-chip recipe (B6-02)", async () => {
@@ -131,11 +125,13 @@ test("Segmented, Tabs and Toggle share ONE selected-chip recipe (B6-02)", async 
   const chip = chipLocator.element();
   // The recipe is a single exported literal; asserting the chip actually carries it is what stops
   // a fifth "selected look" being hand-written into any one of the four consumers again.
-  for (const rule of selectedChipVariants.pressed.split(" ")) {
+  for (const rule of "data-pressed:border-input data-pressed:bg-background data-pressed:text-foreground data-pressed:shadow-sm dark:data-pressed:bg-input/30".split(
+    " ",
+  )) {
     expect(chip.className).toContain(rule);
   }
   const track = screen.getByRole("group", { name: "Billing cycle" }).element();
-  expect(track.className).toContain(selectedChipVariants.track);
+  expect(track.className).toContain("bg-muted");
 });
 
 test("forwards refs to track and item roots", async () => {

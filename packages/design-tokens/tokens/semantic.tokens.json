@@ -1,5 +1,6 @@
 {
   "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "LIGHT semantic contract. The neutral core is shadcn base-nova's `neutral` base; the additions are the four status families (COL-12), the 8-hue chart palette plus `chart-single` (COL-19 + MK 2026-09-18), the 10-hue tag palette, the brand pair and the media-chrome trio. Everything the pre-reset system layered on top — the surface ladder, the alpha and opacity ladders, the size/icon/z/panel families and the whole type scale — is gone; upstream expresses those with plain Tailwind utilities.",
   "background": {
     "$type": "color",
     "$value": "{color.white}"
@@ -10,8 +11,7 @@
   },
   "card": {
     "$type": "color",
-    "$value": "{background}",
-    "$description": "Light cards are PAGE-COLOURED and separated by the alpha hairline alone (surface-ladder decision 2026-09-07, P1): no reference system lifts or sinks a light card. Dark keeps the one-step lift (neutral.900)."
+    "$value": "{color.white}"
   },
   "card-foreground": {
     "$type": "color",
@@ -19,174 +19,141 @@
   },
   "popover": {
     "$type": "color",
-    "$value": "{card}",
-    "$description": "Every floating surface is the card surface + shadow-overlay; never a lighter or darker rung of its own."
+    "$value": "{color.white}"
   },
   "popover-foreground": {
     "$type": "color",
     "$value": "{color.neutral.950}"
   },
-  "surface-1": {
-    "$type": "color",
-    "$value": "{color.neutral.100}",
-    "$description": "Surface ladder rung 1 — the REST fill of a filled control (secondary/soft button, kbd, chip, segmented rail, tab-list pill) and the sunken well (code block, skeleton, disabled field, slider/progress track). `secondary` and `muted` are aliases of this rung."
-  },
-  "surface-2": {
-    "$type": "color",
-    "$value": "{color.neutral.150}",
-    "$description": "Surface ladder rung 2 — the HOVER step: a transparent row/item/ghost control hovers to it, a rung-1 control hovers to it. `accent` and `sidebar-accent` are aliases. Alpha twin: bg-foreground/(--alpha-hover)."
-  },
-  "surface-3": {
-    "$type": "color",
-    "$value": "{color.neutral.200}",
-    "$description": "Surface ladder rung 3 — the PRESSED / SELECTED step (active:, data-selected, the active sidebar row, the switch off-track). Alpha twin: bg-foreground/(--alpha-pressed)."
-  },
   "primary": {
     "$type": "color",
-    "$value": "{color.neutral.700}"
+    "$value": "{color.neutral.900}"
   },
   "primary-foreground": {
     "$type": "color",
     "$value": "{color.neutral.50}"
   },
-  "primary-hover": {
-    "$type": "color",
-    "$value": "{color.neutral.800}"
-  },
-  "primary-active": {
-    "$type": "color",
-    "$value": "{color.neutral.850}"
-  },
   "secondary": {
     "$type": "color",
-    "$value": "{surface-1}",
-    "$description": "ALIAS of surface-1 (kept so shadcn-shaped code keeps compiling). Never retune independently."
+    "$value": "{color.neutral.100}"
   },
   "secondary-foreground": {
     "$type": "color",
-    "$value": "{foreground}",
-    "$description": "ALIAS of foreground — one ink on every neutral rung."
+    "$value": "{color.neutral.900}"
   },
   "muted": {
     "$type": "color",
-    "$value": "{surface-1}",
-    "$description": "ALIAS of surface-1 (shadcn name). muted-foreground stays a real text role."
+    "$value": "{color.neutral.100}"
   },
   "muted-foreground": {
-    "$type": "color",
-    "$value": "{color.neutral.600}"
-  },
-  "muted-foreground-faint": {
     "$type": "color",
     "$value": "{color.neutral.500}"
   },
   "accent": {
     "$type": "color",
-    "$value": "{surface-2}",
-    "$description": "ALIAS of surface-2, the hover/highlight rung (shadcn's `accent` — a NEUTRAL, never a hue). Menu/select/command `data-highlighted` rides on it."
+    "$value": "{color.neutral.100}"
   },
   "accent-foreground": {
     "$type": "color",
-    "$value": "{foreground}",
-    "$description": "ALIAS of foreground."
+    "$value": "{color.neutral.900}"
+  },
+  "border": {
+    "$type": "color",
+    "$value": "{color.neutral.200}"
+  },
+  "input": {
+    "$type": "color",
+    "$value": "{color.neutral.200}"
+  },
+  "ring": {
+    "$type": "color",
+    "$value": "{color.neutral.900}",
+    "$description": "FOC-2 (ours): the focus ring is the near-black/near-white INK, not shadcn's mid-grey (0.708 light / 0.556 dark). FOC-1 paints it as one global 2px `:focus-visible` outline, so it is the whole focus affordance and has to carry real contrast."
   },
   "destructive": {
     "$type": "color",
-    "$value": "{color.red.700}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.577, 0.245, 27.325],
+      "alpha": 1
+    },
+    "$description": "shadcn base-nova's value, verbatim."
   },
   "destructive-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.50}"
-  },
-  "destructive-subtle": {
-    "$type": "color",
-    "$value": "{color.red.100}"
+    "$value": "{color.white}"
   },
   "destructive-text": {
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.496, 0.2, 25],
+      "components": [0.446, 0.182, 27.325],
       "alpha": 1
     },
-    "$description": "Page-readable red ink (was red.650, L 0.521). Re-tuned -0.025 L on 2026-09-07 so the soft PRESSED rung (`destructive-subtle-active`, fill @12% over subtle) still clears 4.5:1 — at the old ink the soft family sat at the AA edge on hover (4.60:1) and had no room for a pressed step. Every other pair only gains contrast."
-  },
-  "destructive-border": {
-    "$type": "color",
-    "$value": "{color.red.700}",
-    "$description": "Invalid-state border ink, composited at --alpha-tint-border. A DEDICATED role because the fill hue cannot serve both: on the dark ground, destructive at 70% measures 1.92:1, far under the 3:1 WCAG 1.4.11 floor for a non-text UI indicator, and lightening `destructive` itself would drop destructive-foreground on the solid button below 4.5:1. Light keeps the fill hue (4.24:1); dark re-grounds to red.400 (4.00:1)."
+    "$description": "COL-12 (ours), the page-readable half of the family. A status FILL is tuned to carry its own `-foreground` on top of it; used AS TEXT on the page or on the family's own 10-20% tint it lands between 3.98 and 4.35:1, which is a live WCAG 1.4.3 failure (measured by the rendered axe lane, 2026-09-18, on Alert, Badge, Toast and the soft Button). This is the ink those surfaces read through, AA-gated by contrast-check on background, card, popover and on the /10, /20 and /30 composites over each. Upstream has no tinted status surface at all, so this token is an addition to shadcn rather than a deviation from it."
   },
   "success": {
     "$type": "color",
-    "$value": "{color.green.750}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.53, 0.15, 150],
+      "alpha": 1
+    },
+    "$description": "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
   },
   "success-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.50}"
-  },
-  "success-subtle": {
-    "$type": "color",
-    "$value": "{color.green.100}"
+    "$value": "{color.white}"
   },
   "success-text": {
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.48, 0.13, 150],
+      "components": [0.44, 0.121, 150],
       "alpha": 1
-    },
-    "$description": "Page-readable green ink (was green.650, L 0.5); -0.02 L for the soft pressed rung — see destructive-text."
+    }
   },
   "warning": {
     "$type": "color",
-    "$value": "{color.amber.750}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.55, 0.12, 70],
+      "alpha": 1
+    },
+    "$description": "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
   },
   "warning-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.50}"
-  },
-  "warning-subtle": {
-    "$type": "color",
-    "$value": "{color.amber.100}"
+    "$value": "{color.white}"
   },
   "warning-text": {
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.505, 0.139, 42],
+      "components": [0.462, 0.1, 70],
       "alpha": 1
-    },
-    "$description": "Page-readable amber ink (was amber.650, L 0.52); -0.015 L for the soft pressed rung — see destructive-text."
+    }
   },
   "info": {
     "$type": "color",
-    "$value": "{color.blue.700}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.55, 0.19, 256],
+      "alpha": 1
+    },
+    "$description": "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
   },
   "info-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.50}"
-  },
-  "info-subtle": {
-    "$type": "color",
-    "$value": "{color.blue.100}"
+    "$value": "{color.white}"
   },
   "info-text": {
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.5, 0.171, 256],
+      "components": [0.456, 0.156, 256],
       "alpha": 1
-    },
-    "$description": "Link / informational blue ink (was blue.650, L 0.52); -0.02 L for the soft pressed rung — see destructive-text."
-  },
-  "overlay": {
-    "$type": "color",
-    "$value": {
-      "colorSpace": "oklch",
-      "components": [0.13, 0.002, 75],
-      "alpha": 0.28
-    },
-    "$description": "Modal scrim \u2014 an alpha-composite literal (a translucent wash has no primitive step; alpha is intrinsic to the role). Theme-split: the dark scrim is deeper."
+    }
   },
   "media-scrim": {
     "$type": "color",
@@ -204,54 +171,84 @@
       "components": [0.13, 0.002, 75],
       "alpha": 0.8
     },
-    "$description": "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) \u2014 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
+    "$description": "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
   },
   "media-foreground": {
     "$type": "color",
     "$value": "{color.neutral.50}",
     "$description": "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
   },
-  "input": {
-    "$type": "color",
-    "$value": "{border}",
-    "$description": "ALIAS of border (the alpha hairline). `border` itself is DERIVED by the SD preprocessor: foreground at --alpha-border (D14) so one hairline survives on page, card, well and dark band alike."
-  },
-  "ring": {
-    "$type": "color",
-    "$value": "{primary}"
-  },
   "chart-1": {
     "$type": "color",
-    "$value": "{color.blue.600}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.546, 0.245, 262.88],
+      "alpha": 1
+    },
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-2": {
     "$type": "color",
-    "$value": "{color.teal.600}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.581, 0.118, 184.7],
+      "alpha": 1
+    },
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-3": {
     "$type": "color",
-    "$value": "{color.cyan.900}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.398, 0.07, 227.39],
+      "alpha": 1
+    },
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-4": {
     "$type": "color",
-    "$value": "{color.orange.600}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.623, 0.222, 41.12],
+      "alpha": 1
+    },
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-5": {
     "$type": "color",
-    "$value": "{color.rose.500}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.632, 0.246, 16.44],
+      "alpha": 1
+    },
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-6": {
     "$type": "color",
-    "$value": "{color.red.700}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.505, 0.213, 27.52],
+      "alpha": 1
+    },
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-7": {
     "$type": "color",
-    "$value": "{color.olive.500}",
-    "$description": "Olive (hue 104) \u2014 reassigned from green.600, which collided with the brand phosphor hue (CX-9)."
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.598, 0.127, 104.2],
+      "alpha": 1
+    },
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-8": {
     "$type": "color",
-    "$value": "{color.blue.700}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.531, 0.182, 256],
+      "alpha": 1
+    },
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-single": {
     "$type": "color",
@@ -265,7 +262,7 @@
       "components": [0.6, 0.17, 148],
       "alpha": 1
     },
-    "$description": "The phosphor-green brand accent, LIGHT half (theme-split per CX-9): MARKER roles (live/AI-state dot, sparkline endpoint, eyebrow highlight, terminal prompt glyph) plus the `cta` Button's faint wash and its accent outline \u2014 the one sanctioned button, D17/D18. 3.5:1 on card/background \u2014 meaningful glyphs pass WCAG 1.4.11, and it is NOT a text ink: brand LABELS take `brand-text`. Never a headline colour, a full-strength surface, or a decorative wash beyond one radial."
+    "$description": "The phosphor-green brand accent, LIGHT half (theme-split per CX-9): MARKER roles (live/AI-state dot, sparkline endpoint, eyebrow highlight, terminal prompt glyph) plus the `cta` Button's faint wash and its accent outline — the one sanctioned button, D17/D18. 3.5:1 on card/background — meaningful glyphs pass WCAG 1.4.11, and it is NOT a text ink: brand LABELS take `brand-text`. Never a headline colour, a full-strength surface, or a decorative wash beyond one radial."
   },
   "brand-text": {
     "$type": "color",
@@ -274,7 +271,7 @@
       "components": [0.46, 0.17, 148],
       "alpha": 1
     },
-    "$description": "The PAGE-READABLE brand ink, LIGHT half \u2014 the same role every chromatic family ships as `<family>-text`. `brand` itself is a 3.5:1 marker and fails WCAG 1.4.3 as a label (measured 3.41:1 for the `cta` Button's mono label over its own faint wash, 2026-09-09), so any brand-coloured TEXT reads through this token instead. Gated at 4.5:1 by contrast-check over background/card/popover/surface-1\u20133 and over the brand wash at alpha-surface-faint/hover/pressed."
+    "$description": "The PAGE-READABLE brand ink, LIGHT half — the same role every chromatic family ships as `<family>-text`. `brand` itself is a 3.5:1 marker and fails WCAG 1.4.3 as a label (measured 3.41:1 for the `cta` Button's mono label over its own faint wash, 2026-09-09), so any brand-coloured TEXT reads through this token instead. Gated at 4.5:1 by contrast-check over background/card/popover/surface-1–3 and over the brand wash at alpha-surface-faint/hover/pressed."
   },
   "tag-blue": {
     "$type": "color",
@@ -519,649 +516,43 @@
   },
   "sidebar": {
     "$type": "color",
-    "$value": "{card}",
-    "$description": "The sidebar-* family is ALIASES ONLY (B6-01): the rail is a card surface on the ladder, not a second palette. Names kept for shadcn-shaped code."
+    "$value": "{color.neutral.50}"
   },
   "sidebar-foreground": {
     "$type": "color",
-    "$value": "{foreground}"
+    "$value": "{color.neutral.950}"
   },
   "sidebar-primary": {
     "$type": "color",
-    "$value": "{primary}"
+    "$value": "{color.neutral.900}"
   },
   "sidebar-primary-foreground": {
     "$type": "color",
-    "$value": "{primary-foreground}"
+    "$value": "{color.neutral.50}"
   },
   "sidebar-accent": {
     "$type": "color",
-    "$value": "{surface-2}",
-    "$description": "ALIAS of surface-2 — the rail's hover rung; the active row sits one rung higher on surface-3 so active+hover still moves (SP-06)."
+    "$value": "{color.neutral.100}"
   },
   "sidebar-accent-foreground": {
     "$type": "color",
-    "$value": "{foreground}"
+    "$value": "{color.neutral.900}"
   },
   "sidebar-border": {
     "$type": "color",
-    "$value": "{border}"
+    "$value": "{color.neutral.200}"
   },
   "sidebar-ring": {
     "$type": "color",
-    "$value": "{ring}"
+    "$value": "{color.neutral.900}"
   },
   "radius": {
     "$type": "dimension",
     "$value": {
-      "value": 0.75,
-      "unit": "rem"
-    }
-  },
-  "radius-xs": {
-    "$type": "dimension",
-    "$value": {
-      "value": 0.125,
+      "value": 0.625,
       "unit": "rem"
     },
-    "$description": "Micro radius \u2014 caret/arrow triangles and other sub-control geometry (was a silent Tailwind fallback, register P1-10)."
-  },
-  "radius-sharp": {
-    "$type": "dimension",
-    "$value": {
-      "value": 2,
-      "unit": "px"
-    },
-    "$description": "The rationed marketing 'sharp' gesture (audit 17/D18): CTAs, chips, figure frames on marketing surfaces. 2px, not 0 \u2014 sharp at a glance, kin to the product scale."
-  },
-  "radius-sm": {
-    "$type": "dimension",
-    "$value": {
-      "value": 0.375,
-      "unit": "rem"
-    }
-  },
-  "radius-md": {
-    "$type": "dimension",
-    "$value": {
-      "value": 0.5,
-      "unit": "rem"
-    }
-  },
-  "radius-lg": {
-    "$type": "dimension",
-    "$value": {
-      "value": 0.75,
-      "unit": "rem"
-    }
-  },
-  "size-xs": {
-    "$type": "dimension",
-    "$value": {
-      "value": 1.5,
-      "unit": "rem"
-    },
-    "$description": "24px \u2014 the compact control tier (Button xs, icon-only affordances like the password eye)."
-  },
-  "size-sm": {
-    "$type": "dimension",
-    "$value": {
-      "value": 1.75,
-      "unit": "rem"
-    }
-  },
-  "size-md": {
-    "$type": "dimension",
-    "$value": {
-      "value": 2,
-      "unit": "rem"
-    }
-  },
-  "size-lg": {
-    "$type": "dimension",
-    "$value": {
-      "value": 2.5,
-      "unit": "rem"
-    }
-  },
-  "icon-compact": {
-    "$type": "dimension",
-    "$value": {
-      "value": 0.75,
-      "unit": "rem"
-    },
-    "$description": "12px icon \u2014 inside xs controls only (below design.md's named scale; exists for the kept Button xs tier)."
-  },
-  "icon-inline": {
-    "$type": "dimension",
-    "$value": {
-      "value": 0.875,
-      "unit": "rem"
-    },
-    "$description": "14px icon \u2014 inline with body text and sm controls (design.md \u00a7Iconography 'inline')."
-  },
-  "icon-default": {
-    "$type": "dimension",
-    "$value": {
-      "value": 1,
-      "unit": "rem"
-    },
-    "$description": "16px icon \u2014 the default control icon (design.md 'default')."
-  },
-  "icon-action": {
-    "$type": "dimension",
-    "$value": {
-      "value": 1.25,
-      "unit": "rem"
-    },
-    "$description": "20px icon \u2014 standalone action icons (design.md 'action')."
-  },
-  "icon-feature": {
-    "$type": "dimension",
-    "$value": {
-      "value": 1.5,
-      "unit": "rem"
-    },
-    "$description": "24px icon \u2014 feature/empty-state glyphs (design.md 'feature')."
-  },
-  "sidebar-width": {
-    "$type": "dimension",
-    "$value": {
-      "value": 15,
-      "unit": "rem"
-    },
-    "$description": "Expanded sidebar rail width (was a JS constant invisible to design-lint, register P2-13)."
-  },
-  "sidebar-width-icon": {
-    "$type": "dimension",
-    "$value": {
-      "value": 3,
-      "unit": "rem"
-    },
-    "$description": "Collapsed icon-only rail width."
-  },
-  "sidebar-width-mobile": {
-    "$type": "dimension",
-    "$value": {
-      "value": 18,
-      "unit": "rem"
-    },
-    "$description": "Width of the sidebar when it renders as an off-canvas sheet below the md breakpoint (was an inline `18rem` fallback, B6-08)."
-  },
-  "layout-header-height": {
-    "$type": "dimension",
-    "$value": {
-      "value": 3.5,
-      "unit": "rem"
-    },
-    "$description": "56px app-shell header band (was a raw `h-14`, B6-08). Sticky/fixed content below the header offsets by this."
-  },
-  "layout-overlay-max-height": {
-    "$type": "dimension",
-    "$value": "calc(100dvh - 16rem)",
-    "$description": "The tallest a scrolling overlay body (Command list, Board column, ShortcutOverlay) may grow: the dynamic viewport minus a 16rem chrome allowance. DTCG 2025.10 has no calc expression type, so this dimension is authored as the CSS string it resolves to and passed through verbatim (the same precedent as the `easing` linear() token)."
-  },
-  "panel-width-sm": {
-    "$type": "dimension",
-    "$value": {
-      "value": 14,
-      "unit": "rem"
-    },
-    "$description": "224px floating panel (compact popover, small menu, single-value date trigger)."
-  },
-  "panel-width-md": {
-    "$type": "dimension",
-    "$value": {
-      "value": 18,
-      "unit": "rem"
-    },
-    "$description": "288px floating panel — the default Popover, EmojiPicker, checklist card, range date trigger."
-  },
-  "panel-width-lg": {
-    "$type": "dimension",
-    "$value": {
-      "value": 20,
-      "unit": "rem"
-    },
-    "$description": "320px floating panel (rich HoverCard previews)."
-  },
-  "shadow-overlay": {
-    "$type": "shadow",
-    "$value": "0 4px 14px -4px oklch(0.13 0.002 75 / 0.10), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)"
-  },
-  "effect-blur-glass": {
-    "$type": "dimension",
-    "$value": {
-      "value": 8,
-      "unit": "px"
-    },
-    "$description": "Backdrop blur for chrome that floats over content (the Attachment upload veil). The Button `glass` variant it was introduced for was deleted 2026-09-07 (audit D16)."
-  },
-  "z-raised": {
-    "$type": "number",
-    "$value": 10,
-    "$description": "Local raise WITHIN a component's own stacking context (focused OTP slot / segmented item, floating label, bubble reactions, select scroll arrows). Never for portaled surfaces."
-  },
-  "z-overlay": {
-    "$type": "number",
-    "$value": 50,
-    "$description": "The portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order \u2014 Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts are the ONE surface above it, on their own `z-toast` band."
-  },
-  "z-toast": {
-    "$type": "number",
-    "$value": 60,
-    "$description": "The toast band, one step above `z-overlay`. A toast is the only surface that must outrank a modal REGARDLESS of mount order \u2014 the viewport mounts with the app provider, so DOM order would otherwise put every later-opened dialog on top of it. Within the band the stack counts DOWN from this value by `--toast-index`, so the frontmost toast is the highest. Nothing else may claim this band."
-  },
-  "opacity-dim": {
-    "$type": "dimension",
-    "$value": {
-      "value": 50,
-      "unit": "%"
-    },
-    "$description": "Element opacity for disabled controls and dimmed affordances (outside-month days, decorative chevrons)."
-  },
-  "opacity-hint-soft": {
-    "$type": "dimension",
-    "$value": {
-      "value": 60,
-      "unit": "%"
-    },
-    "$description": "Element opacity for hover-revealed hints (e.g. sort affordance on row hover)."
-  },
-  "opacity-hint": {
-    "$type": "dimension",
-    "$value": {
-      "value": 70,
-      "unit": "%"
-    },
-    "$description": "Element opacity for resting secondary controls that reach 100% on hover (e.g. alert close)."
-  },
-  "opacity-track": {
-    "$type": "dimension",
-    "$value": {
-      "value": 25,
-      "unit": "%"
-    },
-    "$description": "Element opacity of the circular progress track ring."
-  },
-  "alpha-hover": {
-    "$type": "dimension",
-    "$value": {
-      "value": 7,
-      "unit": "%"
-    },
-    "$description": "The alpha twin of surface-2: `bg-<ink>/(--alpha-hover)` composites the hover rung onto ANY backdrop (a kbd inside a hovered row, a chip on a well, a control over media). foreground at 7% over the page measures L 0.943 light / 0.267 dark over card \u2014 within 0.003 of the opaque rung. Theme-invariant."
-  },
-  "alpha-pressed": {
-    "$type": "dimension",
-    "$value": {
-      "value": 10,
-      "unit": "%"
-    },
-    "$description": "The alpha twin of surface-3 (pressed/selected): foreground at 10% measures L 0.921 light / 0.292 dark over card. Theme-invariant."
-  },
-  "alpha-border": {
-    "$type": "dimension",
-    "$value": {
-      "value": 8,
-      "unit": "%"
-    },
-    "$description": "The hairline alpha (D14): `border` is DERIVED as foreground at this alpha, so one hairline reads on page, card, well and dark band. 8% light (L 0.936, Geist gray-400 territory) / 14% dark (L 0.325 over card)."
-  },
-  "alpha-tint-border": {
-    "$type": "dimension",
-    "$value": {
-      "value": 70,
-      "unit": "%"
-    },
-    "$description": "Border tint for focus (ring) and error (destructive) borders \u2014 design.md's ring/70 pattern."
-  },
-  "alpha-outline-border": {
-    "$type": "dimension",
-    "$value": {
-      "value": 50,
-      "unit": "%"
-    },
-    "$description": "Resting border of the outline button family (border-<family>)."
-  },
-  "alpha-border-subtle": {
-    "$type": "dimension",
-    "$value": {
-      "value": 20,
-      "unit": "%"
-    },
-    "$description": "Alert variant border tint (border-<family>)."
-  },
-  "alpha-border-soft": {
-    "$type": "dimension",
-    "$value": {
-      "value": 30,
-      "unit": "%"
-    },
-    "$description": "The softer of the two border-tint steps. Introduced for the sonner toast surface; since the Base UI Toast migration (O2) the toast tint uses `alpha-border-subtle` like Alert, so this step currently has NO in-repo caller. Kept because it is published token surface — retiring it is a token-batch decision, not a component one."
-  },
-  "alpha-surface-faint": {
-    "$type": "dimension",
-    "$value": {
-      "value": 5,
-      "unit": "%"
-    },
-    "$description": "Resting wash of the outline button family (bg-<family>)."
-  },
-  "alpha-ink-tint": {
-    "$type": "dimension",
-    "$value": {
-      "value": 10,
-      "unit": "%"
-    },
-    "$description": "Neutral pressed/hover ink tint (bg-foreground) \u2014 toggle pressed, chip remove hover."
-  },
-  "alpha-ink-tint-strong": {
-    "$type": "dimension",
-    "$value": {
-      "value": 15,
-      "unit": "%"
-    },
-    "$description": "Hovered pressed-state ink tint (bg-foreground)."
-  },
-  "alpha-input": {
-    "$type": "dimension",
-    "$value": {
-      "value": 30,
-      "unit": "%"
-    },
-    "$description": "Dark-theme input fill tint (bg-input) \u2014 see the dark-tint scoping note."
-  },
-  "alpha-wash-faint": {
-    "$type": "dimension",
-    "$value": {
-      "value": 40,
-      "unit": "%"
-    },
-    "$description": "Faint neutral wash (bg-muted) \u2014 rich-text toolbar."
-  },
-  "alpha-wash": {
-    "$type": "dimension",
-    "$value": {
-      "value": 50,
-      "unit": "%"
-    },
-    "$description": "Neutral wash (bg-muted) \u2014 card/table footers, ghost dark hover."
-  },
-  "alpha-wash-strong": {
-    "$type": "dimension",
-    "$value": {
-      "value": 60,
-      "unit": "%"
-    },
-    "$description": "Stronger neutral wash (bg-muted) \u2014 line-tab hover."
-  },
-  "alpha-backdrop-soft": {
-    "$type": "dimension",
-    "$value": {
-      "value": 60,
-      "unit": "%"
-    },
-    "$description": "Translucent surface backdrop (bg-background) \u2014 pill tab list."
-  },
-  "alpha-glass": {
-    "$type": "dimension",
-    "$value": {
-      "value": 90,
-      "unit": "%"
-    },
-    "$description": "Glass button surface (bg-background + backdrop-blur)."
-  },
-  "alpha-glass-hover": {
-    "$type": "dimension",
-    "$value": {
-      "value": 95,
-      "unit": "%"
-    },
-    "$description": "Glass button surface on hover."
-  },
-  "alpha-link-hover": {
-    "$type": "dimension",
-    "$value": {
-      "value": 88,
-      "unit": "%"
-    },
-    "$description": "Hovered link text dim, applied to a `<family>-text` ink in rendered rich text and on the `link` Button. 88%, not 80%: at 80% the light composites measured 4.03\u20134.11:1 for success/info/warning (2026-09-09) \u2014 a hover state that drops the link below WCAG 1.4.3 AA. contrast-check gates the composite, not just the solid ink."
-  },
-  "alpha-outline-soft": {
-    "$type": "dimension",
-    "$value": {
-      "value": 50,
-      "unit": "%"
-    },
-    "$description": "Soft neutral outline/ring (base outline default, date-picker today ring)."
-  },
-  "type-product-xs": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.6875rem",
-      "lineHeight": "calc(16 / 11)"
-    }
-  },
-  "type-product-sm": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.75rem",
-      "lineHeight": "calc(16 / 12)"
-    }
-  },
-  "type-product-base": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.875rem",
-      "lineHeight": "calc(21 / 14)"
-    }
-  },
-  "type-product-lg": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1rem",
-      "lineHeight": "calc(24 / 16)"
-    }
-  },
-  "type-product-xl": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.125rem",
-      "lineHeight": "calc(26 / 18)"
-    }
-  },
-  "type-product-2xl": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.25rem",
-      "lineHeight": "calc(28 / 20)"
-    }
-  },
-  "type-product-3xl": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.5rem",
-      "lineHeight": "calc(32 / 24)"
-    }
-  },
-  "type-doc-xs": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.75rem",
-      "lineHeight": "calc(1 / 0.75)"
-    }
-  },
-  "type-doc-sm": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.875rem",
-      "lineHeight": "calc(1.25 / 0.875)"
-    }
-  },
-  "type-doc-base": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1rem",
-      "lineHeight": "calc(1.5 / 1)"
-    }
-  },
-  "type-doc-lg": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.125rem",
-      "lineHeight": "calc(1.75 / 1.125)"
-    }
-  },
-  "type-doc-xl": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.25rem",
-      "lineHeight": "calc(1.75 / 1.25)"
-    }
-  },
-  "type-doc-2xl": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.5rem",
-      "lineHeight": "calc(2 / 1.5)"
-    }
-  },
-  "type-doc-3xl": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.875rem",
-      "lineHeight": "calc(2.25 / 1.875)"
-    }
-  },
-  "text-display-sm": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "2rem",
-      "lineHeight": "2.25rem",
-      "fontWeight": "400",
-      "letterSpacing": "-0.04em"
-    }
-  },
-  "text-display-md": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "2.5rem",
-      "lineHeight": "2.75rem",
-      "fontWeight": "400",
-      "letterSpacing": "-0.045em"
-    }
-  },
-  "text-display-lg": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "3.5rem",
-      "lineHeight": "3.75rem",
-      "fontWeight": "400",
-      "letterSpacing": "-0.05em"
-    }
-  },
-  "text-display-xl": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "4.5rem",
-      "lineHeight": "4.75rem",
-      "fontWeight": "400",
-      "letterSpacing": "-0.06em"
-    }
-  },
-  "text-h1": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.5rem",
-      "lineHeight": "2rem",
-      "fontWeight": "400",
-      "letterSpacing": "-0.02em"
-    }
-  },
-  "text-h2": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.25rem",
-      "lineHeight": "1.75rem",
-      "fontWeight": "400",
-      "letterSpacing": "-0.015em"
-    }
-  },
-  "text-h3": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1.125rem",
-      "lineHeight": "1.5rem",
-      "fontWeight": "400",
-      "letterSpacing": "-0.01em"
-    }
-  },
-  "text-h4": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "1rem",
-      "lineHeight": "1.375rem",
-      "fontWeight": "500",
-      "letterSpacing": "0em"
-    }
-  },
-  "text-label": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.875rem",
-      "lineHeight": "1.25rem",
-      "fontWeight": "500",
-      "letterSpacing": "-0.01em"
-    },
-    "$description": "Label voice tracking -1% (Wave 1, T3 final): chrome text only, never prose \u2014 matches the app-teardown 14/500 chrome standard."
-  },
-  "text-strong": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.875rem",
-      "lineHeight": "1.25rem",
-      "fontWeight": "600",
-      "letterSpacing": "-0.01em"
-    },
-    "$description": "Rare 600-weight emphasis role. Use text-strong only when 500 cannot carry the hierarchy; raw font-semibold/font-bold utilities remain forbidden."
-  },
-  "text-label-sm": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.75rem",
-      "lineHeight": "1rem",
-      "fontWeight": "500",
-      "letterSpacing": "-0.01em"
-    }
-  },
-  "text-code": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.8125rem",
-      "lineHeight": "1.25rem",
-      "fontWeight": "400",
-      "letterSpacing": "0em"
-    }
-  },
-  "text-code-sm": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.75rem",
-      "lineHeight": "1rem",
-      "fontWeight": "400",
-      "letterSpacing": "0em"
-    }
-  },
-  "text-mono-label": {
-    "$type": "typography",
-    "$value": {
-      "fontSize": "0.75rem",
-      "lineHeight": "1rem",
-      "fontWeight": "400",
-      "letterSpacing": "0.05em"
-    },
-    "$description": "The mono VOICE layer (audit 17/D20): uppercase Geist Mono eyebrows, section numbers, live-state labels, terminal annotations. 12px floor; uppercase is applied at the call site and is mono-exclusive (lint)."
+    "$description": "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are DERIVED from it in the @theme bridge exactly as upstream derives them (0.6/0.8/1/1.4/1.8/2.2/2.6x), so `rounded-xl` on a card is upstream's 14px. The pre-reset 12px cap and the `rounded-xl` ban are gone (BRD-6/BRD-7 = shadcn)."
   },
   "font-family-sans": {
     "$type": "fontFamily",
@@ -1179,12 +570,7 @@
   "font-family-display": {
     "$type": "fontFamily",
     "$value": ["Geist", "sans-serif"],
-    "$description": "Display tier face \u2014 same family as sans today, split as a token so marketing can retune independently."
-  },
-  "font-family-pixel": {
-    "$type": "fontFamily",
-    "$value": ["Geist Pixel Square", "monospace"],
-    "$description": "THE single sanctioned Geist Pixel flourish cut (D17: one deliberate hero use per surface, no more)."
+    "$description": "Display tier face — same family as sans today, split as a token so marketing can retune independently."
   },
   "duration-fast": {
     "$type": "duration",
@@ -1213,7 +599,7 @@
       "value": 1200,
       "unit": "ms"
     },
-    "$description": "1200ms \u2014 the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
+    "$description": "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
   },
   "motion-ease-standard": {
     "$type": "cubicBezier",
@@ -1230,14 +616,6 @@
   "motion-ease-spring": {
     "$type": "easing",
     "$value": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)",
-    "$description": "CSS linear() spring with a very small overshoot \u2014 the success-bounce/appear curve for state-feedback micro-interactions (Phase M). Subtle by design: dense dev-tool aesthetic, not playful."
-  },
-  "motion-blur": {
-    "$type": "dimension",
-    "$value": {
-      "value": 2,
-      "unit": "px"
-    },
-    "$description": "Motion-blur amount for blur-fade entrances (Phase M text/element reveals)."
+    "$description": "CSS linear() spring with a very small overshoot — the success-bounce/appear curve for state-feedback micro-interactions (Phase M). Subtle by design: dense dev-tool aesthetic, not playful."
   }
 }

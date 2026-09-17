@@ -1,4 +1,4 @@
-// @vegastack attachment@0.9.1 sha256-yM5XAugp+5AnvW8PMb4FbP6rziaErDPqtYeDcOErzLM=
+// @vegastack attachment@0.9.1 sha256-GvA1cJxcQmzLmpqt3+hFqKXUeV4jaj8S5OzinDNdDr8=
 
 "use client";
 
@@ -28,14 +28,14 @@ export type AttachmentState =
   "idle" | "uploading" | "error" | "complete" | "disabled";
 
 export const attachmentVariants = cva(
-  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 items-center gap-2 rounded-md border border-border bg-card text-sm text-card-foreground focus-within:border-ring/(--alpha-tint-border) data-[state=error]:border-destructive/(--alpha-outline-border) data-[state=disabled]:pointer-events-none data-[state=disabled]:opacity-(--opacity-dim)",
+  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 items-center gap-2 rounded-md border border-border bg-card text-xs text-card-foreground focus-within:border-ring/70 data-[state=error]:border-destructive/50 data-[state=disabled]:pointer-events-none data-[state=disabled]:opacity-50",
   {
     variants: {
       size: {
         /** Standalone chip density. */
         md: "p-2",
         /** Tighter density for a message-compose attachment row. */
-        sm: "gap-1.5 p-1.5 text-sm",
+        sm: "gap-1.5 p-1.5 text-xs",
       },
       orientation: {
         /** A file chip row: media, then a name/meta column, then actions. */
@@ -168,7 +168,7 @@ export function AttachmentGroup({
 }
 
 export const attachmentMediaVariants = cva(
-  "relative flex size-(--size-lg) shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted text-muted-foreground [&_svg:not([class*='size-'])]:size-(--icon-default) group-data-[size=sm]/attachment:size-(--size-md) group-data-[size=sm]/attachment:[&_svg:not([class*='size-'])]:size-(--icon-inline) group-data-[orientation=vertical]/attachment:aspect-square group-data-[orientation=vertical]/attachment:h-auto group-data-[orientation=vertical]/attachment:w-full group-data-[state=error]/attachment:bg-destructive-subtle group-data-[state=error]/attachment:text-destructive-text",
+  "relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted text-muted-foreground [&_svg:not([class*='size-'])]:size-4 group-data-[size=sm]/attachment:size-8 group-data-[size=sm]/attachment:[&_svg:not([class*='size-'])]:size-3.5 group-data-[orientation=vertical]/attachment:aspect-square group-data-[orientation=vertical]/attachment:h-auto group-data-[orientation=vertical]/attachment:w-full group-data-[state=error]/attachment:bg-destructive/10 group-data-[state=error]/attachment:text-destructive-text",
   {
     variants: {
       variant: {
@@ -230,9 +230,9 @@ export function AttachmentMedia({
       <span
         data-slot="attachment-media-overlay"
         aria-hidden="true"
-        className="absolute inset-0 hidden items-center justify-center bg-background/(--alpha-glass) text-foreground group-data-[state=uploading]/attachment:flex"
+        className="absolute inset-0 hidden items-center justify-center bg-background/90 text-foreground group-data-[state=uploading]/attachment:flex"
       >
-        <Spinner size="inherit" label="" className="size-(--icon-default)" />
+        <Spinner size="inherit" label="" className="size-4" />
       </span>
     </div>
   );
@@ -330,7 +330,7 @@ export function AttachmentDescription({
       ref={ref}
       data-slot="attachment-description"
       className={cn(
-        "mt-0.5 block max-w-full min-w-0 truncate text-sm text-muted-foreground group-data-[state=error]/attachment:text-destructive-text",
+        "mt-0.5 block max-w-full min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive-text",
         className,
       )}
       {...(live
@@ -390,7 +390,7 @@ export type AttachmentActionsProps = React.ComponentPropsWithRef<"div">;
  * needs, so `Attachment` does not re-wrap it with a bespoke action component. On
  * `orientation="vertical"` the row floats over the top-right corner of the media instead of
  * sitting inline. **Ordering:** if the card also has an `AttachmentTrigger`, place
- * `AttachmentActions` *after* it in JSX — both share the `z-(--z-raised)` stacking band, and DOM
+ * `AttachmentActions` *after* it in JSX — both share the `z-10` stacking band, and DOM
  * order (not extra z-index tiers) decides who wins the pointer, per the token system's two-band
  * contract.
 
@@ -408,7 +408,7 @@ export function AttachmentActions({
       ref={ref}
       data-slot="attachment-actions"
       className={cn(
-        "relative z-(--z-raised) flex shrink-0 items-center gap-1 group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-1.5 group-data-[orientation=vertical]/attachment:right-1.5",
+        "relative z-10 flex shrink-0 items-center gap-1 group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-1.5 group-data-[orientation=vertical]/attachment:right-1.5",
         className,
       )}
       {...props}
@@ -451,7 +451,7 @@ export function AttachmentTrigger({
     props: {
       "data-slot": "attachment-trigger",
       className: cn(
-        "absolute inset-0 z-(--z-raised) rounded-[inherit] focus-visible:-outline-offset-2",
+        "absolute inset-0 z-10 rounded-[inherit] focus-visible:-outline-offset-2",
         className,
       ),
       ...props,

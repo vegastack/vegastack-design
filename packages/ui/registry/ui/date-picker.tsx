@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.9.1 sha256-IE1D0uXfCPJOZxZa3Fe4lH7dzkBCU/S5THfog0yH15Y=
+// @vegastack date-picker@0.9.1 sha256-uVuu9fhSTlEJVWVOfQeiprZLXPUVT1rZ/J5q9dnbXjY=
 
 "use client";
 
@@ -18,7 +18,7 @@ import {
   ChevronDown,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import { cn, mergeRefs, surfaceInteractive } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Popover,
@@ -149,25 +149,25 @@ export function Calendar({
           defaultClassNames.month,
         ),
         button_previous: cn(
-          "col-start-1 row-start-1 inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
-          surfaceInteractive,
+          "col-start-1 row-start-1 inline-flex size-7 items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50",
+          "hover:bg-accent",
           defaultClassNames.button_previous,
         ),
         button_next: cn(
-          "col-start-3 row-start-1 inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
-          surfaceInteractive,
+          "col-start-3 row-start-1 inline-flex size-7 items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50",
+          "hover:bg-accent",
           defaultClassNames.button_next,
         ),
         month_caption: cn(
-          "col-start-2 row-start-1 flex h-(--size-sm) items-center justify-center",
+          "col-start-2 row-start-1 flex h-7 items-center justify-center",
           defaultClassNames.month_caption,
         ),
         caption_label: cn(
-          "text-base font-medium select-none",
+          "text-sm font-medium select-none",
           defaultClassNames.caption_label,
         ),
         dropdowns: cn(
-          "flex h-(--size-sm) w-full items-center justify-center gap-1.5 text-base font-medium",
+          "flex h-7 w-full items-center justify-center gap-1.5 text-sm font-medium",
           defaultClassNames.dropdowns,
         ),
         dropdown_root: cn(
@@ -177,7 +177,7 @@ export function Calendar({
           // (react-day-picker v10 renders Dropdown as root > [select, span[label, chevron]]),
           // so the child span gets the same inline-flex treatment via `[&>span]`.
           // `self-stretch` is the pointer-target floor, not a layout choice: the row is
-          // `h-(--size-sm)` (32px) but an `items-center` child collapses to its 21px line box,
+          // `h-7` (32px) but an `items-center` child collapses to its 21px line box,
           // and the real control is the `<select>` stretched over this root (`absolute inset-0`),
           // so the effective target was 21px tall — under the 24px WCAG 2.5.8 floor. Stretching
           // the root hands the select the row's full height. Nothing here paints, so the label
@@ -196,7 +196,7 @@ export function Calendar({
         ),
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
-          "flex-1 rounded-md text-label-sm text-muted-foreground select-none",
+          "flex-1 rounded-md text-xs font-medium text-muted-foreground select-none",
           defaultClassNames.weekday,
         ),
         week: cn("mt-2 flex w-full", defaultClassNames.week),
@@ -205,7 +205,7 @@ export function Calendar({
           defaultClassNames.week_number_header,
         ),
         week_number: cn(
-          "text-sm text-muted-foreground select-none",
+          "text-xs text-muted-foreground select-none",
           defaultClassNames.week_number,
         ),
         day: cn(
@@ -229,7 +229,7 @@ export function Calendar({
           defaultClassNames.outside,
         ),
         disabled: cn(
-          "text-muted-foreground opacity-(--opacity-dim)",
+          "text-muted-foreground opacity-50",
           defaultClassNames.disabled,
         ),
         hidden: cn("invisible", defaultClassNames.hidden),
@@ -253,7 +253,7 @@ export function Calendar({
           if (orientation === "left") {
             return (
               <ChevronLeft
-                className={cn("size-(--icon-default)", chevronClassName)}
+                className={cn("size-4", chevronClassName)}
                 {...chevronProps}
               />
             );
@@ -261,14 +261,14 @@ export function Calendar({
           if (orientation === "right") {
             return (
               <ChevronRight
-                className={cn("size-(--icon-default)", chevronClassName)}
+                className={cn("size-4", chevronClassName)}
                 {...chevronProps}
               />
             );
           }
           return (
             <ChevronDown
-              className={cn("size-(--icon-default)", chevronClassName)}
+              className={cn("size-4", chevronClassName)}
               {...chevronProps}
             />
           );
@@ -330,24 +330,25 @@ export function CalendarDayButton({
       data-range-middle={modifiers.range_middle ? "" : undefined}
       className={cn(
         buttonVariants({ variant: "ghost", size: "md" }),
-        "flex aspect-square size-auto w-full min-w-(--size-md) flex-col gap-1 rounded-md px-0 leading-none font-normal",
+        "flex aspect-square size-auto w-full min-w-8 flex-col gap-1 rounded-md px-0 leading-none font-normal",
         // Neutral hover/pressed for an unselected day.
         "hover:text-foreground",
-        surfaceInteractive,
-        // Today: a quiet neutral ring so it reads even when not selected.
-        "data-[today]:ring-2 data-[today]:ring-ring/(--alpha-outline-soft)",
+        "hover:bg-accent",
+        // Today: upstream's own treatment — a quiet neutral fill, not a ring. FOC-6 bans a
+        // box-shadow ring anywhere, and Tailwind compiles `ring-*` to one.
+        "data-[today]:bg-muted data-[today]:text-foreground",
         // Selected single + range ends: the F2 `solid` recipe (selection = primary ink). A solid
-        // owns its own darker hover/pressed steps — `bg-primary hover:bg-primary-hover
-        // active:bg-primary-active`, exactly what `buttonVariants({ variant: "solid" })` compiles
-        // to through `--btn-fill*`. It deliberately does NOT use `fillInteractive.primary`: that
+        // owns its own darker hover/pressed steps — `bg-primary hover:bg-primary/90
+        // active:bg-primary/80`, exactly what `buttonVariants({ variant: "solid" })` compiles
+        // to through `--btn-fill*`. It deliberately does NOT use the family's own hover wash: that
         // recipe composites an alpha wash, which over a solid only thins it (see the note on
-        // `fillInteractive` in `@vegastack/design`). Before this the selected day pinned
+        // the family's own hover wash in `@vegastack/design`). Before this the selected day pinned
         // `hover:bg-primary` and had no pressed rung at all (audit fix round, Codex/F1).
-        "data-[selected-single]:bg-primary data-[selected-single]:text-primary-foreground data-[selected-single]:ring-0 data-[selected-single]:hover:bg-primary-hover data-[selected-single]:active:bg-primary-active",
-        "data-[range-start]:rounded-s-md data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:ring-0 data-[range-start]:hover:bg-primary-hover data-[range-start]:active:bg-primary-active",
-        "data-[range-end]:rounded-e-md data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:ring-0 data-[range-end]:hover:bg-primary-hover data-[range-end]:active:bg-primary-active",
+        "data-[selected-single]:bg-primary data-[selected-single]:text-primary-foreground data-[selected-single]:ring-0 data-[selected-single]:hover:bg-primary/90 data-[selected-single]:active:bg-primary/80",
+        "data-[range-start]:rounded-s-md data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:ring-0 data-[range-start]:hover:bg-primary/90 data-[range-start]:active:bg-primary/80",
+        "data-[range-end]:rounded-e-md data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:ring-0 data-[range-end]:hover:bg-primary/90 data-[range-end]:active:bg-primary/80",
         // Range middle: the hover rung, square corners.
-        "data-[range-middle]:rounded-none data-[range-middle]:bg-surface-2 data-[range-middle]:text-foreground",
+        "data-[range-middle]:rounded-none data-[range-middle]:bg-accent data-[range-middle]:text-foreground",
         className,
       )}
       {...props}
@@ -592,7 +593,7 @@ export function DatePicker({
             )}
           >
             <CalendarIcon
-              className="size-(--icon-default) text-muted-foreground"
+              className="size-4 text-muted-foreground"
               aria-hidden
             />
             {value ? formatDate(value, formatOptions, locale) : placeholder}
@@ -799,7 +800,7 @@ export function DateRangePicker({
             )}
           >
             <CalendarIcon
-              className="size-(--icon-default) text-muted-foreground"
+              className="size-4 text-muted-foreground"
               aria-hidden
             />
             {label}

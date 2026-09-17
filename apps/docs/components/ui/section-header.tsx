@@ -1,13 +1,13 @@
-// @vegastack section-header@0.9.1 sha256-weez0+eS340U/+hHx1kW5CmFSdNm2j9ypVucHJmjcJI=
+// @vegastack section-header@0.9.1 sha256-UXvfSUCMwpjvy7JLkho4iSA03V7dhWEpMnARGf7U0Pg=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 
 const SECTION_HEADER_DISPLAY_SIZE = {
-  sm: "text-display-sm",
-  md: "text-display-md",
-  lg: "text-display-lg",
-  xl: "text-display-xl",
+  sm: "text-4xl",
+  md: "text-5xl",
+  lg: "text-6xl",
+  xl: "text-7xl",
 } as const;
 
 /** Props accepted by `SectionHeader`. */
@@ -18,7 +18,7 @@ export interface SectionHeaderProps extends Omit<
   /**
    * Small mono uppercase label above the title (e.g. `"01 / Platform"`,
    * `"Now shipping"`). Rendered in the mono voice (`font-mono` +
-   * `text-mono-label`, uppercase, `--alpha` tracking baked into the token) —
+   * `font-mono text-xs`, uppercase, `--alpha` tracking baked into the token) —
    * uppercase is mono-EXCLUSIVE, never apply it to the title/description.
    * A single `--brand` dot precedes it — the sanctioned "eyebrow highlight"
    * marker role (audit 17-brand-direction §Color & surface); the text itself
@@ -64,7 +64,7 @@ export interface SectionHeaderProps extends Omit<
  * `SectionHeader` — the marketing section header: an optional mono uppercase
  * eyebrow (with a single `--brand` marker dot), a display-scale title, and an
  * optional description. Every size maps to a tokenized `text-display-*` step;
- * the eyebrow is the mono voice layer (`font-mono` + `text-mono-label`,
+ * the eyebrow is the mono voice layer (`font-mono` + `font-mono text-xs`,
  * uppercase, 12px). Purely presentational — compose it inside a
  * `MarketingSurface` (or any surface) as the lead-in for a section.
  *
@@ -103,7 +103,7 @@ export function SectionHeader({
       {eyebrow ? (
         <p
           data-slot="section-header-eyebrow"
-          className="flex items-center gap-2 font-mono text-mono-label text-muted-foreground uppercase"
+          className="flex items-center gap-2 font-mono font-mono text-xs text-muted-foreground uppercase"
         >
           <span
             aria-hidden="true"
@@ -129,7 +129,7 @@ export function SectionHeader({
         <p
           data-slot="section-header-description"
           className={cn(
-            "max-w-2xl text-lg text-muted-foreground",
+            "max-w-2xl text-base text-muted-foreground",
             align === "center" && "mx-auto",
           )}
         >

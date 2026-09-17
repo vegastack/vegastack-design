@@ -21,10 +21,10 @@ export function countrySelect() {
   const [value, setValue] = React.useState<string>("US");
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <CountrySelect value={value} onValueChange={setValue} />
       </div>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <CountrySelect value="FR" disabled />
       </div>
     </Wrapper>
@@ -36,7 +36,7 @@ export function countrySelectEmpty() {
   const [value, setValue] = React.useState<string>();
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <CountrySelect
           value={value}
           onValueChange={setValue}
@@ -55,10 +55,10 @@ export function countrySelectVariants() {
   const [value, setValue] = React.useState<string>("US");
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <CountrySelect value={value} onValueChange={setValue} />
       </div>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <CountrySelect value="FR" disabled />
       </div>
     </Wrapper>
@@ -80,7 +80,7 @@ export function countrySelectCustom() {
   const [value, setValue] = React.useState<string>("DE");
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <CountrySelect
           value={value}
           onValueChange={setValue}

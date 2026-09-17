@@ -105,7 +105,7 @@ test("disabled item trigger dims via data-disabled (Base UI surfaces item-level 
   // must also carry the data-disabled dim.
   await expect.element(trigger).toHaveAttribute("data-disabled");
   const el = screen.container.querySelector('[data-slot="accordion-trigger"]')!;
-  expect(el.className).toContain("data-disabled:opacity-(--opacity-dim)");
+  expect(el.className).toContain("data-disabled:opacity-50");
   expect(el.className).toContain("data-disabled:pointer-events-none");
 });
 
@@ -146,15 +146,16 @@ test("no a11y violations — expanded", async () => {
 });
 
 test("the trigger hovers with the row wash, not a link underline", async () => {
-  // B7-08: underline-on-hover is the link affordance. A disclosure takes `surfaceInteractive`,
+  // B7-08: underline-on-hover is the link affordance. A disclosure takes `"hover:bg-accent"`,
   // which needs the inner radius and the 4px inset design.md Hover geometry requires.
   const screen = await render(<Demo />);
   const trigger = screen.container.querySelector(
     '[data-slot="accordion-trigger"]',
   ) as HTMLElement;
   expect(trigger.className).not.toContain("hover:underline");
-  expect(trigger.className).toContain("hover:bg-surface-2");
-  expect(trigger.className).toContain("active:bg-surface-3");
+  expect(trigger.className).toContain("hover:bg-accent");
+  // No pressed rung is asserted: INT-4 is decided as **shadcn**, so a hover wash no longer owes
+  // one, and `design-lint`'s `hover-without-pressed` rule went with that decision.
   expect(trigger.className).toContain("rounded-md");
   // Positive padding only — a negative margin would bleed the wash past the root at 320px.
   expect(trigger.className).toContain("px-2");

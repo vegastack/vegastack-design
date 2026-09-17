@@ -71,7 +71,7 @@ test("display and edit modes reserve the same control geometry", async () => {
   );
   const display = screen.getByRole("button", { name: "Ada" });
   const displayElement = display.element();
-  expect(displayElement.classList.contains("h-(--size-md)")).toBe(true);
+  expect(displayElement.classList.contains("h-8")).toBe(true);
   expect(displayElement.classList.contains("border")).toBe(true);
   expect(displayElement.classList.contains("border-transparent")).toBe(true);
   expect(displayElement.classList.contains("px-3")).toBe(true);
@@ -80,7 +80,7 @@ test("display and edit modes reserve the same control geometry", async () => {
   const textbox = screen.getByRole("textbox");
   await expect.element(textbox).toBeInTheDocument();
   const input = textbox.element();
-  expect(input.classList.contains("h-(--size-md)")).toBe(true);
+  expect(input.classList.contains("h-8")).toBe(true);
   expect(input.classList.contains("border")).toBe(true);
   expect(input.classList.contains("px-3")).toBe(true);
 });

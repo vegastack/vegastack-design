@@ -101,7 +101,7 @@ function Demo({
           <span className="truncate">Dashboard</span>
         </AppShellHeader>
         <AppShellContent variant={contentVariant}>
-          <p className="p-4 text-base text-muted-foreground">Content</p>
+          <p className="p-4 text-sm text-muted-foreground">Content</p>
         </AppShellContent>
       </div>
     </AppShell>

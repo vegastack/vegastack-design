@@ -59,14 +59,14 @@ The link between the two is the `@theme inline` block, which maps each raw token
 ```
 
 Because the bridge points at `var(--primary)` (not a baked value), it is **transparent to overrides**.
-Change `--primary` and `--color-primary` follows automatically, so `bg-primary`, the ladder recipe's
-alpha washes (`hover:bg-primary/(--alpha-hover)`, `active:bg-primary/(--alpha-pressed)` — what
-`fillInteractive.primary` expands to), and the `--ring`-keyed focus outline all repaint at once.
+Change `--primary` and `--color-primary` follows automatically, so `bg-primary`, every alpha wash
+of it (`hover:bg-primary/80`, `active:bg-primary/70`), and the `--ring`-keyed focus outline all
+repaint at once.
 
 The bridge also exposes the non-color scales as Tailwind theme keys:
 
-- **Radius** — the named 2/6/8/12px roles: `--radius-xs`/`--radius-sharp`, `--radius-sm`, `--radius-md`, and `--radius-lg` (`--radius` aliases `--radius-lg`). There is no `--radius-xl`; full pills use the semantic `rounded-full` role.
-- **Type** — the `--text-*` ramp (`display`, `h1`…`h4`, `label`, `label-sm`, `code`, `code-sm`), each with a paired `--text-<name>--line-height`.
+- **Radius** — one token, `--radius`, with `--radius-sm/md/lg/xl/2xl/3xl/4xl` derived from it (0.6x / 0.8x / 1x / 1.4x / 1.8x / 2.2x / 2.6x). Retune the shape of the whole system by changing that one value.
+- **Type** — Tailwind's own `--text-*` ramp, unremapped: `text-sm` is 14px everywhere.
 - **Fonts** — `--font-sans` / `--font-mono` / `--font-serif`, bridged from `--font-family-*`.
 - **Motion** — `--ease-standard` / `--ease-emphasized` / `--ease-exit`, bridged from `--motion-ease-*`; durations as `--duration-fast|base|slow`.
 
@@ -83,8 +83,8 @@ diverge a token in dark mode only:
 :root {
   /* brand action color, light + dark */
   --primary: oklch(0.53 0.189 295);
-  --primary-hover: oklch(0.48 0.189 295);
-  --primary-active: oklch(0.44 0.189 295);
+  --primary/80: oklch(0.48 0.189 295);
+  --primary/70: oklch(0.44 0.189 295);
 
   /* rounder corners everywhere */
   --radius: 0.5rem;

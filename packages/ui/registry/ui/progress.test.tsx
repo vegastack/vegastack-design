@@ -54,14 +54,14 @@ test("applies className to the root and trackClassName to the track", async () =
       value={50}
       aria-label="Sync"
       className="max-w-xs"
-      trackClassName="bg-muted/(--alpha-wash-strong)"
+      trackClassName="bg-muted/60"
       indicatorClassName="bg-success"
     />,
   );
   const bar = screen.getByRole("progressbar", { name: "Sync" });
   await expect.element(bar).toHaveClass("max-w-xs");
   const track = screen.container.querySelector('[data-slot="progress-track"]')!;
-  expect(track.className).toContain("bg-muted/(--alpha-wash-strong)");
+  expect(track.className).toContain("bg-muted/60");
   const indicator = screen.container.querySelector(
     '[data-slot="progress-indicator"]',
   )!;

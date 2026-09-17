@@ -16,7 +16,7 @@ export function numberField(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-xs flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Quantity
         </span>
         <NumberField aria-label="Quantity" defaultValue={2} min={0} max={99} />
@@ -36,7 +36,7 @@ export function numberFieldMoney(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-xs flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Deal amount
         </span>
         <NumberField
@@ -71,7 +71,7 @@ export function numberFieldMoney(): ReactNode {
             </Select>
           }
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Money is a format prop — the currency Select sits in the suffix slot.
         </p>
       </div>

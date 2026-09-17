@@ -1,4 +1,4 @@
-// @vegastack page-header@0.9.1 sha256-IDvxvY9nPczNeLmuvnfaBvBnUZeFw90+Urgh/CP6SDI=
+// @vegastack page-header@0.9.1 sha256-ZShyr36eiiYpRNsGMtUb98sKCz/njCuDqOIbOThHF5w=
 
 "use client";
 
@@ -261,7 +261,7 @@ export function PageHeader({
                 truncate/line-clamp class; the h1 stays the accessible heading. */}
             <h1
               data-slot="page-header-title"
-              className="min-w-0 text-h2 text-foreground"
+              className="min-w-0 text-2xl font-semibold text-foreground"
             >
               <TruncatedText>{title}</TruncatedText>
             </h1>
@@ -270,7 +270,7 @@ export function PageHeader({
           {description ? (
             <p
               data-slot="page-header-description"
-              className="text-base text-muted-foreground"
+              className="text-sm text-muted-foreground"
             >
               {description}
             </p>

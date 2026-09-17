@@ -1,4 +1,4 @@
-// @vegastack slider@0.9.1 sha256-2thgn0IMHQs9fh0uH3URhYw/Jt87IJUKEd+Ch1dKun8=
+// @vegastack slider@0.9.1 sha256-i24Ec87fF1IsbW9V+2MFnQpOEekiRZX+Uuxg9wi/ERQ=
 
 import * as React from "react";
 import { Slider as BaseSlider } from "@base-ui/react/slider";
@@ -76,7 +76,7 @@ export type SliderThumbVisibility = "always" | "hover" | "none";
  * `audio-player.tsx` pushed ~70 `[&_[data-slot=slider-*]]:` utilities onto the component from the
  * call site to make it media-shaped; the styling now lives here, where the component owns it.
  *
- * - `default` — the form rail: `surface-1` track, `primary` fill, hollow ringed thumb.
+ * - `default` — the form rail: `muted` track, `primary` fill, hollow ringed thumb.
  * - `media` — the audio card transport: subdued `muted-foreground` fill that brightens to
  *   `foreground` on hover/focus/drag, exactly matching how the ghost transport controls brighten.
  * - `overlay` — chrome drawn OVER video, on the theme-invariant `--media-*` tokens so it reads
@@ -98,7 +98,7 @@ const trackByVariant: Record<SliderVariant, string> = {
   // them to `&:is(:where(.group\/slider):hover *)`, and the `:hover` inside `:is()` adds a class
   // to the count.
   overlay:
-    "bg-media-foreground/(--alpha-wash-strong) transition-[height,width] duration-fast ease-standard data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-1 group-hover/slider:data-[orientation=horizontal]:h-1.5 group-focus-within/slider:data-[orientation=horizontal]:h-1.5 group-hover/slider:data-[orientation=vertical]:w-1.5 group-focus-within/slider:data-[orientation=vertical]:w-1.5",
+    "bg-media-foreground/60 transition-[height,width] duration-fast ease-standard data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-1 group-hover/slider:data-[orientation=horizontal]:h-1.5 group-focus-within/slider:data-[orientation=horizontal]:h-1.5 group-hover/slider:data-[orientation=vertical]:w-1.5 group-focus-within/slider:data-[orientation=vertical]:w-1.5",
   bare: "bg-transparent",
 };
 
@@ -244,7 +244,7 @@ export interface SliderProps extends React.ComponentProps<
  *
  * Pass a single `number` for one thumb, or an array for a range — the component
  * renders the right number of thumbs automatically. Token-only styling: the rail
- * is `surface-1`, the filled portion (the value indicator) is `primary`, and each
+ * is `muted`, the filled portion (the value indicator) is `primary`, and each
  * thumb is a `background` dot ringed in a 2px `primary` border (flat, no shadow) that
  * grows slightly while dragging, with the centralized base.css `:focus-visible` outline (no ring of its own).
  *
@@ -309,7 +309,7 @@ export function Slider({
         // `group/slider` is how the parts react to engagement WITHOUT a call site
         // reaching in: the track thickens and the media fill brightens off
         // `group-hover`/`group-focus-within`, not off descendant overrides.
-        "group/slider relative flex touch-none select-none data-disabled:opacity-(--opacity-dim)",
+        "group/slider relative flex touch-none select-none data-disabled:opacity-50",
         "data-[orientation=horizontal]:w-full data-[orientation=horizontal]:items-center",
         "data-[orientation=vertical]:h-full data-[orientation=vertical]:flex-col data-[orientation=vertical]:justify-center",
         className,
@@ -434,7 +434,7 @@ export function Slider({
                     // `start-1/2` is logical but `-translate-x-1/2` is physical: in RTL the inset
                     // resolves to `right: 50%` and a negative X shift pushes the bubble further
                     // right, so it has to flip with the direction to stay centred on the thumb.
-                    "pointer-events-none absolute bottom-full start-1/2 mb-1 -translate-x-1/2 rtl:translate-x-1/2 rounded-md border border-border bg-popover px-1.5 py-0.5 text-label-sm whitespace-nowrap text-popover-foreground tabular-nums",
+                    "pointer-events-none absolute bottom-full start-1/2 mb-1 -translate-x-1/2 rtl:translate-x-1/2 rounded-md border border-border bg-popover px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-popover-foreground tabular-nums",
                     "opacity-0 transition-opacity duration-fast ease-standard",
                     "group-data-dragging/slider-thumb:motion-pop-in group-data-dragging/slider-thumb:opacity-100",
                     "group-has-[:focus-visible]/slider-thumb:motion-pop-in group-has-[:focus-visible]/slider-thumb:opacity-100",

@@ -186,7 +186,7 @@ test("grid + headerTone=ink + density=compact flow to head and cells via group d
     '[data-slot="table-head"]',
   ) as HTMLElement;
   expect(head.className).toContain(
-    "group-data-[header-tone=ink]/table:text-label",
+    "group-data-[header-tone=ink]/table:text-sm group-data-[header-tone=ink]/table:font-medium",
   );
   const cell = document.querySelector(
     '[data-slot="table-cell"]',

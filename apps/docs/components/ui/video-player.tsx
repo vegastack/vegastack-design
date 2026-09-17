@@ -1,4 +1,4 @@
-// @vegastack video-player@0.9.1 sha256-kxXaOV4QC2vHw5W3w7nl82+1xtxhoL0DDfCzmVW+cPQ=
+// @vegastack video-player@0.9.1 sha256-FUwzQMBinpZ91wnmsKNRcrf2AIKM0nyRZGrDgwCe0Tc=
 
 "use client";
 
@@ -395,12 +395,12 @@ export function VideoPlayer({
           className="flex min-w-0 flex-col gap-1"
         >
           {title ? (
-            <div className="min-w-0 text-label text-foreground">
+            <div className="min-w-0 text-sm font-medium text-foreground">
               <span className="block truncate">{title}</span>
             </div>
           ) : null}
           {description ? (
-            <div className="min-w-0 text-sm text-muted-foreground">
+            <div className="min-w-0 text-xs text-muted-foreground">
               <span className="block truncate">{description}</span>
             </div>
           ) : null}
@@ -450,7 +450,7 @@ export function VideoPlayer({
           data-slot="video-player-controls-scrim"
           data-state={controlsVisible ? "visible" : "hidden"}
           className={cn(
-            "pointer-events-none absolute inset-x-0 bottom-0 z-(--z-raised) h-24 bg-gradient-to-t from-media-scrim to-transparent transition-opacity duration-fast ease-standard",
+            "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-media-scrim to-transparent transition-opacity duration-fast ease-standard",
             controlsVisible ? "opacity-100" : "opacity-0",
           )}
         />
@@ -460,7 +460,7 @@ export function VideoPlayer({
             data-slot="video-player-controls-overlay"
             data-state={controlsVisible ? "visible" : "hidden"}
             className={cn(
-              "absolute inset-x-2 bottom-2 z-(--z-raised) transition-opacity duration-fast ease-standard",
+              "absolute inset-x-2 bottom-2 z-10 transition-opacity duration-fast ease-standard",
               controlsVisible ? "opacity-100" : "pointer-events-none opacity-0",
             )}
           >

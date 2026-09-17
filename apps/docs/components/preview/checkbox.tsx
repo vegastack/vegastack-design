@@ -101,7 +101,7 @@ export function checkboxSizeStateMatrix(): ReactNode {
     <Wrapper>
       {/* Scroll container + tighter small-width gap so the matrix headers stay legible at 375px. */}
       <div className="w-full max-w-full overflow-x-auto">
-        <div className="grid w-max grid-cols-[auto_repeat(3,auto)] items-center gap-x-4 gap-y-4 text-base text-muted-foreground sm:gap-x-8">
+        <div className="grid w-max grid-cols-[auto_repeat(3,auto)] items-center gap-x-4 gap-y-4 text-sm text-muted-foreground sm:gap-x-8">
           {/* Header row */}
           <span />
           <span>Unchecked</span>

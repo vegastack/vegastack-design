@@ -1,10 +1,10 @@
-// @vegastack input@0.9.1 sha256-D/2LzEH/T5SGZD3nDBxK607aBF7sSR31I5xW53bJAmg=
+// @vegastack input@0.9.1 sha256-TqFkbwcICwn3siTatsfyGLoZVlx0t8vK+ZFR+4Uund4=
 
 "use client";
 
 import * as React from "react";
 import { Input as BaseInput } from "@base-ui/react/input";
-import { cn, fieldControl, fieldControlGroup } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /** Props accepted by `Input`. */
 export interface InputProps extends Omit<
@@ -12,7 +12,7 @@ export interface InputProps extends Omit<
   "prefix" | "className" | "size"
 > {
   /**
-   * Control height on the shared 28/32/40 scale (`--size-sm/md/lg`), matching
+   * Control height on the shared 28/32/40 scale (`h-7/md/lg`), matching
    * Button and Select. (The native numeric `size` attribute is intentionally
    * replaced by this variant prop.)
    * @default 'md'
@@ -52,11 +52,11 @@ export interface InputProps extends Omit<
 
 /**
  * DARK-TINT SCOPING (register P1-24, documented policy): form CONTROLS — and only form
- * controls — carry `dark:bg-input/(--alpha-input)`. In dark, a fully-transparent field on the
+ * controls — carry `dark:bg-input/30`. In dark, a fully-transparent field on the
  * near-black canvas reads as a void; the translucent input tint keeps the fill affordance
  * while still blending with whichever surface hosts the control. SURFACES (card/popover/
  * dialog/sheet) deliberately have no `dark:bg-*` override — they are theme-authored tokens.
- * That tint lives in `fieldControl`/`fieldControlGroup` (`@vegastack/design`), which every
+ * That tint lives in the shared field chrome/the bordered field-GROUP chrome (`@vegastack/design`), which every
  * text-entry control in the system shares (audit B1-11) — this file no longer owns a private
  * copy of the border/focus/invalid/disabled grammar.
  *
@@ -73,8 +73,8 @@ const standaloneClasses = [
   // that kept the global `:focus-visible` outline the doctrine bans on text entry, and a file input
   // with none of its file: styling (#100, 2026-09-09). `class-whitespace` cannot see a missing
   // space between two literals; it can only see a stray one inside one. An array removes the seam.
-  "w-full min-w-0 px-3 py-1 text-base outline-hidden",
-  "file:inline-flex file:h-(--size-xs) file:border-0 file:bg-transparent file:text-base file:font-medium file:text-foreground",
+  "w-full min-w-0 px-3 py-1 text-sm outline-hidden",
+  "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
 ].join(" ");
 
 /** Addon-slot classes — muted, non-selectable label text that hugs the field. */
@@ -86,9 +86,9 @@ const addonClasses =
  * Button/Select. `sm` steps the type down one tier like every other sm control.
  */
 const sizeClasses = {
-  sm: "h-(--size-sm) text-sm",
-  md: "h-(--size-md)",
-  lg: "h-(--size-lg)",
+  sm: "h-7 text-xs",
+  md: "h-8",
+  lg: "h-10",
 } as const;
 
 function mergeInputClassName(
@@ -129,8 +129,8 @@ export function Input({
   if (prefix != null || suffix != null) {
     const addonInputClassName = mergeInputClassName(
       cn(
-        "h-full min-w-0 flex-1 bg-transparent py-1 text-base outline-hidden",
-        "placeholder:text-muted-foreground-faint",
+        "h-full min-w-0 flex-1 bg-transparent py-1 text-sm outline-hidden",
+        "placeholder:text-muted-foreground",
         "disabled:cursor-not-allowed",
         prefix != null ? "ps-1.5" : "ps-3",
         suffix != null ? "pe-1.5" : "pe-3",
@@ -144,8 +144,8 @@ export function Input({
         data-size={size}
         data-field-group=""
         className={cn(
-          fieldControlGroup,
-          "flex w-full min-w-0 items-center overflow-hidden text-base",
+          "rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring/70 data-focused:border-ring/70 not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30",
+          "flex w-full min-w-0 items-center overflow-hidden text-sm",
           sizeClasses[size],
           containerClassName,
         )}
@@ -178,7 +178,11 @@ export function Input({
       data-slot="input"
       data-size={size}
       className={mergeInputClassName(
-        cn(fieldControl, standaloneClasses, sizeClasses[size]),
+        cn(
+          "rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring/70 not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80",
+          standaloneClasses,
+          sizeClasses[size],
+        ),
         className,
       )}
       {...props}

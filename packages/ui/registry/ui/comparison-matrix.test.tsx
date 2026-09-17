@@ -49,8 +49,8 @@ test("omitting highlightedIndex promotes no column at all", async () => {
       />
     </ComparisonMatrix>,
   );
-  expect(document.querySelectorAll('td[class*="bg-surface-2"]').length).toBe(0);
-  expect(document.querySelectorAll('th[class*="bg-surface-2"]').length).toBe(0);
+  expect(document.querySelectorAll('td[class*="bg-accent"]').length).toBe(0);
+  expect(document.querySelectorAll('th[class*="bg-accent"]').length).toBe(0);
 });
 
 test("unknownLabel overrides the copy for an unsupplied cell", async () => {
@@ -80,7 +80,7 @@ test("highlighted column cells carry the neutral hover-rung tint", async () => {
   await render(<Example />);
   // The highlight is a NEUTRAL rung of the surface ladder, never `info` — `info` is reserved for
   // links and informational status (design.md §Chromatic colour, F1 2026-09-07).
-  const tinted = document.querySelectorAll('td[class*="bg-surface-2"]');
+  const tinted = document.querySelectorAll('td[class*="bg-accent"]');
   expect(tinted.length).toBeGreaterThan(0);
   expect(document.querySelectorAll('td[class*="bg-info"]').length).toBe(0);
 });

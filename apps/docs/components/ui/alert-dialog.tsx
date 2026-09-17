@@ -1,4 +1,4 @@
-// @vegastack alert-dialog@0.9.1 sha256-fxVFfGmJHVeQ0P9LqDa24t76Rdjf5PehWyPtrgRaGSQ=
+// @vegastack alert-dialog@0.9.1 sha256-Usq+TMIFPzC/0KkvduVNBzUy3lhruEYIQhqom8Hf8GQ=
 
 "use client";
 
@@ -131,7 +131,7 @@ export function AlertDialogContent({
         data-slot="alert-dialog-backdrop"
         className={cn(
           themeScope,
-          "fixed inset-0 z-(--z-overlay) bg-overlay",
+          "fixed inset-0 z-50 bg-black/10",
           "transition-opacity duration-base ease-standard",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
@@ -140,7 +140,7 @@ export function AlertDialogContent({
         data-slot="alert-dialog-viewport"
         className={cn(
           themeScope,
-          "fixed inset-0 z-(--z-overlay) flex items-center justify-center overflow-y-auto overscroll-contain p-4 outline-none",
+          "fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overscroll-contain p-4 outline-none",
         )}
       >
         <BaseAlertDialog.Popup
@@ -150,11 +150,11 @@ export function AlertDialogContent({
             themeScope,
             // `max-h-full`: the viewport is `fixed inset-0 p-4`, so its content box already IS the
             // available height (audit B3-09).
-            "relative z-(--z-overlay) flex max-h-full w-full flex-col gap-4",
+            "relative z-50 flex max-h-full w-full flex-col gap-4",
             // No `outline-none`: Base UI focuses the popup on open, so the centralized base.css
             // `:focus-visible` outline stays as the keyboard-focus indicator (register P0-02).
             // 24px modal-family padding tier (D14).
-            "rounded-lg border border-border bg-popover p-6 text-base text-popover-foreground shadow-overlay",
+            "rounded-lg border border-border bg-popover p-6 text-sm text-popover-foreground shadow-lg",
             "sm:max-w-sm",
             // Enter/exit — scale + fade, token durations + standard easing.
             // D11: modals move at `base` (200ms).
@@ -243,7 +243,7 @@ export function AlertDialogTitle({
   return (
     <BaseAlertDialog.Title
       data-slot="alert-dialog-title"
-      className={cn("text-h4 text-foreground", className)}
+      className={cn("text-base font-medium text-foreground", className)}
       {...props}
     />
   );
@@ -269,10 +269,7 @@ export function AlertDialogDescription({
   return (
     <BaseAlertDialog.Description
       data-slot="alert-dialog-description"
-      className={cn(
-        "text-base leading-relaxed text-muted-foreground",
-        className,
-      )}
+      className={cn("text-sm leading-relaxed text-muted-foreground", className)}
       {...props}
     />
   );

@@ -63,10 +63,10 @@ label should own its own full-width line above the input.
 
 ### States
 
-The label dims to 50% opacity (the `--opacity-dim` token) when the control it
+The label dims to 50% opacity (the `opacity-50` token) when the control it
 labels is disabled. Place the label after a `peer` control
-(`peer-disabled:opacity-(--opacity-dim)`) or inside a disabled group
-(`group-data-[disabled=true]:opacity-(--opacity-dim)`) and it reacts
+(`peer-disabled:opacity-(opacity-50)`) or inside a disabled group
+(`group-data-[disabled=true]:opacity-(opacity-50)`) and it reacts
 automatically — no extra prop needed. Both dimming paths are shown below.
 
 <ComponentPreview name="labelStates" file="components/preview/label.tsx" />
@@ -85,8 +85,8 @@ Every `Label` prop, auto-generated from its TypeScript types.
 
 ## Accessibility
 
-- Form labels render at 12px (`text-label-sm`): a label is dense metadata ABOUT the control
-  beneath it, not a peer of the 14px value typed into it. `text-label` (14px) stays for UI labels
+- Form labels render at 12px (`text-xs font-medium`): a label is dense metadata ABOUT the control
+  beneath it, not a peer of the 14px value typed into it. `text-sm font-medium` (14px) stays for UI labels
   and navigation.
 
 - Renders a native `<label>` — associate it with exactly one control via

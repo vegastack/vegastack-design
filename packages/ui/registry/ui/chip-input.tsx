@@ -1,10 +1,10 @@
-// @vegastack chip-input@0.9.1 sha256-cc1gXuIlgjoAld0LLw0XT5p8aVVoHzs5R9opwxKFjNY=
+// @vegastack chip-input@0.9.1 sha256-CNYQ43z2Sf94JgD9/VQBZLubaYHeYFHWubBa7TM6Bzs=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn, fieldControlGroup, mergeRefs } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
 import { Tag } from "@/components/ui/tag-group";
 import { useAnnouncer } from "@/components/ui/use-announcer";
@@ -36,14 +36,14 @@ Deliberately NOT done here:
 --- */
 
 /**
- * Field chrome — `fieldControlGroup`, the one wrapper recipe (audit B1-11), driven here by
+ * Field chrome — the bordered field-GROUP chrome, the one wrapper recipe (audit B1-11), driven here by
  * `focus-within` plus this component's own `data-invalid`/`data-disabled`. The flattening of
  * the inner `Input` (`data-slot="input"`) is what stays local: the group owns the border, so
  * the input inside it must show none of its own, hover included.
  */
 export const chipInputVariants = cva(
   [
-    fieldControlGroup,
+    "rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring/70 data-focused:border-ring/70 not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30",
     "flex w-full min-w-0 flex-wrap items-center gap-1 p-1",
     // The inner input keeps a 24px minimum box (h-6 tier) — a replaced element cannot host a ::before hit-area, so the box itself must meet the pointer-target floor.
     "[&_[data-slot=input]]:min-h-6 [&_[data-slot=input]]:h-full [&_[data-slot=input]]:min-w-12 [&_[data-slot=input]]:flex-1 [&_[data-slot=input]]:border-none [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-1.5 [&_[data-slot=input]]:py-0 [&_[data-slot=input]]:focus:border-transparent [&_[data-slot=input]]:hover:border-transparent [&_[data-slot=input]]:dark:bg-transparent",
@@ -52,9 +52,9 @@ export const chipInputVariants = cva(
     variants: {
       size: {
         // sm tightens the padding so the 24px inner input still fits the 28px tier.
-        sm: "min-h-(--size-sm) p-0.5",
-        md: "min-h-(--size-md)",
-        lg: "min-h-(--size-lg)",
+        sm: "min-h-7 p-0.5",
+        md: "min-h-8",
+        lg: "min-h-10",
       },
     },
     defaultVariants: { size: "md" },
@@ -297,8 +297,7 @@ export function ChipInput({
             key={allowDuplicates ? `${chip}-${index}` : chip}
             data-invalid={invalid ? "" : undefined}
             className={cn(
-              invalid &&
-                "border-destructive/(--alpha-outline-border) text-destructive-text",
+              invalid && "border-destructive/50 text-destructive-text",
             )}
             onRemove={disabled ? undefined : () => removeChip(index)}
             removeLabel={`Remove ${chip}`}

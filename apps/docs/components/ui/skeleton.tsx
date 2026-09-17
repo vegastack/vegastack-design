@@ -1,4 +1,4 @@
-// @vegastack skeleton@0.9.1 sha256-nPr0DYXiEY9p9zCuw5Anw7lJRnkOCXO1fCZOSltsW5k=
+// @vegastack skeleton@0.9.1 sha256-o/QUxmpvYnikIBWOeVp30+12EV8mmQZvzWaoPO+xXTs=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -20,7 +20,7 @@ export const skeletonVariants = cva("block shrink-0 bg-muted animate-pulse", {
        */
       line: "h-4 w-full rounded-sm",
       /** A circular placeholder (avatar/icon) — square footprint, full radius. */
-      circle: "size-(--size-lg) rounded-full",
+      circle: "size-10 rounded-full",
       /** A rectangular block (image/thumbnail) — fills its container. */
       rect: "h-24 w-full rounded-md",
       /** A larger surface (card body) — taller block. */

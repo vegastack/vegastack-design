@@ -1,4 +1,4 @@
-// @vegastack data-list@0.9.1 sha256-VvVeDmjzqOniqERzym9BV455T0Vb29MK8/fhN8mhZso=
+// @vegastack data-list@0.9.1 sha256-IPgEba8y8oNJYuOEHRwct9Q3aT1p88Z3rTxs3lhbQvA=
 
 "use client";
 
@@ -454,7 +454,7 @@ export function DataList<T>({
                     isSelected &&
                       // A selected row still has to move under the cursor (SP-06): it rests on the pressed
                       // rung, hovers DOWN one rung, and returns to rest while pressed.
-                      "bg-surface-3 hover:bg-surface-2 active:bg-surface-3 data-selected:bg-surface-3 data-selected:hover:bg-surface-2",
+                      "bg-accent hover:bg-accent active:bg-accent data-selected:bg-accent data-selected:hover:bg-accent",
                   )}
                 >
                   {selectable && (

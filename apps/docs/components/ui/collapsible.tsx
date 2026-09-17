@@ -1,8 +1,8 @@
-// @vegastack collapsible@0.9.1 sha256-gpIh/LhTg2zK44IjAj8bBJ63Qf6VLSr00J6p04XF3co=
+// @vegastack collapsible@0.9.1 sha256-sI1oY0Rsthr2EJsAAj6W+7xaGQ8ctC0m7jxQxWR5FQA=
 
 import * as React from "react";
 import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Collapsible — a single toggleable open/close region with an animated height, built on Base UI's
@@ -76,18 +76,18 @@ export function CollapsibleTrigger({
       ref={ref}
       data-slot="collapsible-trigger"
       className={cn(
-        "group/collapsible-trigger inline-flex min-h-(--size-xs) items-center justify-between gap-2 rounded-md text-label text-foreground select-none",
+        "group/collapsible-trigger inline-flex min-h-6 items-center justify-between gap-2 rounded-md text-sm font-medium text-foreground select-none",
         // A disclosure is not a link, so it does not hover with a link's underline (B7-08). It
         // takes the row wash, with the padding and inner radius design.md § Hover geometry
         // requires — see the longer note in accordion.tsx. Positive padding only; a negative
         // margin would bleed the wash outside the root's content box.
         "px-2",
-        surfaceInteractive,
+        "hover:bg-accent",
         // Base UI surfaces root-level `disabled` as a `data-disabled` attribute
         // on the trigger (no native `disabled` attribute), so style both.
-        "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
-        "data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+        "disabled:pointer-events-none disabled:opacity-50",
+        "data-disabled:pointer-events-none data-disabled:opacity-50",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         "[&_svg]:text-muted-foreground [&_svg]:transition-transform [&_svg]:duration-fast [&_svg]:ease-standard",
         "data-[panel-open]:[&_svg]:rotate-180",
         className,
@@ -132,7 +132,7 @@ export function CollapsibleContent({
       ref={ref}
       data-slot="collapsible-content"
       className={cn(
-        "h-[var(--collapsible-panel-height)] overflow-hidden text-base text-muted-foreground",
+        "h-[var(--collapsible-panel-height)] overflow-hidden text-sm text-muted-foreground",
         "transition-[height] duration-fast ease-standard",
         "data-[starting-style]:h-0 data-[ending-style]:h-0",
         className,

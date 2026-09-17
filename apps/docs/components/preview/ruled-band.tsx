@@ -36,7 +36,9 @@ export function ruledBandSection(): ReactNode {
         <RuledBandLabel className="uppercase">Distribution</RuledBandLabel>
       </RuledBand>
       <div className="flex flex-col gap-2 py-6">
-        <p className="text-h3 text-foreground">Pulled, never pushed</p>
+        <p className="text-xl font-semibold text-foreground">
+          Pulled, never pushed
+        </p>
         <p className="max-w-prose text-muted-foreground">
           Downstream projects ask the registry what changed and take the diff
           deliberately — the band brackets the passage without a heading rule of

@@ -14,7 +14,7 @@
    TWO GLOBS WERE REMOVED ON 2026-09-09 BECAUSE THEY WERE THAT NO-OP IN REVERSE — declared, and
    measured by nothing. An adversarial review deleted both and this lane stayed 590/590 green:
 
-     `../../design/src/index.ts`, commented as "the surfaceInteractive / fillInteractive recipe
+     `../../design/src/index.ts`, commented as "the "hover:bg-accent" / the family's own hover wash recipe
        literals". Those recipes change a BACKGROUND COLOUR; this lane measures reflow, containment
        and pointer targets, so no assertion here could ever have seen them. They are now measured
        where colour is — `button-matrix.browser.test.tsx`, over `contrast.css`, which mounts the

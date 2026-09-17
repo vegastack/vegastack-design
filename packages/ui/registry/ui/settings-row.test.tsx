@@ -95,7 +95,9 @@ test("titleAs picks the heading level so a page keeps a valid outline", async ()
   );
   expect(title?.tagName).toBe("H2");
   // The visual role is unchanged — only the document structure moves.
-  expect(title?.classList.contains("text-h4")).toBe(true);
+  // One token per `classList.contains` call: the section-title role is two utilities now.
+  expect(title?.classList.contains("text-base")).toBe(true);
+  expect(title?.classList.contains("font-medium")).toBe(true);
 });
 
 test("compound parts each expose their data-slot", async () => {

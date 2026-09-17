@@ -685,7 +685,7 @@ test("no a11y violations — loading", async () => {
  * Same rationale/technique as checkbox.test.tsx: this harness runs without compiled Tailwind, so
  * neither the checkbox's own `before:-inset-1.5` nor table.tsx's padding/`:has()` collapse resolve
  * to real CSS here. This mirror reproduces BOTH — the checkbox's real fix (from checkbox.tsx,
- * unmodified by this file) AND the surrounding cell's real padding (`h-(--size-md)`/`py-2` +
+ * unmodified by this file) AND the surrounding cell's real padding (`h-8`/`py-2` +
  * `px-3` collapsed to `pr-0` on the checkbox side, per table.tsx) — so the measurement proves the
  * fix survives in the actual table layout, not just in isolation.
  *

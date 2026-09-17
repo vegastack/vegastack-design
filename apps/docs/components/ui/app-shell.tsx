@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.9.1 sha256-uanFu9u2xy5BPOcHiJGWz3Ht8CDxl7KPEVQercn4IWk=
+// @vegastack app-shell@0.9.1 sha256-9mRUJ1LiEgJVIEPNkELAHvKc3aOfWcNwIuthP4Grb8Y=
 
 "use client";
 
@@ -154,7 +154,7 @@ export function AppShell({
       <a
         href={`#${resolvedContentId}`}
         data-slot="app-shell-skip-link"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-(--z-overlay) focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-overlay"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-50 focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-xs focus:font-medium focus:text-foreground focus:shadow-lg"
       >
         {skipLinkLabel}
       </a>
@@ -233,7 +233,7 @@ export function AppShellHeader({
     <header
       data-slot="app-shell-header"
       className={cn(
-        "flex h-(--layout-header-height) shrink-0 items-center gap-2 border-b border-border bg-background px-4",
+        "flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-4",
         className,
       )}
       {...props}
@@ -348,7 +348,7 @@ export function AppShellContent({
       className={cn(
         "@container/app-shell-content relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-background",
         variant === "inset" &&
-          "md:m-2 md:ms-0 md:rounded-lg md:border md:border-border md:shadow-overlay",
+          "md:m-2 md:ms-0 md:rounded-lg md:border md:border-border md:shadow-lg",
         className,
       )}
       {...props}
@@ -409,9 +409,9 @@ export function AppShellSkeleton({
       {/* hidden md:flex mirrors the real shell: below the mobile breakpoint (SidebarProvider's
           default 768px = Tailwind `md`) the rail collapses into an off-screen Sheet, so the
           skeleton must not paint a sidebar column the loaded shell won't have. */}
-      <div className="hidden h-svh w-(--sidebar-width) shrink-0 flex-col gap-2 border-e border-border bg-sidebar p-2 md:flex">
+      <div className="hidden h-svh w-60 shrink-0 flex-col gap-2 border-e border-border bg-sidebar p-2 md:flex">
         <div className="flex items-center gap-2 p-2">
-          <Skeleton shape="circle" className="size-(--icon-default)" />
+          <Skeleton shape="circle" className="size-4" />
           <Skeleton className="h-4 w-24" />
         </div>
         <div className="flex flex-1 flex-col gap-1">
@@ -422,8 +422,8 @@ export function AppShellSkeleton({
       </div>
 
       <div className="flex h-svh min-w-0 flex-1 flex-col">
-        <div className="flex h-(--layout-header-height) shrink-0 items-center gap-2 border-b border-border px-4">
-          <Skeleton shape="circle" className="size-(--icon-default)" />
+        <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+          <Skeleton shape="circle" className="size-4" />
           <Skeleton className="h-4 w-32" />
         </div>
         <div className="@container/app-shell-content flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">

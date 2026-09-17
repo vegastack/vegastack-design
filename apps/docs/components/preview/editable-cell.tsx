@@ -19,7 +19,7 @@ export function editableCell(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Account name
         </span>
         <EditableCell
@@ -30,7 +30,7 @@ export function editableCell(): ReactNode {
             setName(next);
           }}
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Click to edit. The commit is async — watch the saving indicator.
         </p>
       </div>
@@ -43,7 +43,7 @@ export function editableCellConflict(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Deal amount (server always rejects)
         </span>
         <EditableCell
@@ -51,7 +51,7 @@ export function editableCellConflict(): ReactNode {
           label="Deal amount"
           onCommit={() => fakeSave(true)}
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Every commit is rejected: the value snaps back and the revert is
           announced.
         </p>
@@ -65,7 +65,7 @@ export function editableCellSelect(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">Stage</span>
+        <span className="text-xs font-medium text-muted-foreground">Stage</span>
         <EditableCell
           value={stage}
           label="Stage"
@@ -93,7 +93,7 @@ export function editableCellStates(): ReactNode {
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-3">
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Read-only
           </span>
           <EditableCell
@@ -104,7 +104,7 @@ export function editableCellStates(): ReactNode {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Disabled
           </span>
           <EditableCell
@@ -115,7 +115,7 @@ export function editableCellStates(): ReactNode {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Saving (controlled status)
           </span>
           <EditableCell

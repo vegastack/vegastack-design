@@ -37,10 +37,10 @@ import { Button } from "../registry/ui/button";
 
 /**
  * Nested-overlay stacking contract (plan v5 T3, CX-8): every portaled surface sits in the ONE
- * `--z-overlay` band and nesting resolves by DOM order (Base UI appends portals to <body>).
+ * `z-50` band and nesting resolves by DOM order (Base UI appends portals to <body>).
  * These are real-browser hit tests — `document.elementFromPoint` at the inner popup's centre
  * must land inside the inner popup, proving it paints ABOVE the outer overlay. Toasts sit one
- * band higher, on `--z-toast`, because their viewport mounts before any dialog opens and DOM order
+ * band higher, on `z-60`, because their viewport mounts before any dialog opens and DOM order
  * would therefore bury them.
  */
 
@@ -163,7 +163,7 @@ test("nested Dialog paints above its parent Dialog", async () => {
   await expect.poll(() => hitTestInside(inner)).toBe(true);
 });
 
-test("a toast fired while a Dialog is open stays visible above it (the --z-toast band)", async () => {
+test("a toast fired while a Dialog is open stays visible above it (the z-60 band)", async () => {
   const screen = await render(
     <ToastProvider>
       <Toaster />

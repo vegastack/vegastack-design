@@ -360,10 +360,11 @@ test("axis labels sit on the 12px tier and their numerals on the mono 11px tier"
   const container = document.querySelector(
     '[data-slot="chart"]',
   ) as HTMLElement;
-  // 11px is reserved for mono (TD-3): prose in a chart reads at 12.
-  expect(container.className).toContain("text-sm");
-  expect(container.className).not.toMatch(/(^|\s)text-xs(\s|$)/);
+  // TYP-1 is decided as **shadcn**, so the 11px mono tier is gone and both the chart's prose and
+  // its axis numerals read at 12px — the numerals keep the MONO voice, which is the claim that
+  // still discriminates (tabular figures in a chart, proportional prose around it).
+  expect(container.className).toContain("text-xs");
   expect(container.className).toContain(
-    "[&_.recharts-cartesian-axis-tick_text]:text-code-sm",
+    "[&_.recharts-cartesian-axis-tick_text]:font-mono [&_.recharts-cartesian-axis-tick_text]:text-xs",
   );
 });

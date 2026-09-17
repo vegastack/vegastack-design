@@ -86,14 +86,14 @@ test("mergeStateClassName preserves Base UI's state-function form", () => {
 
 test("every popup recipe stays inside the overlay z-band", () => {
   for (const surface of ["panel", "menu", "tooltip", "navigation"] as const) {
-    expect(floatingPopupVariants({ surface })).toContain("z-(--z-overlay)");
+    expect(floatingPopupVariants({ surface })).toContain("z-50");
   }
 });
 
 test("the row recipe climbs the surface ladder rather than a literal", () => {
   const row = menuItemVariants();
-  expect(row).toContain("data-[highlighted]:bg-surface-2");
-  expect(row).toContain("active:bg-surface-3");
+  expect(row).toContain("data-[highlighted]:bg-accent");
+  expect(row).toContain("active:bg-accent");
   // rounded-md inside the list's 4px padding keeps the wash off the popup hairline (SP-02).
   expect(row).toContain("rounded-md");
   expect(menuItemVariants({ tone: "destructive" })).toContain(

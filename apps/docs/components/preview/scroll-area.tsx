@@ -12,13 +12,13 @@ export function scrollArea(): ReactNode {
     <Wrapper>
       <ScrollArea className="h-56 w-56 rounded-lg border border-border">
         <div className="p-4">
-          <p className="mb-3 text-base font-medium text-foreground">
+          <p className="mb-3 text-sm font-medium text-foreground">
             Release tags
           </p>
           {TAGS.map((tag) => (
             <div
               key={tag}
-              className="border-b border-border py-1.5 text-base text-muted-foreground last:border-0"
+              className="border-b border-border py-1.5 text-sm text-muted-foreground last:border-0"
             >
               {tag}
             </div>
@@ -40,7 +40,7 @@ export function scrollAreaHorizontal(): ReactNode {
           {Array.from({ length: 12 }, (_, i) => (
             <div
               key={i}
-              className="flex size-28 shrink-0 items-center justify-center rounded-md bg-muted text-base font-medium text-muted-foreground"
+              className="flex size-28 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-medium text-muted-foreground"
             >
               {i + 1}
             </div>
@@ -62,7 +62,7 @@ export function scrollAreaBoth(): ReactNode {
           {Array.from({ length: 80 }, (_, i) => (
             <div
               key={i}
-              className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted text-base font-medium text-muted-foreground"
+              className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-medium text-muted-foreground"
             >
               {i + 1}
             </div>
@@ -77,7 +77,7 @@ export function scrollAreaOrientations(): ReactNode {
   return (
     <Wrapper className="items-start gap-6">
       <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           vertical
         </span>
         <ScrollArea className="h-44 w-40 rounded-lg border border-border">
@@ -85,7 +85,7 @@ export function scrollAreaOrientations(): ReactNode {
             {TAGS.slice(0, 24).map((tag) => (
               <div
                 key={tag}
-                className="border-b border-border py-1.5 text-base text-muted-foreground last:border-0"
+                className="border-b border-border py-1.5 text-sm text-muted-foreground last:border-0"
               >
                 {tag}
               </div>
@@ -94,7 +94,7 @@ export function scrollAreaOrientations(): ReactNode {
         </ScrollArea>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           horizontal
         </span>
         <ScrollArea
@@ -105,7 +105,7 @@ export function scrollAreaOrientations(): ReactNode {
             {Array.from({ length: 10 }, (_, i) => (
               <div
                 key={i}
-                className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted text-base font-medium text-muted-foreground"
+                className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-medium text-muted-foreground"
               >
                 {i + 1}
               </div>
@@ -114,7 +114,7 @@ export function scrollAreaOrientations(): ReactNode {
         </ScrollArea>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">both</span>
+        <span className="text-xs font-medium text-muted-foreground">both</span>
         <ScrollArea
           orientation="both"
           className="h-44 w-52 rounded-lg border border-border"
@@ -123,7 +123,7 @@ export function scrollAreaOrientations(): ReactNode {
             {Array.from({ length: 42 }, (_, i) => (
               <div
                 key={i}
-                className="flex size-14 shrink-0 items-center justify-center rounded-md bg-muted text-base font-medium text-muted-foreground"
+                className="flex size-14 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-medium text-muted-foreground"
               >
                 {i + 1}
               </div>

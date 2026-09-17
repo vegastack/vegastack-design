@@ -75,9 +75,7 @@ test("focused slot darkens its border as the sole focus cue (no ring)", async ()
   const firstSlot = screen.container.querySelector(
     '[data-slot="otp-input-slot"]',
   );
-  expect(firstSlot?.className).toContain(
-    "focus:border-ring/(--alpha-tint-border)",
-  );
+  expect(firstSlot?.className).toContain("focus:border-ring/70");
   expect(firstSlot?.className).not.toContain("focus-visible:ring-2");
 });
 

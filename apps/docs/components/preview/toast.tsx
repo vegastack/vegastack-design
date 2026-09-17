@@ -168,8 +168,8 @@ export function toastCustom(): ReactNode {
           // real toast.
           toast.custom((item) => (
             <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <p className="text-base font-medium">Subscription expiring</p>
-              <p className="text-base text-muted-foreground">
+              <p className="text-sm font-medium">Subscription expiring</p>
+              <p className="text-sm text-muted-foreground">
                 Your plan renews in 3 days.
               </p>
               <Button

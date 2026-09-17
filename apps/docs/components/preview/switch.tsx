@@ -26,12 +26,12 @@ export function switchSizes(): ReactNode {
         className="grid grid-cols-[auto_auto_auto] items-center gap-x-8 gap-y-4"
         role="presentation"
       >
-        <span className="text-sm text-muted-foreground">Size</span>
-        <span className="text-sm text-muted-foreground">Off</span>
-        <span className="text-sm text-muted-foreground">On</span>
+        <span className="text-xs text-muted-foreground">Size</span>
+        <span className="text-xs text-muted-foreground">Off</span>
+        <span className="text-xs text-muted-foreground">On</span>
         {sizes.map((size) => (
           <Fragment key={size}>
-            <span className="font-mono text-sm text-muted-foreground">
+            <span className="font-mono text-xs text-muted-foreground">
               {size}
             </span>
             <Switch size={size} aria-label={`${size} off`} />
@@ -100,7 +100,7 @@ export function switchControlled(): ReactNode {
       <Field label="Email notifications" orientation="horizontal">
         <Switch checked={enabled} onCheckedChange={setEnabled} />
       </Field>
-      <p className="text-base text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Notifications are{" "}
         <span className="font-medium text-foreground">
           {enabled ? "on" : "off"}

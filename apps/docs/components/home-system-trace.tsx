@@ -78,13 +78,13 @@ function LayerHeader({
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-border pb-4">
       <div>
-        <p className="font-mono text-mono-label text-muted-foreground">
+        <p className="font-mono font-mono text-xs text-muted-foreground">
           {index}
         </p>
-        <h3 className="mt-2 text-h3 text-foreground">{title}</h3>
+        <h3 className="mt-2 text-xl font-semibold text-foreground">{title}</h3>
       </div>
       {meta ? (
-        <span className="font-mono text-mono-label text-muted-foreground">
+        <span className="font-mono font-mono text-xs text-muted-foreground">
           {meta}
         </span>
       ) : null}
@@ -116,10 +116,10 @@ function FoundationLayer({ trace }: { trace: Trace }) {
             key={token}
             className="flex items-center justify-between gap-3 border-b border-border py-3 last:border-b-0"
           >
-            <code className="min-w-0 truncate text-code text-foreground">
+            <code className="min-w-0 truncate font-mono text-sm text-foreground">
               {token}
             </code>
-            <span className="shrink-0 font-mono text-mono-label text-muted-foreground">
+            <span className="shrink-0 font-mono font-mono text-xs text-muted-foreground">
               {value}
             </span>
           </div>
@@ -200,7 +200,9 @@ function ComponentAndPatternLayers({ trace }: { trace: Trace }) {
           <div className="w-full max-w-sm">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-label text-foreground">Release v0.2</p>
+                <p className="text-sm font-medium text-foreground">
+                  Release v0.2
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   All required checks are complete.
                 </p>
@@ -259,7 +261,7 @@ function TracePanel({ trace }: { trace: Trace }) {
         </div>
         <Link
           href={data.docs}
-          className="group flex items-center justify-between gap-3 border-t border-border px-5 py-4 text-label text-foreground hover:bg-muted/(--alpha-wash-faint) active:bg-muted/(--alpha-wash-strong) sm:border-t-0"
+          className="group flex items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/(40%) active:bg-muted/(60%) sm:border-t-0"
         >
           Open {data.label} documentation
           <Icon
@@ -275,10 +277,12 @@ function TracePanel({ trace }: { trace: Trace }) {
 
 export function HomeSystemTrace() {
   return (
-    <div className="vs-type-product overflow-hidden rounded-lg border border-border bg-card">
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
       <div className="border-b border-border p-5">
         <div className="min-w-0">
-          <p className="text-label text-foreground">Trace a real component</p>
+          <p className="text-sm font-medium text-foreground">
+            Trace a real component
+          </p>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             Select a component to update its semantic foundation, owned
             behavior, and product pattern together.

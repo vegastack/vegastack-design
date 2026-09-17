@@ -222,7 +222,7 @@ export function chartDemoTooltipVariants(): ReactNode {
       <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
         {(["dot", "line", "dashed"] as const).map((indicator) => (
           <div key={indicator} className="flex flex-col gap-2">
-            <p className="text-center text-label-sm text-muted-foreground">
+            <p className="text-center text-xs font-medium text-muted-foreground">
               {indicator}
             </p>
             <ChartContainer config={singleSeriesConfig} className="h-40 w-full">

@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.9.1 sha256-wG4CRqxB5FKy5kWLPnnc4dr/5RnL+Syy9e3A6i7+OFA=
+// @vegastack data-table-parts@0.9.1 sha256-YUTEoqg+odPODxzJ0jIGzD2/2MhrJGyT5zR3lNxVwy0=
 
 "use client";
 
@@ -49,7 +49,7 @@ export interface DataTableColumnLayout {
    */
   align?: "start" | "center" | "end";
   /**
-   * Render this column's values in the mono numeral face (`text-code` +
+   * Render this column's values in the mono numeral face (`font-mono text-sm` +
    * `tabular-nums`), so figures line up down the column.
    * @default false
    */
@@ -93,7 +93,7 @@ export function columnCellClass(column: DataTableColumnLayout): string {
   return cn(
     alignClass(column.align),
     isNowrapColumn(column) && "whitespace-nowrap",
-    column.mono && "font-mono text-code tabular-nums",
+    column.mono && "font-mono font-mono text-sm tabular-nums",
   );
 }
 
@@ -160,7 +160,7 @@ export function SortHeaderButton({
       data-slot="data-table-sort"
       onClick={onSort}
       className={cn(
-        "group/sort h-(--size-sm) gap-1 px-2 text-label-sm text-muted-foreground select-none hover:text-foreground",
+        "group/sort h-7 gap-1 px-2 text-xs font-medium text-muted-foreground select-none hover:text-foreground",
         className,
       )}
     >
@@ -169,14 +169,14 @@ export function SortHeaderButton({
         {direction ? (
           <>
             {direction === "asc" ? (
-              <ArrowUp className="size-(--icon-inline)" />
+              <ArrowUp className="size-3.5" />
             ) : (
-              <ArrowDown className="size-(--icon-inline)" />
+              <ArrowDown className="size-3.5" />
             )}
-            {order != null ? <span className="text-sm">{order}</span> : null}
+            {order != null ? <span className="text-xs">{order}</span> : null}
           </>
         ) : (
-          <ChevronsUpDown className="size-(--icon-inline) opacity-0 transition-opacity duration-fast ease-standard group-hover/sort:opacity-(--opacity-hint-soft)" />
+          <ChevronsUpDown className="size-3.5 opacity-0 transition-opacity duration-fast ease-standard group-hover/sort:opacity-60" />
         )}
       </span>
     </Button>
@@ -435,7 +435,7 @@ export function SkeletonRows({
         >
           {selectable ? (
             <TableCell className="w-0">
-              <Skeleton className="size-(--icon-inline) rounded-sm" />
+              <Skeleton className="size-3.5 rounded-sm" />
             </TableCell>
           ) : null}
           {columns.map((column, columnIndex) => (

@@ -242,12 +242,12 @@ export function messageAttachment(): ReactNode {
             <Bubble variant="outline">
               <BubbleContent>
                 <span className="flex items-center gap-3">
-                  <FileText className="size-(--icon-action) shrink-0 text-muted-foreground" />
+                  <FileText className="size-5 shrink-0 text-muted-foreground" />
                   <span className="flex min-w-0 flex-col">
                     <span className="truncate font-medium">
                       release-notes.pdf
                     </span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       248 KB
                     </span>
                   </span>

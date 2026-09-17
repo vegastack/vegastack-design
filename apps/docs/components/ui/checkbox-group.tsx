@@ -1,4 +1,4 @@
-// @vegastack checkbox-group@0.9.1 sha256-zystlFI6ckDCzFauwZo8koUCwx4g3NE7cP6TWbGQi6U=
+// @vegastack checkbox-group@0.9.1 sha256-vR29Slc2tn2QxqcCuEzpyFzLHJZwSDR3BEvncl25pr0=
 
 "use client";
 
@@ -127,7 +127,7 @@ export function CheckboxGroup({
         // and every row owns a clean centred 24px target. `items-start` keeps a wrapped
         // two-line label aligned to its box instead of centred against it.
         "flex flex-col items-start gap-3",
-        "group-has-disabled/field:opacity-(--opacity-dim)",
+        "group-has-disabled/field:opacity-50",
         className,
       )}
       {...props}

@@ -172,7 +172,7 @@ test("focus: the group carries the focus-within border tint (text-entry affordan
   const root = document.querySelector(
     '[data-slot="chip-input"]',
   ) as HTMLElement;
-  expect(root.className).toContain("focus-within:border-ring");
+  expect(root.className).toContain("focus-within:border-ring/70");
   const input = screen
     .getByRole("textbox", { name: "Tags" })
     .element() as HTMLInputElement;

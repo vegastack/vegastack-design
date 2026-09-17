@@ -31,13 +31,13 @@ export function hoverCard(): ReactNode {
             <div className="flex gap-3">
               <Avatar fallback="AL" />
               <div className="flex flex-col gap-1">
-                <p className="text-base leading-none font-medium text-foreground">
+                <p className="text-sm leading-none font-medium text-foreground">
                   Ada Lovelace
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Owner · Platform team
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Joined the workspace in 2021. 142 contributions this quarter.
                 </p>
               </div>
@@ -116,13 +116,13 @@ export function hoverCardDelay(): ReactNode {
             <div className="flex gap-3">
               <Avatar fallback="GH" />
               <div className="flex flex-col gap-1">
-                <p className="text-base leading-none font-medium text-foreground">
+                <p className="text-sm leading-none font-medium text-foreground">
                   Grace Hopper
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Admin · Compiler team
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Opens and closes instantly — zero open and close delay.
                 </p>
               </div>
@@ -144,10 +144,10 @@ export function hoverCardArrow(): ReactNode {
         <HoverCardTrigger render={<Button variant="outline">2 Teams</Button>} />
         <HoverCardContent arrow>
           <div className="flex flex-col gap-2">
-            <p className="text-base leading-none font-medium text-foreground">
+            <p className="text-sm leading-none font-medium text-foreground">
               Teams
             </p>
-            <p className="text-sm text-muted-foreground">Platform · Growth</p>
+            <p className="text-xs text-muted-foreground">Platform · Growth</p>
             <Button size="sm" variant="outline" className="mt-1 self-start">
               View teams
             </Button>

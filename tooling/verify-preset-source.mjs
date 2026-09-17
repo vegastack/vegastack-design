@@ -47,13 +47,16 @@ const ASSERTIONS = [
   // The toast surface is the only thing in `@vegastack/ui/dist` that paints the status tints,
   // so these two prove the preset scanned that dist. (They replaced the sonner-era
   // `group-[.toaster]:*` overrides, which the Base UI Toast migration deleted.)
+  // The shadcn reset deleted the `<family>-subtle` tokens (COL-12 is re-expressed in shadcn's
+  // shape: one fill, one on-fill foreground), so the toast surface now paints its status tints as
+  // alpha washes of the fill. The probes follow the classes that actually ship.
   {
-    label: "Toaster (@vegastack/ui dist) — bg-success-subtle",
-    test: (css) => /\.bg-success-subtle\s*\{/.test(css),
+    label: "Toaster (@vegastack/ui dist) — bg-success/10",
+    test: (css) => /\.bg-success\\\/10\s*\{/.test(css),
   },
   {
-    label: "Toaster (@vegastack/ui dist) — bg-destructive-subtle",
-    test: (css) => /\.bg-destructive-subtle\s*\{/.test(css),
+    label: "Toaster (@vegastack/ui dist) — bg-destructive/10",
+    test: (css) => /\.bg-destructive\\\/10\s*\{/.test(css),
   },
   {
     label: "BrandIcon (@vegastack/design/icons dist) — .shrink-0",

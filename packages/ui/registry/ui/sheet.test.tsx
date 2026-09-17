@@ -253,7 +253,7 @@ test("size drives the panel extent instead of a className override (B3-11)", asy
   );
   const popup = screen.getByRole("dialog").element();
   expect(popup.getAttribute("data-size")).toBe("lg");
-  expect(popup.className).toContain("w-(--panel-width-lg)");
+  expect(popup.className).toContain("w-80");
 });
 
 test("a bottom sheet reads the same size tier as a height", async () => {
@@ -266,5 +266,5 @@ test("a bottom sheet reads the same size tier as a height", async () => {
     </Sheet>,
   );
   const popup = screen.getByRole("dialog").element();
-  expect(popup.className).toContain("max-h-(--panel-width-sm)");
+  expect(popup.className).toContain("max-h-56");
 });

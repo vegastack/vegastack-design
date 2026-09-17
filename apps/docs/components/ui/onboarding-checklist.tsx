@@ -1,10 +1,10 @@
-// @vegastack onboarding-checklist@0.9.1 sha256-CMMlYH4HjDuCYU5a8R0AmXwBLIqbs9suwV89rgpwqt4=
+// @vegastack onboarding-checklist@0.9.1 sha256-aHXwbTkQdC6pJ/vmutMNI60ZQXtnygHxSai/GWDhfWU=
 
 "use client";
 
 import * as React from "react";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { IconButton } from "@/components/ui/icon-button";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
 
@@ -92,8 +92,8 @@ export function OnboardingChecklist({
         aria-expanded={false}
         onClick={() => setCollapsed(false)}
         className={cn(
-          "inline-flex h-(--size-sm) w-fit items-center gap-2 rounded-full border border-border bg-card px-3 text-label-sm text-foreground select-none",
-          surfaceInteractive,
+          "inline-flex h-7 w-fit items-center gap-2 rounded-full border border-border bg-card px-3 text-xs font-medium text-foreground select-none",
+          "hover:bg-accent",
           className,
         )}
         {...props}
@@ -103,10 +103,7 @@ export function OnboardingChecklist({
           {clampedDone}/{clampedTotal}
         </span>
         <span className="sr-only">{expandLabel}</span>
-        <ChevronUp
-          aria-hidden
-          className="size-(--icon-compact) text-muted-foreground"
-        />
+        <ChevronUp aria-hidden className="size-3 text-muted-foreground" />
       </button>
     );
   }
@@ -116,13 +113,13 @@ export function OnboardingChecklist({
       ref={ref}
       data-slot="onboarding-checklist"
       className={cn(
-        "w-(--panel-width-md) max-w-full rounded-lg border border-border bg-card p-3 text-card-foreground",
+        "w-72 max-w-full rounded-lg border border-border bg-card p-3 text-card-foreground",
         className,
       )}
       {...props}
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-label">{title}</h3>
+        <h3 className="text-sm font-medium">{title}</h3>
         <IconButton
           variant="ghost"
           size="xs"
@@ -134,10 +131,10 @@ export function OnboardingChecklist({
           data-slot="onboarding-checklist-collapse"
           className="text-muted-foreground"
         >
-          <ChevronDown aria-hidden className="size-(--icon-inline)" />
+          <ChevronDown aria-hidden className="size-3.5" />
         </IconButton>
       </div>
-      <p className="mt-0.5 text-sm text-muted-foreground">
+      <p className="mt-0.5 text-xs text-muted-foreground">
         <span className="tabular-nums">
           {clampedDone} of {clampedTotal}
         </span>{" "}
@@ -195,10 +192,10 @@ export function OnboardingChecklistItem({
         data-done={done ? "" : undefined}
         disabled={done}
         className={cn(
-          "flex h-(--size-md) w-full items-center gap-2 rounded-md px-2 text-left text-label text-foreground select-none",
-          surfaceInteractive,
+          "flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-sm font-medium text-foreground select-none",
+          "hover:bg-accent",
           "disabled:pointer-events-none data-done:text-muted-foreground data-done:line-through",
-          "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline) [&_svg]:text-muted-foreground",
+          "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 [&_svg]:text-muted-foreground",
           className,
         )}
         {...props}

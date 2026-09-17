@@ -37,16 +37,12 @@ one of those explicit meanings.
 ## Size does hierarchy, never bold
 
 Headings, body, and prose are all **Geist**; code and data are **Geist Mono**. Hierarchy comes
-from **size, named tracking roles, and color**. Weight is normally 400–500; the rare 600 tier is
-available only through `text-strong`. Raw `font-semibold` and `font-bold` are lint-banned.
+from **size, weight and color**, on Tailwind's stock scale.
 
 <TypeScaleSizes />
 
-The ramp pairs size with a tightening letter-spacing rather than heavier weight: the display
-tier (`--text-display-xl` 4.5rem at −0.06em, down to `--text-display-sm` 2rem at −0.04em)
-through `--text-h1` (1.5rem, −0.02em) to `--text-h4` (1rem, weight 500). Use `font-sans` for
-everything textual, `font-mono` for numbers, currency, and code; the serif face is a rationed
-display accent (emphasis words, pull-quotes), never running text.
+Use `font-sans` for everything textual and `font-mono` for numbers, currency and code; the serif
+face is a rationed display accent (emphasis words, pull-quotes), never running text.
 
 <DoDont
   do="Let size, named typography roles, and color carry hierarchy; reserve text-strong for rare emphasis."
@@ -59,12 +55,12 @@ Surfaces are defined by **borders, not elevation**. Cards, inputs, and panels us
 with no drop shadow. The system ships two tightly scoped shadow roles:
 
 ```css
---shadow-overlay:
+--shadow-md:
   0 4px 14px -4px oklch(0.13 0.002 75 / 0.1),
   0 2px 4px -2px oklch(0.13 0.002 75 / 0.06);
 ```
 
-- `shadow-overlay` is reserved for floating overlay surfaces.
+- `shadow-md` is reserved for floating overlay surfaces.
 
 It is the only shadow token, so there is no `shadow-sm` / `shadow-md` ladder to reach for and no
 action finish either.
@@ -77,7 +73,7 @@ Corners use the fixed 2/6/8/12/full roles. `rounded-lg` is the 12px container ca
 <RadiusScale />
 
 <DoDont
-  do="Separate surfaces with border-border and use shadow-overlay for overlays — nothing else."
+  do="Separate surfaces with border-border and use shadow-md for overlays — nothing else."
   dont="Elevate cards, nest equal-elevation cards, or invent a generic shadow ladder."
 />
 
@@ -134,7 +130,7 @@ are no separate ring-width or offset tokens — the 2px / 1px convention is the 
 <FocusRingSpecimen />
 
 Color choices are AA-aware: `subtle`/`text` variants are theme-tuned for on-surface contrast, and
-`--muted-foreground-faint` is the one deliberately sub-AA tone, reserved strictly for placeholders.
+`--muted-foreground` is the one deliberately sub-AA tone, reserved strictly for placeholders.
 The full contract — axe gate, keyboard semantics, and reduced motion — lives on the
 [Accessibility](/docs/foundations/accessibility) page.
 
@@ -146,5 +142,5 @@ The full contract — axe gate, keyboard semantics, and reduced motion — lives
 
 <DoDont
   do="Keep a visible 2px focus-visible ring and meet AA contrast on every interactive element."
-  dont="Strip focus outlines or rely on muted-foreground-faint for anything but placeholders."
+  dont="Strip focus outlines or rely on muted-foreground for anything but placeholders."
 />

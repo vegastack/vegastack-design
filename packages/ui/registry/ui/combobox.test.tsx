@@ -357,7 +357,7 @@ test("multiple mode: ComboboxChipRemove removes one chip, ComboboxClear removes 
   expect(onValueChange).toHaveBeenCalledWith([], expect.anything());
 });
 
-test("ComboboxContent's positioner carries the z-(--z-overlay) token class", async () => {
+test("ComboboxContent's positioner carries the z-50 token class", async () => {
   const screen = await render(<Fixture />);
   await screen.getByRole("button", { name: "Toggle fonts" }).click();
   const doc = screen.container.ownerDocument;
@@ -368,14 +368,14 @@ test("ComboboxContent's positioner carries the z-(--z-overlay) token class", asy
     .poll(() =>
       doc
         .querySelector('[data-slot="combobox-positioner"]')
-        ?.classList.contains("z-(--z-overlay)"),
+        ?.classList.contains("z-50"),
     )
     .toBe(true);
   await expect
     .poll(() =>
       doc
         .querySelector('[data-slot="combobox-content"]')
-        ?.classList.contains("z-(--z-overlay)"),
+        ?.classList.contains("z-50"),
     )
     .toBe(true);
 });

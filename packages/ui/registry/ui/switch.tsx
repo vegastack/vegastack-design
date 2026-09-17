@@ -1,4 +1,4 @@
-// @vegastack switch@0.9.1 sha256-SDFZpFcn7CLUHkKMTOeTQqsSdHxbzYIhQeNLjMMNvLY=
+// @vegastack switch@0.9.1 sha256-QLOnnipgEKvEJX6jw0fNYrTk5dXHg9c3BPGNKT6jJPg=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -8,7 +8,7 @@ import { cn } from "@vegastack/design";
 /**
  * Switch track variants — the outer rail. State is driven by Base UI's
  * `data-checked` / `data-unchecked` attributes (no JS state classes), and every
- * value is a semantic token (no hardcoded colors). `bg-surface-3` when off,
+ * value is a semantic token (no hardcoded colors). `bg-accent` when off,
  * neutral `bg-primary` ink when on, with a `:focus-visible` ring.
  */
 export const switchVariants = cva(
@@ -16,23 +16,23 @@ export const switchVariants = cva(
   // status dot. `aria-invalid` stays on the DOM as the semantic cue, and the wrapping `Field`
   // supplies the associated error copy, which is the only invalid affordance the switch needs.
   // `.join(" ")`, not `+`. Two of these fragments used to be concatenated with no separator, so the
-  // track shipped `p-0.5bg-surface-3` and `data-checked:bg-primarynot-disabled:hover:border-…`:
+  // track shipped `p-0.5bg-accent` and `data-checked:bg-primarynot-disabled:hover:border-…`:
   // FOUR utilities vanished at once and the switch measured `background-color: rgba(0,0,0,0)` and
   // `padding: 0px` in BOTH states — a track with no colour, on/off conveyed only by thumb position,
   // and paint appearing only under the cursor because the hovered-checked rung survived its own
   // seam (2026-09-09). An array removes the seam; `class-glue` in `design-lint` now rejects it.
   [
     "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5",
-    "bg-surface-3 data-checked:bg-primary",
+    "bg-accent data-checked:bg-primary",
     // The switch was the one control in the batch with NO hover treatment at all (audit SP-04).
     // Its track already sits on the ladder's top rung, so there is no rung left to climb: the
     // hover step is the same neutral BORDER tint the checkbox and radio wear, which the
     // transparent border + `bg-clip-padding` were already reserving space for — so nothing
     // moves when it appears. Checked, the filled track takes the solid's own darker rungs.
-    "not-disabled:hover:border-foreground/(--alpha-border-subtle)",
-    "not-disabled:data-checked:hover:bg-primary-hover not-disabled:data-checked:active:bg-primary-active",
+    "not-disabled:hover:border-foreground/20",
+    "not-disabled:data-checked:hover:bg-primary/90 not-disabled:data-checked:active:bg-primary/80",
     // D7: no `pointer-events-none` — a disabled control stays hoverable for its Tooltip.
-    "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
+    "disabled:cursor-not-allowed disabled:opacity-50",
   ].join(" "),
   {
     variants: {

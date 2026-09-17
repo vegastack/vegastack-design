@@ -30,8 +30,8 @@ state-function `className`. Its ref forwards to the underlying input element.
 ### States
 
 The field reflects `disabled`, `readOnly`, and `aria-invalid`. The invalid state
-re-colors the border with the `destructive-border` token
-(`aria-invalid:border-destructive-border/(--alpha-tint-border)`) — pair it with a visible error
+re-colors the border with the `destructive` token
+(`aria-invalid:border-destructive/(70%)`) — pair it with a visible error
 message for non-color-dependent feedback. **While the field is focused the focus tint wins the
 border** and the invalid tint returns on blur: a text field has no outline, so the border is its only
 focus cue and nothing else may hold it.
@@ -69,7 +69,7 @@ the Base UI input and `containerClassName` for the addon wrapper.
 In addon mode the wrapper reads the inner input's state through `has-*`
 selectors, so `disabled` and `aria-invalid` recolor the whole group rather than
 just the `<input>` — `has-disabled:*` dims the group and
-`has-aria-invalid:border-destructive-border/(--alpha-tint-border)` marks it invalid. As on a bare
+`has-aria-invalid:border-destructive/(70%)` marks it invalid. As on a bare
 field, the group's focus tint outranks the invalid one while anything inside it holds focus.
 
 <ComponentPreview name="inputAddonStates" file="components/preview/input.tsx" />
@@ -119,7 +119,7 @@ Try every type, size, and state — flipping Invalid on replays the built-in sha
 - Renders Base UI Input as a native `<input>` by default — always associate a
   visible `<label>` (wrap it or use `htmlFor`/`id`); use `aria-label` only when a
   visible label is impossible.
-- On focus the field recolors its border with the `ring` token (`focus:border-ring/(--alpha-tint-border)`) instead of removing the outline — never `outline: none` with no replacement affordance. `Textarea` and `OTPInput` use the identical border tint, so text-entry focus reads the same across all three.
+- On focus the field recolors its border with the `ring` token (`focus:border-ring/(70%)`) instead of removing the outline — never `outline: none` with no replacement affordance. `Textarea` and `OTPInput` use the identical border tint, so text-entry focus reads the same across all three.
 - Set `aria-invalid` (and `aria-describedby` pointing at the error text) to mark a
   field invalid; the styling is token-driven and never relies on color alone.
 - `prefix`/`suffix` addons are decorative label text; keep the meaningful value in

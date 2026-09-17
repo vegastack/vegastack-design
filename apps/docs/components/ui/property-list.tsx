@@ -1,4 +1,4 @@
-// @vegastack property-list@0.9.1 sha256-zrNLmcNbniOmeRX1o6oIZCl5I2U5FXUuKqwRalso2Mc=
+// @vegastack property-list@0.9.1 sha256-B7/K1Xg5wbzGh7q6kVuNnaZzlsT4WW8bP0SSVctZvYI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -58,12 +58,12 @@ export function PropertyRow({ className, ...props }: PropertyRowProps) {
       className={cn(
         // Below @xs the pane is too narrow for two tracks: the row stacks, so the
         // value gets the full width instead of being squeezed into a sliver.
-        "grid min-h-(--size-sm) grid-cols-1 items-start gap-x-2 gap-y-0.5",
+        "grid min-h-7 grid-cols-1 items-start gap-x-2 gap-y-0.5",
         // At @xs and up the label track SHRINKS TO ITS CONTENT above a 20-unit
         // (80px) floor, instead of the old fixed 112px: short labels stop wasting
         // the value column's width, and long ones are no longer clipped by a
         // track that never negotiated with them.
-        "@xs/property-list:min-h-(--size-sm) @xs/property-list:grid-cols-[minmax(calc(var(--spacing)*20),max-content)_minmax(0,1fr)] @xs/property-list:items-center @xs/property-list:gap-y-2",
+        "@xs/property-list:min-h-7 @xs/property-list:grid-cols-[minmax(calc(var(--spacing)*20),max-content)_minmax(0,1fr)] @xs/property-list:items-center @xs/property-list:gap-y-2",
         className,
       )}
       {...props}
@@ -88,8 +88,8 @@ export function PropertyLabel({
     <dt
       data-slot="property-label"
       className={cn(
-        "flex min-w-0 items-center gap-1.5 text-label-sm text-muted-foreground",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+        "flex min-w-0 items-center gap-1.5 text-xs font-medium text-muted-foreground",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         className,
       )}
       {...props}
@@ -118,7 +118,7 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // hidden`, which CLIPPED the focus ring of any link inside it (SP-03).
         // Compose `TruncatedText` explicitly where a single line is genuinely
         // required.
-        "m-0 min-w-0 text-base wrap-anywhere text-foreground",
+        "m-0 min-w-0 text-sm wrap-anywhere text-foreground",
         className,
       )}
       {...props}

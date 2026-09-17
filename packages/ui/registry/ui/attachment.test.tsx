@@ -116,9 +116,7 @@ test("disabled state marks the root aria-disabled and dims it", async () => {
   const screen = await render(<Chip state="disabled" />);
   const root = screen.container.querySelector('[data-slot="attachment"]')!;
   expect(root).toHaveAttribute("aria-disabled", "true");
-  expect(root.className).toContain(
-    "data-[state=disabled]:opacity-(--opacity-dim)",
-  );
+  expect(root.className).toContain("data-[state=disabled]:opacity-50");
 });
 
 test("idle/complete are not aria-disabled", async () => {
@@ -257,7 +255,7 @@ test("no a11y violations — AttachmentGroup with multiple attachments", async (
 });
 
 test("vertical orientation: media releases its fixed height so aspect-square can apply", async () => {
-  // The base class sets `size-(--size-lg)` (definite width AND height). With both dimensions
+  // The base class sets `size-10` (definite width AND height). With both dimensions
   // definite, CSS ignores `aspect-ratio` — the vertical thumbnail rendered 110×40 instead of
   // square (audit finding). The vertical override must therefore carry `h-auto` alongside
   // `aspect-square w-full`. Class-contract assertion (this suite loads no compiled CSS).

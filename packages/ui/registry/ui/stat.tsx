@@ -1,4 +1,4 @@
-// @vegastack stat@0.9.1 sha256-FJMYLHN2OiammVnkOyIgIY4dmgK4F8k38Nap87jh+EY=
+// @vegastack stat@0.9.1 sha256-KX2c4fvzEOX/T8VlBYZEbb71ZWZxCCsNOcxamKb0XO8=
 
 "use client";
 
@@ -8,7 +8,7 @@ import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Stat — a labelled value block (Wave 2c, from the app-teardown record-highlights pattern):
- * `text-label-sm` muted label over a foreground value, with an HONEST empty treatment ("No
+ * `text-xs font-medium` muted label over a foreground value, with an HONEST empty treatment ("No
  * connection" in the faint register) instead of a dash. Server-safe, purely presentational.
  * Two scales: `default` (record-page highlights, 14px value) and `lg` (dashboard stat tiles,
  * 24px value on the type-scale cap).
@@ -17,8 +17,8 @@ import { cn } from "@vegastack/design";
 export const statValueVariants = cva("font-medium text-foreground", {
   variants: {
     size: {
-      md: "text-base",
-      lg: "text-3xl tabular-nums",
+      md: "text-sm",
+      lg: "text-2xl tabular-nums",
     },
   },
   defaultVariants: { size: "md" },
@@ -74,7 +74,7 @@ export function StatLabel({ className, ...props }: StatLabelProps) {
   return (
     <div
       data-slot="stat-label"
-      className={cn("text-label-sm text-muted-foreground", className)}
+      className={cn("text-xs font-medium text-muted-foreground", className)}
       {...props}
     />
   );
@@ -107,7 +107,7 @@ export function StatEmpty({ className, children, ...props }: StatEmptyProps) {
   return (
     <div
       data-slot="stat-empty"
-      className={cn("text-base text-muted-foreground", className)}
+      className={cn("text-sm text-muted-foreground", className)}
       {...props}
     >
       {children ?? "No data"}
@@ -142,7 +142,7 @@ export function StatDelta({
     <div
       data-slot="stat-delta"
       data-intent={intent}
-      className={cn("text-sm font-medium", DELTA_CLASSES[intent], className)}
+      className={cn("text-xs font-medium", DELTA_CLASSES[intent], className)}
       {...props}
     />
   );

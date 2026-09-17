@@ -108,7 +108,7 @@ export function filterBarManagedCaps(): ReactNode {
           maxConditions={3}
           maxDepth={1}
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Both caps reached: the add affordances disable with a readable reason.
         </p>
       </div>

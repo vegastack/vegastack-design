@@ -32,7 +32,7 @@ import { FigureFrame } from "@/components/ui/figure-frame";
 
 ### The marketing "sharp" gesture
 
-`FigureFrame` uses `rounded-(--radius-sharp)` (2px) — the marketing sharp gesture is **rationed**
+`FigureFrame` uses `rounded-(rounded-[2px])` (2px) — the marketing sharp gesture is **rationed**
 to CTAs, chips, and figure frames (audit 17-brand-direction §Shape). Product surfaces keep the
 6/8/12px radius scale unchanged; this is the one deliberate exception.
 
@@ -65,7 +65,7 @@ to CTAs, chips, and figure frames (audit 17-brand-direction §Shape). Product su
 
 - Renders a semantic `<figure>` / `<figcaption>` pair — the caption is real, readable text
   associated with its figure.
-- The caption uses the mono voice at its 12px floor (`text-mono-label`) — this component
+- The caption uses the mono voice at its 12px floor (`font-mono text-xs`) — this component
   intentionally does not reach for the spec's optional 10px FIG-annotation minimum, since no token
   below 12px is shipped yet.
 - The framed media (an `<img>`, video, or live demo) must carry its own accessible description

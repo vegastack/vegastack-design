@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.9.1 sha256-h6Qdm5LmNztnM1Nx9JYZePwoSxHYx2e1/J8dRDNpIBU=
+// @vegastack audio-player@0.9.1 sha256-Xk36/hf3dfghQ3fvcBj2eune1hwnPh5TVhSl3/oVcHs=
 
 "use client";
 
@@ -260,12 +260,12 @@ export function AudioPlayer({
           className="flex min-w-0 flex-col gap-1"
         >
           {title ? (
-            <div className="min-w-0 text-label text-foreground">
+            <div className="min-w-0 text-sm font-medium text-foreground">
               <span className="block truncate">{title}</span>
             </div>
           ) : null}
           {description ? (
-            <div className="min-w-0 text-sm text-muted-foreground">
+            <div className="min-w-0 text-xs text-muted-foreground">
               <span className="block truncate">{description}</span>
             </div>
           ) : null}

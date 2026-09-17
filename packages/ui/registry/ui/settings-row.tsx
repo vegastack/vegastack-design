@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.9.1 sha256-6leoCAs+Kgz9MU2ZmaY2DMBsIamg2v7eO4eyPdMQOcU=
+// @vegastack settings-row@0.9.1 sha256-hASG42beS+ITCrVBvtIXnZN2IBXEmX8K8Gx6OQIu0Qk=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -25,7 +25,7 @@ export interface SettingsSectionProps extends Omit<
   /**
    * Heading element the `title` renders as. Pick the level that continues the page's
    * outline — `h2` directly under the page `h1`, `h3` inside an `h2` group, and so on.
-   * The visual size never changes (it is the `text-h4` role either way); only the
+   * The visual size never changes (it is the `text-base font-medium` role either way); only the
    * document structure does.
    *
    * `as` rather than Base UI `render` on purpose: `useRender` calls `React.useRef`
@@ -82,7 +82,7 @@ export function SettingsSection({
           {title != null && (
             <TitleTag
               data-slot="settings-section-title"
-              className="text-h4 text-foreground"
+              className="text-base font-medium text-foreground"
             >
               {title}
             </TitleTag>
@@ -90,7 +90,7 @@ export function SettingsSection({
           {description != null && (
             <p
               data-slot="settings-section-description"
-              className="text-sm leading-normal text-muted-foreground"
+              className="text-xs leading-normal text-muted-foreground"
             >
               {description}
             </p>
@@ -216,14 +216,17 @@ export function SettingsRow({
           <LabelTag
             {...(controlId ? { htmlFor: controlId } : {})}
             {...(controlId ? labelProps : undefined)}
-            className={cn("text-label text-foreground", labelProps?.className)}
+            className={cn(
+              "text-sm font-medium text-foreground",
+              labelProps?.className,
+            )}
           >
             {label}
           </LabelTag>
           {description != null && (
             <span
               data-slot="settings-row-description"
-              className="text-sm leading-normal text-muted-foreground"
+              className="text-xs leading-normal text-muted-foreground"
             >
               {description}
             </span>

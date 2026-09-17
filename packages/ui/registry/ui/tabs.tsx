@@ -1,11 +1,11 @@
-// @vegastack tabs@0.9.1 sha256-ytXteWT4ZI3GKEPufRZbV/gxQZuYyqBVGkZGLRoM3yk=
+// @vegastack tabs@0.9.1 sha256-RoeON31PjfrfRDGYy9igF9HcKI9+FwTXG1k7l3ILb/w=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
-import { cn, selectedChipVariants } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Tabs (Root) — groups the list and the panels, owns orientation.
@@ -83,7 +83,7 @@ export const tabsListVariants = cva(
         ),
         pill: cn(
           "gap-1 rounded-lg p-1 text-muted-foreground group-data-[orientation=vertical]/tabs:w-fit",
-          selectedChipVariants.track,
+          "bg-muted",
         ),
         /** Free-standing chip tabs (Wave 2 — the record-page treatment): no track;
          * the active trigger raises on the shared selected-chip recipe. */
@@ -111,7 +111,7 @@ export interface TabsListProps
    * Active-tab treatment.
    * - `line`: transparent track with a moving underline indicator (default).
    * - `pill`: muted track; the active tab raises on the shared selected-chip
-   *   recipe (`selectedChipVariants`) it holds in common with `Segmented`.
+   *   recipe (the selected-chip recipe) it holds in common with `Segmented`.
    * - `chip`: the same raised chip free-standing, with no track (the dense
    *   record-page treatment).
    * @default 'line'
@@ -218,14 +218,14 @@ export function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         // Shared chrome.
-        "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-label text-muted-foreground focus-visible:-outline-offset-2 select-none",
+        "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-medium text-muted-foreground focus-visible:-outline-offset-2 select-none",
         "hover:text-foreground data-[active]:text-foreground",
         // Base UI's Tabs.Tab is `focusableWhenDisabled` (no native `disabled` attribute —
         // disabled state is surfaced as `data-disabled`/`aria-disabled`), so style `data-disabled`;
         // the native variant is kept for a consumer-rendered plain button via `render`.
-        "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
-        "data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+        "disabled:pointer-events-none disabled:opacity-50",
+        "data-disabled:pointer-events-none data-disabled:opacity-50",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         // line: sized on the 32px control scale; active colour only (the moving Indicator paints
         // the primary underline). The wash is held OFF the list rule — a hover fill that runs flush
         // into a container hairline reads as a rendering bug, not a state (design.md §Hover
@@ -233,21 +233,24 @@ export function TabsTrigger({
         // games: 4px below the trigger for the horizontal bottom rail, 4px inside the
         // inline-start rail for the vertical one (which mirrors itself in RTL). The Indicator is
         // positioned against the LIST, so it stays welded to the rule either way.
-        "group-data-[variant=line]/tabs-list:h-(--size-md) group-data-[variant=line]/tabs-list:rounded-md group-data-[variant=line]/tabs-list:px-3",
+        "group-data-[variant=line]/tabs-list:h-8 group-data-[variant=line]/tabs-list:rounded-md group-data-[variant=line]/tabs-list:px-3",
         "group-data-[orientation=horizontal]/tabs:group-data-[variant=line]/tabs-list:mb-1",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=line]/tabs-list:ms-1",
-        "group-data-[variant=line]/tabs-list:hover:bg-surface-2 group-data-[variant=line]/tabs-list:active:bg-surface-3",
+        "group-data-[variant=line]/tabs-list:hover:bg-accent group-data-[variant=line]/tabs-list:active:bg-accent",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=line]/tabs-list:justify-start",
         // pill + chip: geometry only on the 32px / 28px scales — the LOOK is the one shared
         // raised-chip recipe below (B6-02), which both variants take verbatim so a pill tab, a chip
         // tab, a Segmented chip and a pressed Toggle can never drift into four selected looks again.
-        "group-data-[variant=pill]/tabs-list:h-(--size-md) group-data-[variant=pill]/tabs-list:rounded-md group-data-[variant=pill]/tabs-list:px-3",
+        "group-data-[variant=pill]/tabs-list:h-8 group-data-[variant=pill]/tabs-list:rounded-md group-data-[variant=pill]/tabs-list:px-3",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=pill]/tabs-list:justify-start",
-        "group-data-[variant=chip]/tabs-list:h-(--size-sm) group-data-[variant=chip]/tabs-list:rounded-md group-data-[variant=chip]/tabs-list:px-2.5 group-data-[variant=chip]/tabs-list:text-label-sm",
+        "group-data-[variant=chip]/tabs-list:h-7 group-data-[variant=chip]/tabs-list:rounded-md group-data-[variant=chip]/tabs-list:px-2.5 group-data-[variant=chip]/tabs-list:text-xs group-data-[variant=chip]/tabs-list:font-medium",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=chip]/tabs-list:justify-start",
         // The recipe reserves its hairline transparently, so selecting a tab adds no layout shift.
         variant !== "line" &&
-          cn(selectedChipVariants.item, selectedChipVariants.active),
+          cn(
+            "border border-transparent hover:text-foreground",
+            "data-[active]:border-input data-[active]:bg-background data-[active]:text-foreground data-[active]:shadow-sm dark:data-[active]:bg-input/30",
+          ),
         className,
       )}
       {...props}
@@ -264,8 +267,8 @@ export function TabsTrigger({
             //
             // The ink is `foreground`, NOT `muted-foreground`, and that is a contrast fact rather
             // than a taste call. On a `pill`/`chip` list this badge STACKS its wash on the
-            // trigger's own: an unselected trigger sits on the `surface-1` track and a selected
-            // one adds `--alpha-ink-tint`, so the badge's backdrop is two washes deep. Measured
+            // trigger's own: an unselected trigger sits on the `muted` track and a selected
+            // one adds `10%`, so the badge's backdrop is two washes deep. Measured
             // dark (axe, compiled tokens): muted ink read 4.05:1 unselected and 3.43:1 selected —
             // both under AA, and the second is the appearance probe's serious `color-contrast` on
             // /docs/components/tabs. Body ink clears every one of those stacks with room to spare
@@ -273,7 +276,7 @@ export function TabsTrigger({
             // visually quiet through its size and its fill, not by thinning ink that is already
             // sitting on a tinted plate.
             // Pinned by `test/contrast.browser.test.tsx` ("Tabs count badge", both themes).
-            "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-foreground/(--alpha-hover) px-1 text-label-sm tabular-nums text-foreground",
+            "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-foreground/7 px-1 text-xs font-medium tabular-nums text-foreground",
           )}
         >
           {count}
@@ -306,7 +309,7 @@ export function TabsContent({ className, ref, ...props }: TabsContentProps) {
       data-slot="tabs-content"
       // The focus ring is the GLOBAL `:focus-visible` rule; restating it here (B6-10) only invited
       // the two to drift.
-      className={cn("flex-1 text-base", className)}
+      className={cn("flex-1 text-sm", className)}
       {...props}
     />
   );

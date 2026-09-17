@@ -110,8 +110,10 @@ export function appShellDemo(): ReactNode {
                   key={label}
                   className="rounded-lg border border-border bg-card p-4"
                 >
-                  <p className="text-label-sm text-muted-foreground">{label}</p>
-                  <p className="font-mono text-2xl text-foreground">—</p>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {label}
+                  </p>
+                  <p className="font-mono text-xl text-foreground">—</p>
                 </div>
               ))}
             </div>
@@ -150,7 +152,7 @@ export function appShellInset(): ReactNode {
         </AppShellSidebar>
         <div className="flex h-svh min-w-0 flex-1 flex-col">
           <AppShellHeader>
-            <span className="truncate text-label font-medium text-foreground">
+            <span className="truncate text-sm font-medium font-medium text-foreground">
               Dashboard
             </span>
           </AppShellHeader>
@@ -159,7 +161,7 @@ export function appShellInset(): ReactNode {
             landmark="region"
             aria-label="Page content"
           >
-            <p className="p-4 text-base text-muted-foreground">
+            <p className="p-4 text-sm text-muted-foreground">
               The content region is the rounded panel — pass the same{" "}
               <code>variant</code> to both <code>AppShellSidebar</code> and{" "}
               <code>AppShellContent</code>.
@@ -199,12 +201,12 @@ export function appShellFloating(): ReactNode {
         </AppShellSidebar>
         <div className="flex h-svh min-w-0 flex-1 flex-col">
           <AppShellHeader>
-            <span className="truncate text-label font-medium text-foreground">
+            <span className="truncate text-sm font-medium font-medium text-foreground">
               Dashboard
             </span>
           </AppShellHeader>
           <AppShellContent landmark="region" aria-label="Page content">
-            <p className="p-4 text-base text-muted-foreground">
+            <p className="p-4 text-sm text-muted-foreground">
               <code>floating</code> styles the rail itself — the content region
               needs no matching
               <code> variant</code>.
@@ -258,12 +260,12 @@ export function appShellMobile(): ReactNode {
         </AppShellSidebar>
         <div className="flex h-full min-w-0 flex-1 flex-col">
           <AppShellHeader>
-            <span className="truncate text-label font-medium text-foreground">
+            <span className="truncate text-sm font-medium font-medium text-foreground">
               Mobile dashboard
             </span>
           </AppShellHeader>
           <AppShellContent landmark="region" aria-label="Page content">
-            <p className="p-4 text-base text-muted-foreground">
+            <p className="p-4 text-sm text-muted-foreground">
               Use the menu trigger to open navigation over this content.
             </p>
           </AppShellContent>

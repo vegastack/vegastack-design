@@ -27,8 +27,7 @@ export const isLightSemantic = (token) =>
   token.filePath.includes("semantic.tokens");
 export const isDarkSemantic = (token) =>
   token.filePath.includes("semantic.dark");
-export const isCssSemantic = (token) =>
-  isLightSemantic(token) && (token.$type ?? token.type) !== "typography";
+export const isCssSemantic = (token) => isLightSemantic(token);
 
 export function cssPlatform(files) {
   return {
@@ -40,7 +39,7 @@ export function cssPlatform(files) {
 
 export function tokenConfig(source, platform) {
   return {
-    preprocessors: ["derive-interaction-states"],
+    // No preprocessors: the shadcn reset deleted the only one (`derive-interaction-states`).
     source,
     platforms: { [platform.name]: platform.config },
   };
