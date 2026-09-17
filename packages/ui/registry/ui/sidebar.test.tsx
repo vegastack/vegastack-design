@@ -609,9 +609,16 @@ test("SidebarMenuSkeleton derives a deterministic, cycling text-line width from 
       <SidebarMenuSkeleton data-testid="row-5" index={5} />
     </div>,
   );
+  // Since Batch 2 of the shadcn reset `Skeleton` is upstream's plain `data-slot="skeleton"` div
+  // with no `shape` prop, so the two placeholders in a row are told apart by position: the
+  // circular icon first (when shown), the text line last.
   const lineClass = (testId: string) =>
-    screen.getByTestId(testId).element().querySelector('[data-shape="line"]')!
-      .className;
+    [
+      ...screen
+        .getByTestId(testId)
+        .element()
+        .querySelectorAll('[data-slot="skeleton"]'),
+    ].at(-1)!.className;
 
   // Same index -> identical width every time (deterministic, no Math.random).
   expect(lineClass("row-0")).toBe(lineClass("row-0-again"));
@@ -626,17 +633,31 @@ test("SidebarMenuSkeleton hides the icon placeholder when showIcon={false}", asy
     <SidebarMenuSkeleton data-testid="row" showIcon={false} />,
   );
   const row = screen.getByTestId("row").element();
-  expect(row.querySelector('[data-shape="circle"]')).toBeNull();
-  expect(row.querySelector('[data-shape="line"]')).not.toBeNull();
+  const placeholders = row.querySelectorAll('[data-slot="skeleton"]');
+  expect(placeholders.length).toBe(1);
+  expect(placeholders[0]!.className).not.toContain("rounded-full");
 });
 
-test("SidebarMenuSkeleton is decorative (aria-hidden) like the Skeleton it composes", async () => {
+test("SidebarMenuSkeleton shows a circular icon placeholder by default", async () => {
   const screen = await render(<SidebarMenuSkeleton data-testid="row" />);
-  const circle = screen
+  const placeholders = screen
     .getByTestId("row")
     .element()
-    .querySelector('[data-shape="circle"]');
-  expect(circle?.getAttribute("aria-hidden")).toBe("true");
+    .querySelectorAll('[data-slot="skeleton"]');
+  expect(placeholders.length).toBe(2);
+  expect(placeholders[0]!.className).toContain("rounded-full");
+});
+
+test("SidebarMenuSkeleton announces nothing — it is layout, not content", async () => {
+  // Upstream's Skeleton is a bare div with no text and no role, so it contributes no accessible
+  // name; the decorative marker that used to live on each placeholder moved to the ONE wrapper
+  // that owns the loading region (`AppShellSkeleton`, asserted in app-shell.test.tsx).
+  const screen = await render(<SidebarMenuSkeleton data-testid="row" />);
+  const row = screen.getByTestId("row").element();
+  expect(row.textContent).toBe("");
+  for (const placeholder of row.querySelectorAll('[data-slot="skeleton"]')) {
+    expect(placeholder.getAttribute("role")).toBeNull();
+  }
 });
 
 /* ---------------------------------------------------------------------------------------------

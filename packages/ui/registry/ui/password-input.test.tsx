@@ -190,12 +190,11 @@ test("the toggle is an IconButton with the ghost recipe and an accessible name",
     name: "Toggle password visibility",
   });
   await expect.element(toggle).toHaveAttribute("data-slot", "icon-button");
-  await expect.element(toggle).toHaveAttribute("data-variant", "ghost");
-  // `Button` is what writes `data-size`, and since F2 retired the icon-* size tier there is one
-  // vocabulary: `IconButton size="xs"` passes `xs` straight through and the square geometry comes
-  // from `iconButtonGeometry`. Asserting the value Button actually renders is the point — it is the
-  // one that decides the 24px box.
-  await expect.element(toggle).toHaveAttribute("data-size", "xs");
+  // Since Batch 2 of the shadcn reset `Button` is upstream's, which mirrors neither `data-variant`
+  // nor `data-size` — the recipe it resolved to IS the assertion, and it is what decides the
+  // 24px box.
+  await expect.element(toggle).toHaveClass("size-6");
+  await expect.element(toggle).toHaveClass("hover:bg-muted");
 });
 
 test("rapid double-toggle settles on the correct icon and type without crashing", async () => {

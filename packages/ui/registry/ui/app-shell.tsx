@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.9.1 sha256-LH0Jg32IzoZ8kiTGxuhhEXOYk5ZbNjLPh/wTgUz1Sj8=
+// @vegastack app-shell@0.9.1 sha256-UwBXt1wrDFvDAHpFt8LJXU8xrgXDx6fInLWyw+i1Nnw=
 
 "use client";
 
@@ -364,7 +364,7 @@ export interface AppShellSkeletonProps extends React.ComponentProps<"div"> {
    */
   navItemCount?: number;
   /**
-   * Number of stat-card placeholders (`Skeleton shape="card"`) in the content region.
+   * Number of stat-card placeholders in the content region.
    * @default 4
    */
   statCardCount?: number;
@@ -373,7 +373,7 @@ export interface AppShellSkeletonProps extends React.ComponentProps<"div"> {
 /**
  * `AppShellSkeleton` — a full-shell loading composition: a sidebar column (logo circle + N
  * `SidebarMenuSkeleton` rows), a header line, and a content region (a stat-card row via
- * `Skeleton shape="card"` + one tall `shape="rect"` placeholder below it). Decorative
+ * a stat-card row plus one tall placeholder below it). Decorative
  * (`aria-hidden`) and `aria-busy`, matching `Skeleton`'s own convention; deterministic across
  * renders — no `Math.random()`, `SidebarMenuSkeleton`'s own `index`-cycled widths do the varying.
  *
@@ -427,7 +427,10 @@ export function AppShellSkeleton({
           <Skeleton className="h-4 w-32" />
         </div>
         <div className="@container/app-shell-content flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
-          <div className="grid grid-cols-1 gap-4 @sm/app-shell-content:grid-cols-2 @lg/app-shell-content:grid-cols-4">
+          <div
+            data-slot="app-shell-skeleton-stats"
+            className="grid grid-cols-1 gap-4 @sm/app-shell-content:grid-cols-2 @lg/app-shell-content:grid-cols-4"
+          >
             {Array.from({ length: Math.max(0, statCardCount) }, (_, i) => (
               <Skeleton key={i} className="h-24" />
             ))}

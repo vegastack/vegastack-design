@@ -109,10 +109,10 @@ test("the remove control is a round ghost IconButton with the shared hover/press
   expect(remove.dataset.slot).toBe("chip-remove");
   expect(remove.dataset.shape).toBe("round");
   expect(remove.className).toContain("rounded-full");
-  // Hover climbs surface ladder rung 2, pressing climbs rung 3 — from Button's `ghost`
-  // recipe, never a literal restated here (SP-01: every control needs a pressed step).
-  expect(remove.className).toContain("hover:bg-(--btn-soft-hover)");
-  expect(remove.className).toContain("active:bg-(--btn-soft-active)");
+  // The hover wash comes from Button's own `ghost` recipe, never a literal restated here.
+  // Since Batch 2 of the shadcn reset that recipe is upstream's (`hover:bg-muted`), so the
+  // surface-ladder custom properties it used to read are gone with the ladder.
+  expect(remove.className).toContain("hover:bg-muted");
 });
 
 /* ---------------------------------------------------------------------------------------------

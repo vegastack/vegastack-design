@@ -376,18 +376,25 @@ test("AppShellSkeleton is decorative and renders navItemCount / statCardCount pl
   expect(
     root.querySelectorAll('[data-slot="sidebar-menu-skeleton"]').length,
   ).toBe(3);
-  expect(root.querySelectorAll('[data-shape="card"]').length).toBe(2);
+  // Two stat-card placeholders, told apart from the sidebar rows by their container.
+  expect(
+    root.querySelectorAll(
+      '[data-slot="app-shell-skeleton-stats"] [data-slot="skeleton"]',
+    ).length,
+  ).toBe(2);
 });
 
 test("AppShellSkeleton is deterministic across renders (same index -> same width class)", async () => {
   const a = await render(<AppShellSkeleton navItemCount={2} />);
   const b = await render(<AppShellSkeleton navItemCount={2} />);
-  const lineA = a.container.querySelector(
-    '[data-slot="sidebar-menu-skeleton"] [data-shape="line"]',
-  );
-  const lineB = b.container.querySelector(
-    '[data-slot="sidebar-menu-skeleton"] [data-shape="line"]',
-  );
+  const lastLine = (container: Element) =>
+    [
+      ...container.querySelectorAll(
+        '[data-slot="sidebar-menu-skeleton"] [data-slot="skeleton"]',
+      ),
+    ].at(1);
+  const lineA = lastLine(a.container);
+  const lineB = lastLine(b.container);
   expect(lineA?.className).toBe(lineB?.className);
 });
 

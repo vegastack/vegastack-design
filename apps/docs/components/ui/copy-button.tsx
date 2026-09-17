@@ -1,4 +1,4 @@
-// @vegastack copy-button@0.9.1 sha256-fhMwxzWEvacJwvIqmsWbgIIncEW622Vyh3Sa7I1sPyg=
+// @vegastack copy-button@0.9.1 sha256-MFv4eOmTJ0Eq+VrNCFfzr7U3DKP/4pIXpTrBSkLX8Kw=
 
 "use client";
 
@@ -133,8 +133,8 @@ export function CopyButton({
   const Control = (
     showLabel ? Button : IconButton
   ) as React.ComponentType<IconButtonProps>;
-  // Assembled once and cast once: `variant`/`tone` are a discriminated pair on the Button matrix,
-  // and spreading them across separate JSX attributes loses that pairing.
+  // Assembled once and cast once: the two hosts take the same prop bag, and building it in one
+  // place keeps the icon-only and text forms from drifting apart.
   const controlProps = {
     ...props,
     type: "button",

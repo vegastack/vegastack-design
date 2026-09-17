@@ -127,8 +127,8 @@ test("a Tag is the Chip primitive at the inline tier, with a real 24px remove co
   // native <button> clipping made un-hittable (B5-03). The real-geometry proof lives in
   // chip.test.tsx, which mirrors the compiled CSS this harness does not build.
   expect(remove.dataset.slot).toBe("chip-remove");
-  expect(remove.className).toContain("w-6");
-  expect(remove.className).toContain("h-6");
+  // Since Batch 2 the square tier is upstream's own `size-6`, not a `w-6` override of a text tier.
+  expect(remove.className).toContain("size-6");
   expect(remove.className).toContain("rounded-full");
 });
 

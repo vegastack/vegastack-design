@@ -207,7 +207,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.9.1",
-        "integrity": "sha256-LH0Jg32IzoZ8kiTGxuhhEXOYk5ZbNjLPh/wTgUz1Sj8="
+        "integrity": "sha256-UwBXt1wrDFvDAHpFt8LJXU8xrgXDx6fInLWyw+i1Nnw="
       }
     },
     {
@@ -968,7 +968,7 @@
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.9.1",
-        "integrity": "sha256-fhMwxzWEvacJwvIqmsWbgIIncEW622Vyh3Sa7I1sPyg="
+        "integrity": "sha256-MFv4eOmTJ0Eq+VrNCFfzr7U3DKP/4pIXpTrBSkLX8Kw="
       }
     },
     {
