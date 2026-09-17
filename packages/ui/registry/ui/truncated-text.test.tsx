@@ -293,8 +293,15 @@ test("on a no-hover device, overflowing text becomes a tap-to-toggle disclosure 
   await withNoHoverDevice(async () => {
     const long =
       "A very long piece of text that will certainly overflow its tiny container";
-    const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-    const el = screen.getByText(long);
+    const screen = await render(
+      <Subject data-testid="subject" style={CLIP}>
+        {long}
+      </Subject>,
+    );
+    // By slot, NOT by text: the trigger's own tooltip popup repeats the string, so a text locator
+    // matches two elements the moment a leftover pointer leaves the tooltip open — which is what
+    // made this test flake once Batch 2 put Tooltip back on upstream's portal.
+    const el = screen.getByTestId("subject");
 
     // Truncated + no-hover device → the element becomes an ARIA disclosure.
     await expect.element(el).toHaveAttribute("tabindex", "0");
