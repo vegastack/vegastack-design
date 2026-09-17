@@ -60,7 +60,7 @@ export function splitButtonVariants(): ReactNode {
   );
 }
 
-export function splitButtonTones(): ReactNode {
+export function splitButtonDestructive(): ReactNode {
   return (
     <Wrapper>
       <SplitButton variant="secondary" actions={saveActions}>

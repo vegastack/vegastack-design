@@ -41,13 +41,13 @@ Every [`Button`](/docs/components/button) shape passes straight through: `solid`
   file="components/preview/icon-button.tsx"
 />
 
-### Tones
+### Destructive
 
-`tone` passes through too, so a status-coloured icon action needs no special variant. The one
-forbidden cell is the same one `Button` forbids: `tone="destructive"` never takes `variant="solid"`.
+Since Batch 2 of the shadcn reset `Button` has one axis, so a destructive icon action is
+`variant="destructive"` — a soft tint inked with `destructive-text`, never a solid red square.
 
 <ComponentPreview
-  name="iconButtonTones"
+  name="iconButtonDestructive"
   file="components/preview/icon-button.tsx"
 />
 

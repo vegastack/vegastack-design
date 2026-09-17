@@ -51,7 +51,7 @@ export function iconButtonVariants(): ReactNode {
   );
 }
 
-export function iconButtonTones(): ReactNode {
+export function iconButtonDestructive(): ReactNode {
   return (
     <Wrapper>
       <IconButton aria-label="Ask AI" variant="secondary">
