@@ -483,7 +483,7 @@ export function EmptyRow({
     <TableRow data-slot={slot} className="hover:bg-transparent">
       <TableCell colSpan={colSpan} className="min-w-0 p-0">
         {children ?? (
-          <Empty size="sm">
+          <Empty>
             <EmptyHeader>
               <EmptyMedia>
                 <Inbox />

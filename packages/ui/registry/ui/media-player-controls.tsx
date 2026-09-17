@@ -268,13 +268,10 @@ function MediaControlTooltip({
   children: React.ReactElement;
   content: React.ReactNode;
 }) {
-  const container = React.useContext(MediaPortalContainerContext);
   return (
     <Tooltip>
       <TooltipTrigger render={children} />
-      <TooltipContent portalProps={container ? { container } : undefined}>
-        {content}
-      </TooltipContent>
+      <TooltipContent>{content}</TooltipContent>
     </Tooltip>
   );
 }

@@ -1,49 +1,17 @@
-// @vegastack card@0.9.1 sha256-wt4ABC2u7imRv0zlRyUclqENdK8UnDXcsih34Ct3Z7M=
-
 import * as React from "react";
 import { cn } from "@vegastack/design";
 
-/**
- * Props shared by every `Card` part. Each part is a plain, server-safe `div`
- * with a forwarded ref and a `data-slot` for styling/targeting.
- */
-export type CardProps = React.ComponentProps<"div"> & {
-  /**
-   * Density of the card. `sm` tightens the internal padding and gaps.
-   * @default "md"
-   */
-  size?: "md" | "sm";
-};
-
-/**
- * `Card` — a borders-only surface for grouping related content (no shadows, per
- * the design system). Compose with `CardHeader`, `CardTitle`,
- * `CardDescription`, `CardAction`, `CardContent`, and `CardFooter`.
- *
- * Pure presentational and server-safe — no hooks, no `'use client'`.
- *
- * @example
- * <Card>
- *   <CardHeader>
- *     <CardTitle>Team plan</CardTitle>
- *     <CardDescription>$20 / user / month</CardDescription>
- *   </CardHeader>
- *   <CardContent>Everything in Pro, plus SSO and audit logs.</CardContent>
- *   <CardFooter>
- *     <Button>Upgrade</Button>
- *   </CardFooter>
- * </Card>
- */
-function Card({ className, size = "md", ref, ...props }: CardProps) {
+function Card({
+  className,
+  size = "default",
+  ...props
+}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
   return (
     <div
-      ref={ref}
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col gap-4 overflow-hidden rounded-lg border border-border bg-card py-4 text-sm text-card-foreground",
-        "has-data-[slot=card-footer]:pb-0",
-        "data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0",
+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className,
       )}
       {...props}
@@ -51,26 +19,12 @@ function Card({ className, size = "md", ref, ...props }: CardProps) {
   );
 }
 
-/** Props accepted by `CardHeader`. */
-export type CardHeaderProps = React.ComponentProps<"div">;
-
-/**
- * `CardHeader` — top region holding the title, description, and optional action.
- * Switches to a two-column grid when a `CardAction` is present.
-
- *
- * @example
- * <CardHeader />
- */
-function CardHeader({ className, ref, ...props }: CardHeaderProps) {
+function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="card-header"
       className={cn(
-        "grid auto-rows-min grid-rows-[auto_auto] items-start gap-1 px-4",
-        "has-data-[slot=card-action]:grid-cols-[1fr_auto]",
-        "group-data-[size=sm]/card:px-3",
+        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
         className,
       )}
       {...props}
@@ -78,21 +32,12 @@ function CardHeader({ className, ref, ...props }: CardHeaderProps) {
   );
 }
 
-/** Props accepted by `CardTitle`. */
-export type CardTitleProps = React.ComponentProps<"div">;
-
-/** `CardTitle` — the heading line of a card (`data-slot="card-title"`).
- *
- * @example
- * <CardTitle />
- */
-function CardTitle({ className, ref, ...props }: CardTitleProps) {
+function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="card-title"
       className={cn(
-        "text-base font-medium group-data-[size=sm]/card:text-sm group-data-[size=sm]/card:font-medium",
+        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
         className,
       )}
       {...props}
@@ -100,18 +45,9 @@ function CardTitle({ className, ref, ...props }: CardTitleProps) {
   );
 }
 
-/** Props accepted by `CardDescription`. */
-export type CardDescriptionProps = React.ComponentProps<"div">;
-
-/** `CardDescription` — supporting text under the title (muted).
- *
- * @example
- * <CardDescription />
- */
-function CardDescription({ className, ref, ...props }: CardDescriptionProps) {
+function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="card-description"
       className={cn("text-sm text-muted-foreground", className)}
       {...props}
@@ -119,21 +55,9 @@ function CardDescription({ className, ref, ...props }: CardDescriptionProps) {
   );
 }
 
-/** Props accepted by `CardAction`. */
-export type CardActionProps = React.ComponentProps<"div">;
-
-/**
- * `CardAction` — an optional control (button, menu, switch) anchored to the
- * top-right of the header. Place it inside `CardHeader`.
-
- *
- * @example
- * <CardAction />
- */
-function CardAction({ className, ref, ...props }: CardActionProps) {
+function CardAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="card-action"
       className={cn(
         "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
@@ -144,43 +68,22 @@ function CardAction({ className, ref, ...props }: CardActionProps) {
   );
 }
 
-/** Props accepted by `CardContent`. */
-export type CardContentProps = React.ComponentProps<"div">;
-
-/** `CardContent` — the main body region of a card.
- *
- * @example
- * <CardContent />
- */
-function CardContent({ className, ref, ...props }: CardContentProps) {
+function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="card-content"
-      className={cn("px-4 group-data-[size=sm]/card:px-3", className)}
+      className={cn("px-(--card-spacing)", className)}
       {...props}
     />
   );
 }
 
-/** Props accepted by `CardFooter`. */
-export type CardFooterProps = React.ComponentProps<"div">;
-
-/**
- * `CardFooter` — a bottom region (typically actions) with a top border and a
- * subtle muted background. Borders-only — no shadow.
-
- *
- * @example
- * <CardFooter />
- */
-function CardFooter({ className, ref, ...props }: CardFooterProps) {
+function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="card-footer"
       className={cn(
-        "flex items-center rounded-b-lg border-t border-border bg-muted p-4 group-data-[size=sm]/card:p-3",
+        "flex items-center rounded-b-xl border-t bg-muted/50 p-(--card-spacing)",
         className,
       )}
       {...props}
@@ -191,9 +94,9 @@ function CardFooter({ className, ref, ...props }: CardFooterProps) {
 export {
   Card,
   CardHeader,
-  CardTitle,
-  CardDescription,
-  CardAction,
-  CardContent,
   CardFooter,
+  CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
 };

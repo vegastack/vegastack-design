@@ -232,7 +232,12 @@ export function AttachmentMedia({
         aria-hidden="true"
         className="absolute inset-0 hidden items-center justify-center bg-background/90 text-foreground group-data-[state=uploading]/attachment:flex"
       >
-        <Spinner size="inherit" label="" className="size-4" />
+        <Spinner
+          className="size-4"
+          aria-hidden
+          role={undefined}
+          aria-label={undefined}
+        />
       </span>
     </div>
   );

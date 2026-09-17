@@ -7,13 +7,18 @@ import { Check, Copy } from "lucide-react";
 import { cn, TIMINGS } from "@vegastack/design";
 // `Button` is owned by the sibling Button component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
-import {
-  Button,
-  type ButtonAppearance,
-  type ButtonOwnProps,
-} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { IconButton, type IconButtonProps } from "@/components/ui/icon-button";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+
+/**
+ * `Button`'s own props, derived from the component. Batch 2 of the shadcn reset replaced the
+ * hand-written `ButtonOwnProps` / `ButtonAppearance` pair with upstream's flat `variant` + `size`
+ * API, so these two aliases are what a wrapper reads now. Batch 7 rebuilds this component on the
+ * reset primitives and they go away with it.
+ */
+type ButtonOwnProps = React.ComponentProps<typeof Button>;
+type ButtonAppearance = Pick<ButtonOwnProps, "variant">;
 
 /** Props accepted by `CopyButton`. */
 export type CopyButtonProps = Omit<
@@ -87,7 +92,6 @@ export function CopyButton({
   copiedLabel = "Copied",
   showLabel = false,
   variant = "ghost",
-  tone,
   size,
   className,
   onPress,
@@ -135,7 +139,6 @@ export function CopyButton({
     ...props,
     type: "button",
     variant,
-    tone,
     size: size ?? "sm",
     "data-slot": "copy-button",
     "data-copied": copied ? "" : undefined,

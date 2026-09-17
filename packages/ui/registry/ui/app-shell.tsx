@@ -411,7 +411,7 @@ export function AppShellSkeleton({
           skeleton must not paint a sidebar column the loaded shell won't have. */}
       <div className="hidden h-svh w-60 shrink-0 flex-col gap-2 border-e border-border bg-sidebar p-2 md:flex">
         <div className="flex items-center gap-2 p-2">
-          <Skeleton shape="circle" className="size-4" />
+          <Skeleton className="rounded-full size-4" />
           <Skeleton className="h-4 w-24" />
         </div>
         <div className="flex flex-1 flex-col gap-1">
@@ -423,16 +423,16 @@ export function AppShellSkeleton({
 
       <div className="flex h-svh min-w-0 flex-1 flex-col">
         <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
-          <Skeleton shape="circle" className="size-4" />
+          <Skeleton className="rounded-full size-4" />
           <Skeleton className="h-4 w-32" />
         </div>
         <div className="@container/app-shell-content flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
           <div className="grid grid-cols-1 gap-4 @sm/app-shell-content:grid-cols-2 @lg/app-shell-content:grid-cols-4">
             {Array.from({ length: Math.max(0, statCardCount) }, (_, i) => (
-              <Skeleton key={i} shape="card" className="h-24" />
+              <Skeleton key={i} className="h-24" />
             ))}
           </div>
-          <Skeleton shape="rect" className="h-64 flex-1" />
+          <Skeleton className="h-64 flex-1" />
         </div>
       </div>
     </div>

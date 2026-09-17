@@ -182,7 +182,7 @@ export function SortableList({
                   variant="ghost"
                   size="sm"
                   aria-label={`Reorder ${label}`}
-                  ref={handleProps.ref as React.Ref<HTMLElement>}
+                  ref={handleProps.ref as React.Ref<HTMLButtonElement>}
                   onKeyDown={handleProps.onKeyDown}
                   onBlur={handleProps.onBlur}
                   aria-pressed={handleProps["aria-pressed"]}

@@ -1,9 +1,9 @@
 {
-  "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (168 rows, decided by MK 2026-09-17/18)",
+  "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (169 rows: 168 decided by MK 2026-09-17/18, plus A11Y-13 added by MK 2026-09-18 during Batch 2)",
   "_note": "GENERATED from the prose register, which is an untracked planning document. Regenerate with: node tooling/upstream/verify-parity.mjs --sync-decisions. A gate may only accept an ID whose value here is \"ours\".",
   "counts": {
-    "total": 168,
-    "ours": 58,
+    "total": 169,
+    "ours": 59,
     "shadcn": 110
   },
   "decisions": {
@@ -112,6 +112,7 @@
     "A11Y-10": "shadcn",
     "A11Y-11": "ours",
     "A11Y-12": "ours",
+    "A11Y-13": "ours",
     "FRM-1": "shadcn",
     "FRM-2": "shadcn",
     "FRM-3": "shadcn",

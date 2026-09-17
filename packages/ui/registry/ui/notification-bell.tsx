@@ -5,7 +5,7 @@
 import * as React from "react";
 import { Bell } from "lucide-react";
 import { cn } from "@vegastack/design";
-import type { ButtonAppearance } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   IconButton,
   type IconButtonOwnProps,
@@ -13,6 +13,15 @@ import {
 } from "@/components/ui/icon-button";
 import { Badge } from "@/components/ui/badge";
 import { useAnimationReplay } from "@/components/ui/use-animation-replay";
+
+/**
+ * `Button`'s own props, derived from the component. Batch 2 of the shadcn reset replaced the
+ * hand-written `ButtonOwnProps` / `ButtonAppearance` pair with upstream's flat `variant` + `size`
+ * API, so these two aliases are what a wrapper reads now. Batch 7 rebuilds this component on the
+ * reset primitives and they go away with it.
+ */
+type ButtonOwnProps = React.ComponentProps<typeof Button>;
+type ButtonAppearance = Pick<ButtonOwnProps, "variant">;
 
 /** Above this count the badge caps to the `"99+"` overflow label. */
 const MAX_COUNT = 99;
@@ -154,9 +163,7 @@ export function NotificationBell({
           <Badge
             data-slot="notification-bell-badge"
             aria-hidden
-            variant="solid"
-            intent="destructive"
-            size="sm"
+            variant="destructive"
             className={cn(
               "pointer-events-none absolute -top-1 start-full h-4 min-w-4 -translate-x-3 px-1 tabular-nums rtl:translate-x-3",
               badgePop.className,

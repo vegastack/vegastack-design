@@ -7,6 +7,7 @@ import { cn } from "@vegastack/design";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTruncationFocusable } from "@/components/ui/truncated-text";
@@ -320,9 +321,11 @@ export function RelativeTime({
         }).format(target);
 
   return (
-    <Tooltip delay={tooltipDelay}>
-      <TooltipTrigger render={timeEl} />
-      <TooltipContent>{tooltipLabel}</TooltipContent>
-    </Tooltip>
+    <TooltipProvider delay={tooltipDelay}>
+      <Tooltip>
+        <TooltipTrigger render={timeEl} />
+        <TooltipContent>{tooltipLabel}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

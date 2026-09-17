@@ -129,7 +129,7 @@ export function RecentActivity({ data, loading = false }: RecentActivityProps) {
       loading={loading}
       loadingRows={5}
       emptyState={
-        <Empty size="sm">
+        <Empty>
           <EmptyHeader>
             <EmptyMedia>
               <ListChecks />

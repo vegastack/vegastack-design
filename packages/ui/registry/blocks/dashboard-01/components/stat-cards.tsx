@@ -102,17 +102,7 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
                       }
                       className="min-w-0 font-mono text-xl text-foreground"
                     />
-                    <Badge
-                      variant="soft"
-                      intent={
-                        trend === "up"
-                          ? "success"
-                          : trend === "down"
-                            ? "destructive"
-                            : "default"
-                      }
-                      className="shrink-0"
-                    >
+                    <Badge variant="secondary" className="shrink-0">
                       {trend === "up" ? (
                         <ArrowUp />
                       ) : trend === "down" ? (

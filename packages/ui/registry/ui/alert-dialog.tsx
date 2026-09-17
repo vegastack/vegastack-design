@@ -6,8 +6,17 @@ import * as React from "react";
 import { AlertDialog as BaseAlertDialog } from "@base-ui/react/alert-dialog";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
-import { Button, type ButtonAppearance } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useModalInert } from "@/components/ui/use-modal-inert";
+
+/**
+ * `Button`'s own props, derived from the component. Batch 2 of the shadcn reset replaced the
+ * hand-written `ButtonOwnProps` / `ButtonAppearance` pair with upstream's flat `variant` + `size`
+ * API, so these two aliases are what a wrapper reads now. Batch 7 rebuilds this component on the
+ * reset primitives and they go away with it.
+ */
+type ButtonOwnProps = React.ComponentProps<typeof Button>;
+type ButtonAppearance = Pick<ButtonOwnProps, "variant">;
 
 /* ------------------------------------------------------------------------------------------------
  * AlertDialog — a modal confirmation dialog built on Base UI's AlertDialog. Exported FLAT
@@ -281,10 +290,10 @@ export function AlertDialogDescription({
  * confirm is an OUTLINE, never a solid red button — the doctrine's one forbidden cell.
  */
 const ACTION_INTENT_APPEARANCE: Record<AlertDialogIntent, ButtonAppearance> = {
-  default: { variant: "solid" },
-  destructive: { variant: "outline", tone: "destructive" },
-  success: { variant: "outline", tone: "success" },
-  warning: { variant: "outline", tone: "warning" },
+  default: { variant: "default" },
+  destructive: { variant: "destructive" },
+  success: { variant: "outline" },
+  warning: { variant: "outline" },
 };
 
 /** Props accepted by `AlertDialogAction`. */

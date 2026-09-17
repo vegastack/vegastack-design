@@ -720,10 +720,8 @@ export function SidebarMenuSkeleton({
       className={cn("flex h-8 items-center gap-2 rounded-md px-2", className)}
       {...props}
     >
-      {showIcon ? (
-        <Skeleton shape="circle" className="size-4 shrink-0" />
-      ) : null}
-      <Skeleton shape="line" className={cn("h-4 flex-1", widthClass)} />
+      {showIcon ? <Skeleton className="rounded-full size-4 shrink-0" /> : null}
+      <Skeleton className={cn("h-4 flex-1", widthClass)} />
     </div>
   );
 }

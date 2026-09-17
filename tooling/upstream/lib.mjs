@@ -73,7 +73,7 @@ export function retired() {
 /**
  * The decision register, machine-readable.
  *
- * The prose register (`docs/plans/2026-09-18-shadcn-reset/decisions.md`, 168 rows) is an untracked
+ * The prose register (`docs/plans/2026-09-18-shadcn-reset/decisions.md`, 169 rows) is an untracked
  * planning document by MK's instruction, so a committed gate cannot read it. `decisions.json` is
  * its committed derivative and the authority the gates use; `parseDecisionsMarkdown` below
  * regenerates it when the plan file is present.

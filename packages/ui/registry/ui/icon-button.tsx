@@ -2,12 +2,10 @@
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import {
-  Button,
-  type ButtonAppearance,
-  type ButtonOwnProps,
-  type ButtonProps,
-} from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+
+/** Every prop `Button` accepts, including `variant`, `loading` and Base UI's `render`. */
+type ButtonProps = React.ComponentProps<typeof Button>;
 
 /** The four square icon-only sizes — the same `xs · sm · md · lg` vocabulary every control uses. */
 export type IconButtonSize = "xs" | "sm" | "md" | "lg";
@@ -16,16 +14,19 @@ export type IconButtonSize = "xs" | "sm" | "md" | "lg";
 export type IconButtonShape = "square" | "round";
 
 /**
- * Icon-only geometry: pin the width to the height so the control is a perfect square, drop the
- * horizontal padding a text button needs, and give the two larger tiers the standalone 16px glyph
- * (`size-4`) rather than the 14px one a text button pairs with its label. `Button` owns the
- * height; these classes are merged after it, so `w-*` / `px-0` win.
+ * The square tier each `IconButtonSize` maps onto. Since the shadcn reset (Batch 2) `Button` ships
+ * upstream's four icon sizes outright, so this wrapper picks one instead of re-deriving the
+ * geometry from a text tier. `icon-button` is retired in Batch 7 in favour of
+ * `<Button size="icon" />`; the mapping is what keeps every existing call site working until then.
  */
-const squareBySize: Record<IconButtonSize, string> = {
-  xs: "w-6 px-0",
-  sm: "w-7 px-0",
-  md: "w-8 px-0 [&_svg:not([class*='size-'])]:size-4",
-  lg: "w-10 px-0 [&_svg:not([class*='size-'])]:size-4",
+const buttonSizeBySize: Record<
+  IconButtonSize,
+  "icon-xs" | "icon-sm" | "icon" | "icon-lg"
+> = {
+  xs: "icon-xs",
+  sm: "icon-sm",
+  md: "icon",
+  lg: "icon-lg",
 };
 
 /**
@@ -45,7 +46,10 @@ export function iconButtonGeometry(
   size: IconButtonSize = "md",
   shape: IconButtonShape = "square",
 ): string {
-  return cn(squareBySize[size], shape === "round" && "rounded-full");
+  return cn(
+    buttonVariants({ size: buttonSizeBySize[size] }),
+    shape === "round" && "rounded-full",
+  );
 }
 
 /**
@@ -53,7 +57,7 @@ export function iconButtonGeometry(
  * `IconButtonSize` scale) and requires an accessible `aria-label` because the icon child carries
  * no text.
  */
-export type IconButtonOwnProps = Omit<ButtonOwnProps, "size" | "aria-label"> & {
+export type IconButtonOwnProps = Omit<ButtonProps, "size" | "aria-label"> & {
   /**
    * The icon to render. Pass a single `lucide-react` (or `@vegastack/design/icons`)
    * element — it is sized automatically by the chosen `size`. Optional only so the control can be
@@ -77,10 +81,12 @@ export type IconButtonOwnProps = Omit<ButtonOwnProps, "size" | "aria-label"> & {
    * visible text).
    */
   "aria-label": string;
+  /** Overridable slot marker, so a wrapper can rename the control it composes. */
+  "data-slot"?: string;
 };
 
 /** Props accepted by `IconButton`. */
-export type IconButtonProps = IconButtonOwnProps & ButtonAppearance;
+export type IconButtonProps = IconButtonOwnProps;
 
 /**
  * `IconButton` — a square (or round) icon-only action button. A thin wrapper over `Button` that
@@ -110,16 +116,19 @@ export function IconButton({
   "data-slot": dataSlot,
   ...props
 }: IconButtonProps) {
-  const geometry = iconButtonGeometry(size, shape);
   const resolvedClassName: ButtonProps["className"] =
     typeof className === "function"
-      ? (state) => cn(geometry, className(state))
-      : cn(geometry, className);
+      ? (
+          state: Parameters<
+            Exclude<ButtonProps["className"], string | undefined>
+          >[0],
+        ) => cn(shape === "round" && "rounded-full", className(state))
+      : cn(shape === "round" && "rounded-full", className);
 
   return (
     <Button
       {...(props as ButtonProps)}
-      size={size}
+      size={buttonSizeBySize[size]}
       data-slot={dataSlot ?? "icon-button"}
       data-shape={shape}
       className={resolvedClassName}

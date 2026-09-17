@@ -234,8 +234,10 @@ export function AutoSaveInput({
           {status === "saving" ? (
             <Spinner
               key="saving"
-              decorative
               className="text-muted-foreground"
+              aria-hidden
+              role={undefined}
+              aria-label={undefined}
             />
           ) : status === "saved" ? (
             <Check

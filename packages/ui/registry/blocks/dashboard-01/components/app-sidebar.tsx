@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { AppShellSidebar } from "@/components/ui/app-shell";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -168,12 +168,12 @@ export function AppSidebar({
               "hover:bg-accent",
             )}
           >
-            <Avatar
-              size="sm"
-              src={user.avatarUrl}
-              alt={user.avatarUrl ? user.name : ""}
-              fallback={initials}
-            />
+            <Avatar size="sm">
+              {user.avatarUrl ? (
+                <AvatarImage src={user.avatarUrl} alt={user.name} />
+              ) : null}
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
             {/* min-w-0 on the label column — the sidebar footer row's trailing chevron is a fixed
                 sibling, so the name/email column needs min-w-0 to truncate instead of overflowing
                 (the same flex-discipline footgun the app-shell audit flags for stat cards/cards). */}

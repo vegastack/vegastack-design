@@ -269,19 +269,12 @@ export function Stepper({
               {selectable ? (
                 <Button
                   variant="link"
-                  tone="neutral"
-                  size="md"
                   ref={(node: HTMLElement | null) => {
                     if (node) labelRefs.current.set(step.id, node);
                     else labelRefs.current.delete(step.id);
                   }}
                   data-slot="stepper-label"
                   onClick={() => onStepSelect?.(step.id)}
-                  // A navigable step label IS a link-shaped control, so it takes the `link`
-                  // variant rather than a `ghost` Button reshaped into inline text by stripping
-                  // its height and padding (B7-09). `size="md"` keeps the label at the same
-                  // `text-sm` the static label uses; nothing about the control box is
-                  // overridden here, only its alignment.
                   className={cn(
                     "min-w-0 justify-start gap-1",
                     orientation === "horizontal" && "w-full",

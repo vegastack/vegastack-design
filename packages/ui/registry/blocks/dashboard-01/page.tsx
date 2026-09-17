@@ -85,9 +85,12 @@ function RegionError({
   description: string;
 }) {
   return (
-    <Empty size="sm" variant="dashed">
+    <Empty className="border">
       <EmptyHeader>
-        <EmptyMedia intent="destructive">
+        <EmptyMedia
+          variant="icon"
+          className="bg-destructive/10 text-destructive-text"
+        >
           <AlertTriangle />
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
@@ -145,9 +148,9 @@ export function DashboardPage({
         <AppShellContent>
           {isEmpty ? (
             <div className="flex flex-1 items-center justify-center p-4">
-              <Empty size="lg">
+              <Empty>
                 <EmptyHeader>
-                  <EmptyMedia intent="default">
+                  <EmptyMedia variant="icon">
                     <PlusCircle />
                   </EmptyMedia>
                   <EmptyTitle>No agents yet</EmptyTitle>

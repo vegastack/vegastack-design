@@ -62,7 +62,7 @@ export function DashboardChart({ data, loading = false }: DashboardChartProps) {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <Skeleton shape="rect" className="h-64 w-full" aria-hidden="true" />
+          <Skeleton className="h-64 w-full" aria-hidden="true" />
         ) : (
           <ChartContainer
             config={chartConfig}
