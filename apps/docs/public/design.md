@@ -1527,8 +1527,16 @@ Each of those rules has a fixture that violates it in `content-lint --self-test`
 | 7   | **API Reference**                | one flat, expanded table per exported part — name · the literal union · default · description. Own props only; a part with no own props gets ONE sentence, never placeholder rows. A second small table lists the `data-*` attributes and CSS variables the part exposes | `fumadocs-typescript` + the contract's `dataAttributes`                                                         |
 | 8   | **Accessibility**                | the pattern name, the keyboard table, screen-reader announcements, and the states the lanes exercise                                                                                                                                                                     | keyboard table hand-written; states generated from the contract                                                 |
 | 9   | **Do / Don't**                   | at least two pairs                                                                                                                                                                                                                                                       | `DoDont`                                                                                                        |
+| 10  | **Deviations** _(reset pages)_   | one bullet per decision ID the component's patch implements, in the order the patch header lists them. A component that equals upstream apart from the `cn` import says so and lists only DOC-2                                                                          | `packages/ui/upstream/patches/<name>.patch`                                                                     |
 
-Do / Don't is the final section. "Notes", "Voice" and "How it works" fold into Usage or Scope.
+Row 10 arrived with Batch 2 of the shadcn reset (2026-09-18). A page for a component that is
+UPSTREAM'S FILE PLUS AN APPROVED PATCH has to name, on the page, the decisions that patch
+implements — the mandate's third success sentence ("every difference traces to a decision ID") is
+only checkable by a reader if the page carries the list. It closes the page, and nothing follows it;
+`content-lint` enforces both halves and observes each failing in `--self-test`.
+
+Do / Don't is the final section for a component that is ours, and Deviations for one that is
+upstream's. "Notes", "Voice" and "How it works" fold into Usage or Scope.
 Marketing-only leaves skip Scope, Anatomy and Playground and keep the rest. Component pages do not
 repeat release history: at retirement on 2026-09-15, 25 of 116 pages produced only an empty state,
 while broad release bullets were repeated across every component title they happened to mention.

@@ -108,14 +108,12 @@ Contract for every new animated element:
   [`docs/ledger/ref-forwarding-spec.md`](../../../docs/ledger/ref-forwarding-spec.md). Type with
   `ComponentPropsWithRef<'div'>`, never `ComponentPropsWithoutRef`.
 - **`intent`** names a semantic color family (`'default' | 'success' | 'warning' | 'destructive' |
-'info'`). Keep it orthogonal to a genuinely separate fill axis if one exists (Badge's `variant`:
-  `'subtle' | 'solid' | 'minimal'`). Never invent a synonym (`color`, `status`) — there is no `color`
-  prop anywhere in the system. **Button is the model to copy, not an exception:** it splits the two
-  concerns into `variant` (the SHAPE — `solid · soft · outline · ghost · link · cta`) × `tone` (the
-  HUE — `neutral · destructive · success · warning · info`), writes each recipe once, and lets the
-  tone set `--btn-*` custom properties the recipe reads. When a component genuinely needs both axes,
-  do that; when it only needs the hue, it is `intent`. The one cell Button's TYPE forbids is
-  `tone="destructive"` with `variant="solid"` (D4).
+  `'info'`) on a component that is ours. Never invent a synonym (`color`, `status`) — there is no
+  `color` prop anywhere in the system. **A component reset onto upstream does not get an `intent`
+  axis**: the shadcn reset adopted upstream's flat `variant` list verbatim (API-2 = shadcn), and the
+  four status families surface as EXTRA `variant` values written in upstream's own `destructive`
+  shape (COL-12) — `Badge` and `Alert` are the model. A tinted status surface takes the family's
+  `-text` ink, never the fill used as ink (A11Y-13).
 - **`data-slot`** on every part, plus `data-variant`/`data-tone`/`data-size`/`data-state` reflecting the resolved
   CVA variant so consumers can target state in CSS without new props. Base UI already supplies
   `data-highlighted`/`data-selected`/`data-focused` — style off those, do not duplicate them.
@@ -149,10 +147,10 @@ Contract for every new animated element:
 - **Icons** — `lucide-react` (direct import is fine for internal chrome: chevrons, spinners) or
   `Icon`/`BrandIcon` from `@vegastack/design/icons`. No other library (`icon-source`), no inline
   `<svg>` as an icon (`inline-svg-icon`).
-- **Icon-only controls are `IconButton`, always.** `Button` has no icon size tier; `IconButton`
-  makes the missing `aria-label` a TYPE error and owns `shape="square" | "round"` (a `rounded-full`
-  override on a Button is not the way to get a circle). The legacy AST rule `icon-button-name` still
-  guards any `<Button size="icon*">` that a consumer's older copy might carry.
+- **Icon-only controls are `<Button size="icon">`** — plus `icon-xs`, `icon-sm` and `icon-lg`,
+  upstream's four square tiers, each needing an explicit `aria-label`, which `icon-button-name`
+  checks. `IconButton` survives Batch 2 only as a thin wrapper that maps its `xs · sm · md · lg`
+  onto those tiers; it is retired in Batch 7.
 - **Chevron policy** — `ChevronsUpDown` marks combobox-style triggers that filter/search (Combobox,
   CountrySelect, RegionSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
   that open a fixed list (Select, DatePicker, SplitButton, Accordion — rotates 180°). Never mix the

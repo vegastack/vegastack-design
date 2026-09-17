@@ -25,15 +25,15 @@ pnpm dlx shadcn@latest list @vegastack
 
 Rules that decide most component questions:
 
-- **`Button` is two axes** — `variant` is the shape (`solid · soft · outline · ghost · link · cta`),
-  `tone` is the hue (`neutral · destructive · success · warning · info`). A destructive action is
-  `variant="soft" tone="destructive"`; a solid red button does not type-check. Icon-only actions are
-  **`IconButton`** (`shape="square" | "round"`) — `Button` has no icon size, and an icon in a bare
-  `<button>` is off-system. An icon-only LINK stays an `<a>`, styled with
-  `buttonVariants(...) + iconButtonGeometry(size)` — never an `IconButton`, which would put
-  `role="button"` on navigation.
-- **One size vocabulary everywhere** — `xs · sm · md · lg`, with `md` the default. No component has a
-  size called `default`.
+- **`Button` is one axis** — `variant` is `default · outline · secondary · ghost · destructive ·
+  link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red fill. Icon-only
+  actions are `<Button size="icon">` (or `icon-xs` / `icon-sm` / `icon-lg`) with an `aria-label`;
+  an icon in a bare `<button>` is off-system. An icon-only LINK stays an `<a>` styled with
+  `buttonVariants({ variant, size: "icon" })` — never a `Button`, which would put `role="button"`
+  on navigation. `loading` is ours: it holds the label's box and sets `aria-busy`.
+- **Two size vocabularies, and they do not mix** — the components reset onto upstream use
+  `default · xs · sm · lg` (plus `icon*` where an icon tier exists). The components that are still
+  ours use `xs · sm · md · lg` with `md` the default, until their own batch resets them.
 - **Compose `app-shell`** for a sidebar + header + main layout — never hand-roll the landmark trio.
 - **`select`** for a short fixed option set; **`searchable-select`** when the list is long enough to
   need a search field (it is the preset `country-select` and `region-select` are built from — reach
