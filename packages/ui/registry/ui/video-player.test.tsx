@@ -231,6 +231,8 @@ test("uses larger video actions and a sans time readout", async () => {
   const screen = await render(<VideoPlayer src={SOURCE} label="Demo video" />);
   await showVideoControls(screen.container);
 
+  // Since Batch 2 of the shadcn reset `Button` is upstream's and mirrors no `data-size`; the
+  // square tier it resolves to IS the assertion, and `size-8` is what `md` maps onto.
   for (const name of [
     "Play Demo video",
     "Mute Demo video",
@@ -239,7 +241,7 @@ test("uses larger video actions and a sans time readout", async () => {
   ]) {
     await expect
       .element(screen.getByRole("button", { name }))
-      .toHaveAttribute("data-size", "md");
+      .toHaveClass("size-8");
   }
 
   const time = screen.container.querySelector(

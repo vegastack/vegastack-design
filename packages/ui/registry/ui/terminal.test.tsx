@@ -165,7 +165,9 @@ test("the trailing icon CopyButton copies only the command lines, joined by newl
     <Terminal lines={["first", { output: "ignored" }, "second"]} />,
   );
   const copyButton = screen.getByRole("button", { name: "Copy command" });
-  await expect.element(copyButton).toHaveAttribute("data-size", "sm");
+  // Since Batch 2 of the shadcn reset `Button` mirrors no `data-size`; the square tier the
+  // icon-only CopyButton resolves to is the assertion.
+  await expect.element(copyButton).toHaveClass("size-7");
   expect(copyButton.element().className).toContain("text-foreground");
   expect(
     screen.container.querySelector('[data-slot="copy-button-label"]'),
