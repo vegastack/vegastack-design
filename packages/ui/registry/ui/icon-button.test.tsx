@@ -34,34 +34,54 @@ test("uses the shared size vocabulary and tags the slot", async () => {
     </IconButton>,
   );
   const btn = screen.getByRole("button", { name: "Add item" });
-  await expect.element(btn).toHaveAttribute("data-size", "sm");
+  await expect.element(btn).toHaveClass("size-7");
   await expect.element(btn).toHaveAttribute("data-slot", "icon-button");
 });
 
-test("defaults to the md square and drops the text button's padding", async () => {
+test("defaults to the md square, which is Button's own `icon` tier", async () => {
   const screen = await render(
     <IconButton aria-label="Add item">
       <Plus />
     </IconButton>,
   );
   const btn = screen.getByRole("button", { name: "Add item" });
-  await expect.element(btn).toHaveAttribute("data-size", "md");
-  // The rendered square is measured in test/button-matrix.browser.test.tsx (compiled CSS).
+  // The rendered square is measured in test/button-states.browser.test.tsx (compiled CSS). Since
+  // Batch 2 the geometry is upstream's `size-8` tier rather than a `w-8 px-0` override of a text
+  // tier, so there is no padding left to cancel.
   const className = (btn.element() as HTMLElement).className;
-  expect(className).toContain("w-8");
-  expect(className).toContain("px-0");
-  expect(className).not.toContain("px-3");
+  expect(className).toContain("size-8");
+  expect(className).not.toContain("px-2.5");
 });
 
-test("passes variant + tone through to Button", async () => {
+test("passes variant through to Button", async () => {
+  // Since Batch 2 of the shadcn reset `Button` is upstream's, with a flat `variant` list and no
+  // `data-variant`/`data-tone` mirror — so the pass-through is proven by the recipe it resolves to.
   const screen = await render(
-    <IconButton aria-label="Delete" variant="soft" tone="destructive">
+    <IconButton aria-label="Delete" variant="destructive">
       <Plus />
     </IconButton>,
   );
   const btn = screen.getByRole("button", { name: "Delete" });
-  await expect.element(btn).toHaveAttribute("data-variant", "soft");
-  await expect.element(btn).toHaveAttribute("data-tone", "destructive");
+  await expect.element(btn).toHaveClass("bg-destructive/10");
+  await expect.element(btn).toHaveAttribute("data-slot", "icon-button");
+});
+
+test("maps each square size onto Button's own icon tier", async () => {
+  for (const [size, tier] of [
+    ["xs", "size-6"],
+    ["sm", "size-7"],
+    ["md", "size-8"],
+    ["lg", "size-9"],
+  ] as const) {
+    const screen = await render(
+      <IconButton aria-label={size} size={size}>
+        <Plus />
+      </IconButton>,
+    );
+    await expect
+      .element(screen.getByRole("button", { name: size }))
+      .toHaveClass(tier);
+  }
 });
 
 test('shape="round" marks data-shape and wins over the base radius', async () => {
@@ -74,7 +94,7 @@ test('shape="round" marks data-shape and wins over the base radius', async () =>
   await expect.element(btn).toHaveAttribute("data-shape", "round");
   const className = (btn.element() as HTMLElement).className;
   expect(className).toContain("rounded-full");
-  expect(className).not.toContain("rounded-md");
+  expect(className).not.toContain("rounded-lg");
 });
 
 test("no a11y violations", async () => {

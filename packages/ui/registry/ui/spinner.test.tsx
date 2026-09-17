@@ -32,16 +32,24 @@ test("the default recipe is the upstream one (Usage)", async () => {
 });
 
 test("the size-* utility replaces the default tier rather than stacking with it (Size)", async () => {
-  for (const size of ["size-3", "size-4", "size-6", "size-8"] as const) {
-    const screen = await render(<Spinner className={size} />);
-    const classes = spinnerIn(screen.container)
-      .getAttribute("class")!
-      .split(/\s+/);
+  const sizes = ["size-3", "size-4", "size-6", "size-8"] as const;
+  const screen = await render(
+    <div>
+      {sizes.map((size) => (
+        <Spinner key={size} className={size} data-testid={size} />
+      ))}
+    </div>,
+  );
+  for (const size of sizes) {
+    const spinner = screen.container.querySelector<SVGElement>(
+      `[data-testid="${size}"]`,
+    );
+    expect(spinner).not.toBeNull();
+    const classes = spinner!.getAttribute("class")!.split(/\s+/);
     expect(classes).toContain(size);
     expect(classes).toContain("animate-spin");
     // `cn` resolves the conflict in the caller's favour: exactly one size utility survives.
     expect(classes.filter((c) => /^size-\d+$/.test(c))).toHaveLength(1);
-    screen.unmount();
   }
 });
 

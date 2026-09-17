@@ -70,37 +70,56 @@ test("multiple selection keeps both items pressed (Usage)", async () => {
 });
 
 test("the group's variant and size reach every item through context (Outline, Size)", async () => {
+  const screen = await render(
+    <div>
+      {VARIANTS.flatMap((variant) =>
+        SIZES.map((size) => (
+          <ToggleGroup
+            key={`${variant}-${size}`}
+            aria-label={`${variant} ${size} group`}
+            variant={variant}
+            size={size}
+            defaultValue={["a"]}
+          >
+            <ToggleGroupItem value="a">{`${variant} ${size}`}</ToggleGroupItem>
+          </ToggleGroup>
+        )),
+      )}
+    </div>,
+  );
   for (const variant of VARIANTS) {
     for (const size of SIZES) {
-      const screen = await render(
-        <Group variant={variant} size={size} defaultValue={["a"]}>
-          <ToggleGroupItem value="a">A</ToggleGroupItem>
-        </Group>,
-      );
-      const item = screen.getByRole("button", { name: "A" });
+      const item = screen.getByRole("button", { name: `${variant} ${size}` });
       await expect.element(item).toHaveAttribute("data-variant", variant);
       await expect.element(item).toHaveAttribute("data-size", size);
-      screen.unmount();
     }
   }
 });
 
 test("each size tier gives the item a different control height (Size)", async () => {
-  const heights = new Map([
+  const heights = [
     ["sm", "h-7"],
     ["default", "h-8"],
     ["lg", "h-9"],
-  ] as const);
+  ] as const;
+  const screen = await render(
+    <div>
+      {heights.map(([size]) => (
+        <ToggleGroup
+          key={size}
+          aria-label={`${size} group`}
+          size={size}
+          defaultValue={["a"]}
+        >
+          <ToggleGroupItem value="a">{size}</ToggleGroupItem>
+        </ToggleGroup>
+      ))}
+    </div>,
+  );
   for (const [size, height] of heights) {
-    const screen = await render(
-      <Group size={size} defaultValue={["a"]}>
-        <ToggleGroupItem value="a">A</ToggleGroupItem>
-      </Group>,
-    );
     await expect
-      .element(screen.getByRole("button", { name: "A" }))
+      .element(screen.getByRole("button", { name: size }))
       .toHaveClass(height);
-    screen.unmount();
   }
 });
 

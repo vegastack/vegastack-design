@@ -111,11 +111,13 @@ test("composes DropdownMenuItem children via the `menu` slot", async () => {
   expect(onClick).toHaveBeenCalledOnce();
 });
 
-test("passes variant + tone + size through to both halves and tags the slot", async () => {
+test("passes variant + size through to both halves and tags the slot", async () => {
+  // Since Batch 2 of the shadcn reset `Button` is upstream's: one flat `variant` list, no `tone`,
+  // and no `data-variant`/`data-size` mirror on the control. The composite still records both on
+  // its own wrapper, and each half resolves the recipe it was handed.
   const screen = await render(
     <SplitButton
-      variant="soft"
-      tone="destructive"
+      variant="destructive"
       size="lg"
       actions={[{ label: "Force delete" }]}
     >
@@ -124,10 +126,13 @@ test("passes variant + tone + size through to both halves and tags the slot", as
   );
   const primary = screen.getByRole("button", { name: "Delete" });
   const trigger = screen.getByRole("button", { name: "More options" });
-  await expect.element(primary).toHaveAttribute("data-variant", "soft");
-  await expect.element(primary).toHaveAttribute("data-tone", "destructive");
-  await expect.element(primary).toHaveAttribute("data-size", "lg");
-  await expect.element(trigger).toHaveAttribute("data-size", "lg");
+  const wrapper = primary.element().parentElement!;
+  expect(wrapper.getAttribute("data-slot")).toBe("split-button");
+  expect(wrapper.getAttribute("data-variant")).toBe("destructive");
+  expect(wrapper.getAttribute("data-size")).toBe("lg");
+  await expect.element(primary).toHaveClass("bg-destructive/10");
+  await expect.element(primary).toHaveClass("h-9");
+  await expect.element(trigger).toHaveClass("size-9");
   await expect
     .element(primary)
     .toHaveAttribute("data-slot", "split-button-primary");

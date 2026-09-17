@@ -26,7 +26,7 @@ pnpm dlx shadcn@latest list @vegastack
 Rules that decide most component questions:
 
 - **`Button` is one axis** — `variant` is `default · outline · secondary · ghost · destructive ·
-  link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red fill. Icon-only
+link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red fill. Icon-only
   actions are `<Button size="icon">` (or `icon-xs` / `icon-sm` / `icon-lg`) with an `aria-label`;
   an icon in a bare `<button>` is off-system. An icon-only LINK stays an `<a>` styled with
   `buttonVariants({ variant, size: "icon" })` — never a `Button`, which would put `role="button"`

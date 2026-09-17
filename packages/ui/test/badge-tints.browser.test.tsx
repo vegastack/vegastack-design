@@ -26,7 +26,9 @@ const STATUS = ["destructive", "success", "warning", "info"] as const;
 
 /** The computed value of a custom property on `:root`, as the browser resolves it. */
 function token(name: string) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
 }
 
 /** Paint one colour through the browser so two different notations compare as equal. */
@@ -75,9 +77,9 @@ test("ghost carries no fill at rest", async () => {
       Ghost
     </Badge>,
   );
-  expect(getComputedStyle(screen.getByTestId("g").element()).backgroundColor).toBe(
-    "rgba(0, 0, 0, 0)",
-  );
+  expect(
+    getComputedStyle(screen.getByTestId("g").element()).backgroundColor,
+  ).toBe("rgba(0, 0, 0, 0)");
 });
 
 test("Badge is one height across every variant (upstream ships no size ladder)", async () => {
@@ -97,10 +99,8 @@ test("Badge is one height across every variant (upstream ships no size ladder)",
     );
     heights.add(
       Math.round(
-        screen
-          .getByTestId(`h-${variant}`)
-          .element()
-          .getBoundingClientRect().height,
+        screen.getByTestId(`h-${variant}`).element().getBoundingClientRect()
+          .height,
       ),
     );
   }

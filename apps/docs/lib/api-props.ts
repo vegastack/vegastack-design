@@ -20,7 +20,12 @@
  */
 import type * as React from "react";
 
-import type { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import type {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
 import type { AspectRatio } from "@/components/ui/aspect-ratio";
 import type {
   Avatar,
@@ -72,7 +77,10 @@ import type { Separator } from "@/components/ui/separator";
 import type { Skeleton } from "@/components/ui/skeleton";
 import type { Spinner } from "@/components/ui/spinner";
 import type { Toggle } from "@/components/ui/toggle";
-import type { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import type {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group";
 import type {
   Tooltip,
   TooltipContent,
@@ -82,7 +90,9 @@ import type {
 
 export type AlertProps = React.ComponentProps<typeof Alert>;
 export type AlertTitleProps = React.ComponentProps<typeof AlertTitle>;
-export type AlertDescriptionProps = React.ComponentProps<typeof AlertDescription>;
+export type AlertDescriptionProps = React.ComponentProps<
+  typeof AlertDescription
+>;
 export type AlertActionProps = React.ComponentProps<typeof AlertAction>;
 
 export type AspectRatioProps = React.ComponentProps<typeof AspectRatio>;
@@ -92,7 +102,9 @@ export type AvatarImageProps = React.ComponentProps<typeof AvatarImage>;
 export type AvatarFallbackProps = React.ComponentProps<typeof AvatarFallback>;
 export type AvatarBadgeProps = React.ComponentProps<typeof AvatarBadge>;
 export type AvatarGroupProps = React.ComponentProps<typeof AvatarGroup>;
-export type AvatarGroupCountProps = React.ComponentProps<typeof AvatarGroupCount>;
+export type AvatarGroupCountProps = React.ComponentProps<
+  typeof AvatarGroupCount
+>;
 
 export type BadgeProps = React.ComponentProps<typeof Badge>;
 
@@ -100,7 +112,9 @@ export type ButtonProps = React.ComponentProps<typeof Button>;
 
 export type ButtonGroupProps = React.ComponentProps<typeof ButtonGroup>;
 export type ButtonGroupTextProps = React.ComponentProps<typeof ButtonGroupText>;
-export type ButtonGroupSeparatorProps = React.ComponentProps<typeof ButtonGroupSeparator>;
+export type ButtonGroupSeparatorProps = React.ComponentProps<
+  typeof ButtonGroupSeparator
+>;
 
 export type CardProps = React.ComponentProps<typeof Card>;
 export type CardHeaderProps = React.ComponentProps<typeof CardHeader>;
@@ -114,7 +128,9 @@ export type EmptyProps = React.ComponentProps<typeof Empty>;
 export type EmptyHeaderProps = React.ComponentProps<typeof EmptyHeader>;
 export type EmptyMediaProps = React.ComponentProps<typeof EmptyMedia>;
 export type EmptyTitleProps = React.ComponentProps<typeof EmptyTitle>;
-export type EmptyDescriptionProps = React.ComponentProps<typeof EmptyDescription>;
+export type EmptyDescriptionProps = React.ComponentProps<
+  typeof EmptyDescription
+>;
 export type EmptyContentProps = React.ComponentProps<typeof EmptyContent>;
 
 export type ItemProps = React.ComponentProps<typeof Item>;

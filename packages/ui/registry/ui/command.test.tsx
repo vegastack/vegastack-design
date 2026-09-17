@@ -216,7 +216,7 @@ test("renders an announced loading state for async results", async () => {
     <Command items={[]}>
       <CommandInput placeholder="Search…" />
       <CommandLoading>
-        <Spinner size="inherit" label="" />
+        <Spinner aria-hidden role={undefined} aria-label={undefined} />
         Loading commands…
       </CommandLoading>
       <CommandList />
@@ -301,7 +301,7 @@ test("no a11y violations — loading", async () => {
     <Command items={[{ value: "calendar", label: "Calendar" }]}>
       <CommandInput placeholder="Search…" />
       <CommandLoading>
-        <Spinner size="inherit" label="" />
+        <Spinner aria-hidden role={undefined} aria-label={undefined} />
         Loading commands…
       </CommandLoading>
       <CommandList>

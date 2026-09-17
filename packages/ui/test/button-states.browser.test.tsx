@@ -97,7 +97,8 @@ test("disabled dims, loading does not, and neither removes pointer events (FRM-4
 
   expect(opacity("off")).toBeLessThan(opacity("rest"));
   expect(opacity("busy")).toBeCloseTo(opacity("rest"), 2);
-  for (const id of ["rest", "off", "busy"]) expect(pointer(id)).not.toBe("none");
+  for (const id of ["rest", "off", "busy"])
+    expect(pointer(id)).not.toBe("none");
 });
 
 test("A11Y-13: the destructive variant is a tint inked with --destructive-text", async () => {

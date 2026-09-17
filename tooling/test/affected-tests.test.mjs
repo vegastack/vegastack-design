@@ -269,11 +269,11 @@ describe("affected policy integrity", () => {
   it("reconciles cross-cutting owners against direct registry imports", () => {
     const changed = structuredClone(contracts);
     const suite = changed.affectedTestPolicy.crossCuttingTests.find((entry) =>
-      entry.file.endsWith("button-matrix.browser.test.tsx"),
+      entry.file.endsWith("button-states.browser.test.tsx"),
     );
     suite.owners = suite.owners.filter((owner) => owner !== "button");
     expect(validateAffectedPolicy(changed)).toContain(
-      "packages/ui/test/button-matrix.browser.test.tsx: imported registry owner button is undeclared",
+      "packages/ui/test/button-states.browser.test.tsx: imported registry owner button is undeclared",
     );
   });
 });

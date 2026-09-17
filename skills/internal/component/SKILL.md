@@ -108,12 +108,9 @@ Contract for every new animated element:
   [`docs/ledger/ref-forwarding-spec.md`](../../../docs/ledger/ref-forwarding-spec.md). Type with
   `ComponentPropsWithRef<'div'>`, never `ComponentPropsWithoutRef`.
 - **`intent`** names a semantic color family (`'default' | 'success' | 'warning' | 'destructive' |
-  `'info'`) on a component that is ours. Never invent a synonym (`color`, `status`) — there is no
-  `color` prop anywhere in the system. **A component reset onto upstream does not get an `intent`
-  axis**: the shadcn reset adopted upstream's flat `variant` list verbatim (API-2 = shadcn), and the
-  four status families surface as EXTRA `variant` values written in upstream's own `destructive`
-  shape (COL-12) — `Badge` and `Alert` are the model. A tinted status surface takes the family's
-  `-text` ink, never the fill used as ink (A11Y-13).
+`'info'`) on a component that is ours. Never invent a synonym (`color`, `status`) — there is no
+`color`prop anywhere in the system. **A component reset onto upstream does not get an`intent`axis**: the shadcn reset adopted upstream's flat`variant`list verbatim (API-2 = shadcn), and the
+four status families surface as EXTRA`variant`values written in upstream's own`destructive`shape (COL-12) —`Badge`and`Alert`are the model. A tinted status surface takes the family's`-text` ink, never the fill used as ink (A11Y-13).
 - **`data-slot`** on every part, plus `data-variant`/`data-tone`/`data-size`/`data-state` reflecting the resolved
   CVA variant so consumers can target state in CSS without new props. Base UI already supplies
   `data-highlighted`/`data-selected`/`data-focused` — style off those, do not duplicate them.

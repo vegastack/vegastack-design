@@ -88,7 +88,7 @@ test("the placeholder carries no role, name or text of its own", async () => {
 
 test("no a11y violations — rest", async () => {
   const screen = await render(
-    <div aria-busy="true" aria-label="Loading profile">
+    <div role="status" aria-busy="true" aria-label="Loading profile">
       <Skeleton className="size-10 rounded-full" />
       <Skeleton className="h-4 w-[150px]" />
       <Skeleton className="h-4 w-[100px]" />
@@ -99,7 +99,7 @@ test("no a11y violations — rest", async () => {
 
 test("no a11y violations — inside a loading region (Form)", async () => {
   const screen = await render(
-    <section aria-busy="true" aria-label="Loading form">
+    <section role="status" aria-busy="true" aria-label="Loading form">
       <Skeleton className="h-4 w-20" />
       <Skeleton className="h-8 w-full" />
       <Skeleton className="h-8 w-24" />
