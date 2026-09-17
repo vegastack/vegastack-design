@@ -1,7 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { Bell, ChevronRight, FileText, Mail, ShieldCheck } from "lucide-react";
+import { Fragment, type ReactNode } from "react";
+import {
+  BadgeCheckIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ExternalLinkIcon,
+  InboxIcon,
+  PlusIcon,
+  ShieldAlertIcon,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/item` (dogfoods the registry) → auto-scanned.
 import {
@@ -16,181 +24,540 @@ import {
   ItemSeparator,
   ItemTitle,
 } from "@/components/ui/item";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-// Local fixture — no live third-party image dependencies in demos/VRT.
-const THUMBNAIL = "/preview/avatar-2.svg";
+// Local fixtures — upstream's examples fetch github.com and unsplash images; a demo must stay
+// deterministic and offline.
+const ADA = "/preview/avatar-1.svg";
+const LINUS = "/preview/avatar-2.svg";
+const GRACE = "/preview/avatar-3.svg";
+const THUMBNAIL = "/preview/landscape.svg";
 
-export function itemDemo(): ReactNode {
+const PEOPLE = [
+  { username: "ada", email: "ada@vegastack.com", avatar: ADA, initials: "AL" },
+  {
+    username: "linus",
+    email: "linus@vegastack.com",
+    avatar: LINUS,
+    initials: "LT",
+  },
+  {
+    username: "grace",
+    email: "grace@vegastack.com",
+    avatar: GRACE,
+    initials: "GH",
+  },
+];
+
+export function item(): ReactNode {
   return (
-    <Wrapper>
-      <ItemGroup className="w-full max-w-md gap-2">
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-6">
         <Item variant="outline">
-          <ItemMedia variant="icon">
-            <Mail />
-          </ItemMedia>
           <ItemContent>
-            <ItemTitle>New message</ItemTitle>
-            <ItemDescription>Ada Lovelace sent you a message.</ItemDescription>
+            <ItemTitle>Basic Item</ItemTitle>
+            <ItemDescription>
+              A simple item with title and description.
+            </ItemDescription>
           </ItemContent>
           <ItemActions>
-            <Button size="sm" variant="outline">
-              View
+            <Button variant="outline" size="sm">
+              Action
             </Button>
           </ItemActions>
         </Item>
+        <Item variant="outline" size="sm" render={<a href="#item-demo" />}>
+          <ItemMedia>
+            <BadgeCheckIcon className="size-5" />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>Your profile has been verified.</ItemTitle>
+          </ItemContent>
+          <ItemActions>
+            <ChevronRightIcon className="size-4" />
+          </ItemActions>
+        </Item>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function itemComposition(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <ItemGroup className="mx-auto w-full max-w-md">
+        <Item variant="outline" role="listitem">
+          <ItemHeader>
+            <span className="text-xs text-muted-foreground">
+              ItemHeader — spans the row
+            </span>
+          </ItemHeader>
+          <ItemMedia variant="icon">
+            <InboxIcon />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>ItemTitle</ItemTitle>
+            <ItemDescription>
+              ItemMedia, ItemContent and ItemActions share one flex row.
+            </ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <Button variant="outline" size="sm">
+              Action
+            </Button>
+          </ItemActions>
+          <ItemFooter>
+            <span className="text-xs text-muted-foreground">
+              ItemFooter — spans the row
+            </span>
+          </ItemFooter>
+        </Item>
       </ItemGroup>
     </Wrapper>
   );
 }
 
-export function itemDemoVariants(): ReactNode {
+export function itemItemVsField(): ReactNode {
   return (
-    <Wrapper className="flex-col items-stretch gap-3">
-      {(["default", "outline", "muted"] as const).map((variant) => (
-        <Item key={variant} variant={variant} className="w-full">
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-6">
+        <Item variant="outline">
+          <ItemMedia variant="icon">
+            <InboxIcon />
+          </ItemMedia>
           <ItemContent>
-            <ItemTitle>
-              variant=<code>{variant}</code>
-            </ItemTitle>
+            <ItemTitle>Item — content</ItemTitle>
             <ItemDescription>
-              {variant === "default" &&
-                "No surface — blends into the parent background."}
-              {variant === "outline" && "A hairline border around the row."}
-              {variant === "muted" &&
-                "A filled neutral wash — reads as a self-contained block."}
+              A title, a description and actions. Nothing is submitted.
             </ItemDescription>
           </ItemContent>
         </Item>
-      ))}
+        <Field
+          label="Field — input"
+          description="Reach for Field whenever a control has to be labelled and validated."
+        >
+          <Input placeholder="ada@vegastack.com" />
+        </Field>
+      </div>
     </Wrapper>
   );
 }
 
-export function itemDemoMedia(): ReactNode {
+export function itemVariant(): ReactNode {
   return (
-    <Wrapper className="flex-col items-stretch gap-3">
-      <Item variant="outline" className="w-full">
-        <ItemMedia>
-          <Avatar fallback="AL" />
-        </ItemMedia>
-        <ItemContent>
-          <ItemTitle>Ada Lovelace</ItemTitle>
-          <ItemDescription>
-            Default media — bare children (e.g. an Avatar).
-          </ItemDescription>
-        </ItemContent>
-      </Item>
-      <Item variant="outline" className="w-full">
-        <ItemMedia variant="icon">
-          <ShieldCheck />
-        </ItemMedia>
-        <ItemContent>
-          <ItemTitle>Two-factor authentication</ItemTitle>
-          <ItemDescription>
-            Icon media — a bordered chip around a lucide icon.
-          </ItemDescription>
-        </ItemContent>
-      </Item>
-      <Item variant="outline" className="w-full">
-        <ItemMedia variant="image">
-          <img src={THUMBNAIL} alt="" />
-        </ItemMedia>
-        <ItemContent>
-          <ItemTitle>Q3 roadmap.pdf</ItemTitle>
-          <ItemDescription>
-            Image media — a clipped square thumbnail tile.
-          </ItemDescription>
-        </ItemContent>
-      </Item>
-    </Wrapper>
-  );
-}
-
-export function itemDemoActions(): ReactNode {
-  return (
-    <Wrapper>
-      <Item variant="outline" className="w-full max-w-md">
-        <ItemMedia variant="icon">
-          <FileText />
-        </ItemMedia>
-        <ItemContent>
-          <ItemTitle>Q3-roadmap.pdf</ItemTitle>
-          <ItemDescription>2.4 MB · Uploaded 3 days ago</ItemDescription>
-        </ItemContent>
-        <ItemActions>
-          <Badge variant="soft" intent="info">
-            Shared
-          </Badge>
-          <IconButton aria-label="More actions" variant="ghost" size="sm">
-            <ChevronRight />
-          </IconButton>
-        </ItemActions>
-      </Item>
-    </Wrapper>
-  );
-}
-
-export function itemDemoLink(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch gap-3">
-      <Item render={<a href="#billing" />} variant="outline" className="w-full">
-        <ItemMedia variant="icon">
-          <Bell />
-        </ItemMedia>
-        <ItemContent>
-          <ItemTitle>Notification settings</ItemTitle>
-          <ItemDescription>
-            The whole row is a link via <code>render</code> —
-            keyboard-focusable, keeps the native <code>link</code> role.
-          </ItemDescription>
-        </ItemContent>
-        <ItemActions>
-          <ChevronRight aria-hidden className="size-4 text-muted-foreground" />
-        </ItemActions>
-      </Item>
-    </Wrapper>
-  );
-}
-
-export function itemDemoGroup(): ReactNode {
-  return (
-    <Wrapper>
-      <ItemGroup className="w-full max-w-md">
-        <Item size="sm">
-          <ItemMedia>
-            <Avatar size="sm" fallback="AL" />
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-6">
+        <Item>
+          <ItemMedia variant="icon">
+            <InboxIcon />
           </ItemMedia>
           <ItemContent>
-            <ItemHeader>
-              <ItemTitle>Ada Lovelace</ItemTitle>
-              <span className="text-xs text-muted-foreground">2m ago</span>
-            </ItemHeader>
-            <ItemDescription>Approved the pull request.</ItemDescription>
+            <ItemTitle>Default Variant</ItemTitle>
+            <ItemDescription>
+              Transparent background with no border.
+            </ItemDescription>
           </ItemContent>
         </Item>
-        <ItemSeparator />
-        <Item size="sm">
-          <ItemMedia>
-            <Avatar size="sm" fallback="GH" />
+        <Item variant="outline">
+          <ItemMedia variant="icon">
+            <InboxIcon />
           </ItemMedia>
           <ItemContent>
-            <ItemHeader>
-              <ItemTitle>Grace Hopper</ItemTitle>
-              <span className="text-xs text-muted-foreground">1h ago</span>
-            </ItemHeader>
-            <ItemDescription>Left a comment on the design doc.</ItemDescription>
-            <ItemFooter>
-              <Button size="sm" variant="ghost">
-                Reply
-              </Button>
-            </ItemFooter>
+            <ItemTitle>Outline Variant</ItemTitle>
+            <ItemDescription>
+              Outlined style with a visible border.
+            </ItemDescription>
           </ItemContent>
         </Item>
+        <Item variant="muted">
+          <ItemMedia variant="icon">
+            <InboxIcon />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>Muted Variant</ItemTitle>
+            <ItemDescription>
+              Muted background for secondary content.
+            </ItemDescription>
+          </ItemContent>
+        </Item>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function itemSize(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-6">
+        <Item variant="outline">
+          <ItemMedia variant="icon">
+            <InboxIcon />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>Default Size</ItemTitle>
+            <ItemDescription>
+              The standard size for most use cases.
+            </ItemDescription>
+          </ItemContent>
+        </Item>
+        <Item variant="outline" size="sm">
+          <ItemMedia variant="icon">
+            <InboxIcon />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>Small Size</ItemTitle>
+            <ItemDescription>A compact size for dense layouts.</ItemDescription>
+          </ItemContent>
+        </Item>
+        <Item variant="outline" size="xs">
+          <ItemMedia variant="icon">
+            <InboxIcon />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>Extra Small Size</ItemTitle>
+            <ItemDescription>The most compact size available.</ItemDescription>
+          </ItemContent>
+        </Item>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function itemIcon(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-6">
+        <Item variant="outline">
+          <ItemMedia variant="icon">
+            <ShieldAlertIcon />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>Security Alert</ItemTitle>
+            <ItemDescription>
+              New login detected from unknown device.
+            </ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <Button size="sm" variant="outline">
+              Review
+            </Button>
+          </ItemActions>
+        </Item>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function itemAvatar(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-6">
+        <Item variant="outline">
+          <ItemMedia>
+            <Avatar className="size-10">
+              <AvatarImage src={GRACE} alt="Grace Hopper" />
+              <AvatarFallback>GH</AvatarFallback>
+            </Avatar>
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>Grace Hopper</ItemTitle>
+            <ItemDescription>Last seen 5 months ago</ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <Button
+              size="icon-sm"
+              variant="outline"
+              className="rounded-full"
+              aria-label="Invite"
+            >
+              <PlusIcon />
+            </Button>
+          </ItemActions>
+        </Item>
+        <Item variant="outline">
+          <ItemMedia>
+            <div className="flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background">
+              <Avatar className="hidden sm:flex">
+                <AvatarImage src={ADA} alt="Ada Lovelace" />
+                <AvatarFallback>AL</AvatarFallback>
+              </Avatar>
+              <Avatar className="hidden sm:flex">
+                <AvatarImage src={LINUS} alt="Linus Torvalds" />
+                <AvatarFallback>LT</AvatarFallback>
+              </Avatar>
+              <Avatar>
+                <AvatarImage src={GRACE} alt="Grace Hopper" />
+                <AvatarFallback>GH</AvatarFallback>
+              </Avatar>
+            </div>
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>No Team Members</ItemTitle>
+            <ItemDescription>
+              Invite your team to collaborate on this project.
+            </ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <Button size="sm" variant="outline">
+              Invite
+            </Button>
+          </ItemActions>
+        </Item>
+      </div>
+    </Wrapper>
+  );
+}
+
+const MUSIC = [
+  {
+    title: "Midnight City Lights",
+    artist: "Neon Dreams",
+    album: "Electric Nights",
+    duration: "3:45",
+  },
+  {
+    title: "Coffee Shop Conversations",
+    artist: "The Morning Brew",
+    album: "Urban Stories",
+    duration: "4:05",
+  },
+  {
+    title: "Digital Rain",
+    artist: "Cyber Symphony",
+    album: "Binary Beats",
+    duration: "3:30",
+  },
+];
+
+export function itemImage(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <ItemGroup className="mx-auto max-w-md gap-4">
+        {MUSIC.map((song) => (
+          <Item
+            key={song.title}
+            variant="outline"
+            render={<a href="#item-image" />}
+            role="listitem"
+          >
+            <ItemMedia variant="image">
+              <img src={THUMBNAIL} alt="" />
+            </ItemMedia>
+            <ItemContent className="min-w-0">
+              <ItemTitle className="w-full">
+                <span className="truncate">
+                  {song.title} — {song.album}
+                </span>
+              </ItemTitle>
+              <ItemDescription>{song.artist}</ItemDescription>
+            </ItemContent>
+            <ItemContent className="flex-none text-center">
+              <ItemDescription>{song.duration}</ItemDescription>
+            </ItemContent>
+          </Item>
+        ))}
       </ItemGroup>
+    </Wrapper>
+  );
+}
+
+export function itemGroup(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <ItemGroup className="mx-auto w-full max-w-sm">
+        {PEOPLE.map((person, index) => (
+          <Fragment key={person.username}>
+            <Item variant="outline" role="listitem">
+              <ItemMedia>
+                <Avatar>
+                  <AvatarImage src={person.avatar} alt={person.username} />
+                  <AvatarFallback>{person.initials}</AvatarFallback>
+                </Avatar>
+              </ItemMedia>
+              <ItemContent className="gap-1">
+                <ItemTitle>{person.username}</ItemTitle>
+                <ItemDescription>{person.email}</ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full"
+                  aria-label={`Invite ${person.username}`}
+                >
+                  <PlusIcon />
+                </Button>
+              </ItemActions>
+            </Item>
+            {/* `role="list"` admits only `listitem` children, so the divider is hidden from the
+                accessibility tree — the list already conveys the separation. */}
+            {index < PEOPLE.length - 1 ? (
+              <ItemSeparator aria-hidden="true" />
+            ) : null}
+          </Fragment>
+        ))}
+      </ItemGroup>
+    </Wrapper>
+  );
+}
+
+const MODELS = [
+  { name: "vs-1.5-sm", description: "Everyday tasks and UI generation." },
+  { name: "vs-1.5-lg", description: "Advanced thinking or reasoning." },
+  { name: "vs-2.0-mini", description: "Open source model for everyone." },
+];
+
+export function itemHeader(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <ItemGroup className="mx-auto grid max-w-xl grid-cols-3 gap-4">
+        {MODELS.map((model) => (
+          <Item key={model.name} variant="outline" role="listitem">
+            <ItemHeader>
+              <img
+                src={THUMBNAIL}
+                alt=""
+                className="aspect-square w-full rounded-sm object-cover"
+              />
+            </ItemHeader>
+            <ItemContent>
+              <ItemTitle>{model.name}</ItemTitle>
+              <ItemDescription>{model.description}</ItemDescription>
+            </ItemContent>
+          </Item>
+        ))}
+      </ItemGroup>
+    </Wrapper>
+  );
+}
+
+export function itemLink(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4">
+        <Item render={<a href="#item-link" />}>
+          <ItemContent>
+            <ItemTitle>Visit our documentation</ItemTitle>
+            <ItemDescription>
+              Learn how to get started with our components.
+            </ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <ChevronRightIcon className="size-4" />
+          </ItemActions>
+        </Item>
+        <Item
+          variant="outline"
+          render={
+            <a
+              href="#item-link-external"
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          }
+        >
+          <ItemContent>
+            <ItemTitle>External resource</ItemTitle>
+            <ItemDescription>
+              Opens in a new tab with security attributes.
+            </ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <ExternalLinkIcon className="size-4" />
+          </ItemActions>
+        </Item>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function itemDropdown(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Select
+          <ChevronDownIcon data-icon="inline-end" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-48" align="end">
+          <DropdownMenuGroup>
+            {PEOPLE.map((person) => (
+              <DropdownMenuItem key={person.username}>
+                <Item size="xs" className="w-full p-2">
+                  <ItemMedia>
+                    <Avatar className="size-6">
+                      <AvatarImage src={person.avatar} alt={person.username} />
+                      <AvatarFallback>{person.initials}</AvatarFallback>
+                    </Avatar>
+                  </ItemMedia>
+                  <ItemContent className="gap-0">
+                    <ItemTitle>{person.username}</ItemTitle>
+                    <ItemDescription className="leading-none">
+                      {person.email}
+                    </ItemDescription>
+                  </ItemContent>
+                </Item>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function itemRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-6">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4" dir="ltr">
+        <Item variant="outline">
+          <ItemContent>
+            <ItemTitle>Basic Item</ItemTitle>
+            <ItemDescription>
+              A simple item with title and description.
+            </ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <Button variant="outline" size="sm">
+              Action
+            </Button>
+          </ItemActions>
+        </Item>
+      </div>
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4" dir="rtl">
+        <Item variant="outline">
+          <ItemContent>
+            <ItemTitle>عنصر أساسي</ItemTitle>
+            <ItemDescription>عنصر بسيط يحتوي على عنوان ووصف.</ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <Button variant="outline" size="sm">
+              إجراء
+            </Button>
+          </ItemActions>
+        </Item>
+        <Item variant="outline" size="sm" render={<a href="#item-rtl" />}>
+          <ItemMedia>
+            <BadgeCheckIcon className="size-5" />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>تم التحقق من ملفك الشخصي.</ItemTitle>
+          </ItemContent>
+          <ItemActions>
+            <ChevronRightIcon className="size-4 rtl:rotate-180" />
+          </ItemActions>
+        </Item>
+      </div>
     </Wrapper>
   );
 }

@@ -1,11 +1,11 @@
 ---
 title: Separator
-description: A thin rule that visually or semantically divides content — horizontal or vertical, decorative by default.
+description: A one-pixel rule that visually or semantically separates content, in either orientation, built on Base UI.
 audience: public
 registry: separator
 status: stable
 since: 0.1.0
-a11y: ARIA separator
+a11y: decorative by default
 preview: separator
 ---
 
@@ -21,61 +21,71 @@ import { Separator } from "@/components/ui/separator";
 <Separator />;
 ```
 
-## Examples
-
-### Rules in context
-
-A horizontal rule between blocks of content, plus inline vertical dividers between links. The
-top horizontal rule (`<Separator />`) is **decorative** — it's hidden from assistive tech because
-the heading and paragraph already convey the grouping. The inline vertical dividers use
-`decorative={false}` so screen readers announce each `separator` boundary. Vertical separators need
-a parent with height (e.g. a flex row).
-
 <ComponentPreview name="separator" file="components/preview/separator.tsx" />
 
-### Orientation
+## Examples
 
-Pass `orientation="vertical"` to divide along the cross axis. The parent must provide height — place
-it inside a flex row.
+### Vertical
+
+Use `orientation="vertical"` for a vertical separator. It stretches to the height of its flex row,
+so the row — not the separator — sets the length.
 
 <ComponentPreview
   name="separatorVertical"
   file="components/preview/separator.tsx"
 />
 
-## Playground
+### Menu
 
-Flip the orientation and the decorative flag, then copy the generated JSX.
+Vertical separators between menu entries with descriptions.
 
-<SeparatorPlayground />
+<ComponentPreview
+  name="separatorMenu"
+  file="components/preview/separator.tsx"
+/>
+
+### List
+
+Horizontal separators between list rows.
+
+<ComponentPreview
+  name="separatorList"
+  file="components/preview/separator.tsx"
+/>
+
+### RTL
+
+A horizontal separator spans the full inline size, so a right-to-left document needs no change.
+
+<ComponentPreview name="separatorRtl" file="components/preview/separator.tsx" />
 
 ## API Reference
 
-<ApiTable
-  path="../../packages/ui/registry/ui/separator.tsx"
-  name="SeparatorProps"
-/>
+<ApiTable path="lib/api-props.ts" name="SeparatorProps" />
 
 ## Accessibility
 
-- **Decorative by default** (`decorative` is `true`): the separator is hidden from assistive tech
-  (`role="presentation"`, `aria-hidden="true"`) because the surrounding layout already conveys the
-  grouping. This avoids redundant "separator" announcements.
-- Set `decorative={false}` when the divider carries meaning — e.g. between sections of a menu or
-  toolbar — so screen readers announce it as a `separator` with the correct `aria-orientation`.
-- Built on Base UI's accessible `Separator`, which manages `role` and `aria-orientation`.
-
-| Attribute          | Value                                                |
-| ------------------ | ---------------------------------------------------- |
-| `role`             | `separator` (semantic) / `presentation` (decorative) |
-| `aria-orientation` | `horizontal` \| `vertical` (semantic only)           |
-| `data-orientation` | `horizontal` \| `vertical`                           |
+- Base UI's Separator renders `role="separator"` with `aria-orientation`, so assistive technology
+  announces the division rather than inferring it from a border.
+- It is never focusable and never a control: a separator that also does something is a button or a
+  resize handle, not this component.
+- A separator that merely decorates a layout should be hidden from assistive technology with
+  `aria-hidden` on the element that owns the decoration, so the rule is not announced twice.
+- Colour alone never carries the meaning of a division — the content on each side must stand on its
+  own.
 
 <StatesTested name="separator" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use a semantic separator (decorative={false}) to divide distinct sections of a menu or toolbar so screen readers announce the boundary."
-  dont="Add decorative separators between every item — redundant announcements add noise; keep them decorative when layout already implies the grouping."
+  do="Let a flex row size a vertical separator, which stretches to the row's own height."
+  dont="Add a border to the neighbouring element instead — the division then has no accessible role."
 />
+
+## Deviations
+
+Upstream's file, unchanged except for distribution plumbing:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`, and the file carries the registry
+  provenance header. Nothing else differs from `vendor/shadcn/4.21.0/ui/separator.tsx`.

@@ -53,81 +53,31 @@ function Surfaces() {
         Muted text on the muted surface.
       </div>
 
-      {/* Badge: solid fills + subtle tints across every status */}
+      {/* Badge: the solid fills and, since Batch 2 of the shadcn reset, the four tinted status
+          variants (COL-12). The tints are exactly the pairs A11Y-13 moved onto the `-text` ink. */}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="solid" intent="default">
-          solid default
-        </Badge>
-        <Badge variant="solid" intent="info">
-          solid info
-        </Badge>
-        <Badge variant="solid" intent="success">
-          solid success
-        </Badge>
-        <Badge variant="solid" intent="warning">
-          solid warning
-        </Badge>
-        <Badge variant="solid" intent="destructive">
-          solid destructive
-        </Badge>
+        <Badge>default</Badge>
+        <Badge variant="secondary">secondary</Badge>
+        <Badge variant="outline">outline</Badge>
+        <Badge variant="ghost">ghost</Badge>
+        <Badge variant="link">link</Badge>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Badge variant="soft" intent="success">
-          subtle success
-        </Badge>
-        <Badge variant="soft" intent="warning">
-          subtle warning
-        </Badge>
-        <Badge variant="soft" intent="destructive">
-          subtle destructive
-        </Badge>
-        <Badge variant="outline" intent="default">
-          outline
-        </Badge>
+        <Badge variant="info">tinted info</Badge>
+        <Badge variant="success">tinted success</Badge>
+        <Badge variant="warning">tinted warning</Badge>
+        <Badge variant="destructive">tinted destructive</Badge>
       </div>
 
-      {/* Button: the soft tones exercise bg-X-subtle + text-X (the soft-pair contrast); the outline
-          tones exercise the faint tint + the same ink. */}
+      {/* Button: upstream's six variants verbatim. `destructive` is a TINT carrying the
+          `-text` ink (A11Y-13), which is the one contrast-critical pair in the set. */}
       <div className="flex flex-wrap gap-2">
-        <Button>Solid</Button>
-        <Button variant="soft">Soft</Button>
-        <Button variant="soft" tone="destructive">
-          Destructive
-        </Button>
-        <Button variant="soft" tone="success">
-          Success
-        </Button>
-        <Button variant="soft" tone="warning">
-          Warning
-        </Button>
-        <Button variant="soft" tone="info">
-          Info
-        </Button>
+        <Button>Default</Button>
+        <Button variant="secondary">Secondary</Button>
         <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" tone="destructive">
-          Bordered destructive action
-        </Button>
-        <Button variant="outline" tone="success">
-          Bordered success action
-        </Button>
-        <Button variant="outline" tone="warning">
-          Bordered warning action
-        </Button>
-        <Button variant="outline" tone="info">
-          Bordered info action
-        </Button>
-        <Button variant="solid" tone="success">
-          Filled success action
-        </Button>
-        <Button variant="solid" tone="warning">
-          Filled warning action
-        </Button>
-        <Button variant="solid" tone="info">
-          Filled info action
-        </Button>
+        <Button variant="destructive">Destructive</Button>
+        <Button variant="link">Link</Button>
       </div>
 
       {/* Real neutral mounting surfaces for the global focus-visible outline. The token gate proves
@@ -149,34 +99,22 @@ function Surfaces() {
         </div>
       ))}
 
-      {/* Alpha-composited outline controls mounted on the non-page neutral surfaces they support. */}
+      {/* The alpha-composited status tints, on the two non-page neutral surfaces they sit on.
+          `bg-<family>/10` over `card` and over `popover` are different composites, and both have to
+          clear AA against the family's `-text` ink. */}
       <div className="flex flex-wrap gap-2 rounded-md bg-card p-3">
-        <Button variant="soft" tone="destructive">
-          Card destructive
-        </Button>
-        <Button variant="soft" tone="success">
-          Card success
-        </Button>
-        <Button variant="soft" tone="warning">
-          Card warning
-        </Button>
-        <Button variant="soft" tone="info">
-          Card info
-        </Button>
+        <Badge variant="destructive">Card destructive</Badge>
+        <Badge variant="success">Card success</Badge>
+        <Badge variant="warning">Card warning</Badge>
+        <Badge variant="info">Card info</Badge>
+        <Button variant="destructive">Card destructive action</Button>
       </div>
       <div className="flex flex-wrap gap-2 rounded-md bg-popover p-3">
-        <Button variant="soft" tone="destructive">
-          Popover destructive
-        </Button>
-        <Button variant="soft" tone="success">
-          Popover success
-        </Button>
-        <Button variant="soft" tone="warning">
-          Popover warning
-        </Button>
-        <Button variant="soft" tone="info">
-          Popover info
-        </Button>
+        <Badge variant="destructive">Popover destructive</Badge>
+        <Badge variant="success">Popover success</Badge>
+        <Badge variant="warning">Popover warning</Badge>
+        <Badge variant="info">Popover info</Badge>
+        <Button variant="destructive">Popover destructive action</Button>
       </div>
 
       {/* Categorical integration specimens: the token gate checks the ratios; these nodes prove all
@@ -200,15 +138,15 @@ function Surfaces() {
         items={[{ name: "Northstar" }, { name: "Kepler", href: "#kepler" }]}
       />
 
-      <Alert intent="success">
+      <Alert variant="success">
         <AlertTitle>Saved</AlertTitle>
         <AlertDescription>Your changes have been saved.</AlertDescription>
       </Alert>
-      <Alert intent="warning">
+      <Alert variant="warning">
         <AlertTitle>Heads up</AlertTitle>
         <AlertDescription>Subscription expiring soon.</AlertDescription>
       </Alert>
-      <Alert intent="info">
+      <Alert variant="info">
         <AlertTitle>FYI</AlertTitle>
         <AlertDescription>An informational note.</AlertDescription>
       </Alert>

@@ -10,8 +10,27 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const contracts = JSON.parse(
   readFileSync(join(root, "packages/ui/component-contracts.json"), "utf8"),
 );
+/**
+ * The shadcn reset (docs/plans/2026-09-18-shadcn-reset/) makes every shared component UPSTREAM'S
+ * FILE PLUS AN APPROVED PATCH, and upstream ships no JSDoc on its exports. Adding a doc comment to
+ * each one would be "improving it in passing" — the mandate's first non-negotiable forbids exactly
+ * that, and `verify-parity.mjs` would then demand a patch hunk per comment with no decision ID
+ * behind it. So this gate stops at the boundary the reset draws: a component in
+ * `packages/ui/upstream/migrated.json` documents its API on its docs page (whose section list
+ * `verify-variant-coverage.mjs` holds to upstream's), and every component that is OURS — the 79
+ * extras, the hooks and the blocks — keeps the full JSDoc + `@example` requirement.
+ *
+ * This NARROWS the gate; it does not disable it. The set shrinks only as Batches 2-6 reset a
+ * component onto upstream, and each name that enters it gains a parity + variant-coverage gate in
+ * the same commit.
+ */
+const migrated = new Set(
+  JSON.parse(
+    readFileSync(join(root, "packages/ui/upstream/migrated.json"), "utf8"),
+  ).components,
+);
 const records = [
-  ...contracts.components,
+  ...contracts.components.filter((record) => !migrated.has(record.name)),
   ...contracts.hooks,
   ...contracts.blocks,
 ];

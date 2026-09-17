@@ -1,12 +1,12 @@
 ---
 title: Item
-description: A compact anatomy row for list/feed content — media, title, description, and actions, groupable with dividers.
+description: A flex row for content — media, title, description and actions — in three variants and three sizes, groupable with dividers.
 audience: public
 registry: item
 status: stable
 since: 0.1.0
-a11y: list and listitem semantics
-preview: itemDemo
+a11y: content row, not a control
+preview: item
 ---
 
 ## Install
@@ -24,160 +24,162 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { Mail } from "lucide-react";
 
-<Item variant="outline">
+<Item>
   <ItemMedia variant="icon">
-    <Mail />
+    <InboxIcon />
   </ItemMedia>
   <ItemContent>
-    <ItemTitle>New message</ItemTitle>
-    <ItemDescription>Ada Lovelace sent you a message.</ItemDescription>
+    <ItemTitle>Title</ItemTitle>
+    <ItemDescription>Description</ItemDescription>
   </ItemContent>
   <ItemActions>
-    <Button size="sm">View</Button>
+    <Button>Action</Button>
   </ItemActions>
 </Item>;
 ```
 
-## Anatomy
+<ComponentPreview name="item" file="components/preview/item.tsx" />
 
-`Item` is a compound component. Every exported part, with the
-`data-slot` it renders (generated from the canonical source):
+## Anatomy
 
 <Anatomy name="item" />
 
 ## Examples
 
-### Anatomy
+### Composition
 
-`Item` is a compound component. Compose the parts inside the root, and group multiple rows in an
-`ItemGroup` separated by `ItemSeparator`:
+`ItemMedia`, `ItemContent` and `ItemActions` share one flex row; `ItemHeader` and `ItemFooter` take
+a full basis, so they sit above and below that row inside the same item.
 
-```tsx
-<ItemGroup>
-  <Item variant="default" size="md">
-    <ItemMedia variant="icon">{/* lucide icon */}</ItemMedia>
-    <ItemContent>
-      <ItemHeader>{/* title + trailing meta */}</ItemHeader>
-      <ItemTitle>Title</ItemTitle>
-      <ItemDescription>Supporting description text.</ItemDescription>
-      <ItemFooter>{/* secondary actions */}</ItemFooter>
-    </ItemContent>
-    <ItemActions>{/* buttons, badges */}</ItemActions>
-  </Item>
-  <ItemSeparator />
-  <Item>{/* … */}</Item>
-</ItemGroup>
-```
+<ComponentPreview name="itemComposition" file="components/preview/item.tsx" />
 
-- `Item` — the row container (`data-slot="item"`). Owns `variant`, `size`, and the `render`
-  composition prop. Takes `role="listitem"` only inside an `ItemGroup`.
-- `ItemMedia` — the leading visual slot (`data-slot="item-media"`). Owns the `variant` chip style.
-- `ItemContent` — the flexible text column (`data-slot="item-content"`).
-- `ItemTitle` — the primary label (`data-slot="item-title"`).
-- `ItemDescription` — supporting body text, clamped to two lines (`<p>`, `data-slot="item-description"`).
-- `ItemActions` — a trailing row of controls (`data-slot="item-actions"`).
-- `ItemHeader` / `ItemFooter` — full-width top/bottom rows for multi-row layouts (`data-slot="item-header"` / `"item-footer"`).
-- `ItemGroup` — a `role="list"` container of `Item` rows (`data-slot="item-group"`).
-- `ItemSeparator` — a decorative divider between rows, wraps `Separator` (`data-slot="item-separator"`).
+### Item vs Field
 
-### Variants
+Use `Field` when you need to display a form input such as a checkbox, input, radio or select — it
+owns the label association, the description and the error. Use `Item` when you only need to display
+content: a title, a description and actions.
 
-`variant` sets the row's surface — `default` (no surface, blends into the parent), `outline` (a
-hairline border), or `muted` (a filled neutral wash). `size` sets the padding density — roomy
-`md` or compact `sm` for dense lists.
+<ComponentPreview name="itemItemVsField" file="components/preview/item.tsx" />
 
-<ComponentPreview name="itemDemoVariants" file="components/preview/item.tsx" />
+### Variant
 
-### Media
+Use the `variant` prop to change the visual style of the item: `default`, `outline` or `muted`.
 
-`ItemMedia` takes a `variant`: `default` renders children bare (compose an `Avatar` or any custom
-glyph), `icon` wraps a single `lucide-react` icon in a bordered, muted square chip, and `image`
-clips a thumbnail `<img>` into a rounded square tile. When the row also has an `ItemDescription`,
-the media nudges down to align with the title instead of the row's vertical center.
+<ComponentPreview name="itemVariant" file="components/preview/item.tsx" />
 
-<ComponentPreview name="itemDemoMedia" file="components/preview/item.tsx" />
+### Size
 
-### Actions
+Use the `size` prop to change the size of the item. Available sizes are `default`, `sm` and `xs`.
+An enclosing `ItemGroup` tightens its own gap to match.
 
-`ItemActions` holds trailing controls — buttons, icon-buttons, badges — right-aligned in the row.
+<ComponentPreview name="itemSize" file="components/preview/item.tsx" />
 
-<ComponentPreview name="itemDemoActions" file="components/preview/item.tsx" />
+### Icon
 
-### Interactive rows
+Use `ItemMedia` with `variant="icon"` to display an icon.
 
-Pass `render` to turn the whole row into a single focusable control — an `<a>` for navigation, a
-`<button>` for an action. The row keeps the composed element's native `link`/`button` role instead
-of taking `listitem`, so it stays fully operable and discoverable by assistive tech.
+<ComponentPreview name="itemIcon" file="components/preview/item.tsx" />
 
-<ComponentPreview name="itemDemoLink" file="components/preview/item.tsx" />
+### Avatar
 
-### Groups & separators
+Use the default `ItemMedia` to display an avatar, or a stack of them.
 
-Wrap rows in `ItemGroup` (`role="list"`) and divide them with `ItemSeparator` — a decorative
-`Separator` that never breaks the list's ARIA structure. Compose `ItemHeader` / `ItemFooter`
-inside `ItemContent` for multi-row layouts like a comment or activity feed.
+<ComponentPreview name="itemAvatar" file="components/preview/item.tsx" />
 
-<ComponentPreview name="itemDemoGroup" file="components/preview/item.tsx" />
+### Image
 
-## Playground
+Use `ItemMedia` with `variant="image"` to display an image — a fixed square that clips its corners
+and tracks the item's size.
 
-Mix the row's surface, density, and media treatment, then copy the generated JSX.
+<ComponentPreview name="itemImage" file="components/preview/item.tsx" />
 
-<ItemPlayground />
+### Group
+
+Use `ItemGroup` to group related items, and `ItemSeparator` to rule between them. The group renders
+`role="list"`, so each item carries `role="listitem"` and the rule between two rows is hidden from
+assistive technology.
+
+<ComponentPreview name="itemGroup" file="components/preview/item.tsx" />
+
+### Header
+
+Use `ItemHeader` to add a header above the item content — a cover image, for instance.
+
+<ComponentPreview name="itemHeader" file="components/preview/item.tsx" />
+
+### Link
+
+Use the `render` prop to render the item as a link. The hover state applies to the anchor, and the
+focus outline is the global one — the item's own recipe carries no ring.
+
+<ComponentPreview name="itemLink" file="components/preview/item.tsx" />
+
+### Dropdown
+
+At `size="xs"` an item drops its padding inside a dropdown menu, so it composes as a rich menu row.
+
+<ComponentPreview name="itemDropdown" file="components/preview/item.tsx" />
+
+### RTL
+
+Every gap and padding is written in logical properties, so a right-to-left document mirrors the
+media, content and actions columns without any extra work.
+
+<ComponentPreview name="itemRtl" file="components/preview/item.tsx" />
 
 ## API Reference
 
-### Item
+<ApiTable path="lib/api-props.ts" name="ItemProps" />
 
-<ApiTable path="../../packages/ui/registry/ui/item.tsx" name="ItemProps" />
+<ApiTable path="lib/api-props.ts" name="ItemMediaProps" />
 
-### ItemMedia
+<ApiTable path="lib/api-props.ts" name="ItemContentProps" />
 
-<ApiTable path="../../packages/ui/registry/ui/item.tsx" name="ItemMediaProps" />
+<ApiTable path="lib/api-props.ts" name="ItemTitleProps" />
 
-### ItemSeparator
+<ApiTable path="lib/api-props.ts" name="ItemDescriptionProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/item.tsx"
-  name="ItemSeparatorProps"
-/>
+<ApiTable path="lib/api-props.ts" name="ItemActionsProps" />
 
-`ItemContent`, `ItemTitle`, `ItemDescription`, `ItemActions`, `ItemHeader`,
-`ItemFooter`, and `ItemGroup` add no props of their own — each accepts
-everything its underlying element accepts (a `<div>`, or a `<p>` for
-`ItemDescription`), plus `className` and `ref`.
+<ApiTable path="lib/api-props.ts" name="ItemGroupProps" />
+
+<ApiTable path="lib/api-props.ts" name="ItemSeparatorProps" />
+
+<ApiTable path="lib/api-props.ts" name="ItemHeaderProps" />
+
+<ApiTable path="lib/api-props.ts" name="ItemFooterProps" />
 
 ## Accessibility
 
-- `ItemGroup` is what licenses the row role: inside it, a non-interactive `Item` renders
-  `role="listitem"` and pairs with the group's `role="list"`, so assistive tech announces the row
-  count and position.
-- A standalone `Item` — one used on its own, or as the content of some other list's `<li>` — takes
-  no ARIA role at all. A `listitem` with no `list` parent is an axe `aria-required-parent`
-  critical, which is why `Timeline` rows need no `role` plumbing of their own.
-- An interactive `Item` (`render={<a />}` or `render={<button />}`) keeps its native `link` /
-  `button` role even inside a group — ARIA has no dual-role concept, and forcing `listitem` onto it
-  would hide the interactive affordance. Compose interactive rows standalone, or alongside non-interactive
-  rows in a group, rather than as the _only_ children of a `role="list"` `ItemGroup`.
-- `ItemSeparator` is decorative (`role="presentation"`, `aria-hidden`) — it never breaks the
-  `ItemGroup`'s list structure for assistive tech.
-- `ItemMedia` carries no independent semantics — an icon or image inside it should stay decorative;
-  put the meaning in `ItemTitle` / `ItemDescription`.
-- Keyboard focus uses the centralized `:focus-visible` outline — no custom ring.
-
-| Key              | Action                                                                       |
-| ---------------- | ---------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>   | Move focus to the next interactive `Item` (or control inside `ItemActions`). |
-| <kbd>Enter</kbd> | Activate a focused link/button `Item`, or a focused action control.          |
-| <kbd>Space</kbd> | Activate a focused button `Item`, or a focused action control.               |
+- `Item` is a `div` by default and carries no role of its own — it is content, not a control. Pass
+  `render` to make it an anchor or a button when the whole row is activatable.
+- `ItemGroup` renders `role="list"`, which admits only `listitem` children. Give every `Item` inside
+  one `role="listitem"`, and hide an `ItemSeparator` between two rows with `aria-hidden` — the list
+  already conveys the separation, and an exposed `role="separator"` there is a critical
+  `aria-required-children` failure.
+- On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1). The item's recipe
+  carries no focus ring, no `ring-3` glow and no `outline-none` of its own (FOC-6).
+- `ItemTitle` never clamps on the element that is also a flex container; wrap the text in an inner
+  span when it has to truncate (LAY-11).
+- An icon-only action inside `ItemActions` has no visible text — give it an `aria-label`.
 
 <StatesTested name="item" />
 
 ## Do / Don't
 
 <DoDont
-  do="Put the row's meaning in ItemTitle and ItemDescription — ItemMedia's icon or image stays decorative."
-  dont="Make the whole row a link AND nest another link or button inside ItemActions — a control can't be both a landmark link and contain interactive descendants without confusing keyboard/AT navigation."
+  do="Pass the render prop an anchor when the whole row navigates, so one element owns the link."
+  dont="Nest a button inside an Item that is already a link — the two activation targets overlap."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/item.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — `itemVariants` loses upstream's `outline-none`, `focus-visible:border-ring` and
+  3px `focus-visible:ring-ring/50` glow, so the global 2px outline is what a focused item shows.
+- **LAY-11** — `ItemTitle` loses `line-clamp-1`, which upstream sets on the same element as `flex`.
+  Truncation goes on an inner span instead.
+- **DOC-2** — `cn` is imported from `@vegastack/design`, and the file carries the registry
+  provenance header.

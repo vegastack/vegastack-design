@@ -1,16 +1,12 @@
-// @vegastack split-button@0.9.1 sha256-rP1SoK4cZHolKHnEap21+1UgtOIkU/urZphEF1El1yg=
+// @vegastack split-button@0.9.1 sha256-4rkjuAnJY276quk14P7SFNv5TrnCd0m9rtwg3VVZAHE=
 
 "use client";
 
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@vegastack/design";
-import {
-  Button,
-  type ButtonAppearance,
-  type ButtonOwnProps,
-} from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+import { Button } from "@/components/ui/button";
+import { IconButton, type IconButtonSize } from "@/components/ui/icon-button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -18,6 +14,15 @@ import {
   DropdownMenuItem,
   type DropdownMenuContentProps,
 } from "@/components/ui/dropdown-menu";
+
+/**
+ * `Button`'s own props, derived from the component. Batch 2 of the shadcn reset replaced the
+ * hand-written `ButtonOwnProps` / `ButtonAppearance` pair with upstream's flat `variant` + `size`
+ * API, so these two aliases are what a wrapper reads now. Batch 7 rebuilds this component on the
+ * reset primitives and they go away with it.
+ */
+type ButtonOwnProps = React.ComponentProps<typeof Button>;
+type ButtonAppearance = Pick<ButtonOwnProps, "variant">;
 
 /**
  * A single secondary action rendered inside the {@link SplitButton} dropdown.
@@ -42,8 +47,15 @@ export interface SplitButtonAction {
  * composite, so there is no single root element a `render` prop could replace.
  * Compose it via its declarative `actions` array or composed `menu` children.
  */
-export type SplitButtonProps = Omit<ButtonOwnProps, "render"> &
+export type SplitButtonProps = Omit<ButtonOwnProps, "render" | "size"> &
   ButtonAppearance & {
+    /**
+     * Control height, in the `xs · sm · md · lg` vocabulary both halves share. Mapped onto
+     * `Button`'s upstream tiers for the primary half and onto `IconButton`'s square tiers for the
+     * chevron half.
+     * @default 'md'
+     */
+    size?: IconButtonSize;
     /** The primary action's label. */
     children: React.ReactNode;
     /**
@@ -76,6 +88,14 @@ export type SplitButtonProps = Omit<ButtonOwnProps, "render"> &
       }
   );
 
+/** Each shared `xs · sm · md · lg` tier, in `Button`'s upstream size vocabulary. */
+const BUTTON_SIZE = {
+  xs: "xs",
+  sm: "sm",
+  md: "default",
+  lg: "lg",
+} as const;
+
 /**
  * `SplitButton` — a primary action button joined to a dropdown trigger. The left
  * half runs the default action on click; the chevron on the right opens a menu of
@@ -103,8 +123,7 @@ export type SplitButtonProps = Omit<ButtonOwnProps, "render"> &
  */
 export function SplitButton({
   className,
-  variant = "solid",
-  tone,
+  variant = "default",
   size = "md",
   loading = false,
   disabled,
@@ -137,15 +156,14 @@ export function SplitButton({
     <div
       data-slot="split-button"
       data-variant={variant}
-      data-tone={tone}
       data-size={size}
       className={cn("inline-flex items-stretch", className)}
     >
       {/* Primary action — joined on the right (square corner + shared seam). It is a plain Button,
           so it keeps the matrix's own hover and pressed steps (audit SP-04). */}
       <Button
-        {...({ variant, tone } as ButtonAppearance)}
-        size={size}
+        {...({ variant } as ButtonAppearance)}
+        size={BUTTON_SIZE[size]}
         loading={loading}
         disabled={disabled}
         onClick={onClick}
@@ -161,7 +179,7 @@ export function SplitButton({
           <DropdownMenuTrigger
             render={
               <IconButton
-                {...({ variant, tone } as ButtonAppearance)}
+                {...({ variant } as ButtonAppearance)}
                 size={size}
                 disabled={isDisabled}
                 // Loading CUE on the menu half (register P2-39): announced busy + styleable via

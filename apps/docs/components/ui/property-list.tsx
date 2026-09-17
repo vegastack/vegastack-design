@@ -1,4 +1,4 @@
-// @vegastack property-list@0.9.1 sha256-B7/K1Xg5wbzGh7q6kVuNnaZzlsT4WW8bP0SSVctZvYI=
+// @vegastack property-list@0.9.1 sha256-KwvglkGg1nfarI/zBttwHKE02L0uU7ljlMTn3jH7smY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -8,7 +8,7 @@ import { cn } from "@vegastack/design";
  * icon + muted 12/500 label column beside a 14/500 value column, one row per attribute. Built as
  * a definition list (`<dl>/<dt>/<dd>`) so the label→value relationship is announced without extra
  * wiring. Server-safe, purely presentational — values are whatever you compose (text, a link,
- * a `TagGroup`, an `EmptyValue`). Verified NOT a `DataList` fit: DataList is a `<table>` renderer
+ * a `TagGroup`, a muted placeholder span). Verified NOT a `DataList` fit: DataList is a `<table>` renderer
  * for homogeneous collections; PropertyList is the heterogeneous key→value pane.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ export type PropertyListProps = React.ComponentPropsWithRef<"dl">;
  *   </PropertyRow>
  *   <PropertyRow>
  *     <PropertyLabel icon={<Users />}>Team</PropertyLabel>
- *     <PropertyValue><EmptyValue>Set a value…</EmptyValue></PropertyValue>
+ *     <PropertyValue><span className="text-sm text-muted-foreground">Set a value…</span></PropertyValue>
  *   </PropertyRow>
  * </PropertyList>
  */

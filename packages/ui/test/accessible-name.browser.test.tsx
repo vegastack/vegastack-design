@@ -28,7 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
-import { Kbd } from "@/components/ui/kbd";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ToolCallChip } from "@/components/ui/tool-call-chip";
 
 /**
@@ -301,15 +301,19 @@ test("floating-surface: a menu row names its label and its shortcut hint separat
 });
 
 test("kbd: multi-key chips are separate words inside a naming control", async () => {
-  // `kbdVariants` makes every chip `inline-flex`, so the chips separate on their own —
-  // this holds whatever wraps them, and it is why `Kbd` needs no separator of its own.
+  // Since Batch 2 of the shadcn reset `Kbd` is upstream's presentational `<kbd>` and a shortcut is
+  // composed one chip per key inside `KbdGroup`. Every chip is `inline-flex`, so the chips separate
+  // into their own words on their own — which is why neither part needs a separator of its own.
   await render(
     <button type="button">
-      <Kbd keys={["⌘", "S"]} os="mac" />
+      <KbdGroup>
+        <Kbd>Ctrl</Kbd>
+        <Kbd>S</Kbd>
+      </KbdGroup>
     </button>,
   );
   await expect
-    .element(page.getByRole("button", { name: "Command S" }))
+    .element(page.getByRole("button", { name: "Ctrl S" }))
     .toBeInTheDocument();
 });
 

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5b75b6b2ae0d22c4d0ff39b4ec45bea66356bb8047d425fe38cea4b36cbad3e1",
+  "contractSha256": "cd0c8ff1271bb9f81a5378bc4a1537ef8991b9b2ac01d7db83b8c47c67a1fea5",
   "inventory": {
-    "expected": 597,
-    "actual": 597,
-    "unique": 597
+    "expected": 599,
+    "actual": 599,
+    "unique": 599
   },
   "classes": {
-    "components": 116,
+    "components": 118,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -16,13 +16,14 @@
   },
   "waves": {
     "Core controls": {
-      "expected": 24,
-      "actual": 24,
+      "expected": 25,
+      "actual": 25,
       "members": [
         "animated-number",
         "avatar",
         "badge",
         "button",
+        "button-group",
         "checkbox",
         "checkbox-group",
         "copy-button",
@@ -75,11 +76,12 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 14,
-      "actual": 14,
+      "expected": 15,
+      "actual": 15,
       "members": [
         "accordion",
         "app-shell",
+        "aspect-ratio",
         "board",
         "breadcrumb",
         "collapsible",
@@ -671,7 +673,7 @@
       ]
     }
   },
-  "componentRoutes": 116,
+  "componentRoutes": 118,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

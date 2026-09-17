@@ -1,11 +1,11 @@
 ---
 title: Skeleton
-description: A token-driven loading placeholder — line, circle, rect, and card shapes, a configurable line count, and a pulse that stops under reduced motion.
+description: A pulsing placeholder that holds the shape of content while it loads — one div, sized and shaped by utility classes.
 audience: public
 registry: skeleton
 status: stable
 since: 0.1.0
-a11y: decorative placeholder (aria-hidden)
+a11y: decorative placeholder
 preview: skeleton
 ---
 
@@ -16,143 +16,86 @@ preview: skeleton
 ## Usage
 
 ```tsx
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
 
-// A single line
-<Skeleton />
-
-// A three-line paragraph
-<Skeleton count={3} />;
+<Skeleton className="h-[20px] w-[100px] rounded-full" />;
 ```
 
-Skeleton is purely presentational and server-safe. Mark the surrounding region
-`aria-busy="true"` while data loads so assistive tech announces the loading state —
-the skeletons themselves are decorative and hidden from the accessibility tree.
-
-## Anatomy
-
-`Skeleton` is a compound component. Every exported part, with the
-`data-slot` it renders (generated from the canonical source):
-
-<Anatomy name="skeleton" />
+<ComponentPreview name="skeleton" file="components/preview/skeleton.tsx" />
 
 ## Examples
 
-### Shapes
+### Avatar
 
-`line` (a single text line, the default), `circle` (an avatar/icon placeholder),
-`rect` (an image/thumbnail block), and `card` (a larger card surface). Every shape
-is built from semantic tokens (`bg-muted`, `rounded-*`) — never a hardcoded color
-or pixel value.
+Give the media block the avatar's own size and radius so the layout does not jump when the image
+arrives.
 
 <ComponentPreview
-  name="skeletonShapes"
+  name="skeletonAvatar"
   file="components/preview/skeleton.tsx"
 />
 
-### Composing a loading card
+### Card
 
-Combine shapes to mirror the real content's structure — an avatar, a couple of
-short lines, a thumbnail, and a paragraph. Matching the eventual layout prevents
-content from shifting when it loads in.
+Skeletons sit inside the real container. Keep the card, the header and the content; replace only
+what is still loading.
 
 <ComponentPreview name="skeletonCard" file="components/preview/skeleton.tsx" />
 
-### Line count
+### Text
 
-Pass `count` to render a stacked block of text lines. `count` is clamped to a
-minimum of 1 (non-integer values are floored), and the final line is shortened
-to `w-4/5` to mimic the ragged end of a paragraph.
+Stack line skeletons at the line height of the copy they stand in for, and cut the last one short —
+a full-width final line reads as a block, not as text.
 
-```tsx
-<Skeleton count={4} />
-```
+<ComponentPreview name="skeletonText" file="components/preview/skeleton.tsx" />
 
-<ComponentPreview name="skeletonCount" file="components/preview/skeleton.tsx" />
+### Form
 
-### Count across shapes
+Mirror the label/control rhythm of the form so the fields land where the skeleton put them.
 
-`count` stacks any shape vertically, but the ragged-end shortening only applies to
-the `line` shape — `circle`, `rect`, and `card` repeat their full footprint so the
-placeholder still mirrors the real content geometry.
+<ComponentPreview name="skeletonForm" file="components/preview/skeleton.tsx" />
 
-<ComponentPreview
-  name="skeletonShapeCount"
-  file="components/preview/skeleton.tsx"
-/>
+### Table
 
-### Skeleton reveal
+Repeat one row shape for as many rows as the first page will hold. Keep the count fixed — a
+skeleton whose row count moves is a second layout shift.
 
-`Skeleton` itself stays a static placeholder — the reveal motion belongs to the content that
-**replaces** it. The smallest honest way to wire this is a keyed swap:
+<ComponentPreview name="skeletonTable" file="components/preview/skeleton.tsx" />
 
-```tsx
-{
-  loading ? (
-    <Skeleton count={3} />
-  ) : (
-    <div className="motion-enter-up">{content}</div>
-  );
-}
-```
+### RTL
 
-`SkeletonReveal` is a thin convenience wrapper around exactly that pattern — it keys the
-loading/content swap so it always remounts (never just patches props in place) and applies
-`motion-enter-up` to the revealed content, so it fades + rises in instead of popping flatly into
-place. Reach for the inline version instead when you don't need the shared wrapper (e.g. the
-content root already needs its own distinct element/props per branch).
+The placeholder is direction-agnostic; sizing comes from the utilities you pass, and the
+surrounding flex or grid flips with the document.
 
-```tsx
-import { Skeleton, SkeletonReveal } from "@/components/ui/skeleton";
-
-<SkeletonReveal loading={isLoading} skeleton={<Skeleton count={3} />}>
-  <Article content={data} />
-</SkeletonReveal>;
-```
-
-<ComponentPreview
-  name="skeletonReveal"
-  file="components/preview/skeleton.tsx"
-/>
-
-## Playground
-
-Switch between the four shapes and stack multiple placeholders, then copy the generated JSX.
-
-<SkeletonPlayground />
+<ComponentPreview name="skeletonRtl" file="components/preview/skeleton.tsx" />
 
 ## API Reference
 
-<ApiTable
-  path="../../packages/ui/registry/ui/skeleton.tsx"
-  name="SkeletonProps"
-/>
-
-### SkeletonReveal
-
-<ApiTable
-  path="../../packages/ui/registry/ui/skeleton.tsx"
-  name="SkeletonRevealProps"
-/>
+<ApiTable path="lib/api-props.ts" name="SkeletonProps" />
 
 ## Accessibility
 
-- Each skeleton is decorative — rendered with `role="presentation"` and
-  `aria-hidden="true"` so screen readers skip the placeholder geometry.
-- Convey the loading state on the **container**, not the skeleton: set
-  `aria-busy="true"` on the region being populated and provide a visually-hidden
-  "Loading…" label or live-region announcement.
-- Match the skeleton's layout to the real content so focus order and scroll
-  position stay stable once data arrives — avoid layout shift.
-- The pulse respects `prefers-reduced-motion`: the global reset in `base.css` zeroes
-  every animation, so the placeholder stays static. The component does not restate
-  that rule — one reset owns it, so it can never drift per component.
+- A skeleton is decorative: it carries no role, no text and no accessible name, so screen readers
+  skip it rather than announcing a wall of empty boxes.
+- Announce the loading state once, on the region that owns it — `aria-busy="true"` on the container,
+  or a live region for a longer wait — rather than on each placeholder.
+- The pulse is `animate-pulse`, and the global reduced-motion reset in `base.css` stops it for
+  anyone who asks for less motion. The placeholder stays visible.
+- The fill is `bg-muted`, which is a surface rather than text, so it carries no contrast obligation
+  of its own.
 
 <StatesTested name="skeleton" />
 
 ## Do / Don't
 
 <DoDont
-  do="Mirror the real content's shape and size, mark the container aria-busy, and keep the placeholder decorative."
-  dont="Animate a bare spinner-less skeleton without aria-busy, or use a different layout than the loaded content (causing a jarring shift)."
+  do="Size each skeleton to the element it replaces, so the real content lands without a layout shift."
+  dont="Render skeletons for an empty result — an empty state explains what happened; a skeleton implies data is coming."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/skeleton.patch`. Every hunk:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`. Nothing else differs: the element, the
+  `data-slot` and the `animate-pulse rounded-md bg-muted` recipe are upstream's.

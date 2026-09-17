@@ -32,10 +32,10 @@ export function iconButton(): ReactNode {
 export function iconButtonVariants(): ReactNode {
   return (
     <Wrapper>
-      <IconButton aria-label="Settings" variant="solid">
+      <IconButton aria-label="Settings">
         <Settings />
       </IconButton>
-      <IconButton aria-label="Notifications" variant="soft">
+      <IconButton aria-label="Notifications" variant="secondary">
         <Bell />
       </IconButton>
       <IconButton aria-label="Edit" variant="outline">
@@ -54,25 +54,25 @@ export function iconButtonVariants(): ReactNode {
 export function iconButtonTones(): ReactNode {
   return (
     <Wrapper>
-      <IconButton aria-label="Ask AI" variant="soft">
+      <IconButton aria-label="Ask AI" variant="secondary">
         <Sparkles />
       </IconButton>
-      <IconButton aria-label="Delete" variant="soft" tone="destructive">
+      <IconButton aria-label="Delete" variant="destructive">
         <Trash2 />
       </IconButton>
-      <IconButton aria-label="Confirm" variant="soft" tone="success">
+      <IconButton aria-label="Confirm" variant="secondary">
         <Check />
       </IconButton>
-      <IconButton aria-label="Warning" variant="soft" tone="warning">
+      <IconButton aria-label="Warning" variant="secondary">
         <TriangleAlert />
       </IconButton>
-      <IconButton aria-label="Information" variant="soft" tone="info">
+      <IconButton aria-label="Information" variant="secondary">
         <Info />
       </IconButton>
-      <IconButton aria-label="Approve" variant="outline" tone="success">
+      <IconButton aria-label="Approve" variant="outline">
         <Check />
       </IconButton>
-      <IconButton aria-label="Remove" variant="outline" tone="destructive">
+      <IconButton aria-label="Remove" variant="destructive">
         <Trash2 />
       </IconButton>
     </Wrapper>
@@ -88,10 +88,10 @@ export function iconButtonShapes(): ReactNode {
       <IconButton aria-label="Favorite" variant="outline" shape="round">
         <Heart />
       </IconButton>
-      <IconButton aria-label="Favorite" variant="soft" shape="round">
+      <IconButton aria-label="Favorite" variant="secondary" shape="round">
         <Heart />
       </IconButton>
-      <IconButton aria-label="Favorite" variant="solid" shape="round">
+      <IconButton aria-label="Favorite" shape="round">
         <Heart />
       </IconButton>
     </Wrapper>

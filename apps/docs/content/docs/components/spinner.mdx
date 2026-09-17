@@ -1,11 +1,11 @@
 ---
 title: Spinner
-description: An indeterminate loading indicator — a spinning icon that inherits currentColor, in four sizes, accessible by default.
+description: An indeterminate loading indicator — a spinning lucide icon that inherits currentColor and announces itself as a status.
 audience: public
 registry: spinner
 status: stable
 since: 0.1.0
-a11y: ARIA status region
+a11y: role=status named Loading
 preview: spinner
 ---
 
@@ -21,96 +21,96 @@ import { Spinner } from "@/components/ui/spinner";
 <Spinner />;
 ```
 
-The spinner inherits `currentColor`, so set its color via the surrounding text color:
-
-```tsx
-<span className="text-muted-foreground">
-  <Spinner />
-</span>
-```
+<ComponentPreview name="spinner" file="components/preview/spinner.tsx" />
 
 ## Examples
 
-### With a label
+### Customization
 
-The recommended pattern: pair the spinner with visible loading text. The text labels the
-loading region, so the spinner itself is marked `decorative` to avoid a double announcement
-to assistive tech.
-
-```tsx
-<span className="flex items-center gap-2 text-muted-foreground">
-  <Spinner size="sm" decorative />
-  Saving changes…
-</span>
-```
+The spinner is a single lucide icon, so swapping the mark is a one-line edit to the component: the
+`role`, the accessible name and the `size-4 animate-spin` recipe stay where they are. The second
+mark below is `LoaderIcon` in place of the default `Loader2Icon`.
 
 <ComponentPreview
-  name="spinnerLabelled"
+  name="spinnerCustomization"
   file="components/preview/spinner.tsx"
 />
 
-### Color
+### Size
 
-The spinner has no hardcoded color — it draws in `currentColor` and defaults to
-`text-muted-foreground`. Recolor it by setting the text color on any ancestor (or via a
-`className`), including inside a button where it inherits the button's text color.
+Use the `size-*` utility class to change the size of the spinner. It has no `size` prop — passing
+`size`, `width` or `height` to a lucide component is not how this system sizes icons.
 
-```tsx
-<span className="text-primary">
-  <Spinner />
-</span>;
+<ComponentPreview name="spinnerSize" file="components/preview/spinner.tsx" />
 
-<Button disabled>
-  <Spinner size="sm" label="" />
-  Saving…
-</Button>;
-```
+### Button
 
-<ComponentPreview name="spinnerColors" file="components/preview/spinner.tsx" />
+Add a spinner to a button to indicate a loading state. Place the spinner before the label with
+`data-icon="inline-start"` for a start position, or after the label with `data-icon="inline-end"`
+for an end position. For a pending submit that must keep its width, use the Button's own `loading`
+prop instead.
 
-### Sizes
+<ComponentPreview name="spinnerButton" file="components/preview/spinner.tsx" />
 
-`xs`, `sm`, `md`, and `lg` — mapped to the `size-*` token scale.
+### Badge
 
-<ComponentPreview name="spinnerSizes" file="components/preview/spinner.tsx" />
+The same `data-icon` attributes space a spinner inside a badge.
 
-## Playground
+<ComponentPreview name="spinnerBadge" file="components/preview/spinner.tsx" />
 
-Step through the four sizes, then copy the generated JSX.
+### Input Group
 
-<SpinnerPlayground />
+Upstream composes this example with `InputGroup`, which this system does not ship. The equivalent
+here is `Input`'s own `suffix` addon slot for a single-line field, and a spinner row beside a
+`Textarea` for a multi-line one.
+
+<ComponentPreview
+  name="spinnerInputGroup"
+  file="components/preview/spinner.tsx"
+/>
+
+### Empty
+
+An `Empty` block is the right place for a wait long enough to need an explanation and a way out.
+
+<ComponentPreview name="spinnerEmpty" file="components/preview/spinner.tsx" />
+
+### RTL
+
+The spinner is direction-agnostic; the row around it mirrors with the document, and `data-icon`
+spacing is written in logical properties.
+
+<ComponentPreview name="spinnerRtl" file="components/preview/spinner.tsx" />
 
 ## API Reference
 
-<ApiTable
-  path="../../packages/ui/registry/ui/spinner.tsx"
-  name="SpinnerProps"
-/>
+<ApiTable path="lib/api-props.ts" name="SpinnerProps" />
 
 ## Accessibility
 
-- By default the spinner renders `role="status"` with `aria-label="Loading"`, so assistive tech
-  announces the loading state. Override the wording with the `label` prop (e.g. `"Saving changes"`).
-- When the surrounding UI already labels the loading region — for example a button that swaps its text
-  to "Saving…" — pass `decorative` to hide the spinner from assistive tech (`aria-hidden`) and avoid a
-  double announcement. That is the sanctioned spelling: `label=""` means the same thing but says it by
-  passing a value that reads as a mistake at the call site.
-- Motion respects user preference: the spin animation is disabled under
-  `prefers-reduced-motion: reduce` (`motion-reduce:animate-none`).
-- Color is conveyed through `currentColor` only — never rely on the spinner alone to communicate
-  meaning; pair it with text where the state matters.
-
-| Concern         | Behavior                                                 |
-| --------------- | -------------------------------------------------------- |
-| Role            | `role="status"` (live region) unless `decorative`        |
-| Accessible name | `aria-label` from the `label` prop (default `"Loading"`) |
-| Reduced motion  | Animation removed under `prefers-reduced-motion: reduce` |
+- The icon renders `role="status"` with `aria-label="Loading"`, so the wait is announced once
+  without a live region of your own.
+- When the spinner sits inside a control that already says it is busy — a Button with `loading`, an
+  Item whose title reads "Processing payment…" — pass `aria-label={undefined}` so the state is not
+  announced twice.
+- The colour is `currentColor`: the spinner inherits the ink of whatever hosts it, so it never needs
+  a contrast decision of its own.
+- The rotation is `animate-spin`, one of the two sanctioned loader animations, and the global
+  reduced-motion reset in `base.css` collapses it.
 
 <StatesTested name="spinner" />
 
 ## Do / Don't
 
 <DoDont
-  do="Give the spinner a meaningful label (Saving changes…), or pair it with visible loading text and mark it decorative with label=''."
-  dont="Render two announced spinners in the same region, or rely on the spinner alone — with no text — to explain what is loading."
+  do="Pair a spinner with the text of what is happening when the wait is longer than a moment."
+  dont="Spin indefinitely with no label or timeout — a wait with no end and no explanation reads as a broken screen."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/spinner.patch`. Every hunk:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`. Nothing else differs: the `Loader2Icon`
+  mark, the `data-slot`, the `role="status"`, the `aria-label` and the `size-4 animate-spin` recipe
+  are upstream's.

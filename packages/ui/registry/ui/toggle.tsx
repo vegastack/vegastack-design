@@ -1,3 +1,5 @@
+// @vegastack toggle@0.9.1 sha256-wsmwc51WrE4pSxXv9QQBzeaa1gVRcAe8Vvhz1M/RSfY=
+
 "use client";
 
 import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";

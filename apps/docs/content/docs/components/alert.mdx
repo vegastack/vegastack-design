@@ -1,11 +1,11 @@
 ---
 title: Alert
-description: A status banner — five intents (default and four status colors), an optional icon, and an optional dismiss button.
+description: Displays a callout for user attention — five semantic variants, an optional icon, a title, a description, and an action.
 audience: public
 registry: alert
 status: stable
 since: 0.1.0
-a11y: ARIA status region
+a11y: role alert, icon beside the label
 preview: alert
 ---
 
@@ -18,156 +18,128 @@ preview: alert
 ```tsx
 import {
   Alert,
-  AlertActions,
+  AlertAction,
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
 
-<Alert intent="info">
-  <AlertTitle>Heads up</AlertTitle>
-  <AlertDescription>This is an informational alert.</AlertDescription>
+<Alert>
+  <InfoIcon />
+  <AlertTitle>Heads up!</AlertTitle>
+  <AlertDescription>
+    You can add components and dependencies to your app using the CLI.
+  </AlertDescription>
 </Alert>;
 ```
 
-### Live announcements
-
-Static alerts announce nothing. Set `live` when the banner is the RESULT of an action — a failed
-save, a warning raised by what was just submitted — and a `destructive` or `warning` intent becomes
-an assertive `role="alert"`. Everything else, `live` or not, stays a polite `role="status"`.
-
-```tsx
-// static — rendered with the page, announces nothing
-<Alert intent="info">
-  <AlertTitle>Two seats remain on this plan</AlertTitle>
-</Alert>
-
-// runtime — announced assertively the moment it mounts
-<Alert intent="destructive" live>
-  <AlertTitle>Payment declined</AlertTitle>
-  <AlertDescription>Update the card on file and try again.</AlertDescription>
-</Alert>
-```
+<ComponentPreview name="alert" file="components/preview/alert.tsx" />
 
 ## Anatomy
 
-`Alert` is a compound component. Compose the parts inside the root:
-
 <Anatomy name="alert" />
-
-```tsx
-<Alert intent="success" dismissable onDismiss={handleDismiss}>
-  <AlertTitle>Title</AlertTitle>
-  <AlertDescription>Supporting description text.</AlertDescription>
-  <AlertActions>{/* action buttons */}</AlertActions>
-</Alert>
-```
-
-- `Alert` — the client root banner (`data-slot="alert"`). Owns the intent, leading icon, live-region policy, and optional dismiss/self-dismiss behavior.
-- `AlertTitle` — the bold leading line (`data-slot="alert-title"`).
-- `AlertDescription` — supporting body text (`data-slot="alert-description"`).
-- `AlertActions` — a row of action controls below the description (`data-slot="alert-actions"`).
 
 ## Examples
 
-### Variants
+### Composition
 
-`default`, plus four semantic statuses — `info`, `success`, `warning`, `destructive` —
-each with a matching leading icon and status color tokens (`bg-X-subtle text-X-text border-X/20`).
+An icon, then `AlertTitle`, then `AlertDescription`, then `AlertAction`. The icon is a direct child
+of `Alert` — the recipe reserves a column for it and spans it across both rows, so nothing has to
+be wrapped.
 
-The `strip` layout variant is a compact single-line ribbon (icon + message + action, optional
-dismiss). It is the base pattern for in-content notices and plan/trial rows — there is no separate
-"inline banner" or "plan banner" component. For the full-width inverse strip across the top of a
-page, use [`AnnouncementBanner`](/docs/components/announcement-banner) instead.
+<ComponentPreview name="alertComposition" file="components/preview/alert.tsx" />
 
-<ComponentPreview name="alertVariants" file="components/preview/alert.tsx" />
+### Basic
 
-### Dismissable
+A basic alert with an icon, a title and a description.
 
-Set `dismissable` to render a close button. Provide `onDismiss` to control visibility yourself, or
-omit it to let the alert remove itself from the DOM.
+<ComponentPreview name="alertBasic" file="components/preview/alert.tsx" />
 
-<ComponentPreview name="alertDismissable" file="components/preview/alert.tsx" />
+### Destructive
 
-### Actions & controlled dismiss
+Use `variant="destructive"` for a failure the user has to act on.
 
-Add an `AlertActions` row for follow-up controls, and pass `onDismiss` to drive visibility from your
-own state instead of letting the alert self-remove. This is the recommended production path — it keeps
-the alert in React's control so you can re-show it, log the dismissal, or coordinate other UI.
+<ComponentPreview name="alertDestructive" file="components/preview/alert.tsx" />
 
-<ComponentPreview name="alertActions" file="components/preview/alert.tsx" />
+### Status
 
-### Icon options
+Ours: `success`, `warning` and `info` complete the four chromatic families (COL-12), each written
+in upstream's `destructive` shape — the family's `-text` ink on the card surface, with the
+description one step dimmer. Give every one of them an icon, so the hue is never the only signal.
 
-Pass a custom leading `icon` (any `lucide-react` element) to override the intent's default, or set
-`hideIcon` to drop the leading icon gutter entirely.
+<ComponentPreview name="alertStatus" file="components/preview/alert.tsx" />
 
-<ComponentPreview name="alertIconOptions" file="components/preview/alert.tsx" />
+### Action
 
-### Variant matrix
+Use `AlertAction` to add a button or another action element to the alert. It is positioned on the
+trailing edge of the first row, and the root reserves the inline space for it.
 
-Each intent rendered in its plain (icon-only) form and again with an `AlertActions` row, so the icon
-gutter and action layout read consistently across every tone.
+<ComponentPreview name="alertAction" file="components/preview/alert.tsx" />
 
-<ComponentPreview name="alertMatrix" file="components/preview/alert.tsx" />
+### Custom Colors
 
-### Strip variant
+You can retint an alert by passing classes through `className`. Upstream's example reaches for the
+raw Tailwind palette; use semantic tokens instead, so the override follows the theme into dark mode
+and survives a retheme.
 
-`variant="strip"` is the compact single-line info ribbon — centered icon + copy, tighter
-padding — for settings banners and inline notices (distinct from the block alert).
+<ComponentPreview
+  name="alertCustomColors"
+  file="components/preview/alert.tsx"
+/>
 
-<ComponentPreview name="alertStrip" file="components/preview/alert.tsx" />
+### RTL
 
-## Playground
+The root is written in logical properties — `text-start`, `pe-18` for the action inset, `end-2` on
+`AlertAction` — so a right-to-left document mirrors without any extra work.
 
-Try every intent with the icon and dismiss options, then copy the generated JSX.
-
-<AlertPlayground />
+<ComponentPreview name="alertRtl" file="components/preview/alert.tsx" />
 
 ## API Reference
 
 ### Alert
 
-<ApiTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertProps" />
+<ApiTable path="lib/api-props.ts" name="AlertProps" />
 
 ### AlertTitle
 
-<ApiTable
-  path="../../packages/ui/registry/ui/alert.tsx"
-  name="AlertTitleProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AlertTitleProps" />
 
 ### AlertDescription
 
-<ApiTable
-  path="../../packages/ui/registry/ui/alert.tsx"
-  name="AlertDescriptionProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AlertDescriptionProps" />
 
-### AlertActions
+### AlertAction
 
-<ApiTable
-  path="../../packages/ui/registry/ui/alert.tsx"
-  name="AlertActionsProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AlertActionProps" />
 
 ## Accessibility
 
-- The root is a polite `role="status"` region by default, for every intent. A live region that is already in the DOM when the page loads announces nothing, so a page carrying three static alerts stays silent instead of interrupting three times.
-- Pass `live` for a banner that appears (or re-words) in response to something the user did. With `live`, a `destructive` or `warning` intent escalates to the assertive `role="alert"` — the only case WAI-ARIA reserves an interruption for; the other intents stay polite.
-- The leading icon is decorative (`aria-hidden`); meaning is carried by the title and description text.
-- The dismiss button is a native `<button type="button">` with an accessible label (`dismissLabel`, default `"Dismiss"`).
-- The dismiss button shows a `:focus-visible` ring (`outline-ring`) — never `outline: none`.
-
-| Key                                 | Action                                                 |
-| ----------------------------------- | ------------------------------------------------------ |
-| <kbd>Tab</kbd>                      | Move focus to the dismiss button (when `dismissable`). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused dismiss button.                   |
+- The root carries `role="alert"`, so assistive technology announces its content as soon as it
+  enters the accessibility tree. Render it when the event happens, not on every page load.
+- Status is never colour alone (A11Y-8): every variant takes an icon, and the title carries the
+  words. The icon is decorative — the sentence is what gets read.
+- Each variant takes its family's `-text` ink over the card surface (A11Y-13), which clears the AA
+  contrast floor in both themes; the description sits one alpha step down and still clears it.
+- `AlertAction` holds a real control. Keep it a `Button` so it is reachable by keyboard in the
+  reading order, immediately after the description.
 
 <StatesTested name="alert" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use the intent that matches the message — destructive for errors, success for confirmations."
-  dont="Use an Alert for transient feedback after an action — use a toast instead."
+  do="Pair every status variant with an icon and a written title."
+  dont="Signal severity with the tint alone, or mount an alert on page load just to show static copy."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/alert.patch`. Every hunk:
+
+- **COL-12** — `success`, `warning` and `info` variants, written in upstream's own `destructive`
+  shape: one ink on `bg-card`, with a dimmed description. The four status families exist in the
+  token contract; Alert is where they surface as a banner.
+- **A11Y-13** — every status variant takes the family's `-text` ink rather than the fill. Upstream's
+  `text-destructive` on card measures 3.98:1 in light, under the AA floor A11Y-1 enforces.
+- **A11Y-8** — status is never colour alone: the page and `alert.test.tsx` require an icon and a
+  title beside the tint, and the class string reserves the icon column either way.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.9.1 sha256-uVuu9fhSTlEJVWVOfQeiprZLXPUVT1rZ/J5q9dnbXjY=
+// @vegastack date-picker@0.9.1 sha256-IZJBELYsAYTpZUeDka+ZciW4P0hhd7kYQI5eQoUC5H0=
 
 "use client";
 
@@ -329,7 +329,7 @@ export function CalendarDayButton({
       data-range-end={modifiers.range_end ? "" : undefined}
       data-range-middle={modifiers.range_middle ? "" : undefined}
       className={cn(
-        buttonVariants({ variant: "ghost", size: "md" }),
+        buttonVariants({ variant: "ghost", size: "default" }),
         "flex aspect-square size-auto w-full min-w-8 flex-col gap-1 rounded-md px-0 leading-none font-normal",
         // Neutral hover/pressed for an unselected day.
         "hover:text-foreground",

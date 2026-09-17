@@ -279,7 +279,7 @@ function CommandAsyncDemo() {
         <CommandLoading>
           {!loaded ? (
             <>
-              <Spinner size="inherit" label="" />
+              <Spinner aria-hidden role={undefined} aria-label={undefined} />
               Fetching commands…
             </>
           ) : null}

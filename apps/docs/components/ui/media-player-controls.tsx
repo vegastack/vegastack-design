@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.9.1 sha256-9tJxx95QHtQBrryMq4VypM/RYV4nits0wKkssLTgLyw=
+// @vegastack media-player-controls@0.9.1 sha256-QThl2kCz+uFegbfsD4Y57LoJqNUonrGToduPZZ1Xq6I=
 
 "use client";
 
@@ -268,13 +268,10 @@ function MediaControlTooltip({
   children: React.ReactElement;
   content: React.ReactNode;
 }) {
-  const container = React.useContext(MediaPortalContainerContext);
   return (
     <Tooltip>
       <TooltipTrigger render={children} />
-      <TooltipContent portalProps={container ? { container } : undefined}>
-        {content}
-      </TooltipContent>
+      <TooltipContent>{content}</TooltipContent>
     </Tooltip>
   );
 }

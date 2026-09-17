@@ -1,158 +1,140 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { SaveIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
-// Copied INTO apps/docs via `shadcn add @vegastack/tooltip` (dogfoods the registry) → auto-scanned.
+// Copied INTO apps/docs via `shadcn add @vegastack/tooltip` (dogfoods the registry).
+import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
-  TooltipKbd,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-
-// The Tooltip.Provider already lives in the docs <Provider> (mirrors
-// VegaStackProvider), so these demos render Root → Trigger → Content directly.
 
 export function tooltip(): ReactNode {
   return (
-    <Wrapper>
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Hover me</Button>} />
-        <TooltipContent>Add to your library</TooltipContent>
-      </Tooltip>
+    <Wrapper className="min-h-40">
+      <TooltipProvider>
+        <Tooltip defaultOpen>
+          <TooltipTrigger render={<Button variant="outline" />}>
+            Hover
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Add to library</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </Wrapper>
   );
 }
 
-export function tooltipSides(): ReactNode {
+export function tooltipComposition(): ReactNode {
   return (
-    <Wrapper className="gap-6">
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Top</Button>} />
-        <TooltipContent side="top">On top</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Right</Button>} />
-        <TooltipContent side="right">On the right</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Bottom</Button>} />
-        <TooltipContent side="bottom">On the bottom</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Left</Button>} />
-        <TooltipContent side="left">On the left</TooltipContent>
-      </Tooltip>
+    <Wrapper className="min-h-40">
+      <TooltipProvider>
+        <Tooltip defaultOpen>
+          <TooltipTrigger render={<Button variant="outline" />}>
+            Trigger
+          </TooltipTrigger>
+          <TooltipContent>Content</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </Wrapper>
   );
 }
 
-export function tooltipKbd(): ReactNode {
+export function tooltipSide(): ReactNode {
   return (
-    <Wrapper>
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Search</Button>} />
-        <TooltipContent>
-          Search
-          <TooltipKbd keys={["⌘", "K"]} />
-        </TooltipContent>
-      </Tooltip>
+    <Wrapper className="min-h-52 gap-8">
+      <TooltipProvider>
+        {(["left", "top", "bottom", "right"] as const).map((side) => (
+          <Tooltip key={side} defaultOpen>
+            <TooltipTrigger
+              render={<Button variant="outline" className="w-fit capitalize" />}
+            >
+              {side}
+            </TooltipTrigger>
+            <TooltipContent side={side}>
+              <p>Add to library</p>
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </TooltipProvider>
     </Wrapper>
   );
 }
 
-export function tooltipArrow(): ReactNode {
+export function tooltipWithKeyboardShortcut(): ReactNode {
   return (
-    <Wrapper>
-      <Tooltip>
-        <TooltipTrigger
-          render={<Button variant="outline">With arrow</Button>}
-        />
-        <TooltipContent arrow>Pointing at the trigger</TooltipContent>
-      </Tooltip>
+    <Wrapper className="min-h-40">
+      <TooltipProvider>
+        <Tooltip defaultOpen>
+          <TooltipTrigger
+            render={
+              <Button variant="outline" size="icon-sm" aria-label="Save" />
+            }
+          >
+            <SaveIcon />
+          </TooltipTrigger>
+          <TooltipContent>
+            Save Changes <Kbd>S</Kbd>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </Wrapper>
   );
 }
 
-export function tooltipAlign(): ReactNode {
+export function tooltipDisabledButton(): ReactNode {
   return (
-    <Wrapper className="gap-6">
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Start</Button>} />
-        <TooltipContent side="bottom" align="start">
-          Aligned to the start edge
-        </TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Center</Button>} />
-        <TooltipContent side="bottom" align="center">
-          Centered on the trigger
-        </TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">End</Button>} />
-        <TooltipContent side="bottom" align="end">
-          Aligned to the end edge
-        </TooltipContent>
-      </Tooltip>
+    <Wrapper className="min-h-40">
+      <TooltipProvider>
+        <Tooltip defaultOpen>
+          <TooltipTrigger render={<span className="inline-block w-fit" />}>
+            <Button variant="outline" disabled>
+              Disabled
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>This feature is currently unavailable</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </Wrapper>
   );
 }
 
-export function tooltipOffset(): ReactNode {
+export function tooltipRtl(): ReactNode {
   return (
-    <Wrapper className="gap-6">
-      <Tooltip>
-        <TooltipTrigger
-          render={<Button variant="outline">Default (6px)</Button>}
-        />
-        <TooltipContent side="top">Default gap</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger
-          render={<Button variant="outline">Fixed offset</Button>}
-        />
-        <TooltipContent side="top" sideOffset={16}>
-          16px away
-        </TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger
-          render={<Button variant="outline">Offset function</Button>}
-        />
-        <TooltipContent
-          side="top"
-          sideOffset={({ side }) => (side === "top" ? 24 : 6)}
-        >
-          Resolved per side
-        </TooltipContent>
-      </Tooltip>
-    </Wrapper>
-  );
-}
-
-export function tooltipDelay(): ReactNode {
-  return (
-    <Wrapper className="gap-6">
-      <Tooltip>
-        <TooltipTrigger
-          render={<Button variant="outline">Shared delay</Button>}
-        />
-        <TooltipContent>Uses the provider delay</TooltipContent>
-      </Tooltip>
-      <Tooltip delay={0}>
-        <TooltipTrigger
-          render={<Button variant="outline">Instant (delay 0)</Button>}
-        />
-        <TooltipContent>Opens immediately</TooltipContent>
-      </Tooltip>
-      <Tooltip delay={800}>
-        <TooltipTrigger
-          render={<Button variant="outline">Slow (delay 800)</Button>}
-        />
-        <TooltipContent>Waits 800ms</TooltipContent>
-      </Tooltip>
+    <Wrapper className="min-h-52 flex-col items-stretch gap-10">
+      <TooltipProvider>
+        <div className="flex flex-wrap justify-center gap-8" dir="ltr">
+          {(["left", "top", "bottom", "right"] as const).map((side) => (
+            <Tooltip key={side} defaultOpen>
+              <TooltipTrigger
+                render={<Button variant="outline" className="capitalize" />}
+              >
+                {side}
+              </TooltipTrigger>
+              <TooltipContent side={side}>Add to library</TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
+        <div className="flex flex-wrap justify-center gap-8" dir="rtl">
+          {(["inline-start", "inline-end"] as const).map((side) => (
+            <Tooltip key={side} defaultOpen>
+              <TooltipTrigger render={<Button variant="outline" />}>
+                {side === "inline-start" ? "بداية السطر" : "نهاية السطر"}
+              </TooltipTrigger>
+              <TooltipContent side={side} dir="rtl">
+                إضافة إلى المكتبة
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
+      </TooltipProvider>
     </Wrapper>
   );
 }

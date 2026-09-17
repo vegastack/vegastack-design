@@ -4,164 +4,189 @@ import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
   CardAction,
   CardContent,
+  CardDescription,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "./card";
 
-test("renders title and content", async () => {
-  const screen = await render(
-    <Card>
+/** Upstream's two size tiers. Card has no variant dimension. */
+const SIZES = ["default", "sm"] as const;
+
+/** Every exported part, with the `data-slot` each one stamps. */
+const SLOTS = [
+  "card",
+  "card-header",
+  "card-title",
+  "card-description",
+  "card-action",
+  "card-content",
+  "card-footer",
+] as const;
+
+function FullCard(props: React.ComponentProps<typeof Card>) {
+  return (
+    <Card {...props}>
       <CardHeader>
-        <CardTitle>Team plan</CardTitle>
-        <CardDescription>$20 / user / month</CardDescription>
+        <CardTitle>Card Title</CardTitle>
+        <CardDescription>Card Description</CardDescription>
+        <CardAction>Card Action</CardAction>
       </CardHeader>
-      <CardContent>Everything in Pro, plus SSO.</CardContent>
-    </Card>,
-  );
-  await expect.element(screen.getByText("Team plan")).toBeInTheDocument();
-  await expect
-    .element(screen.getByText("$20 / user / month"))
-    .toBeInTheDocument();
-  await expect
-    .element(screen.getByText("Everything in Pro, plus SSO."))
-    .toBeInTheDocument();
-});
-
-test("root carries data-slot and default data-size", async () => {
-  const screen = await render(<Card>Body</Card>);
-  const card = screen.getByText("Body");
-  await expect.element(card).toHaveAttribute("data-slot", "card");
-  await expect.element(card).toHaveAttribute("data-size", "md");
-});
-
-test('size="sm" sets the data-size attribute', async () => {
-  const screen = await render(<Card size="sm">Compact</Card>);
-  await expect
-    .element(screen.getByText("Compact"))
-    .toHaveAttribute("data-size", "sm");
-});
-
-test("each compound part exposes its data-slot", async () => {
-  const screen = await render(
-    <Card>
-      <CardHeader>
-        <CardTitle>Title</CardTitle>
-        <CardDescription>Desc</CardDescription>
-        <CardAction>
-          <button type="button">More</button>
-        </CardAction>
-      </CardHeader>
-      <CardContent>Content</CardContent>
-      <CardFooter>Footer</CardFooter>
-    </Card>,
-  );
-  const { container } = screen;
-  expect(container.querySelector('[data-slot="card-header"]')).not.toBeNull();
-  expect(container.querySelector('[data-slot="card-title"]')).not.toBeNull();
-  expect(
-    container.querySelector('[data-slot="card-description"]'),
-  ).not.toBeNull();
-  expect(container.querySelector('[data-slot="card-action"]')).not.toBeNull();
-  expect(container.querySelector('[data-slot="card-content"]')).not.toBeNull();
-  expect(container.querySelector('[data-slot="card-footer"]')).not.toBeNull();
-});
-
-test("forwards ref to the underlying card root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(<Card ref={ref}>Ref</Card>);
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("card");
-});
-
-test("no a11y violations", async () => {
-  const screen = await render(
-    <Card>
-      <CardHeader>
-        <CardTitle>Accessible card</CardTitle>
-        <CardDescription>A simple, accessible content surface.</CardDescription>
-      </CardHeader>
-      <CardContent>Body content goes here.</CardContent>
+      <CardContent>
+        <p>Card Content</p>
+      </CardContent>
       <CardFooter>
-        <button type="button">Action</button>
+        <p>Card Footer</p>
       </CardFooter>
+    </Card>
+  );
+}
+
+test("renders a div carrying data-slot and the default size", async () => {
+  const screen = await render(<FullCard />);
+  const card = screen.container.querySelector("[data-slot=card]")!;
+  expect(card.tagName).toBe("DIV");
+  expect(card.getAttribute("data-size")).toBe("default");
+});
+
+test("every exported part renders and carries its own data-slot (Composition)", async () => {
+  const screen = await render(<FullCard />);
+  for (const slot of SLOTS) {
+    expect(screen.container.querySelector(`[data-slot=${slot}]`)).not.toBe(
+      null,
+    );
+  }
+  await expect.element(screen.getByText("Card Title")).toBeInTheDocument();
+  await expect.element(screen.getByText("Card Footer")).toBeInTheDocument();
+});
+
+test("CardAction opens the second header column and parks itself in it (Composition)", async () => {
+  const screen = await render(<FullCard />);
+  const header = screen.container.querySelector("[data-slot=card-header]")!;
+  expect(header.className).toContain(
+    "has-data-[slot=card-action]:grid-cols-[1fr_auto]",
+  );
+  const action = screen.container.querySelector("[data-slot=card-action]")!;
+  expect(action.className).toContain("col-start-2");
+  expect(action.className).toContain("justify-self-end");
+  // Reading order is the visual order: the action is written after the description.
+  expect(
+    action.compareDocumentPosition(
+      screen.container.querySelector("[data-slot=card-description]")!,
+    ) & Node.DOCUMENT_POSITION_PRECEDING,
+  ).toBeTruthy();
+});
+
+test("every size produces its own data-size, from one class string (Size)", async () => {
+  const seen = new Set<string>();
+  for (const size of SIZES) {
+    const screen = await render(<FullCard size={size} />);
+    const card = screen.container.querySelector("[data-slot=card]")!;
+    expect(card.getAttribute("data-size")).toBe(size);
+    seen.add(`${card.getAttribute("data-size")}`);
+  }
+  expect(seen.size).toBe(SIZES.length);
+});
+
+test("the small tier retunes the spacing variable rather than restating padding (Size)", async () => {
+  const screen = await render(<FullCard size="sm" />);
+  const card = screen.container.querySelector("[data-slot=card]")!;
+  expect(card.className).toContain(
+    "data-[size=sm]:[--card-spacing:--spacing(3)]",
+  );
+  expect(card.className).toContain("[--card-spacing:--spacing(4)]");
+});
+
+test("every part insets from the one spacing variable (Spacing)", async () => {
+  const screen = await render(<FullCard />);
+  const header = screen.container.querySelector("[data-slot=card-header]")!;
+  const content = screen.container.querySelector("[data-slot=card-content]")!;
+  const footer = screen.container.querySelector("[data-slot=card-footer]")!;
+  expect(header.className).toContain("px-(--card-spacing)");
+  expect(content.className).toContain("px-(--card-spacing)");
+  expect(footer.className).toContain("p-(--card-spacing)");
+  const card = screen.container.querySelector("[data-slot=card]")!;
+  expect(card.className).toContain("gap-(--card-spacing)");
+  expect(card.className).toContain("py-(--card-spacing)");
+});
+
+test("a footer removes the root's bottom padding (Spacing)", async () => {
+  const screen = await render(<FullCard />);
+  const card = screen.container.querySelector("[data-slot=card]")!;
+  expect(card.className).toContain("has-data-[slot=card-footer]:pb-0");
+});
+
+test("a leading image removes the top padding and rounds with the card (Image)", async () => {
+  const screen = await render(
+    <Card>
+      <img src="/preview/landscape.svg" alt="" />
+      <CardHeader>
+        <CardTitle>Design systems meetup</CardTitle>
+      </CardHeader>
+    </Card>,
+  );
+  const card = screen.container.querySelector("[data-slot=card]")!;
+  expect(card.querySelector(":scope > img:first-child")).not.toBe(null);
+  expect(card.className).toContain("has-[>img:first-child]:pt-0");
+  expect(card.className).toContain("*:[img:first-child]:rounded-t-xl");
+  expect(card.className).toContain("overflow-hidden");
+});
+
+test("RTL: no part reaches for a physical direction (RTL)", async () => {
+  const screen = await render(<FullCard dir="rtl" />);
+  for (const slot of SLOTS) {
+    const part = screen.container.querySelector(`[data-slot=${slot}]`)!;
+    expect(part.className).not.toMatch(/(?:^|\s)(?:pl|pr|ml|mr)-/);
+    expect(part.className).not.toMatch(/(?:^|\s)(?:left|right)-/);
+    expect(part.className).not.toMatch(/(?:^|\s)text-(?:left|right)(?:\s|$)/);
+  }
+});
+
+test("DOC-2: cn from @vegastack/design merges a caller's className onto every part", async () => {
+  const screen = await render(
+    <Card className="[--card-spacing:--spacing(6)] max-w-sm">
+      <CardHeader className="border-b">
+        <CardTitle className="text-lg">Card Title</CardTitle>
+      </CardHeader>
+    </Card>,
+  );
+  const card = screen.container.querySelector("[data-slot=card]")!;
+  expect(card.className).toContain("[--card-spacing:--spacing(6)]");
+  expect(card.className).toContain("max-w-sm");
+  const header = screen.container.querySelector("[data-slot=card-header]")!;
+  expect(header.className).toContain("border-b");
+  const title = screen.container.querySelector("[data-slot=card-title]")!;
+  // tailwind-merge aware: the caller's size replaces the recipe's, never stacks on it.
+  expect(title.className).toContain("text-lg");
+  expect(title.className).not.toContain("text-base");
+});
+
+test("no a11y violations — rest", async () => {
+  const screen = await render(<FullCard />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — small size", async () => {
+  const screen = await render(<FullCard size="sm" />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — with a decorative image", async () => {
+  const screen = await render(
+    <Card>
+      <img src="/preview/landscape.svg" alt="" />
+      <CardHeader>
+        <CardTitle>Design systems meetup</CardTitle>
+        <CardDescription>A practical talk on component APIs.</CardDescription>
+      </CardHeader>
     </Card>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
-/* ------------------------------------------------------------------------------------------------
- * Coverage added for B7-10 — the audit found six tests and no assertion on the footer wash, the
- * density contract, or a header that carries its own action.
- * ----------------------------------------------------------------------------------------------*/
-
-test("the footer is a real wash, not a bare row", async () => {
-  const screen = await render(
-    <Card>
-      <CardHeader>
-        <CardTitle>Usage</CardTitle>
-      </CardHeader>
-      <CardContent>4,102 runs</CardContent>
-      <CardFooter>Updated 2 minutes ago</CardFooter>
-    </Card>,
-  );
-  const footer = screen.container.querySelector(
-    '[data-slot="card-footer"]',
-  ) as HTMLElement;
-  expect(footer).not.toBeNull();
-  // The footer reads as a distinct band; a card is flat (borders-only canon), so the separation
-  // is a surface rung PLUS the hairline — never a shadow.
-  expect(footer.className).toContain("bg-muted");
-  expect(footer.className).toContain("border-t");
-  expect(footer.className).not.toContain("shadow-");
+test("no a11y violations — empty card", async () => {
+  const screen = await render(<Card />);
+  await expectNoA11yViolations(screen.container);
 });
-
-test("density reaches the parts through the root's group, not per-part props", async () => {
-  // The parts carry `group-data-[size=sm]/card:*`, which resolves ONLY because the root declares
-  // `group/card` AND `data-size`. Asserting the pair is what catches a root that stops naming the
-  // group — the failure mode that would silently leave every part at the roomy tier.
-  // NOTE: computed padding cannot be asserted here. The browser-unit env mounts components without
-  // the compiled Tailwind sheet, so every `getComputedStyle(...).padding*` reads `0px` and such a
-  // test either fails for the wrong reason or passes vacuously. Real geometry is the contract lane.
-  const screen = await render(
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle>Dense</CardTitle>
-      </CardHeader>
-      <CardContent>Body</CardContent>
-      <CardFooter>Footer</CardFooter>
-    </Card>,
-  );
-  const root = screen.container.querySelector(
-    '[data-slot="card"]',
-  ) as HTMLElement;
-  expect(root.className).toContain("group/card");
-  expect(root).toHaveAttribute("data-size", "sm");
-  for (const slot of ["card-content", "card-footer"]) {
-    const part = screen.container.querySelector(
-      `[data-slot="${slot}"]`,
-    ) as HTMLElement;
-    expect(part.className).toContain("group-data-[size=sm]/card:");
-  }
-});
-
-test.each(["sm", "md"] as const)(
-  "a card is flat at size=%s — the hairline does the work, never a shadow",
-  async (size) => {
-    const screen = await render(
-      <Card size={size}>
-        <CardContent>Body</CardContent>
-      </Card>,
-    );
-    const root = screen.container.querySelector(
-      '[data-slot="card"]',
-    ) as HTMLElement;
-    // Class-level, not `getComputedStyle().boxShadow` — with no compiled sheet in this env that
-    // reads "none" for any markup at all, so it is an assertion that cannot fail.
-    expect(root.className).not.toMatch(/(^|\s)shadow-/);
-    expect(root.className).toContain("border-border");
-  },
-);

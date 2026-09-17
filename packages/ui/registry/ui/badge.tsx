@@ -1,3 +1,5 @@
+// @vegastack badge@0.9.1 sha256-AAOZSoQcfK7X1nMp+IF27FrLjdijRqr/JeVMJvMxT7o=
+
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";

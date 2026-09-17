@@ -1,0 +1,108 @@
+# component: button
+# decisions: A11Y-12, A11Y-13, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4
+# hunks:
+#   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3
+#     focus-visible:ring-ring/50` is removed, along with the `aria-invalid` glow rings.
+#     `base.css` owns the single `:focus-visible` outline and `outline-none` would suppress it.
+#   FOC-5: the invalid border becomes `not-focus:aria-invalid:border-destructive`.
+#   FRM-4: `disabled:pointer-events-none` is dropped and `focusableWhenDisabled` defaults to
+#     true, so a disabled button keeps its pointer events and stays focusable; the dim moves to
+#     `data-disabled:` because Base UI renders `aria-disabled` rather than the native attribute.
+#   API-5, A11Y-12: the `loading` prop, the out-of-flow spinner, and the label held at
+#     `opacity-0` so the button's width does not move and its accessible name survives.
+#   A11Y-13: the `destructive` variant's tint takes `text-destructive-text`; upstream's
+#     `text-destructive` on its own `/10` measures 3.98:1 in light (MK, 2026-09-18).
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file; those hunks carry no decision of their own.
+diff --git a/button.tsx b/button.tsx
+index 1efb940..c293407 100644
+--- a/button.tsx
++++ b/button.tsx
+@@ -1,9 +1,13 @@
+-import { Button as ButtonPrimitive } from "@base-ui/react/button"
+-import { cva, type VariantProps } from "class-variance-authority"
+-import { cn } from "cn"
++// @vegastack button@0.9.1 sha256-gbbrr+QBcUXRddiT1u5Q1Quf2l+mMZFjcORiKrSy/q4=
++
++import { Button as ButtonPrimitive } from "@base-ui/react/button";
++import { cva, type VariantProps } from "class-variance-authority";
++import { cn } from "@vegastack/design";
++
++import { Spinner } from "@/components/ui/spinner";
+ 
+ const buttonVariants = cva(
+-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++  "group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none active:not-aria-[haspopup]:translate-y-px not-focus:aria-invalid:border-destructive data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+   {
+     variants: {
+       variant: {
+@@ -15,7 +19,7 @@ const buttonVariants = cva(
+         ghost:
+           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+         destructive:
+-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
++          "bg-destructive/10 text-destructive-text hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30",
+         link: "text-primary underline-offset-4 hover:underline",
+       },
+       size: {
+@@ -36,22 +40,53 @@ const buttonVariants = cva(
+       variant: "default",
+       size: "default",
+     },
+-  }
+-)
++  },
++);
+ 
+ function Button({
+   className,
+   variant = "default",
+   size = "default",
++  loading = false,
++  disabled,
++  focusableWhenDisabled,
++  children,
++  "aria-busy": ariaBusy,
+   ...props
+-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
++}: ButtonPrimitive.Props &
++  VariantProps<typeof buttonVariants> & {
++    /**
++     * Shows a spinner over the label, blocks activation and sets `aria-busy`. The label keeps its
++     * box at `opacity: 0`, so the button's width does not move and its accessible name survives
++     * (API-5, A11Y-12).
++     */
++    loading?: boolean;
++  }) {
+   return (
+     <ButtonPrimitive
+       data-slot="button"
++      data-loading={loading ? "" : undefined}
++      aria-busy={loading ? true : ariaBusy}
++      disabled={disabled || loading}
++      focusableWhenDisabled={focusableWhenDisabled ?? true}
+       className={cn(buttonVariants({ variant, size, className }))}
+       {...props}
+-    />
+-  )
++    >
++      {loading ? (
++        <>
++          <span
++            aria-hidden
++            className="absolute inset-0 flex items-center justify-center"
++          >
++            <Spinner aria-label={undefined} />
++          </span>
++          <span className="contents opacity-0">{children}</span>
++        </>
++      ) : (
++        children
++      )}
++    </ButtonPrimitive>
++  );
+ }
+ 
+-export { Button, buttonVariants }
++export { Button, buttonVariants };

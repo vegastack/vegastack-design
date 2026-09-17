@@ -15,7 +15,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { StatusIcon } from "@/components/ui/status-icon";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
 
 const NOW = new Date("2026-07-27T12:00:00Z");
@@ -42,7 +42,13 @@ export function timeline(): ReactNode {
               </ItemContent>
             </Item>
           </TimelineItem>
-          <TimelineItem node={<Avatar size="xs" fallback="PS" />}>
+          <TimelineItem
+            node={
+              <Avatar size="sm">
+                <AvatarFallback>PS</AvatarFallback>
+              </Avatar>
+            }
+          >
             <Item size="sm">
               <ItemContent>
                 <ItemTitle>Priya logged a call</ItemTitle>
@@ -148,7 +154,13 @@ export function timelineGrouped(): ReactNode {
             </Item>
           </TimelineItem>
           <TimelineSeparator>Last week</TimelineSeparator>
-          <TimelineItem node={<Avatar size="xs" fallback="AL" />}>
+          <TimelineItem
+            node={
+              <Avatar size="sm">
+                <AvatarFallback>AL</AvatarFallback>
+              </Avatar>
+            }
+          >
             <Item size="sm">
               <ItemContent>
                 <ItemTitle>Ada rolled back to main@77b4de</ItemTitle>

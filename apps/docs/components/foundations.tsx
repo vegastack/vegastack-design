@@ -599,7 +599,7 @@ export function FocusRingSpecimen() {
   return (
     <div className="not-prose my-6 space-y-3 rounded-lg border border-border bg-card p-6">
       <p className="text-xs text-muted-foreground">
-        Press <Kbd size="sm">Tab</Kbd> to move focus onto these controls and
+        Press <Kbd>Tab</Kbd> to move focus onto these controls and
         reveal the <span className="font-mono">--ring</span> outline.
       </p>
       {/* The real components (DC-09): the specimen demonstrates the ring `Button` gets from the

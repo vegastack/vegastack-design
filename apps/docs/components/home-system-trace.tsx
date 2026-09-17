@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Database, FileText, ShieldCheck } from "lucide-react";
 import { Icon } from "@vegastack/design/icons";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
 import {
@@ -215,7 +215,9 @@ function ComponentAndPatternLayers({ trace }: { trace: Trace }) {
           <MessageGroup className="w-full max-w-sm">
             <Message>
               <MessageAvatar>
-                <Avatar size="sm" fallback="AI" />
+                <Avatar size="sm">
+                  <AvatarFallback>AI</AvatarFallback>
+                </Avatar>
               </MessageAvatar>
               <MessageContent>
                 <MessageHeader>Design agent</MessageHeader>

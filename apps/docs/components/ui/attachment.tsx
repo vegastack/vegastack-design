@@ -1,4 +1,4 @@
-// @vegastack attachment@0.9.1 sha256-GvA1cJxcQmzLmpqt3+hFqKXUeV4jaj8S5OzinDNdDr8=
+// @vegastack attachment@0.9.1 sha256-PL6NiK4cPQSJIj9qCFBECgNWef+aWOgHqsdIiUv8qyE=
 
 "use client";
 
@@ -232,7 +232,12 @@ export function AttachmentMedia({
         aria-hidden="true"
         className="absolute inset-0 hidden items-center justify-center bg-background/90 text-foreground group-data-[state=uploading]/attachment:flex"
       >
-        <Spinner size="inherit" label="" className="size-4" />
+        <Spinner
+          className="size-4"
+          aria-hidden
+          role={undefined}
+          aria-label={undefined}
+        />
       </span>
     </div>
   );

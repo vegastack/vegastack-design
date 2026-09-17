@@ -24,8 +24,7 @@ export function toastTypes(): ReactNode {
         Default
       </Button>
       <Button
-        variant="soft"
-        tone="success"
+        variant="secondary"
         onClick={() =>
           toast.success("Project deployed", {
             description: "main@a1f7c2 is live",
@@ -35,22 +34,19 @@ export function toastTypes(): ReactNode {
         Success
       </Button>
       <Button
-        variant="soft"
-        tone="info"
+        variant="secondary"
         onClick={() => toast.info("A new version is available")}
       >
         Info
       </Button>
       <Button
-        variant="soft"
-        tone="warning"
+        variant="secondary"
         onClick={() => toast.warning("Storage is almost full")}
       >
         Warning
       </Button>
       <Button
-        variant="soft"
-        tone="destructive"
+        variant="destructive"
         onClick={() =>
           toast.error("Could not save changes", {
             description: "Check your connection and try again",

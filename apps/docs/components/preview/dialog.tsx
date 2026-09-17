@@ -38,11 +38,7 @@ export function dialog(): ReactNode {
           <DialogFooter>
             <DialogClose render={<Button variant="outline">Cancel</Button>} />
             <DialogClose
-              render={
-                <Button variant="soft" tone="destructive">
-                  Delete project
-                </Button>
-              }
+              render={<Button variant="destructive">Delete project</Button>}
             />
           </DialogFooter>
         </DialogContent>

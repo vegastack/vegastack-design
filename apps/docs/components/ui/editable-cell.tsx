@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.9.1 sha256-8Ud5UB4J9rDqAqHhnFT6ydjl4ITTYH8XjXiY1LqBrSY=
+// @vegastack editable-cell@0.9.1 sha256-b5V3yq1b0nfDKxnyFSpKCA52px+AmqSch/+iN1DX1f8=
 
 "use client";
 
@@ -373,7 +373,12 @@ export function EditableCell({
             icon shape differs per state and the announcer speaks it. */}
         {status === "saving" ? (
           // Decorative — the sr-only sibling below already announces "Saving…".
-          <Spinner size="sm" decorative />
+          <Spinner
+            className="size-3.5"
+            aria-hidden
+            role={undefined}
+            aria-label={undefined}
+          />
         ) : status === "saved" ? (
           <Check
             key="saved"

@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.9.1 sha256-YUTEoqg+odPODxzJ0jIGzD2/2MhrJGyT5zR3lNxVwy0=
+// @vegastack data-table-parts@0.9.1 sha256-v75AgUk8QC8qsQkAQOMogFIXUXCrrmoLBXqm7Z0dk4s=
 
 "use client";
 
@@ -483,7 +483,7 @@ export function EmptyRow({
     <TableRow data-slot={slot} className="hover:bg-transparent">
       <TableCell colSpan={colSpan} className="min-w-0 p-0">
         {children ?? (
-          <Empty size="sm">
+          <Empty>
             <EmptyHeader>
               <EmptyMedia>
                 <Inbox />

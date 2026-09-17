@@ -1,3 +1,5 @@
+// @vegastack tooltip@0.9.1 sha256-NHb8iGwGATwZSOsv8xaYYOJAIuMefLrwK10jNoIOPfY=
+
 "use client";
 
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";

@@ -22,11 +22,7 @@ export function alertDialog(): ReactNode {
     <Wrapper>
       <AlertDialog>
         <AlertDialogTrigger
-          render={
-            <Button variant="outline" tone="destructive">
-              Delete project
-            </Button>
-          }
+          render={<Button variant="destructive">Delete project</Button>}
         />
         <AlertDialogContent>
           <AlertDialogHeader>

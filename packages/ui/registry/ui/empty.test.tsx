@@ -1,267 +1,237 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
-import { Inbox } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Empty,
+  EmptyContent,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  EmptyDescription,
-  EmptyContent,
-  EmptyIllustration,
-  EmptyValue,
 } from "./empty";
 
-test("renders title and description content", async () => {
-  const screen = await render(
-    <Empty>
+/** Upstream's two `EmptyMedia` variants. */
+const MEDIA_VARIANTS = ["default", "icon"] as const;
+
+/** Every exported part and the `data-slot` it stamps on its element. */
+const SLOTS: {
+  part: React.ComponentType<{
+    children?: React.ReactNode;
+    className?: string;
+  }>;
+  slot: string;
+}[] = [
+  { part: Empty, slot: "empty" },
+  { part: EmptyHeader, slot: "empty-header" },
+  { part: EmptyMedia, slot: "empty-icon" },
+  { part: EmptyTitle, slot: "empty-title" },
+  { part: EmptyDescription, slot: "empty-description" },
+  { part: EmptyContent, slot: "empty-content" },
+];
+
+function bySlot(container: Element, slot: string): HTMLElement {
+  const element = container.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
+  expect(element, `no element carrying data-slot="${slot}"`).not.toBeNull();
+  return element as HTMLElement;
+}
+
+/** The full composition upstream documents, reused by several assertions. */
+function Composition(props: React.ComponentProps<typeof Empty>) {
+  return (
+    <Empty {...props}>
       <EmptyHeader>
-        <EmptyTitle>No projects yet</EmptyTitle>
+        <EmptyMedia variant="icon">
+          <svg aria-hidden="true" />
+        </EmptyMedia>
+        <EmptyTitle>No Projects Yet</EmptyTitle>
         <EmptyDescription>
-          Create your first project to get started.
+          You have not created any projects yet.
         </EmptyDescription>
       </EmptyHeader>
-    </Empty>,
-  );
-  await expect.element(screen.getByText("No projects yet")).toBeInTheDocument();
-  await expect
-    .element(screen.getByText("Create your first project to get started."))
-    .toBeInTheDocument();
-});
-
-test("title renders as a heading", async () => {
-  const screen = await render(
-    <Empty>
-      <EmptyHeader>
-        <EmptyTitle>Nothing here</EmptyTitle>
-      </EmptyHeader>
-    </Empty>,
-  );
-  await expect
-    .element(screen.getByRole("heading", { name: "Nothing here" }))
-    .toBeInTheDocument();
-});
-
-test("applies the icon intent data attribute", async () => {
-  const screen = await render(
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia intent="destructive">
-          <Inbox />
-        </EmptyMedia>
-        <EmptyTitle>Failed to load</EmptyTitle>
-      </EmptyHeader>
-    </Empty>,
-  );
-  const icon = screen.container.querySelector('[data-slot="empty-media"]');
-  expect(icon).not.toBeNull();
-  expect(icon).toHaveAttribute("data-intent", "destructive");
-});
-
-test.each(["plain", "card", "dashed"] as const)(
-  "variant=%s is reported on the root",
-  async (variant) => {
-    const screen = await render(
-      <Empty variant={variant}>
-        <EmptyHeader>
-          <EmptyTitle>Drop files here</EmptyTitle>
-        </EmptyHeader>
-      </Empty>,
-    );
-    const root = screen.container.querySelector('[data-slot="empty"]');
-    expect(root).toHaveAttribute("data-variant", variant);
-  },
-);
-
-test('variant="dashed" draws the drop-zone outline and no fill', async () => {
-  const screen = await render(
-    <Empty variant="dashed">
-      <EmptyHeader>
-        <EmptyTitle>Drop files here</EmptyTitle>
-      </EmptyHeader>
-    </Empty>,
-  );
-  const root = screen.container.querySelector(
-    '[data-slot="empty"]',
-  ) as HTMLElement;
-  expect(root.className).toContain("border-dashed");
-  expect(root.className).not.toContain("bg-card");
-});
-
-test('variant="card" carries a border so it stays self-contained on card-colored canvases', async () => {
-  const screen = await render(
-    <Empty variant="card">
-      <EmptyHeader>
-        <EmptyTitle>No results</EmptyTitle>
-      </EmptyHeader>
-    </Empty>,
-  );
-  const root = screen.container.querySelector(
-    '[data-slot="empty"]',
-  ) as HTMLElement;
-  // `bg-card` alone is invisible when the canvas is itself card-colored — the
-  // docs promise "a self-contained block on any background" (borders-only canon).
-  expect(root.className).toContain("bg-card");
-  expect(root.className).toContain("border-border");
-  // The one border axis: a card is never also dashed (B7-07).
-  expect(root.className).not.toContain("border-dashed");
-});
-
-test("EmptyTitle renders as h3 by default and honours the as prop", async () => {
-  const screen = await render(
-    <>
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle>Default heading</EmptyTitle>
-        </EmptyHeader>
-      </Empty>
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle as="h2">Page-level heading</EmptyTitle>
-        </EmptyHeader>
-      </Empty>
-    </>,
-  );
-  const titles = screen.container.querySelectorAll('[data-slot="empty-title"]');
-  expect(titles[0]?.tagName).toBe("H3");
-  expect(titles[1]?.tagName).toBe("H2");
-});
-
-test("renders action controls", async () => {
-  const screen = await render(
-    <Empty>
-      <EmptyHeader>
-        <EmptyTitle>No members</EmptyTitle>
-      </EmptyHeader>
       <EmptyContent>
-        <button type="button">Invite</button>
+        <button type="button">Create Project</button>
       </EmptyContent>
-    </Empty>,
+    </Empty>
   );
-  await expect
-    .element(screen.getByRole("button", { name: "Invite" }))
-    .toBeInTheDocument();
+}
+
+test("renders the root carrying data-slot", async () => {
+  const screen = await render(<Empty>Nothing here</Empty>);
+  const root = bySlot(screen.container, "empty");
+  expect(root.tagName).toBe("DIV");
+  expect(root.textContent).toBe("Nothing here");
 });
 
-test("icon chip is decorative (aria-hidden)", async () => {
+test("every exported part renders and stamps its own data-slot", async () => {
+  for (const { part: Part, slot } of SLOTS) {
+    const screen = await render(<Part>content</Part>);
+    expect(bySlot(screen.container, slot).getAttribute("data-slot")).toBe(slot);
+  }
+});
+
+test("the documented composition nests header parts inside EmptyHeader (Composition)", async () => {
+  const screen = await render(<Composition />);
+  const header = bySlot(screen.container, "empty-header");
+  expect(header.querySelector('[data-slot="empty-icon"]')).not.toBeNull();
+  expect(header.querySelector('[data-slot="empty-title"]')).not.toBeNull();
+  expect(
+    header.querySelector('[data-slot="empty-description"]'),
+  ).not.toBeNull();
+  // EmptyContent is a SIBLING of the header, not a child of it.
+  expect(header.querySelector('[data-slot="empty-content"]')).toBeNull();
+  expect(
+    bySlot(screen.container, "empty").querySelector(
+      '[data-slot="empty-content"]',
+    ),
+  ).not.toBeNull();
+});
+
+test("every EmptyMedia variant produces its own class string and data-variant", async () => {
+  const seen = new Set<string>();
+  for (const variant of MEDIA_VARIANTS) {
+    const screen = await render(<EmptyMedia variant={variant} />);
+    const media = bySlot(screen.container, "empty-icon");
+    expect(media.getAttribute("data-variant")).toBe(variant);
+    seen.add(media.className);
+  }
+  expect(seen.size).toBe(MEDIA_VARIANTS.length);
+});
+
+test("the icon variant is the tinted chip; the default variant is not", async () => {
+  const icon = await render(<EmptyMedia variant="icon" />);
+  const iconClasses = bySlot(icon.container, "empty-icon").className.split(
+    /\s+/,
+  );
+  expect(iconClasses).toContain("size-8");
+  expect(iconClasses).toContain("bg-muted");
+
+  const plain = await render(<EmptyMedia />);
+  const plainClasses = bySlot(plain.container, "empty-icon").className.split(
+    /\s+/,
+  );
+  expect(plainClasses).toContain("bg-transparent");
+  expect(plainClasses).not.toContain("size-8");
+});
+
+test("EmptyMedia defaults to the default variant when none is passed", async () => {
+  const screen = await render(<EmptyMedia />);
+  expect(
+    bySlot(screen.container, "empty-icon").getAttribute("data-variant"),
+  ).toBe("default");
+});
+
+test("the root carries the dashed outline in its recipe, unset until `border` is added (Outline)", async () => {
+  const bare = await render(<Empty />);
+  const bareClasses = bySlot(bare.container, "empty").className.split(/\s+/);
+  expect(bareClasses).toContain("border-dashed");
+  expect(bareClasses).not.toContain("border");
+
+  const outlined = await render(<Empty className="border border-dashed" />);
+  const outlinedClasses = bySlot(outlined.container, "empty").className.split(
+    /\s+/,
+  );
+  expect(outlinedClasses).toContain("border");
+  expect(outlinedClasses).toContain("border-dashed");
+});
+
+test("a caller's background utility is merged onto the root (Background)", async () => {
+  const screen = await render(<Empty className="bg-muted/30" />);
+  expect(bySlot(screen.container, "empty").className.split(/\s+/)).toContain(
+    "bg-muted/30",
+  );
+});
+
+test("EmptyMedia hosts arbitrary media, not just an icon (Avatar, Avatar Group)", async () => {
+  const screen = await render(
+    <EmptyMedia>
+      <img src="/preview/avatar-1.svg" alt="Ada Lovelace" />
+      <img src="/preview/avatar-2.svg" alt="Grace Hopper" />
+    </EmptyMedia>,
+  );
+  const media = bySlot(screen.container, "empty-icon");
+  expect(media.querySelectorAll("img")).toHaveLength(2);
+  expect(media.getAttribute("data-variant")).toBe("default");
+});
+
+test("EmptyContent hosts interactive controls and styles links in the description (InputGroup)", async () => {
+  const screen = await render(
+    <EmptyContent>
+      <input aria-label="Search pages" placeholder="Try searching..." />
+      <EmptyDescription>
+        Need help? <a href="#support">Contact support</a>
+      </EmptyDescription>
+    </EmptyContent>,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Search pages" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("link", { name: "Contact support" }))
+    .toBeInTheDocument();
+  expect(bySlot(screen.container, "empty-description").className).toContain(
+    "[&>a]:underline",
+  );
+});
+
+test("the root passes `dir` straight through to its element (RTL)", async () => {
+  const screen = await render(<Composition dir="rtl" />);
+  expect(bySlot(screen.container, "empty").getAttribute("dir")).toBe("rtl");
+});
+
+test("FOC-6: no part's recipe carries a focus glow, even though there is no patch", async () => {
+  for (const { part: Part, slot } of SLOTS) {
+    const screen = await render(<Part />);
+    const classes = bySlot(screen.container, slot).className;
+    expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+    expect(classes).not.toContain("focus-visible:ring-");
+    expect(classes).not.toContain("focus-visible:border-ring");
+    expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
+  }
+  for (const variant of MEDIA_VARIANTS) {
+    const screen = await render(<EmptyMedia variant={variant} />);
+    const classes = bySlot(screen.container, "empty-icon").className;
+    expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+    expect(classes).not.toContain("focus-visible:ring-");
+  }
+});
+
+test("no a11y violations — the documented composition", async () => {
+  const screen = await render(<Composition />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — media-less, with a search field", async () => {
   const screen = await render(
     <Empty>
       <EmptyHeader>
-        <EmptyMedia>
-          <Inbox />
-        </EmptyMedia>
-        <EmptyTitle>Empty</EmptyTitle>
-      </EmptyHeader>
-    </Empty>,
-  );
-  const icon = screen.container.querySelector('[data-slot="empty-media"]');
-  expect(icon).toHaveAttribute("aria-hidden");
-});
-
-test("no a11y violations", async () => {
-  const screen = await render(
-    <Empty variant="dashed">
-      <EmptyHeader>
-        <EmptyMedia>
-          <Inbox />
-        </EmptyMedia>
-        <EmptyTitle>No results found</EmptyTitle>
-        <EmptyDescription>
-          Try adjusting your search or filters.
-        </EmptyDescription>
+        <EmptyTitle>404 - Not Found</EmptyTitle>
+        <EmptyDescription>That page does not exist.</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <button type="button">Clear filters</button>
+        <input aria-label="Search pages" placeholder="Try searching..." />
       </EmptyContent>
     </Empty>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
-test("forwards refs to each part root element", async () => {
-  const rootRef = React.createRef<HTMLDivElement>();
-  const iconRef = React.createRef<HTMLDivElement>();
-  const titleRef = React.createRef<HTMLHeadingElement>();
-  const descRef = React.createRef<HTMLParagraphElement>();
-  const actionsRef = React.createRef<HTMLDivElement>();
-
-  await render(
-    <Empty ref={rootRef}>
-      <EmptyHeader>
-        <EmptyMedia ref={iconRef}>
-          <Inbox />
-        </EmptyMedia>
-        <EmptyTitle ref={titleRef}>Empty</EmptyTitle>
-        <EmptyDescription ref={descRef}>Nothing here.</EmptyDescription>
-      </EmptyHeader>
-      <EmptyContent ref={actionsRef}>
-        <button type="button">Act</button>
-      </EmptyContent>
-    </Empty>,
-  );
-
-  expect(rootRef.current).toBeInstanceOf(HTMLDivElement);
-  expect(rootRef.current?.dataset.slot).toBe("empty");
-  expect(iconRef.current).toBeInstanceOf(HTMLDivElement);
-  expect(iconRef.current?.dataset.slot).toBe("empty-media");
-  expect(titleRef.current).toBeInstanceOf(HTMLHeadingElement);
-  expect(titleRef.current?.dataset.slot).toBe("empty-title");
-  expect(descRef.current).toBeInstanceOf(HTMLParagraphElement);
-  expect(descRef.current?.dataset.slot).toBe("empty-description");
-  expect(actionsRef.current).toBeInstanceOf(HTMLDivElement);
-  expect(actionsRef.current?.dataset.slot).toBe("empty-content");
-});
-
-test("EmptyIllustration renders the named monoline drawing, decorative", async () => {
+test("no a11y violations — an avatar group as the media", async () => {
   const screen = await render(
     <Empty>
       <EmptyHeader>
-        <EmptyMedia variant="default">
-          <EmptyIllustration name="clipboard" />
+        <EmptyMedia>
+          <img src="/preview/avatar-1.svg" alt="Ada Lovelace" />
         </EmptyMedia>
-        <EmptyTitle>No tasks yet</EmptyTitle>
+        <EmptyTitle>No Team Members</EmptyTitle>
+        <EmptyDescription>Invite your team to collaborate.</EmptyDescription>
       </EmptyHeader>
     </Empty>,
   );
-  const svg = document.querySelector(
-    '[data-slot="empty-illustration"]',
-  ) as SVGElement;
-  expect(svg).not.toBeNull();
-  expect(svg.getAttribute("data-name")).toBe("clipboard");
-  expect(svg.getAttribute("aria-hidden")).toBe("true");
-  expect(svg.getAttribute("stroke")).toBe("currentColor");
-  await expect.element(screen.getByText("No tasks yet")).toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
 });
 
-test("EmptyValue renders a contrast-safe muted default and accepts custom copy", async () => {
-  const screen = await render(
-    <div>
-      <EmptyValue />
-      <EmptyValue>Not added to any lists</EmptyValue>
-    </div>,
-  );
-  await expect.element(screen.getByText("No value")).toBeInTheDocument();
-  const custom = screen.getByText("Not added to any lists");
-  expect((custom.element() as HTMLElement).className).toContain(
-    "text-muted-foreground",
-  );
-});
-
-test("blocked/error tier: error illustration inherits destructive text color from the media slot", async () => {
-  await render(
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia variant="default" className="text-destructive-text">
-          <EmptyIllustration name="error" />
-        </EmptyMedia>
-        <EmptyTitle>No mailboxes configured</EmptyTitle>
-      </EmptyHeader>
-    </Empty>,
-  );
-  const media = document.querySelector(
-    '[data-slot="empty-media"]',
-  ) as HTMLElement;
-  expect(media.className).toContain("text-destructive-text");
+test("no a11y violations — right to left", async () => {
+  const screen = await render(<Composition dir="rtl" />);
+  await expectNoA11yViolations(screen.container);
 });

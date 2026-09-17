@@ -542,9 +542,9 @@ assert(
 );
 
 const expectedWaves = {
-  "Core controls": 24,
+  "Core controls": 25,
   "Forms/editing": 23,
-  "Navigation/layout": 14,
+  "Navigation/layout": 15,
   Overlays: 14,
   "Data display": 12,
   "Content/marketing": 23,
@@ -566,6 +566,7 @@ const HOME_WAVE_TITLES = {
 const expectedComponentWaveMembers = {
   "Core controls": [
     "button",
+    "button-group",
     "icon-button",
     "copy-button",
     "notification-bell",
@@ -617,6 +618,7 @@ const expectedComponentWaveMembers = {
   ],
   "Navigation/layout": [
     "accordion",
+    "aspect-ratio",
     "breadcrumb",
     "collapsible",
     "command",

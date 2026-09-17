@@ -149,7 +149,7 @@ export function settingsRowControlTypes(): ReactNode {
         </SettingsRow>
         {/* Badge as status */}
         <SettingsRow label="Plan" description="Your current subscription tier.">
-          <Badge intent="info">Pro</Badge>
+          <Badge variant="info">Pro</Badge>
         </SettingsRow>
         {/* Button control */}
         <SettingsRow

@@ -4,7 +4,7 @@ import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/board` (dogfoods the registry) → auto-scanned.
 import { Board, type BoardColumn } from "@/components/ui/board";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface Deal {
   id: string;
@@ -69,7 +69,9 @@ export function board(): ReactNode {
           <>
             <span className="min-w-0 truncate font-medium">{deal.name}</span>
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Avatar size="xs" fallback={deal.owner} />
+              <Avatar size="sm">
+                <AvatarFallback>{deal.owner}</AvatarFallback>
+              </Avatar>
               {deal.amount}
             </span>
           </>

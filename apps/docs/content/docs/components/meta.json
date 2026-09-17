@@ -3,6 +3,7 @@
   "pages": [
     "---Buttons & Actions---",
     "button",
+    "button-group",
     "icon-button",
     "split-button",
     "copy-button",
@@ -57,6 +58,7 @@
     "sidebar",
     "page-header",
     "---Layout & Structure---",
+    "aspect-ratio",
     "board",
     "card",
     "separator",

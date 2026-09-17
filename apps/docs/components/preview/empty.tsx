@@ -1,7 +1,15 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { FileX, Inbox, Search, Users } from "lucide-react";
+import {
+  ArrowUpRightIcon,
+  BellIcon,
+  CloudIcon,
+  FolderCodeIcon,
+  PlusIcon,
+  RefreshCcwIcon,
+  SearchIcon,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/empty` (dogfoods the registry) → auto-scanned.
 import {
@@ -11,251 +19,254 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  EmptyIllustration,
 } from "@/components/ui/empty";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Kbd } from "@/components/ui/kbd";
 
-export function emptyDemo(): ReactNode {
+/** Deterministic local fixtures (apps/docs/public/preview) — no network dependency. */
+const ADA = {
+  src: "/preview/avatar-1.svg",
+  alt: "Ada Lovelace",
+  fallback: "AL",
+};
+const AVATARS = [
+  ADA,
+  { src: "/preview/avatar-2.svg", alt: "Grace Hopper", fallback: "GH" },
+  { src: "/preview/avatar-3.svg", alt: "Alan Turing", fallback: "AT" },
+];
+
+export function empty(): ReactNode {
   return (
     <Wrapper>
-      <Empty variant="dashed" className="w-full max-w-md">
+      <Empty className="max-w-md">
         <EmptyHeader>
-          <EmptyMedia>
-            <Inbox />
+          <EmptyMedia variant="icon">
+            <FolderCodeIcon />
           </EmptyMedia>
-          <EmptyTitle>No messages yet</EmptyTitle>
+          <EmptyTitle>No Projects Yet</EmptyTitle>
           <EmptyDescription>
-            Your inbox is empty. New messages will appear here as they arrive.
+            You haven&apos;t created any projects yet. Get started by creating
+            your first project.
           </EmptyDescription>
         </EmptyHeader>
-        <EmptyContent>
-          <Button size="sm">Compose message</Button>
+        <EmptyContent className="flex-row justify-center gap-2">
+          <Button>Create Project</Button>
+          <Button variant="outline">Import Project</Button>
         </EmptyContent>
+        <a
+          href="#empty-learn-more"
+          className={buttonVariants({
+            variant: "link",
+            size: "sm",
+            className: "text-muted-foreground",
+          })}
+        >
+          Learn More
+          <ArrowUpRightIcon data-icon="inline-end" />
+        </a>
       </Empty>
     </Wrapper>
   );
 }
 
-export function emptyDemoSizes(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch gap-4">
-      {(["sm", "md", "lg"] as const).map((size) => (
-        <Empty key={size} variant="dashed" size={size} className="w-full">
-          <EmptyHeader>
-            <EmptyMedia>
-              <Inbox />
-            </EmptyMedia>
-            <EmptyTitle>No messages yet</EmptyTitle>
-            <EmptyDescription>
-              Density <code>{size}</code> — vertical padding scales from compact
-              (in-card) to full-page.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ))}
-    </Wrapper>
-  );
-}
-
-export function emptyDemoSurfaces(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch gap-4">
-      <Empty variant="dashed" className="w-full">
-        <EmptyHeader>
-          <EmptyMedia>
-            <Inbox />
-          </EmptyMedia>
-          <EmptyTitle>Dashed</EmptyTitle>
-          <EmptyDescription>
-            The drop-zone outline over the parent background — no fill.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-      <Empty variant="card" className="w-full">
-        <EmptyHeader>
-          <EmptyMedia>
-            <Inbox />
-          </EmptyMedia>
-          <EmptyTitle>Card</EmptyTitle>
-          <EmptyDescription>
-            Filled <code>bg-card</code> panel — a self-contained block that
-            reads on any background.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    </Wrapper>
-  );
-}
-
-export function emptyDemoBorderless(): ReactNode {
+/**
+ * Every part of the composition tree, in the order upstream documents it:
+ * `Empty › EmptyHeader › (EmptyMedia, EmptyTitle, EmptyDescription)` then `EmptyContent`.
+ */
+export function emptyComposition(): ReactNode {
   return (
     <Wrapper>
-      <Empty className="w-full max-w-md">
+      <Empty className="max-w-md border border-dashed">
         <EmptyHeader>
-          <EmptyMedia>
-            <Inbox />
+          <EmptyMedia variant="icon">
+            <FolderCodeIcon />
           </EmptyMedia>
-          <EmptyTitle>No messages yet</EmptyTitle>
+          <EmptyTitle>No data</EmptyTitle>
           <EmptyDescription>
-            The borderless default — no dashed outline, blends into the
-            surrounding layout.
+            EmptyHeader holds the media, the title and the description;
+            EmptyContent holds whatever the reader does next.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button size="sm">Compose message</Button>
+          <Button size="sm">Add data</Button>
         </EmptyContent>
       </Empty>
     </Wrapper>
   );
 }
 
-export function emptyDemoIconless(): ReactNode {
+export function emptyOutline(): ReactNode {
   return (
     <Wrapper>
-      <Empty variant="dashed" className="w-full max-w-md">
+      <Empty className="max-w-md border border-dashed">
         <EmptyHeader>
-          <EmptyTitle>No filters applied</EmptyTitle>
-          <EmptyDescription>
-            A compact title-and-description empty with no icon chip and no
-            actions.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    </Wrapper>
-  );
-}
-
-export function emptyDemoMatrix(): ReactNode {
-  return (
-    <Wrapper className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-      {(["dashed", "card"] as const).map((variant) =>
-        (["sm", "lg"] as const).map((size) => (
-          <Empty
-            key={`${variant}-${size}`}
-            variant={variant}
-            size={size}
-            className="w-full"
-          >
-            <EmptyHeader>
-              <EmptyMedia>
-                <Search />
-              </EmptyMedia>
-              <EmptyTitle>
-                {variant} · {size}
-              </EmptyTitle>
-              <EmptyDescription>
-                variant=<code>{variant}</code> × size=<code>{size}</code>
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )),
-      )}
-    </Wrapper>
-  );
-}
-
-export function emptyDemoIntents(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch gap-4">
-      <Empty variant="dashed" className="w-full">
-        <EmptyHeader>
-          <EmptyMedia intent="default">
-            <Users />
+          <EmptyMedia variant="icon">
+            <CloudIcon />
           </EmptyMedia>
-          <EmptyTitle>No members yet</EmptyTitle>
+          <EmptyTitle>Cloud Storage Empty</EmptyTitle>
           <EmptyDescription>
-            Invite teammates to start collaborating.
+            Upload files to your cloud storage to access them anywhere.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button size="sm" variant="outline">
-            Invite member
-          </Button>
-        </EmptyContent>
-      </Empty>
-      <Empty variant="dashed" className="w-full">
-        <EmptyHeader>
-          <EmptyMedia intent="info">
-            <Search />
-          </EmptyMedia>
-          <EmptyTitle>No results found</EmptyTitle>
-          <EmptyDescription>
-            Try adjusting your search or filters.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button size="sm" variant="soft" tone="info">
-            Clear filters
-          </Button>
-        </EmptyContent>
-      </Empty>
-      <Empty variant="dashed" className="w-full">
-        <EmptyHeader>
-          <EmptyMedia intent="destructive">
-            <FileX />
-          </EmptyMedia>
-          <EmptyTitle>Couldn’t load records</EmptyTitle>
-          <EmptyDescription>
-            The request timed out. Check your connection and try again.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button size="sm" variant="soft" tone="destructive">
-            Retry
+          <Button variant="outline" size="sm">
+            Upload Files
           </Button>
         </EmptyContent>
       </Empty>
     </Wrapper>
   );
 }
-export function emptyIllustrations(): ReactNode {
-  // The monoline drawing tier — six built-ins on a faint grid-paper ground.
+
+export function emptyBackground(): ReactNode {
+  return (
+    <Wrapper>
+      <Empty className="max-w-md bg-muted/30">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <BellIcon />
+          </EmptyMedia>
+          <EmptyTitle>No Notifications</EmptyTitle>
+          <EmptyDescription className="max-w-xs text-pretty">
+            You&apos;re all caught up. New notifications will appear here.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button variant="outline">
+            <RefreshCcwIcon data-icon="inline-start" />
+            Refresh
+          </Button>
+        </EmptyContent>
+      </Empty>
+    </Wrapper>
+  );
+}
+
+export function emptyAvatar(): ReactNode {
+  return (
+    <Wrapper>
+      <Empty className="max-w-md">
+        <EmptyHeader>
+          <EmptyMedia variant="default">
+            <Avatar className="size-12">
+              <AvatarImage src={ADA.src} alt={ADA.alt} />
+              <AvatarFallback>{ADA.fallback}</AvatarFallback>
+            </Avatar>
+          </EmptyMedia>
+          <EmptyTitle>User Offline</EmptyTitle>
+          <EmptyDescription>
+            This user is currently offline. You can leave a message to notify
+            them or try again later.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button size="sm">Leave Message</Button>
+        </EmptyContent>
+      </Empty>
+    </Wrapper>
+  );
+}
+
+export function emptyAvatarGroup(): ReactNode {
+  return (
+    <Wrapper>
+      <Empty className="max-w-md">
+        <EmptyHeader>
+          <EmptyMedia>
+            <div className="flex -space-x-2 *:data-[slot=avatar]:size-12 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background">
+              {AVATARS.map((person) => (
+                <Avatar key={person.src}>
+                  <AvatarImage src={person.src} alt={person.alt} />
+                  <AvatarFallback>{person.fallback}</AvatarFallback>
+                </Avatar>
+              ))}
+            </div>
+          </EmptyMedia>
+          <EmptyTitle>No Team Members</EmptyTitle>
+          <EmptyDescription>
+            Invite your team to collaborate on this project.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button size="sm">
+            <PlusIcon data-icon="inline-start" />
+            Invite Members
+          </Button>
+        </EmptyContent>
+      </Empty>
+    </Wrapper>
+  );
+}
+
+/**
+ * Upstream drops an `InputGroup` into `EmptyContent`. VegaStack has no `InputGroup` item; the
+ * same affordance is `Input`'s own `prefix`/`suffix` addon mode, which renders the bordered
+ * field group and keeps the search icon and the `/` hint outside the editable box.
+ */
+export function emptyInputGroup(): ReactNode {
+  return (
+    <Wrapper>
+      <Empty className="max-w-md">
+        <EmptyHeader>
+          <EmptyTitle>404 - Not Found</EmptyTitle>
+          <EmptyDescription>
+            The page you&apos;re looking for doesn&apos;t exist. Try searching
+            for what you need below.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Input
+            aria-label="Search pages"
+            placeholder="Try searching for pages..."
+            prefix={<SearchIcon className="size-4" />}
+            suffix={<Kbd>/</Kbd>}
+          />
+          <EmptyDescription>
+            Need help? <a href="#empty-support">Contact support</a>
+          </EmptyDescription>
+        </EmptyContent>
+      </Empty>
+    </Wrapper>
+  );
+}
+
+export function emptyRtl(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Empty size="sm" variant="dashed">
-          <EmptyHeader>
-            <EmptyMedia variant="default">
-              <EmptyIllustration
-                name="clipboard"
-                className="text-muted-foreground"
-              />
-            </EmptyMedia>
-            <EmptyTitle>No tasks yet</EmptyTitle>
-            <EmptyDescription>
-              Create your first task to get started.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-        <Empty size="sm" variant="dashed">
-          <EmptyHeader>
-            <EmptyMedia variant="default" className="text-destructive-text">
-              <EmptyIllustration name="error" />
-            </EmptyMedia>
-            <EmptyTitle>No mailboxes configured</EmptyTitle>
-            <EmptyDescription>
-              Configure a mailbox to unlock sending.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-        <Empty size="sm" variant="dashed">
-          <EmptyHeader>
-            <EmptyMedia variant="default">
-              <EmptyIllustration
-                name="search"
-                className="text-muted-foreground"
-              />
-            </EmptyMedia>
-            <EmptyTitle>No results</EmptyTitle>
-            <EmptyDescription>Try a different query.</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      </div>
-      <div className="flex items-center justify-center gap-6 text-muted-foreground">
-        <EmptyIllustration name="bell" className="size-16" />
-        <EmptyIllustration name="box" className="size-16" />
-        <EmptyIllustration name="not-found" className="size-16" />
-      </div>
+      <Empty dir="ltr" className="border border-dashed">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FolderCodeIcon />
+          </EmptyMedia>
+          <EmptyTitle>No Projects Yet</EmptyTitle>
+          <EmptyDescription>
+            You haven&apos;t created any projects yet.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent className="flex-row justify-center gap-2">
+          <Button size="sm">Create Project</Button>
+          <Button variant="outline" size="sm">
+            Import Project
+          </Button>
+        </EmptyContent>
+      </Empty>
+      <Empty dir="rtl" className="border border-dashed">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FolderCodeIcon />
+          </EmptyMedia>
+          <EmptyTitle>لا توجد مشاريع بعد</EmptyTitle>
+          <EmptyDescription>لم تقم بإنشاء أي مشاريع بعد.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent className="flex-row justify-center gap-2">
+          <Button size="sm">إنشاء مشروع</Button>
+          <Button variant="outline" size="sm">
+            استيراد مشروع
+          </Button>
+        </EmptyContent>
+      </Empty>
     </Wrapper>
   );
 }

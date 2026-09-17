@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { ButtonAppearance } from "@/components/ui/button";
 import {
   SplitButton,
   type SplitButtonAction,
@@ -13,23 +12,16 @@ import {
 } from "@/components/playground";
 
 type SplitButtonPlaygroundKey =
-  "variant" | "tone" | "size" | "destructiveAction" | "disabled" | "loading";
+  "variant" | "size" | "destructiveAction" | "disabled" | "loading";
 
 /** `variant` and `tone` pass straight through to both halves. */
 const VARIANT_OPTIONS = [
-  { value: "solid", label: "Solid" },
-  { value: "soft", label: "Soft" },
+  { value: "default", label: "Default" },
+  { value: "secondary", label: "Secondary" },
   { value: "outline", label: "Outline" },
   { value: "ghost", label: "Ghost" },
-  { value: "link", label: "Link" },
-] as const;
-
-const TONE_OPTIONS = [
-  { value: "neutral", label: "Neutral" },
   { value: "destructive", label: "Destructive" },
-  { value: "success", label: "Success" },
-  { value: "warning", label: "Warning" },
-  { value: "info", label: "Info" },
+  { value: "link", label: "Link" },
 ] as const;
 
 /** The one size vocabulary, mirroring `Button`. */
@@ -39,17 +31,6 @@ const SIZE_OPTIONS = [
   { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
-
-/**
- * `solid` with the `destructive` tone is the doctrine's one forbidden cell, so the playground
- * resolves the pair to `soft` instead of ignoring the tone.
- */
-function resolveAppearance(variant: string, tone: string): ButtonAppearance {
-  if (variant === "solid" && tone === "destructive") {
-    return { variant: "soft", tone: "destructive" };
-  }
-  return { variant, tone } as ButtonAppearance;
-}
 
 // `destructive` is a per-action flag (`SplitButtonAction.destructive`), not a root prop — the
 // "Destructive action" switch flips the second menu item between a plain and a destructive row.
@@ -74,13 +55,6 @@ const splitButtonPlaygroundConfig: PlaygroundConfig<SplitButtonPlaygroundKey> =
       },
       {
         type: "select",
-        key: "tone",
-        label: "Tone",
-        options: TONE_OPTIONS,
-        defaultValue: "neutral",
-      },
-      {
-        type: "select",
         key: "size",
         label: "Size",
         options: SIZE_OPTIONS,
@@ -102,7 +76,7 @@ const splitButtonPlaygroundConfig: PlaygroundConfig<SplitButtonPlaygroundKey> =
     ],
     render: (state): ReactNode => (
       <SplitButton
-        {...resolveAppearance(String(state.variant), String(state.tone))}
+        variant={state.variant as never}
         size={state.size as SplitButtonProps["size"]}
         disabled={Boolean(state.disabled)}
         loading={Boolean(state.loading)}
@@ -114,17 +88,8 @@ const splitButtonPlaygroundConfig: PlaygroundConfig<SplitButtonPlaygroundKey> =
       </SplitButton>
     ),
     toCode: (state) => {
-      const appearance = resolveAppearance(
-        String(state.variant),
-        String(state.tone),
-      ) as { variant: string; tone?: string };
       const props: string[] = [];
-      if (appearance.variant !== "solid") {
-        props.push(`variant="${appearance.variant}"`);
-      }
-      if (appearance.tone != null && appearance.tone !== "neutral") {
-        props.push(`tone="${appearance.tone}"`);
-      }
+      if (state.variant !== "default") props.push(`variant="${state.variant}"`);
       if (state.size !== "md") props.push(`size="${state.size}"`);
       if (state.disabled) props.push("disabled");
       if (state.loading) props.push("loading");

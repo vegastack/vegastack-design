@@ -155,10 +155,9 @@ function AutoSaveInputControlledDemo(): ReactNode {
           <Button
             key={record.id}
             type="button"
-            // The record selector is a toggle, not a navigation: `soft` is the selected rung and
-            // `outline` the rest one, so both climb the system's hover/pressed ladder instead of a
-            // hand-written wash.
-            variant={record.id === activeId ? "soft" : "outline"}
+            // The record selector is a toggle, not navigation: `secondary` is the selected
+            // rung and `outline` the rest one.
+            variant={record.id === activeId ? "secondary" : "outline"}
             size="sm"
             aria-pressed={record.id === activeId}
             onClick={() => {

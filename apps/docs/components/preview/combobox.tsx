@@ -189,7 +189,7 @@ function ComboboxAsyncDemo() {
           <ComboboxStatus>
             {loading ? (
               <>
-                <Spinner size="inherit" label="" />
+                <Spinner aria-hidden role={undefined} aria-label={undefined} />
                 Searching…
               </>
             ) : null}

@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.9.1 sha256-nkgrCOGPHqxEp2MlskBEWl0bRvXOJBu/jIJhwYEuxoQ=
+// @vegastack message-scroller@0.9.1 sha256-RM5JHF/zNMH8k13+WIA5Li5UrU0/3xlR/+VlUHsoNdY=
 
 "use client";
 
@@ -11,12 +11,21 @@ import {
 } from "@shadcn/react/message-scroller";
 import { ArrowDown } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { Button } from "@/components/ui/button";
 import {
-  type ButtonAppearance,
-  type ButtonOwnProps,
-} from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+  IconButton,
+  type IconButtonOwnProps,
+} from "@/components/ui/icon-button";
 import { usePrefersReducedMotion } from "@/components/ui/use-media-query";
+
+/**
+ * `Button`'s own props, derived from the component. Batch 2 of the shadcn reset replaced the
+ * hand-written `ButtonOwnProps` / `ButtonAppearance` pair with upstream's flat `variant` + `size`
+ * API, so these two aliases are what a wrapper reads now. Batch 7 rebuilds this component on the
+ * reset primitives and they go away with it.
+ */
+type ButtonOwnProps = React.ComponentProps<typeof Button>;
+type ButtonAppearance = Pick<ButtonOwnProps, "variant">;
 
 /* ------------------------------------------------------------------------------------------------
  * MessageScroller — a virtualised, auto-scrolling conversation viewport built on the headless
@@ -161,7 +170,7 @@ export function MessageScrollerItem({
 export type MessageScrollerButtonProps = React.ComponentPropsWithRef<
   typeof MessageScrollerPrimitive.Button
 > &
-  Pick<ButtonOwnProps, "size"> &
+  Pick<IconButtonOwnProps, "size"> &
   ButtonAppearance;
 
 /**
@@ -193,7 +202,6 @@ export function MessageScrollerButton({
   children,
   render,
   variant = "outline",
-  tone,
   size = "sm",
   behavior = "smooth",
   ...props
@@ -224,7 +232,7 @@ export function MessageScrollerButton({
       render={
         render ?? (
           <IconButton
-            {...({ variant, tone } as ButtonAppearance)}
+            {...({ variant } as ButtonAppearance)}
             size={size}
             aria-label={
               direction === "end" ? "Scroll to end" : "Scroll to start"

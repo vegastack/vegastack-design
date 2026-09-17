@@ -1,4 +1,4 @@
-// @vegastack split-button@0.9.1 sha256-rP1SoK4cZHolKHnEap21+1UgtOIkU/urZphEF1El1yg=
+// @vegastack split-button@0.9.1 sha256-4rkjuAnJY276quk14P7SFNv5TrnCd0m9rtwg3VVZAHE=
 
 "use client";
 
@@ -88,6 +88,14 @@ export type SplitButtonProps = Omit<ButtonOwnProps, "render" | "size"> &
       }
   );
 
+/** Each shared `xs · sm · md · lg` tier, in `Button`'s upstream size vocabulary. */
+const BUTTON_SIZE = {
+  xs: "xs",
+  sm: "sm",
+  md: "default",
+  lg: "lg",
+} as const;
+
 /**
  * `SplitButton` — a primary action button joined to a dropdown trigger. The left
  * half runs the default action on click; the chevron on the right opens a menu of
@@ -113,13 +121,6 @@ export type SplitButtonProps = Omit<ButtonOwnProps, "render" | "size"> &
  *   Publish
  * </SplitButton>
  */
-const BUTTON_SIZE = {
-  xs: "xs",
-  sm: "sm",
-  md: "default",
-  lg: "lg",
-} as const;
-
 export function SplitButton({
   className,
   variant = "default",

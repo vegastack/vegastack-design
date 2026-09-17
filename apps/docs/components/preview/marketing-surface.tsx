@@ -22,7 +22,7 @@ export function marketingSurface(): ReactNode {
           marketing surface renders the brand&apos;s dark warm ground —
           independent of the page theme.
         </p>
-        <Button variant="cta">Get started</Button>
+        <Button>Get started</Button>
       </MarketingSurface>
     </Wrapper>
   );

@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import { Plus } from "lucide-react";
-import type { ButtonAppearance } from "@/components/ui/button";
 import { IconButton, type IconButtonProps } from "@/components/ui/icon-button";
 import {
   PropsPlayground,
@@ -10,23 +9,16 @@ import {
 } from "@/components/playground";
 
 type IconButtonPlaygroundKey =
-  "variant" | "tone" | "size" | "shape" | "disabled" | "loading";
+  "variant" | "size" | "shape" | "disabled" | "loading";
 
 /** The Button matrix passes straight through the wrapper. */
 const VARIANT_OPTIONS = [
-  { value: "solid", label: "Solid" },
-  { value: "soft", label: "Soft" },
+  { value: "default", label: "Default" },
+  { value: "secondary", label: "Secondary" },
   { value: "outline", label: "Outline" },
   { value: "ghost", label: "Ghost" },
-  { value: "link", label: "Link" },
-] as const;
-
-const TONE_OPTIONS = [
-  { value: "neutral", label: "Neutral" },
   { value: "destructive", label: "Destructive" },
-  { value: "success", label: "Success" },
-  { value: "warning", label: "Warning" },
-  { value: "info", label: "Info" },
+  { value: "link", label: "Link" },
 ] as const;
 
 /** The square scale — the one `xs`/`sm`/`md`/`lg` vocabulary. */
@@ -42,18 +34,6 @@ const SHAPE_OPTIONS = [
   { value: "round", label: "Round" },
 ] as const;
 
-/**
- * `solid` × `destructive` is the doctrine's one forbidden cell (a destructive action is never a
- * solid red button), so the playground resolves the pair to `soft` rather than silently ignoring
- * the tone.
- */
-function resolveAppearance(variant: string, tone: string): ButtonAppearance {
-  if (variant === "solid" && tone === "destructive") {
-    return { variant: "soft", tone: "destructive" };
-  }
-  return { variant, tone } as ButtonAppearance;
-}
-
 const iconButtonPlaygroundConfig: PlaygroundConfig<IconButtonPlaygroundKey> = {
   controls: [
     {
@@ -62,13 +42,6 @@ const iconButtonPlaygroundConfig: PlaygroundConfig<IconButtonPlaygroundKey> = {
       label: "Variant",
       options: VARIANT_OPTIONS,
       defaultValue: "solid",
-    },
-    {
-      type: "select",
-      key: "tone",
-      label: "Tone",
-      options: TONE_OPTIONS,
-      defaultValue: "neutral",
     },
     {
       type: "select",
@@ -91,7 +64,7 @@ const iconButtonPlaygroundConfig: PlaygroundConfig<IconButtonPlaygroundKey> = {
     // `aria-label` is mandatory (compile-time guarantee) — baked in, not a control.
     <IconButton
       aria-label="Add item"
-      {...resolveAppearance(String(state.variant), String(state.tone))}
+      variant={state.variant as never}
       size={state.size as IconButtonProps["size"]}
       shape={state.shape as IconButtonProps["shape"]}
       disabled={Boolean(state.disabled)}
@@ -101,17 +74,8 @@ const iconButtonPlaygroundConfig: PlaygroundConfig<IconButtonPlaygroundKey> = {
     </IconButton>
   ),
   toCode: (state) => {
-    const appearance = resolveAppearance(
-      String(state.variant),
-      String(state.tone),
-    ) as { variant: string; tone?: string };
     const props: string[] = ['aria-label="Add item"'];
-    if (appearance.variant !== "solid") {
-      props.push(`variant="${appearance.variant}"`);
-    }
-    if (appearance.tone != null && appearance.tone !== "neutral") {
-      props.push(`tone="${appearance.tone}"`);
-    }
+    if (state.variant !== "default") props.push(`variant="${state.variant}"`);
     if (state.size !== "md") props.push(`size="${state.size}"`);
     if (state.shape !== "square") props.push(`shape="${state.shape}"`);
     if (state.disabled) props.push("disabled");
@@ -122,7 +86,7 @@ const iconButtonPlaygroundConfig: PlaygroundConfig<IconButtonPlaygroundKey> = {
 
 /**
  * `IconButtonPlayground` — interactive props playground for `IconButton` (the pass-through
- * `variant × tone` matrix, the square `xs`/`sm`/`md`/`lg` scale, `shape`, `disabled` / `loading`),
+ * `variant` axis, the square `xs`/`sm`/`md`/`lg` scale, `shape`, `disabled` / `loading`),
  * backed by the generic {@link PropsPlayground}. Registered in `mdx.tsx`, adopted in
  * `content/docs/components/icon-button.mdx`.
  */

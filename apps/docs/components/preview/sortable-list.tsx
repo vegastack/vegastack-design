@@ -39,11 +39,7 @@ export function sortableList(): ReactNode {
           renderItem={(item) => (
             <span className="flex min-w-0 items-center gap-2">
               <span className="truncate">{item.label}</span>
-              {item.disabled ? (
-                <Badge variant="soft" size="sm">
-                  Locked
-                </Badge>
-              ) : null}
+              {item.disabled ? <Badge variant="secondary">Locked</Badge> : null}
             </span>
           )}
           onReorder={({ id, to }) =>

@@ -14,14 +14,5 @@ export const story = defineStory({
         children: "Email address",
       },
     },
-    {
-      variant: "Required",
-      initial: {
-        children: "Password",
-      },
-      fixed: {
-        required: true,
-      },
-    },
   ],
 });

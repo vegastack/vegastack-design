@@ -1,11 +1,11 @@
 ---
 title: Avatar
-description: A circular user or entity image with an initials fallback, five sizes, and an overlapping AvatarGroup stack.
+description: An image element with a fallback for representing a user — plus a status badge, three sizes, and an overlapping group.
 audience: public
 registry: avatar
 status: stable
 since: 0.1.0
-a11y: image with text fallback
+a11y: img with alt, decorative badge
 preview: avatar
 ---
 
@@ -16,129 +16,140 @@ preview: avatar
 ## Usage
 
 ```tsx
-import { Avatar, AvatarGroup } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-<Avatar
-  src="https://cdn.example.com/u/ada.webp"
-  alt="Ada Lovelace"
-  fallback="AL"
-/>;
+<Avatar>
+  <AvatarImage src="/team/ada.png" alt="Ada Lovelace" />
+  <AvatarFallback>AL</AvatarFallback>
+</Avatar>;
 ```
 
-> **Presentational only.** `Avatar` takes a fully-resolved, public `src`. It does **not** fetch
-> data or resolve storage keys — resolving an R2 (or any CDN) key to a public URL stays app-side, so
-> resolve it before passing `src`. The image only paints once it has loaded; until then (or on
-> error) the `fallback` shows, so there is never a broken-image icon.
+<ComponentPreview name="avatar" file="components/preview/avatar.tsx" />
 
 ## Anatomy
-
-`Avatar` is a compound component. Every exported part, with the
-`data-slot` it renders (generated from the canonical source):
 
 <Anatomy name="avatar" />
 
 ## Examples
 
-### Anatomy
+### Composition
 
-`Avatar` wraps Base UI `Avatar.Root` → `Avatar.Image` → `Avatar.Fallback` behind a single flat prop
-API. `AvatarGroup` is a layout shell that overlaps its `Avatar` children.
+`Avatar` wraps an `AvatarImage`, an `AvatarFallback` and an optional `AvatarBadge`. `AvatarGroup`
+wraps a run of `Avatar`s and an optional trailing `AvatarGroupCount`.
 
-```tsx
-<AvatarGroup>
-  <Avatar src={url} alt="…" fallback="AL" /> {/* Root → Image → Fallback */}
-  <Avatar fallback="+5" /> {/* overflow indicator (no src → fallback) */}
-</AvatarGroup>
-```
+<ComponentPreview
+  name="avatarComposition"
+  file="components/preview/avatar.tsx"
+/>
+
+### Basic
+
+A basic avatar with an image and a fallback.
+
+<ComponentPreview name="avatarBasic" file="components/preview/avatar.tsx" />
+
+### Badge
+
+Use `AvatarBadge` to add a badge to the avatar. It is positioned at the bottom end corner and sized
+from the avatar's own `size`. Pass a `className` for a custom fill — here the `success` token.
+
+<ComponentPreview name="avatarBadge" file="components/preview/avatar.tsx" />
+
+### Badge with Icon
+
+An icon can go inside `AvatarBadge`. At `size="sm"` the icon is hidden, because the badge is too
+small to carry one.
+
+<ComponentPreview
+  name="avatarBadgeWithIcon"
+  file="components/preview/avatar.tsx"
+/>
+
+### Avatar Group
+
+Use `AvatarGroup` to overlap a run of avatars. Each child picks up a background-colored ring so the
+stack reads as separate faces.
+
+<ComponentPreview
+  name="avatarAvatarGroup"
+  file="components/preview/avatar.tsx"
+/>
+
+### Avatar Group Count
+
+Use `AvatarGroupCount` to close the stack with a count. It tracks the group's avatar size.
+
+<ComponentPreview
+  name="avatarAvatarGroupCount"
+  file="components/preview/avatar.tsx"
+/>
+
+### Avatar Group with Icon
+
+`AvatarGroupCount` also takes an icon — an "add a teammate" affordance at the end of the stack.
+Give it an accessible name, since an icon alone has no text.
+
+<ComponentPreview
+  name="avatarAvatarGroupWithIcon"
+  file="components/preview/avatar.tsx"
+/>
 
 ### Sizes
 
-`xs`, `sm`, `default`, `lg`, and `xl` — the diameter and the fallback text scale together.
+Use the `size` prop to change the size of the avatar: `sm`, `default` or `lg`.
 
 <ComponentPreview name="avatarSizes" file="components/preview/avatar.tsx" />
 
-### Fallback
+### Dropdown
 
-When `src` is absent or the image fails to load, the `fallback` shows — typically 1–2 uppercase
-initials, or an icon. Without a `fallback`, the bare `bg-accent` circle remains.
+An avatar is a common dropdown trigger. Render the trigger as a `Button` and put the `Avatar`
+inside it, so the control — not the image — owns the focus and the accessible name.
 
-<ComponentPreview name="avatar" file="components/preview/avatar.tsx" />
+<ComponentPreview name="avatarDropdown" file="components/preview/avatar.tsx" />
 
-Both the no-`src` path **and** the image-error path resolve to the same `fallback`, so a broken or
-unreachable `src` never leaves a broken-image icon — it falls back to the initials (or icon):
+### RTL
 
-<ComponentPreview name="avatarFallback" file="components/preview/avatar.tsx" />
+The badge is placed with `end-0`, so a right-to-left document moves it to the bottom left and
+mirrors the group's overlap without any extra work.
 
-### Fallback delay
-
-`fallbackDelay` (ms) waits before swapping in the `fallback`, avoiding a flash of initials for
-fast-loading images — the bare `bg-accent` circle holds the space until either the image paints or
-the delay elapses. It is forwarded to Base UI `Avatar.Fallback`.
-
-```tsx
-<Avatar src={url} alt="Ada Lovelace" fallback="AL" fallbackDelay={600} />
-```
-
-<ComponentPreview
-  name="avatarFallbackDelay"
-  file="components/preview/avatar.tsx"
-/>
-
-### Group
-
-`AvatarGroup` overlaps its children into a stack and gives each a `ring-background` so the overlap
-reads cleanly on any surface. Add a trailing `Avatar` with a `+N` fallback to indicate overflow.
-Control overlap density with `spacing` (`tight` · `default` · `loose`).
-
-<ComponentPreview name="avatarGroup" file="components/preview/avatar.tsx" />
-
-The three `spacing` values side by side — `tight` tucks each avatar furthest under the previous,
-`loose` overlaps the least:
-
-<ComponentPreview
-  name="avatarGroupSpacing"
-  file="components/preview/avatar.tsx"
-/>
-
-## Playground
-
-Adjust the avatar size and the group's overlap spacing, then copy the generated JSX.
-
-<AvatarPlayground />
+<ComponentPreview name="avatarRtl" file="components/preview/avatar.tsx" />
 
 ## API Reference
 
-### Avatar
+<ApiTable path="lib/api-props.ts" name="AvatarProps" />
 
-<ApiTable path="../../packages/ui/registry/ui/avatar.tsx" name="AvatarProps" />
+<ApiTable path="lib/api-props.ts" name="AvatarImageProps" />
 
-### AvatarGroup
+<ApiTable path="lib/api-props.ts" name="AvatarFallbackProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/avatar.tsx"
-  name="AvatarGroupProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AvatarBadgeProps" />
+
+<ApiTable path="lib/api-props.ts" name="AvatarGroupProps" />
+
+<ApiTable path="lib/api-props.ts" name="AvatarGroupCountProps" />
 
 ## Accessibility
 
-- When `src` is provided, `alt` is required. Pass the person's or entity's name for meaningful
-  avatars; pass `alt=""` only when adjacent text or the wrapping control already names the entity.
-- When `src` is absent, no `<img>` is rendered; the fallback/root carries the visible identity.
-- The `fallback` (initials or icon) is the visible label when no image loads; keep it meaningful
-  (initials of the same name) so the avatar stays identifiable without the picture.
-- `Avatar` is non-interactive by default. When an avatar links to a profile, wrap it in an
-  interactive element (a `Button`/link) that owns the accessible name and focus ring — don't rely on
-  the image alone.
-
-| Key   | Action                                                                               |
-| ----- | ------------------------------------------------------------------------------------ |
-| `Tab` | Moves focus only when the avatar is wrapped in an interactive element (link/button). |
+- `AvatarImage` renders a native `<img>`. Give it an `alt` naming the person; use `alt=""` when the
+  avatar sits beside their name and would only repeat it.
+- `AvatarFallback` paints when the image has not loaded or has failed. Initials are text, so they
+  are read out; an icon fallback is decorative and needs a name on whatever wraps it.
+- `AvatarBadge` is a decorative dot. A status it encodes — online, verified — must also exist as
+  text somewhere a screen reader can reach.
+- An avatar is not a control. When it acts as one, wrap it in a `Button` and name the button.
 
 <StatesTested name="avatar" />
 
 ## Do / Don't
 
 <DoDont
-  do="Pass a resolved public src plus an alt with the person's name, and a fallback with their initials so the avatar stays identifiable while loading or on error."
-  dont="Pass a raw R2/storage key as src or skip the fallback — resolve keys app-side, and always provide initials so a failed image doesn't leave an empty circle."
+  do="Give AvatarImage an alt that names the person, and keep initials in AvatarFallback."
+  dont="Attach a click handler to Avatar itself — wrap it in a Button so it is focusable and named."
 />
+
+## Deviations
+
+Upstream's file, unchanged except for distribution plumbing:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`, and the file carries the registry
+  provenance header. Nothing else differs from `vendor/shadcn/4.21.0/ui/avatar.tsx`.

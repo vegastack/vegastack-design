@@ -1,4 +1,4 @@
-// @vegastack board@0.9.1 sha256-67pF6xNwy+x8Q87kFtAUn+bsiXHoOYHMlVeDqQFqkOk=
+// @vegastack board@0.9.1 sha256-4M0q1/Vu+X1VPaFz0j951WeKCNIoQZPCnyMVkR/WhZ8=
 
 "use client";
 
@@ -371,9 +371,7 @@ export function Board<T>({
                 // PAGE's scroll width (measured; the 320px reflow contract catches it).
                 className="relative h-auto min-h-48 w-10 shrink-0 flex-col items-center gap-2 rounded-lg bg-card px-1 py-3"
               >
-                <Badge variant="soft" size="sm">
-                  {column.items.length}
-                </Badge>
+                <Badge variant="secondary">{column.items.length}</Badge>
                 <span
                   data-slot="board-column-collapsed-title"
                   className="min-h-0 flex-1 [writing-mode:vertical-rl] text-xs font-medium text-muted-foreground"
@@ -407,9 +405,7 @@ export function Board<T>({
                   className="flex min-w-0 items-center gap-2 text-xs font-medium text-muted-foreground"
                 >
                   <span className="min-w-0 truncate">{column.title}</span>
-                  <Badge variant="soft" size="sm">
-                    {column.items.length}
-                  </Badge>
+                  <Badge variant="secondary">{column.items.length}</Badge>
                 </CardTitle>
                 {renderColumnAction ? (
                   <CardAction>{renderColumnAction(column)}</CardAction>
@@ -427,11 +423,7 @@ export function Board<T>({
                     className="flex min-h-16 flex-col gap-2 p-1"
                   >
                     {column.items.length === 0 ? (
-                      <Empty
-                        size="sm"
-                        variant="dashed"
-                        data-slot="board-column-empty"
-                      >
+                      <Empty className="border" data-slot="board-column-empty">
                         <EmptyHeader>
                           <EmptyTitle>No cards</EmptyTitle>
                           <EmptyDescription>

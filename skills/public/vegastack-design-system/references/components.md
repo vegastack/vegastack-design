@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**116 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 597 registry items in total.
+**118 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 599 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -11,13 +11,14 @@ component and never an icon.
 
 ## Actions
 
-- **`button`** — Trigger an action. Six variants × five tones × four sizes, with loading + Base UI Button semantics.
+- **`button`** — Trigger an action — upstream's six variants and eight sizes, plus a loading state (API-5).
+- **`button-group`** — Joins buttons, inputs, selects and dropdowns into one connected control group — horizontal or vertical, with a separator and a text addon.
 - **`copy-button`** — Copy a value to the clipboard with transient check feedback — a ghost icon button that swaps Copy → Check and fires onCopied.
 - **`icon-button`** — A square or round icon-only action button — a thin Button wrapper that requires an accessible label.
 - **`segmented`** — Segmented control — a single-select, always-one-selected view/mode switcher on a muted track with a raised active chip.
 - **`split-button`** — A primary action joined to a dropdown of related secondary actions — one default click, plus a chevron menu.
-- **`toggle`** — A two-state button that can be pressed on or off — bold/italic, mute, pin.
-- **`toggle-group`** — Joined toggle buttons sharing one selection — single or multiple, variants/sizes, horizontal/vertical, full keyboard navigation.
+- **`toggle`** — A two-state button that can be pressed on or off, with a loading state (API-5).
+- **`toggle-group`** — Toggle buttons sharing one selection — single or multiple, horizontal or vertical.
 
 ## Form
 
@@ -35,7 +36,7 @@ component and never an icon.
 - **`field`** — A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.
 - **`field-inline`** — Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
 - **`input`** — A styled Base UI input — all input types, Field state data attributes, error and disabled states, a focus border tint, and optional prefix/suffix addons.
-- **`label`** — A styled native label for form controls — htmlFor association, disabled dimming, optional required indicator.
+- **`label`** — A styled native label for form controls.
 - **`number-field`** — Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.
 - **`otp-input`** — A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.
 - **`password-input`** — A password field with a show/hide eye toggle and an optional live requirements checklist.
@@ -59,14 +60,14 @@ component and never an icon.
 
 - **`accordion`** — A stack of collapsible sections — single or multiple open, animated height, a rotating chevron, full keyboard support.
 - **`animated-number`** — A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.
-- **`avatar`** — A circular user/entity image with an initials fallback, five sizes, and an overlapping AvatarGroup stack.
-- **`badge`** — A compact status or label chip — solid / soft / outline / minimal × 5 semantic colors × 3 real size tiers, with a dot, a leading icon, and loading.
-- **`card`** — A borders-only content surface — no shadows, with composable header, content, and footer parts.
+- **`avatar`** — A circular user or entity image with a fallback, a badge, and an overlapping group.
+- **`badge`** — A compact label or status chip — upstream's six variants plus our four status tones (COL-12).
+- **`card`** — A content surface with composable header, content, footer and action parts.
 - **`chart`** — A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.
 - **`collapsible`** — A single toggleable open/close region with an animated height, built on Base UI Collapsible.
-- **`empty`** — A zero-data placeholder — icon, title, description, actions, with intent tints and a plain, card, or dashed container.
-- **`item`** — A compact anatomy row for list/feed content — media, title, description, actions, groupable with dividers.
-- **`kbd`** — The one keyboard-key chip — modifier labels the caller resolves per platform, a keys array, and three inline sizes.
+- **`empty`** — A zero-data placeholder — media, title, description and a content slot.
+- **`item`** — A composable row for list and feed content — media, title, description, actions.
+- **`kbd`** — A keyboard-key chip, and a group that lays several of them out inline.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.
 - **`relative-time`** — Render a date as a human-relative string ("2 hours ago", "yesterday") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.
 - **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.
@@ -95,7 +96,7 @@ component and never an icon.
 - **`popover`** — A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.
 - **`sheet`** — A dialog that slides in from a screen edge — four sides, header/footer layout, focus trapping, animated slide.
 - **`shortcut-overlay`** — The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.
-- **`tooltip`** — A floating label on hover or focus — smart shared delay, rich content, optional keyboard hints, collision-aware positioning.
+- **`tooltip`** — A floating label on hover or focus, portaled inside the theme scope (OVL-13).
 
 ## Navigation
 
@@ -111,21 +112,22 @@ component and never an icon.
 ## Feedback
 
 - **`action-bar`** — Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.
-- **`alert`** — A status banner — five semantic variants, an optional icon, and an optional dismiss button.
+- **`alert`** — A status banner — upstream's two variants plus our three extra status tones (COL-12).
 - **`progress`** — A horizontal progress bar for measurable, ongoing tasks — determinate or a sweeping indeterminate segment, built on Base UI Progress.
 - **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.
-- **`skeleton`** — A token-driven loading placeholder — line, circle, rect, card shapes, a configurable count, and a pulse that stops under reduced motion.
-- **`spinner`** — An indeterminate loading indicator — a spinning icon inheriting currentColor, four sizes, role=status by default.
+- **`skeleton`** — A pulsing placeholder that reserves layout space while content loads.
+- **`spinner`** — An indeterminate loading indicator that inherits its host's ink.
 - **`toast`** — Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.
 
 ## Layout
 
 - **`app-shell`** — The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.
+- **`aspect-ratio`** — Constrains its children to a given width-to-height ratio.
 - **`board`** — Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.
 - **`resizable`** — Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.
 - **`scroll-area`** — A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, built on Base UI ScrollArea.
-- **`separator`** — A thin rule dividing content — horizontal or vertical, decorative by default, built on Base UI.
+- **`separator`** — A thin rule dividing content — horizontal or vertical, built on Base UI.
 - **`settings-row`** — A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows.
 
 ## Media

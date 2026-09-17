@@ -101,11 +101,7 @@ const columns: DataListColumn<Person>[] = [
   {
     key: "status",
     header: "Status",
-    render: (p) => (
-      <Badge variant="soft" intent={STATUS[p.status].color} dot size="sm">
-        {STATUS[p.status].label}
-      </Badge>
-    ),
+    render: (p) => <Badge variant="secondary">{STATUS[p.status].label}</Badge>,
   },
   {
     key: "amount",
@@ -361,7 +357,7 @@ export function dataListCustomEmpty(): ReactNode {
         data={[]}
         getRowId={(p) => p.id}
         emptyState={
-          <Empty size="sm" variant="card">
+          <Empty className="border bg-card">
             <EmptyHeader>
               <EmptyMedia>
                 <Search />

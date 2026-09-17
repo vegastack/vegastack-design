@@ -59,7 +59,7 @@ export function dropzone(): ReactNode {
             )
           }
         >
-          <Empty size="sm" variant="dashed">
+          <Empty className="border">
             <EmptyHeader>
               <EmptyTitle>Drop images here</EmptyTitle>
               <EmptyDescription>
@@ -139,7 +139,7 @@ export function dropzoneRejections(): ReactNode {
             ])
           }
         >
-          <Empty size="sm" variant="dashed">
+          <Empty className="border">
             <EmptyHeader>
               <EmptyTitle>Files up to 200 KB</EmptyTitle>
               <EmptyDescription>
@@ -173,7 +173,7 @@ export function dropzoneRejections(): ReactNode {
  * Drag-over states — `dragState` paints them without a live `DataTransfer`, which neither a static
  * documentation example nor the behaviour-contract lane can synthesise. The STROKE is on the
  * dropzone surface itself (audit B8-07), so the feedback survives a child that is not an `Empty`:
- * the third card here holds a plain panel and still gains it. An `Empty variant="dashed"` child can tint
+ * the third card here holds a plain panel and still gains it. An `Empty className="border"` child can tint
  * its dashed border in step through `group-data-dragging/dropzone`.
  */
 export function dropzoneDragging(): ReactNode {
@@ -185,11 +185,7 @@ export function dropzoneDragging(): ReactNode {
         dragState="dragging"
         onFilesAccepted={noop}
       >
-        <Empty
-          size="sm"
-          variant="dashed"
-          className="group-data-dragging/dropzone:border-primary/50"
-        >
+        <Empty className="border group-data-dragging/dropzone:border-primary/50">
           <EmptyHeader>
             <EmptyTitle>Release to upload</EmptyTitle>
             <EmptyDescription>A valid payload is hovering</EmptyDescription>
@@ -202,11 +198,7 @@ export function dropzoneDragging(): ReactNode {
         accept={{ "image/*": [".png"] }}
         onFilesAccepted={noop}
       >
-        <Empty
-          size="sm"
-          variant="dashed"
-          className="group-data-drag-invalid/dropzone:border-destructive/50"
-        >
+        <Empty className="border group-data-drag-invalid/dropzone:border-destructive/50">
           <EmptyHeader>
             <EmptyTitle>Not accepted</EmptyTitle>
             <EmptyDescription>This file type is refused</EmptyDescription>

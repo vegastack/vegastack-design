@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.9.1 sha256-2d73j+p+qFu6KQSuDiozeSlUoODygZ4r6li/9d7mv4U=
+// @vegastack sidebar@0.9.1 sha256-2Bom3l3oeeDSq9RS1NHHrUtWZUmfJTzvo/Zft3bSb+s=
 
 "use client";
 
@@ -720,10 +720,8 @@ export function SidebarMenuSkeleton({
       className={cn("flex h-8 items-center gap-2 rounded-md px-2", className)}
       {...props}
     >
-      {showIcon ? (
-        <Skeleton shape="circle" className="size-4 shrink-0" />
-      ) : null}
-      <Skeleton shape="line" className={cn("h-4 flex-1", widthClass)} />
+      {showIcon ? <Skeleton className="rounded-full size-4 shrink-0" /> : null}
+      <Skeleton className={cn("h-4 flex-1", widthClass)} />
     </div>
   );
 }

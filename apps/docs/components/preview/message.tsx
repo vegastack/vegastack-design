@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/{message,bubble,avatar,button}` → auto-scanned.
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
@@ -30,7 +30,9 @@ export function message(): ReactNode {
       <MessageGroup className="w-full max-w-md">
         <Message>
           <MessageAvatar>
-            <Avatar fallback="AL" />
+            <Avatar>
+              <AvatarFallback>AL</AvatarFallback>
+            </Avatar>
           </MessageAvatar>
           <MessageContent>
             <MessageHeader>Ada Lovelace</MessageHeader>
@@ -61,7 +63,9 @@ export function messageGroup(): ReactNode {
       <MessageGroup className="w-full max-w-md">
         <Message>
           <MessageAvatar>
-            <Avatar fallback="LT" />
+            <Avatar>
+              <AvatarFallback>LT</AvatarFallback>
+            </Avatar>
           </MessageAvatar>
           <MessageContent>
             <MessageHeader>Linus</MessageHeader>
@@ -87,7 +91,9 @@ export function messageHeaderFooter(): ReactNode {
       <MessageGroup className="w-full max-w-md">
         <Message>
           <MessageAvatar>
-            <Avatar fallback="AL" />
+            <Avatar>
+              <AvatarFallback>AL</AvatarFallback>
+            </Avatar>
           </MessageAvatar>
           <MessageContent>
             <MessageHeader>Ada Lovelace</MessageHeader>
@@ -117,7 +123,9 @@ export function messageActions(): ReactNode {
       <MessageGroup className="w-full max-w-md">
         <Message>
           <MessageAvatar>
-            <Avatar fallback="AI" />
+            <Avatar>
+              <AvatarFallback>AI</AvatarFallback>
+            </Avatar>
           </MessageAvatar>
           <MessageContent>
             <Bubble variant="muted">
@@ -167,7 +175,9 @@ export function messageAnimateIn(): ReactNode {
       <MessageGroup className="w-full max-w-md">
         <Message>
           <MessageAvatar>
-            <Avatar fallback="AL" />
+            <Avatar>
+              <AvatarFallback>AL</AvatarFallback>
+            </Avatar>
           </MessageAvatar>
           <MessageContent>
             <MessageHeader>Ada Lovelace</MessageHeader>
@@ -206,7 +216,9 @@ export function messageGhostBubble(): ReactNode {
             muted lines align flush with the edge-to-edge media. */}
         <Message>
           <MessageAvatar>
-            <Avatar fallback="AL" />
+            <Avatar>
+              <AvatarFallback>AL</AvatarFallback>
+            </Avatar>
           </MessageAvatar>
           <MessageContent>
             <MessageHeader>Ada Lovelace</MessageHeader>
@@ -229,7 +241,9 @@ export function messageAttachment(): ReactNode {
       <MessageGroup className="w-full max-w-md">
         <Message>
           <MessageAvatar>
-            <Avatar fallback="AL" />
+            <Avatar>
+              <AvatarFallback>AL</AvatarFallback>
+            </Avatar>
           </MessageAvatar>
           <MessageContent>
             {/* Image attachment — a ghost bubble removes the surface so media sits flush. */}

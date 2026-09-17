@@ -43,10 +43,8 @@ export function splitButton(): ReactNode {
 export function splitButtonVariants(): ReactNode {
   return (
     <Wrapper>
-      <SplitButton variant="solid" actions={saveActions}>
-        Solid
-      </SplitButton>
-      <SplitButton variant="soft" actions={saveActions}>
+      <SplitButton actions={saveActions}>Solid</SplitButton>
+      <SplitButton variant="secondary" actions={saveActions}>
         Soft
       </SplitButton>
       <SplitButton variant="outline" actions={saveActions}>
@@ -65,19 +63,19 @@ export function splitButtonVariants(): ReactNode {
 export function splitButtonTones(): ReactNode {
   return (
     <Wrapper>
-      <SplitButton variant="soft" actions={saveActions}>
+      <SplitButton variant="secondary" actions={saveActions}>
         Neutral
       </SplitButton>
-      <SplitButton variant="soft" tone="destructive" actions={saveActions}>
+      <SplitButton variant="destructive" actions={saveActions}>
         Destructive
       </SplitButton>
-      <SplitButton variant="soft" tone="success" actions={saveActions}>
+      <SplitButton variant="secondary" actions={saveActions}>
         Success
       </SplitButton>
-      <SplitButton variant="soft" tone="warning" actions={saveActions}>
+      <SplitButton variant="secondary" actions={saveActions}>
         Warning
       </SplitButton>
-      <SplitButton variant="outline" tone="info" actions={saveActions}>
+      <SplitButton variant="outline" actions={saveActions}>
         Info
       </SplitButton>
     </Wrapper>
@@ -103,9 +101,7 @@ export function splitButtonSizes(): ReactNode {
       <SplitButton size="sm" actions={saveActions}>
         Small
       </SplitButton>
-      <SplitButton size="md" actions={saveActions}>
-        Medium
-      </SplitButton>
+      <SplitButton actions={saveActions}>Medium</SplitButton>
       <SplitButton size="lg" actions={saveActions}>
         Large
       </SplitButton>

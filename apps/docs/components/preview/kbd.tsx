@@ -1,77 +1,162 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { SearchIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/kbd` (dogfoods the registry) → auto-scanned.
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function kbd(): ReactNode {
   return (
-    <Wrapper>
-      <Kbd>⌘</Kbd>
-      <Kbd>K</Kbd>
-      <Kbd>Esc</Kbd>
-    </Wrapper>
-  );
-}
-
-export function kbdCombos(): ReactNode {
-  return (
-    <Wrapper>
-      <Kbd keys={["⌘", "K"]} />
-      <Kbd keys={["⌘", "⇧", "P"]} />
-      <Kbd keys={["⌘", "⏎"]} />
+    <Wrapper className="flex-col gap-4">
       <KbdGroup>
+        <Kbd>⌘</Kbd>
+        <Kbd>⇧</Kbd>
+        <Kbd>⌥</Kbd>
         <Kbd>⌃</Kbd>
-        <Kbd>⌫</Kbd>
+      </KbdGroup>
+      <KbdGroup>
+        <Kbd>Ctrl</Kbd>
+        <span>+</span>
+        <Kbd>B</Kbd>
       </KbdGroup>
     </Wrapper>
   );
 }
 
-export function kbdSizes(): ReactNode {
+/** Both parts at once — the tree the Anatomy section lists, rendered. */
+export function kbdComposition(): ReactNode {
   return (
-    <Wrapper>
-      <Kbd size="xs">⌘</Kbd>
-      <Kbd size="sm">⌘</Kbd>
-      <Kbd size="md">⌘</Kbd>
+    <Wrapper className="flex-col gap-4">
+      <Kbd>Esc</Kbd>
+      <KbdGroup>
+        <Kbd>Ctrl</Kbd>
+        <Kbd>K</Kbd>
+      </KbdGroup>
     </Wrapper>
   );
 }
 
-export function kbdPlatformLabels(): ReactNode {
-  // The distinguishing feature: the same shortcut tokens render mac glyphs by
-  // default and readable Windows/Linux words under `os="other"`. The rewrite
-  // applies to the `keys` array AND to a single string child (bottom row).
+export function kbdGroup(): ReactNode {
   return (
-    <Wrapper className="flex-col items-start gap-4">
-      {/* Scroll container + tighter small-width gap so the columns stay legible at 375px. */}
-      <div className="w-full max-w-full overflow-x-auto">
-        <div
-          className="grid w-max grid-cols-[auto_auto_auto] items-center gap-x-4 gap-y-4 sm:gap-x-8"
-          role="presentation"
-        >
-          <span className="text-xs text-muted-foreground">Shortcut</span>
-          <span className="text-xs text-muted-foreground">mac (default)</span>
-          <span className="text-xs text-muted-foreground">other</span>
+    <Wrapper>
+      <p className="text-sm text-muted-foreground">
+        Use{" "}
+        <KbdGroup>
+          <Kbd>Ctrl + B</Kbd>
+          <Kbd>Ctrl + K</Kbd>
+        </KbdGroup>{" "}
+        to open the command palette
+      </p>
+    </Wrapper>
+  );
+}
 
-          <span className="text-xs text-muted-foreground">Command palette</span>
-          <Kbd os="mac" keys={["⌘", "K"]} />
-          <Kbd os="other" keys={["⌘", "K"]} />
+export function kbdButton(): ReactNode {
+  return (
+    <Wrapper>
+      <Button variant="outline">
+        Accept{" "}
+        <Kbd data-icon="inline-end" className="translate-x-0.5">
+          ⏎
+        </Kbd>
+      </Button>
+    </Wrapper>
+  );
+}
 
-          <span className="text-xs text-muted-foreground">Save</span>
-          <Kbd os="mac" keys={["⌘", "⇧", "S"]} />
-          <Kbd os="other" keys={["⌘", "⇧", "S"]} />
+export function kbdTooltip(): ReactNode {
+  return (
+    <Wrapper className="min-h-40">
+      <TooltipProvider>
+        <ButtonGroup>
+          <Tooltip defaultOpen>
+            <TooltipTrigger render={<Button variant="outline" />}>
+              Save
+            </TooltipTrigger>
+            <TooltipContent>
+              Save Changes <Kbd>S</Kbd>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger render={<Button variant="outline" />}>
+              Print
+            </TooltipTrigger>
+            <TooltipContent>
+              Print Document{" "}
+              <KbdGroup>
+                <Kbd>Ctrl</Kbd>
+                <Kbd>P</Kbd>
+              </KbdGroup>
+            </TooltipContent>
+          </Tooltip>
+        </ButtonGroup>
+      </TooltipProvider>
+    </Wrapper>
+  );
+}
 
-          <span className="text-xs text-muted-foreground">Delete back</span>
-          <Kbd os="mac" keys={["⌃", "⌫"]} />
-          <Kbd os="other" keys={["⌃", "⌫"]} />
+/**
+ * Ours: the registry has no `InputGroup` item yet, so the addon slot is `Input`'s own `suffix`,
+ * which renders the same trailing chip inside the field chrome.
+ */
+export function kbdInputGroup(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="flex w-full max-w-xs flex-col gap-6">
+        <Input
+          aria-label="Search"
+          placeholder="Search..."
+          prefix={<SearchIcon className="size-4" />}
+          suffix={
+            <KbdGroup>
+              <Kbd>⌘</Kbd>
+              <Kbd>K</Kbd>
+            </KbdGroup>
+          }
+        />
+      </div>
+    </Wrapper>
+  );
+}
 
-          {/* Single string child is rewritten too — ⌘ becomes "Ctrl" under `other`. */}
-          <span className="text-xs text-muted-foreground">Single key</span>
-          <Kbd os="mac">⌘</Kbd>
-          <Kbd os="other">⌘</Kbd>
-        </div>
+export function kbdRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div className="flex flex-col items-center gap-4" dir="ltr">
+        <KbdGroup>
+          <Kbd>⌘</Kbd>
+          <Kbd>⇧</Kbd>
+          <Kbd>⌥</Kbd>
+          <Kbd>⌃</Kbd>
+        </KbdGroup>
+        <KbdGroup>
+          <Kbd>Ctrl</Kbd>
+          <span>+</span>
+          <Kbd>B</Kbd>
+        </KbdGroup>
+      </div>
+      <div className="flex flex-col items-center gap-4" dir="rtl">
+        <KbdGroup>
+          <Kbd>⌘</Kbd>
+          <Kbd>⇧</Kbd>
+          <Kbd>⌥</Kbd>
+          <Kbd>⌃</Kbd>
+        </KbdGroup>
+        <KbdGroup>
+          <Kbd>Ctrl</Kbd>
+          <span>+</span>
+          <Kbd>B</Kbd>
+        </KbdGroup>
       </div>
     </Wrapper>
   );

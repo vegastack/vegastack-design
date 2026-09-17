@@ -1,3 +1,5 @@
+// @vegastack toggle-group@0.9.1 sha256-L/MpT5gZN1816B4Z8o2ROgopewEe0RjlsTUpWPs61wI=
+
 "use client";
 
 import * as React from "react";

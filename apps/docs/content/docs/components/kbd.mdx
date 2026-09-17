@@ -1,6 +1,6 @@
 ---
 title: Kbd
-description: The one keyboard-key chip — deterministic modifier labels resolved by the caller, a keys array, and three inline sizes.
+description: Displays textual user input from the keyboard — one key chip, and a group that keeps a whole shortcut together.
 audience: public
 registry: kbd
 status: stable
@@ -16,119 +16,96 @@ preview: kbd
 ## Usage
 
 ```tsx
-import { Kbd, KbdGroup } from '@/components/ui/kbd';
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
-// Single key
-<Kbd>⌘</Kbd>
-
-// A combo as an array — each token is its own chip
-<Kbd keys={['⌘', 'K']} />;
+<Kbd>Ctrl</Kbd>;
 ```
 
-## Anatomy
+<ComponentPreview name="kbd" file="components/preview/kbd.tsx" />
 
-`Kbd` is a compound component. Every exported part, with the
-`data-slot` it renders (generated from the canonical source):
+## Anatomy
 
 <Anatomy name="kbd" />
 
 ## Examples
 
-### Anatomy
+### Composition
 
-`Kbd` renders a single `<kbd>` chip, or — when given a `keys` array — a row of chips wrapped in a
-`KbdGroup`. Compose `KbdGroup` yourself to mix in non-key content.
+`Kbd` is one key. `KbdGroup` holds a sequence of them — either the keys of a single chord, or two
+alternative shortcuts side by side.
 
-```tsx
-<KbdGroup>
-  <Kbd>⌘</Kbd>
-  <Kbd>K</Kbd>
-</KbdGroup>
-```
+<ComponentPreview name="kbdComposition" file="components/preview/kbd.tsx" />
 
-### Combos
+### Group
 
-Pass a `keys` array to render a shortcut, or compose individual `Kbd` chips inside a `KbdGroup`.
-Write tokens as mac glyphs; `os` decides how they render. The default is `os="other"`
-(words), so pass `os="mac"` — or the resolved platform — for the glyphs.
+Use the `KbdGroup` component to group keyboard keys together.
 
-<ComponentPreview name="kbdCombos" file="components/preview/kbd.tsx" />
+<ComponentPreview name="kbdGroup" file="components/preview/kbd.tsx" />
 
-### Sizes
+### Button
 
-`xs`, `sm`, and `md` — sized to sit inline with text, menus, and tooltips. All three use
-one type role, `font-mono text-xs`; `md` previously reached the same 12px through `text-sm`,
-the same pixel size named twice.
+Use `Kbd` inside a `Button` to show the shortcut that fires the same action. Give it
+`data-icon="inline-end"` so it takes the trailing icon spacing.
 
-<ComponentPreview name="kbdSizes" file="components/preview/kbd.tsx" />
+<ComponentPreview name="kbdButton" file="components/preview/kbd.tsx" />
 
-### Platform Labels
+### Tooltip
 
-`Kbd` is server-safe and deterministic: it reads no `navigator` and therefore never
-guesses the platform. **Resolving the platform is the caller's job** — run `usePlatform()`
-and pass the answer down. `os` defaults to `"other"`, the same fallback `usePlatform`
-reports before hydration, so an unwired chip shows a word every reader understands rather
-than shipping `⌘` to a Windows majority.
+You can use `Kbd` inside a `TooltipContent` to show the shortcut beside the label. Inside a tooltip
+the chip inverts automatically — it reads the tooltip surface through `in-data-[slot=tooltip-content]`
+rather than needing a variant.
 
-The rewrite applies whether you pass a `keys` array or a single string child (`⌘` → `Ctrl`,
-`⇧` → `Shift`, `⌥` → `Alt`, `⌃` → `Ctrl`, `⏎`/`↵` → `Enter`, `⌫` → `Bksp`). On mac the glyph
-is rendered visually with an sr-only spoken name beside it, because a screen reader
-announces `⌘` as "place of interest sign" or skips it entirely.
+<ComponentPreview name="kbdTooltip" file="components/preview/kbd.tsx" />
 
-<ComponentPreview name="kbdPlatformLabels" file="components/preview/kbd.tsx" />
+### Input Group
 
-```tsx
-// The wiring every caller should use
-const { os } = usePlatform();
-<Kbd keys={["⌘", "K"]} os={os === "mac" ? "mac" : "other"} />;
+Upstream puts the chip in an `InputGroupAddon`. That item is not in this registry yet, so use
+`Input`'s own `suffix` slot, which renders the same trailing chip inside the field chrome.
 
-<Kbd os="mac" keys={['⌘', 'K']} />   {/* ⌘ K */}
-<Kbd os="other" keys={['⌘', 'K']} /> {/* Ctrl K (the default) */}
+<ComponentPreview name="kbdInputGroup" file="components/preview/kbd.tsx" />
 
-// Single string children are rewritten too
-<Kbd os="other">⌘</Kbd>             {/* Ctrl */}
-```
+### RTL
 
-## Playground
+`Kbd` is a chip with symmetric padding and `KbdGroup` is a flex row, so a right-to-left document
+mirrors the order of a chord without any extra work.
 
-Change the size and platform to watch the ⌘ glyph swap to Ctrl, then copy the generated JSX.
-
-<KbdPlayground />
+<ComponentPreview name="kbdRtl" file="components/preview/kbd.tsx" />
 
 ## API Reference
 
 ### Kbd
 
-<ApiTable path="../../packages/ui/registry/ui/kbd.tsx" name="KbdProps" />
+<ApiTable path="lib/api-props.ts" name="KbdProps" />
 
 ### KbdGroup
 
-<ApiTable path="../../packages/ui/registry/ui/kbd.tsx" name="KbdGroupProps" />
-
-The `kbdVariants` CVA helper is also exported for advanced styling — call `kbdVariants({ size })`
-to reuse the chip classes (the single `size` axis: `xs` | `sm` | `md`) on a custom element.
+<ApiTable path="lib/api-props.ts" name="KbdGroupProps" />
 
 ## Accessibility
 
-- Renders a native, non-interactive `<kbd>` element — the semantic element for keyboard input, so
-  assistive tech announces it as such.
-- The chip is a label, never a control: it does not receive focus and carries no `tabindex`. Wire the
-  actual shortcut up on the relevant control (e.g. a button or a menu item).
-- Modifier glyphs are rewritten to readable words on non-mac platforms, so a shortcut is never
-  announced as an unfamiliar symbol. On mac the glyph is `aria-hidden` and an sr-only word
-  (`Command`, `Option`, …) carries the accessible name.
-- `Kbd` is the only key chip in the system: `TooltipKbd` renders it rather than restyling a
-  second `<kbd>`, so a shortcut hint reads identically wherever it appears.
-
-| Key      | Behavior                                                           |
-| -------- | ------------------------------------------------------------------ |
-| _(none)_ | `Kbd` is presentational — it has no interactive keyboard behavior. |
+- Renders a native `kbd` element, which is what assistive technology expects for keyboard input.
+  `KbdGroup` is a `kbd` too, so a chord reads as one piece of keyboard input.
+- The chip is `pointer-events-none` and `select-none`: it is a label for a shortcut, never the
+  control that fires it. Put the shortcut on a real button or a key handler.
+- A symbol on its own — `⌘`, `⇧`, `⏎` — is not read aloud usefully by every screen reader. When the
+  shortcut is the only way to reach an action, spell it out in the surrounding sentence as well.
+- Inside a tooltip the chip inverts to stay legible against the inverted surface, which keeps it
+  above the AA contrast floor in both themes.
 
 <StatesTested name="kbd" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use Kbd to display a shortcut alongside the control it triggers, and resolve os once with usePlatform at the call site."
-  dont="Make a Kbd clickable or focusable, or hardcode ⌘ in copy that Windows and Linux users will also read."
+  do="Write the shortcut beside the action it fires — in a button, a tooltip, or a menu item."
+  dont="Use Kbd as the clickable target, or hard-code Cmd symbols for every platform."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/kbd.patch`. Every hunk:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`.
+
+Nothing else. Both class strings and both parts are upstream's, byte for byte; the remaining diff is
+the repository formatter reflowing the file.

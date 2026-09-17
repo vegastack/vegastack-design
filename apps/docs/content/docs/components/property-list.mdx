@@ -22,7 +22,6 @@ import {
   PropertyRow,
   PropertyValue,
 } from "@/components/ui/property-list";
-import { EmptyValue } from "@/components/ui/empty";
 
 <PropertyList aria-label="Record details">
   <PropertyRow>
@@ -34,7 +33,7 @@ import { EmptyValue } from "@/components/ui/empty";
   <PropertyRow>
     <PropertyLabel icon={<Users />}>Team</PropertyLabel>
     <PropertyValue>
-      <EmptyValue>Set a value…</EmptyValue>
+      <span className="text-sm text-muted-foreground">Set a value…</span>
     </PropertyValue>
   </PropertyRow>
 </PropertyList>;
@@ -54,7 +53,7 @@ A `<dl>` of `<dt>`(label)/`<dd>`(value) pairs. The list is a named **container**
 Values **wrap**; they do not truncate. A value is the point of its row, and the `overflow: hidden`
 that truncation implies also clipped the focus ring of any link inside it. Compose
 [`TruncatedText`](/docs/components/truncated-text) explicitly where a single line is genuinely
-required. Values are compositions: plain text, a link, a `TagGroup`, or an `EmptyValue` for the
+required. Values are compositions: plain text, a link, a `TagGroup`, or a muted placeholder span for the
 faint "Set a value…" slot.
 
 ### Semantics
@@ -90,7 +89,7 @@ above its 80px floor.
 ### Narrow panes
 
 In a narrow record pane the value column truncates rather than widening the list, and an unset
-property renders an `EmptyValue` — an honest "nothing here yet" affordance instead of a blank row
+property renders a muted placeholder — an honest "nothing here yet" affordance instead of a blank row
 a reader has to interpret.
 
 <ComponentPreview

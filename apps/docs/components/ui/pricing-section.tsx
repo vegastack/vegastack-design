@@ -1,4 +1,4 @@
-// @vegastack pricing-section@0.9.1 sha256-Cy3S/3IESRGHUqmiHW0Wj2Juz3mblCvgk6XZ6DWOx8U=
+// @vegastack pricing-section@0.9.1 sha256-tDVz+k+iWkKh8FvRv+6PC/3xZSBxb6hkcx4dClIqdcg=
 
 import * as React from "react";
 import { Check } from "lucide-react";
@@ -109,11 +109,7 @@ export function PlanCard({
     >
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-medium">{name}</h3>
-        {highlighted ? (
-          <Badge intent="default" bordered>
-            {highlightLabel}
-          </Badge>
-        ) : null}
+        {highlighted ? <Badge variant="outline">{highlightLabel}</Badge> : null}
       </div>
       <div className="flex min-w-0 flex-col gap-1">
         <div

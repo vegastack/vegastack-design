@@ -1,3 +1,5 @@
+// @vegastack avatar@0.9.1 sha256-Muc+uufRmiD/g/odFyIV/Ren2AmmMtGyQfpN7CzY9OA=
+
 "use client";
 
 import * as React from "react";

@@ -18,7 +18,7 @@ export function SafeMarkdownCopyButton({
   return (
     <Button
       type="button"
-      variant="soft"
+      variant="secondary"
       size="sm"
       className="gap-2 [&_svg]:size-(size-3.5)"
       disabled={status === "loading"}

@@ -89,7 +89,7 @@ check("the known kinds still classify", () => {
   const expected: [string, string][] = [
     ["ComponentPreview", "runtime-placeholder"],
     ["ColorPalette", "browser-only"],
-    ["ButtonPlayground", "playground"],
+    ["InputPlayground", "playground"],
     ["story.WithControl", "story-explorer"],
     ["Callout", "rendered"],
     ["StoryExplorer", "structural-wrapper"],

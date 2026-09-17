@@ -1,3 +1,5 @@
+// @vegastack kbd@0.9.1 sha256-BLv1EF6xx2ya/gTPMcsJuskz4Pi2AW0SsxMYiLk2Las=
+
 import { cn } from "@vegastack/design";
 
 function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {

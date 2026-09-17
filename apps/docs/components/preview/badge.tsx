@@ -1,227 +1,136 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { ArrowUpRightIcon, BadgeCheckIcon, BookmarkIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
-import { Check, Sparkles, Star } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/badge` (dogfoods the registry) → auto-scanned.
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 export function badge(): ReactNode {
   return (
     <Wrapper>
-      <Badge intent="success" dot>
-        Active
-      </Badge>
+      <Badge>Badge</Badge>
+      <Badge variant="secondary">Secondary</Badge>
+      <Badge variant="destructive">Destructive</Badge>
+      <Badge variant="outline">Outline</Badge>
     </Wrapper>
   );
 }
 
-export function badgeVariants(): ReactNode {
+/** Named `…Example` because `badgeVariants` is the CVA builder the component exports. */
+export function badgeVariantsExample(): ReactNode {
   return (
     <Wrapper>
-      <Badge variant="solid" intent="info">
-        Solid
-      </Badge>
-      <Badge variant="soft" intent="info">
-        Soft
-      </Badge>
-      <Badge variant="outline" intent="info">
-        Outline
-      </Badge>
-      <Badge variant="minimal" intent="info">
-        Minimal
-      </Badge>
+      <Badge>Default</Badge>
+      <Badge variant="secondary">Secondary</Badge>
+      <Badge variant="destructive">Destructive</Badge>
+      <Badge variant="success">Success</Badge>
+      <Badge variant="warning">Warning</Badge>
+      <Badge variant="info">Info</Badge>
+      <Badge variant="outline">Outline</Badge>
+      <Badge variant="ghost">Ghost</Badge>
+      <Badge variant="link">Link</Badge>
     </Wrapper>
   );
 }
 
-export function badgeColors(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-start gap-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge intent="default">Default</Badge>
-        <Badge intent="info">Info</Badge>
-        <Badge intent="success">Success</Badge>
-        <Badge intent="warning">Warning</Badge>
-        <Badge intent="destructive">Destructive</Badge>
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="solid" intent="default">
-          Default
-        </Badge>
-        <Badge variant="solid" intent="info">
-          Info
-        </Badge>
-        <Badge variant="solid" intent="success">
-          Success
-        </Badge>
-        <Badge variant="solid" intent="warning">
-          Warning
-        </Badge>
-        <Badge variant="solid" intent="destructive">
-          Destructive
-        </Badge>
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="minimal" intent="default">
-          Default
-        </Badge>
-        <Badge variant="minimal" intent="info">
-          Info
-        </Badge>
-        <Badge variant="minimal" intent="success">
-          Success
-        </Badge>
-        <Badge variant="minimal" intent="warning">
-          Warning
-        </Badge>
-        <Badge variant="minimal" intent="destructive">
-          Destructive
-        </Badge>
-      </div>
-    </Wrapper>
-  );
-}
-
-export function badgeSolidDot(): ReactNode {
+export function badgeWithIcon(): ReactNode {
   return (
     <Wrapper>
-      <Badge variant="solid" intent="success" dot>
-        Active
-      </Badge>
-      <Badge variant="solid" intent="warning" dot>
-        Pending
-      </Badge>
-      <Badge variant="solid" intent="destructive" dot>
-        Failed
-      </Badge>
-      <Badge variant="solid" intent="info" dot>
-        Beta
-      </Badge>
-    </Wrapper>
-  );
-}
-
-export function badgeSizes(): ReactNode {
-  return (
-    <Wrapper>
-      <Badge size="sm" intent="info">
-        Small
-      </Badge>
-      <Badge size="md" intent="info">
-        Default
-      </Badge>
-      <Badge size="lg" intent="info">
-        Large
-      </Badge>
-    </Wrapper>
-  );
-}
-
-export function badgeAnimateIn(): ReactNode {
-  const [verified, setVerified] = useState(false);
-  return (
-    <Wrapper className="flex-col gap-4">
-      <div className="flex h-6 items-center gap-2">
-        <span className="text-xs text-muted-foreground">Status:</span>
-        {verified ? (
-          <Badge key="verified" variant="solid" intent="success" animateIn>
-            <Check />
-            Verified
-          </Badge>
-        ) : (
-          <Badge variant="soft" intent="default">
-            Pending
-          </Badge>
-        )}
-      </div>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setVerified((v) => !v)}
-      >
-        {verified ? "Reset" : "Verify"}
-      </Button>
-    </Wrapper>
-  );
-}
-
-export function badgeStates(): ReactNode {
-  return (
-    <Wrapper>
-      <Badge intent="success" dot>
-        With dot
-      </Badge>
-      <Badge intent="info">
-        <Sparkles />
-        With icon
-      </Badge>
-      <Badge intent="warning" loading>
-        Loading
-      </Badge>
-      <Badge variant="solid" intent="success">
-        <Check />
+      <Badge variant="secondary">
+        <BadgeCheckIcon data-icon="inline-start" />
         Verified
       </Badge>
-      <Badge variant="minimal" intent="info" icon={<Star />}>
-        Minimal + icon
+      <Badge variant="outline">
+        Bookmark
+        <BookmarkIcon data-icon="inline-end" />
       </Badge>
     </Wrapper>
   );
 }
 
-export function badgeMinimal(): ReactNode {
-  // `minimal` (audit D8) is the dense-table treatment: no container, no padding, and a
-  // leading dot by DEFAULT so the status never rests on colour alone. `size="sm"` is the
-  // real 16px tier that goes with it. An `icon` takes the dot's place.
+export function badgeWithSpinner(): ReactNode {
   return (
     <Wrapper>
-      <Badge variant="minimal" intent="success" size="sm">
-        Active
+      <Badge variant="destructive">
+        <Spinner data-icon="inline-start" />
+        Deleting
       </Badge>
-      <Badge variant="minimal" intent="warning" size="sm">
-        Pending
-      </Badge>
-      <Badge variant="minimal" intent="destructive" size="sm">
-        Failed
-      </Badge>
-      <Badge variant="minimal" intent="default" size="sm" dot={false}>
-        Archived
-      </Badge>
-      <Badge variant="minimal" intent="success" size="sm" icon={<Check />}>
-        Paid
+      <Badge variant="secondary">
+        Generating
+        <Spinner data-icon="inline-end" />
       </Badge>
     </Wrapper>
   );
 }
 
-export function badgeTagChips(): ReactNode {
-  // Wave 2: `bordered` subtle chips (tint + matching-hue hairline — the crisp tag read)
-  // and the `outline` hairline tag. Compose `+N` overflow as a neutral outline badge.
+export function badgeLink(): ReactNode {
   return (
-    <Wrapper className="flex-col items-center gap-3">
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        <Badge intent="info" bordered>
-          Syncing
+    <Wrapper>
+      <Badge render={<a href="#badge-link" />}>
+        Open Link
+        <ArrowUpRightIcon data-icon="inline-end" />
+      </Badge>
+    </Wrapper>
+  );
+}
+
+/**
+ * Ours: upstream customises with the raw Tailwind palette, which COL-20 forbids anywhere in this
+ * repository. The same override written in semantic tokens retints per theme for free.
+ */
+export function badgeCustomColors(): ReactNode {
+  return (
+    <Wrapper>
+      <Badge className="bg-success text-success-foreground">
+        Solid success
+      </Badge>
+      <Badge className="bg-info text-info-foreground">Solid info</Badge>
+      <Badge variant="outline" className="border-warning/40 text-warning-text">
+        Outlined warning
+      </Badge>
+      <Badge variant="outline" className="rounded-sm">
+        Square corners
+      </Badge>
+    </Wrapper>
+  );
+}
+
+export function badgeRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div
+        className="flex flex-wrap items-center justify-center gap-2"
+        dir="ltr"
+      >
+        <Badge>Badge</Badge>
+        <Badge variant="secondary">Secondary</Badge>
+        <Badge variant="destructive">Destructive</Badge>
+        <Badge variant="secondary">
+          <BadgeCheckIcon data-icon="inline-start" />
+          Verified
         </Badge>
-        <Badge intent="success" bordered>
-          Active
-        </Badge>
-        <Badge intent="warning" bordered>
-          Degraded
-        </Badge>
-        <Badge intent="destructive" bordered>
-          Failed
+        <Badge variant="outline">
+          Bookmark
+          <BookmarkIcon data-icon="inline-end" />
         </Badge>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        <Badge variant="outline">B2B</Badge>
-        <Badge variant="outline">SaaS</Badge>
-        <Badge variant="outline" intent="info">
-          Enterprise
+      <div
+        className="flex flex-wrap items-center justify-center gap-2"
+        dir="rtl"
+      >
+        <Badge>شارة</Badge>
+        <Badge variant="secondary">ثانوي</Badge>
+        <Badge variant="destructive">مدمر</Badge>
+        <Badge variant="secondary">
+          <BadgeCheckIcon data-icon="inline-start" />
+          متحقق
         </Badge>
-        <Badge variant="outline">+3</Badge>
+        <Badge variant="outline">
+          إشارة مرجعية
+          <BookmarkIcon data-icon="inline-end" />
+        </Badge>
       </div>
     </Wrapper>
   );

@@ -8,7 +8,7 @@ import {
   HoverCardTrigger,
   HoverCardContent,
 } from "@/components/ui/hover-card";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 // HoverCard is PRESENTATIONAL: these demos pass already-resolved preview content as children.
@@ -29,7 +29,9 @@ export function hoverCard(): ReactNode {
         <HoverCardContent>
           <div className="flex flex-col gap-3">
             <div className="flex gap-3">
-              <Avatar fallback="AL" />
+              <Avatar>
+                <AvatarFallback>AL</AvatarFallback>
+              </Avatar>
               <div className="flex flex-col gap-1">
                 <p className="text-sm leading-none font-medium text-foreground">
                   Ada Lovelace
@@ -114,7 +116,9 @@ export function hoverCardDelay(): ReactNode {
         <HoverCardContent>
           <div className="flex flex-col gap-3">
             <div className="flex gap-3">
-              <Avatar fallback="GH" />
+              <Avatar>
+                <AvatarFallback>GH</AvatarFallback>
+              </Avatar>
               <div className="flex flex-col gap-1">
                 <p className="text-sm leading-none font-medium text-foreground">
                   Grace Hopper

@@ -1,3 +1,5 @@
+// @vegastack item@0.9.1 sha256-zWenKNOdIOjOwp/rEkeTFN7kL2JuPKzBuATHUY5v1IY=
+
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";

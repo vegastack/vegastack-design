@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
  */
 export function RegistryInstallCallout() {
   return (
-    <Alert intent="info" className="not-prose my-4">
+    <Alert variant="info" className="not-prose my-4">
       <AlertTitle>Registry setup required</AlertTitle>
       <AlertDescription>
         Run this command only after configuring the Base UI shadcn project, the{" "}

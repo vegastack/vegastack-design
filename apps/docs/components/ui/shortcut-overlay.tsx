@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.9.1 sha256-RXXJ/9nzYWLr6+XUNTgUFvIfg1iR5anJBLGkV/BO1jk=
+// @vegastack shortcut-overlay@0.9.1 sha256-4OkJh6K2YR9PcXXXyjXYJMZrQgZd9O774RvN+DJ7hL4=
 
 "use client";
 
@@ -15,7 +15,27 @@ import {
   PanelSearchFrame,
   PanelSearchInput,
 } from "@/components/ui/floating-surface";
-import { Kbd } from "@/components/ui/kbd";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+
+/**
+ * Mac modifier glyphs and their Windows/Linux words. Since the shadcn reset (Batch 2) `Kbd` is
+ * upstream's presentational `<kbd>` with no `keys`/`os` props, so the one caller that needs
+ * per-platform labels resolves them here.
+ */
+const MODIFIER_LABEL: Record<string, string> = {
+  "\u2318": "Ctrl",
+  "\u21e7": "Shift",
+  "\u2325": "Alt",
+  "\u2303": "Ctrl",
+  "\u23ce": "Enter",
+  "\u21b5": "Enter",
+  "\u232b": "Bksp",
+};
+
+/** One key token, in the label the resolved platform uses. */
+function formatShortcutKey(key: string, os: "mac" | "other"): string {
+  return os === "mac" ? key : (MODIFIER_LABEL[key] ?? key);
+}
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePlatform } from "@/components/ui/use-platform";
 
@@ -257,7 +277,13 @@ export function ShortcutOverlay({
                           </span>
                         </dt>
                         <dd className="m-0 shrink-0">
-                          <Kbd keys={shortcut.keys} os={kbdOs} />
+                          <KbdGroup>
+                            {shortcut.keys.map((key) => (
+                              <Kbd key={key}>
+                                {formatShortcutKey(key, kbdOs)}
+                              </Kbd>
+                            ))}
+                          </KbdGroup>
                         </dd>
                       </div>
                     ))}

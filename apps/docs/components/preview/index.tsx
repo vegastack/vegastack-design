@@ -2,6 +2,8 @@
 // `preview/<name>.tsx` exporting named example functions; this re-exports them
 // so `import * as Preview from '@/components/preview'` resolves every example.
 export * from "./button";
+export * from "./button-group";
+export * from "./aspect-ratio";
 export * from "./badge";
 export * from "./alert";
 export * from "./input";

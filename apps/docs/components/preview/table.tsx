@@ -81,14 +81,7 @@ export function table(): ReactNode {
                 {row.invoice}
               </TableCell>
               <TableCell>
-                <Badge
-                  variant="soft"
-                  intent={STATUS[row.status].color}
-                  dot
-                  size="sm"
-                >
-                  {STATUS[row.status].label}
-                </Badge>
+                <Badge variant="secondary">{STATUS[row.status].label}</Badge>
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {row.method}
@@ -128,14 +121,7 @@ export function tableWithCaptionAndFooter(): ReactNode {
                 {row.invoice}
               </TableCell>
               <TableCell>
-                <Badge
-                  variant="soft"
-                  intent={STATUS[row.status].color}
-                  dot
-                  size="sm"
-                >
-                  {STATUS[row.status].label}
-                </Badge>
+                <Badge variant="secondary">{STATUS[row.status].label}</Badge>
               </TableCell>
               <TableCell className="text-right font-mono tabular-nums">
                 {row.amount}
@@ -310,14 +296,7 @@ export function tableSelectable(): ReactNode {
                   {row.invoice}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="soft"
-                    intent={STATUS[row.status].color}
-                    dot
-                    size="sm"
-                  >
-                    {STATUS[row.status].label}
-                  </Badge>
+                  <Badge variant="secondary">{STATUS[row.status].label}</Badge>
                 </TableCell>
                 <TableCell className="text-right font-mono tabular-nums">
                   {row.amount}
