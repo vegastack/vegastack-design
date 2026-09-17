@@ -15978,9 +15978,9 @@
       ],
       "meta": {
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
-        "whenNotToUse": "Inline shortcut hints (TooltipKbd, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
+        "whenNotToUse": "Inline shortcut hints (Kbd in a Tooltip, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
         "version": "0.9.1",
-        "integrity": "sha256-4OkJh6K2YR9PcXXXyjXYJMZrQgZd9O774RvN+DJ7hL4="
+        "integrity": "sha256-udnqh7zDvK0yBhdzoeLR4kecCF9bWxutXMMfSWwTSpY="
       }
     },
     {

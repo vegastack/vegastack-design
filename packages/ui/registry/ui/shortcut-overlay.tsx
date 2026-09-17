@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.9.1 sha256-4OkJh6K2YR9PcXXXyjXYJMZrQgZd9O774RvN+DJ7hL4=
+// @vegastack shortcut-overlay@0.9.1 sha256-udnqh7zDvK0yBhdzoeLR4kecCF9bWxutXMMfSWwTSpY=
 
 "use client";
 
@@ -47,7 +47,7 @@ keeps the surface maintainable. The same declarations can feed tooltip hints and
 Command rows; this component just owns the `?` surface.
 
 This is also the one surface that should use the real `Kbd`: `CommandShortcut` is
-deliberately plain text and `TooltipKbd` hand-rolls its own markup, but a dialog whose
+deliberately plain text and a tooltip's shortcut hint is a `Kbd` chip, but a dialog whose
 entire content is keys wants the real component — including its `os` modifier
 rewriting, driven here by `use-platform` so ⌘ never ships to a Windows user.
 
