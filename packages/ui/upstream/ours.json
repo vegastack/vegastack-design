@@ -1,0 +1,404 @@
+{
+  "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
+  "counts": {
+    "total": 79,
+    "fromExtras": 66
+  },
+  "items": {
+    "action-bar": {
+      "disposition": "keep",
+      "family": "feedback",
+      "source": "extras.md"
+    },
+    "animated-number": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "extras.md"
+    },
+    "announcement-banner": {
+      "disposition": "keep",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "app-shell": {
+      "disposition": "keep+block",
+      "family": "layout",
+      "source": "extras.md"
+    },
+    "audio-player": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "extras.md"
+    },
+    "auto-save-input": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "board": {
+      "disposition": "keep+block",
+      "family": "layout",
+      "source": "extras.md"
+    },
+    "checkbox-group": {
+      "disposition": "retire",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "chip": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "extras.md"
+    },
+    "chip-input": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "code-block": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "extras.md"
+    },
+    "color-picker": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "comparison-matrix": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "copy-button": {
+      "disposition": "keep",
+      "family": "actions",
+      "source": "extras.md"
+    },
+    "country-select": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "data-grid": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "extras.md"
+    },
+    "data-list": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "extras.md"
+    },
+    "data-table-parts": {
+      "disposition": "retire",
+      "family": "data",
+      "source": "extras.md"
+    },
+    "date-picker": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "dropzone": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "editable-cell": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "emoji-picker": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "field-inline": {
+      "disposition": "retire",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "figure-frame": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "filter-bar": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "extras.md"
+    },
+    "filter-bar-managed": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "extras.md"
+    },
+    "floating-surface": {
+      "disposition": "retire",
+      "family": "overlay",
+      "source": "extras.md"
+    },
+    "icon-button": {
+      "disposition": "retire",
+      "family": "actions",
+      "source": "extras.md"
+    },
+    "image": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "extras.md"
+    },
+    "logo-row": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "markdown-view": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "extras.md"
+    },
+    "marketing-surface": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "media-player-controls": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "extras.md"
+    },
+    "notification-bell": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "extras.md"
+    },
+    "number-field": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "onboarding-checklist": {
+      "disposition": "to-block",
+      "family": "display",
+      "source": "extras.md"
+    },
+    "otp-input": {
+      "disposition": "retire",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "page-header": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "extras.md"
+    },
+    "particle-field": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "password-input": {
+      "disposition": "retire",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "pricing-section": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "progress-indicator": {
+      "disposition": "retire",
+      "family": "feedback",
+      "source": "extras.md"
+    },
+    "property-list": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "extras.md"
+    },
+    "provider": {
+      "disposition": "keep",
+      "family": "feedback",
+      "source": "extras.md"
+    },
+    "region-select": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "relative-time": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "extras.md"
+    },
+    "ruled-band": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "searchable-select": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "extras.md"
+    },
+    "section-header": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "segmented": {
+      "disposition": "retire",
+      "family": "actions",
+      "source": "extras.md"
+    },
+    "settings-row": {
+      "disposition": "keep+block",
+      "family": "layout",
+      "source": "extras.md"
+    },
+    "shortcut-overlay": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "extras.md"
+    },
+    "sortable-list": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "extras.md"
+    },
+    "split-button": {
+      "disposition": "retire",
+      "family": "actions",
+      "source": "extras.md"
+    },
+    "staggered-text-reveal": {
+      "disposition": "remove",
+      "family": "marketing/motion",
+      "source": "extras.md"
+    },
+    "stat": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "extras.md"
+    },
+    "status-icon": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "extras.md"
+    },
+    "stepper": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "extras.md"
+    },
+    "table-scroll-region": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of table; not listed in extras.md"
+    },
+    "tag-group": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "extras.md"
+    },
+    "terminal": {
+      "disposition": "keep",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "terminal-body": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of terminal (kept by MK); not listed in extras.md"
+    },
+    "testimonial": {
+      "disposition": "remove",
+      "family": "marketing",
+      "source": "extras.md"
+    },
+    "text-edit": {
+      "disposition": "keep",
+      "family": "rich-text",
+      "source": "extras.md"
+    },
+    "timeline": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "extras.md"
+    },
+    "tool-call-chip": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "extras.md"
+    },
+    "truncated-text": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "extras.md"
+    },
+    "use-animation-replay": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-announcer": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-drag-reorder": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-file-drop": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-inline-edit": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-list-nav": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-media-query": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-mobile": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — upstream ships hooks/use-mobile.ts, which is outside vendor/ui/ and so outside the parity scope"
+    },
+    "use-modal-inert": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-overflow": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-platform": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "video-player": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "extras.md"
+    }
+  }
+}

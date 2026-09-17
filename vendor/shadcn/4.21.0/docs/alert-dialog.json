@@ -1,0 +1,17 @@
+{
+  "component": "alert-dialog",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/alert-dialog.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Small",
+    "Media",
+    "Small with Media",
+    "Destructive",
+    "RTL",
+    "API Reference"
+  ]
+}

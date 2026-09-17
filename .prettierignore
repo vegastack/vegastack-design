@@ -30,3 +30,13 @@ docs/research/design-md-audit/audits/coverage.json
 # repository formatter, own their serialization.
 docs/research/design-md-audit/sources/
 docs/research/design-md-references/Vercel_DESIGN.md
+
+# The PRISTINE pinned shadcn baseline, written byte for byte by `tooling/upstream/pull.mjs` from the
+# real CLI. Formatting it would make `pnpm upstream:pull --check` fail forever and would break the
+# parity gate's byte-for-byte claim — a patch is a diff against what upstream ACTUALLY ships, not
+# against a reformatted copy of it. Never hand-edited, never formatted.
+vendor/shadcn/
+
+# Patch files are unified diffs. Prettier has no dialect for them, and reflowing one would make it
+# stop applying.
+packages/ui/upstream/patches/

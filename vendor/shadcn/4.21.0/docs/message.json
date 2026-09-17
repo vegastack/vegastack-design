@@ -1,0 +1,18 @@
+{
+  "component": "message",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/message.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Features",
+    "Avatar",
+    "Group",
+    "Header and Footer",
+    "Actions",
+    "Attachment",
+    "Accessibility",
+    "API Reference"
+  ]
+}

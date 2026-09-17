@@ -1,0 +1,4 @@
+{
+  "_note": "The components already reset onto pinned upstream. verify-parity.mjs enforces byte-for-byte 'upstream + approved patch' for these names only, and verify-variant-coverage.mjs requires upstream's docs sections for these names only. Batches 2-6 of docs/plans/2026-09-18-shadcn-reset/ append to this list as they reset each component; it is empty at Batch 0 and complete at the end of Batch 6. See tooling/upstream/lib.mjs for why the set exists.",
+  "components": []
+}

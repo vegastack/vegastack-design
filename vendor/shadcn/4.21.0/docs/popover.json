@@ -1,0 +1,15 @@
+{
+  "component": "popover",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/popover.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Align",
+    "With Form",
+    "RTL",
+    "API Reference"
+  ]
+}

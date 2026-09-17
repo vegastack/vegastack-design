@@ -1,0 +1,14 @@
+{
+  "component": "sheet",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/sheet.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Side",
+    "No Close Button",
+    "RTL",
+    "API Reference"
+  ]
+}

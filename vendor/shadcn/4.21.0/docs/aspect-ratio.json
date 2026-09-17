@@ -1,0 +1,13 @@
+{
+  "component": "aspect-ratio",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/aspect-ratio.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Square",
+    "Portrait",
+    "RTL",
+    "API Reference"
+  ]
+}

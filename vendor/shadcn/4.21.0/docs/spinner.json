@@ -1,0 +1,16 @@
+{
+  "component": "spinner",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/spinner.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Customization",
+    "Size",
+    "Button",
+    "Badge",
+    "Input Group",
+    "Empty",
+    "RTL"
+  ]
+}

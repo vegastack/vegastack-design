@@ -1,0 +1,25 @@
+{
+  "component": "button",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/button.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Cursor",
+    "Size",
+    "Default",
+    "Outline",
+    "Secondary",
+    "Ghost",
+    "Destructive",
+    "Link",
+    "Icon",
+    "With Icon",
+    "Rounded",
+    "Spinner",
+    "Button Group",
+    "As Link",
+    "RTL",
+    "API Reference"
+  ]
+}

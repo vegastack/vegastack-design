@@ -21,6 +21,11 @@ const TYPES = [
   "test",
   "build",
   "ci",
+  // The shadcn reset (docs/plans/2026-09-18-shadcn-reset/). MK set the subject convention
+  // `reset(b<N>): …` for the integration branch, one batch per scope, so the type is added here
+  // rather than bypassed with `--no-verify`. It carries no release meaning: the changelog is
+  // assembled from changesets, never from commit types.
+  "reset",
 ];
 const MAX_SUBJECT = 100;
 

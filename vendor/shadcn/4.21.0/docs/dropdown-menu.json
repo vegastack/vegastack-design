@@ -1,0 +1,23 @@
+{
+  "component": "dropdown-menu",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/dropdown-menu.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Submenu",
+    "Shortcuts",
+    "Icons",
+    "Checkboxes",
+    "Checkboxes Icons",
+    "Radio Group",
+    "Radio Icons",
+    "Destructive",
+    "Avatar",
+    "Complex",
+    "RTL",
+    "API Reference"
+  ]
+}

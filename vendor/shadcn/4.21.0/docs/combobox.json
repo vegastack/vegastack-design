@@ -1,0 +1,24 @@
+{
+  "component": "combobox",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/combobox.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Custom Items",
+    "Multiple Selection",
+    "Basic",
+    "Multiple",
+    "Clear Button",
+    "Groups",
+    "Custom Items",
+    "Invalid",
+    "Disabled",
+    "Auto Highlight",
+    "Popup",
+    "Input Group",
+    "RTL",
+    "API Reference"
+  ]
+}

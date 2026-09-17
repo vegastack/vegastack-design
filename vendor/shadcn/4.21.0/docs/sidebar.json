@@ -1,0 +1,31 @@
+{
+  "component": "sidebar",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/sidebar.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Structure",
+    "SidebarProvider",
+    "Sidebar",
+    "useSidebar",
+    "SidebarHeader",
+    "SidebarFooter",
+    "SidebarContent",
+    "SidebarGroup",
+    "SidebarMenu",
+    "SidebarMenuButton",
+    "SidebarMenuAction",
+    "SidebarMenuSub",
+    "SidebarMenuBadge",
+    "SidebarMenuSkeleton",
+    "SidebarTrigger",
+    "SidebarRail",
+    "Controlled Sidebar",
+    "Theming",
+    "Styling",
+    "RTL",
+    "Changelog"
+  ]
+}

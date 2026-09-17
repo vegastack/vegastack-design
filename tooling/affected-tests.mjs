@@ -32,6 +32,11 @@ const STATIC_PREFIXES = [
   ".claude/",
   "docs/",
   "skills/",
+  // The pinned pristine shadcn baseline (`tooling/upstream/pull.mjs`). Nothing imports it and
+  // nothing builds from it: it is the reference a patch is measured against, so a change to it
+  // changes no rendered component until a batch re-derives one. The gate that reacts to it is
+  // `upstream:check`, which runs inside `pnpm lint` on the static side.
+  "vendor/",
 ];
 const STATIC_FILES = new Set([
   "AGENTS.md",

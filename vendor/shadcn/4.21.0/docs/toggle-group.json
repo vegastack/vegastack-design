@@ -1,0 +1,19 @@
+{
+  "component": "toggle-group",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/toggle-group.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Outline",
+    "Size",
+    "Spacing",
+    "Vertical",
+    "Disabled",
+    "Custom",
+    "RTL",
+    "API Reference",
+    "Changelog"
+  ]
+}

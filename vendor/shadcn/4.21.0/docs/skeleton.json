@@ -1,0 +1,15 @@
+{
+  "component": "skeleton",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/skeleton.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Avatar",
+    "Card",
+    "Text",
+    "Form",
+    "Table",
+    "RTL"
+  ]
+}

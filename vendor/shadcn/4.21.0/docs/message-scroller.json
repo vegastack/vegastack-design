@@ -1,0 +1,18 @@
+{
+  "component": "message-scroller",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/message-scroller.md",
+  "sections": [
+    "What Makes a Great Streaming Chat Experience",
+    "MessageScroller",
+    "Installation",
+    "Usage",
+    "Composition",
+    "Core Concepts",
+    "Performance",
+    "Virtualization",
+    "Accessibility",
+    "Unstyled",
+    "API Reference"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "component": "calendar",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/calendar.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "About",
+    "Date Picker",
+    "Persian / Hijri / Jalali Calendar",
+    "Selected Date (With TimeZone)",
+    "Basic",
+    "Range Calendar",
+    "Month and Year Selector",
+    "Presets",
+    "Date and Time Picker",
+    "Booked dates",
+    "Custom Cell Size",
+    "Week Numbers",
+    "RTL",
+    "API Reference",
+    "Changelog"
+  ]
+}

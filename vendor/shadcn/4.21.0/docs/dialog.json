@@ -1,0 +1,16 @@
+{
+  "component": "dialog",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/dialog.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Custom Close Button",
+    "No Close Button",
+    "Sticky Footer",
+    "Scrollable Content",
+    "RTL",
+    "API Reference"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "component": "slider",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/slider.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Range",
+    "Multiple Thumbs",
+    "Vertical",
+    "Controlled",
+    "Disabled",
+    "RTL",
+    "API Reference"
+  ]
+}

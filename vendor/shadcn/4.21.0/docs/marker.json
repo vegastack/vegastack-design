@@ -1,0 +1,20 @@
+{
+  "component": "marker",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/marker.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Features",
+    "Variants",
+    "Status",
+    "Shimmer",
+    "Separator",
+    "Border",
+    "With Icon",
+    "Links and Buttons",
+    "Accessibility",
+    "API Reference"
+  ]
+}

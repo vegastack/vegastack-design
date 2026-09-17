@@ -1,0 +1,16 @@
+{
+  "component": "card",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/card.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Size",
+    "Spacing",
+    "Image",
+    "RTL",
+    "API Reference",
+    "Changelog"
+  ]
+}

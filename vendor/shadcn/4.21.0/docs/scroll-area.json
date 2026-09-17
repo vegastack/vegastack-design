@@ -1,0 +1,13 @@
+{
+  "component": "scroll-area",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/scroll-area.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Horizontal",
+    "RTL",
+    "API Reference"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "component": "drawer",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/drawer.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Custom Sizes",
+    "Styling",
+    "Position",
+    "Swipe Handle",
+    "Nested",
+    "Non Modal",
+    "Snap Points",
+    "Responsive",
+    "Migrating from Vaul",
+    "API Reference"
+  ]
+}

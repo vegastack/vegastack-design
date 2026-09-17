@@ -1,0 +1,14 @@
+{
+  "component": "progress",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/progress.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Label",
+    "Controlled",
+    "RTL",
+    "API Reference"
+  ]
+}
