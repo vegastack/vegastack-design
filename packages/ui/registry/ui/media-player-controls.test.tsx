@@ -555,3 +555,32 @@ test("a re-render with a fresh callback identity does not reset the playback rat
 
   expect(media.playbackRate).toBe(2);
 });
+
+test("control tooltips portal to <body> — the named fullscreen gap, pinned", async () => {
+  // Batch 7c of the shadcn reset deleted this component's `portalContainer` prop and the context
+  // behind it. They had been dead since Batch 4 put `tooltip.tsx` and `dropdown-menu.tsx` back on
+  // upstream, whose `TooltipContent`/`DropdownMenuContent` each open their own Base UI portal with
+  // no `container` escape hatch — so the prop documented a behaviour the tree no longer had.
+  //
+  // The consequence is real and is recorded on the component: a player in fullscreen shows no
+  // control tooltip, because the browser paints the fullscreen subtree only. This test is what
+  // fails, as stale, the day someone gives those two a `container` pass-through — which is an MK
+  // decision, not a workaround, because it is a patch hunk with no decision row behind it.
+  const screen = await render(
+    <Host variant="overlay" onFullscreenToggle={() => {}} />,
+  );
+  const frame = screen.container.firstElementChild as HTMLElement;
+  const fullscreen = screen.container.querySelector(
+    'button[aria-label="Fullscreen Demo media"]',
+  ) as HTMLElement;
+  await userEvent.hover(fullscreen);
+  const tip = await vi.waitFor(() => {
+    const node = document.querySelector('[data-slot="tooltip-content"]');
+    if (!node) throw new Error("no tooltip yet");
+    return node as HTMLElement;
+  });
+  expect(tip.textContent).toContain("Fullscreen (F)");
+  // It is under <body>, NOT inside the element a player would pass to requestFullscreen().
+  expect(frame.contains(tip)).toBe(false);
+  expect(document.body.contains(tip)).toBe(true);
+});

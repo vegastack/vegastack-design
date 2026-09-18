@@ -49,7 +49,6 @@ starts with `icon-` is a component and never an icon.
 
 - **`chip`** — The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.
 - **`code-block`** — A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.
-- **`onboarding-checklist`** — A getting-started card — a progress bar + step rows, collapsible to a progress pill.
 - **`stat`** — A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.
 - **`tag-group`** — Hue-tinted label chips on the 10-hue tag palette, with +N overflow collapsing and removable tags.
 
@@ -91,6 +90,7 @@ starts with `icon-` is a component and never an icon.
 - **`drawer`** — A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.
 - **`dropdown-menu`** — An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.
 - **`hover-card`** — A preview surface that opens on hover or focus, with configurable delays and sides.
+- **`panel-search`** — The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
 - **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.
 - **`shortcut-overlay`** — The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.

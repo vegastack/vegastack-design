@@ -1,10 +1,8 @@
-// @vegastack shortcut-overlay@0.9.1 sha256-gX9xo4/Sst+FOxwUtywaO96KaryPDAuU9ei8x67WHRw=
+// @vegastack shortcut-overlay@0.9.1 sha256-rfsMiaMspyOZ71VkQfSa7QHGI1ITre5u21OcfxmKWvE=
 
 "use client";
 
 import * as React from "react";
-import { Search } from "lucide-react";
-import { Input as BaseInput } from "@base-ui/react/input";
 import { cn } from "@vegastack/design";
 import {
   Dialog,
@@ -14,50 +12,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-
-/* ------------------------------------------------------------------------------------------------
- * The panel's own search row (OVL-11): a sticky header with a leading glyph, a hairline below, and
- * NO bordered box of its own — a bordered input inside a bordered popup nests two borders (B8-04).
- * It used to be `floating-surface`'s shared `PanelSearchFrame`/`PanelSearchInput`; Batch 7a of the
- * shadcn reset retired that component, and each popup owns its chrome instead.
- * ----------------------------------------------------------------------------------------------*/
-
-function PanelSearch({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      data-slot="panel-search"
-      className={cn(
-        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3 focus-within:border-ring/70",
-        className,
-      )}
-    >
-      <Search aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-      {children}
-    </div>
-  );
-}
-
-function PanelSearchField({
-  className,
-  ...props
-}: React.ComponentProps<typeof BaseInput>) {
-  return (
-    <BaseInput
-      type="search"
-      className={cn(
-        "h-full w-full min-w-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { usePlatform } from "@/components/ui/use-platform";
 
 /**
  * Mac modifier glyphs and their Windows/Linux words. Since the shadcn reset (Batch 2) `Kbd` is
@@ -78,8 +35,6 @@ const MODIFIER_LABEL: Record<string, string> = {
 function formatShortcutKey(key: string, os: "mac" | "other"): string {
   return os === "mac" ? key : (MODIFIER_LABEL[key] ?? key);
 }
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { usePlatform } from "@/components/ui/use-platform";
 
 /* ---
 `ShortcutOverlay`'s value is the REGISTRY model, not the dialog. A hand-listed shortcuts

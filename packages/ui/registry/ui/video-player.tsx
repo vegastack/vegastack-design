@@ -1,4 +1,4 @@
-// @vegastack video-player@0.9.1 sha256-FUwzQMBinpZ91wnmsKNRcrf2AIKM0nyRZGrDgwCe0Tc=
+// @vegastack video-player@0.9.1 sha256-EhyzChxGYU7zrqd6hrTqimiVSHszYkyEYeL7YPBy7Y8=
 
 "use client";
 
@@ -466,10 +466,6 @@ export function VideoPlayer({
           >
             <MediaPlayerControls
               mediaRef={controlsMediaRef}
-              // The frame IS the fullscreen element, so the tooltips and the settings menu have
-              // to portal into it — the browser paints only the fullscreen subtree, and a popup
-              // left on `<body>` simply does not appear.
-              portalContainer={frameRef}
               label={label}
               skipSeconds={skipSeconds}
               playbackRates={playbackRates}

@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.9.1 sha256-oEXUY5bhAuYaOm2n10/Tg+T7Iut4SakgWt31bQCWumU=
+// @vegastack action-bar@0.9.1 sha256-7X1ifWXQMdY+MqUtrvTuLmaAkvhTHXZ11LgMo3Y3KuY=
 
 "use client";
 
@@ -27,9 +27,9 @@ instead: the bar tracks that element's box via ResizeObserver and positions off 
 unitless CSS custom property (`--action-bar-x`, consumed as `calc(var(--action-bar-x) *
 1px)`), so inline style stays custom-properties-only.
 
-Stacking: `z-10` — the bar floats over page content and is correctly covered
-by any dialog opened from one of its actions (`z-overlay`). It stays flat: separation is
-the surface ladder (bg-background + the one border), not a shadow.
+Stacking: `z-10` — the bar floats over page content and is correctly covered by any dialog
+opened from one of its actions, which upstream puts at `z-50`. It stays flat: separation is
+`bg-background` plus the one hairline, not a shadow.
 --- */
 
 /** Props accepted by `ActionBar`. */

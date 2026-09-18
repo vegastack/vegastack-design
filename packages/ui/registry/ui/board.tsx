@@ -1,4 +1,4 @@
-// @vegastack board@0.9.1 sha256-RdFRNmkBWorG0/N8P9s5vwVf7EhMzAY6fgxkCDK1MJw=
+// @vegastack board@0.9.1 sha256-XGNzkxlzVgncSohdwK7ncHsb5YyDkgFc74tZoJKAjCg=
 
 "use client";
 
@@ -47,11 +47,12 @@ the handle's move mode are the ONLY paths on mobile and must be lossless by
 construction. Every card's menu lists every droppable column with per-target lock
 reasons; `M` on a focused card opens it directly.
 
-Elevation: a dragged card must NOT gain a shadow — only true overlays get
-`shadow-lg` (design.md §Elevation). Lift is expressed by dimming the origin card;
-the native drag preview is the browser's snapshot of the flat card, so separation
-comes from the surface ladder + the one border. This will feel wrong to anyone coming
-from other kanbans; it is the system's position.
+Elevation: a dragged card gains no shadow. Lift is expressed by dimming the ORIGIN card,
+and the thing under the pointer is the browser's own drag preview — a flat snapshot taken
+before any drag class lands — so a shadow on the source would not appear on the moving
+image anyway. Separation comes from the card's hairline against the column ground. (The
+blanket shadow ban this used to cite is gone with Batch 1 of the shadcn reset; what
+remains is the mechanical reason, not the doctrine.)
 
 Deliberately NOT done here:
 - No card focus-roving via `use-list-nav` — its grid model assumes uniform columns and
@@ -395,7 +396,12 @@ export function Board<T>({
               }
               className={cn(
                 "w-(--board-column-width) shrink-0 gap-2 bg-muted py-2",
-                "data-drop-over:border-primary/50",
+                // The drop-over highlight moves the CARD's hairline, and upstream's `Card` draws
+                // that hairline as a `ring-1`, not a border. This read `border-primary/50` until
+                // Batch 7c of the shadcn reset, which set a colour on a zero-width border and so
+                // painted nothing at all — the whole drop affordance was invisible from the day
+                // Batch 2 put `card.tsx` back on upstream.
+                "data-drop-over:ring-primary/50",
               )}
             >
               <CardHeader className="px-3">

@@ -59,7 +59,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.9.1",
-        "integrity": "sha256-oEXUY5bhAuYaOm2n10/Tg+T7Iut4SakgWt31bQCWumU="
+        "integrity": "sha256-7X1ifWXQMdY+MqUtrvTuLmaAkvhTHXZ11LgMo3Y3KuY="
       }
     },
     {
@@ -177,7 +177,7 @@
         "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
         "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
         "version": "0.9.1",
-        "integrity": "sha256-m4s1ZuPxINzkm1nbcloQt9Zow37B72l7gXimo/CWFj8="
+        "integrity": "sha256-EQitUaLfDjUSm249QMATlMAx2XMvzZ3p6fOOr8mJ9gk="
       }
     },
     {
@@ -207,7 +207,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.9.1",
-        "integrity": "sha256-fF7U+Tcr/4DrNYs9kKB8UgxLsUi/epVL4zWiQthTQWY="
+        "integrity": "sha256-sRSuazSDL7p/aN1HIx12Ix9ho5Be8KseHqzSmKenWg8="
       }
     },
     {
@@ -420,7 +420,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.9.1",
-        "integrity": "sha256-RdFRNmkBWorG0/N8P9s5vwVf7EhMzAY6fgxkCDK1MJw="
+        "integrity": "sha256-XGNzkxlzVgncSohdwK7ncHsb5YyDkgFc74tZoJKAjCg="
       }
     },
     {
@@ -777,7 +777,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.9.1",
-        "integrity": "sha256-ioue79MJM9ogB39H7xrDbL9cbpTUkcTKrdEWjJ8KqoY="
+        "integrity": "sha256-gdHUiiEHD5goA8h9/JDgMp8owjbYr0jN361dEuJZ/ik="
       }
     },
     {
@@ -1169,7 +1169,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.9.1",
-        "integrity": "sha256-ndXZVsp3MCfzenAUs3N6BDUjJFMe4Aku3MqbVbW56Mk="
+        "integrity": "sha256-hnqL5H4BE5qXsuDb0t7/xtGy+cyj/RXl0x3EaPpMpUk="
       }
     },
     {
@@ -1425,6 +1425,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/panel-search",
         "@vegastack/popover",
         "@vegastack/use-list-nav"
       ],
@@ -1439,7 +1440,36 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.9.1",
-        "integrity": "sha256-yXltmA1uGVqB3tlqJOsrEcJQDKI2FDV7BkfZMGoI47Q="
+        "integrity": "sha256-Z3O4HMlmXv9JZ4+dj+hqgqbLOzBcqu4k+V6JpK64hIU="
+      }
+    },
+    {
+      "name": "panel-search",
+      "type": "registry:ui",
+      "title": "Panel Search",
+      "description": "The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay.",
+      "categories": [
+        "overlay"
+      ],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/panel-search.tsx",
+          "type": "registry:ui",
+          "target": "@ui/panel-search.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
+        "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
+        "version": "0.9.1",
+        "integrity": "sha256-4M7ZwsQSdxo73zawAyM/IlFo0ZVkP1V8MBUEKUIFrJg="
       }
     },
     {
@@ -14721,7 +14751,7 @@
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.9.1",
-        "integrity": "sha256-f1JuTUTX+xybTw1HlxmEe90EFYdov2oxzouBcwTImOA="
+        "integrity": "sha256-Gfo6J1fVyPucDJC7sNbINy8CZNR4sydtPmqdt4wisLw="
       }
     },
     {
@@ -14989,7 +15019,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.9.1",
-        "integrity": "sha256-6osb/xitiuczKJI8M1zmLDiRQqTlt3Hyo5tslYIhh7w="
+        "integrity": "sha256-fvDhcOJZ6LcuNT58zvSwn+hk2jylF2s9UqNatMPTI78="
       }
     },
     {
@@ -15204,37 +15234,6 @@
       }
     },
     {
-      "name": "onboarding-checklist",
-      "type": "registry:ui",
-      "title": "Onboarding Checklist",
-      "description": "A getting-started card — a progress bar + step rows, collapsible to a progress pill.",
-      "categories": [
-        "display"
-      ],
-      "dependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/progress"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/onboarding-checklist.tsx",
-          "type": "registry:ui",
-          "target": "@ui/onboarding-checklist.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Product onboarding/setup checklists that live in the chrome.",
-        "whenNotToUse": "Linear multi-step forms (compose Field/Progress) or task lists (app domain).",
-        "version": "0.9.1",
-        "integrity": "sha256-G49BP+gOLTt7R1wtp4lgqKh5ig65pvq9yTESKKFbkiM="
-      }
-    },
-    {
       "name": "page-header",
       "type": "registry:ui",
       "title": "Page Header",
@@ -15422,7 +15421,8 @@
         "@vegastack/design@^0.4.1"
       ],
       "registryDependencies": [
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -15435,7 +15435,7 @@
         "whenToUse": "Once, around your app root (layout.tsx) — every VegaStack component below it gets dark mode, working toast() calls, shared tooltip delays, and direction context.",
         "whenNotToUse": "Anywhere below the root, or a second time — the bundled Toaster is a mount-once portal; pass toaster={false} if you must render your own.",
         "version": "0.9.1",
-        "integrity": "sha256-PTk0QbeCkLBWvgfFCz6caP2bkxYSXNqTe50NOBBburg="
+        "integrity": "sha256-qvWdkySKxmcqizwThaLWAYSWwDM1oKiK0ZFgL7fP5m0="
       }
     },
     {
@@ -15685,7 +15685,9 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/card"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/settings-row.tsx",
@@ -15697,7 +15699,7 @@
         "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
         "version": "0.9.1",
-        "integrity": "sha256-hASG42beS+ITCrVBvtIXnZN2IBXEmX8K8Gx6OQIu0Qk="
+        "integrity": "sha256-493CjuEc4MjGRgpcEGaQHcz1dt3Mw1GzBIwcWItcaQ0="
       }
     },
     {
@@ -15747,6 +15749,7 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/kbd",
+        "@vegastack/panel-search",
         "@vegastack/scroll-area",
         "@vegastack/use-platform"
       ],
@@ -15761,7 +15764,7 @@
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (Kbd in a Tooltip, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
         "version": "0.9.1",
-        "integrity": "sha256-gX9xo4/Sst+FOxwUtywaO96KaryPDAuU9ei8x67WHRw="
+        "integrity": "sha256-rfsMiaMspyOZ71VkQfSa7QHGI1ITre5u21OcfxmKWvE="
       }
     },
     {
@@ -16030,9 +16033,9 @@
       ],
       "meta": {
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
-        "whenNotToUse": "Free navigation between peer views (Tabs), compact progress where a step list is too heavy (ProgressIndicator segments), or unordered checklists (OnboardingChecklist).",
+        "whenNotToUse": "Free navigation between peer views (Tabs), or compact progress where a full step list is too heavy (Progress plus a \"Step n of N\" line).",
         "version": "0.9.1",
-        "integrity": "sha256-rba2Sv7PJHU8iBHwzMGfWRb2k5lIon8XZASZl5LonoM="
+        "integrity": "sha256-j4omeWgWQjbCZnjjLsZj0euO3z0IDHYr/3IdXKFBDZE="
       }
     },
     {
@@ -16191,7 +16194,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.9.1",
-        "integrity": "sha256-8pgFxZMLYHaiJKb5fuKYxQq2LcUfVCt4+arc2p1tA9k="
+        "integrity": "sha256-WqCYXlQaWBCM1+zRYxdoewxT0OYLel6GGaq8xMkWaGg="
       }
     },
     {
@@ -16401,8 +16404,11 @@
         "whenToUse": "Tool invocations in an agent/chat transcript (searched, executed, created).",
         "whenNotToUse": "Status badges (Badge) or long-running task rows (Marker + Spinner).",
         "version": "0.9.1",
-        "integrity": "sha256-6z2QiK2o9nXzMWesTOnEoY18bFdyvtgDQB94ea5ob+E="
-      }
+        "integrity": "sha256-/TgNPRNY5b0Me76OezuuBhBTcEUjjF6vjL5fSyUAs10="
+      },
+      "registryDependencies": [
+        "@vegastack/badge"
+      ]
     },
     {
       "name": "tooltip",
@@ -16771,7 +16777,7 @@
         "whenToUse": "A single video asset that needs a branded frame plus grouped skip controls, mute, and keyboard shortcuts.",
         "whenNotToUse": "Playlists, caption editing, fullscreen-first viewing, or adaptive streaming control surfaces.",
         "version": "0.9.1",
-        "integrity": "sha256-FUwzQMBinpZ91wnmsKNRcrf2AIKM0nyRZGrDgwCe0Tc="
+        "integrity": "sha256-EhyzChxGYU7zrqd6hrTqimiVSHszYkyEYeL7YPBy7Y8="
       }
     }
   ]

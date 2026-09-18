@@ -274,19 +274,27 @@ test("AppShellContent is the shell's skip-link landmark and carries the named co
   expect(main.className).toContain("@container/app-shell-content");
 });
 
-test('AppShellContent variant="inset" applies the panel-treatment classes', async () => {
+test('AppShellContent variant="inset" paints what upstream\'s SidebarInset paints', async () => {
   const screen = await render(<Demo contentVariant="inset" />);
   const main = screen.getByRole("main").element();
   expect(main.getAttribute("data-variant")).toBe("inset");
-  expect(main.className).toContain("md:rounded-lg");
-  expect(main.className).toContain("md:border");
+  // Read off `sidebar.tsx`'s own `peer-data-[variant=inset]` set, minus the sibling-only
+  // collapsed nudge: m-2, ms-0, rounded-xl, shadow-sm — and NO border. Before Batch 7c this
+  // painted `rounded-lg` + `border` + `shadow-lg`, the radius cap and the elevation doctrine
+  // Batch 1 deleted, so an inset shell and an inset sidebar disagreed on their own corner.
+  for (const cls of ["md:m-2", "md:ms-0", "md:rounded-xl", "md:shadow-sm"]) {
+    expect(main.className).toContain(cls);
+  }
+  expect(main.className).not.toContain("md:border");
+  expect(main.className).not.toContain("md:shadow-lg");
 });
 
 test('AppShellContent defaults to variant="sidebar" (no inset panel classes)', async () => {
   const screen = await render(<Demo />);
   const main = screen.getByRole("main").element();
   expect(main.getAttribute("data-variant")).toBe("sidebar");
-  expect(main.className).not.toContain("md:rounded-lg");
+  expect(main.className).not.toContain("md:rounded-xl");
+  expect(main.className).not.toContain("md:shadow-sm");
 });
 
 /* ---------------------------------------------------------------------------------------------
@@ -452,4 +460,18 @@ test("AppShellSkeleton hides its sidebar column below md, matching the real shel
   expect(sidebarColumn).not.toBeNull();
   expect(sidebarColumn.classList.contains("hidden")).toBe(true);
   expect(sidebarColumn.classList.contains("md:flex")).toBe(true);
+});
+
+test("AppShellSkeleton's rail is exactly the width the loaded rail will be", async () => {
+  // Regression, found rebuilding this file in Batch 7c: the column was `w-60` (15rem) while
+  // `sidebar.tsx`'s `SIDEBAR_WIDTH` is `16rem`, a literal left behind when Batch 1 deleted the
+  // `--sidebar-width` token. The placeholder therefore jumped a whole rem sideways the instant
+  // the real shell replaced it — the layout shift a skeleton exists to prevent.
+  const screen = await render(<AppShellSkeleton />);
+  const sidebarColumn = screen.container.querySelector(
+    '[data-slot="app-shell-skeleton"] > div',
+  ) as HTMLElement;
+  // `w-64` is `--spacing(64)` = 16rem, which is `sidebar.tsx`'s `SIDEBAR_WIDTH` exactly.
+  expect(sidebarColumn.classList.contains("w-64")).toBe(true);
+  expect(sidebarColumn.classList.contains("w-60")).toBe(false);
 });

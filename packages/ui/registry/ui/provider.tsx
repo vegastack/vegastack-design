@@ -1,4 +1,4 @@
-// @vegastack provider@0.9.1 sha256-PTk0QbeCkLBWvgfFCz6caP2bkxYSXNqTe50NOBBburg=
+// @vegastack provider@0.9.1 sha256-qvWdkySKxmcqizwThaLWAYSWwDM1oKiK0ZFgL7fP5m0=
 
 "use client";
 
@@ -11,9 +11,9 @@
 import * as React from "react";
 import { TIMINGS } from "@vegastack/design";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
-import { Tooltip } from "@base-ui/react/tooltip";
 import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { ToastProvider, Toaster } from "@/components/ui/toast";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 /** Props accepted by `VegaStackProvider`. */
 export interface VegaStackProviderProps extends Omit<
@@ -50,7 +50,10 @@ export interface VegaStackProviderProps extends Omit<
  * not be mounted twice.
  *
  * Tooltip delays are set here from `TIMINGS`, so every tooltip in the app opens
- * on the same rhythm and there is exactly one place to change it.
+ * on the same rhythm and there is exactly one place to change it. The provider it
+ * mounts is `tooltip.tsx`'s own `TooltipProvider` — the registry item a consumer
+ * already installs with `Tooltip` — not a second, private call into Base UI's
+ * `Tooltip.Provider`. One `data-slot="tooltip-provider"` in the tree either way.
  *
  * @example
  * ```tsx
@@ -83,7 +86,7 @@ export function VegaStackProvider({
       {...themeProps}
     >
       <DirectionProvider direction={direction}>
-        <Tooltip.Provider
+        <TooltipProvider
           delay={TIMINGS.tooltipOpenDelayMs}
           closeDelay={TIMINGS.tooltipCloseDelayMs}
         >
@@ -91,7 +94,7 @@ export function VegaStackProvider({
             {children}
             {toasterNode}
           </ToastProvider>
-        </Tooltip.Provider>
+        </TooltipProvider>
       </DirectionProvider>
     </NextThemesProvider>
   );

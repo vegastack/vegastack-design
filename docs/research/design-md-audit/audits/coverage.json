@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "7e0c517bf4182f24ff900705b8ab918326f2a4edcbbaf514970ae4b3c4b4b73f",
+  "contractSha256": "6b3371686ad4355577db27774c8ec6b39eb4e122c4c7a8bbd54c7494f2034bee",
   "inventory": {
     "expected": 590,
     "actual": 590,
@@ -133,8 +133,8 @@
       ]
     },
     "Content/marketing": {
-      "expected": 14,
-      "actual": 14,
+      "expected": 13,
+      "actual": 13,
       "members": [
         "alert",
         "announcement-banner",
@@ -145,7 +145,6 @@
         "item",
         "markdown-view",
         "media-player-controls",
-        "onboarding-checklist",
         "page-header",
         "terminal",
         "truncated-text",
@@ -153,10 +152,11 @@
       ]
     },
     "Shared internals": {
-      "expected": 1,
-      "actual": 1,
+      "expected": 2,
+      "actual": 2,
       "members": [
-        "data-table-parts"
+        "data-table-parts",
+        "panel-search"
       ]
     },
     "AI/chat": {
@@ -670,7 +670,7 @@
       ]
     }
   },
-  "componentRoutes": 108,
+  "componentRoutes": 107,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

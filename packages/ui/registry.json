@@ -1248,6 +1248,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/panel-search",
         "@vegastack/popover",
         "@vegastack/use-list-nav"
       ],
@@ -1261,6 +1262,32 @@
       "meta": {
         "whenToUse": "Lightweight emoji insertion \u2014 reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser \u2014 extend the embedded set or use a library.",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "panel-search",
+      "type": "registry:ui",
+      "title": "Panel Search",
+      "description": "The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) \u2014 shared by EmojiPicker and ShortcutOverlay.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/panel-search.tsx",
+          "type": "registry:ui",
+          "target": "@ui/panel-search.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
+        "whenNotToUse": "A standalone search field on a page \u2014 that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.9.1"
       }
     },
@@ -12143,31 +12170,6 @@
       }
     },
     {
-      "name": "onboarding-checklist",
-      "type": "registry:ui",
-      "title": "Onboarding Checklist",
-      "description": "A getting-started card \u2014 a progress bar + step rows, collapsible to a progress pill.",
-      "categories": ["display"],
-      "dependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/onboarding-checklist.tsx",
-          "type": "registry:ui",
-          "target": "@ui/onboarding-checklist.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Product onboarding/setup checklists that live in the chrome.",
-        "whenNotToUse": "Linear multi-step forms (compose Field/Progress) or task lists (app domain).",
-        "version": "0.9.1"
-      }
-    },
-    {
       "name": "page-header",
       "type": "registry:ui",
       "title": "Page Header",
@@ -12330,7 +12332,7 @@
         "next-themes@0.4.6",
         "@vegastack/design@^0.4.1"
       ],
-      "registryDependencies": ["@vegastack/toast"],
+      "registryDependencies": ["@vegastack/toast", "@vegastack/tooltip"],
       "files": [
         {
           "path": "packages/ui/registry/ui/provider.tsx",
@@ -12562,7 +12564,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/card"],
       "files": [
         {
           "path": "packages/ui/registry/ui/settings-row.tsx",
@@ -12618,6 +12620,7 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/kbd",
+        "@vegastack/panel-search",
         "@vegastack/scroll-area",
         "@vegastack/use-platform"
       ],
@@ -12871,7 +12874,7 @@
       ],
       "meta": {
         "whenToUse": "Any bounded linear process \u2014 onboarding, wizards, checkout, import flows \u2014 where progress, a failed step, and the reason an advance is blocked must be communicated.",
-        "whenNotToUse": "Free navigation between peer views (Tabs), compact progress where a step list is too heavy (ProgressIndicator segments), or unordered checklists (OnboardingChecklist).",
+        "whenNotToUse": "Free navigation between peer views (Tabs), or compact progress where a full step list is too heavy (Progress plus a \"Step n of N\" line).",
         "version": "0.9.1"
       }
     },
@@ -13192,7 +13195,8 @@
         "whenToUse": "Tool invocations in an agent/chat transcript (searched, executed, created).",
         "whenNotToUse": "Status badges (Badge) or long-running task rows (Marker + Spinner).",
         "version": "0.9.1"
-      }
+      },
+      "registryDependencies": ["@vegastack/badge"]
     },
     {
       "name": "tooltip",

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "7e0c517bf4182f24ff900705b8ab918326f2a4edcbbaf514970ae4b3c4b4b73f",
+  "contractSha256": "6b3371686ad4355577db27774c8ec6b39eb4e122c4c7a8bbd54c7494f2034bee",
   "expectedCounts": {
     "totalRegistryItems": 590,
     "components": 109,
@@ -739,17 +739,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "onboarding-checklist",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/onboarding-checklist.tsx"
-      ],
-      "docsSlug": "/docs/components/onboarding-checklist",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "page-header",
       "inventoryClass": "component",
       "wave": "Content/marketing",
@@ -1211,6 +1200,17 @@
         "packages/ui/registry/ui/video-player.tsx"
       ],
       "docsSlug": "/docs/components/video-player",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "panel-search",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/panel-search.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
     },
     {

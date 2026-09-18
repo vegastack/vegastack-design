@@ -6,10 +6,6 @@ import { beforeAll, expect, test } from "vitest";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import {
-  OnboardingChecklist,
-  OnboardingChecklistItem,
-} from "@/components/ui/onboarding-checklist";
 import { Stepper, type StepperStep } from "@/components/ui/stepper";
 import { Board, type BoardColumn } from "@/components/ui/board";
 import { DataGrid } from "@/components/ui/data-grid";
@@ -157,27 +153,6 @@ test("tabs: a trigger with a composed count badge names both as separate words",
     .toBeInTheDocument();
   // …and no visible node carries punctuation the design never put there.
   expect(names(document, '[data-slot="badge"]')).toEqual(["12"]);
-});
-
-test("onboarding-checklist: the collapsed pill names title, progress and action", async () => {
-  await render(
-    <OnboardingChecklist title="Getting started" done={1} total={3}>
-      <OnboardingChecklistItem>Step</OnboardingChecklistItem>
-    </OnboardingChecklist>,
-  );
-  await userEvent.click(
-    page.getByRole("button", { name: "Collapse checklist" }),
-  );
-  const pill = page.getByRole("button", {
-    name: "Getting started 1/3 Expand checklist",
-  });
-  await expect.element(pill).toBeInTheDocument();
-  // WCAG 2.2 SC 2.5.3 (Label in Name): the VISIBLE strings are verbatim substrings of the
-  // name, so a speech-input user saying what they see still activates the control.
-  const el = pill.element() as HTMLElement;
-  expect(el).not.toHaveAttribute("aria-label");
-  expect(el.textContent).toContain("Getting started");
-  expect(el.textContent).toContain("1/3");
 });
 
 test("stepper: a navigable step names its label and its state", async () => {

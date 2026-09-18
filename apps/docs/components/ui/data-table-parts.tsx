@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.9.1 sha256-ndXZVsp3MCfzenAUs3N6BDUjJFMe4Aku3MqbVbW56Mk=
+// @vegastack data-table-parts@0.9.1 sha256-hnqL5H4BE5qXsuDb0t7/xtGy+cyj/RXl0x3EaPpMpUk=
 
 "use client";
 
@@ -97,7 +97,7 @@ export function columnCellClass(column: DataTableColumnLayout): string {
     // (LAY-6 resolves as **shadcn**), so a column that wants to wrap has to say so or `cn`'s
     // merge leaves upstream's class standing.
     isNowrapColumn(column) ? "whitespace-nowrap" : "whitespace-normal",
-    column.mono && "font-mono font-mono text-sm tabular-nums",
+    column.mono && "font-mono text-sm tabular-nums",
   );
 }
 

@@ -53,7 +53,9 @@ carry spoken-name text for screen readers).
 ### Large sets get a filter
 
 The filter appears automatically past ten shortcuts (or force it with
-`searchable`).
+`searchable`). It is the shared `panel-search` row — a
+[shared internal](/docs/guides/components) this overlay and `EmojiPicker` both install, so the two
+popups cannot drift into two search rows.
 
 <ComponentPreview
   name="shortcutOverlaySearch"

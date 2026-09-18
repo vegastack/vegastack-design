@@ -1,4 +1,4 @@
-// @vegastack terminal@0.9.1 sha256-8pgFxZMLYHaiJKb5fuKYxQq2LcUfVCt4+arc2p1tA9k=
+// @vegastack terminal@0.9.1 sha256-WqCYXlQaWBCM1+zRYxdoewxT0OYLel6GGaq8xMkWaGg=
 
 "use client";
 
@@ -82,7 +82,7 @@ export function TerminalBody({
       // `aria-label` would otherwise be silently ignored.
       aria-labelledby={label ? undefined : labelledBy}
       className={cn(
-        "flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x px-4 py-3 font-mono font-mono text-sm text-foreground focus-visible:-outline-offset-2",
+        "flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x px-4 py-3 font-mono text-sm text-foreground focus-visible:-outline-offset-2",
         className,
       )}
     >

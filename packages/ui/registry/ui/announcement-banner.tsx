@@ -1,4 +1,4 @@
-// @vegastack announcement-banner@0.9.1 sha256-m4s1ZuPxINzkm1nbcloQt9Zow37B72l7gXimo/CWFj8=
+// @vegastack announcement-banner@0.9.1 sha256-EQitUaLfDjUSm249QMATlMAx2XMvzZ3p6fOOr8mJ9gk=
 
 "use client";
 
@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
  *
  * This is the ONE genuinely distinct banner: a foreground-on-background-flip full-bleed strip.
  * The in-content "inline" notice and the plan/trial row are NOT separate components — they are
- * `Alert variant="strip"` (compact single-line ribbon with icon + message + action + optional
- * dismiss). Reach for Alert for anything that sits inside content; reach for this only for the
- * page-top inverse band.
+ * upstream's `Alert`, which since Batch 2 of the shadcn reset is a compact card-ground row with
+ * an icon, a title, a description and an `AlertAction` slot (its `strip` variant went with the
+ * reset; the five variants are `default` plus the four status tones). Reach for `Alert` for
+ * anything that sits inside content; reach for this only for the page-top inverse band.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props accepted by `AnnouncementBanner`. */
@@ -44,7 +45,7 @@ export interface AnnouncementBannerProps extends React.ComponentPropsWithRef<"di
 
 /**
  * `AnnouncementBanner` — the full-width inverse page-top strip. Announce one thing, quietly.
- * For an in-content notice or a plan/trial row, use `Alert variant="strip"` instead.
+ * For an in-content notice or a plan/trial row, use `Alert` instead.
  *
  * @example
  * <AnnouncementBanner

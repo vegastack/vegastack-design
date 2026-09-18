@@ -95,11 +95,10 @@ Try the count values — including the 99+ overflow — and the dot mode, then c
   **not** append the count yourself.
 - The visual count badge is `aria-hidden` and `pointer-events-none`, so it never double-announces or
   intercepts the click.
-- Renders a native `<button type="button">` (via `IconButton` → `Button`); keyboard
+- Renders a native `<button type="button">` (upstream's `Button`, `size="icon"`); keyboard
   <kbd>Enter</kbd> / <kbd>Space</kbd> activate it, and `:focus-visible` shows
   the neutral 2px outline ring (`outline-ring`, the global focus style) — the
-  bell uses the default `IconButton` variant, which carries no per-component
-  focus ring.
+  bell adds no focus ring of its own.
 
 | Key              | Action                        |
 | ---------------- | ----------------------------- |

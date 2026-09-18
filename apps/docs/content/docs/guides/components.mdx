@@ -28,6 +28,11 @@ their own because there is nothing to choose: you get them by adding the compone
   cell, skeleton rows, the empty row, the column class rules, and the selection / sort /
   controlled-state hooks. It arrives with either component, and installing both installs it once.
   Its parts are documented on those two pages, where they are actually used.
+- **`@vegastack/panel-search`** — the sticky, box-free search row a filtering popup puts at the top
+  of its panel, shared by [`EmojiPicker`](/docs/components/emoji-picker) and
+  [`ShortcutOverlay`](/docs/components/shortcut-overlay). A bordered field inside a bordered popup
+  nests two borders, so the ROW draws the one hairline and tints it on focus while the field paints
+  no box at all. It arrives with either popup, and installing both installs it once.
 - **`@vegastack/table-scroll-region`** — the named, conditionally-focusable scroll viewport that
   ships inside [`Table`](/docs/components/table)'s item.
 
@@ -42,7 +47,7 @@ pnpm dlx shadcn@latest add @vegastack/dialog
   match this system (and overwrites files if names collide).
 - `registryDependencies` come transitively: adding `@vegastack/field` also brings
   `input`; `data-list` brings `table`+`checkbox`+`skeleton`+`empty`; `provider`
-  brings `toast`; the modal families bring the internal `use-modal-inert` focus-containment hook.
+  brings `toast`+`tooltip`; the modal families bring the internal `use-modal-inert` focus-containment hook.
   You never chase dependencies manually or call that modal lifecycle hook yourself.
 - npm dependencies of each item (`@base-ui/react`, `class-variance-authority`, …)
   are installed by the CLI into your project automatically.

@@ -114,7 +114,7 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
 
 - Pass a descriptive `label`; it names the media element and prefixes every custom control.
 - The seek rail composes `Slider`, so keyboard and screen-reader slider semantics stay intact.
-- Icon-only transport buttons are composed with `IconButton`, which requires accessible names.
+- Icon-only transport buttons are `Button size="icon-sm"`, each carrying its own `aria-label`.
 - Tooltips expose the primary keyboard shortcuts for pointer and keyboard users.
 - Playback speed is a single tappable button that cycles the rates; its accessible name always
   announces the current speed.

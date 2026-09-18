@@ -56,9 +56,12 @@ that catch bugs nobody can see in review.
    next pull and nothing says so. It is not scoped to focus contexts on purpose: FOC-6 bans a
    box-shadow ring _anywhere_, which is why `bubble`'s decorative `ring-3 ring-card` cutout became
    `outline-3 outline-card` (identical paint, no box-shadow) in Batch 1.
-6. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. Allowlisted: `empty.tsx` and
-   `progress-indicator.tsx` (non-icon graphic primitives) and `registry/ui/icons/**` (the vendored
-   lucide-animated mirrors, which are data modules with no JSX at all). (ICO-3.)
+6. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. The allowlist is ONE file:
+   `empty.tsx`, which draws upstream's decorative backdrop — a non-icon graphic primitive. Two
+   entries left rather than being carried: the lucide-animated mirrors, now data modules over one
+   factory with no JSX at all (`tooling/verify-animated-icons.mjs` asserts that directly), and
+   `progress-indicator`, whose determinate ring went with the component when Batch 7a of the shadcn
+   reset retired it. (ICO-3.)
 7. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
    UI's polymorphic `render` prop. There is NO allowlisted exemption: `split-button.tsx` was the one
    entry, and Batch 7a of the shadcn reset retired it, so the rule now fails closed for every file.

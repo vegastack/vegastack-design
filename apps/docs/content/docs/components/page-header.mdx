@@ -161,8 +161,8 @@ The preview shows a controlled star (click to toggle) above a disabled one:
 
 ### Secondary menu
 
-Compose your own overflow menu (e.g. a `DropdownMenu` with an `IconButton` trigger) and pass it via
-`secondaryMenu` — it renders to the right of `actions`:
+Compose your own overflow menu (e.g. a `DropdownMenu` with an icon-only `Button` trigger) and pass
+it via `secondaryMenu` — it renders to the right of `actions`:
 
 <ComponentPreview
   name="pageHeaderSecondaryMenu"
@@ -177,9 +177,9 @@ Compose your own overflow menu (e.g. a `DropdownMenu` with an `IconButton` trigg
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <IconButton aria-label="More actions">
+          <Button size="icon" variant="ghost" aria-label="More actions">
             <MoreVertical />
-          </IconButton>
+          </Button>
         }
       />
       <DropdownMenuContent>{/* … */}</DropdownMenuContent>

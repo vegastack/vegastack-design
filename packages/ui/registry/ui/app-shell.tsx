@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.9.1 sha256-fF7U+Tcr/4DrNYs9kKB8UgxLsUi/epVL4zWiQthTQWY=
+// @vegastack app-shell@0.9.1 sha256-sRSuazSDL7p/aN1HIx12Ix9ho5Be8KseHqzSmKenWg8=
 
 "use client";
 
@@ -311,10 +311,13 @@ export interface AppShellContentProps extends React.ComponentProps<"div"> {
  *
  * **Don't pair with `SidebarInset`.** `SidebarInset` (`sidebar.tsx`) also renders a `<main>` —
  * composing it alongside `AppShellContent` would produce a SECOND main landmark. For the `inset`
- * panel look (rounded/bordered/shadowed) inside `AppShell`, pass `variant="inset"` to
- * `AppShellContent` itself instead — the same classes, applied directly via this prop rather than
- * `SidebarInset`'s `peer-data-[variant=inset]` selector (which requires being a DIRECT sibling of
- * `Sidebar`'s `<nav>`, incompatible with also keeping `AppShellHeader` a true sibling banner).
+ * panel look inside `AppShell`, pass `variant="inset"` to `AppShellContent` itself instead: it
+ * paints exactly what upstream's `SidebarInset` paints under that variant — `m-2 ms-0 rounded-xl
+ * shadow-sm` from `md` up, no border — applied directly via this prop rather than through
+ * `SidebarInset`'s `peer-data-[variant=inset]` selector, which requires being a DIRECT sibling of
+ * `Sidebar`'s element and is incompatible with also keeping `AppShellHeader` a true sibling
+ * banner. The one thing the prop form cannot reproduce is upstream's
+ * `peer-data-[state=collapsed]:ms-2` nudge, which is a sibling selector by construction.
  * Reach for `SidebarInset` only when composing `Sidebar` standalone, outside `AppShell`.
  *
  * @example
@@ -346,8 +349,7 @@ export function AppShellContent({
       data-variant={variant}
       className={cn(
         "@container/app-shell-content relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-background",
-        variant === "inset" &&
-          "md:m-2 md:ms-0 md:rounded-lg md:border md:border-border md:shadow-lg",
+        variant === "inset" && "md:m-2 md:ms-0 md:rounded-xl md:shadow-sm",
         className,
       )}
       {...props}
@@ -408,8 +410,11 @@ export function AppShellSkeleton({
     >
       {/* hidden md:flex mirrors the real shell: below the mobile breakpoint (SidebarProvider's
           default 768px = Tailwind `md`) the rail collapses into an off-screen Sheet, so the
-          skeleton must not paint a sidebar column the loaded shell won't have. */}
-      <div className="hidden h-svh w-60 shrink-0 flex-col gap-2 border-e border-border bg-sidebar p-2 md:flex">
+          skeleton must not paint a sidebar column the loaded shell won't have. `w-64` is
+          upstream's `SIDEBAR_WIDTH` (16rem) spelled as a utility — this column used to be `w-60`,
+          left behind when Batch 1 of the shadcn reset deleted the `--sidebar-width` token, so the
+          rail jumped a whole rem the moment the real shell replaced the placeholder. */}
+      <div className="hidden h-svh w-64 shrink-0 flex-col gap-2 border-e border-border bg-sidebar p-2 md:flex">
         <div className="flex items-center gap-2 p-2">
           <Skeleton className="rounded-full size-4" />
           <Skeleton className="h-4 w-24" />

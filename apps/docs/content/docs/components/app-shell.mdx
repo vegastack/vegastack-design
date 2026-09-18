@@ -104,7 +104,9 @@ element, silently losing that landmark.
 `AppShellSidebar` passes `variant` straight through to `Sidebar` (`sidebar` / `floating` / `inset`).
 Pass the SAME `variant` to `AppShellContent` to keep the shell visually consistent — unlike
 `Sidebar` + `SidebarInset`'s CSS `peer` selector, `AppShellContent` applies its panel treatment
-directly via the prop (see the API reference for why).
+directly via the prop (see the API reference for why). Under `inset` it paints exactly what
+`SidebarInset` paints — `m-2 ms-0 rounded-xl shadow-sm` from `md` up, no border — so the two agree
+on their own corner.
 
 <ComponentPreview
   name="appShellInset"

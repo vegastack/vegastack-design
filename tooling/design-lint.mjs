@@ -277,14 +277,6 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/onboarding-checklist.tsx",
-    {
-      counts: { button: 2 },
-      rationale:
-        "the collapsed progress pill and the step rows — both carry VISIBLE text, so they are text controls, not icon buttons (the icon-only collapse toggle became an icon Button in F2)",
-    },
-  ],
-  [
     "/sidebar.tsx",
     {
       counts: { button: 1 },

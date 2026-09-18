@@ -25,8 +25,8 @@
     "Navigation/layout": 16,
     "Overlays": 15,
     "Data display": 10,
-    "Content/marketing": 14,
-    "Shared internals": 1,
+    "Content/marketing": 13,
+    "Shared internals": 2,
     "AI/chat": 7,
     "Hooks": 11,
     "Block": 1,
@@ -138,7 +138,6 @@
       "media-player-controls",
       "audio-player",
       "video-player",
-      "onboarding-checklist",
       "markdown-view",
       "code-block",
       "page-header",
@@ -146,7 +145,7 @@
       "terminal",
       "announcement-banner"
     ],
-    "Shared internals": ["data-table-parts"],
+    "Shared internals": ["data-table-parts", "panel-search"],
     "AI/chat": [
       "marker",
       "message",
@@ -193,7 +192,6 @@
         "file": "packages/ui/test/accessible-name.browser.test.tsx",
         "owners": [
           "tabs",
-          "onboarding-checklist",
           "stepper",
           "board",
           "data-grid",
@@ -8598,6 +8596,7 @@
       "docsSlug": "/docs/components/emoji-picker",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/panel-search",
         "@vegastack/popover",
         "@vegastack/use-list-nav"
       ],
@@ -12655,155 +12654,6 @@
       }
     },
     {
-      "name": "onboarding-checklist",
-      "registryType": "registry:ui",
-      "title": "Onboarding Checklist",
-      "summary": "A getting-started card — a progress bar + step rows, collapsible to a progress pill.",
-      "status": "stable",
-      "since": "0.3.0",
-      "family": "display",
-      "wave": "Content/marketing",
-      "sourceFiles": ["packages/ui/registry/ui/onboarding-checklist.tsx"],
-      "publicSymbols": [
-        {
-          "name": "OnboardingChecklist",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/onboarding-checklist.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "button",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "OnboardingChecklistItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/onboarding-checklist.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "button",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "OnboardingChecklistItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/onboarding-checklist.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "OnboardingChecklistProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/onboarding-checklist.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "default",
-            "checked",
-            "collapsed",
-            "complete",
-            "disabled",
-            "expanded",
-            "success"
-          ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["disabled", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "disabled", "success"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
-        "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/onboarding-checklist",
-      "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
-      "npmDependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/onboarding-checklist.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "onboarding-checklist",
-      "dataAttributes": {
-        "OnboardingChecklist": {
-          "attributes": [
-            {
-              "name": "data-collapsed",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "onboarding-checklist",
-                "onboarding-checklist-collapse"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "OnboardingChecklistItem": {
-          "attributes": [
-            {
-              "name": "data-done",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["onboarding-checklist-item"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "page-header",
       "registryType": "registry:ui",
       "title": "Page Header",
@@ -14242,7 +14092,7 @@
         }
       ],
       "docsSlug": "/docs/components/provider",
-      "registryDependencies": ["@vegastack/toast"],
+      "registryDependencies": ["@vegastack/toast", "@vegastack/tooltip"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "next-themes@0.4.6",
@@ -15480,7 +15330,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/settings-row",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/card"],
       "npmDependencies": [
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -15870,6 +15720,7 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/kbd",
+        "@vegastack/panel-search",
         "@vegastack/scroll-area",
         "@vegastack/use-platform"
       ],
@@ -19499,7 +19350,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/tool-call-chip",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/badge"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.4.1",
@@ -19520,7 +19371,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["tool-call-chip-meta"]
+              "values": ["tool-call-chip", "tool-call-chip-meta"]
             }
           ],
           "cssVariables": []
@@ -20015,6 +19866,125 @@
             {
               "name": "data-state",
               "values": ["hidden", "visible"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "panel-search",
+      "registryType": "registry:ui",
+      "title": "Panel Search",
+      "summary": "The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay.",
+      "status": "stable",
+      "since": "0.9.1",
+      "family": "overlay",
+      "wave": "Shared internals",
+      "sourceFiles": ["packages/ui/registry/ui/panel-search.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PanelSearch",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/panel-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a plain div wrapper; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "PanelSearchField",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/panel-search.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "Input",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "PanelSearchFieldProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/panel-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PanelSearchProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/panel-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One row, one field: the exception is a single shape, so there is nothing to vary."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The row is a fixed h-8 header; `floating-surface`'s `size=\"lg\"` tier went with it in Batch 7a."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "focus", "disabled"],
+          "evidence": "The row tints its own border while focus is inside it (focus-within); the field carries the disabled cursor and opacity."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled", "keyboard", "semantic-html"],
+          "evidence": "A real type=search input the consumer names; the leading glyph is aria-hidden so it never joins the field's accessible name."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus"],
+          "evidence": "The hairline moves to ring/70 on focus-within (FOC-3); the field paints no box and no ring of its own, which is the whole of OVL-11."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The field is min-w-0 inside a flex row, so a long placeholder shrinks rather than pushing the glyph out of the panel."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/panel-search.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "dataAttributes": {
+        "PanelSearch": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["panel-search"]
             }
           ],
           "cssVariables": []

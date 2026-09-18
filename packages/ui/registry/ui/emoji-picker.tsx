@@ -1,10 +1,9 @@
-// @vegastack emoji-picker@0.9.1 sha256-yXltmA1uGVqB3tlqJOsrEcJQDKI2FDV7BkfZMGoI47Q=
+// @vegastack emoji-picker@0.9.1 sha256-Z3O4HMlmXv9JZ4+dj+hqgqbLOzBcqu4k+V6JpK64hIU=
 
 "use client";
 
 import * as React from "react";
-import { Search, SmilePlus } from "lucide-react";
-import { Input as BaseInput } from "@base-ui/react/input";
+import { SmilePlus } from "lucide-react";
 import { cn, FLOATING } from "@vegastack/design";
 import {
   Popover,
@@ -13,54 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useListNav } from "@/components/ui/use-list-nav";
-
-/* ------------------------------------------------------------------------------------------------
- * The panel's own search row (OVL-11, one of the kept exceptions): a sticky header with a leading
- * glyph, a hairline below, and NO bordered box of its own — a bordered input inside a bordered
- * popup nests two borders (B8-04). Upstream has no counterpart: its `CommandInput` is the same
- * idea, but it belongs to `command` and arrives with cmdk behind it.
- *
- * Each popup owns this row rather than sharing one component, which is the shape Batch 7a settled
- * on. `shortcut-overlay` carries the same twelve lines; if a third popup ever needs them, that is
- * the moment to extract, not before.
- * ----------------------------------------------------------------------------------------------*/
-
-function PanelSearch({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      data-slot="panel-search"
-      className={cn(
-        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3 focus-within:border-ring/70",
-        className,
-      )}
-    >
-      <Search aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-      {children}
-    </div>
-  );
-}
-
-function PanelSearchField({
-  className,
-  ...props
-}: React.ComponentProps<typeof BaseInput>) {
-  return (
-    <BaseInput
-      type="search"
-      className={cn(
-        "h-full w-full min-w-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 
 /* ------------------------------------------------------------------------------------------------
  * EmojiPicker — a Popover-housed, searchable grid of emoji, grouped by category, that returns the

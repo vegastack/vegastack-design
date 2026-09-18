@@ -1,4 +1,4 @@
-// @vegastack image@0.9.1 sha256-f1JuTUTX+xybTw1HlxmEe90EFYdov2oxzouBcwTImOA=
+// @vegastack image@0.9.1 sha256-Gfo6J1fVyPucDJC7sNbINy8CZNR4sydtPmqdt4wisLw=
 
 "use client";
 
@@ -168,7 +168,14 @@ export function Image({
         />
       ) : null}
 
-      {/* Skeleton placeholder — pulses under the image until it has decoded. */}
+      {/* Skeleton placeholder — pulses under the image until it has decoded.
+          It spells `Skeleton`'s recipe (`animate-pulse bg-muted`) rather than composing
+          `Skeleton` itself, and the reason is the root element: `Image`'s frame is a `<span>`
+          so a framed image stays phrasing content and is legal inside a paragraph or a label,
+          while `skeleton.tsx` renders a hard-coded `<div>`. A `<div>` inside a `<span>` is
+          re-parented by the HTML parser, so the server markup and the client tree would
+          disagree and hydration would break. The radius is deliberately absent too — the frame
+          is `overflow-hidden`, so the placeholder is clipped to the frame's own corner. */}
       {status === "loading" ? (
         <span
           aria-hidden="true"

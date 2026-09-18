@@ -576,11 +576,11 @@ const expectedWaves = {
   "Navigation/layout": 16,
   Overlays: 15,
   "Data display": 10,
-  "Content/marketing": 14,
+  "Content/marketing": 13,
   "AI/chat": 7,
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
-  "Shared internals": 1,
+  "Shared internals": 2,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
@@ -709,13 +709,12 @@ const expectedComponentWaveMembers = {
     "item",
     "markdown-view",
     "media-player-controls",
-    "onboarding-checklist",
     "page-header",
     "terminal",
     "truncated-text",
     "video-player",
   ],
-  "Shared internals": ["data-table-parts"],
+  "Shared internals": ["data-table-parts", "panel-search"],
   "AI/chat": [
     "attachment",
     "bubble",

@@ -37,7 +37,6 @@ export * from "./code-block";
 export * from "./tool-call-chip";
 export * from "./navigation-menu";
 export * from "./announcement-banner";
-export * from "./onboarding-checklist";
 export * from "./accordion";
 export * from "./collapsible";
 export * from "./popover";

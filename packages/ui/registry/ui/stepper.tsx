@@ -1,4 +1,4 @@
-// @vegastack stepper@0.9.1 sha256-rba2Sv7PJHU8iBHwzMGfWRb2k5lIon8XZASZl5LonoM=
+// @vegastack stepper@0.9.1 sha256-j4omeWgWQjbCZnjjLsZj0euO3z0IDHYr/3IdXKFBDZE=
 
 "use client";
 
@@ -28,8 +28,10 @@ Deliberately NOT done here:
 - No Back/Next buttons and no step bodies. Gating is the host's logic and the form is
   the host's form; this component *communicates* the process. The multi-step-form
   assembly (stepper + Field + validation) is a Guides page.
-- No compact segments voice. Where a full step list is too heavy, that is
-  `ProgressIndicator segments` — a different component on purpose.
+- No compact segments voice. Where a full step list is too heavy, compose upstream's
+  `Progress` with a "Step n of N" line: `progress-indicator`, which used to own the
+  segmented dash form, was retired onto `progress` + `spinner` in Batch 7a of the
+  shadcn reset.
 - No auto-derived states. The host names each step's state explicitly; deriving
   complete/upcoming from an index would bake in "linear and always forward", which
   imports with failed steps are not.

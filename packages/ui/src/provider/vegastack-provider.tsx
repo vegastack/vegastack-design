@@ -4,15 +4,16 @@
 // (`packages/ui/registry/ui/provider.tsx`) so the npm build and the registry copy-in do
 // not diverge. Keep them identical (composition order + props + defaults); the only
 // intentional differences are the Toaster import path (`./toaster` here vs the consumer
-// alias `@/components/ui/toast` there) and the registry header stamp. If they must
+// alias `@/components/ui/toast` there) and the registry header stamp. `TooltipProvider` is
+// imported through the same consumer alias in both files — there is no second tooltip mirror. If they must
 // differ, change ONLY the registry source and re-mirror here — do not let behaviour drift.
 
 import * as React from "react";
 import { TIMINGS } from "@vegastack/design";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { Tooltip } from "@base-ui/react/tooltip";
 import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { ToastProvider, Toaster } from "./toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export interface VegaStackProviderProps extends Omit<
   React.ComponentProps<typeof NextThemesProvider>,
@@ -58,7 +59,7 @@ export function VegaStackProvider({
       {...themeProps}
     >
       <DirectionProvider direction={direction}>
-        <Tooltip.Provider
+        <TooltipProvider
           delay={TIMINGS.tooltipOpenDelayMs}
           closeDelay={TIMINGS.tooltipCloseDelayMs}
         >
@@ -66,7 +67,7 @@ export function VegaStackProvider({
             {children}
             {toasterNode}
           </ToastProvider>
-        </Tooltip.Provider>
+        </TooltipProvider>
       </DirectionProvider>
     </NextThemesProvider>
   );
