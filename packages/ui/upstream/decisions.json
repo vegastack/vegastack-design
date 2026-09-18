@@ -2,8 +2,8 @@
   "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (170 rows: 168 decided by MK 2026-09-17/18, plus A11Y-13 added by MK 2026-09-18 during Batch 2 and A11Y-16 added by MK 2026-09-18 after the Codex review of main..HEAD. IDs A11Y-14 and A11Y-15 are permanently unused: two subagents invented them during Batch 4 and Batch 5 reverted them.)",
   "_note": "GENERATED from the prose register, which is an untracked planning document. Regenerate with: node tooling/upstream/verify-parity.mjs --sync-decisions. A gate may only accept an ID whose value here is \"ours\".",
   "counts": {
-    "total": 170,
-    "ours": 60,
+    "total": 171,
+    "ours": 61,
     "shadcn": 110
   },
   "decisions": {
@@ -176,6 +176,7 @@
     "DOC-10": "shadcn",
     "DOC-11": "shadcn",
     "DOC-12": "shadcn",
-    "A11Y-16": "ours"
+    "A11Y-16": "ours",
+    "OVL-14": "ours"
   }
 }
