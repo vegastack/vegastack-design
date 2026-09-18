@@ -26,7 +26,8 @@ headlines, because they decide most code an agent writes:
   `--opacity-*`, `--size-*`, `--icon-*`, `--z-*`, `--shadow-overlay`, and the role type scale
   (`text-h1`, `text-label`, `text-code`, `text-mono-label`, `text-display-*`).
 - **Gone from `@vegastack/design`:** `surfaceInteractive`, `surfaceInteractiveGroup`,
-  `fillInteractive`, `fieldControl`, `fieldControlGroup`, `selectedChipVariants`, `MarketingSurface`.
+  `fillInteractive`, `FillTone`, `fieldControl`, `fieldControlGroup`, `selectedChipVariants`.
+  `cn`, `TIMINGS`, `FLOATING`, `mergeRefs`, `prose`/`proseClassName` and the icon runtime all stay.
 
 ## Pick a component
 
