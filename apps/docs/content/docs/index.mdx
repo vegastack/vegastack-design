@@ -13,11 +13,19 @@ VegaStack Design is the internal design system: **design tokens** (public npm), 
 
 ## Architecture
 
+The system is **shadcn `base-nova`, used as-is**: every component shadcn ships is upstream's own file
+plus a small, recorded patch, so its props, its variants and its behaviour are upstream's. What
+VegaStack adds on top is a recorded set of exceptions — one focus outline with no glow, a hand
+cursor, an accessibility set, four status families, our chart and tag palettes, and our own motion
+utilities — plus the components shadcn does not ship.
+
 - **Tokens** — `@vegastack/design-tokens` ships `theme.css` (OKLCH `:root` + `.dark` + `@theme inline`) and a
   typed `{ light, dark }` model. One-file override: redefine `--primary` and every component repaints.
-- **Components** — authored on [Base UI](https://base-ui.com) with CVA variants, `cn()` from
+- **Components** — [Base UI](https://base-ui.com) under CVA variants, `cn()` from
   `@vegastack/design`, and `data-*` state hooks. Configure the private registry first, then install
   with `shadcn add @vegastack/<name>` (copy-in).
+- **Blocks** — copy-once screens and sections (sidebars, logins, dashboards, chart families). You own
+  a block the moment you pull it; nothing re-pulls it.
 - **Showcase** — this site. Every component page renders the **real shipped source** via a live preview.
 
 ## Foundations

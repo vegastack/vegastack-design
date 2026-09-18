@@ -231,7 +231,7 @@ data itself — `DataList` only renders the already-filtered, already-paged rows
   file="components/preview/data-list.tsx"
 />
 
-This split mirrors the design system's [G7 presentational/app-coupled rule](/docs) — the primitive
+This split mirrors the system's presentational / app-coupled rule — the primitive
 stays presentational and reusable; the app wires the data and view state. Full platform parity —
 grouping, inline editing, multi-key sort, column management, virtualization — is
 [`DataGrid`](/docs/components/data-grid), and the Kanban tier is
@@ -272,16 +272,17 @@ render functions keep working unchanged.
 
 ### Wrapping and the mono face
 
-Cells wrap by default (D18): a long value breaks inside its own column instead of forcing the whole
-table to scroll. Two column shapes are unreadable when broken, so they opt back out automatically:
+`DataList` cells wrap by default: a long value breaks inside its own column instead of forcing the
+whole table to scroll. Upstream's `TableCell` is `whitespace-nowrap`, so `DataList` spells
+`whitespace-normal` out per cell rather than relying on an inherited default. Two column shapes are
+unreadable when broken, so they opt back out automatically:
 
 - `align: "end"` — the numeric convention.
-- `mono: true` — renders values in the mono numeral face (`font-mono font-mono text-sm tabular-nums`) so
+- `mono: true` — renders values in the mono numeral face (`font-mono text-sm tabular-nums`) so
   figures line up down the column, and pins them to one line.
 
 `nowrap` overrides the inference in either direction: `nowrap: true` pins a prose column, and
-`nowrap: false` lets an end-aligned column wrap. The floor a wrapping column may shrink to is
-`--table-cell-min-width` on the underlying `Table`.
+`nowrap: false` lets an end-aligned column wrap.
 
 ```tsx
 const columns: DataListColumn<Invoice>[] = [

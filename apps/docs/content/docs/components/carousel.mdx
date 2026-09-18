@@ -117,7 +117,7 @@ A vertical carousel needs an explicit height on `CarouselContent`.
 ### Options
 
 `opts` is passed straight to Embla — see the
-[Embla options reference](https://www.embla-carousel.com/api/options/). `loop` and `align` are the
+[Embla options reference](https://www.embla-carousel.com/docs/api/options). `loop` and `align` are the
 two that change what the reader sees: with `loop: true` the track wraps, so neither arrow ever
 disables.
 
@@ -152,7 +152,7 @@ React.useEffect(() => {
 ### Events
 
 The same instance emits Embla's events — see the
-[Embla events reference](https://www.embla-carousel.com/api/events/). `select` fires when the
+[Embla events reference](https://www.embla-carousel.com/docs/api/events). `select` fires when the
 settled slide changes, whatever moved it: an arrow, a drag, an arrow key or a programmatic
 `scrollTo`. Unsubscribe in the effect's cleanup, or a remount leaves the old handler attached.
 
@@ -248,7 +248,7 @@ track moves.
 `useCarousel()` returns the same context the arrows read — `api`, `scrollPrev`, `scrollNext`,
 `canScrollPrev`, `canScrollNext` and `orientation` — for a control of your own inside the carousel.
 `CarouselApi` is the Embla instance type; see the
-[Embla API reference](https://www.embla-carousel.com/api/) for what it exposes.
+[Embla API reference](https://www.embla-carousel.com/docs/api) for what it exposes.
 
 ## Accessibility
 

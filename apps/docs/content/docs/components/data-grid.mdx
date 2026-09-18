@@ -54,7 +54,7 @@ which no library ships — is the component's own.
 
 | Behaviour                           | Where it lives                                                                                                                                                      |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data fetching, filters, saved views | Host (G7) — [`FilterBuilder`](/docs/components/filter-bar-managed) + the `toolbar` slot                                                                             |
+| Data fetching, filters, saved views | Host — [`FilterBuilder`](/docs/components/filter-bar-managed) + the `toolbar` slot                                                                                  |
 | The cell write + conflict handling  | Host — `onCellCommit` is a request; `cellStatus` is your word                                                                                                       |
 | Pagination UI                       | The `footer` slot; `loadMore` covers the continuous case                                                                                                            |
 | Simple presentational tables        | [`DataList`](/docs/components/data-list) — still the right default                                                                                                  |

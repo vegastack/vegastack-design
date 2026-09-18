@@ -24,9 +24,9 @@ illustration where a faint phrase would do is the most common mistake.
 
 ## One drawing language
 
-Batch 2 of the shadcn reset replaced our own `Empty` with upstream's, which has no illustration
-part: the media slot is `EmptyMedia`, and what goes in it is a **lucide icon**. That keeps one
-drawing language without shipping a second asset set:
+`Empty` is upstream's component, and it has no illustration part: the media slot is `EmptyMedia`,
+and what goes in it is a **lucide icon**. That keeps one drawing language without shipping a second
+asset set:
 
 - **themes need no variants** — a lucide glyph is pure `currentColor`, so it tracks
   `foreground`/`muted-foreground`;
@@ -52,7 +52,7 @@ drawing language without shipping a second asset set:
 ## Rules
 
 - **Never leave a data cell truly blank.** A blank cell reads as broken; a muted placeholder span
-  or `StatEmpty` says "empty on purpose" in the faint placeholder register.
+  or `StatEmpty` says "empty on purpose" in the `text-muted-foreground` register.
 - **The title carries the meaning; the illustration is decorative** (`aria-hidden`).
 - **One CTA.** An empty state proposes the single next action — not a menu.
 - **Blocked ≠ empty.** If the user must do something to unblock (configure, connect,

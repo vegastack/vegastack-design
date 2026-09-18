@@ -1,6 +1,6 @@
 ---
 title: Stat
-description: A labelled value block — muted label over a value, an honest faint empty state, and an optional delta line. Two scales.
+description: A labelled value block — muted label over a value, an honest muted empty state, and an optional delta line. Two scales.
 audience: public
 registry: stat
 status: stable
@@ -40,8 +40,8 @@ meaning, color is never the only signal.
 
 ### Honest empties
 
-When there is no value, render `StatEmpty` ("No connection", "No team") in the faint
-placeholder register — never a dash or a zero that would read as data. This mirrors the
+When there is no value, render `StatEmpty` ("No connection", "No team") in the
+`text-muted-foreground` placeholder register — never a dash or a zero that would read as data. This mirrors the
 system-wide inline-empty tier (a muted placeholder span).
 
 ## Anatomy

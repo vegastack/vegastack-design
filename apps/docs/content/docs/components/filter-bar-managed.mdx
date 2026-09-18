@@ -52,13 +52,13 @@ serialises — the moment it did either, it would have adopted one app's AST.
 
 ## Scope
 
-| Behaviour                 | Where it lives                                                          |
-| ------------------------- | ----------------------------------------------------------------------- |
-| The field grammar         | Host, via `vocabulary` — never baked in                                 |
-| Value editors beyond text | Host, via `editors` (date pickers, actor pickers, …)                    |
-| Serialisation / URL state | Host — the tree is plain data                                           |
-| Running the filter        | Host — the output describes conditions; it never executes them          |
-| AI-suggested filters      | Host — app-coupled per the [G7 split](/docs/components/data-list#scope) |
+| Behaviour                 | Where it lives                                                            |
+| ------------------------- | ------------------------------------------------------------------------- |
+| The field grammar         | Host, via `vocabulary` — never baked in                                   |
+| Value editors beyond text | Host, via `editors` (date pickers, actor pickers, …)                      |
+| Serialisation / URL state | Host — the tree is plain data                                             |
+| Running the filter        | Host — the output describes conditions; it never executes them            |
+| AI-suggested filters      | Host — app-coupled per the [same split](/docs/components/data-list#scope) |
 
 ## Examples
 

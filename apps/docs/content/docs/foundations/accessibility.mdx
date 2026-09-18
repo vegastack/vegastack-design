@@ -24,12 +24,14 @@ component — there is nothing extra to wire up.
 The system ships **one** focus treatment: a `:focus-visible` outline keyed off the `--ring` token.
 It appears only on **keyboard** focus (`:focus-visible`), never on mouse click, so pointer users don't
 see a ring on every press. The convention is a **2px outline at 1px offset** — there are no separate
-ring-width or ring-offset tokens; `--ring` (light `oklch(0.353 0.003 75)`, dark `oklch(0.922 0.003 75)`)
-is the only knob.
+ring-width or ring-offset tokens; `--ring` (light `oklch(0.205 0 0)`, dark `oklch(0.922 0 0)`)
+is the only knob. Upstream's `ring-3 ring-ring/50` glow is removed everywhere, and `design-lint`'s
+`no-focus-ring-glow` rule keeps it from returning on the next upstream pull.
 
 Text-entry controls are the deliberate exception: `Input`, `Textarea`, `Select`, and combobox inputs
-re-color their border on `:focus` so caret and pointer focus remain visible without adding an outer
-ring inside dense forms. Other controls use the shared `:focus-visible` outline.
+tint their border on `:focus` (`focus:border-ring/70`) so caret and pointer focus remain visible
+without adding an outer ring inside dense forms. Other controls use the shared `:focus-visible`
+outline.
 
 One further case changes the **offset only**, never the treatment. If a focusable element cannot
 paint outside its own border box — because an ancestor is `overflow-hidden`, or because a mask

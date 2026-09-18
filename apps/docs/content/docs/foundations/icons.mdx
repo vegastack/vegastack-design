@@ -6,14 +6,17 @@ audience: public
 
 Icons come from exactly **three sanctioned sources**, each with a wrapper convention in `@vegastack/design/icons`:
 
-- **`Icon`** — functional UI icons from `lucide-react` (every icon). Size tokens `xs/sm/md/lg`
-  (14/16/20/24px), fixed stroke width, `currentColor`, `aria-hidden` unless labeled.
+- **`Icon`** — functional UI icons from `lucide-react` (every icon). Sizes `xs/sm/md/lg`
+  (14/16/20/24px), fixed stroke width, `currentColor`, `aria-hidden` unless labeled. Inside a
+  component that already sizes its own glyphs — every upstream control does, with
+  `[&_svg:not([class*='size-'])]:size-4` — pass the lucide component directly and let the control
+  size it.
 - **`BrandIcon`** — brand/logo icons from `thesvg` (every brand). `variant` = `color` (brand colors),
   `auto` (uses distinct light/dark artwork when available), `mono` (inherits `currentColor`), or
   `light` / `dark` / `wordmark`.
 - **`AnimatedIcon`** — motion icons from `lucide-animated`, **mirrored into the VegaStack registry**
   (467 icons). Add any with `shadcn add @vegastack/icon-<name>`, then wrap with `AnimatedIcon` for the same
-  runtime icon-role tokens + a11y; the generated mirror animates from pointer, touch, or keyboard
+  size scale + a11y; the generated mirror animates from pointer, touch, or keyboard
   focus where its upstream interaction supports replay, or via its React 19
   `startAnimation()` / `stopAnimation()` ref handle. `motion@^13.2.0` is pulled in only when you add
   an icon — never in the base install.

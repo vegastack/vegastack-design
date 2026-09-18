@@ -171,9 +171,8 @@ The palette itself is ours, and it is the one place this component departs from 
 greyscale ramp cannot carry multi-series data (MK, 2026-09-18). The names upstream uses —
 `var(--chart-1)` … `var(--chart-5)` — keep working exactly as upstream's own examples spell them.
 
-**A single-series chart is drawn in `var(--chart-single)`**, not in hue 1 of 8 (decision COL-19 /
-D29): `--chart-1` … `--chart-8` encode _which series is this_, a distinction that does not exist when
-there is only one.
+**A single-series chart is drawn in `var(--chart-single)`**, not in hue 1 of 8: `--chart-1` …
+`--chart-8` encode _which series is this_, a distinction that does not exist when there is only one.
 
 ```tsx
 const multiSeries = {

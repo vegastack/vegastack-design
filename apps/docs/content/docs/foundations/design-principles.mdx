@@ -1,25 +1,25 @@
 ---
 title: Design Principles
-description: Neutral ink, semantic color, disciplined typography, flat surfaces, and two named shadow roles.
+description: Neutral ink, semantic color, disciplined typography, bordered surfaces, and shadow only where something floats.
 audience: public
 ---
 
 VegaStack's look is **restraint, with color spent only where it carries meaning**. The product reads as
 calm, dense, and typographic; color and elevation are spent sparingly so the few places that use them
-actually mean something. Every rule below is enforced by `design-lint` and the design-audit skill — they
-are not suggestions.
+actually mean something. The system is shadcn `base-nova` used as-is, so the shape of every component
+is upstream's; what follows is the judgement layered on top, and the parts a script can check are
+enforced by `design-lint` and the design-audit skill.
 
 ## Neutral ink, minimal color
 
-The primary action color is a **near-neutral ink**, not a brand hue. `--primary` is
-`oklch(0.353 0.003 75)` in light and `oklch(0.922 0.003 75)` in dark — a warm, almost-chromaless tone.
+The primary action color is a **pure neutral ink**, not a brand hue. `--primary` is
+`oklch(0.205 0 0)` in light and `oklch(0.922 0 0)` in dark — shadcn's own achromatic `neutral` ramp.
 Default buttons, focus rings, key text, and every **selected / active** state all sit in this neutral
 register, so the interface stays quiet by default.
 
 **Color is rationed to a named role.** Beyond neutral ink, color belongs to status families
-(`success`, `warning`, `destructive`), blue `info`, categorical chart/tag palettes, or the deliberate
-`brand` role used by VegaStack marketing surfaces. Product controls stay neutral unless color carries
-one of those explicit meanings.
+(`success`, `warning`, `destructive`), blue `info`, categorical chart/tag palettes, or the `brand`
+marker role. Product controls stay neutral unless color carries one of those explicit meanings.
 
 <ColorPalette />
 
@@ -34,10 +34,11 @@ one of those explicit meanings.
   dont="Invent an unnamed accent or use a chromatic token where neutral ink communicates the same thing."
 />
 
-## Size does hierarchy, never bold
+## Size does hierarchy
 
 Headings, body, and prose are all **Geist**; code and data are **Geist Mono**. Hierarchy comes
-from **size, weight and color**, on Tailwind's stock scale.
+from **size, weight and color**, on Tailwind's stock scale — `text-sm` is 14px, `text-base` is 16px,
+and there are no named role utilities layered over them.
 
 <TypeScaleSizes />
 
@@ -45,36 +46,27 @@ Use `font-sans` for everything textual and `font-mono` for numbers, currency and
 face is a rationed display accent (emphasis words, pull-quotes), never running text.
 
 <DoDont
-  do="Let size, named typography roles, and color carry hierarchy; reserve text-strong for rare emphasis."
-  dont="Use raw tracking, font-bold, or font-semibold utilities."
+  do="Let size, weight and color carry hierarchy — font-medium for titles, font-semibold where a heading earns it."
+  dont="Stack three weights in one view, or hand-set font-size and line-height instead of using the scale."
 />
 
-## Flat surfaces, two named shadows
+## Bordered surfaces, shadow where something floats
 
-Surfaces are defined by **borders, not elevation**. Cards, inputs, and panels use `border-border`
-with no drop shadow. The system ships two tightly scoped shadow roles:
-
-```css
---shadow-md:
-  0 4px 14px -4px oklch(0.13 0.002 75 / 0.1),
-  0 2px 4px -2px oklch(0.13 0.002 75 / 0.06);
-```
-
-- `shadow-md` is reserved for floating overlay surfaces.
-
-It is the only shadow token, so there is no `shadow-sm` / `shadow-md` ladder to reach for and no
-action finish either.
+Resting surfaces are defined by **borders, not elevation**. Cards, inputs, panels and rows use
+`border-border` with no drop shadow. Shadow means a surface genuinely floats above the page, and it
+is Tailwind's own step at the weight upstream gives that component — `shadow-sm`, `shadow-md` or
+`shadow-lg`.
 
 <ShadowScale />
 
-Corners use the fixed 2/6/8/12/full roles. `rounded-lg` is the 12px container cap;
-`rounded-xl` was removed and is lint-banned. Closely nested edges must be concentric.
+Corners derive from one `--radius` (0.625rem / 10px): `rounded-sm` 6px, `rounded-md` 8px,
+`rounded-lg` 10px, `rounded-xl` 14px. Closely nested edges must be concentric.
 
 <RadiusScale />
 
 <DoDont
-  do="Separate surfaces with border-border and use shadow-md for overlays — nothing else."
-  dont="Elevate cards, nest equal-elevation cards, or invent a generic shadow ladder."
+  do="Separate resting surfaces with border-border, and reserve shadow for surfaces that genuinely float."
+  dont="Give a card, a row or a resting control a drop shadow, or nest equal-elevation cards."
 />
 
 ## Semantic tokens only
@@ -129,9 +121,10 @@ are no separate ring-width or offset tokens — the 2px / 1px convention is the 
 
 <FocusRingSpecimen />
 
-Color choices are AA-aware: `subtle`/`text` variants are theme-tuned for on-surface contrast, and
-`--muted-foreground` is the one deliberately sub-AA tone, reserved strictly for placeholders.
-The full contract — axe gate, keyboard semantics, and reduced motion — lives on the
+Color choices are AA-aware and gated fail-closed by the token contrast check: every status family
+ships a second ink, `<family>-text`, for the page and for the family's own tint, and
+`--muted-foreground` is held to the AA text floor on every neutral surface because it carries real
+secondary copy. The full contract — axe gate, keyboard semantics, and reduced motion — lives on the
 [Accessibility](/docs/foundations/accessibility) page.
 
 <Callout type="warn" title="Focus is non-negotiable">
@@ -142,5 +135,5 @@ The full contract — axe gate, keyboard semantics, and reduced motion — lives
 
 <DoDont
   do="Keep a visible 2px focus-visible ring and meet AA contrast on every interactive element."
-  dont="Strip focus outlines or rely on muted-foreground for anything but placeholders."
+  dont="Strip focus outlines, or use a status fill as ink on its own tint instead of the -text half."
 />

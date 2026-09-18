@@ -51,15 +51,14 @@ does the rest of the hierarchy work.
 - `--font-family-serif` → **Newsreader** serif accent (display emphasis and pull-quotes only, never running text)
 - `--font-family-display` → Geist display tier (a split token so a display face can be retuned independently)
 
-Use the `font-sans`, `font-mono`, `font-serif` and `font-heading` utilities, which are bridged from
-those runtime tokens. `--font-family-pixel` and the Geist Pixel flourish were deleted with the
-marketing layer.
+Use the `font-sans`, `font-mono`, `font-serif`, `font-heading` (bridged from `--font-family-sans`)
+and `font-display` (bridged from `--font-family-display`) utilities. `--font-family-pixel` and the
+Geist Pixel flourish were deleted with the marketing layer.
 
 ## Font loading
 
-**The font-delivery contract (CX-10):** Geist Sans / Geist Mono ship from the `geist` npm
-package (`geist/font/sans`, `geist/font/mono`; the five Geist Pixel cuts live at
-`geist/font/pixel` — this system sanctions `GeistPixelSquare` only). **Newsreader** loads via
+**The font-delivery contract:** Geist Sans / Geist Mono ship from the `geist` npm
+package (`geist/font/sans`, `geist/font/mono`). **Newsreader** loads via
 `next/font/google`, which self-hosts the subset woff2 at build time — so the static export
 serves every face itself: no render-blocking external request, no layout shift, and the fonts
 work offline. `app/global.css` binds the loaded faces onto the runtime font tokens (with system
@@ -81,6 +80,6 @@ fallbacks):
 </Callout>
 
 <DoDont
-  do="Apply the type tokens — text-base body, text-h*/text-sm font-medium* roles, font-mono for numbers."
-  dont="Hand-set font-size/line-height/weight, or reach past text-3xl (use the display tier)."
+  do="Use Tailwind's stock scale — text-sm product body, text-base prose, text-sm font-medium labels, font-mono for numbers."
+  dont="Hand-set font-size or line-height in an inline style, or stack three weights in one view."
 />

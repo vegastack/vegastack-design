@@ -8,75 +8,64 @@ Every color is a **semantic token** in OKLCH, defined in `@vegastack/design-toke
 CSS variable on `:root` (light) and `.dark`. Components only ever use semantic utilities
 (`bg-primary`, `text-muted-foreground`), never raw palettes or hex.
 
-## The surface ladder
+## The neutral surfaces
 
-Neutral surfaces are **one ladder**, and every interaction step is a rung on it. Three rungs sit
-above the page; each is one even step (~0.025 L in light, ~0.03 L in dark).
+The neutral palette is shadcn's own `neutral` base — pure achromatic, no warm cast. There is no
+surface ladder and no alpha ladder: five surface roles, and each component writes its own hover and
+pressed chrome the way upstream writes it.
 
-<SurfaceLadder />
+| Token          | Role                                                              |
+| -------------- | ----------------------------------------------------------------- |
+| `--background` | the page                                                          |
+| `--card`       | card, popover, sheet, dialog (`--popover` carries the same value) |
+| `--muted`      | a well, a track, a skeleton, the rest fill of a filled control    |
+| `--accent`     | hover, and a highlighted menu or list row                         |
+| `--sidebar`    | the rail, which is its own surface rather than an alias           |
 
-| Token          | Role                                                                           |
-| -------------- | ------------------------------------------------------------------------------ |
-| `--background` | the page                                                                       |
-| `--card`       | every surface — card, popover, sheet, dialog, the sidebar rail                 |
-| `--muted`      | the rest fill of a filled control (soft button, kbd, chip, tab rail) and wells |
-| `--accent`     | **hover**                                                                      |
-| `--accent`     | **pressed / selected**                                                         |
+**In light, `--card` is the page colour** — `oklch(1 0 0)`, the same white as `--background`, so a
+card is separated by its hairline alone. **Dark keeps a one-step lift**: `0.145` → `0.205`. A
+floating surface is `--card` plus a Tailwind shadow step — see
+[Elevation](/docs/foundations/elevation).
 
-**Light surfaces are page-coloured** — a light card is separated by its hairline alone. **Dark keeps
-the one-step lift** (0.175 → 0.205). `--popover` and `--sidebar` _are_ `--card`; a floating surface is
-the card surface plus `--shadow-md`, never a rung of its own.
+`--muted`, `--accent` and `--secondary` currently share one value. They are kept as three separate
+roles on purpose: a consumer can retune a hover without moving every well, which an alias would make
+impossible.
 
-Each interaction rung also exists as an **alpha twin** — `7%` (7%) and `10%`
-(10%) on an ink. Over the page they land within 0.003 L of the opaque rungs, so reach for the alpha
-form when the backdrop is _not_ a ladder surface (a `Kbd` inside a hovered row, a chip on a well,
-chrome over video) or when a control hovers in its own hue.
+Hover and pressed are written in plain Tailwind at the call site — `hover:bg-accent`,
+`hover:bg-muted`, `hover:bg-primary/80`, `bg-destructive/10 hover:bg-destructive/20`. There is no
+shared recipe to import, and a hover with no pressed step is upstream's own behaviour.
 
-Consume the two rungs through the recipes exported from `@vegastack/design` rather than writing the
-classes by hand:
+## The hairline
 
-```tsx
-import { cn, the hover wash, the family's own hover wash } from "@vegastack/design";
-
-// A transparent control on a known surface: hover = rung 2, pressed = rung 3.
-<button className={cn("rounded-md px-2", the hover wash)} />;
-
-// A control on an unknown backdrop, or one that hovers in its own hue.
-<button
-  className={cn(
-    "bg-destructive/10 text-destructive-text",
-    the family's own hover wash.destructive,
-  )}
-/>;
-```
-
-<Callout type="warn">
-  `--secondary`, `--muted`, `--accent` and the whole `--sidebar-*` family are
-  **aliases** of ladder rungs, kept so shadcn-shaped code keeps compiling. They
-  have no independent values and must never be retuned on their own: `secondary`
-  = `muted` = `muted`, `accent` = `sidebar-accent` = `accent`, `sidebar` =
-  `card`.
-</Callout>
-
-## One hairline, and it is an alpha
-
-`--border` is **derived**, not authored: it is `--foreground` at `8%` (8% light / 14%
-dark). One translucent hairline therefore reads correctly on the page, on a card, inside a well and
-on a dark band, and it can never drift from the ink it tints. `--input` and `--sidebar-border` alias
-it.
+`--border` is a real token, not a derived alpha: `oklch(0.922 0 0)` in light, and white at 10% in
+dark, where a translucent hairline reads correctly over both the page and a card. `--input` is the
+same value in light and white at 15% in dark, so a field edge stays visible against the darker page.
+`--sidebar-border` matches `--border`.
 
 <ColorPalette />
 
 ## Per-family variants
 
-Each chromatic family (`info`, `destructive`, `success`, `warning`) ships **eight real tokens** — no opacity-derived colors:
+Each chromatic family (`info`, `destructive`, `success`, `warning`) is written in shadcn's own
+`destructive` shape — a fill, an on-fill ink, and one addition of ours:
 
-- **fill** (`--info`) + **foreground** (`--info-foreground`) — the solid surface and its on-fill text.
-- **hover** / **active** (`--info-hover`, `--info-active`) — the interaction-state fills of the **solid** (`hover:bg-info-hover active:bg-info-active`).
-- **subtle** (`--info/10`) + **text** (`--info-text`) — the soft tinted background (badges, alerts) and the page-readable on-surface color.
-- **subtle-hover** / **subtle-active** (`--info/10-hover`, `--info/10-active`) — the hover and pressed steps of the **soft** fill. Both are precomposed at build time (the fill composited over `subtle`) and AA-gated against `--info-text`, because an alpha wash such as `active:bg-info/(10%)` would _replace_ the tint rather than step it.
+- **fill** (`--info`) — the solid surface, and the tint source for `bg-info/10` … `bg-info/30`.
+- **foreground** (`--info-foreground`) — the ink **on the solid fill**: `bg-info text-info-foreground`.
+- **text** (`--info-text`) — the ink **on the page and on the family's own tint**:
+  `bg-info/10 text-info-text`.
 
-`subtle`, `subtle-hover`, `subtle-active` and `text` are **theme-aware** (distinct light/dark values); `fill` / `hover` / `active` / `foreground` are **theme-independent** — the same saturated mark with white text in both themes, so a `bg-destructive` button reads the same way on a light or dark page. The neutral action color mirrors this with `--primary/80` / `--primary/70`, and `--muted-foreground` is the deliberately sub-AA tone reserved for placeholders.
+The `-text` half is the one addition, and it exists because the obvious thing is wrong: using the
+fill as ink on its own tint — `bg-destructive/10 text-destructive`, which is what upstream writes —
+measures **3.99:1** in light, under the AA floor. `-text` reads 6.97:1 on the same composite. The
+token contrast gate checks every family on every surface and every tint alpha, fail-closed.
+
+Every state a family needs is an alpha of the fill: `hover:bg-destructive/20`,
+`active:bg-destructive/30`. Both halves are **theme-aware** — the dark values are lifted so the same
+role stays legible on a dark page. The neutral action colour follows the same pattern with
+`hover:bg-primary/80`.
+
+`info` stays rationed to links and informational UI, and a status hue always means status: a
+favourite star is `text-foreground`, not `text-warning`.
 
 ## Charts — categorical series
 
@@ -133,29 +122,29 @@ applies the bordered-tint chip formula (subtle fill + matching-hue hairline + hu
 
 ## Sidebar surface
 
-The `--sidebar-*` names are kept so shadcn-shaped code keeps compiling, but they are **aliases of
-the ladder** — the rail is not a second palette (it used to be, and `--sidebar-accent` quietly held
-the only real hover step in the system):
+The `--sidebar-*` family is shadcn's own, and it is a **real surface set**, not a set of aliases —
+the rail is tinted off the page (light `oklch(0.985 0 0)`, dark `oklch(0.205 0 0)`) so it reads as a
+distinct region without a heavy border:
 
-- **`--sidebar`** = `--card` · **`--sidebar-foreground`** = `--foreground` — the rail is a surface like any other.
-- **`--sidebar-primary`** = `--primary` · **`--sidebar-primary-foreground`** = `--primary-foreground` — the active-item marker rail.
-- **`--sidebar-accent`** = `--accent` — the hover rung. The **current** row rests one rung higher on
-  `--accent`, so hovering an already-active row still moves.
-- **`--sidebar-border`** = `--border` · **`--sidebar-ring`** = `--ring`.
+- **`--sidebar`** · **`--sidebar-foreground`** — the rail surface and its ink.
+- **`--sidebar-primary`** · **`--sidebar-primary-foreground`** — the active-item marker.
+- **`--sidebar-accent`** · **`--sidebar-accent-foreground`** — the hover and current row.
+- **`--sidebar-border`** · **`--sidebar-ring`** — the rail hairline and its focus ink, both matching
+  the global values.
 
-They stay bridged through `@theme inline`, so `bg-sidebar`, `text-sidebar-foreground` and
-`border-sidebar-border` all still compile — they simply resolve to the ladder now. New code should
-prefer the ladder names.
+They are bridged through `@theme inline`, so `bg-sidebar`, `text-sidebar-foreground` and
+`border-sidebar-border` compile as usual, and retuning the rail is a matter of overriding this
+family alone.
 
 ## Beyond color
 
 Color is one of several token families. The same semantic-token, light/dark, single-override model
 extends to the rest of the system:
 
-- **[Radius](/docs/foundations/radius)** — one base radius (`--radius`, `0.75rem`) plus the
-  `--radius-sm` / `--radius-md` / `--radius-lg` scale, bridged to Tailwind `rounded-*`.
-- **[Elevation](/docs/foundations/elevation)** — borders-only by default; `--shadow-md` is the
-  single shadow role, and it is for floating overlays alone.
+- **[Radius](/docs/foundations/radius)** — one base radius, `--radius` (`0.625rem`), with the whole
+  `rounded-*` ramp derived from it.
+- **[Elevation](/docs/foundations/elevation)** — borders on resting surfaces; a floating surface
+  takes Tailwind's own `shadow-sm` / `shadow-md` / `shadow-lg`.
 
 ## Override model
 
@@ -168,9 +157,8 @@ Redefine a single variable in your app's global CSS and **every component repain
 ```
 
 Because components reference `--primary` through the `@theme inline` bridge (`--color-primary:
-var(--primary)`), the override flows to `bg-primary`, the ladder's alpha washes
-(`hover:bg-primary/(7%)` / `active:bg-primary/(10%)` — the
-the family's own hover wash recipe), and focus outlines everywhere.
+var(--primary)`), the override flows to `bg-primary`, to every alpha of it a component writes
+(`hover:bg-primary/80`), and to the `--ring`-keyed focus outline everywhere.
 
 <DoDont
   do="Use semantic tokens: bg-primary, text-muted-foreground, border-border."
@@ -179,11 +167,12 @@ the family's own hover wash recipe), and focus outlines everywhere.
 
 ## The brand accent
 
-`--brand` is the **phosphor-green marker** — theme-split (CX-9): `oklch(0.6 0.17 148)` in light
+`--brand` is the **phosphor-green marker** — theme-split: `oklch(0.6 0.17 148)` in light
 (3.5:1 on `background`/`card`, so meaningful glyphs clear WCAG 1.4.11) and the full
-`oklch(0.86 0.21 148)` phosphor in dark (13.3:1). It is rationed to **marker roles only**: the
-live/AI-state dot, a sparkline endpoint, an eyebrow highlight, the terminal prompt glyph. Never
-fills, borders-at-rest, headlines, or buttons.
+`oklch(0.86 0.21 148)` phosphor in dark (13.3:1). `--brand-text` is its page-readable twin, for the
+rare case where the marker carries a word. It is rationed to **marker roles only**: the
+live/AI-state dot, a sparkline endpoint, the terminal prompt glyph. Never fills, borders-at-rest,
+headlines, or buttons.
 
 Brand and `success` share the green region deliberately (the brand IS a green); they are never
 distinguished by hue alone — an AI-live marker always pairs shape/motion/label with the color

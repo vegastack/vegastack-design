@@ -1,6 +1,6 @@
 ---
 title: onboarding-01
-description: An onboarding page section — the checklist with its progress, beside a what-is-next card. Composed from button, card, onboarding-checklist.
+description: An onboarding page section — the checklist with its progress, beside a what-is-next card. Composed from button, card, progress.
 audience: public
 registry: onboarding-01
 preview: onboarding01Demo
@@ -19,7 +19,7 @@ npx shadcn@latest add @vegastack/onboarding-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `button`, `card`, `onboarding-checklist`.
+This installs the block's own files plus the components it composes: `button`, `card`, `progress`.
 
 ## Preview
 
@@ -29,6 +29,7 @@ This installs the block's own files plus the components it composes: `button`, `
 
 | File                                           | Registry type        | Target                                             |
 | ---------------------------------------------- | -------------------- | -------------------------------------------------- |
+| `onboarding-01/components/checklist.tsx`       | `registry:component` | `app/onboarding-01/components/checklist.tsx`       |
 | `onboarding-01/components/getting-started.tsx` | `registry:component` | `app/onboarding-01/components/getting-started.tsx` |
 | `onboarding-01/page.tsx`                       | `registry:page`      | `app/onboarding-01/page.tsx`                       |
 
