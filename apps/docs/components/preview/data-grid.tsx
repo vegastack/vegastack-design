@@ -233,9 +233,9 @@ export function dataGridLoadMore(): ReactNode {
 export function dataGridNarrow(): ReactNode {
   // The honest-narrow contract, forced: a 320px-wide pane. Every column that no
   // longer fits STACKS into the primary cell (`mobile: "merge"`, the default)
-  // rather than disappearing — `design.md` § DataGrid, "data is never silently
-  // lost". A column that opts into `mobile: "hidden"` is counted and reported in
-  // the toolbar instead.
+  // rather than disappearing: narrowing a viewport never loses data silently. A
+  // column that opts into `mobile: "hidden"` is counted and reported in the
+  // toolbar instead.
   const columns: DataGridColumn<Deal>[] = [
     { key: "name", header: "Deal", minWidth: 160, mobile: "visible" },
     { key: "stage", header: "Stage", minWidth: 140 },

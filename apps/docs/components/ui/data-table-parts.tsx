@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.9.1 sha256-X42Sp5Gcd+edJ7fvAOOUgA1owM1vpLcCPh4zrq2b/rU=
+// @vegastack data-table-parts@0.9.1 sha256-ndXZVsp3MCfzenAUs3N6BDUjJFMe4Aku3MqbVbW56Mk=
 
 "use client";
 
@@ -128,8 +128,8 @@ export interface SortHeaderButtonProps {
 
 /**
  * `SortHeaderButton` — the control inside a sortable header cell. A ghost
- * `Button` sized to sit inside the 32px header row, so it inherits the system's
- * hover and pressed steps and its focus outline instead of restating them.
+ * `Button` sized to sit inside the 32px header row, so its hover wash and its
+ * focus outline are upstream's rather than restated here.
  *
  * The direction glyph TRAILS the label in every alignment (the cell's own
  * `text-end` right-aligns the shrink-wrapped button). No `flex-row-reverse` for

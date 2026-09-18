@@ -1,6 +1,6 @@
 ---
 title: Number Field
-description: Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting, min/max/step, keyboard stepping, wheel scrub.
+description: Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome — Intl formatting, min/max/step, keyboard stepping, wheel scrub.
 audience: public
 registry: number-field
 status: stable
@@ -23,12 +23,20 @@ import { NumberField } from "@/components/ui/number-field";
 
 `NumberField` wraps Base UI's NumberField: locale-aware parsing and formatting
 (`format: Intl.NumberFormatOptions` + `locale`), `min`/`max`/`step` with
-`snapOnStep`, keyboard stepping, and wheel scrubbing — rendered in
-[`Input`](/docs/components/input)'s exact addon-group chrome with full-height
-− / + steppers.
+`snapOnStep`, keyboard stepping, and wheel scrubbing.
 
-Like `Input`, the `size` prop is the control-height variant on the shared
-28/32/40 scale and **replaces** the native numeric `size` attribute.
+Everything it renders is imported, not restated:
+[`InputGroup`](/docs/components/input-group) is the bordered box — border, focus
+border, invalid hairline, disabled wash — `InputGroupInput` is
+[`Input`](/docs/components/input) flattened into it, `prefix` and `suffix` are
+`InputGroupAddon` slots, and each − / + stepper is an `InputGroupButton`, which
+is [`Button`](/docs/components/button) in its `ghost` variant.
+
+The one thing this component adds is the **layout**: the steppers flank the field
+at its full height rather than stacking as half-height spinners, so each pointer
+target clears 24px inside a 32px control without an invisible hit area. There is
+no control-height scale — the box is `InputGroup`'s 32px, and a caller who needs
+another height passes a height class in `className`.
 
 What lives elsewhere, and why:
 
@@ -65,11 +73,10 @@ in display units:
 />
 ```
 
-### Sizes, units, and states
+### Units and states
 
-Every size on the shared 28/32/40 scale, with the unit suffix, `hideControls`, `disabled`, and the
-invalid border tint. Wrap the field in a [`Field`](/docs/components/field) to pair the tint with a
-message and the invalid shake.
+A percent format, the unit suffix, `hideControls`, `disabled`, and the invalid border tint. Wrap the
+field in a [`Field`](/docs/components/field) to pair the tint with a message and the invalid shake.
 
 <ComponentPreview
   name="numberFieldVariants"
@@ -95,8 +102,9 @@ and native form integration via `name`.
 - The − / + steppers are full-height, ≥24px pointer targets with accessible
   names ("Decrease" / "Increase"); keyboard users step with the arrow keys
   instead, so the buttons add no tab stops beyond Base UI's defaults.
-- Focus uses the text-entry affordance: the group border tints on focus-within,
-  matching `Input`'s addon mode.
+- Focus uses the text-entry affordance: `InputGroup` tints its own border when
+  the control inside it takes focus, and the steppers keep the global
+  `:focus-visible` outline, pulled inside the clipping box (FOC-9).
 
 | Key                                          | Action                          |
 | -------------------------------------------- | ------------------------------- |

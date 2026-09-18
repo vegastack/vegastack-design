@@ -1,4 +1,4 @@
-// @vegastack chip@0.9.1 sha256-sCZp5QrzrFUnhWAr4sx0SslrrUNVLRMRkX2E/3pG7bw=
+// @vegastack chip@0.9.1 sha256-MTCHol52CVJfyh5816PEiusFnGVsmjAvkI6RNMCFI/k=
 
 "use client";
 
@@ -40,15 +40,14 @@ export type ChipHue =
   | "magenta"
   | "purple";
 
-/** The two chip tiers, on the one `--size-*` control vocabulary. */
+/** The two chip tiers. */
 export type ChipSize = "sm" | "md";
 
 /**
  * The chromatic hue formula (both themes, AA-gated in `contrast-check.mjs`): `tag-{hue}-subtle`
- * fill + `tag-{hue}-text` ink + a hairline of the hue's ink at the outline alpha. The neutral chip
- * is the surface ladder instead: rung 1 is a filled control's rest fill (`design.md` §Surface
- * ladder), and `active` promotes it to rung 2 — the selection rung — so an applied filter reads as
- * a selection without borrowing a hue.
+ * fill + `tag-{hue}-text` ink + a hairline of the hue's ink at 50%. The neutral chip takes the
+ * neutral surfaces instead — `muted` at rest, `accent` when `active` — so an applied filter reads
+ * as a selection without borrowing a hue.
  *
  * Static class literals per hue, so the Tailwind scanner sees every string.
  */
@@ -67,7 +66,7 @@ const HUE_CLASSES: Record<ChipHue, string> = {
   purple: "border-tag-purple-text/50 bg-tag-purple-subtle text-tag-purple-text",
 };
 
-/** The neutral chip's selection rung — rung 2, the same step every selected surface takes. */
+/** The neutral chip's selected fill — `accent`, the same surface every selection takes. */
 const ACTIVE_NEUTRAL = "border-border bg-accent text-foreground";
 
 /**
@@ -101,9 +100,8 @@ export interface ChipProps extends Omit<
    */
   size?: ChipSize;
   /**
-   * Marks the chip as an applied selection — the neutral chip takes the selection rung
-   * (`accent`) instead of its rest fill. Ignored for chromatic hues, whose tint already
-   * carries the meaning.
+   * Marks the chip as an applied selection — the neutral chip takes `accent` instead of its
+   * rest fill. Ignored for chromatic hues, whose tint already carries the meaning.
    * @default false
    */
   active?: boolean;
@@ -142,9 +140,9 @@ export interface ChipProps extends Omit<
  * `Chip` — one labelled pill, optionally removable. The primitive behind `Tag`, `FilterChip`,
  * `ComboboxChip` and ChipInput's chips.
  *
- * The chip itself is NOT interactive: it has no hover or pressed step, because nothing happens when
- * you click it. The remove control is the interactive part and it carries the full grammar — hover
- * climbs the surface ladder, pressing climbs one more — from the `ghost` `Button` it composes.
+ * The chip itself is NOT interactive: it has no hover or pressed state, because nothing happens
+ * when you click it. The remove control is the interactive part, and its wash and focus outline
+ * come from the `ghost` `Button` it composes.
  *
  * @example
  * <Chip hue="blue" onRemove={() => remove("API")} removeLabel="Remove API">API</Chip>

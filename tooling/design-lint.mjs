@@ -262,14 +262,6 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/data-grid.tsx",
-    {
-      counts: { button: 1 },
-      rationale:
-        "group-toggle control preserves table semantics \u2014 the sort header composes Button through the shared table parts",
-    },
-  ],
-  [
     "/data-list.tsx",
     {
       counts: { button: 1 },

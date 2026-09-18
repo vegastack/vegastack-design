@@ -156,7 +156,7 @@ function AutoSaveInputControlledDemo(): ReactNode {
             key={record.id}
             type="button"
             // The record selector is a toggle, not navigation: `secondary` is the selected
-            // rung and `outline` the rest one.
+            // fill and `outline` the resting one.
             variant={record.id === activeId ? "secondary" : "outline"}
             size="sm"
             aria-pressed={record.id === activeId}

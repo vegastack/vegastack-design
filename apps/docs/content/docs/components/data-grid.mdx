@@ -52,13 +52,13 @@ which no library ships — is the component's own.
 
 ## Scope
 
-| Behaviour                           | Where it lives                                                                                 |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Data fetching, filters, saved views | Host (G7) — [`FilterBuilder`](/docs/components/filter-bar-managed) + the `toolbar` slot        |
-| The cell write + conflict handling  | Host — `onCellCommit` is a request; `cellStatus` is your word                                  |
-| Pagination UI                       | The `footer` slot; `loadMore` covers the continuous case                                       |
-| Simple presentational tables        | [`DataList`](/docs/components/data-list) — still the right default                             |
-| The shared table chrome             | [`data-table-parts`](/docs/components/data-table-parts) — sort header, selection, async states |
+| Behaviour                           | Where it lives                                                                                                                                                      |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Data fetching, filters, saved views | Host (G7) — [`FilterBuilder`](/docs/components/filter-bar-managed) + the `toolbar` slot                                                                             |
+| The cell write + conflict handling  | Host — `onCellCommit` is a request; `cellStatus` is your word                                                                                                       |
+| Pagination UI                       | The `footer` slot; `loadMore` covers the continuous case                                                                                                            |
+| Simple presentational tables        | [`DataList`](/docs/components/data-list) — still the right default                                                                                                  |
+| The shared table chrome             | `@vegastack/data-table-parts` — sort header, selection, async states; it arrives with this component ([shared internals](/docs/guides/components#shared-internals)) |
 
 ### The toolbar
 
@@ -108,7 +108,7 @@ keyboard flow.
 ### Responsive revelation
 
 Columns declare a pixel budget (`minWidth`, default 120) and a posture for what happens when they no
-longer fit. **`design.md` § DataGrid: data is never silently lost**, so the default posture is
+longer fit. **Data is never silently lost when a viewport narrows**, so the default posture is
 `merge`:
 
 | `mobile`    | When the column no longer fits                                                    |

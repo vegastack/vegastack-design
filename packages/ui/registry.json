@@ -629,12 +629,11 @@
       "description": "Free-token entry field \u2014 Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
       "categories": ["form"],
       "dependencies": [
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/input",
+        "@vegastack/input-group",
         "@vegastack/tag-group",
         "@vegastack/use-announcer"
       ],
@@ -12121,7 +12120,7 @@
       "name": "number-field",
       "type": "registry:ui",
       "title": "Number Field",
-      "description": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome \u2014 Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "description": "Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12129,7 +12128,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/input-group"],
       "files": [
         {
           "path": "packages/ui/registry/ui/number-field.tsx",
@@ -12382,9 +12381,9 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/searchable-select",
         "@vegastack/geo-data",
-        "@vegastack/input"
+        "@vegastack/input-group",
+        "@vegastack/searchable-select"
       ],
       "files": [
         {

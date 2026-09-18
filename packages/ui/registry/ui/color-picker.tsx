@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.9.1 sha256-X8xPYl7SllXubf860xIOXPoV4wfG91bPguK+7wTd1Pc=
+// @vegastack color-picker@0.9.1 sha256-qjYgNV3d2A1bDzj9aoke15TYpxd7QKr6EfaM8w8vWhM=
 
 "use client";
 
@@ -197,7 +197,7 @@ export function ColorPicker({
             variant="outline"
             size="icon-sm"
             aria-label={ariaLabel}
-            // Trigger is a control → `shape="square"` (the default); a swatch grid cell is round.
+            // The trigger is a control, so it keeps Button's own corner; a swatch grid cell is round.
             className={className}
           >
             <span
@@ -222,7 +222,8 @@ export function ColorPicker({
           onKeyDown={handleGridKeyDown}
           // Grid column count is dynamic (driven by `columns`). The inline style sets ONLY a CSS
           // custom property (`--swatch-cols`); the arbitrary-value class consumes it as the grid
-          // template — so no direct visual property is set inline (contract-clean per §7.1).
+          // template — so no direct visual property is set inline, which is what keeps this
+          // clear of the inline-style ban.
           className="grid gap-1.5 grid-cols-[repeat(var(--swatch-cols),minmax(0,1fr))]"
           style={
             { ["--swatch-cols"]: String(columnCount) } as React.CSSProperties

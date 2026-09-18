@@ -143,7 +143,7 @@ getRegions("SG"); // [] — no predefined subdivisions; use the free-text fallba
 - Full keyboard support is handled by the underlying Combobox: type to filter, <kbd>↑</kbd> /
   <kbd>↓</kbd> to move the highlight, <kbd>Enter</kbd> to select, and
   <kbd>Esc</kbd> to dismiss — focus returns to the trigger on close.
-- The free-text fallback is a native `<input>`; associate a label via `id` for both modes.
+- The free-text fallback is an [`InputGroup`](/docs/components/input-group) with a leading pin addon and an `InputGroupInput`; associate a label via `id` for both modes.
 - Focus re-colors the trigger/search border with the `ring` token (`border-ring/(70%)`) — never `outline: none`.
 
 | Key                                 | Action                                      |

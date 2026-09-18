@@ -24,9 +24,13 @@ import { ChipInput } from "@/components/ui/chip-input";
 `ChipInput` fills the gap neither existing component can:
 [`TagGroup`](/docs/components/tag-group) is a display list with no input, and
 [`Combobox`](/docs/components/combobox)'s value model is selection-from-items —
-it cannot commit an arbitrary token. The field chrome is the Combobox input
-group's, the chips are real `Tag`s (24px remove targets included), and the
-inner control is the real [`Input`](/docs/components/input).
+it cannot commit an arbitrary token. The field chrome is
+[`InputGroup`](/docs/components/input-group) — border, focus border, invalid
+hairline, disabled wash, all of it imported — and the inner control is
+`InputGroupInput`, which is [`Input`](/docs/components/input) flattened into the
+box. The only thing this component adds to that chrome is a field that **wraps**:
+it grows with its chips instead of holding one 32px line. The chips are real
+`Tag`s, 24px remove targets included.
 
 ## Scope
 

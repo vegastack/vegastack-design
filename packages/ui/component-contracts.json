@@ -4395,15 +4395,6 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
-        },
-        {
-          "name": "chipInputVariants",
-          "kind": "variants",
-          "source": "packages/ui/registry/ui/chip-input.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
         }
       ],
       "variants": {
@@ -4412,9 +4403,9 @@
         "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": ["sm", "default", "lg"],
-        "rationale": "min-height on the shared --size-sm/md/lg scale (comboboxInputGroupVariants' scale); the field grows when chips wrap."
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The box is upstream InputGroup's, grown to fit its chips; the control-height scale was deleted with Input's."
       },
       "states": {
         "behavior": {
@@ -4460,12 +4451,11 @@
       "engines": [],
       "docsSlug": "/docs/components/chip-input",
       "registryDependencies": [
-        "@vegastack/input",
+        "@vegastack/input-group",
         "@vegastack/tag-group",
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -4493,10 +4483,6 @@
             {
               "name": "data-invalid",
               "values": [""]
-            },
-            {
-              "name": "data-size",
-              "values": []
             },
             {
               "name": "data-slot",
@@ -6330,6 +6316,7 @@
                 "data-grid-cell",
                 "data-grid-footer",
                 "data-grid-group-row",
+                "data-grid-group-toggle",
                 "data-grid-head",
                 "data-grid-hidden-hint",
                 "data-grid-load-more",
@@ -12552,7 +12539,7 @@
       "name": "number-field",
       "registryType": "registry:ui",
       "title": "Number Field",
-      "summary": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "summary": "Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -12585,9 +12572,9 @@
         "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": ["sm", "default", "lg"],
-        "rationale": "Control height on the shared --size-sm/md/lg scale, matching Input/Button/Select."
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The box is upstream InputGroup's single 32px height; the control-height scale was deleted with Input's."
       },
       "states": {
         "behavior": {
@@ -12628,7 +12615,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/number-field",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/input-group"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
@@ -12653,16 +12640,11 @@
               "values": [""]
             },
             {
-              "name": "data-size",
-              "values": []
-            },
-            {
               "name": "data-slot",
               "values": [
                 "number-field",
                 "number-field-decrement",
                 "number-field-increment",
-                "number-field-input",
                 "number-field-prefix",
                 "number-field-suffix"
               ]
@@ -14476,9 +14458,9 @@
       "engines": [],
       "docsSlug": "/docs/components/region-select",
       "registryDependencies": [
-        "@vegastack/searchable-select",
         "@vegastack/geo-data",
-        "@vegastack/input"
+        "@vegastack/input-group",
+        "@vegastack/searchable-select"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",

@@ -36,7 +36,7 @@ starts with `icon-` is a component and never an icon.
 - **`input-otp`** — A one-time-password field with per-character slots, driven by one hidden input.
 - **`label`** — A styled native label for form controls.
 - **`native-select`** — The platform <select>, tokenized — the OS picker on mobile, with option groups.
-- **`number-field`** — Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.
+- **`number-field`** — Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
 - **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.
