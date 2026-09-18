@@ -1,4 +1,4 @@
-// @vegastack use-file-drop@0.9.1 sha256-o/i6NN3WQOp4pwXONV1y8eVLYn+fcvjNCYumo+i2qNw=
+// @vegastack use-file-drop@0.9.1 sha256-R5FaOGtxPGJHfe16dMSKMtUWjmXfdzedfr/IxX7YsMI=
 
 "use client";
 
@@ -32,8 +32,9 @@ What the engine does not own, and this hook adds in the system's vocabulary:
 - the PASTE path (`onPaste` → `clipboardData.files`), which no drop library treats as
   acquisition even though a composer treats a pasted screenshot exactly like a drop;
 - TYPED rejection reasons (`FileDropRejection`) aligned with the app-side per-file
-  state machine that `AttachmentState` renders — one word list from acquisition to
-  upload chrome;
+  state machine `Attachment`'s `state` prop renders (`idle · uploading · processing ·
+  error · done` since Batch 6 of the shadcn reset put it back on upstream, which
+  exports no `AttachmentState` type) — one word list from acquisition to upload chrome;
 - the ANNOUNCEMENT payload — accepted/rejected outcomes flow through a polite live
   region the consumer renders;
 - the window-level `dragover`/`drop` `preventDefault` so a drop that misses the

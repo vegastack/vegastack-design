@@ -17095,7 +17095,7 @@
       "name": "use-file-drop",
       "type": "registry:hook",
       "title": "useFileDrop",
-      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
+      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection.",
       "categories": [
         "hook"
       ],
@@ -17116,7 +17116,7 @@
         "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
         "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
         "version": "0.9.1",
-        "integrity": "sha256-o/i6NN3WQOp4pwXONV1y8eVLYn+fcvjNCYumo+i2qNw="
+        "integrity": "sha256-R5FaOGtxPGJHfe16dMSKMtUWjmXfdzedfr/IxX7YsMI="
       }
     },
     {

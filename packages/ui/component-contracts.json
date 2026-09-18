@@ -204,7 +204,7 @@
       "toastTypes"
     ],
     "geometryUnswept": {
-      "relativeTimeLive": "Omits `now`, so the component reads the real clock and its refresh timer ticks — that IS the feature being demonstrated. A self-rescheduling setTimeout re-renders the fixture between the assertion and the measurement (the detach race in docs/ledger/bugs.md, 2026-09-08). Every other relative-time fixture pins `now` and is swept normally, so the component's geometry IS covered; only this one demo's live clock is not."
+      "relativeTimeLive": "Omits `now`, so the component reads the real clock and its refresh timer ticks \u2014 that IS the feature being demonstrated. A self-rescheduling setTimeout re-renders the fixture between the assertion and the measurement (the detach race in docs/ledger/bugs.md, 2026-09-08). Every other relative-time fixture pins `now` and is swept normally, so the component's geometry IS covered; only this one demo's live clock is not."
     },
     "crossCuttingTests": [
       {
@@ -302,7 +302,7 @@
       "name": "accordion",
       "registryType": "registry:ui",
       "title": "Accordion",
-      "summary": "A vertically stacked set of interactive headings that each reveal a section of content — one open at a time, or several.",
+      "summary": "A vertically stacked set of interactive headings that each reveal a section of content \u2014 one open at a time, or several.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -458,7 +458,7 @@
       "name": "action-bar",
       "registryType": "registry:ui",
       "title": "Action Bar",
-      "summary": "Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.",
+      "summary": "Floating contextual bar \u2014 status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.",
       "status": "stable",
       "since": "0.4.0",
       "family": "feedback",
@@ -632,7 +632,7 @@
       "name": "alert",
       "registryType": "registry:ui",
       "title": "Alert",
-      "summary": "A status banner — upstream's two variants plus our three extra status tones (COL-12).",
+      "summary": "A status banner \u2014 upstream's two variants plus our three extra status tones (COL-12).",
       "status": "stable",
       "since": "0.1.0",
       "family": "feedback",
@@ -787,7 +787,7 @@
       "name": "alert-dialog",
       "registryType": "registry:ui",
       "title": "Alert Dialog",
-      "summary": "A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.",
+      "summary": "A modal that interrupts for a decision \u2014 an optional media slot, two sizes and an action/cancel footer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -1106,7 +1106,7 @@
       "name": "animated-number",
       "registryType": "registry:ui",
       "title": "Animated Number",
-      "summary": "A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
+      "summary": "A number display that tweens from its previous value to a new one on every change \u2014 Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -1216,7 +1216,7 @@
       "name": "announcement-banner",
       "registryType": "registry:ui",
       "title": "Announcement Banner",
-      "summary": "A dismissible one-line announcement — the full-width inverse page-top band (in-content notices use Alert variant=strip).",
+      "summary": "A dismissible one-line announcement \u2014 the full-width inverse page-top band (in-content notices use Alert variant=strip).",
       "status": "stable",
       "since": "0.3.0",
       "family": "marketing",
@@ -1326,7 +1326,7 @@
       "name": "app-shell",
       "registryType": "registry:ui",
       "title": "App Shell",
-      "summary": "The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
+      "summary": "The shared dashboard layout \u2014 a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -1652,7 +1652,7 @@
       "name": "attachment",
       "registryType": "registry:ui",
       "title": "Attachment",
-      "summary": "A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.",
+      "summary": "A file chip / thumbnail card for chat and message-compose surfaces \u2014 media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.",
       "status": "stable",
       "since": "0.1.0",
       "family": "communication",
@@ -2401,7 +2401,7 @@
       "name": "badge",
       "registryType": "registry:ui",
       "title": "Badge",
-      "summary": "A compact label or status chip — upstream's six variants plus our four status tones (COL-12).",
+      "summary": "A compact label or status chip \u2014 upstream's six variants plus our four status tones (COL-12).",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -2509,7 +2509,7 @@
       "name": "board",
       "registryType": "registry:ui",
       "title": "Board",
-      "summary": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
+      "summary": "Kanban columns over use-drag-reorder \u2014 content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
       "status": "stable",
       "since": "0.4.0",
       "family": "layout",
@@ -2580,7 +2580,7 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list (an empty column renders the Empty affordance instead); polite move/rejection announcements."
+          "evidence": "Roving focus across the ragged card grid (RTL-aware \u2190/\u2192 for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu \u2014 within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list (an empty column renders the Empty affordance instead); polite move/rejection announcements."
         },
         "visual": {
           "status": "observed",
@@ -2593,7 +2593,7 @@
             "collapsed",
             "empty"
           ],
-          "evidence": "Flat dragged cards (dim, never a shadow — doctrine); 2px primary drop-indicator; column border tint while a drag is over; pending shimmer (sanctioned loader animation, reduced-motion aware); Empty bordered drop-zone look."
+          "evidence": "Flat dragged cards (dim, never a shadow \u2014 doctrine); 2px primary drop-indicator; column border tint while a drag is over; pending shimmer (sanctioned loader animation, reduced-motion aware); Empty bordered drop-zone look."
         }
       },
       "responsive": {
@@ -2697,7 +2697,7 @@
       "name": "breadcrumb",
       "registryType": "registry:ui",
       "title": "Breadcrumb",
-      "summary": "A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.",
+      "summary": "A hierarchical navigation trail \u2014 links, separators, the current page, and ellipsis collapse for long paths.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -3085,7 +3085,7 @@
       "name": "button",
       "registryType": "registry:ui",
       "title": "Button",
-      "summary": "Trigger an action — upstream's six variants and eight sizes, plus a loading state (API-5).",
+      "summary": "Trigger an action \u2014 upstream's six variants and eight sizes, plus a loading state (API-5).",
       "status": "stable",
       "since": "0.1.0",
       "family": "actions",
@@ -3236,7 +3236,7 @@
       "name": "button-group",
       "registryType": "registry:ui",
       "title": "Button Group",
-      "summary": "Joins buttons, inputs, selects and dropdowns into one connected control group — horizontal or vertical, with a separator and a text addon.",
+      "summary": "Joins buttons, inputs, selects and dropdowns into one connected control group \u2014 horizontal or vertical, with a separator and a text addon.",
       "status": "stable",
       "since": "1.0.0",
       "family": "actions",
@@ -3374,7 +3374,7 @@
       "name": "calendar",
       "registryType": "registry:ui",
       "title": "Calendar",
-      "summary": "A date-field calendar on React DayPicker — single, multiple and range selection.",
+      "summary": "A date-field calendar on React DayPicker \u2014 single, multiple and range selection.",
       "status": "stable",
       "since": "0.9.1",
       "family": "form",
@@ -3744,7 +3744,7 @@
       "name": "carousel",
       "registryType": "registry:ui",
       "title": "Carousel",
-      "summary": "A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, Embla options, events and plugins.",
+      "summary": "A slide track with previous and next controls \u2014 horizontal or vertical, any slide size or spacing, Embla options, events and plugins.",
       "status": "stable",
       "since": "0.10.0",
       "family": "data-display",
@@ -3949,7 +3949,7 @@
       "name": "chart",
       "registryType": "registry:ui",
       "title": "Chart",
-      "summary": "A themed Recharts wrapper — a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.",
+      "summary": "A themed Recharts wrapper \u2014 a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -4230,7 +4230,7 @@
       "name": "checkbox-group",
       "registryType": "registry:ui",
       "title": "Checkbox Group",
-      "summary": "Shared state for a set of checkboxes, with first-class “select all” — parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.",
+      "summary": "Shared state for a set of checkboxes, with first-class \u201cselect all\u201d \u2014 parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.",
       "status": "stable",
       "since": "0.7.0",
       "family": "form",
@@ -4333,7 +4333,7 @@
       "name": "chip",
       "registryType": "registry:ui",
       "title": "Chip",
-      "summary": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.",
+      "summary": "The one labelled pill primitive \u2014 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.",
       "status": "stable",
       "since": "0.7.0",
       "family": "display",
@@ -4375,7 +4375,7 @@
           "ref": {
             "status": "observed",
             "target": "IconButton",
-            "rationale": "Delegating wrapper — the ref rides the props spread onto the composed IconButton."
+            "rationale": "Delegating wrapper \u2014 the ref rides the props spread onto the composed IconButton."
           }
         },
         {
@@ -4494,7 +4494,7 @@
       "name": "chip-input",
       "registryType": "registry:ui",
       "title": "Chip Input",
-      "summary": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
+      "summary": "Free-token entry field \u2014 Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -4635,7 +4635,7 @@
       "name": "code-block",
       "registryType": "registry:ui",
       "title": "Code Block",
-      "summary": "A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.",
+      "summary": "A code panel with a language header and copy affordance \u2014 the shared code surface for chat transcripts, docs, and examples.",
       "status": "stable",
       "since": "0.3.0",
       "family": "display",
@@ -4808,7 +4808,7 @@
         "visual": {
           "status": "not-applicable-or-inherited",
           "values": ["inherited-from-call-site"],
-          "evidence": "Upstream's Collapsible is three unstyled pass-throughs over Base UI — the component contributes no class of its own, so every visual state belongs to what the call site renders into it. `collapsible.test.tsx` asserts each part renders with exactly the className it was passed."
+          "evidence": "Upstream's Collapsible is three unstyled pass-throughs over Base UI \u2014 the component contributes no class of its own, so every visual state belongs to what the call site renders into it. `collapsible.test.tsx` asserts each part renders with exactly the className it was passed."
         }
       },
       "responsive": {
@@ -4875,7 +4875,7 @@
       "name": "color-picker",
       "registryType": "registry:ui",
       "title": "Color Picker",
-      "summary": "A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.",
+      "summary": "A swatch-triggered popover presenting a grid of preset colors \u2014 pick one, fire onValueChange, mark the selection.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -5011,7 +5011,7 @@
       "name": "combobox",
       "registryType": "registry:ui",
       "title": "Combobox",
-      "summary": "A filterable listbox behind a text input — grouped items, an announced empty state and a chips mode.",
+      "summary": "A filterable listbox behind a text input \u2014 grouped items, an announced empty state and a chips mode.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -5396,7 +5396,7 @@
       "name": "command",
       "registryType": "registry:ui",
       "title": "Command Menu",
-      "summary": "A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.",
+      "summary": "A searchable command palette \u2014 filtered, grouped items with keyboard navigation, optionally inside a \u2318K dialog.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -5540,7 +5540,7 @@
       "motion": {
         "status": "observed",
         "mechanisms": [
-          "none of its own — the dialog form inherits Dialog's keyed presence"
+          "none of its own \u2014 the dialog form inherits Dialog's keyed presence"
         ],
         "reducedMotion": {
           "status": "covered",
@@ -5654,7 +5654,7 @@
       "name": "comparison-matrix",
       "registryType": "registry:ui",
       "title": "Comparison Matrix",
-      "summary": "A plan-feature matrix with accessible ✓/− availability cells and a highlighted plan column.",
+      "summary": "A plan-feature matrix with accessible \u2713/\u2212 availability cells and a highlighted plan column.",
       "status": "stable",
       "since": "0.3.0",
       "family": "marketing",
@@ -6226,7 +6226,7 @@
       "name": "copy-button",
       "registryType": "registry:ui",
       "title": "Copy Button",
-      "summary": "Copy a value to the clipboard with transient check feedback — a ghost icon button that swaps Copy → Check and fires onCopied.",
+      "summary": "Copy a value to the clipboard with transient check feedback \u2014 a ghost icon button that swaps Copy \u2192 Check and fires onCopied.",
       "status": "stable",
       "since": "0.1.0",
       "family": "actions",
@@ -6435,7 +6435,7 @@
       "name": "data-grid",
       "registryType": "registry:ui",
       "title": "Data Grid",
-      "summary": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "summary": "The full-parity grid \u2014 TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -6448,7 +6448,7 @@
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Generic function component; no stable public ref target is forwarded — the grid's focus model is the roving-cell API, not a root ref."
+            "rationale": "Generic function component; no stable public ref target is forwarded \u2014 the grid's focus model is the roving-cell API, not a root ref."
           }
         },
         {
@@ -6643,7 +6643,7 @@
       "name": "data-list",
       "registryType": "registry:ui",
       "title": "Data List",
-      "summary": "A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.",
+      "summary": "A generic, typed data table \u2014 configurable columns, row selection, sortable headers, plus loading and empty states.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data",
@@ -6833,7 +6833,7 @@
       "name": "data-table-parts",
       "registryType": "registry:ui",
       "title": "Data Table Parts",
-      "summary": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
+      "summary": "The chrome DataList and DataGrid share \u2014 sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
       "status": "stable",
       "since": "0.7.0",
       "family": "data",
@@ -7203,7 +7203,7 @@
       "name": "date-picker",
       "registryType": "registry:ui",
       "title": "Date Picker",
-      "summary": "Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
+      "summary": "Pick a single date or a date range from a calendar popover \u2014 token-styled, keyboard-navigable, with optional quick presets.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -7494,7 +7494,7 @@
       "name": "dialog",
       "registryType": "registry:ui",
       "title": "Dialog",
-      "summary": "A modal overlay — a backdrop, a centred popup, an optional close button and a sticky footer band.",
+      "summary": "A modal overlay \u2014 a backdrop, a centred popup, an optional close button and a sticky footer band.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -7767,7 +7767,7 @@
       "name": "direction",
       "registryType": "registry:ui",
       "title": "Direction",
-      "summary": "Base UI's DirectionProvider and useDirection — the text-direction context components read.",
+      "summary": "Base UI's DirectionProvider and useDirection \u2014 the text-direction context components read.",
       "status": "stable",
       "since": "0.9.1",
       "family": "layout",
@@ -7854,7 +7854,7 @@
       "name": "drawer",
       "registryType": "registry:ui",
       "title": "Drawer",
-      "summary": "A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.",
+      "summary": "A swipeable panel with snap points \u2014 four directions, a swipe handle, nesting and a non-modal mode.",
       "status": "stable",
       "since": "1.0.0",
       "family": "overlay",
@@ -8173,7 +8173,7 @@
       "name": "dropdown-menu",
       "registryType": "registry:ui",
       "title": "Dropdown Menu",
-      "summary": "An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.",
+      "summary": "An anchored action menu \u2014 items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -8586,7 +8586,7 @@
       "name": "dropzone",
       "registryType": "registry:ui",
       "title": "Dropzone",
-      "summary": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
+      "summary": "File acquisition surface \u2014 drop, click-to-browse, and paste \u2014 as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -8710,7 +8710,7 @@
       "name": "editable-cell",
       "registryType": "registry:ui",
       "title": "Editable Cell",
-      "summary": "Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
+      "summary": "Inline-editable value with an async commit lifecycle \u2014 optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -9024,7 +9024,7 @@
       "name": "empty",
       "registryType": "registry:ui",
       "title": "Empty",
-      "summary": "A zero-data placeholder — media, title, description and a content slot.",
+      "summary": "A zero-data placeholder \u2014 media, title, description and a content slot.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -9228,7 +9228,7 @@
       "name": "field",
       "registryType": "registry:ui",
       "title": "Field",
-      "summary": "The form-field scaffold — label, description, error, legend, separator and choice-card layouts.",
+      "summary": "The form-field scaffold \u2014 label, description, error, legend, separator and choice-card layouts.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -9518,7 +9518,7 @@
       "name": "field-inline",
       "registryType": "registry:ui",
       "title": "Field Inline",
-      "summary": "Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
+      "summary": "Click-to-edit text \u2014 displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -9754,7 +9754,7 @@
       "name": "filter-bar",
       "registryType": "registry:ui",
       "title": "Filter Bar",
-      "summary": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input — for list and table filter toolbars.",
+      "summary": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input \u2014 for list and table filter toolbars.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data",
@@ -9927,7 +9927,7 @@
       "name": "filter-bar-managed",
       "registryType": "registry:ui",
       "title": "Filter Builder",
-      "summary": "The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "summary": "The stateful nested and/or filter builder \u2014 host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -10118,7 +10118,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10334,7 +10334,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10343,7 +10343,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10352,7 +10352,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10361,7 +10361,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10370,7 +10370,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10379,7 +10379,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10388,7 +10388,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10397,7 +10397,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         },
         {
@@ -10406,7 +10406,7 @@
           "source": "packages/ui/registry/ui/floating-surface.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+            "rationale": "A recipe/factory export, not a rendered element \u2014 it accepts no runtime ref."
           }
         }
       ],
@@ -10669,7 +10669,7 @@
       "name": "icon-button",
       "registryType": "registry:ui",
       "title": "Icon Button",
-      "summary": "A square or round icon-only action button — a thin Button wrapper that requires an accessible label.",
+      "summary": "A square or round icon-only action button \u2014 a thin Button wrapper that requires an accessible label.",
       "status": "stable",
       "since": "0.1.0",
       "family": "actions",
@@ -11057,7 +11057,7 @@
       "name": "input-group",
       "registryType": "registry:ui",
       "title": "Input Group",
-      "summary": "An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.",
+      "summary": "An input or textarea with addons \u2014 icons, text, buttons, kbd hints and spinners on one surface.",
       "status": "stable",
       "since": "0.9.1",
       "family": "form",
@@ -11428,7 +11428,7 @@
       "name": "item",
       "registryType": "registry:ui",
       "title": "Item",
-      "summary": "A composable row for list and feed content — media, title, description, actions.",
+      "summary": "A composable row for list and feed content \u2014 media, title, description, actions.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -11905,7 +11905,7 @@
       "name": "logo-row",
       "registryType": "registry:ui",
       "title": "Logo Row",
-      "summary": "A muted logo/wordmark strip — alpha-dimmed at rest, restoring on hover for linked items.",
+      "summary": "A muted logo/wordmark strip \u2014 alpha-dimmed at rest, restoring on hover for linked items.",
       "status": "stable",
       "since": "0.1.0",
       "family": "marketing",
@@ -12028,7 +12028,7 @@
       "name": "markdown-view",
       "registryType": "registry:ui",
       "title": "Markdown View",
-      "summary": "Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.",
+      "summary": "Render a markdown string to safe, token-styled HTML \u2014 headings, lists, code, blockquotes, links, GFM tables \u2014 XSS-safe, no raw HTML.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -12374,7 +12374,7 @@
       "name": "media-player-controls",
       "registryType": "registry:ui",
       "title": "Media Player Controls",
-      "summary": "The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.",
+      "summary": "The shared media transport \u2014 play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) \u2014 composed by Audio Player and Video Player.",
       "status": "stable",
       "since": "0.7.0",
       "family": "media",
@@ -12603,7 +12603,7 @@
       "name": "menubar",
       "registryType": "registry:ui",
       "title": "Menubar",
-      "summary": "A persistent horizontal bar of menus — application-style File / Edit / View navigation.",
+      "summary": "A persistent horizontal bar of menus \u2014 application-style File / Edit / View navigation.",
       "status": "stable",
       "since": "1.0.0",
       "family": "navigation",
@@ -13454,7 +13454,7 @@
       "name": "native-select",
       "registryType": "registry:ui",
       "title": "Native Select",
-      "summary": "The platform <select>, tokenized — the OS picker on mobile, with option groups.",
+      "summary": "The platform <select>, tokenized \u2014 the OS picker on mobile, with option groups.",
       "status": "stable",
       "since": "0.9.1",
       "family": "form",
@@ -13602,7 +13602,7 @@
       "name": "navigation-menu",
       "registryType": "registry:ui",
       "title": "Navigation Menu",
-      "summary": "A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.",
+      "summary": "A collection of links for navigating websites \u2014 triggers that open one shared panel, and plain links styled to match.",
       "status": "stable",
       "since": "0.3.0",
       "family": "navigation",
@@ -13702,7 +13702,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "`navigationMenuTriggerStyle` is a CVA with no variant dimension — one recipe, exported so a plain link can wear it."
+        "rationale": "`navigationMenuTriggerStyle` is a CVA with no variant dimension \u2014 one recipe, exported so a plain link can wear it."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -13844,7 +13844,7 @@
       "name": "notification-bell",
       "registryType": "registry:ui",
       "title": "Notification Bell",
-      "summary": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
+      "summary": "A bell icon button with an unread-count badge overlay. Presentational \u2014 the app supplies the count.",
       "status": "stable",
       "since": "0.1.0",
       "family": "media",
@@ -13954,7 +13954,7 @@
       "name": "number-field",
       "registryType": "registry:ui",
       "title": "Number Field",
-      "summary": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "summary": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome \u2014 Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -14078,7 +14078,7 @@
       "name": "onboarding-checklist",
       "registryType": "registry:ui",
       "title": "Onboarding Checklist",
-      "summary": "A getting-started card — segmented progress + step rows, collapsible to a progress pill.",
+      "summary": "A getting-started card \u2014 segmented progress + step rows, collapsible to a progress pill.",
       "status": "stable",
       "since": "0.3.0",
       "family": "display",
@@ -14230,7 +14230,7 @@
       "name": "otp-input",
       "registryType": "registry:ui",
       "title": "OTP Input",
-      "summary": "A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.",
+      "summary": "A multi-slot one-time-passcode input \u2014 keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -14346,7 +14346,7 @@
       "name": "page-header",
       "registryType": "registry:ui",
       "title": "Page Header",
-      "summary": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
+      "summary": "The standardized header at the top of a page \u2014 back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -14489,7 +14489,7 @@
       "name": "pagination",
       "registryType": "registry:ui",
       "title": "Pagination",
-      "summary": "Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.",
+      "summary": "Page navigation \u2014 previous/next, numbered page links, an ellipsis for long ranges, and the active page.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -14705,7 +14705,7 @@
       "name": "particle-field",
       "registryType": "registry:ui",
       "title": "Particle Field",
-      "summary": "A deterministic, very-low-alpha canvas field of drifting phosphor dots — hero atmosphere only.",
+      "summary": "A deterministic, very-low-alpha canvas field of drifting phosphor dots \u2014 hero atmosphere only.",
       "status": "stable",
       "since": "0.1.0",
       "family": "marketing",
@@ -15138,7 +15138,7 @@
       "name": "pricing-section",
       "registryType": "registry:ui",
       "title": "Pricing Section",
-      "summary": "Marketing plan cards — mono price display, check feature lists, highlighted-plan treatment.",
+      "summary": "Marketing plan cards \u2014 mono price display, check feature lists, highlighted-plan treatment.",
       "status": "stable",
       "since": "0.3.0",
       "family": "marketing",
@@ -15452,7 +15452,7 @@
       "name": "questionnaire",
       "registryType": "registry:ui",
       "title": "Questionnaire",
-      "summary": "A guided one-question-at-a-time form — choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.",
+      "summary": "A guided one-question-at-a-time form \u2014 choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.",
       "status": "stable",
       "since": "0.1.0",
       "family": "communication",
@@ -15885,7 +15885,7 @@
       "name": "progress-indicator",
       "registryType": "registry:ui",
       "title": "Progress Indicator",
-      "summary": "A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.",
+      "summary": "A compact circular pie-fill progress indicator (0\u2013100%) with optional visible percentage variants.",
       "status": "stable",
       "since": "0.1.0",
       "family": "feedback",
@@ -16175,7 +16175,7 @@
           "viewport-positioning-and-collision",
           "grid-wrapping"
         ],
-        "rationale": "The row is a container query, not a viewport query: two tracks at @xs and up with the label track sized to its content above a floor, stacked below it, so the list reflows to its PANE rather than to the window. Values wrap instead of truncating — truncation was also clipping the focus ring of links inside them."
+        "rationale": "The row is a container query, not a viewport query: two tracks at @xs and up with the label track sized to its content above a floor, stacked below it, so the list reflows to its PANE rather than to the window. Values wrap instead of truncating \u2014 truncation was also clipping the focus ring of links inside them."
       },
       "motion": {
         "status": "not-applicable",
@@ -16245,7 +16245,7 @@
       "name": "provider",
       "registryType": "registry:ui",
       "title": "Provider",
-      "summary": "The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.",
+      "summary": "The single app-root wrapper \u2014 theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.",
       "status": "stable",
       "since": "0.2.0",
       "family": "feedback",
@@ -16591,7 +16591,7 @@
       "name": "relative-time",
       "registryType": "registry:ui",
       "title": "Relative Time",
-      "summary": "Render a date as a human-relative string (\"2 hours ago\", \"yesterday\") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.",
+      "summary": "Render a date as a human-relative string (\"2 hours ago\", \"yesterday\") with native Intl.RelativeTimeFormat \u2014 self-updating, with an absolute-date tooltip.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -16703,7 +16703,7 @@
       "name": "resizable",
       "registryType": "registry:ui",
       "title": "Resizable",
-      "summary": "Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.",
+      "summary": "Accessible resizable panel groups and layouts with keyboard support \u2014 horizontal or vertical, nestable, with an optional visible grip.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -16844,7 +16844,7 @@
       "name": "ruled-band",
       "registryType": "registry:ui",
       "title": "Ruled Band",
-      "summary": "A hairline-bounded editorial strip with mono-label ends — the changelog/serial-number furniture.",
+      "summary": "A hairline-bounded editorial strip with mono-label ends \u2014 the changelog/serial-number furniture.",
       "status": "stable",
       "since": "0.3.0",
       "family": "marketing",
@@ -16979,7 +16979,7 @@
       "name": "scroll-area",
       "registryType": "registry:ui",
       "title": "Scroll Area",
-      "summary": "Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.",
+      "summary": "Augments native scroll functionality for custom, cross-browser styling \u2014 a viewport, an auto-hiding scrollbar, and a corner.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -17010,7 +17010,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "Upstream ships no variant dimension for this component. `ScrollBar`'s `orientation` is Base UI's own Scrollbar prop, defaulted to `vertical` by the wrapper — not a local variant union."
+        "rationale": "Upstream ships no variant dimension for this component. `ScrollBar`'s `orientation` is Base UI's own Scrollbar prop, defaulted to `vertical` by the wrapper \u2014 not a local variant union."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -17129,7 +17129,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "One shape by design — the preset exists so every data-fed picker looks identical; appearance comes from the composed Button/Combobox."
+        "rationale": "One shape by design \u2014 the preset exists so every data-fed picker looks identical; appearance comes from the composed Button/Combobox."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -17171,7 +17171,7 @@
         "mechanisms": [],
         "reducedMotion": {
           "status": "not-applicable",
-          "rationale": "No component-owned motion — the panel's enter/exit belongs to the shared floating surface."
+          "rationale": "No component-owned motion \u2014 the panel's enter/exit belongs to the shared floating surface."
         }
       },
       "engines": [],
@@ -17217,7 +17217,7 @@
       "name": "section-header",
       "registryType": "registry:ui",
       "title": "Section Header",
-      "summary": "A marketing section lead-in — mono uppercase eyebrow, display-scale title, optional description.",
+      "summary": "A marketing section lead-in \u2014 mono uppercase eyebrow, display-scale title, optional description.",
       "status": "stable",
       "since": "0.1.0",
       "family": "marketing",
@@ -17335,7 +17335,7 @@
       "name": "segmented",
       "registryType": "registry:ui",
       "title": "Segmented",
-      "summary": "Segmented control — a single-select, always-one-selected view/mode switcher on a muted track with a raised active chip.",
+      "summary": "Segmented control \u2014 a single-select, always-one-selected view/mode switcher on a muted track with a raised active chip.",
       "status": "stable",
       "since": "0.3.0",
       "family": "actions",
@@ -17506,7 +17506,7 @@
       "name": "select",
       "registryType": "registry:ui",
       "title": "Select",
-      "summary": "A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.",
+      "summary": "A dropdown for one value \u2014 trigger, grouped scrollable popup and item-aligned positioning.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -17787,7 +17787,7 @@
       "name": "separator",
       "registryType": "registry:ui",
       "title": "Separator",
-      "summary": "A thin rule dividing content — horizontal or vertical, built on Base UI.",
+      "summary": "A thin rule dividing content \u2014 horizontal or vertical, built on Base UI.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -17882,7 +17882,7 @@
       "name": "settings-row",
       "registryType": "registry:ui",
       "title": "Settings Row",
-      "summary": "A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows.",
+      "summary": "A borders-only settings layout \u2014 titled sections, bordered cards, and label-plus-control rows.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -18061,7 +18061,7 @@
       "name": "sheet",
       "registryType": "registry:ui",
       "title": "Sheet",
-      "summary": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.",
+      "summary": "A panel that slides in from any edge \u2014 Dialog semantics with a side, a header and a footer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -18305,7 +18305,7 @@
       "name": "shortcut-overlay",
       "registryType": "registry:ui",
       "title": "Shortcut Overlay",
-      "summary": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.",
+      "summary": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) \u2014 grouped, filterable, platform-aware via use-platform + Kbd.",
       "status": "stable",
       "since": "0.4.0",
       "family": "overlay",
@@ -18327,7 +18327,7 @@
           "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Renders a composed Dialog; no stable public ref target is forwarded — the dialog content is portaled."
+            "rationale": "Renders a composed Dialog; no stable public ref target is forwarded \u2014 the dialog content is portaled."
           }
         },
         {
@@ -18431,7 +18431,7 @@
       "name": "sidebar",
       "registryType": "registry:ui",
       "title": "Sidebar",
-      "summary": "A composable, themeable and customizable sidebar — a provider, a collapsible panel with header, content and footer, labelled groups, menu rows with actions, badges and submenus, a rail and a trigger.",
+      "summary": "A composable, themeable and customizable sidebar \u2014 a provider, a collapsible panel with header, content and footer, labelled groups, menu rows with actions, badges and submenus, a rail and a trigger.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -19154,7 +19154,7 @@
       "name": "slider",
       "registryType": "registry:ui",
       "title": "Slider",
-      "summary": "A number or range over a continuous track — horizontal or vertical, any number of thumbs.",
+      "summary": "A number or range over a continuous track \u2014 horizontal or vertical, any number of thumbs.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -19256,7 +19256,7 @@
       "name": "sonner",
       "registryType": "registry:ui",
       "title": "Sonner",
-      "summary": "The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.",
+      "summary": "The sonner toaster, themed onto the token contract \u2014 an alternative notification engine with its own imperative API.",
       "status": "stable",
       "since": "1.0.0",
       "family": "feedback",
@@ -19372,7 +19372,7 @@
       "name": "sortable-list",
       "registryType": "registry:ui",
       "title": "Sortable List",
-      "summary": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
+      "summary": "Reorderable rows on ItemGroup/Item via use-drag-reorder \u2014 pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -19445,7 +19445,7 @@
         "visual": {
           "status": "observed",
           "values": ["default", "dragging", "drop-edge", "pending", "disabled"],
-          "evidence": "2px primary drop-indicator hairline on the closest edge; lifted rows dim (flat — no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion."
+          "evidence": "2px primary drop-indicator hairline on the closest edge; lifted rows dim (flat \u2014 no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion."
         }
       },
       "responsive": {
@@ -19617,7 +19617,7 @@
       "name": "split-button",
       "registryType": "registry:ui",
       "title": "Split Button",
-      "summary": "A primary action joined to a dropdown of related secondary actions — one default click, plus a chevron menu.",
+      "summary": "A primary action joined to a dropdown of related secondary actions \u2014 one default click, plus a chevron menu.",
       "status": "stable",
       "since": "0.1.0",
       "family": "actions",
@@ -19746,7 +19746,7 @@
       "name": "staggered-text-reveal",
       "registryType": "registry:ui",
       "title": "Staggered Text Reveal",
-      "summary": "Display text whose words rise in on mount, staggered one motion-enter-up step apart — CSS-only.",
+      "summary": "Display text whose words rise in on mount, staggered one motion-enter-up step apart \u2014 CSS-only.",
       "status": "stable",
       "since": "0.1.0",
       "family": "marketing/motion",
@@ -19856,7 +19856,7 @@
       "name": "stat",
       "registryType": "registry:ui",
       "title": "Stat",
-      "summary": "A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.",
+      "summary": "A labelled value block \u2014 muted label over a value, honest faint empty state, optional delta line. Two scales.",
       "status": "stable",
       "since": "0.3.0",
       "family": "display",
@@ -20102,7 +20102,7 @@
       "name": "status-icon",
       "registryType": "registry:ui",
       "title": "Status Icon",
-      "summary": "A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.",
+      "summary": "A small status indicator icon \u2014 todo, in progress, blocked, done \u2014 each mapping to a lucide icon and semantic color.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -20231,7 +20231,7 @@
       "name": "stepper",
       "registryType": "registry:ui",
       "title": "Stepper",
-      "summary": "A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
+      "summary": "A bounded linear process as an ordered list \u2014 complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
       "status": "stable",
       "since": "0.4.0",
       "family": "navigation",
@@ -20279,7 +20279,7 @@
       "variants": {
         "status": "observed",
         "dimensions": ["orientation"],
-        "rationale": "horizontal | vertical — identical DOM and reading order, layout only."
+        "rationale": "horizontal | vertical \u2014 identical DOM and reading order, layout only."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -20313,7 +20313,7 @@
         "visual": {
           "status": "observed",
           "values": ["complete", "current", "upcoming", "error", "disabled"],
-          "evidence": "StatusIcon tokens per state (current's glyph pinned to animate-none — position, not activity); ink vs muted labels; warning-text blocked reason; connector hairlines."
+          "evidence": "StatusIcon tokens per state (current's glyph pinned to animate-none \u2014 position, not activity); ink vs muted labels; warning-text blocked reason; connector hairlines."
         }
       },
       "responsive": {
@@ -20383,7 +20383,7 @@
       "name": "switch",
       "registryType": "registry:ui",
       "title": "Switch",
-      "summary": "An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).",
+      "summary": "An on/off toggle for instant settings \u2014 two sizes and a 24px invisible hit area (A11Y-2).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -20490,7 +20490,7 @@
       "name": "table",
       "registryType": "registry:ui",
       "title": "Table",
-      "summary": "A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.",
+      "summary": "A responsive table component \u2014 caption, header, body, footer, row, head and cell parts over semantic table markup.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -20754,7 +20754,7 @@
       "name": "tabs",
       "registryType": "registry:ui",
       "title": "Tabs",
-      "summary": "A set of layered sections of content — known as tab panels — that are displayed one at a time.",
+      "summary": "A set of layered sections of content \u2014 known as tab panels \u2014 that are displayed one at a time.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -21229,7 +21229,7 @@
       "name": "testimonial",
       "registryType": "registry:ui",
       "title": "Testimonial",
-      "summary": "A pull-quote — a serif-italic quote over a mono uppercase attribution line.",
+      "summary": "A pull-quote \u2014 a serif-italic quote over a mono uppercase attribution line.",
       "status": "stable",
       "since": "0.1.0",
       "family": "marketing",
@@ -21338,7 +21338,7 @@
       "name": "text-edit",
       "registryType": "registry:ui",
       "title": "Text Edit",
-      "summary": "A Tiptap-based rich-text editor with a compact, token-styled toolbar (bold, italic, strike, heading, lists, blockquote, code) — controlled HTML in, HTML out. Collaboration deferred.",
+      "summary": "A Tiptap-based rich-text editor with a compact, token-styled toolbar (bold, italic, strike, heading, lists, blockquote, code) \u2014 controlled HTML in, HTML out. Collaboration deferred.",
       "status": "stable",
       "since": "0.1.0",
       "family": "rich-text",
@@ -21572,7 +21572,7 @@
       "name": "timeline",
       "registryType": "registry:ui",
       "title": "Timeline",
-      "summary": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
+      "summary": "Rail geometry for chronological records \u2014 a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data-display",
@@ -21734,7 +21734,7 @@
       "name": "toast",
       "registryType": "registry:ui",
       "title": "Toast",
-      "summary": "Brief, non-blocking notifications — a stacking Base UI Toast surface with typed icons, actions and promise toasts.",
+      "summary": "Brief, non-blocking notifications \u2014 a stacking Base UI Toast surface with typed icons, actions and promise toasts.",
       "status": "stable",
       "since": "0.7.0",
       "family": "feedback",
@@ -21848,7 +21848,7 @@
           "ref": {
             "status": "not-applicable-or-inherited",
             "target": "none",
-            "rationale": "Not a component — no ref to forward."
+            "rationale": "Not a component \u2014 no ref to forward."
           }
         },
         {
@@ -21858,7 +21858,7 @@
           "ref": {
             "status": "not-applicable-or-inherited",
             "target": "none",
-            "rationale": "Not a component — no ref to forward."
+            "rationale": "Not a component \u2014 no ref to forward."
           }
         },
         {
@@ -21868,7 +21868,7 @@
           "ref": {
             "status": "not-applicable-or-inherited",
             "target": "none",
-            "rationale": "Not a component — no ref to forward."
+            "rationale": "Not a component \u2014 no ref to forward."
           }
         }
       ],
@@ -22161,7 +22161,7 @@
       "name": "toggle-group",
       "registryType": "registry:ui",
       "title": "Toggle Group",
-      "summary": "Toggle buttons sharing one selection — single or multiple, horizontal or vertical.",
+      "summary": "Toggle buttons sharing one selection \u2014 single or multiple, horizontal or vertical.",
       "status": "stable",
       "since": "0.1.0",
       "family": "actions",
@@ -22301,7 +22301,7 @@
       "name": "tool-call-chip",
       "registryType": "registry:ui",
       "title": "Tool Call Chip",
-      "summary": "An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.",
+      "summary": "An agent-activity chip \u2014 tool action label + muted result meta, optionally rendered as a button.",
       "status": "stable",
       "since": "0.3.0",
       "family": "chat",
@@ -22556,7 +22556,7 @@
       "name": "truncated-text",
       "registryType": "registry:ui",
       "title": "Truncated Text",
-      "summary": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.",
+      "summary": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows \u2014 with per-region control over the tab stop.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -25463,7 +25463,7 @@
       "name": "use-animation-replay",
       "registryType": "registry:hook",
       "title": "useAnimationReplay / useShakeOnInvalid",
-      "summary": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element — preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
+      "summary": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element \u2014 preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-animation-replay.ts"],
@@ -25677,7 +25677,7 @@
       "name": "use-announcer",
       "registryType": "registry:hook",
       "title": "useAnnouncer",
-      "summary": "The one polite live region — announce(text) plus a stable Announcer component, sequence-keyed so an identical consecutive announcement is still spoken.",
+      "summary": "The one polite live region \u2014 announce(text) plus a stable Announcer component, sequence-keyed so an identical consecutive announcement is still spoken.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-announcer.ts"],
@@ -25768,7 +25768,7 @@
       "name": "use-inline-edit",
       "registryType": "registry:hook",
       "title": "useInlineEdit",
-      "summary": "The click-to-edit state machine — draft, commit, cancel, focus restoration and the double-commit guard — shared by FieldInline and EditableCell, with no opinion about what the editor or the display look like.",
+      "summary": "The click-to-edit state machine \u2014 draft, commit, cancel, focus restoration and the double-commit guard \u2014 shared by FieldInline and EditableCell, with no opinion about what the editor or the display look like.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-inline-edit.ts"],
@@ -25861,7 +25861,7 @@
       "name": "use-drag-reorder",
       "registryType": "registry:hook",
       "title": "useDragReorder",
-      "summary": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
+      "summary": "The system's one drag engine seam \u2014 Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-drag-reorder.ts"],
@@ -25952,7 +25952,7 @@
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drop-edge/data-drag-pending."
+          "evidence": "Pure hooks do not render visual states \u2014 consumers style off data-dragging/data-drop-edge/data-drag-pending."
         }
       },
       "responsive": {
@@ -25994,7 +25994,7 @@
       "name": "use-file-drop",
       "registryType": "registry:hook",
       "title": "useFileDrop",
-      "summary": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
+      "summary": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine \u2014 typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-file-drop.ts"],
@@ -26076,7 +26076,7 @@
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drag-invalid."
+          "evidence": "Pure hooks do not render visual states \u2014 consumers style off data-dragging/data-drag-invalid."
         }
       },
       "responsive": {
@@ -26118,7 +26118,7 @@
       "name": "use-list-nav",
       "registryType": "registry:hook",
       "title": "useListNav",
-      "summary": "Roving-tabindex keyboard navigation for a list or grid of focusable items — one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
+      "summary": "Roving-tabindex keyboard navigation for a list or grid of focusable items \u2014 one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-list-nav.ts"],
@@ -26218,7 +26218,7 @@
       "name": "use-platform",
       "registryType": "registry:hook",
       "title": "usePlatform",
-      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
+      "summary": "SSR-safe platform detection \u2014 { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-platform.ts"],
@@ -26327,7 +26327,7 @@
       "name": "use-media-query",
       "registryType": "registry:hook",
       "title": "useMediaQuery / usePrefersReducedMotion",
-      "summary": "The system's one matchMedia subscription — useSyncExternalStore with a declared serverFallback, so SSR renders the branch the caller chose instead of a hard-coded false. usePrefersReducedMotion is the named reduced-motion reader over it.",
+      "summary": "The system's one matchMedia subscription \u2014 useSyncExternalStore with a declared serverFallback, so SSR renders the branch the caller chose instead of a hard-coded false. usePrefersReducedMotion is the named reduced-motion reader over it.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-media-query.ts"],
@@ -26419,7 +26419,7 @@
       "name": "use-mobile",
       "registryType": "registry:hook",
       "title": "useIsMobile",
-      "summary": "SSR-safe viewport-width hook over use-media-query — reports whether the viewport is below a breakpoint (default 768px), live across resizes, with a caller-declared server fallback.",
+      "summary": "SSR-safe viewport-width hook over use-media-query \u2014 reports whether the viewport is below a breakpoint (default 768px), live across resizes, with a caller-declared server fallback.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-mobile.ts"],
@@ -26501,7 +26501,7 @@
       "name": "use-overflow",
       "registryType": "registry:hook",
       "title": "useOverflow",
-      "summary": "Live overflow measurement — report whether an element is clipped on the inline axis, the block axis, or either, across resizes and content changes.",
+      "summary": "Live overflow measurement \u2014 report whether an element is clipped on the inline axis, the block axis, or either, across resizes and content changes.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-overflow.ts"],
@@ -26600,7 +26600,7 @@
       "name": "dashboard-01",
       "registryType": "registry:block",
       "title": "Dashboard 01",
-      "summary": "An AI-platform dashboard starter page — sidebar nav, stat cards, a usage chart, and a recent-activity list, built entirely from existing VegaStack components.",
+      "summary": "An AI-platform dashboard starter page \u2014 sidebar nav, stat cards, a usage chart, and a recent-activity list, built entirely from existing VegaStack components.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -26887,7 +26887,7 @@
       "name": "geo-data",
       "registryType": "registry:lib",
       "title": "Geo Data",
-      "summary": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
+      "summary": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data \u2014 installed once, shared by both selects.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/geo-data.ts"],
@@ -26977,7 +26977,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — the consuming select owns every ARIA contract."
+          "evidence": "No DOM \u2014 the consuming select owns every ARIA contract."
         },
         "visual": {
           "status": "not-applicable",
@@ -27005,7 +27005,7 @@
       "name": "drag-item",
       "registryType": "registry:lib",
       "title": "Drag Item",
-      "summary": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
+      "summary": "The one visual recipe for a use-drag-reorder item \u2014 drop-edge hairlines, the lift dim, and the pending shimmer \u2014 shared by Board and SortableList instead of copied into each.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/drag-item.ts"],
@@ -27050,7 +27050,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — the announcements and roles belong to use-drag-reorder and its consumers."
+          "evidence": "No DOM \u2014 the announcements and roles belong to use-drag-reorder and its consumers."
         },
         "visual": {
           "status": "observed",
