@@ -1,6 +1,6 @@
 # AGENTS.md — vegastack-design
 
-VegaStack's internal design system: Base UI + Tailwind v4 + OKLCH semantic tokens, distributed as two public npm packages plus a private, Sigstore-signed shadcn registry, and consumed by humans and by agents (Claude Code, Codex). It is shipped and live — `design.vegastack.com` is public except `/r/*`, which is behind Cloudflare Access Service Auth, and npm publishing is token-free OIDC from self-hosted runners. **This file is the rulebook**: always-on rules, the map, a router. Procedures live in skills, loaded on demand; history lives in `docs/ledger/` and `docs/plans/`. Skills live in `skills/{internal,public}/`, symlinked into `.claude/skills/` and `.agents/skills/`; both agents load one by description, Claude Code also by `/<directory-name>`, and `skills/README.md` documents the audience split. Load the skill rather than working from this file's summary, which is deliberately lossy. For versions, ask rather than recall:
+VegaStack's internal design system: **shadcn `base-nova`** (Base UI + Tailwind v4) with OKLCH semantic tokens, distributed as two public npm packages plus a private, Sigstore-signed shadcn registry, and consumed by humans and by agents (Claude Code, Codex). Every component shadcn ships is upstream's own file plus an approved patch; every difference traces to a decision ID. It is shipped and live — `design.vegastack.com` is public except `/r/*`, which is behind Cloudflare Access Service Auth, and npm publishing is token-free OIDC from self-hosted runners. **This file is the rulebook**: always-on rules, the map, a router. Procedures live in skills, loaded on demand; history lives in `docs/ledger/` and `docs/plans/`. Skills live in `skills/{internal,public}/`, symlinked into `.claude/skills/` and `.agents/skills/`; both agents load one by description, Claude Code also by `/<directory-name>`, and `skills/README.md` documents the audience split. Load the skill rather than working from this file's summary, which is deliberately lossy. For versions, ask rather than recall:
 
 ```bash
 npm view @vegastack/design version                              # what consumers have
@@ -9,8 +9,8 @@ node -p "require('./packages/design/package.json').version"     # what this tree
 
 ## Truth hierarchy
 
-1. **The source and the scripts that enforce it** — `packages/ui/registry/ui/*`, `tooling/design-lint.mjs`, the `verify-*`/`sync-*` gates. Prose that disagrees with an enforcing script is a bug in the prose.
-2. **Machine authorities** — `packages/ui/component-contracts.json` and `packages/ui/registry.json` for inventory, membership, and counts. Never quote a count from prose.
+1. **The source and the scripts that enforce it** — `vendor/shadcn/4.21.0/` (the pinned pristine upstream), `packages/ui/registry/ui/*`, `packages/ui/upstream/patches/*`, `tooling/design-lint.mjs`, `tooling/upstream/*`, the `verify-*`/`sync-*` gates. Prose that disagrees with an enforcing script is a bug in the prose.
+2. **Machine authorities** — `packages/ui/component-contracts.json` and `packages/ui/registry.json` for inventory, membership, and counts; `packages/ui/upstream/decisions.json` for whether a deviation from upstream is sanctioned, and `exception-map.json` for which component owns it. Never quote a count from prose.
 3. **Official docs for the version actually installed** — check `package.json`/the lockfile first; recalled Base UI, Tailwind, shadcn, Next, and React knowledge is usually a version behind.
 4. **`design.md`** — the canonical design doctrine, and a _living_ document gated by `pnpm design:sync:check`. A change of direction that leaves it behind is an incomplete change.
 5. **This file**, then **skills** — which are more specific, and usually newer than this file.
@@ -19,7 +19,7 @@ Higher wins, because most wrong answers come from trusting a document that stopp
 
 ## The five non-negotiables
 
-1. **Edit the canonical source only.** Every component exists in three places; two are generated.
+1. **Edit the canonical source only, and for a shared component canonical = upstream + an approved patch.** Every component exists in three places; two are generated. A component shadcn ships starts from `vendor/shadcn/4.21.0/ui/<name>.tsx` verbatim, every time, and differs from it only where a decision row marks the ID **ours**. A difference with no row is not a shortcut — it is a stop-and-ask.
 2. **Semantic tokens only.** No hex, no px, no raw Tailwind palette, anywhere in component source.
 3. **Server-safe by default.** `'use client'` only at the lowest interactive leaf.
 4. **Never hand-edit a generated file.** If a file says GENERATED, change its authority and rerun.
@@ -29,20 +29,22 @@ Higher wins, because most wrong answers come from trusting a document that stopp
 
 | You are about to…                                   | Do this                                                                                            |
 | --------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Add or change a component, hook, or block           | Load the **`component`** skill                                                                     |
+| Add or change a component, hook, or block           | Load the **`component`** skill — its first question is whether upstream ships the component        |
 | Review or audit this repo — compliance, drift, bugs | Load the **`review`** skill                                                                        |
 | Release, publish, deploy, or write a changeset      | Load the **`ship`** skill                                                                          |
 | A failed `pnpm verify`, or a blocked commit         | Read the run's output — `tooling/verify.mjs` names the failing stage — then the **`review`** skill |
 | Plan a non-trivial change                           | Write the plan to `docs/plans/`, present it, and wait for explicit approval before writing code    |
 | Write or change a docs page                         | § Docs authoring below, then the `component` skill § 6                                             |
 | Know the current counts                             | § Numbers below — generated; never quote a count from prose                                        |
+| Answer "why does this differ from shadcn"           | `packages/ui/upstream/decisions.json`, then the row in the reset's `decisions.md`                  |
 | Answer "why was this chosen"                        | `docs/ledger/` and `docs/plans/` — see § Truth hierarchy before trusting one as current            |
 
 ## Locked decisions
 
 One line each; the rationale is in the cited plan or ledger, which are historical records — read them for _why_, never for _what is true now_. Re-opening one is an MK decision.
 
-- **Stack** — `@base-ui/react` via shadcn `--base base`; Tailwind v4; Next 16; React 19; Node pinned to 24.20.0 by pnpm (`devEngines.runtime`), not by any runner; pnpm 11; Turborepo 2.
+- **The system is shadcn `base-nova`, used as-is, plus sixty recorded exceptions** (the shadcn reset, approved by MK 2026-09-17/18, `docs/plans/2026-09-18-shadcn-reset/`). **The register is the authority, not this list**: 170 rows in `decisions.md` there, machine copy at `packages/ui/upstream/decisions.json` — 110 resolved as **shadcn** (upstream ships unchanged) and 60 as **ours** (upstream is patched, and the patch header names the ID). `exception-map.json` assigns each exception to the components that must carry it; `ours.json` records the components upstream has no counterpart for; `retired.json` records the names we deleted in favour of an upstream replacement. There is no third category, and `pnpm upstream:check` proves it. Everything the pre-reset system decided **against** upstream and this register resolves as shadcn — the warm neutral ramp, the surface ladder, the alpha and opacity ladders, the radius cap, the shadow ban, the 14px role type scale, the 400/500 weight ladder, the banned colour transitions, the mandatory pressed step, the Button `variant × tone` API, `IconButton`, the z-band names, the modal scrim, tooltip delays, menu chrome — **is gone**, with no compatibility layer (`docs/MIGRATING-1.0.md`). The marketing layer and its ten components were deleted outright, not ported. A new deviation from upstream is a new MK decision on that register; never invent a row (`A11Y-14` and `A11Y-15` are permanently burned because two subagents did).
+- **Stack** — shadcn CLI 4.21.0, style `base-nova` (`-b base` + `-p nova`), pulled with `--pointer` and `--rtl`, colour base `neutral`; `@base-ui/react`; Tailwind v4; Next 16; React 19; Node pinned to 24.20.0 by pnpm (`devEngines.runtime`), not by any runner; pnpm 11; Turborepo 2. A version move is MK's decision: `vendor/shadcn/<cli>/` is committed and hashed, so work continues offline, and the parity gate makes the next bump a reviewable diff.
 - **Distribution is hybrid** — public npm (`@vegastack/design` + zero-dep `@vegastack/design-tokens`) plus a private shadcn registry for components (copy-in); `docs/requirements.md` § 3. **Component model A (own it), no `Vega*` prefix** — export `Button`, and let `shadcn add --diff` surface upstream changes for deliberate cherry-pick; there is no pristine-shadcn tier. **The provider ships as a registry item** (`shadcn add @vegastack/provider`), and the `@vegastack/ui` provider is a documented mirror of that canonical source.
 - **Tokens and docs** — DTCG → Style Dictionary (`color/oklch` transform, separate light/dark builds, `@theme inline` bridge), with runtime vars `--font-family-*`/`--motion-ease-*` that are never self-referential; docs are Fumadocs, statically exported to Cloudflare Workers Static Assets, and Storybook is deferred.
 - **Registry integrity** — whole-item SHA-256 in `meta.integrity`, a Sigstore-signed manifest (GitHub OIDC), and a fail-closed consume preflight. **Auth topology** (2026-07-28) — every non-registry route is anonymous, including `/internal/*`, which stays unlisted, `noindex`, and outside every discovery corpus; `/r/*` alone is service-token-only, and `SITE_VISIBILITY` controls discovery metadata, never authorization.
@@ -168,6 +170,8 @@ Every component exists in three synced places — canonical `packages/ui/registr
 ## Verification — owned boundaries
 
 ```bash
+pnpm upstream:check                 # vendor integrity · byte parity · exceptions · variant coverage
+pnpm upstream:diff <name>           # (re)author a patch; refuses a header naming no decision
 pnpm check:component <name>         # optional: item + transitive reverse dependents + geometry
 pnpm check:affected                 # optional: derive affected scope from the working tree
 pnpm verify                         # full static + working-tree affected Chromium proof
@@ -182,7 +186,9 @@ pnpm run clean                # report only; --after-run / --weekly reclaim, --d
 
 `verify:distribution` is public-only: workspace/registry build, registry idempotency, docs export and its metadata/emitted-CSS contract, links, docs-shell browser contracts and self-test, and the real shadcn consume round-trip. It never runs component regression. Every orchestrator reports per-stage wall time and cleans build artifacts on pass, fail, or interrupt without changing the original exit code.
 
-`pnpm lint` is the static umbrella: Prettier, shadcn base, skill and mirror integrity, changesets, security boundaries, workflow security plus its negative harness, secret scan, **`pnpm upstream:check` plus `pnpm upstream:selftest`**, tooling tests, and package lints. `upstream:check` is three offline gates in order — the committed `vendor/shadcn/<cli>/` tree hashed against its own `manifest.json`, byte parity of every upstream-backed component against upstream-plus-its-approved-patch, and upstream's docs sections present on our page with a distinct live preview each. All three read the vendor tree directly, so none of them can be switched off by editing a list. Design invariants live in `design:verify`, not inside lint, so `verify:static` does not execute them twice. **A changeset must not link a commit** — squash would orphan it; release assembly adds merged commit links. Gates with fail-open risk keep negative/self-test coverage, including the affected selector, workflow security, design-lint structure, registry integrity, CSS layers, token references and docs shell.
+`pnpm lint` is the static umbrella: Prettier, shadcn base, skill and mirror integrity, changesets, security boundaries, workflow security plus its negative harness, secret scan, **`pnpm upstream:check` plus `pnpm upstream:selftest`**, tooling tests, and package lints.
+
+**`pnpm upstream:check` is the anti-drift set, and it proves four things offline, in this order.** (1) **Vendor integrity** — every committed file under `vendor/shadcn/<cli>/` re-hashed against its own `manifest.json`, failing on a content mismatch, a recorded file that is gone, and a file no pull produced. (2) **Byte parity** — `patches/<name>.patch` applied to the vendor file reproduces the canonical file exactly; a component with no patch must equal upstream; a retired name must stay absent; a canonical file that is neither upstream-backed nor recorded in `ours.json` fails. (3) **Exception discipline** — a patch may only name an ID `decisions.json` marks **ours**, and must name every ID `exception-map.json` assigns to that component. (4) **Variant coverage** — every section on upstream's own docs page exists on ours, matched occurrence by occurrence in document order, each with a live `<ComponentPreview>` whose name the barrel exports, and no two required occurrences answering with the same preview. Claims 2 and 3 are one script; all of them read the vendor tree directly, so none can be switched off by editing a list. `pnpm upstream:selftest` runs the `--self-test` of all four `tooling/upstream/` scripts, including `diff.mjs`, which refuses to write a patch whose header names no decision. Design invariants live in `design:verify`, not inside lint, so `verify:static` does not execute them twice. **A changeset must not link a commit** — squash would orphan it; release assembly adds merged commit links. Gates with fail-open risk keep negative/self-test coverage, including the affected selector, workflow security, design-lint structure, registry integrity, CSS layers, token references and docs shell.
 
 **Two deviations from `docs/plans/2026-09-08-verification-rebuild.md`, recorded here because the plan is a point-in-time record and this file is the rulebook.** (1) The plan (§ 3.4) named `tooling/test/playwright-image-pin.test.mjs`; **that file was never written and must not be.** The invariant it described is enforced instead inside `tooling/verify-workflow-security.mjs`, which derives the container tag from the `playwright` version in `pnpm-lock.yaml` and rejects any second literal copy of it — one authority, checked in `pnpm lint`, so a separate test would only be a third place to drift. (2) The plan (§ 3.3, § 4 WP3) listed `tooling/verify-workflow-security-negative.mjs` for DELETION; it was **kept, expanded, and wired into `pnpm lint`** instead. A gate nothing ever observes failing is indistinguishable from a gate that cannot fail, and the workflow-security gate is exactly that kind — so the negative harness is a locked property of the verification set, not a leftover.
 
@@ -205,9 +211,11 @@ The `review` skill covers both halves of a round: **audit** is deterministic —
 ```
 packages/design-tokens/  zero-dep DTCG token contract (theme/base/utilities CSS + JSON)
 packages/design/         cn() · icon runtime · Tailwind preset · vegastack-design CLI · shipped public skills
+vendor/shadcn/4.21.0/    PRISTINE pinned upstream — never hand-edited, hashed in its own manifest.json
 packages/ui/             PRIVATE registry workspace — canonical sources, tests, contracts, registry.json
+packages/ui/upstream/    patches/<name>.patch · decisions.json · exception-map.json · ours.json · retired.json
 apps/docs/               Fumadocs showcase, guides, and the registry host (public/r)
-tooling/                 verify.mjs (the one command) · workspace-clean.mjs · registry hashing · design-lint · test/ (the `tooling` vitest project) · runner/ (enrol a Debian box)
+tooling/                 verify.mjs (the one command) · upstream/ (pull · diff · parity · variant coverage) · workspace-clean.mjs · registry hashing · design-lint · test/ (the `tooling` vitest project) · runner/ (enrol a Debian box)
 skills/                  internal/ maintainer skills (never published) · public/ mirrored into @vegastack/design
 docs/                    requirements · gap analysis · plans · ledgers · research · runbooks/ (machine setup)
 .github/workflows/       ci · release · deploy
@@ -228,7 +236,7 @@ docs/                    requirements · gap analysis · plans · ledgers · res
 
 ## Escalation
 
-- **Needs MK, always** — beginning an outward release requires one explicit **ship it**; that single authorization covers the complete current release and its bounded corrective loop. Cloudflare Access, secrets, auth policy, workflow-permission expansion, runner trust, destructive data, version reversal, and any new sanctioned dependency exception always stop for a new decision.
+- **Needs MK, always** — beginning an outward release requires one explicit **ship it**; that single authorization covers the complete current release and its bounded corrective loop. Cloudflare Access, secrets, auth policy, workflow-permission expansion, runner trust, destructive data, version reversal, any new sanctioned dependency exception, **a new row on the shadcn-reset decision register, and a shadcn CLI version move** always stop for a new decision.
 - **A rule here conflicts with a skill** — the skill is more specific and usually newer; follow it and flag the conflict so one of them gets fixed. Never silently pick one.
 - **A rule conflicts with the code** — the enforcing script is ground truth over any prose, including this file. Fix the prose.
 - **Something is genuinely missing or ambiguous** — stop and ask. Do not invent a decision, and do not re-open a locked one to work around a blocker.
