@@ -55,14 +55,14 @@ export function useMarkdownCopy(
         const markdown = await fetchMarkdown(markdownUrl);
         await navigator.clipboard.writeText(compose(markdown));
         setStatus("copied");
-        toast.success(messages.success);
+        toast.add({ type: "success", title: messages.success });
         revertTimer.current = setTimeout(
           () => setStatus("idle"),
           TIMINGS.feedbackRevertMs,
         );
       } catch {
         setStatus("idle");
-        toast.error(messages.error);
+        toast.add({ type: "error", title: messages.error, priority: "high" });
       }
     },
     [markdownUrl, messages.success, messages.error],

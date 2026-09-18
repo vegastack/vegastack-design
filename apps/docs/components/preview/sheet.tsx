@@ -3,26 +3,37 @@
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/sheet` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
+import { DirectionProvider } from "@/components/ui/direction";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
-  SheetDescription,
   SheetClose,
-  type SheetSide,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+
+/**
+ * Every fixture stays CLOSED at rest: a sheet covers a whole screen edge, and the geometry lane
+ * mounts each fixture as-is.
+ */
+
+/** The paragraph upstream repeats to give the panel more content than it has room for. */
+const LOREM =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+
+const SHEET_SIDES = ["top", "right", "bottom", "left"] as const;
 
 export function sheet(): ReactNode {
   return (
     <Wrapper>
       <Sheet>
-        <SheetTrigger
-          render={<Button variant="outline">Edit profile</Button>}
-        />
+        <SheetTrigger render={<Button variant="outline" />}>Open</SheetTrigger>
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Edit profile</SheetTitle>
@@ -31,15 +42,19 @@ export function sheet(): ReactNode {
               done.
             </SheetDescription>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-4">
-            <p className="text-muted-foreground">
-              Your name and bio are visible to everyone in the workspace. Email
-              changes require re-verification before they take effect.
-            </p>
-          </div>
+          <FieldGroup className="px-4">
+            <Field>
+              <FieldLabel htmlFor="sheet-demo-name">Name</FieldLabel>
+              <Input id="sheet-demo-name" defaultValue="Pedro Duarte" />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="sheet-demo-username">Username</FieldLabel>
+              <Input id="sheet-demo-username" defaultValue="@peduarte" />
+            </Field>
+          </FieldGroup>
           <SheetFooter>
-            <SheetClose render={<Button variant="outline">Cancel</Button>} />
-            <SheetClose render={<Button>Save changes</Button>} />
+            <Button type="submit">Save changes</Button>
+            <SheetClose render={<Button variant="outline" />}>Close</SheetClose>
           </SheetFooter>
         </SheetContent>
       </Sheet>
@@ -47,36 +62,60 @@ export function sheet(): ReactNode {
   );
 }
 
-const SIDES: { side: SheetSide; label: string }[] = [
-  { side: "top", label: "Top" },
-  { side: "right", label: "Right" },
-  { side: "bottom", label: "Bottom" },
-  { side: "left", label: "Left" },
-];
-
-export function sheetSides(): ReactNode {
+export function sheetComposition(): ReactNode {
   return (
     <Wrapper>
-      {SIDES.map(({ side, label }) => (
-        <Sheet key={side} side={side}>
-          <SheetTrigger render={<Button variant="outline">{label}</Button>} />
-          <SheetContent>
+      <Sheet>
+        <SheetTrigger render={<Button variant="outline" />}>Open</SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Are you absolutely sure?</SheetTitle>
+            <SheetDescription>This action cannot be undone.</SheetDescription>
+          </SheetHeader>
+          <SheetFooter>
+            <SheetClose render={<Button variant="outline" />}>
+              Cancel
+            </SheetClose>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </Wrapper>
+  );
+}
+
+export function sheetSide(): ReactNode {
+  return (
+    <Wrapper>
+      {SHEET_SIDES.map((side) => (
+        <Sheet key={side}>
+          <SheetTrigger
+            render={<Button variant="outline" className="capitalize" />}
+          >
+            {side}
+          </SheetTrigger>
+          <SheetContent
+            side={side}
+            className="data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]"
+          >
             <SheetHeader>
-              <SheetTitle>{label} sheet</SheetTitle>
+              <SheetTitle>Edit profile</SheetTitle>
               <SheetDescription>
-                This sheet slides in from the <code>{side}</code> edge of the
-                screen.
+                Make changes to your profile here. Click save when you&apos;re
+                done.
               </SheetDescription>
             </SheetHeader>
-            <div className="flex-1 overflow-y-auto px-4">
-              <p className="text-muted-foreground">
-                Side panels are flush to their pinned edge with no radius; a top
-                or bottom panel keeps a small radius on its free edge.
-              </p>
+            <div className="no-scrollbar overflow-y-auto px-4">
+              {Array.from({ length: 10 }).map((_, index) => (
+                <p key={index} className="mb-2 leading-relaxed">
+                  {LOREM}
+                </p>
+              ))}
             </div>
             <SheetFooter>
-              <SheetClose render={<Button variant="outline">Cancel</Button>} />
-              <SheetClose render={<Button>Confirm</Button>} />
+              <Button type="submit">Save changes</Button>
+              <SheetClose render={<Button variant="outline" />}>
+                Cancel
+              </SheetClose>
             </SheetFooter>
           </SheetContent>
         </Sheet>
@@ -85,34 +124,92 @@ export function sheetSides(): ReactNode {
   );
 }
 
-export function sheetSizes(): ReactNode {
+export function sheetNoCloseButton(): ReactNode {
   return (
     <Wrapper>
-      {(["sm", "md", "lg", "full"] as const).map((size) => (
-        <Sheet key={size}>
-          <SheetTrigger render={<Button variant="outline">{size}</Button>} />
-          <SheetContent size={size} closeLabel="Dismiss filters">
-            <SheetHeader>
-              <SheetTitle>Filters — {size}</SheetTitle>
-              <SheetDescription>
-                <code>size</code> reads as a width on a <code>left</code>/
-                <code>right</code> sheet and as a height on a <code>top</code>/
-                <code>bottom</code> one, from the same panel-width vocabulary.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="flex-1 overflow-y-auto px-4">
-              <p className="text-muted-foreground">
-                Drag the panel towards its edge to dismiss it — the sheet runs
-                on Base UI&apos;s Drawer, so swipe-to-close is built in.
-              </p>
-            </div>
-            <SheetFooter>
-              <SheetClose render={<Button variant="outline">Cancel</Button>} />
-              <SheetClose render={<Button>Apply</Button>} />
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
-      ))}
+      <Sheet>
+        <SheetTrigger render={<Button variant="outline" />}>
+          Open Sheet
+        </SheetTrigger>
+        <SheetContent showCloseButton={false}>
+          <SheetHeader>
+            <SheetTitle>No Close Button</SheetTitle>
+            <SheetDescription>
+              This sheet doesn&apos;t have a close button in the top-right
+              corner.
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter>
+            <SheetClose render={<Button variant="outline" />}>Close</SheetClose>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </Wrapper>
+  );
+}
+
+export function sheetRtl(): ReactNode {
+  return (
+    <Wrapper>
+      <DirectionProvider direction="ltr">
+        <div dir="ltr">
+          <Sheet>
+            <SheetTrigger render={<Button variant="outline" />}>
+              Open
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>Edit profile</SheetTitle>
+                <SheetDescription>
+                  Make changes to your profile here. Click save when you&apos;re
+                  done.
+                </SheetDescription>
+              </SheetHeader>
+              <FieldGroup className="px-4">
+                <Field>
+                  <FieldLabel htmlFor="sheet-ltr-name">Name</FieldLabel>
+                  <Input id="sheet-ltr-name" defaultValue="Pedro Duarte" />
+                </Field>
+              </FieldGroup>
+              <SheetFooter>
+                <Button type="submit">Save changes</Button>
+                <SheetClose render={<Button variant="outline" />}>
+                  Close
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </DirectionProvider>
+      <DirectionProvider direction="rtl">
+        <div dir="rtl">
+          <Sheet>
+            <SheetTrigger render={<Button variant="outline" />}>
+              فتح
+            </SheetTrigger>
+            <SheetContent side="left" dir="rtl">
+              <SheetHeader>
+                <SheetTitle>تعديل الملف الشخصي</SheetTitle>
+                <SheetDescription>
+                  قم بإجراء تغييرات على ملفك الشخصي هنا. انقر حفظ عند الانتهاء.
+                </SheetDescription>
+              </SheetHeader>
+              <FieldGroup className="px-4">
+                <Field>
+                  <FieldLabel htmlFor="sheet-rtl-name">الاسم</FieldLabel>
+                  <Input id="sheet-rtl-name" defaultValue="آدا لوفلايس" />
+                </Field>
+              </FieldGroup>
+              <SheetFooter>
+                <Button type="submit">حفظ التغييرات</Button>
+                <SheetClose render={<Button variant="outline" />}>
+                  إغلاق
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </DirectionProvider>
     </Wrapper>
   );
 }

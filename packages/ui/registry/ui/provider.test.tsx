@@ -15,7 +15,7 @@ async function waitForToast(text: string) {
 }
 
 /**
- * `toastManager` is a MODULE SINGLETON, so a toast fired by one test outlives that test's React
+ * The toast manager is a MODULE SINGLETON, so a toast fired by one test outlives that test's React
  * tree for its full auto-dismiss timeout and keeps rendering — action and close button and all —
  * into whatever the next test mounts. Draining it explicitly is the only way a later test in this
  * file can assert on "the button it rendered" without racing that timer. (Carried over from the
@@ -23,7 +23,7 @@ async function waitForToast(text: string) {
  * migration.)
  */
 async function drainToasts() {
-  toast.dismiss();
+  toast.close();
   await expect
     .poll(() => document.querySelectorAll('[data-slot="toast"]').length)
     .toBe(0);
@@ -46,7 +46,7 @@ test("mounts exactly one toast viewport by default, and toast() reaches it", asy
   );
   // The viewport mounts with the provider; fire a toast, then assert exactly ONE
   // viewport exists and the toast reached it.
-  toast("Provider toast works");
+  toast.add({ title: "Provider toast works" });
   await waitForToast("Provider toast works");
   expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
     1,

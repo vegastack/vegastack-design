@@ -1,0 +1,139 @@
+---
+title: Sonner
+description: The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.
+audience: public
+registry: sonner
+status: stable
+since: 1.0.0
+a11y: engine-owned polite live region
+preview: sonner
+---
+
+## Install
+
+<InstallSteps name="sonner" />
+
+## Usage
+
+`Toaster` is sonner's toaster with our tokens bound to its CSS variables and our lucide glyphs
+bound to its icon slots. Mount one at the app root; the `toast` function comes from `sonner`
+itself, not from this item.
+
+```tsx
+import { toast } from "sonner";
+
+import { Toaster } from "@/components/ui/sonner";
+
+// app/layout.tsx
+<body>
+  {children}
+  <Toaster />
+</body>;
+
+// anywhere
+toast("Event created", {
+  description: "Sunday, December 3 at 9:00 AM",
+});
+```
+
+<ComponentPreview name="sonner" file="components/preview/sonner.tsx" />
+
+## Scope
+
+Sonner is the **second** notification engine in this system, alongside `toast`. Both are sanctioned
+and they do the same job with different machinery: `toast` is Base UI's stack rendered by our own
+parts, so its surface is composed from `Toast`, `ToastContent`, `ToastAction` and the rest and every
+build rule applies to it directly; sonner renders its own surface, which this item themes from the
+outside through CSS variables and an icon map. Pick one per app.
+
+## Anatomy
+
+<Anatomy name="sonner" />
+
+## Examples
+
+### Types
+
+`toast.success`, `toast.info`, `toast.warning`, `toast.error` and `toast.loading` each render their
+own lucide glyph from the `icons` map this item passes, so the type is a shape as well as a colour.
+`toast(...)` with no type is the plain variant.
+
+<ComponentPreview name="sonnerTypes" file="components/preview/sonner.tsx" />
+
+### Action
+
+`action` takes a `label` and an `onClick`. `toast.dismiss(id)` closes one toast; with no argument it
+closes them all.
+
+```tsx
+toast("Event created", {
+  description: "Sunday, December 3 at 9:00 AM",
+  action: { label: "Undo", onClick: () => toast.dismiss() },
+});
+```
+
+<ComponentPreview name="sonnerAction" file="components/preview/sonner.tsx" />
+
+### Promise
+
+`toast.promise` drives one toast through loading, success and error. `success` and `error` may be a
+function of the resolved value or the rejection.
+
+<ComponentPreview name="sonnerPromise" file="components/preview/sonner.tsx" />
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="SonnerToasterProps" />
+
+This item exports `Toaster` only. The imperative API — `toast`, `toast.success`, `toast.promise`,
+`toast.dismiss` and the rest — is sonner's own and is imported from `sonner`:
+
+```ts
+toast(message, options): string | number
+toast.success | info | warning | error | loading (message, options)
+toast.promise(promise, { loading, success, error })
+toast.dismiss(id?): void
+```
+
+Three of `Toaster`'s props are already set by this item and should be left alone unless you mean to
+replace the theming: `theme` (bound to `next-themes`), `icons` (the five lucide glyphs) and `style`
+(the token bridge — `--normal-bg`, `--normal-text`, `--normal-border`, `--border-radius`). Everything
+else — `position`, `expand`, `duration`, `visibleToasts`, `closeButton`, `offset`, `dir`,
+`richColors` — is yours. `id` on the toaster plus `toasterId` on a call scopes toasts to one
+toaster, which is how the previews on this page keep four toasters apart.
+
+## Accessibility
+
+- sonner renders one `<section aria-live="polite">` from the toaster's first render and reuses it
+  for every toast, so the region is being observed before the first toast arrives (A11Y-3, A11Y-4).
+  That region is the engine's; this item adds none of its own, because a second one would announce
+  every toast twice.
+- The region is labelled `Notifications` plus sonner's hotkey hint, and is reachable with that
+  hotkey (<kbd>Alt</kbd>+<kbd>T</kbd> by default, `hotkey` to change it) rather than sitting in the
+  tab order.
+- Each type renders a distinct glyph, so the type survives a monochrome or colour-blind rendering.
+- The surface takes its colours from `--normal-bg`, `--normal-text` and `--normal-border`, which are
+  bound to `popover`, `popover-foreground` and `border` — so it inherits the theme rather than
+  carrying sonner's own palette.
+
+<StatesTested name="sonner" />
+
+## Do / Don't
+
+<DoDont
+  do="Pick ONE notification engine for the app and mount only its toaster: Sonner when you want its stacking, its hotkey-reachable region and its `toast.*` API, and are happy for the surface to be themed from the outside."
+  dont="Mount both Sonner and Toast. They are two engines for the same job, each with its own live region and its own fixed viewport, so together they announce twice and overlap on screen."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/sonner.patch`. Every hunk:
+
+- **A11Y-3, A11Y-4** — NO HUNK, and this is where that claim is recorded rather than assumed.
+  `sonner@2.0.8` renders ONE `aria-live="polite"` region from the toaster's first render and reuses
+  it for every toast, which is A11Y-4's mounted-empty region and A11Y-3's polite-by-default policy.
+  `sonner.test.tsx` asserts that region exists before any toast is fired, so the day the engine
+  changes the test fails.
+- **DOC-1** — `registry-stamp.mjs` writes the provenance header the three-copy model needs, and
+  prettier reflows the file; neither carries a decision of its own. There is no `cn` hunk here:
+  upstream's sonner imports no `cn`.

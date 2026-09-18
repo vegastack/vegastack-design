@@ -19,7 +19,6 @@ import {
   CommandGroup,
   CommandItem,
   CommandShortcut,
-  useCommandFilteredItems,
 } from "@/components/ui/command";
 import {
   DropdownMenu,
@@ -239,40 +238,16 @@ test("data-grid: a merged primary cell names each revealed value separately", as
 });
 
 test("command: an item names its label and its shortcut hint separately", async () => {
-  const GROUPS = [
-    {
-      heading: "Settings",
-      items: [{ value: "profile", label: "Profile", shortcut: "⌘P" }],
-    },
-  ];
-  function Groups() {
-    const groups = useCommandFilteredItems<(typeof GROUPS)[number]>();
-    return (
-      <>
-        {groups.map((group) => (
-          <CommandGroup
-            key={group.heading}
-            heading={group.heading}
-            items={group.items}
-          >
-            {(item) => (
-              <CommandItem key={item.value} value={item.value}>
-                {item.label}
-                {item.shortcut ? (
-                  <CommandShortcut>{item.shortcut}</CommandShortcut>
-                ) : null}
-              </CommandItem>
-            )}
-          </CommandGroup>
-        ))}
-      </>
-    );
-  }
   await render(
-    <Command items={GROUPS}>
+    <Command>
       <CommandInput placeholder="Search…" />
       <CommandList>
-        <Groups />
+        <CommandGroup heading="Settings">
+          <CommandItem value="profile">
+            Profile
+            <CommandShortcut>⌘P</CommandShortcut>
+          </CommandItem>
+        </CommandGroup>
       </CommandList>
     </Command>,
   );

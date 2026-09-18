@@ -11,11 +11,11 @@ import {
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type ToastPlaygroundKey = "intent" | "description";
+type ToastPlaygroundKey = "type" | "description" | "action";
 
-type ToastIntent = "default" | "success" | "error" | "warning" | "info";
+type ToastType = "default" | "success" | "error" | "warning" | "info";
 
-const INTENT_OPTIONS = [
+const TYPE_OPTIONS = [
   { value: "default", label: "Default" },
   { value: "success", label: "Success" },
   { value: "error", label: "Error" },
@@ -23,9 +23,9 @@ const INTENT_OPTIONS = [
   { value: "info", label: "Info" },
 ] as const;
 
-/** Message + optional description per intent, mirrored verbatim into `toCode`. */
+/** Title + optional description per type, mirrored verbatim into `toCode`. */
 const TOAST_CONTENT: Record<
-  ToastIntent,
+  ToastType,
   { message: string; description: string }
 > = {
   default: {
@@ -47,21 +47,40 @@ const TOAST_CONTENT: Record<
   },
 };
 
-function fireToast(intent: ToastIntent, withDescription: boolean) {
-  const { message, description } = TOAST_CONTENT[intent];
-  const options = withDescription ? { description } : undefined;
+function fireToast(
+  type: ToastType,
+  withDescription: boolean,
+  withAction: boolean,
+) {
+  const { message, description } = TOAST_CONTENT[type];
   // Fired ONLY from the button click — control changes never auto-fire a toast.
-  if (intent === "default") toast(message, options);
-  else toast[intent](message, options);
+  // Upstream's manager is `toast.add({ … })`; `type` drives the status icon, and
+  // `error` is announced urgently through `priority: "high"`.
+  const id = toast.add({
+    title: message,
+    ...(withDescription ? { description } : {}),
+    ...(type === "default" ? {} : { type }),
+    ...(type === "error" ? { priority: "high" as const } : {}),
+    ...(withAction
+      ? {
+          actionProps: {
+            children: "Undo",
+            onClick: () => {
+              toast.close(id);
+            },
+          },
+        }
+      : {}),
+  });
 }
 
 const toastPlaygroundConfig: PlaygroundConfig<ToastPlaygroundKey> = {
   controls: [
     {
       type: "select",
-      key: "intent",
-      label: "Intent",
-      options: INTENT_OPTIONS,
+      key: "type",
+      label: "Type",
+      options: TYPE_OPTIONS,
       defaultValue: "default",
     },
     {
@@ -70,32 +89,48 @@ const toastPlaygroundConfig: PlaygroundConfig<ToastPlaygroundKey> = {
       label: "Description",
       defaultValue: false,
     },
+    { type: "switch", key: "action", label: "Action", defaultValue: false },
   ],
   render: (state): ReactNode => (
     <Button
       variant="outline"
       onClick={() =>
-        fireToast(state.intent as ToastIntent, Boolean(state.description))
+        fireToast(
+          state.type as ToastType,
+          Boolean(state.description),
+          Boolean(state.action),
+        )
       }
     >
       Show toast
     </Button>
   ),
   toCode: (state) => {
-    const intent = state.intent as ToastIntent;
-    const { message, description } = TOAST_CONTENT[intent];
-    const fn = intent === "default" ? "toast" : `toast.${intent}`;
-    const args = state.description
-      ? `"${message}", { description: "${description}" }`
-      : `"${message}"`;
-    return `${fn}(${args});`;
+    const type = state.type as ToastType;
+    const { message, description } = TOAST_CONTENT[type];
+    const lines = [`  title: "${message}",`];
+    if (state.description) lines.push(`  description: "${description}",`);
+    if (type !== "default") lines.push(`  type: "${type}",`);
+    if (type === "error") lines.push(`  priority: "high",`);
+    if (state.action) {
+      lines.push(
+        "  actionProps: {",
+        '    children: "Undo",',
+        "    onClick() {",
+        "      toast.close(id);",
+        "    },",
+        "  },",
+      );
+    }
+    const open = state.action ? "const id = toast.add({" : "toast.add({";
+    return [open, ...lines, "});"].join("\n");
   },
 };
 
 /**
- * `ToastPlayground` — interactive props playground for Toast (the `toast` registry item):
- * pick an intent (`toast()` / `toast.success` / `toast.error` / `toast.warning` / `toast.info`)
- * and an optional description, then fire it from the button. Registered in `mdx.tsx`, adopted in
+ * `ToastPlayground` — interactive props playground for Toast (the `toast` registry item): pick a
+ * `type`, an optional description and an optional action, then fire it from the button through
+ * upstream's imperative manager, `toast.add({ … })`. Registered in `mdx.tsx`, adopted in
  * `content/docs/components/toast.mdx`.
  */
 export function ToastPlayground() {

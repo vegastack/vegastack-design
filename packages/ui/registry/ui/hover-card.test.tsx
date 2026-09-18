@@ -2,40 +2,66 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
+import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "./hover-card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
+import { DirectionProvider } from "./direction";
 
-// Base UI's PreviewCard opens on hover/focus after a delay. Tests set openDelay={0}
-// so the card appears immediately without waiting.
+/** Upstream's four physical sides. */
+const SIDES = ["left", "top", "bottom", "right"] as const;
+
+const card = () =>
+  document.querySelector(
+    '[data-slot="hover-card-content"]',
+  ) as HTMLElement | null;
+
+/**
+ * The card opens on hover after `delay`; every test that is not ABOUT the delay sets it to zero so
+ * the assertion is about the card, not about timing.
+ */
 function Subject({
-  side,
+  triggerProps,
+  ...contentProps
 }: {
-  side?: "top" | "right" | "bottom" | "left";
-} = {}) {
+  triggerProps?: React.ComponentProps<typeof HoverCardTrigger>;
+} & React.ComponentProps<typeof HoverCardContent>) {
   return (
-    <HoverCard openDelay={0} closeDelay={0}>
-      <HoverCardTrigger>@ada</HoverCardTrigger>
-      <HoverCardContent side={side}>
+    <HoverCard>
+      <HoverCardTrigger delay={0} closeDelay={0} {...triggerProps}>
+        @ada
+      </HoverCardTrigger>
+      <HoverCardContent {...contentProps}>
         <p>Ada Lovelace — Owner</p>
       </HoverCardContent>
     </HoverCard>
   );
 }
 
-test("renders the trigger with its data-slot", async () => {
-  const screen = await render(<Subject />);
-  const trigger = screen.getByText("@ada");
-  await expect.element(trigger).toBeInTheDocument();
-  await expect
-    .element(trigger)
-    .toHaveAttribute("data-slot", "hover-card-trigger");
-});
+/**
+ * Collision avoidance is on by default and this lane compiles no CSS, so `w-64` is inert and the
+ * card is as wide as its text. Placement fixtures therefore pin a small card inside a gutter sized
+ * so the requested side and alignment fit in the 414×896 test viewport — otherwise `data-side`
+ * would report the fallback the browser chose rather than the prop that was passed.
+ */
+function Placed({
+  children,
+  ...contentProps
+}: React.ComponentProps<typeof HoverCardContent>) {
+  return (
+    <div style={{ padding: 140 }}>
+      <HoverCard>
+        <HoverCardTrigger delay={0} closeDelay={0}>
+          @ada
+        </HoverCardTrigger>
+        <HoverCardContent style={{ width: 80 }} {...contentProps}>
+          {children ?? "Placed"}
+        </HoverCardContent>
+      </HoverCard>
+    </div>
+  );
+}
 
-test("a closed hover card renders no content (closed by default → opens on interaction)", async () => {
-  // CONTROLLED open={false}: deterministic. An openDelay={0} card opens instantly on focus (Base UI
-  // opens on focus-visible regardless of the hover delay), and under full-suite load the shared
-  // browser input state can transiently focus the freshly-rendered trigger → flaky open. Pinning
-  // open={false} removes that race; the open-on-interaction path is covered by the hover/focus tests.
+test("renders a link trigger carrying its data-slot, closed (Usage)", async () => {
   const screen = await render(
     <HoverCard open={false}>
       <HoverCardTrigger>@ada</HoverCardTrigger>
@@ -44,23 +70,26 @@ test("a closed hover card renders no content (closed by default → opens on int
       </HoverCardContent>
     </HoverCard>,
   );
-  await expect.element(screen.getByText("@ada")).toBeInTheDocument();
-  expect(
-    screen.container.ownerDocument.querySelector(
-      '[data-slot="hover-card-content"]',
-    ),
-  ).toBeNull();
+  const trigger = screen.getByText("@ada");
+  await expect
+    .element(trigger)
+    .toHaveAttribute("data-slot", "hover-card-trigger");
+  expect(card()).toBeNull();
 });
 
-test("content appears on hover", async () => {
+test("hovering the trigger portals the card (Usage, Composition)", async () => {
   const screen = await render(<Subject />);
   await userEvent.hover(screen.getByText("@ada"));
   await expect
     .element(screen.getByText("Ada Lovelace — Owner"))
     .toBeInTheDocument();
+  const content = card();
+  expect(content).not.toBeNull();
+  // Portaled: the card is not inside the component's own container subtree.
+  expect(screen.container.contains(content)).toBe(false);
 });
 
-test("content appears on keyboard focus", async () => {
+test("keyboard focus opens the card (Usage)", async () => {
   const screen = await render(<Subject />);
   await userEvent.tab();
   await expect
@@ -68,104 +97,141 @@ test("content appears on keyboard focus", async () => {
     .toBeInTheDocument();
 });
 
-test("content carries the token slot and resolved side data attribute", async () => {
-  const screen = await render(<Subject side="right" />);
+test("delay holds the card closed until it elapses (Trigger Delays)", async () => {
+  const screen = await render(
+    <Subject triggerProps={{ delay: 5000, closeDelay: 0 }} />,
+  );
   await userEvent.hover(screen.getByText("@ada"));
-  await expect
-    .element(screen.getByText("Ada Lovelace — Owner"))
-    .toBeInTheDocument();
-
-  const content = screen.container.ownerDocument.querySelector(
-    '[data-slot="hover-card-content"]',
-  )!;
-  expect(content.getAttribute("data-side")).toBe("right");
+  // Well inside the 5s open delay: the card must still be absent. A zero-delay trigger (every
+  // other test in this file) opens on the same gesture, so this is the delay and nothing else.
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  expect(card()).toBeNull();
 });
 
-test("forwards portal, positioner, and optional viewport props", async () => {
+test("a zero delay opens the card on the same gesture (Trigger Delays)", async () => {
+  const screen = await render(<Subject />);
+  await userEvent.hover(screen.getByText("@ada"));
+  await expect.poll(card).not.toBeNull();
+});
+
+test("side and align are recorded on the positioner and the card (Positioning)", async () => {
+  const screen = await render(<Placed side="top" align="start" />);
+  await userEvent.hover(screen.getByText("@ada"));
+  await expect.poll(card).not.toBeNull();
+  const content = card() as HTMLElement;
+  expect(content.getAttribute("data-side")).toBe("top");
+  expect(content.getAttribute("data-align")).toBe("start");
+  expect(content.parentElement?.getAttribute("data-side")).toBe("top");
+});
+
+test("the card renders arbitrary preview content (Basic)", async () => {
   const screen = await render(
-    <HoverCard defaultOpen>
+    <HoverCard>
+      <HoverCardTrigger delay={0} closeDelay={0}>
+        @nextjs
+      </HoverCardTrigger>
+      <HoverCardContent>
+        <div>@nextjs</div>
+        <div>The React Framework – created and maintained by @vercel.</div>
+        <div>Joined December 2021</div>
+      </HoverCardContent>
+    </HoverCard>,
+  );
+  await userEvent.hover(screen.getByText("@nextjs"));
+  await expect
+    .element(screen.getByText("Joined December 2021"))
+    .toBeInTheDocument();
+});
+
+test.each(SIDES)("side=%s is resolved onto the card (Sides)", async (side) => {
+  const screen = await render(<Placed side={side} />);
+  await userEvent.hover(screen.getByText("@ada"));
+  await expect.poll(card).not.toBeNull();
+  expect((card() as HTMLElement).getAttribute("data-side")).toBe(side);
+});
+
+test("RTL: a logical side resolves against the direction context, not the portal (RTL)", async () => {
+  const screen = await render(
+    <DirectionProvider direction="rtl">
+      <div dir="rtl">
+        <Placed side="inline-start" dir="rtl" />
+      </div>
+    </DirectionProvider>,
+  );
+  const trigger = screen.getByText("@ada");
+  await userEvent.hover(trigger);
+  await expect.poll(card).not.toBeNull();
+  const content = card() as HTMLElement;
+  expect(getComputedStyle(content).direction).toBe("rtl");
+  expect(content.getAttribute("data-side")).toBe("inline-start");
+  // `inline-start` under RTL is the RIGHT of the trigger. Without DirectionProvider the positioner
+  // would read the portal's LTR context and place it on the left, so this is the assertion that
+  // actually distinguishes the two.
+  expect(content.getBoundingClientRect().left).toBeGreaterThanOrEqual(
+    trigger.element().getBoundingClientRect().right,
+  );
+});
+
+test("OVL-13: the positioner inside the portal carries the theme scope", async () => {
+  const screen = await render(
+    <InternalThemeScopeProvider scope="vs-test-scope">
+      <Subject />
+    </InternalThemeScopeProvider>,
+  );
+  await userEvent.hover(screen.getByText("@ada"));
+  await expect.poll(card).not.toBeNull();
+  const content = card() as HTMLElement;
+  const portal = content.closest("[data-base-ui-portal]");
+  expect(portal).not.toBeNull();
+  const scoped = portal?.querySelector(".vs-test-scope");
+  expect(scoped).not.toBeNull();
+  // The scope host is the POSITIONER — the card's own parent, inside the portal.
+  expect(scoped).toBe(content.parentElement);
+});
+
+test("OVL-13: with no scope in context the positioner carries no scope class", async () => {
+  const screen = await render(<Subject />);
+  await userEvent.hover(screen.getByText("@ada"));
+  await expect.poll(card).not.toBeNull();
+  const positioner = (card() as HTMLElement).parentElement as HTMLElement;
+  expect(positioner.className).toContain("isolate");
+  expect(positioner.className).not.toContain("vs-test-scope");
+});
+
+test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
+  const screen = await render(<Subject />);
+  await userEvent.hover(screen.getByText("@ada"));
+  await expect.poll(card).not.toBeNull();
+  const elements = [
+    ...screen.container.querySelectorAll<HTMLElement>("*"),
+    ...document.querySelectorAll<HTMLElement>("[data-base-ui-portal] *"),
+  ];
+  for (const element of elements) {
+    const classes =
+      typeof element.className === "string" ? element.className : "";
+    expect(classes).not.toMatch(/ring-3|ring-\[3px\]/);
+    expect(classes).not.toContain("focus-visible:ring-");
+  }
+});
+
+test("no a11y violations — closed", async () => {
+  const screen = await render(
+    <HoverCard open={false}>
       <HoverCardTrigger>@ada</HoverCardTrigger>
-      <HoverCardContent
-        portalProps={{ className: "hover-card-portal-prop" }}
-        positionerProps={{ className: "consumer-positioner" }}
-        viewportProps={{ className: "consumer-viewport" }}
-      >
+      <HoverCardContent>
         <p>Ada Lovelace — Owner</p>
       </HoverCardContent>
     </HoverCard>,
   );
-  await expect
-    .element(screen.getByText("Ada Lovelace — Owner"))
-    .toBeInTheDocument();
-
-  const positioner = document.querySelector(
-    '[data-slot="hover-card-positioner"]',
-  )!;
-  expect(positioner.className).toContain("z-50");
-  expect(positioner.className).toContain("consumer-positioner");
-  expect(document.querySelector(".hover-card-portal-prop")).not.toBeNull();
-  expect(
-    document.querySelector('[data-slot="hover-card-viewport"]')?.className,
-  ).toContain("consumer-viewport");
-});
-
-test("renders an arrow when arrow is set", async () => {
-  await render(
-    <HoverCard defaultOpen>
-      <HoverCardTrigger>@ada</HoverCardTrigger>
-      <HoverCardContent arrow>
-        <p>Has an arrow</p>
-      </HoverCardContent>
-    </HoverCard>,
-  );
-  await expect
-    .poll(() => document.querySelector('[data-slot="hover-card-arrow"]'))
-    .not.toBeNull();
-});
-
-test("takes arbitrary (presentational) children", async () => {
-  const screen = await render(
-    <HoverCard defaultOpen>
-      <HoverCardTrigger>2 Teams</HoverCardTrigger>
-      <HoverCardContent>
-        <div>
-          <p>Platform</p>
-          <button type="button">View team</button>
-        </div>
-      </HoverCardContent>
-    </HoverCard>,
-  );
-  await expect
-    .element(screen.getByRole("button", { name: "View team" }))
-    .toBeInTheDocument();
-});
-
-test("no a11y violations (closed)", async () => {
-  const screen = await render(<Subject />);
   await expectNoA11yViolations(screen.container);
 });
 
-test("no a11y violations (open)", async () => {
+test("no a11y violations — open", async () => {
   const screen = await render(<Subject />);
   await userEvent.hover(screen.getByText("@ada"));
   await expect
     .element(screen.getByText("Ada Lovelace — Owner"))
     .toBeInTheDocument();
-  // The popup portals to <body>, so audit the whole document, not just the container.
-  await expectNoA11yViolations(screen.container.ownerDocument.body);
-});
-
-test("HoverCardTrigger forwards ref to its host element", async () => {
-  // The trigger renders an <a> by default; `{...props}` (and the ref) lands on it.
-  const ref = React.createRef<HTMLAnchorElement>();
-  await render(
-    <HoverCard>
-      <HoverCardTrigger ref={ref}>@ada</HoverCardTrigger>
-      <HoverCardContent>
-        <p>Ada Lovelace — Owner</p>
-      </HoverCardContent>
-    </HoverCard>,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLElement);
-  expect(ref.current?.dataset.slot).toBe("hover-card-trigger");
+  // The card portals to <body>, so audit the whole document, not just the container.
+  await expectNoA11yViolations(document.body);
 });

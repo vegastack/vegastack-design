@@ -94,7 +94,9 @@ export function textEditSubmit(): ReactNode {
       <TextEdit
         value={html}
         onValueChange={setHtml}
-        onSubmit={() => toast.success("Submitted with Cmd/Ctrl+Enter")}
+        onSubmit={() =>
+          toast.add({ type: "success", title: "Submitted with Cmd/Ctrl+Enter" })
+        }
         placeholder="Write a reply…"
         aria-label="Reply"
       />

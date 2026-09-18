@@ -181,7 +181,8 @@ export function PreviewFrameContainer({
     <Dialog open onOpenChange={setFullscreen}>
       <DialogContent
         data-preview-fullscreen=""
-        closeLabel="Exit fullscreen preview"
+        // Upstream's close button names itself "Close" through an `sr-only` span; there is no
+        // `closeLabel` prop to retune it, so the dialog is named by its own title instead.
         // The popup fills the viewport: a preview canvas, not a modal card.
         className="h-dvh max-h-dvh w-dvw max-w-none rounded-none border-0 bg-background p-0 sm:max-w-none"
       >

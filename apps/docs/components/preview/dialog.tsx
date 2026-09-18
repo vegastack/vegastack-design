@@ -3,43 +3,97 @@
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/dialog` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
   DialogClose,
-  type DialogContentSize,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { DirectionProvider } from "@/components/ui/direction";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+
+/**
+ * Every fixture stays CLOSED at rest: the trigger is the component's real entry point, and the
+ * geometry lane mounts each fixture as-is, so an overlay that opened itself would cover the page.
+ */
+
+/** The paragraph upstream repeats to give a dialog more content than it has room for. */
+const LOREM =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
 
 export function dialog(): ReactNode {
   return (
     <Wrapper>
       <Dialog>
-        <DialogTrigger
-          render={<Button variant="outline">Delete project</Button>}
-        />
+        <form>
+          <DialogTrigger render={<Button variant="outline" />}>
+            Open Dialog
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Edit profile</DialogTitle>
+              <DialogDescription>
+                Make changes to your profile here. Click save when you&apos;re
+                done.
+              </DialogDescription>
+            </DialogHeader>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="dialog-name">Name</FieldLabel>
+                <Input
+                  id="dialog-name"
+                  name="name"
+                  defaultValue="Pedro Duarte"
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="dialog-username">Username</FieldLabel>
+                <Input
+                  id="dialog-username"
+                  name="username"
+                  defaultValue="@peduarte"
+                />
+              </Field>
+            </FieldGroup>
+            <DialogFooter>
+              <DialogClose render={<Button variant="outline" />}>
+                Cancel
+              </DialogClose>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </form>
+      </Dialog>
+    </Wrapper>
+  );
+}
+
+export function dialogComposition(): ReactNode {
+  return (
+    <Wrapper>
+      <Dialog>
+        <DialogTrigger render={<Button variant="outline" />}>
+          Open
+        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete project</DialogTitle>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
             <DialogDescription>
-              This permanently deletes the project and all of its data. This
-              action cannot be undone.
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
             </DialogDescription>
           </DialogHeader>
-          <p className="text-muted-foreground">
-            Type the project name to confirm, or close this dialog to keep it.
-            Removed projects are retained for 30 days before final deletion.
-          </p>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline">Cancel</Button>} />
-            <DialogClose
-              render={<Button variant="destructive">Delete project</Button>}
-            />
+            <DialogClose render={<Button variant="outline" />}>
+              Cancel
+            </DialogClose>
+            <Button>Continue</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -47,39 +101,37 @@ export function dialog(): ReactNode {
   );
 }
 
-const SIZES: { size: DialogContentSize; label: string }[] = [
-  { size: "xs", label: "Extra small" },
-  { size: "sm", label: "Small" },
-  { size: "md", label: "Default" },
-  { size: "lg", label: "Large" },
-  { size: "full", label: "Full" },
-];
-
-export function dialogSizes(): ReactNode {
+export function dialogCustomCloseButton(): ReactNode {
   return (
     <Wrapper>
-      {SIZES.map(({ size, label }) => (
-        <Dialog key={size}>
-          <DialogTrigger render={<Button variant="outline">{label}</Button>} />
-          <DialogContent size={size}>
-            <DialogHeader>
-              <DialogTitle>{label} dialog</DialogTitle>
-              <DialogDescription>
-                This dialog uses the <code>{size}</code> size — its max-width
-                scales accordingly.
-              </DialogDescription>
-            </DialogHeader>
-            <p className="text-muted-foreground">
-              The header, this body, and the action row below sit at 20px
-              padding on a 12px-radius popover surface with the overlay shadow.
-            </p>
-            <DialogFooter>
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
-              <DialogClose render={<Button>Save changes</Button>} />
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      ))}
+      <Dialog>
+        <DialogTrigger render={<Button variant="outline" />}>
+          Share
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share link</DialogTitle>
+            <DialogDescription>
+              Anyone who has this link will be able to view this.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-2">
+            <div className="grid flex-1 gap-2">
+              <FieldLabel htmlFor="dialog-link" className="sr-only">
+                Link
+              </FieldLabel>
+              <Input
+                id="dialog-link"
+                defaultValue="https://design.vegastack.com/docs/components/dialog"
+                readOnly
+              />
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <DialogClose render={<Button type="button" />}>Close</DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Wrapper>
   );
 }
@@ -88,90 +140,135 @@ export function dialogNoCloseButton(): ReactNode {
   return (
     <Wrapper>
       <Dialog>
-        <DialogTrigger
-          render={<Button variant="outline">Confirm subscription</Button>}
-        />
+        <DialogTrigger render={<Button variant="outline" />}>
+          No Close Button
+        </DialogTrigger>
         <DialogContent showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>Confirm subscription</DialogTitle>
+            <DialogTitle>No Close Button</DialogTitle>
             <DialogDescription>
-              With <code>{"showCloseButton={false}"}</code> the top-right{" "}
-              <code>X</code> is removed, so the only way out is an explicit
-              footer action. Use this when you want a deliberate choice rather
-              than an easy dismiss.
+              This dialog doesn&apos;t have a close button in the top-right
+              corner.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <DialogClose render={<Button variant="outline">Not now</Button>} />
-            <DialogClose render={<Button>Subscribe</Button>} />
-          </DialogFooter>
+          <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
     </Wrapper>
   );
 }
 
-export function dialogCloseLabel(): ReactNode {
+export function dialogStickyFooter(): ReactNode {
   return (
     <Wrapper>
       <Dialog>
-        <DialogTrigger
-          render={<Button variant="outline">Edit profile</Button>}
-        />
-        <DialogContent closeLabel="Dismiss dialog">
-          <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>
-              The top-right close button carries an accessible label. Here{" "}
-              <code>closeLabel=&quot;Dismiss dialog&quot;</code> overrides the
-              default <code>&quot;Close&quot;</code> — inspect the{" "}
-              <code>X</code> button to see the new <code>aria-label</code>.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose render={<Button variant="outline">Cancel</Button>} />
-            <DialogClose render={<Button>Save</Button>} />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Wrapper>
-  );
-}
-
-export function dialogScrollable(): ReactNode {
-  return (
-    <Wrapper>
-      <Dialog>
-        <DialogTrigger render={<Button variant="outline">Read terms</Button>} />
+        <DialogTrigger render={<Button variant="outline" />}>
+          Sticky Footer
+        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Terms of service</DialogTitle>
+            <DialogTitle>Sticky Footer</DialogTitle>
             <DialogDescription>
-              When the body is taller than the viewport, the popup caps its
-              height and the content scrolls — the header and footer stay
-              pinned.
+              This dialog has a sticky footer that stays visible while the
+              content scrolls.
             </DialogDescription>
           </DialogHeader>
-          <div className="-mx-1 flex flex-col gap-3 overflow-y-auto px-1 text-muted-foreground">
-            {Array.from({ length: 12 }, (_, i) => (
-              <p key={i}>
-                <span className="font-medium text-foreground">
-                  Section {i + 1}.
-                </span>{" "}
-                This is a long body paragraph included to overflow the dialog
-                vertically. The popup is capped at{" "}
-                <code>max-h-[calc(100dvh-var(--spacing)*8)]</code> and this
-                region scrolls within it while the header and footer remain
-                fixed.
+          <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <p key={index} className="mb-4 leading-normal">
+                {LOREM}
               </p>
             ))}
           </div>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline">Decline</Button>} />
-            <DialogClose render={<Button>Accept</Button>} />
+            <DialogClose render={<Button variant="outline" />}>
+              Close
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </Wrapper>
+  );
+}
+
+export function dialogScrollableContent(): ReactNode {
+  return (
+    <Wrapper>
+      <Dialog>
+        <DialogTrigger render={<Button variant="outline" />}>
+          Scrollable Content
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Scrollable Content</DialogTitle>
+            <DialogDescription>
+              This is a dialog with scrollable content.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <p key={index} className="mb-4 leading-normal">
+                {LOREM}
+              </p>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </Wrapper>
+  );
+}
+
+export function dialogRtl(): ReactNode {
+  return (
+    <Wrapper>
+      <DirectionProvider direction="ltr">
+        <div dir="ltr">
+          <Dialog>
+            <DialogTrigger render={<Button variant="outline" />}>
+              Open Dialog
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-sm">
+              <DialogHeader>
+                <DialogTitle>Edit profile</DialogTitle>
+                <DialogDescription>
+                  Make changes to your profile here. Click save when you&apos;re
+                  done.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose render={<Button variant="outline" />}>
+                  Cancel
+                </DialogClose>
+                <Button type="submit">Save changes</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </DirectionProvider>
+      <DirectionProvider direction="rtl">
+        <div dir="rtl">
+          <Dialog>
+            <DialogTrigger render={<Button variant="outline" />}>
+              فتح الحوار
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-sm" dir="rtl">
+              <DialogHeader>
+                <DialogTitle>تعديل الملف الشخصي</DialogTitle>
+                <DialogDescription>
+                  قم بإجراء تغييرات على ملفك الشخصي هنا. انقر فوق حفظ عند
+                  الانتهاء.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose render={<Button variant="outline" />}>
+                  إلغاء
+                </DialogClose>
+                <Button type="submit">حفظ التغييرات</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </DirectionProvider>
     </Wrapper>
   );
 }

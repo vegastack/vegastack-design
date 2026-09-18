@@ -114,7 +114,7 @@ export function pageHeaderSecondaryMenu(): ReactNode {
               <DropdownMenuItem>Rename</DropdownMenuItem>
               <DropdownMenuItem>Duplicate</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem tone="destructive">Delete</DropdownMenuItem>
+              <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         }

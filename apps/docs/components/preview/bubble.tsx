@@ -162,7 +162,9 @@ export function bubbleInteractive(): ReactNode {
               render={
                 <button
                   type="button"
-                  onClick={() => toast("Deploying to production…")}
+                  onClick={() =>
+                    toast.add({ title: "Deploying to production…" })
+                  }
                 />
               }
             >
@@ -174,7 +176,7 @@ export function bubbleInteractive(): ReactNode {
               render={
                 <button
                   type="button"
-                  onClick={() => toast("Okay, holding off.")}
+                  onClick={() => toast.add({ title: "Okay, holding off." })}
                 />
               }
             >

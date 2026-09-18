@@ -10,8 +10,8 @@ import {
   SheetTitle,
   SheetDescription,
   SheetClose,
-  type SheetSide,
 } from "@/components/ui/sheet";
+import type { SheetContentProps } from "@/lib/api-props";
 import { Button } from "@/components/ui/button";
 import {
   PropsPlayground,
@@ -45,9 +45,12 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
   ],
   // Renders CLOSED — the reader opens it via the trigger, so the initial state is deterministic.
   render: (state): ReactNode => (
-    <Sheet side={state.side as SheetSide}>
+    <Sheet>
       <SheetTrigger render={<Button variant="outline">Open sheet</Button>} />
-      <SheetContent showCloseButton={Boolean(state.showCloseButton)}>
+      <SheetContent
+        side={state.side as SheetContentProps["side"]}
+        showCloseButton={Boolean(state.showCloseButton)}
+      >
         <SheetHeader>
           <SheetTitle>Edit profile</SheetTitle>
           <SheetDescription>
@@ -62,14 +65,14 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
     </Sheet>
   ),
   toCode: (state) => {
-    // `side` belongs on the root (it picks the swipe direction as well as the edge);
-    // only the close-button toggle is a content prop.
-    const rootProps = state.side !== "right" ? ` side="${state.side}"` : "";
-    const contentProps = !state.showCloseButton
-      ? " showCloseButton={false}"
-      : "";
+    // `side` is a SheetContent prop: upstream's Sheet is Base UI's Dialog, so the side is the
+    // edge the popup pins to rather than a swipe direction on the root.
+    const props: string[] = [];
+    if (state.side !== "right") props.push(`side="${state.side}"`);
+    if (!state.showCloseButton) props.push("showCloseButton={false}");
+    const contentProps = props.length > 0 ? ` ${props.join(" ")}` : "";
     return [
-      `<Sheet${rootProps}>`,
+      "<Sheet>",
       '  <SheetTrigger render={<Button variant="outline">Open sheet</Button>} />',
       `  <SheetContent${contentProps}>`,
       "    <SheetHeader>",
@@ -88,7 +91,7 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
 
 /**
  * `SheetPlayground` — interactive props playground for `Sheet` (`SheetContent` side /
- * showCloseButton), backed by the generic {@link PropsPlayground}. The sheet renders closed;
+ * showCloseButton), backed by the generic `PropsPlayground`. The sheet renders closed;
  * the reader opens it from the trigger. Registered in `mdx.tsx`, adopted in
  * `content/docs/components/sheet.mdx`.
  */

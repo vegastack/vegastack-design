@@ -28,6 +28,42 @@ import type {
 } from "@/components/ui/alert";
 import type { AspectRatio } from "@/components/ui/aspect-ratio";
 import type {
+  AlertDialogCancel,
+  AlertDialogContent,
+} from "@/components/ui/alert-dialog";
+import type { Command, CommandDialog } from "@/components/ui/command";
+import type {
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSubTrigger,
+} from "@/components/ui/context-menu";
+import type {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import type { Drawer, DrawerContent } from "@/components/ui/drawer";
+import type {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { HoverCardContent } from "@/components/ui/hover-card";
+import type {
+  MenubarCheckboxItem,
+  MenubarContent,
+  MenubarItem,
+  MenubarRadioItem,
+  MenubarSubTrigger,
+} from "@/components/ui/menubar";
+import type { PopoverContent } from "@/components/ui/popover";
+import type { Sheet, SheetContent } from "@/components/ui/sheet";
+import type { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import type { Toast, ToastAction, ToastViewport } from "@/components/ui/toast";
+import type {
   Avatar,
   AvatarBadge,
   AvatarFallback,
@@ -228,3 +264,74 @@ export type SliderProps = React.ComponentProps<typeof Slider>;
 export type SwitchProps = React.ComponentProps<typeof Switch>;
 
 export type TextareaProps = React.ComponentProps<typeof Textarea>;
+
+export type DialogProps = React.ComponentProps<typeof Dialog>;
+export type DialogContentProps = React.ComponentProps<typeof DialogContent>;
+export type DialogFooterProps = React.ComponentProps<typeof DialogFooter>;
+
+export type AlertDialogContentProps = React.ComponentProps<
+  typeof AlertDialogContent
+>;
+export type AlertDialogCancelProps = React.ComponentProps<
+  typeof AlertDialogCancel
+>;
+
+export type SheetProps = React.ComponentProps<typeof Sheet>;
+export type SheetContentProps = React.ComponentProps<typeof SheetContent>;
+
+export type DrawerProps = React.ComponentProps<typeof Drawer>;
+export type DrawerContentProps = React.ComponentProps<typeof DrawerContent>;
+
+export type PopoverContentProps = React.ComponentProps<typeof PopoverContent>;
+
+export type HoverCardContentProps = React.ComponentProps<
+  typeof HoverCardContent
+>;
+
+export type DropdownMenuContentProps = React.ComponentProps<
+  typeof DropdownMenuContent
+>;
+export type DropdownMenuSubContentProps = React.ComponentProps<
+  typeof DropdownMenuSubContent
+>;
+export type DropdownMenuItemProps = React.ComponentProps<
+  typeof DropdownMenuItem
+>;
+export type DropdownMenuLabelProps = React.ComponentProps<
+  typeof DropdownMenuLabel
+>;
+export type DropdownMenuSubTriggerProps = React.ComponentProps<
+  typeof DropdownMenuSubTrigger
+>;
+
+export type ContextMenuContentProps = React.ComponentProps<
+  typeof ContextMenuContent
+>;
+export type ContextMenuItemProps = React.ComponentProps<typeof ContextMenuItem>;
+export type ContextMenuLabelProps = React.ComponentProps<
+  typeof ContextMenuLabel
+>;
+export type ContextMenuSubTriggerProps = React.ComponentProps<
+  typeof ContextMenuSubTrigger
+>;
+
+export type MenubarContentProps = React.ComponentProps<typeof MenubarContent>;
+export type MenubarItemProps = React.ComponentProps<typeof MenubarItem>;
+export type MenubarCheckboxItemProps = React.ComponentProps<
+  typeof MenubarCheckboxItem
+>;
+export type MenubarRadioItemProps = React.ComponentProps<
+  typeof MenubarRadioItem
+>;
+export type MenubarSubTriggerProps = React.ComponentProps<
+  typeof MenubarSubTrigger
+>;
+
+export type CommandProps = React.ComponentProps<typeof Command>;
+export type CommandDialogProps = React.ComponentProps<typeof CommandDialog>;
+
+export type ToastProps = React.ComponentProps<typeof Toast>;
+export type ToastViewportProps = React.ComponentProps<typeof ToastViewport>;
+export type ToastActionProps = React.ComponentProps<typeof ToastAction>;
+
+export type SonnerToasterProps = React.ComponentProps<typeof SonnerToaster>;

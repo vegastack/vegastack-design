@@ -215,7 +215,7 @@ export function markerLinkButton(): ReactNode {
           render={
             <button
               type="button"
-              onClick={() => toast("Reverted the last change")}
+              onClick={() => toast.add({ title: "Reverted the last change" })}
               className="hover:text-foreground"
             />
           }

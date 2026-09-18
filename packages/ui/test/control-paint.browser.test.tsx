@@ -15,7 +15,7 @@ import { NumberField } from "../registry/ui/number-field";
 import { OTPInput } from "../registry/ui/otp-input";
 import { Switch } from "../registry/ui/switch";
 import { Textarea } from "../registry/ui/textarea";
-import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
+import { Toaster, toast } from "../registry/ui/toast";
 
 /**
  * CONTROL-PAINT CONTRACTS — what the browser paints, not what the source authored.
@@ -68,14 +68,10 @@ const within = (container: Element) => ({
 });
 
 describe("toast content geometry", () => {
-  afterEach(() => toast.dismiss());
+  afterEach(() => toast.close());
 
   test("copy and controls stay centered with and without a description", async () => {
-    await render(
-      <ToastProvider>
-        <Toaster style={{ pointerEvents: "none" }} />
-      </ToastProvider>,
-    );
+    await render(<Toaster />);
 
     const measure = (title: string) => {
       const root = [
@@ -101,7 +97,7 @@ describe("toast content geometry", () => {
       return { root: root!, row: row! };
     };
 
-    toast("Event created", { timeout: 0 });
+    toast.add({ title: "Event created", timeout: 0 });
     await expect
       .poll(
         () => document.querySelector('[data-slot="toast-title"]')?.textContent,
@@ -109,11 +105,12 @@ describe("toast content geometry", () => {
       .toBe("Event created");
     measure("Event created");
 
-    toast.dismiss();
+    toast.close();
     await expect
       .poll(() => document.querySelectorAll('[data-slot="toast"]').length)
       .toBe(0);
-    toast("Invitation sent", {
+    toast.add({
+      title: "Invitation sent",
       description: "sent to jane@vegastack.com",
       actionProps: { children: "Undo", onClick: () => {} },
       timeout: 0,
@@ -138,7 +135,7 @@ describe("toast content geometry", () => {
     expect(getComputedStyle(action).backgroundColor).toBe(
       getComputedStyle(close).backgroundColor,
     );
-    expect(action.getBoundingClientRect().height).toBe(24);
+    expect(action.getBoundingClientRect().height).toBe(28);
   });
 });
 

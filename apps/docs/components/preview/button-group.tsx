@@ -162,7 +162,7 @@ export function buttonGroup(): ReactNode {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem tone="destructive">
+                <DropdownMenuItem variant="destructive">
                   <Trash2Icon />
                   Trash
                 </DropdownMenuItem>
@@ -473,7 +473,7 @@ export function buttonGroupDropdownMenu(): ReactNode {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem tone="destructive">
+              <DropdownMenuItem variant="destructive">
                 <TrashIcon />
                 Delete Conversation
               </DropdownMenuItem>

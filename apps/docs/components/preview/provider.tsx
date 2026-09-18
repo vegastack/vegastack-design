@@ -21,7 +21,9 @@ export function providerDemo(): ReactNode {
       <ThemeToggleDemo />
       <Button
         variant="outline"
-        onClick={() => toast.success("Wired through the provider")}
+        onClick={() =>
+          toast.add({ type: "success", title: "Wired through the provider" })
+        }
       >
         Fire a toast
       </Button>

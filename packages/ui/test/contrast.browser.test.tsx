@@ -7,7 +7,7 @@ import { afterEach, expect, test } from "vitest";
 import { Badge } from "../registry/ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "../registry/ui/alert";
 import { Button } from "../registry/ui/button";
-import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
+import { Toaster, toast } from "../registry/ui/toast";
 import { TextEdit } from "../registry/ui/text-edit";
 import { ColorPicker } from "../registry/ui/color-picker";
 import { LogoRow } from "../registry/ui/logo-row";
@@ -284,15 +284,12 @@ type ToastVariant = "default" | "success" | "error" | "warning" | "info";
  * owns the toast's lifetime instead of racing it. `auditToast` already dismisses explicitly.
  */
 function fireToast(variant: ToastVariant, message: string) {
-  const options = {
-    timeout: 0,
+  toast.add({
+    title: message,
     description: "Supporting detail line",
-  } as const;
-  if (variant === "success") toast.success(message, options);
-  else if (variant === "error") toast.error(message, options);
-  else if (variant === "warning") toast.warning(message, options);
-  else if (variant === "info") toast.info(message, options);
-  else toast(message, options);
+    timeout: 0,
+    ...(variant === "default" ? {} : { type: variant }),
+  });
 }
 
 /**
@@ -319,7 +316,7 @@ async function auditToast(variant: ToastVariant, message: string) {
     )
     .toBe(true);
   const violations = await contrastViolations(document.body);
-  toast.dismiss();
+  toast.close();
   await expect
     .poll(() => document.querySelectorAll('[data-slot="toast"]').length, {
       timeout: 2000,
@@ -333,11 +330,7 @@ async function auditAllToasts(dark: boolean) {
   if (dark) document.documentElement.classList.add("dark");
   // The `<html>.dark` toggle above is what drives the compiled tokens on the portal — the toast
   // surface reads them straight from the cascade, with no theme prop of its own.
-  await render(
-    <ToastProvider>
-      <Toaster />
-    </ToastProvider>,
-  );
+  await render(<Toaster />);
   const variants: Array<[ToastVariant, string]> = [
     ["default", "Plain notification"],
     ["success", "Saved successfully"],

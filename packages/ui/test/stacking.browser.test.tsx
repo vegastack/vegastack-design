@@ -32,7 +32,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "../registry/ui/tooltip";
-import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
+import { Toaster, toast } from "../registry/ui/toast";
 import { Button } from "../registry/ui/button";
 
 /**
@@ -165,20 +165,27 @@ test("nested Dialog paints above its parent Dialog", async () => {
   await expect.poll(() => hitTestInside(inner)).toBe(true);
 });
 
-test("a toast fired while a Dialog is open stays visible above it (the z-60 band)", async () => {
+// Upstream gives the dialog `z-50` and each toast `z-[calc(1000-var(--toast-index))]`, so the
+// notification band sits above the modal band by value rather than by our retired `--z-toast`
+// token. `Toaster` brings its own `ToastProvider`, so it is mounted alone.
+test("a toast fired while a Dialog is open stays visible above it", async () => {
   const screen = await render(
-    <ToastProvider>
+    <>
       <Toaster />
       <Dialog>
         <DialogTrigger>Open dialog</DialogTrigger>
         <DialogContent>
           <DialogTitle>Busy modal</DialogTitle>
-          <Button onClick={() => toast("Saved to workspace")}>
+          <Button
+            onClick={() =>
+              toast.add({ title: "Saved to workspace", timeout: 0 })
+            }
+          >
             Fire toast
           </Button>
         </DialogContent>
       </Dialog>
-    </ToastProvider>,
+    </>,
   );
   await screen.getByRole("button", { name: "Open dialog" }).click();
   await screen.getByRole("button", { name: "Fire toast" }).click();

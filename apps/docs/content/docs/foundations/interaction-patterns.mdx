@@ -37,8 +37,9 @@ on every re-render.
 
 - Shortcut hints render in `Kbd`, and `Kbd` composes **inside** buttons and menu rows
   (`Cancel [ESC]`, `Save [↵]`, `Search records ↵`) — the shortcut lives next to the action.
-- Command palettes and rich pickers pin a footer hint bar: navigation hints left
-  (`↑ ↓ Navigate`), the primary action right (`CommandFooter`).
+- Command palettes and rich pickers can pin a footer hint bar: navigation hints left
+  (`↑ ↓ Navigate`), the primary action right. Upstream's `command` ships no footer part — compose
+  one under `CommandList` with `Kbd`.
 
 ## Dirty-state save model
 

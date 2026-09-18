@@ -129,7 +129,7 @@ export function splitButtonStates(): ReactNode {
               Duplicate
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem tone="destructive">
+            <DropdownMenuItem variant="destructive">
               <Trash2 />
               Delete
             </DropdownMenuItem>

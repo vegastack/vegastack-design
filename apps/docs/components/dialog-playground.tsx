@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
-  type DialogContentProps,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,30 +17,40 @@ import {
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type DialogPlaygroundKey = "size" | "showCloseButton";
+type DialogPlaygroundKey = "width" | "showCloseButton" | "footerCloseButton";
 
-const SIZE_OPTIONS = [
-  { value: "xs", label: "Extra small" },
-  { value: "sm", label: "Small" },
-  { value: "md", label: "Medium" },
-  { value: "lg", label: "Large" },
-  { value: "full", label: "Full" },
+/**
+ * Upstream's DialogContent has no `size` prop: its width is `w-full max-w-[calc(100%-2rem)]`
+ * with an `sm:max-w-sm` cap, retuned from the outside with a `max-width` utility. The playground
+ * therefore offers the cap rather than a variant name.
+ */
+const WIDTH_OPTIONS = [
+  { value: "sm:max-w-xs", label: "Extra small" },
+  { value: "", label: "Small (default)" },
+  { value: "sm:max-w-md", label: "Medium" },
+  { value: "sm:max-w-lg", label: "Large" },
 ] as const;
 
 const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
   controls: [
     {
       type: "select",
-      key: "size",
-      label: "Size",
-      options: SIZE_OPTIONS,
-      defaultValue: "md",
+      key: "width",
+      label: "Max width",
+      options: WIDTH_OPTIONS,
+      defaultValue: "",
     },
     {
       type: "switch",
       key: "showCloseButton",
-      label: "Close button",
+      label: "Corner close button",
       defaultValue: true,
+    },
+    {
+      type: "switch",
+      key: "footerCloseButton",
+      label: "Footer close button",
+      defaultValue: false,
     },
   ],
   // Renders CLOSED — the reader opens it via the trigger, so the initial state is deterministic.
@@ -49,14 +58,14 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
     <Dialog>
       <DialogTrigger render={<Button variant="outline">Open dialog</Button>} />
       <DialogContent
-        size={state.size as DialogContentProps["size"]}
+        className={String(state.width)}
         showCloseButton={Boolean(state.showCloseButton)}
       >
         <DialogHeader>
           <DialogTitle>Delete project</DialogTitle>
           <DialogDescription>This action cannot be undone.</DialogDescription>
         </DialogHeader>
-        <DialogFooter>
+        <DialogFooter showCloseButton={Boolean(state.footerCloseButton)}>
           <DialogClose render={<Button variant="outline">Cancel</Button>} />
           <Button variant="destructive">Delete</Button>
         </DialogFooter>
@@ -64,21 +73,22 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
     </Dialog>
   ),
   toCode: (state) => {
-    const props: string[] = [];
-    if (state.size !== "md") props.push(`size="${state.size}"`);
-    if (!state.showCloseButton) props.push("showCloseButton={false}");
-    const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
+    const contentProps: string[] = [];
+    if (state.width) contentProps.push(`className="${state.width}"`);
+    if (!state.showCloseButton) contentProps.push("showCloseButton={false}");
+    const content = contentProps.length > 0 ? ` ${contentProps.join(" ")}` : "";
+    const footer = state.footerCloseButton ? " showCloseButton" : "";
     return [
       "<Dialog>",
       '  <DialogTrigger render={<Button variant="outline">Open dialog</Button>} />',
-      `  <DialogContent${propsString}>`,
+      `  <DialogContent${content}>`,
       "    <DialogHeader>",
       "      <DialogTitle>Delete project</DialogTitle>",
       "      <DialogDescription>This action cannot be undone.</DialogDescription>",
       "    </DialogHeader>",
-      "    <DialogFooter>",
+      `    <DialogFooter${footer}>`,
       '      <DialogClose render={<Button variant="outline">Cancel</Button>} />',
-      '      <Button variant="soft" tone="destructive">Delete</Button>',
+      '      <Button variant="destructive">Delete</Button>',
       "    </DialogFooter>",
       "  </DialogContent>",
       "</Dialog>",
@@ -87,10 +97,10 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
 };
 
 /**
- * `DialogPlayground` — interactive props playground for `Dialog` (`DialogContent` size /
- * showCloseButton), backed by the generic {@link PropsPlayground}. The dialog renders closed;
- * the reader opens it from the trigger. Registered in `mdx.tsx`, adopted in
- * `content/docs/components/dialog.mdx`.
+ * `DialogPlayground` — interactive props playground for `Dialog`: the content's max-width cap,
+ * the corner close button and the footer's own close button, backed by the generic
+ * `PropsPlayground`. The dialog renders closed; the reader opens it from the trigger.
+ * Registered in `mdx.tsx`, adopted in `content/docs/components/dialog.mdx`.
  */
 export function DialogPlayground() {
   return <PropsPlayground {...dialogPlaygroundConfig} />;

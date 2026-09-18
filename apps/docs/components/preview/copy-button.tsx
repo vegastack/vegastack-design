@@ -97,7 +97,7 @@ export function copyButtonWithToast(): ReactNode {
       <CopyButton
         value="vsk_live_3f9a8c21d40e"
         variant="outline"
-        onCopied={() => toast.success("API key copied")}
+        onCopied={() => toast.add({ type: "success", title: "API key copied" })}
       />
     </Wrapper>
   );

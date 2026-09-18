@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.
+description: A modal overlay — a backdrop, a centred popup, an optional corner close button and a footer band that stays put while the body scrolls.
 audience: public
 registry: dialog
 status: stable
@@ -18,166 +18,167 @@ preview: dialog
 ```tsx
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogDescription,
-  DialogClose,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 <Dialog>
-  <DialogTrigger render={<Button variant="outline">Open dialog</Button>} />
+  <DialogTrigger>Open</DialogTrigger>
   <DialogContent>
     <DialogHeader>
-      <DialogTitle>Delete project</DialogTitle>
-      <DialogDescription>This action cannot be undone.</DialogDescription>
+      <DialogTitle>Are you absolutely sure?</DialogTitle>
+      <DialogDescription>
+        This action cannot be undone. This will permanently delete your account
+        and remove your data from our servers.
+      </DialogDescription>
     </DialogHeader>
-    <DialogFooter>
-      <DialogClose render={<Button variant="outline">Cancel</Button>} />
-      <Button variant="destructive">Delete project</Button>
-    </DialogFooter>
   </DialogContent>
 </Dialog>;
 ```
 
-## Anatomy
+<ComponentPreview name="dialog" file="components/preview/dialog.tsx" />
 
-`Dialog` is a compound component built on Base UI's Dialog. Every exported part, with the
-`data-slot` it renders (generated from the canonical source):
+## Anatomy
 
 <Anatomy name="dialog" />
 
-Compose the parts inside the root:
-
-```tsx
-<Dialog>
-  <DialogTrigger render={<Button>Open</Button>} />
-  <DialogContent size="md">
-    <DialogHeader>
-      <DialogTitle>Title</DialogTitle>
-      <DialogDescription>Supporting description text.</DialogDescription>
-    </DialogHeader>
-    {/* body content */}
-    <DialogFooter>
-      <DialogClose render={<Button variant="outline">Cancel</Button>} />
-      <Button>Confirm</Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-```
-
-- `Dialog` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`). Modal by default — focus is trapped and page scroll is locked.
-- `DialogTrigger` — the control that opens the dialog (`data-slot="dialog-trigger"`). Pass `render` to compose it with a `Button`.
-- `DialogContent` — the centered popup (`data-slot="dialog-content"`). Composes Base UI's Portal + Backdrop + Viewport + Popup, owns the `size`, animates enter/exit, and renders the top-right close button.
-- `DialogHeader` — groups the title and description (`data-slot="dialog-header"`).
-- `DialogTitle` — the dialog's accessible name (`data-slot="dialog-title"`, `<h2>`). Wired to the popup via `aria-labelledby`.
-- `DialogDescription` — supporting text (`data-slot="dialog-description"`, `<p>`). Wired via `aria-describedby`.
-- `DialogFooter` — the action row at the bottom (`data-slot="dialog-footer"`).
-- `DialogClose` — closes the dialog (`data-slot="dialog-close-action"`). Pass `render` to compose it with a `Button` (e.g. a "Cancel" action).
-
-> **Mobile:** Dialog stays a centered modal at every breakpoint. There is intentionally no mobile-drawer variant — a full-screen **Drawer/Sheet** is a separate component.
-
 ## Examples
 
-### Sizes
+### Composition
 
-`DialogContent` takes a `size` prop controlling the popup's max-width: `xs`, `sm`, `default`, `lg`, and `full`.
+`DialogContent` renders the portal and the backdrop for you, so the tree below is the whole
+component: a trigger beside a content, and inside it a header and a footer.
 
-<ComponentPreview name="dialogSizes" file="components/preview/dialog.tsx" />
+```text
+Dialog
+├── DialogTrigger
+└── DialogContent
+    ├── DialogHeader
+    │   ├── DialogTitle
+    │   └── DialogDescription
+    └── DialogFooter
+```
 
-### Close button
+<ComponentPreview
+  name="dialogComposition"
+  file="components/preview/dialog.tsx"
+/>
 
-By default `DialogContent` renders a top-right close (`X`) button. Pass `showCloseButton={false}` to remove it — leaving an explicit footer action as the only way out (useful for deliberate confirmations).
+### Custom Close Button
+
+`DialogClose` closes the dialog from anywhere inside it. Give it a `render` prop and it becomes
+that control — here a footer button — while keeping the close behaviour.
+
+<ComponentPreview
+  name="dialogCustomCloseButton"
+  file="components/preview/dialog.tsx"
+/>
+
+### No Close Button
+
+`showCloseButton={false}` on `DialogContent` removes the corner close control. `DialogFooter` has
+its own `showCloseButton`, off by default, which appends an outline **Close** button to the band —
+so a dialog without the corner control still offers a visible way out.
 
 <ComponentPreview
   name="dialogNoCloseButton"
   file="components/preview/dialog.tsx"
 />
 
-```tsx
-<DialogContent showCloseButton={false}>{/* … */}</DialogContent>
-```
+### Sticky Footer
 
-The close button's accessible label defaults to `"Close"`. Override it with `closeLabel` when a more specific label reads better for screen readers.
+`DialogFooter` is a `bg-muted/50` band pulled to the popup's edges with negative margins, so it
+reads as part of the frame rather than as content. Put the scroll container between the header and
+the footer and the actions stay visible while the body scrolls.
 
 <ComponentPreview
-  name="dialogCloseLabel"
+  name="dialogStickyFooter"
   file="components/preview/dialog.tsx"
 />
 
-```tsx
-<DialogContent closeLabel="Dismiss dialog">{/* … */}</DialogContent>
-```
+### Scrollable Content
 
-### Scrollable content
-
-The popup caps its height at `max-h-[calc(100dvh-2rem)]`. When the body is taller than the viewport, give the body region `overflow-y-auto` so it scrolls while the header and footer stay pinned.
+The popup itself does not scroll — it is a grid that grows with its children. Long content goes in
+its own `overflow-y-auto` element so the header stays in view.
 
 <ComponentPreview
-  name="dialogScrollable"
+  name="dialogScrollableContent"
   file="components/preview/dialog.tsx"
 />
+
+### RTL
+
+The popup's position, its close button and its inner padding are written in logical properties, so
+a right-to-left document mirrors the whole surface; the `-translate-x-1/2` that centres it is not
+logical, so it carries an explicit `rtl:` counterpart. Two things the caller owns: wrap the subtree
+in `DirectionProvider` so Base UI's own logic agrees with the document's `dir`, and hand `dir` to
+`DialogContent` — the popup portals to `<body>`, so a `dir` on an ancestor of the trigger never
+reaches it.
+
+<ComponentPreview name="dialogRtl" file="components/preview/dialog.tsx" />
 
 ## Playground
 
-Pick a size and toggle the close button, open the dialog, then copy the generated JSX.
+Retune the content's max-width cap and either close button, then copy the generated JSX. The dialog
+renders closed; open it from the trigger.
 
 <DialogPlayground />
 
 ## API Reference
 
-### DialogContent
+<ApiTable path="lib/api-props.ts" name="DialogProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/dialog.tsx"
-  name="DialogContentProps"
-/>
+<ApiTable path="lib/api-props.ts" name="DialogContentProps" />
 
-### DialogTitleBar
+<ApiTable path="lib/api-props.ts" name="DialogFooterProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/dialog.tsx"
-  name="DialogTitleBarProps"
-/>
+`DialogTrigger`, `DialogClose`, `DialogPortal`, `DialogOverlay`, `DialogHeader`, `DialogTitle` and
+`DialogDescription` add no props of their own — each accepts everything its Base UI part or its
+`div` accepts.
 
-`DialogTitleBar` is the optional window-chrome header row for desktop-style dialogs. Compose the
-accessible `DialogTitle` inside it; the title bar does not replace the dialog's accessible name.
-
-`Dialog`, `DialogTrigger`, `DialogTitle`, `DialogDescription`, and
-`DialogClose` add no props of their own — each accepts everything the
-corresponding [Base UI Dialog](https://base-ui.com/react/components/dialog)
-part accepts (`Root`, `Trigger`, `Title`, `Description`, `Close`): `open` /
-`defaultOpen` / `onOpenChange` on the root, `render` on the trigger and close,
-plus `className` and `ref`. `DialogHeader` and `DialogFooter` are plain layout
-wrappers that accept standard `<div>` props.
+Size is a `className`, not a prop: `DialogContent` ships `sm:max-w-sm` and a wider dialog overrides
+it (`className="sm:max-w-md"`).
 
 ## Accessibility
 
-- The popup renders with `role="dialog"` + `aria-modal="true"`. `DialogTitle` and `DialogDescription` are auto-wired as its `aria-labelledby` / `aria-describedby` — always include a title.
-- Focus is trapped inside the popup while open and restored to the trigger on close. For the default
-  modal, VegaStack mirrors Base UI's live outside-tree markers to native `inert`; this keeps focus
-  contained even when the browser transiently hands it to `<body>`, and preserves nested portal
-  stacking through reference-counted ownership. Page scroll is locked. `modal={false}` and
-  `modal="trap-focus"` keep their Base UI outside-interaction contracts and do not add native inert.
-- The close button is a native button with an accessible label (`closeLabel`, default `"Close"`); meaning of the `X` icon is carried by that label.
-- Controls composed with `Button` (trigger, footer actions) carry `Button`'s own `:focus-visible` ring. The top-right `X` close button keeps the browser's default focus outline and changes colour on hover/focus — it never sets `outline: none`.
-
-| Key                                                | Action                                                        |
-| -------------------------------------------------- | ------------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Activate the focused trigger to open the dialog.              |
-| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls — trapped within the open dialog. |
-| <kbd>Esc</kbd>                                     | Close the dialog.                                             |
-
-The states the verification lanes exercise for this item (generated from `component-contracts.json`):
+- Renders Base UI's Dialog: the popup is `role="dialog"` with `aria-modal`, wired to
+  `DialogTitle` through `aria-labelledby` and to `DialogDescription` through `aria-describedby`.
+  <kbd>Esc</kbd> closes, and focus is trapped inside the popup and returned to
+  the trigger.
+- Give every dialog a `DialogTitle`. Without one the popup has no accessible name; if the title
+  must not be seen, keep it and add `className="sr-only"`.
+- The background is made inert natively, not just focus-trapped (A11Y-9), so a focus guard that
+  hands focus to `<body>` cannot tab back into the page behind. With `modal={false}` the background
+  stays interactive and nothing is made inert, which is the point of that mode.
+- The popup portals to `<body>`, so `DialogPortal` re-applies the enclosing theme scope on a
+  `display: contents` host inside the portal (OVL-13) — a scoped or dark surface survives the jump.
+- The corner close button is an icon-only `Button` carrying a `sr-only` "Close" label.
 
 <StatesTested name="dialog" />
 
 ## Do / Don't
 
 <DoDont
-  do="Always include a DialogTitle so the dialog has an accessible name, and put primary actions in the DialogFooter."
-  dont="Use a Dialog for a full-screen, scroll-heavy mobile experience — use a Drawer/Sheet instead."
+  do="Use a Dialog for a focused task the user opts into — editing a record, confirming a share link — and always give it a DialogTitle."
+  dont="Use a Dialog for a message that needs no decision, or nest one inside another; a toast or an inline panel is the right surface."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
+
+- **OVL-13** — `DialogPortal` reads `useInternalThemeScope()` and wraps its children in a
+  `display: contents` element carrying that class, so a nested theme scope survives the jump to
+  `<body>`. The wrapper generates no box, so nothing about the backdrop's or the popup's fixed
+  positioning changes. `tooling/verify-portal-theme-scope.mjs` inventories this host.
+- **A11Y-9** — `DialogContent` mirrors Base UI's live `data-base-ui-inert` markers onto the native
+  `inert` property through `useModalInert`, so a focus guard that hands focus to `<body>` cannot tab
+  back into the background. The root now publishes its `modal` prop through a context, which is
+  exactly the shape upstream's own Drawer uses, because native inert would also block the outside
+  POINTER interaction that `modal={false}` and `"trap-focus"` keep.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — the repository formatter reflows the file and `registry-stamp.mjs` writes the
+  provenance header the three-copy model needs; those hunks carry no decision of their own.

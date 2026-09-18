@@ -1,24 +1,40 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
+import { expect, test } from "vitest";
+import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { DirectionProvider } from "./direction";
 import {
   Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
-  SheetDescription,
   SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "./sheet";
 
-function Example() {
+/**
+ * A Sheet is Base UI's Dialog with edge-anchored positioning. This lane compiles no CSS, so the
+ * edge itself is asserted as the `data-side` contract every inset, border and slide offset branches
+ * on; `test/geometry.browser.test.tsx` measures the rendered panel.
+ */
+
+/** Upstream's four edges, in upstream's order. */
+const SIDES = ["top", "right", "bottom", "left"] as const;
+
+function Subject({
+  contentProps,
+  ...rootProps
+}: {
+  contentProps?: React.ComponentProps<typeof SheetContent>;
+} & React.ComponentProps<typeof Sheet>) {
   return (
-    <Sheet>
+    <Sheet {...rootProps}>
       <SheetTrigger>Open sheet</SheetTrigger>
-      <SheetContent>
+      <SheetContent {...contentProps}>
         <SheetHeader>
           <SheetTitle>Edit profile</SheetTitle>
           <SheetDescription>
@@ -33,238 +49,309 @@ function Example() {
   );
 }
 
-test("is closed by default — no sheet in the DOM", async () => {
-  await render(<Example />);
-  expect(document.querySelector('[role="dialog"]')).toBeNull();
-});
+const bySlot = (slot: string) =>
+  document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
 
-test("opens on trigger click and shows title + description", async () => {
-  const screen = await render(<Example />);
-  await screen.getByRole("button", { name: "Open sheet" }).click();
-
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-  expect(document.querySelector('[data-slot="sheet-viewport"]')).not.toBeNull();
-  await expect.element(screen.getByText("Edit profile")).toBeInTheDocument();
-  await expect
-    .element(screen.getByText("Make changes to your profile here."))
-    .toBeInTheDocument();
-});
-
-test("wires aria-labelledby / aria-describedby to title and description", async () => {
-  const screen = await render(<Example />);
-  await screen.getByRole("button", { name: "Open sheet" }).click();
-
-  const dialog = document.querySelector('[role="dialog"]')!;
-  const labelledBy = dialog.getAttribute("aria-labelledby");
-  const describedBy = dialog.getAttribute("aria-describedby");
-  expect(document.getElementById(labelledBy!)?.textContent).toBe(
-    "Edit profile",
-  );
-  expect(document.getElementById(describedBy!)?.textContent).toBe(
-    "Make changes to your profile here.",
-  );
-});
-
-test("applies the side data attribute (default right)", async () => {
-  const screen = await render(
-    <Sheet defaultOpen>
-      <SheetContent>
-        <SheetTitle>Default side</SheetTitle>
-        <SheetDescription>Slides in from the right.</SheetDescription>
-      </SheetContent>
-    </Sheet>,
-  );
-  await expect
-    .element(screen.getByRole("dialog"))
-    .toHaveAttribute("data-side", "right");
-});
-
-test("applies the chosen side data attribute", async () => {
-  const screen = await render(
-    <Sheet defaultOpen side="left">
-      <SheetContent>
-        <SheetTitle>Left side</SheetTitle>
-        <SheetDescription>Slides in from the left.</SheetDescription>
-      </SheetContent>
-    </Sheet>,
-  );
-  await expect
-    .element(screen.getByRole("dialog"))
-    .toHaveAttribute("data-side", "left");
-});
-
-test("closes when the X close button is clicked", async () => {
-  const screen = await render(<Example />);
-  await screen.getByRole("button", { name: "Open sheet" }).click();
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-
-  // Native click: Tailwind layout utilities aren't compiled in the vitest browser
-  // run, so the panel isn't positioned and Base UI's full-viewport modal backdrop
-  // would intercept Playwright's pointer hit-test. The click handler still fires.
-  clickBySlot("sheet-close");
-  await vi_waitForClosed();
-});
-
-test("closes when a SheetClose action is clicked", async () => {
-  const screen = await render(<Example />);
-  await screen.getByRole("button", { name: "Open sheet" }).click();
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-
-  clickBySlot("sheet-close-action");
-  await vi_waitForClosed();
-});
-
-test("closes on Escape", async () => {
-  const screen = await render(<Example />);
-  await screen.getByRole("button", { name: "Open sheet" }).click();
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-
-  await userEvent.keyboard("{Escape}");
-  await vi_waitForClosed();
-});
-
-test("no a11y violations when open", async () => {
-  const screen = await render(<Example />);
-  await screen.getByRole("button", { name: "Open sheet" }).click();
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-  // The popup portals to <body>, so audit the whole document, not just the container.
-  await expectNoA11yViolations(document.body);
-});
-
-test("modal mirrors Base UI's outside markers to native inert and restores them", async () => {
-  const outside = document.createElement("button");
-  outside.textContent = "Outside action";
-  document.body.prepend(outside);
-  try {
-    const screen = await render(<Example />);
-    await screen.getByRole("button", { name: "Open sheet" }).click();
-    await expect.poll(() => outside.inert).toBe(true);
-    clickBySlot("sheet-close-action");
-    await vi_waitForClosed();
-    await expect.poll(() => outside.inert).toBe(false);
-  } finally {
-    outside.remove();
-  }
-});
-
-test.each([false, "trap-focus"] as const)(
-  "modal=%s does not make outside roots natively inert",
-  async (modal) => {
-    const outside = document.createElement("button");
-    outside.textContent = "Outside action";
-    document.body.prepend(outside);
-    try {
-      const screen = await render(
-        <Sheet defaultOpen modal={modal}>
-          <SheetContent>
-            <SheetTitle>Preferences</SheetTitle>
-            <SheetDescription>Non-blocking settings.</SheetDescription>
-          </SheetContent>
-        </Sheet>,
-      );
-      await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-      expect(outside.inert).toBe(false);
-    } finally {
-      outside.remove();
-    }
-  },
-);
-
-test("SheetContent forwards ref to its host element", async () => {
-  // The portaled popup is the host element SheetContent owns.
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
-    <Sheet open>
-      <SheetContent ref={ref}>
-        <SheetTitle>Edit profile</SheetTitle>
-        <SheetDescription>Make changes to your profile here.</SheetDescription>
-      </SheetContent>
-    </Sheet>,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLElement);
-  expect(ref.current?.dataset.slot).toBe("sheet-content");
-});
-
-/** Fire a native click on the portaled control identified by its `data-slot`. */
-function clickBySlot(slot: string) {
-  const el = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
-  expect(el, `expected a [data-slot="${slot}"] element`).not.toBeNull();
-  el!.click();
-}
-
-/** Poll until the sheet has left the DOM (after the exit transition). */
-async function vi_waitForClosed() {
+/** Poll until the panel has left the DOM (it outlives the state change by an exit transition). */
+async function waitForClosed() {
   await expect
     .poll(() => document.querySelector('[role="dialog"]'), { timeout: 2000 })
     .toBeNull();
 }
 
-test.each([
-  ["top", "pt-[calc(var(--spacing)*0+env(safe-area-inset-top))]"],
-  ["right", "pr-[calc(var(--spacing)*0+env(safe-area-inset-right))]"],
-  ["bottom", "pb-[calc(var(--spacing)*0+env(safe-area-inset-bottom))]"],
-  ["left", "pl-[calc(var(--spacing)*0+env(safe-area-inset-left))]"],
-] as const)(
-  "%s sheet pads its flush edge with env(safe-area-inset-%s) (audit §a)",
-  async (side, expectedClass) => {
+/** The nearest ancestor (self included) whose native `inert` property is true. */
+function inertOwner(start: Element | null): HTMLElement | null {
+  for (let node = start; node; node = node.parentElement) {
+    if (node instanceof HTMLElement && node.inert) return node;
+  }
+  return null;
+}
+
+test("renders the trigger and stays closed until it is used (Usage)", async () => {
+  const screen = await render(<Subject />);
+  await expect
+    .element(screen.getByRole("button", { name: "Open sheet" }))
+    .toBeInTheDocument();
+  expect(document.querySelector('[role="dialog"]')).toBeNull();
+});
+
+test("opening renders every exported part (Usage, Composition)", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+
+  for (const slot of [
+    "sheet-trigger",
+    "sheet-overlay",
+    "sheet-content",
+    "sheet-header",
+    "sheet-title",
+    "sheet-description",
+    "sheet-footer",
+    "sheet-close",
+  ]) {
+    expect(bySlot(slot), `missing [data-slot="${slot}"]`).not.toBeNull();
+  }
+  const portal = bySlot("sheet-content")!.closest("[data-base-ui-portal]");
+  expect(portal).not.toBeNull();
+  expect(screen.container.contains(portal)).toBe(false);
+  // The footer is pinned by `mt-auto` inside the panel's flex column, not by a sticky offset.
+  expect(bySlot("sheet-footer")!.className).toContain("mt-auto");
+  expect(bySlot("sheet-content")!.className).toContain("flex-col");
+});
+
+test("title and description are wired to the panel (Usage)", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  const panel = screen.getByRole("dialog").element() as HTMLElement;
+  expect(document.getElementById(panel.getAttribute("aria-labelledby")!)).toBe(
+    bySlot("sheet-title"),
+  );
+  expect(document.getElementById(panel.getAttribute("aria-describedby")!)).toBe(
+    bySlot("sheet-description"),
+  );
+});
+
+test("a SheetClose in the footer closes the panel (Composition)", async () => {
+  const screen = await render(
+    <Subject contentProps={{ showCloseButton: false }} />,
+  );
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const close = bySlot("sheet-close")!;
+  expect(bySlot("sheet-footer")!.contains(close)).toBe(true);
+  close.click();
+  await waitForClosed();
+});
+
+/*
+ * ONE render, every side, opened in turn. Repeated `render()` calls accumulate in the page and the
+ * locators are page-scoped, so a loop that re-renders the same subject leaves several matching
+ * triggers behind and Playwright fails on strict mode rather than on the component. Only one sheet
+ * is open at a time, because each is modal.
+ */
+test("every upstream side publishes its own data-side (Side)", async () => {
+  const screen = await render(
+    <div>
+      {SIDES.map((side) => (
+        <Sheet key={side}>
+          <SheetTrigger>Open {side}</SheetTrigger>
+          <SheetContent side={side}>
+            <SheetHeader>
+              <SheetTitle>Panel on the {side}</SheetTitle>
+              <SheetDescription>Anchored to the {side} edge.</SheetDescription>
+            </SheetHeader>
+            <SheetFooter>
+              <SheetClose>Cancel</SheetClose>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      ))}
+    </div>,
+  );
+
+  for (const side of SIDES) {
+    await screen.getByRole("button", { name: `Open ${side}` }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+    const panel = bySlot("sheet-content")!;
+    expect(panel.getAttribute("data-side"), `side "${side}"`).toBe(side);
+    // Every inset, border and slide offset is a branch on that one attribute.
+    expect(panel.className).toContain(`data-[side=${side}]:`);
+    bySlot("sheet-close")!.click();
+    await waitForClosed();
+  }
+});
+
+test("right is the default edge and caps its width (Side)", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const panel = bySlot("sheet-content")!;
+  expect(panel.getAttribute("data-side")).toBe("right");
+  expect(panel.className).toContain("data-[side=right]:sm:max-w-sm");
+  expect(panel.className).toContain("data-[side=left]:sm:max-w-sm");
+  // Top and bottom size to their content — there is no cap class for them to inherit.
+  expect(panel.className).toContain("data-[side=top]:h-auto");
+  expect(panel.className).toContain("data-[side=bottom]:h-auto");
+});
+
+test("the panel appends a corner close button by default (No Close Button)", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  // Two closes: the footer's own "Cancel", and the corner control the panel appends last.
+  const closes = [
+    ...bySlot("sheet-content")!.querySelectorAll<HTMLElement>(
+      '[data-slot="sheet-close"]',
+    ),
+  ];
+  expect(closes.length).toBe(2);
+  const corner = closes[closes.length - 1]!;
+  expect(bySlot("sheet-footer")!.contains(corner)).toBe(false);
+  expect(corner.textContent).toContain("Close");
+  corner.click();
+  await waitForClosed();
+});
+
+test("showCloseButton={false} removes it and nothing replaces it (No Close Button)", async () => {
+  const screen = await render(
+    <Subject contentProps={{ showCloseButton: false }} />,
+  );
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  // Only the footer's own control is left — the panel adds no replacement of its own.
+  const closes = [
+    ...bySlot("sheet-content")!.querySelectorAll<HTMLElement>(
+      '[data-slot="sheet-close"]',
+    ),
+  ];
+  expect(closes.length).toBe(1);
+  expect(bySlot("sheet-footer")!.contains(closes[0]!)).toBe(true);
+});
+
+test("RTL: the panel mirrors its direction and its slide offsets (RTL)", async () => {
+  // The panel portals to `<body>`, so a `dir` on an ancestor of the TRIGGER never reaches it —
+  // which is why upstream's own example hands `dir` to `SheetContent`, and mirrors the anchor.
+  const screen = await render(
+    <DirectionProvider direction="rtl">
+      <div dir="rtl">
+        <Subject contentProps={{ side: "left", dir: "rtl" }} />
+      </div>
+    </DirectionProvider>,
+  );
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const panel = bySlot("sheet-content")!;
+  expect(getComputedStyle(panel).direction).toBe("rtl");
+  expect(panel.getAttribute("data-side")).toBe("left");
+  // The transform has an explicit `rtl:` counterpart, because a translate is not a logical property.
+  expect(panel.className).toContain(
+    "rtl:data-[side=left]:data-starting-style:-translate-x-[-2.5rem]",
+  );
+  // The edge borders are logical, so they need no counterpart.
+  expect(panel.className).toContain("data-[side=left]:border-e");
+});
+
+test("OVL-13: the portal subtree carries a display:contents host around the surface", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const panel = bySlot("sheet-content")!;
+  const portal = panel.closest<HTMLElement>("[data-base-ui-portal]")!;
+  const host = panel.closest<HTMLElement>(".contents")!;
+  expect(host).not.toBeNull();
+  expect(portal.contains(host)).toBe(true);
+  expect(host.contains(bySlot("sheet-overlay"))).toBe(true);
+  expect(host.className).toBe("contents");
+});
+
+test("OVL-13: a nested theme scope lands on that host, inside the portal", async () => {
+  const screen = await render(
+    <InternalThemeScopeProvider scope="vs-scope-under-test">
+      <Subject />
+    </InternalThemeScopeProvider>,
+  );
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const panel = bySlot("sheet-content")!;
+  const portal = panel.closest<HTMLElement>("[data-base-ui-portal]")!;
+  const scoped = portal.querySelector<HTMLElement>(".vs-scope-under-test");
+  expect(scoped).not.toBeNull();
+  expect(scoped!.className).toContain("contents");
+  expect(scoped!.contains(panel)).toBe(true);
+});
+
+test("A11Y-9: a modal sheet makes the background natively inert and restores it", async () => {
+  const outside = document.createElement("button");
+  outside.textContent = "Outside action";
+  document.body.prepend(outside);
+  try {
+    const screen = await render(<Subject />);
+    await screen.getByRole("button", { name: "Open sheet" }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+    await expect.poll(() => inertOwner(outside) !== null).toBe(true);
+    bySlot("sheet-close")!.click();
+    await waitForClosed();
+    await expect.poll(() => inertOwner(outside)).toBeNull();
+  } finally {
+    outside.remove();
+  }
+});
+
+test("A11Y-9: modal={false} keeps the background interactive", async () => {
+  const outside = document.createElement("button");
+  outside.textContent = "Outside action";
+  document.body.prepend(outside);
+  try {
+    // Both sheets share this one outside element, so the modal pass PROVES the element is markable
+    // before the non-modal pass claims it was left alone.
     const screen = await render(
-      <Sheet defaultOpen side={side}>
-        <SheetContent>
-          <SheetTitle>{side} side</SheetTitle>
-          <SheetDescription>Safe-area padding check.</SheetDescription>
-        </SheetContent>
-      </Sheet>,
+      <div>
+        <Subject />
+        <Sheet modal={false}>
+          <SheetTrigger>Open non-modal</SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Non-modal</SheetTitle>
+              <SheetDescription>The page stays usable.</SheetDescription>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
+      </div>,
     );
-    const popup = screen.getByRole("dialog").element();
-    expect(popup.className).toContain(expectedClass);
-  },
-);
 
-test("modal-family rhythm matches Dialog: p-6 header/footer inset, close at top-3 end-3", async () => {
-  const screen = await render(<Example />);
+    await screen.getByRole("button", { name: "Open sheet" }).click();
+    await expect.poll(() => inertOwner(outside) !== null).toBe(true);
+    bySlot("sheet-close")!.click();
+    await waitForClosed();
+    await expect.poll(() => inertOwner(outside)).toBeNull();
+
+    await screen.getByRole("button", { name: "Open non-modal" }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+    await expect.poll(() => inertOwner(outside)).toBeNull();
+  } finally {
+    outside.remove();
+  }
+});
+
+test("FOC-1/FOC-6: nothing the sheet renders carries a focus glow", async () => {
+  const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Open sheet" }).click();
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-
-  const header = document.querySelector('[data-slot="sheet-header"]')!;
-  const footer = document.querySelector('[data-slot="sheet-footer"]')!;
-  const close = document.querySelector('[data-slot="sheet-close"]')!;
-  expect(header.classList.contains("p-6")).toBe(true);
-  expect(footer.classList.contains("p-6")).toBe(true);
-  expect(close.classList.contains("top-3")).toBe(true);
-  expect(close.classList.contains("end-3")).toBe(true);
+  // `getAttribute("class")` rather than `.className`: on an SVG element the latter is an
+  // SVGAnimatedString, which would stringify to something no pattern here could ever match.
+  const offenders = [...document.querySelectorAll("*")]
+    .map((element) => element.getAttribute("class") ?? "")
+    .filter((classes) =>
+      /\bring-3\b|ring-\[3px\]|focus-visible:ring-/.test(classes),
+    );
+  expect(offenders).toEqual([]);
 });
 
-test("panel keeps the centralized focus-visible outline (no outline-none — register P0-02)", async () => {
-  const screen = await render(<Example />);
+test("Escape closes the panel (Usage)", async () => {
+  const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Open sheet" }).click();
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-  const popup = document.querySelector('[data-slot="sheet-content"]')!;
-  expect(popup.className).not.toMatch(/\boutline-none\b/);
+  await userEvent.keyboard("{Escape}");
+  await waitForClosed();
 });
 
-test("size drives the panel extent instead of a className override (B3-11)", async () => {
-  const screen = await render(
-    <Sheet defaultOpen side="right">
-      <SheetContent size="lg">
-        <SheetTitle>Large</SheetTitle>
-        <SheetDescription>Sized by the size prop.</SheetDescription>
-      </SheetContent>
-    </Sheet>,
-  );
-  const popup = screen.getByRole("dialog").element();
-  expect(popup.getAttribute("data-size")).toBe("lg");
-  expect(popup.className).toContain("w-80");
+test("no a11y violations — closed", async () => {
+  const screen = await render(<Subject />);
+  await expectNoA11yViolations(screen.container);
 });
 
-test("a bottom sheet reads the same size tier as a height", async () => {
-  const screen = await render(
-    <Sheet defaultOpen side="bottom">
-      <SheetContent size="sm">
-        <SheetTitle>Bottom</SheetTitle>
-        <SheetDescription>Height tier.</SheetDescription>
-      </SheetContent>
-    </Sheet>,
-  );
-  const popup = screen.getByRole("dialog").element();
-  expect(popup.className).toContain("max-h-56");
+test("no a11y violations — open", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  // The panel portals to <body>, so audit the whole document.
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations — open and non-modal", async () => {
+  const screen = await render(<Subject modal={false} />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
 });

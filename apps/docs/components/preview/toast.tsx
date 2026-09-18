@@ -2,17 +2,42 @@
 
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
+// Copied INTO apps/docs via `shadcn add @vegastack/toast` (dogfoods the registry) → auto-scanned.
 import { Button } from "@/components/ui/button";
-// `toast` is the imperative API from the copied-in Toast component. The `<Toaster />` itself is
-// already mounted in `VegaStackProvider`, so previews just call toast().
-import { toast } from "@/components/ui/toast";
+import { Toaster, createToastManager } from "@/components/ui/toast";
 
-export function toastDemo(): ReactNode {
+/*
+ * An app mounts ONE `<Toaster />` at its root and fires into the module-scope `toast` manager. A
+ * docs page stacks several fixtures on one screen, so each one gets its own manager and its own
+ * toaster instead — otherwise every viewport on the page would render every toast. In your app,
+ * import `toast` from `@/components/ui/toast` and drop the `toastManager` prop.
+ */
+const demoToast = createToastManager();
+const typesToast = createToastManager();
+const actionToast = createToastManager();
+const promiseToast = createToastManager();
+
+export function toast(): ReactNode {
+  function showToast() {
+    const id = demoToast.add({
+      title: "Event created",
+      description: "Sunday, December 3 at 9:00 AM",
+      actionProps: {
+        children: "Undo",
+        onClick() {
+          demoToast.close(id);
+        },
+      },
+    });
+  }
+
   return (
     <Wrapper>
-      <Button variant="outline" onClick={() => toast.success("Changes saved")}>
-        Save changes
-      </Button>
+      <Toaster toastManager={demoToast}>
+        <Button variant="outline" onClick={showToast}>
+          Show Toast
+        </Button>
+      </Toaster>
     </Wrapper>
   );
 }
@@ -20,203 +45,111 @@ export function toastDemo(): ReactNode {
 export function toastTypes(): ReactNode {
   return (
     <Wrapper>
-      <Button variant="outline" onClick={() => toast("Event created")}>
-        Default
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={() =>
-          toast.success("Project deployed", {
-            description: "main@a1f7c2 is live",
-          })
-        }
-      >
-        Success
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={() => toast.info("A new version is available")}
-      >
-        Info
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={() => toast.warning("Storage is almost full")}
-      >
-        Warning
-      </Button>
-      <Button
-        variant="destructive"
-        onClick={() =>
-          toast.error("Could not save changes", {
-            description: "Check your connection and try again",
-          })
-        }
-      >
-        Error
-      </Button>
+      <Toaster toastManager={typesToast}>
+        <Button
+          variant="outline"
+          onClick={() =>
+            typesToast.add({ description: "Event has been created." })
+          }
+        >
+          Default
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            typesToast.add({
+              type: "success",
+              description: "Event has been created.",
+            })
+          }
+        >
+          Success
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            typesToast.add({
+              type: "info",
+              description: "Arrive 10 minutes before the event.",
+            })
+          }
+        >
+          Info
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            typesToast.add({
+              type: "warning",
+              description: "The event cannot start before 8:00 AM.",
+            })
+          }
+        >
+          Warning
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            typesToast.add({
+              type: "error",
+              description: "The event could not be created.",
+              priority: "high",
+            })
+          }
+        >
+          Error
+        </Button>
+      </Toaster>
     </Wrapper>
   );
 }
 
-export function toastStates(): ReactNode {
+export function toastAction(): ReactNode {
+  function showToast() {
+    const id = actionToast.add({
+      title: "Event created",
+      description: "Sunday, December 3 at 9:00 AM",
+      actionProps: {
+        children: "Undo",
+        onClick() {
+          actionToast.close(id);
+        },
+      },
+    });
+  }
+
   return (
     <Wrapper>
-      <Button
-        variant="outline"
-        onClick={() =>
-          toast("Invitation sent", {
-            description: "sent to jane@vegastack.com",
-            actionProps: {
-              children: "Undo",
-              onClick: () => toast("Invitation revoked"),
-            },
-          })
-        }
-      >
-        With action
-      </Button>
-      <Button
-        variant="outline"
-        onClick={() =>
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
-            loading: "Saving…",
-            success: "Changes saved",
-            error: "Save failed",
-          })
-        }
-      >
-        Promise
-      </Button>
+      <Toaster toastManager={actionToast}>
+        <Button variant="outline" onClick={showToast}>
+          Create Event
+        </Button>
+      </Toaster>
     </Wrapper>
   );
 }
 
-export function toastLoading(): ReactNode {
-  return (
-    <Wrapper>
-      <Button
-        variant="outline"
-        onClick={() => {
-          const id = toast.loading("Uploading file…");
-          // A `loading` toast never auto-dismisses. Resolve it in place with the same id —
-          // `toast.update` swaps the type and restarts the auto-dismiss timer, rather than
-          // stacking a second toast.
-          setTimeout(
-            () => toast.update(id, { type: "success", title: "File uploaded" }),
-            2000,
-          );
-        }}
-      >
-        Loading → success
-      </Button>
-      <Button
-        variant="outline"
-        onClick={() => {
-          const id = toast.loading("Connecting…");
-          setTimeout(() => toast.dismiss(id), 1500);
-        }}
-      >
-        Loading → dismiss
-      </Button>
-    </Wrapper>
-  );
-}
+export function toastPromise(): ReactNode {
+  function showToast() {
+    promiseToast.promise(
+      new Promise<{ name: string }>((resolve) => {
+        window.setTimeout(() => resolve({ name: "Event" }), 2000);
+      }),
+      {
+        loading: "Creating event…",
+        success: (data) => `${data.name} created.`,
+        error: "Could not create event.",
+      },
+    );
+  }
 
-export function toastStacking(): ReactNode {
   return (
     <Wrapper>
-      <Button
-        variant="outline"
-        onClick={() => {
-          toast("Build queued", { description: "main@a1f7c2" });
-          toast.success("Tests passed", { description: "482 of 482" });
-          toast.info("Preview ready", {
-            description: "deploy-a1f7c2.vercel.app",
-          });
-        }}
-      >
-        Fire three toasts
-      </Button>
-      <Button
-        variant="outline"
-        onClick={() =>
-          toast("Deduplicated", {
-            id: "dedupe-demo",
-            description: "Firing this again updates the same toast in place.",
-          })
-        }
-      >
-        Fire the same id twice
-      </Button>
-    </Wrapper>
-  );
-}
-
-export function toastCustom(): ReactNode {
-  return (
-    <Wrapper>
-      <Button
-        variant="outline"
-        onClick={() =>
-          // `toast.custom` renders the toast BODY yourself — stacking, swipe-to-dismiss,
-          // Escape and the live-region announcement all still apply, because it is still a
-          // real toast.
-          toast.custom((item) => (
-            <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <p className="text-sm font-medium">Subscription expiring</p>
-              <p className="text-sm text-muted-foreground">
-                Your plan renews in 3 days.
-              </p>
-              <Button
-                size="sm"
-                variant="outline"
-                className="self-start"
-                onClick={() => toast.dismiss(item.id)}
-              >
-                Manage plan
-              </Button>
-            </div>
-          ))
-        }
-      >
-        Custom body
-      </Button>
-    </Wrapper>
-  );
-}
-
-export function toastToasterOptions(): ReactNode {
-  return (
-    <Wrapper>
-      {/*
-        NEVER mount a second <Toaster /> for a demo — every toast() lands in the one provider
-        mounted at the app root, so a local viewport would render each toast twice. Host-level
-        defaults (position, limit, timeout) belong on that single mount; anything per-toast goes
-        on the toast() call itself, which is what this demo shows.
-      */}
-      <Button
-        variant="outline"
-        onClick={() =>
-          toast("Deployment queued", {
-            description: "Building from main@a1f7c2 — this one stays for 15s.",
-            timeout: 15000,
-          })
-        }
-      >
-        Longer-lived toast
-      </Button>
-      <Button
-        variant="outline"
-        onClick={() =>
-          toast.warning("Session expiring", {
-            description: "Stays until you dismiss it.",
-            timeout: 0,
-          })
-        }
-      >
-        Never auto-dismiss
-      </Button>
+      <Toaster toastManager={promiseToast}>
+        <Button variant="outline" onClick={showToast}>
+          Create Event
+        </Button>
+      </Toaster>
     </Wrapper>
   );
 }

@@ -72,6 +72,20 @@ test("no a11y violations", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
+/**
+ * OVL-13's real promise, since the shadcn reset put every overlay on upstream's file: the scope
+ * class is on SOME element inside the portal that the surface descends from, so the CSS variables
+ * it defines are inherited by the whole portaled subtree. Which element differs by host shape —
+ * the `display: contents` wrapper the modal surfaces' `*Portal` renders, or the Positioner the
+ * anchored surfaces' `*Content` renders — and asserting the class on a named `data-slot` pinned
+ * one of those shapes rather than the contract. `closest()` reads the contract itself.
+ */
+function scopeCarrier(slot: string): HTMLElement | null {
+  const surface = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
+  expect(surface, `expected ${slot} to render`).not.toBeNull();
+  return surface!.closest<HTMLElement>(".vs-marketing");
+}
+
 test("propagates the marketing scope to every portaled dialog layer", async () => {
   const screen = await render(
     <MarketingSurface>
@@ -86,10 +100,11 @@ test("propagates the marketing scope to every portaled dialog layer", async () =
   await expect
     .element(screen.getByRole("dialog", { name: "Scoped portal" }))
     .toBeInTheDocument();
-  for (const slot of ["dialog-backdrop", "dialog-viewport", "dialog-content"]) {
-    const layer = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
-    expect(layer, `expected ${slot} to render`).not.toBeNull();
-    expect(layer?.classList.contains("vs-marketing")).toBe(true);
+  for (const slot of ["dialog-overlay", "dialog-content"]) {
+    expect(
+      scopeCarrier(slot),
+      `expected ${slot} to inherit the scope`,
+    ).not.toBeNull();
   }
 });
 
@@ -105,21 +120,17 @@ test("leaves the same portaled dialog layers unscoped outside MarketingSurface",
   await expect
     .element(screen.getByRole("dialog", { name: "Page-theme portal" }))
     .toBeInTheDocument();
-  for (const slot of ["dialog-backdrop", "dialog-viewport", "dialog-content"]) {
-    const layer = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
-    expect(layer, `expected ${slot} to render`).not.toBeNull();
-    expect(layer?.classList.contains("vs-marketing")).toBe(false);
+  for (const slot of ["dialog-overlay", "dialog-content"]) {
+    expect(scopeCarrier(slot), `expected ${slot} to carry no scope`).toBeNull();
   }
 });
 
-test("propagates the scope to floating positioner, surface, and viewport layers", async () => {
+test("propagates the scope to the portaled popover surface", async () => {
   const screen = await render(
     <MarketingSurface>
       <Popover defaultOpen>
         <PopoverTrigger>Anchor</PopoverTrigger>
-        <PopoverContent viewportProps={{ className: "consumer-viewport" }}>
-          Scoped floating portal
-        </PopoverContent>
+        <PopoverContent>Scoped floating portal</PopoverContent>
       </Popover>
     </MarketingSurface>,
   );
@@ -127,18 +138,10 @@ test("propagates the scope to floating positioner, surface, and viewport layers"
   await expect
     .element(screen.getByText("Scoped floating portal"))
     .toBeInTheDocument();
-  for (const slot of [
-    "popover-positioner",
-    "popover-content",
-    "popover-viewport",
-  ]) {
-    const layer = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
-    expect(layer, `expected ${slot} to render`).not.toBeNull();
-    expect(layer?.classList.contains("vs-marketing")).toBe(true);
-  }
+  expect(scopeCarrier("popover-content")).not.toBeNull();
 });
 
-test("propagates the scope to Select positioner and popup layers", async () => {
+test("propagates the scope to the portaled Select surface", async () => {
   const screen = await render(
     <MarketingSurface>
       <Select items={[{ label: "Scoped option", value: "Scoped option" }]}>
@@ -156,14 +159,10 @@ test("propagates the scope to Select positioner and popup layers", async () => {
   await expect
     .element(screen.getByRole("option", { name: "Scoped option" }))
     .toBeInTheDocument();
-  for (const slot of ["select-positioner", "select-content"]) {
-    const layer = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
-    expect(layer, `expected ${slot} to render`).not.toBeNull();
-    expect(layer?.classList.contains("vs-marketing")).toBe(true);
-  }
+  expect(scopeCarrier("select-content")).not.toBeNull();
 });
 
-test("propagates the scope to Combobox positioner and popup layers", async () => {
+test("propagates the scope to the portaled Combobox surface", async () => {
   const items = ["Scoped result"];
   const screen = await render(
     <MarketingSurface>
@@ -186,9 +185,5 @@ test("propagates the scope to Combobox positioner and popup layers", async () =>
   await expect
     .element(screen.getByRole("option", { name: "Scoped result" }))
     .toBeInTheDocument();
-  for (const slot of ["combobox-positioner", "combobox-content"]) {
-    const layer = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
-    expect(layer, `expected ${slot} to render`).not.toBeNull();
-    expect(layer?.classList.contains("vs-marketing")).toBe(true);
-  }
+  expect(scopeCarrier("combobox-content")).not.toBeNull();
 });

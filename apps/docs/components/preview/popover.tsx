@@ -3,130 +3,104 @@
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/popover` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
+import { DirectionProvider } from "@/components/ui/direction";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
-  PopoverClose,
-  PopoverTitle,
   PopoverDescription,
-  PopoverArrow,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+/*
+ * Every fixture here renders CLOSED. A Popover is a dismissible surface anchored to its trigger, so
+ * the trigger is the component's resting state and opening it is the reader's move — which is also
+ * what upstream's own docs show. The geometry lane mounts all of these, and an open portal would
+ * measure the popup rather than the control.
+ */
 
 export function popover(): ReactNode {
   return (
     <Wrapper>
       <Popover>
-        <PopoverTrigger
-          render={<Button variant="outline">Rename project</Button>}
-        />
-        <PopoverContent>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <PopoverTitle>Rename project</PopoverTitle>
-              <PopoverDescription>
-                Give this project a new display name.
-              </PopoverDescription>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="popover-name">Name</Label>
-              <Input id="popover-name" defaultValue="acme-platform" />
-            </div>
-            <div className="flex justify-end gap-2">
-              <PopoverClose
-                render={
-                  <Button variant="outline" size="sm">
-                    Cancel
-                  </Button>
-                }
-              />
-              <PopoverClose render={<Button size="sm">Save name</Button>} />
-            </div>
-          </div>
+        <PopoverTrigger render={<Button variant="outline" />}>
+          Open popover
+        </PopoverTrigger>
+        <PopoverContent className="w-80">
+          <PopoverHeader>
+            <PopoverTitle>Dimensions</PopoverTitle>
+            <PopoverDescription>
+              Set the dimensions for the layer.
+            </PopoverDescription>
+          </PopoverHeader>
+          <FieldGroup className="gap-3">
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="popover-width" className="w-1/2">
+                Width
+              </FieldLabel>
+              <Input id="popover-width" defaultValue="100%" />
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="popover-max-width" className="w-1/2">
+                Max. width
+              </FieldLabel>
+              <Input id="popover-max-width" defaultValue="300px" />
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="popover-height" className="w-1/2">
+                Height
+              </FieldLabel>
+              <Input id="popover-height" defaultValue="25px" />
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="popover-max-height" className="w-1/2">
+                Max. height
+              </FieldLabel>
+              <Input id="popover-max-height" defaultValue="none" />
+            </Field>
+          </FieldGroup>
         </PopoverContent>
       </Popover>
     </Wrapper>
   );
 }
 
-export function popoverForm(): ReactNode {
+export function popoverComposition(): ReactNode {
   return (
     <Wrapper>
       <Popover>
-        <PopoverTrigger
-          render={<Button variant="outline">Set dimensions</Button>}
-        />
-        <PopoverContent className="w-80">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <PopoverTitle>Dimensions</PopoverTitle>
-              <PopoverDescription>
-                Set the width and height for the selected layer.
-              </PopoverDescription>
-            </div>
-            <div className="grid gap-2">
-              <div className="grid grid-cols-3 items-center gap-3">
-                <Label htmlFor="popover-width">Width</Label>
-                <Input
-                  id="popover-width"
-                  defaultValue="100%"
-                  className="col-span-2"
-                />
-              </div>
-              <div className="grid grid-cols-3 items-center gap-3">
-                <Label htmlFor="popover-height">Height</Label>
-                <Input
-                  id="popover-height"
-                  defaultValue="24px"
-                  className="col-span-2"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <PopoverClose
-                render={
-                  <Button variant="outline" size="sm">
-                    Cancel
-                  </Button>
-                }
-              />
-              <PopoverClose render={<Button size="sm">Save</Button>} />
-            </div>
-          </div>
+        <PopoverTrigger render={<Button variant="outline" />}>
+          Open Popover
+        </PopoverTrigger>
+        <PopoverContent>
+          <PopoverHeader>
+            <PopoverTitle>Title</PopoverTitle>
+            <PopoverDescription>Description text here.</PopoverDescription>
+          </PopoverHeader>
         </PopoverContent>
       </Popover>
     </Wrapper>
   );
 }
 
-export function popoverSides(): ReactNode {
+export function popoverBasic(): ReactNode {
   return (
-    <Wrapper className="gap-6">
+    <Wrapper>
       <Popover>
-        <PopoverTrigger render={<Button variant="outline">Top</Button>} />
-        <PopoverContent side="top" className="w-auto">
-          On top
-        </PopoverContent>
-      </Popover>
-      <Popover>
-        <PopoverTrigger render={<Button variant="outline">Right</Button>} />
-        <PopoverContent side="right" className="w-auto">
-          On the right
-        </PopoverContent>
-      </Popover>
-      <Popover>
-        <PopoverTrigger render={<Button variant="outline">Bottom</Button>} />
-        <PopoverContent side="bottom" className="w-auto">
-          On the bottom
-        </PopoverContent>
-      </Popover>
-      <Popover>
-        <PopoverTrigger render={<Button variant="outline">Left</Button>} />
-        <PopoverContent side="left" className="w-auto">
-          On the left
+        <PopoverTrigger render={<Button variant="outline" className="w-fit" />}>
+          Open Popover
+        </PopoverTrigger>
+        <PopoverContent align="start">
+          <PopoverHeader>
+            <PopoverTitle>Dimensions</PopoverTitle>
+            <PopoverDescription>
+              Set the dimensions for the layer.
+            </PopoverDescription>
+          </PopoverHeader>
         </PopoverContent>
       </Popover>
     </Wrapper>
@@ -137,90 +111,119 @@ export function popoverAlign(): ReactNode {
   return (
     <Wrapper className="gap-6">
       <Popover>
-        <PopoverTrigger
-          render={<Button variant="outline">Align start</Button>}
-        />
-        <PopoverContent align="start" className="w-auto">
-          Aligned to the start edge
+        <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+          Start
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-40">
+          Aligned to start
         </PopoverContent>
       </Popover>
       <Popover>
-        <PopoverTrigger
-          render={<Button variant="outline">Align center</Button>}
-        />
-        <PopoverContent align="center" className="w-auto">
-          Centered on the trigger
+        <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+          Center
+        </PopoverTrigger>
+        <PopoverContent align="center" className="w-40">
+          Aligned to center
         </PopoverContent>
       </Popover>
       <Popover>
-        <PopoverTrigger render={<Button variant="outline">Align end</Button>} />
-        <PopoverContent align="end" className="w-auto">
-          Aligned to the end edge
+        <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+          End
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-40">
+          Aligned to end
         </PopoverContent>
       </Popover>
     </Wrapper>
   );
 }
 
-export function popoverArrow(): ReactNode {
+export function popoverWithForm(): ReactNode {
   return (
     <Wrapper>
       <Popover>
-        <PopoverTrigger
-          render={<Button variant="outline">Show details</Button>}
-        />
-        <PopoverContent arrow>
-          <div className="flex flex-col gap-1">
-            <PopoverTitle>Connected</PopoverTitle>
+        <PopoverTrigger render={<Button variant="outline" />}>
+          Open Popover
+        </PopoverTrigger>
+        <PopoverContent className="w-64" align="start">
+          <PopoverHeader>
+            <PopoverTitle>Dimensions</PopoverTitle>
             <PopoverDescription>
-              The arrow points back at the trigger so the anchor stays obvious.
+              Set the dimensions for the layer.
             </PopoverDescription>
-          </div>
+          </PopoverHeader>
+          <FieldGroup className="gap-4">
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="popover-form-width" className="w-1/2">
+                Width
+              </FieldLabel>
+              <Input id="popover-form-width" defaultValue="100%" />
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="popover-form-height" className="w-1/2">
+                Height
+              </FieldLabel>
+              <Input id="popover-form-height" defaultValue="25px" />
+            </Field>
+          </FieldGroup>
         </PopoverContent>
       </Popover>
     </Wrapper>
   );
 }
 
-export function popoverArrowComposed(): ReactNode {
-  return (
-    <Wrapper>
-      <Popover>
-        <PopoverTrigger
-          render={<Button variant="outline">Composed arrow</Button>}
-        />
-        <PopoverContent>
-          <PopoverArrow />
-          <div className="flex flex-col gap-1">
-            <PopoverTitle>Direct compose</PopoverTitle>
-            <PopoverDescription>
-              Render <code>PopoverArrow</code> yourself instead of passing the{" "}
-              <code>arrow</code> prop.
-            </PopoverDescription>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </Wrapper>
-  );
-}
+/** Physical sides stay put under RTL; the two logical sides swap with the reading direction. */
+const physicalSides = ["left", "top", "bottom", "right"] as const;
+const logicalSides = ["inline-start", "inline-end"] as const;
 
-export function popoverNonModal(): ReactNode {
+const arabic: Record<string, string> = {
+  title: "الأبعاد",
+  description: "تعيين الأبعاد للطبقة.",
+  left: "يسار",
+  top: "أعلى",
+  bottom: "أسفل",
+  right: "يمين",
+  "inline-start": "بداية السطر",
+  "inline-end": "نهاية السطر",
+};
+
+export function popoverRtl(): ReactNode {
   return (
-    <Wrapper>
-      <Popover modal={false}>
-        <PopoverTrigger
-          render={<Button variant="outline">Non-blocking popover</Button>}
-        />
-        <PopoverContent>
-          <div className="flex flex-col gap-1">
-            <PopoverTitle>modal=false</PopoverTitle>
-            <PopoverDescription>
-              The rest of the page stays scrollable and interactive while this
-              is open.
-            </PopoverDescription>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </Wrapper>
+    <DirectionProvider direction="rtl">
+      <Wrapper className="flex-col gap-4" dir="rtl">
+        <div className="flex flex-wrap justify-center gap-2">
+          {physicalSides.map((side) => (
+            <Popover key={side}>
+              <PopoverTrigger render={<Button variant="outline" />}>
+                {arabic[side]}
+              </PopoverTrigger>
+              {/* `dir` on the content too: the popup portals out of the `dir="rtl"` subtree, so
+                  the attribute has to travel with it or the text renders left-to-right. */}
+              <PopoverContent side={side} dir="rtl">
+                <PopoverHeader>
+                  <PopoverTitle>{arabic.title}</PopoverTitle>
+                  <PopoverDescription>{arabic.description}</PopoverDescription>
+                </PopoverHeader>
+              </PopoverContent>
+            </Popover>
+          ))}
+        </div>
+        <div className="flex flex-wrap justify-center gap-2">
+          {logicalSides.map((side) => (
+            <Popover key={side}>
+              <PopoverTrigger render={<Button variant="outline" />}>
+                {arabic[side]}
+              </PopoverTrigger>
+              <PopoverContent side={side} dir="rtl">
+                <PopoverHeader>
+                  <PopoverTitle>{arabic.title}</PopoverTitle>
+                  <PopoverDescription>{arabic.description}</PopoverDescription>
+                </PopoverHeader>
+              </PopoverContent>
+            </Popover>
+          ))}
+        </div>
+      </Wrapper>
+    </DirectionProvider>
   );
 }

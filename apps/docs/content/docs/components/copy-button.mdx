@@ -54,7 +54,10 @@ internally, so `onCopied` is purely for your side effects.
 />
 
 ```tsx
-<CopyButton value={apiKey} onCopied={() => toast.success("API key copied")} />
+<CopyButton
+  value={apiKey}
+  onCopied={() => toast.add({ type: "success", title: "API key copied" })}
+/>
 ```
 
 ### States
