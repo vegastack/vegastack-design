@@ -533,6 +533,18 @@ export function createAffectedPlan({
   }
 
   const changedPaths = sorted(changes.flatMap((change) => change.paths));
+  // A deletion whose path is owned by the BASE contract still seeds its item, so the dependents of
+  // a retired component are still exercised — that is the `retains base ownership` case the
+  // indexes already handle. What they cannot handle is a deletion of a path NO contract ever
+  // named: there is no owner to find in either revision, so it reaches the unowned-path error and
+  // fails closed on a file that is gone. Batch 4 hit it on `command.characterization.test.tsx`.
+  // Only a pure `D` counts — a rename carries its old path in the same record and must keep
+  // resolving through the indexes.
+  const deletedPaths = new Set(
+    changes
+      .filter((change) => change.status.startsWith("D"))
+      .flatMap((change) => change.paths),
+  );
   for (const path of changedPaths) {
     if (indexes.source.has(path)) {
       const item = indexes.source.get(path);
@@ -630,6 +642,12 @@ export function createAffectedPlan({
       continue;
     }
     if (path.startsWith("packages/ui/registry/")) {
+      if (deletedPaths.has(path)) {
+        // Gone, and never owned. The registry check still runs so nothing is left dangling.
+        registryCheck = true;
+        classifications.push({ path, kind: "registry-deletion" });
+        continue;
+      }
       errors.push(`unowned registry path: ${path}`);
       continue;
     }

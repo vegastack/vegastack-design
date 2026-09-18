@@ -39,6 +39,10 @@ function verify(sources) {
   assert.match(sources.planner, /changedContractRecords/);
   assert.match(sources.planner, /changedRegistryRecords/);
   assert.match(sources.planner, /unclassified path:/);
+  // A DELETED registry path has no owner left to find, so the classifier must recognise the
+  // deletion rather than fail closed on it — otherwise no batch can ever retire a component.
+  assert.match(sources.planner, /registry-deletion/);
+  assert.match(sources.planner, /change\.status\.startsWith\("D"\)/);
   assert.match(sources.planner, /VEGASTACK_GEOMETRY_FIXTURES/);
   assert.match(sources.planner, /geometryCanaries/);
 
@@ -78,6 +82,18 @@ if (process.argv.includes("--self-test")) {
       "planner",
       "unclassified path:",
       "ignored path:",
+    ],
+    [
+      "planner stops recognising a deletion",
+      "planner",
+      "registry-deletion",
+      "registry-unknown",
+    ],
+    [
+      "planner treats a rename's old path as a deletion",
+      "planner",
+      'change.status.startsWith("D")',
+      'change.status.startsWith("R")',
     ],
     [
       "planner drops geometry env",
