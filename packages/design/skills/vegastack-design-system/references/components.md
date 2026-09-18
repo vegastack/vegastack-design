@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**127 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 608 registry items in total.
+**128 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 609 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -68,7 +68,7 @@ component and never an icon.
 - **`badge`** — A compact label or status chip — upstream's six variants plus our four status tones (COL-12).
 - **`card`** — A content surface with composable header, content, footer and action parts.
 - **`carousel`** — A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, Embla options, events and plugins.
-- **`chart`** — A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.
+- **`chart`** — A themed Recharts wrapper — a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.
 - **`collapsible`** — An interactive component which expands and collapses a panel, with an animated height and a trigger you supply.
 - **`empty`** — A zero-data placeholder — media, title, description and a content slot.
 - **`item`** — A composable row for list and feed content — media, title, description, actions.
@@ -157,11 +157,12 @@ component and never an icon.
 
 ## Communication
 
-- **`attachment`** — A file chip / thumbnail card for chat and message-compose surfaces - media slot, name + meta, uploading/error/complete states, remove/download actions.
+- **`attachment`** — A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.
 - **`bubble`** — A chat speech bubble - 7 token-driven variants (incl. brand-tinted), start/end alignment, interactive content, and a floating reactions chip.
 - **`marker`** — An inline conversation marker - status lines, system notes, and labelled dividers. 3 variants, Base UI render-polymorphic.
 - **`message`** — Layout primitives for a conversation row - avatar anchoring, content column, header/footer slots, start/end alignment. Server-safe.
 - **`message-scroller`** — A virtualised, auto-scrolling conversation viewport - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.
+- **`questionnaire`** — A guided one-question-at-a-time form — choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.
 
 ## Marketing
 
