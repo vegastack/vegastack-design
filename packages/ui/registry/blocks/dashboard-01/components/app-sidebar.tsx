@@ -1,214 +1,177 @@
-// @vegastack dashboard-01@0.9.1 sha256-u0RPXBZov/A/YP4WMV5C2B56ZJPjNz72AD/QTLlIj6Y=
+// @vegastack dashboard-01@0.9.1 sha256-LZLMS1Hm9uVLpEpspzGpQJZi7mi2NZJXZvkZGrd1+kU=
 
-"use client";
+import * as React from "react";
 
-/**
- * `app-sidebar.tsx` — the dashboard-01 block's navigation rail: an AI-platform-flavored nav-main
- * (Dashboard / Agents / Tasks / Usage / Settings) plus a nav-user footer (`Avatar` +
- * `DropdownMenu`). Composes `AppShellSidebar`/`Sidebar`'s public API only — no new primitive.
- *
- * 'use client' — the active-nav-item comparison is presentational-only (no router coupling), but
- * the footer's `DropdownMenu` is interactive, so the whole file crosses the client boundary.
- * `DashboardPage` (`../page.tsx`) stays server-safe by importing this as a client leaf, exactly
- * like `AppShellSkeleton`'s doc describes for `SidebarMenuSkeleton`.
- *
- * Zero Next.js imports (house rule): nav links render as plain `<a>` via `SidebarMenuButton`'s
- * `render` prop — swap in your router's `Link` at the call site (`render={<Link href={...} />}`)
- * without touching this file's structure.
- */
-
+import { NavDocuments } from "./nav-documents";
+import { NavMain } from "./nav-main";
+import { NavSecondary } from "./nav-secondary";
+import { NavUser } from "./nav-user";
 import {
-  BarChart3,
-  Bot,
-  ChevronsUpDown,
-  CreditCard,
-  LayoutDashboard,
-  ListChecks,
-  LogOut,
-  Settings,
-  User,
-  type LucideIcon,
-} from "lucide-react";
-import { cn } from "@vegastack/design";
-import { AppShellSidebar } from "@/components/ui/app-shell";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
+  Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import {
+  LayoutDashboardIcon,
+  ListIcon,
+  ChartBarIcon,
+  FolderIcon,
+  UsersIcon,
+  CameraIcon,
+  FileTextIcon,
+  Settings2Icon,
+  CircleHelpIcon,
+  SearchIcon,
+  DatabaseIcon,
+  FileChartColumnIcon,
+  FileIcon,
+  CommandIcon,
+} from "lucide-react";
 
-interface NavItem {
-  key: "dashboard" | "agents" | "tasks" | "usage" | "settings";
-  label: string;
-  href: string;
-  icon: LucideIcon;
-}
-
-const NAV_ITEMS: readonly NavItem[] = [
-  {
-    key: "dashboard",
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
+const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
   },
-  { key: "agents", label: "Agents", href: "/dashboard/agents", icon: Bot },
-  { key: "tasks", label: "Tasks", href: "/dashboard/tasks", icon: ListChecks },
-  { key: "usage", label: "Usage", href: "/dashboard/usage", icon: BarChart3 },
-  {
-    key: "settings",
-    label: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
-];
-
-export interface AppSidebarUser {
-  name: string;
-  email: string;
-  /** Resolved, public avatar URL — see `Avatar`'s doc; this component does not resolve storage keys. @default undefined */
-  avatarUrl?: string;
-}
-
-/** Props accepted by `AppSidebar`. */
-export interface AppSidebarProps {
-  /** Which nav item is current — highlights it and sets `aria-current="page"`. @default 'dashboard' */
-  activeKey?: NavItem["key"];
-  /** The signed-in user shown in the footer menu. @default bundled sample user */
-  user?: AppSidebarUser;
-  /** Called when "Log out" is selected — presentational only, no session logic here. @default undefined */
-  onLogout?: () => void;
-}
-
-const DEFAULT_USER: AppSidebarUser = {
-  name: "Ada Lovelace",
-  email: "ada@vegastack.com",
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "#",
+      icon: <LayoutDashboardIcon />,
+    },
+    {
+      title: "Lifecycle",
+      url: "#",
+      icon: <ListIcon />,
+    },
+    {
+      title: "Analytics",
+      url: "#",
+      icon: <ChartBarIcon />,
+    },
+    {
+      title: "Projects",
+      url: "#",
+      icon: <FolderIcon />,
+    },
+    {
+      title: "Team",
+      url: "#",
+      icon: <UsersIcon />,
+    },
+  ],
+  navClouds: [
+    {
+      title: "Capture",
+      icon: <CameraIcon />,
+      isActive: true,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Proposal",
+      icon: <FileTextIcon />,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Prompts",
+      icon: <FileTextIcon />,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+  ],
+  navSecondary: [
+    {
+      title: "Settings",
+      url: "#",
+      icon: <Settings2Icon />,
+    },
+    {
+      title: "Get Help",
+      url: "#",
+      icon: <CircleHelpIcon />,
+    },
+    {
+      title: "Search",
+      url: "#",
+      icon: <SearchIcon />,
+    },
+  ],
+  documents: [
+    {
+      name: "Data Library",
+      url: "#",
+      icon: <DatabaseIcon />,
+    },
+    {
+      name: "Reports",
+      url: "#",
+      icon: <FileChartColumnIcon />,
+    },
+    {
+      name: "Word Assistant",
+      url: "#",
+      icon: <FileIcon />,
+    },
+  ],
 };
-
-function initialsOf(name: string): string {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
-
-/**
- * `AppSidebar` — `AppShellSidebar` composed with the block's nav-main + nav-user footer. The
- * `[view-transition-name:dashboard-shell-sidebar]` arbitrary property (Tailwind v4 native
- * arbitrary-property syntax — a CSS custom-ident, not a hex/px literal, so it stays clean under
- * design-lint's arbitrary-value contract) marks the rail as a STABLE region for the block's View
- * Transitions wiring — see the block's docs page "View Transitions" section for the full
- * mechanism and the required `next.config.js` flag.
- *
- * @example <AppSidebar activeKey="usage" user={{ name: 'Ada', email: 'ada@example.com' }} />
- */
-export function AppSidebar({
-  activeKey = "dashboard",
-  user = DEFAULT_USER,
-  onLogout,
-}: AppSidebarProps) {
-  const initials = initialsOf(user.name);
-
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <AppShellSidebar className="[view-transition-name:dashboard-shell-sidebar]">
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-1.5">
-          <div
-            aria-hidden
-            className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground"
-          >
-            <Bot className="size-4" />
-          </div>
-          <span className="truncate text-sm font-medium font-medium text-foreground group-data-[collapsible=icon]:hidden">
-            VegaStack AI
-          </span>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              render={<a href="#" />}
+            >
+              <CommandIcon className="size-5!" />
+              <span className="text-base font-semibold">Acme Inc.</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
-
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
-          <SidebarMenu>
-            {NAV_ITEMS.map((item) => (
-              <SidebarMenuItem key={item.key}>
-                <SidebarMenuButton
-                  isActive={activeKey === item.key}
-                  render={<a href={item.href} />}
-                >
-                  <item.icon />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+        <NavMain items={data.navMain} />
+        <NavDocuments items={data.documents} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-
       <SidebarFooter>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className={cn(
-              "flex w-full items-center gap-2 rounded-md p-2 text-start",
-              "hover:bg-accent",
-            )}
-          >
-            <Avatar size="sm">
-              {user.avatarUrl ? (
-                <AvatarImage src={user.avatarUrl} alt={user.name} />
-              ) : null}
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-            {/* min-w-0 on the label column — the sidebar footer row's trailing chevron is a fixed
-                sibling, so the name/email column needs min-w-0 to truncate instead of overflowing
-                (the same flex-discipline footgun the app-shell audit flags for stat cards/cards). */}
-            <span className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
-              <span className="truncate text-xs font-medium text-sidebar-foreground">
-                {user.name}
-              </span>
-              <span className="truncate text-xs text-muted-foreground">
-                {user.email}
-              </span>
-            </span>
-            <ChevronsUpDown
-              aria-hidden
-              className="size-3.5 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
-            />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" side="top" className="w-56">
-            <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <CreditCard />
-              Billing
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={onLogout}>
-              <LogOut />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <NavUser user={data.user} />
       </SidebarFooter>
-    </AppShellSidebar>
+    </Sidebar>
   );
 }

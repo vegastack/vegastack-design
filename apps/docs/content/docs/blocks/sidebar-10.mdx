@@ -1,0 +1,46 @@
+---
+title: sidebar-10
+description: A sidebar in a popover. Composed from breadcrumb, button, collapsible, dropdown-menu.
+audience: public
+registry: sidebar-10
+preview: sidebar10Demo
+---
+
+## What it is
+
+A sidebar in a popover. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/sidebar-10
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `breadcrumb`, `button`, `collapsible`, `dropdown-menu`, `popover`, `separator`, `sidebar`.
+
+## Preview
+
+<ComponentPreview name="sidebar10Demo" />
+
+## Files
+
+| File                                       | Registry type        | Target                                         |
+| ------------------------------------------ | -------------------- | ---------------------------------------------- |
+| `sidebar-10/components/app-sidebar.tsx`    | `registry:component` | `app/sidebar-10/components/app-sidebar.tsx`    |
+| `sidebar-10/components/nav-actions.tsx`    | `registry:component` | `app/sidebar-10/components/nav-actions.tsx`    |
+| `sidebar-10/components/nav-favorites.tsx`  | `registry:component` | `app/sidebar-10/components/nav-favorites.tsx`  |
+| `sidebar-10/components/nav-main.tsx`       | `registry:component` | `app/sidebar-10/components/nav-main.tsx`       |
+| `sidebar-10/components/nav-secondary.tsx`  | `registry:component` | `app/sidebar-10/components/nav-secondary.tsx`  |
+| `sidebar-10/components/nav-workspaces.tsx` | `registry:component` | `app/sidebar-10/components/nav-workspaces.tsx` |
+| `sidebar-10/components/team-switcher.tsx`  | `registry:component` | `app/sidebar-10/components/team-switcher.tsx`  |
+| `sidebar-10/page.tsx`                      | `registry:page`      | `app/sidebar-10/page.tsx`                      |
+
+## Do / Don't
+
+<DoDont
+  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
+  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+/>

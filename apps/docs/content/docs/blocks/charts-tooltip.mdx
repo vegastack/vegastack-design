@@ -1,0 +1,86 @@
+---
+title: charts-tooltip
+description: The 9 tooltip chart blocks — copy-once Card compositions over the chart component and recharts, with their sample data inline.
+audience: public
+registry: chart-tooltip-advanced
+preview: chartTooltipAdvanced
+---
+
+## What it is
+
+9 chart **blocks** in the `tooltip` family. Each is one `Card` wrapping a
+`ChartContainer`, with its sample data inline — pull one, then point it at your own series.
+They depend on `card` and `chart` and nothing else.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/chart-tooltip-advanced
+```
+
+<RegistryInstallCallout />
+
+Every block on this page installs the same way; swap the name.
+
+## Examples
+
+### chart-tooltip-advanced
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipAdvanced" />
+
+### chart-tooltip-default
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipDefault" />
+
+### chart-tooltip-formatter
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipFormatter" />
+
+### chart-tooltip-icons
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipIcons" />
+
+### chart-tooltip-indicator-line
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipIndicatorLine" />
+
+### chart-tooltip-indicator-none
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipIndicatorNone" />
+
+### chart-tooltip-label-custom
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipLabelCustom" />
+
+### chart-tooltip-label-formatter
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipLabelFormatter" />
+
+### chart-tooltip-label-none
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartTooltipLabelNone" />
+
+## Do / Don't
+
+<DoDont
+  do="Copy the one whose shape matches your data, then replace chartData and chartConfig."
+  dont="Import a chart block from the registry as a shared component — it is a starting point, not an API."
+/>

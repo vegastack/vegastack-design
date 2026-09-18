@@ -1187,12 +1187,18 @@ assert.ok(
   Buffer.byteLength(llmsIndex) < 100 * 1024,
   "llms.txt exceeds 100 KiB",
 );
-// The agent corpus budget. 2 MiB was the figure this system shipped with; the shadcn reset put
-// every component back on upstream's own docs sections, which are richer than the pages they
-// replaced (62 components, 663 sections), and the corpus crossed it at ~2.08 MiB. Raised to 4 MiB
-// rather than trimming what agents read: this file exists to be consumed whole, and the components
-// it now documents are the ones consumers actually get. It stays a real ceiling — a corpus that
-// doubles again is a signal, not a rounding error. (MK flagged, 2026-09-18.)
+// The agent-corpus budget. The ceiling is a RUNAWAY tripwire, not a documentation ration:
+// `llms-full.txt` exists to be consumed WHOLE, and what it must catch is a generated dump (an icon
+// gallery, a serialised registry) landing in the corpus — not the corpus growing by the pages a
+// release actually adds. Two batches of the shadcn reset measured it crossing the old 2 MiB figure
+// on the same day (2026-09-18), from both directions, which is what settled the number: Batch 7b
+// put every component back on upstream's own docs sections, richer than the pages they replaced (62
+// components, 663 sections), taking it to ~2.08 MB; Batch 8 added 39 block pages worth 80 KB on top
+// of a corpus already at 2.19 MB across 176 pages. At 2 MiB the only ways to pass were to withhold
+// real documentation from agents or to delete the changelog page (165 KB, the single largest, and
+// still 8 KB short of enough). Doubled, with both measurements written down, so the tripwire still
+// fires long before anything is unfetchable — a corpus that doubles again is a signal, not a
+// rounding error. **The number is MK's**, flagged by both batches rather than decided here.
 assert.ok(
   Buffer.byteLength(llmsFull) < 4 * 1024 * 1024,
   "llms-full.txt exceeds 4 MiB",

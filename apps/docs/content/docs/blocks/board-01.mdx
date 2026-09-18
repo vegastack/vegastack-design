@@ -1,0 +1,40 @@
+---
+title: board-01
+description: A kanban board page — drag-and-drop columns under a toolbar with a search field, an assignee filter and a view switch.
+audience: public
+registry: board-01
+preview: board01Demo
+---
+
+## What it is
+
+A kanban board page — Board's drag-and-drop columns under a toolbar with a search field, an assignee filter and a view switch. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/board-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `avatar`, `board`, `button`, `input-group`, `select`, `toggle-group`.
+
+## Preview
+
+<ComponentPreview name="board01Demo" />
+
+## Files
+
+| File                                 | Registry type        | Target                                   |
+| ------------------------------------ | -------------------- | ---------------------------------------- |
+| `board-01/components/board-view.tsx` | `registry:component` | `app/board-01/components/board-view.tsx` |
+| `board-01/page.tsx`                  | `registry:page`      | `app/board-01/page.tsx`                  |
+
+## Do / Don't
+
+<DoDont
+  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
+  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+/>

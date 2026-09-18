@@ -18,12 +18,19 @@ import { spawnSync } from "node:child_process";
 import { ROOT } from "./lib/fs.mjs";
 
 const scratch = mkdtempSync(join(tmpdir(), "vegastack-design-lint-"));
-const invalidDir = join(scratch, "packages/ui/registry/ui/invalid");
-const vocabularyDir = join(scratch, "packages/ui/registry/ui/vocabulary");
-const glowDir = join(scratch, "packages/ui/registry/ui/glow");
-const classGlueDir = join(scratch, "packages/ui/registry/ui/class-glue");
-const iconNameDir = join(scratch, "packages/ui/registry/ui/icon-name");
-const validDir = join(scratch, "packages/ui/registry/ui/valid");
+// Each specimen group gets its OWN tree, with the group name ABOVE `packages/` rather than below
+// `registry/ui/`. Batch 8 of the shadcn reset (2026-09-18) is why: the native-control exemptions
+// are now keyed by the file's repo path (`registry/ui/textarea.tsx`) instead of its basename, so
+// that a block's `components/date-picker.tsx` can no longer inherit the component's rationale —
+// and a specimen written to `registry/ui/valid/textarea.tsx` would no longer be the file the
+// exemption names. Lifting the group name keeps every specimen at the path it is pretending to be.
+const groupDir = (name) => join(scratch, name, "packages/ui/registry/ui");
+const invalidDir = groupDir("invalid");
+const vocabularyDir = groupDir("vocabulary");
+const glowDir = groupDir("glow");
+const classGlueDir = groupDir("class-glue");
+const iconNameDir = groupDir("icon-name");
+const validDir = groupDir("valid");
 for (const dir of [
   invalidDir,
   vocabularyDir,
@@ -235,6 +242,34 @@ export function Anonymous() {
     );
   }
 
+  // The POSITIVE half of the same rule, added in Batch 8 (2026-09-18). Upstream's blocks put the
+  // name on the Button's OWN children — `<Button size="icon"><Icon /><span className="sr-only">Go
+  // to next page</span></Button>` — and the rule read only the Button's attributes and its render
+  // host, so it reported four correctly-named `dashboard-01` controls as anonymous. A false
+  // positive teaches an author to reach for the exemption list, so this fixture pins the accepted
+  // spelling; the anonymous case above still fails, which is what keeps the pair honest.
+  writeFileSync(
+    join(iconNameDir, "icon-name.tsx"),
+    `import { Button } from '@/components/ui/button';
+
+export function NamedByItsOwnChildren() {
+  return (
+    <Button size="icon">
+      <Glyph />
+      <span className="sr-only">Go to next page</span>
+    </Button>
+  );
+}
+`,
+  );
+  const iconNameOwn = run(iconNameDir);
+  if (iconNameOwn.output.includes("[icon-button-name]")) {
+    fail(
+      "design-lint reported an icon-only Button that carries its own sr-only label as unnamed",
+      iconNameOwn.output,
+    );
+  }
+
   // ── the structural rules ────────────────────────────────────────────────────────────────────
   const invalid = run(invalidDir);
   const requiredIds = [
@@ -315,7 +350,8 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms are rejected, a class seam ` +
       `with no separating space is rejected, an icon-only Button with an anonymous host is ` +
-      `rejected; the reviewed Textarea adapter passes, and with it 16 deliberate non-violations ` +
+      `rejected while one carrying its own sr-only label is accepted; the reviewed Textarea ` +
+      `adapter passes, and with it 16 deliberate non-violations ` +
       `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
       `hover vocabulary, plus all three spellings of naming an icon Button through its host`,
   );

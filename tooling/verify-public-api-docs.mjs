@@ -29,10 +29,27 @@ const migrated = new Set(
     readFileSync(join(root, "packages/ui/upstream/migrated.json"), "utf8"),
   ).components,
 );
+/**
+ * The same boundary, one level up, for BLOCKS (Batch 8 of the shadcn reset, 2026-09-18). 96 of the
+ * 100 blocks are upstream's own files — the 28 Base UI blocks copied out of `vendor/` with their
+ * import paths adjusted, and the 68 chart cards ported from `new-york-v4`. Upstream ships no JSDoc
+ * on them either, and a doc comment per part would be the same "improving it in passing" the
+ * mandate's first non-negotiable forbids. The authority for what is upstream's is the pull
+ * manifest, not a hand-kept list: a block that leaves `vendor/.../manifest.json` immediately owes
+ * its JSDoc again. The four blocks this repository AUTHORED keep the full requirement.
+ */
+const vendored = new Set([
+  ...JSON.parse(
+    readFileSync(join(root, "vendor/shadcn/4.21.0/manifest.json"), "utf8"),
+  ).blocks,
+  ...JSON.parse(
+    readFileSync(join(root, "vendor/shadcn/4.21.0/manifest.json"), "utf8"),
+  ).chartBlocks,
+]);
 const records = [
   ...contracts.components.filter((record) => !migrated.has(record.name)),
   ...contracts.hooks,
-  ...contracts.blocks,
+  ...contracts.blocks.filter((record) => !vendored.has(record.name)),
 ];
 const problems = [];
 

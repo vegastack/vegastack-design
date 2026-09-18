@@ -99,6 +99,13 @@ const RUNTIME_VARIABLES = new Set([
   "--nested-drawers",
   // react-remove-scroll-bar, injected as a runtime <style> during scroll lock.
   "--removed-body-scroll-bar-size",
+  // `SidebarProvider` writes these three onto its wrapper element as an inline style, so every
+  // descendant — including a BLOCK's own sidebar parts, which is what surfaced this in Batch 8 —
+  // reads a variable that genuinely exists at runtime and can exist nowhere in the token contract
+  // (the widths are the provider's constants, not theme values).
+  "--sidebar-width",
+  "--sidebar-width-icon",
+  "--sidebar-width-mobile",
 ]);
 
 // Chart series colours are CONSUMER data: `chart.tsx` writes `--color-<seriesKey>` from the
@@ -109,8 +116,16 @@ const RUNTIME_VARIABLES = new Set([
 // typo in the system — `--color-surface-4` reads exactly like a series key — which would make the
 // gate useless for the case it exists to catch. Only the chart component and the fixtures that
 // demonstrate it may name a series colour.
+// Batch 8 of the shadcn reset (2026-09-18) widened the file list and narrowed it at the same
+// time. `dashboard-chart.tsx` LEFT it: upstream's `dashboard-01` replaced our pre-reset block and
+// that file no longer exists, and an exemption that can no longer be reached is one that should
+// not exist. What joined it is the 68 ported chart blocks (`registry/blocks/chart-*/chart-*.tsx`,
+// plus the one `dashboard-01` composes) and the seven family preview modules — every one of them
+// a `ChartContainer` composition whose series keys are its own inline sample data, which is
+// exactly the case the exemption was written for. It is still a FILE list, not a pattern: a
+// `--color-*` typo anywhere else in the system still fails.
 const CHART_SERIES_FILES =
-  /(?:^|\/)(?:chart|dashboard-chart)\.tsx$|\/preview\/chart\.tsx$/;
+  /(?:^|\/)chart\.tsx$|\/preview\/chart\.tsx$|\/preview\/charts-[a-z]+\.tsx$|\/registry\/blocks\/[^/]+\/(?:components\/)?chart-[a-z0-9-]+\.tsx$|\/registry\/blocks\/dashboard-01\/components\/data-table\.tsx$/;
 const CHART_SERIES = /^--color-[a-z][a-z0-9-]*$/;
 
 /** Custom properties the built token contract declares. */
@@ -168,13 +183,22 @@ function referencedTokens(rawSource) {
   return referenced;
 }
 
-/** The problems in one file, given the contract. */
-function fileProblems(relative, source, contract) {
+/**
+ * The problems in one file, given the contract.
+ *
+ * `siblings` is the set a BLOCK's other files declare. Batch 8 of the shadcn reset (2026-09-18)
+ * added it: a block is installed as ONE unit, so when `dashboard-01/page.tsx` sets
+ * `--header-height` on the wrapper and `dashboard-01/components/site-header.tsx` reads it, the
+ * variable is declared — just not in the reading file. Scoped to the block's own directory, so it
+ * can never let a component read a variable some unrelated file happens to declare.
+ */
+function fileProblems(relative, source, contract, siblings = new Set()) {
   const local = localTokens(source);
   const problems = [];
   for (const [token, line] of referencedTokens(source)) {
     if (contract.has(token)) continue;
     if (local.has(token)) continue;
+    if (siblings.has(token)) continue;
     if (RUNTIME_VARIABLES.has(token)) continue;
     if (CHART_SERIES_FILES.test(relative) && CHART_SERIES.test(token)) continue;
     problems.push(
@@ -222,13 +246,31 @@ if (contract.size < 100) {
 }
 
 const files = sourceFiles();
+// Per BLOCK, everything its own files declare — see `fileProblems`.
+const blockSiblings = new Map();
+for (const file of files) {
+  const relative = file.replace(`${ROOT}/`, "");
+  const block = /^packages\/ui\/registry\/blocks\/([^/]+)\//.exec(
+    relative,
+  )?.[1];
+  if (!block) continue;
+  const declared = blockSiblings.get(block) ?? new Set();
+  for (const token of localTokens(readFileSync(file, "utf8")))
+    declared.add(token);
+  blockSiblings.set(block, declared);
+}
 const problems = [];
 for (const file of files) {
+  const relative = file.replace(`${ROOT}/`, "");
+  const block = /^packages\/ui\/registry\/blocks\/([^/]+)\//.exec(
+    relative,
+  )?.[1];
   problems.push(
     ...fileProblems(
-      file.replace(`${ROOT}/`, ""),
+      relative,
       readFileSync(file, "utf8"),
       contract,
+      block ? blockSiblings.get(block) : undefined,
     ),
   );
 }
@@ -260,9 +302,42 @@ if (process.argv.includes("--self-test")) {
       );
       process.exit(1);
     }
+    // The block-sibling arm, both halves. A block's page declares the variable its own header
+    // reads; anything the block does NOT declare still fails, so the widening cannot be mistaken
+    // for "a block may name whatever it likes".
+    const blockRead = `export const ok = "h-(--header-height)";`;
+    if (
+      fileProblems(
+        "packages/ui/registry/blocks/x/components/site-header.tsx",
+        blockRead,
+        contract,
+        new Set(["--header-height"]),
+      ).length !== 0
+    ) {
+      console.error(
+        "✗ verify-token-references --self-test: a variable a SIBLING file in the same block " +
+          "declares was rejected",
+      );
+      process.exit(1);
+    }
+    if (
+      fileProblems(
+        "packages/ui/registry/blocks/x/components/site-header.tsx",
+        `export const bad = "h-(--not-declared-anywhere)";`,
+        contract,
+        new Set(["--header-height"]),
+      ).length !== 1
+    ) {
+      console.error(
+        "✗ verify-token-references --self-test: a block file naming a variable NO sibling " +
+          "declares was accepted",
+      );
+      process.exit(1);
+    }
     console.log(
       "✓ verify-token-references --self-test: two undefined tokens rejected; a file-local " +
-        "custom property and a Base UI runtime variable accepted",
+        "custom property, a Base UI runtime variable and a block sibling's declaration accepted, " +
+        "and an undeclared variable inside a block still rejected",
     );
   } finally {
     rmSync(scratch, { recursive: true, force: true });

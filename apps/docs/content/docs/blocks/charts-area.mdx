@@ -1,0 +1,92 @@
+---
+title: charts-area
+description: The 10 area chart blocks — copy-once Card compositions over the chart component and recharts, with their sample data inline.
+audience: public
+registry: chart-area-axes
+preview: chartAreaAxes
+---
+
+## What it is
+
+10 chart **blocks** in the `area` family. Each is one `Card` wrapping a
+`ChartContainer`, with its sample data inline — pull one, then point it at your own series.
+They depend on `card` and `chart` and nothing else.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/chart-area-axes
+```
+
+<RegistryInstallCallout />
+
+Every block on this page installs the same way; swap the name.
+
+## Examples
+
+### chart-area-axes
+
+An area chart with axes.
+
+<ComponentPreview name="chartAreaAxes" />
+
+### chart-area-default
+
+A simple area chart.
+
+<ComponentPreview name="chartAreaDefault" />
+
+### chart-area-gradient
+
+An area chart with gradient fill.
+
+<ComponentPreview name="chartAreaGradient" />
+
+### chart-area-icons
+
+An area chart with icons.
+
+<ComponentPreview name="chartAreaIcons" />
+
+### chart-area-interactive
+
+An interactive area chart.
+
+<ComponentPreview name="chartAreaInteractive" />
+
+### chart-area-legend
+
+An area chart with a legend.
+
+<ComponentPreview name="chartAreaLegend" />
+
+### chart-area-linear
+
+A linear area chart.
+
+<ComponentPreview name="chartAreaLinear" />
+
+### chart-area-stacked
+
+A stacked area chart.
+
+<ComponentPreview name="chartAreaStacked" />
+
+### chart-area-stacked-expand
+
+A stacked area chart with expand stacking.
+
+<ComponentPreview name="chartAreaStackedExpand" />
+
+### chart-area-step
+
+A step area chart.
+
+<ComponentPreview name="chartAreaStep" />
+
+## Do / Don't
+
+<DoDont
+  do="Copy the one whose shape matches your data, then replace chartData and chartConfig."
+  dont="Import a chart block from the registry as a shared component — it is a starting point, not an API."
+/>

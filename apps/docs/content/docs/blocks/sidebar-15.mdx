@@ -1,0 +1,49 @@
+---
+title: sidebar-15
+description: A left and right sidebar. Composed from avatar, breadcrumb, calendar, collapsible.
+audience: public
+registry: sidebar-15
+preview: sidebar15Demo
+---
+
+## What it is
+
+A left and right sidebar. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/sidebar-15
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `avatar`, `breadcrumb`, `calendar`, `collapsible`, `dropdown-menu`, `separator`, `sidebar`.
+
+## Preview
+
+<ComponentPreview name="sidebar15Demo" />
+
+## Files
+
+| File                                       | Registry type        | Target                                         |
+| ------------------------------------------ | -------------------- | ---------------------------------------------- |
+| `sidebar-15/components/calendars.tsx`      | `registry:component` | `app/sidebar-15/components/calendars.tsx`      |
+| `sidebar-15/components/date-picker.tsx`    | `registry:component` | `app/sidebar-15/components/date-picker.tsx`    |
+| `sidebar-15/components/nav-favorites.tsx`  | `registry:component` | `app/sidebar-15/components/nav-favorites.tsx`  |
+| `sidebar-15/components/nav-main.tsx`       | `registry:component` | `app/sidebar-15/components/nav-main.tsx`       |
+| `sidebar-15/components/nav-secondary.tsx`  | `registry:component` | `app/sidebar-15/components/nav-secondary.tsx`  |
+| `sidebar-15/components/nav-user.tsx`       | `registry:component` | `app/sidebar-15/components/nav-user.tsx`       |
+| `sidebar-15/components/nav-workspaces.tsx` | `registry:component` | `app/sidebar-15/components/nav-workspaces.tsx` |
+| `sidebar-15/components/sidebar-left.tsx`   | `registry:component` | `app/sidebar-15/components/sidebar-left.tsx`   |
+| `sidebar-15/components/sidebar-right.tsx`  | `registry:component` | `app/sidebar-15/components/sidebar-right.tsx`  |
+| `sidebar-15/components/team-switcher.tsx`  | `registry:component` | `app/sidebar-15/components/team-switcher.tsx`  |
+| `sidebar-15/page.tsx`                      | `registry:page`      | `app/sidebar-15/page.tsx`                      |
+
+## Do / Don't
+
+<DoDont
+  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
+  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+/>
