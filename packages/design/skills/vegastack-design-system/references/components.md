@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**118 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 599 registry items in total.
+**123 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 604 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -23,30 +23,34 @@ component and never an icon.
 ## Form
 
 - **`auto-save-input`** — An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.
-- **`checkbox`** — A binary (or tri-state) toggle — checked, unchecked, indeterminate, disabled, built on Base UI Checkbox.
+- **`calendar`** — A date-field calendar on React DayPicker — single, multiple and range selection.
+- **`checkbox`** — A binary (or indeterminate) toggle on Base UI Checkbox, with a 24px invisible hit area (A11Y-2).
 - **`checkbox-group`** — Shared state for a set of checkboxes, with first-class “select all” — parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.
 - **`chip-input`** — Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.
 - **`color-picker`** — A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.
-- **`combobox`** — A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.
+- **`combobox`** — A filterable listbox behind a text input — grouped items, an announced empty state and a chips mode.
 - **`country-select`** — A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`date-picker`** — Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
 - **`dropzone`** — File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.
 - **`editable-cell`** — Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).
-- **`field`** — A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.
+- **`field`** — The form-field scaffold — label, description, error, legend, separator and choice-card layouts.
 - **`field-inline`** — Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
-- **`input`** — A styled Base UI input — all input types, Field state data attributes, error and disabled states, a focus border tint, and optional prefix/suffix addons.
+- **`input`** — A styled Base UI input for every text-entry type, with the text-entry focus border tint (FOC-3).
+- **`input-group`** — An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.
+- **`input-otp`** — A one-time-password field with per-character slots, driven by one hidden input.
 - **`label`** — A styled native label for form controls.
+- **`native-select`** — The platform <select>, tokenized — the OS picker on mobile, with option groups.
 - **`number-field`** — Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.
 - **`otp-input`** — A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.
 - **`password-input`** — A password field with a show/hide eye toggle and an optional live requirements checklist.
-- **`radio-group`** — A set of mutually-exclusive options — single selection, arrow-key navigation, disabled, built on Base UI Radio Group.
+- **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
 - **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.
-- **`select`** — A dropdown for choosing one option — trigger with value and chevron, grouped scrollable popup, full keyboard navigation, animated enter/exit.
-- **`slider`** — Pick a number or a [from, to] range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.
-- **`switch`** — An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.
-- **`textarea`** — A styled native textarea for multi-line text — error/disabled states, a focus border tint, and an optional auto-grow mode.
+- **`select`** — A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.
+- **`slider`** — A number or range over a continuous track — horizontal or vertical, any number of thumbs.
+- **`switch`** — An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).
+- **`textarea`** — A styled native textarea that grows with its content, with the text-entry focus border tint (FOC-3).
 
 ## Display
 
@@ -125,6 +129,7 @@ component and never an icon.
 - **`app-shell`** — The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.
 - **`aspect-ratio`** — Constrains its children to a given width-to-height ratio.
 - **`board`** — Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.
+- **`direction`** — Base UI's DirectionProvider and useDirection — the text-direction context components read.
 - **`resizable`** — Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.
 - **`scroll-area`** — A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, built on Base UI ScrollArea.
 - **`separator`** — A thin rule dividing content — horizontal or vertical, built on Base UI.

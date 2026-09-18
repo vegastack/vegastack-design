@@ -135,15 +135,16 @@ contract.
 
 ## Composition patterns
 
-- **Forms** — Base UI `Field` + react-hook-form `Controller` + Zod 4 (`z.email()`). `Field.Control`
-  emits `onValueChange`, not a DOM `onChange` event. **`Field` owns the feedback layer**: helper text
-  renders below the control, the error below that as a polite `role="status"`, and the invalid shake
-  belongs to the field — wrap a control in a `Field` to get it, and pass `shakeSignal` (a
-  submit-attempt counter) there to re-shake a field that never stopped being invalid. A bare
-  `<Input aria-invalid>` outside a `Field` tints its border and does not move.
-- **A set of related checkboxes is a `CheckboxGroup`** — pass `allValues` and mark one child
-  `parent` to get select-all with the mixed state, rather than computing checked/indeterminate in
-  your own state. Name the group with a `FieldSet`/`FieldLegend` or `aria-labelledby`.
+- **Forms are composed, not configured** — `Field` is layout and copy: `FieldLabel` bound with
+  `htmlFor`, the control, then `FieldDescription` and `FieldError` as CHILDREN. There is no `label`,
+  `description` or `error` prop, and no context that reaches into the control. State is written where
+  it belongs: `aria-invalid` on the control (for assistive tech), `data-invalid` / `data-disabled` on
+  the `Field` (for the block's styling). `FieldError` is `role="alert"`, carries a leading icon so an
+  error is never colour alone, and takes either children or an `errors` array it de-duplicates.
+  react-hook-form's `register` wires straight to the control; there is no `Controller` indirection.
+- **A set of related checkboxes is a `FieldSet` + `FieldLegend` + one `Field` per option** — that is
+  the composition upstream documents, and it is what `Checkbox`'s own docs page shows. Compute
+  `checked` / `indeterminate` for a select-all parent in your own state, as the Table example does.
 - **Click-to-edit is `useInlineEdit`** — draft, commit, cancel, focus restoration and the
   double-commit guard, with no opinion about the editor or the display. `FieldInline` and
   `EditableCell` are built on it.

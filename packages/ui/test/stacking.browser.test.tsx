@@ -88,11 +88,13 @@ test("Select inside Dialog: the open listbox paints above the dialog", async () 
   const listbox = document.querySelector('[role="listbox"]')!;
   // Same band…
   const dialogPopup = document.querySelector('[data-slot="dialog-content"]')!;
-  expect(
-    getComputedStyle(
-      listbox.closest('[data-slot="select-positioner"]') ?? listbox,
-    ).zIndex,
-  ).toBe(getComputedStyle(dialogPopup).zIndex);
+  // Batch 3 of the shadcn reset put Select back on upstream's file: the band is written on the
+  // POPUP (`relative isolate z-50`) and on its positioner, and neither carries a
+  // `data-slot="select-positioner"` any more. The popup is the element the band belongs to.
+  const selectPopup = document.querySelector('[data-slot="select-content"]')!;
+  expect(getComputedStyle(selectPopup).zIndex).toBe(
+    getComputedStyle(dialogPopup).zIndex,
+  );
   // …but the select popup wins by DOM order: its centre is hittable.
   await expect.poll(() => hitTestInside(listbox)).toBe(true);
 });

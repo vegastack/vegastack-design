@@ -3,8 +3,14 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { afterEach, beforeAll, describe, expect, test } from "vitest";
 
-import { Field } from "../registry/ui/field";
+import { Field, FieldError, FieldLabel } from "../registry/ui/field";
 import { Input } from "../registry/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "../registry/ui/input-group";
 import { NumberField } from "../registry/ui/number-field";
 import { OTPInput } from "../registry/ui/otp-input";
 import { Switch } from "../registry/ui/switch";
@@ -244,13 +250,25 @@ describe("Switch — the track is painted, in both states", () => {
     );
     expect(numbers(on.backgroundColor)).toEqual(numbers(token("--primary")));
 
-    // The 2px inset that gives the thumb its uniform gap. `p-0.5` was the left-hand casualty of
-    // the same seam, so a passing colour assertion alone would not have caught it.
-    expect(off.padding).toBe("2px");
-    expect(on.padding).toBe("2px");
+    // The inset that gives the thumb its uniform gap. Batch 3 of the shadcn reset put Switch back
+    // on upstream's file, which centres a `size-4` thumb in an 18.4px track with `items-center`
+    // and a translate rather than with `p-0.5`, so the surviving measurable fact is the GAP: the
+    // thumb is smaller than the track it travels in, on both axes. `p-0.5` was the left-hand
+    // casualty of the class-glue seam, and a passing colour assertion alone would still not catch
+    // a thumb that filled its track.
+    const offThumb = (
+      within(screen.container).testId("switch-off")
+        .firstElementChild as HTMLElement
+    ).getBoundingClientRect();
+    const offTrack = within(screen.container)
+      .testId("switch-off")
+      .getBoundingClientRect();
+    expect(offThumb.height).toBeLessThan(offTrack.height);
+    expect(offThumb.width).toBeLessThan(offTrack.width);
+    expect(offThumb.height).toBeGreaterThan(0);
   });
 
-  test("the thumb travels on the motion-ease-standard token, not Tailwind's default", async () => {
+  test("the thumb really transitions its transform, and only its transform", async () => {
     const screen = await render(
       <Stage>
         <Switch data-testid="switch-ease" aria-label="ease" />
@@ -259,12 +277,18 @@ describe("Switch — the track is painted, in both states", () => {
     await settle();
     const thumb = within(screen.container).testId("switch-ease")
       .firstElementChild as HTMLElement;
-    // `ease-standarddata-unchecked:translate-x-0` left the thumb on Chromium's
-    // `cubic-bezier(0.4, 0, 0.2, 1)` while `design-lint`'s transition-pairing rule read
-    // `ease-standard` in the literal and passed.
-    expect(getComputedStyle(thumb).transitionTimingFunction).toBe(
-      token("--motion-ease-standard"),
+    const style = getComputedStyle(thumb);
+    // RETARGETED IN BATCH 3, not weakened. The original claim was that the thumb travelled on
+    // `--motion-ease-standard`; MOT-1..MOT-4 are decided as **shadcn**, so upstream's own
+    // `transition-transform` (Tailwind's default curve) is the contract now and asserting our
+    // token here would assert a rule this system no longer has. What the class-glue defect
+    // destroyed and this still catches: the transition property surviving the seam at all.
+    // `ease-standarddata-unchecked:translate-x-0` left BOTH halves broken.
+    // Tailwind v4's `transition-transform` covers the whole transform family.
+    expect(style.transitionProperty).toBe(
+      "transform, translate, scale, rotate",
     );
+    expect(Number.parseFloat(style.transitionDuration)).toBeGreaterThan(0);
   });
 });
 
@@ -349,44 +373,56 @@ describe("aria-invalid reaches the element that paints the tint", () => {
     expect(reference).not.toEqual(numbers(token("--input")));
   });
 
-  test("borderlessInvalidRestingBorder — a flattened field still shows the tint at rest", async () => {
+  /*
+   * RETARGETED IN BATCH 3 OF THE SHADCN RESET, not weakened.
+   *
+   * This used to mount `<Field label error borderless>`, a fork-only API: Field pushed
+   * `aria-invalid` into its child through context, and `borderless` flattened the control. Both are
+   * gone — upstream's Field is layout and copy only, and the author writes `aria-invalid` on the
+   * control. The DEFECT CLASS is not gone: a bordered field GROUP can still swallow the tint,
+   * because its own border is the one that paints and the control inside it is borderless. That is
+   * exactly `InputGroup`, so the claim moves there and keeps its reference fixture.
+   */
+  test("an invalid control inside an InputGroup tints the GROUP, like an invalid Input", async () => {
     const screen = await render(
       <Stage>
-        <Input
-          data-testid="ref-borderless"
-          aria-label="reference"
-          aria-invalid
-        />
-        <Field label="Title" error="Required" borderless>
-          <Input data-testid="borderless-invalid" />
-        </Field>
+        <Input data-testid="ref-group" aria-label="reference" aria-invalid />
+        <InputGroup data-testid="invalid-group">
+          <InputGroupInput aria-label="amount" aria-invalid />
+          <InputGroupAddon>
+            <InputGroupText>$</InputGroupText>
+          </InputGroupAddon>
+        </InputGroup>
       </Stage>,
     );
     await settle();
     const q = within(screen.container);
-    // `BORDERLESS`'s `border-transparent` used to outrank the invalid tint as well as the focus
-    // tint, so an invalid inline-edit field measured `rgba(0, 0, 0, 0)` at rest: error copy and
-    // the shake fired, and the control itself carried no cue.
-    expect(
-      numbers(getComputedStyle(q.testId("borderless-invalid")).borderTopColor),
-    ).toEqual(
-      numbers(getComputedStyle(q.testId("ref-borderless")).borderTopColor),
+    const reference = numbers(
+      getComputedStyle(q.testId("ref-group")).borderTopColor,
     );
+    expect(
+      numbers(getComputedStyle(q.testId("invalid-group")).borderTopColor),
+    ).toEqual(reference);
+    // Non-vacuous: the reference really is a different colour from the resting hairline.
+    expect(reference).not.toEqual(numbers(token("--input")));
   });
 
-  test("a Field-wrapped Textarea takes the tint, because Field can reach it now", async () => {
+  test("a Field-wrapped Textarea takes the same tint as an invalid Input", async () => {
     const screen = await render(
       <Stage>
         <Input data-testid="ref-textarea" aria-label="reference" aria-invalid />
-        <Field label="Notes" error="Required">
-          <Textarea data-testid="field-textarea" />
+        <Field data-invalid>
+          <FieldLabel htmlFor="notes">Notes</FieldLabel>
+          <Textarea id="notes" data-testid="field-textarea" aria-invalid />
+          <FieldError>Required</FieldError>
         </Field>
       </Stage>,
     );
     await settle();
     const q = within(screen.container);
-    // A raw `<textarea>` never received `aria-invalid` from Field's context, so an invalid
-    // `Field > Textarea` painted the NEUTRAL hairline while its error copy said otherwise.
+    // Batch 3 moved `aria-invalid` onto the control itself (upstream's Field carries no context),
+    // so this is now a claim about Textarea's OWN tint matching Input's — the two share one chrome
+    // string, and a divergence would mean one of them lost its `not-focus:aria-invalid:` rung.
     expect(
       numbers(getComputedStyle(q.testId("field-textarea")).borderTopColor),
     ).toEqual(

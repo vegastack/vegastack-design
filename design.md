@@ -697,6 +697,16 @@ recipes:
 > four status families in shadcn's own shape, our chart and tag palettes, and our own motion
 > utilities.
 >
+> **The component prose is stale in the same way, component by component, as the reset reaches it.**
+> Batch 2 put the 17 action and primitive components back on upstream; Batch 3 did the same for the
+> 15 form components — input, input-group, input-otp, textarea, checkbox, radio-group, switch,
+> slider, select, native-select, combobox, field, form, calendar and direction. Everything this file
+> says about their props, their sizes, their variants and their chrome describes the pre-reset fork:
+> there is no `fieldControl` recipe, no `size` axis on Input, Textarea, Checkbox or the radio item,
+> no `variant`/`thumb` axis on Slider, and `Field` carries its label, description and error as
+> CHILDREN rather than props. The live contract for each of them is its own docs page, which ends in
+> a `## Deviations` section naming every decision ID its patch implements.
+>
 > The parts of this file that ARE current are the generated ones: the token tables, the recipe set
 > and the resolved values, all of which `pnpm design:sync:check` re-derives from the live DTCG
 > sources on every PR. The PROSE is rewritten in Batch 9, deliberately and in one pass, because a

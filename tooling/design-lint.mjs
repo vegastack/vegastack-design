@@ -230,6 +230,14 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
+    "/native-select.tsx",
+    {
+      counts: { select: 1 },
+      rationale:
+        "NativeSelect IS the tokenized native <select> adapter — the platform picker is the whole point of the component, and no VegaStack control substitutes for it (Select is the rendered alternative, on its own page)",
+    },
+  ],
+  [
     "/textarea.tsx",
     {
       counts: { textarea: 1 },

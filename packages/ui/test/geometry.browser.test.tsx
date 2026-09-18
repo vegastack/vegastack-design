@@ -324,7 +324,14 @@ function effectiveTargetProbe(element: Element) {
     if (!hit) return false;
     if (hit === pointerOwner || pointerOwner.contains(hit)) return true;
     const label = hit.closest("label") as HTMLLabelElement | null;
-    return label?.control === element;
+    if (!label) return false;
+    // `HTMLLabelElement.control` resolves only for NATIVE form controls. Base UI renders a
+    // checkbox, radio and switch as `<span role="…">`, so `control` is null for exactly the
+    // controls whose 24px hit area most often reaches under their own label — and the branch below
+    // was dead for all of them. `htmlFor` is the same association, read directly. Clicking the
+    // label activates the control, so the label owning the pixel is not an obstruction.
+    if (label.control === element) return true;
+    return label.htmlFor !== "" && label.htmlFor === element.id;
   };
   return {
     rect: { width: rect.width, height: rect.height },
@@ -407,7 +414,12 @@ const AUTHORED_OUTLINE =
  */
 const TEXT_ENTRY_SLOTS =
   "[data-slot=input],[data-slot=textarea],[data-slot=field-control]," +
-  "[data-slot=otp-input-slot],[data-slot=combobox-input]";
+  "[data-slot=otp-input-slot],[data-slot=combobox-input]," +
+  // Batch 3 of the shadcn reset added upstream's `input-otp`, whose real control is ONE hidden
+  // input behind the slots, and `input-group-control`, which is the `Input`/`Textarea` inside an
+  // `InputGroup`. Both are text entry: they suppress the global ring and signal focus with a
+  // border tint on a carrier — the active slot for the OTP, the group for the input group.
+  "[data-slot=input-otp],[data-slot=input-group-control]";
 
 /**
  * The wrapper that owns a text-entry control's focus affordance, if any.
@@ -428,6 +440,17 @@ function tintCarriers(control: Element): Element[] {
   for (let depth = 0; depth < 3 && ancestor; depth++) {
     carriers.push(ancestor);
     ancestor = ancestor.parentElement;
+  }
+  // An OTP field's tint lands on the ACTIVE SLOT, which is a SIBLING of the hidden input rather
+  // than an ancestor of it: one input drives every slot, and the slot the caret is in carries
+  // `data-active` and with it `border-ring/70`. Walking ancestors can never see that, so the
+  // slots of the control's own container join the carrier set.
+  if (control.matches('[data-slot="input-otp"]')) {
+    const container =
+      control.closest(".cn-input-otp") ?? control.parentElement ?? control;
+    carriers.push(
+      ...container.querySelectorAll('[data-slot="input-otp-slot"]'),
+    );
   }
   return carriers;
 }
@@ -470,15 +493,22 @@ function focusIndicatorProblem(
   const textEntry = control.matches(TEXT_ENTRY_SLOTS);
 
   // Text entry takes branch (B) and ONLY branch (B) — and must first prove it is not wearing the
-  // ring it suppresses. `outline-hidden` compiles to a TRANSPARENT 2px outline (kept so
-  // `forced-colors: active` has something to repaint), which computes as `outline-style: none`;
-  // anything else means the suppression was lost.
-  if (textEntry && style.outlineStyle !== "none") {
+  // ring it suppresses. What counts as suppressed is what PAINTS NOTHING: `outline-hidden` computes
+  // as `outline-style: none`, and a control whose engine writes its own inline suppression (the
+  // `input-otp` package writes `outline: transparent solid 0px`) computes as a solid outline of
+  // zero width in a transparent colour. Both are "no ring"; anything with real width and a real
+  // colour means the suppression was lost.
+  const outlineWidth = Number.parseFloat(style.outlineWidth);
+  const outlineIsInvisible =
+    style.outlineStyle === "none" ||
+    !(outlineWidth > 0) ||
+    /,\s*0\s*\)$/.test(style.outlineColor);
+  if (textEntry && !outlineIsInvisible) {
     return (
-      `is a text-entry control presenting outline-style "${style.outlineStyle}" ` +
-      `(${style.outlineWidth}). Text entry suppresses the global :focus-visible ring with ` +
-      `\`outline-hidden\` and signals focus with the border tint instead (AGENTS.md ` +
-      `\u00a7 Accessibility) — an outline here means the suppression was lost`
+      `is a text-entry control painting outline-style "${style.outlineStyle}" ` +
+      `(${style.outlineWidth}, ${style.outlineColor}). Text entry suppresses the global ` +
+      `:focus-visible ring and signals focus with the border tint instead (AGENTS.md ` +
+      `\u00a7 Accessibility) — a painted outline here means the suppression was lost`
     );
   }
   if (!textEntry && AUTHORED_OUTLINE.test(style.outlineStyle) && width >= 2)
@@ -939,7 +969,7 @@ for (const [name, fixture] of FIXTURES) {
     // match `:focus-visible` here (Chromium's script-focus heuristic), so the keyboard-tab path
     // `contrast.browser.test.tsx` needs for its four surface specimens is not needed for a sweep
     // of this size — and a per-control tab walk would be O(controls²) trusted keypresses.
-    await runAssertion(name, "focus", () => {
+    await runAssertion(name, "focus", async () => {
       const controls = [
         ...screen.baseElement.querySelectorAll(INTERACTIVE_SELECTOR),
       ];
@@ -956,6 +986,14 @@ for (const [name, fixture] of FIXTURES) {
 
         const rest = restSignature(control);
         control.focus();
+        // ONE frame, and only for the OTP field. Every other control in this system signals focus
+        // in CSS (`:focus`/`:focus-visible`), which is live the instant focus moves; the OTP's cue
+        // is carried by a SIBLING slot that React marks `data-active` in a focus handler, so it
+        // lands on the next commit and a synchronous read would see the resting border. This is the
+        // one shape that needs it, so the sweep does not pay a frame per control.
+        if (control.matches('[data-slot="input-otp"]')) {
+          await new Promise(requestAnimationFrame);
+        }
         // A component may redirect focus (a wrapper hands it to its inner input). Measure whatever
         // actually holds focus, and only when it is this control or inside it — otherwise the
         // control never took focus and nothing about ITS indicator was demonstrated.

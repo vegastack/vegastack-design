@@ -33,6 +33,12 @@ const EXPECTED_HOSTS = new Map([
   // `TooltipContent` reads `useInternalThemeScope()` and attaches it to the Positioner INSIDE the
   // portal. Each of Batches 4 and 5 moves the remaining anchored overlays here the same way.
   ["packages/ui/registry/ui/tooltip.tsx", ["TooltipPrimitive.Portal"]],
+  // Select and Combobox left `floating-surface.tsx` in Batch 3 of the shadcn reset, the same way
+  // Tooltip left it in Batch 2: they are upstream's files now, and each hosts its own Portal.
+  // OVL-13 is the patch hunk that makes those hosts scoped — `SelectContent` and `ComboboxContent`
+  // read `useInternalThemeScope()` and attach it to the Positioner INSIDE the portal.
+  ["packages/ui/registry/ui/select.tsx", ["SelectPrimitive.Portal"]],
+  ["packages/ui/registry/ui/combobox.tsx", ["ComboboxPrimitive.Portal"]],
 ]);
 
 function walk(dir, out = []) {
