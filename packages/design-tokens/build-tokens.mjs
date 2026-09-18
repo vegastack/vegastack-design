@@ -117,8 +117,18 @@ function themePart(file, selector, colorScheme) {
   return css.replace(marker, `${marker}\n  color-scheme: ${colorScheme};`);
 }
 
+// The `dark` variant is UPSTREAM'S, character for character: `@custom-variant dark (&:is(.dark *))`
+// is what `shadcn init` writes into a consumer's `globals.css`, and the `:is()` is load-bearing.
+// This file used to emit `(&:where(.dark, .dark *))`, and `:where()` contributes ZERO specificity:
+// `.dark\:bg-input\/30:where(.dark, .dark *)` is (0,1,0) where upstream's `:is(.dark *)` is (0,2,0).
+// Measured in Batch 5's review artifact on upstream's own outline Button: the rule it ties with,
+// `.aria-expanded\:bg-muted[aria-expanded="true"]`, is (0,2,0), so upstream resolves the tie on
+// source order and paints `bg-input/30`, while this system silently painted `bg-muted` — an open
+// popover trigger, an expanded collapsible, a menubar trigger, every `aria-expanded` control in
+// dark mode. The `:where()` form also matches the `.dark` ELEMENT itself, which upstream's does
+// not; nothing here puts a `dark:` utility on `<html>`, which is the only element that loses.
 const themeCss =
-  `@custom-variant dark (&:where(.dark, .dark *));\n\n` +
+  `@custom-variant dark (&:is(.dark *));\n\n` +
   [
     themePart("_root.css", ":root", "light"),
     themePart("_dark.css", ".dark", "dark"),
