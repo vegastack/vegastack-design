@@ -138,7 +138,7 @@ children invalid cells for assistive tech and break row/column navigation. Inste
   role — that's valid) plus `data-clickable` for styling.
 - A real `<button data-slot="data-list-row-action">` is injected into the **first** cell as the
   keyboard / screen-reader activation control — it is focusable and fires on <kbd>Enter</kbd> /
-  <kbd>Space</kbd>, with a `:focus-visible` ring, all inside a valid `<td>`.
+  <kbd>Space</kbd>, with the global 2px `:focus-visible` outline, all inside a valid `<td>`.
 - Clicks on the selection checkbox, the injected button, or any nested control are excluded from the
   row's `onClick`, so there's **no double-activation**.
 
@@ -319,7 +319,7 @@ was cleared (the third click on a header).
 - Renders a real semantic `<table>` with `<thead>`/`<tbody>` and `<th>` header cells, so screen readers
   announce row/column structure natively.
 - Sortable headers expose `aria-sort` (`ascending` / `descending` / `none`) and are real `<button>`s —
-  keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate them, with a `:focus-visible` ring.
+  keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate them, with the global 2px `:focus-visible` outline.
 - The select-all and per-row checkboxes have explicit `aria-label`s (e.g. _Select all rows_, _Select row 1_)
   and are fully keyboard operable.
 - While loading, the table has `aria-busy="true"` and is described by a polite `role="status"` node.

@@ -89,9 +89,8 @@ Use the `EmptyMedia` component to display an avatar group in the empty state.
 
 ### InputGroup
 
-Upstream drops an `InputGroup` into `EmptyContent`. VegaStack ships no `InputGroup` item — the same
-affordance is `Input`'s own `prefix`/`suffix` addon mode, which renders the bordered field group and
-keeps the leading icon and the trailing `Kbd` hint outside the editable box.
+`EmptyContent` takes an [`InputGroup`](/docs/components/input-group), which keeps the leading icon
+and the trailing `Kbd` hint in their own addons, outside the editable box.
 
 <ComponentPreview name="emptyInputGroup" file="components/preview/empty.tsx" />
 

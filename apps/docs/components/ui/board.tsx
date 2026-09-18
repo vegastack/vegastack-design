@@ -1,4 +1,4 @@
-// @vegastack board@0.9.1 sha256-hKWLoALYko+txIIkgPC0qhNxVI+FuZVxKOcpLT5pyn4=
+// @vegastack board@0.9.1 sha256-Kix8EzOcNprS2CqahDUxG0zwd8ERdoBK79N0maU3oAc=
 
 "use client";
 
@@ -169,7 +169,7 @@ export interface BoardProps<T> {
  * surface (Space lifts the focused card), the lossless per-card "Move to…"
  * menu (<kbd>M</kbd> opens it), cross-column roving focus (↑/↓ within, ←/→
  * across), pending shimmer + announced snap-back for server-refused moves,
- * collapsed terminal columns, and `Empty variant="dashed"` drop targets for empty
+ * collapsed terminal columns, and `Empty className="border"` drop targets for empty
  * columns. The host renders card content and owns the move command.
  *
  * @example

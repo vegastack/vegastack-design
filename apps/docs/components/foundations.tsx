@@ -9,9 +9,9 @@ import { Kbd } from "@/components/ui/kbd";
  */
 const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
   {
-    // The ladder itself is shown rung-by-rung, in both themes, by <SurfaceLadder /> above this
-    // grid; here are the surfaces and the text ramp as flat swatches. `secondary`/`muted`/`accent`
-    // are deliberately absent — they are ALIASES of the rungs, not roles of their own.
+    // The four neutral surface roles and the text ramp. `muted`, `accent` and `secondary` share
+    // one value today and are kept as three roles on purpose, so a consumer can retune a hover
+    // without moving every well.
     label: "Surfaces & text",
     tokens: [
       "background",
@@ -20,65 +20,48 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
       "card-foreground",
       "popover",
       "popover-foreground",
+      "secondary",
+      "secondary-foreground",
       "muted",
-      "accent",
-      "accent",
       "muted-foreground",
-      "muted-foreground",
-      "border",
+      "accent",
+      "accent-foreground",
     ],
   },
   {
     label: "Action — neutral ink",
-    tokens: ["primary", "primary-foreground", "primary/80", "primary/70"],
+    tokens: ["primary", "primary-foreground"],
   },
   {
+    // Each status family is written in upstream's own `destructive` shape — a fill, an on-fill
+    // ink — plus the `-text` ink ours adds for the page and for the family's own tint.
     label: "Info — links & informational (the one chromatic accent)",
-    tokens: [
-      "info",
-      "info-foreground",
-      "info-hover",
-      "info-active",
-      "info/10",
-      "info-text",
-    ],
+    tokens: ["info", "info-foreground", "info-text"],
   },
   {
     label: "Destructive",
-    tokens: [
-      "destructive",
-      "destructive-foreground",
-      "destructive-hover",
-      "destructive-active",
-      "destructive/10",
-      "destructive-text",
-    ],
+    tokens: ["destructive", "destructive-foreground", "destructive-text"],
   },
   {
     label: "Success",
-    tokens: [
-      "success",
-      "success-foreground",
-      "success-hover",
-      "success-active",
-      "success/10",
-      "success-text",
-    ],
+    tokens: ["success", "success-foreground", "success-text"],
   },
   {
     label: "Warning",
-    tokens: [
-      "warning",
-      "warning-foreground",
-      "warning-hover",
-      "warning-active",
-      "warning/10",
-      "warning-text",
-    ],
+    tokens: ["warning", "warning-foreground", "warning-text"],
   },
   {
-    label: "Lines & utility",
-    tokens: ["border", "input", "ring", "track", "overlay"],
+    label: "Lines & focus",
+    tokens: ["border", "input", "ring"],
+  },
+  {
+    label: "Brand",
+    tokens: ["brand", "brand-text"],
+  },
+  {
+    // Theme-invariant on purpose: chrome over video is a dark scrim with light ink in both themes.
+    label: "Media chrome",
+    tokens: ["media-scrim", "media-scrim-strong", "media-foreground"],
   },
   {
     label: "Charts — categorical series",
@@ -91,6 +74,7 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
       "chart-6",
       "chart-7",
       "chart-8",
+      "chart-single",
     ],
   },
   {
@@ -150,198 +134,6 @@ export function ColorPalette() {
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-/** The four rungs of the surface ladder, with the role each one carries. */
-const LADDER: { token: string; role: string }[] = [
-  { token: "background", role: "page" },
-  { token: "card", role: "surface · popover · sidebar" },
-  { token: "muted", role: "rest fill · sunken well" },
-  { token: "accent", role: "hover" },
-  { token: "accent", role: "pressed · selected" },
-];
-
-/** One theme's column of the ladder. `forceDark` paints a dark island inside a light page. */
-function LadderColumn({ forceDark }: { forceDark: boolean }) {
-  return (
-    <div
-      className={forceDark ? "dark" : undefined}
-      style={{ background: "var(--background)", color: "var(--foreground)" }}
-    >
-      <div
-        className="space-y-px p-4"
-        style={{ borderRadius: "var(--radius-lg)" }}
-      >
-        <p
-          className="mb-3 font-mono text-xs"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          {forceDark ? "DARK" : "LIGHT"}
-        </p>
-        {LADDER.map(({ token, role }) => (
-          <div
-            key={token}
-            className="flex items-center justify-between gap-3 px-3 py-2.5"
-            style={{
-              background: `var(--${token})`,
-              // Every rung carries the ONE alpha hairline — the point of the derived border.
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-md)",
-            }}
-          >
-            <span className="font-mono text-xs">--{token}</span>
-            <span
-              className="text-sm"
-              style={{ color: "var(--muted-foreground)" }}
-            >
-              {role}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * The three backdrops the alpha twins are actually painted over. The alpha form exists precisely
- * because a control's host is often NOT a ladder rung — a chip on a well, a kbd inside a hovered
- * row — so a one-host specimen cannot demonstrate the claim.
- */
-const ALPHA_HOSTS: { token: string; label: string }[] = [
-  { token: "background", label: "on --background (page)" },
-  { token: "card", label: "on --card (surface)" },
-  { token: "muted", label: "on --muted (well)" },
-];
-
-/**
- * The alpha twins, painted as the REAL composites the recipes emit.
- *
- * `bg-foreground/(7%)` compiles to a `color-mix` of the ink into transparency, which is
- * then composited by the browser over whatever host it lands on — so this specimen mixes the same
- * way rather than substituting the opaque rung. Substituting the rung is what this panel used to
- * do, and it made the twins unfalsifiable: the swatch could not drift from its label.
- */
-const alphaWash = (alphaToken: string) =>
-  `color-mix(in oklab, var(--foreground) var(${alphaToken}), transparent)`;
-
-const ALPHA_STEPS: {
-  label: string;
-  wash: string | undefined;
-  rung?: string;
-}[] = [
-  { label: "rest", wash: undefined },
-  {
-    label: "hover · foreground/(7%)",
-    wash: alphaWash("7%"),
-    rung: "accent",
-  },
-  {
-    label: "pressed · foreground/(10%)",
-    wash: alphaWash("10%"),
-    rung: "accent",
-  },
-];
-
-/** One host backdrop with the two alpha washes painted over it, each beside its opaque rung. */
-function AlphaHostBlock({ token, label }: { token: string; label: string }) {
-  return (
-    <div
-      style={{
-        background: `var(--${token})`,
-        border: "1px solid var(--border)",
-        borderRadius: "var(--radius-md)",
-      }}
-    >
-      <div className="space-y-1 p-3">
-        <p
-          className="font-mono text-xs"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          {label}
-        </p>
-        {ALPHA_STEPS.map(({ label: stepLabel, wash, rung }) => (
-          <div key={stepLabel} className="flex items-stretch gap-1">
-            <div
-              className="flex-1 px-3 py-2 text-sm"
-              style={{
-                background: wash,
-                borderRadius: "var(--radius-sm)",
-                color: "var(--foreground)",
-              }}
-            >
-              {stepLabel}
-            </div>
-            {rung ? (
-              <div
-                className="flex w-32 shrink-0 items-center px-2 font-mono text-xs"
-                style={{
-                  background: `var(--${rung})`,
-                  borderRadius: "var(--radius-sm)",
-                  color: "var(--muted-foreground)",
-                }}
-              >
-                --{rung}
-              </div>
-            ) : null}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * The surface ladder in both themes at once, plus the alpha twins.
- *
- * Rendered as two forced islands (`.dark` is a plain class selector on the token sheet), so a
- * reader in either theme sees both halves — the ladder's whole claim is that light and dark step
- * the same way, and a single-theme specimen cannot show that.
- */
-export function SurfaceLadder() {
-  return (
-    <div className="not-prose my-6 space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <LadderColumn forceDark={false} />
-        <LadderColumn forceDark />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {[false, true].map((forceDark) => (
-          <div
-            key={String(forceDark)}
-            className={forceDark ? "dark" : undefined}
-            style={{
-              background: "var(--background)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-lg)",
-            }}
-          >
-            <div className="space-y-3 p-4">
-              <p
-                className="font-mono text-xs"
-                style={{ color: "var(--muted-foreground)" }}
-              >
-                ALPHA TWINS — {forceDark ? "DARK" : "LIGHT"}
-              </p>
-              {ALPHA_HOSTS.map((host) => (
-                <AlphaHostBlock key={host.token} {...host} />
-              ))}
-              <p
-                className="text-sm"
-                style={{ color: "var(--muted-foreground)" }}
-              >
-                Each wash is the real <code>foreground</code> composite the
-                recipes emit, painted over the host beside its opaque rung. On
-                the page they land within 0.003 L of the rung; over the well and
-                the dark card they keep stepping, which the opaque rung cannot
-                do.
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

@@ -114,8 +114,8 @@ Use `MessageGroup` to stack consecutive messages from the same sender. Render an
 ### Header and Footer
 
 Use `MessageHeader` for a sender name and `MessageFooter` for metadata such as a delivery or read
-status. The header stays at the start of the row whatever `align` says; the footer follows the
-message side.
+status. The header does not re-justify its contents with `align` — its text reads from the start
+either way; the footer follows the message side.
 
 <ComponentPreview
   name="messageHeaderAndFooter"
@@ -169,8 +169,8 @@ Wraps the header, the message surface and the footer. It adds no props of its ow
 
 ### MessageHeader
 
-Displays content above the message, such as a sender name; stays aligned to the start whatever
-`align` says. It adds no props of its own — a `<div>` with `data-slot="message-header"` and
+Displays content above the message, such as a sender name; its contents are not re-justified by
+`align`. It adds no props of its own — a `<div>` with `data-slot="message-header"` and
 `className`.
 
 ### MessageFooter

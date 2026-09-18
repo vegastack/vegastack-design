@@ -59,8 +59,9 @@ rather than needing a variant.
 
 ### Input Group
 
-Upstream puts the chip in an `InputGroupAddon`. That item is not in this registry yet, so use
-`Input`'s own `suffix` slot, which renders the same trailing chip inside the field chrome.
+The chip goes in an [`InputGroup`](/docs/components/input-group)'s
+`InputGroupAddon align="inline-end"`, which holds it inside the field chrome without putting it in
+the editable box.
 
 <ComponentPreview name="kbdInputGroup" file="components/preview/kbd.tsx" />
 

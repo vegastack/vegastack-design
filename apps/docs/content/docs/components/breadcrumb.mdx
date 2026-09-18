@@ -198,12 +198,19 @@ chevron points the way the text reads; a dropdown inside the trail aligns to `en
 
 Upstream's file plus `packages/ui/upstream/patches/breadcrumb.patch`. Every hunk:
 
-- **A11Y-2 — audited, no hunk.** Nothing in upstream's breadcrumb paints a focus glow, sets a cursor
-  or disables pointer events: the link is plain text chrome and the ellipsis is
-  `role="presentation" aria-hidden`, so A11Y-2 has no control to grow — upstream's own Collapsed
-  example wraps the ellipsis in a `Button size="icon-sm"`, which is already 32px.
-  `breadcrumb.test.tsx` asserts that shape so a future upstream that makes the ellipsis itself the
+- **A11Y-2** — `BreadcrumbLink` gains `relative after:absolute after:inset-x-0 after:-inset-y-1
+after:content-['']`. Its visible box is one line of 14px text, measured 20px tall by the geometry
+  lane — 4px under the floor — and a breadcrumb is a row of navigation controls, not prose, so
+  SC 2.5.8's inline-text exception does not reach it. The invisible area grows the target on the
+  block axis only, so two adjacent crumbs cannot fight for a pixel; nothing moves and nothing
+  paints. The ellipsis is untouched: it is `role="presentation" aria-hidden`, and upstream's own
+  Collapsed example wraps it in a `Button size="icon-sm"` that is already 32px.
+  `breadcrumb.test.tsx` asserts that shape, so a future upstream that makes the ellipsis itself the
   control fails here.
+- **API-16** — `"use client"` is added. Upstream ships none, but `BreadcrumbLink` calls `useRender`,
+  which calls `React.useRef` internally; under the `react-server` condition that hook is
+  `undefined`, so a Server Component rendering a breadcrumb link throws on import. The boundary
+  belongs at the lowest interactive leaf, and this file is it.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

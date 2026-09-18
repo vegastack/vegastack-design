@@ -29,7 +29,8 @@ import { AudioPlayer } from "@/components/ui/audio-player";
 
 A single-line transport rendered statically on a card. Left to right: play/pause, rewind and
 forward (±15s), the combined `elapsed / duration` readout, a flexible seek bar, and a tappable
-speed control. The chrome uses the subdued secondary emphasis rather than the loud brand accent.
+speed control. Every transport control is a `ghost` Button, so the chrome stays quiet against the
+card.
 The docs preview uses a 90-second local audio fixture, so it can play without network access.
 
 <ComponentPreview

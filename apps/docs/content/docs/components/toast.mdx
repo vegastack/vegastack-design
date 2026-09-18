@@ -119,6 +119,10 @@ and `children`. `ToastProvider`, `ToastPortal`, `ToastContent`, `ToastTitle`, `T
   its touch target clears the minimum without growing the visible control.
 - The toast surface portals out of its subtree, so the portal re-applies the theme scope (OVL-13) and
   a scoped or dark surface survives the move.
+- **A toast fired while a modal is open renders behind the scrim.** There is one `z-50` portal band
+  (OVL-2 resolves as shadcn), so DOM order decides, and the viewport mounts with the provider —
+  before any dialog. Raise the toast after the dialog closes, or mount your `<Toaster />` after it.
+  `test/stacking.browser.test.tsx` measures the behaviour rather than assuming it.
 - The toast root takes the single global 2px `:focus-visible` outline — no ring, no halo (FOC-1,
   FOC-6).
 - **A `priority: "high"` toast leaves the tab order while it is hidden from assistive technology

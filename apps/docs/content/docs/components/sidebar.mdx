@@ -134,16 +134,19 @@ SidebarProvider
 Always wrap the application in `SidebarProvider`. It owns `open`, writes the `sidebar_state` cookie
 on every uncontrolled toggle, and binds <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd>.
 
-For a single sidebar, `SIDEBAR_WIDTH` and `SIDEBAR_WIDTH_MOBILE` in `sidebar.tsx` set the width. For
-more than one, set `--sidebar-width` and `--sidebar-width-mobile` in the provider's `style` — the
-provider publishes both as CSS variables on its wrapper, so a second sidebar can carry its own.
+For a single sidebar, the `SIDEBAR_WIDTH`, `SIDEBAR_WIDTH_ICON` and `SIDEBAR_WIDTH_MOBILE`
+constants in `sidebar.tsx` set the widths. For more than one, set `--sidebar-width` and
+`--sidebar-width-icon` in the provider's `style` — those are the two variables the provider
+publishes on its wrapper, so a second sidebar can carry its own. The mobile sheet is not
+overridable this way: it sets `--sidebar-width` to `SIDEBAR_WIDTH_MOBILE` on its own content, which
+wins over anything inherited.
 
 ```tsx
 <SidebarProvider
   style={
     {
       "--sidebar-width": "20rem",
-      "--sidebar-width-mobile": "20rem",
+      "--sidebar-width-icon": "3rem",
     } as React.CSSProperties
   }
 >

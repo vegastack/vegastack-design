@@ -28,8 +28,8 @@ const [state, setState] = React.useState("");
 offered — and whether the searchable dropdown or the free-text fallback is shown.
 
 It is a thin, data-fed wrapper over
-[SearchableSelect](/docs/components/searchable-select) for the combobox path, or `Input` for the
-fallback path. A leading `MapPin` icon marks the field as a location input in both modes. The
+[SearchableSelect](/docs/components/searchable-select) for the combobox path, or an
+[`InputGroup`](/docs/components/input-group) for the free-text fallback path. A leading `MapPin` icon marks the field as a location input in both modes. The
 dataset itself is the separate [`geo-data`](#data-api) item, so installing this component
 alongside `CountrySelect` copies the ISO data once.
 
@@ -53,8 +53,8 @@ back to free text.
 
 ### States
 
-A country with **no** predefined subdivisions (e.g. Singapore) falls back to a plain text `Input` so
-the value is still captured — and `disabled` makes the control inert.
+A country with **no** predefined subdivisions (e.g. Singapore) falls back to a free-text
+`InputGroup` so the value is still captured — and `disabled` makes the control inert.
 
 <ComponentPreview
   name="regionSelectStates"
@@ -144,7 +144,9 @@ getRegions("SG"); // [] — no predefined subdivisions; use the free-text fallba
   <kbd>↓</kbd> to move the highlight, <kbd>Enter</kbd> to select, and
   <kbd>Esc</kbd> to dismiss — focus returns to the trigger on close.
 - The free-text fallback is an [`InputGroup`](/docs/components/input-group) with a leading pin addon and an `InputGroupInput`; associate a label via `id` for both modes.
-- Focus re-colors the trigger/search border with the `ring` token (`border-ring/(70%)`) — never `outline: none`.
+- The trigger is a `Button`, so it takes the global 2px `:focus-visible` outline. The in-panel search
+  row and the free-text fallback are text entry, so they tint their hairline instead
+  (`border-ring/70`). Neither path sets `outline: none` without a replacement.
 
 | Key                                 | Action                                      |
 | ----------------------------------- | ------------------------------------------- |

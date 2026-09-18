@@ -62,7 +62,8 @@ the current step, announced politely, and wireable to your Next button through
 ### Vertical and navigable
 
 Vertical keeps the identical DOM and reading order. In `navigable` mode,
-completed steps become real buttons for revisiting; current, upcoming, and
+completed **and error** steps become real buttons for revisiting — a failed step
+is exactly the one the user needs to get back to; current, upcoming, and
 disabled steps never do.
 
 <ComponentPreview
@@ -93,10 +94,10 @@ disabled steps never do.
 - The blocked reason is a polite live region; give your Next button
   `aria-describedby={blockedReasonId}` so the reason reads with the control.
 
-| Key                                 | Action                                       |
-| ----------------------------------- | -------------------------------------------- |
-| <kbd>Tab</kbd>                      | Reach completed steps (navigable mode only). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Revisit the focused completed step.          |
+| Key                                 | Action                                                 |
+| ----------------------------------- | ------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Reach completed and error steps (navigable mode only). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Revisit the focused step.                              |
 
 <StatesTested name="stepper" />
 

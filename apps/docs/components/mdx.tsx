@@ -16,7 +16,6 @@ import { StoryExplorer } from "@/components/story-explorer";
 import { DoDont } from "@/components/do-dont";
 import {
   ColorPalette,
-  SurfaceLadder,
   TypeScale,
   RadiusScale,
   ShadowScale,
@@ -84,7 +83,6 @@ export function getMDXComponents(components?: MDXComponents) {
     RegistryInstallCallout,
     DoDont,
     ColorPalette,
-    SurfaceLadder,
     TypeScale,
     RadiusScale,
     ShadowScale,

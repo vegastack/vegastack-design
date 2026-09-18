@@ -25,7 +25,7 @@ import { CopyButton } from "@/components/ui/copy-button";
 
 ### Copy feedback
 
-A `ghost` / `sm` icon button that writes `value` to the clipboard and swaps the
+A `ghost` / `icon-sm` button that writes `value` to the clipboard and swaps the
 `Copy` icon for a `Check` for ~1.5s. Pair it with the value it copies — an API
 key, an invite link, a code snippet — and use `onCopied` to surface a toast.
 
@@ -77,8 +77,7 @@ and only appears after a real write, so the middle cell below is live — click 
 
 `CopyButton` defaults to `variant="ghost"` and forwards every
 [`Button`](/docs/components/button) variant unchanged — `default`, `outline`, `secondary`,
-`ghost`, `destructive` and `link`. There is no `tone` axis: it went with the hand-written Button in
-Batch 2 of the shadcn reset.
+`ghost`, `destructive` and `link` — upstream's set, and the whole set.
 
 <ComponentPreview
   name="copyButtonVariants"

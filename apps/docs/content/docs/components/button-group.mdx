@@ -4,7 +4,7 @@ description: A container that welds related buttons, inputs, selects and menus i
 audience: public
 registry: button-group
 status: stable
-since: 1.0.0
+since: 0.10.0
 a11y: labelled group role
 preview: buttonGroup
 ---
@@ -129,9 +129,8 @@ keeps its intrinsic width.
 
 ### Input Group
 
-Upstream wraps its `InputGroup` component here. VegaStack ships no `InputGroup` item — `Input`'s own
-`prefix`/`suffix` addon mode renders the bordered field group, and the button group welds to that
-wrapper exactly as it would to upstream's.
+A button group welds to an [`InputGroup`](/docs/components/input-group) exactly as upstream's does:
+the group owns the shared seams, `InputGroup` owns the bordered field surface and its addons.
 
 <ComponentPreview
   name="buttonGroupInputGroup"

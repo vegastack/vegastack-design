@@ -65,8 +65,8 @@ const PAIRS = [
 ];
 
 // The secondary-text workhorse carries real copy on every neutral surface, not just its own.
-// `muted-foreground` on `muted` is why this repository's `--muted-foreground` is 0.547 rather than
-// shadcn's 0.556: upstream's value measures 4.34:1 there.
+// `muted-foreground` on `muted` is why this repository darkens shadcn's `0.556` to neutral-500
+// (`0.539`): upstream's value measures 4.34:1 there, under the AA floor this gate enforces.
 const SECONDARY_INK_SURFACES = NEUTRAL_SURFACES;
 
 // The four status families (COL-12). Each is one fill plus one on-fill foreground, exactly the

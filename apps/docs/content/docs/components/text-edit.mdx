@@ -108,7 +108,8 @@ content.
 ### Invalid
 
 Pass `aria-invalid` to mark the editor invalid: it forwards to the contenteditable textbox and the
-container border turns destructive (`has-aria-invalid:border-destructive/70`, plus `data-invalid`).
+container border turns destructive (`not-focus-within:has-aria-invalid:border-destructive/70`, plus
+`data-invalid`).
 Connect the error text with `aria-describedby` so it is announced with the region. `aria-invalid`
 also accepts `"grammar"` and `"spelling"`.
 
@@ -157,9 +158,9 @@ fires it with the current HTML. It's presentational only: the **host** decides w
   `Toolbar.Group` clusters. Each button is an icon-only `Toggle` with an `aria-label` and
   `aria-pressed` reflecting the active mark or node.
 - Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus re-colors the container
-  border with the `ring` token (`focus-within:border-ring/(70%)`); never styled with `outline: none`.
+  border with the `ring` token (`focus-within:border-ring/70`); never styled with `outline: none`.
 - An invalid control (`aria-invalid`) re-colors the container border to destructive
-  (`has-aria-invalid:border-destructive/(70%)`) and sets `data-invalid` for
+  (`not-focus-within:has-aria-invalid:border-destructive/70`) and sets `data-invalid` for
   downstream styling. **Focus outranks invalid**: while anything inside the editor holds focus the
   container carries the `ring` tint instead, and the destructive tint returns on blur — the
   contenteditable has no outline, so the container border is its only focus cue.

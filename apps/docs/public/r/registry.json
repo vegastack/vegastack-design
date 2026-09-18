@@ -420,7 +420,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.9.1",
-        "integrity": "sha256-hKWLoALYko+txIIkgPC0qhNxVI+FuZVxKOcpLT5pyn4="
+        "integrity": "sha256-Kix8EzOcNprS2CqahDUxG0zwd8ERdoBK79N0maU3oAc="
       }
     },
     {
@@ -1296,7 +1296,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
         "version": "0.9.1",
-        "integrity": "sha256-b7sPA/GD8x/Q60bPxY/ORRVvlOzA33LFWfA8g1au0s8="
+        "integrity": "sha256-lT9lJFHzMQuLnSD8XmIi2MyR0pBtDDkJatCk9mtBGu4="
       }
     },
     {
