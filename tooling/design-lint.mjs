@@ -192,6 +192,14 @@ function namedByHost(button, sf) {
     return element ? /\bsr-only\b/.test(element.getText(sf)) : false;
   };
 
+  // 0. `<Button size="icon"><Icon /><span className="sr-only">Go to next page</span></Button>` —
+  //    the name is on the Button's OWN children. Batch 8 of the shadcn reset (2026-09-18) is why
+  //    this clause exists: upstream's blocks spell an icon control exactly this way, and the rule
+  //    reported four correctly-named controls in `dashboard-01` as anonymous. It is the same
+  //    evidence `nameOn` already accepts from a host, read one element closer — not a widening:
+  //    a Button with no name anywhere still fails, which the structural gate observes.
+  if (ts.isJsxOpeningElement(button) && nameOn(button)) return true;
+
   // 1. `<Host render={<Button size="icon" />}>` — walk up to the `render` attribute's own element.
   for (let node = button.parent; node; node = node.parent) {
     if (ts.isJsxAttribute(node) && node.name.getText(sf) === "render") {
@@ -254,7 +262,7 @@ const FAINT_DECORATIVE_ALLOWLIST = /(?:^|\/)(?:breadcrumb)\.tsx$/;
 // `resizableNested` exclusion).
 const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
-    "/dropzone.tsx",
+    "registry/ui/dropzone.tsx",
     {
       counts: { input: 1 },
       rationale:
@@ -262,7 +270,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/data-grid.tsx",
+    "registry/ui/data-grid.tsx",
     {
       counts: { button: 1 },
       rationale:
@@ -270,7 +278,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/data-list.tsx",
+    "registry/ui/data-list.tsx",
     {
       counts: { button: 1 },
       rationale:
@@ -278,21 +286,21 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/date-picker.tsx",
+    "registry/ui/date-picker.tsx",
     {
       counts: { button: 1 },
       rationale: "react-day-picker day-cell integration",
     },
   ],
   [
-    "/markdown-view.tsx",
+    "registry/ui/markdown-view.tsx",
     {
       counts: { input: 1 },
       rationale: "react-markdown non-checkbox input passthrough",
     },
   ],
   [
-    "/onboarding-checklist.tsx",
+    "registry/ui/onboarding-checklist.tsx",
     {
       counts: { button: 2 },
       rationale:
@@ -300,7 +308,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/sidebar.tsx",
+    "registry/ui/sidebar.tsx",
     {
       counts: { button: 1 },
       rationale:
@@ -308,7 +316,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/tag-group.tsx",
+    "registry/ui/tag-group.tsx",
     {
       counts: { button: 1 },
       rationale:
@@ -316,7 +324,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/native-select.tsx",
+    "registry/ui/native-select.tsx",
     {
       counts: { select: 1 },
       rationale:
@@ -324,10 +332,33 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/textarea.tsx",
+    "registry/ui/textarea.tsx",
     {
       counts: { textarea: 1 },
       rationale: "Textarea is the tokenized native textarea adapter",
+    },
+  ],
+  // Batch 8 of the shadcn reset (2026-09-18) — upstream's two interactive chart blocks. The
+  // control is a full-bleed CARD-HEADER CELL: a border-divided column that fills the header, two
+  // stacked text lines inside it (a muted series label over a 30px figure), selected by
+  // `data-[active=true]:bg-muted/50`. No VegaStack control substitutes for it — a Button at any
+  // size paints its own box, height and horizontal padding where the design wants a seamless
+  // header segment, and `ToggleGroup` would impose the pill track the header explicitly is not.
+  // Both carry visible text, so they are named text controls, not icon buttons.
+  [
+    "registry/blocks/chart-bar-interactive/chart-bar-interactive.tsx",
+    {
+      counts: { button: 1 },
+      rationale:
+        "upstream's segmented card-header stat cell — a bordered header column with a label and a figure, not a control surface a Button can wear",
+    },
+  ],
+  [
+    "registry/blocks/chart-line-interactive/chart-line-interactive.tsx",
+    {
+      counts: { button: 1 },
+      rationale:
+        "upstream's segmented card-header stat cell — a bordered header column with a label and a figure, not a control surface a Button can wear",
     },
   ],
 ]);
@@ -1086,8 +1117,13 @@ for (const root of tokenCssRoots) {
       visit(sf);
 
       if (canonicalRegistryFile) {
-        const exemption = [...RAW_INTERACTIVE_EXEMPTIONS].find(([suffix]) =>
-          file.endsWith(suffix),
+        // Keyed by the file's REPO PATH tail, not its basename. Batch 8 of the shadcn reset
+        // (2026-09-18) is why: `/date-picker.tsx` also matched
+        // `registry/blocks/sidebar-12/components/date-picker.tsx`, so an upstream block inherited a
+        // component's exemption — a rationale silently lent to a file nobody had reviewed, and the
+        // "reviewed count changed" arm then fired on a file that had no raw control at all.
+        const exemption = [...RAW_INTERACTIVE_EXEMPTIONS].find(([path]) =>
+          file.endsWith(path),
         );
         const total = Object.values(rawInteractiveCounts).reduce(
           (sum, count) => sum + count,
