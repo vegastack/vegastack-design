@@ -1,4 +1,4 @@
-// @vegastack data-list@0.9.1 sha256-Ghfv0+ZZ1K3ap0hQc3B4x+cytuyIS5Qc8DzCWBY3vYw=
+// @vegastack data-list@0.9.1 sha256-CKCUgRy2jCp82yU0nUB8GzCy0QcEnkJedp575AMBKIg=
 
 "use client";
 
@@ -457,8 +457,8 @@ export function DataList<T>({
                     // the authoritative selection cue). Overrides the base Table row's
                     // hover-only `accent` so the tint stays through hover as well.
                     isSelected &&
-                      // A selected row still has to move under the cursor (SP-06): it rests on the pressed
-                      // rung, hovers DOWN one rung, and returns to rest while pressed.
+                      // A selected row keeps its tint through hover and press (SP-06): the fill is
+                      // the same `accent` in all three states, so the selection never flickers.
                       "bg-accent hover:bg-accent active:bg-accent data-selected:bg-accent data-selected:hover:bg-accent",
                   )}
                 >

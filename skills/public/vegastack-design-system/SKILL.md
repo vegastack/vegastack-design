@@ -144,8 +144,8 @@ contract.
   the composition upstream documents, and it is what `Checkbox`'s own docs page shows. Compute
   `checked` / `indeterminate` for a select-all parent in your own state, as the Table example does.
 - **Click-to-edit is `useInlineEdit`** — draft, commit, cancel, focus restoration and the
-  double-commit guard, with no opinion about the editor or the display. `FieldInline` and
-  `EditableCell` are built on it.
+  double-commit guard, with no opinion about the editor or the display. `EditableCell` is built
+  on it.
 - **Overlays** — enter/exit is driven by `data-starting-style`/`data-ending-style` on the popup root,
   inside a portal + positioner. Theme, toast, tooltip, and direction providers all come from
   `<VegaStackProvider>`; your app root needs `isolation: isolate` or portaled popups can render under

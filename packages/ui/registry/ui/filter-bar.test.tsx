@@ -242,9 +242,9 @@ test("active chip keeps the muted label / emphasized value hierarchy", async () 
   expect(icon.className).toContain("text-muted-foreground");
   const value = screen.getByText("In Progress").element() as HTMLElement;
   expect(value.className).not.toContain("text-muted-foreground");
-  // The 500 weight comes from the chip's `text-sm font-medium` voice, not a `font-medium` on the value —
-  // `font-medium` outside a `text-sm font-medium*` role is exactly what the type ladder forbids. The
-  // hierarchy is carried by ink: muted key, foreground value.
+  // The 500 weight comes from the chip's own `text-sm font-medium`, not from a second
+  // `font-medium` on the value: the hierarchy is carried by INK — muted key, foreground value —
+  // so restating the weight here would flatten exactly what the muted key is for.
   expect(value.className).not.toContain("font-medium");
   const chip = value.closest('[data-slot="filter-chip"]') as HTMLElement;
   expect(chip.className).toContain("text-sm font-medium");

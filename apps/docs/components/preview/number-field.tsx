@@ -85,18 +85,12 @@ export function numberFieldVariants(): ReactNode {
       <div className="mx-auto flex w-full max-w-xs flex-col gap-3">
         <NumberField
           aria-label="Percent"
-          size="sm"
           defaultValue={0.72}
           format={{ style: "percent" }}
           step={0.01}
         />
         <NumberField aria-label="Weight" defaultValue={12} suffix="kg" />
-        <NumberField
-          aria-label="Rows"
-          size="lg"
-          defaultValue={25}
-          hideControls
-        />
+        <NumberField aria-label="Rows" defaultValue={25} hideControls />
         <NumberField aria-label="Locked" defaultValue={5} disabled />
         {/* Invalid — the destructive border tint, with no motion of its own. Wrap the
             field in a Field to get the shake and the message alongside it. */}

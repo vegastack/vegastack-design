@@ -64,7 +64,6 @@ export const PLAYGROUND_COMPONENTS = new Set([
   "ComboboxPlayground",
   "CopyButtonPlayground",
   "DialogPlayground",
-  "FieldInlinePlayground",
   "FieldPlayground",
   "ImagePlayground",
   "InputPlayground",

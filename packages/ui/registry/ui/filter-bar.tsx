@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.9.1 sha256-1s0JAkDgw5B4W9sBbXbz6tZE9OuObmzCqU37ANZaM78=
+// @vegastack filter-bar@0.9.1 sha256-Itr9ZJYk24KJSkJ8qhPt4T3iCjHL8q6oJ861udxGH9M=
 
 "use client";
 
@@ -43,9 +43,9 @@ export interface FilterBarFilter {
   /** Invoked when the chip's remove (`×`) control is activated. */
   onRemove: () => void;
   /**
-   * Whether the chip reads as an active selection (the `accent` selection
-   * rung). An applied filter is a selection, so this defaults to `true`; set
-   * `false` for a presence-only chip on the rest fill.
+   * Whether the chip reads as an active selection (the `accent` selected fill).
+   * An applied filter is a selection, so this defaults to `true`; set `false`
+   * for a presence-only chip on the rest fill.
    * @default true
    */
   active?: boolean;
@@ -179,9 +179,8 @@ export interface FilterChipProps extends Omit<
    */
   removeLabel?: string;
   /**
-   * Whether the chip reads as an active selection. An active chip takes the
-   * selection rung (`accent`); an inactive chip keeps a filled control's rest
-   * fill (`muted`).
+   * Whether the chip reads as an active selection. An active chip takes
+   * `accent`; an inactive chip keeps the rest fill (`muted`).
    * @default true
    */
   active?: boolean;
@@ -192,7 +191,7 @@ export interface FilterChipProps extends Omit<
  * after a colon, and a trailing `×` control that fires `onRemove`. The {@link Chip}
  * primitive at the standalone (`md`, 32px) tier, so it lines up with the Buttons and
  * Inputs beside it in the bar. An applied filter is a selection, so it carries the
- * selection rung by default; pass `active={false}` for a plain presence chip.
+ * selected fill by default; pass `active={false}` for a plain presence chip.
  * Purely presentational; the {@link FilterBar} renders one per active filter.
  *
  * @example
@@ -224,7 +223,7 @@ export function FilterChip({
     >
       {/* The icon + label stay muted in BOTH states so the label/value hierarchy
           (muted key, emphasized value) survives activation — the active state is
-          carried by the chip's surface rung, not by flattening the text tiers. */}
+          carried by the chip's own fill, not by flattening the text tiers. */}
       {icon != null ? (
         <span className="shrink-0 text-muted-foreground">{icon}</span>
       ) : null}

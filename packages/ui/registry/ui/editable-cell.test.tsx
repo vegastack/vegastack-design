@@ -23,7 +23,7 @@ test("displays the value; clicking opens the text editor; Enter commits", async 
   await screen.getByRole("button", { name: "Account name" }).click();
   const input = screen.getByRole("textbox", { name: "Account name" });
   await expect.element(input).toBeInTheDocument();
-  // FieldInline focus-and-selects the whole value on open — wait for it so
+  // The text leaf focus-and-selects the whole value on open — wait for it so
   // typing replaces rather than appends.
   await expect
     .poll(() => (input.element() as HTMLInputElement).selectionEnd)
@@ -243,7 +243,7 @@ test("readOnly renders plain text with no edit affordance", async () => {
 
 test("a read-only select cell shows the option LABEL, not the stored value", async () => {
   // The editable select cell renders `Closed Won` (the option label); the read-only branch fell
-  // through to `FieldInline value={displayValue}` and rendered the raw `won` instead, so the same
+  // through to the text leaf's raw `displayValue` and rendered `won` instead, so the same
   // column read differently depending on a permission the reader cannot see (2026-09-09).
   const screen = await render(
     <EditableCell

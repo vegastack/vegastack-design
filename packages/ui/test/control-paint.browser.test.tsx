@@ -326,6 +326,47 @@ describe("NumberField — the stepper is muted ink with a hover step", () => {
       numbers(token("--foreground")),
     );
   });
+
+  /**
+   * FRM-13 is a LAYOUT exception, and layout is only true when it is painted: the steppers flank
+   * the field at its full height, which is what makes each one a ≥24px pointer target inside a
+   * 32px control without an invisible hit area. Stacked half-height spinners — the shape this
+   * decision rejects — measure 16px and cannot be fixed by a class. Batch 7b rebuilt the chrome on
+   * upstream's `InputGroup`, whose addons are `h-auto`, so nothing but this measurement would
+   * notice the steppers quietly collapsing to their content box.
+   */
+  test("the steppers are full-height flanking targets (FRM-13, WCAG 2.5.8)", async () => {
+    const screen = await render(
+      <Stage>
+        <NumberField aria-label="quantity" defaultValue={1} />
+      </Stage>,
+    );
+    await settle();
+    const q = within(screen.container);
+    const group = q.one("[data-slot=number-field]");
+    const groupBox = group.getBoundingClientRect();
+    expect(Math.round(groupBox.height)).toBe(32);
+    // Full height means the group's CONTENT box: a 32px control with a 1px hairline each side
+    // leaves 30px, and a stepper that fills it is flush with both rules.
+    for (const slot of [
+      "number-field-decrement",
+      "number-field-increment",
+    ] as const) {
+      const box = q.one(`[data-slot=${slot}]`).getBoundingClientRect();
+      expect(Math.round(box.height)).toBe(group.clientHeight);
+      expect(box.height).toBeGreaterThanOrEqual(24);
+      expect(box.width).toBeGreaterThanOrEqual(24);
+    }
+    // Flanking, not stacked: the two sit on opposite inline edges, inside the hairline.
+    const dec = q
+      .one("[data-slot=number-field-decrement]")
+      .getBoundingClientRect();
+    const inc = q
+      .one("[data-slot=number-field-increment]")
+      .getBoundingClientRect();
+    expect(Math.abs(dec.left - groupBox.left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(inc.right - groupBox.right)).toBeLessThanOrEqual(1);
+  });
 });
 
 describe("aria-invalid reaches the element that paints the tint", () => {

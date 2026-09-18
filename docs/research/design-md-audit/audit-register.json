@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "47cb1cdb5e37af1f6bb48cdd2d825a374e52ff2cde89f1e0c38102c6f3422fc0",
+  "contractSha256": "32b558dd536cc1fa87df7862e7b25ed135f8f65c631c9071e6bb4ca1f930eb37",
   "expectedCounts": {
-    "totalRegistryItems": 690,
-    "components": 110,
+    "totalRegistryItems": 689,
+    "components": 109,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -401,12 +401,12 @@
     {
       "name": "data-table-parts",
       "inventoryClass": "component",
-      "wave": "Data display",
+      "wave": "Shared internals",
       "family": "data",
       "sourceFiles": [
         "packages/ui/registry/ui/data-table-parts.tsx"
       ],
-      "docsSlug": "/docs/components/data-table-parts",
+      "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
     },
     {
@@ -517,17 +517,6 @@
         "packages/ui/registry/ui/field.tsx"
       ],
       "docsSlug": "/docs/components/field",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "field-inline",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/field-inline.tsx"
-      ],
-      "docsSlug": "/docs/components/field-inline",
       "contractStatus": "reconciled"
     },
     {

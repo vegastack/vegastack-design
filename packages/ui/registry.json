@@ -629,12 +629,11 @@
       "description": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
       "categories": ["form"],
       "dependencies": [
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/input",
+        "@vegastack/input-group",
         "@vegastack/tag-group",
         "@vegastack/use-announcer"
       ],
@@ -967,7 +966,11 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/popover", "@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/calendar",
+        "@vegastack/popover",
+        "@vegastack/button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/date-picker.tsx",
@@ -1140,7 +1143,7 @@
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
-        "@vegastack/field-inline",
+        "@vegastack/input",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
@@ -1155,7 +1158,7 @@
       ],
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
-        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
+        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.9.1"
       }
     },
@@ -1236,33 +1239,6 @@
       "meta": {
         "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "field-inline",
-      "type": "registry:ui",
-      "title": "Field Inline",
-      "description": "Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
-      "categories": ["form"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/input",
-        "@vegastack/use-inline-edit"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/field-inline.tsx",
-          "type": "registry:ui",
-          "target": "@ui/field-inline.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Inline-edit a single text value in place — table cells, titles, detail rows.",
-        "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation — use Field.",
         "version": "0.9.1"
       }
     },
@@ -12071,7 +12047,7 @@
       "name": "number-field",
       "type": "registry:ui",
       "title": "Number Field",
-      "description": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "description": "Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12079,7 +12055,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/input-group"],
       "files": [
         {
           "path": "packages/ui/registry/ui/number-field.tsx",
@@ -12332,9 +12308,9 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/searchable-select",
         "@vegastack/geo-data",
-        "@vegastack/input"
+        "@vegastack/input-group",
+        "@vegastack/searchable-select"
       ],
       "files": [
         {

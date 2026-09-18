@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.9.1 sha256-efe4Jc9sWVE87H/sd9wEVSn8iF4wpbfD8Rs1H06qEeE=
+// @vegastack emoji-picker@0.9.1 sha256-yXltmA1uGVqB3tlqJOsrEcJQDKI2FDV7BkfZMGoI47Q=
 
 "use client";
 
@@ -15,10 +15,14 @@ import { Button } from "@/components/ui/button";
 import { useListNav } from "@/components/ui/use-list-nav";
 
 /* ------------------------------------------------------------------------------------------------
- * The panel's own search row (OVL-11): a sticky header with a leading glyph, a hairline below, and
- * NO bordered box of its own — a bordered input inside a bordered popup nests two borders (B8-04).
- * It used to be `floating-surface`'s shared `PanelSearchFrame`/`PanelSearchInput`; Batch 7a of the
- * shadcn reset retired that component, and each popup owns its chrome instead.
+ * The panel's own search row (OVL-11, one of the kept exceptions): a sticky header with a leading
+ * glyph, a hairline below, and NO bordered box of its own — a bordered input inside a bordered
+ * popup nests two borders (B8-04). Upstream has no counterpart: its `CommandInput` is the same
+ * idea, but it belongs to `command` and arrives with cmdk behind it.
+ *
+ * Each popup owns this row rather than sharing one component, which is the shape Batch 7a settled
+ * on. `shortcut-overlay` carries the same twelve lines; if a third popup ever needs them, that is
+ * the moment to extract, not before.
  * ----------------------------------------------------------------------------------------------*/
 
 function PanelSearch({

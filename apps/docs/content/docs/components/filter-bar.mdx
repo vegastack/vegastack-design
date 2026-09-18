@@ -119,8 +119,8 @@ menu including its trigger.
 
 `FilterChip` is exported on its own for custom toolbars. It is the [`Chip`](/docs/components/chip)
 primitive at the standalone (`md`, 32px) tier, so it lines up with the Buttons and Inputs beside it.
-The example shows an `active` chip (promoted to the `accent` selection rung), a plain
-`active={false}` presence chip on the rest fill, and a value-less chip.
+The example shows an `active` chip (on the `accent` selected fill), a plain `active={false}`
+presence chip on the rest fill, and a value-less chip.
 
 <ComponentPreview
   name="filterBarStandaloneChips"
@@ -212,7 +212,7 @@ The controlled `search` config passed to `FilterBar`.
 - The bar is a named `role="group"` (`"Filters"` by default) so assistive tech announces the
   filter controls as a single related set. Use `aria-label`/`aria-labelledby` for a more specific
   group name like `"Task filters"`.
-- Each chip's remove control is the shared `ChipRemove`: a round ghost `IconButton` whose REAL
+- Each chip's remove control is the shared `ChipRemove`: a round ghost `Button size="icon-xs"` whose REAL
   border box is 24×24 (WCAG 2.5.8), with an accessible name — `Remove <label> filter` when `label`
   is a string, overridable via `FilterChip`'s `removeLabel`.
 - The "Add filter" trigger is a labelled `Button` that opens a keyboard-navigable

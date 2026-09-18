@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.9.1 sha256-l7rEk5fbZ5BTFe/sX7MX/eo/djiHosWiLvvvTFmS4qw=
+// @vegastack data-grid@0.9.1 sha256-fY1jMwkEfklTwb+19cfRJp5p+A2IZqac8tV1z7RTEi0=
 
 "use client";
 
@@ -193,8 +193,8 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
    * Responsive posture when the column no longer fits: `visible` never hides;
    * `merge` stacks the value into the primary (first) column's cell; `hidden`
    * drops it, which is counted and reported in the toolbar so the loss is never
-   * silent. `merge` is the default because `design.md` § DataGrid requires that
-   * data is never silently lost.
+   * silent. `merge` is the default because narrowing a viewport must never lose
+   * data silently.
    * @default "merge"
    */
   mobile?: "visible" | "hidden" | "merge";
@@ -859,8 +859,8 @@ export function DataGrid<T>({
         {...virtualProps}
         className={cn(
           isSelected &&
-            // A selected row still has to move under the cursor (SP-06): it rests on the pressed
-            // rung, hovers DOWN one rung, and returns to rest while pressed.
+            // A selected row keeps its tint through hover and press (SP-06): the fill is the
+            // same `accent` in all three states, so the selection never flickers under the cursor.
             "bg-accent hover:bg-accent active:bg-accent data-selected:bg-accent data-selected:hover:bg-accent",
         )}
       >
@@ -1173,8 +1173,10 @@ export function DataGrid<T>({
                       className="bg-muted hover:bg-muted active:bg-muted"
                     >
                       <TableCell colSpan={colSpan} className="py-1">
-                        <button
-                          type="button"
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          data-slot="data-grid-group-toggle"
                           aria-expanded={!collapsed}
                           onClick={() =>
                             commitGroups({
@@ -1184,18 +1186,18 @@ export function DataGrid<T>({
                                 : "collapsed",
                             })
                           }
-                          className="relative flex min-w-0 items-center gap-1 rounded-sm text-xs font-medium text-muted-foreground before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] hover:text-foreground"
+                          className="-mx-2 min-w-0 justify-start font-normal text-muted-foreground [&_svg:not([class*='size-'])]:size-3"
                         >
                           {collapsed ? (
-                            <ChevronRight className="size-3 rtl:rotate-180" />
+                            <ChevronRight className="rtl:rotate-180" />
                           ) : (
-                            <ChevronDown className="size-3" />
+                            <ChevronDown />
                           )}
                           <span className="min-w-0 truncate">
                             {section.label}
                           </span>
                           <span>({section.rows.length})</span>
-                        </button>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ) : null}

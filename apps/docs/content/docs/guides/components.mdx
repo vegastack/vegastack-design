@@ -18,6 +18,19 @@ when you decide. This page is the full lifecycle.
 | Block (`registry:block`)  | `@vegastack/dashboard-01`                                                                                                                                                                                                               | a multi-file **starter composition** (page + components + data) you own outright — deliberately NOT update-tracked                                                                                                       |
 | Lib (`registry:lib`)      | `@vegastack/geo-data`, `@vegastack/drag-item`                                                                                                                                                                                           | plain `.ts` into your `lib/` alias — data and class-string recipes with no React in them, pulled in automatically as a dependency of the components that read them, and installed **once** however many of those you add |
 
+### Shared internals
+
+A few items are components other components install, not components you pick. They have no page of
+their own because there is nothing to choose: you get them by adding the component that needs them.
+
+- **`@vegastack/data-table-parts`** — the table chrome [`DataList`](/docs/components/data-list) and
+  [`DataGrid`](/docs/components/data-grid) share: the sort header, the select-all head and selection
+  cell, skeleton rows, the empty row, the column class rules, and the selection / sort /
+  controlled-state hooks. It arrives with either component, and installing both installs it once.
+  Its parts are documented on those two pages, where they are actually used.
+- **`@vegastack/table-scroll-region`** — the named, conditionally-focusable scroll viewport that
+  ships inside [`Table`](/docs/components/table)'s item.
+
 ## Adding
 
 ```bash

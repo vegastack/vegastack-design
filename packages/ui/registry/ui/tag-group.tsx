@@ -1,4 +1,4 @@
-// @vegastack tag-group@0.9.1 sha256-eOjY9osWLPFpLbJn8rWgVvezcEGhefPqz+Ul5tUYbIc=
+// @vegastack tag-group@0.9.1 sha256-oy9xLzUbwrUd7gWa4LvKXNIxwLKpd5i0aAcwLeGU76E=
 
 "use client";
 
@@ -160,8 +160,8 @@ export function TagGroup({
         <span role="listitem" className="inline-flex">
           {/* The overflow control IS a chip — one geometry, and the whole pill is the pointer
               target, so the 24px floor is met by the real box with nothing to clip. It is the
-              one interactive chip in the system, so it is also the one that carries the
-              hover/pressed recipe; a plain Tag has neither, because clicking one does nothing.
+              one interactive chip in the system, so it is also the only one that paints a hover
+              wash; a plain Tag has none, because clicking one does nothing.
 
               `min-w-7` is load-bearing, not decoration: a chip is `w-fit`, and "+2"
               at the sm tier measures 23.8px wide — under the 24px floor, which the contract

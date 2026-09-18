@@ -6,7 +6,7 @@ import { useInlineEdit, type UseInlineEditOptions } from "./use-inline-edit";
 
 /**
  * A minimal host with the exact shape the hook is designed for: a display element that
- * opens the edit, and a text input bound to the draft. Deliberately NOT `FieldInline` —
+ * opens the edit, and a text input bound to the draft. Deliberately NOT `EditableCell` —
  * the hook's contract has to hold on its own, or the machine is not really shared.
  */
 function Host({

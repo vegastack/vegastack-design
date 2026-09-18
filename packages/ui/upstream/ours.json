@@ -1,8 +1,8 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 61,
-    "fromExtras": 48
+    "total": 60,
+    "fromExtras": 47
   },
   "items": {
     "action-bar": {
@@ -81,14 +81,16 @@
       "source": "extras.md"
     },
     "data-table-parts": {
-      "disposition": "retire",
+      "disposition": "keep",
       "family": "data",
-      "source": "extras.md"
+      "source": "extras.md",
+      "rationale": "CORRECTED from RETIRE to KEEP by MK on 2026-09-18, executed in Batch 7b. The consumer story extras.md named (shadcn's data-table guide + dashboard-01) is right for a consumer, but the module is 375 lines that BOTH `data-grid` and `data-list` \u2014 both keepers \u2014 import the same ten symbols from, so retiring it would either duplicate them into two files (the drift the module's own header says it exists to stop) or need a different disposition. It stays ONE shared module. It is off the consumer-facing components nav, the way `geo-data` and `drag-item` are handled: installed as a dependency of the two components that need it, documented where they are documented, not offered as something to pick from a list."
     },
     "date-picker": {
       "disposition": "keep",
       "family": "form",
-      "source": "extras.md"
+      "source": "extras.md",
+      "rationale": "Batch 7b rebuilt it on upstream `calendar`: the grid, the day button, the captions and the nav are imported from `@/components/ui/calendar`, and this module is the Popover/Button composition plus `Intl` formatting and the preset rails. `react-day-picker` survives here as TYPES (`DateRange`, `Matcher`, `DayButton`) plus its two matcher EVALUATORS (`dateMatchModifiers`, `rangeContainsModifiers`), which the preset gate calls so a preset obeys exactly the policy the grid enforces; re-deriving Matcher evaluation is the drift the gate exists to prevent, so that import stayed. The one DOM part here is `PopoverDayButton`, which WRAPS upstream's `CalendarDayButton` (never copies it) to focus with `preventScroll` \u2014 see its note and `date-picker.test.tsx`'s below-the-fold regression, which fails without it."
     },
     "dropzone": {
       "disposition": "keep",
@@ -102,11 +104,6 @@
     },
     "emoji-picker": {
       "disposition": "keep",
-      "family": "form",
-      "source": "extras.md"
-    },
-    "field-inline": {
-      "disposition": "retire",
       "family": "form",
       "source": "extras.md"
     },
@@ -213,7 +210,7 @@
     "table-scroll-region": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of table; not listed in extras.md. Batch 5 reset `table` onto upstream's file, which wraps itself in its own `data-slot=\"table-container\"` overflow div, so NOTHING imports this module any more — it ships inside the `@vegastack/table` item and is re-exported by nobody. BATCH 7a DECIDED TO KEEP IT, and the reason is mechanical rather than a preference: A11Y-6's second clause is conditional on a LIVE MEASUREMENT (`useOverflow`, a React hook), so putting it on upstream's container re-adds `'use client'` to `table.tsx` and drags every purely-presentational Table part out of the server tree — which is exactly the API-16 hunk `table.patch` already carries, in the opposite direction. The only hook-free alternative, an unconditional `tabIndex={0}` plus `role=\"region\"`, is a DIFFERENT and worse behaviour: a table that fits gains a tab stop, and a page with several tables publishes several indistinguishable landmarks. Composing this file from upstream's `Table` instead would change upstream's component signature (new `label`/`containerClassName` props) and replace its own `<div>` — a structural rewrite, which the batch was told not to make. So the gap stays pinned by `data-list.test.tsx`'s `a wide DataList overflows in upstream's container, which is NOT yet a tab stop`, and this module stays available for the Batch 7b/7c rebuild of `data-list`/`data-grid` to adopt. NEEDS MK."
+      "source": "internal part of table; not listed in extras.md. Batch 5 reset `table` onto upstream's file, which wraps itself in its own `data-slot=\"table-container\"` overflow div, so NOTHING imports this module any more \u2014 it ships inside the `@vegastack/table` item and is re-exported by nobody. BATCH 7a DECIDED TO KEEP IT, and the reason is mechanical rather than a preference: A11Y-6's second clause is conditional on a LIVE MEASUREMENT (`useOverflow`, a React hook), so putting it on upstream's container re-adds `'use client'` to `table.tsx` and drags every purely-presentational Table part out of the server tree \u2014 which is exactly the API-16 hunk `table.patch` already carries, in the opposite direction. The only hook-free alternative, an unconditional `tabIndex={0}` plus `role=\"region\"`, is a DIFFERENT and worse behaviour: a table that fits gains a tab stop, and a page with several tables publishes several indistinguishable landmarks. Composing this file from upstream's `Table` instead would change upstream's component signature (new `label`/`containerClassName` props) and replace its own `<div>` \u2014 a structural rewrite, which the batch was told not to make. So the gap stays pinned by `data-list.test.tsx`'s `a wide DataList overflows in upstream's container, which is NOT yet a tab stop`, and this module stays available for the Batch 7b/7c rebuild of `data-list`/`data-grid` to adopt. NEEDS MK."
     },
     "tag-group": {
       "disposition": "keep",
@@ -253,57 +250,57 @@
     "use-animation-replay": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-announcer": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-drag-reorder": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-file-drop": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-inline-edit": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-list-nav": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-media-query": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-mobile": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — upstream ships hooks/use-mobile.ts, which is outside vendor/ui/ and so outside the parity scope"
+      "source": "registry:hook \u2014 upstream ships hooks/use-mobile.ts, which is outside vendor/ui/ and so outside the parity scope"
     },
     "use-modal-inert": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-overflow": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-platform": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "video-player": {
       "disposition": "keep",

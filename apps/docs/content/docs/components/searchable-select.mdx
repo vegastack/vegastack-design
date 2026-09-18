@@ -129,7 +129,7 @@ public ref is its root.
   prohibits name-from-content, so the trigger always carries an explicit `aria-label`, defaulting
   to the selected item's label and falling back to the placeholder.
 - The search field is labelled by the required `searchLabel` and focused when the panel opens.
-- The clear control is an `IconButton` **sibling** of the trigger with its own `aria-label`, so the
+- The clear control is a `Button size="icon-xs"` **sibling** of the trigger with its own `aria-label`, so the
   trigger never nests one interactive control inside another.
 - Selection is one code path for pointer and keyboard alike: both go through the Combobox root's
   `onValueChange`.

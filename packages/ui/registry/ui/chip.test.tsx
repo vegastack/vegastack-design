@@ -18,7 +18,7 @@ test("renders a neutral sm chip on the rest fill with the slot markers", async (
   await expectNoA11yViolations(screen.container);
 });
 
-test("active promotes the neutral chip to the selection rung", async () => {
+test("active moves the neutral chip to the selected fill", async () => {
   const screen = await render(
     <Chip size="md" active>
       Status: Open
@@ -75,7 +75,7 @@ test("every hue resolves to its own three token classes", async () => {
   }
 });
 
-test("the chip root is not interactive and carries no hover or pressed step", async () => {
+test("the chip root is not interactive and carries no hover or pressed state", async () => {
   const screen = await render(<Chip>Label</Chip>);
   const chip = screen.getByText("Label").element() as HTMLElement;
   // Clicking a chip does nothing, so it must not pretend to be a control.
@@ -109,8 +109,7 @@ test("the remove control is a round ghost icon Button with the shared hover/pres
   expect(remove.dataset.slot).toBe("chip-remove");
   expect(remove.className).toContain("rounded-full");
   // The hover wash comes from Button's own `ghost` recipe, never a literal restated here.
-  // Since Batch 2 of the shadcn reset that recipe is upstream's (`hover:bg-muted`), so the
-  // surface-ladder custom properties it used to read are gone with the ladder.
+  // Since Batch 2 of the shadcn reset that recipe is upstream's own `hover:bg-muted`.
   expect(remove.className).toContain("hover:bg-muted");
 });
 

@@ -1,11 +1,10 @@
-// @vegastack chip-input@0.9.1 sha256-CNYQ43z2Sf94JgD9/VQBZLubaYHeYFHWubBa7TM6Bzs=
+// @vegastack chip-input@0.9.1 sha256-4UdH2i2wX3rCQ0fOKWRT/ZlChlcY+pZy03yygLhKrns=
 
 "use client";
 
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
 import { cn, mergeRefs } from "@vegastack/design";
-import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { Tag } from "@/components/ui/tag-group";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
@@ -15,11 +14,12 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
 selection-from-items — there is no create seam. Domains, e-mail recipients, tags,
 webhook events all need "type, Enter/comma/paste, chip".
 
-The field chrome is `comboboxInputGroupVariants` borrowed literally — same border, same
-focus/invalid/disabled treatment, same flatten-the-inner-input technique — retargeted at
-`data-slot="input"` (the inner control here is the real `Input` component, so no raw
-`<input>` and no lint exemption). The chip is the real `Tag`, which already ships
-`onRemove` and a compliant 24px hit area.
+The field chrome is upstream's `InputGroup`, imported rather than restated: border,
+focus border, invalid hairline, disabled wash and the dark-mode fill are all its own, and
+the inner control is `InputGroupInput`, which is upstream `Input` flattened into the box.
+What stays local is the one thing upstream has no counterpart for — a field whose content
+WRAPS, so the box grows with the chips instead of holding a single 32px line. The chip is
+the real `Tag`, which already ships `onRemove` and a compliant 24px hit area.
 
 Validation model: entries are ADDED and marked, not silently dropped. A pasted list of
 20 addresses with 2 typos should show 20 chips with 2 flagged for fixing — a per-chip
@@ -36,33 +36,19 @@ Deliberately NOT done here:
 --- */
 
 /**
- * Field chrome — the bordered field-GROUP chrome, the one wrapper recipe (audit B1-11), driven here by
- * `focus-within` plus this component's own `data-invalid`/`data-disabled`. The flattening of
- * the inner `Input` (`data-slot="input"`) is what stays local: the group owns the border, so
- * the input inside it must show none of its own, hover included.
+ * The wrapping layout, and nothing else: upstream's `InputGroup` is a single-line box
+ * (`h-8`, `items-center`), and a chip field is a growing one. Height becomes `auto` over a
+ * one-line floor, children wrap, and the inner `InputGroupInput` keeps a 24px minimum box —
+ * a replaced element cannot host a `::before` hit area, so its own box must meet the pointer
+ * floor (A11Y-2). Every colour, border and state in the box is `InputGroup`'s.
  */
-export const chipInputVariants = cva(
-  [
-    "rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring/70 data-focused:border-ring/70 not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30",
-    "flex w-full min-w-0 flex-wrap items-center gap-1 p-1",
-    // The inner input keeps a 24px minimum box (h-6 tier) — a replaced element cannot host a ::before hit-area, so the box itself must meet the pointer-target floor.
-    "[&_[data-slot=input]]:min-h-6 [&_[data-slot=input]]:h-full [&_[data-slot=input]]:min-w-12 [&_[data-slot=input]]:flex-1 [&_[data-slot=input]]:border-none [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-1.5 [&_[data-slot=input]]:py-0 [&_[data-slot=input]]:focus:border-transparent [&_[data-slot=input]]:hover:border-transparent [&_[data-slot=input]]:dark:bg-transparent",
-  ].join(" "),
-  {
-    variants: {
-      size: {
-        // sm tightens the padding so the 24px inner input still fits the 28px tier.
-        sm: "min-h-7 p-0.5",
-        md: "min-h-8",
-        lg: "min-h-10",
-      },
-    },
-    defaultVariants: { size: "md" },
-  },
-);
+const chipFieldLayout = [
+  "h-auto min-h-8 flex-wrap items-center gap-1 p-1",
+  "[&_[data-slot=input-group-control]]:h-full [&_[data-slot=input-group-control]]:min-h-6 [&_[data-slot=input-group-control]]:min-w-12 [&_[data-slot=input-group-control]]:flex-1 [&_[data-slot=input-group-control]]:px-1.5 [&_[data-slot=input-group-control]]:py-0",
+].join(" ");
 
 /** Props accepted by `ChipInput`. */
-export interface ChipInputProps extends VariantProps<typeof chipInputVariants> {
+export interface ChipInputProps {
   /** Controlled chip list. Pair with `onValueChange`; omit for uncontrolled use.
    * @default undefined
    */
@@ -141,10 +127,10 @@ const DEFAULT_SPLIT = /[,\n]/;
 /**
  * `ChipInput` — free-token entry: type, then <kbd>Enter</kbd> or comma to
  * commit a chip; paste splits on the same delimiters; <kbd>Backspace</kbd> in
- * the empty input removes the last chip. The field is
- * `comboboxInputGroupVariants`' chrome, the chips are real `Tag`s (24px remove
- * targets included), and validation is per-chip: invalid entries stay visible
- * with `data-invalid` instead of being silently dropped.
+ * the empty input removes the last chip. The box is upstream's `InputGroup`, grown
+ * to wrap; the chips are real `Tag`s (24px remove targets included); and validation
+ * is per-chip — invalid entries stay visible with `data-invalid` instead of being
+ * silently dropped.
  *
  * @example
  * const [emails, setEmails] = React.useState<string[]>([]);
@@ -167,7 +153,6 @@ export function ChipInput({
   placeholder,
   "aria-label": ariaLabel,
   disabled = false,
-  size = "md",
   className,
   ref,
   inputRef,
@@ -279,14 +264,13 @@ export function ChipInput({
   }, [draft, addEntries, splitOn]);
 
   return (
-    <div
+    <InputGroup
       ref={ref}
       data-slot="chip-input"
-      data-size={size}
       data-field-group=""
       data-invalid={hasInvalidChip ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
-      className={cn(chipInputVariants({ size }), className)}
+      className={cn(chipFieldLayout, className)}
     >
       {chips.map((chip, index) => {
         const invalid = isInvalidChip(chip);
@@ -311,7 +295,7 @@ export function ChipInput({
           </Tag>
         );
       })}
-      <Input
+      <InputGroupInput
         ref={mergedInputRef}
         aria-label={ariaLabel}
         aria-describedby={hasInvalidChip ? describeId : undefined}
@@ -353,6 +337,6 @@ export function ChipInput({
         Some entries are invalid
       </span>
       <Announcer />
-    </div>
+    </InputGroup>
   );
 }

@@ -768,7 +768,7 @@ test("columnOrder applies a host-owned order coherently: headers, cells, picker;
  * ------------------------------------------------------------------------------------------- */
 
 test("a dropped column is COUNTED and reported in the toolbar", async () => {
-  // `design.md` § DataGrid: data is never silently lost. `mobile: "hidden"` is
+  // Data is never silently lost when a viewport narrows. `mobile: "hidden"` is
   // the only posture that actually removes a value, so it has to say so.
   await render(
     <div style={{ width: "300px" }}>

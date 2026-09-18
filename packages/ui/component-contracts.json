@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 690,
-    "components": 110,
+    "totalRegistryItems": 689,
+    "components": 109,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -22,11 +22,12 @@
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 24,
+    "Forms/editing": 23,
     "Navigation/layout": 16,
     "Overlays": 15,
-    "Data display": 11,
+    "Data display": 10,
     "Content/marketing": 14,
+    "Shared internals": 1,
     "AI/chat": 7,
     "Hooks": 11,
     "Block": 1,
@@ -60,7 +61,6 @@
     ],
     "Forms/editing": [
       "field",
-      "field-inline",
       "settings-row",
       "auto-save-input",
       "color-picker",
@@ -126,7 +126,6 @@
       "chip",
       "data-grid",
       "data-list",
-      "data-table-parts",
       "property-list",
       "stat",
       "table",
@@ -148,6 +147,7 @@
       "terminal",
       "announcement-banner"
     ],
+    "Shared internals": ["data-table-parts"],
     "AI/chat": [
       "marker",
       "message",
@@ -4396,15 +4396,6 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
-        },
-        {
-          "name": "chipInputVariants",
-          "kind": "variants",
-          "source": "packages/ui/registry/ui/chip-input.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
         }
       ],
       "variants": {
@@ -4413,9 +4404,9 @@
         "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": ["sm", "default", "lg"],
-        "rationale": "min-height on the shared --size-sm/md/lg scale (comboboxInputGroupVariants' scale); the field grows when chips wrap."
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The box is upstream InputGroup's, grown to fit its chips; the control-height scale was deleted with Input's."
       },
       "states": {
         "behavior": {
@@ -4461,12 +4452,11 @@
       "engines": [],
       "docsSlug": "/docs/components/chip-input",
       "registryDependencies": [
-        "@vegastack/input",
+        "@vegastack/input-group",
         "@vegastack/tag-group",
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -4494,10 +4484,6 @@
             {
               "name": "data-invalid",
               "values": [""]
-            },
-            {
-              "name": "data-size",
-              "values": []
             },
             {
               "name": "data-slot",
@@ -6331,6 +6317,7 @@
                 "data-grid-cell",
                 "data-grid-footer",
                 "data-grid-group-row",
+                "data-grid-group-toggle",
                 "data-grid-head",
                 "data-grid-hidden-hint",
                 "data-grid-load-more",
@@ -6545,7 +6532,7 @@
       "status": "stable",
       "since": "0.7.0",
       "family": "data",
-      "wave": "Data display",
+      "wave": "Shared internals",
       "sourceFiles": ["packages/ui/registry/ui/data-table-parts.tsx"],
       "publicSymbols": [
         {
@@ -6822,7 +6809,7 @@
         }
       },
       "engines": [],
-      "docsSlug": "/docs/components/data-table-parts",
+      "docsSlug": "/docs/guides/components",
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
@@ -6839,13 +6826,11 @@
       "coverage": {
         "source": "required",
         "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
       },
-      "previewModule": "data-table-parts",
       "dataAttributes": {
         "SortHeaderButton": {
           "attributes": [
@@ -6918,44 +6903,6 @@
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/date-picker.tsx"],
       "publicSymbols": [
-        {
-          "name": "Calendar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/date-picker.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "CalendarDayButton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/date-picker.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "button",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "CalendarDayButtonProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/date-picker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CalendarProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/date-picker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
         {
           "name": "DatePicker",
           "kind": "component",
@@ -7107,7 +7054,11 @@
         }
       ],
       "docsSlug": "/docs/components/date-picker",
-      "registryDependencies": ["@vegastack/popover", "@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/calendar",
+        "@vegastack/popover",
+        "@vegastack/button"
+      ],
       "npmDependencies": [
         "react-day-picker@^10",
         "lucide-react@^1.24.0",
@@ -7125,48 +7076,6 @@
       },
       "previewModule": "date-picker",
       "dataAttributes": {
-        "Calendar": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["calendar"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "CalendarDayButton": {
-          "attributes": [
-            {
-              "name": "data-day",
-              "values": []
-            },
-            {
-              "name": "data-range-end",
-              "values": [""]
-            },
-            {
-              "name": "data-range-middle",
-              "values": [""]
-            },
-            {
-              "name": "data-range-start",
-              "values": [""]
-            },
-            {
-              "name": "data-selected-single",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["calendar-day"]
-            },
-            {
-              "name": "data-today",
-              "values": [""]
-            }
-          ],
-          "cssVariables": []
-        },
         "DatePicker": {
           "attributes": [
             {
@@ -8528,7 +8437,7 @@
       "docsSlug": "/docs/components/editable-cell",
       "registryDependencies": [
         "@vegastack/auto-save-input",
-        "@vegastack/field-inline",
+        "@vegastack/input",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
@@ -9215,133 +9124,6 @@
             {
               "name": "data-slot",
               "values": ["field-error"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "field-inline",
-      "registryType": "registry:ui",
-      "title": "Field Inline",
-      "summary": "Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "form",
-      "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/field-inline.tsx"],
-      "publicSymbols": [
-        {
-          "name": "FieldInline",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/field-inline.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Input",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "FieldInlineProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field-inline.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "default",
-            "disabled",
-            "empty",
-            "error",
-            "invalid",
-            "open",
-            "read-only"
-          ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": [
-            "described",
-            "disabled",
-            "invalid",
-            "keyboard",
-            "labeled",
-            "alert-announcement",
-            "semantic-html"
-          ],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": [
-            "default",
-            "hover",
-            "disabled",
-            "invalid",
-            "error",
-            "empty",
-            "dark"
-          ],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/field-inline",
-      "registryDependencies": [
-        "@vegastack/input",
-        "@vegastack/use-inline-edit"
-      ],
-      "npmDependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/field-inline.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "field-inline",
-      "dataAttributes": {
-        "FieldInline": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-inline", "field-inline-error"]
             }
           ],
           "cssVariables": []
@@ -12758,7 +12540,7 @@
       "name": "number-field",
       "registryType": "registry:ui",
       "title": "Number Field",
-      "summary": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "summary": "Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -12791,9 +12573,9 @@
         "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": ["sm", "default", "lg"],
-        "rationale": "Control height on the shared --size-sm/md/lg scale, matching Input/Button/Select."
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The box is upstream InputGroup's single 32px height; the control-height scale was deleted with Input's."
       },
       "states": {
         "behavior": {
@@ -12834,7 +12616,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/number-field",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/input-group"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
@@ -12859,16 +12641,11 @@
               "values": [""]
             },
             {
-              "name": "data-size",
-              "values": []
-            },
-            {
               "name": "data-slot",
               "values": [
                 "number-field",
                 "number-field-decrement",
                 "number-field-increment",
-                "number-field-input",
                 "number-field-prefix",
                 "number-field-suffix"
               ]
@@ -14682,9 +14459,9 @@
       "engines": [],
       "docsSlug": "/docs/components/region-select",
       "registryDependencies": [
-        "@vegastack/searchable-select",
         "@vegastack/geo-data",
-        "@vegastack/input"
+        "@vegastack/input-group",
+        "@vegastack/searchable-select"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",

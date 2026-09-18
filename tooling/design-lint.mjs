@@ -270,26 +270,11 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "registry/ui/data-grid.tsx",
-    {
-      counts: { button: 1 },
-      rationale:
-        "group-toggle control preserves table semantics \u2014 the sort header composes Button through the shared table parts",
-    },
-  ],
-  [
     "registry/ui/data-list.tsx",
     {
       counts: { button: 1 },
       rationale:
         "row activation control preserves table semantics \u2014 the sort header composes Button through the shared table parts",
-    },
-  ],
-  [
-    "registry/ui/date-picker.tsx",
-    {
-      counts: { button: 1 },
-      rationale: "react-day-picker day-cell integration",
     },
   ],
   [

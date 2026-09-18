@@ -28,7 +28,10 @@ import { AutoSaveInput } from "@/components/ui/auto-save-input";
 />;
 ```
 
-`AutoSaveInput` wraps [`Input`](/docs/components/input). It owns its value as
+`AutoSaveInput` composes [`InputGroup`](/docs/components/input-group) around an
+`InputGroupInput` — upstream's [`Input`](/docs/components/input) flattened into the
+box — so the trailing status indicator sits in a real addon slot rather than on top
+of a padded field. It owns its value as
 local state from `defaultValue` (or follows `value` + `onValueChange` when
 controlled), debounces keystrokes, and calls `onSave(value)` once the field
 settles. A trailing indicator reflects the outcome: a spinner while saving, a

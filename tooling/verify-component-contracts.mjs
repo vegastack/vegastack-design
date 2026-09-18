@@ -575,16 +575,21 @@ assert(
 
 const expectedWaves = {
   "Core controls": 23,
-  "Forms/editing": 24,
+  "Forms/editing": 23,
   "Navigation/layout": 16,
   Overlays: 15,
-  "Data display": 11,
+  "Data display": 10,
   "Content/marketing": 14,
   "AI/chat": 7,
+  // Not a browse group: components other components install, with no page of their own. See
+  // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
+  "Shared internals": 1,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
 // hard failure rather than a silent skip.
+// A wave with NO entry here is not a homepage group at all (`Shared internals`); a wave that is a
+// group but is unmapped is still a hard failure, because `homeWaves` below reads this map.
 const HOME_WAVE_TITLES = {
   "Core controls": "Core controls",
   "Forms/editing": "Forms & editing",
@@ -594,6 +599,10 @@ const HOME_WAVE_TITLES = {
   "Content/marketing": "Content & marketing",
   "AI/chat": "AI & chat",
 };
+/** The waves the homepage catalog groups by — every wave that has a display title. */
+const homeWaves = Object.keys(expectedWaves).filter(
+  (wave) => HOME_WAVE_TITLES[wave] !== undefined,
+);
 
 const expectedComponentWaveMembers = {
   "Core controls": [
@@ -632,7 +641,6 @@ const expectedComponentWaveMembers = {
     "dropzone",
     "editable-cell",
     "field",
-    "field-inline",
     "filter-bar",
     "filter-bar-managed",
     "input-group",
@@ -689,7 +697,6 @@ const expectedComponentWaveMembers = {
     "chip",
     "data-grid",
     "data-list",
-    "data-table-parts",
     "property-list",
     "stat",
     "table",
@@ -711,6 +718,7 @@ const expectedComponentWaveMembers = {
     "truncated-text",
     "video-player",
   ],
+  "Shared internals": ["data-table-parts"],
   "AI/chat": [
     "attachment",
     "bubble",
@@ -826,6 +834,43 @@ for (const [key, value] of Object.entries(expected)) {
   );
 }
 const components = contracts.components ?? [];
+
+/**
+ * A SHARED-GUIDE-ONLY component: a real `registry:ui` item that other components install as a
+ * dependency, with no consumer-facing page of its own — the way `geo-data` and `drag-item` are
+ * handled, but for a `.tsx` that ships React parts. `data-table-parts` is the first (MK,
+ * 2026-09-18): `data-grid` and `data-list` both import it, so it cannot be retired without
+ * duplicating it, and it is not something a consumer picks off a list.
+ *
+ * The shape is asserted below rather than assumed, so the exemption cannot be half-declared: a
+ * record either carries the whole shared-guide-only shape or it is navigated like every other
+ * component. That is what keeps this from becoming a way to hide a page that should exist.
+ */
+const isSharedGuideOnly = (record) => record.coverage?.navigation === "exempt";
+for (const record of components.filter(isSharedGuideOnly)) {
+  assert(
+    record.coverage?.docs === "shared-guide-only",
+    `${record.name}: a navigation-exempt component must declare coverage.docs "shared-guide-only"`,
+  );
+  for (const key of ["preview", "vrt"]) {
+    assert(
+      record.coverage?.[key] === "exempt",
+      `${record.name}: a navigation-exempt component must declare coverage.${key} "exempt"`,
+    );
+  }
+  assert(
+    !record.docsSlug?.startsWith("/docs/components/"),
+    `${record.name}: a navigation-exempt component must point docsSlug at the shared guide`,
+  );
+  assert(
+    record.previewModule === undefined,
+    `${record.name}: a navigation-exempt component must declare no previewModule`,
+  );
+}
+const navigatedComponents = components.filter(
+  (record) => !isSharedGuideOnly(record),
+);
+
 const icons = contracts.animatedIcons?.members ?? [];
 const hooks = contracts.hooks ?? [];
 const blocks = contracts.blocks ?? [];
@@ -977,6 +1022,10 @@ for (const record of components) {
     existsSync(docsFile),
     `component ${record.name}: docs page missing for ${record.docsSlug}`,
   );
+  // A shared-guide-only component has no page and no preview of its own — its docsSlug is the
+  // guide, which the assertion above still proves exists. The shape itself is asserted once, where
+  // `isSharedGuideOnly` is defined.
+  if (isSharedGuideOnly(record)) continue;
   const previewFile = join(
     root,
     "apps/docs/components/preview",
@@ -1401,7 +1450,7 @@ sameStrings(
 const componentNav = readJson(
   "apps/docs/content/docs/components/meta.json",
 ).pages.filter((page) => !page.startsWith("---"));
-const componentDocNames = components.map((record) =>
+const componentDocNames = navigatedComponents.map((record) =>
   record.docsSlug.split("/").at(-1),
 );
 assert(
@@ -1434,7 +1483,7 @@ assert(
   new Set(previewExports).size === previewExports.length,
   "preview index contains duplicate exports",
 );
-for (const record of [...components, ...blocks, ...chartBlocks]) {
+for (const record of [...navigatedComponents, ...blocks, ...chartBlocks]) {
   assert(
     previewExports.includes(record.previewModule),
     `${record.name}: preview index does not export ${record.previewModule}`,
@@ -1448,7 +1497,9 @@ const previewFiles = readdirSync(join(root, "apps/docs/components/preview"))
 sameStrings(
   previewFiles,
   [
-    ...[...components, ...blocks].map((record) => record.previewModule),
+    ...[...navigatedComponents, ...blocks].map(
+      (record) => record.previewModule,
+    ),
     ...chartGallerySlugs.map((slug) => slug.split("/").at(-1)),
   ],
   "preview module inventory",
@@ -1499,14 +1550,14 @@ for (const [constant, value] of [
 }
 sameStrings(
   homeGroups.map((group) => group.title),
-  Object.keys(expectedWaves).map((wave) => HOME_WAVE_TITLES[wave]),
+  homeWaves.map((wave) => HOME_WAVE_TITLES[wave]),
   "generated home catalog wave groups",
 );
 const componentByName = new Map(
   components.map((record) => [record.name, record]),
 );
 const homeCatalogNames = [];
-for (const [wave] of Object.entries(expectedWaves)) {
+for (const wave of homeWaves) {
   const group = homeGroups.find(
     (candidate) => candidate.title === HOME_WAVE_TITLES[wave],
   );
@@ -1540,13 +1591,13 @@ for (const [wave] of Object.entries(expectedWaves)) {
   }
 }
 assert(
-  homeCatalogNames.length === expected.components &&
+  homeCatalogNames.length === navigatedComponents.length &&
     new Set(homeCatalogNames).size === homeCatalogNames.length,
-  `generated home catalog must list each of the ${expected.components} components exactly once; received ${homeCatalogNames.length} (${new Set(homeCatalogNames).size} unique)`,
+  `generated home catalog must list each of the ${navigatedComponents.length} browsable components exactly once; received ${homeCatalogNames.length} (${new Set(homeCatalogNames).size} unique)`,
 );
 sameStrings(
   homeCatalogNames,
-  components.map((record) => record.name),
+  navigatedComponents.map((record) => record.name),
   "generated home catalog component inventory",
 );
 

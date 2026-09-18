@@ -717,7 +717,7 @@
         "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
         "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
         "version": "0.9.1",
-        "integrity": "sha256-sCZp5QrzrFUnhWAr4sx0SslrrUNVLRMRkX2E/3pG7bw="
+        "integrity": "sha256-MTCHol52CVJfyh5816PEiusFnGVsmjAvkI6RNMCFI/k="
       }
     },
     {
@@ -729,12 +729,11 @@
         "form"
       ],
       "dependencies": [
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/input",
+        "@vegastack/input-group",
         "@vegastack/tag-group",
         "@vegastack/use-announcer"
       ],
@@ -749,7 +748,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.9.1",
-        "integrity": "sha256-CNYQ43z2Sf94JgD9/VQBZLubaYHeYFHWubBa7TM6Bzs="
+        "integrity": "sha256-4UdH2i2wX3rCQ0fOKWRT/ZlChlcY+pZy03yygLhKrns="
       }
     },
     {
@@ -837,7 +836,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.9.1",
-        "integrity": "sha256-X8xPYl7SllXubf860xIOXPoV4wfG91bPguK+7wTd1Pc="
+        "integrity": "sha256-qjYgNV3d2A1bDzj9aoke15TYpxd7QKr6EfaM8w8vWhM="
       }
     },
     {
@@ -1030,7 +1029,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.9.1",
-        "integrity": "sha256-l7rEk5fbZ5BTFe/sX7MX/eo/djiHosWiLvvvTFmS4qw="
+        "integrity": "sha256-fY1jMwkEfklTwb+19cfRJp5p+A2IZqac8tV1z7RTEi0="
       }
     },
     {
@@ -1060,7 +1059,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.9.1",
-        "integrity": "sha256-Ghfv0+ZZ1K3ap0hQc3B4x+cytuyIS5Qc8DzCWBY3vYw="
+        "integrity": "sha256-CKCUgRy2jCp82yU0nUB8GzCy0QcEnkJedp575AMBKIg="
       }
     },
     {
@@ -1094,7 +1093,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.9.1",
-        "integrity": "sha256-X42Sp5Gcd+edJ7fvAOOUgA1owM1vpLcCPh4zrq2b/rU="
+        "integrity": "sha256-ndXZVsp3MCfzenAUs3N6BDUjJFMe4Aku3MqbVbW56Mk="
       }
     },
     {
@@ -1112,6 +1111,7 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
+        "@vegastack/calendar",
         "@vegastack/popover",
         "@vegastack/button"
       ],
@@ -1126,7 +1126,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.9.1",
-        "integrity": "sha256-IZJBELYsAYTpZUeDka+ZciW4P0hhd7kYQI5eQoUC5H0="
+        "integrity": "sha256-qnbtwNFvE0ntyHkNTANZ4C5iw0g+OMi0xhQeftZ/oCA="
       }
     },
     {
@@ -1314,7 +1314,7 @@
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
-        "@vegastack/field-inline",
+        "@vegastack/input",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
@@ -1329,9 +1329,9 @@
       ],
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
-        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
+        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.9.1",
-        "integrity": "sha256-b5V3yq1b0nfDKxnyFSpKCA52px+AmqSch/+iN1DX1f8="
+        "integrity": "sha256-u+1y2BE0sYN3iT32XbEK1CENZ96K+HqH/7DjIKlVIHE="
       }
     },
     {
@@ -1363,7 +1363,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.9.1",
-        "integrity": "sha256-efe4Jc9sWVE87H/sd9wEVSn8iF4wpbfD8Rs1H06qEeE="
+        "integrity": "sha256-yXltmA1uGVqB3tlqJOsrEcJQDKI2FDV7BkfZMGoI47Q="
       }
     },
     {
@@ -1427,36 +1427,6 @@
       }
     },
     {
-      "name": "field-inline",
-      "type": "registry:ui",
-      "title": "Field Inline",
-      "description": "Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/input",
-        "@vegastack/use-inline-edit"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/field-inline.tsx",
-          "type": "registry:ui",
-          "target": "@ui/field-inline.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Inline-edit a single text value in place — table cells, titles, detail rows.",
-        "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation — use Field.",
-        "version": "0.9.1",
-        "integrity": "sha256-YcCLfaEsMDPXD/Hpy8qQXH73JY2+8kWqZtrxUp1IIus="
-      }
-    },
-    {
       "name": "filter-bar",
       "type": "registry:ui",
       "title": "Filter Bar",
@@ -1486,7 +1456,7 @@
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.9.1",
-        "integrity": "sha256-1s0JAkDgw5B4W9sBbXbz6tZE9OuObmzCqU37ANZaM78="
+        "integrity": "sha256-Itr9ZJYk24KJSkJ8qhPt4T3iCjHL8q6oJ861udxGH9M="
       }
     },
     {
@@ -15130,7 +15100,7 @@
       "name": "number-field",
       "type": "registry:ui",
       "title": "Number Field",
-      "description": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "description": "Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.",
       "categories": [
         "form"
       ],
@@ -15140,7 +15110,9 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/input-group"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/number-field.tsx",
@@ -15152,7 +15124,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.9.1",
-        "integrity": "sha256-T0ygbhfpXtDWpPTbLOd8GpOWrzqHpkZwE/fHqvwg5C4="
+        "integrity": "sha256-srNO1vpSCJUX0g0aAn1dniOBrZrEqQ5N6Vat+HwyJig="
       }
     },
     {
@@ -15432,9 +15404,9 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/searchable-select",
         "@vegastack/geo-data",
-        "@vegastack/input"
+        "@vegastack/input-group",
+        "@vegastack/searchable-select"
       ],
       "files": [
         {
@@ -15447,7 +15419,7 @@
         "whenToUse": "A state/province as part of an address form, dependent on the selected country.",
         "whenNotToUse": "A small country-independent option set (Select) or multi-select.",
         "version": "0.9.1",
-        "integrity": "sha256-uCPncc1OQJg2P8/CDr6lnQXDMuFxxe7GrsBaZ408oLI="
+        "integrity": "sha256-Yv4eY6CO6TdDx/socitmCF5lLFojdUaI8TUyF0E8nZg="
       }
     },
     {
@@ -15954,7 +15926,7 @@
         "whenToUse": "Indicate the state of a task or item — todo, in progress, blocked, or done — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress) or generic loading (Spinner).",
         "version": "0.9.1",
-        "integrity": "sha256-P+8zQcOn247aExW5FFWFOuyLihUcqlw+A+5Kyiu6SJk="
+        "integrity": "sha256-8200cvDME74JGxxlwpGC63UHlYjjeZO1vBbi52H1hrM="
       }
     },
     {
@@ -16105,7 +16077,7 @@
         "whenToUse": "Decorative record labels/categories in rows that may overflow — the label voice.",
         "whenNotToUse": "Status signals (Badge) or interactive filters (Combobox chips).",
         "version": "0.9.1",
-        "integrity": "sha256-eOjY9osWLPFpLbJn8rWgVvezcEGhefPqz+Ul5tUYbIc="
+        "integrity": "sha256-oy9xLzUbwrUd7gWa4LvKXNIxwLKpd5i0aAcwLeGU76E="
       }
     },
     {
@@ -16543,7 +16515,7 @@
         "whenToUse": "Any click-to-edit surface: an inline field, a grid cell, a rename affordance - anywhere Enter commits, Escape cancels, and blur must not commit twice.",
         "whenNotToUse": "A field that is always in edit mode (Input inside a Field); persistence, async status or optimistic revert, which belong to the component composing this hook.",
         "version": "0.9.1",
-        "integrity": "sha256-Ye9gDfeqCUKqoU1UcmzzX4NE/408HZ0wfybxu1JPtuo="
+        "integrity": "sha256-8jqSaC36+DwTW9QG5tLCQOuFE1aLDelFji19fYyC/8E="
       }
     },
     {

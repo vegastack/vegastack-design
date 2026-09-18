@@ -102,8 +102,8 @@ test("SortHeaderButton composes the system Button and reports its direction", as
   );
   const button = screen.getByRole("button", { name: /Amount/ });
   await expect.element(button).toBeInTheDocument();
-  // It IS a Button, not a hand-rolled control — so it inherits the system's
-  // hover/pressed steps and focus outline instead of restating them.
+  // It IS a Button, not a hand-rolled control — so its hover wash and focus
+  // outline are upstream's rather than restated here.
   expect((button.element() as HTMLElement).dataset.slot).toBe(
     "data-table-sort",
   );

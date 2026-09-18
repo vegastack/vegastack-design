@@ -1,11 +1,11 @@
-// @vegastack editable-cell@0.9.1 sha256-b5V3yq1b0nfDKxnyFSpKCA52px+AmqSch/+iN1DX1f8=
+// @vegastack editable-cell@0.9.1 sha256-u+1y2BE0sYN3iT32XbEK1CENZ96K+HqH/7DjIKlVIHE=
 
 "use client";
 
 import * as React from "react";
 import { Check, X } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { FieldInline } from "@/components/ui/field-inline";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useInlineEdit } from "@/components/ui/use-inline-edit";
@@ -20,11 +20,17 @@ import {
 
 /* ---
 `EditableCell` exists because every optimistic inline edit — in a grid, a property list,
-a settings row, an `Item` — needs the same four things, and `FieldInline` supplies only
-the first: the edit interaction (Enter-commit / Esc-cancel / commit-on-blur with a
-double-commit guard), the async status layer (idle → saving → saved | error), conflict
-revert (a rejected commit snaps the value back and announces it), and a typed per-type
-editor so a status or date field edits with the right control instead of a bare text box.
+a settings row, an `Item` — needs the same four things: the edit interaction (Enter-commit /
+Esc-cancel / commit-on-blur with a double-commit guard), the async status layer
+(idle → saving → saved | error), conflict revert (a rejected commit snaps the value back and
+announces it), and a typed per-type editor so a status or date field edits with the right
+control instead of a bare text box.
+
+The click-to-edit TEXT LEAF is `InlineTextEditor` below, an internal part of this file. It used
+to be a registry component of its own with this cell as its only consumer; Batch 7b of the shadcn
+reset folded it in, because upstream's `Field` `orientation` — the replacement `extras.md` named —
+is a LAYOUT prop and covers none of it, while `use-inline-edit` already owns the machine the two
+shared. Nothing was duplicated: the cell now runs the leaf and the machine once each.
 
 The status vocabulary is `AutoSaveStatus` — imported from auto-save-input, not
 re-declared — so the system has exactly one word list for "an async field write".
@@ -52,7 +58,7 @@ export interface EditableCellEditorProps {
 }
 
 /**
- * Which editor the cell opens. `text` edits in place via `FieldInline`;
+ * Which editor the cell opens. `text` edits in place via the internal text leaf;
  * `select` renders a `Select` whose popover is the editor; `custom` is the open
  * registry — any app editor (date, actor, currency, multi-select) plugs in by
  * rendering its own control against the same commit/cancel contract.
@@ -118,7 +124,7 @@ export interface EditableCellProps {
   onEditingChange?: (editing: boolean) => void;
   /**
    * Accessible name for the value being edited (e.g. `"Deal amount"`). Falls
-   * back the same way `FieldInline` does; the editor is never unnamed.
+   * back to the placeholder, then to a generic phrase; the editor is never unnamed.
 
    * @default undefined
    */
@@ -145,12 +151,128 @@ export interface EditableCellProps {
   ref?: React.Ref<HTMLSpanElement>;
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * InlineTextEditor — the click-to-edit text leaf (internal)
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props accepted by the internal text leaf. */
+interface InlineTextEditorProps {
+  /** The value to display, and the seed for the draft when an edit opens. */
+  value: string;
+  /** Called with the new (trimmed) value on Enter or blur, only when it actually changed. */
+  onCommit: (value: string) => void;
+  /** Placeholder for the input, and the muted display text when `value` is empty. */
+  placeholder?: string;
+  /** Accessible name for the edit-mode textbox and for the display affordance. */
+  label?: string;
+  /** Controlled edit mode — the cell owns it, so this is always supplied. */
+  editing: boolean;
+  /** Reports the mode the leaf wants; the cell decides whether it changes. */
+  onEditingChange: (editing: boolean) => void;
+  /** Blocks editing and dims the display value, which stays hoverable (FRM-4). */
+  disabled?: boolean;
+  /** Renders plain, non-interactive text — no button role, no edit affordance, not dimmed. */
+  readOnly?: boolean;
+  /** Tab-stop override for the display element; `managed` hosts pass `-1`. */
+  tabIndex?: number;
+}
+
+/**
+ * The text leaf: a value rendered as plain text with a hover affordance, which swaps for a focused
+ * `Input` on click or Enter/Space. Enter or blur commits, Escape cancels — all of it
+ * `useInlineEdit`, the hook this cell also runs for its own mode state, so there is exactly one
+ * edit machine in the file.
+ *
+ * The display box mirrors upstream `Input`'s 32px height, its 1px border reservation and its
+ * horizontal padding, so swapping text for the editor moves no adjacent layout.
+ */
+function InlineTextEditor({
+  value,
+  onCommit,
+  placeholder,
+  label,
+  editing,
+  onEditingChange,
+  disabled = false,
+  readOnly = false,
+  tabIndex = 0,
+}: InlineTextEditorProps) {
+  // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
+  // an edit may not be entered, and one in flight reverts. They differ only in chrome.
+  const edit = useInlineEdit({
+    value,
+    onCommit,
+    editing,
+    onEditingChange,
+    disabled: disabled || readOnly,
+  });
+
+  const hasDisplayValue = value.length > 0;
+  const displayFallback = placeholder ?? "Edit value";
+  // `readOnly` drops button semantics entirely; `disabled` keeps the role and the handlers (so the
+  // control stays discoverable, and `useInlineEdit` guards it anyway) but is dimmed and untabbable.
+  const isButton = !readOnly;
+
+  if (edit.isEditing) {
+    return (
+      <Input
+        ref={edit.editRef}
+        data-slot="editable-cell-input"
+        aria-label={label ?? placeholder ?? "Edit value"}
+        value={edit.draft}
+        placeholder={placeholder}
+        onChange={(event) => edit.setDraft(event.target.value)}
+        onBlur={edit.commit}
+        onKeyDown={edit.onKeyDown}
+      />
+    );
+  }
+
+  return (
+    <span
+      ref={edit.displayRef}
+      data-slot="editable-cell-display"
+      role={isButton ? "button" : undefined}
+      tabIndex={readOnly ? undefined : disabled ? -1 : tabIndex}
+      aria-disabled={disabled ? true : undefined}
+      aria-label={label ?? (hasDisplayValue ? undefined : displayFallback)}
+      onClick={isButton ? edit.start : undefined}
+      onKeyDown={
+        isButton
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                edit.start();
+              }
+            }
+          : undefined
+      }
+      className={cn(
+        "inline-flex h-8 max-w-full min-w-0 items-center rounded-lg border border-transparent px-2.5 py-1 text-sm",
+        !disabled && !readOnly && "cursor-text hover:bg-accent",
+        // FRM-4: no `pointer-events-none`. A disabled cell stays hoverable so a Tooltip can
+        // explain why it cannot be edited; the hook already no-ops `start()` while disabled.
+        "aria-disabled:opacity-50",
+      )}
+    >
+      <span
+        className={cn(
+          "min-w-0 truncate",
+          !hasDisplayValue && "text-muted-foreground",
+        )}
+      >
+        {hasDisplayValue ? value : displayFallback}
+      </span>
+    </span>
+  );
+}
+
 /** Fixed-width status slot so the cell doesn't shift as the indicator swaps (auto-save-input's recipe). */
 const statusSlotClasses = "flex size-4 shrink-0 items-center justify-center";
 
 /**
  * `EditableCell` — an inline-editable value with an async commit lifecycle.
- * Composes `FieldInline` as the text leaf (Enter-commit / Esc-cancel /
+ * Runs `InlineTextEditor` as the text leaf (Enter-commit / Esc-cancel /
  * commit-on-blur, double-commit guard, focus-and-select on open — all of it `useInlineEdit`,
  * which this cell shares for its own edit-mode state) and layers on the
  * three things every optimistic inline edit needs beyond it: the
@@ -196,8 +318,7 @@ export function EditableCell({
 }: EditableCellProps) {
   // Edit mode comes from the shared inline-edit machine (audit B9-06) — the same hook the text
   // leaf runs on, so `text`, `select` and `custom` editors all resolve controlled-vs-internal
-  // `editing` one way instead of through a private copy that had already drifted from
-  // FieldInline's. Only the MODE half is used here: this cell's editors commit through
+  // `editing` one way. Only the MODE half is used here: this cell's editors commit through
   // `handleCommit` below, which owns the optimistic layer the hook knows nothing about — hence
   // no `onCommit`, which the hook makes optional for exactly this case.
   const { isEditing, setEditing: setEditingState } = useInlineEdit({
@@ -322,7 +443,7 @@ export function EditableCell({
       cancel: cancelEdit,
     });
   } else {
-    // `text` in both modes; `custom` while displaying. For `custom`, FieldInline
+    // `text` in both modes; `custom` while displaying. For `custom`, the text leaf
     // stays permanently in display mode (`editing={false}`) and its activation
     // only raises our edit state, which swaps in the custom editor above.
     const isCustom = editor.type === "custom";
@@ -337,7 +458,7 @@ export function EditableCell({
             ?.label ?? displayValue)
         : displayValue;
     editorSurface = (
-      <FieldInline
+      <InlineTextEditor
         value={displayText}
         label={label}
         placeholder={editor.type === "text" ? editor.placeholder : undefined}

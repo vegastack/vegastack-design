@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**110 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 32 starter blocks (`app-shell-01`, `board-01`, `dashboard-01`, `login-01`, `login-02`, `login-03`, `login-04`, `login-05`, `onboarding-01`, `preview-03`, `settings-01`, `sidebar-01`, `sidebar-02`, `sidebar-03`, `sidebar-04`, `sidebar-05`, `sidebar-06`, `sidebar-07`, `sidebar-08`, `sidebar-09`, `sidebar-10`, `sidebar-11`, `sidebar-12`, `sidebar-13`, `sidebar-14`, `sidebar-15`, `sidebar-16`, `signup-01`, `signup-02`, `signup-03`, `signup-04`, `signup-05`), 68 chart blocks across 7 families, and 2 data libs (`geo-data`, `drag-item`) — 690 registry items in total.
+**109 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 32 starter blocks (`app-shell-01`, `board-01`, `dashboard-01`, `login-01`, `login-02`, `login-03`, `login-04`, `login-05`, `onboarding-01`, `preview-03`, `settings-01`, `sidebar-01`, `sidebar-02`, `sidebar-03`, `sidebar-04`, `sidebar-05`, `sidebar-06`, `sidebar-07`, `sidebar-08`, `sidebar-09`, `sidebar-10`, `sidebar-11`, `sidebar-12`, `sidebar-13`, `sidebar-14`, `sidebar-15`, `sidebar-16`, `signup-01`, `signup-02`, `signup-03`, `signup-04`, `signup-05`), 68 chart blocks across 7 families, and 2 data libs (`geo-data`, `drag-item`) — 689 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -31,13 +31,12 @@ starts with `icon-` is a component and never an icon.
 - **`editable-cell`** — Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).
 - **`field`** — The form-field scaffold — label, description, error, legend, separator and choice-card layouts.
-- **`field-inline`** — Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
 - **`input`** — A styled Base UI input for every text-entry type, with the text-entry focus border tint (FOC-3).
 - **`input-group`** — An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.
 - **`input-otp`** — A one-time-password field with per-character slots, driven by one hidden input.
 - **`label`** — A styled native label for form controls.
 - **`native-select`** — The platform <select>, tokenized — the OS picker on mobile, with option groups.
-- **`number-field`** — Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.
+- **`number-field`** — Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
 - **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.

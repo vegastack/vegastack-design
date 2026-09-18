@@ -60,7 +60,6 @@ export function chipInputStates(): ReactNode {
         <ChipInput aria-label="Empty" placeholder="Add domains…" />
         <ChipInput
           aria-label="Small"
-          size="sm"
           defaultValue={["events.create", "events.delete"]}
         />
         <ChipInput aria-label="Disabled" defaultValue={["locked"]} disabled />
