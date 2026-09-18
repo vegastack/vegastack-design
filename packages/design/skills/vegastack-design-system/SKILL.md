@@ -5,11 +5,28 @@ description: Build product UI with the VegaStack design system — which compone
 
 # VegaStack design system
 
-Base UI + Tailwind v4 + OKLCH semantic tokens. Components are copy-in via a private shadcn registry;
-the runtime and token layer are public npm.
+Base UI + Tailwind v4 + OKLCH semantic tokens, on shadcn's `base-nova` style. Components are copy-in
+via a private shadcn registry; the runtime and token layer are public npm.
 
 Load this before writing UI code. For first-time project setup (installing packages, wiring the
 provider, configuring registry access), use the `vegastack-consume` skill instead.
+
+**1.0 is a clean break from 0.x, with no compatibility layer** — no aliases, no deprecation shims, no
+re-exports. Every component shadcn ships is now upstream's own file, so its API is upstream's API.
+The complete break is in the 1.0 migration guide that ships with the release notes; the live contract
+for any single component is its page at <https://design.vegastack.com/docs/components>. The
+headlines, because they decide most code an agent writes:
+
+- **Retired, with no drop-in:** `IconButton` → `Button size="icon*"` · `OTPInput` → `InputOTP` ·
+  `PasswordInput` → an `InputGroup` composition · `CheckboxGroup` → `FieldSet` + `Checkbox` ·
+  `FieldInline` → `EditableCell` · `Segmented` → a joined `ToggleGroup` · `SplitButton` → a
+  `ButtonGroup` composition · `ProgressIndicator` → `Progress` + `Spinner` · `OnboardingChecklist` →
+  the `onboarding-01` block. The ten marketing components were deleted outright.
+- **Gone from the token layer:** the surface ladder (`surface-1/2/3`), every `--alpha-*` and
+  `--opacity-*`, `--size-*`, `--icon-*`, `--z-*`, `--shadow-overlay`, and the role type scale
+  (`text-h1`, `text-label`, `text-code`, `text-mono-label`, `text-display-*`).
+- **Gone from `@vegastack/design`:** `surfaceInteractive`, `surfaceInteractiveGroup`,
+  `fillInteractive`, `fieldControl`, `fieldControlGroup`, `selectedChipVariants`, `MarketingSurface`.
 
 ## Pick a component
 
@@ -31,9 +48,12 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   an icon in a bare `<button>` is off-system. An icon-only LINK stays an `<a>` styled with
   `buttonVariants({ variant, size: "icon" })` — never a `Button`, which would put `role="button"`
   on navigation. `loading` is ours: it holds the label's box and sets `aria-busy`.
-- **Two size vocabularies, and they do not mix** — the components reset onto upstream use
-  `default · xs · sm · lg` (plus `icon*` where an icon tier exists). The components that are still
-  ours use `xs · sm · md · lg` with `md` the default, until their own batch resets them.
+- **Control sizes are upstream's names: `default · xs · sm · lg`**, plus
+  `icon · icon-xs · icon-sm · icon-lg` where a square tier exists. The old `md` default is gone, and
+  most of the components that are ours dropped their `size` prop entirely and take their height from
+  what they compose. Four keepers still carry a small private axis over something that is not a
+  control height — `Chip` (`sm`/`md`, the inline and control pill scales), `StatusIcon`, `Stat` and
+  `Image`'s corner — and they say so on their own pages.
 - **Compose `app-shell`** for a sidebar + header + main layout — never hand-roll the landmark trio.
 - **`select`** for a short fixed option set; **`searchable-select`** when the list is long enough to
   need a search field (it is the preset `country-select` and `region-select` are built from — reach
@@ -41,8 +61,9 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   suggestions or multi-select chips.
 - **`toggle-group`** with `spacing={0}` for 2–5 exclusive options inline; **`tabs`** when the
   choice switches page regions.
-- **`alert` variant=strip** for in-content notices and plan/trial rows; **`announcement-banner`** only
-  for the full-width inverse strip at the very top of the page.
+- **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
+info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for
+  the full-width inverse strip at the very top of the page.
 - **`chip` is the ONE pill** — `hue` × `size` (`sm` inline · `md` control-scale) × `active`, with
   `onRemove` giving a real 24×24 remove control. `Tag`, `FilterChip` and `ComboboxChip` are that
   primitive composed through `render`; never hand-roll a pill with its own height, radius, or a
@@ -167,20 +188,25 @@ contract.
   chrome.
 - Implement every applicable state: default, hover, focus, loading, empty, error, success, disabled.
 - Put `truncate` on an inner span, with `min-w-0` on the flex container.
-- Let the parent decide a form control's width — every control is `w-full` and takes its height from
-  the `--size-*` scale.
+- Let the parent decide a form control's width — every control is `w-full`.
+- Reach for a plain Tailwind utility for size, radius, shadow, z-index, alpha, weight and motion:
+  `h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
+  `font-semibold`, `transition-colors duration-100 ease-in-out` are all on-system now.
 
 **Don't**
 
 - Hardcode a hex, a px value, or a raw Tailwind palette class (`bg-neutral-900`, `text-red-500`).
-- Use `font-bold`/`font-semibold` — the weight ladder is 400/500, owned by the type roles.
-- Use `rounded-xl`, `text-4xl` or larger, a raw `z-N`, or `transition-all`/`transition-colors`.
+- Add a focus ring or glow. Focus is one global outline, and text entry tints its border instead;
+  `ring-3`, `ring-ring/50` and `focus-visible:ring-*` are rejected by lint.
 - Set `outline-none` without providing another focus affordance.
-- Pull in a second icon library or hand-write an inline `<svg>` as an icon.
-- Put `uppercase` on non-mono type, or on anything above 14px.
+- Use a status FILL as ink on its own tint — `bg-destructive/10 text-destructive` measures 3.99:1.
+  The ink on a tint is `-text`.
+- Pull in a second icon library, hand-write an inline `<svg>` as an icon, or pass
+  `size`/`width`/`height` to a lucide component.
 - Hand-roll a removable pill, or a `role="status"` live region with its own sequence counter.
 - Give a form control a fixed width (`w-56`, `w-64`) — it reads fine on the page it was tuned for
   and overflows at 320px. Constrain the parent instead.
+- Expect a compatibility shim from 0.x. There is none — see the migration guide.
 
 ## Reference
 

@@ -5,21 +5,38 @@ description: The authoring contract for adding a NEW component to the vegastack-
 
 # Authoring or changing a component
 
-Reference implementations — read the source, not a description of it:
-`packages/ui/registry/ui/combobox.tsx` (Base UI wrapper + CVA + full JSDoc), `empty.tsx` (compound
-presentational), `animated-number.tsx` (client hook-driven primitive with a documented mechanism
-choice). The per-file checklist is
+**First question, always: does upstream ship this component?**
+
+```bash
+ls vendor/shadcn/4.21.0/ui/<name>.tsx                              # upstream ships it?
+node -p "!!require('./packages/ui/upstream/ours.json').items['<name>']"   # or is it one of ours?
+```
+
+If it exists in `vendor/`, the file you ship is **upstream's file plus an approved patch**, and the
+per-component loop below is the whole procedure. If it does not, it is one of ours: § 1 onward is the
+authoring contract, and it must be recorded in `packages/ui/upstream/ours.json` or the parity gate
+fails it.
+
+Reference implementations — read the source, not a description of it. Upstream-backed:
+`packages/ui/registry/ui/button.tsx` with `packages/ui/upstream/patches/button.patch` beside it (six
+decision IDs, one hunk each). Ours: `date-picker.tsx` (a keeper that composes upstream's `calendar`,
+`popover` and `button`), `animated-number.tsx` (a client hook-driven primitive with a documented
+mechanism choice). The per-file checklist is
 [`docs/ledger/authoring-guide.md`](../../../docs/ledger/authoring-guide.md).
 
-**What is authoritative, in order:** existing component source and `tooling/design-lint.mjs` (they
-define what actually passes) → `design.md` (the canonical, gated design doctrine) → the official docs
-for the Base UI / Tailwind / React versions in `package.json`. Anything in `docs/plans/` is a
-point-in-time record of a past decision, not a description of the system today — use it to learn why
-something was chosen, never to confirm that it still holds.
+**What is authoritative, in order:** `vendor/shadcn/4.21.0/` and the `tooling/upstream/*` gates (they
+decide what a shared component may contain) → existing component source and `tooling/design-lint.mjs`
+(they define what passes) → `design.md` (the gated doctrine) → the official docs for the Base UI /
+Tailwind / React versions in `package.json`. Anything in `docs/plans/` is a point-in-time record of a
+past decision, not a description of the system today.
+
+**No new decisions.** A difference from upstream is legal only if
+`packages/ui/upstream/decisions.json` marks its ID **ours**. If the case is not covered, stop and ask
+MK; never invent a row, and never re-open a settled one because the code is awkward. Two subagents
+invented `A11Y-14` and `A11Y-15` during the reset; both were reverted and the numbers are permanently
+burned.
 
 **`design.md` is living, and a direction change owes it an update — in the wave PR, not this one.**
-If a component's direction changes (a new variant axis, a retired token, a different interaction
-model), record what `design.md` now has to say and carry it in the doctrine PR that closes the wave;
 `pnpm design:sync:check` gates only the derived surfaces and cannot tell you the prose went stale, so
 that judgment is yours and skipping it is how the doctrine rots.
 
@@ -29,6 +46,59 @@ Deep reference, loaded on demand:
   arbitrary-value / inline-style contracts. Read before writing any class string.
 - [references/testing.md](references/testing.md) — browser-mode conventions, the style-mirror
   technique, `elementFromPoint` probes, a11y assertions, the smoke lane.
+
+## The per-component loop (upstream-backed components)
+
+Every component shadcn ships is **upstream's file plus an approved patch**. Do exactly this, every
+time — including when you are only changing one class:
+
+```bash
+N=button
+cp vendor/shadcn/4.21.0/ui/$N.tsx packages/ui/registry/ui/$N.tsx   # 1. upstream, verbatim
+#                                                                    2. apply mapped exceptions only
+pnpm upstream:diff $N                                              # 3. regenerate the patch
+#                                                                    4. tests  5. docs  6. contract
+pnpm registry:build && pnpm check:component $N                     # 7. build and verify
+```
+
+1. **Copy upstream verbatim.** Never edit the previous VegaStack file, never merge the two by hand,
+   never "port" or improve upstream in passing. Starting from upstream every time is what makes the
+   diff readable and the gate meaningful.
+2. **Apply only the exceptions this component is assigned.**
+   `packages/ui/upstream/exception-map.json` is the assignment: its `required` map lists, per
+   decision ID, the components whose patch header must name it. In practice the recurring hunks are:
+   strip the `ring-3 ring-ring/50` focus glow (FOC-1/FOC-6), let focus outrank the invalid tint
+   (FOC-5), tint the border on text entry (FOC-3), delete upstream's `cursor-default` (INT-1), drop
+   `disabled:pointer-events-none` (FRM-4), add the theme scope inside the portal (OVL-13), move a
+   tinted status surface onto the `-text` ink (A11Y-13), and swap the `cn` import (DOC-2).
+   **If an exception seems to need a structural rewrite, stop and ask MK** rather than rewriting the
+   component. A component whose patch ends up empty is the expected outcome, not a missed step.
+3. **`pnpm upstream:diff <name>`**, then write the header. It is mandatory and the tool refuses a
+   patch without it:
+
+   ```
+   # component: sheet
+   # decisions: FOC-1, FOC-6, OVL-13, DOC-2
+   # hunks:
+   #   1: drop the focus-visible ring glow (FOC-1, FOC-6)
+   ```
+
+   A **no-hunk** decision is legitimate and is recorded in the header with its reason plus a test
+   that pins the engine's own behaviour — that is how A11Y-6 on `scroll-area` and API-5 on `tabs` are
+   recorded. A row satisfied by an engine is still a claim, and a claim needs a test.
+
+4. **Test file**, rewritten: renders, every exported part, every variant and size data attribute, one
+   behaviour test per upstream docs section, `expectNoA11yViolations` per distinct state, and **one
+   assertion per exception the patch implements** (no `ring-3` anywhere in the tree; `aria-disabled`
+   set with pointer events alive; the `-text` ink on the tint).
+5. **Docs page**, mirroring upstream's own section list — see § 6.
+6. **Contract record**, then `pnpm design:derived`.
+7. **`pnpm registry:build`**, then `pnpm check:component <name>`.
+
+Three questions before every commit: does this file equal upstream plus its patch? does every hunk
+name an ID the register marks **ours**? does the page carry every section upstream's page has?
+
+`pnpm upstream:check` answers all three mechanically, and runs inside `pnpm lint`.
 
 ## 0. Single source of truth
 
@@ -107,13 +177,16 @@ Contract for every new animated element:
   wrapper — are in
   [`docs/ledger/ref-forwarding-spec.md`](../../../docs/ledger/ref-forwarding-spec.md). Type with
   `ComponentPropsWithRef<'div'>`, never `ComponentPropsWithoutRef`.
-- **`intent`** names a semantic color family (`'default' | 'success' | 'warning' | 'destructive' |
-`'info'`) on a component that is ours. Never invent a synonym (`color`, `status`) — there is no
-`color`prop anywhere in the system. **A component reset onto upstream does not get an`intent`axis**: the shadcn reset adopted upstream's flat`variant`list verbatim (API-2 = shadcn), and the
-four status families surface as EXTRA`variant`values written in upstream's own`destructive`shape (COL-12) —`Badge`and`Alert`are the model. A tinted status surface takes the family's`-text` ink, never the fill used as ink (A11Y-13).
-- **`data-slot`** on every part, plus `data-variant`/`data-tone`/`data-size`/`data-state` reflecting the resolved
+- **`intent`** (API-17) names a hue-only axis on a component that is **ours** — never a synonym
+  (`color`, `status`); there is no `color` prop anywhere in the system. **A component reset onto
+  upstream does not get an `intent` axis**: API-2 resolves as shadcn, so it takes upstream's flat
+  `variant` list verbatim, and our four status families surface as EXTRA `variant` values written in
+  upstream's own `destructive` shape (COL-12) — `Badge` and `Alert` are the model. A tinted status
+  surface takes the family's `-text` ink, never the fill used as ink (A11Y-13).
+- **`data-slot`** on every part, plus `data-variant`/`data-size`/`data-state` reflecting the resolved
   CVA variant so consumers can target state in CSS without new props. Base UI already supplies
-  `data-highlighted`/`data-selected`/`data-focused` — style off those, do not duplicate them.
+  `data-highlighted`/`data-selected`/`data-focused` — style off those, do not duplicate them. There
+  is no `data-tone` and no `data-shape`: both axes went with the reset, and their mirrors with them.
 - **Render-prop contract** — a component owning a SINGLE polymorphic root must expose Base UI's
   `render` prop: either a thin Base UI wrapper (props extend the Base UI component's own, never
   `Omit<…, 'render'>`), or you own the root via `useRender` with `render?: useRender.RenderProp`
@@ -154,8 +227,12 @@ four status families surface as EXTRA`variant`values written in upstream's own`d
   CountrySelect, RegionSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
   that open a fixed list (Select, DatePicker, ButtonGroup's menu trigger, Accordion — rotates
   180°). Never mix the two within one trigger family.
-- **One size vocabulary, system-wide** — `xs`/`sm`/`md`/`lg`, on `--size-*`, with `md` the default
-  tier. No component may name a tier `default`, and none may invent a private scale.
+- **Size names are upstream's** — `default` is the tier name, with `xs`, `sm` and `lg` around it, plus
+  `icon`, `icon-xs`, `icon-sm` and `icon-lg` where a square tier exists. The old `xs · sm · md · lg`
+  vocabulary and the `--size-*` tokens behind it are deleted; heights are plain utilities (`h-6`,
+  `h-7`, `h-8`, `h-9`). A component that is ours and needs a size axis uses upstream's names, and most
+  of ours dropped the axis entirely rather than invent a private scale (`number-field`, `chip-input`,
+  `copy-button`).
 - **No native interactive HTML** — canonical components may not render native
   `<button>`/`<input>`/`<select>`/`<textarea>` without an exact per-tag count and rationale in
   `RAW_INTERACTIVE_EXEMPTIONS` (`raw-interactive-html`). Compose the VegaStack control instead.
@@ -315,9 +392,27 @@ For component `<name>` (PascalCase `<Name>`), in dependency order:
    part) → Examples (`<ComponentPreview …/>`) → Playground (a curated `<…Playground />`, or the
    Story explorer where none exists, or neither — never both, DD-3) → API Reference
    (`<ApiTable path="../../packages/ui/registry/ui/<name>.tsx" name="<Name>Props" />`) →
-   Accessibility (keyboard table + `<StatesTested name="<name>" />`) → Do/Don't (`<DoDont …/>`).
-   Do/Don't is final, and the generated halves are never hand-typed.
+   Accessibility (keyboard table + `<StatesTested name="<name>" />`) → Do/Don't (`<DoDont …/>`) →
+   Deviations. The generated halves are never hand-typed.
    **No `{@link}`** — MDX parses `{…}` as JS; use inline code.
+
+   **For an upstream-backed component the Examples section is not yours to shape.** Its `###`
+   headings are upstream's own docs sections, in upstream's order, taken from
+   `vendor/shadcn/4.21.0/docs/<name>.json`, and each one carries its own live
+   `<ComponentPreview name="…" />` whose fixture is built from upstream's example code (adapted only
+   for our import paths). `tooling/upstream/verify-variant-coverage.mjs` matches them occurrence by
+   occurrence in document order — so upstream's two same-titled `Custom Items` sections on `combobox`
+   need two headings and two different previews — and rejects a preview name the barrel does not
+   export. Upstream has a section we cannot support is a **stop-and-ask**, never a silent omission.
+
+   **The page then closes with `## Deviations`** (canon row 10): one bullet per decision ID the
+   component's patch implements, in the patch header's order, one line each. A component whose patch
+   is only the `cn` import says so and lists DOC-2 alone. Nothing follows it. A component that is
+   **ours** has no Deviations section and closes on Do / Don't instead.
+
+   **A component that is ours writes its own section list**, since there is no upstream page to
+   mirror, and it must be recorded in `packages/ui/upstream/ours.json`.
+
 5. **`registry.json` item** — `type`, `title`, `description`, `categories`, `dependencies`, and
    **`registryDependencies` namespaced `@vegastack/<name>`**
    for every other `@vegastack` component imported from `@/components/ui/*` (a bare `"toggle"`
@@ -363,6 +458,8 @@ geometry fixtures. `check:affected` derives the same scope from the working tree
 incremental UI typecheck.
 
 ```bash
+pnpm upstream:check                            # vendor integrity + byte parity + variant coverage
+pnpm upstream:diff <name>                      # (re)generate a patch; refuses a header with no IDs
 pnpm check:component <name>                    # explicit component + reverse dependents
 pnpm check:affected                            # derive from staged, unstaged, and untracked work
 pnpm registry:build                            # after any canonical edit: validate → hash → stamp → verify-deps

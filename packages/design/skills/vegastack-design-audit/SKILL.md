@@ -54,8 +54,9 @@ rg -n 'style=\{\{' --glob '!components/ui/**'
 - **hardcoded colour** — a hex literal used as a style value. Use a semantic token. **error**
 - **raw palette** — a Tailwind palette class. Use `bg-primary`, `text-muted-foreground`,
   `border-border`, or a status family. **error**
-- **hardcoded dimension** — an arbitrary px/rem value. Use the size, spacing, or radius scale.
-  **error**
+- **hardcoded dimension** — an arbitrary px/rem value where a stock utility says the same thing
+  (`h-[32px]` for `h-8`, `rounded-[10px]` for `rounded-lg`). An arbitrary value that no utility
+  expresses is not a finding; upstream writes several itself. **warning**
 - **inline style** — allowed only when every key is a `--*` custom property. Any direct visual
   property is a finding. **error**
 
@@ -82,6 +83,24 @@ rg -n 'ring-3\b|ring-\[3px\]|ring-ring/[0-9]+|focus-visible:ring-|shadow-\[0_0_0
 `duration-100`, `ease-in-out`, `z-50`, `opacity-50`, a raw `/NN` alpha, `h-8`/`size-4`,
 `cursor-default` on a menu row, an arbitrary `h-[18.4px]`, and a `hover:` with no `active:` beside
 it. Every one of those is upstream's own vocabulary, which this system now adopts.
+
+## 3b. Names and tokens that 1.0 removed
+
+A project upgrading from 0.x carries these until someone changes them, and **there is no
+compatibility layer** — an import resolves to nothing and a deleted token silently compiles to
+nothing, which is the worse half. Both searches are mechanical:
+
+```bash
+rg -n 'IconButton|OTPInput|PasswordInput|CheckboxGroup|FieldInline|Segmented|SplitButton|ProgressIndicator|OnboardingChecklist|FloatingSurface|MarketingSurface|ComparisonMatrix|FigureFrame|LogoRow|ParticleField|PricingSection|RuledBand|SectionHeader|Testimonial|StaggeredTextReveal' --glob '!components/ui/**'
+rg -n 'surface-(1|2|3|raised)|--alpha-|--opacity-|--size-|--icon-|--panel-width-|--z-(raised|overlay|toast)|shadow-overlay|text-(h[1-4]|label|label-sm|code|mono-label|display-)|muted-foreground-faint|surfaceInteractive|fillInteractive|fieldControl|selectedChipVariants' --glob '!components/ui/**'
+```
+
+- **a retired component name** — each has a replacement, listed in the 1.0 migration guide; the
+  marketing ten have none and their markup is the app's now. **error**
+- **a deleted token or utility** — a `bg-surface-2` or a `text-h1` resolves to nothing and paints the
+  inherited value, so the page looks subtly wrong rather than broken. **error**
+- **a deleted `@vegastack/design` export** — `surfaceInteractive`, `fillInteractive`, `fieldControl`,
+  `fieldControlGroup`, `selectedChipVariants`. Replace each with the literal it expanded to. **error**
 
 ## 4. Component substitution and accessibility
 
