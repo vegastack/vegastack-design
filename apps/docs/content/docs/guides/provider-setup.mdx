@@ -32,12 +32,12 @@ export default function RootLayout({
 
 ## What it wires
 
-| Wiring                                                                   | Without the provider you get                                        |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| **Dark mode** — next-themes, `attribute="class"`, system-aware, no-flash | toggles that do nothing; `.dark` never reaches `<html>`             |
-| **Toasts** — `ToastProvider` plus the `Toaster` portal                   | `toast(...)` calls that **silently do nothing** — no error anywhere |
-| **Tooltip coordination** — Base UI `Tooltip.Provider`                    | every tooltip re-waits its full open delay; toolbars feel broken    |
-| **Text direction** — Base UI `DirectionProvider`                         | RTL layouts break                                                   |
+| Wiring                                                                   | Without the provider you get                                            |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| **Dark mode** — next-themes, `attribute="class"`, system-aware, no-flash | toggles that do nothing; `.dark` never reaches `<html>`                 |
+| **Toasts** — `ToastProvider` plus the `Toaster` portal                   | `toast.add(...)` calls that **silently do nothing** — no error anywhere |
+| **Tooltip coordination** — Base UI `Tooltip.Provider`                    | every tooltip re-waits its full open delay; toolbars feel broken        |
+| **Text direction** — Base UI `DirectionProvider`                         | RTL layouts break                                                       |
 
 Full component reference: [Provider](/docs/components/provider).
 
@@ -93,7 +93,7 @@ instead of a layout file. The `suppressHydrationWarning` note is Next-specific
 
 | Symptom                                              | Cause                                                                                    |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `toast('…')` does nothing, zero errors               | no provider (or it's below the component calling toast)                                  |
+| `toast.add({ … })` does nothing, zero errors         | no provider (or it's below the component calling toast)                                  |
 | Toasts appear **twice**                              | two Toasters — a nested provider or an extra manual `<Toaster />`; use `toaster={false}` |
 | Hydration-mismatch warning mentioning `<html>` class | missing `suppressHydrationWarning`                                                       |
 | Dark mode flashes wrong theme on load                | provider not at the root layout, or a competing theme script                             |

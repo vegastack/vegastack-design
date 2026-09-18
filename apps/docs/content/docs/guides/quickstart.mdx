@@ -208,7 +208,7 @@ Three non-negotiables, all silent failures if skipped:
 - **Keep `import './globals.css'`** — dropping it produces a successful build with
   zero CSS emitted. No error anywhere; the app just renders unstyled.
 - `suppressHydrationWarning` on `<html>` — next-themes mutates it client-side.
-- Provider before components — without it, **every `toast()` call does nothing**,
+- Provider before components — without it, **every `toast.add()` call does nothing**,
   dark mode never applies, and tooltips lose shared-delay coordination. See
   [Provider setup](/docs/guides/provider-setup).
 

@@ -14,6 +14,11 @@ misconfigurations, including the two silent ones below:
 pnpm exec vegastack-design doctor
 ```
 
+**Coming from 0.4.x?** Most of what breaks there is not a bug — it is the shadcn
+reset. Work [Migrating to the shadcn reset](/docs/guides/migrating-shadcn-reset)
+first; its section 13 lists the silent failures (a deleted token compiles to
+nothing and the page just looks wrong).
+
 ## Install & build
 
 ### `Can't resolve 'tw-animate-css' in '…/node_modules/@vegastack/design'`
@@ -127,7 +132,7 @@ the package), or one-off anywhere:
 
 ## Runtime
 
-### `toast(...)` does nothing — no error, no toast
+### `toast.add(...)` does nothing — no error, no toast
 
 The #1 report. **Cause:** no `VegaStackProvider` above the calling component (or
 at all). **Fix:** [Provider setup](/docs/guides/provider-setup). Related: toasts
@@ -148,12 +153,16 @@ layer conflict overriding `isolation`.
 **Fix:** import the preset (it includes base.css), or re-add
 `body { isolation: isolate }`. Never "fix" this with z-index arms races.
 
-### No focus ring anywhere when tabbing
+### No focus outline anywhere when tabbing
 
 **Cause:** same as above — `base.css` skipped. Components intentionally carry no
-per-component focus ring; the global `:focus-visible` layer is the mechanism.
+per-component focus ring; the global `:focus-visible` outline is the mechanism.
 **Fix:** import the preset. This is a WCAG failure, not a cosmetic issue — treat
 as ship-blocking.
+
+Not a bug: a focused **text input** shows a tinted border and no outline. That is
+the design — a text field cannot tell mouse from keyboard, so the border tint is
+the one cue for both.
 
 ### Tooltips each wait ~600ms even when moving across a toolbar
 

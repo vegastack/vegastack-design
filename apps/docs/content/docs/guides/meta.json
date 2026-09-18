@@ -2,6 +2,7 @@
   "title": "Guides",
   "pages": [
     "quickstart",
+    "migrating-shadcn-reset",
     "registry-auth",
     "agent-skills",
     "components",
