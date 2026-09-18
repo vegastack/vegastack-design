@@ -11,6 +11,14 @@ VegaStack's design-system records, release runbooks, research, and ledgers.
 - [`../skills/README.md`](../skills/README.md) — current maintainer and consumer skill map.
 - [`plans/2026-07-28-public-site-private-registry-boundary.md`](plans/2026-07-28-public-site-private-registry-boundary.md)
   — current production boundary: every non-registry route is public and only `/r/*` is private.
+- [`plans/2026-09-18-shadcn-reset/`](plans/2026-09-18-shadcn-reset/) — the shadcn reset, which
+  rebuilt the system on shadcn `base-nova`. Its `decisions.md` is the authority for why anything
+  differs from upstream; the machine copy a gate reads is
+  `packages/ui/upstream/decisions.json`. Every record below it that predates 2026-09-18 describes
+  the fork the reset deleted.
+- [`MIGRATING-SHADCN-RESET.md`](MIGRATING-SHADCN-RESET.md) — the consumer-facing break: every
+  retired component and its replacement, the deleted tokens, and the removed `@vegastack/design`
+  exports. There is no compatibility layer.
 
 For current package versions and registry inventory, query npm/the workspace and the machine
 authorities named in `AGENTS.md`; do not copy a number from prose.

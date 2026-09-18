@@ -11,11 +11,13 @@ via a private shadcn registry; the runtime and token layer are public npm.
 Load this before writing UI code. For first-time project setup (installing packages, wiring the
 provider, configuring registry access), use the `vegastack-consume` skill instead.
 
-**1.0 is a clean break from 0.x, with no compatibility layer** — no aliases, no deprecation shims, no
-re-exports. Every component shadcn ships is now upstream's own file, so its API is upstream's API.
-The complete break is in the 1.0 migration guide that ships with the release notes; the live contract
-for any single component is its page at <https://design.vegastack.com/docs/components>. The
-headlines, because they decide most code an agent writes:
+**The shadcn reset is a clean break, with no compatibility layer** — no aliases, no deprecation
+shims, no re-exports. It ships as an ordinary minor release, so the version number does not warn you;
+this section does. Every component shadcn ships is now upstream's own file, so its API is upstream's
+API. The complete break is in the shadcn-reset migration guide that ships with the release notes; the
+live contract for any single component is its page at
+<https://design.vegastack.com/docs/components>. The headlines, because they decide most code an agent
+writes:
 
 - **Retired, with no drop-in:** `IconButton` → `Button size="icon*"` · `OTPInput` → `InputOTP` ·
   `PasswordInput` → an `InputGroup` composition · `CheckboxGroup` → `FieldSet` + `Checkbox` ·
@@ -207,7 +209,7 @@ contract.
 - Hand-roll a removable pill, or a `role="status"` live region with its own sequence counter.
 - Give a form control a fixed width (`w-56`, `w-64`) — it reads fine on the page it was tuned for
   and overflows at 320px. Constrain the parent instead.
-- Expect a compatibility shim from 0.x. There is none — see the migration guide.
+- Expect a compatibility shim from before the reset. There is none — see the migration guide.
 
 ## Reference
 

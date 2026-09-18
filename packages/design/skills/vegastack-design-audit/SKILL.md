@@ -84,9 +84,9 @@ rg -n 'ring-3\b|ring-\[3px\]|ring-ring/[0-9]+|focus-visible:ring-|shadow-\[0_0_0
 `cursor-default` on a menu row, an arbitrary `h-[18.4px]`, and a `hover:` with no `active:` beside
 it. Every one of those is upstream's own vocabulary, which this system now adopts.
 
-## 3b. Names and tokens that 1.0 removed
+## 3b. Names and tokens the shadcn reset removed
 
-A project upgrading from 0.x carries these until someone changes them, and **there is no
+A project upgrading across the reset carries these until someone changes them, and **there is no
 compatibility layer** — an import resolves to nothing and a deleted token silently compiles to
 nothing, which is the worse half. Both searches are mechanical:
 
@@ -95,8 +95,8 @@ rg -n 'IconButton|OTPInput|PasswordInput|CheckboxGroup|FieldInline|Segmented|Spl
 rg -n 'surface-(1|2|3|raised)|--alpha-|--opacity-|--size-|--icon-|--panel-width-|--z-(raised|overlay|toast)|shadow-overlay|text-(h[1-4]|label|label-sm|code|mono-label|display-)|muted-foreground-faint|surfaceInteractive|fillInteractive|fieldControl|selectedChipVariants' --glob '!components/ui/**'
 ```
 
-- **a retired component name** — each has a replacement, listed in the 1.0 migration guide; the
-  marketing ten have none and their markup is the app's now. **error**
+- **a retired component name** — each has a replacement, listed in the shadcn-reset migration guide;
+  the marketing ten have none and their markup is the app's now. **error**
 - **a deleted token or utility** — a `bg-surface-2` or a `text-h1` resolves to nothing and paints the
   inherited value, so the page looks subtly wrong rather than broken. **error**
 - **a deleted `@vegastack/design` export** — `surfaceInteractive`, `fillInteractive`, `fieldControl`,

@@ -685,7 +685,7 @@ recipes:
 
 # VegaStack design
 
-This system **is** shadcn `base-nova`, plus sixty recorded exceptions. Every component we share with
+This system **is** shadcn `base-nova`, plus sixty-one recorded exceptions. Every component we share with
 shadcn is upstream's own file with an approved patch applied; every difference traces to a decision
 ID; and three offline gates prove both claims on every pull request. That is the whole doctrine, and
 this document is deliberately thin because most of what used to be written here is now upstream's
@@ -697,7 +697,7 @@ described a fork: a warm neutral ramp, a three-rung surface ladder, a 22-entry a
 ladder, a 12px radius cap, one sanctioned shadow, named z-index bands, a ban on colour transitions, a
 mandatory pressed step on every control, and a marketing layer with its own tokens and scope
 mechanism. **None of that exists.** It was not deprecated; it was deleted, with no compatibility
-layer — see `docs/MIGRATING-1.0.md`.
+layer — see `docs/MIGRATING-SHADCN-RESET.md`.
 
 ## How to read this document
 
@@ -755,12 +755,12 @@ Three offline gates carry that, in `pnpm upstream:check`, inside `pnpm lint`:
 All four scripts under `tooling/upstream/` carry a `--self-test` that observes them failing
 (`pnpm upstream:selftest`), because a gate nobody has seen fail is an assumption.
 
-## What we add — the sixty exceptions
+## What we add — the sixty-one exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 170 rows, 110 resolved as
-**shadcn** (upstream ships unchanged) and 60 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 171 rows, 110 resolved as
+**shadcn** (upstream ships unchanged) and 61 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
-which shared component each exception is assigned to. Re-opening a row is MK's decision. The sixty
+which shared component each exception is assigned to. Re-opening a row is MK's decision. The sixty-one
 group into six themes.
 
 ### 1. Focus — one outline, and no glow anywhere
@@ -1166,10 +1166,11 @@ every compiled-CSS test lane imports exactly what production imports.
 
 ---
 
-> **Provenance.** This is the canonical design contract for **1.0**, rebuilt on shadcn `base-nova` by
-> the shadcn reset (`docs/plans/2026-09-18-shadcn-reset/`, approved by MK 2026-09-18). The decision
-> register is `decisions.md` there, with its machine copy at `packages/ui/upstream/decisions.json`;
-> the consumer-facing break is `docs/MIGRATING-1.0.md`. The pre-reset v2 fork is history: read
+> **Provenance.** This is the canonical design contract, rebuilt on shadcn `base-nova` by the shadcn
+> reset (`docs/plans/2026-09-18-shadcn-reset/`, approved by MK 2026-09-18) and shipping as a MINOR
+> bump, not a 1.0. The decision register is `decisions.md` there, with its machine copy at
+> `packages/ui/upstream/decisions.json`; the consumer-facing break is
+> `docs/MIGRATING-SHADCN-RESET.md`. The pre-reset v2 fork is history: read
 > `docs/ledger/`, `docs/audits/` and `docs/plans/` for **why** something was once decided, never as
 > evidence of what is true now. v1, the pre-overhaul grey/`action`+`agent` system, is preserved at
 > `design-v1.md`. Append-only normative `VS-*` rule IDs and external-source dispositions live in
