@@ -9,6 +9,92 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.10.0] — September 19, 2026
+
+<!-- assembled from 5 changesets: c515253afa71 -->
+
+### 🛠 CLI & tooling
+
+- `upstream:parity` now compares the canonical file and the patched upstream file with the generated provenance header excluded, so a version bump no longer breaks byte parity for every patched component.
+  [`a918731`](https://github.com/VegaStack/vegastack-design/commit/a918731)
+- `version-sync` now walks the whole component-contracts document when it rewrites public dependency ranges instead of iterating three named categories, so a category added later — chart blocks, libs, the animated-icon shared contract — cannot be left at the previous range and fail `verify-component-contracts` on the Version Packages PR.
+  [`c3053c3`](https://github.com/VegaStack/vegastack-design/commit/c3053c3)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.5.0`** (was `0.4.1`).
+- **`@vegastack/design-tokens`** → **`0.5.0`** (was `0.4.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.9.1 → 0.10.0.
+
+### ⚠️ Breaking
+
+- **The shadcn `base-nova` reset — the runtime and token bridge are rebuilt on shadcn `base-nova`, with no compatibility layer.**
+
+  The optional `lucide-react` peer range moves to `^1.47.0`, matching the version the system is built
+  and tested against; a consumer on an older lucide should upgrade alongside this release.
+
+  `cn` is plain `twMerge` again, because the custom font-size class group it extended no longer exists,
+  and seven shared class-string recipes are **deleted with no alias**: `surfaceInteractive`,
+  `surfaceInteractiveGroup`, `fillInteractive`, `FillTone`, `fieldControl`, `fieldControlGroup` and
+  `selectedChipVariants`. Each described a system — a three-rung surface ladder, a per-tone fill map, a
+  shared text-entry chrome, a raised-chip recipe — that the reset deleted; replace each with the literal
+  it expanded to, or compose the upstream component it was re-deriving. `cn`, `TIMINGS`, `FLOATING`,
+  `mergeRefs`, `prose`/`proseClassName`, the icon runtime, the Tailwind preset and the
+  `vegastack-design` CLI are unchanged. The shipped agent skills are rewritten for the new vocabulary.
+
+  **Who this affects:** every consumer. Nothing is deprecated first — an import of a removed export
+  fails to resolve. The complete break, with a replacement for each removed export, is
+  the migration guide § 6.
+  [`72ae827`](https://github.com/VegaStack/vegastack-design/commit/72ae827)
+
+- **The shadcn `base-nova` reset — the token contract is shadcn `base-nova`'s `neutral` base plus our recorded additions, and every deleted family is gone with no alias.**
+
+  94 resolved tokens per theme, down from 185. **Deleted:** the surface ladder
+  (`--surface-1/2/3`), the 19-entry `--alpha-*` ladder, the `--opacity-*` ladder,
+  `--size-*`, `--icon-*`, `--panel-width-*`, `--layout-*`, `--z-*`, `--shadow-overlay`, `--radius-xs`,
+  `--radius-sharp`, `--overlay`, `--muted-foreground-faint`, `--font-family-pixel`, the whole role and
+  display type scale (`text-h1`…`text-h4`, `text-label*`, `text-code*`, `text-mono-label`,
+  `text-display-*`), and every `-subtle`/`-hover`/`-active` step on the four STATUS families (the ten
+  `--tag-*` trios keep theirs). Each is now a plain Tailwind
+  utility. **Kept and ours:** the four status families in upstream's own `destructive` shape — each with
+  a `-foreground` ink for the solid fill and a `-text` ink for the page and the family's own tint — the
+  8-hue chart palette plus `--chart-single`, the 10-hue tag palette, the brand pair, the media trio, the
+  Geist families, and the `--duration-*`/`--motion-ease-*` pairs behind the `motion-*` utilities.
+
+  **Who this affects:** every consumer, including ones that never touched a component. A deleted token
+  compiles to nothing rather than failing, so a page keeps rendering and quietly looks wrong. The
+  searches that find every holdover, and the write-instead table for each family, are
+  the migration guide §§ 3–5 and § 11.
+  [`72ae827`](https://github.com/VegaStack/vegastack-design/commit/72ae827)
+
+- **The shadcn `base-nova` reset — every component shadcn ships is now upstream's own file plus a recorded patch, and there is no compatibility layer.**
+
+  62 upstream components were reset onto pinned `shadcn@4.21.0` `base-nova`, so their props, variants
+  and behaviour are upstream's; 13 are new here (`aspect-ratio`, `button-group`, `calendar`, `carousel`,
+  `direction`, `drawer`, `input-group`, `input-otp`, `menubar`, `native-select`, `questionnaire`,
+  `sonner`, `panel-search`); 10 are **retired** onto an upstream replacement (`icon-button`,
+  `otp-input`, `password-input`, `checkbox-group`, `field-inline`, `segmented`, `split-button`,
+  `progress-indicator`, `onboarding-checklist`, `floating-surface`); and the 10 marketing components are
+  **removed outright** with their scope mechanism and tokens. Button's `variant × tone` axis becomes
+  upstream's flat `variant`, `IconButton` becomes `Button size="icon*"`, `Field` composes its label,
+  description and error as children, the toast manager is `toast.add`/`toast.close`/`toast.promise`,
+  `Sheet` moves off Base UI Drawer onto Dialog, and a long list of `size` axes is gone. Visible without
+  touching any code: one 2px focus outline instead of the ring glow, a hand cursor on every control,
+  shadcn's own neutral, no surface ladder, and Tailwind's stock radius, shadow and type scales. The
+  registry ships 689 items, including 100 blocks.
+
+  What is ours is 61 recorded exceptions, every one traceable: a component's docs page closes with a
+  `## Deviations` section naming the decision IDs behind its patch. One of them is new to this
+  release: `TooltipContent` and `DropdownMenuContent` (and so `DropdownMenuSubContent`) take an
+  optional `container`, forwarded to their portal, so chrome drawn over a fullscreen surface renders
+  inside it instead of behind it — which is what makes a fullscreen player show its control labels
+  and its settings menu again. Leaving `container` unset is upstream's default.
+
+  **Who this affects:** every consumer. Re-pull every copied-in component; a retired import fails to
+  resolve, and each retirement's prop map — including what did **not** survive it — is in
+  the migration guide § 7.
+  [`72ae827`](https://github.com/VegaStack/vegastack-design/commit/72ae827)
+
 ## [0.9.1] — September 15, 2026
 
 <!-- assembled from 5 changesets: 58d27b814d39 -->
