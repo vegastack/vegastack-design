@@ -20,6 +20,7 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
+import { rewriteContractDependencyRanges } from "./lib/contract-dependency-ranges.mjs";
 import { releasedVersions, stampPendingSince } from "./lib/pending-since.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -107,24 +108,15 @@ console.log(
 // everything else in this file stays hand-maintained.
 const contractsPath = join(repoRoot, "packages/ui/component-contracts.json");
 const contracts = JSON.parse(readFileSync(contractsPath, "utf8"));
-let contractRanges = 0;
-for (const record of [
-  ...(contracts.components ?? []),
-  ...(contracts.hooks ?? []),
-  ...(contracts.blocks ?? []),
-]) {
-  if (!Array.isArray(record.npmDependencies)) continue;
-  record.npmDependencies = record.npmDependencies.map((dependency) => {
-    for (const { name, range } of PUBLIC_DEPENDENCIES) {
-      if (dependency === name || dependency.startsWith(`${name}@`)) {
-        const next = `${name}@${range}`;
-        if (next !== dependency) contractRanges++;
-        return next;
-      }
-    }
-    return dependency;
-  });
-}
+// Every record carrying `npmDependencies` moves, found by WALKING the document rather than by
+// naming categories — the enumeration this replaced knew only `components`, `hooks` and `blocks`,
+// so the 68 `chartBlocks.members` added by batch 8 (and `animatedIcons.sharedContract`, and `libs`)
+// were left at the previous range and failed the required check on Version PR #152, 2026-09-19.
+// Why it stays a traversal: ./lib/contract-dependency-ranges.mjs.
+const contractRanges = rewriteContractDependencyRanges(
+  contracts,
+  PUBLIC_DEPENDENCIES,
+);
 // 2c. PENDING `since` STAMPS become the version actually being released. A `since` is legitimate
 // only if it names a version that HAS been released — one carrying a `## [x.y.z]` heading in
 // /CHANGELOG.md, which `changelog-assemble` has already written for the version being released by

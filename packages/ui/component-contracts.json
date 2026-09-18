@@ -20075,7 +20075,7 @@
       ],
       "docsSlug": "/docs/foundations/icons",
       "registryDependencies": [],
-      "npmDependencies": ["motion@^13.2.0", "@vegastack/design@^0.1.0"],
+      "npmDependencies": ["motion@^13.2.0", "@vegastack/design@^0.4.1"],
       "coverage": {
         "source": "required-per-member",
         "test": "all-member-browser-import plus generator invariants",
