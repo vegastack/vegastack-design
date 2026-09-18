@@ -184,8 +184,14 @@ const ROOMY: React.CSSProperties = {
 test("overflowing text is keyboard-focusable so the tooltip is reachable (tabIndex 0)", async () => {
   const long =
     "A very long piece of text that will certainly overflow its tiny container";
-  const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-  const el = screen.getByText(long);
+  const screen = await render(
+    <Subject data-testid="subject" style={CLIP}>
+      {long}
+    </Subject>,
+  );
+  // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
+  // two elements and Playwright's strict mode throws.
+  const el = screen.getByTestId("subject");
   // Overflow measurement is async (ResizeObserver) — poll until the trigger upgrade lands (register P0-04).
   await expect.element(el).toHaveAttribute("tabindex", "0");
 });
@@ -193,8 +199,14 @@ test("overflowing text is keyboard-focusable so the tooltip is reachable (tabInd
 test("no a11y violations (tooltip open on overflow)", async () => {
   const long =
     "A very long piece of text that will certainly overflow its tiny container";
-  const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-  const el = screen.getByText(long);
+  const screen = await render(
+    <Subject data-testid="subject" style={CLIP}>
+      {long}
+    </Subject>,
+  );
+  // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
+  // two elements and Playwright's strict mode throws.
+  const el = screen.getByTestId("subject");
   // Overflow measurement is async (ResizeObserver) — poll until the trigger upgrade lands.
   await expect.element(el).toHaveAttribute("tabindex", "0");
   await userEvent.hover(el);
@@ -326,8 +338,13 @@ test("on a no-hover device, Escape re-clamps an expanded disclosure", async () =
   await withNoHoverDevice(async () => {
     const long =
       "A very long piece of text that will certainly overflow its tiny container";
-    const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-    const el = screen.getByText(long);
+    const screen = await render(
+      <Subject data-testid="subject" style={CLIP}>
+        {long}
+      </Subject>,
+    );
+    // By slot, NOT by text: the open tooltip repeats the same string.
+    const el = screen.getByTestId("subject");
     await expect.element(el).toHaveAttribute("role", "button");
 
     await el.click();
@@ -345,11 +362,14 @@ test("on a no-hover device, blur re-clamps an expanded disclosure", async () => 
       "A very long piece of text that will certainly overflow its tiny container";
     const screen = await render(
       <>
-        <Subject style={CLIP}>{long}</Subject>
+        <Subject data-testid="subject" style={CLIP}>
+          {long}
+        </Subject>
         <button type="button">elsewhere</button>
       </>,
     );
-    const el = screen.getByText(long);
+    // By slot, NOT by text: the open tooltip repeats the same string.
+    const el = screen.getByTestId("subject");
     await expect.element(el).toHaveAttribute("role", "button");
 
     await el.click();
@@ -365,8 +385,14 @@ test("on a hover-capable device, overflowing text keeps the Tooltip-only behavio
   // browser this suite runs in (Playwright desktop Chromium), so no mock is needed here.
   const long =
     "A very long piece of text that will certainly overflow its tiny container";
-  const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-  const el = screen.getByText(long);
+  const screen = await render(
+    <Subject data-testid="subject" style={CLIP}>
+      {long}
+    </Subject>,
+  );
+  // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
+  // two elements and Playwright's strict mode throws.
+  const el = screen.getByTestId("subject");
   await expect.element(el).toHaveAttribute("tabindex", "0");
   await expect.element(el).not.toHaveAttribute("role");
   await expect.element(el).not.toHaveAttribute("aria-expanded");
