@@ -5,7 +5,6 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-  type ResizablePanelGroupProps,
 } from "@/components/ui/resizable";
 import {
   PropsPlayground,
@@ -19,6 +18,12 @@ const ORIENTATION_OPTIONS = [
   { value: "horizontal", label: "Horizontal" },
   { value: "vertical", label: "Vertical" },
 ] as const;
+
+/*
+ * `ResizablePanelGroup` is upstream's file plus its patch, so it exports no props type of its own;
+ * the literal union below is the engine's `orientation` domain, which is what the select emits.
+ */
+type Orientation = (typeof ORIENTATION_OPTIONS)[number]["value"];
 
 const resizablePlaygroundConfig: PlaygroundConfig<ResizablePlaygroundKey> = {
   controls: [
@@ -44,12 +49,10 @@ const resizablePlaygroundConfig: PlaygroundConfig<ResizablePlaygroundKey> = {
           axis change remounts the group with a fresh default layout. */}
       <ResizablePanelGroup
         key={String(state.orientation)}
-        orientation={
-          state.orientation as ResizablePanelGroupProps["orientation"]
-        }
+        orientation={state.orientation as Orientation}
         className="rounded-lg border"
       >
-        <ResizablePanel defaultSize="40" minSize="20">
+        <ResizablePanel defaultSize="40%" minSize="20%">
           <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground">
             One
           </div>
@@ -58,7 +61,7 @@ const resizablePlaygroundConfig: PlaygroundConfig<ResizablePlaygroundKey> = {
           withHandle={Boolean(state.withHandle)}
           aria-label="Resize panels"
         />
-        <ResizablePanel minSize="20">
+        <ResizablePanel minSize="20%">
           <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground">
             Two
           </div>
@@ -76,9 +79,9 @@ const resizablePlaygroundConfig: PlaygroundConfig<ResizablePlaygroundKey> = {
     // overrides any `h-*` class placed on the group itself.
     return `<div className="h-48">
   <ResizablePanelGroup${orientationProp} className="rounded-lg border">
-    <ResizablePanel defaultSize="40" minSize="20">One</ResizablePanel>
+    <ResizablePanel defaultSize="40%" minSize="20%">One</ResizablePanel>
     <ResizableHandle${handleProp} aria-label="Resize panels" />
-    <ResizablePanel minSize="20">Two</ResizablePanel>
+    <ResizablePanel minSize="20%">Two</ResizablePanel>
   </ResizablePanelGroup>
 </div>`;
   },
@@ -87,7 +90,7 @@ const resizablePlaygroundConfig: PlaygroundConfig<ResizablePlaygroundKey> = {
 /**
  * `ResizablePlayground` — interactive props playground for the Resizable family
  * (`orientation` on the group, `withHandle` on the handle) with two labeled panels in a
- * bounded-height container, backed by the generic {@link PropsPlayground}. Registered in
+ * bounded-height container, backed by the generic `PropsPlayground`. Registered in
  * `mdx.tsx`, adopted in `content/docs/components/resizable.mdx`.
  */
 export function ResizablePlayground() {

@@ -1,9 +1,9 @@
-// @vegastack dashboard-01@0.9.1 sha256-QhwnnTzKmsWFlJQA4e+GmfFw2Ow5oiRokT43PjZ2WPU=
+// @vegastack dashboard-01@0.9.1 sha256-u0RPXBZov/A/YP4WMV5C2B56ZJPjNz72AD/QTLlIj6Y=
 
 /**
  * `page.tsx` — registry:page, target `app/dashboard/page.tsx`. The dashboard-01 block's sample
  * AI-platform dashboard (audit §e): `AppShell` + `AppSidebar` + `AppShellHeader` (a
- * `BreadcrumbTrail`) + content (`StatCards`, `DashboardChart`, `RecentActivity`), a full-page
+ * `Breadcrumb`) + content (`StatCards`, `DashboardChart`, `RecentActivity`), a full-page
  * `Empty` zero-state branch, and per-region loading/error handling.
  *
  * **Server-safe.** `DashboardPage` itself has no hooks and no `'use client'` — the interactive
@@ -29,7 +29,14 @@ import {
   AppShellContent,
   AppShellHeader,
 } from "@/components/ui/app-shell";
-import { Breadcrumb, BreadcrumbTrail } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -55,8 +62,6 @@ const DEFAULT_DATA = sampleData as {
 export interface DashboardPageProps {
   /** Class name forwarded to the root `AppShell` (useful when embedding the block in a bounded preview). @default undefined */
   className?: string;
-  /** Viewport width below which navigation uses AppShell's modal Sheet. @default 768 */
-  mobileBreakpoint?: number;
   /** Stat-card row data. @default bundled sample `data.json` */
   stats?: StatCardDatum[];
   /** "Usage over time" chart series. @default bundled sample `data.json` */
@@ -108,7 +113,6 @@ function RegionError({
  */
 export function DashboardPage({
   className,
-  mobileBreakpoint,
   stats = DEFAULT_DATA.stats,
   usage = DEFAULT_DATA.usage,
   activity = DEFAULT_DATA.activity,
@@ -117,11 +121,7 @@ export function DashboardPage({
   isEmpty = false,
 }: DashboardPageProps) {
   return (
-    <AppShell
-      defaultOpen
-      className={className}
-      mobileBreakpoint={mobileBreakpoint}
-    >
+    <AppShell defaultOpen className={className}>
       <AppSidebar activeKey="dashboard" />
       <div className="flex h-svh min-w-0 flex-1 flex-col">
         <AppShellHeader
@@ -138,10 +138,15 @@ export function DashboardPage({
               point is that a consumer who extends the trail (the normal thing to do with a
               starter block) inherits the collapse instead of re-discovering the wrap. */}
           <Breadcrumb>
-            <BreadcrumbTrail
-              maxItems={2}
-              items={[{ label: "Home", href: "/" }, { label: "Dashboard" }]}
-            />
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink render={<a href="/" />}>Home</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Dashboard</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
           </Breadcrumb>
         </AppShellHeader>
 

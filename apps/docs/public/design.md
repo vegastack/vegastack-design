@@ -702,7 +702,9 @@ recipes:
 > 15 form components — input, input-group, input-otp, textarea, checkbox, radio-group, switch,
 > slider, select, native-select, combobox, field, form, calendar and direction; Batch 4 for the 12
 > overlays — dialog, alert-dialog, sheet, drawer, popover, hover-card, dropdown-menu, context-menu,
-> menubar, command, toast and sonner. Everything this file says about their props, their sizes,
+> menubar, command, toast and sonner; Batch 5 for the 12 navigation and layout components —
+> sidebar, tabs, navigation-menu, breadcrumb, pagination, accordion, collapsible, scroll-area,
+> resizable, progress, table and carousel. Everything this file says about their props, their sizes,
 > their variants and their chrome describes the pre-reset fork: there is no `fieldControl` recipe,
 > no `size` axis on Input, Textarea, Checkbox or the radio item, no `variant`/`thumb` axis on
 > Slider, and `Field` carries its label, description and error as CHILDREN rather than props.
@@ -712,9 +714,19 @@ recipes:
 > new here; `command` is cmdk rather than a Base UI Combobox; Toast's imperative surface is
 > `toast.add` / `toast.close` / `toast.promise` rather than `toast()` and its `.success`-style
 > helpers; and **`sonner` ships beside `toast` as a second sanctioned engine**, which is why
-> `next-themes` is read in two registry items again rather than one. The live contract for each of
-> them is its own docs page, which ends in a `## Deviations` section naming every decision ID its
-> patch implements.
+> `next-themes` is read in two registry items again rather than one. Among the navigation and
+> layout components: **Tabs' default list is upstream's grey pill track**, not the underline — the
+> variants are `default` and `line` and there is no `pill`, no `chip` and no `count` badge (API-10
+> resolves as **shadcn**); **table body cells do not wrap** — every cell is `whitespace-nowrap`, the
+> head is `h-10 font-medium text-foreground`, a hovered row is `hover:bg-muted/50` and a selected
+> one `data-[state=selected]:bg-muted` (LAY-6, COL-6 and COL-8 all resolve as **shadcn**), and
+> upstream's `Table` wraps itself in a plain overflow container rather than a named, keyboard-
+> reachable scroll region; `Progress` is five parts (`Progress`, `ProgressTrack`,
+> `ProgressIndicator`, `ProgressLabel`, `ProgressValue`) with no `size` axis; `ScrollArea` renders
+> one vertical scrollbar and exports `ScrollBar` for a second axis, with no `orientation` prop;
+> `Sidebar` is divs rather than a `<nav>`, so the landmark is `AppShellSidebar`'s; and **`carousel`
+> is new here**, on `embla-carousel-react`. The live contract for each of them is its own docs page,
+> which ends in a `## Deviations` section naming every decision ID its patch implements.
 >
 > The parts of this file that ARE current are the generated ones: the token tables, the recipe set
 > and the resolved values, all of which `pnpm design:sync:check` re-derives from the live DTCG

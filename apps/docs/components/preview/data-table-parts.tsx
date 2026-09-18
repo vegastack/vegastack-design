@@ -62,7 +62,7 @@ export function dataTableParts(): ReactNode {
     });
 
     return (
-      <Table scrollLabel="Releases">
+      <Table>
         <TableHeader>
           <TableRow>
             <SelectAllHead
@@ -121,7 +121,7 @@ export function dataTableParts(): ReactNode {
 export function dataTablePartsAsyncStates(): ReactNode {
   return (
     <Wrapper className="w-full flex-col items-stretch gap-6">
-      <Table scrollLabel="Releases, loading">
+      <Table>
         <TableHeader>
           <TableRow>
             {COLUMNS.map((column) => (
@@ -133,7 +133,7 @@ export function dataTablePartsAsyncStates(): ReactNode {
           <SkeletonRows columns={COLUMNS} rows={3} />
         </TableBody>
       </Table>
-      <Table scrollLabel="Releases, empty">
+      <Table>
         <TableHeader>
           <TableRow>
             {COLUMNS.map((column) => (

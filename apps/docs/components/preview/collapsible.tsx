@@ -1,84 +1,98 @@
 "use client";
 
-"use client";
-
 import { type ReactNode, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ChevronsUpDown,
+  FileIcon,
+  FolderIcon,
+  MaximizeIcon,
+  MinimizeIcon,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/collapsible` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Collapsible,
-  CollapsibleTrigger,
   CollapsibleContent,
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { DirectionProvider } from "@/components/ui/direction";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+/*
+ * Upstream's own examples, adapted only for import paths, for RTL (upstream's `useTranslation` and
+ * `language-selector` do not exist here), and for the one Radix-era selector upstream's File Tree
+ * still carries — Base UI's trigger marks itself `data-panel-open`, which is the form upstream's
+ * own Basic example uses.
+ */
 
 export function collapsible(): ReactNode {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <Wrapper>
       <Collapsible
-        defaultOpen
-        className="w-full max-w-sm gap-2 rounded-lg border border-border p-3"
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        className="flex w-full max-w-[350px] flex-col gap-2"
       >
-        <CollapsibleTrigger className="w-full">
-          What is included in the Pro plan?
-          <ChevronDown />
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <p className="pt-2">
-            Unlimited projects, priority support, advanced analytics, and SSO.
-            Billed annually with a 14-day free trial.
-          </p>
+        <div className="flex items-center justify-between gap-4 px-4">
+          <h4 className="text-sm font-semibold">Order 4189-B</h4>
+          <CollapsibleTrigger
+            render={<Button variant="ghost" size="icon" className="size-8" />}
+          >
+            <ChevronsUpDown />
+            <span className="sr-only">Toggle details</span>
+          </CollapsibleTrigger>
+        </div>
+        <div className="flex items-center justify-between rounded-md border px-4 py-2 text-sm">
+          <span className="text-muted-foreground">Status</span>
+          <span className="font-medium">Shipped</span>
+        </div>
+        <CollapsibleContent className="flex flex-col gap-2">
+          <div className="rounded-md border px-4 py-2 text-sm">
+            <p className="font-medium">Shipping address</p>
+            <p className="text-muted-foreground">
+              100 Market St, San Francisco
+            </p>
+          </div>
+          <div className="rounded-md border px-4 py-2 text-sm">
+            <p className="font-medium">Items</p>
+            <p className="text-muted-foreground">2x Studio Headphones</p>
+          </div>
         </CollapsibleContent>
       </Collapsible>
     </Wrapper>
   );
 }
 
-export function collapsibleStates(): ReactNode {
+export function collapsibleComposition(): ReactNode {
   return (
-    <Wrapper className="flex-col items-stretch">
-      <Collapsible className="w-full max-w-sm gap-2 rounded-lg border border-border p-3">
-        <CollapsibleTrigger className="w-full">
-          Closed by default
-          <ChevronDown />
+    <Wrapper>
+      <Collapsible className="flex w-full max-w-[350px] flex-col gap-2">
+        <CollapsibleTrigger render={<Button variant="outline" />}>
+          Can I use this in my project?
         </CollapsibleTrigger>
-        <CollapsibleContent>
-          <p className="pt-2">
-            Click the trigger to reveal this region with an animated height.
-          </p>
-        </CollapsibleContent>
-      </Collapsible>
-      <Collapsible
-        defaultOpen
-        className="w-full max-w-sm gap-2 rounded-lg border border-border p-3"
-      >
-        <CollapsibleTrigger className="w-full">
-          Open by default
-          <ChevronDown />
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <p className="pt-2">
-            This region starts expanded and collapses on click.
-          </p>
-        </CollapsibleContent>
-      </Collapsible>
-      <Collapsible
-        disabled
-        className="w-full max-w-sm gap-2 rounded-lg border border-border p-3"
-      >
-        <CollapsibleTrigger className="w-full">
-          Disabled
-          <ChevronDown />
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <p className="pt-2">A disabled region cannot be toggled.</p>
+        <CollapsibleContent className="text-sm text-muted-foreground">
+          Yes. Free to use for personal and commercial projects. No attribution
+          required.
         </CollapsibleContent>
       </Collapsible>
     </Wrapper>
   );
 }
 
-export function collapsibleControlled(): ReactNode {
+export function collapsibleControlledState(): ReactNode {
   const [open, setOpen] = useState(false);
   return (
     <Wrapper className="flex-col items-stretch gap-3">
@@ -89,42 +103,239 @@ export function collapsibleControlled(): ReactNode {
       <Collapsible
         open={open}
         onOpenChange={setOpen}
-        className="w-full max-w-sm gap-2 rounded-lg border border-border p-3"
+        className="flex w-full max-w-[350px] flex-col gap-2 self-center"
       >
-        <CollapsibleTrigger className="w-full">
-          What is included in the Pro plan?
-          <ChevronDown />
+        <CollapsibleTrigger render={<Button variant="outline" />}>
+          Toggle
         </CollapsibleTrigger>
-        <CollapsibleContent>
-          <p className="pt-2">
-            Unlimited projects, priority support, advanced analytics, and SSO.
-            The open state is driven by <span className="font-mono">open</span>{" "}
-            and reported through <span className="font-mono">onOpenChange</span>
-            .
-          </p>
+        <CollapsibleContent className="text-sm text-muted-foreground">
+          The panel follows `open`, and every toggle is reported through
+          `onOpenChange` — which is what lets a second control drive the same
+          panel.
         </CollapsibleContent>
       </Collapsible>
     </Wrapper>
   );
 }
 
-export function collapsibleKeepMounted(): ReactNode {
+export function collapsibleBasic(): ReactNode {
   return (
-    <Wrapper className="flex-col items-stretch">
-      <Collapsible className="w-full max-w-sm gap-2 rounded-lg border border-border p-3">
-        <CollapsibleTrigger className="w-full">
-          Release notes (find-in-page works while collapsed)
-          <ChevronDown />
+    <Wrapper>
+      <Card className="mx-auto w-full max-w-sm">
+        <CardContent>
+          <Collapsible className="rounded-md data-open:bg-muted">
+            <CollapsibleTrigger
+              render={<Button variant="ghost" className="w-full" />}
+            >
+              Product details
+              <ChevronDownIcon className="ml-auto group-data-panel-open/button:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
+              <div>
+                This panel can be expanded or collapsed to reveal additional
+                content.
+              </div>
+              <Button size="xs">Learn More</Button>
+            </CollapsibleContent>
+          </Collapsible>
+        </CardContent>
+      </Card>
+    </Wrapper>
+  );
+}
+
+export function collapsibleSettingsPanel(): ReactNode {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Wrapper>
+      <Card className="mx-auto w-full max-w-xs" size="sm">
+        <CardHeader>
+          <CardTitle>Radius</CardTitle>
+          <CardDescription>
+            Set the corner radius of the element.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Collapsible
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            className="flex items-start gap-2"
+          >
+            <FieldGroup className="grid w-full grid-cols-2 gap-2">
+              <Field>
+                <FieldLabel htmlFor="radius-x" className="sr-only">
+                  Radius X
+                </FieldLabel>
+                <Input id="radius-x" placeholder="0" defaultValue={0} />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="radius-y" className="sr-only">
+                  Radius Y
+                </FieldLabel>
+                <Input id="radius-y" placeholder="0" defaultValue={0} />
+              </Field>
+              <CollapsibleContent className="col-span-full grid grid-cols-subgrid gap-2">
+                <Field>
+                  <FieldLabel htmlFor="radius-x2" className="sr-only">
+                    Radius X, second corner
+                  </FieldLabel>
+                  <Input id="radius-x2" placeholder="0" defaultValue={0} />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="radius-y2" className="sr-only">
+                    Radius Y, second corner
+                  </FieldLabel>
+                  <Input id="radius-y2" placeholder="0" defaultValue={0} />
+                </Field>
+              </CollapsibleContent>
+            </FieldGroup>
+            <CollapsibleTrigger
+              render={<Button variant="outline" size="icon" />}
+            >
+              {isOpen ? <MinimizeIcon /> : <MaximizeIcon />}
+              <span className="sr-only">
+                {isOpen ? "Show fewer corners" : "Show every corner"}
+              </span>
+            </CollapsibleTrigger>
+          </Collapsible>
+        </CardContent>
+      </Card>
+    </Wrapper>
+  );
+}
+
+type FileTreeItem = { name: string } | { name: string; items: FileTreeItem[] };
+
+const fileTree: FileTreeItem[] = [
+  {
+    name: "components",
+    items: [
+      {
+        name: "ui",
+        items: [
+          { name: "button.tsx" },
+          { name: "card.tsx" },
+          { name: "dialog.tsx" },
+        ],
+      },
+      { name: "login-form.tsx" },
+    ],
+  },
+  {
+    name: "lib",
+    items: [{ name: "utils.ts" }, { name: "cn.ts" }],
+  },
+  { name: "app.tsx" },
+  { name: "package.json" },
+];
+
+function renderFileTreeItem(fileItem: FileTreeItem): ReactNode {
+  if ("items" in fileItem) {
+    return (
+      <Collapsible key={fileItem.name}>
+        <CollapsibleTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground"
+            />
+          }
+        >
+          <ChevronRightIcon className="transition-transform group-data-panel-open/button:rotate-90" />
+          <FolderIcon />
+          {fileItem.name}
         </CollapsibleTrigger>
-        <CollapsibleContent keepMounted hiddenUntilFound>
-          <p className="pt-2">
-            With <span className="font-mono">keepMounted</span> and{" "}
-            <span className="font-mono">hiddenUntilFound</span>, this panel
-            stays in the DOM while closed, so the browser&rsquo;s find-in-page
-            (and crawlers) can reach it and auto-expand the region.
-          </p>
+        <CollapsibleContent className="mt-1 ml-5">
+          <div className="flex flex-col gap-1">
+            {fileItem.items.map((child) => renderFileTreeItem(child))}
+          </div>
         </CollapsibleContent>
       </Collapsible>
+    );
+  }
+  return (
+    <Button
+      key={fileItem.name}
+      variant="link"
+      size="sm"
+      className="w-full justify-start gap-2 text-foreground"
+    >
+      <FileIcon />
+      <span>{fileItem.name}</span>
+    </Button>
+  );
+}
+
+export function collapsibleFileTree(): ReactNode {
+  return (
+    <Wrapper>
+      <Card className="mx-auto w-full max-w-[16rem] gap-2" size="sm">
+        <CardHeader>
+          <Tabs defaultValue="explorer">
+            <TabsList className="w-full">
+              <TabsTrigger value="explorer">Explorer</TabsTrigger>
+              <TabsTrigger value="outline">Outline</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-1">
+            {fileTree.map((item) => renderFileTreeItem(item))}
+          </div>
+        </CardContent>
+      </Card>
     </Wrapper>
+  );
+}
+
+/** Upstream drives its RTL copy through `useTranslation`; the Arabic strings are inline here. */
+const arabic = {
+  orderNumber: "الطلب 4189-B",
+  status: "الحالة",
+  shipped: "تم الشحن",
+  shippingAddress: "عنوان الشحن",
+  address: "100 Market St, San Francisco",
+  items: "العناصر",
+  itemsDescription: "2x سماعات الاستوديو",
+  toggle: "تبديل التفاصيل",
+};
+
+export function collapsibleRtl(): ReactNode {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <DirectionProvider direction="rtl">
+      <Wrapper dir="rtl">
+        <Collapsible
+          open={isOpen}
+          onOpenChange={setIsOpen}
+          className="flex w-full max-w-[350px] flex-col gap-2"
+        >
+          <div className="flex items-center justify-between gap-4 px-4">
+            <h4 className="text-sm font-semibold">{arabic.orderNumber}</h4>
+            <CollapsibleTrigger
+              render={<Button variant="ghost" size="icon" className="size-8" />}
+            >
+              <ChevronsUpDown />
+              <span className="sr-only">{arabic.toggle}</span>
+            </CollapsibleTrigger>
+          </div>
+          <div className="flex items-center justify-between rounded-md border px-4 py-2 text-sm">
+            <span className="text-muted-foreground">{arabic.status}</span>
+            <span className="font-medium">{arabic.shipped}</span>
+          </div>
+          <CollapsibleContent className="flex flex-col gap-2">
+            <div className="rounded-md border px-4 py-2 text-sm">
+              <p className="font-medium">{arabic.shippingAddress}</p>
+              <p className="text-muted-foreground">{arabic.address}</p>
+            </div>
+            <div className="rounded-md border px-4 py-2 text-sm">
+              <p className="font-medium">{arabic.items}</p>
+              <p className="text-muted-foreground">{arabic.itemsDescription}</p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </Wrapper>
+    </DirectionProvider>
   );
 }

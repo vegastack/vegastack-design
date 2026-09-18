@@ -378,7 +378,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/dropdown-menu"],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/breadcrumb.tsx",
@@ -517,6 +517,32 @@
       "meta": {
         "whenToUse": "Group related content into a bordered surface — summaries, plan tiles, settings sections.",
         "whenNotToUse": "Single standalone values or page layout regions; never nest cards or add shadows.",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "carousel",
+      "type": "registry:ui",
+      "title": "Carousel",
+      "description": "A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, Embla options, events and plugins.",
+      "categories": ["data-display"],
+      "dependencies": [
+        "embla-carousel-react@^8.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": ["@vegastack/button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/carousel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/carousel.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A horizontal or vertical run of peer items the reader scrolls through one or a few at a time — a gallery, a set of feature cards, a testimonial run.",
+        "whenNotToUse": "Content the reader must not miss, or a list they need to scan and compare — put that in the page, not behind a control.",
         "version": "0.9.1"
       }
     },
@@ -683,7 +709,6 @@
       "categories": ["data-display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [],
@@ -12246,6 +12271,7 @@
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -12262,7 +12288,7 @@
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.9.1"
       },
-      "registryDependencies": ["@vegastack/floating-surface"]
+      "registryDependencies": []
     },
     {
       "name": "notification-bell",
@@ -12409,13 +12435,11 @@
       "description": "Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.",
       "categories": ["navigation"],
       "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": ["@vegastack/button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/pagination.tsx",
@@ -12539,7 +12563,6 @@
       "categories": ["feedback"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12719,7 +12742,6 @@
       "categories": ["layout"],
       "dependencies": [
         "react-resizable-panels@^4",
-        "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13012,10 +13034,12 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button",
+        "@vegastack/button",
+        "@vegastack/input",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",
+        "@vegastack/tooltip",
         "@vegastack/use-mobile"
       ],
       "files": [

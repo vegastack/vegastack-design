@@ -3,7 +3,6 @@
 import { useState, type ReactNode } from "react";
 import { Home, Inbox, Settings, BarChart3, Bot } from "lucide-react";
 import { Wrapper } from "./wrapper";
-import { usePreviewFrameWidth } from "../preview-controls";
 // Copied INTO apps/docs via `shadcn add @vegastack/app-shell` (dogfoods the registry) → auto-scanned.
 import {
   AppShell,
@@ -219,22 +218,18 @@ export function appShellFloating(): ReactNode {
 }
 
 /**
- * Frame-responsive navigation. The docs width toggle constrains a container (not the browser
- * viewport), which a viewport media query can't see — so this demo reads the selected frame preset
- * and, at the mobile preset, forces the rail into its modal Sheet (a huge `mobileBreakpoint` makes
- * `useIsMobile` true regardless of the real viewport). Toggle the toolbar's phone icon to watch the
- * desktop rail collapse into a Sheet you open from the header trigger; every wider preset keeps the
- * default viewport behaviour, so a real narrow viewport still switches on its own.
+ * Responsive navigation. Upstream's `SidebarProvider` reads one fixed breakpoint through
+ * `useIsMobile` (768px, the Tailwind `md` boundary) and takes no override, so — since Batch 5 of
+ * the shadcn reset put Sidebar back on upstream's file — this demo shows the real viewport
+ * behaviour rather than forcing it: narrow the BROWSER below 768px and the desktop rail becomes
+ * the modal Sheet you open from the header trigger. The docs width toggle constrains a container,
+ * not the viewport, so it does not change this demo.
  */
 export function appShellMobile(): ReactNode {
   const [active, setActive] = useState<string>("home");
-  const frameWidth = usePreviewFrameWidth();
   return (
     <Wrapper className="block h-104 overflow-hidden p-0">
-      <AppShell
-        mobileBreakpoint={frameWidth === "mobile" ? 10000 : undefined}
-        className="h-full min-h-0"
-      >
+      <AppShell className="h-full min-h-0">
         <AppShellSidebar>
           <SidebarContent>
             <SidebarGroup>

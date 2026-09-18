@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.9.1 sha256-QhwnnTzKmsWFlJQA4e+GmfFw2Ow5oiRokT43PjZ2WPU=
+// @vegastack dashboard-01@0.9.1 sha256-u0RPXBZov/A/YP4WMV5C2B56ZJPjNz72AD/QTLlIj6Y=
 
 "use client";
 
@@ -135,7 +135,7 @@ export function AppSidebar({
           >
             <Bot className="size-4" />
           </div>
-          <span className="truncate text-sm font-medium font-medium text-foreground group-data-[state=collapsed]/sidebar:hidden">
+          <span className="truncate text-sm font-medium font-medium text-foreground group-data-[collapsible=icon]:hidden">
             VegaStack AI
           </span>
         </div>
@@ -177,7 +177,7 @@ export function AppSidebar({
             {/* min-w-0 on the label column — the sidebar footer row's trailing chevron is a fixed
                 sibling, so the name/email column needs min-w-0 to truncate instead of overflowing
                 (the same flex-discipline footgun the app-shell audit flags for stat cards/cards). */}
-            <span className="flex min-w-0 flex-1 flex-col group-data-[state=collapsed]/sidebar:hidden">
+            <span className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
               <span className="truncate text-xs font-medium text-sidebar-foreground">
                 {user.name}
               </span>
@@ -187,7 +187,7 @@ export function AppSidebar({
             </span>
             <ChevronsUpDown
               aria-hidden
-              className="size-3.5 shrink-0 text-muted-foreground group-data-[state=collapsed]/sidebar:hidden"
+              className="size-3.5 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="top" className="w-56">

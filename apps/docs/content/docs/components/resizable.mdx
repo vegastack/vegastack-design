@@ -1,6 +1,6 @@
 ---
 title: Resizable
-description: Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.
+description: Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.
 audience: public
 registry: resizable
 status: stable
@@ -22,277 +22,142 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 
-<div className="h-64">
-  <ResizablePanelGroup className="rounded-lg border">
-    <ResizablePanel defaultSize="30" minSize="20">
-      Sidebar
-    </ResizablePanel>
-    <ResizableHandle withHandle />
-    <ResizablePanel>Content</ResizablePanel>
-  </ResizablePanelGroup>
-</div>;
-```
-
-Give the group's **parent** an explicit height (or width, for a `vertical` group's cross axis) —
-the group fills its parent at `height: 100%; width: 100%` via its own inline styles, so an `h-*`
-class on the group itself is ignored and panels collapse to zero size without a bounded wrapper.
-
-**Sizes are unitless strings, not numbers.** `defaultSize`/`minSize`/`maxSize`/`collapsedSize` treat
-a bare number (`defaultSize={30}`) as **pixels** — for a percentage, pass a string:
-`defaultSize="30"` (30%) or `defaultSize="30%"`. Other CSS units (`px`, `em`, `rem`, `vh`, `vw`) are
-also accepted as explicit string suffixes.
-
-## Anatomy
-
-`Resizable` is three flat, unstyled-by-default parts composing the headless
-[`react-resizable-panels`](https://react-resizable-panels.vercel.app/) engine — no Base UI here (the
-one other sanctioned exception besides `MessageScroller`; Base UI has no split-pane primitive).
-
-<Anatomy name="resizable" />
-
-```tsx
 <ResizablePanelGroup orientation="horizontal">
-  <ResizablePanel />
-  <ResizableHandle withHandle />
-  <ResizablePanel />
-</ResizablePanelGroup>
+  <ResizablePanel>One</ResizablePanel>
+  <ResizableHandle />
+  <ResizablePanel>Two</ResizablePanel>
+</ResizablePanelGroup>;
 ```
 
-- `ResizablePanelGroup` — the flex container (`data-slot="resizable-panel-group"`). `orientation`
-  (`horizontal`, the default, or `vertical`) picks the split axis; `disabled` freezes every panel and
-  handle inside it.
-- `ResizablePanel` — one resizable region (`data-slot="resizable-panel"`). Constrain it with
-  `minSize`/`maxSize`/`defaultSize`, or make it `collapsible` down to `collapsedSize` (0% by
-  default) — pair with `panelRef` for imperative `collapse()`/`expand()`/`isCollapsed()`.
-- `ResizableHandle` — the draggable divider (`data-slot="resizable-handle"`, `role="separator"`).
-  Focusable and keyboard-operable out of the box; `withHandle` adds a small visible grip glyph.
-
-## Examples
-
-### Horizontal (default)
-
-Two panels side by side. Drag the divider, or focus it (<kbd>Tab</kbd>) and use <kbd>←</kbd> /
-
-<kbd>→</kbd>.
+A group fills its parent at `100%`/`100%`, so the parent owns the height. Sizes are unitless strings
+read as percentages — `defaultSize="50%"` and `defaultSize="50"` are the same thing, and a bare
+number is pixels.
 
 <ComponentPreview name="resizable" file="components/preview/resizable.tsx" />
 
+## Anatomy
+
+<Anatomy name="resizable" />
+
+## Examples
+
+### About
+
+The `Resizable` component is built on top of
+[react-resizable-panels](https://github.com/bvaughn/react-resizable-panels) by
+[bvaughn](https://github.com/bvaughn). The engine owns the layout maths, the pointer drag and the
+keyboard resize; the bar, the grip and the focus affordance are ours. We are on v4, whose API renamed
+`PanelGroup` to `Group`, `PanelResizeHandle` to `Separator` and `direction` to `orientation` — the
+three wrapper names on this page are unchanged by that.
+
+<ComponentPreview
+  name="resizableAbout"
+  file="components/preview/resizable.tsx"
+/>
+
+### Composition
+
+A group is panels with handles between them. Every handle is a `role="separator"` control that
+resizes the two panels it sits between.
+
+```text
+ResizablePanelGroup
+├── ResizablePanel
+├── ResizableHandle
+└── ResizablePanel
+```
+
+<ComponentPreview
+  name="resizableComposition"
+  file="components/preview/resizable.tsx"
+/>
+
 ### Vertical
 
-Set `orientation="vertical"` to stack panels top-to-bottom; the handle bar renders horizontal and
-resizes with <kbd>↑</kbd> / <kbd>↓</kbd> instead.
+`orientation="vertical"` stacks the panels and turns the handle into a horizontal bar. Groups nest,
+so a vertical group inside a horizontal panel is how the two-axis layout in Usage is built.
 
 <ComponentPreview
   name="resizableVertical"
   file="components/preview/resizable.tsx"
 />
 
-### Nested groups
-
-Nest a `ResizablePanelGroup` inside a `ResizablePanel` to combine axes — here the right column
-splits vertically, independent of the horizontal split against the sidebar.
+Nesting the other way round — a horizontal group inside a vertical panel — puts the inner handle's
+end against the outer one, so the two boundaries meet in a T.
 
 <ComponentPreview
   name="resizableNested"
   file="components/preview/resizable.tsx"
 />
 
-### With a grip handle
+### Handle
 
-`withHandle` renders a small `GripVertical` glyph centered on the bar — the bar itself is always
-the full drag/keyboard target either way, so this is a visual affordance only.
+`withHandle` on `ResizableHandle` renders a visible grip centred on the bar. It is a visual
+affordance only — the whole bar remains the drag target and the keyboard target either way.
 
 <ComponentPreview
-  name="resizableWithHandle"
+  name="resizableHandle"
   file="components/preview/resizable.tsx"
 />
 
-### Collapsible panel
+### RTL
 
-`collapsible` lets a panel collapse to `collapsedSize` (0% here) once it's dragged past `minSize`.
-Pair with `panelRef` to drive `collapse()` / `expand()` imperatively — e.g. a "hide sidebar" button —
-and `onResize` to keep other UI (the button label, the panel's own label) in sync with the collapsed
-state.
+Set `dir="rtl"` on the group. This component is not a Base UI part, so its reading direction comes
+from the attribute rather than from `DirectionProvider`; the handle's own offsets are already
+mirrored with `rtl:` variants.
 
-<ComponentPreview
-  name="resizableCollapsible"
-  file="components/preview/resizable.tsx"
-/>
+<ComponentPreview name="resizableRtl" file="components/preview/resizable.tsx" />
 
 ## Playground
 
-Try both split axes and the optional grip glyph — the divider stays live to drag — then copy the generated JSX.
+Switch the split axis and the grip, then copy the generated JSX — including the bounded-height parent
+the group needs.
 
 <ResizablePlayground />
 
 ## API Reference
 
-> Each part extends a `react-resizable-panels` v4 type (`GroupProps` / `PanelProps` /
-> `SeparatorProps`) that the docs type extractor can't introspect — so the rows below are
-> hand-maintained and kept in sync with the engine. All parts also accept standard
-> `div` attributes and a `ref` to the root `HTMLDivElement`.
+<ApiTable path="lib/api-props.ts" name="ResizableHandleProps" />
 
-### ResizablePanelGroup
-
-<TypeTable
-  type={{
-    orientation: {
-      type: '"horizontal" | "vertical"',
-      default: '"horizontal"',
-      description:
-        "The split axis — panels side by side, or stacked top-to-bottom.",
-    },
-    disabled: {
-      type: "boolean",
-      default: "false",
-      description:
-        "Freezes resize interaction on every panel and handle inside the group.",
-    },
-    defaultLayout: {
-      type: "Layout",
-      description:
-        "Initial layout (a map of panel id → size) — restore a persisted layout between page loads.",
-    },
-    onLayoutChanged: {
-      type: "(layout: Layout, meta: LayoutChangedMeta) => void",
-      description:
-        "Called after a layout change settles (pointer released) — the recommended hook for persisting layouts.",
-    },
-    onLayoutChange: {
-      type: "(layout: Layout) => void",
-      description:
-        "Called continuously while the layout is changing (every pointer move) — prefer onLayoutChanged for storage.",
-    },
-    groupRef: {
-      type: "Ref<GroupImperativeHandle>",
-      description: "Imperative API: getLayout() / setLayout(layout).",
-    },
-    id: {
-      type: "string | number",
-      description:
-        "Identifies the group (also set as data-group). Falls back to useId.",
-    },
-  }}
-/>
-
-### ResizablePanel
-
-Sizes (`defaultSize` / `minSize` / `maxSize` / `collapsedSize`) are **unitless strings for
-percentages** (`"30"` = 30%) — a bare number is **pixels**; explicit `px`/`em`/`rem`/`vh`/`vw`
-suffixes are also accepted.
-
-<TypeTable
-  type={{
-    defaultSize: {
-      type: "number | string",
-      description:
-        "Initial size within the group; auto-assigned from the panel count when omitted.",
-    },
-    minSize: {
-      type: "number | string",
-      default: '"0"',
-      description: "Lower resize bound for the panel.",
-    },
-    maxSize: {
-      type: "number | string",
-      default: '"100%"',
-      description: "Upper resize bound for the panel.",
-    },
-    collapsible: {
-      type: "boolean",
-      default: "false",
-      description:
-        "Lets the panel collapse to collapsedSize when dragged past minSize.",
-    },
-    collapsedSize: {
-      type: "number | string",
-      default: '"0"',
-      description: "Size the panel snaps to when collapsed.",
-    },
-    disabled: {
-      type: "boolean",
-      default: "false",
-      description:
-        "The panel cannot be resized, directly or indirectly (by resizing a neighbor).",
-    },
-    onResize: {
-      type: "(size: PanelSize, id, prevSize?) => void",
-      description:
-        "Called when the panel's size changes — size carries both asPercentage and inPixels.",
-    },
-    panelRef: {
-      type: "Ref<PanelImperativeHandle>",
-      description:
-        "Imperative API: collapse() / expand() / resize(size) / getSize() / isCollapsed().",
-    },
-    id: {
-      type: "string | number",
-      description:
-        "Identifies the panel (also set as data-panel) — used to associate persisted layouts. Falls back to useId.",
-    },
-  }}
-/>
-
-### ResizableHandle
-
-<TypeTable
-  type={{
-    withHandle: {
-      type: "boolean",
-      default: "false",
-      description:
-        "Renders a small visible grip glyph centered on the bar — a visual affordance only; the bar is always the full drag/keyboard target.",
-    },
-    disabled: {
-      type: "boolean",
-      default: "false",
-      description:
-        "The handle can't resize its neighbors (they may still resize indirectly — disable the panels too to freeze them entirely).",
-    },
-    disableDoubleClick: {
-      type: "boolean",
-      default: "false",
-      description:
-        "Disables the double-click-to-reset-to-default-size behavior.",
-    },
-    id: {
-      type: "string | number",
-      description:
-        "Identifies the separator (also set as data-separator). Falls back to useId.",
-    },
-  }}
-/>
+`ResizablePanelGroup` and `ResizablePanel` add no props of their own — each accepts everything the
+corresponding `react-resizable-panels` v4 part accepts. On the group that is `orientation`,
+`disabled`, `defaultLayout`, `onLayoutChange` / `onLayoutChanged`, `groupRef` and `id`; on a panel it
+is `defaultSize`, `minSize`, `maxSize`, `collapsible`, `collapsedSize`, `disabled`, `onResize`,
+`panelRef` and `id`. Both also take standard `div` attributes and a `ref`.
 
 ## Accessibility
 
-- `ResizableHandle` renders `role="separator"` with `aria-valuenow` / `aria-valuemin` /
-  `aria-valuemax` reflecting the adjacent panel's current size, and `aria-orientation` (the axis
-  perpendicular to the group — a vertical bar between horizontally arranged panels, per the ARIA
-  separator role).
-- The handle is in the tab order (`tabIndex={0}`) and keyboard-operable with no extra wiring — see
-  the table below. It gets the centralized `base.css` `:focus-visible` outline, plus a `bg-primary`
-  fill on hover, drag, and keyboard focus so the active target is always visually obvious.
-- A `disabled` handle is `aria-disabled` and drops out of the tab order. A `disabled` **group**
-  blocks resize interaction on every panel/handle inside it (pointer and keyboard) but — since that
-  is the underlying engine's own behavior — does not itself mark each handle `aria-disabled`; set
-  `disabled` on individual `ResizableHandle`s too if you need that reflected in the accessibility
-  tree.
-- Give each `ResizableHandle` an `aria-label` (e.g. `"Resize sidebar and content"`) describing what
-  it resizes — the default accessible name is not descriptive on its own.
-
-| Key                         | Action                                                 |
-| --------------------------- | ------------------------------------------------------ |
-| <kbd>Tab</kbd>              | Move focus to the handle.                              |
-| <kbd>←</kbd> / <kbd>→</kbd> | Resize a horizontal group's adjacent panels by a step. |
-| <kbd>↑</kbd> / <kbd>↓</kbd> | Resize a vertical group's adjacent panels by a step.   |
-| <kbd>Home</kbd>             | Jump the panel before the handle to its minimum size.  |
-| <kbd>End</kbd>              | Jump the panel before the handle to its maximum size.  |
+- Each handle is a `role="separator"` with `aria-orientation`, `aria-controls` naming the panel it
+  resizes, and `aria-valuenow` / `aria-valuemin` / `aria-valuemax` carrying that panel's current
+  size — the ARIA window-splitter pattern.
+- A handle is a tab stop, and the arrow keys resize it; <kbd>Home</kbd> and <kbd>End</kbd> jump to the
+  bounds. A `disabled` handle drops out of the tab order and reports `aria-disabled`.
+- Focus is the global 2px `:focus-visible` outline from `base.css`. Upstream suppressed it with
+  `focus-visible:outline-hidden` and replaced it with a ring; both are removed (FOC-1, FOC-6), so a
+  keyboard user can see which handle they are about to move.
+- The grip rendered by `withHandle` is decoration; the accessible target is the bar itself, which is
+  wider than its 1px line through an `after:` hit area.
+- Give a handle an `aria-label` when a group has more than one, so the two separators are
+  distinguishable when read out of context.
 
 <StatesTested name="resizable" />
 
 ## Do / Don't
 
 <DoDont
-  do="Set minSize/maxSize on every panel so a drag or keyboard resize can't collapse content to an unusable sliver — and give every ResizableHandle a descriptive aria-label."
-  dont="Forget the group's own bounded height/width, or pass a bare number expecting a percentage — defaultSize={30} is 30 pixels, not 30%."
+  do="Use Resizable for a layout the reader rearranges — an editor and its preview, a list and its detail pane — and give the group's parent a real height."
+  dont="Put a resizable split inside a scrolling document, or rely on the visible grip as the only cue that a boundary can move."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/resizable.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — `focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden` goes
+  from `ResizableHandle`. `outline-hidden` is the v3 spelling of "no outline", so upstream suppressed
+  the one focus affordance this system has on a control that is keyboard-operable (arrow keys resize
+  it). `ring-offset-background` is left alone: it paints nothing without a ring width and is
+  upstream's own class.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

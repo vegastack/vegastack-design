@@ -2,112 +2,256 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Progress } from "./progress";
+import {
+  Progress,
+  ProgressIndicator,
+  ProgressLabel,
+  ProgressTrack,
+  ProgressValue,
+} from "./progress";
+import { DirectionProvider } from "./direction";
 
-test("renders a progressbar with the slot + default size attributes", async () => {
+const slot = (root: Element, name: string) =>
+  root.querySelector(`[data-slot="${name}"]`) as HTMLElement | null;
+
+/**
+ * Index a collection and prove the element is there. The package runs with
+ * `noUncheckedIndexedAccess`, so `list[i]` is `T | undefined`; this narrows it by ASSERTING the
+ * element exists rather than by asserting it away, so a missing element fails the test it is in.
+ */
+function at<T extends Element>(list: ArrayLike<T>, index: number): T {
+  const element = list[index];
+  expect(element, `element at index ${index} must be present`).toBeDefined();
+  return element as T;
+}
+
+test("renders a named progressbar carrying its data-slot (Usage)", async () => {
+  const screen = await render(
+    <Progress value={33} aria-label="Upload progress" />,
+  );
+  const root = slot(screen.container, "progress")!;
+  expect(root.getAttribute("role")).toBe("progressbar");
+  expect(root.getAttribute("aria-valuenow")).toBe("33");
+  expect(root.getAttribute("aria-valuemin")).toBe("0");
+  expect(root.getAttribute("aria-valuemax")).toBe("100");
+});
+
+test("the root renders its own track and indicator from no children at all (Usage)", async () => {
   const screen = await render(
     <Progress value={40} aria-label="Upload progress" />,
   );
-  const bar = screen.getByRole("progressbar", { name: "Upload progress" });
-  await expect.element(bar).toBeInTheDocument();
-  await expect.element(bar).toHaveAttribute("data-slot", "progress");
-  await expect.element(bar).toHaveAttribute("data-size", "md");
+  const track = slot(screen.container, "progress-track")!;
+  const indicator = slot(screen.container, "progress-indicator")!;
+  expect(track).not.toBeNull();
+  expect(indicator.parentElement).toBe(track);
+  expect(track.className).toContain("bg-muted");
+  expect(indicator.className).toContain("bg-primary");
 });
 
-test("aria-valuenow reflects value against the default 0–100 scale", async () => {
-  const screen = await render(<Progress value={60} aria-label="Progress" />);
-  const bar = screen.getByRole("progressbar", { name: "Progress" });
-  await expect.element(bar).toHaveAttribute("aria-valuenow", "60");
-  await expect.element(bar).toHaveAttribute("aria-valuemin", "0");
-  await expect.element(bar).toHaveAttribute("aria-valuemax", "100");
-});
-
-test("reports value relative to a custom max", async () => {
+test("every exported part renders and carries its data-slot (Composition)", async () => {
   const screen = await render(
-    <Progress value={3} max={5} aria-label="Step 3 of 5" />,
+    <Progress value={56}>
+      <ProgressLabel>Upload progress</ProgressLabel>
+      <ProgressValue />
+    </Progress>,
   );
-  const bar = screen.getByRole("progressbar", { name: "Step 3 of 5" });
-  await expect.element(bar).toHaveAttribute("aria-valuenow", "3");
-  await expect.element(bar).toHaveAttribute("aria-valuemax", "5");
+  for (const name of [
+    "progress",
+    "progress-label",
+    "progress-value",
+    "progress-track",
+    "progress-indicator",
+  ]) {
+    expect(slot(screen.container, name), name).not.toBeNull();
+  }
+  // Children come first, then the track/indicator pair the root adds itself. Base UI also appends
+  // a visually hidden `role="presentation"` sentinel of its own, which carries no slot.
+  const root = slot(screen.container, "progress")!;
+  const order = [...root.children]
+    .map((child) => child.getAttribute("data-slot"))
+    .filter((name): name is string => name !== null);
+  expect(order).toEqual(["progress-label", "progress-value", "progress-track"]);
 });
 
-test("is indeterminate when value is null", async () => {
-  const screen = await render(<Progress value={null} aria-label="Loading" />);
-  const bar = screen.getByRole("progressbar", { name: "Loading" });
-  await expect.element(bar).toHaveAttribute("data-indeterminate");
-  // An indeterminate bar omits aria-valuenow.
-  await expect.element(bar).not.toHaveAttribute("aria-valuenow");
-});
-
-test("reflects the size variant on the data-size attribute", async () => {
+test("ProgressTrack and ProgressIndicator can be composed explicitly (Composition)", async () => {
   const screen = await render(
-    <Progress value={50} size="lg" aria-label="Sync" />,
+    <Progress value={40} aria-label="Upload progress">
+      <ProgressTrack className="h-2">
+        <ProgressIndicator />
+      </ProgressTrack>
+    </Progress>,
   );
-  await expect
-    .element(screen.getByRole("progressbar", { name: "Sync" }))
-    .toHaveAttribute("data-size", "lg");
+  // Two tracks: the one this call site wrote, and the one the root always appends.
+  const tracks = screen.container.querySelectorAll(
+    '[data-slot="progress-track"]',
+  );
+  expect(tracks).toHaveLength(2);
+  expect(at(tracks, 0).className).toContain("h-2");
 });
 
-test("applies className to the root and trackClassName to the track", async () => {
+test("ProgressLabel names the bar and ProgressValue formats it (Label)", async () => {
+  const screen = await render(
+    <Progress value={56}>
+      <ProgressLabel>Upload progress</ProgressLabel>
+      <ProgressValue />
+    </Progress>,
+  );
+  const root = slot(screen.container, "progress")!;
+  const label = slot(screen.container, "progress-label")!;
+  expect(root.getAttribute("aria-labelledby")).toBe(label.id);
+  expect(slot(screen.container, "progress-value")!.textContent).toBe("56%");
+});
+
+test("the root's format and locale reach ProgressValue (Label)", async () => {
   const screen = await render(
     <Progress
-      value={50}
-      aria-label="Sync"
-      className="max-w-xs"
-      trackClassName="bg-muted/60"
-      indicatorClassName="bg-success"
-    />,
+      value={0.42}
+      min={0}
+      max={1}
+      format={{ style: "percent" }}
+      locale="en-US"
+      aria-label="Upload progress"
+    >
+      <ProgressValue />
+    </Progress>,
   );
-  const bar = screen.getByRole("progressbar", { name: "Sync" });
-  await expect.element(bar).toHaveClass("max-w-xs");
-  const track = screen.container.querySelector('[data-slot="progress-track"]')!;
-  expect(track.className).toContain("bg-muted/60");
-  const indicator = screen.container.querySelector(
-    '[data-slot="progress-indicator"]',
-  )!;
-  expect(indicator.className).toContain("bg-success");
-  // Reduced motion is the global base.css reset's job; a component never restates it.
-  expect(indicator.className).not.toContain("motion-reduce:");
+  expect(slot(screen.container, "progress-value")!.textContent).toBe("42%");
 });
 
-test("no a11y violations with an accessible name", async () => {
-  const screen = await render(<Progress value={75} aria-label="Download" />);
+test("value is controlled: a new value moves aria-valuenow (Controlled)", async () => {
+  function Controlled() {
+    const [value, setValue] = React.useState(50);
+    return (
+      <div>
+        <Progress value={value} aria-label="Upload progress" />
+        <button type="button" onClick={() => setValue(80)}>
+          Advance
+        </button>
+      </div>
+    );
+  }
+  const screen = await render(<Controlled />);
+  expect(
+    slot(screen.container, "progress")!.getAttribute("aria-valuenow"),
+  ).toBe("50");
+  await screen.getByRole("button", { name: "Advance" }).click();
+  await expect
+    .poll(() =>
+      slot(screen.container, "progress")!.getAttribute("aria-valuenow"),
+    )
+    .toBe("80");
+});
+
+test("value={null} is the indeterminate state (Controlled)", async () => {
+  const screen = await render(
+    <Progress value={null} aria-label="Upload progress" />,
+  );
+  const root = slot(screen.container, "progress")!;
+  expect(root.getAttribute("data-indeterminate")).not.toBeNull();
+  expect(root.getAttribute("aria-valuenow")).toBeNull();
+});
+
+test("value at max reports the complete status (Controlled)", async () => {
+  const screen = await render(
+    <Progress value={100} aria-label="Upload progress" />,
+  );
+  expect(
+    slot(screen.container, "progress")!.getAttribute("data-complete"),
+  ).not.toBeNull();
+});
+
+test("RTL: a render function replaces the formatted value (RTL)", async () => {
+  const screen = await render(
+    <DirectionProvider direction="rtl">
+      <div dir="rtl">
+        <Progress value={56}>
+          <ProgressLabel>تقدم الرفع</ProgressLabel>
+          <ProgressValue>
+            {(value) => <span>{`${value ?? ""} ✓`}</span>}
+          </ProgressValue>
+        </Progress>
+      </div>
+    </DirectionProvider>,
+  );
+  const value = slot(screen.container, "progress-value")!;
+  expect(value.textContent).toBe("56% ✓");
+  expect(getComputedStyle(value).direction).toBe("rtl");
+});
+
+test("the label and the value sit on the logical axis, so RTL needs no override (RTL)", async () => {
+  const screen = await render(
+    <Progress value={56}>
+      <ProgressLabel>Upload progress</ProgressLabel>
+      <ProgressValue />
+    </Progress>,
+  );
+  // `ms-auto`, not `ml-auto`: the read-out pushes to the inline end in both directions.
+  expect(slot(screen.container, "progress-value")!.className).toContain(
+    "ms-auto",
+  );
+});
+
+test("DOC-1/DOC-2: no styling hunk — nothing here carries a focus glow or a focus suppressor", async () => {
+  const screen = await render(
+    <Progress value={56}>
+      <ProgressLabel>Upload progress</ProgressLabel>
+      <ProgressValue />
+    </Progress>,
+  );
+  for (const element of screen.container.querySelectorAll<HTMLElement>("*")) {
+    const classes =
+      typeof element.className === "string" ? element.className : "";
+    expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d/);
+    expect(classes).not.toContain("focus-visible:ring-");
+    expect(classes).not.toContain("outline-none");
+    expect(classes).not.toContain("outline-hidden");
+  }
+  // A progress bar owns no control: nothing in the tree is focusable, which is why no focus or
+  // pointer exception reaches this component and its patch has no styling hunk.
+  expect(
+    screen.container.querySelectorAll(
+      'a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])',
+    ),
+  ).toHaveLength(0);
+});
+
+test("no a11y violations — determinate", async () => {
+  const screen = await render(
+    <Progress value={56}>
+      <ProgressLabel>Upload progress</ProgressLabel>
+      <ProgressValue />
+    </Progress>,
+  );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — indeterminate", async () => {
-  const screen = await render(<Progress value={null} aria-label="Loading" />);
+  const screen = await render(
+    <Progress value={null} aria-label="Upload progress" />,
+  );
   await expectNoA11yViolations(screen.container);
 });
 
-test("render composes a custom root element while keeping slot + role", async () => {
-  // Base UI's `render` replaces the Progress.Root host
-  // but merges our data-slot/data-size/className and keeps role=progressbar +
-  // the Track/Indicator children.
+test("no a11y violations — complete", async () => {
   const screen = await render(
-    <Progress
-      value={40}
-      size="lg"
-      aria-label="Upload progress"
-      render={<section data-testid="custom-progress-root" />}
-    />,
+    <Progress value={100}>
+      <ProgressLabel>Upload progress</ProgressLabel>
+      <ProgressValue />
+    </Progress>,
   );
-  const bar = screen.getByRole("progressbar", { name: "Upload progress" });
-  const el = bar.element() as HTMLElement;
-  expect(el.tagName).toBe("SECTION");
-  expect(el.getAttribute("data-testid")).toBe("custom-progress-root");
-  expect(el.className).toContain("w-full");
-  await expect.element(bar).toHaveAttribute("data-slot", "progress");
-  await expect.element(bar).toHaveAttribute("data-size", "lg");
-  // The Track survives the composition.
-  expect(
-    screen.container.querySelector('[data-slot="progress-track"]'),
-  ).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
 });
 
-test("forwards ref to the underlying progress root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(<Progress ref={ref} value={40} aria-label="Upload progress" />);
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("progress");
+test("no a11y violations — RTL", async () => {
+  const screen = await render(
+    <DirectionProvider direction="rtl">
+      <div dir="rtl">
+        <Progress value={56}>
+          <ProgressLabel>تقدم الرفع</ProgressLabel>
+          <ProgressValue />
+        </Progress>
+      </div>
+    </DirectionProvider>,
+  );
+  await expectNoA11yViolations(screen.container);
 });

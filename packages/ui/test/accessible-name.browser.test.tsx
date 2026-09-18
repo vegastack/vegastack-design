@@ -5,6 +5,7 @@ import { page, userEvent } from "vitest/browser";
 import { beforeAll, expect, test } from "vitest";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   OnboardingChecklist,
   OnboardingChecklistItem,
@@ -92,8 +93,9 @@ test("separators are unnecessary BECAUSE the layout blockifies (both directions)
     <>
       <Tabs defaultValue="styled">
         <TabsList>
-          <TabsTrigger value="styled" count={12}>
+          <TabsTrigger value="styled">
             Activity
+            <Badge variant="secondary">12</Badge>
           </TabsTrigger>
         </TabsList>
         <TabsContent value="styled">Panel</TabsContent>
@@ -111,8 +113,9 @@ test("separators are unnecessary BECAUSE the layout blockifies (both directions)
         </style>
         <Tabs defaultValue="inline">
           <TabsList>
-            <TabsTrigger value="inline" count={12}>
+            <TabsTrigger value="inline">
               Activity
+              <Badge variant="secondary">12</Badge>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="inline">Panel</TabsContent>
@@ -135,13 +138,14 @@ test("separators are unnecessary BECAUSE the layout blockifies (both directions)
     .toBeInTheDocument();
 });
 
-test("tabs: a counted trigger names its label and its count as separate words", async () => {
+test("tabs: a trigger with a composed count badge names both as separate words", async () => {
   await render(
     <Tabs defaultValue="overview">
       <TabsList>
         <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="activity" count={12}>
+        <TabsTrigger value="activity">
           Activity
+          <Badge variant="secondary">12</Badge>
         </TabsTrigger>
       </TabsList>
       <TabsContent value="overview">Overview panel</TabsContent>
@@ -152,7 +156,7 @@ test("tabs: a counted trigger names its label and its count as separate words", 
     .element(page.getByRole("tab", { name: "Activity 12" }))
     .toBeInTheDocument();
   // …and no visible node carries punctuation the design never put there.
-  expect(names(document, '[data-slot="tabs-trigger-count"]')).toEqual(["12"]);
+  expect(names(document, '[data-slot="badge"]')).toEqual(["12"]);
 });
 
 test("onboarding-checklist: the collapsed pill names title, progress and action", async () => {

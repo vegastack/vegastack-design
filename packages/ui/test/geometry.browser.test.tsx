@@ -132,18 +132,13 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // deliberately, because that stricter shape is what catches a control buried under an overlay
   // (`attachmentImageThumbnail`, 2026-09-09, was genuinely unclickable). The right answer to the
   // gap between the two is a named exclusion here, never a looser probe.
-  resizableNested: {
-    target:
-      "ACCEPTED overlap, not a defect (MK 2026-09-09, `docs/ledger/bugs.md`). Control 0 is the " +
-      "outer vertical handle, visual 1.0x254.0, hit area 24.0x254.0; the nested horizontal " +
-      "handle's own 24px hit area crosses it at the T-junction and, being deeper in the DOM, " +
-      "wins the shared band. Measured 2026-09-09: outer `after` spans x 94.6-118.6 over the full " +
-      "254px; inner `after` spans y 141.0-165.0 from x 107.1 rightwards, so the shared band is " +
-      "~11.5x24 and the outer handle keeps 12.5px of exclusive width across it and its full 24px " +
-      "over the other 230px of its length. Under §2.5.8's overlap rule both handles still measure " +
-      "far beyond 24x24. Whichever handle won, the other would lose the same square, so this is a " +
-      "property of two crossing targets and not a tunable; 3 of 5 centred points miss",
-  },
+  // `resizableNested` used to live here: an ACCEPTED overlap where the nested horizontal handle's
+  // own 24px hit area crossed the outer vertical one at a T-junction (MK 2026-09-09,
+  // `docs/ledger/bugs.md`, which keeps the reasoning). Batch 5 of the shadcn reset rebuilt that
+  // fixture from upstream's own nested example, where the inner group sits INSIDE a panel and the
+  // two handles no longer cross — so the assertion passes and guard 2 above demanded the entry be
+  // deleted rather than carried as a defect nobody owns. If two handles ever cross again, this map
+  // is where that measurement goes back.
 };
 
 /**

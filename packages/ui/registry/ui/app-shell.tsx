@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.9.1 sha256-UwBXt1wrDFvDAHpFt8LJXU8xrgXDx6fInLWyw+i1Nnw=
+// @vegastack app-shell@0.9.1 sha256-OU1/o1ExnzFVJdtZWfEYBXBG7z3ocFP+Ln6Jyvi2W14=
 
 "use client";
 
@@ -9,7 +9,6 @@ import {
   SidebarMenuSkeleton,
   SidebarProvider,
   SidebarTrigger,
-  type SidebarProps,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -54,18 +53,6 @@ export interface AppShellProps extends React.ComponentProps<"div"> {
    */
   onOpenChange?: (open: boolean) => void;
   /**
-   * Viewport width (px) below which the sidebar switches into the mobile Sheet — forwarded to
-   * `SidebarProvider`.
-   * @default 768
-   */
-  mobileBreakpoint?: number;
-  /**
-   * Keyboard shortcut that toggles the sidebar — forwarded to `SidebarProvider`. `true` uses
-   * Cmd/Ctrl+B, pass a key string to customize, or `false` to disable.
-   * @default true
-   */
-  keyboardShortcut?: boolean | string;
-  /**
    * Accessible label for the skip-to-content link — the first focusable element in the shell,
    * always present in the DOM (`sr-only` until focused).
    * @default 'Skip to content'
@@ -85,8 +72,8 @@ export interface AppShellProps extends React.ComponentProps<"div"> {
 
 /**
  * `AppShell` — the root of the shared dashboard layout. Wraps `SidebarProvider` (forwarding
- * `defaultOpen`/`open`/`onOpenChange`/`mobileBreakpoint`/`keyboardShortcut` — everything the
- * sidebar's expand/collapse and mobile-Sheet behavior needs) and renders the flex row that
+ * `defaultOpen`/`open`/`onOpenChange` — everything the sidebar's expand/collapse and mobile-Sheet
+ * behavior needs) and renders the flex row that
  * `AppShellSidebar` and your content column sit in, plus a skip-to-content link
  * (`sr-only focus:not-sr-only`, targeting THIS shell's `AppShellContent`) as the very first
  * focusable element in the shell. The target id is generated per shell with `React.useId()` and
@@ -130,8 +117,6 @@ export function AppShell({
   defaultOpen,
   open,
   onOpenChange,
-  mobileBreakpoint,
-  keyboardShortcut,
   skipLinkLabel = "Skip to content",
   contentId,
   className,
@@ -145,8 +130,6 @@ export function AppShell({
       defaultOpen={defaultOpen}
       open={open}
       onOpenChange={onOpenChange}
-      mobileBreakpoint={mobileBreakpoint}
-      keyboardShortcut={keyboardShortcut}
       data-slot="app-shell"
       className={className}
       {...props}
@@ -166,7 +149,9 @@ export function AppShell({
 }
 
 /** Props accepted by `AppShellSidebar`. */
-export interface AppShellSidebarProps extends SidebarProps {}
+export interface AppShellSidebarProps extends React.ComponentProps<
+  typeof Sidebar
+> {}
 
 /**
  * `AppShellSidebar` — a thin, opinionated wrapper over `Sidebar`: defaults `aria-label` to
@@ -174,9 +159,14 @@ export interface AppShellSidebarProps extends SidebarProps {}
  * straight through (`variant`, `collapsible`, `side`, …). Compose your own `SidebarHeader` /
  * `SidebarContent` / `SidebarFooter` as children — exactly as you would with `Sidebar` directly.
  *
- * Renders the same `<nav>` landmark `Sidebar` does, but stamped `data-slot="app-shell-sidebar"`
- * (not `"sidebar"`) so shell-level styling/tests can target it distinctly from a bare `Sidebar`
- * used outside `AppShell`.
+ * **It supplies the `<nav>` landmark, and that is the reason it exists** (LAY-12). Upstream's
+ * `Sidebar` is divs all the way down — deliberately, because upstream leaves landmarks to the
+ * page. The landmark goes INSIDE the rail, around the children, stamped
+ * `data-slot="app-shell-sidebar"`: that is the one position that works in both of the trees
+ * upstream renders, and it is the one that keeps the landmark honest. Below the mobile breakpoint
+ * upstream moves the rail into a `Sheet`, so a landmark placed OUTSIDE would sit in the document
+ * with nothing in it whenever that sheet is closed; placed inside, it appears exactly when the
+ * navigation does. The rail's own state stays where upstream puts it, on `[data-slot="sidebar"]`.
  *
  * @example
  * <AppShellSidebar variant="inset">
@@ -186,10 +176,19 @@ export interface AppShellSidebarProps extends SidebarProps {}
  */
 export function AppShellSidebar({
   "aria-label": ariaLabel = "Main navigation",
+  children,
   ...props
 }: AppShellSidebarProps) {
   return (
-    <Sidebar aria-label={ariaLabel} data-slot="app-shell-sidebar" {...props} />
+    <Sidebar {...props}>
+      <nav
+        data-slot="app-shell-sidebar"
+        aria-label={ariaLabel}
+        className="flex h-full min-h-0 w-full flex-col"
+      >
+        {children}
+      </nav>
+    </Sidebar>
   );
 }
 
@@ -374,8 +373,9 @@ export interface AppShellSkeletonProps extends React.ComponentProps<"div"> {
  * `AppShellSkeleton` — a full-shell loading composition: a sidebar column (logo circle + N
  * `SidebarMenuSkeleton` rows), a header line, and a content region (a stat-card row via
  * a stat-card row plus one tall placeholder below it). Decorative
- * (`aria-hidden`) and `aria-busy`, matching `Skeleton`'s own convention; deterministic across
- * renders — no `Math.random()`, `SidebarMenuSkeleton`'s own `index`-cycled widths do the varying.
+ * (`aria-hidden`) and `aria-busy`, matching `Skeleton`'s own convention. Upstream's
+ * `SidebarMenuSkeleton` picks its own row width, so the rows vary without this composition
+ * deciding anything.
  *
  * **Server-safe**, despite composing `SidebarMenuSkeleton` (defined inside `sidebar.tsx`, a
  * `'use client'` module): `SidebarMenuSkeleton` itself has no hooks and no client-only logic, and
@@ -416,7 +416,7 @@ export function AppShellSkeleton({
         </div>
         <div className="flex flex-1 flex-col gap-1">
           {Array.from({ length: Math.max(0, navItemCount) }, (_, i) => (
-            <SidebarMenuSkeleton key={i} index={i} />
+            <SidebarMenuSkeleton key={i} />
           ))}
         </div>
       </div>

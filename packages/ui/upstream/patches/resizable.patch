@@ -1,0 +1,82 @@
+# component: resizable
+# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-6
+# hunks:
+#   FOC-1, FOC-6: `focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden`
+#     goes from `ResizableHandle`. `outline-hidden` is the v3 spelling of 'no outline', so
+#     upstream suppressed the one focus affordance this system has on a control that is
+#     keyboard-operable (arrow keys resize it). `ring-offset-background` is left alone: it paints
+#     nothing without a ring width and is upstream's own class.
+#   A11Y-2: the handle's invisible hit area grows from `after:w-1` / `after:h-1` (4px) to
+#     `after:w-6` / `after:h-6` (24px). The VISIBLE divider stays the 1px hairline upstream draws;
+#     what changes is the strip a pointer can grab, which the geometry lane measured at 4.5px
+#     across every resizable fixture — a drag target a fifth of the floor. 24px is the value the
+#     pre-reset handle used and the one the lane's own `resizableNested` exclusion is written
+#     against.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/resizable.tsx b/resizable.tsx
+index c5065e6..631af11 100644
+--- a/resizable.tsx
++++ b/resizable.tsx
+@@ -1,7 +1,9 @@
+-"use client"
++// @vegastack resizable@0.9.1 sha256-gSZG+PoksXuaukVs5IaJBZ+cwa8s+54RuzPW0QQKee4=
+ 
+-import { cn } from "cn"
+-import * as ResizablePrimitive from "react-resizable-panels"
++"use client";
++
++import { cn } from "@vegastack/design";
++import * as ResizablePrimitive from "react-resizable-panels";
+ 
+ function ResizablePanelGroup({
+   className,
+@@ -12,15 +14,15 @@ function ResizablePanelGroup({
+       data-slot="resizable-panel-group"
+       className={cn(
+         "flex h-full w-full aria-[orientation=vertical]:flex-col",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ResizablePanel({ ...props }: ResizablePrimitive.PanelProps) {
+-  return <ResizablePrimitive.Panel data-slot="resizable-panel" {...props} />
++  return <ResizablePrimitive.Panel data-slot="resizable-panel" {...props} />;
+ }
+ 
+ function ResizableHandle({
+@@ -28,14 +30,14 @@ function ResizableHandle({
+   className,
+   ...props
+ }: ResizablePrimitive.SeparatorProps & {
+-  withHandle?: boolean
++  withHandle?: boolean;
+ }) {
+   return (
+     <ResizablePrimitive.Separator
+       data-slot="resizable-handle"
+       className={cn(
+-        "relative flex w-px items-center justify-center bg-border ring-offset-background after:absolute after:inset-y-0 after:start-1/2 after:w-1 after:-translate-x-1/2 rtl:after:translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:after:start-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 rtl:aria-[orientation=horizontal]:after:-translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2 [&[aria-orientation=horizontal]>div]:rotate-90",
+-        className
++        "relative flex w-px items-center justify-center bg-border ring-offset-background after:absolute after:inset-y-0 after:start-1/2 after:w-6 after:-translate-x-1/2 rtl:after:translate-x-1/2 aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:after:top-1/2 aria-[orientation=horizontal]:after:bottom-auto aria-[orientation=horizontal]:after:start-0 aria-[orientation=horizontal]:after:h-6 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 rtl:aria-[orientation=horizontal]:after:-translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2 [&[aria-orientation=horizontal]>div]:rotate-90",
++        className,
+       )}
+       {...props}
+     >
+@@ -43,7 +45,7 @@ function ResizableHandle({
+         <div className="z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border" />
+       )}
+     </ResizablePrimitive.Separator>
+-  )
++  );
+ }
+ 
+-export { ResizableHandle, ResizablePanel, ResizablePanelGroup }
++export { ResizableHandle, ResizablePanel, ResizablePanelGroup };

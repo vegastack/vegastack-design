@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**126 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 607 registry items in total.
+**127 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 608 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -62,20 +62,21 @@ component and never an icon.
 
 ## Data display
 
-- **`accordion`** — A stack of collapsible sections — single or multiple open, animated height, a rotating chevron, full keyboard support.
+- **`accordion`** — A vertically stacked set of interactive headings that each reveal a section of content — one open at a time, or several.
 - **`animated-number`** — A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.
 - **`avatar`** — A circular user or entity image with a fallback, a badge, and an overlapping group.
 - **`badge`** — A compact label or status chip — upstream's six variants plus our four status tones (COL-12).
 - **`card`** — A content surface with composable header, content, footer and action parts.
+- **`carousel`** — A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, Embla options, events and plugins.
 - **`chart`** — A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.
-- **`collapsible`** — A single toggleable open/close region with an animated height, built on Base UI Collapsible.
+- **`collapsible`** — An interactive component which expands and collapses a panel, with an animated height and a trigger you supply.
 - **`empty`** — A zero-data placeholder — media, title, description and a content slot.
 - **`item`** — A composable row for list and feed content — media, title, description, actions.
 - **`kbd`** — A keyboard-key chip, and a group that lays several of them out inline.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.
 - **`relative-time`** — Render a date as a human-relative string ("2 hours ago", "yesterday") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.
 - **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.
-- **`table`** — Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, caption.
+- **`table`** — A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.
 - **`timeline`** — Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.
 - **`truncated-text`** — Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.
 
@@ -108,18 +109,18 @@ component and never an icon.
 - **`breadcrumb`** — A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.
 - **`command`** — A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
 - **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
-- **`navigation-menu`** — Site-nav mega-dropdown on the Base UI NavigationMenu primitive — chip triggers, one shared sliding panel, grid links.
+- **`navigation-menu`** — A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.
 - **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
-- **`sidebar`** — A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active state, and an expand/collapse trigger.
+- **`sidebar`** — A composable, themeable and customizable sidebar — a provider, a collapsible panel with header, content and footer, labelled groups, menu rows with actions, badges and submenus, a rail and a trigger.
 - **`stepper`** — A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.
-- **`tabs`** — Layered content sections — line or pill variants, optional icons and count badges, horizontal or vertical, full keyboard navigation.
+- **`tabs`** — A set of layered sections of content — known as tab panels — that are displayed one at a time.
 
 ## Feedback
 
 - **`action-bar`** — Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.
 - **`alert`** — A status banner — upstream's two variants plus our three extra status tones (COL-12).
-- **`progress`** — A horizontal progress bar for measurable, ongoing tasks — determinate or a sweeping indeterminate segment, built on Base UI Progress.
+- **`progress`** — Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.
 - **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.
 - **`skeleton`** — A pulsing placeholder that reserves layout space while content loads.
@@ -133,8 +134,8 @@ component and never an icon.
 - **`aspect-ratio`** — Constrains its children to a given width-to-height ratio.
 - **`board`** — Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.
 - **`direction`** — Base UI's DirectionProvider and useDirection — the text-direction context components read.
-- **`resizable`** — Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.
-- **`scroll-area`** — A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, built on Base UI ScrollArea.
+- **`resizable`** — Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.
+- **`scroll-area`** — Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.
 - **`separator`** — A thin rule dividing content — horizontal or vertical, built on Base UI.
 - **`settings-row`** — A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows.
 

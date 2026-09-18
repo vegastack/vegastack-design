@@ -1,144 +1,97 @@
-// @vegastack navigation-menu@0.9.1 sha256-0KtEP+jI84DljBguQxoUrGd1iEiErwtF0Yr7R+rdLJc=
+// @vegastack navigation-menu@0.9.1 sha256-L+1UwsfX+fZ2M/fVUP5GPgua/4VcTF+U8KZViAM31Zc=
 
 "use client";
 
-import * as React from "react";
-import { NavigationMenu as BaseNavigationMenu } from "@base-ui/react/navigation-menu";
-import { ChevronDown } from "lucide-react";
-import { cn, FLOATING } from "@vegastack/design";
-import {
-  FloatingSurface,
-  mergeStateClassName,
-} from "@/components/ui/floating-surface";
+import { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/navigation-menu";
+import { cva } from "class-variance-authority";
+import { cn } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { ChevronDownIcon } from "lucide-react";
 
-/* ------------------------------------------------------------------------------------------------
- * NavigationMenu — the site-nav mega-dropdown (Wave 4, from the marketing-teardown nav anatomy):
- * chip triggers in a row; a single shared popup panel whose content swaps as the pointer moves
- * between triggers. Built on the Base UI NavigationMenu primitive (Root/List/Item/Trigger/
- * Content + Portal/Positioner/Popup/Viewport), styled to the system's overlay grammar:
- * `popover` surface, the one hairline, `--shadow-lg`, `z-overlay`, fast scale/fade
- * enter with a 1px directional nudge (the teardown's menu-enter signature).
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props forwarded to the Base UI navigation-menu root. */
-export type NavigationMenuProps = React.ComponentProps<
-  typeof BaseNavigationMenu.Root
->;
-
-/**
- * `NavigationMenu` — the root. Compose:
- *
- * @example
- * <NavigationMenu>
- *   <NavigationMenuList>
- *     <NavigationMenuItem>
- *       <NavigationMenuTrigger>Platform</NavigationMenuTrigger>
- *       <NavigationMenuContent>
- *         <NavigationMenuGridLink href="/ai" title="Ask AI" description="Search and create with AI" icon={<Sparkles />} />
- *       </NavigationMenuContent>
- *     </NavigationMenuItem>
- *     <NavigationMenuItem>
- *       <NavigationMenuLink href="/pricing">Pricing</NavigationMenuLink>
- *     </NavigationMenuItem>
- *   </NavigationMenuList>
- *   <NavigationMenuPanel />
- * </NavigationMenu>
- */
-export function NavigationMenu({ className, ...props }: NavigationMenuProps) {
+function NavigationMenu({
+  align = "start",
+  className,
+  children,
+  ...props
+}: NavigationMenuPrimitive.Root.Props &
+  Pick<NavigationMenuPrimitive.Positioner.Props, "align">) {
   return (
-    <BaseNavigationMenu.Root
+    <NavigationMenuPrimitive.Root
       data-slot="navigation-menu"
+      className={cn(
+        "group/navigation-menu relative flex max-w-max flex-1 items-center justify-center",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <NavigationMenuPositioner align={align} />
+    </NavigationMenuPrimitive.Root>
+  );
+}
+
+function NavigationMenuList({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<typeof NavigationMenuPrimitive.List>) {
+  return (
+    <NavigationMenuPrimitive.List
+      data-slot="navigation-menu-list"
+      className={cn(
+        "group flex flex-1 list-none items-center justify-center gap-0",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function NavigationMenuItem({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<typeof NavigationMenuPrimitive.Item>) {
+  return (
+    <NavigationMenuPrimitive.Item
+      data-slot="navigation-menu-item"
       className={cn("relative", className)}
       {...props}
     />
   );
 }
 
-/** Props for the top-level navigation list. */
-export type NavigationMenuListProps = React.ComponentProps<
-  typeof BaseNavigationMenu.List
->;
-
-/** `NavigationMenuList` — the horizontal row of triggers/links. @example <NavigationMenuList /> */
-export function NavigationMenuList({
-  className,
-  ...props
-}: NavigationMenuListProps) {
-  return (
-    <BaseNavigationMenu.List
-      data-slot="navigation-menu-list"
-      className={cn("flex items-center gap-1", className)}
-      {...props}
-    />
-  );
-}
-
-/** Props for one navigation-menu item. */
-export type NavigationMenuItemProps = React.ComponentProps<
-  typeof BaseNavigationMenu.Item
->;
-
-/** `NavigationMenuItem` — one nav entry. @example <NavigationMenuItem /> */
-export function NavigationMenuItem(props: NavigationMenuItemProps) {
-  return (
-    <BaseNavigationMenu.Item data-slot="navigation-menu-item" {...props} />
-  );
-}
-
-const navTriggerClasses = cn(
-  "inline-flex h-8 items-center gap-1 rounded-md px-3 text-sm font-medium text-muted-foreground select-none",
-  "hover:text-foreground",
-  "hover:bg-accent",
-  // Open trigger stays lit (the teardown's open-equals-hover rule).
-  "data-[popup-open]:bg-accent data-[popup-open]:text-foreground",
-  "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+const navigationMenuTriggerStyle = cva(
+  "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all hover:bg-muted focus:bg-muted disabled:opacity-50 data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted data-open:bg-muted/50 data-open:hover:bg-muted data-open:focus:bg-muted",
 );
 
-/** Props forwarded to a disclosure trigger. */
-export type NavigationMenuTriggerProps = React.ComponentProps<
-  typeof BaseNavigationMenu.Trigger
->;
-
-/** `NavigationMenuTrigger` — a chip trigger with a rotating chevron. @example <NavigationMenuTrigger>Platform</NavigationMenuTrigger> */
-export function NavigationMenuTrigger({
+function NavigationMenuTrigger({
   className,
   children,
   ...props
-}: NavigationMenuTriggerProps) {
+}: NavigationMenuPrimitive.Trigger.Props) {
   return (
-    <BaseNavigationMenu.Trigger
+    <NavigationMenuPrimitive.Trigger
       data-slot="navigation-menu-trigger"
-      className={cn(navTriggerClasses, className)}
+      className={cn(navigationMenuTriggerStyle(), "group", className)}
       {...props}
     >
-      {children}
-      <BaseNavigationMenu.Icon className="transition-transform duration-fast ease-standard data-[popup-open]:rotate-180">
-        <ChevronDown aria-hidden />
-      </BaseNavigationMenu.Icon>
-    </BaseNavigationMenu.Trigger>
+      {children}{" "}
+      <ChevronDownIcon
+        className="relative top-px ms-1 size-3 transition duration-300 group-data-popup-open/navigation-menu-trigger:rotate-180 group-data-open/navigation-menu-trigger:rotate-180"
+        aria-hidden="true"
+      />
+    </NavigationMenuPrimitive.Trigger>
   );
 }
 
-/** Props for one item's content inside the shared viewport. */
-export type NavigationMenuContentProps = React.ComponentProps<
-  typeof BaseNavigationMenu.Content
->;
-
-/**
- * `NavigationMenuContent` — the panel content for one item. Swapping between
- * items slides content inside the shared popup; entering/leaving fades.
- * @example <NavigationMenuContent>Links</NavigationMenuContent>
- */
-export function NavigationMenuContent({
+function NavigationMenuContent({
   className,
   ...props
-}: NavigationMenuContentProps) {
+}: NavigationMenuPrimitive.Content.Props) {
   return (
-    <BaseNavigationMenu.Content
+    <NavigationMenuPrimitive.Content
       data-slot="navigation-menu-content"
       className={cn(
-        "w-max max-w-5xl p-2",
-        "transition-opacity duration-fast ease-standard data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
+        "data-ending-style:data-activation-direction=left:translate-x-[50%] rtl:data-ending-style:data-activation-direction=left:-translate-x-[50%] data-ending-style:data-activation-direction=right:translate-x-[-50%] rtl:data-ending-style:data-activation-direction=right:-translate-x-[-50%] data-starting-style:data-activation-direction=left:translate-x-[-50%] rtl:data-starting-style:data-activation-direction=left:-translate-x-[-50%] data-starting-style:data-activation-direction=right:translate-x-[50%] rtl:data-starting-style:data-activation-direction=right:-translate-x-[50%] h-full w-auto p-1 transition-[opacity,transform,translate] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[viewport=false]/navigation-menu:rounded-lg group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground group-data-[viewport=false]/navigation-menu:shadow group-data-[viewport=false]/navigation-menu:ring-1 group-data-[viewport=false]/navigation-menu:ring-foreground/10 group-data-[viewport=false]/navigation-menu:duration-300 data-ending-style:opacity-0 data-starting-style:opacity-0 data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 data-[motion^=from-]:animate-in data-[motion^=from-]:fade-in data-[motion^=to-]:animate-out data-[motion^=to-]:fade-out group-data-[viewport=false]/navigation-menu:data-open:animate-in group-data-[viewport=false]/navigation-menu:data-open:fade-in-0 group-data-[viewport=false]/navigation-menu:data-open:zoom-in-95 group-data-[viewport=false]/navigation-menu:data-closed:animate-out group-data-[viewport=false]/navigation-menu:data-closed:fade-out-0 group-data-[viewport=false]/navigation-menu:data-closed:zoom-out-95",
         className,
       )}
       {...props}
@@ -146,121 +99,80 @@ export function NavigationMenuContent({
   );
 }
 
-/** Props forwarded to a plain Base UI navigation link. */
-export type NavigationMenuLinkProps = React.ComponentProps<
-  typeof BaseNavigationMenu.Link
->;
+function NavigationMenuPositioner({
+  className,
+  side = "bottom",
+  sideOffset = 8,
+  align = "start",
+  alignOffset = 0,
+  ...props
+}: NavigationMenuPrimitive.Positioner.Props) {
+  const themeScope = useInternalThemeScope();
 
-/** `NavigationMenuLink` — a plain nav link styled like a trigger. @example <NavigationMenuLink href="/pricing">Pricing</NavigationMenuLink> */
-export function NavigationMenuLink({
+  return (
+    <NavigationMenuPrimitive.Portal>
+      <NavigationMenuPrimitive.Positioner
+        side={side}
+        sideOffset={sideOffset}
+        align={align}
+        alignOffset={alignOffset}
+        className={cn(
+          "isolate z-50 h-(--positioner-height) w-(--positioner-width) max-w-(--available-width) transition-[top,left,right,bottom] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-instant:transition-none data-[side=bottom]:before:top-[-10px] data-[side=bottom]:before:end-0 data-[side=bottom]:before:start-0",
+          themeScope,
+          className,
+        )}
+        {...props}
+      >
+        <NavigationMenuPrimitive.Popup className="data-[ending-style]:easing-[ease] xs:w-(--popup-width) relative h-(--popup-height) w-(--popup-width) origin-(--transform-origin) rounded-lg bg-popover text-popover-foreground shadow ring-1 ring-foreground/10 transition-[opacity,transform,width,height,scale,translate] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] outline-none data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:scale-90 data-starting-style:opacity-0">
+          <NavigationMenuPrimitive.Viewport className="relative size-full overflow-hidden" />
+        </NavigationMenuPrimitive.Popup>
+      </NavigationMenuPrimitive.Positioner>
+    </NavigationMenuPrimitive.Portal>
+  );
+}
+
+function NavigationMenuLink({
   className,
   ...props
-}: NavigationMenuLinkProps) {
+}: NavigationMenuPrimitive.Link.Props) {
   return (
-    <BaseNavigationMenu.Link
+    <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
-      className={cn(navTriggerClasses, className)}
+      className={cn(
+        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all hover:bg-muted focus:bg-muted in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-/** Props forwarded to the shared portaled positioner. */
-export type NavigationMenuPanelProps = React.ComponentProps<
-  typeof BaseNavigationMenu.Positioner
->;
-
-/**
- * `NavigationMenuPanel` — the SHARED floating panel every item's content renders
- * into (Base UI Portal → Positioner → Popup → Viewport). Render it once, after
- * the list. Overlay grammar: popover surface + hairline + `--shadow-lg` +
- * scale-0.97/1px-nudge enter.
- * @example <NavigationMenuPanel />
- */
-export function NavigationMenuPanel({
+function NavigationMenuIndicator({
   className,
-  sideOffset = FLOATING.sideOffsetDetached,
   ...props
-}: NavigationMenuPanelProps) {
+}: React.ComponentPropsWithRef<typeof NavigationMenuPrimitive.Icon>) {
   return (
-    <FloatingSurface
-      parts={{
-        Portal: BaseNavigationMenu.Portal,
-        Positioner: BaseNavigationMenu.Positioner,
-        Popup: BaseNavigationMenu.Popup,
-        Viewport: BaseNavigationMenu.Viewport,
-      }}
-      slot="navigation-menu"
-      popupSlot="navigation-menu-popup"
-      surface="navigation"
-      // The one floating surface that morphs between items rather than simply appearing, so it
-      // takes the D11 modal duration (200ms) instead of the 150ms floating one.
-      motion="base"
-      viewport="always"
-      positioning={{ sideOffset }}
-      positionerProps={{
-        ...props,
-        // The positioner is the element that resizes between items, so the size vars and the
-        // top/left transition live here rather than on the popup.
-        className: mergeStateClassName(
-          "h-(--positioner-height) w-(--positioner-width) transition-[top,left,right,bottom] duration-base ease-standard",
-          className,
-        ),
-      }}
-    />
-  );
-}
-
-/** Props for a descriptive grid link inside navigation-menu content. */
-export interface NavigationMenuGridLinkProps extends Omit<
-  React.ComponentProps<typeof BaseNavigationMenu.Link>,
-  "title"
-> {
-  /** Leading icon (decorative). @default undefined */
-  icon?: React.ReactNode;
-  /** The entry name — ink voice. */
-  title: React.ReactNode;
-  /** Muted one-line description under the title. @default undefined */
-  description?: React.ReactNode;
-}
-
-/**
- * `NavigationMenuGridLink` — a mega-menu grid entry: icon + title + muted
- * description, hierarchy carried by color at one size (the teardown's menu
- * typography rule). Lay several out in a `grid grid-cols-2` content panel.
- * @example <NavigationMenuGridLink href="/ai" title="Ask AI" />
- */
-export function NavigationMenuGridLink({
-  className,
-  icon,
-  title,
-  description,
-  ...props
-}: NavigationMenuGridLinkProps) {
-  return (
-    <BaseNavigationMenu.Link
-      data-slot="navigation-menu-grid-link"
+    <NavigationMenuPrimitive.Icon
+      data-slot="navigation-menu-indicator"
       className={cn(
-        "flex items-start gap-3 rounded-md p-3 no-underline select-none",
-        "hover:bg-accent",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg]:text-muted-foreground",
+        "top-full z-1 flex h-1.5 items-end justify-center overflow-hidden data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:animate-in data-[state=visible]:fade-in",
         className,
       )}
       {...props}
     >
-      {icon ? (
-        <span aria-hidden className="mt-0.5 shrink-0">
-          {icon}
-        </span>
-      ) : null}
-      <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-sm font-medium text-foreground">{title}</span>
-        {description ? (
-          <span className="text-sm font-normal text-muted-foreground">
-            {description}
-          </span>
-        ) : null}
-      </span>
-    </BaseNavigationMenu.Link>
+      <div className="relative top-[60%] h-2 w-2 rotate-45 rounded-ss-sm bg-border shadow-md" />
+    </NavigationMenuPrimitive.Icon>
   );
 }
+
+export {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+  NavigationMenuPositioner,
+};

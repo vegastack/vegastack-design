@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.9.1 sha256-vbs7KALADQldlD6EqS7mUQdnJiPFtWINSJCurmm9XNY=
+// @vegastack data-table-parts@0.9.1 sha256-X42Sp5Gcd+edJ7fvAOOUgA1owM1vpLcCPh4zrq2b/rU=
 
 "use client";
 
@@ -92,7 +92,11 @@ export function isNowrapColumn(column: DataTableColumnLayout): boolean {
 export function columnCellClass(column: DataTableColumnLayout): string {
   return cn(
     alignClass(column.align),
-    isNowrapColumn(column) && "whitespace-nowrap",
+    // Both directions are spelled out, not just the nowrap one. Batch 5 of the shadcn reset put
+    // `Table` back on upstream's file, whose `TableCell` is `whitespace-nowrap` by default
+    // (LAY-6 resolves as **shadcn**), so a column that wants to wrap has to say so or `cn`'s
+    // merge leaves upstream's class standing.
+    isNowrapColumn(column) ? "whitespace-nowrap" : "whitespace-normal",
     column.mono && "font-mono font-mono text-sm tabular-nums",
   );
 }
@@ -324,7 +328,13 @@ export function SelectAllHead({
   return (
     <TableHead
       data-slot="data-table-select-all"
-      className={cn("w-0", className)}
+      // `pe-2!` reinstates the trailing padding upstream's `TableHead` removes with
+      // `[&:has([role=checkbox])]:pe-0`. Since Batch 5 put `Table` back on upstream's file the head
+      // is `h-10 px-2`, which is tighter than the pre-reset cell, and with no trailing padding the
+      // checkbox's centred 24px pointer target crossed into the next column and was taken by the
+      // sort-header Button (A11Y-2, measured by the geometry lane). Eight pixels of inline-end
+      // padding keep the square inside this cell without moving the checkbox.
+      className={cn("w-0 pe-2!", className)}
       {...props}
     >
       <Checkbox
@@ -372,7 +382,9 @@ export function SelectionCell({
   return (
     <TableCell
       data-slot="data-table-selection-cell"
-      className={cn("w-0", className)}
+      // Same as `SelectAllHead`: upstream's `[&:has([role=checkbox])]:pe-0` would let the
+      // checkbox's 24px pointer target spill into the next column (A11Y-2).
+      className={cn("w-0 pe-2!", className)}
       onClick={(event) => {
         event.stopPropagation();
         onClick?.(event);

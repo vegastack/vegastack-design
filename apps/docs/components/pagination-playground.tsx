@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -8,7 +8,6 @@ import {
   PaginationLink,
   PaginationPrevious,
   PaginationNext,
-  type PaginationLinkProps,
 } from "@/components/ui/pagination";
 import {
   PropsPlayground,
@@ -17,12 +16,20 @@ import {
 
 type PaginationPlaygroundKey = "size";
 
-// `icon` (a square) is the default for numbered page links; `sm`/`default`/`lg`
-// widen the hit target with horizontal padding on the shared control scale.
+/**
+ * `size` is forwarded to the `Button` under `PaginationLink`, so the options are Button's own
+ * scale. `icon` (a square) is the default for a numbered page link; the others widen the target
+ * with horizontal padding. Upstream exports no props type, so the union is read off the component.
+ */
+type PaginationLinkSize = NonNullable<
+  ComponentProps<typeof PaginationLink>["size"]
+>;
+
 const SIZE_OPTIONS = [
   { value: "icon", label: "Icon (square)" },
+  { value: "icon-sm", label: "Icon, small" },
   { value: "sm", label: "Small" },
-  { value: "md", label: "Medium" },
+  { value: "default", label: "Default" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -48,7 +55,7 @@ const paginationPlaygroundConfig: PlaygroundConfig<PaginationPlaygroundKey> = {
           <PaginationItem key={page}>
             <PaginationLink
               href="#"
-              size={state.size as PaginationLinkProps["size"]}
+              size={state.size as PaginationLinkSize}
               isActive={page === 2}
             >
               {page}
@@ -88,8 +95,8 @@ const paginationPlaygroundConfig: PlaygroundConfig<PaginationPlaygroundKey> = {
 };
 
 /**
- * `PaginationPlayground` — interactive props playground for `Pagination` (`PaginationLink`
- * size across a 5-page bar with previous/next), backed by the generic {@link PropsPlayground}.
+ * `PaginationPlayground` — interactive props playground for `Pagination`: the `PaginationLink`
+ * size across a 5-page bar with previous/next, backed by the generic `PropsPlayground`.
  * Registered in `mdx.tsx`, adopted in `content/docs/components/pagination.mdx`.
  */
 export function PaginationPlayground() {

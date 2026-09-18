@@ -298,7 +298,7 @@
     "table-scroll-region": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of table; not listed in extras.md"
+      "source": "internal part of table; not listed in extras.md. Batch 5 reset `table` onto upstream's file, which wraps itself in its own `data-slot=\"table-container\"` overflow div, so NOTHING imports this module any more — it ships inside the `@vegastack/table` item and is re-exported by nobody. It is deliberately NOT deleted here: retirements are Batch 7's, and this is the one piece of the family that implements A11Y-6 (a scroll viewport is a named, keyboard-reachable region only while it can actually scroll), which upstream's plain container does not. Batch 7 decides whether `data-list`/`data-grid` adopt it or it goes."
     },
     "tag-group": {
       "disposition": "keep",

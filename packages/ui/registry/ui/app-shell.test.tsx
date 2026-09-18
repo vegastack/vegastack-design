@@ -215,7 +215,7 @@ test("an explicit contentId wins over the generated one, on both halves", async 
 test("header renders the trigger, the actions slot, and a min-w-0 middle slot", async () => {
   const screen = await render(<Demo />);
   await expect
-    .element(screen.getByRole("button", { name: "Toggle sidebar" }))
+    .element(screen.getByRole("button", { name: "Toggle Sidebar" }))
     .toBeInTheDocument();
   await expect
     .element(screen.getByRole("button", { name: "New agent" }))
@@ -333,31 +333,48 @@ test("AppShell forwards defaultOpen to SidebarProvider", async () => {
       <AppShellSidebar />
     </AppShell>,
   );
-  const nav = screen.getByRole("navigation", { name: "Main navigation" });
-  await expect.element(nav).toHaveAttribute("data-state", "collapsed");
+  // The `<nav>` landmark is `AppShellSidebar`'s own (LAY-12); upstream's Sidebar keeps its state
+  // on the `[data-slot="sidebar"]` element inside it.
+  const rail = screen.container.querySelector(
+    '[data-slot="sidebar"]',
+  ) as HTMLElement;
+  await expect.element(rail).toHaveAttribute("data-state", "collapsed");
 });
 
 test("the Cmd/Ctrl+B shortcut toggles the sidebar through AppShell", async () => {
   const screen = await render(<Demo />);
-  const nav = screen.getByRole("navigation", { name: "Main navigation" });
-  await expect.element(nav).toHaveAttribute("data-state", "expanded");
+  const rail = screen.container.querySelector(
+    '[data-slot="sidebar"]',
+  ) as HTMLElement;
+  await expect.element(rail).toHaveAttribute("data-state", "expanded");
   window.dispatchEvent(
     new KeyboardEvent("keydown", { key: "b", ctrlKey: true }),
   );
-  await expect.element(nav).toHaveAttribute("data-state", "collapsed");
+  await expect.element(rail).toHaveAttribute("data-state", "collapsed");
 });
 
-test("AppShell forwards keyboardShortcut={false} to disable the shortcut", async () => {
+test("AppShell has no shortcut override: upstream's Cmd/Ctrl+B is the only one", async () => {
+  // Was "AppShell forwards keyboardShortcut={false} to disable the shortcut". Batch 5 of the
+  // shadcn reset put Sidebar back on upstream's file, whose `SidebarProvider` hard-codes the
+  // shortcut and offers no prop to retune or disable it, so `AppShell` no longer takes one.
+  // What is pinned here is the replacement contract: the ONLY chord that toggles the rail is
+  // upstream's, and a different chord does nothing.
   const screen = await render(
-    <AppShell keyboardShortcut={false}>
+    <AppShell>
       <AppShellSidebar />
     </AppShell>,
   );
-  const nav = screen.getByRole("navigation", { name: "Main navigation" });
+  const rail = screen.container.querySelector(
+    '[data-slot="sidebar"]',
+  ) as HTMLElement;
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "k", ctrlKey: true }),
+  );
+  await expect.element(rail).toHaveAttribute("data-state", "expanded");
   window.dispatchEvent(
     new KeyboardEvent("keydown", { key: "b", ctrlKey: true }),
   );
-  await expect.element(nav).toHaveAttribute("data-state", "expanded");
+  await expect.element(rail).toHaveAttribute("data-state", "collapsed");
 });
 
 /* ---------------------------------------------------------------------------------------------
@@ -417,7 +434,7 @@ test("no a11y violations — mobile-mocked, sheet closed", async () => {
 test("no a11y violations — mobile-mocked, sheet open", async () => {
   await withMobileViewport(async () => {
     const screen = await render(<Demo />);
-    await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+    await screen.getByRole("button", { name: "Toggle Sidebar" }).click();
     await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
     // The sheet portals to <body>, so audit the whole document (same pattern as sidebar.test.tsx).
     await expectNoA11yViolations(document.body);

@@ -47,7 +47,10 @@ test("cells WRAP by default; figures and mono values opt in to nowrap (D18)", ()
 });
 
 test("columnCellClass carries alignment, wrap posture and the mono face", () => {
-  expect(columnCellClass({ key: "name" })).toBe("text-start");
+  // The wrap posture is spelled out in BOTH directions since Batch 5 of the shadcn reset: upstream's
+  // `TableCell` is `whitespace-nowrap` by default (LAY-6 resolves as **shadcn**), so a wrapping
+  // column has to say `whitespace-normal` or `cn`'s merge leaves upstream's class standing.
+  expect(columnCellClass({ key: "name" })).toBe("text-start whitespace-normal");
   expect(columnCellClass({ key: "amount", align: "end" })).toContain(
     "whitespace-nowrap",
   );

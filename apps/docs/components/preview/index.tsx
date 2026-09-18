@@ -129,3 +129,4 @@ export * from "./input-otp";
 export * from "./native-select";
 export * from "./calendar";
 export * from "./direction";
+export * from "./carousel";

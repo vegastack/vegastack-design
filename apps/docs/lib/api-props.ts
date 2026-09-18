@@ -145,6 +145,51 @@ import type {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { TabsList } from "@/components/ui/tabs";
+import type { ResizableHandle } from "@/components/ui/resizable";
+import type {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import type {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import type {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuPositioner,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import type {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import type {
+  Sidebar,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuSkeleton,
+  SidebarMenuSubButton,
+  SidebarProvider,
+} from "@/components/ui/sidebar";
 
 export type AlertProps = React.ComponentProps<typeof Alert>;
 export type AlertTitleProps = React.ComponentProps<typeof AlertTitle>;
@@ -335,3 +380,79 @@ export type ToastViewportProps = React.ComponentProps<typeof ToastViewport>;
 export type ToastActionProps = React.ComponentProps<typeof ToastAction>;
 
 export type SonnerToasterProps = React.ComponentProps<typeof SonnerToaster>;
+
+export type TabsListProps = React.ComponentProps<typeof TabsList>;
+
+export type ResizableHandleProps = React.ComponentProps<typeof ResizableHandle>;
+
+export type BreadcrumbProps = React.ComponentProps<typeof Breadcrumb>;
+export type BreadcrumbListProps = React.ComponentProps<typeof BreadcrumbList>;
+export type BreadcrumbItemProps = React.ComponentProps<typeof BreadcrumbItem>;
+export type BreadcrumbLinkProps = React.ComponentProps<typeof BreadcrumbLink>;
+export type BreadcrumbPageProps = React.ComponentProps<typeof BreadcrumbPage>;
+export type BreadcrumbSeparatorProps = React.ComponentProps<
+  typeof BreadcrumbSeparator
+>;
+export type BreadcrumbEllipsisProps = React.ComponentProps<
+  typeof BreadcrumbEllipsis
+>;
+
+export type PaginationProps = React.ComponentProps<typeof Pagination>;
+export type PaginationContentProps = React.ComponentProps<
+  typeof PaginationContent
+>;
+export type PaginationItemProps = React.ComponentProps<typeof PaginationItem>;
+export type PaginationLinkProps = React.ComponentProps<typeof PaginationLink>;
+export type PaginationPreviousProps = React.ComponentProps<
+  typeof PaginationPrevious
+>;
+export type PaginationNextProps = React.ComponentProps<typeof PaginationNext>;
+export type PaginationEllipsisProps = React.ComponentProps<
+  typeof PaginationEllipsis
+>;
+
+export type NavigationMenuProps = React.ComponentProps<typeof NavigationMenu>;
+export type NavigationMenuListProps = React.ComponentProps<
+  typeof NavigationMenuList
+>;
+export type NavigationMenuItemProps = React.ComponentProps<
+  typeof NavigationMenuItem
+>;
+export type NavigationMenuTriggerProps = React.ComponentProps<
+  typeof NavigationMenuTrigger
+>;
+export type NavigationMenuContentProps = React.ComponentProps<
+  typeof NavigationMenuContent
+>;
+export type NavigationMenuLinkProps = React.ComponentProps<
+  typeof NavigationMenuLink
+>;
+export type NavigationMenuIndicatorProps = React.ComponentProps<
+  typeof NavigationMenuIndicator
+>;
+export type NavigationMenuPositionerProps = React.ComponentProps<
+  typeof NavigationMenuPositioner
+>;
+
+export type CarouselProps = React.ComponentProps<typeof Carousel>;
+export type CarouselContentProps = React.ComponentProps<typeof CarouselContent>;
+export type CarouselItemProps = React.ComponentProps<typeof CarouselItem>;
+export type CarouselPreviousProps = React.ComponentProps<
+  typeof CarouselPrevious
+>;
+export type CarouselNextProps = React.ComponentProps<typeof CarouselNext>;
+
+export type SidebarProviderProps = React.ComponentProps<typeof SidebarProvider>;
+export type SidebarProps = React.ComponentProps<typeof Sidebar>;
+export type SidebarMenuButtonProps = React.ComponentProps<
+  typeof SidebarMenuButton
+>;
+export type SidebarMenuActionProps = React.ComponentProps<
+  typeof SidebarMenuAction
+>;
+export type SidebarMenuSubButtonProps = React.ComponentProps<
+  typeof SidebarMenuSubButton
+>;
+export type SidebarMenuSkeletonProps = React.ComponentProps<
+  typeof SidebarMenuSkeleton
+>;

@@ -17,6 +17,15 @@ import {
 
 const toast = ToastPrimitive.createToastManager();
 
+// A11Y-9: what is hidden from assistive technology must not be reachable by keyboard. Base UI keeps
+// a `priority: "high"` toast `aria-hidden` for as long as the viewport is unfocused — it announces a
+// visually hidden `role="alert"` clone instead — while leaving the visible root and its buttons in
+// the tab order. The root reads the flag off the props the engine hands it, rather than recomputing
+// `priority === "high" && !focused`, and publishes it here so the toast's own focusable parts leave
+// the tab order with it. Base UI clears `aria-hidden` the moment the viewport takes focus (F6), so
+// the toast becomes tabbable exactly when it becomes visible to assistive technology.
+const ToastHiddenFromAtContext = React.createContext(false);
+
 function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
   return <ToastPrimitive.Provider {...props} />;
 }
@@ -44,10 +53,26 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
   );
 }
 
-function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
+function Toast({ className, render, ...props }: ToastPrimitive.Root.Props) {
   return (
     <ToastPrimitive.Root
       data-slot="toast"
+      // A11Y-9: `tabIndex` follows `aria-hidden` — see `ToastHiddenFromAtContext`.
+      render={
+        render ??
+        (({ children, ...elementProps }) => {
+          const hiddenFromAt =
+            elementProps["aria-hidden"] === true ||
+            elementProps["aria-hidden"] === "true";
+          return (
+            <div {...elementProps} tabIndex={hiddenFromAt ? -1 : 0}>
+              <ToastHiddenFromAtContext.Provider value={hiddenFromAt}>
+                {children}
+              </ToastHiddenFromAtContext.Provider>
+            </div>
+          );
+        })
+      }
       className={cn(
         "group/toast pointer-events-auto absolute end-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-2xl border bg-popover text-popover-foreground shadow-lg will-change-transform select-none",
         "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
@@ -112,10 +137,14 @@ function ToastAction({
   render = <Button variant="outline" size="sm" />,
   ...props
 }: ToastPrimitive.Action.Props) {
+  const hiddenFromAt = React.useContext(ToastHiddenFromAtContext);
+
   return (
     <ToastPrimitive.Action
       data-slot="toast-action"
       render={render}
+      // A11Y-9: out of the tab order while the toast around it is `aria-hidden`.
+      tabIndex={hiddenFromAt ? -1 : 0}
       className={cn("shrink-0", className)}
       {...props}
     />
@@ -128,11 +157,15 @@ function ToastClose({
   render = <Button variant="ghost" size="icon-sm" />,
   ...props
 }: ToastPrimitive.Close.Props) {
+  const hiddenFromAt = React.useContext(ToastHiddenFromAtContext);
+
   return (
     <ToastPrimitive.Close
       data-slot="toast-close"
       aria-label="Close toast"
       render={render}
+      // A11Y-9: out of the tab order while the toast around it is `aria-hidden`.
+      tabIndex={hiddenFromAt ? -1 : 0}
       className={cn(
         "relative shrink-0 text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:text-foreground",
         className,

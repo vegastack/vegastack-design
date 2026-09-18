@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "bb6efcd2a5695bb9bcae7da92793a736e620104d7d5042d9e4d357a2f74a84ad",
+  "contractSha256": "8383f805f75ace0b8bd8db8f249af8cff1702200fadb52f92ce3748349398787",
   "expectedCounts": {
-    "totalRegistryItems": 607,
-    "components": 126,
+    "totalRegistryItems": 608,
+    "components": 127,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -230,6 +230,17 @@
         "packages/ui/registry/ui/card.tsx"
       ],
       "docsSlug": "/docs/components/card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "carousel",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/carousel.tsx"
+      ],
+      "docsSlug": "/docs/components/carousel",
       "contractStatus": "reconciled"
     },
     {
@@ -1239,8 +1250,8 @@
       "wave": "Data display",
       "family": "data-display",
       "sourceFiles": [
-        "packages/ui/registry/ui/table.tsx",
-        "packages/ui/registry/ui/table-scroll-region.tsx"
+        "packages/ui/registry/ui/table-scroll-region.tsx",
+        "packages/ui/registry/ui/table.tsx"
       ],
       "docsSlug": "/docs/components/table",
       "contractStatus": "reconciled"

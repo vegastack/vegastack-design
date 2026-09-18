@@ -1,197 +1,79 @@
-// @vegastack accordion@0.9.1 sha256-ocudYfjlvZ8rzVG/ZpJlqYOx9tg9YhhaG92bhjgtRts=
+// @vegastack accordion@0.9.1 sha256-7L7YK0yrUBYAfIakJ4htTdk8jJqKM8VX2JrG99KSMjk=
 
-"use client";
-
-import * as React from "react";
-import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
-import { ChevronDown } from "lucide-react";
+import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
 import { cn } from "@vegastack/design";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-/* ------------------------------------------------------------------------------------------------
- * Accordion (Root) — groups the collapsible items and owns single/multiple open behavior.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `Accordion`. */
-export type AccordionProps = React.ComponentProps<typeof BaseAccordion.Root>;
-
-/**
- * `Accordion` — the root that groups a stack of collapsible `AccordionItem`s.
- * Flat, shadcn-style API over Base UI Accordion:
- * `Accordion` → `AccordionItem` → `AccordionTrigger` + `AccordionContent`.
- *
- * Single-open by default; pass Base UI's `multiple` prop when more than one
- * item can stay open at the same time. Controlled via `value`/`onValueChange`,
- * or uncontrolled via `defaultValue` (both arrays).
- *
- * @example
- * <Accordion defaultValue={['shipping']}>
- *   <AccordionItem value="shipping">
- *     <AccordionTrigger>Shipping</AccordionTrigger>
- *     <AccordionContent>Ships in 2–3 business days.</AccordionContent>
- *   </AccordionItem>
- *   <AccordionItem value="returns">
- *     <AccordionTrigger>Returns</AccordionTrigger>
- *     <AccordionContent>30-day return window.</AccordionContent>
- *   </AccordionItem>
- * </Accordion>
- */
-export function Accordion({ className, ref, ...props }: AccordionProps) {
+function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {
   return (
-    <BaseAccordion.Root
-      ref={ref}
+    <AccordionPrimitive.Root
       data-slot="accordion"
-      className={cn("w-full", className)}
+      className={cn("flex w-full flex-col", className)}
       {...props}
     />
   );
 }
 
-/* ------------------------------------------------------------------------------------------------
- * AccordionItem — a single collapsible section. Carries the bottom rule that
- * separates stacked items; the last item drops its border.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `AccordionItem`. */
-export type AccordionItemProps = React.ComponentProps<
-  typeof BaseAccordion.Item
->;
-
-/**
- * `AccordionItem` — pairs an `AccordionTrigger` (header) with its
- * `AccordionContent` (panel). Identify it with a unique `value`; pass `disabled`
- * to lock the section. Renders a bottom rule between stacked items.
-
- *
- * @example
- * <AccordionItem />
- */
-export function AccordionItem({
-  className,
-  ref,
-  ...props
-}: AccordionItemProps) {
+function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   return (
-    <BaseAccordion.Item
-      ref={ref}
+    <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn(
-        // `py-1` gives the trigger wash its ≥4px inset from the bottom rule (design.md § Hover
-        // geometry) while the header row keeps the height it had.
-        "border-b border-border py-1 last:border-b-0",
-        className,
-      )}
+      className={cn("not-last:border-b", className)}
       {...props}
     />
   );
 }
 
-/* ------------------------------------------------------------------------------------------------
- * AccordionTrigger — the header button that opens/closes the panel. The trailing
- * chevron rotates 180° when the panel is open via Base UI's `data-panel-open`.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `AccordionTrigger`. */
-export type AccordionTriggerProps = React.ComponentProps<
-  typeof BaseAccordion.Trigger
->;
-
-/**
- * `AccordionTrigger` — the header button (wrapped in an `AccordionHeader`
- * heading) that toggles its panel. Active state is exposed as `data-panel-open`,
- * which rotates the trailing `ChevronDown` 180°. Compose the label as children.
-
- *
- * @example
- * <AccordionTrigger />
- */
-export function AccordionTrigger({
+function AccordionTrigger({
   className,
   children,
-  ref,
   ...props
-}: AccordionTriggerProps) {
+}: AccordionPrimitive.Trigger.Props) {
   return (
-    <BaseAccordion.Header data-slot="accordion-header" className="flex">
-      <BaseAccordion.Trigger
-        ref={ref}
+    <AccordionPrimitive.Header className="flex">
+      <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger flex flex-1 items-center justify-between gap-4 rounded-md py-2 text-start text-sm font-medium text-foreground",
-          // Underline-on-hover is the LINK affordance and belongs to links only (B7-08). A
-          // disclosure hovers with the row wash, which needs the geometry design.md § Hover
-          // geometry demands: an inner radius and a ≥4px inset from the item hairline. The
-          // trigger supplies both — `px-2` and `rounded-md` here, `py-1` on `AccordionItem` to
-          // hold the wash off the bottom rule. That is the migration design.md sanctions: once an
-          // ink-signalled control is given padding and an inner radius, it moves to the recipes,
-          // both steps together. The padding is POSITIVE, never a negative margin: a wash bled
-          // outward past the item's content box overflows the root at 320px. `AccordionContent`
-          // carries the same `px-2` so the label stays aligned with the panel body.
-          "px-2",
-          "hover:bg-accent",
-          // Base UI surfaces item/root-level `disabled` as a `data-disabled` attribute
-          // on the trigger (no native `disabled` attribute), so style both.
-          "disabled:pointer-events-none disabled:opacity-50",
-          "data-disabled:pointer-events-none data-disabled:opacity-50",
-          "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-start text-sm font-medium transition-all hover:underline aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ms-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
           className,
         )}
         {...props}
       >
         {children}
-        <ChevronDown
-          aria-hidden="true"
-          className={cn(
-            "shrink-0 text-muted-foreground transition-transform duration-fast ease-standard",
-            "group-data-[panel-open]/accordion-trigger:rotate-180",
-          )}
+        <ChevronDownIcon
+          data-slot="accordion-trigger-icon"
+          className="pointer-events-none shrink-0 group-aria-expanded/accordion-trigger:hidden"
         />
-      </BaseAccordion.Trigger>
-    </BaseAccordion.Header>
+        <ChevronUpIcon
+          data-slot="accordion-trigger-icon"
+          className="pointer-events-none hidden shrink-0 group-aria-expanded/accordion-trigger:inline"
+        />
+      </AccordionPrimitive.Trigger>
+    </AccordionPrimitive.Header>
   );
 }
 
-/* ------------------------------------------------------------------------------------------------
- * AccordionContent — the collapsible panel. Height animates from 0 ↔ content
- * height using Base UI's `--accordion-panel-height` CSS var, driven on the
- * `data-starting-style`/`data-ending-style` transition hooks.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `AccordionContent`. */
-export type AccordionContentProps = React.ComponentProps<
-  typeof BaseAccordion.Panel
->;
-
-/**
- * `AccordionContent` — the collapsible panel (Base UI `Accordion.Panel`) shown
- * when its sibling `AccordionTrigger` is open. Animates its height between `0`
- * and the measured content height via the `--accordion-panel-height` CSS var,
- * transitioning on Base UI's `data-starting-style`/`data-ending-style` hooks.
-
- *
- * @example
- * <AccordionContent />
- */
-export function AccordionContent({
+function AccordionContent({
   className,
   children,
-  ref,
   ...props
-}: AccordionContentProps) {
+}: AccordionPrimitive.Panel.Props) {
   return (
-    <BaseAccordion.Panel
-      ref={ref}
+    <AccordionPrimitive.Panel
       data-slot="accordion-content"
-      className={cn(
-        // Height animates the wrapper from 0 → measured height (and back).
-        "h-[var(--accordion-panel-height)] overflow-hidden text-sm text-muted-foreground",
-        "transition-[height] duration-fast ease-standard",
-        "data-[starting-style]:h-0 data-[ending-style]:h-0",
-        className,
-      )}
+      className="overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
       {...props}
     >
-      {/* Matches the trigger's `px-2` so the panel body lines up under its label. */}
-      <div className="px-2 pb-3">{children}</div>
-    </BaseAccordion.Panel>
+      <div
+        className={cn(
+          "h-(--accordion-panel-height) pt-0 pb-2.5 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+          className,
+        )}
+      >
+        {children}
+      </div>
+    </AccordionPrimitive.Panel>
   );
 }
+
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };

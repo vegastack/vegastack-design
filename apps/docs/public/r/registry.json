@@ -29,7 +29,7 @@
         "whenToUse": "Group related content into collapsible sections — FAQs, settings groups.",
         "whenNotToUse": "Hiding critical content, or sequential steps (stepper).",
         "version": "0.9.1",
-        "integrity": "sha256-ocudYfjlvZ8rzVG/ZpJlqYOx9tg9YhhaG92bhjgtRts="
+        "integrity": "sha256-7L7YK0yrUBYAfIakJ4htTdk8jJqKM8VX2JrG99KSMjk="
       }
     },
     {
@@ -207,7 +207,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.9.1",
-        "integrity": "sha256-UwBXt1wrDFvDAHpFt8LJXU8xrgXDx6fInLWyw+i1Nnw="
+        "integrity": "sha256-OU1/o1ExnzFVJdtZWfEYBXBG7z3ocFP+Ln6Jyvi2W14="
       }
     },
     {
@@ -266,7 +266,7 @@
         "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
         "version": "0.9.1",
-        "integrity": "sha256-PL6NiK4cPQSJIj9qCFBECgNWef+aWOgHqsdIiUv8qyE="
+        "integrity": "sha256-UDB/W6Om7/y8BXx4SyD/QkEu0IjShsX+1oSeYWn9Lrc="
       }
     },
     {
@@ -439,9 +439,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [
-        "@vegastack/dropdown-menu"
-      ],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/breadcrumb.tsx",
@@ -453,7 +451,7 @@
         "whenToUse": "Show location in a hierarchy and navigate back up — nested pages, file trees.",
         "whenNotToUse": "Primary navigation or a menu — a breadcrumb reflects location only.",
         "version": "0.9.1",
-        "integrity": "sha256-9XUgXNz2oaXzEeYm6JA1FItlgp0n0i4gFW7YinKeEO0="
+        "integrity": "sha256-UFKGwEkHuAFrrErNdCoaP30nD7EWbnVzI0sVOHVfUIQ="
       }
     },
     {
@@ -603,6 +601,37 @@
         "whenNotToUse": "Single standalone values or page layout regions; never nest cards or add shadows.",
         "version": "0.9.1",
         "integrity": "sha256-Y2txQXTNKUbWhHCRrvRxEkkDYUQc5le1+Ca/jILH8vA="
+      }
+    },
+    {
+      "name": "carousel",
+      "type": "registry:ui",
+      "title": "Carousel",
+      "description": "A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, Embla options, events and plugins.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "embla-carousel-react@^8.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/carousel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/carousel.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A horizontal or vertical run of peer items the reader scrolls through one or a few at a time — a gallery, a set of feature cards, a testimonial run.",
+        "whenNotToUse": "Content the reader must not miss, or a list they need to scan and compare — put that in the page, not behind a control.",
+        "version": "0.9.1",
+        "integrity": "sha256-tGkq7wS7MhEJe2F913Pi+p6AdWQT6zuM0nOzhrpxWSA="
       }
     },
     {
@@ -792,7 +821,6 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [],
@@ -807,7 +835,7 @@
         "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
         "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
         "version": "0.9.1",
-        "integrity": "sha256-sI1oY0Rsthr2EJsAAj6W+7xaGQ8ctC0m7jxQxWR5FQA="
+        "integrity": "sha256-HU6dTK6XZ8adYvLvsnqkazql+QkenEuaL/56fNrRSts="
       }
     },
     {
@@ -1101,7 +1129,7 @@
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
         "version": "0.9.1",
-        "integrity": "sha256-QhwnnTzKmsWFlJQA4e+GmfFw2Ow5oiRokT43PjZ2WPU="
+        "integrity": "sha256-u0RPXBZov/A/YP4WMV5C2B56ZJPjNz72AD/QTLlIj6Y="
       }
     },
     {
@@ -1139,7 +1167,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.9.1",
-        "integrity": "sha256-d1i1nE/3iY64V+NnDcwO19xyw15V8rA4wPOjg9X4op8="
+        "integrity": "sha256-l7rEk5fbZ5BTFe/sX7MX/eo/djiHosWiLvvvTFmS4qw="
       }
     },
     {
@@ -1169,7 +1197,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.9.1",
-        "integrity": "sha256-IPgEba8y8oNJYuOEHRwct9Q3aT1p88Z3rTxs3lhbQvA="
+        "integrity": "sha256-Ghfv0+ZZ1K3ap0hQc3B4x+cytuyIS5Qc8DzCWBY3vYw="
       }
     },
     {
@@ -1203,7 +1231,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.9.1",
-        "integrity": "sha256-vbs7KALADQldlD6EqS7mUQdnJiPFtWINSJCurmm9XNY="
+        "integrity": "sha256-X42Sp5Gcd+edJ7fvAOOUgA1owM1vpLcCPh4zrq2b/rU="
       }
     },
     {
@@ -15326,6 +15354,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -15341,11 +15370,9 @@
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.9.1",
-        "integrity": "sha256-0KtEP+jI84DljBguQxoUrGd1iEiErwtF0Yr7R+rdLJc="
+        "integrity": "sha256-L+1UwsfX+fZ2M/fVUP5GPgua/4VcTF+U8KZViAM31Zc="
       },
-      "registryDependencies": [
-        "@vegastack/floating-surface"
-      ]
+      "registryDependencies": []
     },
     {
       "name": "notification-bell",
@@ -15509,14 +15536,12 @@
         "navigation"
       ],
       "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button"
+        "@vegastack/button"
       ],
       "files": [
         {
@@ -15529,7 +15554,7 @@
         "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
         "version": "0.9.1",
-        "integrity": "sha256-0Pce2op/KLfOQ3rJuD1wSrbBGU3pyPGRiYFypcz37uc="
+        "integrity": "sha256-PuSwF3soScrI69SkavA8mfJFiQ6qxIfxbz5jL5YjgIA="
       }
     },
     {
@@ -15660,7 +15685,6 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15676,7 +15700,7 @@
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
         "version": "0.9.1",
-        "integrity": "sha256-KNN8LtQdQzblHpEgHk6qThEmKbrP9ojKhYpbMn9qC4w="
+        "integrity": "sha256-Zp+TjSKUueoF8noZp5sl5pewOj2DZ87OOMfJ5ij2ylY="
       }
     },
     {
@@ -15863,7 +15887,6 @@
       ],
       "dependencies": [
         "react-resizable-panels@^4",
-        "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15879,7 +15902,7 @@
         "whenToUse": "User-adjustable split layouts — code editor panes, sidebar + content, inspector panels.",
         "whenNotToUse": "Fixed layouts, or layouts that only need to collapse/expand (Collapsible) without a drag/resize affordance.",
         "version": "0.9.1",
-        "integrity": "sha256-eergihBEUJ7t6fY/QNdZSyTd0aSCW2iM6Dc7zDCsj90="
+        "integrity": "sha256-gSZG+PoksXuaukVs5IaJBZ+cwa8s+54RuzPW0QQKee4="
       }
     },
     {
@@ -15933,7 +15956,7 @@
         "whenToUse": "Bounded panels whose content overflows — sidebars, log viewers, modal bodies, chat histories.",
         "whenNotToUse": "Whole-page scrolling, or content that already fits.",
         "version": "0.9.1",
-        "integrity": "sha256-dNBvD4vh22PZCmXgTZYrNtU6kp/zeMff4JU1A6y/SP0="
+        "integrity": "sha256-WTz0b1sLQfPIteSiMdc4r6uAT+vIlQNSGij1wpF0d38="
       }
     },
     {
@@ -16189,10 +16212,12 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button",
+        "@vegastack/button",
+        "@vegastack/input",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",
+        "@vegastack/tooltip",
         "@vegastack/use-mobile"
       ],
       "files": [
@@ -16206,7 +16231,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.9.1",
-        "integrity": "sha256-00mxEGR8dYTFOfWx/2w5ptmAerILNO5ih+GPnsErmM4="
+        "integrity": "sha256-AhaH1LhaIiCQ/3G4yte26XI3QDgtKrnUr4gUwFGGEhg="
       }
     },
     {
@@ -16561,7 +16586,7 @@
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
         "version": "0.9.1",
-        "integrity": "sha256-2flQWYzNAErNdkpj1jHC1nWzEDRfTFNLDKtnIXLRJYw="
+        "integrity": "sha256-KOlLnHlYduwUlxNfeP/HycfF6mxJHcG+nrYDaw9uXQo="
       }
     },
     {
@@ -16590,7 +16615,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
         "version": "0.9.1",
-        "integrity": "sha256-RoeON31PjfrfRDGYy9igF9HcKI9+FwTXG1k7l3ILb/w="
+        "integrity": "sha256-LFmcTmrF8dYARnfzC/z6Mw5LAMm7PTRJ+4H1hDCVNNQ="
       }
     },
     {

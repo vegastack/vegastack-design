@@ -486,26 +486,31 @@ test("ColorPicker chrome color-contrast passes WCAG AA — dark theme", async ()
   ).toEqual([]);
 });
 
-// ── Tabs count badge ───────────────────────────────────────────────────────────────────────────
-// `[data-slot="tabs-trigger-count"]` paints a TRANSLUCENT ink wash (`bg-foreground/7`)
-// on top of whatever the trigger itself paints. On a `pill`/`chip` list the SELECTED trigger is
-// already `bg-foreground/10` over the `muted` track, so the badge composites two
-// washes over a rung — a stack that `tooling/contrast-check.mjs` cannot see, because that gate
-// checks TOKEN pairs (and its ladder composite deliberately hosts only background/card/popover).
-// Measured dark, pre-fix: muted-foreground over that stack = 3.40:1 (needs 4.5:1) — the appearance
-// probes' axe `color-contrast` serious on `/docs/components/tabs`, 1280-dark-ltr. Rendering every
-// variant with a count, selected and unselected, is what makes the compound legible to axe.
+// ── A counted tab ──────────────────────────────────────────────────────────────────────────────
+// The pre-reset Tabs had a `count` prop that painted its own translucent ink wash
+// (`[data-slot="tabs-trigger-count"]`, `bg-foreground/7`) on top of whatever the trigger painted,
+// and on a selected trigger that composited TWO washes over a rung — a stack
+// `tooling/contrast-check.mjs` cannot see, because that gate checks TOKEN pairs. Measured dark,
+// pre-fix: muted-foreground over that stack was 3.40:1 (needs 4.5:1), which is what the appearance
+// probes reported as an axe `color-contrast` serious on `/docs/components/tabs`.
+//
+// Batch 5 of the shadcn reset put Tabs back on upstream's file, so the prop and its badge are gone
+// and a consumer composes a `Badge` inside the trigger instead. The STACK is the same shape — a
+// badge fill over a selected trigger's fill over the list track — so the guard stays, rendering
+// both of upstream's list variants with the trigger selected and unselected.
 function TabsCounts() {
   return (
     <div className="flex flex-col gap-6 bg-background p-6 text-foreground">
-      {(["line", "pill", "chip"] as const).map((variant) => (
+      {(["default", "line"] as const).map((variant) => (
         <Tabs key={variant} defaultValue="overview">
           <TabsList variant={variant}>
-            <TabsTrigger value="overview" count={12}>
+            <TabsTrigger value="overview">
               Overview
+              <Badge variant="secondary">12</Badge>
             </TabsTrigger>
-            <TabsTrigger value="activity" count={3}>
+            <TabsTrigger value="activity">
               Activity
+              <Badge variant="secondary">3</Badge>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="overview">Overview panel</TabsContent>
@@ -516,17 +521,17 @@ function TabsCounts() {
   );
 }
 
-test("Tabs count badge color-contrast passes WCAG AA — light theme", async () => {
+test("a counted tab's badge color-contrast passes WCAG AA — light theme", async () => {
   const screen = await render(<TabsCounts />);
   await expect.poll(() => screen.container.textContent).toContain("12");
   const violations = await contrastViolations(screen.container);
   expect(
     violations,
-    `tabs count color-contrast failures (light):\n  ${violations.join("\n  ")}`,
+    `counted-tab badge color-contrast failures (light):\n  ${violations.join("\n  ")}`,
   ).toEqual([]);
 });
 
-test("Tabs count badge color-contrast passes WCAG AA — dark theme", async () => {
+test("a counted tab's badge color-contrast passes WCAG AA — dark theme", async () => {
   const screen = await render(
     <div className="dark">
       <TabsCounts />
@@ -536,6 +541,6 @@ test("Tabs count badge color-contrast passes WCAG AA — dark theme", async () =
   const violations = await contrastViolations(screen.container);
   expect(
     violations,
-    `tabs count color-contrast failures (dark):\n  ${violations.join("\n  ")}`,
+    `counted-tab badge color-contrast failures (dark):\n  ${violations.join("\n  ")}`,
   ).toEqual([]);
 });

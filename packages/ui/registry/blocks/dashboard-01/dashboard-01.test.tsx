@@ -63,7 +63,7 @@ test("mobile navigation opens as an overlay from the persistent header trigger",
     await expect
       .element(screen.getByRole("navigation", { name: "Main navigation" }))
       .not.toBeInTheDocument();
-    await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+    await screen.getByRole("button", { name: "Toggle Sidebar" }).click();
     await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
     await expect
       .element(screen.getByRole("navigation", { name: "Main navigation" }))

@@ -61,7 +61,7 @@ focusable element; you compose `AppShellSidebar` as one child and your own conte
 <Anatomy name="app-shell" />
 
 ```tsx
-<AppShell defaultOpen keyboardShortcut mobileBreakpoint={768}>
+<AppShell defaultOpen>
   <AppShellSidebar variant="sidebar" collapsible="icon">
     <SidebarHeader>…</SidebarHeader>
     <SidebarContent>…</SidebarContent>
@@ -77,9 +77,13 @@ focusable element; you compose `AppShellSidebar` as one child and your own conte
 ```
 
 - `AppShell` — the root (`data-slot="app-shell"`). Wraps `SidebarProvider`, forwarding
-  `defaultOpen`/`open`/`onOpenChange`/`mobileBreakpoint`/`keyboardShortcut`. Renders the skip link.
-- `AppShellSidebar` — a thin wrapper over `Sidebar` (`data-slot="app-shell-sidebar"`) that defaults
-  `aria-label="Main navigation"` and passes `variant`/`collapsible`/`side` straight through.
+  `defaultOpen`/`open`/`onOpenChange` — every prop upstream's provider takes. Renders the skip link.
+- `AppShellSidebar` — a thin wrapper over `Sidebar` that passes `variant`/`collapsible`/`side`
+  straight through and adds the `<nav>` landmark upstream leaves to the page: a
+  `data-slot="app-shell-sidebar"` element wrapping the rail's children, defaulting to
+  `aria-label="Main navigation"`. It sits INSIDE the rail so that below the mobile breakpoint —
+  where upstream moves the rail into a `Sheet` — the landmark appears exactly when the navigation
+  does, instead of standing empty in the document.
 - `AppShellHeader` — a `<header>` `banner` landmark (`data-slot="app-shell-header"`): always-visible
   `SidebarTrigger` + a `min-w-0` middle slot (`children`) + a `shrink-0` `actions` slot.
 - `AppShellContent` — the `<main tabIndex={-1}>` `data-slot="app-shell-content"` — this shell's
@@ -134,11 +138,12 @@ export default function Loading() {
 
 ### Mobile
 
-Below `mobileBreakpoint` (768px by default), `Sidebar` swaps to a `Sheet` drawer — `AppShellHeader`
-already renders `SidebarTrigger` OUTSIDE `AppShellSidebar` (it's a sibling in the content column,
-not nested inside the rail), so the one control that opens the mobile sheet is always reachable,
-with zero extra composition on your part. The header's middle slot truncates (`min-w-0 flex-1`)
-instead of wrapping — pair it with `BreadcrumbTrail`'s `maxItems` for long trails on narrow screens.
+Below 768px — upstream's one fixed breakpoint, read through `useIsMobile`, with no prop to retune
+it — `Sidebar` swaps to a `Sheet` drawer. `AppShellHeader` already renders `SidebarTrigger` OUTSIDE
+`AppShellSidebar` (it's a sibling in the content column, not nested inside the rail), so the one
+control that opens the mobile sheet is always reachable, with zero extra composition on your part.
+The header's middle slot truncates (`min-w-0 flex-1`) instead of wrapping — collapse a long trail
+yourself with `BreadcrumbEllipsis` on narrow screens.
 
 Switch the preview's width toggle (the toolbar's phone icon) to mobile to watch the rail collapse
 into the Sheet — open it from the header trigger. This is viewport-driven, so a real narrow browser
@@ -241,11 +246,11 @@ function RouteFocus() {
 - **Route-change focus** is the host app's responsibility (see above) — `AppShell` stays
   router-agnostic and cannot own it.
 
-| Key                                       | Action                                                                                              |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| <kbd>Tab</kbd> (on page load)             | Focus the skip link.                                                                                |
-| <kbd>Enter</kbd> on the skip link         | Move focus to this shell's `AppShellContent` region.                                                |
-| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> | Toggle the sidebar (desktop) or the mobile sheet — customizable/disableable via `keyboardShortcut`. |
+| Key                                       | Action                                                                                         |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd> (on page load)             | Focus the skip link.                                                                           |
+| <kbd>Enter</kbd> on the skip link         | Move focus to this shell's `AppShellContent` region.                                           |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> | Toggle the sidebar (desktop) or the mobile sheet. Upstream's `SidebarProvider` owns the chord. |
 
 <StatesTested name="app-shell" />
 

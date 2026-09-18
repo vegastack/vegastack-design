@@ -1,6 +1,6 @@
 ---
 title: Collapsible
-description: A single toggleable open/close region with an animated height, built on Base UI Collapsible.
+description: An interactive component which expands and collapses a panel, with an animated height and a trigger you supply.
 audience: public
 registry: collapsible
 status: stable
@@ -18,109 +18,144 @@ preview: collapsible
 ```tsx
 import {
   Collapsible,
-  CollapsibleTrigger,
   CollapsibleContent,
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
 
-<Collapsible defaultOpen>
-  <CollapsibleTrigger>
-    Show details
-    <ChevronDown />
-  </CollapsibleTrigger>
+<Collapsible>
+  <CollapsibleTrigger>Can I use this in my project?</CollapsibleTrigger>
   <CollapsibleContent>
-    <p className="pt-2">The revealed content goes here.</p>
+    Yes. Free to use for personal and commercial projects. No attribution
+    required.
   </CollapsibleContent>
 </Collapsible>;
 ```
 
-## Anatomy
+All three parts are unstyled pass-throughs, so the trigger is whatever you render into it — most
+often a `Button` through `render`.
 
-`Collapsible` is a compound component built on Base UI's Collapsible. Compose the parts inside the root:
+<ComponentPreview
+  name="collapsible"
+  file="components/preview/collapsible.tsx"
+/>
+
+## Anatomy
 
 <Anatomy name="collapsible" />
 
-```tsx
-<Collapsible>
-  <CollapsibleTrigger>
-    Label
-    <ChevronDown />
-  </CollapsibleTrigger>
-  <CollapsibleContent>{/* revealed content */}</CollapsibleContent>
-</Collapsible>
-```
-
-- `Collapsible` — the root (`data-slot="collapsible"`); owns the open/close state (`open` / `defaultOpen` / `onOpenChange`) and the `disabled` flag.
-- `CollapsibleTrigger` — the native `<button>` that toggles the region (`data-slot="collapsible-trigger"`). Open state is exposed as `data-panel-open`; a composed chevron rotates via that attribute. Wired to the panel with `aria-controls` + `aria-expanded`.
-- `CollapsibleContent` — the panel (`data-slot="collapsible-content"`) revealed when open. Animates its height between `0` and the measured content height via Base UI's `--collapsible-panel-height` CSS var.
-
-> **Padding:** the panel itself is `overflow-hidden` and height-animated, so apply padding to an inner wrapper (e.g. `<p className="pt-2">`) rather than to `CollapsibleContent` — padding on the panel fights the height transition.
-
 ## Examples
 
-States — closed by default, open by default, and disabled.
+### Composition
+
+A trigger and the panel it reveals. The trigger carries `aria-controls` and `aria-expanded`; the
+panel carries the id they name.
+
+```text
+Collapsible
+├── CollapsibleTrigger
+└── CollapsibleContent
+```
 
 <ComponentPreview
-  name="collapsibleStates"
+  name="collapsibleComposition"
   file="components/preview/collapsible.tsx"
 />
 
-### Controlled
+### Controlled State
 
-Drive the open state yourself with `open` + `onOpenChange` (instead of the uncontrolled `defaultOpen`). Useful when another control toggles the region or when the open state lives in your own store.
-
-<ComponentPreview
-  name="collapsibleControlled"
-  file="components/preview/collapsible.tsx"
-/>
+`open` and `onOpenChange` hand the state to the parent — which is what lets a second control, or the
+trigger's own icon, read the same value.
 
 ```tsx
-const [open, setOpen] = useState(false);
+const [open, setOpen] = React.useState(false);
 
 <Collapsible open={open} onOpenChange={setOpen}>
-  <CollapsibleTrigger>
-    Show details
-    <ChevronDown />
-  </CollapsibleTrigger>
-  <CollapsibleContent>…</CollapsibleContent>
+  <CollapsibleTrigger>Toggle</CollapsibleTrigger>
+  <CollapsibleContent>Content</CollapsibleContent>
 </Collapsible>;
 ```
 
-### Keep mounted for find-in-page
+<ComponentPreview
+  name="collapsibleControlledState"
+  file="components/preview/collapsible.tsx"
+/>
 
-By default the panel is unmounted while closed (`keepMounted={false}`). Pass `keepMounted` together with `hiddenUntilFound` on `CollapsibleContent` to keep the content in the DOM while collapsed — the browser&rsquo;s find-in-page and search crawlers can then reach it and auto-expand the region.
+### Basic
+
+Render the trigger as a full-width `Button` and let the panel own the surface. The trigger marks
+itself `data-panel-open` while the panel is open, so `group-data-panel-open/button:rotate-180` turns
+the chevron without any state in your own component.
 
 <ComponentPreview
-  name="collapsibleKeepMounted"
+  name="collapsibleBasic"
+  file="components/preview/collapsible.tsx"
+/>
+
+### Settings Panel
+
+A trigger beside a field group reveals the rest of the controls. The panel is a
+`grid-cols-subgrid` cell, so the revealed fields land on the same columns as the ones above them.
+
+<ComponentPreview
+  name="collapsibleSettingsPanel"
+  file="components/preview/collapsible.tsx"
+/>
+
+### File Tree
+
+Collapsibles nest: each folder is its own root, and the panel holds the children — including more
+collapsibles. Nothing coordinates them, so each branch opens and closes on its own.
+
+<ComponentPreview
+  name="collapsibleFileTree"
+  file="components/preview/collapsible.tsx"
+/>
+
+### RTL
+
+Wrap the subtree in `DirectionProvider direction="rtl"`. The component itself adds no direction-aware
+styling at all, so what flips is the content you render into it.
+
+<ComponentPreview
+  name="collapsibleRtl"
   file="components/preview/collapsible.tsx"
 />
 
 ## API Reference
 
-`Collapsible`, `CollapsibleTrigger`, and `CollapsibleContent` add no props of
-their own — each accepts everything the corresponding [Base UI
-Collapsible](https://base-ui.com/react/components/collapsible) part accepts
-(`Root`, `Trigger`, `Panel`): `open` / `defaultOpen` / `onOpenChange` and
-`disabled` on the root, `keepMounted` / `hiddenUntilFound` on the panel, plus
-`className`, `ref`, and `render` everywhere.
+`Collapsible`, `CollapsibleTrigger` and `CollapsibleContent` add no props of their own — each accepts
+everything the corresponding [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
+part accepts (`Root`, `Trigger`, `Panel`): `open` / `defaultOpen` / `onOpenChange` and `disabled` on
+the root, `keepMounted` and `hiddenUntilFound` on the panel, plus `className`, `ref` and `render`
+everywhere.
 
 ## Accessibility
 
-- The trigger renders a native `<button>` with `aria-expanded` reflecting the open state and `aria-controls` pointing at the panel — assistive tech announces it as an expandable control.
-- The panel is removed from the DOM while closed by default (`keepMounted={false}`); pass `keepMounted`/`hiddenUntilFound` on `CollapsibleContent` to keep it findable by in-page search (see the [Keep mounted for find-in-page](#keep-mounted-for-find-in-page) example).
-- The trigger is a native `<button>`, so it keeps the browser&rsquo;s focus outline and never sets `outline: none`. Its pointer affordance is the row wash (`accent` on hover, `accent` pressed) — a disclosure is not a link, so it never underlines on hover.
-- `disabled` on the root removes interaction from the whole region.
-
-| Key                                                | Action                                                                    |
-| -------------------------------------------------- | ------------------------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Toggle the region open or closed when the trigger is focused.             |
-| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus to and from the trigger, then into the revealed panel content. |
+- Renders Base UI's Collapsible: the trigger is a button carrying `aria-expanded` and, while open,
+  `aria-controls` pointing at the panel.
+- <kbd>Enter</kbd> and <kbd>Space</kbd> toggle the panel. The trigger stays
+  focusable while `disabled`, so a keyboard user can still reach it and hear
+  that it is unavailable.
+- `hiddenUntilFound` on the panel uses `hidden="until-found"`, which lets the browser's find-in-page
+  reach the collapsed text and expand the panel around it.
+- Focus is the global 2px `:focus-visible` outline from `base.css`. The component contributes no
+  focus styling of its own — whatever you render as the trigger brings its own.
+- The component renders no icon and no label. Give an icon-only trigger an accessible name.
 
 <StatesTested name="collapsible" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use a Collapsible for a single, self-contained show/hide region — extra detail, an optional form section, a 'read more'."
-  dont="Stack several Collapsibles to fake an accordion where only one opens at a time — use an Accordion, which coordinates a single-open group."
+  do="Use a Collapsible for one optional region a reader opens deliberately — advanced settings, a details panel, a tree branch."
+  dont="Use it to hide a form error, a required field, or anything the reader must act on."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/collapsible.patch`. Every hunk:
+
+- **NO STYLING HUNK AT ALL** — upstream's Collapsible is three unstyled pass-throughs over Base UI
+  and imports no `cn`, so nothing in it is ours to change.
+- **DOC-1** — the whole diff is prettier's reflow plus the `registry-stamp.mjs` provenance header the
+  three-copy model needs; no decision of its own.

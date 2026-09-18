@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 607,
-    "components": 126,
+    "totalRegistryItems": 608,
+    "components": 127,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -24,7 +24,7 @@
     "Forms/editing": 27,
     "Navigation/layout": 17,
     "Overlays": 16,
-    "Data display": 12,
+    "Data display": 13,
     "Content/marketing": 23,
     "AI/chat": 6,
     "Hooks": 11,
@@ -127,6 +127,7 @@
     ],
     "Data display": [
       "card",
+      "carousel",
       "chart",
       "chip",
       "comparison-matrix",
@@ -216,7 +217,8 @@
           "command",
           "dropdown-menu",
           "kbd",
-          "tool-call-chip"
+          "tool-call-chip",
+          "badge"
         ],
         "globalInputGroups": ["shared-runtime"]
       },
@@ -298,7 +300,7 @@
       "name": "accordion",
       "registryType": "registry:ui",
       "title": "Accordion",
-      "summary": "A stack of collapsible sections — single or multiple open, animated height, a rotating chevron, full keyboard support.",
+      "summary": "A vertically stacked set of interactive headings that each reveal a section of content — one open at a time, or several.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -311,8 +313,8 @@
           "source": "packages/ui/registry/ui/accordion.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAccordion.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -321,17 +323,8 @@
           "source": "packages/ui/registry/ui/accordion.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAccordion.Panel",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AccordionContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/accordion.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -340,26 +333,8 @@
           "source": "packages/ui/registry/ui/accordion.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAccordion.Item",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AccordionItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/accordion.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AccordionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/accordion.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -368,65 +343,55 @@
           "source": "packages/ui/registry/ui/accordion.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAccordion.Trigger",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AccordionTriggerProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/accordion.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "disabled", "open"],
+          "values": ["default", "open", "closed", "disabled"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
           "status": "covered",
           "values": [
             "native-or-base-ui-semantics",
-            "browser-accessibility-test"
+            "browser-accessibility-test",
+            "keyboard-navigation"
           ],
           "evidence": "packages/ui/registry/ui/accordion.tsx + packages/ui/registry/ui/accordion.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "disabled"],
+          "values": ["default", "hover", "open", "disabled"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
+        "status": "observed",
         "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
+          "tw-animate-css keyed presence on the panel (accordion-down/accordion-up)"
         ],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
@@ -471,7 +436,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["accordion-header", "accordion-trigger"]
+              "values": ["accordion-trigger", "accordion-trigger-icon"]
             }
           ],
           "cssVariables": []
@@ -2874,26 +2839,7 @@
           "ref": {
             "status": "observed",
             "target": "nav",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/breadcrumb.tsx."
-          }
-        },
-        {
-          "name": "BreadcrumbCollapsed",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "DropdownMenuTrigger",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "BreadcrumbCollapsedProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -2903,16 +2849,7 @@
           "ref": {
             "status": "observed",
             "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/breadcrumb.tsx."
-          }
-        },
-        {
-          "name": "BreadcrumbEllipsisProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -2922,16 +2859,7 @@
           "ref": {
             "status": "observed",
             "target": "li",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/breadcrumb.tsx."
-          }
-        },
-        {
-          "name": "BreadcrumbItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -2941,16 +2869,7 @@
           "ref": {
             "status": "observed",
             "target": "a",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "BreadcrumbLinkProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream renders through `useRender`, which forwards the ref to the render target."
           }
         },
         {
@@ -2960,16 +2879,7 @@
           "ref": {
             "status": "observed",
             "target": "ol",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/breadcrumb.tsx."
-          }
-        },
-        {
-          "name": "BreadcrumbListProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -2979,34 +2889,7 @@
           "ref": {
             "status": "observed",
             "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/breadcrumb.tsx."
-          }
-        },
-        {
-          "name": "BreadcrumbPageProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "BreadcrumbProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "BreadcrumbSegment",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -3016,87 +2899,58 @@
           "ref": {
             "status": "observed",
             "target": "li",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/breadcrumb.tsx."
-          }
-        },
-        {
-          "name": "BreadcrumbSeparatorProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "BreadcrumbTrail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BreadcrumbList",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/breadcrumb.tsx."
-          }
-        },
-        {
-          "name": "BreadcrumbTrailProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/breadcrumb.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component; the separator varies by children, not by a prop."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component; the trail is text chrome on the ambient type scale."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "collapsed", "disabled", "open"],
+          "values": ["default", "current", "collapsed"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
+          "status": "covered",
           "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
             "current",
-            "disabled",
-            "focus-visible",
-            "labeled",
-            "semantic-html"
+            "presentation-only-decoration"
           ],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "evidence": "packages/ui/registry/ui/breadcrumb.tsx + packages/ui/registry/ui/breadcrumb.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "focus"],
+          "values": ["default", "hover", "focus-visible"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
-        "status": "none-observed",
+        "status": "modeled",
         "risks": [],
-        "rationale": "No component-owned responsive risk observed; consumer layout can still constrain it."
+        "rationale": "Upstream's own layout: the list wraps (`flex-wrap`, `wrap-break-word`); collapse is the author's choice of an ellipsis, not a breakpoint."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "observed",
+        "mechanisms": ["transition-colors on the link's hover ink"],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/breadcrumb",
-      "registryDependencies": ["@vegastack/dropdown-menu"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
@@ -3164,15 +3018,6 @@
             {
               "name": "data-slot",
               "values": ["breadcrumb-ellipsis"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "BreadcrumbCollapsed": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["breadcrumb-collapsed-trigger"]
             }
           ],
           "cssVariables": []
@@ -4087,6 +3932,211 @@
       }
     },
     {
+      "name": "carousel",
+      "registryType": "registry:ui",
+      "title": "Carousel",
+      "summary": "A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, Embla options, events and plugins.",
+      "status": "stable",
+      "since": "0.10.0",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/carousel.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Carousel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/carousel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "CarouselApi",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/carousel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CarouselContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/carousel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "The outer viewport div takes Embla's own ref; the caller's props reach the inner flex track."
+          }
+        },
+        {
+          "name": "CarouselItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/carousel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "CarouselNext",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/carousel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "Button",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "CarouselPrevious",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/carousel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "Button",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "useCarousel",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/carousel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook renders nothing and accepts no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local CVA. The arrows accept Button's `variant`, defaulting to `outline`, so the variant surface is Button's."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local size scale. The arrows accept Button's `size`, defaulting to `icon-sm`; slide size is the author's `basis-*` utility on CarouselItem."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "at-start",
+            "at-end",
+            "scrolling",
+            "horizontal",
+            "vertical"
+          ],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "labeled",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/carousel.tsx + packages/ui/registry/ui/carousel.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "disabled", "focus-visible"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": [],
+        "rationale": "Slides in view are the author's responsive `basis-*` on CarouselItem, and `min-w-0` on the slide is what lets a truncating child shrink; the arrows sit outside the track, so the carousel needs inline room for them."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["embla-carousel-react scroll and momentum on the track"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises the component's own transitions; the engine's scroll is user-initiated and never autoplays without a plugin."
+        }
+      },
+      "engines": [
+        {
+          "package": "embla-carousel-react",
+          "role": "slide/scroll-snap engine"
+        }
+      ],
+      "docsSlug": "/docs/components/carousel",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "embla-carousel-react@^8.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/carousel.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "carousel",
+      "dataAttributes": {
+        "Carousel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["carousel"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CarouselContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["carousel-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CarouselItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["carousel-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CarouselPrevious": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["carousel-previous"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CarouselNext": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["carousel-next"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "chart",
       "registryType": "registry:ui",
       "title": "Chart",
@@ -4944,7 +4994,7 @@
       "name": "collapsible",
       "registryType": "registry:ui",
       "title": "Collapsible",
-      "summary": "A single toggleable open/close region with an animated height, built on Base UI Collapsible.",
+      "summary": "An interactive component which expands and collapses a panel, with an animated height and a trigger you supply.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -4957,8 +5007,8 @@
           "source": "packages/ui/registry/ui/collapsible.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCollapsible.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -4967,26 +5017,8 @@
           "source": "packages/ui/registry/ui/collapsible.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCollapsible.Panel",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "CollapsibleContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/collapsible.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CollapsibleProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/collapsible.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -4995,62 +5027,53 @@
           "source": "packages/ui/registry/ui/collapsible.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCollapsible.Trigger",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "CollapsibleTriggerProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/collapsible.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "disabled", "open"],
+          "values": ["default", "open", "closed", "disabled"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/collapsible.tsx + packages/ui/registry/ui/collapsible.test.tsx"
         },
         "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "disabled", "open"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
+          "status": "not-applicable-or-inherited",
+          "values": ["inherited-from-call-site"],
+          "evidence": "Upstream's Collapsible is three unstyled pass-throughs over Base UI — the component contributes no class of its own, so every visual state belongs to what the call site renders into it. `collapsible.test.tsx` asserts each part renders with exactly the className it was passed."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
-        ],
+        "status": "observed",
+        "mechanisms": ["Base UI lifecycle transition on the panel height"],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
@@ -5058,7 +5081,6 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": ["packages/ui/registry/ui/collapsible.test.tsx"],
@@ -6858,6 +6880,7 @@
                 "data-grid-load-more",
                 "data-grid-merged",
                 "data-grid-row",
+                "data-grid-scroll",
                 "data-grid-section",
                 "data-grid-toolbar",
                 "data-grid-virtual-pad"
@@ -13975,7 +13998,7 @@
       "name": "navigation-menu",
       "registryType": "registry:ui",
       "title": "Navigation Menu",
-      "summary": "Site-nav mega-dropdown on the Base UI NavigationMenu primitive — chip triggers, one shared sliding panel, grid links.",
+      "summary": "A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.",
       "status": "stable",
       "since": "0.3.0",
       "family": "navigation",
@@ -13988,8 +14011,8 @@
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseNavigationMenu.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/navigation-menu.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13998,36 +14021,18 @@
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseNavigationMenu.Content",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/navigation-menu.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "NavigationMenuContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/navigation-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "NavigationMenuGridLink",
+          "name": "NavigationMenuIndicator",
           "kind": "component",
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseNavigationMenu.Link",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/navigation-menu.tsx."
-          }
-        },
-        {
-          "name": "NavigationMenuGridLinkProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/navigation-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14036,17 +14041,8 @@
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseNavigationMenu.Item",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/navigation-menu.tsx."
-          }
-        },
-        {
-          "name": "NavigationMenuItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/navigation-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14055,17 +14051,8 @@
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseNavigationMenu.Link",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/navigation-menu.tsx."
-          }
-        },
-        {
-          "name": "NavigationMenuLinkProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/navigation-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14074,44 +14061,18 @@
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseNavigationMenu.List",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/navigation-menu.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "NavigationMenuListProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/navigation-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "NavigationMenuPanel",
+          "name": "NavigationMenuPositioner",
           "kind": "component",
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by NavigationMenuPanel in packages/ui/registry/ui/navigation-menu.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "NavigationMenuPanelProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/navigation-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "NavigationMenuProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/navigation-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Renders the portal + positioner + popup + viewport; the ref reaches the Positioner, which is also the OVL-13 theme-scope host."
           }
         },
         {
@@ -14120,75 +14081,81 @@
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseNavigationMenu.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/navigation-menu.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "NavigationMenuTriggerProps",
-          "kind": "type",
+          "name": "navigationMenuTriggerStyle",
+          "kind": "variant-builder",
           "source": "packages/ui/registry/ui/navigation-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "`navigationMenuTriggerStyle` is a CVA with no variant dimension — one recipe, exported so a plain link can wear it."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension; the trigger is a fixed 36px row control."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "open"],
+          "values": ["default", "open", "closed", "active", "disabled"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
           "status": "covered",
           "values": [
             "native-or-base-ui-semantics",
-            "browser-accessibility-test"
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "disabled"
           ],
           "evidence": "packages/ui/registry/ui/navigation-menu.tsx + packages/ui/registry/ui/navigation-menu.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover"],
+          "values": [
+            "default",
+            "hover",
+            "open",
+            "active",
+            "disabled",
+            "focus-visible"
+          ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "text-truncation-and-flex-shrink",
-          "overflow-and-scroll",
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision",
-          "grid-wrapping"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout: the popup takes the positioner width and is capped at `--available-width`; panel columns are the author's breakpoint utilities on the content."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
+        "status": "observed",
+        "mechanisms": [
+          "Base UI keyed presence on the popup (data-starting-style / data-ending-style)",
+          "transition of the shared popup's width, height and position between items"
+        ],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/navigation-menu",
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -14258,11 +14225,11 @@
           ],
           "cssVariables": []
         },
-        "NavigationMenuGridLink": {
+        "NavigationMenuIndicator": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["navigation-menu-grid-link"]
+              "values": ["navigation-menu-indicator"]
             }
           ],
           "cssVariables": []
@@ -14932,7 +14899,7 @@
           "ref": {
             "status": "observed",
             "target": "nav",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/pagination.tsx."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14942,16 +14909,7 @@
           "ref": {
             "status": "observed",
             "target": "ul",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/pagination.tsx."
-          }
-        },
-        {
-          "name": "PaginationContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14961,16 +14919,7 @@
           "ref": {
             "status": "observed",
             "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/pagination.tsx."
-          }
-        },
-        {
-          "name": "PaginationEllipsisProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14980,16 +14929,7 @@
           "ref": {
             "status": "observed",
             "target": "li",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/pagination.tsx."
-          }
-        },
-        {
-          "name": "PaginationItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14999,25 +14939,7 @@
           "ref": {
             "status": "observed",
             "target": "a",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "PaginationLinkProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "paginationLinkVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "rationale": "Renders a Button with `nativeButton={false}` around an anchor it builds; the ref reaches that anchor."
           }
         },
         {
@@ -15027,35 +14949,7 @@
           "ref": {
             "status": "observed",
             "target": "PaginationLink",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/pagination.tsx."
-          }
-        },
-        {
-          "name": "PaginationNextProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PaginationPager",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "PaginationPagerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -15065,90 +14959,60 @@
           "ref": {
             "status": "observed",
             "target": "PaginationLink",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/pagination.tsx."
-          }
-        },
-        {
-          "name": "PaginationPreviousProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PaginationProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/pagination.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "isActive",
-            "values": ["false", "true"],
-            "evidence": "packages/ui/registry/ui/pagination.tsx: CVA"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local CVA: `isActive` selects between Button's `outline` and `ghost` variants, so the variant surface is Button's."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["default", "icon", "lg", "sm"],
-            "evidence": "packages/ui/registry/ui/pagination.tsx: CVA"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "`size` on PaginationLink is forwarded verbatim to Button, which owns the scale; the default is `icon` for a page link and `default` for the previous/next pair."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "active", "collapsed", "disabled"],
+          "values": ["default", "active", "hover", "pressed"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
+          "status": "covered",
           "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
             "current",
-            "disabled",
             "labeled",
-            "status-announcement",
-            "semantic-html"
+            "presentation-only-decoration"
           ],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "evidence": "packages/ui/registry/ui/pagination.tsx + packages/ui/registry/ui/pagination.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "active", "disabled"],
+          "values": ["default", "active", "hover", "focus-visible"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
-        "status": "modeled",
-        "risks": ["responsive-or-container-layout"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "status": "observed",
+        "risks": [],
+        "rationale": "PaginationPrevious/Next hide their visible label below `sm` (`hidden sm:block`), leaving an icon-only control that keeps its aria-label."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "observed",
+        "mechanisms": ["Button's own transition-all on the control chrome"],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/pagination",
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -15191,24 +15055,42 @@
           ],
           "cssVariables": []
         },
+        "PaginationLink": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["pagination-link"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PaginationPrevious": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-start"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PaginationNext": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-end"]
+            }
+          ],
+          "cssVariables": []
+        },
         "PaginationEllipsis": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["pagination-ellipsis"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "PaginationPager": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "pagination-pager",
-                "pagination-pager-next",
-                "pagination-pager-previous"
-              ]
             }
           ],
           "cssVariables": []
@@ -15792,7 +15674,7 @@
       "name": "progress",
       "registryType": "registry:ui",
       "title": "Progress",
-      "summary": "A horizontal progress bar for measurable, ongoing tasks — determinate or a sweeping indeterminate segment, built on Base UI Progress.",
+      "summary": "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
       "status": "stable",
       "since": "0.1.0",
       "family": "feedback",
@@ -15805,81 +15687,95 @@
           "source": "packages/ui/registry/ui/progress.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseProgress.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ProgressProps",
-          "kind": "interface",
+          "name": "ProgressTrack",
+          "kind": "component",
           "source": "packages/ui/registry/ui/progress.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ProgressSize",
-          "kind": "type",
+          "name": "ProgressIndicator",
+          "kind": "component",
           "source": "packages/ui/registry/ui/progress.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "progressVariants",
-          "kind": "variant-builder",
+          "name": "ProgressLabel",
+          "kind": "component",
           "source": "packages/ui/registry/ui/progress.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ProgressValue",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/progress.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["default", "lg", "sm"],
-            "evidence": "packages/ui/registry/ui/progress.tsx: CVA"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component; the pre-reset `size` prop is gone."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "indeterminate"],
+          "values": ["indeterminate", "progressing", "complete"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["labeled"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/progress.tsx + packages/ui/registry/ui/progress.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default"],
+          "values": ["indeterminate", "progressing", "complete"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll", "responsive-or-container-layout"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; the root is a flex-wrap row and the track is w-full."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["CSS utility motion-reduce", "tokenized CSS transition"],
+        "status": "observed",
+        "mechanisms": [
+          "CSS transition on the indicator width (transition-all)"
+        ],
         "reducedMotion": {
-          "status": "observed-or-documented",
-          "rationale": "Source explicitly implements or documents reduced motion."
+          "status": "inherited-global",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5).",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
         }
       },
       "engines": [],
@@ -15887,7 +15783,6 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15905,12 +15800,44 @@
         "Progress": {
           "attributes": [
             {
-              "name": "data-size",
-              "values": []
-            },
+              "name": "data-slot",
+              "values": ["progress"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ProgressTrack": {
+          "attributes": [
             {
               "name": "data-slot",
-              "values": ["progress", "progress-indicator", "progress-track"]
+              "values": ["progress-track"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ProgressIndicator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["progress-indicator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ProgressLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["progress-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ProgressValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["progress-value"]
             }
           ],
           "cssVariables": []
@@ -16739,7 +16666,7 @@
       "name": "resizable",
       "registryType": "registry:ui",
       "title": "Resizable",
-      "summary": "Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.",
+      "summary": "Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -16752,17 +16679,8 @@
           "source": "packages/ui/registry/ui/resizable.tsx",
           "ref": {
             "status": "observed",
-            "target": "ResizablePrimitive.Separator",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/resizable.tsx."
-          }
-        },
-        {
-          "name": "ResizableHandleProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/resizable.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -16771,8 +16689,8 @@
           "source": "packages/ui/registry/ui/resizable.tsx",
           "ref": {
             "status": "observed",
-            "target": "ResizablePrimitive.Panel",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/resizable.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -16781,60 +16699,48 @@
           "source": "packages/ui/registry/ui/resizable.tsx",
           "ref": {
             "status": "observed",
-            "target": "ResizablePrimitive.Group",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/resizable.tsx."
-          }
-        },
-        {
-          "name": "ResizablePanelGroupProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/resizable.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ResizablePanelProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/resizable.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component; `withHandle` is a boolean affordance flag, and `orientation` is the engine's own prop."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "active", "disabled"],
+          "values": ["default", "hover", "focus", "dragging", "disabled"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["disabled", "focus-visible"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "disabled",
+            "focus-visible"
+          ],
+          "evidence": "packages/ui/registry/ui/resizable.tsx + packages/ui/registry/ui/resizable.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "focus", "disabled"],
+          "values": ["default", "focus", "disabled"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
         "risks": ["overflow-and-scroll", "mobile-or-touch-mode"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "The group owns overflow and sets touch-action per axis; the consumer's parent owns the box."
       },
       "motion": {
         "status": "not-applicable",
@@ -16854,7 +16760,6 @@
       "registryDependencies": [],
       "npmDependencies": [
         "react-resizable-panels@^4",
-        "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17037,7 +16942,7 @@
       "name": "scroll-area",
       "registryType": "registry:ui",
       "title": "Scroll Area",
-      "summary": "A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, built on Base UI ScrollArea.",
+      "summary": "Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -17050,17 +16955,8 @@
           "source": "packages/ui/registry/ui/scroll-area.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseScrollArea.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/scroll-area.tsx."
-          }
-        },
-        {
-          "name": "ScrollAreaProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/scroll-area.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -17069,64 +16965,54 @@
           "source": "packages/ui/registry/ui/scroll-area.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseScrollArea.Scrollbar",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/scroll-area.tsx."
-          }
-        },
-        {
-          "name": "ScrollBarProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/scroll-area.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "orientation",
-            "values": ["both", "horizontal", "vertical"],
-            "evidence": "packages/ui/registry/ui/scroll-area.tsx: prop union"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no variant dimension for this component. `ScrollBar`'s `orientation` is Base UI's own Scrollbar prop, defaulted to `vertical` by the wrapper — not a local variant union."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default"],
+          "values": ["default", "scrollable", "not-scrollable"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["labeled"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "labeled"
+          ],
+          "evidence": "packages/ui/registry/ui/scroll-area.tsx + packages/ui/registry/ui/scroll-area.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default"],
+          "values": ["default", "scrolling"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll", "mobile-or-touch-mode"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": ["overflow-and-scroll"],
+        "rationale": "The component IS an overflow container; the consumer owns the bounding box."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
+        "status": "observed",
+        "mechanisms": ["tokenized CSS transition on the scrollbar"],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
@@ -17148,28 +17034,24 @@
       },
       "previewModule": "scroll-area",
       "dataAttributes": {
-        "ScrollBar": {
+        "ScrollArea": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["scroll-area-scrollbar", "scroll-area-thumb"]
+              "values": ["scroll-area", "scroll-area-viewport"]
             }
           ],
           "cssVariables": []
         },
-        "ScrollArea": {
+        "ScrollBar": {
           "attributes": [
             {
-              "name": "data-scrollable",
-              "values": [""]
+              "name": "data-orientation",
+              "values": []
             },
             {
               "name": "data-slot",
-              "values": [
-                "scroll-area",
-                "scroll-area-corner",
-                "scroll-area-viewport"
-              ]
+              "values": ["scroll-area-scrollbar", "scroll-area-thumb"]
             }
           ],
           "cssVariables": []
@@ -18512,7 +18394,7 @@
       "name": "sidebar",
       "registryType": "registry:ui",
       "title": "Sidebar",
-      "summary": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active state, and an expand/collapse trigger.",
+      "summary": "A composable, themeable and customizable sidebar — a provider, a collapsible panel with header, content and footer, labelled groups, menu rows with actions, badges and submenus, a rail and a trigger.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -18525,8 +18407,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "nav",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18535,17 +18417,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
-          }
-        },
-        {
-          "name": "SidebarContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18554,17 +18427,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
-          }
-        },
-        {
-          "name": "SidebarFooterProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18573,8 +18437,28 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarGroupAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarGroupContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18583,26 +18467,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "h3",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
-          }
-        },
-        {
-          "name": "SidebarGroupLabelProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SidebarGroupProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18611,17 +18477,18 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "SidebarHeaderProps",
-          "kind": "interface",
+          "name": "SidebarInput",
+          "kind": "component",
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18630,17 +18497,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "main",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
-          }
-        },
-        {
-          "name": "SidebarInsetProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18649,8 +18507,18 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "ul",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18659,17 +18527,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
-          }
-        },
-        {
-          "name": "SidebarMenuBadgeProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18678,26 +18537,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "button",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SidebarMenuButtonProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "sidebarMenuButtonVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18706,26 +18547,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "li",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
-          }
-        },
-        {
-          "name": "SidebarMenuItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SidebarMenuProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18734,26 +18557,38 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "SidebarMenuSkeletonProps",
-          "kind": "interface",
+          "name": "SidebarMenuSub",
+          "kind": "component",
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "SidebarProps",
-          "kind": "interface",
+          "name": "SidebarMenuSubButton",
+          "kind": "component",
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuSubItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18761,17 +18596,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by SidebarProvider in packages/ui/registry/ui/sidebar.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "SidebarProviderProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18780,17 +18607,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "button",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
-          }
-        },
-        {
-          "name": "SidebarRailProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18799,17 +18617,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "Separator",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sidebar.tsx."
-          }
-        },
-        {
-          "name": "SidebarSeparatorProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18818,17 +18627,8 @@
           "source": "packages/ui/registry/ui/sidebar.tsx",
           "ref": {
             "status": "observed",
-            "target": "button",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SidebarTriggerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -18850,14 +18650,19 @@
             "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
           },
           {
-            "name": "state",
-            "values": ["collapsed", "expanded"],
+            "name": "variant",
+            "values": ["sidebar", "floating", "inset"],
             "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
           },
           {
-            "name": "variant",
-            "values": ["floating", "inset", "sidebar"],
+            "name": "collapsible",
+            "values": ["offcanvas", "icon", "none"],
             "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
+          },
+          {
+            "name": "menuButtonVariant",
+            "values": ["default", "outline"],
+            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
           }
         ]
       },
@@ -18865,9 +18670,14 @@
         "status": "observed",
         "dimensions": [
           {
-            "name": "size",
-            "values": ["default", "lg", "sm"],
+            "name": "menuButtonSize",
+            "values": ["default", "sm", "lg"],
             "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
+          },
+          {
+            "name": "menuSubButtonSize",
+            "values": ["sm", "md"],
+            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
           }
         ]
       },
@@ -18876,27 +18686,26 @@
           "status": "observed",
           "values": [
             "default",
-            "active",
-            "checked",
-            "collapsed",
-            "disabled",
             "expanded",
+            "collapsed",
+            "open",
+            "active",
+            "disabled",
             "loading",
-            "open"
+            "mobile"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
+          "status": "covered",
           "values": [
-            "current",
-            "disabled",
-            "focus-visible",
-            "keyboard",
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
             "labeled",
-            "semantic-html"
+            "focus-visible"
           ],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "evidence": "packages/ui/registry/ui/sidebar.tsx + packages/ui/registry/ui/sidebar.test.tsx"
         },
         "visual": {
           "status": "observed",
@@ -18907,29 +18716,31 @@
       "responsive": {
         "status": "modeled",
         "risks": [
-          "text-truncation-and-flex-shrink",
-          "overflow-and-scroll",
           "responsive-or-container-layout",
-          "mobile-or-touch-mode"
+          "mobile-or-touch-mode",
+          "overflow-and-scroll",
+          "text-truncation-and-flex-shrink"
         ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "Upstream's own layout: a fixed desktop panel above the md breakpoint and a Sheet below it, with a scrolling content region and truncating rows."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition", "canvas animation"],
+        "status": "observed",
+        "mechanisms": ["tokenized CSS transition"],
         "reducedMotion": {
           "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5).",
           "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/sidebar",
       "registryDependencies": [
-        "@vegastack/icon-button",
+        "@vegastack/button",
+        "@vegastack/input",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",
+        "@vegastack/tooltip",
         "@vegastack/use-mobile"
       ],
       "npmDependencies": [
@@ -18957,13 +18768,13 @@
               "values": ["sidebar-wrapper"]
             }
           ],
-          "cssVariables": []
+          "cssVariables": ["--sidebar-width", "--sidebar-width-icon"]
         },
         "Sidebar": {
           "attributes": [
             {
               "name": "data-collapsible",
-              "values": ["", "none"]
+              "values": [""]
             },
             {
               "name": "data-mobile",
@@ -18974,112 +18785,35 @@
               "values": []
             },
             {
+              "name": "data-sidebar",
+              "values": ["sidebar"]
+            },
+            {
               "name": "data-slot",
-              "values": ["sidebar", "sidebar-sheet-content"]
+              "values": [
+                "sidebar",
+                "sidebar-container",
+                "sidebar-gap",
+                "sidebar-inner"
+              ]
             },
             {
               "name": "data-state",
-              "values": ["expanded"]
+              "values": []
             },
             {
               "name": "data-variant",
               "values": []
             }
           ],
-          "cssVariables": []
-        },
-        "SidebarHeader": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-header"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-content"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarFooter": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-footer"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarGroupLabel": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-group-label"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenu": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-item"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuBadge": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-badge"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuSkeleton": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-skeleton"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarSeparator": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-separator"]
-            }
-          ],
-          "cssVariables": []
+          "cssVariables": ["--sidebar-width"]
         },
         "SidebarTrigger": {
           "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["trigger"]
+            },
             {
               "name": "data-slot",
               "values": ["sidebar-trigger"]
@@ -19089,6 +18823,10 @@
         },
         "SidebarRail": {
           "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["rail"]
+            },
             {
               "name": "data-slot",
               "values": ["sidebar-rail"]
@@ -19101,6 +18839,179 @@
             {
               "name": "data-slot",
               "values": ["sidebar-inset"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarInput": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["input"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-input"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarHeader": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["header"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarFooter": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["footer"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarSeparator": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["separator"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarContent": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["content"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarGroup": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["group"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarGroupContent": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["group-content"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-group-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenu": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuItem": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu-item"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuBadge": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu-badge"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-badge"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuSkeleton": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": [
+                "menu-skeleton",
+                "menu-skeleton-icon",
+                "menu-skeleton-text"
+              ]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-skeleton"]
+            }
+          ],
+          "cssVariables": ["--skeleton-width"]
+        },
+        "SidebarMenuSub": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu-sub"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-sub"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuSubItem": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu-sub-item"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-sub-item"]
             }
           ],
           "cssVariables": []
@@ -20542,14 +20453,14 @@
       "name": "table",
       "registryType": "registry:ui",
       "title": "Table",
-      "summary": "Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, caption.",
+      "summary": "A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
       "wave": "Data display",
       "sourceFiles": [
-        "packages/ui/registry/ui/table.tsx",
-        "packages/ui/registry/ui/table-scroll-region.tsx"
+        "packages/ui/registry/ui/table-scroll-region.tsx",
+        "packages/ui/registry/ui/table.tsx"
       ],
       "publicSymbols": [
         {
@@ -20558,8 +20469,8 @@
           "source": "packages/ui/registry/ui/table.tsx",
           "ref": {
             "status": "observed",
-            "target": "table",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20568,17 +20479,8 @@
           "source": "packages/ui/registry/ui/table.tsx",
           "ref": {
             "status": "observed",
-            "target": "tbody",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TableBodyProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/table.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20587,17 +20489,8 @@
           "source": "packages/ui/registry/ui/table.tsx",
           "ref": {
             "status": "observed",
-            "target": "caption",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TableCaptionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/table.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20606,17 +20499,8 @@
           "source": "packages/ui/registry/ui/table.tsx",
           "ref": {
             "status": "observed",
-            "target": "td",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TableCellProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/table.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20625,17 +20509,8 @@
           "source": "packages/ui/registry/ui/table.tsx",
           "ref": {
             "status": "observed",
-            "target": "tfoot",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TableFooterProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/table.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20644,8 +20519,8 @@
           "source": "packages/ui/registry/ui/table.tsx",
           "ref": {
             "status": "observed",
-            "target": "th",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20654,35 +20529,8 @@
           "source": "packages/ui/registry/ui/table.tsx",
           "ref": {
             "status": "observed",
-            "target": "thead",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TableHeaderProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/table.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TableHeadProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/table.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TableProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/table.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20691,17 +20539,8 @@
           "source": "packages/ui/registry/ui/table.tsx",
           "ref": {
             "status": "observed",
-            "target": "tr",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TableRowProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/table.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20710,8 +20549,8 @@
           "source": "packages/ui/registry/ui/table-scroll-region.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Forwards its ref to the scroll viewport it renders."
           }
         },
         {
@@ -20720,30 +20559,34 @@
           "source": "packages/ui/registry/ui/table-scroll-region.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "none",
+            "rationale": "Type alias."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component; the pre-reset `grid` prop is gone."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "selected", "scrollable"],
+          "values": ["default", "selected"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["semantic-html", "labeled", "keyboard"],
-          "evidence": "Native table semantics; the scroll viewport is measured and becomes a named role=region tab stop only while it can scroll, with the focus outline inset because the viewport clips its own overflow."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/table.tsx + packages/ui/registry/ui/table.test.tsx"
         },
         "visual": {
           "status": "observed",
@@ -20753,15 +20596,16 @@
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll", "grid-wrapping"],
-        "rationale": "Body cells wrap over a --table-cell-min-width floor so one long value cannot force the whole table sideways; genuinely wide tables scroll inside a keyboard-reachable viewport rather than overflowing the page."
+        "risks": ["overflow-and-scroll"],
+        "rationale": "Cells are whitespace-nowrap and the component's own data-slot=\"table-container\" div scrolls on the x axis."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "observed",
+        "mechanisms": ["CSS transition-colors on the row"],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
+          "status": "inherited-global",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5).",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
         }
       },
       "engines": [],
@@ -20782,23 +20626,24 @@
       },
       "previewModule": "table",
       "dataAttributes": {
-        "Table": {
+        "TableScrollRegion": {
           "attributes": [
             {
-              "name": "data-density",
-              "values": ["compact"]
-            },
-            {
-              "name": "data-grid",
+              "name": "data-scrollable",
               "values": [""]
             },
             {
-              "name": "data-header-tone",
-              "values": ["ink"]
-            },
+              "name": "data-slot",
+              "values": ["table-container"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Table": {
+          "attributes": [
             {
               "name": "data-slot",
-              "values": ["table"]
+              "values": ["table", "table-container"]
             }
           ],
           "cssVariables": []
@@ -20865,19 +20710,6 @@
             }
           ],
           "cssVariables": []
-        },
-        "TableScrollRegion": {
-          "attributes": [
-            {
-              "name": "data-scrollable",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["table-container"]
-            }
-          ],
-          "cssVariables": []
         }
       }
     },
@@ -20885,7 +20717,7 @@
       "name": "tabs",
       "registryType": "registry:ui",
       "title": "Tabs",
-      "summary": "Layered content sections — line or pill variants, optional icons and count badges, horizontal or vertical, full keyboard navigation.",
+      "summary": "A set of layered sections of content — known as tab panels — that are displayed one at a time.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -20898,27 +20730,8 @@
           "source": "packages/ui/registry/ui/tabs.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseTabs.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TabsContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/tabs.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseTabs.Panel",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TabsContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/tabs.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20927,35 +20740,8 @@
           "source": "packages/ui/registry/ui/tabs.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseTabs.List",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TabsListProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/tabs.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "tabsListVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/tabs.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "TabsProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/tabs.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -20964,17 +20750,27 @@
           "source": "packages/ui/registry/ui/tabs.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseTabs.Tab",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "TabsTriggerProps",
-          "kind": "interface",
+          "name": "TabsContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/tabs.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "tabsListVariants",
+          "kind": "variant-builder",
           "source": "packages/ui/registry/ui/tabs.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Not a rendering component; accepts no runtime ref."
           }
         }
       ],
@@ -20982,50 +20778,51 @@
         "status": "observed",
         "dimensions": [
           {
-            "name": "orientation",
-            "values": ["horizontal", "vertical"],
-            "evidence": "packages/ui/registry/ui/tabs.tsx: prop union"
-          },
-          {
             "name": "variant",
-            "values": ["chip", "line", "pill"],
-            "evidence": "packages/ui/registry/ui/tabs.tsx: CVA; packages/ui/registry/ui/tabs.tsx: prop union"
+            "values": ["default", "line"],
+            "evidence": "packages/ui/registry/ui/tabs.tsx: cva variant on TabsList"
           }
         ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "active", "disabled", "selected"],
+          "values": ["default", "active", "disabled"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["disabled", "focus-visible"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/tabs.tsx + packages/ui/registry/ui/tabs.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "focus", "active", "disabled"],
+          "values": ["default", "hover", "active", "disabled"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "The root's data-orientation switches the list between a row and a column; the trigger is flex-1."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
+        "status": "observed",
+        "mechanisms": [
+          "CSS transition on the trigger (transition-all) and on the line indicator (after:transition-opacity)"
+        ],
         "reducedMotion": {
           "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5).",
           "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
         }
       },
@@ -21052,6 +20849,10 @@
         "Tabs": {
           "attributes": [
             {
+              "name": "data-orientation",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["tabs"]
             }
@@ -21062,7 +20863,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["tabs-indicator", "tabs-list"]
+              "values": ["tabs-list"]
             },
             {
               "name": "data-variant",
@@ -21075,7 +20876,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["tabs-trigger", "tabs-trigger-count"]
+              "values": ["tabs-trigger"]
             }
           ],
           "cssVariables": []

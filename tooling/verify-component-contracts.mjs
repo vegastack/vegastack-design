@@ -90,6 +90,9 @@ function expectedEnginePackages(dependencies = []) {
     if (dependency.startsWith("input-otp")) packages.add("input-otp");
     if (dependency.startsWith("cmdk")) packages.add("cmdk");
     if (dependency.startsWith("sonner")) packages.add("sonner");
+    // Batch 5: `carousel` is new here, and `embla-carousel-react` is its slide engine.
+    if (dependency.startsWith("embla-carousel-react"))
+      packages.add("embla-carousel-react");
   }
   return sorted(packages);
 }
@@ -551,7 +554,7 @@ const expectedWaves = {
   "Forms/editing": 27,
   "Navigation/layout": 17,
   Overlays: 16,
-  "Data display": 12,
+  "Data display": 13,
   "Content/marketing": 23,
   "AI/chat": 6,
 };
@@ -664,6 +667,7 @@ const expectedComponentWaveMembers = {
   ],
   "Data display": [
     "card",
+    "carousel",
     "chart",
     "chip",
     "comparison-matrix",

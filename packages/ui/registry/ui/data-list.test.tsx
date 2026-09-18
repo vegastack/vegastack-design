@@ -841,28 +841,33 @@ test("render receives the per-cell context (rowId, columnKey, selected) as a thi
   expect(seen[2]).toEqual({ rowId: "c", columnKey: "name", selected: false });
 });
 
-test("Table spreadsheet-voice props (grid, density, headerTone) type-check and flow through", async () => {
+test("every remaining `<table>` prop type-checks and flows through to the table element", async () => {
+  // Was "Table spreadsheet-voice props (grid, density, headerTone)". Batch 5 of the shadcn reset
+  // put `Table` back on upstream's file, which takes no props of its own — no `grid`, no
+  // `headerTone`, no `density`, no `scrollLabel`, no `containerProps`. What survives, and what this
+  // test now pins, is that `DataListProps` really is upstream `Table`'s prop set: an ordinary
+  // `<table>` attribute passed to `DataList` reaches the table element, and upstream's own
+  // container is still there around it.
   await render(
     <DataList
       columns={columns}
       data={data}
       getRowId={(r) => r.id}
-      grid
-      headerTone="ink"
-      density="compact"
-      containerProps={{ className: "test-viewport-cap" }}
+      className="test-viewport-cap"
+      summary="Releases"
     />,
   );
   const table = document.querySelector(
     '[data-slot="data-list"]',
   ) as HTMLElement;
-  expect(table.dataset.grid).toBe("");
-  expect(table.dataset.headerTone).toBe("ink");
-  expect(table.dataset.density).toBe("compact");
+  expect(table.tagName).toBe("TABLE");
+  expect(table.className).toContain("test-viewport-cap");
+  expect(table.getAttribute("summary")).toBe("Releases");
   const container = document.querySelector(
     '[data-slot="table-container"]',
   ) as HTMLElement;
-  expect(container.className).toContain("test-viewport-cap");
+  expect(container).not.toBeNull();
+  expect(container.contains(table)).toBe(true);
 });
 
 /* ---------------------------------------------------------------------------------------------
@@ -926,7 +931,17 @@ test("the sortable header composes the system Button", async () => {
   expect(sort.tagName).toBe("BUTTON");
 });
 
-test("a wide DataList is keyboard-scrollable through the shared region", async () => {
+test("a wide DataList overflows in upstream's container, which is NOT yet a tab stop", async () => {
+  // FLAGGED FOR MK. Was "a wide DataList is keyboard-scrollable through the shared region".
+  // Until Batch 5 of the shadcn reset, `Table` wrapped itself in `TableScrollRegion`, which
+  // implemented A11Y-6 — a scroll viewport is a tab stop only when it can actually scroll, and a
+  // named viewport is a `role="region"`. Upstream's `Table` wraps itself in a plain
+  // `data-slot="table-container"` div instead: it scrolls, but no keyboard user can reach the
+  // scroll. A11Y-6 is not one of the exceptions `implementation.md` § 5.2 assigns to `table`, and
+  // § 5.2 says to apply an exception ONLY where it is assigned, so `table` ships upstream's
+  // container verbatim and this test pins the gap rather than hiding it. `data-list` is an
+  // extras.md KEEP that Batch 7 rebuilds on the reset primitives; that is where the tab stop
+  // belongs now.
   await render(
     <div style={{ width: "280px" }}>
       <DataList
@@ -943,6 +958,11 @@ test("a wide DataList is keyboard-scrollable through the shared region", async (
   const container = document.querySelector(
     '[data-slot="table-container"]',
   ) as HTMLElement;
-  await expect.poll(() => container.getAttribute("tabindex")).toBe("0");
-  expect(container.getAttribute("aria-label")).toBe("People");
+  // It really does overflow…
+  await expect
+    .poll(() => container.scrollWidth > container.clientWidth)
+    .toBe(true);
+  // …and it really is unreachable, which is the thing to fix in Batch 7.
+  expect(container.getAttribute("tabindex")).toBeNull();
+  expect(container.getAttribute("role")).toBeNull();
 });

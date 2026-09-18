@@ -2,230 +2,242 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { ScrollArea } from "./scroll-area";
+import { ScrollArea, ScrollBar } from "./scroll-area";
+import { DirectionProvider } from "./direction";
 
-const LongContent = () => (
-  <div style={{ height: 800, width: 800 }}>
-    <p>Scrollable content</p>
-  </div>
-);
+const slot = (name: string, root: ParentNode = document) =>
+  root.querySelector<HTMLElement>(`[data-slot="${name}"]`);
 
-test("renders content inside the viewport", async () => {
-  const screen = await render(
-    <ScrollArea className="h-32 w-48">
-      <LongContent />
-    </ScrollArea>,
+const slots = (name: string, root: ParentNode = document) => [
+  ...root.querySelectorAll<HTMLElement>(`[data-slot="${name}"]`),
+];
+
+/*
+ * This lane compiles no Tailwind, and this component's overflow depends on one compiled class: the
+ * viewport's `size-full`. Without it the viewport grows to its content, nothing ever overflows, and
+ * every geometry assertion below would pass vacuously. `VIEWPORT_SIZING` restates exactly that one
+ * class — nothing else — so the measurements are real. Sizes that must be real are inline styles.
+ */
+const VIEWPORT_SIZING = `[data-slot="scroll-area-viewport"] { height: 100%; width: 100%; }`;
+
+function Sized({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <style>{VIEWPORT_SIZING}</style>
+      {children}
+    </>
   );
+}
+
+const BOX = { height: 120, width: 160 } as const;
+
+/** Overflows on y only. */
+function Tall(props: React.ComponentProps<typeof ScrollArea>) {
+  return (
+    <Sized>
+      <ScrollArea style={BOX} aria-label="Tags" {...props}>
+        <div style={{ height: 600 }}>
+          {Array.from({ length: 30 }, (_, index) => (
+            <div key={index}>v1.2.0-beta.{index}</div>
+          ))}
+        </div>
+      </ScrollArea>
+    </Sized>
+  );
+}
+
+/** Overflows on neither axis. */
+function Fits(props: React.ComponentProps<typeof ScrollArea>) {
+  return (
+    <Sized>
+      <ScrollArea style={BOX} aria-label="Tags" {...props}>
+        <div style={{ height: 20, width: 40 }}>Short</div>
+      </ScrollArea>
+    </Sized>
+  );
+}
+
+/** Overflows on both axes, with the horizontal bar composed the way upstream documents it. */
+function BothAxes(props: React.ComponentProps<typeof ScrollArea>) {
+  return (
+    <Sized>
+      <ScrollArea style={BOX} aria-label="Artwork" {...props}>
+        <div style={{ width: 800, height: 600 }}>wide and tall</div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </Sized>
+  );
+}
+
+test("renders the viewport, a vertical scrollbar and its thumb (Usage)", async () => {
+  const screen = await render(<Tall />);
+  expect(slot("scroll-area", screen.container)).not.toBeNull();
+  expect(slot("scroll-area-viewport", screen.container)).not.toBeNull();
   await expect
-    .element(screen.getByText("Scrollable content"))
-    .toBeInTheDocument();
+    .poll(() => slots("scroll-area-scrollbar", screen.container).length)
+    .toBe(1);
+  const bar = slot("scroll-area-scrollbar", screen.container) as HTMLElement;
+  expect(bar.getAttribute("data-orientation")).toBe("vertical");
+  expect(slot("scroll-area-thumb", screen.container)).not.toBeNull();
 });
 
-test("marks up the root and viewport slots", async () => {
-  const screen = await render(
-    <ScrollArea
-      data-testid="area"
-      aria-label="Release notes"
-      className="h-32 w-48"
-    >
-      <LongContent />
-    </ScrollArea>,
-  );
-  const root = screen.getByTestId("area");
-  await expect.element(root).toHaveAttribute("data-slot", "scroll-area");
-  const viewport = root
-    .element()
-    .querySelector('[data-slot="scroll-area-viewport"]');
-  expect(viewport).not.toBeNull();
-  expect(viewport).toHaveAttribute("aria-label", "Release notes");
+test("children land inside the viewport, not beside it (Usage)", async () => {
+  const screen = await render(<Tall />);
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  expect(viewport.textContent).toContain("v1.2.0-beta.0");
+  await expect
+    .poll(() => viewport.scrollHeight)
+    .toBeGreaterThan(viewport.clientHeight);
 });
 
-test("overflowing content makes the viewport a tab stop with an INSET ring", async () => {
+test("Composition: a horizontal ScrollBar child adds the second axis", async () => {
+  const screen = await render(<BothAxes />);
+  await expect
+    .poll(() => slots("scroll-area-scrollbar", screen.container).length)
+    .toBe(2);
+  const bars = slots("scroll-area-scrollbar", screen.container);
+  expect(
+    bars.map((bar) => bar.getAttribute("data-orientation")).sort(),
+  ).toEqual(["horizontal", "vertical"]);
+  // The composed bar is written beside the content, so it lands inside the viewport — which is
+  // exactly the shape upstream's Horizontal example uses.
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  const horizontal = bars.find(
+    (bar) => bar.getAttribute("data-orientation") === "horizontal",
+  ) as HTMLElement;
+  expect(viewport.contains(horizontal)).toBe(true);
+});
+
+test("ScrollBar defaults to the vertical axis and merges its own className", async () => {
   const screen = await render(
-    <ScrollArea
-      data-testid="area"
-      aria-label="Release notes"
-      className="h-32 w-48"
-    >
-      <LongContent />
-    </ScrollArea>,
+    <Sized>
+      <ScrollArea style={BOX} aria-label="Tags">
+        <div style={{ height: 600 }}>tall</div>
+        <ScrollBar className="test-bar" />
+      </ScrollArea>
+    </Sized>,
   );
-  const viewport = screen
-    .getByTestId("area")
-    .element()
-    .querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement;
-  // Measured in an effect, so poll rather than reading once.
+  const find = () =>
+    screen.container.querySelector<HTMLElement>(
+      "[data-slot='scroll-area-scrollbar'].test-bar",
+    );
+  await expect.poll(find).not.toBeNull();
+  const composed = find() as HTMLElement;
+  expect(composed.getAttribute("data-orientation")).toBe("vertical");
+  // The recipe's own classes survive the merge.
+  expect(composed.className).toContain("touch-none");
+});
+
+test("Horizontal: the viewport actually scrolls on the x axis (Horizontal)", async () => {
+  const screen = await render(
+    <Sized>
+      <ScrollArea style={{ width: 160, height: 60 }} aria-label="Artwork">
+        <div style={{ width: 800 }}>wide</div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </Sized>,
+  );
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  await expect
+    .poll(() => viewport.scrollWidth)
+    .toBeGreaterThan(viewport.clientWidth);
+  await expect
+    .poll(() =>
+      slots("scroll-area-scrollbar", screen.container).some(
+        (bar) => bar.getAttribute("data-orientation") === "horizontal",
+      ),
+    )
+    .toBe(true);
+  viewport.scrollLeft = 100;
+  expect(viewport.scrollLeft).toBeGreaterThan(0);
+});
+
+test("A11Y-6: a viewport with overflowing content is a tab stop", async () => {
+  const screen = await render(<Tall />);
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
   await expect.poll(() => viewport.getAttribute("tabindex")).toBe("0");
-  expect(viewport).toHaveAttribute("data-scrollable", "");
-  // SP-03: the Root clips (`overflow-hidden`), so an OUTWARD ring would be cut off.
-  expect(viewport.className).toContain("focus-visible:-outline-offset-2");
+  viewport.focus();
+  expect(document.activeElement).toBe(viewport);
 });
 
-test("content that fits adds NO tab stop (B6-06/TD-4)", async () => {
-  const screen = await render(
-    <ScrollArea
-      data-testid="area"
-      aria-label="Short note"
-      className="h-32 w-48"
-    >
-      <p>Fits easily</p>
-    </ScrollArea>,
-  );
-  const viewport = screen
-    .getByTestId("area")
-    .element()
-    .querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement;
-  await expect.element(screen.getByText("Fits easily")).toBeInTheDocument();
-  // A scroll region with nothing to scroll is a tab stop that announces nothing and does nothing.
-  await expect.poll(() => viewport.getAttribute("tabindex")).toBe(null);
-  expect(viewport).not.toHaveAttribute("data-scrollable");
+test("A11Y-6: a viewport whose content fits is NOT a tab stop", async () => {
+  const screen = await render(<Fits />);
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  // The other half of the row. Base UI computes `tabIndex: hidden.x && hidden.y ? -1 : 0`; if it
+  // ever made the viewport unconditionally tabbable, A11Y-6 would stop being satisfied with NO
+  // HUNK in our patch — and this assertion is the only thing in the repository that would notice.
+  await expect.poll(() => viewport.getAttribute("tabindex")).toBe("-1");
+  // Proven against the geometry, not just the attribute: nothing here overflows.
+  expect(viewport.scrollHeight).toBeLessThanOrEqual(viewport.clientHeight);
+  expect(viewport.scrollWidth).toBeLessThanOrEqual(viewport.clientWidth);
 });
 
-test("applies the className to the container (size constraint)", async () => {
+test("RTL: the vertical scrollbar uses a logical border side (RTL)", async () => {
   const screen = await render(
-    <ScrollArea data-testid="area" className="h-32 w-48">
-      <LongContent />
-    </ScrollArea>,
+    <DirectionProvider direction="rtl">
+      <div dir="rtl">
+        <Tall />
+      </div>
+    </DirectionProvider>,
   );
-  const root = screen.getByTestId("area");
-  // The size constraint lands on the root container…
-  await expect.element(root).toHaveClass("h-32");
-  await expect.element(root).toHaveClass("w-48");
-  // …and the viewport fills it.
-  const viewport = root
-    .element()
-    .querySelector('[data-slot="scroll-area-viewport"]');
-  expect(viewport?.className).toContain("size-full");
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  expect(getComputedStyle(viewport).direction).toBe("rtl");
+  await expect
+    .poll(() => slot("scroll-area-scrollbar", screen.container))
+    .not.toBeNull();
+  const bar = slot("scroll-area-scrollbar", screen.container) as HTMLElement;
+  expect(bar.className).toContain("data-vertical:border-s");
+  expect(bar.className).not.toContain("border-l");
 });
 
-// Base UI mounts each scrollbar only after it measures real overflow on that
-// axis (or when `keepMounted` is set). The browser test environment ships no
-// Tailwind CSS, so size utilities produce no layout and overflow can't be
-// measured — these structural tests pass `scrollbarProps={{ keepMounted: true }}`
-// to the auto-rendered bars so they assert our real composition deterministically.
-
-test("an auto-rendered vertical ScrollBar renders with the right slot + orientation", async () => {
-  const screen = await render(
-    <ScrollArea data-testid="area" scrollbarProps={{ keepMounted: true }}>
-      <LongContent />
-    </ScrollArea>,
-  );
-  const root = screen.getByTestId("area").element();
-  const bars = root.querySelectorAll('[data-slot="scroll-area-scrollbar"]');
-  expect(bars.length).toBe(1);
-  expect(bars[0]?.getAttribute("data-orientation")).toBe("vertical");
+test("FOC-1/FOC-6: no focus glow and no outline suppression on the viewport", async () => {
+  const screen = await render(<Tall />);
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  // Upstream suppressed the outline on the ONE focusable part of this component. Named here so a
+  // future pull that reintroduces the glow fails on the element it would actually hurt.
+  expect(viewport.className).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
+  expect(viewport.className).not.toContain("focus-visible:outline-1");
+  for (const element of screen.container.querySelectorAll<HTMLElement>("*")) {
+    const classes =
+      typeof element.className === "string" ? element.className : "";
+    expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+    expect(classes).not.toContain("focus-visible:ring-");
+    expect(classes).not.toMatch(/(?:^|\s)outline-hidden(?:\s|$)/);
+  }
 });
 
-test('composes both axes for orientation="both"', async () => {
-  // The corner (`data-slot="scroll-area-corner"`) is a Base UI runtime element
-  // that only materializes once BOTH axes have measurable overflow, so we assert
-  // the dual-axis scrollbar composition here rather than the conditional corner.
-  const screen = await render(
-    <ScrollArea
-      data-testid="area"
-      orientation="both"
-      scrollbarProps={{ keepMounted: true }}
-    >
-      <LongContent />
-    </ScrollArea>,
-  );
-  const root = screen.getByTestId("area").element();
-  expect(
-    root.querySelector(
-      '[data-slot="scroll-area-scrollbar"][data-orientation="vertical"]',
-    ),
-  ).not.toBeNull();
-  expect(
-    root.querySelector(
-      '[data-slot="scroll-area-scrollbar"][data-orientation="horizontal"]',
-    ),
-  ).not.toBeNull();
-});
-
-test("ScrollBar renders a token-styled thumb", async () => {
-  const screen = await render(
-    <ScrollArea data-testid="area" scrollbarProps={{ keepMounted: true }}>
-      <LongContent />
-    </ScrollArea>,
-  );
-  const thumb = screen
-    .getByTestId("area")
-    .element()
-    .querySelector('[data-slot="scroll-area-thumb"]');
-  expect(thumb).not.toBeNull();
-  expect(thumb?.className).toContain("bg-border");
-  expect(thumb?.className).toContain("rounded-full");
-});
-
-test("no a11y violations", async () => {
-  const screen = await render(
-    <ScrollArea aria-label="Release notes" className="h-32 w-48">
-      <LongContent />
-    </ScrollArea>,
-  );
+test("no a11y violations — scrollable", async () => {
+  const screen = await render(<Tall />);
   await expectNoA11yViolations(screen.container);
 });
 
-test("ScrollArea forwards ref to its host root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
-    <ScrollArea ref={ref} className="h-32 w-48">
-      <LongContent />
-    </ScrollArea>,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLElement);
-  expect(ref.current?.dataset.slot).toBe("scroll-area");
+test("no a11y violations — content fits", async () => {
+  const screen = await render(<Fits />);
+  await expectNoA11yViolations(screen.container);
 });
 
-test("the 10px visual scrollbar exposes a real 24px inward pointer target", async () => {
-  const style = document.createElement("style");
-  style.textContent = `
-    [data-testid="scroll-hit-area"] {
-      position: fixed;
-      inset: auto;
-      top: 100px;
-      left: 300px;
-      width: 100px;
-      height: 80px;
-      overflow: hidden;
-    }
-    .scroll-hit-bar {
-      position: absolute;
-      inset-block: 0;
-      inset-inline-end: 0;
-      width: 10px;
-      height: 80px;
-      z-index: 10;
-    }
-    .scroll-hit-bar::before {
-      content: "";
-      position: absolute;
-      inset-block: 0;
-      inset-inline-end: 0;
-      width: 24px;
-    }
-  `;
-  document.head.append(style);
-
-  try {
-    const screen = await render(
-      <ScrollArea
-        data-testid="scroll-hit-area"
-        aria-label="Hit target probe"
-        scrollbarProps={{ keepMounted: true, className: "scroll-hit-bar" }}
-      >
-        <LongContent />
-      </ScrollArea>,
-    );
-    const root = screen.getByTestId("scroll-hit-area").element();
-    const bar = root.querySelector<HTMLElement>(".scroll-hit-bar");
-    expect(bar).not.toBeNull();
-    const rect = root.getBoundingClientRect();
-    expect(document.elementFromPoint(rect.right - 23, rect.top + 10)).toBe(bar);
-    expect(document.elementFromPoint(rect.right - 25, rect.top + 10)).not.toBe(
-      bar,
-    );
-  } finally {
-    style.remove();
-  }
+test("no a11y violations — both axes composed", async () => {
+  const screen = await render(<BothAxes />);
+  await expectNoA11yViolations(screen.container);
 });

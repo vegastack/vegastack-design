@@ -1,4 +1,4 @@
-// @vegastack data-list@0.9.1 sha256-IPgEba8y8oNJYuOEHRwct9Q3aT1p88Z3rTxs3lhbQvA=
+// @vegastack data-list@0.9.1 sha256-Ghfv0+ZZ1K3ap0hQc3B4x+cytuyIS5Qc8DzCWBY3vYw=
 
 "use client";
 
@@ -10,7 +10,6 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-  type TableProps,
 } from "@/components/ui/table";
 import {
   columnCellClass,
@@ -103,12 +102,18 @@ export interface DataListColumn<T> extends DataTableColumnLayout {
 }
 
 /**
- * Props accepted by `DataList`. Extends {@link TableProps} (minus `children`),
- * so the Table spreadsheet voice — `grid`, `headerTone`, `density` — and the
- * container hooks (`scrollLabel`, `containerProps`) type-check here and
- * flow straight through to the underlying `Table`.
+ * Props accepted by `DataList`. Extends upstream `Table`'s own props (minus `children`), so every
+ * `<table>` attribute type-checks here and flows straight through.
+ *
+ * Batch 5 of the shadcn reset put `Table` back on upstream's file, which is a plain `<table>` in a
+ * `data-slot="table-container"` overflow div and takes no props of its own. The pre-reset
+ * spreadsheet voice (`grid`, `headerTone`, `density`) and container hooks (`scrollLabel`,
+ * `containerProps`) are therefore gone; Batch 7 rebuilds this component on the reset primitives.
  */
-export interface DataListProps<T> extends Omit<TableProps, "children"> {
+export interface DataListProps<T> extends Omit<
+  React.ComponentProps<typeof Table>,
+  "children"
+> {
   /** Column definitions, left to right. */
   columns: DataListColumn<T>[];
   /** Row data, in display order. Sorting is the parent's responsibility (see `sort`). */

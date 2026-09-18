@@ -138,10 +138,19 @@ const RULES = [
   // `base.css`. Every migrated component strips the glow, and this rule is what keeps it stripped —
   // without it, a re-pull in Batch 2 or a hand-written component silently reintroduces the halo
   // and nothing anywhere says so.
+  //
+  // The box-shadow half is scoped to a FOCUS variant, and Batch 5 is why. Upstream draws a
+  // resting 1px hairline with `shadow-[0_0_0_1px_var(--sidebar-border)]` on `SidebarMenuButton`'s
+  // `outline` variant — a border technique, always on, nothing to do with focus — and an
+  // unscoped `shadow-[0_0_0_` rejected it. What FOC-1/FOC-6 decide is the AFFORDANCE, so the
+  // rule now reads `focus:`/`focus-visible:`/`focus-within:shadow-[0_0_0_…]` and leaves a
+  // resting hairline alone. Everything else stays unconditional: `ring-3`, `ring-[3px]`,
+  // `ring-ring/NN` and any `focus-visible:ring-*` are the glow however they are spelled, and a
+  // component that wants a hairline has `border` and this shadow spelling, not a ring.
   {
     id: "no-focus-ring-glow",
-    re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus-visible:ring-|\bshadow-\[0_0_0_/g,
-    msg: "focus ring glow (FOC-1/FOC-6): base.css owns the one `:focus-visible` outline — no ring-3, no ring-ring/NN, no focus-visible:ring-*, no 0 0 0 box-shadow ring",
+    re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus-visible:ring-|\bfocus(?:-visible|-within)?:shadow-\[0_0_0_/g,
+    msg: "focus ring glow (FOC-1/FOC-6): base.css owns the one `:focus-visible` outline — no ring-3, no ring-ring/NN, no focus-visible:ring-*, no focus 0 0 0 box-shadow ring",
   },
 ];
 
@@ -290,9 +299,9 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
     "/sidebar.tsx",
     {
-      counts: { button: 2 },
+      counts: { button: 1 },
       rationale:
-        "SidebarMenuButton's useRender fallback and the resize rail control — SidebarTrigger's hand-rolled button became an IconButton in N1",
+        "`SidebarRail`, the collapse strip along the rail's edge — upstream's own raw <button>, and the one control here no VegaStack component substitutes for: it is a 16px full-height hit strip with no label, no icon and no text, `tabIndex={-1}` by design, and a Button at any size would paint a box where the design wants an invisible seam. Batch 5 of the shadcn reset put this file on upstream's source, which dropped the count from 2 to 1: `SidebarMenuButton`'s fallback is now `useRender`'s, not a literal <button>, and `SidebarTrigger` composes Button.",
     },
   ],
   [

@@ -1,6 +1,6 @@
 ---
 title: Tabs
-description: A set of layered sections — line or pill variants, optional icons and count badges, horizontal or vertical orientation, full keyboard navigation.
+description: A set of layered sections of content — known as tab panels — that are displayed one at a time.
 audience: public
 registry: tabs
 status: stable
@@ -16,150 +16,142 @@ preview: tabs
 ## Usage
 
 ```tsx
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-<Tabs defaultValue="overview">
+<Tabs defaultValue="account" className="w-[400px]">
   <TabsList>
-    <TabsTrigger value="overview">Overview</TabsTrigger>
-    <TabsTrigger value="activity" count={3}>
-      Activity
-    </TabsTrigger>
+    <TabsTrigger value="account">Account</TabsTrigger>
+    <TabsTrigger value="password">Password</TabsTrigger>
   </TabsList>
-  <TabsContent value="overview">Overview content</TabsContent>
-  <TabsContent value="activity">Activity content</TabsContent>
+  <TabsContent value="account">Make changes to your account here.</TabsContent>
+  <TabsContent value="password">Change your password here.</TabsContent>
 </Tabs>;
 ```
 
-## Anatomy
+<ComponentPreview name="tabs" file="components/preview/tabs.tsx" />
 
-`Tabs` is a compound component built on Base UI Tabs. Compose the parts inside the root, matching
-each `TabsTrigger` to a `TabsContent` by `value`:
+## Anatomy
 
 <Anatomy name="tabs" />
 
-```tsx
-<Tabs defaultValue="overview" orientation="horizontal">
-  <TabsList variant="line">
-    <TabsTrigger value="overview">
-      <Icon />
-      Overview
-    </TabsTrigger>
-    <TabsTrigger value="activity" count={3}>
-      Activity
-    </TabsTrigger>
-  </TabsList>
-  <TabsContent value="overview">…</TabsContent>
-  <TabsContent value="activity">…</TabsContent>
-</Tabs>
-```
-
-- `Tabs` — the root that groups the list and panels and owns `orientation` (`data-slot="tabs"`,
-  `data-orientation`). Controlled via `value`/`onValueChange`, or uncontrolled via `defaultValue`.
-- `TabsList` — the row (or column) of triggers (`data-slot="tabs-list"`, `data-variant`). Hosts the
-  moving underline indicator for the `line` variant.
-- `TabsTrigger` — an individual tab button (`data-slot="tabs-trigger"`). Active state is exposed as
-  `data-active`. Compose a leading icon as the first child; pass `count` for a trailing badge.
-- `TabsContent` — the panel shown for the active tab (`data-slot="tabs-content"`), matched by `value`.
-
 ## Examples
 
-### Variants
+### Composition
 
-`line` (a moving underline tracks the active tab, the default) and `pill` (a bounded muted track
-where the active tab raises on the shared selected-chip recipe). Both support a leading icon
-composed as the first child and a trailing `count` badge.
+`TabsList` holds the triggers and `TabsContent` holds one panel per value, so the tree is the two
+halves side by side under one root.
 
-On `line`, the trigger's hover wash is deliberately held one 4px step off the rule the underline
-rides along — a wash that runs flush into a container hairline reads as a rendering bug rather than
-a state. The gap is a logical margin, so the vertical variant mirrors it onto the inline-start rail
-and RTL follows without a second rule.
+```text
+Tabs
+├── TabsList
+│   ├── TabsTrigger
+│   └── TabsTrigger
+├── TabsContent
+└── TabsContent
+```
 
-<ComponentPreview name="tabsVariants" file="components/preview/tabs.tsx" />
+<ComponentPreview name="tabsComposition" file="components/preview/tabs.tsx" />
 
-### Orientation
+### Line
 
-Set `orientation="vertical"` on the root to stack the tab list beside the panels — useful for
-settings-style navigation. Keyboard navigation switches to the up/down arrow keys automatically.
-With the `line` variant, the moving underline indicator rides the inline-start rail instead of the
-bottom rule, so it mirrors in RTL:
+Use the `variant="line"` prop on `TabsList` for a line style. The default is `variant="default"`,
+the grey pill track — the two are the whole variant set.
 
-<ComponentPreview name="tabsVerticalLine" file="components/preview/tabs.tsx" />
+<ComponentPreview name="tabsLine" file="components/preview/tabs.tsx" />
 
-The `pill` variant stacks the raised-chip triggers in a column:
+### Vertical
+
+Use `orientation="vertical"` on `Tabs` for vertical tabs. The root writes `data-orientation` onto
+itself, and the `group-data-vertical/tabs:` variants on the list and the trigger read it to stack the
+tabs, fill the width, and move the active indicator from the bottom edge to the inline end.
+
+The prop is consumed by the wrapper rather than forwarded, so it is a layout switch: the roving
+keyboard axis stays on <kbd>←</kbd>/<kbd>→</kbd>. Reach for a vertical list where the label column is
+the point, and say so in the surrounding copy.
 
 <ComponentPreview name="tabsVertical" file="components/preview/tabs.tsx" />
 
 ### Disabled
 
-Mark a `TabsTrigger` `disabled` to render it dimmed and non-interactive. It carries `data-disabled`,
-is skipped by keyboard navigation, and cannot be selected:
+`disabled` on a `TabsTrigger` takes it out of the roving tab sequence and dims it. It keeps its
+pointer events (FRM-4), so a `Tooltip` wrapped around it can still explain why it is unavailable.
 
 <ComponentPreview name="tabsDisabled" file="components/preview/tabs.tsx" />
 
-### Chip variant
+### Icons
 
-`variant="chip"` renders free-standing tabs on the 28px chrome scale — no track, no
-underline; the active tab raises on the same selected-chip recipe `pill` uses — the
-pressed/selected rung with the one hairline, and it keeps its own hover and pressed steps. The dense
-record-page treatment; pair with `count` for per-tab totals. For tab sets that outgrow their
-container, compose an overflow menu ("+N more") from `DropdownMenu` — the list itself scrolls
-with an edge fade by default.
+A `TabsTrigger` lays its children out in a row with a gap, and sizes a bare `svg` child to `size-4`,
+so an icon beside the label needs no wrapper and no class.
 
-<ComponentPreview name="tabsChip" file="components/preview/tabs.tsx" />
+<ComponentPreview name="tabsIcons" file="components/preview/tabs.tsx" />
+
+### RTL
+
+Wrap the subtree in `DirectionProvider direction="rtl"` so Base UI resolves the arrow keys and the
+logical edges. The trigger's active indicator is positioned with `-end`/`inset-x`, so it follows the
+reading direction without a second rule.
+
+<ComponentPreview name="tabsRtl" file="components/preview/tabs.tsx" />
 
 ## Playground
 
-Switch between the variants and orientations, then copy the generated JSX.
+Switch the list between its two variants and the root between its two orientations, then copy the
+generated JSX.
 
 <TabsPlayground />
 
 ## API Reference
 
-### Tabs
+<ApiTable path="lib/api-props.ts" name="TabsListProps" />
 
-<ApiTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsProps" />
-
-### TabsList
-
-<ApiTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsListProps" />
-
-### TabsTrigger
-
-<ApiTable
-  path="../../packages/ui/registry/ui/tabs.tsx"
-  name="TabsTriggerProps"
-/>
-
-### TabsContent
-
-<ApiTable
-  path="../../packages/ui/registry/ui/tabs.tsx"
-  name="TabsContentProps"
-/>
+`Tabs`, `TabsTrigger` and `TabsContent` add no props of their own — each accepts everything the
+corresponding Base UI Tabs part accepts (`Root`, `Tab`, `Panel`): `value` / `defaultValue` /
+`onValueChange` and `orientation` on the root, `value` and `disabled` on a tab, `value` and
+`keepMounted` on a panel, plus `className`, `ref` and `render` everywhere.
 
 ## Accessibility
 
-- Built on Base UI Tabs: the list renders with `role="tablist"`, each trigger with `role="tab"`, and
-  each panel with `role="tabpanel"`, all wired together with `aria-controls`/`aria-selected`.
-- Roving tabindex — only the active tab is in the tab order; arrow keys move between tabs within the
-  list.
-- Activation is manual by default: arrow keys move focus, <kbd>Enter</kbd>/<kbd>Space</kbd> selects.
-- Every interactive part shows a visible `:focus-visible` ring (`outline-ring`) — never `outline: none`.
-- Disabled triggers carry `data-disabled`, are skipped by keyboard navigation, and are not selectable.
-
-| Key                                 | Action                                                                         |
-| ----------------------------------- | ------------------------------------------------------------------------------ |
-| <kbd>Tab</kbd>                      | Move focus into the tab list (lands on the active tab), then out to the panel. |
-| <kbd>←</kbd> / <kbd>→</kbd>         | Move focus between tabs (horizontal orientation).                              |
-| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move focus between tabs (vertical orientation).                                |
-| <kbd>Home</kbd> / <kbd>End</kbd>    | Move focus to the first / last tab.                                            |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused tab.                                                      |
+- Renders Base UI's Tabs, which implements the APG tabs pattern: the list is a `role="tablist"`, each
+  trigger a `role="tab"` with `aria-selected` and `aria-controls`, and each panel a `role="tabpanel"`
+  labelled by its tab.
+- Keyboard navigation is a roving tab index — one stop for the whole list, then
+  <kbd>←</kbd>/<kbd>→</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> inside it, and
+  <kbd>Enter</kbd> or
+  <kbd>Space</kbd> to activate. Activation is manual, not on focus, so arrowing
+  through a list does not swap panels under the reader. A disabled tab is
+  skipped, and the axis stays horizontal in the vertical layout because
+  `orientation` is a layout switch on the wrapper.
+- The panel itself carries `tabindex="0"`, so a panel whose content holds nothing focusable is still
+  reachable. That is why `TabsContent` keeps its outline: suppressing it would leave a focusable
+  element with no affordance (FOC-6).
+- Focus is the global 2px `:focus-visible` outline from `base.css`; there is no ring glow on a
+  trigger (FOC-1).
+- A disabled trigger keeps its pointer events (FRM-4) so a tooltip explaining the state can still be
+  hovered.
 
 <StatesTested name="tabs" />
 
 ## Do / Don't
 
 <DoDont
-  do="Keep tab labels short and parallel, match each trigger to a panel by value, and use a count badge to surface pending items."
-  dont="Use tabs for sequential steps (use a stepper/wizard) or nest tabs more than one level deep."
+  do="Use Tabs for two to about seven peer views of the same subject, and give each trigger a short noun label."
+  dont="Use Tabs as a wizard or for a sequence that must be completed in order, and do not put a form's submit inside one tab and its errors in another."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/tabs.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the four `focus-visible:` classes (`border-ring`, `ring-[3px]`,
+  `ring-ring/50`, `outline-1 outline-ring`) go from `TabsTrigger`, and `outline-none` goes from
+  `TabsContent` — Base UI gives the panel a tab stop, so suppressing the outline would leave a
+  focusable element with no affordance at all.
+- **FRM-4** — `disabled:pointer-events-none` and `aria-disabled:pointer-events-none` are dropped, so
+  a disabled tab stays hoverable and a Tooltip can explain why. Both opacity halves stay.
+- **API-5** — NO HUNK, and that is the audit the plan asks for. A `loading` prop belongs on a control
+  that commits something and must hold its box while it does — Button and Toggle. A tab reveals a
+  panel that is already mounted; the pre-reset Tabs never had `loading` either. The panel, not the
+  tab, is where a pending state belongs.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

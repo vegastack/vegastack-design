@@ -1,0 +1,153 @@
+# component: breadcrumb
+# decisions: A11Y-2, API-16, DOC-1, DOC-2
+# hunks:
+#   A11Y-2: `BreadcrumbLink` gains `relative after:absolute after:inset-x-0 after:-inset-y-1
+#     after:content-['']`. Its visible box is one line of 14px text — measured 20px tall by the
+#     geometry lane, 4px under the floor — and a breadcrumb is a ROW of navigation controls, not
+#     prose, so SC 2.5.8's inline-text exception does not reach it. The invisible area grows the
+#     pointer target on the block axis only, never the inline axis, so two adjacent crumbs cannot
+#     fight for a pixel. Nothing moves and nothing paints. The ellipsis is untouched: it is
+#     `role="presentation" aria-hidden` and upstream's own Collapsed example wraps it in a
+#     `Button size="icon-sm"` that is already 32px — `breadcrumb.test.tsx` asserts that shape, so
+#     a future upstream that makes the ellipsis itself the control fails here.
+#   Nothing else. Upstream's breadcrumb paints no focus glow, sets no cursor and disables no
+#     pointer events.
+#   API-16: `"use client"` is ADDED. Upstream ships none, and `BreadcrumbLink` calls
+#     `useRender` from `@base-ui/react/use-render`, which calls `React.useRef` internally — under
+#     the `react-server` condition that hook is `undefined`, so a server component rendering a
+#     breadcrumb link throws. `tooling/verify-rsc-safety.mjs` is what found it. API-16 puts the
+#     boundary at the lowest interactive leaf, and this file is it.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/breadcrumb.tsx b/breadcrumb.tsx
+index 506a758..a8d4f3c 100644
+--- a/breadcrumb.tsx
++++ b/breadcrumb.tsx
+@@ -1,8 +1,12 @@
+-import * as React from "react"
+-import { mergeProps } from "@base-ui/react/merge-props"
+-import { useRender } from "@base-ui/react/use-render"
+-import { cn } from "cn"
+-import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
++// @vegastack breadcrumb@0.9.1 sha256-UFKGwEkHuAFrrErNdCoaP30nD7EWbnVzI0sVOHVfUIQ=
++
++"use client";
++
++import * as React from "react";
++import { mergeProps } from "@base-ui/react/merge-props";
++import { useRender } from "@base-ui/react/use-render";
++import { cn } from "@vegastack/design";
++import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
+ 
+ function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
+   return (
+@@ -12,7 +16,7 @@ function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
+       className={cn(className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
+@@ -21,11 +25,11 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
+       data-slot="breadcrumb-list"
+       className={cn(
+         "flex flex-wrap items-center gap-1.5 text-sm wrap-break-word text-muted-foreground",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
+@@ -35,7 +39,7 @@ function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
+       className={cn("inline-flex items-center gap-1", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function BreadcrumbLink({
+@@ -47,15 +51,24 @@ function BreadcrumbLink({
+     defaultTagName: "a",
+     props: mergeProps<"a">(
+       {
+-        className: cn("transition-colors hover:text-foreground", className),
++        className: cn(
++          // A11Y-2: the visible link is one line of 14px text, 20px tall, and a breadcrumb is a
++          // row of navigation controls rather than prose — the SC 2.5.8 inline-text exception
++          // does not reach it. An invisible `::after` grows the pointer target to 28px on the
++          // block axis and NOT on the inline axis, so two adjacent crumbs never fight for a
++          // pixel. Nothing moves and nothing paints.
++          "relative after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']",
++          "transition-colors hover:text-foreground",
++          className,
++        ),
+       },
+-      props
++      props,
+     ),
+     render,
+     state: {
+       slot: "breadcrumb-link",
+     },
+-  })
++  });
+ }
+ 
+ function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
+@@ -68,7 +81,7 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
+       className={cn("font-normal text-foreground", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function BreadcrumbSeparator({
+@@ -84,11 +97,9 @@ function BreadcrumbSeparator({
+       className={cn("[&>svg]:size-3.5", className)}
+       {...props}
+     >
+-      {children ?? (
+-        <ChevronRightIcon className="rtl:rotate-180" />
+-      )}
++      {children ?? <ChevronRightIcon className="rtl:rotate-180" />}
+     </li>
+-  )
++  );
+ }
+ 
+ function BreadcrumbEllipsis({
+@@ -102,15 +113,14 @@ function BreadcrumbEllipsis({
+       aria-hidden="true"
+       className={cn(
+         "flex size-5 items-center justify-center [&>svg]:size-4",
+-        className
++        className,
+       )}
+       {...props}
+     >
+-      <MoreHorizontalIcon
+-      />
++      <MoreHorizontalIcon />
+       <span className="sr-only">More</span>
+     </span>
+-  )
++  );
+ }
+ 
+ export {
+@@ -121,4 +131,4 @@ export {
+   BreadcrumbPage,
+   BreadcrumbSeparator,
+   BreadcrumbEllipsis,
+-}
++};

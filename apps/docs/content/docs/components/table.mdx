@@ -1,6 +1,6 @@
 ---
 title: Table
-description: Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, and caption parts.
+description: A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.
 audience: public
 registry: table
 status: stable
@@ -18,171 +18,151 @@ preview: table
 ```tsx
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableFooter,
-  TableRow,
-  TableHead,
-  TableCell,
   TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 
 <Table>
+  <TableCaption>A list of your recent invoices.</TableCaption>
   <TableHeader>
     <TableRow>
-      <TableHead>Name</TableHead>
-      <TableHead>Role</TableHead>
+      <TableHead className="w-[100px]">Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Method</TableHead>
+      <TableHead className="text-right">Amount</TableHead>
     </TableRow>
   </TableHeader>
   <TableBody>
     <TableRow>
-      <TableCell>Ada</TableCell>
-      <TableCell>Engineer</TableCell>
+      <TableCell className="font-medium">INV001</TableCell>
+      <TableCell>Paid</TableCell>
+      <TableCell>Credit Card</TableCell>
+      <TableCell className="text-right">$250.00</TableCell>
     </TableRow>
   </TableBody>
 </Table>;
 ```
 
-## Anatomy
+`Table` wraps itself in its own `data-slot="table-container"` element — a `relative w-full
+overflow-x-auto` div — so a table that is wider than its column scrolls sideways without any
+wrapper at the call site.
 
-`Table` is a set of flat, server-safe primitives that map directly onto native table elements. The
-root `Table` wraps a `<table>` in a horizontally scrollable container so wide tables never overflow
-their parent. Every part forwards its ref and exposes a `data-slot`:
+<ComponentPreview name="table" file="components/preview/table.tsx" />
+
+## Anatomy
 
 <Anatomy name="table" />
 
-```tsx
-<Table>
-  <TableCaption>{/* describes the table */}</TableCaption>
-  <TableHeader>
-    <TableRow>
-      <TableHead>{/* column label */}</TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    <TableRow>
-      <TableCell>{/* data */}</TableCell>
-    </TableRow>
-  </TableBody>
-  <TableFooter>
-    <TableRow>
-      <TableCell>{/* summary / totals */}</TableCell>
-    </TableRow>
-  </TableFooter>
-</Table>
-```
-
-- `Table` — wraps a `<table>` in a `TableScrollRegion` (`data-slot="table"`, container is `data-slot="table-container"`). `w-full caption-bottom text-sm`.
-- `TableHeader` — the `<thead>` group (`data-slot="table-header"`). Adds a bottom border to each header row.
-- `TableBody` — the `<tbody>` group (`data-slot="table-body"`). Drops the last row's border for a clean bottom edge.
-- `TableFooter` — the `<tfoot>` group (`data-slot="table-footer"`). Muted background with a top border for totals.
-- `TableRow` — a `<tr>` (`data-slot="table-row"`). Hover highlight and `data-selected` selected state. Rows inside `TableHeader` do not take the hover — a header is not a row you can act on.
-- `TableHead` — a header cell `<th>` (`data-slot="table-head"`). Muted, start-aligned, medium-weight label.
-- `TableCell` — a data cell `<td>` (`data-slot="table-cell"`). Vertically centered, and **wrapping by default** over the `--table-cell-min-width` floor.
-- `TableCaption` — the `<caption>` (`data-slot="table-caption"`), rendered below the table.
-- `TableScrollRegion` — the scroll viewport (`data-slot="table-container"`), the family's one client leaf. It measures itself and takes a tab stop only while it can actually scroll.
-
 ## Examples
 
-A caption, a selected row, and a footer totals row:
+### Composition
 
-<ComponentPreview
-  name="tableWithCaptionAndFooter"
-  file="components/preview/table.tsx"
-/>
+The parts map one to one onto the HTML elements, so the tree is the markup: a `caption`, a `thead`
+of `th`, a `tbody` of `td`, and an optional `tfoot`.
 
-### Wrapping is the default
+```text
+Table
+├── TableCaption
+├── TableHeader
+│   └── TableRow
+│       ├── TableHead
+│       ├── TableHead
+│       ├── TableHead
+│       └── TableHead
+├── TableBody
+│   ├── TableRow
+│   │   ├── TableCell
+│   │   ├── TableCell
+│   │   ├── TableCell
+│   │   └── TableCell
+│   └── TableRow
+│       ├── TableCell
+│       ├── TableCell
+│       ├── TableCell
+│       └── TableCell
+└── TableFooter
+```
 
-Body cells wrap (`overflow-wrap: anywhere`) over a per-cell minimum width, so one long value breaks
-inside its own column instead of pushing the whole table sideways. Horizontal scrolling is reserved
-for tables that are genuinely wide.
+<ComponentPreview name="tableComposition" file="components/preview/table.tsx" />
 
-Two column shapes are unreadable when broken and opt back out with `whitespace-nowrap`: figures and
-mono values (ids, refs, timestamps). `DataList` and `DataGrid` express the same rule declaratively —
-`column.nowrap`, which defaults to `true` for `align="end"` and `mono` columns.
+### Footer
 
-Retune the floor per table by overriding `--table-cell-min-width` (default `calc(var(--spacing) * 20)`,
-80px) in the table's `className`.
+Use the `TableFooter` component to add a footer to the table. It renders a `tfoot`, tints itself
+with `bg-muted/50` and drops the last row's bottom border, so a totals row reads as a summary rather
+than as one more record.
 
-<ComponentPreview name="tableWrapping" file="components/preview/table.tsx" />
+<ComponentPreview name="tableFooter" file="components/preview/table.tsx" />
 
-### Horizontal overflow, and reaching it by keyboard
+### Actions
 
-When a table is genuinely wider than its parent, the `data-slot="table-container"` viewport
-(`overflow-x-auto`) scrolls instead of overflowing — wide tables never break the surrounding layout.
+A table showing actions for each row using a `DropdownMenu`. Give the trigger a `sr-only` label —
+an icon-only button in a repeated row is otherwise a column of unnamed buttons.
 
-A scrollable region that cannot be focused can only be scrolled with a pointer. So the viewport
-**measures itself** and takes `tabIndex={0}` only while it actually scrolls: a table that fits adds
-nothing to the tab order, and a table that does not is reachable with <kbd>Tab</kbd> and scrolled with
-the arrow keys. Name it with `scrollLabel` (it falls back to the table's own `aria-label`) and the
-viewport is exposed as `role="region"`; leave it unnamed and it stays a plain focusable container,
-because an unnamed landmark is worse than none.
+<ComponentPreview name="tableActions" file="components/preview/table.tsx" />
 
-<ComponentPreview name="tableOverflow" file="components/preview/table.tsx" />
+### Data Table
 
-### Selectable rows
+`Table` is the presentation layer; the row model is yours. Combine it with a row-model library such
+as `@tanstack/react-table`, or — as here — with ordinary React state, to get sorting, filtering and
+pagination. Nothing in this component holds row state, which is why the same parts serve both.
 
-A leading checkbox column for row selection. The header checkbox toggles all rows (and shows the
-indeterminate state for a partial selection), each selected `TableRow` carries `data-selected` (paired
-with `aria-selected`) for the highlight, and the checkbox cells collapse their inline-end padding via the
-`[&:has([role=checkbox])]:pe-0` rule on `TableHead`/`TableCell`.
+Put the sort control inside `TableHead` as a `Button` and mirror the direction onto the header's
+`aria-sort`, so the column announces its state rather than only drawing an arrow.
 
-<ComponentPreview name="tableSelectable" file="components/preview/table.tsx" />
+<ComponentPreview name="tableDataTable" file="components/preview/table.tsx" />
 
-### Spreadsheet voice
+### RTL
 
-Three Wave-2 props for data-heavy screens, all off by default: `grid` draws the full cell
-grid (every cell's inline-end hairline), `headerTone="ink"` switches headers to the 14/500
-foreground voice, and `density="compact"` tightens rows to ~32px. They compose freely — and
-`density`/`headerTone`/`grid` flow to `TableHead`/`TableCell` via `data-*` flags, so the
-family stays server-safe.
+Wrap the subtree in `DirectionProvider direction="rtl"`. `TableHead` aligns with `text-start` and the
+checkbox padding rule uses `pe-0`, so the header and the cells flip with the reading direction; an
+explicit `text-right` on a numeric column stays where it is named.
 
-<ComponentPreview name="tableSpreadsheet" file="components/preview/table.tsx" />
+<ComponentPreview name="tableRtl" file="components/preview/table.tsx" />
 
 ## API Reference
 
-`Table` adds the three spreadsheet-voice props (`grid`, `headerTone`,
-`density`), the `scrollLabel` that names the scroll viewport, and
-`containerProps` — forwarded to the `data-slot="table-container"` viewport that
-owns `overflow-x-auto`. Use `containerProps` to attach sticky headers, a
-fixed-height viewport, or a virtualizer's scroll element; the `<table>` itself
-cannot own a scroll viewport.
-
-<ApiTable path="../../packages/ui/registry/ui/table.tsx" name="TableProps" />
-
-`TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`,
-`TableCell`, and `TableCaption` add no props of their own — each accepts
-everything its underlying native element accepts (`<thead>`, `<tbody>`,
-`<tfoot>`, `<tr>`, `<th>`, `<td>`, `<caption>`), plus `className` and `ref`.
+`Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell` and
+`TableCaption` add no props of their own — each accepts everything its underlying element accepts
+(`table`, `thead`, `tbody`, `tfoot`, `tr`, `th`, `td`, `caption`), including `colSpan`, `rowSpan`,
+`scope`, `aria-sort`, `className` and `ref`.
 
 ## Accessibility
 
-- Built on native table semantics — screen readers announce the table, its caption, headers, and the
-  row/column relationships automatically.
-- Use `TableCaption` (or an `aria-label` / `aria-labelledby` on `Table`) to give the table an
-  accessible name.
-- Set `scope="col"` on column `TableHead`s (and `scope="row"` on row headers) so assistive technology
-  maps each cell to the right header.
-- Selection is expressed with the `data-selected` attribute on `TableRow`; pair it with
-  `aria-selected` when the rows are interactive so the state is announced.
-- Borders-only by design: rows are distinguished by `border-border`, keeping the table legible in
-  high-contrast and forced-colors modes.
-- The scroll viewport is keyboard-reachable exactly when it scrolls, so a wide table can be read
-  without a pointer (axe `scrollable-region-focusable`) and a table that fits adds no dead tab stop.
-  Its focus outline is pulled inside (`focus-visible:-outline-offset-2`) because the viewport clips
-  its own overflow.
-
-| Key                                 | Action                                                                             |
-| ----------------------------------- | ---------------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move focus through interactive controls inside cells (links, buttons, checkboxes). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control.                                                      |
-| <kbd>←</kbd> / <kbd>→</kbd>         | Scroll the focused table viewport horizontally.                                    |
+- The parts render real `table`, `thead`, `tbody`, `tfoot`, `tr`, `th`, `td` and `caption` elements,
+  so the browser's own table semantics — row and column position, header association, and the
+  screen-reader table cursor — work with no ARIA at all.
+- `TableCaption` is the table's accessible name. Every data table should have one, or an
+  `aria-label` on `Table` when the name is already visible elsewhere on the page.
+- A sortable column sets `aria-sort` on its `TableHead` (`ascending`, `descending` or `none`) and
+  puts a real button inside it, so the control is reachable and its state is announced.
+- Cells are `whitespace-nowrap`, so a wide table scrolls inside its own container rather than
+  wrapping. Keep the container reachable from the keyboard when it scrolls — a scroll region with no
+  focusable content needs a tab stop of its own.
+- Selected rows take `data-[state=selected]` and a `bg-muted` fill. Selection is a colour change, so
+  pair it with the checkbox or control that owns it rather than relying on the tint alone.
 
 <StatesTested name="table" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use TableCaption and scope='col' headers, name the viewport with scrollLabel, and reserve whitespace-nowrap for figures and mono values."
-  dont="Use a Table for page layout — it's for tabular data only; use a grid/flex layout instead."
+  do="Use Table for tabular data — records with the same fields — and caption it so the table announces what it holds."
+  dont="Use Table for page layout or for a list of cards; a data grid with editable cells and its own keyboard model is a different component."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/table.patch`. Every hunk:
+
+- **NO STYLING HUNK** — every row this component could have argued with resolves as **shadcn** and
+  therefore ships verbatim: LAY-6 (cells stay `whitespace-nowrap`, the head stays `h-10`
+  `font-medium text-foreground` with no wrap variable), COL-6 (the row hover is upstream's own
+  `hover:bg-muted/50`) and COL-8 (a selected row is `data-[state=selected]:bg-muted`, not a pressed
+  rung). The container is upstream's `data-slot="table-container"` div.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

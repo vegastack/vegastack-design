@@ -1,140 +1,111 @@
 "use client";
 
-import { useState } from "react";
+import * as React from "react";
 import type { ReactNode } from "react";
+import { ArrowDownIcon, ArrowUpIcon, MoreHorizontalIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/table` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
+import { DirectionProvider } from "@/components/ui/direction";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableFooter,
-  TableRow,
-  TableHead,
-  TableCell,
   TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 
-type InvoiceStatus = "paid" | "pending" | "overdue";
+/*
+ * Fixtures come from upstream's own examples in `vendor/shadcn/4.21.0/docs/table.md`. `Table`
+ * renders its own `data-slot="table-container"` overflow div, so no fixture adds a scroller of its
+ * own — a preview composes, it does not restyle.
+ */
 
-const STATUS: Record<
-  InvoiceStatus,
-  { label: string; color: "success" | "warning" | "destructive" }
-> = {
-  paid: { label: "Paid", color: "success" },
-  pending: { label: "Pending", color: "warning" },
-  overdue: { label: "Overdue", color: "destructive" },
-};
-
-const invoices: {
-  invoice: string;
-  status: InvoiceStatus;
-  method: string;
-  amount: string;
-}[] = [
+const invoices = [
   {
-    invoice: "INV-001",
-    status: "paid",
-    method: "Credit card",
-    amount: "$250.00",
+    invoice: "INV001",
+    paymentStatus: "Paid",
+    totalAmount: "$250.00",
+    paymentMethod: "Credit Card",
   },
   {
-    invoice: "INV-002",
-    status: "pending",
-    method: "PayPal",
-    amount: "$150.00",
+    invoice: "INV002",
+    paymentStatus: "Pending",
+    totalAmount: "$150.00",
+    paymentMethod: "PayPal",
   },
   {
-    invoice: "INV-003",
-    status: "overdue",
-    method: "Bank transfer",
-    amount: "$350.00",
+    invoice: "INV003",
+    paymentStatus: "Unpaid",
+    totalAmount: "$350.00",
+    paymentMethod: "Bank Transfer",
   },
   {
-    invoice: "INV-004",
-    status: "paid",
-    method: "Credit card",
-    amount: "$90.00",
+    invoice: "INV004",
+    paymentStatus: "Paid",
+    totalAmount: "$450.00",
+    paymentMethod: "Credit Card",
+  },
+  {
+    invoice: "INV005",
+    paymentStatus: "Paid",
+    totalAmount: "$550.00",
+    paymentMethod: "PayPal",
+  },
+  {
+    invoice: "INV006",
+    paymentStatus: "Pending",
+    totalAmount: "$200.00",
+    paymentMethod: "Bank Transfer",
+  },
+  {
+    invoice: "INV007",
+    paymentStatus: "Unpaid",
+    totalAmount: "$300.00",
+    paymentMethod: "Credit Card",
   },
 ];
 
 export function table(): ReactNode {
   return (
-    <Wrapper className="justify-stretch">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead scope="col">Invoice</TableHead>
-            <TableHead scope="col">Status</TableHead>
-            <TableHead scope="col">Method</TableHead>
-            <TableHead scope="col" className="text-right">
-              Amount
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {invoices.map((row) => (
-            <TableRow key={row.invoice}>
-              <TableCell className="font-mono tabular-nums font-medium">
-                {row.invoice}
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary">{STATUS[row.status].label}</Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {row.method}
-              </TableCell>
-              <TableCell className="text-right font-mono tabular-nums">
-                {row.amount}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Wrapper>
-  );
-}
-
-export function tableWithCaptionAndFooter(): ReactNode {
-  return (
-    <Wrapper className="justify-stretch">
+    <Wrapper className="block">
       <Table>
         <TableCaption>A list of your recent invoices.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead scope="col">Invoice</TableHead>
-            <TableHead scope="col">Status</TableHead>
-            <TableHead scope="col" className="text-right">
-              Amount
-            </TableHead>
+            <TableHead className="w-[100px]">Invoice</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Method</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.slice(0, 3).map((row) => (
-            <TableRow
-              key={row.invoice}
-              data-selected={row.invoice === "INV-002" ? "" : undefined}
-            >
-              <TableCell className="font-mono tabular-nums font-medium">
-                {row.invoice}
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary">{STATUS[row.status].label}</Badge>
-              </TableCell>
-              <TableCell className="text-right font-mono tabular-nums">
-                {row.amount}
+          {invoices.map((invoice) => (
+            <TableRow key={invoice.invoice}>
+              <TableCell className="font-medium">{invoice.invoice}</TableCell>
+              <TableCell>{invoice.paymentStatus}</TableCell>
+              <TableCell>{invoice.paymentMethod}</TableCell>
+              <TableCell className="text-right">
+                {invoice.totalAmount}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={2}>Total</TableCell>
-            <TableCell className="text-right font-mono tabular-nums">
-              $750.00
-            </TableCell>
+            <TableCell colSpan={3}>Total</TableCell>
+            <TableCell className="text-right">$2,500.00</TableCell>
           </TableRow>
         </TableFooter>
       </Table>
@@ -142,204 +113,28 @@ export function tableWithCaptionAndFooter(): ReactNode {
   );
 }
 
-// Wide table: more columns than the container can fit, so the
-// `data-slot="table-container"` overflow-x-auto wrapper kicks in and the table
-// scrolls horizontally instead of overflowing its parent.
-const wideColumns = [
-  "Invoice",
-  "Status",
-  "Method",
-  "Customer",
-  "Email",
-  "Issued",
-  "Due",
-  "Amount",
-] as const;
-
-const wideRows: Record<(typeof wideColumns)[number], string>[] = [
-  {
-    Invoice: "INV-001",
-    Status: "Paid",
-    Method: "Credit card",
-    Customer: "Ada Lovelace",
-    Email: "ada@analytical.dev",
-    Issued: "2026-05-01",
-    Due: "2026-05-15",
-    Amount: "$250.00",
-  },
-  {
-    Invoice: "INV-002",
-    Status: "Pending",
-    Method: "PayPal",
-    Customer: "Grace Hopper",
-    Email: "grace@cobol.mil",
-    Issued: "2026-05-03",
-    Due: "2026-05-17",
-    Amount: "$150.00",
-  },
-  {
-    Invoice: "INV-003",
-    Status: "Overdue",
-    Method: "Bank transfer",
-    Customer: "Alan Turing",
-    Email: "alan@enigma.uk",
-    Issued: "2026-04-20",
-    Due: "2026-05-04",
-    Amount: "$350.00",
-  },
-];
-
-export function tableOverflow(): ReactNode {
+/** Upstream's Composition tree, rendered: caption, header, body, footer. */
+export function tableComposition(): ReactNode {
   return (
-    // Constrain the width so the wide table must scroll inside its container.
-    <Wrapper className="justify-stretch">
-      <div className="w-full max-w-md">
-        {/* Named, so the scroll region a keyboard user lands on announces what
-            it holds. The region takes a tab stop only while it can scroll. */}
-        <Table scrollLabel="Invoice ledger">
-          <TableHeader>
-            <TableRow>
-              {wideColumns.map((col) => (
-                <TableHead
-                  key={col}
-                  scope="col"
-                  className={col === "Amount" ? "text-right" : undefined}
-                >
-                  {col}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {wideRows.map((row) => (
-              <TableRow key={row.Invoice}>
-                {wideColumns.map((col) => (
-                  <TableCell
-                    key={col}
-                    className={
-                      col === "Amount"
-                        ? "text-right font-mono tabular-nums"
-                        : col === "Invoice"
-                          ? "font-mono tabular-nums font-medium"
-                          : "text-muted-foreground"
-                    }
-                  >
-                    {row[col]}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </Wrapper>
-  );
-}
-
-export function tableSelectable(): ReactNode {
-  const allInvoices = invoices.map((row) => row.invoice);
-
-  function SelectableTable() {
-    const [selected, setSelected] = useState<string[]>(["INV-002"]);
-    const allSelected = selected.length === allInvoices.length;
-    const someSelected = selected.length > 0 && !allSelected;
-
-    function toggleAll() {
-      setSelected(allSelected ? [] : allInvoices);
-    }
-
-    function toggleRow(invoice: string) {
-      setSelected((prev) =>
-        prev.includes(invoice)
-          ? prev.filter((id) => id !== invoice)
-          : [...prev, invoice],
-      );
-    }
-
-    return (
+    <Wrapper className="block">
       <Table>
+        <TableCaption>A list of your recent invoices.</TableCaption>
         <TableHeader>
           <TableRow>
-            {/* The checkbox cell collapses its right padding via [&:has([role=checkbox])]:pr-0 */}
-            <TableHead className="w-0">
-              <Checkbox
-                checked={allSelected}
-                indeterminate={someSelected}
-                onCheckedChange={toggleAll}
-                aria-label="Select all invoices"
-              />
-            </TableHead>
-            <TableHead scope="col">Invoice</TableHead>
-            <TableHead scope="col">Status</TableHead>
-            <TableHead scope="col" className="text-right">
-              Amount
-            </TableHead>
+            <TableHead className="w-[100px]">Invoice</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Method</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((row) => {
-            const isSelected = selected.includes(row.invoice);
-            return (
-              <TableRow
-                key={row.invoice}
-                data-selected={isSelected ? "" : undefined}
-                aria-selected={isSelected}
-              >
-                <TableCell>
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={() => toggleRow(row.invoice)}
-                    aria-label={`Select ${row.invoice}`}
-                  />
-                </TableCell>
-                <TableCell className="font-mono tabular-nums font-medium">
-                  {row.invoice}
-                </TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{STATUS[row.status].label}</Badge>
-                </TableCell>
-                <TableCell className="text-right font-mono tabular-nums">
-                  {row.amount}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    );
-  }
-
-  return (
-    <Wrapper className="justify-stretch">
-      <SelectableTable />
-    </Wrapper>
-  );
-}
-
-export function tableSpreadsheet(): ReactNode {
-  // Wave 2 data-table voice: `grid` (full cell hairlines) + `headerTone="ink"`
-  // (14/500 foreground headers) + `density="compact"` (~32px rows).
-  return (
-    <Wrapper className="flex-col items-stretch">
-      <Table grid headerTone="ink" density="compact">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Company</TableHead>
-            <TableHead>Owner</TableHead>
-            <TableHead className="text-right">ARR</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[
-            ["Globex", "Ada Lovelace", "$1.2M"],
-            ["Initech", "Grace Hopper", "$840K"],
-            ["Umbrella", "Edsger Dijkstra", "$310K"],
-          ].map(([company, owner, arr]) => (
-            <TableRow key={company}>
-              <TableCell className="font-medium">{company}</TableCell>
-              <TableCell>{owner}</TableCell>
-              <TableCell className="text-right font-mono font-mono text-xs tabular-nums">
-                {arr}
+          {invoices.slice(0, 2).map((invoice) => (
+            <TableRow key={invoice.invoice}>
+              <TableCell className="font-medium">{invoice.invoice}</TableCell>
+              <TableCell>{invoice.paymentStatus}</TableCell>
+              <TableCell>{invoice.paymentMethod}</TableCell>
+              <TableCell className="text-right">
+                {invoice.totalAmount}
               </TableCell>
             </TableRow>
           ))}
@@ -349,57 +144,284 @@ export function tableSpreadsheet(): ReactNode {
   );
 }
 
-const notes = [
-  {
-    id: "REQ-4821",
-    subject: "Storage quota exceeded on the production bucket",
-    note: "The nightly export wrote 42 GB of intermediate artefacts before the retention job ran, so the quota alarm fired at 03:14 UTC and paused ingestion for eleven minutes.",
-    amount: "$1,240.00",
-  },
-  {
-    id: "REQ-4822",
-    subject: "Webhook retries exhausted",
-    note: "Six consecutive deliveries to https://hooks.internal.example.com/v2/billing/settlement returned 504; the endpoint is now in cooldown until it answers a probe.",
-    amount: "$86.00",
-  },
+export function tableFooter(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <Table>
+        <TableCaption>A list of your recent invoices.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Invoice</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Method</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {invoices.slice(0, 3).map((invoice) => (
+            <TableRow key={invoice.invoice}>
+              <TableCell className="font-medium">{invoice.invoice}</TableCell>
+              <TableCell>{invoice.paymentStatus}</TableCell>
+              <TableCell>{invoice.paymentMethod}</TableCell>
+              <TableCell className="text-right">
+                {invoice.totalAmount}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={3}>Total</TableCell>
+            <TableCell className="text-right">$2,500.00</TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </Wrapper>
+  );
+}
+
+const products = [
+  { product: "Wireless Mouse", price: "$29.99" },
+  { product: "Mechanical Keyboard", price: "$129.99" },
+  { product: "USB-C Hub", price: "$49.99" },
 ];
 
-export function tableWrapping(): ReactNode {
+export function tableActions(): ReactNode {
   return (
-    // Cells wrap by default: a long value breaks inside its column instead of
-    // forcing the whole table sideways. The id and the figure opt back out.
-    <Wrapper className="justify-stretch">
-      <div className="w-full max-w-lg">
-        <Table scrollLabel="Support requests">
+    <Wrapper className="block">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Product</TableHead>
+            <TableHead>Price</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {products.map((row) => (
+            <TableRow key={row.product}>
+              <TableCell className="font-medium">{row.product}</TableCell>
+              <TableCell>{row.price}</TableCell>
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button variant="ghost" size="icon" className="size-8" />
+                    }
+                  >
+                    <MoreHorizontalIcon />
+                    <span className="sr-only">Open menu</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem variant="destructive">
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Wrapper>
+  );
+}
+
+/**
+ * Upstream's Data Table section points at `@tanstack/react-table` and its own `/docs/components/
+ * data-table` page. Neither exists here, so this is the smallest honest equivalent: the same
+ * `Table` parts plus an `Input` and a `Button`, wired to sorting and filtering held in ordinary
+ * React state. It introduces no new component and no new dependency — the point of the section is
+ * that `Table` is the presentation layer a row model drives, whichever row model that is.
+ */
+type SortKey = "invoice" | "totalAmount";
+
+function amountOf(value: string) {
+  return Number(value.replace(/[^0-9.]/g, ""));
+}
+
+function DataTableDemo() {
+  const [filter, setFilter] = React.useState("");
+  const [sort, setSort] = React.useState<{ key: SortKey; desc: boolean }>({
+    key: "invoice",
+    desc: false,
+  });
+
+  const rows = React.useMemo(() => {
+    const needle = filter.trim().toLowerCase();
+    const filtered = needle
+      ? invoices.filter((row) =>
+          `${row.invoice} ${row.paymentStatus} ${row.paymentMethod}`
+            .toLowerCase()
+            .includes(needle),
+        )
+      : invoices;
+    const sorted = [...filtered].sort((a, b) =>
+      sort.key === "totalAmount"
+        ? amountOf(a.totalAmount) - amountOf(b.totalAmount)
+        : a.invoice.localeCompare(b.invoice, "en"),
+    );
+    return sort.desc ? sorted.reverse() : sorted;
+  }, [filter, sort]);
+
+  const toggle = (key: SortKey) =>
+    setSort((previous) =>
+      previous.key === key
+        ? { key, desc: !previous.desc }
+        : { key, desc: false },
+    );
+
+  const SortIcon = sort.desc ? ArrowDownIcon : ArrowUpIcon;
+
+  return (
+    <div className="flex w-full flex-col gap-3">
+      <Input
+        value={filter}
+        onChange={(event) => setFilter(event.target.value)}
+        placeholder="Filter invoices…"
+        aria-label="Filter invoices"
+        className="max-w-xs"
+      />
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead
+              className="w-[140px]"
+              aria-sort={
+                sort.key === "invoice"
+                  ? sort.desc
+                    ? "descending"
+                    : "ascending"
+                  : "none"
+              }
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ms-2.5"
+                onClick={() => toggle("invoice")}
+              >
+                Invoice
+                {sort.key === "invoice" ? <SortIcon /> : null}
+              </Button>
+            </TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Method</TableHead>
+            <TableHead
+              className="text-right"
+              aria-sort={
+                sort.key === "totalAmount"
+                  ? sort.desc
+                    ? "descending"
+                    : "ascending"
+                  : "none"
+              }
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-me-2.5"
+                onClick={() => toggle("totalAmount")}
+              >
+                Amount
+                {sort.key === "totalAmount" ? <SortIcon /> : null}
+              </Button>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.invoice}>
+              <TableCell className="font-medium">{row.invoice}</TableCell>
+              <TableCell>{row.paymentStatus}</TableCell>
+              <TableCell>{row.paymentMethod}</TableCell>
+              <TableCell className="text-right">{row.totalAmount}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={4}>
+              {rows.length} of {invoices.length} invoices
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
+  );
+}
+
+export function tableDataTable(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataTableDemo />
+    </Wrapper>
+  );
+}
+
+/**
+ * Upstream drives its RTL example through a `language-selector` fixture we do not ship, so the
+ * Arabic strings are inline and the subtree is wrapped in `DirectionProvider`. `TableHead` and
+ * `TableCell` align with `text-start`, so the header flips with the reading direction on its own.
+ */
+const arabic = {
+  caption: "قائمة بفواتيرك الأخيرة.",
+  invoice: "الفاتورة",
+  status: "الحالة",
+  method: "الطريقة",
+  amount: "المبلغ",
+  total: "المجموع",
+} as const;
+
+const arabicStatus: Record<string, string> = {
+  Paid: "مدفوع",
+  Pending: "قيد الانتظار",
+  Unpaid: "غير مدفوع",
+};
+
+const arabicMethod: Record<string, string> = {
+  "Credit Card": "بطاقة ائتمانية",
+  PayPal: "PayPal",
+  "Bank Transfer": "تحويل بنكي",
+};
+
+export function tableRtl(): ReactNode {
+  return (
+    <DirectionProvider direction="rtl">
+      <Wrapper className="block" dir="rtl">
+        <Table>
+          <TableCaption>{arabic.caption}</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">Ref</TableHead>
-              <TableHead scope="col">Request</TableHead>
-              <TableHead scope="col" className="text-end">
-                Credit
-              </TableHead>
+              <TableHead className="w-[100px]">{arabic.invoice}</TableHead>
+              <TableHead>{arabic.status}</TableHead>
+              <TableHead>{arabic.method}</TableHead>
+              <TableHead className="text-right">{arabic.amount}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {notes.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell className="font-mono tabular-nums whitespace-nowrap">
-                  {row.id}
-                </TableCell>
-                <TableCell>
-                  <span className="text-foreground">{row.subject}</span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                    {row.note}
-                  </span>
-                </TableCell>
-                <TableCell className="text-end font-mono tabular-nums whitespace-nowrap">
-                  {row.amount}
+            {invoices.map((invoice) => (
+              <TableRow key={invoice.invoice}>
+                <TableCell className="font-medium">{invoice.invoice}</TableCell>
+                <TableCell>{arabicStatus[invoice.paymentStatus]}</TableCell>
+                <TableCell>{arabicMethod[invoice.paymentMethod]}</TableCell>
+                <TableCell className="text-right">
+                  {invoice.totalAmount}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={3}>{arabic.total}</TableCell>
+              <TableCell className="text-right">$2,500.00</TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
-      </div>
-    </Wrapper>
+      </Wrapper>
+    </DirectionProvider>
   );
 }

@@ -17,13 +17,13 @@ export interface TraceTab {
   panel: React.ReactNode;
 }
 
-/** The system `Tabs` (pill variant) instead of a hand-rolled tablist built from `Button`s. */
+/** The system `Tabs` (default variant) instead of a hand-rolled tablist built from `Button`s. */
 export function TraceTabs({ items }: { items: TraceTab[] }) {
   return (
     <Tabs defaultValue={items[0]?.value} className="gap-0">
       <div className="border-b border-border p-3">
         <TabsList
-          variant="pill"
+          variant="default"
           className="grid w-full grid-cols-3"
           aria-label="Choose a component to trace through the system"
         >

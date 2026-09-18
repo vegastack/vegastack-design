@@ -15,9 +15,19 @@ const EXPECTED_HOSTS = new Map([
   // `floating-surface.tsx` was the single portal host for every anchored overlay from the
   // 2026-09-07 audit (B3-01). The reset has been emptying it one batch at a time — tooltip left in
   // Batch 2, select and combobox in Batch 3, popover, hover-card and the two menus in Batch 4 — so
-  // what it still covers is the ours-only overlays that Batch 7 owns (navigation-menu among them).
-  // The record stays until that batch retires the composer.
+  // Batch 5 took navigation-menu too, so what it still covers is `emoji-picker` and
+  // `shortcut-overlay` — the two ours-only overlays Batch 7 owns. The record stays until that
+  // batch retires the composer.
   ["packages/ui/registry/ui/floating-surface.tsx", ["Portal"]],
+  // Batch 5 put `navigation-menu` on upstream's file, which hosts its own Portal around the
+  // Positioner instead of composing `floating-surface`. Same host shape as the other anchored
+  // overlays: `NavigationMenuPositioner` reads `useInternalThemeScope()` and attaches it to the
+  // Positioner INSIDE the portal. That is also why the file gains `'use client'` (API-16) — a hook
+  // call needs the boundary, and upstream ships none.
+  [
+    "packages/ui/registry/ui/navigation-menu.tsx",
+    ["NavigationMenuPrimitive.Portal"],
+  ],
   // Modal surfaces own their own portal — they position themselves rather than an anchor, so they
   // never went through the floating composer. Batch 4 of the shadcn reset put all four on
   // upstream's files: each one's exported pass-through `*Portal` reads `useInternalThemeScope()`

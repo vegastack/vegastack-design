@@ -1,4 +1,4 @@
-// @vegastack attachment@0.9.1 sha256-PL6NiK4cPQSJIj9qCFBECgNWef+aWOgHqsdIiUv8qyE=
+// @vegastack attachment@0.9.1 sha256-UDB/W6Om7/y8BXx4SyD/QkEu0IjShsX+1oSeYWn9Lrc=
 
 "use client";
 
@@ -9,7 +9,7 @@ import { cn } from "@vegastack/design";
 import { Spinner } from "@/components/ui/spinner";
 // `Progress` is owned by the sibling Progress component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
-import { Progress, type ProgressProps } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress";
 
 /* ------------------------------------------------------------------------------------------------
  * Attachment — a self-owned, presentational file chip / card for chat and message-compose surfaces:
@@ -351,7 +351,9 @@ export function AttachmentDescription({
 }
 
 /** Props accepted by `AttachmentProgress`. */
-export interface AttachmentProgressProps extends Omit<ProgressProps, "size"> {
+export interface AttachmentProgressProps extends React.ComponentProps<
+  typeof Progress
+> {
   /**
    * Accessible name for the underlying progress bar — required (there is no visible label). Include
    * the file name so assistive tech can tell multiple in-flight attachments apart, e.g.
@@ -377,7 +379,6 @@ export function AttachmentProgress({
   return (
     <Progress
       data-slot="attachment-progress"
-      size="sm"
       value={value}
       className={cn("mt-1.5", className)}
       {...props}

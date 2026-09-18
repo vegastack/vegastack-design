@@ -94,6 +94,11 @@ export default defineConfig({
       "recharts",
       "@base-ui/react/otp-field",
       "react-day-picker",
+      // The carousel's slide engine (Batch 5 of the shadcn reset). Without pre-bundling it, Vite
+      // discovers it mid-run, re-optimizes, reloads the page and splits React module identity —
+      // `useEmblaCarousel` then calls `useState` against a second React and throws
+      // "Invalid hook call" on every carousel test.
+      "embla-carousel-react",
       "@tiptap/react",
       "@tiptap/starter-kit",
       "@base-ui/react/direction-provider",

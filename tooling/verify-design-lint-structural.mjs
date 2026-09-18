@@ -138,7 +138,7 @@ export function LiteralRules(_props: RenderlessProps) {
     <div className="focus-visible:ring-[3px]">the bracketed spelling</div>
     <div className="ring-ring/40">the glow colour on its own</div>
     <div className="focus-visible:ring-destructive/20">an invalid-state glow</div>
-    <div className="shadow-[0_0_0_3px_var(--ring)]">a box-shadow ring</div>
+    <div className="focus-visible:shadow-[0_0_0_3px_var(--ring)]">a box-shadow ring</div>
   </>;
 }
 `,
@@ -153,6 +153,30 @@ export function LiteralRules(_props: RenderlessProps) {
       "design-lint accepted a focus-ring glow — FOC-1/FOC-6 give this system ONE focus " +
         "affordance, the global :focus-visible outline in base.css",
       glow.output,
+    );
+  }
+
+  // …and the other half of that rule: a RESTING 1px hairline drawn as a box-shadow is a border
+  // technique, not an affordance, and must pass. Upstream's `SidebarMenuButton` outline variant is
+  // exactly this (`shadow-[0_0_0_1px_var(--sidebar-border)]`), and before Batch 5 narrowed the
+  // rule to focus variants it was rejected. A rule that fires on both is a rule nobody can keep.
+  writeFileSync(
+    join(glowDir, "glow.tsx"),
+    `export function Hairline() {
+  return (
+    <div className="bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:shadow-[0_0_0_1px_var(--sidebar-accent)]">
+      upstream's resting hairline
+    </div>
+  );
+}
+`,
+  );
+  const hairline = run(glowDir);
+  if (hairline.output.includes("[no-focus-ring-glow]")) {
+    fail(
+      "design-lint rejected a RESTING box-shadow hairline — FOC-1/FOC-6 decide the focus " +
+        "affordance, not every 0 0 0 shadow; upstream draws borders this way",
+      hairline.output,
     );
   }
 
