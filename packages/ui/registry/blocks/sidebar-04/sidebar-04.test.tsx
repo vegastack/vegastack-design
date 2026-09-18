@@ -6,10 +6,30 @@
  */
 
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
 import Sidebar04Page from "./page";
+
+/**
+ * This suite's real Playwright viewport is mobile-sized (no explicit `browser.viewport`), and
+ * upstream's `SidebarProvider` reads one fixed 768px breakpoint through `useIsMobile`: below it the
+ * rail mounts as a CLOSED `Sheet`, so none of the block's navigation is in the DOM at all. Report
+ * "desktop" so the composition under test is the one the block is FOR; the mobile branch is the
+ * sidebar component's own contract, and `dashboard-01.test.tsx` exercises it directly.
+ */
+beforeEach(() => {
+  vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  }));
+});
 
 test("sidebar-04 renders its composition", async () => {
   const screen = await render(<Sidebar04Page />);

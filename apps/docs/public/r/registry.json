@@ -19108,7 +19108,7 @@
         "whenToUse": "Starting from upstream's Login 01 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-J4l5/P8lXg+/XM7iPoySQqN7mwjS7m74lF0NRRjlMDk="
+        "integrity": "sha256-FY3/jeO0uxa+66gzOV7oMBepTh+h5yn+285yhtSEnlo="
       }
     },
     {
@@ -19147,7 +19147,7 @@
         "whenToUse": "Starting from upstream's Login 02 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-fN7tOQRSYNRCIzjrOS8388smC+xqHwe8XactcPPdHEs="
+        "integrity": "sha256-wKC6VDECMGEeEPnLXE0mucIn4bnU25DXt8auY38/3DI="
       }
     },
     {
@@ -19187,7 +19187,7 @@
         "whenToUse": "Starting from upstream's Login 03 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-mg3l8IfxhbfjGc8av8FL+m8FmOUj9LkLlCOOKtix4ew="
+        "integrity": "sha256-Ps46cN9AKF8kKBErEmUrNmQPZ4cyQ2f7T2SOulplUTA="
       }
     },
     {
@@ -19226,7 +19226,7 @@
         "whenToUse": "Starting from upstream's Login 04 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-P7bdonUNwU7vujdkoh77m08n+0JESE4M6Caef352N8Q="
+        "integrity": "sha256-TcWyWHGC9tH+h83zkh7FqubdZZLs2ml2AjImXXF+ess="
       }
     },
     {

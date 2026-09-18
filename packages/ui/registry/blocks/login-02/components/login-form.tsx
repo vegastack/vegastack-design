@@ -1,4 +1,4 @@
-// @vegastack login-02@0.9.1 sha256-fN7tOQRSYNRCIzjrOS8388smC+xqHwe8XactcPPdHEs=
+// @vegastack login-02@0.9.1 sha256-wKC6VDECMGEeEPnLXE0mucIn4bnU25DXt8auY38/3DI=
 
 import { cn } from "@vegastack/design";
 
@@ -36,7 +36,7 @@ export function LoginForm({
             <FieldLabel htmlFor="password">Password</FieldLabel>
             <a
               href="#"
-              className="ms-auto text-sm underline-offset-4 hover:underline"
+              className="ms-auto text-sm underline-offset-4 hover:underline relative after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']"
             >
               Forgot your password?
             </a>
