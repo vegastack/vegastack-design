@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.9.1 sha256-udnqh7zDvK0yBhdzoeLR4kecCF9bWxutXMMfSWwTSpY=
+// @vegastack shortcut-overlay@0.9.1 sha256-Wz1nqCwCGfvcKgBojlf3Z/UlGazRVfTb+q1aVXr/SgY=
 
 "use client";
 
@@ -223,8 +223,7 @@ export function ShortcutOverlay({
           (B9-11), which needs the dialog's own edges to run its hairline across. */}
       <DialogContent
         data-slot="shortcut-overlay"
-        size="lg"
-        className="gap-0 p-0"
+        className="gap-0 p-0 sm:max-w-2xl"
       >
         <DialogHeader className="p-6 pb-4">
           <DialogTitle>{title}</DialogTitle>

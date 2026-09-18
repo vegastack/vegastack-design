@@ -83,7 +83,7 @@
       "name": "alert-dialog",
       "type": "registry:ui",
       "title": "Alert Dialog",
-      "description": "A modal confirmation dialog with four semantic intents — non-dismissable, forcing a deliberate Cancel/confirm choice.",
+      "description": "A modal that interrupts for a decision — media slot, two sizes, and an action/cancel footer.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -102,8 +102,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Destructive/irreversible confirmations (delete, discard, reset) — backdrop non-dismissable.",
-        "whenNotToUse": "Routine dismissable modal content — use Dialog.",
+        "whenToUse": "A decision that must be made before anything else continues — deleting, discarding, signing out.",
+        "whenNotToUse": "Anything dismissible by clicking away, or a form — use a Dialog.",
         "version": "0.9.1"
       }
     },
@@ -762,14 +762,15 @@
       "description": "A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.",
       "categories": ["navigation"],
       "dependencies": [
-        "@base-ui/react@^1.6.0",
+        "cmdk@^1.1.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
         "@vegastack/dialog",
-        "@vegastack/floating-surface"
+        "@vegastack/input-group",
+        "@vegastack/use-announcer"
       ],
       "files": [
         {
@@ -780,7 +781,7 @@
       ],
       "meta": {
         "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
-        "whenNotToUse": "A simple form select (Select), a small static action menu (DropdownMenu).",
+        "whenNotToUse": "A simple form select (Select), or a small static action menu (DropdownMenu).",
         "version": "0.9.1"
       }
     },
@@ -813,16 +814,15 @@
       "name": "context-menu",
       "type": "registry:ui",
       "title": "Context Menu",
-      "description": "A menu of actions revealed by right-click (or long-press) — items, submenus, separators, labels, shortcuts, checkbox/radio.",
+      "description": "The same menu vocabulary opened by right-click, positioned at the pointer.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/context-menu.tsx",
@@ -831,8 +831,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Actions on right-click of a specific target — a canvas item, file row, text selection.",
-        "whenNotToUse": "Discoverable/touch-first surfaces (DropdownMenu with a button) or form value selection (Select).",
+        "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card.",
+        "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.9.1"
       }
     },
@@ -1088,17 +1088,16 @@
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.",
+      "description": "A modal overlay — backdrop, centred popup, sticky footer band and an optional close button.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button",
+        "@vegastack/button",
         "@vegastack/use-modal-inert"
       ],
       "files": [
@@ -1110,7 +1109,7 @@
       ],
       "meta": {
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
-        "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or full-screen mobile scroll (Drawer/Sheet).",
+        "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.9.1"
       }
     },
@@ -1157,19 +1156,43 @@
       }
     },
     {
-      "name": "dropdown-menu",
+      "name": "drawer",
       "type": "registry:ui",
-      "title": "Dropdown Menu",
-      "description": "A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.",
+      "title": "Drawer",
+      "description": "A swipeable panel with snap points — four directions, a swipe handle, nesting, and a non-modal mode.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": ["@vegastack/use-modal-inert"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/drawer.tsx",
+          "type": "registry:ui",
+          "target": "@ui/drawer.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
+        "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "description": "An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/dropdown-menu.tsx",
@@ -1178,8 +1201,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A button-triggered menu of actions — row actions (edit/duplicate/delete), account menus, view toggles.",
-        "whenNotToUse": "Single-value form input (Select), page navigation (nav/menubar), or a persistent always-visible action list.",
+        "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher.",
+        "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.9.1"
       }
     },
@@ -1484,14 +1507,14 @@
       "name": "hover-card",
       "type": "registry:ui",
       "title": "Hover Card",
-      "description": "A rich preview panel that opens on hover or focus — interactive content, four directions, forgiving delays.",
+      "description": "A preview surface that opens on hover or focus, with configurable delays and sides.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/hover-card.tsx",
@@ -1500,8 +1523,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A rich optional preview of an entity — a user/agent/team card. Pass resolved content as children.",
-        "whenNotToUse": "Plain-text labels (Tooltip), blocking content (Dialog), or anything essential (hover-only isn't reachable on touch).",
+        "whenToUse": "A non-essential preview of what a link points at — a profile, a repository, a document card.",
+        "whenNotToUse": "Essential content or anything a touch user must reach — hover is not available there.",
         "version": "0.9.1"
       }
     },
@@ -12112,6 +12135,32 @@
       }
     },
     {
+      "name": "menubar",
+      "type": "registry:ui",
+      "title": "Menubar",
+      "description": "A persistent horizontal bar of menus — application-style File / Edit / View navigation.",
+      "categories": ["navigation"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": ["@vegastack/dropdown-menu"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/menubar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/menubar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other.",
+        "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
+        "version": "0.9.1"
+      }
+    },
+    {
       "name": "message",
       "type": "registry:ui",
       "title": "Message",
@@ -12436,14 +12485,14 @@
       "name": "popover",
       "type": "registry:ui",
       "title": "Popover",
-      "description": "A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.",
+      "description": "An anchored, dismissible surface for secondary content, with a header, title and description.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/popover.tsx",
@@ -12452,8 +12501,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Lightweight optional content tied to a trigger — a settings form, a picker, extra detail.",
-        "whenNotToUse": "Content that must block the page (Dialog) or a tooltip's worth of text (Tooltip).",
+        "whenToUse": "Rich, interactive content anchored to a control — a small form, a picker, a details card.",
+        "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
         "version": "0.9.1"
       }
     },
@@ -12894,17 +12943,16 @@
       "name": "sheet",
       "type": "registry:ui",
       "title": "Sheet",
-      "description": "A dialog that slides in from a screen edge — four sides, header/footer layout, focus trapping, animated slide.",
+      "description": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button",
+        "@vegastack/button",
         "@vegastack/use-modal-inert"
       ],
       "files": [
@@ -12915,8 +12963,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A panel anchored to a screen edge — filters, detail/inspector panels, slide-in nav.",
-        "whenNotToUse": "A centered confirmation or short form (Dialog), or a long multi-step flow (a page).",
+        "whenToUse": "Secondary content beside the page — filters, details, a settings panel — that should not take the centre of the screen.",
+        "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.9.1"
       }
     },
@@ -13029,6 +13077,33 @@
       "meta": {
         "whenToUse": "An imprecise value over a bounded range — volume, brightness, a price filter.",
         "whenNotToUse": "Exact values or large/open ranges (number input); on/off (Switch).",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "sonner",
+      "type": "registry:ui",
+      "title": "Sonner",
+      "description": "The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.",
+      "categories": ["feedback"],
+      "dependencies": [
+        "sonner@^2.0.8",
+        "next-themes@^0.4.6",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/sonner.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sonner.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The same brief notifications as Toast, when a project already speaks sonner's `toast()` API or wants its stacking model.",
+        "whenNotToUse": "Alongside Toast in the same app — pick one notification engine, or two stacks will fight for the same corner.",
         "version": "0.9.1"
       }
     },
@@ -13460,16 +13535,15 @@
       "name": "toast",
       "type": "registry:ui",
       "title": "Toast",
-      "description": "Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.",
+      "description": "Brief, non-blocking notifications — a stacking Base UI Toast surface with typed icons, actions and promise toasts.",
       "categories": ["feedback"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/toast.tsx",
@@ -13479,7 +13553,7 @@
       ],
       "meta": {
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
-        "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline or a Dialog.",
+        "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.9.1"
       }
     },

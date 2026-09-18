@@ -1,4 +1,4 @@
-// @vegastack split-button@0.9.1 sha256-4rkjuAnJY276quk14P7SFNv5TrnCd0m9rtwg3VVZAHE=
+// @vegastack split-button@0.9.1 sha256-B7Pod9u3N6IapnkA0CH9YtIzPixjuuLfzFYlmm/CFSQ=
 
 "use client";
 
@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  type DropdownMenuContentProps,
 } from "@/components/ui/dropdown-menu";
 
 /**
@@ -67,9 +66,12 @@ export type SplitButtonProps = Omit<ButtonOwnProps, "render" | "size"> &
      * Alignment of the dropdown relative to the trigger.
      * @default 'end'
      */
-    menuAlign?: DropdownMenuContentProps["align"];
+    menuAlign?: React.ComponentProps<typeof DropdownMenuContent>["align"];
     /** Props forwarded to the {@link DropdownMenuContent}. */
-    menuContentProps?: Omit<DropdownMenuContentProps, "align" | "children">;
+    menuContentProps?: Omit<
+      React.ComponentProps<typeof DropdownMenuContent>,
+      "align" | "children"
+    >;
   } & (
     | {
         /**
@@ -144,7 +146,7 @@ export function SplitButton({
           key={index}
           onClick={action.onClick}
           disabled={action.disabled}
-          tone={action.destructive ? "destructive" : "default"}
+          variant={action.destructive ? "destructive" : "default"}
         >
           {action.icon}
           {action.label}

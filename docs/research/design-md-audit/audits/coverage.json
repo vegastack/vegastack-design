@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5d61f64f7f16be2b0d44c5494cb1723b095b2657e5e62ccabf6e5ab90d46efdc",
+  "contractSha256": "bb6efcd2a5695bb9bcae7da92793a736e620104d7d5042d9e4d357a2f74a84ad",
   "inventory": {
-    "expected": 604,
-    "actual": 604,
-    "unique": 604
+    "expected": 607,
+    "actual": 607,
+    "unique": 607
   },
   "classes": {
-    "components": 123,
+    "components": 126,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -80,8 +80,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 16,
-      "actual": 16,
+      "expected": 17,
+      "actual": 17,
       "members": [
         "accordion",
         "app-shell",
@@ -91,6 +91,7 @@
         "collapsible",
         "command",
         "direction",
+        "menubar",
         "navigation-menu",
         "pagination",
         "resizable",
@@ -102,13 +103,14 @@
       ]
     },
     "Overlays": {
-      "expected": 14,
-      "actual": 14,
+      "expected": 16,
+      "actual": 16,
       "members": [
         "action-bar",
         "alert-dialog",
         "context-menu",
         "dialog",
+        "drawer",
         "dropdown-menu",
         "emoji-picker",
         "floating-surface",
@@ -117,6 +119,7 @@
         "provider",
         "sheet",
         "shortcut-overlay",
+        "sonner",
         "toast",
         "tooltip"
       ]
@@ -205,7 +208,7 @@
       ]
     },
     "Animated icons": {
-      "expected": 38,
+      "expected": 467,
       "actual": 467,
       "members": [
         "icon-a-arrow-down",
@@ -678,7 +681,7 @@
       ]
     }
   },
-  "componentRoutes": 123,
+  "componentRoutes": 126,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

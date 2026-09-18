@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.9.1 sha256-tAOYVQWNNRNk4mm41afmm1OR4ng8H5n+RzIa/VyfcCM=
+// @vegastack filter-bar@0.9.1 sha256-1s0JAkDgw5B4W9sBbXbz6tZE9OuObmzCqU37ANZaM78=
 
 "use client";
 
@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  type DropdownMenuContentProps,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 
@@ -127,7 +126,9 @@ export interface FilterBarProps extends Omit<
    */
   addFilterLabel?: string;
   /** Alignment of the built-in "Add filter" menu relative to its trigger. @default 'start' */
-  addFilterMenuAlign?: DropdownMenuContentProps["align"];
+  addFilterMenuAlign?: React.ComponentProps<
+    typeof DropdownMenuContent
+  >["align"];
   /**
    * Controlled search/query input config. Omit to hide the search field.
    * @default undefined

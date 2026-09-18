@@ -1,257 +1,55 @@
-// @vegastack hover-card@0.9.1 sha256-UBh2BmBNfYQhvDjkiHwMa0VzrTaIRt7Zs9HhNvBv2ko=
+// @vegastack hover-card@0.9.1 sha256-1d2I7ACJMW2eQmBblIz4ZO5UIfDLE9YgGS0numOKLfc=
 
 "use client";
 
-import * as React from "react";
-import { PreviewCard as BasePreviewCard } from "@base-ui/react/preview-card";
-import { TIMINGS, FLOATING } from "@vegastack/design";
-import {
-  FloatingArrow,
-  FloatingSurface,
-} from "@/components/ui/floating-surface";
+import { PreviewCard as PreviewCardPrimitive } from "@base-ui/react/preview-card";
+import { cn } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
-/* ------------------------------------------------------------------------------------------------
- * HoverCard — a rich preview panel that opens when a trigger is hovered or focused, built on Base
- * UI's PreviewCard. Unlike a Tooltip, the panel is fully interactive: the open/close delays give
- * the pointer time to travel from the trigger into the card, so consumers can put links, buttons,
- * and selectable text inside.
- *
- * Exported FLAT (shadcn-style): `HoverCard` (=Root, owns `openDelay` / `closeDelay`),
- * `HoverCardTrigger`, `HoverCardContent` (composes Portal + Positioner + Popup, optionally wraps
- * children in Viewport, uses the `bg-popover` token surface, owns `side` / `align` positioning, and
- * can render an arrow), plus `HoverCardArrow` for direct composition.
- *
- * Enter/exit animate via Base UI's `data-starting-style` / `data-ending-style` data attributes +
- * token-duration transitions.
- *
- * PRESENTATIONAL (G7): the card renders whatever children it is given. It does NOT fetch, resolve,
- * or know about any entity — the app passes already-resolved user / agent / team preview content as
- * children. Keep data-loading (and its loading / empty / error states) in app-side wrappers.
- * ----------------------------------------------------------------------------------------------*/
-
-// Base UI puts the open/close delays on the *Trigger* (not the Root). The platform API — and our
-// flat surface — exposes them on the root, so we flow them down through context to the trigger
-// without forcing consumers to pass them twice.
-const DelayContext = React.createContext<{
-  openDelay?: number;
-  closeDelay?: number;
-}>({});
-
-/**
- * `HoverCard` — the root that groups the trigger and content. Renders no DOM of its own — compose
- * `HoverCardTrigger` + `HoverCardContent` inside it. Owns open/close state (`open` / `defaultOpen`
- * / `onOpenChange`) and the hover open/close delays.
- *
- * @example
- * <HoverCard>
- *   <HoverCardTrigger render={<a href="/u/ada">@ada</a>} />
- *   <HoverCardContent>
- *     {/* app passes resolved preview content here *\/}
- *     <UserPreview user={user} />
- *   </HoverCardContent>
- * </HoverCard>
- */
-export interface HoverCardProps extends Omit<
-  React.ComponentProps<typeof BasePreviewCard.Root>,
-  "children"
-> {
-  /**
-   * How long to wait before opening, in milliseconds, after the pointer enters the trigger. The
-   * delay guards against accidental opens while the pointer passes over.
-   * @default 700
-   */
-  openDelay?: number;
-  /**
-   * How long to wait before closing, in milliseconds, after the pointer leaves. Gives the pointer
-   * time to travel from the trigger into the (interactive) card.
-   * @default 300
-   */
-  closeDelay?: number;
-  /** The trigger and content parts.
-   * @default undefined
-   */
-  children?: React.ReactNode;
+function HoverCard({ ...props }: PreviewCardPrimitive.Root.Props) {
+  return <PreviewCardPrimitive.Root data-slot="hover-card" {...props} />;
 }
 
-/** `HoverCard` root with tokenized open/close delays shared by its trigger.
- *
- * @example
- * <HoverCard />
- */
-export function HoverCard({
-  children,
-  openDelay = TIMINGS.hoverOpenDelayMs,
-  closeDelay = TIMINGS.hoverCloseDelayMs,
-  ...props
-}: HoverCardProps) {
-  const delay = React.useMemo(
-    () => ({ openDelay, closeDelay }),
-    [openDelay, closeDelay],
-  );
+function HoverCardTrigger({ ...props }: PreviewCardPrimitive.Trigger.Props) {
   return (
-    <BasePreviewCard.Root data-slot="hover-card" {...props}>
-      <DelayContext.Provider value={delay}>{children}</DelayContext.Provider>
-    </BasePreviewCard.Root>
+    <PreviewCardPrimitive.Trigger data-slot="hover-card-trigger" {...props} />
   );
 }
 
-/** Props accepted by `HoverCardTrigger`. */
-export interface HoverCardTriggerProps extends React.ComponentProps<
-  typeof BasePreviewCard.Trigger
-> {}
-
-/**
- * `HoverCardTrigger` — the element the card attaches to. Renders an `<a>` by default (preview cards
- * typically anchor to a link, e.g. a `@username`); pass `render` to project the card onto your own
- * element. Inherits the root's `openDelay` / `closeDelay` unless overridden here. Wraps Base UI's
- * `PreviewCard.Trigger`.
-
- *
- * @example
- * <HoverCardTrigger />
- */
-export function HoverCardTrigger({
-  delay,
-  closeDelay,
-  ...props
-}: HoverCardTriggerProps) {
-  const inherited = React.useContext(DelayContext);
-  return (
-    <BasePreviewCard.Trigger
-      data-slot="hover-card-trigger"
-      delay={delay ?? inherited.openDelay}
-      closeDelay={closeDelay ?? inherited.closeDelay}
-      {...props}
-    />
-  );
-}
-
-/** Props accepted by `HoverCardContent`. */
-export interface HoverCardContentProps extends React.ComponentProps<
-  typeof BasePreviewCard.Popup
-> {
-  /**
-   * Which side of the trigger to place the card on.
-   * @default "bottom"
-   */
-  side?: React.ComponentProps<typeof BasePreviewCard.Positioner>["side"];
-  /**
-   * Distance between the trigger and the card, in pixels.
-   * @default 8
-   */
-  sideOffset?: React.ComponentProps<
-    typeof BasePreviewCard.Positioner
-  >["sideOffset"];
-  /**
-   * Alignment relative to the chosen side.
-   * @default "center"
-   */
-  align?: React.ComponentProps<typeof BasePreviewCard.Positioner>["align"];
-  /**
-   * Minimum distance to keep between the card and the viewport edge, in pixels.
-   * @default 8
-   */
-  collisionPadding?: React.ComponentProps<
-    typeof BasePreviewCard.Positioner
-  >["collisionPadding"];
-  /** Props forwarded to the underlying Base UI `PreviewCard.Portal`.
-   * @default undefined
-   */
-  portalProps?: Omit<
-    React.ComponentProps<typeof BasePreviewCard.Portal>,
-    "children"
-  >;
-  /** Props forwarded to the underlying Base UI `PreviewCard.Positioner`.
-   * @default undefined
-   */
-  positionerProps?: Omit<
-    React.ComponentProps<typeof BasePreviewCard.Positioner>,
-    "side" | "sideOffset" | "align" | "collisionPadding" | "children"
-  >;
-  /** Props forwarded to an optional Base UI `PreviewCard.Viewport` that wraps popup children.
-   * @default undefined
-   */
-  viewportProps?: Omit<
-    React.ComponentProps<typeof BasePreviewCard.Viewport>,
-    "children"
-  >;
-  /**
-   * Render a directional arrow pointing at the trigger.
-   * @default false
-   */
-  arrow?: boolean;
-}
-
-/**
- * `HoverCardContent` — the floating preview panel. Bundles Base UI PreviewCard's `Portal` +
- * `Positioner` + `Popup` so consumers render a single part, while exposing pass-through props for
- * advanced portal, positioner, and viewport configuration. Themed with `bg-popover` /
- * `text-popover-foreground`, a bordered `rounded-lg` `w-72` surface with the 16px popover padding (D14), and
- * animated in/out via `data-[starting-style]` / `data-[ending-style]`.
- *
- * Place arbitrary, app-resolved content inside — an avatar + name + stats row, a team summary, an
- * agent card. Override `className` (e.g. `w-80`) when the preview needs more room.
-
- *
- * @example
- * <HoverCardContent />
- */
-export function HoverCardContent({
-  children,
+function HoverCardContent({
+  className,
   side = "bottom",
-  sideOffset = FLOATING.sideOffsetDetached,
+  sideOffset = 4,
   align = "center",
-  collisionPadding = FLOATING.collisionPadding,
-  portalProps,
-  positionerProps,
-  viewportProps,
-  arrow = false,
+  alignOffset = 4,
   ...props
-}: HoverCardContentProps) {
+}: PreviewCardPrimitive.Popup.Props &
+  Pick<
+    PreviewCardPrimitive.Positioner.Props,
+    "align" | "alignOffset" | "side" | "sideOffset"
+  >) {
+  const themeScope = useInternalThemeScope();
+
   return (
-    <FloatingSurface
-      parts={{
-        Portal: BasePreviewCard.Portal,
-        Positioner: BasePreviewCard.Positioner,
-        Popup: BasePreviewCard.Popup,
-        Viewport: BasePreviewCard.Viewport,
-      }}
-      slot="hover-card"
-      surface="panel"
-      // The native outline on the popup is deliberately NOT stripped: the centralized base.css
-      // `:focus-visible` outline stays as the indicator if the popup ever receives keyboard focus.
-      positioning={{ side, sideOffset, align, collisionPadding }}
-      portalProps={portalProps}
-      positionerProps={positionerProps}
-      viewportProps={viewportProps}
-      popupProps={props}
-      arrow={arrow ? <HoverCardArrow /> : undefined}
-    >
-      {children}
-    </FloatingSurface>
+    <PreviewCardPrimitive.Portal data-slot="hover-card-portal">
+      <PreviewCardPrimitive.Positioner
+        align={align}
+        alignOffset={alignOffset}
+        side={side}
+        sideOffset={sideOffset}
+        className={cn("isolate z-50", themeScope)}
+      >
+        <PreviewCardPrimitive.Popup
+          data-slot="hover-card-content"
+          className={cn(
+            "z-50 w-64 origin-(--transform-origin) rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            className,
+          )}
+          {...props}
+        />
+      </PreviewCardPrimitive.Positioner>
+    </PreviewCardPrimitive.Portal>
   );
 }
 
-/** Props accepted by `HoverCardArrow`. */
-export type HoverCardArrowProps = React.ComponentProps<
-  typeof BasePreviewCard.Arrow
->;
-
-/**
- * `HoverCardArrow` — a small triangle anchored to the trigger. Rendered automatically when
- * `HoverCardContent` receives `arrow`, or compose it directly. Wraps Base UI's `PreviewCard.Arrow`.
-
- *
- * @example
- * <HoverCardArrow />
- */
-export function HoverCardArrow(props: HoverCardArrowProps) {
-  return (
-    <FloatingArrow
-      element={BasePreviewCard.Arrow}
-      slot="hover-card-arrow"
-      tone="panel"
-      {...props}
-    />
-  );
-}
+export { HoverCard, HoverCardTrigger, HoverCardContent };

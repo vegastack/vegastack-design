@@ -1,0 +1,272 @@
+# component: toast
+# decisions: A11Y-3, A11Y-4, A11Y-8, COL-12, DOC-1, DOC-2, FOC-1, FOC-6, OVL-13
+# hunks:
+#   FOC-1, FOC-6: the toast root's `outline-none focus-visible:border-ring
+#     focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outline-none` lets
+#     the single 2px `:focus-visible` outline `base.css` owns through.
+#   COL-12: `ToastIcon` paints each type in its own status family — `success`, `info` and
+#     `warning` gain an ink where upstream left them inheriting the body colour, and `error`
+#     moves from the `destructive` FILL to `destructive-text`. The `-text` role is the one that
+#     passes AA as ink on a `popover` surface, which is the pair A11Y-13 named in Batch 2.
+#   NO HUNK, FLAGGED FOR MK — Base UI's `aria-hidden-focus` defect. For a `priority: "high"`
+#     toast, `@base-ui/react@1.8.0` announces a visually hidden `role="alert"` clone in the
+#     viewport and marks the VISIBLE root `role="alertdialog" aria-hidden="true"` so the
+#     viewport's own polite region does not announce it twice — while leaving the root and its
+#     action and close buttons in the tab order. Nothing tabbable may sit inside an `aria-hidden`
+#     subtree, so axe reports a SERIOUS `aria-hidden-focus` violation on upstream's own
+#     composition. It is NOT patched here: no decision row authorises it, and the only fix inside
+#     this file is a DOM-mutating layout effect in a shipped component. It takes the shape Batch 3
+#     used for Combobox's aria-hidden addon instead — `toast.test.tsx` exempts that one axe rule
+#     for the high-priority state ALONE and pins the engine's exact shape beside it, so the
+#     exemption fails as stale the day Base UI fixes it. Worth reporting upstream.
+#   OVL-13: `ToastPortal` reads `useInternalThemeScope()` and wraps its children in a
+#     `display: contents` element carrying that class.
+#   A11Y-8: NO HUNK. Upstream already signals type with a shape as well as a colour — `ToastIcon`
+#     renders a distinct lucide glyph per type, and the COL-12 hunk above only colours glyphs that
+#     are already there. `toast.test.tsx` asserts the icon, so a future upstream that drops it
+#     fails here.
+#   A11Y-3, A11Y-4: NO HUNK. Base UI's `Toast.Viewport` IS the mounted-for-life polite region this
+#     policy asks for — `role="region"`, `aria-live="polite"`, rendered by `Toaster` whether or
+#     not a toast exists — and per-toast urgency is the manager's `priority: "high"`. Adding a
+#     second region would announce every toast twice. `toast.test.tsx` asserts the region's shape.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
+#               decision of their own.
+diff --git a/toast.tsx b/toast.tsx
+index 325d01b..843010f 100644
+--- a/toast.tsx
++++ b/toast.tsx
+@@ -1,20 +1,36 @@
+-"use client"
++// @vegastack toast@0.9.1 sha256-5HrzDpVa5z52EDdcttGUcc6CZ2LGNr2fkQjaKI8zsWo=
+ 
+-import * as React from "react"
+-import { Toast as ToastPrimitive } from "@base-ui/react/toast"
+-import { cn } from "cn"
++"use client";
+ 
+-import { Button } from "@/components/ui/button"
+-import { XIcon, CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
++import * as React from "react";
++import { Toast as ToastPrimitive } from "@base-ui/react/toast";
++import { cn } from "@vegastack/design";
++import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+ 
+-const toast = ToastPrimitive.createToastManager()
++import { Button } from "@/components/ui/button";
++import {
++  XIcon,
++  CircleCheckIcon,
++  InfoIcon,
++  TriangleAlertIcon,
++  OctagonXIcon,
++  Loader2Icon,
++} from "lucide-react";
++
++const toast = ToastPrimitive.createToastManager();
+ 
+ function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
+-  return <ToastPrimitive.Provider {...props} />
++  return <ToastPrimitive.Provider {...props} />;
+ }
+ 
+-function ToastPortal({ ...props }: ToastPrimitive.Portal.Props) {
+-  return <ToastPrimitive.Portal data-slot="toast-portal" {...props} />
++function ToastPortal({ children, ...props }: ToastPrimitive.Portal.Props) {
++  const themeScope = useInternalThemeScope();
++
++  return (
++    <ToastPrimitive.Portal data-slot="toast-portal" {...props}>
++      <div className={cn("contents", themeScope)}>{children}</div>
++    </ToastPrimitive.Portal>
++  );
+ }
+ 
+ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
+@@ -23,11 +39,11 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
+       data-slot="toast-viewport"
+       className={cn(
+         "pointer-events-none fixed inset-x-4 bottom-4 z-50 mx-auto w-auto max-w-sm outline-none sm:end-4 sm:start-auto sm:mx-0 sm:w-full",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
+@@ -35,7 +51,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
+     <ToastPrimitive.Root
+       data-slot="toast"
+       className={cn(
+-        "group/toast pointer-events-auto absolute end-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-2xl border bg-popover text-popover-foreground shadow-lg will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
++        "group/toast pointer-events-auto absolute end-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-2xl border bg-popover text-popover-foreground shadow-lg will-change-transform select-none",
+         "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
+         "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
+         "after:absolute after:top-full after:start-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
+@@ -50,11 +66,11 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
+         "data-expanded:data-ending-style:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))]",
+         "data-expanded:data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
+         "data-expanded:data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+@@ -63,11 +79,11 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+       data-slot="toast-content"
+       className={cn(
+         "flex h-full items-center gap-3 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+@@ -77,7 +93,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+       className={cn("text-sm font-medium", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ToastDescription({
+@@ -90,7 +106,7 @@ function ToastDescription({
+       className={cn("text-sm text-muted-foreground", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ToastAction({
+@@ -105,7 +121,7 @@ function ToastAction({
+       className={cn("shrink-0", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ToastClose({
+@@ -121,52 +137,44 @@ function ToastClose({
+       render={render}
+       className={cn(
+         "relative shrink-0 text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:text-foreground",
+-        className
++        className,
+       )}
+       {...props}
+     >
+-      {children ?? (
+-        <XIcon aria-hidden="true" />
+-      )}
++      {children ?? <XIcon aria-hidden="true" />}
+     </ToastPrimitive.Close>
+-  )
++  );
+ }
+ 
+ function ToastIcon({ type }: { type: string | undefined }) {
+-  let icon: React.ReactNode = null
++  let icon: React.ReactNode = null;
+ 
+   if (type === "success") {
+-    icon = (
+-      <CircleCheckIcon aria-hidden="true" />
+-    )
++    icon = <CircleCheckIcon className="text-success-text" aria-hidden="true" />;
+   }
+ 
+   if (type === "info") {
+-    icon = (
+-      <InfoIcon aria-hidden="true" />
+-    )
++    icon = <InfoIcon className="text-info-text" aria-hidden="true" />;
+   }
+ 
+   if (type === "warning") {
+     icon = (
+-      <TriangleAlertIcon aria-hidden="true" />
+-    )
++      <TriangleAlertIcon className="text-warning-text" aria-hidden="true" />
++    );
+   }
+ 
+   if (type === "error") {
+     icon = (
+-      <OctagonXIcon className="text-destructive" aria-hidden="true" />
+-    )
++      <OctagonXIcon className="text-destructive-text" aria-hidden="true" />
++    );
+   }
+ 
+   if (type === "loading") {
+-    icon = (
+-      <Loader2Icon className="animate-spin" aria-hidden="true" />
+-    )
++    icon = <Loader2Icon className="animate-spin" aria-hidden="true" />;
+   }
+ 
+   if (!icon) {
+-    return null
++    return null;
+   }
+ 
+   return (
+@@ -176,11 +184,11 @@ function ToastIcon({ type }: { type: string | undefined }) {
+     >
+       {icon}
+     </span>
+-  )
++  );
+ }
+ 
+ function ToastList() {
+-  const { toasts } = ToastPrimitive.useToastManager()
++  const { toasts } = ToastPrimitive.useToastManager();
+ 
+   return toasts.map((toastItem) => (
+     <Toast key={toastItem.id} toast={toastItem}>
+@@ -194,7 +202,7 @@ function ToastList() {
+         <ToastClose />
+       </ToastContent>
+     </Toast>
+-  ))
++  ));
+ }
+ 
+ function Toaster({
+@@ -211,11 +219,11 @@ function Toaster({
+         </ToastViewport>
+       </ToastPortal>
+     </ToastProvider>
+-  )
++  );
+ }
+ 
+-const createToastManager = ToastPrimitive.createToastManager
+-const useToastManager = ToastPrimitive.useToastManager
++const createToastManager = ToastPrimitive.createToastManager;
++const useToastManager = ToastPrimitive.useToastManager;
+ 
+ export {
+   Toaster,
+@@ -231,4 +239,4 @@ export {
+   createToastManager,
+   toast,
+   useToastManager,
+-}
++};

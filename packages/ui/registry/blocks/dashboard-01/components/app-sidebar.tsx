@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.9.1 sha256-GwqcEBlnFfQf5h+FhhCdciEDm3ysuOQjLddKP9pfPOE=
+// @vegastack dashboard-01@0.9.1 sha256-QhwnnTzKmsWFlJQA4e+GmfFw2Ow5oiRokT43PjZ2WPU=
 
 "use client";
 
@@ -202,7 +202,7 @@ export function AppSidebar({
               Billing
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem tone="destructive" onClick={onLogout}>
+            <DropdownMenuItem variant="destructive" onClick={onLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

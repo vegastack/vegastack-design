@@ -1,4 +1,4 @@
-// @vegastack copy-button@0.9.1 sha256-MFv4eOmTJ0Eq+VrNCFfzr7U3DKP/4pIXpTrBSkLX8Kw=
+// @vegastack copy-button@0.9.1 sha256-yiKEqzVANOlwIPTuD2IfSUWxBLQnkeLNil+pTjgXcwo=
 
 "use client";
 
@@ -82,7 +82,7 @@ export type CopyButtonProps = Omit<
  * Client-only — it uses `useState` + `navigator.clipboard`.
  *
  * @example
- * <CopyButton value={apiKey} onCopied={() => toast.success('Copied')} />
+ * <CopyButton value={apiKey} onCopied={() => toast.add({ type: 'success', title: 'Copied' })} />
  */
 export function CopyButton({
   value,

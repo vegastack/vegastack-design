@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 604,
-    "components": 123,
+    "totalRegistryItems": 607,
+    "components": 126,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -22,14 +22,14 @@
   "expectedWaveCounts": {
     "Core controls": 25,
     "Forms/editing": 27,
-    "Navigation/layout": 16,
-    "Overlays": 14,
+    "Navigation/layout": 17,
+    "Overlays": 16,
     "Data display": 12,
     "Content/marketing": 23,
     "AI/chat": 6,
     "Hooks": 11,
     "Block": 1,
-    "Animated icons": 38
+    "Animated icons": 467
   },
   "expectedWaveMembers": {
     "Core controls": [
@@ -104,7 +104,8 @@
       "stepper",
       "board",
       "aspect-ratio",
-      "direction"
+      "direction",
+      "menubar"
     ],
     "Overlays": [
       "floating-surface",
@@ -120,7 +121,9 @@
       "toast",
       "provider",
       "action-bar",
-      "shortcut-overlay"
+      "shortcut-overlay",
+      "drawer",
+      "sonner"
     ],
     "Data display": [
       "card",
@@ -191,12 +194,12 @@
       "buttonSize",
       "inputStates",
       "fieldStates",
-      "dialogScrollable",
-      "popoverSides",
+      "dialogScrollableContent",
+      "popoverAlign",
       "dataGridNarrow",
       "textEditStates",
       "appShellMobile",
-      "toastStacking"
+      "toastTypes"
     ],
     "geometryUnswept": {
       "relativeTimeLive": "Omits `now`, so the component reads the real clock and its refresh timer ticks — that IS the feature being demonstrated. A self-rescheduling setTimeout re-renders the fixture between the assertion and the measurement (the detach race in docs/ledger/bugs.md, 2026-09-08). Every other relative-time fixture pins `now` and is swept normally, so the component's geometry IS covered; only this one demo's live clock is not."
@@ -817,7 +820,7 @@
       "name": "alert-dialog",
       "registryType": "registry:ui",
       "title": "Alert Dialog",
-      "summary": "A modal confirmation dialog with four semantic intents — non-dismissable, forcing a deliberate Cancel/confirm choice.",
+      "summary": "A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -830,8 +833,8 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAlertDialog.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/alert-dialog.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -840,17 +843,8 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAlertDialog.Close",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/alert-dialog.tsx."
-          }
-        },
-        {
-          "name": "AlertDialogActionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/alert-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -859,17 +853,8 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAlertDialog.Close",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/alert-dialog.tsx."
-          }
-        },
-        {
-          "name": "AlertDialogCancelProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/alert-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -878,17 +863,8 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAlertDialog.Popup",
-            "rationale": "AlertDialogContent merges the caller ref with useModalInert and forwards both to BaseAlertDialog.Popup."
-          }
-        },
-        {
-          "name": "AlertDialogContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/alert-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -897,17 +873,8 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAlertDialog.Description",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/alert-dialog.tsx."
-          }
-        },
-        {
-          "name": "AlertDialogDescriptionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/alert-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -916,17 +883,8 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/alert-dialog.tsx."
-          }
-        },
-        {
-          "name": "AlertDialogFooterProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/alert-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -935,35 +893,38 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/alert-dialog.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "AlertDialogHeaderProps",
-          "kind": "type",
+          "name": "AlertDialogMedia",
+          "kind": "component",
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "AlertDialogIntent",
-          "kind": "type",
+          "name": "AlertDialogOverlay",
+          "kind": "component",
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "AlertDialogProps",
-          "kind": "type",
+          "name": "AlertDialogPortal",
+          "kind": "component",
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -972,17 +933,8 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAlertDialog.Title",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/alert-dialog.tsx."
-          }
-        },
-        {
-          "name": "AlertDialogTitleProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/alert-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -991,84 +943,60 @@
           "source": "packages/ui/registry/ui/alert-dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseAlertDialog.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/alert-dialog.tsx."
-          }
-        },
-        {
-          "name": "AlertDialogTriggerProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/alert-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no variant dimension for this component."
+      },
+      "sizes": {
         "status": "observed",
         "dimensions": [
           {
-            "name": "intent",
-            "values": ["default", "destructive", "success", "warning"],
-            "evidence": "packages/ui/registry/ui/alert-dialog.tsx: prop union"
+            "name": "size",
+            "values": ["default", "sm"],
+            "evidence": "packages/ui/registry/ui/alert-dialog.tsx: size prop"
           }
         ]
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": [
-            "default",
-            "disabled",
-            "error",
-            "loading",
-            "open",
-            "success"
-          ],
+          "values": ["default", "open", "closed"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
+          "status": "covered",
           "values": [
-            "busy",
-            "described",
-            "focus-visible",
-            "labeled",
-            "semantic-html"
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
           ],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "evidence": "packages/ui/registry/ui/alert-dialog.tsx + packages/ui/registry/ui/alert-dialog.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "loading", "error", "success"],
+          "values": ["default", "open", "closed", "hover", "focus"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "overflow-and-scroll",
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
+        "status": "observed",
         "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
+          "tw-animate-css keyed presence on the backdrop and the popup"
         ],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
@@ -1093,6 +1021,15 @@
       },
       "previewModule": "alert-dialog",
       "dataAttributes": {
+        "AlertDialog": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog"]
+            }
+          ],
+          "cssVariables": []
+        },
         "AlertDialogTrigger": {
           "attributes": [
             {
@@ -1102,15 +1039,33 @@
           ],
           "cssVariables": []
         },
-        "AlertDialogContent": {
+        "AlertDialogPortal": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": [
-                "alert-dialog-backdrop",
-                "alert-dialog-content",
-                "alert-dialog-viewport"
-              ]
+              "values": ["alert-dialog-portal"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogOverlay": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-overlay"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogContent": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-content"]
             }
           ],
           "cssVariables": []
@@ -1129,6 +1084,15 @@
             {
               "name": "data-slot",
               "values": ["alert-dialog-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogMedia": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-media"]
             }
           ],
           "cssVariables": []
@@ -1153,10 +1117,6 @@
         },
         "AlertDialogAction": {
           "attributes": [
-            {
-              "name": "data-intent",
-              "values": []
-            },
             {
               "name": "data-slot",
               "values": ["alert-dialog-action"]
@@ -1620,7 +1580,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["app-shell-skeleton"]
+              "values": ["app-shell-skeleton", "app-shell-skeleton-stats"]
             }
           ],
           "cssVariables": []
@@ -2374,7 +2334,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/auto-save-input",
-      "registryDependencies": ["@vegastack/input", "@vegastack/spinner"],
+      "registryDependencies": ["@vegastack/input-group", "@vegastack/spinner"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
@@ -3853,7 +3813,12 @@
           "rationale": "No component-owned motion mechanism observed."
         }
       },
-      "engines": ["react-day-picker"],
+      "engines": [
+        {
+          "package": "react-day-picker",
+          "role": "calendar interaction/rendering engine"
+        }
+      ],
       "docsSlug": "/docs/components/calendar",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
@@ -3872,7 +3837,42 @@
         "vrt": "required"
       },
       "previewModule": "calendar",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "Calendar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["calendar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CalendarDayButton": {
+          "attributes": [
+            {
+              "name": "data-day",
+              "values": []
+            },
+            {
+              "name": "data-range-end",
+              "values": []
+            },
+            {
+              "name": "data-range-middle",
+              "values": []
+            },
+            {
+              "name": "data-range-start",
+              "values": []
+            },
+            {
+              "name": "data-selected-single",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "card",
@@ -4416,7 +4416,17 @@
         "vrt": "required"
       },
       "previewModule": "checkbox",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "Checkbox": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["checkbox", "checkbox-indicator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "checkbox-group",
@@ -5479,7 +5489,138 @@
         "vrt": "required"
       },
       "previewModule": "combobox",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "ComboboxValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-value"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["input-group-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxContent": {
+          "attributes": [
+            {
+              "name": "data-chips",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["combobox-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxCollection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-collection"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxEmpty": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxChips": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-chips"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxChip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-chip", "combobox-chip-remove"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxChipsInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-chip-input"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "command",
@@ -5498,8 +5639,8 @@
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -5508,74 +5649,8 @@
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
             "status": "observed",
-            "target": "Dialog",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
-          }
-        },
-        {
-          "name": "CommandDialogProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CommandEmpty",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Empty",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
-          }
-        },
-        {
-          "name": "CommandEmptyProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CommandFooter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
-          }
-        },
-        {
-          "name": "CommandFooterProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CommandGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Group",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
-          }
-        },
-        {
-          "name": "CommandGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -5583,36 +5658,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by CommandInput in packages/ui/registry/ui/command.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "CommandInputProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CommandItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
             "status": "observed",
-            "target": "BaseCombobox.Item",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
-          }
-        },
-        {
-          "name": "CommandItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -5621,64 +5669,38 @@
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.List",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "CommandListProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CommandLoading",
+          "name": "CommandEmpty",
           "kind": "component",
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.Status",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "CommandLoadingProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CommandProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CommandSeparator",
+          "name": "CommandGroup",
           "kind": "component",
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseSeparator",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "CommandSeparatorProps",
-          "kind": "type",
+          "name": "CommandItem",
+          "kind": "component",
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -5687,95 +5709,88 @@
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
             "status": "observed",
-            "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/command.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "CommandShortcutProps",
-          "kind": "type",
+          "name": "CommandSeparator",
+          "kind": "component",
           "source": "packages/ui/registry/ui/command.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CommandSize",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "useCommandFilteredItems",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/command.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
           "values": [
             "default",
-            "active",
-            "disabled",
+            "filtered",
             "empty",
-            "expanded",
-            "filtering",
-            "loading",
+            "selected",
+            "disabled",
             "open"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["expanded", "labeled", "status-announcement"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/command.tsx + packages/ui/registry/ui/command.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "disabled", "loading", "empty"],
+          "values": ["default", "selected", "empty", "disabled"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "observed",
+        "mechanisms": [
+          "none of its own — the dialog form inherits Dialog's keyed presence"
+        ],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
-      "engines": [],
+      "engines": [
+        {
+          "package": "cmdk",
+          "role": "command-palette filter and selection engine"
+        }
+      ],
       "docsSlug": "/docs/components/command",
       "registryDependencies": [
         "@vegastack/dialog",
-        "@vegastack/floating-surface"
+        "@vegastack/input-group",
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
-        "@base-ui/react@^1.6.0",
+        "cmdk@^1.1.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -5794,21 +5809,8 @@
         "Command": {
           "attributes": [
             {
-              "name": "data-size",
-              "values": []
-            },
-            {
               "name": "data-slot",
               "values": ["command"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "CommandDialog": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["command-dialog-content"]
             }
           ],
           "cssVariables": []
@@ -5840,20 +5842,11 @@
           ],
           "cssVariables": []
         },
-        "CommandLoading": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["command-loading"]
-            }
-          ],
-          "cssVariables": []
-        },
         "CommandGroup": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["command-group", "command-group-heading"]
+              "values": ["command-group"]
             }
           ],
           "cssVariables": []
@@ -5881,15 +5874,6 @@
             {
               "name": "data-slot",
               "values": ["command-shortcut"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "CommandFooter": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["command-footer"]
             }
           ],
           "cssVariables": []
@@ -6065,7 +6049,7 @@
       "name": "context-menu",
       "registryType": "registry:ui",
       "title": "Context Menu",
-      "summary": "A menu of actions revealed by right-click (or long-press) — items, submenus, separators, labels, shortcuts, checkbox/radio.",
+      "summary": "The same menu vocabulary opened by right-click, positioned at the pointer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -6078,245 +6062,8 @@
           "source": "packages/ui/registry/ui/context-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "ContextMenuPrimitive.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuCheckboxItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.CheckboxItem",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuCheckboxItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.Portal",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.Group",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.Item",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuLabel",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.GroupLabel",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuLabelProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuRadioGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.RadioGroup",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuRadioGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuRadioItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.RadioItem",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuRadioItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuSeparator",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.Separator",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuSeparatorProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuShortcut",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuShortcutProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuSub",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.SubmenuRoot",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuSubContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuContent",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuSubContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuSubProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextMenuSubTrigger",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ContextMenuPrimitive.SubmenuTrigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
-          }
-        },
-        {
-          "name": "ContextMenuSubTriggerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -6325,17 +6072,138 @@
           "source": "packages/ui/registry/ui/context-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "ContextMenuPrimitive.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/context-menu.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ContextMenuTriggerProps",
-          "kind": "type",
+          "name": "ContextMenuContent",
+          "kind": "component",
           "source": "packages/ui/registry/ui/context-menu.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuCheckboxItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuRadioItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuShortcut",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuPortal",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuSub",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuSubContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuSubTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ContextMenuRadioGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
@@ -6345,64 +6213,69 @@
           {
             "name": "variant",
             "values": ["default", "destructive"],
-            "evidence": "packages/ui/registry/ui/context-menu.tsx: CVA"
+            "evidence": "packages/ui/registry/ui/context-menu.tsx: variant prop"
           }
         ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
           "values": [
             "default",
-            "active",
+            "open",
+            "closed",
+            "highlighted",
             "checked",
             "disabled",
-            "error",
-            "open",
-            "selected"
+            "submenu-open"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["keyboard", "labeled"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/context-menu.tsx + packages/ui/registry/ui/context-menu.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "checked", "error"],
+          "values": [
+            "default",
+            "open",
+            "closed",
+            "highlighted",
+            "checked",
+            "disabled"
+          ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "overflow-and-scroll",
-          "viewport-positioning-and-collision",
-          "mobile-or-touch-mode"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
+        "status": "observed",
+        "mechanisms": ["tw-animate-css keyed presence on the popup"],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/context-menu",
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -6418,11 +6291,161 @@
       },
       "previewModule": "context-menu",
       "dataAttributes": {
+        "ContextMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuPortal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-portal"]
+            }
+          ],
+          "cssVariables": []
+        },
         "ContextMenuTrigger": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["context-menu-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuLabel": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["context-menu-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["context-menu-item"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuSub": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-sub"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuSubTrigger": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["context-menu-sub-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuSubContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-sub-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuCheckboxItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["context-menu-checkbox-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuRadioGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-radio-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuRadioItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["context-menu-radio-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuShortcut": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-shortcut"]
             }
           ],
           "cssVariables": []
@@ -7700,7 +7723,7 @@
       "name": "dialog",
       "registryType": "registry:ui",
       "title": "Dialog",
-      "summary": "A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.",
+      "summary": "A modal overlay — a backdrop, a centred popup, an optional close button and a sticky footer band.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -7713,8 +7736,8 @@
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseDialog.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dialog.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -7723,17 +7746,8 @@
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseDialog.Close",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dialog.tsx."
-          }
-        },
-        {
-          "name": "DialogCloseProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -7742,35 +7756,8 @@
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseDialog.Popup",
-            "rationale": "DialogContent merges the caller ref with its native-inert lifecycle ref and forwards both to BaseDialog.Popup."
-          }
-        },
-        {
-          "name": "DialogContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DialogContentSize",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "dialogContentVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -7779,17 +7766,8 @@
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseDialog.Description",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dialog.tsx."
-          }
-        },
-        {
-          "name": "DialogDescriptionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -7798,17 +7776,8 @@
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dialog.tsx."
-          }
-        },
-        {
-          "name": "DialogFooterProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -7817,26 +7786,28 @@
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dialog.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "DialogHeaderProps",
-          "kind": "type",
+          "name": "DialogOverlay",
+          "kind": "component",
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "DialogProps",
-          "kind": "type",
+          "name": "DialogPortal",
+          "kind": "component",
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -7845,36 +7816,8 @@
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseDialog.Title",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dialog.tsx."
-          }
-        },
-        {
-          "name": "DialogTitleBar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dialog.tsx."
-          }
-        },
-        {
-          "name": "DialogTitleBarProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DialogTitleProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -7883,84 +7826,65 @@
           "source": "packages/ui/registry/ui/dialog.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseDialog.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dialog.tsx."
-          }
-        },
-        {
-          "name": "DialogTriggerProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["default", "full", "lg", "sm", "xs"],
-            "evidence": "packages/ui/registry/ui/dialog.tsx: CVA"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "error", "open"],
+          "values": ["default", "open", "closed", "modal", "non-modal"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["described", "focus-visible", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/dialog.tsx + packages/ui/registry/ui/dialog.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "error"],
+          "values": ["default", "open", "closed", "hover", "focus"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "text-truncation-and-flex-shrink",
-          "overflow-and-scroll",
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision",
-          "mobile-or-touch-mode"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
+        "status": "observed",
         "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
+          "tw-animate-css keyed presence on the backdrop and the popup"
         ],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/dialog",
       "registryDependencies": [
-        "@vegastack/icon-button",
+        "@vegastack/button",
         "@vegastack/use-modal-inert"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -7976,6 +7900,15 @@
       },
       "previewModule": "dialog",
       "dataAttributes": {
+        "Dialog": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog"]
+            }
+          ],
+          "cssVariables": []
+        },
         "DialogTrigger": {
           "attributes": [
             {
@@ -7985,24 +7918,38 @@
           ],
           "cssVariables": []
         },
+        "DialogPortal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-portal"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogClose": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-close"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogOverlay": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-overlay"]
+            }
+          ],
+          "cssVariables": []
+        },
         "DialogContent": {
           "attributes": [
             {
-              "name": "data-placement",
-              "values": []
-            },
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
               "name": "data-slot",
-              "values": [
-                "dialog-backdrop",
-                "dialog-close",
-                "dialog-content",
-                "dialog-viewport"
-              ]
+              "values": ["dialog-close", "dialog-content"]
             }
           ],
           "cssVariables": []
@@ -8039,24 +7986,6 @@
             {
               "name": "data-slot",
               "values": ["dialog-description"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DialogClose": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["dialog-close-action"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DialogTitleBar": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["dialog-title-bar"]
             }
           ],
           "cssVariables": []
@@ -8151,10 +8080,329 @@
       "dataAttributes": {}
     },
     {
+      "name": "drawer",
+      "registryType": "registry:ui",
+      "title": "Drawer",
+      "summary": "A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.",
+      "status": "stable",
+      "since": "1.0.0",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/drawer.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Drawer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerPortal",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerOverlay",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerSwipeHandle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerClose",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerFooter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DrawerDescription",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/drawer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "swipeDirection",
+            "values": ["down", "up", "left", "right"],
+            "evidence": "packages/ui/registry/ui/drawer.tsx: swipeDirection prop"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "open",
+            "closed",
+            "snapped",
+            "swiping",
+            "nested",
+            "modal",
+            "non-modal"
+          ],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/drawer.tsx + packages/ui/registry/ui/drawer.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "open", "closed", "swiping", "nested"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "transition on the popup, driven by the drawer's swipe progress variables"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/drawer",
+      "registryDependencies": ["@vegastack/use-modal-inert"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/drawer.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "drawer",
+      "dataAttributes": {
+        "Drawer": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerPortal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-portal"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerClose": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-close"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerOverlay": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-overlay"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerSwipeHandle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-swipe-handle"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerContent": {
+          "attributes": [
+            {
+              "name": "data-modal",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "drawer-content",
+                "drawer-popup",
+                "drawer-portal",
+                "drawer-viewport"
+              ]
+            },
+            {
+              "name": "data-snap-points",
+              "values": [""]
+            },
+            {
+              "name": "data-swipe-axis",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DrawerDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["drawer-description"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "dropdown-menu",
       "registryType": "registry:ui",
       "title": "Dropdown Menu",
-      "summary": "A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.",
+      "summary": "An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -8167,245 +8415,18 @@
           "source": "packages/ui/registry/ui/dropdown-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "Menu.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "DropdownMenuCheckboxItem",
+          "name": "DropdownMenuPortal",
           "kind": "component",
           "source": "packages/ui/registry/ui/dropdown-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "Menu.CheckboxItem",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuCheckboxItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.Portal",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.Group",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.Item",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuLabel",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.GroupLabel",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuLabelProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuRadioGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.RadioGroup",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuRadioGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuRadioItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.RadioItem",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuRadioItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuSeparator",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.Separator",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuSeparatorProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuShortcut",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuShortcutProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuSub",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.SubmenuRoot",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuSubContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "DropdownMenuContent",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuSubContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuSubProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DropdownMenuSubTrigger",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Menu.SubmenuTrigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
-          }
-        },
-        {
-          "name": "DropdownMenuSubTriggerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -8414,17 +8435,128 @@
           "source": "packages/ui/registry/ui/dropdown-menu.tsx",
           "ref": {
             "status": "observed",
-            "target": "Menu.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/dropdown-menu.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "DropdownMenuTriggerProps",
-          "kind": "type",
+          "name": "DropdownMenuContent",
+          "kind": "component",
           "source": "packages/ui/registry/ui/dropdown-menu.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuCheckboxItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuRadioGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuRadioItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuShortcut",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuSub",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuSubTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "DropdownMenuSubContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
@@ -8434,64 +8566,69 @@
           {
             "name": "variant",
             "values": ["default", "destructive"],
-            "evidence": "packages/ui/registry/ui/dropdown-menu.tsx: CVA"
+            "evidence": "packages/ui/registry/ui/dropdown-menu.tsx: variant prop"
           }
         ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
           "values": [
             "default",
-            "active",
+            "open",
+            "closed",
+            "highlighted",
             "checked",
             "disabled",
-            "error",
-            "open",
-            "selected"
+            "submenu-open"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/dropdown-menu.tsx + packages/ui/registry/ui/dropdown-menu.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "checked", "error"],
+          "values": [
+            "default",
+            "open",
+            "closed",
+            "highlighted",
+            "checked",
+            "disabled"
+          ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "overflow-and-scroll",
-          "viewport-positioning-and-collision",
-          "mobile-or-touch-mode"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
+        "status": "observed",
+        "mechanisms": ["tw-animate-css keyed presence on the popup"],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/dropdown-menu",
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -8507,11 +8644,167 @@
       },
       "previewModule": "dropdown-menu",
       "dataAttributes": {
+        "DropdownMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuPortal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-portal"]
+            }
+          ],
+          "cssVariables": []
+        },
         "DropdownMenuTrigger": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["dropdown-menu-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuLabel": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-item"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuSub": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-sub"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuSubTrigger": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-sub-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuSubContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-sub-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuCheckboxItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "dropdown-menu-checkbox-item",
+                "dropdown-menu-checkbox-item-indicator"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuRadioGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-radio-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuRadioItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "dropdown-menu-radio-item",
+                "dropdown-menu-radio-item-indicator"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuShortcut": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-shortcut"]
             }
           ],
           "cssVariables": []
@@ -9345,7 +9638,110 @@
         "vrt": "required"
       },
       "previewModule": "field",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "FieldSet": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-set"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldLegend": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-legend"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Field": {
+          "attributes": [
+            {
+              "name": "data-orientation",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["field"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldSeparator": {
+          "attributes": [
+            {
+              "name": "data-content",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["field-separator", "field-separator-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldError": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-error"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "field-inline",
@@ -10368,7 +10764,7 @@
       "name": "hover-card",
       "registryType": "registry:ui",
       "title": "Hover Card",
-      "summary": "A rich preview panel that opens on hover or focus — interactive content, four directions, forgiving delays.",
+      "summary": "A preview surface that opens on hover or focus, with configurable delays and sides.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -10381,55 +10777,8 @@
           "source": "packages/ui/registry/ui/hover-card.tsx",
           "ref": {
             "status": "observed",
-            "target": "BasePreviewCard.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/hover-card.tsx."
-          }
-        },
-        {
-          "name": "HoverCardArrow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/hover-card.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BasePreviewCard.Arrow",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/hover-card.tsx."
-          }
-        },
-        {
-          "name": "HoverCardArrowProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/hover-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "HoverCardContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/hover-card.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BasePreviewCard.Portal",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/hover-card.tsx."
-          }
-        },
-        {
-          "name": "HoverCardContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/hover-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "HoverCardProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/hover-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -10438,67 +10787,68 @@
           "source": "packages/ui/registry/ui/hover-card.tsx",
           "ref": {
             "status": "observed",
-            "target": "BasePreviewCard.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/hover-card.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "HoverCardTriggerProps",
-          "kind": "interface",
+          "name": "HoverCardContent",
+          "kind": "component",
           "source": "packages/ui/registry/ui/hover-card.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "empty", "error", "loading", "open"],
+          "values": ["default", "open", "closed"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["focus-visible", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/hover-card.tsx + packages/ui/registry/ui/hover-card.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "active", "loading", "error", "empty"],
+          "values": ["default", "open", "closed"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["viewport-positioning-and-collision"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
-        ],
+        "status": "observed",
+        "mechanisms": ["tw-animate-css keyed presence on the popup"],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/hover-card",
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.4.1",
@@ -10529,6 +10879,15 @@
             {
               "name": "data-slot",
               "values": ["hover-card-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "HoverCardContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["hover-card-content", "hover-card-portal"]
             }
           ],
           "cssVariables": []
@@ -10911,7 +11270,17 @@
         "vrt": "required"
       },
       "previewModule": "input",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "Input": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["input"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "input-group",
@@ -11068,7 +11437,57 @@
         "vrt": "required"
       },
       "previewModule": "input-group",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "InputGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["input-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InputGroupAddon": {
+          "attributes": [
+            {
+              "name": "data-align",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["input-group-addon"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InputGroupButton": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "InputGroupInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["input-group-control"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InputGroupTextarea": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["input-group-control"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "input-otp",
@@ -11167,7 +11586,12 @@
           "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
-      "engines": ["input-otp"],
+      "engines": [
+        {
+          "package": "input-otp",
+          "role": "one-time-password field state machine"
+        }
+      ],
       "docsSlug": "/docs/components/input-otp",
       "registryDependencies": [],
       "npmDependencies": [
@@ -11186,7 +11610,48 @@
         "vrt": "required"
       },
       "previewModule": "input-otp",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "InputOTP": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["input-otp"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InputOTPGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["input-otp-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InputOTPSlot": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["input-otp-slot"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InputOTPSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["input-otp-separator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "item",
@@ -12400,6 +12865,432 @@
       }
     },
     {
+      "name": "menubar",
+      "registryType": "registry:ui",
+      "title": "Menubar",
+      "summary": "A persistent horizontal bar of menus — application-style File / Edit / View navigation.",
+      "status": "stable",
+      "since": "1.0.0",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/menubar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Menubar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarPortal",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarShortcut",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarCheckboxItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarRadioGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarRadioItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarSub",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarSubTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "MenubarSubContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/menubar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["default", "destructive"],
+            "evidence": "packages/ui/registry/ui/menubar.tsx: variant prop"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "open",
+            "closed",
+            "highlighted",
+            "checked",
+            "disabled",
+            "submenu-open"
+          ],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/menubar.tsx + packages/ui/registry/ui/menubar.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "open",
+            "closed",
+            "highlighted",
+            "checked",
+            "disabled"
+          ],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["tw-animate-css keyed presence on the popup"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/menubar",
+      "registryDependencies": ["@vegastack/dropdown-menu"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/menubar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "menubar",
+      "dataAttributes": {
+        "Menubar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-menu"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarPortal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-portal"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["menubar-item"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarCheckboxItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["menubar-checkbox-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarRadioGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-radio-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarRadioItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["menubar-radio-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarLabel": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["menubar-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarShortcut": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-shortcut"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarSub": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-sub"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarSubTrigger": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["menubar-sub-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MenubarSubContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["menubar-sub-content"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "message",
       "registryType": "registry:ui",
       "title": "Message",
@@ -13042,7 +13933,43 @@
         "vrt": "required"
       },
       "previewModule": "native-select",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "NativeSelect": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "native-select",
+                "native-select-icon",
+                "native-select-wrapper"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NativeSelectOption": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["native-select-option"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NativeSelectOptGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["native-select-optgroup"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "navigation-menu",
@@ -14495,7 +15422,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/password-input",
-      "registryDependencies": ["@vegastack/icon-button", "@vegastack/input"],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/input-group"
+      ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
@@ -14531,7 +15461,7 @@
       "name": "popover",
       "registryType": "registry:ui",
       "title": "Popover",
-      "summary": "A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.",
+      "summary": "An anchored, dismissible surface for secondary content, with a header, title and description.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -14544,46 +15474,8 @@
           "source": "packages/ui/registry/ui/popover.tsx",
           "ref": {
             "status": "observed",
-            "target": "BasePopover.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
-          }
-        },
-        {
-          "name": "PopoverArrow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/popover.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BasePopover.Arrow",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
-          }
-        },
-        {
-          "name": "PopoverArrowProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/popover.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PopoverClose",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/popover.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BasePopover.Close",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
-          }
-        },
-        {
-          "name": "PopoverCloseProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/popover.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14592,17 +15484,8 @@
           "source": "packages/ui/registry/ui/popover.tsx",
           "ref": {
             "status": "observed",
-            "target": "BasePopover.Portal",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
-          }
-        },
-        {
-          "name": "PopoverContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/popover.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14611,26 +15494,18 @@
           "source": "packages/ui/registry/ui/popover.tsx",
           "ref": {
             "status": "observed",
-            "target": "BasePopover.Description",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "PopoverDescriptionProps",
-          "kind": "type",
+          "name": "PopoverHeader",
+          "kind": "component",
           "source": "packages/ui/registry/ui/popover.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PopoverProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/popover.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14639,17 +15514,8 @@
           "source": "packages/ui/registry/ui/popover.tsx",
           "ref": {
             "status": "observed",
-            "target": "BasePopover.Title",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
-          }
-        },
-        {
-          "name": "PopoverTitleProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/popover.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -14658,67 +15524,58 @@
           "source": "packages/ui/registry/ui/popover.tsx",
           "ref": {
             "status": "observed",
-            "target": "BasePopover.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
-          }
-        },
-        {
-          "name": "PopoverTriggerProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/popover.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "open"],
+          "values": ["default", "open", "closed"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["described", "focus-visible", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/popover.tsx + packages/ui/registry/ui/popover.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default"],
+          "values": ["default", "open", "closed"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll", "viewport-positioning-and-collision"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
-        ],
+        "status": "observed",
+        "mechanisms": ["tw-animate-css keyed presence on the popup"],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/popover",
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.4.1",
@@ -14735,6 +15592,15 @@
       },
       "previewModule": "popover",
       "dataAttributes": {
+        "Popover": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover"]
+            }
+          ],
+          "cssVariables": []
+        },
         "PopoverTrigger": {
           "attributes": [
             {
@@ -14744,11 +15610,20 @@
           ],
           "cssVariables": []
         },
-        "PopoverClose": {
+        "PopoverContent": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["popover-close"]
+              "values": ["popover-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PopoverHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover-header"]
             }
           ],
           "cssVariables": []
@@ -15611,7 +16486,26 @@
         "vrt": "required"
       },
       "previewModule": "radio-group",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "RadioGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["radio-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RadioGroupItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["radio-group-indicator", "radio-group-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "region-select",
@@ -16878,7 +17772,97 @@
         "vrt": "required"
       },
       "previewModule": "select",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "SelectGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-value"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectTrigger": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["select-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectContent": {
+          "attributes": [
+            {
+              "name": "data-align-trigger",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["select-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectScrollUpButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-scroll-up-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectScrollDownButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-scroll-down-button"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "separator",
@@ -17158,7 +18142,7 @@
       "name": "sheet",
       "registryType": "registry:ui",
       "title": "Sheet",
-      "summary": "A dialog that slides in from a screen edge — four sides, header/footer layout, focus trapping, animated slide.",
+      "summary": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -17171,168 +18155,8 @@
           "source": "packages/ui/registry/ui/sheet.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseDialog.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
-          }
-        },
-        {
-          "name": "SheetClose",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseDialog.Close",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
-          }
-        },
-        {
-          "name": "SheetCloseProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Drawer.Popup",
-            "rationale": "SheetContent merges the caller ref with useModalInert and forwards both to Drawer.Popup."
-          }
-        },
-        {
-          "name": "SheetContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetDescription",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseDialog.Description",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
-          }
-        },
-        {
-          "name": "SheetDescriptionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetFooter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
-          }
-        },
-        {
-          "name": "SheetFooterProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
-          }
-        },
-        {
-          "name": "SheetHeaderProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetProvider",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Drawer.Provider",
-            "rationale": "Re-export of Base UI's Drawer.Provider; prop/ref forwarding is that part's own contract."
-          }
-        },
-        {
-          "name": "SheetProviderProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetSide",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetSize",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetTitle",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseDialog.Title",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
-          }
-        },
-        {
-          "name": "SheetTitleProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -17341,45 +18165,68 @@
           "source": "packages/ui/registry/ui/sheet.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseDialog.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "SheetTriggerProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/sheet.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SheetVirtualKeyboardProvider",
+          "name": "SheetClose",
           "kind": "component",
           "source": "packages/ui/registry/ui/sheet.tsx",
           "ref": {
             "status": "observed",
-            "target": "Drawer.VirtualKeyboardProvider",
-            "rationale": "Re-export of Base UI's Drawer.VirtualKeyboardProvider; prop/ref forwarding is that part's own contract."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "SheetVirtualKeyboardProviderProps",
-          "kind": "type",
+          "name": "SheetContent",
+          "kind": "component",
           "source": "packages/ui/registry/ui/sheet.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "sheetVariants",
-          "kind": "variant-builder",
+          "name": "SheetHeader",
+          "kind": "component",
           "source": "packages/ui/registry/ui/sheet.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SheetFooter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SheetTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SheetDescription",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
@@ -17388,63 +18235,60 @@
         "dimensions": [
           {
             "name": "side",
-            "values": ["bottom", "left", "right", "top"],
-            "evidence": "packages/ui/registry/ui/sheet.tsx: CVA"
+            "values": ["top", "right", "bottom", "left"],
+            "evidence": "packages/ui/registry/ui/sheet.tsx: side prop"
           }
         ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "open"],
+          "values": ["default", "open", "closed", "modal", "non-modal"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["described", "focus-visible", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/sheet.tsx + packages/ui/registry/ui/sheet.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover"],
+          "values": ["default", "open", "closed", "hover", "focus"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "overflow-and-scroll",
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
+        "status": "observed",
         "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
+          "transition on the popup, keyed by data-starting-style/data-ending-style"
         ],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/sheet",
       "registryDependencies": [
-        "@vegastack/icon-button",
+        "@vegastack/button",
         "@vegastack/use-modal-inert"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -17460,11 +18304,29 @@
       },
       "previewModule": "sheet",
       "dataAttributes": {
+        "Sheet": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet"]
+            }
+          ],
+          "cssVariables": []
+        },
         "SheetTrigger": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["sheet-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetClose": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-close"]
             }
           ],
           "cssVariables": []
@@ -17476,18 +18338,8 @@
               "values": []
             },
             {
-              "name": "data-size",
-              "values": []
-            },
-            {
               "name": "data-slot",
-              "values": [
-                "sheet-backdrop",
-                "sheet-body",
-                "sheet-close",
-                "sheet-content",
-                "sheet-viewport"
-              ]
+              "values": ["sheet-close", "sheet-content"]
             }
           ],
           "cssVariables": []
@@ -17524,15 +18376,6 @@
             {
               "name": "data-slot",
               "values": ["sheet-description"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SheetClose": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sheet-close-action"]
             }
           ],
           "cssVariables": []
@@ -18444,6 +19287,137 @@
         "vrt": "required"
       },
       "previewModule": "slider",
+      "dataAttributes": {
+        "Slider": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "slider",
+                "slider-range",
+                "slider-thumb",
+                "slider-track"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "sonner",
+      "registryType": "registry:ui",
+      "title": "Sonner",
+      "summary": "The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.",
+      "status": "stable",
+      "since": "1.0.0",
+      "family": "feedback",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/sonner.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Toaster",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sonner.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "type",
+            "values": [
+              "default",
+              "success",
+              "info",
+              "warning",
+              "error",
+              "loading"
+            ],
+            "evidence": "packages/ui/registry/ui/sonner.tsx: type prop"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "open", "closed", "expanded", "promise"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/sonner.tsx + packages/ui/registry/ui/sonner.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "success",
+            "info",
+            "warning",
+            "error",
+            "loading"
+          ],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["the sonner engine's own stack transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
+        }
+      },
+      "engines": [
+        {
+          "package": "sonner",
+          "role": "toast stack and imperative notification engine"
+        },
+        {
+          "package": "next-themes",
+          "role": "resolved-theme source for the engine colour scheme"
+        }
+      ],
+      "docsSlug": "/docs/components/sonner",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "sonner@^2.0.8",
+        "next-themes@^0.4.6",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/sonner.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "sonner",
       "dataAttributes": {}
     },
     {
@@ -19548,7 +20522,21 @@
         "vrt": "required"
       },
       "previewModule": "switch",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "Switch": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["switch", "switch-thumb"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "table",
@@ -20730,7 +21718,17 @@
         "vrt": "required"
       },
       "previewModule": "textarea",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "Textarea": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["textarea"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "timeline",
@@ -20898,7 +21896,7 @@
       "name": "toast",
       "registryType": "registry:ui",
       "title": "Toast",
-      "summary": "Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.",
+      "summary": "Brief, non-blocking notifications — a stacking Base UI Toast surface with typed icons, actions and promise toasts.",
       "status": "stable",
       "since": "0.7.0",
       "family": "feedback",
@@ -20906,309 +21904,13 @@
       "sourceFiles": ["packages/ui/registry/ui/toast.tsx"],
       "publicSymbols": [
         {
-          "name": "ToastType",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastData",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastItem",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastOptions",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastUpdateOptions",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastPromiseOptions",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "toastManager",
-          "kind": "value",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
-          }
-        },
-        {
-          "name": "toast",
-          "kind": "value",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
-          }
-        },
-        {
-          "name": "useToast",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
-          }
-        },
-        {
-          "name": "ToastProviderProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastProvider",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
-          }
-        },
-        {
-          "name": "ToastPosition",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastViewportProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastViewport",
+          "name": "Toaster",
           "kind": "component",
           "source": "packages/ui/registry/ui/toast.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseToast.Viewport",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastRootProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastRoot",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseToast.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseToast.Content",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastTitleProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastTitle",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseToast.Title",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastDescriptionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastDescription",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseToast.Description",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastActionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseToast.Action",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastCloseProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastClose",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseToast.Close",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastPositionerProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastPositioner",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseToast.Positioner",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastArrowProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastArrow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseToast.Arrow",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
-          }
-        },
-        {
-          "name": "ToastPortalProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ToastPortal",
-          "kind": "re-export",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
-          }
-        },
-        {
-          "name": "ToastProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -21217,62 +21919,163 @@
           "source": "packages/ui/registry/ui/toast.tsx",
           "ref": {
             "status": "observed",
-            "target": "ToastRoot",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ToasterProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/toast.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "Toaster",
+          "name": "ToastAction",
           "kind": "component",
           "source": "packages/ui/registry/ui/toast.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Mount-once portal host: Base UI owns the rendered DOM and there is no single consumer-referenceable root, so a forwarded ref would have no target."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ToastClose",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ToastContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ToastDescription",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ToastPortal",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ToastProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ToastTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ToastViewport",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "createToastManager",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable-or-inherited",
+            "target": "none",
+            "rationale": "Not a component — no ref to forward."
+          }
+        },
+        {
+          "name": "toast",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable-or-inherited",
+            "target": "none",
+            "rationale": "Not a component — no ref to forward."
+          }
+        },
+        {
+          "name": "useToastManager",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable-or-inherited",
+            "target": "none",
+            "rationale": "Not a component — no ref to forward."
           }
         }
       ],
       "variants": {
         "status": "observed",
-        "dimensions": ["type", "anchor", "position"],
-        "rationale": "toastVariants declares the type tint and the stack anchor; toastViewportVariants declares the six pinning positions."
+        "dimensions": [
+          {
+            "name": "type",
+            "values": [
+              "default",
+              "success",
+              "info",
+              "warning",
+              "error",
+              "loading"
+            ],
+            "evidence": "packages/ui/registry/ui/toast.tsx: type prop"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
           "values": [
             "default",
-            "success",
-            "error",
-            "warning",
-            "info",
-            "loading",
+            "open",
+            "closed",
             "expanded",
             "swiping",
-            "limited"
+            "limited",
+            "promise"
           ],
-          "evidence": "Observed from the cva type/anchor branches and Base UI's data-expanded / data-swiping / data-limited state attributes."
+          "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
           "status": "covered",
           "values": [
             "native-or-base-ui-semantics",
             "browser-accessibility-test",
-            "keyboard-navigation",
-            "live-region"
+            "keyboard-navigation"
           ],
           "evidence": "packages/ui/registry/ui/toast.tsx + packages/ui/registry/ui/toast.test.tsx"
         },
@@ -21280,36 +22083,37 @@
           "status": "observed",
           "values": [
             "default",
-            "hover",
-            "focus",
             "success",
-            "error",
-            "warning",
             "info",
-            "loading"
+            "warning",
+            "error",
+            "loading",
+            "hover",
+            "focus"
           ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["mobile-or-touch-mode"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
         "status": "observed",
-        "mechanisms": ["css-transition"],
+        "mechanisms": [
+          "transform/opacity transitions driven by the toast stack's own variables"
+        ],
         "reducedMotion": {
           "status": "covered",
-          "rationale": "Enter/exit/stack transforms are CSS transitions, which the global prefers-reduced-motion reset in base.css neutralizes; the loading spinner carries motion-reduce:animate-none."
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/toast",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -21325,6 +22129,15 @@
       },
       "previewModule": "toast",
       "dataAttributes": {
+        "ToastPortal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-portal"]
+            }
+          ],
+          "cssVariables": []
+        },
         "ToastViewport": {
           "attributes": [
             {
@@ -21334,7 +22147,7 @@
           ],
           "cssVariables": []
         },
-        "ToastRoot": {
+        "Toast": {
           "attributes": [
             {
               "name": "data-slot",
@@ -21384,33 +22197,6 @@
             {
               "name": "data-slot",
               "values": ["toast-close"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ToastPositioner": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["toast-positioner"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ToastArrow": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["toast-arrow"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "Toast": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["toast-icon"]
             }
           ],
           "cssVariables": []

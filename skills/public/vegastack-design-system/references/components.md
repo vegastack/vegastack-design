@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**123 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 604 registry items in total.
+**126 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 607 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -91,14 +91,15 @@ component and never an icon.
 
 ## Overlay
 
-- **`alert-dialog`** — A modal confirmation dialog with four semantic intents — non-dismissable, forcing a deliberate Cancel/confirm choice.
-- **`context-menu`** — A menu of actions revealed by right-click (or long-press) — items, submenus, separators, labels, shortcuts, checkbox/radio.
-- **`dialog`** — A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.
-- **`dropdown-menu`** — A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
+- **`alert-dialog`** — A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.
+- **`context-menu`** — The same menu vocabulary opened by right-click, positioned at the pointer.
+- **`dialog`** — A modal overlay — a backdrop, a centred popup, an optional close button and a sticky footer band.
+- **`drawer`** — A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.
+- **`dropdown-menu`** — An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.
 - **`floating-surface`** — The shared floating-overlay module: one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.
-- **`hover-card`** — A rich preview panel that opens on hover or focus — interactive content, four directions, forgiving delays.
-- **`popover`** — A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.
-- **`sheet`** — A dialog that slides in from a screen edge — four sides, header/footer layout, focus trapping, animated slide.
+- **`hover-card`** — A preview surface that opens on hover or focus, with configurable delays and sides.
+- **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
+- **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.
 - **`shortcut-overlay`** — The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.
 - **`tooltip`** — A floating label on hover or focus, portaled inside the theme scope (OVL-13).
 
@@ -106,6 +107,7 @@ component and never an icon.
 
 - **`breadcrumb`** — A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.
 - **`command`** — A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
+- **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
 - **`navigation-menu`** — Site-nav mega-dropdown on the Base UI NavigationMenu primitive — chip triggers, one shared sliding panel, grid links.
 - **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
@@ -121,8 +123,9 @@ component and never an icon.
 - **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.
 - **`skeleton`** — A pulsing placeholder that reserves layout space while content loads.
+- **`sonner`** — The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.
 - **`spinner`** — An indeterminate loading indicator that inherits its host's ink.
-- **`toast`** — Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.
+- **`toast`** — Brief, non-blocking notifications — a stacking Base UI Toast surface with typed icons, actions and promise toasts.
 
 ## Layout
 

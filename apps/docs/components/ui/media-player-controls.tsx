@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.9.1 sha256-0CIbiPEvF8WXQY2SBkzrPI4xcd4xM/vcMyE2AMQ2DHs=
+// @vegastack media-player-controls@0.9.1 sha256-JIm9o89YoR+1eBg0WfLDJPIDtURKvnxCRkn8LPPHmkc=
 
 "use client";
 
@@ -850,13 +850,7 @@ export function MediaPlayerControls({
           </IconButton>
         }
       />
-      <DropdownMenuContent
-        align="end"
-        className="min-w-52"
-        portalProps={
-          portalContainer ? { container: portalContainer } : undefined
-        }
-      >
+      <DropdownMenuContent align="end" className="min-w-52">
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <span className="min-w-0 flex-1 truncate">Playback speed</span>
@@ -866,9 +860,6 @@ export function MediaPlayerControls({
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent
             className={cn("min-w-40", MEDIA_SUBMENU_RADIO_ITEM_CLASS)}
-            portalProps={
-              portalContainer ? { container: portalContainer } : undefined
-            }
           >
             <DropdownMenuRadioGroup
               value={String(playbackRate)}
@@ -894,9 +885,6 @@ export function MediaPlayerControls({
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent
               className={cn("min-w-40", MEDIA_SUBMENU_RADIO_ITEM_CLASS)}
-              portalProps={
-                portalContainer ? { container: portalContainer } : undefined
-              }
             >
               <DropdownMenuRadioGroup
                 value={selectedQuality}
