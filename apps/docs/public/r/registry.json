@@ -19551,7 +19551,7 @@
         "whenToUse": "Starting from upstream's Sidebar 05 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-z8+TDTW1eYPQ5g8+b1h1paxcKTn/XSjTxM//wSTm4Mk="
+        "integrity": "sha256-Dl1GHFgZrTxxIqgIucHUShcQAkqJqv7Gjzwj6naFVKE="
       }
     },
     {
@@ -19838,7 +19838,7 @@
         "whenToUse": "Starting from upstream's Sidebar 10 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-a1BwmSiQtV+aIZEjUZlc1NZKu0DRBJMQMKyDcRTAPHo="
+        "integrity": "sha256-nbmwCpcDY9OlgeprWYRaKEPZTUBzG/ZiRLcPM/hPN0k="
       }
     },
     {
@@ -19876,7 +19876,7 @@
         "whenToUse": "Starting from upstream's Sidebar 11 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-YJQlavvYHNgvXlztCoI0lFK6/d/stZ6398iABlj9VLQ="
+        "integrity": "sha256-WLQ96dDVFJrVYT1NjWlQF+zae8LpREvNmT+0HV5Gp4s="
       }
     },
     {
@@ -20091,7 +20091,7 @@
         "whenToUse": "Starting from upstream's Sidebar 15 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-GXcN03O9y/TCSWM60sjuda9eC/zFuzW4C1sW8AF3s88="
+        "integrity": "sha256-+PcZ08TPV6V20m2T6e588CSr2rzWgoS7MIVAPH1zlAE="
       }
     },
     {

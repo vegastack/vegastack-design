@@ -1,4 +1,4 @@
-// @vegastack sidebar-11@0.9.1 sha256-YJQlavvYHNgvXlztCoI0lFK6/d/stZ6398iABlj9VLQ=
+// @vegastack sidebar-11@0.9.1 sha256-WLQ96dDVFJrVYT1NjWlQF+zae8LpREvNmT+0HV5Gp4s=
 
 import * as React from "react";
 
@@ -105,13 +105,15 @@ function Tree({ item }: { item: TreeItem }) {
   const [name, ...items] = Array.isArray(item) ? item : [item];
   if (!items.length) {
     return (
-      <SidebarMenuButton
-        isActive={name === "button.tsx"}
-        className="data-[active=true]:bg-transparent"
-      >
-        <FileIcon />
-        {name}
-      </SidebarMenuButton>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          isActive={name === "button.tsx"}
+          className="data-[active=true]:bg-transparent"
+        >
+          <FileIcon />
+          {name}
+        </SidebarMenuButton>
+      </SidebarMenuItem>
     );
   }
   return (

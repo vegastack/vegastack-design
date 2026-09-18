@@ -1,4 +1,4 @@
-// @vegastack sidebar-05@0.9.1 sha256-z8+TDTW1eYPQ5g8+b1h1paxcKTn/XSjTxM//wSTm4Mk=
+// @vegastack sidebar-05@0.9.1 sha256-Dl1GHFgZrTxxIqgIucHUShcQAkqJqv7Gjzwj6naFVKE=
 
 import * as React from "react";
 
@@ -190,30 +190,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 key={item.title}
                 defaultOpen={index === 1}
                 className="group/collapsible"
+                render={<SidebarMenuItem />}
               >
-                <SidebarMenuItem>
-                  <SidebarMenuButton render={<CollapsibleTrigger />}>
-                    {item.title}{" "}
-                    <PlusIcon className="ms-auto group-aria-expanded/menu-button:hidden" />
-                    <MinusIcon className="ms-auto hidden group-aria-expanded/menu-button:block" />
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.items.map((item) => (
-                          <SidebarMenuSubItem key={item.title}>
-                            <SidebarMenuSubButton
-                              isActive={item.isActive}
-                              render={<a href={item.url} />}
-                            >
-                              {item.title}
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  ) : null}
-                </SidebarMenuItem>
+                <SidebarMenuButton render={<CollapsibleTrigger />}>
+                  {item.title}{" "}
+                  <PlusIcon className="ms-auto group-aria-expanded/menu-button:hidden" />
+                  <MinusIcon className="ms-auto hidden group-aria-expanded/menu-button:block" />
+                </SidebarMenuButton>
+                {item.items?.length ? (
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.items.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton
+                            isActive={item.isActive}
+                            render={<a href={item.url} />}
+                          >
+                            {item.title}
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                ) : null}
               </Collapsible>
             ))}
           </SidebarMenu>

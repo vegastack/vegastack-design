@@ -1,4 +1,4 @@
-// @vegastack sidebar-15@0.9.1 sha256-GXcN03O9y/TCSWM60sjuda9eC/zFuzW4C1sW8AF3s88=
+// @vegastack sidebar-15@0.9.1 sha256-+PcZ08TPV6V20m2T6e588CSr2rzWgoS7MIVAPH1zlAE=
 
 import {
   Collapsible,
@@ -37,35 +37,35 @@ export function NavWorkspaces({
       <SidebarGroupContent>
         <SidebarMenu>
           {workspaces.map((workspace) => (
-            <Collapsible key={workspace.name}>
-              <SidebarMenuItem>
-                <SidebarMenuButton render={<a href="#" />}>
-                  <span>{workspace.emoji}</span>
-                  <span>{workspace.name}</span>
-                </SidebarMenuButton>
-                <SidebarMenuAction
-                  render={<CollapsibleTrigger />}
-                  className="start-2 bg-sidebar-accent text-sidebar-accent-foreground data-open:rotate-90"
-                  showOnHover
-                >
-                  <ChevronRightIcon />
-                </SidebarMenuAction>
-                <SidebarMenuAction showOnHover>
-                  <PlusIcon />
-                </SidebarMenuAction>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {workspace.pages.map((page) => (
-                      <SidebarMenuSubItem key={page.name}>
-                        <SidebarMenuSubButton render={<a href="#" />}>
-                          <span>{page.emoji}</span>
-                          <span>{page.name}</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
+            <Collapsible key={workspace.name} render={<SidebarMenuItem />}>
+              <SidebarMenuButton render={<a href="#" />}>
+                <span>{workspace.emoji}</span>
+                <span>{workspace.name}</span>
+              </SidebarMenuButton>
+              <SidebarMenuAction
+                render={<CollapsibleTrigger />}
+                className="start-2 bg-sidebar-accent text-sidebar-accent-foreground data-open:rotate-90"
+                showOnHover
+              >
+                <ChevronRightIcon />
+                <span className="sr-only">Toggle pages</span>
+              </SidebarMenuAction>
+              <SidebarMenuAction showOnHover>
+                <PlusIcon />
+                <span className="sr-only">Add page</span>
+              </SidebarMenuAction>
+              <CollapsibleContent>
+                <SidebarMenuSub>
+                  {workspace.pages.map((page) => (
+                    <SidebarMenuSubItem key={page.name}>
+                      <SidebarMenuSubButton render={<a href="#" />}>
+                        <span>{page.emoji}</span>
+                        <span>{page.name}</span>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </CollapsibleContent>
             </Collapsible>
           ))}
           <SidebarMenuItem>
