@@ -83,18 +83,39 @@ test("choosing an option closes the popup and reports the value (Usage)", async 
   const trigger = screen.getByRole("combobox", { name: "Fruit" });
   await userEvent.click(trigger);
   // Keyboard, not pointer: it is the path WCAG requires, it drives the same selection code Base UI
-  // runs for a pointer, and it does not depend on a hit test this CSS-free lane cannot give. One
-  // press per await, so React has flushed the highlight before Enter commits it.
-  await userEvent.keyboard("{ArrowDown}");
-  await userEvent.keyboard("{ArrowDown}");
+  // runs for a pointer, and it does not depend on a hit test this CSS-free lane cannot give.
+  //
+  // A FIXED NUMBER OF PRESSES CANNOT BE RIGHT HERE, and that is what this test used to do.
+  // Base UI's list navigation keeps its own cursor (`useListNavigation`'s `indexRef`) beside the
+  // `activeIndex` that paints `data-highlighted`, and settles it asynchronously after the popup
+  // opens — it waits for the items to register over a microtask and up to two animation frames,
+  // and the roving focus moves from the trigger into the list somewhere in there. An ArrowDown
+  // delivered before that settles moves the highlight one row; one delivered after it can be
+  // absorbed by the same cursor and move it none. Nothing in the DOM tells the two apart, so two
+  // presses meant "Apple" on a quiet machine and "Banana" on a loaded CI runner — which is
+  // exactly the 'banana' this test failed with.
+  //
+  // Drive to the option under test instead, bounded by the item count so a component that never
+  // moves the highlight still fails, and assert the highlight before Enter commits it. Enter can
+  // then only ever commit the option the assertion named.
+  const apple = screen.getByRole("option", { name: "Apple" });
+  for (let press = 0; press < items.length; press += 1) {
+    if (apple.query()?.hasAttribute("data-highlighted")) break;
+    await userEvent.keyboard("{ArrowDown}");
+  }
+  await expect.element(apple).toHaveAttribute("data-highlighted", "");
   await userEvent.keyboard("{Enter}");
-  expect(picked).toBe("apple");
   // `aria-expanded`, not the popup's presence: the popup plays an exit animation, so the element
   // outlives the state change by a frame or two and "is it gone" would be a timing assertion.
   await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
-  expect(
-    screen.container.querySelector('[data-slot="select-value"]')?.textContent,
-  ).toBe("Apple");
+  expect(picked).toBe("apple");
+  await expect
+    .poll(
+      () =>
+        screen.container.querySelector('[data-slot="select-value"]')
+          ?.textContent,
+    )
+    .toBe("Apple");
 });
 
 /*
