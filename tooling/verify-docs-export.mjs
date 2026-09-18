@@ -65,7 +65,14 @@ const JSX_TAG = /<[A-Z][\w.]*(?=[\s/>])/;
 const JSX_NAMESPACED_TAG = /<[a-z][\w]*(?:\.[A-Za-z][\w]*)+(?=[\s/>])/;
 /** `<api-table />` — a hyphenated custom element name, which no standard HTML element has. */
 const JSX_CUSTOM_ELEMENT = /<[a-z][a-z0-9]*(?:-[a-z0-9]+)+(?=[\s/>])/;
-const TABLE_HEADER = /^\| Prop \|/;
+// `| Prop |`, padded or not. `<ApiTable>` emits the tight form, but a HAND-WRITTEN table — which
+// `chart` needs, because `ChartTooltip`/`ChartLegend` are Recharts re-exports the generator cannot
+// describe — is column-aligned by Prettier into `| Prop               |`. Batch 8 of the shadcn
+// reset (2026-09-18) found it: this gate runs only inside `verify:distribution`, which no batch
+// since 1 had run, so the one hand-written API table in the system read as a section documenting
+// nothing. What the rule asserts is unchanged — the section must carry a prop table or say it has
+// no props — it just recognises the same table however Prettier laid it out.
+const TABLE_HEADER = /^\|\s*Prop\s*\|/;
 /** `## API Reference [#api-reference]` — fumadocs appends the anchor to the built heading. */
 const API_HEADING = /^#{2,3}\s+API Reference\b/;
 const ANY_HEADING = /^#{1,6}\s/;
