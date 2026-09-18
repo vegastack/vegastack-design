@@ -119,7 +119,39 @@ const countries = [
   },
 ];
 
+// Upstream documents TWO `Custom Items` sections, and they are different lessons: this one is
+// `itemToStringValue` teaching the filter to read an OBJECT item, and the one below is rendering a
+// custom COMPONENT inside `ComboboxItem`. `verify-variant-coverage` matches them occurrence by
+// occurrence, so each needs its own example.
 export function comboboxCustomItems(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox
+          items={frameworkObjects}
+          itemToStringValue={(framework: Framework) => framework.label}
+        >
+          <ComboboxInput
+            placeholder="Select a framework"
+            aria-label="Framework"
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+              {(framework: Framework) => (
+                <ComboboxItem key={framework.value} value={framework}>
+                  {framework.label}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function comboboxCustomItemsComponent(): ReactNode {
   return (
     <Wrapper className="items-stretch">
       <div className="mx-auto w-full max-w-xs">

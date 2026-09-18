@@ -66,8 +66,8 @@ Combobox
 
 ### Custom Items
 
-`itemToStringValue` tells the filter how to read an object item, and `ComboboxItem` renders whatever
-markup you want inside the row.
+`itemToStringValue` tells the filter how to read an object item — without it, the filter has no
+string to match a keystroke against.
 
 <ComponentPreview
   name="comboboxCustomItems"
@@ -114,6 +114,18 @@ list stays put as chips wrap onto a second row.
 
 <ComponentPreview
   name="comboboxGroups"
+  file="components/preview/combobox.tsx"
+/>
+
+### Custom Items
+
+A row is whatever you put inside `ComboboxItem` — here an `Item` with a title and a description, so
+each option carries a second line. Upstream documents this separately from `itemToStringValue`
+above, because it is the other half: one teaches the filter to READ an object, this one decides how
+the object is DRAWN.
+
+<ComponentPreview
+  name="comboboxCustomItemsComponent"
   file="components/preview/combobox.tsx"
 />
 

@@ -10,6 +10,18 @@
 //   Snap Points; Button must carry Rounded and Spinner. Nothing else in this repository can notice
 //   a section quietly not being ported, because a missing section is a page that still builds.
 //
+// COUNTED BY OCCURRENCE, AND EACH ONE NEEDS ITS OWN PREVIEW (2026-09-18, Codex review of
+// `main..HEAD`)
+//   The first version keyed our sections by normalised title in a `Map`, so upstream's TWO distinct
+//   `Custom Items` sections on `combobox` — one about `itemToStringValue` on object items, one about
+//   rendering a custom component inside `ComboboxItem` — both matched our ONE heading and the gate
+//   reported `required 15 · present 15` over a real gap. And "has a preview" meant the body
+//   contained the TEXT `<ComponentPreview`, which a tag with no `name` satisfies as happily as a
+//   working one. So: required titles are matched occurrence by occurrence in document order, a
+//   section must carry a `<ComponentPreview>` with a `name` the barrel actually exports, and two
+//   required occurrences may not answer with the same preview — a second copy of one example is
+//   not a second variant.
+//
 // THE SOURCE OF TRUTH IS OFFLINE
 //   `vendor/<cli>/docs/<name>.json`, written by `pull.mjs` from upstream's own docs markdown. A
 //   blocking gate that reaches the network is a gate that fails on a train, so the section list is
@@ -81,6 +93,18 @@ export function requestedPreviews(markdown) {
   ].map((m) => m[1]);
 }
 
+/**
+ * Every `<ComponentPreview>` opening tag in one section, as the name it requests or `null` when the
+ * tag carries no `name` prop. `null` is the hollow preview the old text match accepted: a tag that
+ * renders nothing is not a demonstration of a variant.
+ */
+export function sectionPreviews(body) {
+  return [...body.matchAll(/<ComponentPreview\b[^>]*>/g)].map((match) => {
+    const name = /\bname=["']([^"']+)["']/.exec(match[0]);
+    return name ? name[1] : null;
+  });
+}
+
 /** The union of every export the preview barrel re-exports, resolved through its `export *` lines. */
 export function barrelExports(barrelPath, { cwd } = {}) {
   if (!existsSync(barrelPath)) return new Set();
@@ -130,25 +154,65 @@ export function checkCoverage({
       continue;
     }
     const markdown = readFileSync(page, "utf8");
-    const sections = pageSections(markdown);
-    const present = new Map(sections.map((s) => [normalise(s.title), s]));
 
+    // Our sections grouped by normalised title, in document order, so the Nth required occurrence
+    // of a title is answered by the Nth section carrying it.
+    const ours = new Map();
+    for (const section of pageSections(markdown)) {
+      const key = normalise(section.title);
+      if (!ours.has(key)) ours.set(key, []);
+      ours.get(key).push(section);
+    }
+
+    const consumed = new Map();
+    const claimedBy = new Map();
     const missing = [];
-    const withoutPreview = [];
     for (const title of required) {
-      const section = present.get(normalise(title));
+      const key = normalise(title);
+      const occurrence = consumed.get(key) ?? 0;
+      consumed.set(key, occurrence + 1);
+      const where = occurrence > 0 ? ` (occurrence ${occurrence + 1})` : "";
+      const section = (ours.get(key) ?? [])[occurrence];
+
       if (!section) {
-        missing.push(title);
+        missing.push(title + where);
+        failures.push(`${name}: missing section "${title}"${where}`);
         continue;
       }
-      if (!/<ComponentPreview\b/.test(section.body)) withoutPreview.push(title);
+
+      const previews = sectionPreviews(section.body);
+      if (previews.length === 0) {
+        failures.push(
+          `${name}: section "${title}"${where} has no <ComponentPreview>`,
+        );
+        continue;
+      }
+      if (previews.every((preview) => preview === null)) {
+        failures.push(
+          `${name}: section "${title}"${where} has a <ComponentPreview> with no name prop, ` +
+            `which renders nothing`,
+        );
+        continue;
+      }
+
+      const own = previews.find(
+        (preview) => preview !== null && !claimedBy.has(preview),
+      );
+      if (own === undefined) {
+        failures.push(
+          `${name}: section "${title}"${where} shows only previews another required section ` +
+            `already shows (${previews
+              .filter(Boolean)
+              .map(
+                (preview) => `"${preview}" under "${claimedBy.get(preview)}"`,
+              )
+              .join(", ")}) — each upstream section needs its own example`,
+        );
+        continue;
+      }
+      claimedBy.set(own, title + where);
     }
 
-    for (const title of missing)
-      failures.push(`${name}: missing section "${title}"`);
-    for (const title of withoutPreview) {
-      failures.push(`${name}: section "${title}" has no <ComponentPreview>`);
-    }
     for (const requested of requestedPreviews(markdown)) {
       if (!exports.has(requested)) {
         failures.push(
@@ -252,6 +316,80 @@ function selfTest() {
 
   writeFileSync(
     join(pagesDir, "demo.mdx"),
+    GOOD.replace(
+      '<ComponentPreview name="demoSnap" />',
+      "<ComponentPreview />",
+    ),
+  );
+  claim(
+    "a <ComponentPreview> with no name prop is rejected as hollow",
+    run().some((f) => f.includes("no name prop")),
+  );
+
+  // ---- a REPEATED upstream section is counted by occurrence, and needs its own example ----
+  //
+  // This is the combobox shape: upstream's page carries `Custom Items` twice, about two different
+  // things. A `Map` keyed by title collapsed them onto one heading and reported full coverage.
+  writeFileSync(
+    join(docsCacheDir, "twice.json"),
+    JSON.stringify({
+      component: "twice",
+      sections: ["Installation", "Custom Items", "Usage", "Custom Items"],
+    }),
+  );
+  writeFileSync(
+    join(previewDir, "twice.tsx"),
+    "export function twiceOne() { return null }\n" +
+      "export function twiceTwo() { return null }\n" +
+      "export function twiceUsage() { return null }\n",
+  );
+  writeFileSync(
+    join(previewDir, "index.tsx"),
+    'export * from "./demo";\nexport * from "./twice";\n',
+  );
+  const twice = { ...base, names: new Set(["twice"]) };
+  const runTwice = () => checkCoverage(twice).failures;
+  const ONE_HEADING = [
+    "## Custom Items",
+    '<ComponentPreview name="twiceOne" />',
+    "",
+    "## Usage",
+    '<ComponentPreview name="twiceUsage" />',
+    "",
+  ].join("\n");
+
+  writeFileSync(join(pagesDir, "twice.mdx"), ONE_HEADING);
+  claim(
+    "one heading cannot answer TWO upstream sections of the same title",
+    runTwice().some((f) =>
+      f.includes('missing section "Custom Items" (occurrence 2)'),
+    ),
+  );
+
+  writeFileSync(
+    join(pagesDir, "twice.mdx"),
+    `${ONE_HEADING}\n## Custom Items\n<ComponentPreview name="twiceOne" />\n`,
+  );
+  claim(
+    "a second heading that reuses the FIRST one's preview is rejected",
+    runTwice().some((f) =>
+      f.includes("each upstream section needs its own example"),
+    ),
+  );
+
+  writeFileSync(
+    join(pagesDir, "twice.mdx"),
+    `${ONE_HEADING}\n## Custom Items\n<ComponentPreview name="twiceTwo" />\n`,
+  );
+  claim(
+    "…and PASSES once the second heading shows its own example",
+    runTwice().length === 0,
+  );
+
+  writeFileSync(join(previewDir, "index.tsx"), 'export * from "./demo";\n');
+
+  writeFileSync(
+    join(pagesDir, "demo.mdx"),
     GOOD.replace("## Snap Points", "## snap-points"),
   );
   claim(
@@ -273,7 +411,7 @@ function selfTest() {
     );
     return 1;
   }
-  console.log(`${PREFIX}:selftest OK — 6 claims observed`);
+  console.log(`${PREFIX}:selftest OK — 10 claims observed`);
   return 0;
 }
 
