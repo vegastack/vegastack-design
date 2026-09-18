@@ -420,6 +420,56 @@ test("OVL-13: with no scope in the tree the positioner keeps only its own classe
   expect(positioner.className).not.toContain("vs-scope-under-test");
 });
 
+test("OVL-14: a container sends the popup into that element instead of <body>", async () => {
+  // Upstream forwards no container, so the portal lands under `<body>` — which the Fullscreen API
+  // paints a fullscreen element OVER, hiding the menu. `container` is the one escape hatch, and
+  // `DropdownMenuSubContent` inherits it by BEING a `DropdownMenuContent`.
+  function Host() {
+    const [host, setHost] = React.useState<HTMLElement | undefined>(undefined);
+    return (
+      <div>
+        <div ref={(node) => setHost(node ?? undefined)} data-testid="host" />
+        <DropdownMenu>
+          <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+          <DropdownMenuContent container={host}>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>More</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent container={host}>
+                <DropdownMenuItem>Archive</DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  }
+  const screen = await render(<Host />);
+  const host = screen.container.querySelector(
+    '[data-testid="host"]',
+  ) as HTMLElement;
+  await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  expect(
+    host.querySelector('[data-slot="dropdown-menu-content"]'),
+  ).not.toBeNull();
+
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.element(screen.getByText("Archive")).toBeInTheDocument();
+  expect(
+    host.querySelector('[data-slot="dropdown-menu-sub-content"]'),
+  ).not.toBeNull();
+});
+
+test("OVL-14: with no container the popup keeps upstream's <body> default", async () => {
+  const screen = await render(<Everything />);
+  await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  const content = slot("content")!;
+  expect(screen.container.contains(content)).toBe(false);
+  expect(document.body.contains(content)).toBe(true);
+});
+
 test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));

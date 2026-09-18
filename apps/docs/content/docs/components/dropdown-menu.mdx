@@ -265,6 +265,11 @@ Upstream's file plus `packages/ui/upstream/patches/dropdown-menu.patch`. Every h
   `Menu.Portal`, so it reads `useInternalThemeScope()` and attaches it to the Positioner inside
   it; the exported pass-through `DropdownMenuPortal` wraps its children in a `display: contents`
   element carrying the same class, so the escape hatch is scoped too.
+- **OVL-14** — `DropdownMenuContent` forwards an optional `container` to its `Menu.Portal`, and
+  `DropdownMenuSubContent` inherits it by being one. Upstream forwards none, and a portal defaults
+  to `document.body`, which the Fullscreen API paints the fullscreen element over; a fullscreen
+  player's settings menu rendered invisibly behind it. Leaving `container` unset is upstream's own
+  default, so nothing else moves.
 - **INT-1** — `cursor-default` is removed from the item, the submenu trigger, the checkbox item
   and the radio item, so a menu row shows the hand cursor the one global rule in `base.css` gives
   every `[role^="menuitem"]`.

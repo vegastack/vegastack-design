@@ -1267,7 +1267,7 @@
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.9.1",
-        "integrity": "sha256-x+we1PuX+5UwzEY9INTcBc+vStvLL5QCLejMA2Xntfk="
+        "integrity": "sha256-tjBF5vzBd7xBEgrWWea4bkm3rKodf6J67Ifb+qMi928="
       }
     },
     {
@@ -14943,7 +14943,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.9.1",
-        "integrity": "sha256-/pUgcpLlls0C2u95tndiRNN601t+H8FjZd6ENKR2JJg="
+        "integrity": "sha256-VakJzfeMEcxryj4MNaclMw0rwhvPzHj8YobK1rc4YsU="
       }
     },
     {
@@ -16359,7 +16359,7 @@
         "whenToUse": "Short supplementary labels on icon buttons, toolbar actions, and controls — optionally with a shortcut hint.",
         "whenNotToUse": "Interactive content (links/buttons) or essential information — a tooltip isn't reliably reachable; use a Popover.",
         "version": "0.9.1",
-        "integrity": "sha256-NHb8iGwGATwZSOsv8xaYYOJAIuMefLrwK10jNoIOPfY="
+        "integrity": "sha256-jp8SrYJMbit4UJsc9672/Pn0xu32V2TjjMBsqekyP74="
       }
     },
     {

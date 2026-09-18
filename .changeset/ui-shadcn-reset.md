@@ -18,8 +18,12 @@ touching any code: one 2px focus outline instead of the ring glow, a hand cursor
 shadcn's own neutral, no surface ladder, and Tailwind's stock radius, shadow and type scales. The
 registry ships 689 items, including 100 blocks.
 
-What is ours is 60 recorded exceptions, every one traceable: a component's docs page closes with a
-`## Deviations` section naming the decision IDs behind its patch.
+What is ours is 61 recorded exceptions, every one traceable: a component's docs page closes with a
+`## Deviations` section naming the decision IDs behind its patch. One of them is new to this
+release: `TooltipContent` and `DropdownMenuContent` (and so `DropdownMenuSubContent`) take an
+optional `container`, forwarded to their portal, so chrome drawn over a fullscreen surface renders
+inside it instead of behind it — which is what makes a fullscreen player show its control labels
+and its settings menu again. Leaving `container` unset is upstream's default.
 
 **Who this affects:** every consumer. Re-pull every copied-in component; a retired import fails to
 resolve, and each retirement's prop map — including what did **not** survive it — is in

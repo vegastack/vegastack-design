@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
@@ -180,6 +180,42 @@ test("OVL-13: the positioner re-applies the nested theme scope across the portal
   expect(positioner).not.toBeNull();
   expect(positioner!.className).toContain("vs-scope-under-test");
   expect(positioner!.className).toContain("isolate");
+});
+
+test("OVL-14: a container sends the popup into that element instead of <body>", async () => {
+  // Upstream forwards no container, so the portal lands under `<body>` — which the Fullscreen API
+  // paints a fullscreen element OVER, hiding the popup. `container` is the one escape hatch.
+  function Host() {
+    const [host, setHost] = React.useState<HTMLElement | undefined>(undefined);
+    return (
+      <div style={{ padding: 150 }}>
+        <div ref={(node) => setHost(node ?? undefined)} data-testid="host" />
+        <TooltipProvider>
+          <Tooltip defaultOpen>
+            <TooltipTrigger aria-label="Settings">Open settings</TooltipTrigger>
+            <TooltipContent container={host}>Settings</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    );
+  }
+  const screen = await render(<Host />);
+  const host = screen.container.querySelector(
+    '[data-testid="host"]',
+  ) as HTMLElement;
+  const popup = await vi.waitFor(() => {
+    const node = host.querySelector('[data-slot="tooltip-content"]');
+    if (!node) throw new Error("not portaled into the host yet");
+    return node as HTMLElement;
+  });
+  expect(popup.textContent).toContain("Settings");
+});
+
+test("OVL-14: with no container the popup keeps upstream's <body> default", async () => {
+  const screen = await render(<Subject defaultOpen />);
+  const popup = popupOf(screen.container)!;
+  expect(screen.container.contains(popup)).toBe(false);
+  expect(document.body.contains(popup)).toBe(true);
 });
 
 test("OVL-13: with no scope in the tree the positioner keeps only its own classes", async () => {

@@ -163,4 +163,8 @@ Upstream's file plus `packages/ui/upstream/patches/tooltip.patch`. Every hunk:
   inside the Portal. A portaled popup leaves its theme subtree, so a nested scope is lost by
   inheritance unless the host re-applies it; `tooling/verify-portal-theme-scope.mjs` inventories
   this host.
+- **OVL-14** — `TooltipContent` forwards an optional `container` to its Portal. Upstream forwards
+  none, and a portal defaults to `document.body`, which the Fullscreen API paints the fullscreen
+  element over; a fullscreen player's control labels rendered invisibly behind it. Leaving
+  `container` unset is upstream's own default, so nothing else moves.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

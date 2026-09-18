@@ -556,16 +556,92 @@ test("a re-render with a fresh callback identity does not reset the playback rat
   expect(media.playbackRate).toBe(2);
 });
 
-test("control tooltips portal to <body> — the named fullscreen gap, pinned", async () => {
-  // Batch 7c of the shadcn reset deleted this component's `portalContainer` prop and the context
-  // behind it. They had been dead since Batch 4 put `tooltip.tsx` and `dropdown-menu.tsx` back on
-  // upstream, whose `TooltipContent`/`DropdownMenuContent` each open their own Base UI portal with
-  // no `container` escape hatch — so the prop documented a behaviour the tree no longer had.
-  //
-  // The consequence is real and is recorded on the component: a player in fullscreen shows no
-  // control tooltip, because the browser paints the fullscreen subtree only. This test is what
-  // fails, as stale, the day someone gives those two a `container` pass-through — which is an MK
-  // decision, not a workaround, because it is a patch hunk with no decision row behind it.
+/**
+ * A frame that really enters document fullscreen, the way `video-player` does: the element passed
+ * to `requestFullscreen()` is the one wrapping the media AND its transport. `requestFullscreen`
+ * needs transient user activation, so the entry point is a real click.
+ */
+function FullscreenHost(
+  props: Partial<React.ComponentProps<typeof MediaPlayerControls>>,
+) {
+  const frameRef = React.useRef<HTMLDivElement>(null);
+  return (
+    <div ref={frameRef} data-testid="frame">
+      <button
+        type="button"
+        onClick={() => frameRef.current?.requestFullscreen()}
+      >
+        enter fullscreen
+      </button>
+      <Host variant="overlay" onFullscreenToggle={() => {}} {...props} />
+    </div>
+  );
+}
+
+test("control chrome portals into the fullscreen element (OVL-14)", async () => {
+  // The Fullscreen API paints the fullscreen subtree ONLY, so a portal to `<body>` is invisible:
+  // before decision OVL-14 a fullscreen player showed no control labels and no settings menu.
+  // OVL-14 gives upstream's `TooltipContent` and `DropdownMenuContent` a `container`
+  // pass-through, and this component hands them `document.fullscreenElement` while it contains
+  // the transport. What is asserted is the DOM position of the real chrome under real fullscreen.
+  const screen = await render(<FullscreenHost qualityOptions={["1080p"]} />);
+  const frame = screen.container.querySelector(
+    '[data-testid="frame"]',
+  ) as HTMLElement;
+
+  await userEvent.click(
+    screen.getByRole("button", { name: "enter fullscreen" }),
+  );
+  await vi.waitFor(() => {
+    if (document.fullscreenElement !== frame) {
+      throw new Error("not fullscreen yet");
+    }
+  });
+
+  try {
+    // A tooltip: hover the fullscreen control and find its popup inside the frame.
+    const fullscreen = frame.querySelector(
+      'button[aria-label="Fullscreen Demo media"]',
+    ) as HTMLElement;
+    await userEvent.hover(fullscreen);
+    const tip = await vi.waitFor(() => {
+      const node = document.querySelector('[data-slot="tooltip-content"]');
+      if (!node) throw new Error("no tooltip yet");
+      return node as HTMLElement;
+    });
+    expect(tip.textContent).toContain("Fullscreen (F)");
+    expect(frame.contains(tip)).toBe(true);
+
+    // The settings menu, which is the other portaled surface the gap swallowed.
+    await userEvent.click(
+      frame.querySelector(
+        'button[aria-label="Demo media settings"]',
+      ) as HTMLElement,
+    );
+    const menu = await vi.waitFor(() => {
+      const node = document.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      );
+      if (!node) throw new Error("no menu yet");
+      return node as HTMLElement;
+    });
+    expect(menu.textContent).toContain("Playback speed");
+    expect(frame.contains(menu)).toBe(true);
+  } finally {
+    // An open Base UI menu keeps a backdrop over the document, which would swallow the next
+    // test's pointer. Close it before leaving.
+    await userEvent.keyboard("{Escape}");
+    await document.exitFullscreen();
+    await vi.waitFor(() => {
+      if (document.fullscreenElement) throw new Error("still fullscreen");
+    });
+  }
+});
+
+test("control chrome portals to <body> when nothing is fullscreen (OVL-14)", async () => {
+  // The other half of OVL-14: the container is `null` unless the browser is painting a fullscreen
+  // element that CONTAINS this transport, so an ordinary in-page player keeps upstream's default
+  // and a page that fullscreens something else never captures these portals.
   const screen = await render(
     <Host variant="overlay" onFullscreenToggle={() => {}} />,
   );
@@ -580,7 +656,6 @@ test("control tooltips portal to <body> — the named fullscreen gap, pinned", a
     return node as HTMLElement;
   });
   expect(tip.textContent).toContain("Fullscreen (F)");
-  // It is under <body>, NOT inside the element a player would pass to requestFullscreen().
   expect(frame.contains(tip)).toBe(false);
   expect(document.body.contains(tip)).toBe(true);
 });

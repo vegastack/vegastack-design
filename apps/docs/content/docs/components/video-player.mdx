@@ -117,10 +117,9 @@ Every `VideoPlayer` prop, auto-generated from its TypeScript types.
 - Rewind and forward are keyboard shortcuts rather than visible buttons.
 - The overlay controls appear on hover or focus and fade out after the pointer leaves the frame.
 - The fullscreen action changes to an exit-fullscreen icon and accessible name while the frame owns
-  document fullscreen. While it does, the transport's tooltips and its settings menu are not painted
-  — they portal to `<body>`, outside the fullscreen subtree. See
-  [`MediaPlayerControls`](/docs/components/media-player-controls) § Accessibility; every control
-  keeps its name, its icon and its keyboard shortcut either way.
+  document fullscreen. The transport's tooltips and its settings menu stay visible there: they
+  portal into the fullscreen element rather than to `<body>`, which is decision OVL-14. See
+  [`MediaPlayerControls`](/docs/components/media-player-controls) § Accessibility.
 - The native `<video>` element is the media engine and visual frame; browser-native controls are
   omitted so audio and video players share the same VegaStack transport.
 

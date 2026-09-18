@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu@0.9.1 sha256-x+we1PuX+5UwzEY9INTcBc+vStvLL5QCLejMA2Xntfk=
+// @vegastack dropdown-menu@0.9.1 sha256-tjBF5vzBd7xBEgrWWea4bkm3rKodf6J67Ifb+qMi928=
 
 "use client";
 
@@ -35,16 +35,18 @@ function DropdownMenuContent({
   side = "bottom",
   sideOffset = 4,
   className,
+  container,
   ...props
 }: MenuPrimitive.Popup.Props &
   Pick<
     MenuPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
-  >) {
+  > &
+  Pick<MenuPrimitive.Portal.Props, "container">) {
   const themeScope = useInternalThemeScope();
 
   return (
-    <MenuPrimitive.Portal>
+    <MenuPrimitive.Portal container={container}>
       <MenuPrimitive.Positioner
         className={cn("isolate z-50 outline-none", themeScope)}
         align={align}

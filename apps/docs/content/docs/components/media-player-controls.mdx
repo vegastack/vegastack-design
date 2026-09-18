@@ -108,14 +108,13 @@ setter for that reason.
   visible, because there is no hover to reveal it with.
 - `qualityOptions` / `defaultQuality` / `onQualityChange` reach the settings menu, which only the
   `overlay` variant renders; in the `default` variant they are accepted and unused.
-- Tooltips name the keyboard shortcut alongside the action. **They do not appear in fullscreen**:
-  the browser paints only the subtree passed to `requestFullscreen()`, and `TooltipContent` and
-  `DropdownMenuContent` each open their own portal to `<body>` with no `container` escape hatch.
-  Nothing becomes unreachable — every control keeps its `aria-label`, its icon and its keyboard
-  shortcut, and the volume panel is deliberately inline for exactly this reason — but the hover
-  hints and the settings menu are not visible while the frame owns fullscreen. The
-  `portalContainer` prop that used to promise otherwise was removed in Batch 7c of the shadcn
-  reset, where it had been inert since Batch 4 put both popups back on upstream.
+- Tooltips name the keyboard shortcut alongside the action, **and they appear in fullscreen**. The
+  browser paints only the subtree passed to `requestFullscreen()`, so a portal to `<body>` would be
+  invisible there; decision OVL-14 gives `TooltipContent` and `DropdownMenuContent` a `container`
+  pass-through, and the transport hands them `document.fullscreenElement` for exactly as long as it
+  contains them. There is no prop to wire: a page that fullscreens something else is untouched, and
+  outside fullscreen both popups keep upstream's `<body>` default. The volume panel is inline and
+  never depended on it.
 
 <StatesTested name="media-player-controls" />
 

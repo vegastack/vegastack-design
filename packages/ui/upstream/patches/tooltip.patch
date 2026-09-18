@@ -1,20 +1,24 @@
 # component: tooltip
-# decisions: DOC-2, OVL-13
+# decisions: DOC-2, OVL-13, OVL-14
 # hunks:
 #   OVL-13: `TooltipContent` reads `useInternalThemeScope()` and attaches it to the Positioner
 #     inside the Portal. A portaled popup leaves its theme subtree, so a nested scope
 #     (`.dark`, a scoped surface) is lost by inheritance unless the host re-applies it.
 #     `tooling/verify-portal-theme-scope.mjs` inventories this host.
+#   OVL-14: `TooltipContent` forwards a `container` to its Portal. Upstream forwards none, and a
+#     portal defaults to `document.body` — which the Fullscreen API paints the fullscreen element
+#     OVER, so a fullscreen player's control tooltips render invisibly behind it. The prop is
+#     optional and `undefined` is upstream's own default, so no existing caller moves.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/tooltip.tsx b/tooltip.tsx
-index d980105..b09c4ac 100644
+index d980105..ef899d7 100644
 --- a/tooltip.tsx
 +++ b/tooltip.tsx
 @@ -1,7 +1,10 @@
 -"use client"
-+// @vegastack tooltip@0.9.1 sha256-NHb8iGwGATwZSOsv8xaYYOJAIuMefLrwK10jNoIOPfY=
++// @vegastack tooltip@0.9.1 sha256-jp8SrYJMbit4UJsc9672/Pn0xu32V2TjjMBsqekyP74=
  
 -import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 -import { cn } from "cn"
@@ -26,7 +30,7 @@ index d980105..b09c4ac 100644
  
  function TooltipProvider({
    delay = 0,
-@@ -13,15 +16,15 @@ function TooltipProvider({
+@@ -13,19 +16,20 @@ function TooltipProvider({
        delay={delay}
        {...props}
      />
@@ -45,16 +49,25 @@ index d980105..b09c4ac 100644
  }
  
  function TooltipContent({
-@@ -37,6 +40,8 @@ function TooltipContent({
+   className,
++  container,
+   side = "top",
+   sideOffset = 4,
+   align = "center",
+@@ -36,21 +40,24 @@ function TooltipContent({
+   Pick<
      TooltipPrimitive.Positioner.Props,
      "align" | "alignOffset" | "side" | "sideOffset"
-   >) {
+-  >) {
++  > &
++  Pick<TooltipPrimitive.Portal.Props, "container">) {
 +  const themeScope = useInternalThemeScope();
 +
    return (
-     <TooltipPrimitive.Portal>
+-    <TooltipPrimitive.Portal>
++    <TooltipPrimitive.Portal container={container}>
        <TooltipPrimitive.Positioner
-@@ -44,13 +49,13 @@ function TooltipContent({
+         align={align}
          alignOffset={alignOffset}
          side={side}
          sideOffset={sideOffset}
@@ -70,7 +83,7 @@ index d980105..b09c4ac 100644
            )}
            {...props}
          >
-@@ -59,7 +64,7 @@ function TooltipContent({
+@@ -59,7 +66,7 @@ function TooltipContent({
          </TooltipPrimitive.Popup>
        </TooltipPrimitive.Positioner>
      </TooltipPrimitive.Portal>

@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.9.1 sha256-/pUgcpLlls0C2u95tndiRNN601t+H8FjZd6ENKR2JJg=
+// @vegastack media-player-controls@0.9.1 sha256-VakJzfeMEcxryj4MNaclMw0rwhvPzHj8YobK1rc4YsU=
 
 "use client";
 
@@ -15,7 +15,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { TIMINGS, cn } from "@vegastack/design";
+import { TIMINGS, cn, mergeRefs } from "@vegastack/design";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -316,21 +316,56 @@ export function useMediaShortcuts({
 }
 
 /**
- * **Fullscreen and portals — a known, named gap.** A portal to `<body>` is invisible in
- * fullscreen: the element passed to `requestFullscreen()` is the video FRAME, and the browser
- * paints that subtree only. The volume panel is inline for exactly this reason and is unaffected.
+ * **Fullscreen and portals (OVL-14).** A portal to `<body>` is invisible in fullscreen: the element
+ * passed to `requestFullscreen()` is the video FRAME, and the browser paints that subtree only. The
+ * volume panel is inline for exactly this reason and never had the problem.
  *
- * The tooltips and the settings menu are NOT: `TooltipContent` and `DropdownMenuContent` each open
- * their own Base UI portal with no `container` escape hatch, which is upstream's shape since the
- * shadcn reset put both files back on upstream (Batch 4). This component used to take a
- * `portalContainer` ref and thread it down a context; Batch 7c removed both, because after Batch 4
- * nothing could read them — the prop documented a behaviour the tree no longer had, which is worse
- * than not offering it. Restoring it means a `container` pass-through on `TooltipContent` and
- * `DropdownMenuContent`, and that is a patch hunk with no decision row behind it: an MK call, not
- * a workaround. Until then, a player in fullscreen shows no control tooltip and no settings menu;
- * every control keeps its `aria-label`, its keyboard shortcut and its visible icon, so nothing is
- * unreachable — only the hover hints are.
+ * The tooltips and the settings menu did: both open a Base UI portal, and upstream's
+ * `TooltipContent`/`DropdownMenuContent` forwarded no `container`, so a fullscreen player showed no
+ * control labels and no settings menu. Decision **OVL-14** (MK, 2026-09-18) adds that one
+ * pass-through to both upstream files; this context carries the element to every control in the
+ * transport, so nothing has to be threaded through eleven call sites.
+ *
+ * The container is `document.fullscreenElement` and only while it CONTAINS this transport — a page
+ * that fullscreens something else must not capture these portals. Everywhere else the value is
+ * `undefined`, which is upstream's default. `undefined` and not `null`: Base UI reads an explicit
+ * `null` as "the container has not resolved yet" and renders no portal at all, so a `null` here
+ * would swallow the very chrome this decision restores.
  */
+const MediaPortalContainerContext = React.createContext<
+  HTMLElement | undefined
+>(undefined);
+
+/**
+ * Track the fullscreen element that owns `rootRef`, or `undefined`. `fullscreenchange` is the only
+ * source: a consumer's `isFullscreen` prop describes THEIR state machine, and this needs the
+ * browser's.
+ */
+function useFullscreenPortalContainer(
+  rootRef: React.RefObject<HTMLElement | null>,
+) {
+  const [container, setContainer] = React.useState<HTMLElement | undefined>(
+    undefined,
+  );
+
+  React.useEffect(() => {
+    const sync = () => {
+      const active = document.fullscreenElement;
+      const root = rootRef.current;
+      setContainer(
+        active instanceof HTMLElement && root !== null && active.contains(root)
+          ? active
+          : undefined,
+      );
+    };
+    sync();
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, [rootRef]);
+
+  return container;
+}
+
 function MediaControlTooltip({
   children,
   content,
@@ -338,10 +373,12 @@ function MediaControlTooltip({
   children: React.ReactElement;
   content: React.ReactNode;
 }) {
+  const container = React.useContext(MediaPortalContainerContext);
+
   return (
     <Tooltip>
       <TooltipTrigger render={children} />
-      <TooltipContent>{content}</TooltipContent>
+      <TooltipContent container={container}>{content}</TooltipContent>
     </Tooltip>
   );
 }
@@ -850,6 +887,15 @@ export function MediaPlayerControls({
   const selectedQuality = quality || defaultQuality || qualities[0] || "";
   const isOverlay = variant === "overlay";
 
+  /*
+    OVL-14: the transport's own root, so `useFullscreenPortalContainer` can ask whether the
+    element the browser is painting fullscreen actually contains these controls. `ref` is the
+    consumer's; both land on the same node.
+  */
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const mergedRef = React.useMemo(() => mergeRefs(ref, rootRef), [ref]);
+  const portalContainer = useFullscreenPortalContainer(rootRef);
+
   const settingsMenu = (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -864,7 +910,11 @@ export function MediaPlayerControls({
           </Button>
         }
       />
-      <DropdownMenuContent align="end" className="min-w-52">
+      <DropdownMenuContent
+        align="end"
+        className="min-w-52"
+        container={portalContainer}
+      >
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <span className="min-w-0 flex-1 truncate">Playback speed</span>
@@ -874,6 +924,7 @@ export function MediaPlayerControls({
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent
             className={cn("min-w-40", MEDIA_SUBMENU_RADIO_ITEM_CLASS)}
+            container={portalContainer}
           >
             <DropdownMenuRadioGroup
               value={String(playbackRate)}
@@ -899,6 +950,7 @@ export function MediaPlayerControls({
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent
               className={cn("min-w-40", MEDIA_SUBMENU_RADIO_ITEM_CLASS)}
+              container={portalContainer}
             >
               <DropdownMenuRadioGroup
                 value={selectedQuality}
@@ -1149,8 +1201,58 @@ export function MediaPlayerControls({
 
   if (isOverlay) {
     return (
+      <MediaPortalContainerContext.Provider value={portalContainer}>
+        <div
+          ref={mergedRef}
+          data-slot="media-player-controls"
+          data-state={playing ? "playing" : "paused"}
+          data-variant={variant}
+          role="group"
+          aria-label={`${label} media controls`}
+          onKeyDown={handleKeyDown}
+          className={cn(
+            "@container/media-controls w-full min-w-0 p-2",
+            MEDIA_OVERLAY_CHROME_CLASS,
+            MEDIA_INSET_FOCUS_CLASS,
+            className,
+          )}
+          {...props}
+        >
+          <div
+            data-slot="media-player-controls-layout"
+            className="flex min-w-0 flex-col gap-2"
+          >
+            <div data-slot="media-player-seek" className="min-w-0 px-2">
+              {seekControl}
+            </div>
+
+            <div
+              data-slot="media-player-actions"
+              className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-2"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                {playButton}
+                {timeReadout}
+              </div>
+
+              <div aria-hidden="true" />
+
+              <div className="flex justify-self-end">
+                {volumeControl}
+                {settingsMenu}
+                {fullscreenControl}
+              </div>
+            </div>
+          </div>
+        </div>
+      </MediaPortalContainerContext.Provider>
+    );
+  }
+
+  return (
+    <MediaPortalContainerContext.Provider value={portalContainer}>
       <div
-        ref={ref}
+        ref={mergedRef}
         data-slot="media-player-controls"
         data-state={playing ? "playing" : "paused"}
         data-variant={variant}
@@ -1158,64 +1260,17 @@ export function MediaPlayerControls({
         aria-label={`${label} media controls`}
         onKeyDown={handleKeyDown}
         className={cn(
-          "@container/media-controls w-full min-w-0 p-2",
-          MEDIA_OVERLAY_CHROME_CLASS,
-          MEDIA_INSET_FOCUS_CLASS,
+          "@container/media-controls w-full min-w-0 rounded-lg border p-2",
+          // The transport reads one emphasis step below the page. Upstream's `ghost` button
+          // sets no rest ink of its own, so naming the container's ink once makes every control
+          // subdued at rest, and the variant's own `hover:text-foreground` brightens each one
+          // under the pointer.
+          "border-border bg-background text-muted-foreground",
           className,
         )}
         {...props}
       >
-        <div
-          data-slot="media-player-controls-layout"
-          className="flex min-w-0 flex-col gap-2"
-        >
-          <div data-slot="media-player-seek" className="min-w-0 px-2">
-            {seekControl}
-          </div>
-
-          <div
-            data-slot="media-player-actions"
-            className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-2"
-          >
-            <div className="flex min-w-0 items-center gap-2">
-              {playButton}
-              {timeReadout}
-            </div>
-
-            <div aria-hidden="true" />
-
-            <div className="flex justify-self-end">
-              {volumeControl}
-              {settingsMenu}
-              {fullscreenControl}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      ref={ref}
-      data-slot="media-player-controls"
-      data-state={playing ? "playing" : "paused"}
-      data-variant={variant}
-      role="group"
-      aria-label={`${label} media controls`}
-      onKeyDown={handleKeyDown}
-      className={cn(
-        "@container/media-controls w-full min-w-0 rounded-lg border p-2",
-        // The transport reads one emphasis step below the page. Upstream's `ghost` button
-        // sets no rest ink of its own, so naming the container's ink once makes every control
-        // subdued at rest, and the variant's own `hover:text-foreground` brightens each one
-        // under the pointer.
-        "border-border bg-background text-muted-foreground",
-        className,
-      )}
-      {...props}
-    >
-      {/*
+        {/*
       Audio transport has two layouts, switched by the `@sm` container width.
       Both are always in the DOM; the container query shows exactly one, so a
       screen reader (and the tab order) only ever sees the visible layout.
@@ -1228,27 +1283,27 @@ export function MediaPlayerControls({
       never falls under the speed button — the 320px effective-target contract
       probes exactly this.
     */}
-      <div
-        data-slot="media-player-actions"
-        className="hidden w-full min-w-0 items-center gap-2 @sm/media-controls:flex"
-      >
-        {playButton}
         <div
-          data-slot="media-player-skip-controls"
-          className="flex shrink-0 items-center"
+          data-slot="media-player-actions"
+          className="hidden w-full min-w-0 items-center gap-2 @sm/media-controls:flex"
         >
-          {rewindButton}
-          {forwardButton}
+          {playButton}
+          <div
+            data-slot="media-player-skip-controls"
+            className="flex shrink-0 items-center"
+          >
+            {rewindButton}
+            {forwardButton}
+          </div>
+          {timeReadout}
+          <div data-slot="media-player-seek" className="min-w-0 flex-1 px-2">
+            {seekControl}
+          </div>
+          {volumeControl}
+          {speedButton}
         </div>
-        {timeReadout}
-        <div data-slot="media-player-seek" className="min-w-0 flex-1 px-2">
-          {seekControl}
-        </div>
-        {volumeControl}
-        {speedButton}
-      </div>
 
-      {/*
+        {/*
       NARROW (below `@sm`) — two lines, for a mobile-width player. Top line:
       elapsed · seek · duration, the seek flexing between the two edge-pinned
       readouts in a smaller font (`formatTime` still promotes to h:mm:ss past
@@ -1257,49 +1312,50 @@ export function MediaPlayerControls({
       controls pinned to the leading edge, and the tappable speed to the
       trailing edge.
     */}
-      <div
-        data-slot="media-player-actions-compact"
-        className="flex w-full min-w-0 flex-col gap-1.5 @sm/media-controls:hidden"
-      >
         <div
-          data-slot="media-player-seek"
-          className="flex min-w-0 items-center gap-2"
+          data-slot="media-player-actions-compact"
+          className="flex w-full min-w-0 flex-col gap-1.5 @sm/media-controls:hidden"
         >
-          <span
-            data-slot="media-player-time-elapsed"
-            className="shrink-0 text-xs tabular-nums"
+          <div
+            data-slot="media-player-seek"
+            className="flex min-w-0 items-center gap-2"
           >
-            {formatTime(currentTime)}
-          </span>
-          {/*
+            <span
+              data-slot="media-player-time-elapsed"
+              className="shrink-0 text-xs tabular-nums"
+            >
+              {formatTime(currentTime)}
+            </span>
+            {/*
           `px-1` insets the seek track from the flanking timers so the seek
           thumb at either extreme (it overhangs the track end by half its
           width) does not crowd the elapsed/duration labels.
         */}
-          <div className="min-w-0 flex-1 px-1">{seekControl}</div>
-          <span
-            data-slot="media-player-time-duration"
-            className="shrink-0 text-xs tabular-nums"
-          >
-            {formatTime(displayedDuration)}
-          </span>
-        </div>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-          <div className="flex items-center justify-self-start">
-            {transcriptButton}
-            {volumeControl}
+            <div className="min-w-0 flex-1 px-1">{seekControl}</div>
+            <span
+              data-slot="media-player-time-duration"
+              className="shrink-0 text-xs tabular-nums"
+            >
+              {formatTime(displayedDuration)}
+            </span>
           </div>
-          <div
-            data-slot="media-player-transport"
-            className="flex items-center gap-1 justify-self-center"
-          >
-            {rewindButton}
-            {playButtonCompact}
-            {forwardButton}
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+            <div className="flex items-center justify-self-start">
+              {transcriptButton}
+              {volumeControl}
+            </div>
+            <div
+              data-slot="media-player-transport"
+              className="flex items-center gap-1 justify-self-center"
+            >
+              {rewindButton}
+              {playButtonCompact}
+              {forwardButton}
+            </div>
+            <div className="flex justify-self-end">{speedButtonCompact}</div>
           </div>
-          <div className="flex justify-self-end">{speedButtonCompact}</div>
         </div>
       </div>
-    </div>
+    </MediaPortalContainerContext.Provider>
   );
 }

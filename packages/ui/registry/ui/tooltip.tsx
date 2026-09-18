@@ -1,4 +1,4 @@
-// @vegastack tooltip@0.9.1 sha256-NHb8iGwGATwZSOsv8xaYYOJAIuMefLrwK10jNoIOPfY=
+// @vegastack tooltip@0.9.1 sha256-jp8SrYJMbit4UJsc9672/Pn0xu32V2TjjMBsqekyP74=
 
 "use client";
 
@@ -29,6 +29,7 @@ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
 
 function TooltipContent({
   className,
+  container,
   side = "top",
   sideOffset = 4,
   align = "center",
@@ -39,11 +40,12 @@ function TooltipContent({
   Pick<
     TooltipPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
-  >) {
+  > &
+  Pick<TooltipPrimitive.Portal.Props, "container">) {
   const themeScope = useInternalThemeScope();
 
   return (
-    <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Portal container={container}>
       <TooltipPrimitive.Positioner
         align={align}
         alignOffset={alignOffset}
