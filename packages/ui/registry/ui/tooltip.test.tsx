@@ -134,27 +134,41 @@ test("the popup is portaled out of the trigger's subtree (Composition)", async (
 
 test("the side prop reaches the positioner and the popup (Side)", async () => {
   const SIDES = ["left", "top", "bottom", "right"] as const;
+  // ONE PROVIDER PER TOOLTIP, deliberately. `TooltipProvider` is Base UI's `FloatingDelayGroup`,
+  // and a delay group holds at most ONE open tooltip: as each member opens, the group calls
+  // `onOpenChange(false)` on whichever member was open before it. So four `defaultOpen` tooltips
+  // sharing one provider close each other down to one, and "four popups are in the document" is
+  // not a state Base UI ever reaches. This test used to assert exactly that and read the document
+  // synchronously, which meant it was racing the group's own layout effects — it saw four only
+  // while the closes had not landed yet, and on a loaded CI runner it saw three. Separate
+  // providers put each tooltip in its own group, which is what makes four simultaneously-open
+  // popups a real steady state and this count assertion meaningful. Grouping is not what this
+  // test is about; `side` is.
   const screen = await render(
-    <TooltipProvider>
-      <div
-        style={{
-          padding: 140,
-          display: "flex",
-          flexDirection: "column",
-          gap: 40,
-        }}
-      >
-        {SIDES.map((side) => (
-          <Tooltip key={side} defaultOpen>
+    <div
+      style={{
+        padding: 140,
+        display: "flex",
+        flexDirection: "column",
+        gap: 40,
+      }}
+    >
+      {SIDES.map((side) => (
+        <TooltipProvider key={side}>
+          <Tooltip defaultOpen>
             <TooltipTrigger aria-label={side}>{side}</TooltipTrigger>
             <TooltipContent side={side}>{`on ${side}`}</TooltipContent>
           </Tooltip>
-        ))}
-      </div>
-    </TooltipProvider>,
+        </TooltipProvider>
+      ))}
+    </div>,
   );
+  // Four portals, four separate commits: `render` resolves once React has flushed, but each
+  // Positioner still measures and mounts its own popup in a layout effect, so reading the
+  // document synchronously can observe two or three of them. Wait for the expected count
+  // instead — a popup that never mounts still fails, just after the retry window.
+  await expect.poll(() => popupsIn(screen.container).length).toBe(SIDES.length);
   const popups = popupsIn(screen.container);
-  expect(popups).toHaveLength(SIDES.length);
   for (const side of SIDES) {
     const popup = popups.find((p) => p.textContent?.includes(`on ${side}`));
     expect(popup, `no popup for side "${side}"`).toBeDefined();
