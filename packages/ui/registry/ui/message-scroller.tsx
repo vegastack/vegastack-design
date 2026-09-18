@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.9.1 sha256-RM5JHF/zNMH8k13+WIA5Li5UrU0/3xlR/+VlUHsoNdY=
+// @vegastack message-scroller@0.9.1 sha256-hXrUQ/HUqzp994SYXWsf909oCt3fPsAwvv/IserZ4Mk=
 
 "use client";
 
@@ -9,58 +9,22 @@ import {
   useMessageScrollerScrollable,
   useMessageScrollerVisibility,
 } from "@shadcn/react/message-scroller";
-import { ArrowDown } from "lucide-react";
 import { cn } from "@vegastack/design";
+
 import { Button } from "@/components/ui/button";
-import {
-  IconButton,
-  type IconButtonOwnProps,
-} from "@/components/ui/icon-button";
 import { usePrefersReducedMotion } from "@/components/ui/use-media-query";
+import { ArrowDownIcon } from "lucide-react";
 
-/**
- * `Button`'s own props, derived from the component. Batch 2 of the shadcn reset replaced the
- * hand-written `ButtonOwnProps` / `ButtonAppearance` pair with upstream's flat `variant` + `size`
- * API, so these two aliases are what a wrapper reads now. Batch 7 rebuilds this component on the
- * reset primitives and they go away with it.
- */
-type ButtonOwnProps = React.ComponentProps<typeof Button>;
-type ButtonAppearance = Pick<ButtonOwnProps, "variant">;
-
-/* ------------------------------------------------------------------------------------------------
- * MessageScroller — a virtualised, auto-scrolling conversation viewport built on the headless
- * `@shadcn/react/message-scroller` primitive (the one external primitive beyond Base UI, approved
- * for this component). It keeps a chat pinned to the latest message, preserves scroll position when
- * older messages prepend, tracks which message is the current anchor, and exposes a floating
- * scroll-to-end/start Button. Every class is a semantic token / our motion-ease tokens / the
- * `scroll-fade` + `scrollbar-*` utilities from `@vegastack/design-tokens/utilities.css`.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `MessageScrollerProvider`. */
-export type MessageScrollerProviderProps = React.ComponentPropsWithRef<
-  typeof MessageScrollerPrimitive.Provider
->;
-
-/**
- * `MessageScrollerProvider` — holds the scroll state (auto-scroll, anchor,
- * visibility). Wrap a `MessageScroller` in it; the hooks read from it.
- * @example <MessageScrollerProvider><MessageScroller /></MessageScrollerProvider>
- */
-export function MessageScrollerProvider(props: MessageScrollerProviderProps) {
+function MessageScrollerProvider(
+  props: React.ComponentProps<typeof MessageScrollerPrimitive.Provider>,
+) {
   return <MessageScrollerPrimitive.Provider {...props} />;
 }
 
-/** Props accepted by `MessageScroller`. */
-export type MessageScrollerProps = React.ComponentPropsWithRef<
-  typeof MessageScrollerPrimitive.Root
->;
-
-/**
- * `MessageScroller` — the root flex column that fills its parent and clips
- * overflow. Holds the `MessageScrollerViewport`.
- * @example <MessageScroller><MessageScrollerViewport /></MessageScroller>
- */
-export function MessageScroller({ className, ...props }: MessageScrollerProps) {
+function MessageScroller({
+  className,
+  ...props
+}: React.ComponentProps<typeof MessageScrollerPrimitive.Root>) {
   return (
     <MessageScrollerPrimitive.Root
       data-slot="message-scroller"
@@ -73,38 +37,20 @@ export function MessageScroller({ className, ...props }: MessageScrollerProps) {
   );
 }
 
-/** Props accepted by `MessageScrollerViewport`. */
-export type MessageScrollerViewportProps = React.ComponentPropsWithRef<
-  typeof MessageScrollerPrimitive.Viewport
->;
-
-/**
- * `MessageScrollerViewport` — the scrollable region. Fades its bottom edge
- * (`scroll-fade-b`), keeps a stable scrollbar gutter, and hides the scrollbar
- * during programmatic auto-scroll.
- *
- * **`data-pending-scroll`** (`@shadcn/react` ≥ 0.3.1): the primitive sets this on the root AND the
- * viewport from the first render until `defaultScrollPosition` (`"end"` / `"last-anchor"`) has been
- * applied in a layout effect. A server-rendered transcript would otherwise paint the TOP of the
- * thread for one frame before jumping to the bottom. We answer it with `invisible`
- * (`visibility: hidden`) rather than `hidden`/`display:none`: the primitive measures
- * `clientHeight` and `scrollHeight` to compute where to scroll, and a display-none viewport
- * measures zero. The attribute is cleared unconditionally on mount — with items it clears once the
- * scroll lands, and with an empty thread the primitive clears it directly — so this can never
- * strand a permanently invisible viewport (asserted in `message-scroller.test.tsx`).
- * @example <MessageScrollerViewport><MessageScrollerContent /></MessageScrollerViewport>
- */
-export function MessageScrollerViewport({
+function MessageScrollerViewport({
   className,
   ...props
-}: MessageScrollerViewportProps) {
+}: React.ComponentProps<typeof MessageScrollerPrimitive.Viewport>) {
   return (
     <MessageScrollerPrimitive.Viewport
       data-slot="message-scroller-viewport"
       className={cn(
-        // The ring turns inward: the scroller root clips (`overflow-hidden`), so an
-        // outward-offset outline on the viewport was being cut off (SP-03).
-        "size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content focus-visible:-outline-offset-2 data-autoscrolling:scrollbar-none data-pending-scroll:invisible",
+        // FOC-9: the viewport IS a tab stop (the primitive gives it `role="region"`,
+        // `aria-label="Messages"` and `tabIndex={0}`), and `MessageScroller` above it clips with
+        // `overflow-hidden` — so `base.css`'s outward `outline-offset: 1px` is drawn and then cut
+        // away by the ancestor. FOC-9 is the one permitted local deviation: pull the outline
+        // inside the clip. Nothing else about the affordance changes.
+        "size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content focus-visible:-outline-offset-2 data-autoscrolling:scrollbar-thumb-transparent data-autoscrolling:scrollbar-track-transparent data-pending-scroll:invisible",
         className,
       )}
       {...props}
@@ -112,53 +58,30 @@ export function MessageScrollerViewport({
   );
 }
 
-/** Props accepted by `MessageScrollerContent`. */
-export type MessageScrollerContentProps = React.ComponentPropsWithRef<
-  typeof MessageScrollerPrimitive.Content
->;
-
-/**
- * `MessageScrollerContent` — the inner column that holds the message items.
- * Grows to at least the viewport height so a short thread can still pin to the
- * bottom. Set `aria-busy` while a response is streaming.
- * @example <MessageScrollerContent aria-busy={streaming}>{messages}</MessageScrollerContent>
- */
-export function MessageScrollerContent({
+function MessageScrollerContent({
   className,
   ...props
-}: MessageScrollerContentProps) {
+}: React.ComponentProps<typeof MessageScrollerPrimitive.Content>) {
   return (
     <MessageScrollerPrimitive.Content
       data-slot="message-scroller-content"
-      className={cn("flex h-max min-h-full flex-col gap-8", className)}
+      className={cn("flex h-max min-h-full flex-col gap-6", className)}
       {...props}
     />
   );
 }
 
-/** Props accepted by `MessageScrollerItem`. */
-export type MessageScrollerItemProps = React.ComponentPropsWithRef<
-  typeof MessageScrollerPrimitive.Item
->;
-
-/**
- * `MessageScrollerItem` — one item in the thread. Uses `content-visibility` to
- * skip rendering off-screen items (the `contain-intrinsic-size` hint reserves a
- * sensible default height). Set `scrollAnchor` on the item that should stay in
- * view, and `messageId` to target it from `useMessageScroller().scrollToMessage`.
- * @example <MessageScrollerItem messageId="message-1">Hello</MessageScrollerItem>
- */
-export function MessageScrollerItem({
+function MessageScrollerItem({
   className,
   scrollAnchor = false,
   ...props
-}: MessageScrollerItemProps) {
+}: React.ComponentProps<typeof MessageScrollerPrimitive.Item>) {
   return (
     <MessageScrollerPrimitive.Item
       data-slot="message-scroller-item"
       scrollAnchor={scrollAnchor}
       className={cn(
-        "min-w-0 shrink-0 [contain-intrinsic-size:auto_calc(var(--spacing)*40)] [content-visibility:auto]",
+        "min-w-0 shrink-0 [contain-intrinsic-size:auto_10rem] [content-visibility:auto]",
         className,
       )}
       {...props}
@@ -166,51 +89,22 @@ export function MessageScrollerItem({
   );
 }
 
-/** Props accepted by `MessageScrollerButton`. */
-export type MessageScrollerButtonProps = React.ComponentPropsWithRef<
-  typeof MessageScrollerPrimitive.Button
-> &
-  Pick<IconButtonOwnProps, "size"> &
-  ButtonAppearance;
-
-/**
- * `MessageScrollerButton` — the floating "scroll to end" (or "start") affordance.
- * Renders our `IconButton`; it docks in only when the viewport is scrolled away
- * from the target edge (`data-active`), using the shared `motion-dock-in` /
- * `motion-dock-out` pair — 150ms in, 100ms out, translate and fade, no scale.
- *
- * Defaults to an `outline` `sm` icon button with a down arrow: `outline` IS a
- * page-coloured face with the one hairline and the surface-ladder hover, which
- * is what this control used to reach by overriding `variant="secondary"` with
- * `bg-background border-border hover:bg-muted` inline (audit B9-08).
- *
- * **Reduced motion:** the vendored primitive defaults its click-triggered scroll to
- * `behavior: "smooth"` (see `MessageScrollerButtonProps["behavior"]`, from
- * `@shadcn/react/message-scroller`) with no reduced-motion awareness. This wrapper checks
- * `(prefers-reduced-motion: reduce)` (via an SSR-safe `matchMedia` hook) and, when the user
- * prefers reduced motion, overrides the scroll to `behavior: "auto"` (an instant jump) —
- * regardless of what `behavior` the consumer passes — so the click-to-scroll affordance never
- * animates for someone who has asked the OS not to animate. Pass an explicit `behavior` to
- * control the non-reduced-motion case; it has no effect while reduced motion is preferred.
- *
- * @example
- * <MessageScrollerButton direction="end" />
- */
-export function MessageScrollerButton({
+function MessageScrollerButton({
   direction = "end",
   className,
   children,
   render,
-  variant = "outline",
-  size = "sm",
+  variant = "secondary",
+  size = "icon-sm",
   behavior = "smooth",
   ...props
-}: MessageScrollerButtonProps) {
+}: React.ComponentProps<typeof MessageScrollerPrimitive.Button> &
+  Pick<React.ComponentProps<typeof Button>, "variant" | "size">) {
+  // MOT-5: the primitive scrolls with `behavior: "smooth"` and knows nothing about
+  // `prefers-reduced-motion`. The global reset in `base.css` cannot reach it — a `scrollTo` that
+  // asks for `smooth` explicitly outranks the `scroll-behavior` property — so the one place the
+  // preference can be honoured is here, and it overrides whatever the consumer passed.
   const prefersReducedMotion = usePrefersReducedMotion();
-  const resolvedBehavior: ScrollBehavior = prefersReducedMotion
-    ? "auto"
-    : behavior;
-
   return (
     <MessageScrollerPrimitive.Button
       data-slot="message-scroller-button"
@@ -218,38 +112,33 @@ export function MessageScrollerButton({
       data-variant={variant}
       data-size={size}
       direction={direction}
-      behavior={resolvedBehavior}
+      behavior={prefersReducedMotion ? "auto" : behavior}
       className={cn(
-        // Docked to an edge of the viewport, horizontally centred. The enter/exit grammar is the
-        // shared `motion-dock-*` pair (150 in / 100 out, no scale — audit B9-08/B8-11); only the
-        // per-edge DISTANCE is stated here, which is what the pair deliberately leaves to the dock.
-        "absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2",
-        "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out",
-        "data-[direction=end]:bottom-4 data-[direction=end]:data-[active=false]:translate-y-full",
-        "data-[direction=start]:top-4 data-[direction=start]:data-[active=false]:-translate-y-full data-[direction=start]:[&_svg]:rotate-180",
+        "absolute inset-s-1/2 -translate-x-1/2 rtl:translate-x-1/2 border-border bg-background text-foreground transition-[translate,scale,opacity] duration-200 hover:bg-muted hover:text-foreground data-[active=false]:pointer-events-none data-[active=false]:scale-95 data-[active=false]:opacity-0 data-[active=false]:duration-400 data-[active=false]:ease-[cubic-bezier(0.7,0,0.84,0)] data-[active=true]:translate-y-0 data-[active=true]:scale-100 data-[active=true]:opacity-100 data-[active=true]:ease-[cubic-bezier(0.23,1,0.32,1)] data-[direction=end]:bottom-4 data-[direction=end]:data-[active=false]:translate-y-full data-[direction=start]:top-4 data-[direction=start]:data-[active=false]:-translate-y-full rtl:translate-x-1/2 data-[direction=start]:[&_svg]:rotate-180",
         className,
       )}
-      render={
-        render ?? (
-          <IconButton
-            {...({ variant } as ButtonAppearance)}
-            size={size}
-            aria-label={
-              direction === "end" ? "Scroll to end" : "Scroll to start"
-            }
-          />
-        )
-      }
+      render={render ?? <Button variant={variant} size={size} />}
       {...props}
     >
-      {/* Icon-only by contract: the accessible name comes from the `IconButton`'s `aria-label`
-          above, so a `children` override should be an icon, never visible text. */}
-      {children ?? <ArrowDown />}
+      {children ?? (
+        <>
+          <ArrowDownIcon />
+          <span className="sr-only">
+            {direction === "end" ? "Scroll to end" : "Scroll to start"}
+          </span>
+        </>
+      )}
     </MessageScrollerPrimitive.Button>
   );
 }
 
 export {
+  MessageScrollerProvider,
+  MessageScroller,
+  MessageScrollerViewport,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerButton,
   useMessageScroller,
   useMessageScrollerScrollable,
   useMessageScrollerVisibility,

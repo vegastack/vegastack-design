@@ -216,7 +216,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/spinner", "@vegastack/progress"],
+      "registryDependencies": ["@vegastack/button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/attachment.tsx",
@@ -553,7 +553,7 @@
       "description": "A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.",
       "categories": ["data-display"],
       "dependencies": [
-        "recharts@^3.8.0",
+        "recharts@^3.10.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12217,12 +12217,12 @@
       "categories": ["communication"],
       "dependencies": [
         "@shadcn/react@^0.3.1",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/icon-button",
         "@vegastack/use-media-query"
       ],
       "files": [
@@ -12577,6 +12577,32 @@
       "meta": {
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "questionnaire",
+      "type": "registry:ui",
+      "title": "Questionnaire",
+      "description": "A guided one-question-at-a-time form — choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.",
+      "categories": ["communication"],
+      "dependencies": [
+        "@shadcn/react@^0.3.1",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": ["@vegastack/button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/questionnaire.tsx",
+          "type": "registry:ui",
+          "target": "@ui/questionnaire.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
+        "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.9.1"
       }
     },

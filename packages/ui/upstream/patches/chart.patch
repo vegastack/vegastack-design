@@ -1,0 +1,439 @@
+# component: chart
+# decisions: DOC-1, DOC-2, FOC-1, FOC-9
+# hunks:
+#   FOC-1: `[&_.recharts-surface]:outline-hidden` becomes
+#     `[&_.recharts-surface:not(:focus-visible)]:outline-hidden`. MEASURED, not assumed:
+#     recharts' `accessibilityLayer` (default `true` since 3.9.2) renders the ROOT `<svg>` — the
+#     element carrying `.recharts-surface` — with `role="application"` and `tabIndex={0}`, so the
+#     chart is a keyboard-reachable control. `outline-hidden` compiles to
+#     `--tw-outline-style: none` ON THAT ELEMENT, and every outline utility including
+#     `base.css`'s global `:focus-visible` resolves `outline-style: var(--tw-outline-style)`, so
+#     upstream's unscoped reset silently defeats the one focus affordance on the one element the
+#     component made focusable. The reset still applies at rest, which is all it was ever for.
+#     This is an UPSTREAM DEFECT fixed under an existing row, not a new decision. FLAGGED FOR MK,
+#     and worth reporting to shadcn. `chart.test.tsx` asserts the focused surface paints.
+#   FOC-9: `[&_svg:focus-visible]:-outline-offset-2` — the plot fills the surface edge to edge,
+#     so the outward `outline-offset: 1px` would be drawn over the chart's own frame. FOC-9 is
+#     the one permitted local deviation, and it moves the offset ONLY.
+#   Nothing else. `ChartTooltipContent`'s `shadow-xl`, `border-border/50` and `rounded-lg`, and
+#     the `#ccc`/`#fff` attribute selectors that retarget recharts' hard-coded defaults, are
+#     upstream's verbatim — BRD-1, BRD-4 and DOC-10 all resolve as **shadcn**, and the two hex
+#     literals are recharts' own values being MATCHED in a selector, not colours being authored,
+#     which is why `design-lint`'s `hex-color` rule reads them in an attribute-selector position
+#     and upstream's own file is what defines them. `--chart-1…8` and `--chart-single` are
+#     untouched by this file: the palette is the token layer's (MK 2026-09-18, Batch 1), and
+#     upstream's chart blocks name `--chart-1…5`, which keep working.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/chart.tsx b/chart.tsx
+index 09c6329..c18ef5c 100644
+--- a/chart.tsx
++++ b/chart.tsx
+@@ -1,41 +1,43 @@
+-"use client"
++// @vegastack chart@0.9.1 sha256-DL68LmDf4jNsCvU6OwfB8TZMtoJR8SzVE81ylFF80II=
+ 
+-import * as React from "react"
+-import { cn } from "cn"
+-import * as RechartsPrimitive from "recharts"
+-import type { TooltipValueType } from "recharts"
++"use client";
++
++import * as React from "react";
++import { cn } from "@vegastack/design";
++import * as RechartsPrimitive from "recharts";
++import type { TooltipValueType } from "recharts";
+ 
+ // Format: { THEME_NAME: CSS_SELECTOR }
+-const THEMES = { light: "", dark: ".dark" } as const
++const THEMES = { light: "", dark: ".dark" } as const;
+ 
+-const INITIAL_DIMENSION = { width: 320, height: 200 } as const
+-type TooltipNameType = number | string
++const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
++type TooltipNameType = number | string;
+ 
+ export type ChartConfig = Record<
+   string,
+   {
+-    label?: React.ReactNode
+-    icon?: React.ComponentType
++    label?: React.ReactNode;
++    icon?: React.ComponentType;
+   } & (
+     | { color?: string; theme?: never }
+     | { color?: never; theme: Record<keyof typeof THEMES, string> }
+   )
+->
++>;
+ 
+ type ChartContextProps = {
+-  config: ChartConfig
+-}
++  config: ChartConfig;
++};
+ 
+-const ChartContext = React.createContext<ChartContextProps | null>(null)
++const ChartContext = React.createContext<ChartContextProps | null>(null);
+ 
+ function useChart() {
+-  const context = React.useContext(ChartContext)
++  const context = React.useContext(ChartContext);
+ 
+   if (!context) {
+-    throw new Error("useChart must be used within a <ChartContainer />")
++    throw new Error("useChart must be used within a <ChartContainer />");
+   }
+ 
+-  return context
++  return context;
+ }
+ 
+ function ChartContainer({
+@@ -46,17 +48,17 @@ function ChartContainer({
+   initialDimension = INITIAL_DIMENSION,
+   ...props
+ }: React.ComponentProps<"div"> & {
+-  config: ChartConfig
++  config: ChartConfig;
+   children: React.ComponentProps<
+     typeof RechartsPrimitive.ResponsiveContainer
+-  >["children"]
++  >["children"];
+   initialDimension?: {
+-    width: number
+-    height: number
+-  }
++    width: number;
++    height: number;
++  };
+ }) {
+-  const uniqueId = React.useId()
+-  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`
++  const uniqueId = React.useId();
++  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`;
+ 
+   return (
+     <ChartContext.Provider value={{ config }}>
+@@ -64,8 +66,22 @@ function ChartContainer({
+         data-slot="chart"
+         data-chart={chartId}
+         className={cn(
+-          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
+-          className
++          // FOC-1: upstream's last reset is `[&_.recharts-surface]:outline-hidden`, and
++          // `.recharts-surface` IS the element recharts makes focusable — with
++          // `accessibilityLayer` (default `true` since 3.9.2) `RootSurface` renders the root
++          // `<svg>` with `role="application"` and `tabIndex={0}`. `outline-hidden` compiles to
++          // `--tw-outline-style: none` on the element itself, and every outline utility —
++          // `base.css`'s global `:focus-visible` included — resolves
++          // `outline-style: var(--tw-outline-style)`, so left unscoped it silently defeats the
++          // one focus affordance on the one element the component made keyboard-reachable.
++          // Scoping it to `:not(:focus-visible)` keeps upstream's reset everywhere it was meant
++          // (the resting surface) and gives the focused chart its outline back.
++          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface:not(:focus-visible)]:outline-hidden",
++          // FOC-9: the plot area fills the surface edge to edge, so an outward offset would be
++          // drawn over the chart's own frame. Width, colour and token stay in `base.css`; only
++          // the offset inverts, which is FOC-9's one permitted local deviation.
++          "[&_svg:focus-visible]:-outline-offset-2",
++          className,
+         )}
+         {...props}
+       >
+@@ -77,16 +93,16 @@ function ChartContainer({
+         </RechartsPrimitive.ResponsiveContainer>
+       </div>
+     </ChartContext.Provider>
+-  )
++  );
+ }
+ 
+ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+   const colorConfig = Object.entries(config).filter(
+-    ([, config]) => config.theme ?? config.color
+-  )
++    ([, config]) => config.theme ?? config.color,
++  );
+ 
+   if (!colorConfig.length) {
+-    return null
++    return null;
+   }
+ 
+   return (
+@@ -100,20 +116,20 @@ ${colorConfig
+   .map(([key, itemConfig]) => {
+     const color =
+       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
+-      itemConfig.color
+-    return color ? `  --color-${key}: ${color};` : null
++      itemConfig.color;
++    return color ? `  --color-${key}: ${color};` : null;
+   })
+   .join("\n")}
+ }
+-`
++`,
+           )
+           .join("\n"),
+       }}
+     />
+-  )
+-}
++  );
++};
+ 
+-const ChartTooltip = RechartsPrimitive.Tooltip
++const ChartTooltip = RechartsPrimitive.Tooltip;
+ 
+ function ChartTooltipContent({
+   active,
+@@ -131,11 +147,11 @@ function ChartTooltipContent({
+   labelKey,
+ }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+   React.ComponentProps<"div"> & {
+-    hideLabel?: boolean
+-    hideIndicator?: boolean
+-    indicator?: "line" | "dot" | "dashed"
+-    nameKey?: string
+-    labelKey?: string
++    hideLabel?: boolean;
++    hideIndicator?: boolean;
++    indicator?: "line" | "dot" | "dashed";
++    nameKey?: string;
++    labelKey?: string;
+   } & Omit<
+     RechartsPrimitive.DefaultTooltipContentProps<
+       TooltipValueType,
+@@ -143,34 +159,34 @@ function ChartTooltipContent({
+     >,
+     "accessibilityLayer"
+   >) {
+-  const { config } = useChart()
++  const { config } = useChart();
+ 
+   const tooltipLabel = React.useMemo(() => {
+     if (hideLabel || !payload?.length) {
+-      return null
++      return null;
+     }
+ 
+-    const [item] = payload
+-    const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`
+-    const itemConfig = getPayloadConfigFromPayload(config, item, key)
++    const [item] = payload;
++    const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
++    const itemConfig = getPayloadConfigFromPayload(config, item, key);
+     const value =
+       !labelKey && typeof label === "string"
+         ? (config[label]?.label ?? label)
+-        : itemConfig?.label
++        : itemConfig?.label;
+ 
+     if (labelFormatter) {
+       return (
+         <div className={cn("font-medium", labelClassName)}>
+           {labelFormatter(value, payload)}
+         </div>
+-      )
++      );
+     }
+ 
+     if (!value) {
+-      return null
++      return null;
+     }
+ 
+-    return <div className={cn("font-medium", labelClassName)}>{value}</div>
++    return <div className={cn("font-medium", labelClassName)}>{value}</div>;
+   }, [
+     label,
+     labelFormatter,
+@@ -179,19 +195,19 @@ function ChartTooltipContent({
+     labelClassName,
+     config,
+     labelKey,
+-  ])
++  ]);
+ 
+   if (!active || !payload?.length) {
+-    return null
++    return null;
+   }
+ 
+-  const nestLabel = payload.length === 1 && indicator !== "dot"
++  const nestLabel = payload.length === 1 && indicator !== "dot";
+ 
+   return (
+     <div
+       className={cn(
+         "grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+-        className
++        className,
+       )}
+     >
+       {!nestLabel ? tooltipLabel : null}
+@@ -199,16 +215,16 @@ function ChartTooltipContent({
+         {payload
+           .filter((item) => item.type !== "none")
+           .map((item, index) => {
+-            const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`
+-            const itemConfig = getPayloadConfigFromPayload(config, item, key)
+-            const indicatorColor = color ?? item.payload?.fill ?? item.color
++            const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
++            const itemConfig = getPayloadConfigFromPayload(config, item, key);
++            const indicatorColor = color ?? item.payload?.fill ?? item.color;
+ 
+             return (
+               <div
+                 key={index}
+                 className={cn(
+                   "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
+-                  indicator === "dot" && "items-center"
++                  indicator === "dot" && "items-center",
+                 )}
+               >
+                 {formatter && item?.value !== undefined && item.name ? (
+@@ -228,7 +244,7 @@ function ChartTooltipContent({
+                               "w-0 border-[1.5px] border-dashed bg-transparent":
+                                 indicator === "dashed",
+                               "my-0.5": nestLabel && indicator === "dashed",
+-                            }
++                            },
+                           )}
+                           style={
+                             {
+@@ -242,7 +258,7 @@ function ChartTooltipContent({
+                     <div
+                       className={cn(
+                         "flex flex-1 justify-between leading-none",
+-                        nestLabel ? "items-end" : "items-center"
++                        nestLabel ? "items-end" : "items-center",
+                       )}
+                     >
+                       <div className="grid gap-1.5">
+@@ -262,14 +278,14 @@ function ChartTooltipContent({
+                   </>
+                 )}
+               </div>
+-            )
++            );
+           })}
+       </div>
+     </div>
+-  )
++  );
+ }
+ 
+-const ChartLegend = RechartsPrimitive.Legend
++const ChartLegend = RechartsPrimitive.Legend;
+ 
+ function ChartLegendContent({
+   className,
+@@ -278,13 +294,13 @@ function ChartLegendContent({
+   verticalAlign = "bottom",
+   nameKey,
+ }: React.ComponentProps<"div"> & {
+-  hideIcon?: boolean
+-  nameKey?: string
++  hideIcon?: boolean;
++  nameKey?: string;
+ } & RechartsPrimitive.DefaultLegendContentProps) {
+-  const { config } = useChart()
++  const { config } = useChart();
+ 
+   if (!payload?.length) {
+-    return null
++    return null;
+   }
+ 
+   return (
+@@ -292,20 +308,20 @@ function ChartLegendContent({
+       className={cn(
+         "flex items-center justify-center gap-4",
+         verticalAlign === "top" ? "pb-3" : "pt-3",
+-        className
++        className,
+       )}
+     >
+       {payload
+         .filter((item) => item.type !== "none")
+         .map((item, index) => {
+-          const key = `${nameKey ?? item.dataKey ?? "value"}`
+-          const itemConfig = getPayloadConfigFromPayload(config, item, key)
++          const key = `${nameKey ?? item.dataKey ?? "value"}`;
++          const itemConfig = getPayloadConfigFromPayload(config, item, key);
+ 
+           return (
+             <div
+               key={index}
+               className={cn(
+-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
++                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
+               )}
+             >
+               {itemConfig?.icon && !hideIcon ? (
+@@ -320,19 +336,19 @@ function ChartLegendContent({
+               )}
+               {itemConfig?.label}
+             </div>
+-          )
++          );
+         })}
+     </div>
+-  )
++  );
+ }
+ 
+ function getPayloadConfigFromPayload(
+   config: ChartConfig,
+   payload: unknown,
+-  key: string
++  key: string,
+ ) {
+   if (typeof payload !== "object" || payload === null) {
+-    return undefined
++    return undefined;
+   }
+ 
+   const payloadPayload =
+@@ -340,15 +356,15 @@ function getPayloadConfigFromPayload(
+     typeof payload.payload === "object" &&
+     payload.payload !== null
+       ? payload.payload
+-      : undefined
++      : undefined;
+ 
+-  let configLabelKey: string = key
++  let configLabelKey: string = key;
+ 
+   if (
+     key in payload &&
+     typeof payload[key as keyof typeof payload] === "string"
+   ) {
+-    configLabelKey = payload[key as keyof typeof payload] as string
++    configLabelKey = payload[key as keyof typeof payload] as string;
+   } else if (
+     payloadPayload &&
+     key in payloadPayload &&
+@@ -356,10 +372,10 @@ function getPayloadConfigFromPayload(
+   ) {
+     configLabelKey = payloadPayload[
+       key as keyof typeof payloadPayload
+-    ] as string
++    ] as string;
+   }
+ 
+-  return configLabelKey in config ? config[configLabelKey] : config[key]
++  return configLabelKey in config ? config[configLabelKey] : config[key];
+ }
+ 
+ export {
+@@ -369,4 +385,4 @@ export {
+   ChartLegend,
+   ChartLegendContent,
+   ChartStyle,
+-}
++};

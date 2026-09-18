@@ -245,11 +245,14 @@ const FAINT_DECORATIVE_ALLOWLIST =
 // Native controls are allowed only where the component owns a semantic adapter/integration that a
 // higher-level VegaStack control cannot replace. Exact per-tag counts fail closed in BOTH directions:
 // adding a control and removing the last reviewed control require re-auditing this rationale list.
+// `/attachment.tsx` USED to be the first entry here, counting one native-button fallback. Batch 6
+// of the shadcn reset (2026-09-18) reset the file onto upstream, whose `AttachmentTrigger` reaches
+// its button through `useRender({ defaultTagName: "button" })` and writes no `<button>` JSX at all,
+// so the count went to zero. The rule fails closed in both directions precisely so that shows up:
+// the entry is DELETED rather than carried at `{}`, because an exemption that can no longer be
+// reached is an exemption that should not exist (the same call Batch 5 made on the geometry lane's
+// `resizableNested` exclusion).
 const RAW_INTERACTIVE_EXEMPTIONS = new Map([
-  [
-    "/attachment.tsx",
-    { counts: { button: 1 }, rationale: "useRender native-button fallback" },
-  ],
   [
     "/dropzone.tsx",
     {
@@ -496,6 +499,20 @@ const RAW_MOTION_FILE_ALLOWLIST = /apps\/docs\/components\/foundations\.tsx$/;
 // semantic theme colors; Satori likewise needs concrete paint values at image-render time.
 const HEX_COLOR_FILE_ALLOWLIST =
   /apps\/docs\/(?:lib\/og\.tsx|app\/(?:layout\.tsx|manifest\.ts))$/;
+/**
+ * A hex inside an ATTRIBUTE-SELECTOR VALUE is a colour being TARGETED, not one being authored.
+ *
+ * Batch 6 of the shadcn reset (2026-09-18) is why this exists. Upstream's `chart.tsx` retargets
+ * recharts' own hard-coded defaults with `[&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50`
+ * and `[&_.recharts-dot[stroke='#fff']]:stroke-transparent` — the `#ccc` and `#fff` are recharts'
+ * values being MATCHED so a semantic token can replace them, which is COL-20 being enforced rather
+ * than broken. A file allowlist would have switched the rule off for the whole of `chart.tsx`,
+ * including its real declarations; masking by POSITION leaves every authored hex in every file
+ * rejected and reaches only the selector position. Both halves are observed in
+ * `tooling/verify-design-lint-structural.mjs` — a bare `#ccc` in the negative specimen, a
+ * `[stroke='#ccc']` selector in the positive one.
+ */
+const SELECTOR_HEX = /\[[^\][]*?=(['"])#[0-9a-fA-F]{3,8}\1\]/g;
 const STYLE_LITERAL = /#[0-9a-fA-F]{3,8}\b|\b\d+(?:\.\d+)?(?:px|rem)\b/;
 // Extract the balanced `{…}` expression of a `style={…}` attribute starting at the `{` after `=`.
 function readBalancedBraces(src, openIdx) {
@@ -764,8 +781,11 @@ for (const root of ROOTS) {
         return;
       for (const { id, re, msg } of RULES) {
         if (id === "hex-color" && HEX_COLOR_FILE_ALLOWLIST.test(file)) continue;
+        // `hex-color` reads the line with attribute-selector VALUES masked out — see SELECTOR_HEX.
+        const subject =
+          id === "hex-color" ? line.replace(SELECTOR_HEX, "[]") : line;
         re.lastIndex = 0;
-        if (re.test(line)) {
+        if (re.test(subject)) {
           console.log(`${file}:${i + 1} [${id}] ${msg}\n    ${trimmed}`);
           violations++;
         }

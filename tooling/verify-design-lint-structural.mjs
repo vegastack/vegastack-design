@@ -286,6 +286,7 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <div className="h-[18.4px] rounded-[4px] p-[3px] text-[0.8rem]" />{/* upstream's own arbitrary values (DOC-10 = shadcn) */}
     <div className="rounded-[min(var(--radius-md),10px)]" />{/* upstream's size-tier radius clamp */}
     <div className="bg-black/10 supports-backdrop-filter:backdrop-blur-xs" />{/* upstream's modal scrim (OVL-3 = shadcn) */}
+    <div className="[&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-dot[stroke='#fff']]:stroke-transparent" />{/* a hex in an ATTRIBUTE-SELECTOR VALUE targets recharts' own default so a token can replace it — COL-20 enforced, not broken (Batch 6) */}
     <div className="text-4xl font-semibold tracking-tight" />{/* off-scale size, heavy weight and raw tracking are upstream's (TYP-4/TYP-6/TYP-8) */}
     <div className="z-50 cursor-default" />{/* upstream's z band and its menu-item cursor (OVL-2/INT-10) */}
     <div className="bg-card hover:bg-muted" />{/* a hover with no pressed rung is upstream's norm (INT-4 = shadcn) */}

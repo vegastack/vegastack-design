@@ -109,6 +109,7 @@ export * from "./message";
 export * from "./bubble";
 export * from "./attachment";
 export * from "./message-scroller";
+export * from "./questionnaire";
 export * from "./item";
 export * from "./chart";
 export * from "./animated-number";
