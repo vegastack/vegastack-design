@@ -22,12 +22,12 @@ generated:
       sha256: "b1200c778288683d702c27cc4b713aefc6afc075790a16adac428fdc64499748"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 20237
-      sha256: "6a8d36d00e9f778853a08534f5c1727d531a5ea5b28e6ca6be19124b5513ffbc"
+      bytes: 20115
+      sha256: "f2177cf09bfd55252742efa43d0f42f5968b09861253b08ec8192bdb5808f8cd"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 11748
-      sha256: "9277ae2cc40e29747729c3635d114447cef016c9d193cd5085b53858f4c54cd1"
+      bytes: 11733
+      sha256: "9d05d0fe63793e304169db0240048da2dfc9b0213bdf617a77ae4fe99a938791"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -49,11 +49,11 @@ themes:
     brand:
       type: "color"
       value: "oklch(0.6 0.17 148)"
-      description: "The phosphor-green brand accent, LIGHT half (theme-split per CX-9): MARKER roles (live/AI-state dot, sparkline endpoint, eyebrow highlight, terminal prompt glyph) plus the `cta` Button's faint wash and its accent outline — the one sanctioned button, D17/D18. 3.5:1 on card/background — meaningful glyphs pass WCAG 1.4.11, and it is NOT a text ink: brand LABELS take `brand-text`. Never a headline colour, a full-strength surface, or a decorative wash beyond one radial."
+      description: "The phosphor-green brand accent, LIGHT half (theme-split): MARKER roles only — a live/AI-state dot, a sparkline endpoint, an eyebrow highlight, a terminal prompt glyph. 3.5:1 on card/background, so a meaningful glyph passes WCAG 1.4.11, and it is NOT a text ink: brand LABELS take `brand-text`. Never a headline colour, never a functional state colour, never a full-strength surface."
     brand-text:
       type: "color"
       value: "oklch(0.46 0.17 148)"
-      description: "The PAGE-READABLE brand ink, LIGHT half — the same role every chromatic family ships as `<family>-text`. `brand` itself is a 3.5:1 marker and fails WCAG 1.4.3 as a label (measured 3.41:1 for the `cta` Button's mono label over its own faint wash, 2026-09-09), so any brand-coloured TEXT reads through this token instead. Gated at 4.5:1 by contrast-check over background/card/popover/surface-1–3 and over the brand wash at alpha-surface-faint/hover/pressed."
+      description: "The PAGE-READABLE brand ink, LIGHT half — the same role every chromatic family ships as `<family>-text`. `brand` itself is a 3.5:1 MARKER value (a live dot, a sparkline endpoint, a terminal prompt glyph) and fails WCAG 1.4.3 as a label, so any brand-coloured TEXT reads through this token instead. Gated at 4.5:1 by contrast-check over background, card, popover, muted, accent, secondary and sidebar."
     card:
       type: "color"
       value: "oklch(1 0 0)"
@@ -123,7 +123,7 @@ themes:
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
-      description: "Display tier face — same family as sans today, split as a token so marketing can retune independently."
+      description: "Display tier face — the same family as sans today, split as a token so a consumer can retune large type without moving body copy."
     font-family-mono:
       type: "fontFamily"
       value: "'Geist Mono', monospace"
@@ -133,7 +133,7 @@ themes:
     font-family-serif:
       type: "fontFamily"
       value: "Newsreader, serif"
-      description: "Serif ACCENT (D17): display emphasis words + pull-quotes only, never running text. Newsreader (opsz axis) until Geist Serif ships."
+      description: "Serif accent: display emphasis words and pull-quotes only, never running text. Newsreader (opsz axis) until Geist Serif ships."
     foreground:
       type: "color"
       value: "oklch(0.145 0 0)"
@@ -362,7 +362,7 @@ themes:
     brand-text:
       type: "color"
       value: "oklch(0.86 0.21 148)"
-      description: "The page-readable brand ink, DARK half. On the dark and marketing grounds the marker value already measures 12.2:1 as a label, so brand-text and brand carry the SAME value here — the split exists because the light half cannot."
+      description: "The page-readable brand ink, DARK half. On the dark ground the marker value already measures 12.2:1 as a label, so brand-text and brand carry the SAME value here — the split exists because the light half cannot."
     card:
       type: "color"
       value: "oklch(0.205 0 0)"
@@ -423,7 +423,7 @@ themes:
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
-      description: "Display tier face — same family as sans today, split as a token so marketing can retune independently."
+      description: "Display tier face — the same family as sans today, split as a token so a consumer can retune large type without moving body copy."
     font-family-mono:
       type: "fontFamily"
       value: "'Geist Mono', monospace"
@@ -433,7 +433,7 @@ themes:
     font-family-serif:
       type: "fontFamily"
       value: "Newsreader, serif"
-      description: "Serif ACCENT (D17): display emphasis words + pull-quotes only, never running text. Newsreader (opsz axis) until Geist Serif ships."
+      description: "Serif accent: display emphasis words and pull-quotes only, never running text. Newsreader (opsz axis) until Geist Serif ships."
     foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -685,970 +685,492 @@ recipes:
 
 # VegaStack design
 
-> **SUPERSEDED FOR THE FOUNDATIONS, 2026-09-18 — the shadcn reset is under way.**
->
-> This document still describes the pre-reset system: a warm neutral ramp, a three-rung surface
-> ladder, a 22-entry alpha ladder, a 14px product type scale with named role utilities, a 400/500
-> weight ladder, a 12px radius cap, one overlay shadow role, named z-index bands and a ban on colour
-> transitions. **None of that is true any more.** Batch 1 of
-> `docs/plans/2026-09-18-shadcn-reset/` rebuilt the token contract on shadcn `base-nova`'s `neutral`
-> base, and what this system keeps on top of upstream is the 58 decisions that register marks
-> **ours** — the focus outline with no glow anywhere, the hand cursor, the accessibility set, the
-> four status families in shadcn's own shape, our chart and tag palettes, and our own motion
-> utilities.
->
-> **The component prose is stale in the same way, component by component, as the reset reaches it.**
-> Batch 2 put the 17 action and primitive components back on upstream; Batch 3 did the same for the
-> 15 form components — input, input-group, input-otp, textarea, checkbox, radio-group, switch,
-> slider, select, native-select, combobox, field, form, calendar and direction; Batch 4 for the 12
-> overlays — dialog, alert-dialog, sheet, drawer, popover, hover-card, dropdown-menu, context-menu,
-> menubar, command, toast and sonner; Batch 5 for the 12 navigation and layout components —
-> sidebar, tabs, navigation-menu, breadcrumb, pagination, accordion, collapsible, scroll-area,
-> resizable, progress, table and carousel. Everything this file says about their props, their sizes,
-> their variants and their chrome describes the pre-reset fork: there is no `fieldControl` recipe,
-> no `size` axis on Input, Textarea, Checkbox or the radio item, no `variant`/`thumb` axis on
-> Slider, and `Field` carries its label, description and error as CHILDREN rather than props.
-> Among the overlays: Dialog has no `size` axis (a `max-width` utility retunes it) and its footer is
-> a `bg-muted/50` band; Sheet is Base UI's **Dialog** again, with `side` on `SheetContent`, and the
-> swipe-and-snap behaviour it used to carry now lives in **Drawer**, a separate component that is
-> new here; `command` is cmdk rather than a Base UI Combobox; Toast's imperative surface is
-> `toast.add` / `toast.close` / `toast.promise` rather than `toast()` and its `.success`-style
-> helpers; and **`sonner` ships beside `toast` as a second sanctioned engine**, which is why
-> `next-themes` is read in two registry items again rather than one. Among the navigation and
-> layout components: **Tabs' default list is upstream's grey pill track**, not the underline — the
-> variants are `default` and `line` and there is no `pill`, no `chip` and no `count` badge (API-10
-> resolves as **shadcn**); **table body cells do not wrap** — every cell is `whitespace-nowrap`, the
-> head is `h-10 font-medium text-foreground`, a hovered row is `hover:bg-muted/50` and a selected
-> one `data-[state=selected]:bg-muted` (LAY-6, COL-6 and COL-8 all resolve as **shadcn**), and
-> upstream's `Table` wraps itself in a plain overflow container rather than a named, keyboard-
-> reachable scroll region; `Progress` is five parts (`Progress`, `ProgressTrack`,
-> `ProgressIndicator`, `ProgressLabel`, `ProgressValue`) with no `size` axis; `ScrollArea` renders
-> one vertical scrollbar and exports `ScrollBar` for a second axis, with no `orientation` prop;
-> `Sidebar` is divs rather than a `<nav>`, so the landmark is `AppShellSidebar`'s; and **`carousel`
-> is new here**, on `embla-carousel-react`. Batch 6 closed the shared set with the seven data and
-> AI/chat components — chart, attachment, bubble, marker, message, message-scroller and
-> questionnaire — at which point **all 62 upstream components that ship a file are on upstream**.
-> Among those: `Attachment`'s lifecycle states are upstream's `idle · uploading · processing ·
-error · done` (there is no `complete`, no `disabled` state, no `AttachmentProgress` and no `live`
-> prop on `AttachmentDescription`), and it gains an `xs` size and an `AttachmentAction` part;
-> `Bubble` and `Message` have no `animateIn` — a thread's entrance animation is the app's; `Chart`
-> exports `ChartStyle` and no `ChartGrid`, so a grid is recharts' own `CartesianGrid`, and its
-> `ChartConfig` takes any colour string rather than a token union; and **`questionnaire` is new
-> here**, on `@shadcn/react/questionnaire`, the second sanctioned subpath of the package that
-> already drives `message-scroller`. **The 8-hue chart palette is the one foundation deliberately
-> NOT taken from upstream** (MK, 2026-09-18): shadcn's `neutral` base ships a greyscale `chart-1…5`
-> ramp, so `--chart-1…8` and `--chart-single` stay ours, retuned and contrast-gated in Batch 1, and
-> the names upstream's own chart blocks consume keep working. The live contract for each component
-> is its own docs page, which ends in a `## Deviations` section naming every decision ID its patch
-> implements.
->
-> The parts of this file that ARE current are the generated ones: the token tables, the recipe set
-> and the resolved values, all of which `pnpm design:sync:check` re-derives from the live DTCG
-> sources on every PR. The PROSE is rewritten in Batch 9, deliberately and in one pass, because a
-> half-rewritten design contract is worse than an openly stale one. Until then: for a token name or
-> a value, trust the tables here and `packages/design-tokens/dist/theme.css`; for a RULE, trust
-> `tooling/design-lint.mjs`, `skills/internal/review/references/lint-rules.md` and
-> `skills/internal/component/references/tokens.md`, all three of which were rebuilt in Batch 1.
+This system **is** shadcn `base-nova`, plus sixty recorded exceptions. Every component we share with
+shadcn is upstream's own file with an approved patch applied; every difference traces to a decision
+ID; and three offline gates prove both claims on every pull request. That is the whole doctrine, and
+this document is deliberately thin because most of what used to be written here is now upstream's
+answer rather than ours.
 
-## Overview
+Rebuilt 2026-09-18 by the shadcn reset (`docs/plans/2026-09-18-shadcn-reset/`). Before it, this file
+described a fork: a warm neutral ramp, a three-rung surface ladder, a 22-entry alpha ladder with an
+"alpha twin" for every rung, a 14px product type scale with named role utilities, a 400/500 weight
+ladder, a 12px radius cap, one sanctioned shadow, named z-index bands, a ban on colour transitions, a
+mandatory pressed step on every control, and a marketing layer with its own tokens and scope
+mechanism. **None of that exists.** It was not deprecated; it was deleted, with no compatibility
+layer — see `docs/MIGRATING-1.0.md`.
 
-VegaStack is a design system for building **agentic-enterprise** product interfaces — admin consoles,
-dashboards, and AI/agent surfaces (chat, reasoning, tool calls, workflows). It is built on **Base UI**
-primitives + **Tailwind v4**, with **OKLCH** design tokens served as a public token layer and a private
-shadcn component registry.
+## How to read this document
 
-**Light and dark are co-primary** — neither is derived; every token is authored and contrast-validated in
-both. The aesthetic is **warm-neutral, restrained, futuristic**: surfaces are a barely-warm white (deep,
-non-espresso near-black in dark), articulated by a **single derived alpha hairline** (`foreground` at
-`--alpha-border` — 8% light / 14% dark), not heavy fills
-or shadows. The **neutral-ink primary does the bulk of the work**; colour is rationed and meaningful.
+The **frontmatter is generated** from the live DTCG sources by `pnpm design:sync`, and
+`pnpm design:sync:check` fails the build if it drifts: the resolved token values and the component
+recipes there are machine-true. The **prose below is hand-written doctrine**, and it is the weaker
+authority. When prose and an enforcing script disagree, the script wins and the prose is the bug —
+`tooling/design-lint.mjs`, `tooling/contrast-check.mjs`, `tooling/upstream/*` and the browser lanes
+under `packages/ui/test/` are what actually hold the line.
 
-**Key characteristics**
+Three things this document deliberately does **not** contain:
 
-- **One warm neutral ramp.** Every grey/black/white comes from the shared OKLCH neutral primitives
-  (hue 75, chroma ~0.003 — barely warm), identical in both themes.
-- **OKLCH-authored.** All colours are authored in OKLCH in the DTCG source; the hex shown is the sRGB render — P3-ready notation, sRGB-faithful chroma (no wide-gamut push, by restraint).
-- **Scales are tokens.** Colour, control sizes (`--size-*`), radius (`--radius-*`), the one sanctioned shadow (`--shadow-overlay`), motion, and type (`--text-*`) are all DTCG tokens — change one, every component re-skins.
-- **Neutral-ink primary.** The default action is a charcoal/near-white neutral (Vercel-style), not a colour. Almost every button is `primary`.
-- **One rationed chromatic.** `info` (blue) = links and informational UI — the whole colour budget beyond status. The neutral-ink `primary` carries the key action, AI/agent surfaces, and selected/active state.
-- **One border, flat by default.** A single warm-neutral hairline carries all separation, and it is an **alpha**: `border` is DERIVED as `foreground` at `--alpha-border` (8% light / 14% dark), so the same line reads on the page, on a card, in a well and on a dark band. Overlays get `shadow-overlay`; nothing else gets a shadow at all.
-- **Restrained headlines, crisp body.** Functional headings and the display hero both render at weight 400; 14px body; weight tops out at a rare 600 emphasis (D3), never a UI default.
-- **One neutral focus outline.** A 2px `:focus-visible` outline in the `ring` token (= primary ink), centralized — never a colour or glow, so the accent stays free.
-- **AA by contract.** Every gated foreground/background pair clears WCAG 2.2 AA in both themes, enforced by a fail-closed build gate.
+- **A component catalogue.** A component's live contract is its docs page, which mirrors upstream's
+  own section list and closes with a `## Deviations` list of the decision IDs its patch implements.
+- **Counts.** `packages/ui/component-contracts.json` is the machine authority; AGENTS.md § Numbers is
+  generated from it.
+- **Values.** They are in the frontmatter, and in `packages/design-tokens/dist/theme.css`.
 
-## Colours
+## The baseline — shadcn `base-nova`, used as-is
 
-### The warm neutral ramp
+| Thing        | Value                                                              | Where it is checked                                                   |
+| ------------ | ------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| shadcn CLI   | 4.21.0                                                             | `vendor/shadcn/4.21.0/manifest.json`; `upstream:pull` refuses another |
+| Style / base | `base-nova` (`-b base` + `-p nova`), i.e. Base UI                  | `components.json`, the pull manifest                                  |
+| CLI flags    | `--pointer` (INT-1), `--rtl` (logical properties throughout)       | the pull manifest                                                     |
+| Colour base  | `neutral`, shadcn's own values                                     | the token sources, `verify-theme-parity`                              |
+| Fonts        | Geist Sans + Geist Mono (TYP-10)                                   | the preset                                                            |
+| Runtime      | Next 16 · React 19 · Tailwind v4 · Node 24.20.0 · TypeScript 6.0.3 | `package.json`, the pnpm catalog                                      |
 
-Every neutral — every grey, black, and white — resolves from the single OKLCH primitive family (hue 75,
-chroma ~0.003), shared by both themes. The warmth is a whisper toward paper, not parchment; `white` is a
-warm near-white and `neutral-925` a barely-warm deep canvas (genuinely dark, not espresso). Light and dark
-are semantic references into that family. The generated frontmatter exposes the resolved semantic values;
-`packages/design-tokens/tokens/primitives.tokens.json` owns the ramp itself.
+`vendor/shadcn/4.21.0/` is the pristine upstream tree — components, blocks, CSS, `components.json`
+and a per-component docs cache — committed, hashed file by file in its own `manifest.json`, and
+never hand-edited. Everything the system shares with shadcn is derived from it.
 
-### Surfaces — the ladder
+**Canonical = upstream + patch.** `packages/ui/registry/ui/<name>.tsx` is the file we edit, and it
+must equal `vendor/shadcn/4.21.0/ui/<name>.tsx` with `packages/ui/upstream/patches/<name>.patch`
+applied, byte for byte. A patch header names the decision IDs its hunks implement; a hunk that
+implements nothing on that list has no right to exist. Components we have that shadcn does not are
+recorded in `packages/ui/upstream/ours.json`; names we deleted in favour of an upstream replacement
+are in `packages/ui/upstream/retired.json`. **There is no third category** — a file that is neither
+upstream-backed nor a recorded extra fails the gate.
 
-**One neutral ladder carries every surface and every interaction step.** Three rungs sit above the
-page; each rung is one even step (~0.025 L light, ~0.03 L dark — the Geist/Radix/Linear step size),
-and each has an **alpha twin** so the same rung composites onto any backdrop.
+Three offline gates carry that, in `pnpm upstream:check`, inside `pnpm lint`:
 
-| role                             | token                          | light L | dark L | what sits on it                                                                          |
-| -------------------------------- | ------------------------------ | ------: | -----: | ---------------------------------------------------------------------------------------- |
-| Page                             | `background`                   |   0.994 |  0.175 | the canvas                                                                               |
-| Surface                          | `card` = `popover` = `sidebar` |   0.994 |  0.205 | cards, panels, every floating surface, the rail                                          |
-| Rung 1 — rest fill / sunken well | `surface-1`                    |   0.970 |  0.236 | the rest fill of a filled control (soft button, kbd, chip, tab-list rail) and every well |
-| Rung 2 — **hover**               | `surface-2`                    |   0.945 |  0.269 | a transparent row/item/ghost control on hover; a rung-1 control on hover                 |
-| Rung 3 — **pressed / selected**  | `surface-3`                    |   0.922 |  0.290 | `active:`, `data-selected`, the current sidebar row                                      |
+1. **`upstream:integrity`** — every committed file under `vendor/shadcn/4.21.0/` is re-hashed against
+   the manifest. A tampered vendor file, a recorded file that is gone, or a file no pull produced all
+   fail.
+2. **`upstream:parity`** — patch-onto-upstream reproduces each canonical file byte for byte; a
+   component with no patch must equal upstream exactly; a patch may only name an ID that
+   `packages/ui/upstream/decisions.json` marks **ours**; a retired name must stay absent; an
+   exception the map assigns to a component must appear in that component's patch header.
+3. **`upstream:variants`** — every section on upstream's own docs page exists on ours, in order,
+   each with a live `<ComponentPreview>` whose name the preview barrel actually exports, and no two
+   required sections may answer with the same preview.
 
-- **Light surfaces are page-coloured**; a light card is separated by the hairline alone. No
-  reference system lifts or sinks a light card, and neither do we. **Dark keeps the one-step lift**
-  (0.175 → 0.205), which is how dark UIs read depth.
-- **`popover` and `sidebar` are the card surface.** A floating surface is card + `shadow-overlay`,
-  never a lighter or darker rung of its own; the rail is not a second palette.
-- **The alpha twins** are `--alpha-hover` (7%) and `--alpha-pressed` (10%) on an ink. Painted over
-  the page they land within 0.003 L of the opaque rungs, so `bg-foreground/(--alpha-hover)` and
-  `bg-surface-2` are interchangeable by eye — use the alpha form when the backdrop is _not_ a ladder
-  surface (a kbd inside a hovered row, a chip on a well, chrome over media) or when a control hovers
-  in its own hue. Both alphas are theme-invariant.
-- **A wash on a rung is body ink only.** The twins compose, so a badge that paints
-  `--alpha-hover` on top of a control that is itself `--alpha-ink-tint` over `surface-1` ends up two
-  washes deep on rung 1 — and `muted-foreground` does not survive that. Measured dark:
-  4.48:1 on a single wash over `surface-1`, and 3.43:1 once a selected chip's tint is underneath
-  (Tabs' count badge shipped at exactly that, caught by the 2026-09-07 appearance probes). So
-  **`text-muted-foreground` is not available on a translucent wash over a ladder rung** — keep
-  `foreground` and let size and fill do the de-emphasis. `contrast-check.mjs` gates the body-ink
-  half of that rule on every rung and every wash; the muted half is the prohibition above.
-- **`secondary`, `muted`, `accent` and the whole `sidebar-*` family are ALIASES**, kept so
-  shadcn-shaped code keeps compiling: `secondary` = `muted` = `surface-1`, `accent` =
-  `sidebar-accent` = `surface-2`, `sidebar` = `card`, `sidebar-border` = `border`, `sidebar-ring` =
-  `ring`. They have no independent values in the token source and must never be retuned on their
-  own. `accent` is a **neutral** — `bg-accent` is never blue or any other hue.
-- **Text ramp:** `foreground` (ink) → `muted-foreground` (secondary text, the AA workhorse) →
-  `muted-foreground-faint` (placeholders & disabled **only** — intentionally below AA; never for
-  content, including captions). Both real inks clear AA on **every** rung in both themes; that is a
-  build gate, not a guideline.
-- **`primary`** is a charcoal (`neutral-700`) in light / near-white (`neutral-200`) in dark — the
-  neutral-ink workhorse action, with `primary-hover`/`primary-active` one step further.
-- **One border, and it is an alpha.** `border` is **derived** as `foreground` at `--alpha-border`
-  (8% light / 14% dark), so a single hairline reads on the page, on a card, in a well and on a dark
-  band without ever drifting from the ink it tints. `input` and `sidebar-border` alias it. Plus
-  `overlay` for the modal scrim. No `border-strong` / `overlay-border` / ad-hoc line token; overlays
-  separate via the shadow, not a heavier border.
-- **`ring`** is the focus basis and equals **`primary`** (neutral ink) — see Accessibility.
-- **Tracks and wells are `surface-1`** — slider rail, progress track, skeleton, code block,
-  disabled field. The **switch off-track is the exception: `surface-3`**, because it is a pressed /
-  selected-weight affordance rather than a well, and it must read against the thumb. There is no
-  separate `track` token; it was deleted into the ladder.
+All four scripts under `tooling/upstream/` carry a `--self-test` that observes them failing
+(`pnpm upstream:selftest`), because a gate nobody has seen fail is an assumption.
 
-### Hover geometry
+## What we add — the sixty exceptions
 
-- **A hover wash is inset ≥4px from any container hairline** and **inherits the container's inner
-  radius**. A wash that runs flush into the border reads as a rendering bug, not a state. The
-  canonical offender was the underline `Tabs` variant, whose trigger fill ended exactly on the rule
-  the indicator rides (SP-02); the inset is a LOGICAL margin so the vertical variant mirrors onto
-  the inline-start rail and RTL follows for free. See §Components · Tabs.
-- **Selected is not exempt from either step.** A chip that is already selected still hovers and
-  still presses — see the `selectedChipVariants` entry in §Components. Excluding it (the
-  `not-data-pressed:` / `not-data-[active]:` guard this system used to write) is how the one
-  control a user is most likely to click ends up being the one that answers nothing.
-- **A pressed step exists on every control.** Hover moves one rung; pressing moves one more. A
-  control that changes nothing on `:active` is unfinished.
-- **Selected is the pressed rung**, not a fourth step (`data-selected:bg-surface-3`) — which is why
-  an active row must still visibly move when hovered.
-- **One hover mechanism.** Every wash comes from the two recipes exported by `@vegastack/design`:
-  `surfaceInteractive` (`hover:bg-surface-2 active:bg-surface-3`) for a control on a known surface,
-  and `fillInteractive.<tone>` (`hover:bg-<tone>/(--alpha-hover) active:bg-<tone>/(--alpha-pressed)`)
-  for one on an unknown backdrop or in its own hue. `surfaceInteractiveGroup` is the same two rungs
-  scoped to `group/wash`, for the one geometry where they cannot sit on the interactive element
-  itself — a wash painted by an inner chip inset from a container hairline, which is NumberField's ±
-  steppers and nothing else so far. **No component invents a hover value.** A `hover:bg-*` literal
-  appears in component source in exactly three cases, and each one repeats a rung the recipes
-  already define: the component IS the recipe for its family (Button paints `--btn-fill-hover` /
-  `--btn-soft-hover` from its tone vars, and is the reason `fillInteractive` exists); a variant
-  prefix makes the exported constant unusable, so the same two rungs are written out under it
-  (`[&:is(a,button)]:hover:bg-surface-2 [&:is(a,button)]:active:bg-surface-3` on Item,
-  `group-data-[variant=line]/tabs-list:` on Tabs, `data-[active=true]:` on Sidebar); or it is
-  **cancelling** an inherited wash (`hover:bg-transparent` on a nested control that must not repaint
-  under its container). The rule the linter enforces is the one that matters — `hover-without-pressed`
-  fails any class string that changes fill on hover with no pressed rung in it — so a literal is
-  legal only when it carries both steps. And **an opacity dim (`/80`) is never a hover state** — it
-  thins the fill instead of moving it.
-- **A control with no surface signals in ink, both ways.** A link-like trigger or an icon-only ink
-  button whose hover is a brighter ink takes its _pressed_ step in ink as well
-  (`active:text-muted-foreground`). This is the one sanctioned alternative to the wash, and it
-  exists because those controls sit flush against a container hairline, where a wash would violate
-  the inset rule above. When such a control is later given padding and an inner radius, it moves to
-  the recipes — both steps together. **Accordion and Collapsible triggers took that migration**
-  (audit B7-08): a disclosure is not a link, so it does not borrow the link's underline-on-hover.
-  Each trigger now carries `px-2` and `rounded-md`, and `AccordionItem` carries `py-1`, which buys
-  the inner radius and the ≥4px inset the wash needs while the row keeps its height; the accordion
-  panel takes the same `px-2` so the body stays aligned under the label. The padding is always
-  POSITIVE — a wash bled outward with a negative margin overflows the root at 320px.
-- **Underline-on-hover belongs to links, and only links.** Any other control that underlines on
-  hover is claiming an affordance it does not have.
-- **A solid fill does not use the alpha twins.** A solid already owns darker `-hover`/`-active`
-  steps; an alpha over a solid only thins it. Soft (tinted) fills step through their precomposed
-  `<family>-subtle-hover` / `<family>-subtle-active`.
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 170 rows, 110 resolved as
+**shadcn** (upstream ships unchanged) and 60 as **ours**. `packages/ui/upstream/decisions.json` is
+its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
+which shared component each exception is assigned to. Re-opening a row is MK's decision. The sixty
+group into six themes.
 
-### Chromatic colour — rationed
+### 1. Focus — one outline, and no glow anywhere
 
-The chrome is warm-neutral; colour carries meaning and is **rationed to one chromatic accent (blue) + three
-status hues**. Each family is an eight-token ramp (`fill` / `hover` / `active` / `foreground` / `subtle` /
-`subtle-hover` / `subtle-active` / `text`) — `subtle-active` is the soft fill's PRESSED step, precomposed
-like `subtle-hover` because an `active:bg-<fam>/(--alpha-pressed)` would replace the tint instead of
-stepping it. All use **warm-off-white on-fill text** uniformly; `hover`/`active` darken so contrast only rises. `subtle`
-(soft tinted background) and `text` (readable colour for page/alert) adapt per theme.
+`FOC-1 · FOC-2 · FOC-3 · FOC-4 · FOC-5 · FOC-6 · FOC-7 · FOC-8 · FOC-9 · FOC-10 · FOC-12`
 
-| Family        | Role                                      | Fill (sRGB render of the shipped OKLCH) | On-fill                           | Hue             |
-| ------------- | ----------------------------------------- | --------------------------------------- | --------------------------------- | --------------- |
-| **`info`**    | **links** · informational badges & alerts | `#0068d2`                               | warm off-white `#fbfaf8` (5.13:1) | blue, 256       |
-| `destructive` | danger, errors, destructive actions       | `#c10007`                               | warm off-white (6.15:1)           | red, 27.5       |
-| `success`     | success, positive state                   | `#007b2a`                               | warm off-white (5.23:1)           | green, 150      |
-| `warning`     | warning, caution                          | `#a74a00`                               | warm off-white (5.56:1)           | deep orange, 52 |
+`base.css` owns one rule: `:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px }`,
+with `ring` bound to the near-black / near-white ink rather than upstream's mid-grey (FOC-1, FOC-2).
+Text entry shows a border tint instead — `focus:border-ring/70`, on plain `:focus` so a click and a
+Tab read identically, with `outline-hidden` rather than `outline-none` so forced colours can repaint
+it (FOC-3, FOC-8); a button-style trigger combines the tint with the outline (FOC-4). Focus outranks
+the invalid tint (`not-focus:aria-invalid:…`, FOC-5). Inside a clipping ancestor the outline is
+pulled in with `-outline-offset-2`, the one permitted local deviation (FOC-9). A forced-colours
+block paints `outline: 2px solid Highlight` on focused text entry (FOC-7). The focus tint is
+contrast-gated as a composite at 3:1 in both themes (FOC-10). A checkbox, radio or switch inside a
+field label gets the global outline on the control; upstream rings the whole choice card, and we do
+not (FOC-12).
 
-**Usage rules**
+**Upstream's `ring-3 ring-ring/50` halo is removed everywhere** — button, badge, input, checkbox,
+switch, slider, scroll-area, tabs, toast, field cards, all of it (FOC-6). This is the exception most
+likely to creep back on a future pull, so it has a machine check:
+`design-lint`'s **`no-focus-ring-glow`** rejects `ring-3`, `ring-[3px]`, `ring-ring/NN`,
+`focus-visible:ring-*` and a focus-variant `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`.
+A **resting** `0 0 0 1px` hairline — upstream's outline `SidebarMenuButton` draws one — is not a
+glow and is accepted; the structural self-test observes both halves.
 
-- **`primary` (neutral) is the default AND the accent** — it carries almost every action plus the value/selection accents: the single most important action, AI/agent surfaces, active tab underline, current page, slider/progress fill, selected date, and checked switch/checkbox/radio and the select checkmark. There is no separate accent hue.
-- **`info` (blue) is for links and informational UI ONLY** — text links, info alerts and badges. This is the conventional "blue = link/info," and the only chromatic accent. It is **never** promotion, selection or emphasis: a highlighted pricing plan, a promoted comparison column, a selected row and a neutral empty state all take a ladder rung (`surface-2`/`surface-3`) or `primary`, never `info`.
-- **A status hue means status, not sentiment.** The favourite star in `PageHeader` was filled with
-  `warning` ink, which reads as caution on a control that means "I marked this" (D21). It fills with
-  `foreground` — the FILL is what carries the on/off state; the colour was never doing that work.
-  Same test for anything else reaching for a status hue: if nothing is actually wrong, warning is
-  not the token.
-- **Keep blue out of action clusters.** `info` (≈256°) is link/info **text** only. Actions are neutral `primary`, so a blue link never competes with an action for "which is clickable?"
-- For a solid button use `{family}.fill` + white text; for an alert/badge use `{family}.subtle` + `{family}.text`; for hover/active step to `.hover` / `.active`.
+### 2. Cursor and touch
 
-### Charts & data-viz
+`INT-1 · INT-7 · INT-9`
 
-Three scales, a **separate** system from UI colour (data needs distinction, not meaning).
+A global `cursor: pointer` on every control, delivered by upstream's own `--pointer` flag plus a
+wider selector list (INT-1) — which also means upstream's explicit `cursor-default` on menu, select
+and command rows is patched out. `touch-action: manipulation` and no tap-highlight colour, so there
+is no 300ms delay and no grey flash on mobile (INT-7). The grab cursor appears only where a pointer
+drag can actually start — never under `readOnly`, `dragDisabled`, or below the breakpoint where the
+"Move to…" menu is the only path (INT-9).
 
-**A single series is drawn in foreground INK, not a hue** (`--chart-single`; D29). The categorical
-ramp encodes _which series is this_ — a distinction that does not exist when there is only one, so
-`chart-1`'s saturated blue on a lone line or area is decoration standing in for information, and it
-reads as a status colour in an otherwise neutral shell. Hue starts at **two** series. The same rule
-is why a KPI number, a sparkline body, and a single-metric bar are all ink: colour arrives when
-there is something to tell apart.
+Note what is **not** here, because it used to be: there is no disabled-cursor rule (INT-2 is
+shadcn), no press translate of our own (INT-3 is shadcn — upstream's own `translate-y-px` ships),
+and **no mandatory pressed step** (INT-4 is shadcn). A hover with no `active:` rung is legal now.
 
-- **Categorical** (`chart-1…8`) — qualitative series, **two or more**, tuned for separation in each theme. The series intentionally vary in lightness and chroma; direct OKLCH values may exceed sRGB and the build reports clipping used for WCAG calculation. Assign in order, pair hue with labels/patterns, and do not publish duplicate `*-p3` tokens.
-- **Sequential** (`sequential`) — ordered low→high (heatmaps, density). One hue: the **blue** mixed into the surface via `color-mix(in oklch …)`, so it re-skins with the blue and the theme (dark inverts dark→light automatically), with zero hand-picked values.
-- **Diverging** (`diverging`) — signed ± around a neutral midpoint: `destructive` ← `muted` (centre) → `success`. The one place reusing status is correct, because the ends genuinely mean negative/positive.
+### 3. Accessibility beyond upstream
 
-As with all state, never rely on colour alone — label series directly or via a legend + icon/dash.
+`A11Y-1 · A11Y-2 · A11Y-3 · A11Y-4 · A11Y-5 · A11Y-6 · A11Y-7 · A11Y-8 · A11Y-9 · A11Y-11 ·
+A11Y-12 · A11Y-13 · A11Y-16 · FRM-4`
 
-## Typography
+- **A11Y-1** — WCAG 2.2 AA for every gated foreground/background pair in both themes, as a
+  fail-closed gate (`tooling/contrast-check.mjs`, with its own `--self-test`).
+- **A11Y-2** — target size ≥24px through an **invisible** hit area, verified with a real
+  `elementFromPoint` probe rather than `getComputedStyle`. Measured per case, at every width:
+  upstream grows `SidebarMenuAction` with `after:-inset-2` and then switches it off again at `md`,
+  which a 320px-only sweep cannot see.
+- **A11Y-3 / A11Y-4** — live regions are polite `status` by default; `alert` only for destructive or
+  warning content rendered after mount; page chrome present at load gets no live role at all.
+  `useAnnouncer` is the one implementation: one region per component, mounted empty from first paint,
+  keyed by a monotonic sequence. Where an engine already ships the region (Base UI's toast,
+  `@shadcn/react`'s message-scroller and questionnaire), the row resolves as **no hunk** with a test
+  pinning the engine's shape, so it fails the day the engine drops it.
+- **A11Y-5** — an `sr-only ", "` separator between sibling name parts laid out with `gap`. Its one
+  live call site is a deliberate **non**-application: `ToolCallChip`'s parts are flex children, CSS
+  blockifies them, and accname already inserts the spaces — adding a comma would name the control
+  `Search files , 1.2s`. `accessible-name.browser.test.tsx` measures that with the theme loaded.
+- **A11Y-6** — a scroll viewport is a tab stop only while it can actually scroll; a named viewport is
+  `role="region"`. Base UI's `ScrollArea.Viewport` implements this itself, so the row is a no-hunk
+  with a test. **It is not implemented for tables**: upstream's `Table` wraps itself in a plain
+  container, `table-scroll-region.tsx` is the orphaned implementation, and the gap is pinned by
+  `data-list.test.tsx` rather than hidden. Open, and recorded on the `ours.json` entry.
+- **A11Y-7** — a role that requires a parent is licensed by a **context**, never by a default.
+  `Item` takes `listitem` only inside `ItemGroup`; cmdk's empty palette takes its roles the same way.
+- **A11Y-8** — never signal by colour alone: an alert always carries an icon, a field error a leading
+  glyph.
+- **A11Y-9** — what is hidden from assistive technology must not be reachable by keyboard. Native
+  `inert` mirroring for modal backgrounds (`use-modal-inert`) on dialog, alert-dialog, sheet and
+  drawer; plus two engine defects fixed under the same invariant — Base UI's high-priority toast
+  (`aria-hidden` on a tabbable root) and its `aria-hidden` combobox addon (a tabbable toggle inside
+  it). Both are pinned to the engine's exact shape, so the hunk fails as stale the day upstream fixes
+  it, and **neither is carried as an axe suppression**.
+- **A11Y-11** — a stepper is an ordered list with `aria-current="step"`, never tab semantics.
+- **A11Y-12** — a loading button keeps its label at `opacity-0` under the spinner, never
+  `visibility: hidden`, so the box and the accessible name both survive.
+- **A11Y-13** — **a soft status surface takes the family's `-text` ink, never the fill as ink.**
+  `bg-<family>/10 text-<family>-text`. The row is the rule, not a roster: it reaches a tinted status
+  surface whenever the pair **measures** under the AA floor A11Y-1 enforces. Upstream's
+  `text-destructive` on its own `/10` is 3.987:1 in light; the `-text` ink is 6.966:1 on the same
+  composite. Live at Button's `destructive` variant, Badge's tinted variants, Alert's status
+  variants, Field's error copy, Bubble's `destructive` variant and Attachment's error description.
+  What measures **over** the floor stays upstream verbatim — Attachment's error icon at 3.973:1
+  against the 3:1 non-text floor does.
+- **A11Y-16** — every interactive control carries an accessible name. Where upstream ships one that
+  does not — Base UI's Slider keeps the real `<input type=range>` visually hidden, so `role="slider"`
+  is anonymous in every composition; Combobox's toggle, clear and chip-remove are icon-only buttons —
+  the patch supplies it.
+- **FRM-4** — a disabled control renders `aria-disabled` and **keeps its pointer events**, so a
+  tooltip can explain why it is unavailable. Upstream's `disabled:pointer-events-none` is patched out
+  wherever it appears.
 
-**Geist Sans** sets UI and prose; **Geist Mono** sets code, data, tabular figures, and the mono "voice"
-role (eyebrows, FIG captions, terminal, uppercase CTAs — see §Brand & marketing). The scale is
-**two-layer**: a tighter **product** ladder (previews, portaled popups — `.vs-type-product`) and a
-roomier **doc** ladder (the Fumadocs shell, 16px prose); both compile through the same `text-*`
-utilities via a scoped `--type-*` binding, so component authoring never changes — only which shell it
-renders inside does.
+### 4. Tokens and semantics we add
 
-- **Body** `text-base`(14/21, **default**) — chosen for the reading-heavy surfaces of an agentic-
-  enterprise product (logs, descriptions, agent output). `text-lg`(16/24) for leads.
-- **Core scale** `text-xs`(11) → `text-3xl`(24) — the CAP; `text-4xl` and above is off-scale and
-  lint-banned, use a display-tier utility instead. **`text-xs` is mono-only** (TD-3, 2026-09-07):
-  11px is reserved for the code/data roles, and sans copy floors at `text-sm`(12). Seven sites
-  across four components were reaching 11px in Geist Sans for density; they now sit at 12. If a
-  surface still feels too loud at 12, the answer is hierarchy — weight, colour, spacing — not a
-  smaller size the type scale does not offer.
-- **Display tier** `text-display-sm/md/lg/xl` (32/40/56/72), weight **400** throughout, tokenized
-  tracking tightening −0.04em → −0.06em as size grows — marketing/docs heroes only (§Brand & marketing).
-- **Functional headings** `text-h1`(24) → `text-h3`(18) at **400**; `text-h4`(16) at **500**.
-- **Label** `text-label`(14/500) for UI labels and nav; `text-label-sm`(12/500) for **form labels**,
-  table headers, eyebrows, dense metadata. Form labels moved down a tier on 2026-09-07 (audit D3):
-  a label is metadata ABOUT the control beneath it, not a peer of the 14px value the user types
-  into it, and the code had been 12px since the beginning — the doctrine moved to the code.
-- **Code/data** `text-code` (Geist Mono 13, **tabular figures**); `text-code-sm` (Geist Mono 12, tabular)
-  for compact numbers.
-- **Voice** `text-mono-label` (Geist Mono 12/16, +0.05em tracking) — the marketing/brand-voice role;
-  `uppercase` is applied at the call site (never baked into the token) and is **mono-exclusive** —
-  uppercase Geist Sans is lint-banned (`uppercase-mono`, D20). 12px is the floor.
+`COL-12 · COL-18 · COL-20 · COL-22 · TYP-10 · ICO-1 · ICO-3 · ICO-6`
 
-**Principles**
+Four status families written in upstream's own `destructive` shape (COL-12); a status hue means
+status, not sentiment — a favourite star is `foreground`, not `warning` (COL-18); semantic tokens
+only, no authored hex and no numbered Tailwind palette (COL-20); `color-scheme` set per theme
+(COL-22); Geist Sans and Geist Mono with tabular figures on code and data (TYP-10). Icons are lucide,
+the lucide-animated mirrors and `thesvg` brand glyphs through `Icon`/`BrandIcon` and nothing else
+(ICO-1); no inline `<svg>` as an icon (ICO-3); the animated-icon factory owns the trigger and
+reduced-motion rules (ICO-6). The token additions themselves are the next section.
 
-- **14px is the default**, chosen for the reading-heavy surfaces of an agentic-enterprise product (logs, descriptions, agent output). A 13px _compact_ density is a documented per-surface allowance, not a separate token.
-- **Weight rule:** 400 is the discipline — almost everything renders at 400. 500 for labels/h4. **600 is
-  a rare, deliberate emphasis** (D3 cap), not a UI default — reach for size/colour hierarchy before
-  weight. At most two weights in one view.
-- **Tracking is role-owned:** body/copy stays at the font default; `text-label` uses its named −0.01em
-  chrome adjustment, display roles own their negative tracking, and `text-mono-label` owns +0.05em.
-  Never add an ad-hoc `tracking-*` utility to compensate locally.
-- **A list row is 14/500 over 12.** Every row surface — `Item`, sidebar menu rows, `DataList` cells, menu items, message rows — puts its title on `text-label` (14/500) and its supporting line on `text-sm` (12). A denser tier (`size="sm"`) drops the pair to 12/12 together; it never mixes a 12px title beside a 14px one, which is what made `Item` read as a second system (D24).
-- **Colour + size do hierarchy work:** `foreground` heading over `muted-foreground` body reads as clear levels even at one weight.
-- **Apply the type tokens** — never hand-set font-size, line-height, weight, or tracking.
+**COL-20 is narrower than it was.** `bg-black/10` and `bg-white` pass — they are upstream's own scrim
+vocabulary — and a raw `/NN` alpha or an `opacity-50` is ordinary Tailwind now, because the alpha and
+opacity ladders are deleted. What is still rejected is an **authored** hex and a numbered palette
+class. A hex appearing inside an attribute selector is masked by position, not by a file allowlist,
+because upstream's `chart.tsx` matches recharts' own `stroke='#ccc'` in order to replace it with a
+token — that is COL-20 being enforced, not broken.
 
-### Prose — one recipe, no second opinion
+### 5. Our own recipes and behaviours
 
-Content the system did not author element-by-element — markdown rendered by `react-markdown`, rich text
-inside a ProseMirror contenteditable, a body of copy from a CMS — is styled by **one recipe**: `prose` /
-`proseClassName` from `@vegastack/design`. It is a class string per element (h1–h6, p, marks, ul/ol/li,
-blockquote, inline code, a bare `pre`, `hr`, GFM tables, `img`), worn as a **single class on the prose
-root**, and every surface that renders prose wears the same one. `MarkdownView` and `TextEdit` are the
-two in-tree consumers, and they render identical computed styles because they are the identical string —
-a fact a unit test asserts structurally: every rule of the recipe is required on both roots, and neither
-root may carry typography of its own. There is no
-`@tailwindcss/typography` dependency: the recipe is semantic tokens, so prose tracks the theme.
+`MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · FRM-9 · FRM-10 ·
+FRM-12 · FRM-13 · OVL-11 · OVL-13 · API-5 · API-9 · API-17`
 
-**It is expressed as descendant variants (`[&_h1]:…`), and that is not a style preference.** Neither
-consumer can put a class on the elements: ProseMirror owns the editor's DOM and react-markdown's output
-is reachable only through an override map. It also settles a cascade trap — `[&_h1]:mt-6` compiles at
-specificity (0,1,1) and a plain `.mt-6` on the element at (0,1,0), so an element-level class silently
-**loses** to a root-level descendant rule. The two forms cannot coexist on one tree; a component-map
-override that sets a typography class is a no-op that reads like an override. Restyle prose by composing
-`prose`, never by re-entering the map. A fenced code block delegates to `CodeBlock`, whose own `pre` the
-recipe deliberately excludes so the panel is not drawn twice.
+- **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
+  `motion-reduce:` restatement of it is a violation (MOT-5). Keyed-presence utilities
+  `motion-pop-in` / `motion-enter-up` / `motion-shake` / `motion-flash` plus `useAnimationReplay`
+  (MOT-6); docked-presence `motion-dock-in` / `motion-dock-out`, 150ms in on `emphasized` and 100ms
+  out on `exit`, no scale, an exit never slower than its enter (MOT-7). Excluded by design and not to
+  be added speculatively: avatar hover-lift, card tilt, FAB morph (MOT-13).
+- **Prose** (TYP-13) — one recipe, `proseClassName` from `@vegastack/design`, expressed as descendant
+  variants, with no `@tailwindcss/typography`. `MarkdownView` and `TextEdit` both wear it, so rendered
+  rich text is identical in both. Because it is descendant-expressed, an element-level class on a
+  child **loses** to it; restyle by composing the recipe, never by classing the rendered element.
+- **Layout** (LAY-9…LAY-12) — container queries first, then viewport breakpoints, then
+  `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
+  edge-pinned surfaces, `dvh` over `vh`, `svh` only for the sidebar; truncation is `min-w-0` on the
+  flex child with `truncate` on an inner span, never both on one element; `AppShell` owns the landmark
+  trio, the skip link and the content container. **The `<nav>` landmark lives inside the rail**:
+  upstream's `Sidebar` is divs by design and renders two different trees, so there is no single
+  element a role can ride through both.
+- **Forms** (FRM-9…FRM-13) — the invalid shake is the field's, not the control's, and fires only on a
+  live valid→invalid transition (FRM-9; no canonical component calls it today, because `field.tsx` is
+  upstream's file and upstream's Field has no validation motion — the hook ships for consumers).
+  `SearchableSelect` is the one combobox-shaped select, and its clear control is a sibling of the
+  trigger, never a child (FRM-10). One async-write vocabulary, `idle | saving | saved | error`, shared
+  by every field that persists; a rejected commit reverts and announces (FRM-12). NumberField's
+  steppers are full-height flanking buttons, measured against real CSS at ≥24px inside a 32px group
+  (FRM-13).
+- **Overlays** (OVL-11, OVL-13) — a panel's search is a sticky header row with no nested bordered
+  input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). Every portal
+  re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
+  (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to
+  attach the scope, so an added, missing or unscoped portal fails.
+- **API** (API-5, API-9, API-17) — `loading` holds a committing control's box and sets `aria-busy`
+  (API-5; audited per component, and a tab does not commit anything, so it has none). Chip/Tag is one
+  primitive with a real 24px remove control (API-9). `intent` is the name for a hue-only axis on a
+  component that is **ours**; never `color` or `status` (API-17). A component reset onto upstream does
+  **not** get an `intent` axis — it takes upstream's flat `variant` list, and our status families
+  surface as extra `variant` values in upstream's own `destructive` shape.
 
-## Layout
+### 6. Engineering conventions
 
-- **Spacing** uses Tailwind v4’s 4px base scale. Rhythm: 8px inside a group, 16px between groups, 32–40px between sections. Cards use 16px padding (12px compact via `size="sm"`; there is no separate "hero" size).
-- **Breakpoints** use the Tailwind v4 `sm`–`2xl` scale; every layout must work on mobile and desktop.
-- **Density:** chrome is compact (28–40px control heights, 14px type) while the canvas around the working column stays open. Container max-width 1080–1200px, side padding grows at wider breakpoints.
-- **Responsive content:** prefer flex/grid and container queries over JavaScript measurement. Truncating
-  flex children require `min-w-0`; put `truncate`/`line-clamp-*` on an inner non-flex text span, and
-  test empty, short, and very long content without introducing horizontal scroll.
-- **Touch and safe areas:** interactive hit areas are at least 24×24px; use an invisible hit-area to
-  enlarge a smaller visual control, and prefer 44×44px for primary mobile actions when density permits.
-  Full-bleed fixed or sticky regions consume `env(safe-area-inset-*)`; sheets and dialogs contain
-  overscroll and never disable browser zoom.
-- **RTL:** use logical properties and start/end alignment, keep directional icons semantic, and test
-  mirrored navigation, mixed-script content, numbers, and long localized labels.
-- **One `<main>` per document, and the shell says so out loud.** `AppShellContent` and
-  `SidebarInset` both render a real `<main>` — correct in an application, wrong the moment a shell
-  is EMBEDDED in a page that already owns one, which is what the docs showcase does on every shell
-  and sidebar fixture (axe `landmark-no-duplicate-main`, B6-07). Both take `landmark="region"` for
-  that case; it renders a `<div role="region">` and wants an `aria-label`. Never solve a duplicate
-  landmark by deleting the landmark from the component.
-- **A skip link's target id is generated, never a literal.** `AppShell` mints the id with
-  `React.useId()` and shares it to `AppShellContent`, because the pair used to hard-code
-  `#main-content` on both halves: a page holding two shells then published the id twice and every
-  skip link resolved to the FIRST region — measured on this system's own `app-shell` docs page,
-  where four embedded previews each carried it. An id in the document is a global name; anything a
-  component can render more than once per page must generate it. Sharing that id is why
-  `app-shell.tsx` carries a client boundary at the shell root: `createContext`/`useContext` are
-  `undefined` under the `react-server` condition, and the shell root is where `SidebarProvider`'s
-  own client context already lives. Nothing else in the file earns it, and the consumer's page
-  content still renders on the server and arrives as `children`.
-- **A scroll region is a tab stop only once it can scroll.** Keyboard users need somewhere for the
-  arrow keys to land, so a scrollable viewport is focusable — but an unconditional `tabIndex={0}`
-  puts a stop in every region whose content happens to fit, announcing nothing and doing nothing
-  (B6-06, TD-4). Measure, and turn the ring INWARD (`focus-visible:-outline-offset-2`): these
-  viewports sit under a clipping ancestor, which is where 19 focus rings were being cut in half
-  (SP-03).
-- **Persistence is the host's policy, never the component's.** A design-system component may offer
-  a convenience — `SidebarProvider` writes the `sidebar_state` cookie so the rail survives a reload
-  — but it must be switchable and must not be the only way state escapes. `persist` (default `true`,
-  D22) gates the write alone; `onOpenChange` fires either way, so an app under a consent regime, or
-  with a store of its own, turns the cookie off and loses nothing.
+`API-15 · API-16 · DOC-1 · DOC-2 · DOC-7 · DOC-9`
 
-## Elevation & depth
+Flat exports, React 19 ref-as-prop (never `React.forwardRef`), CVA plus `cn()`, `data-slot` on every
+part, and Base UI's `render` prop never `Omit`ed from a single-polymorphic-root component (API-15).
+`'use client'` at the lowest interactive leaf only — a runtime claim, enforced by
+`tooling/verify-rsc-safety.mjs` under the `react-server` condition, which is why the client-only
+theme-scope plumbing lives at the `@vegastack/design/theme-scope` subpath and is never re-exported
+from the root (API-16). Three synced copies per component with `meta.integrity` and a Sigstore-signed
+manifest (DOC-1); hybrid distribution — public npm for the runtime and tokens, a private registry for
+components, model "own it" with no `Vega*` prefix (DOC-2). The engine list is closed, and everything
+upstream itself depends on was pre-approved with it; anything else is a new MK decision (DOC-7).
+TypeScript is pinned (DOC-9, and the reason is in § Toolchain).
 
-**Flat by default.** Cards, inputs, panels, tables, and the sidebar are **one hairline border, no shadow.**
-Only true **overlays** — `dropdown` · `tooltip` · `popover` · `menu` · `select` · `dialog` · `sheet` — get
-`shadow-overlay`. Nothing else casts a shadow — the `shadow-lit` action finish and the Button `finish`
-prop that carried it were retired 2026-09-07 (audit B1-04), so flat-by-default has no exception left.
+## Tokens we add
 
-- There is exactly **one named shadow role** (`shadow-overlay`); no generic elevation ladder, no
-  action finish, and no raw shadow values.
-- **Dialogs** rely on the **`overlay` scrim** + `shadow-overlay`, not a dramatic drop.
-- **In dark**, the overlay shadow is strengthened but remains subordinate to the **lifted surface**
-  (`popover`/`card` a step above `background`) and the border.
+shadcn's `neutral` base is adopted verbatim — `background`, `foreground`, `card`, `popover`,
+`primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `radius` and the
+seven `sidebar-*` tokens all carry upstream's values. On top of it:
 
-### Surfaces — the stacking ladder
+| Family                                                     | Why it exists                                                                                                                                                                                                          | Gate                                                               |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `info` · `success` · `warning`, each `-foreground`/`-text` | Upstream ships only `destructive`. A product surface needs four status families, written in upstream's own shape (COL-12)                                                                                              | `contrast-check.mjs`, both themes, on every surface and tint       |
+| `destructive-text`                                         | The page-readable half of upstream's own family. `destructive` is tuned to carry `-foreground` on top of it, not to be read as ink (A11Y-13)                                                                           | same                                                               |
+| `chart-1 … chart-8`, `chart-single`                        | shadcn's `neutral` base ships a **greyscale** chart ramp, which cannot carry a two-series chart. Kept and retuned; `chart-1…5` keep upstream's names so upstream's own chart blocks resolve unchanged (MK, 2026-09-18) | 3:1 (WCAG 1.4.11) on `background`, `card` and `muted`, both themes |
+| `tag-<hue>` × 10, each `-subtle`/`-text`                   | The decorative label palette behind `Chip`/`Tag` — categorical identity, never status                                                                                                                                  | `contrast-check.mjs`                                               |
+| `brand`, `brand-text`                                      | The phosphor-green marker accent and its page-readable ink. A marker role only — never a functional state colour, and `brand` is not a text ink                                                                        | `contrast-check.mjs`                                               |
+| `media-scrim`, `media-scrim-strong`, `media-foreground`    | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                            | `media-chrome.browser.test.tsx` on compiled CSS                    |
+| `duration-*`, `motion-ease-*`                              | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                             | `verify-token-references`                                          |
+| `font-family-*`                                            | Geist Sans / Geist Mono (TYP-10)                                                                                                                                                                                       | `verify-theme-parity`                                              |
 
-Depth comes from surface contrast, not shadow. The rungs and their values are defined once in
-§Colours → Surfaces — the ladder; here is only how they **stack**: **Page** (`background`) →
-**Surface** (`card`/`popover`/`sidebar`, page-coloured in light, one step lifted in dark) →
-**Overlay** (the same surface + `shadow-overlay`). Insets go the other way onto **`surface-1`**
-(wells, code blocks, tracks). `surface-2` and `surface-3` are interaction rungs, not elevation —
-never build a static panel out of them.
+**Status colour has two inks, and this is the rule most often got wrong.** `-foreground` is the ink
+**on the solid fill**. `-text` is the ink **on the page and on the family's own `/10`–`/30` tint**.
+Using the fill itself as text on its own tint measures 3.98–4.35:1, which is a live AA failure
+(A11Y-13).
 
-**Three z bands, and the third is only for toasts** (audit O2, 2026-09-08). `--z-raised` (10) is a
-local raise inside a component's own stacking context; `--z-overlay` (50) is every portaled floating
-surface, where DOM order resolves nesting because Base UI appends portals to `<body>`; `--z-toast`
-(60) is the toast stack alone. That third band is not a convenience — it is the one rule DOM order
-cannot express. The toast viewport mounts with the app provider, before any dialog exists, so on
-mount order every later-opened dialog would cover it, and a toast fired from inside a modal has to
-stay visible. Toasts used to get this from sonner's private z-index, which is why the elevation
-doctrine carried a library-shaped exception; now it is a token, one band, claimed by one file.
+**There is no surface ladder.** The surfaces are `background` → `card` (= `popover` = `sidebar`) →
+`muted` (well, track, skeleton) → `accent` (hover). `muted`, `accent` and `secondary` share one value
+in this base and all three are kept, so name the one whose **role** you mean and a consumer can
+retune one without moving the others. Hover and pressed values are written per component, the way
+upstream writes them; `surfaceInteractive`, `fillInteractive`, `fieldControl`, `fieldControlGroup`
+and `selectedChipVariants` were deleted from `@vegastack/design` with no alias.
 
-## Motion
+**Overriding a token** is one runtime variable in a consumer's global CSS — `:root { --primary: … }`
+— and every component repaints in both themes. Never override a `--color-*` variable: that is the
+build-inlined Tailwind bridge, not the runtime contract.
 
-Use motion only to clarify a change. Most interactions feel instant. Durations (measured against
-Vercel and Linear, 2026-09-07, audit D11): **150ms** state changes **and every floating surface**
-(menus, select, combobox, popover, hover-card, tooltip — Geist's menu/popover animations run 150ms
-and Linear's transitions sit at 120–250ms), **200ms** modal surfaces and their backdrops (dialog,
-alert-dialog, sheet — 150ms reads abrupt for a panel plus a scrim, and 300ms is slow for 2026),
-**300ms** reserved for large sheets and page-level transitions. The one floating exception is
-NavigationMenu, which takes 200ms because it resizes between items instead of simply appearing. Four eases: **`standard`** (the default,
-snappy-decelerate) for nearly everything, **`emphasized`** for entrances that should read more
-deliberate, **`exit`** for accelerate-out, **`spring`** (a small-overshoot `linear()` curve) for
-state-feedback micro-interactions (`motion-pop-in`). Three keyed-presence utilities cover mount-triggered
-one-shot arrivals — `motion-pop-in` (scale+fade), `motion-enter-up` (fade+rise), `motion-shake` (a
-decaying shake, replayed via `useAnimationReplay`/`useShakeOnInvalid` without remounting so focus/caret
-survive). Full choice-of-mechanism guidance (Base UI lifecycle vs. keyed presence vs. replay APIs vs.
-`AnimatedNumber`) lives in `foundations/motion` and `skills/internal/component/SKILL.md` §2 — this section is
-the token reference, not the mechanism matrix. **Hover, active, and focus colour changes are immediate**;
-never transition colour on a fast interaction and never use `transition: all`. Animate explicit
-transform/opacity properties where possible; when a disclosure must animate size, preserve the inner
-content's intrinsic size throughout close so text does not reflow. Avoid long, looping, or attention-grabbing animation, and
-**honour `prefers-reduced-motion`**: the global reset collapses `motion-*` keyframes to their resting end
-state, spinners freeze, skeletons go solid, transitions drop to 0 — and a dedicated
-`::view-transition-group/old/new(*)` kill switch covers route-change snapshots the universal `*` reset
-can't reach (they live outside normal element matching, on the root's snapshot layer).
-**Reduced motion is global and is never restated in a component** (audit B2-06, 2026-09-07). The
-`base.css` block owns it with the one sanctioned `!important`, so it already wins over any authored
-duration; a per-component `motion-reduce:animate-none` / `motion-reduce:transition-none` adds nothing
-and is a second copy of a rule that can then drift. Every such copy was deleted — the repo now contains
-**zero** `motion-reduce:` utilities, and that is the enforceable statement of the rule. The one case that
-looked like a genuine exception forced a fix to the reset instead of an exception to the doctrine: the
-block zeroed `animation-duration` and `iteration-count` but not `animation-delay`, so a staggered
-entrance still played out over its full real-time delay window (each word popping instantly, one after
-another) — a moving sequence, not the static end state reduced motion promises. The reset now also zeros
-`animation-delay` and `transition-delay`, `staggered-text-reveal` restates nothing, and the rule holds
-without a carve-out. When a component appears to need its own `motion-reduce:` variant, the reset is
-missing a property; fix the reset. The `data-drag-pending` pulses in
-`board` and `sortable-list` are NOT such a case and went with the rest: `animate-pulse` resolves to
-`opacity: 1` at both ends, so a 0.01ms single iteration already lands on the same resting frame
-`animate-none` would. Anything else is banned.
-A looping animation is likewise banned with one exception: `motion-indeterminate`, the sweeping segment
-of an indeterminate `Progress`, whose keyframes start and end on the same resting frame so the reset
-leaves a static 35% segment rather than a bar that reads as complete. AI surfaces define
-streaming reveal, a "thinking" pulse, and tool-progress.
+## Size, radius, shadow, z-index, alpha, type, motion — upstream's vocabulary
 
-**An exit is never slower than its enter.** A **docked control** — a bottom action bar, a floating
-scroll-to-edge button — arrives in **150ms** on `emphasized` and leaves in **100ms** on `exit`, and it
-translates and fades but **does not scale**: scale reads as a popup, and a bar sliding off its own edge
-does not need it. That pair is the `motion-dock-in` / `motion-dock-out` utilities, which own the timing,
-the fade and the inert-while-parked guard; the travel DISTANCE stays at the call site, because it is
-per-dock geometry (a bottom bar clears its own height plus the safe-area inset; an edge button clears
-100%) and because a `translate` declaration inside the utility would clobber a horizontally-centred
-bar's composed transform. 100ms has exactly this one role, which is why it lives in the utility that
-names it rather than becoming a fifth global duration token (audit D11, amendment #7).
+There is no doctrine in this section, and that is the point. These are plain Tailwind utilities now:
+`h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
+`font-semibold`, `tracking-tight`, `text-4xl`, `transition-all duration-100 ease-in-out`. Radius
+derives from one `--radius` (0.625rem) exactly as upstream derives it. Type is Tailwind's stock
+scale — `text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell.
 
-## Shapes
+Deleted with their rules, and with the lint rules that enforced them: `--surface-1/2/3`,
+`--surface-raised`, the alpha ladder and its "alpha twin" doctrine, the opacity ladder, `--size-*`,
+`--icon-*`, `--panel-width-*`, `--layout-*`, `--z-*`, `--shadow-overlay`, `--radius-xs`,
+`--radius-sharp`, `--overlay`, `--font-family-pixel`, `--muted-foreground-faint`, the whole role /
+display / product / doc type scale, and the `<family>-subtle`/`-hover`/`-active` steps. Seventeen
+design-lint rules went with them — the radius cap, the shadow ban, the weight ladder, the
+`transition-colors` ban, `hover-without-pressed`, the uppercase-mono rule, the off-scale-text rule,
+the alpha/opacity role rules and the z-band rules among them. The complete rule-by-rule state is
+`skills/internal/review/references/lint-rules.md`, and the token vocabulary is
+`skills/internal/component/references/tokens.md`; both are gated against the script by
+`tooling/skill-lint.mjs`.
 
-Five radius values: the generated DTCG roles expose `xs` 2 · `sharp` 2 (marketing-only) · `sm` 6 ·
-`md` 8 · `lg` 12; Tailwind’s `rounded-full` supplies the reserved fully-round role.
-`lg` is the product scale's **cap** — containers never exceed it. **`rounded-xl` was removed** (it
-silently fell back to Tailwind's unthemed default) and is lint-banned (`removed-radius-xl`); reach for `lg`.
-
-Nested corners must be **concentric** when their gap is 8px or less: `outer radius = inner radius +
-padding`. Choose the nearest named 2/6/8/12/full role that preserves that relationship; do not repeat the
-same radius on both layers.
-
-**The `rounded-full` rule** — `full` is for inherently round / tag-like objects (avatars, switch tracks,
-badges/chips, status dots, slider thumbs) and _deliberate_ pill CTAs. **Container highlights echo their
-container's geometry** — sidebar/nav-row hover & active backgrounds, menu-item highlights, and cards use
-`md`/`lg`, **never** `full`. `xs` is sub-control geometry (carets/arrows), not a design choice; `sharp` is
-the rationed marketing gesture (§Brand & marketing) — don't reach for it on product surfaces. Keep one
-radius family per view.
+**The marketing layer is gone, not deprecated.** Ten components, the `MarketingSurface` theme scope
+and its `.vs-marketing` selectors, the marketing tokens and every marketing lint rule were deleted on
+2026-09-18. `announcement-banner`, `terminal` and `code-block` were explicitly kept and moved to
+Feedback and Content. The portal half of the theme scope stays — OVL-13 depends on it.
 
 ## Iconography
 
-One library: **lucide** (functional line icons), lucide-animated for motion, `thesvg` for brand glyphs —
-via `Icon` / `BrandIcon`. Sizes 12 (compact, the `xs` control tier only) / 14 (inline) / 16 (default) / 20
-(actions) / 24 (feature), 1.5–2px stroke, always **`currentColor`** so icons inherit text colour and every
-state. Never inline an ad-hoc `<svg>` as an icon; never mix icon libraries.
+One library: **lucide** (functional line icons), the lucide-animated mirrors for motion, and `thesvg`
+for brand glyphs — through `Icon` / `BrandIcon`. Icon sizes are ordinary utilities (`size-3`,
+`size-3.5`, `size-4`) sitting on the control tier that carries them; never pass `size`/`width`/
+`height` to a lucide component. Stroke 1.5–2px, always `currentColor`, so an icon inherits text
+colour and every state. Never inline an ad-hoc `<svg>` as an icon, and never mix icon libraries.
 
-With text that can wrap, align the icon to the **first line**, not the block midpoint: use an
-`items-start` row and a line-height-sized icon wrapper. Keep the icon optically equal to the text size.
+With text that can wrap, align the icon to the **first line**, not the block midpoint: an
+`items-start` row with a line-height-sized icon wrapper.
 
-**The factory owns the controller; icons are data.** Every mirrored lucide-animated icon is a
-`createAnimatedIcon({ … })` call describing only its geometry, its Motion variants, and — where
+**The factory owns the controller; icons are data** (ICO-6). Every mirrored lucide-animated icon is a
+`createAnimatedIcon({ … })` call describing only its geometry, its Motion variants and — where
 upstream choreography is not a plain play/rest pair — its start/stop steps. The controller lives once
 in `@vegastack/design/create-animated-icon`: the animation controls, the reduced-motion gate, the
 imperative `startAnimation`/`stopAnimation` handle, and the multi-input trigger rules (hover plays on
 a fine pointer, a tap plays on touch, focus plays and blur rests, and every one of them stands down
-once a consumer attaches a ref — including the tap driver, so a ref-controlled icon that omits its
-own `pointerdown` handler is dead on touch). The host is an **`inline-flex` `<span>`** — an icon sits
-inside a line of text, so a block-level box there is a layout bug. Reduced motion is a **live
-subscription** to `prefers-reduced-motion`, not a one-shot read: turning the preference on settles
-every icon already on screen. `<MotionConfig reducedMotion="always">` adds reduction on top; the
-override is **one-way**, because Motion's default context value is `reducedMotion: "never"` and is
-indistinguishable from an explicit one, so honouring it would disable reduced motion for every
-consumer who mounts no `MotionConfig`.
-A behaviour that belongs to every icon belongs in the factory; a generated icon module that contains
-a hook, an event handler, or any JSX is a defect the gate rejects — and each generated module is
-pinned by SHA-256 in the mirror manifest, so a hand-edited path or timing value is rejected too.
+once a consumer attaches a ref — including the tap driver, so a ref-controlled icon that omits its own
+`pointerdown` handler is dead on touch). The host is an **`inline-flex` `<span>`**. Reduced motion is
+a **live subscription**, not a one-shot read, so turning the preference on settles every icon already
+on screen.
 
-## Components
+## Components and blocks
 
-Each component composes from tokens (frontmatter `recipes` gives the compact machine recipes). One control-height scale —
-**xs 24 (Button only) / sm 28 / md 32 (the default tier) / lg 40** (`h-6`/`h-7`/`h-8`/`h-10`), shared by
-buttons, inputs, and selects (inputs/selects use sm–lg only) so they line up; padding-x xs 8 / sm 10 /
-md 12 / lg 16 (buttons), 12 (inputs). Tokenised as `--size-{xs,sm,md,lg}`. **Every component's `size`
-prop uses exactly these four names** — `xs · sm · md · lg`, with `md` the default. There is no tier
-called `default` anywhere in the system (renamed 2026-09-07, audit B1-05), and no component owns a
-private size vocabulary.
+**A component is reusable, prop-configured, imported in several places and tracked for updates**
+(`registry:ui`). **A block is a screen or section someone copies once and then owns** (`registry:block`)
+— sample data inline, no primitive invented inside it, never updated after install. When a thing is
+both, it ships as both: `board` is a component and `board-01` is a block, exactly as upstream pairs
+`sidebar` with `sidebar-01…16`. Two narrower types exist: `registry:hook` for a pure hook, and
+`registry:lib` for a module with no React in it at all.
 
-- **Button — two axes, not a list of variants** (audit P2, 2026-09-07). `variant` is the SHAPE: `solid` (the workhorse — a filled action, including the single key action or an AI moment) · `soft` (a tinted fill, the standard lower-emphasis and the ONLY destructive action) · `outline` (a bordered face) · `ghost` (transparent until hovered) · `link` (a text link) · `cta` (the one marketing recipe, brand-locked and tone-less; see Marketing). `tone` is the HUE: `neutral` (default) · `destructive` · `success` · `warning` · `info`. The two compose freely with ONE forbidden cell: **`tone="destructive"` never takes `variant="solid"`** (D4 — a destructive action is soft, outline, ghost or link, never a solid red button). That rule is enforced by the type, not by review. Each variant is written once and reads its hue from `--btn-*` custom properties the tone sets, so all thirty cells share one hover/pressed grammar: solids step to their own darker `-hover`/`-active`, everything else climbs the surface ladder (rung 2 hover, rung 3 pressed) in its own family. Retired the same day: `glass` (D16), the `finish="lit"` prop (B1-04), and the seven colour-in-the-name variants (`success`/`warning`/`info`/`*-outline`) the tone axis replaces. Sizes `xs`(24)/`sm`(28)/`md`(32)/`lg`(40); Button has **no icon size tier** — an icon-only action is `IconButton`, which makes the missing `aria-label` a type error and owns `shape="square" | "round"`. Radius `md`; `text-base`/500 label. **Hover/active darken within the button's own colour** — nothing borrows a hue.
-- **Loading and disabled are one contract across Button, IconButton, SplitButton, Toggle and Tabs.** `loading` stacks the spinner OVER the label and keeps the label's box with `opacity-0` — never `visibility: hidden`, which would drop the label out of the accessibility tree and leave a pending button with no accessible name — so a button never changes width when a request starts (B1-08). `disabled` renders `aria-disabled`, **not** the native attribute, and never `pointer-events: none` — an unavailable control must stay focusable and hoverable so a Tooltip can say why (D7). Base UI suppresses activation either way. A disabled control dims; a pending one does not.
-- **States** (every button) — default · hover · focus · active · disabled (`opacity-(--opacity-dim)`, 50% + `not-allowed`) · loading (spinner honouring reduced-motion). **Focus = the neutral 2px `:focus-visible` outline (`ring` token = primary ink)** — never a box-shadow glow.
-- **Input / Select / Textarea** — transparent fill on the page (dark adds `bg-input/(--alpha-input)` so the field reads as a well against the dark ground), the one `border`, radius `md`, 32px. **Consistent border scale (one alpha step, no per-mode opacity hacks): rest = `border`/`input`; focus/active = `ring/70`; error = `destructive-border/70`.** The error ink is the ONE deliberate per-theme exception in this scale: `destructive` is tuned as a solid button fill carrying light text, and at 70% on the dark ground it measures **1.92:1** — under the 3:1 WCAG 1.4.11 floor for a non-text indicator — while lightening `destructive` itself would drop `destructive-foreground` on the solid button below 4.5:1. So the border has its own role, `destructive-border` (light `red.700` → 4.24:1, dark `red.400` → 4.00:1). The _alpha_ stays identical across themes; only the ink re-grounds. `tooling/contrast-check.mjs` gates this pair composited over background/card/popover/muted/secondary in both themes. **That chrome is written ONCE**, as `fieldControl` (and its wrapper twin `fieldControlGroup`) in
-  `@vegastack/design` — Input, Textarea, NumberField, the OTP slots, the Select trigger, the Combobox
-  input and ChipInput all spread it, so retuning the field is one edit rather than a hunt through
-  seven files (audit B1-11, 2026-09-07). Three border rungs and no more: rest `border-input`, hover
-  the neutral `foreground/(--alpha-border-subtle)` ink, focus the `ring` tint. Hover is guarded by
-  `not-disabled:` because a disabled control keeps its pointer events (D7). Text-entry fields (Input, Textarea, Field control, OTP slots) use the darkened `ring/70` border as their _sole_ focus indicator — no outline (a raw text input can't distinguish mouse from keyboard, so the border is the one consistent cue for both click and Tab). Button-style triggers (Select, date-picker, country-select, color-picker — built on the `outline` Button variant) darken the border to `ring/70` on focus AND add the neutral 2px outline for keyboard nav (`:focus-visible` only). Never a colour, never a glow. Error = `destructive/70` border + `destructive.text` helper. Disabled = reduced opacity + `not-allowed`.
-- **A form control never owns its width** (B8-03, 2026-09-07). Input, Textarea, Select, Combobox, NumberField, the date and colour triggers, the searchable selects — every one of them is `w-full`, and the PARENT decides how wide that is. A fixed `w-56`/`w-64`/`w-72` on a control reads fine on the page it was tuned for and overflows the content area at 320px, which is exactly how the date triggers used to fail the reflow check; it also guarantees two fields in the same form disagree about their width. The height scale is the control's (`--size-*`); the width is the layout's.
-- **One Select-shaped Combobox, `searchable-select`** (B8-02 / D27). A picker whose option list is too long to scroll is not a bespoke composition each time: `SearchableSelect` owns the trigger, the in-panel search row, the check on the selected row, the `--anchor-width` panel and the optional clear control, and every data-fed picker (`CountrySelect`, `RegionSelect`, the next one) is a thin wrapper that supplies data and renderers. Two rules it exists to hold: **selection is one code path** — Base UI's `value`/`onValueChange` and nothing else, so keyboard <kbd>Enter</kbd> and a pointer click cannot diverge (they had, silently) — and **the clear control is a SIBLING of the trigger**, never a child, because an interactive control may not contain another. Bulk data behind such a picker is a `registry:lib` item (`geo-data`), declared as a dependency so a consumer installing two pickers copies the dataset once.
-- **Card / Panel** — `card` surface, the one `border`, radius `lg`, **flat (no shadow)**.
-- **Badge** — the SAME variant vocabulary as Button: `solid` (family fill + on-colour ink) · `soft` (`{family}.subtle` + `{family}.text`, the default) · `outline` (hairline, no fill — the Attio tag chip, also reachable as `bordered` on `soft`) · `minimal`. Radius `full`, except `minimal`, which has no container at all. Neutral resolves to `muted`. **Three REAL size tiers — `sm` 16px · `md` 20px · `lg` 24px** (D8, 2026-09-07): `sm` used to be `md` with 2px less horizontal padding, which is a padding value, not a size; it is now the dense-table chip. **`minimal` is ink only** — no background, no border, and no horizontal padding, so it aligns flush in a table cell instead of faking a pill — and it carries a **leading dot by default**, because a badge with no container has nothing but colour left to signal status with (1.4.1). An `icon` takes the dot's place; `dot={false}` opts out. The dot is 6px (8px at `lg`).
-- **Chip** — the LABEL/SELECTION voice, and there is exactly **one** of it (audit B5-03, 2026-09-07): `hue` (the 10 decorative `--tag-*` trios, or neutral) × `size` (`sm` 28px inline tier · `md` 32px control tier) × `active` (the neutral chip's promotion to the selection rung `surface-2`). `Tag`, `FilterChip`, `ComboboxChip` and ChipInput's chips are all that one primitive composed through Base UI `render` — nothing re-derives a pill's height, radius or rest fill. **A chip's root is not interactive and therefore has no hover and no pressed step**; clicking one does nothing, and the ladder is reserved for controls. **Its remove control is a round ghost `IconButton size="xs"` whose REAL border box is 24×24** — the WCAG 2.5.8 target is the button, never an invisible `::before` (Preflight's `appearance: button` clips a nested `<button>`'s generated content to its own border box, so a pseudo hit area there is measurable and un-hittable). At the `sm` tier that 24px control inside a 28px pill leaves a 2px inset rather than the ≥4px §Hover geometry asks for: 24px is a floor and 28px is the tier, so the two cannot both be honoured, and the target wins.
-- **Alert** — `{family}.subtle` background + `{family}.text`, radius `md`, **always paired with an icon** (never colour alone). Info alerts use `info` (blue). Its live role follows §Accessibility: polite `status` by default, assertive `alert` only for a `live` destructive/warning banner.
-- **Toast is Alert's transient twin, on Base UI Toast** (audit D13, 2026-09-08). The renderer is Base UI's `Toast` primitive — sonner is gone, and with it a rendering engine, a CSS override layer that fought the library's own greys, a z-index exemption, and a focus ring that was a box-shadow glow in a system that bans them. The surface is the floating-family recipe: the `popover` ground, the one hairline, radius `lg`, `shadow-overlay`, 16px padding (D14) — a floating surface is never a ladder rung of its own. A typed toast then takes **Alert's exact tint recipe** (`{family}.subtle` + `{family}.text` + the family's icon), because a status message should not read as two different designs depending on whether it is transient. **The type vocabulary follows the engine, not our token names:** Base UI's `promise()` writes `loading` / `success` / `error` itself and keys its auto-dismiss timer off the `loading` string, so the destructive type is spelled `error` and paints `destructive`. Motion is ours and tokenized at `duration-base ease-standard` — a toast travels in from beyond an edge, the same gesture as a Sheet, and 150ms reads clipped over that distance. Stacking, expand-on-hover, swipe-to-dismiss, `F6` into the viewport landmark and `Escape` on the focused toast all come from the primitive. **D23 is enforced in code:** `error` and `warning` announce urgently, everything else politely, derived from the type — including the branches the engine's own `promise()` writes.
-- **Overlays are one module, not eight lookalikes** (audit B3, 2026-09-07). Every anchored surface — popover, hover-card, tooltip, dropdown menu, context menu, select, combobox, navigation menu — composes `floating-surface`: one `Portal → Positioner → Popup (→ Viewport)` composer, one theme-scope hand-off across the portal boundary, one arrow, and four painted surfaces. `panel` is the bordered popover face at the 16px tier; `menu` is the same face at list density with a 4px inset floor; `tooltip` is the inverted ink chip; `navigation` is the morphing mega-menu panel. A component that restates the plumbing has drifted by definition. `DropdownMenu` and `ContextMenu` differ ONLY in how they open: Base UI's `ContextMenu` namespace re-exports `Menu`'s item, checkbox-item, radio-item, group-label, submenu-trigger and separator parts verbatim, so one implementation is bound to both slot prefixes rather than copied.
-- **Padding has two tiers, not per-surface literals** (D14). Modal family — dialog, alert-dialog, sheet — is **24px** (`p-6`); the floating family — popover, hover-card, toast — is **16px** (`p-4`); menus keep list density (`p-1` on the list, rows at `px-2 py-1.5`). Panel widths come from `--panel-width-{sm,md,lg}`, never a `w-*` literal, and a popup capped to the viewport uses Base UI's `--available-height`, never a hand-written `100dvh` calc.
-- **Dialog / Modal** — `popover` surface, the one `border`, radius `lg`, `shadow-overlay`, over the `overlay` scrim. Title `text-h3`/`h4`; actions right-aligned (`ghost` Cancel + intent button). `DialogContent` sizes through `size` (`xs · sm · md · lg · full`); `AlertDialogAction` is the single owner of a confirmation's `intent` — the popup carries none.
-- **Modality is a decision, not an accident** (D12). Popover and Select are **modal by default**: the page holds still under an open anchored panel instead of scrolling out from under it, which is what every popover-based picker wants. Pass `modal={false}` for a lightweight panel. Combobox stays non-modal for its own measured reason and says so in its source.
-- **One list-item recipe** — menu items, checkbox/radio items, submenu triggers, select options, combobox options and command rows are `menuItemVariants`. The highlight climbs the surface ladder (`data-highlighted` → rung 2, pressed/selected → rung 3) at radius `md`, which inside the list's 4px padding keeps every wash inset from the popup hairline and concentric with the popup's `lg` corner. Destructive rows use `destructive.text` over a destructive alpha wash.
-- **Search inside a panel is a header row, never a nested box** (B8-04/B9-11). A bordered `Input` inside a bordered popup draws two borders. `PanelSearchFrame` is the recipe: sticky, full-bleed, a leading `Search` glyph, no box of its own, a hairline below, at `--size-md` (or `--size-lg` for a palette in a dialog). Command, the Combobox popup input, EmojiPicker and ShortcutOverlay all use it.
-- **Sheet is a Drawer** (D15). It runs on Base UI's `Drawer` — swipe-to-dismiss, snap points, and a virtual-keyboard provider for sheets containing fields — because Base UI's own guidance is that a positioned Dialog is the right answer only when you need none of those, and an edge panel needs all three. `side` lives on the root (it picks the dismiss gesture as well as the edge); `size` (`sm · md · lg · full`) reads as a width for a left/right sheet and a height for a top/bottom one, from the same `--panel-width-*` vocabulary.
-- **Tabs / Segmented — one selected-chip recipe, and it is the only one** (audit B6-02/D20, 2026-09-07). Every "raised chip on a muted track" in the system — Tabs `pill`, Tabs `chip`, `Segmented`, and pressed `Toggle`/`ToggleGroup` — takes `selectedChipVariants` from `@vegastack/design`; before it, those four had drifted into four different selected looks (`bg-background`, `bg-secondary` + hairline, `bg-foreground/10`, and a fourth). The track is the ladder's well rung (`surface-1`) and the chip is the **pressed/selected rung in its ALPHA form** — `bg-foreground/(--alpha-ink-tint)` — because a chip on a well is exactly the case §Surfaces hands to the alpha twin. That is also what keeps the SELECTED chip alive: it strengthens to `--alpha-ink-tint-strong` on hover and drops back to the resting tint on press, so the one chip a user is most likely to click is not the one that answers nothing (the state probe's `active-same-as-hover`). An opaque `surface-3` chip has no rung left to climb, which is why the alpha form is the recipe and not a shortcut to it. Tabs keeps all three variants: `line` (the moving `primary` underline), `pill` and `chip` (the shared recipe at the 32px and 28px scales).
-- **The `line` tab's hover wash never reaches the rail** — see §Hover geometry. The underline variant's list draws the rule its indicator rides on, so the trigger is held one 4px step off it with a LOGICAL margin (`mb-1` horizontal, `ms-1` on the vertical variant's inline-start rail, so RTL mirrors itself). The measured gap is asserted against real compiled CSS in `packages/ui/test/surface-ladder.browser.test.tsx` (5.00px in both orientations), not judged from a screenshot.
-- **Tabs / Segmented** — the **active** tab underline / segment uses `primary` (selection).
-- **Switch / Checkbox / Radio** — neutral **`primary`** ink when on/checked, switch off-track = **`surface-3`** (the pressed rung; there is no `track` token); **Slider** fill = **`primary`**; radius `full` (switch/radio/thumb) or `sm` (checkbox).
-- **Navigation** — breadcrumb (`muted-foreground`, current = `foreground`), pagination (active = `primary`). `Pagination` renders a plain `<nav>`: `<nav>` IS the navigation landmark, so no `role="navigation"`, and its `aria-label` defaults to "Pagination" but MUST be overridden when a page carries more than one pager — two identically named landmarks are an axe `landmark-unique` failure (audit B5-08).
-- **Avatars · progress · skeleton** — avatar = `accent` fill + initials; progress/ring fill = `primary`; skeleton shimmer = neutral, at the **text radius** (`sm`) on a line placeholder, since an 8px radius on a 16px bar reads as a pill rather than as text. **An indeterminate `Progress` is a distinct visual, never a full bar**: Base UI writes no width when `value` is `null`, so a bar styled only for the determinate case reads as 100% complete. It renders a 35% segment sweeping the track (`motion-indeterminate`), and `aria-valuenow` is omitted.
-- **Content links** — `info` (blue), underlined at rest, and still protected by the global neutral
-  focus-visible outline. Navigation and button-like anchors may use their spatial/control affordance
-  instead, but must not lose the focus outline.
-- **AI / agent surfaces** — reasoning, tool calls, streaming, and the composer send read in the neutral `primary` / `accent` register (distinguished by layout + iconography, not a brand hue).
-- **Status indicators** — running dot `info`, succeeded `success`, failed `destructive`, queued/idle neutral; reasoning/streaming `primary`.
+Rules that survive the reset, because they are ours and not upstream's:
 
-- **Field owns the whole feedback layer** (audit D4/D5/D23, 2026-09-07). Helper text renders **below**
-  the control, with the error or success message below that — above the control it pushed the input
-  away from its own label, and a wrapped description put two lines of prose between the two things the
-  eye pairs. The invalid **shake** is the field's, not the control's: one `MutationObserver` on the
-  field root watching Base UI's `data-invalid`, so every wrapped control reacts identically instead of
-  five controls each carrying the same thirty-five lines while `Textarea` silently had none. The whole
-  field shakes as one block — moving the control alone under a still label read as a glitch — and only
-  on a live valid→invalid transition, so a form rendered with server-side errors does not shake on
-  first paint. The message announces as `role="status"` + `aria-live="polite"`, never `alert`: inline
-  validation is a user-initiated result, and `alert` interrupts whatever the screen reader was saying.
-  `alert` stays reserved for something that arrives unasked. A bare `<Input aria-invalid>` outside a
-  `Field` still tints its border; the motion is what wrapping buys.
-- **`Label` is inline by default.** A `flex` label is a block, so one written inside a sentence broke
-  the line before and after itself; `inline-flex` keeps the icon gap and the baseline, and
-  `layout="block"` is the explicit opt-in for the stacked form row (B1-14).
-- **`CheckboxGroup` owns select-all.** A group of related checkboxes shares one value array, and
-  `allValues` plus a `parent` child gives the mixed state and the whole-set toggle for free — the
-  arithmetic every settings page and every grid header used to write by hand (B1-16). It renders no
-  label of its own, so it is always named by a `FieldSet`/`FieldLegend` or `aria-labelledby`.
-- **`useInlineEdit` is the one click-to-edit machine** — draft, commit, cancel, focus restoration and
-  the double-commit guard (Enter closes the edit, which unmounts the input, which fires blur, which
-  would commit again). `FieldInline` and `EditableCell` share it; it owns no DOM and no persistence,
-  which is what lets it also serve a cell editor that is a `Select` popup with no text input at all
-  (B9-06).
-- **Inline editing (EditableCell · FieldInline · AutoSaveInput)** — ONE async-write vocabulary, `idle | saving | saved | error` (`AutoSaveStatus`), shared by every field that persists: the indicator is inline (Spinner → success Check → destructive X, keyed remounts), a rejected commit **reverts the value and announces it politely**, and grid hosts consume the same cell with `focusMode="managed"` (no per-cell tab stop — the grid's roving model owns reachability).
-- **NumberField** — Base UI NumberField in Input's exact addon-group chrome. Money/percent/units are `Intl.NumberFormatOptions` via `format` — never a separate money component; minor-units conversion is the app's field layer. Steppers are full-height flanking buttons ([−] input [+]) so pointer targets meet the 24px floor without hit-area expansion.
-- **ChipInput** — free-token entry in the Combobox input-group chrome with real `Tag` chips. Validation is per-chip and non-destructive: invalid entries stay visible and flagged (`data-invalid` + destructive outline-border + text description) rather than silently dropped; duplicates are the only rejected class.
-- **ActionBar** — the floating contextual bar (bulk selection, unsaved changes, batch progress). `raised` band, FLAT surface (bg-background + the one border — a floating bar is not an overlay and gets no shadow); CSS-only enter/exit (`ease-emphasized` in, `ease-exit` out); it consumes a selection count and never owns selection.
-- **Item / ItemGroup** — the row anatomy, and the ARIA rule that goes with it: `ItemGroup` is the only `role="list"` container, so it is the only thing that licenses a child row's `role="listitem"`. A standalone `Item` — used alone, or as the content of some other list's `<li>` — renders with **no role at all**; a `listitem` with no `list` parent is an axe `aria-required-parent` critical. A `render`-composed row keeps its native `link`/`button` role either way. Empty states are one container axis (`plain · card · dashed`), never a border flag crossed with a surface.
-- **Stepper** — a bounded linear process is an ordered list with `aria-current="step"`, never tab semantics. Step states complete/current/upcoming/**error** map 1:1 onto StatusIcon's vocabulary, always icon + text; the current glyph is pinned `animate-none` — current is a position, not activity. Focus follows the process: the new current step's label is focused on change, never on mount.
-- **Timeline** — rail geometry only: an `aria-hidden` node + connector column beside rows that compose `Item` parts (no `role` plumbing: an `Item` outside an `ItemGroup` carries no role, so the `<li>` stays the list item); group headers render through `Marker variant="separator"`. Long feeds use `content-visibility` render skipping, not a virtualizer.
-- **ShortcutOverlay** — the `?` dialog renders from a shortcut declaration registry (keys, label, category), never hand-listed; `Kbd` modifier glyphs follow the user's platform via `use-platform` (`Kbd` itself stays server-safe — detection is caller-side).
-- **FilterBuilder** — the stateful nested and/or builder. The grammar is host-injected (field vocabulary + per-type value editors); the tree is nested `fieldset`/`legend`, deliberately not `role="tree"`; caps disable their add affordances with readable reasons.
-- **Reordering (useDragReorder · SortableList · Board)** — ONE drag vocabulary over the sanctioned Pragmatic engine. Pointer drags use the native preview and a 2px `primary` closest-edge hairline as the only drop affordance — the lifted row dims flat, never a shadow. The keyboard path is commit-per-step move mode (Space/Enter lifts, arrows commit one step each, Escape or blur ends) with a polite per-step announcement, and every pointer-reorderable surface also carries a lossless Move menu. Moves are requests: the host owns the order and may refuse — a refused move reverts and announces, exactly the inline-editing revert contract. Board adds the cross-container tier: columns are labeled groups on one horizontal scroller (the container scrolls, never the page), cards rove with RTL-aware arrows, and a locked destination states its reason rather than disappearing; its column body height is a prop (`columnMaxHeight`) reading a token, not a viewport reservation baked into the component. **There is ONE drag-item recipe and it lives in the `drag-item` lib item** (B8-05): the drop-edge hairlines, the lift dim and the pending shimmer are a single exported class string that Board, SortableList and any future drag surface spread — the hook writes the state attributes, this recipe is what they look like, and a third consumer composes it instead of copying six utilities a third time. **The grab cursor is a promise**: it appears only where a pointer drag can actually start — never under `readOnly`, `dragDisabled`, or below the breakpoint where the menu is the only path.
-- **Dropzone (useFileDrop · Dropzone)** — file ingestion is drop + paste + browse, always all three, under ONE constraint set — accept/size/count apply to every path, paste included. The drop surface is the named focusable control (`role="button"`); the real `<input type="file">` behind it is the display:none picker bridge, never a tab stop. Rejections are typed and non-destructive (too-many/too-large/wrong-type are announced WITH their reason and stay listed, sub-AA copy banned); `data-dragging`/`data-drag-invalid` drive the only visual states, and they paint the **surface** — an outline inside its own radius, primary for a valid payload and destructive for a refused one, no scale theatrics. Tinting a privileged descendant instead (the old `[&_[data-slot=empty]]` rule) means a dropzone wrapping an image or a custom card shows no drag state at all (B8-07); a child that wants to move in step reads `group-data-dragging/dropzone`. The missed-drop guard is document-level, ref-counted across instances, and scoped to FILE-bearing drags — text dragged into unrelated inputs keeps working, and one surface's opt-out is never silently re-armed by another.
-- **Tables (Table · DataList · DataGrid)** — **body cells wrap by default.** A long value breaks inside its own column over a `--table-cell-min-width` floor; horizontal scrolling is reserved for tables that are genuinely wide, never forced by one long string. Exactly two column shapes opt back out and they do it automatically — end-aligned figures and `mono` values (ids, refs, timestamps) — with `column.nowrap` overriding the inference in either direction. **A scroll viewport is a named, keyboard-reachable region.** It measures itself and takes `tabIndex={0}` only while it can actually scroll: a table that fits adds no dead tab stop, and one that does not can be read without a pointer. Named (via `scrollLabel`, falling back to the table's `aria-label`) it is exposed as `role="region"`; unnamed it stays a plain focusable container, because an unnamed landmark is worse than none. Its focus outline is pulled inside — the viewport clips its own overflow. Header rows do not take the row hover: a header is not a row you can act on. The chrome both renderers share — sort header, selection cells, skeleton rows, the empty row, the column class rules — lives in ONE place (`data-table-parts`); the DataList/DataGrid split stays doctrinal, not duplicated.
-- **DataGrid** — the full-parity tier above DataList, and the boundary is doctrinal: DataList stays the presentational default; DataGrid earns its engines (TanStack row model + windowing — they compute, never touch DOM or focus) only when grouping, inline editing, multi-key sort, column management, or 10k+ rows demand it. The APG grid layer is ours: one roving tab stop over real `role="grid"` table semantics, Enter/F2 suspends grid nav into the shared EditableCell contract, Escape restores the cell. Grouping renders per-value `tbody` sections (valid HTML, no div theatre); responsive revelation hides or merges columns by declared budget — **data is never silently lost, and the default posture is `merge`**: an overflow column stacks into the primary cell. `hidden` is the one posture that removes a value, so it is opt-in AND self-announcing — the toolbar always states "N columns hidden" when revelation dropped anything. The column picker is a prop (`columnPicker`, on by default), not an always-on fixture: a three-column read-only grid should not carry a column manager. Paging is keyboard-continuous (ArrowDown past the last row fetches).
-- **Media chrome is theme-invariant (AudioPlayer · VideoPlayer · MediaPlayerControls)** — chrome laid over video or imagery is drawn on its OWN tokens, never on theme tokens: `--media-scrim` (the gradient behind controls), `--media-scrim-strong` (opaque pills — the volume rail, the time badge) and `--media-foreground` (every icon, label and rail drawn on them). The reason is that a theme token flips and the video does not: the old chrome was built on `primary`, which in dark measured a near-white scrim behind near-black icons. Dark scrim + light ink, identically in both themes, is the contract, and a compiled-CSS test pins it (scrim L < 0.3, overlay ink L > 0.85). **There is no glass** (D16) — an overlay control is `IconButton variant="ghost" shape="round"` on the scrim, and it keeps the system's standard 2px `:focus-visible` outline (D17), inset with `-outline-offset-2` because the frame is `overflow-hidden`. No box-shadow glow, no per-component focus recipe, and no forced-colours carve-out. One keyboard map serves both players (`useMediaShortcuts`: Space/K play, J/L and arrows skip, M mute, F fullscreen), scoped so a shortcut can never steal a key from the focused control, and `tabIndex={0}` appears only on genuinely scrollable regions (TD-4). The seek rail is `Slider variant="media" thumb="hover"`, never a descendant override of Slider's internals — a thumb hidden at rest is a hover-capable-pointer affordance only, so under `(hover: none)` and on focus it stays visible rather than leaving no scrub handle at all.
-
-- **Sanctioned engines** — a component may stand on an outside engine only where that engine owns a behavioural core we would otherwise reimplement, and only under one-file isolation: the engine is imported by exactly one registry item, and everything a user sees or reaches — tokens, chrome, focus order, keyboard model, announcements — stays ours. The list is closed and each entry is a named MK decision (AGENTS.md § Sanctioned dependency exceptions). Two are recorded here because they were previously unnamed doctrine: **`react-day-picker`** is the calendar state machine under `date-picker` (Base UI ships no Calendar — its own was removed before publish — and shadcn's Calendar is this package under every base), and **`next-themes`** is the theme engine under `provider`, the single app-root wrapper that mounts it — one mount, at the app root, and nothing else in the registry mounts a second one. (Until the Base UI Toast migration, `sonner` _read_ the resolved scheme back through `useTheme()`; sonner is gone, and no component reads the theme that way any more.) An engine that starts rendering, owning focus, or spreading past its one file has outgrown its sanction and the decision is reopened, not stretched.
+- **A keeper that wraps an upstream component imports it**, never a copy of it. `date-picker` mounts
+  upstream's `calendar`; `number-field`, `chip-input` and `region-select` are upstream's `input-group`;
+  `settings-row` is upstream's `Card`; `tool-call-chip` is upstream's `Badge`; `app-shell` is
+  upstream's `sidebar` primitives plus the landmarks LAY-12 asks for. A re-derived box is drift with a
+  different spelling.
+- **A form control never owns its width.** Every one is `w-full`; the parent decides. A fixed `w-56`
+  reads fine on the page it was tuned for and overflows at 320px.
+- **One engine, one file.** A sanctioned outside engine is imported by exactly one registry item, so
+  swapping it touches one file; everything a user sees or reaches — tokens, chrome, focus order,
+  keyboard model, announcements — stays ours. The list is closed and each entry is a named MK
+  decision (AGENTS.md § Sanctioned dependency exceptions). An engine that starts rendering, owning
+  focus, or spreading past its one file has outgrown its sanction, and the decision is reopened rather
+  than stretched.
+- **A shared internal is not a catalogue entry.** `data-table-parts` and `panel-search` are installed
+  as dependencies of the components that need them and documented where those components are
+  documented (`coverage.navigation: "exempt"` + `docs: "shared-guide-only"`), the way `geo-data` and
+  `drag-item` are. The contract gate asserts the whole shape, so the exemption cannot be
+  half-declared.
 
 ## Voice & content
 
 Copy is part of the design — precise, no filler.
 
 - **Case:** sentence case for everything (buttons, headings, labels, body, toasts).
-- **Actions** name a verb + noun (`Deploy project`, `Delete member`) — never `Confirm`, `OK`, or a bare verb.
-- **Errors** state what happened plus what to do: `Bundle exceeds the 50 MB limit. Remove unused assets or raise the limit in Settings.` — never just "Something went wrong."
-- **Toasts** name the specific thing, drop the trailing period, never say "successfully": `main@a1f7c2 deployed`, not `Successfully deployed.`
+- **Actions** name a verb + noun (`Deploy project`, `Delete member`) — never `Confirm`, `OK`, or a
+  bare verb.
+- **Errors** state what happened plus what to do: `Bundle exceeds the 50 MB limit. Remove unused
+assets or raise the limit in Settings.` — never just "Something went wrong."
+- **Toasts** name the specific thing, drop the trailing period, never say "successfully":
+  `main@a1f7c2 deployed`, not `Successfully deployed.`
 - **Empty states** point to the first action: `No deployments yet. Deploy your first project →`.
 - **In-progress** uses the present participle + ellipsis: `Deploying…`, `Reasoning…`.
-- Use numerals (`3 projects`), tabular figures, curly quotes, and the ellipsis character; skip "please" and superlatives.
-
-## Do's and don'ts
-
-**Do**
-
-- Use **semantic tokens only** — `bg-primary`, `text-muted-foreground`, `border-border`. Apply **type tokens** instead of hand-set size/weight.
-- Keep `primary` (neutral) as the workhorse — it also carries the one key action / AI moment / selection; **ration `info` (blue)** to links and informational UI.
-- Use `info` (blue) for links and informational UI; pair every state colour with an icon + text.
-- Use the **one border** everywhere; stay flat — overlays get `shadow-overlay`, and nothing else gets
-  a shadow.
-- Keep hover/active/focus colour changes immediate; reserve tokenized motion for geometry, opacity, and
-  lifecycle changes that clarify state.
-- Use the one neutral `:focus-visible` outline (2px, `ring` = primary ink) on every interactive element except text-entry fields, which use a border-tint instead (see Accessibility).
-- Hold **WCAG AA** (4.5:1 body text), authored in **both** themes. Use lucide at `currentColor`; tabular figures for numbers.
-
-**Don't**
-
-- Don't hardcode hex/px, use raw palettes (`bg-neutral-900`), or off-scale values.
-- Don't make `accent` (the neutral hover) a colour, or use `info` (links) for anything that isn't a link or informational.
-- Don't add a decorative brand hue or a fourth status hue "just this once"; don't sit a blue link inside a neutral action cluster where "which is clickable?" becomes ambiguous.
-- Don't make focus a **colour** or a **box-shadow glow** — it's the neutral `ring` (= primary ink), either a border-tint (text fields) or a 2px `:focus-visible` outline (everything else, inset via `-outline-offset-2` where an ancestor or a mask would clip it). Don't remove focus without a visible replacement, and don't use a border-tint outside text-entry fields — forced colours erase it.
-- Don't go bold (600+) as a default — it's a rare, deliberate emphasis (D3), not a UI weight; don't use more than two weights in a view; don't use `rounded-full` for container highlights.
-- Don't add shadows to flat surfaces; don't signal state with colour alone; don't ship a token that resolves in only one theme.
+- Use numerals (`3 projects`), tabular figures, curly quotes, and the ellipsis character; skip
+  "please" and superlatives.
 
 ## Accessibility
 
-- **WCAG 2.2 AA.** Every canonical foreground/background pair clears **4.5:1** (normal text), in **both** themes, enforced by a **fail-closed** contrast gate in CI (computed from OKLCH). All status/info fills pass warm-off-white-on-fill AA; `muted-foreground` passes; `muted-foreground-faint` is deliberately sub-AA and scoped to placeholders/disabled only.
-- **Focus = a border-tint or the native outline — never a box-shadow ring/glow.** Text-entry fields (Input, Textarea, Field control, OTP slots) show ONLY a border-tint (`border-ring/(--alpha-tint-border)`, on plain `focus` not `focus-visible` — a raw text field can't distinguish mouse from keyboard, so the border is the one cue for both). Every other interactive element — buttons, button-style triggers, menu items, portaled overlay surfaces — shows the centralized **2px `:focus-visible` outline** in the `ring` token (= `primary` ink), defined once in `base.css`. Mouse clicks show nothing outside text fields. The `ring` token is one value, so it re-skins globally — change `ring`, every focus state follows. **Under `forced-colors: active` a border tint is erased outright**, so every text-entry control
-  carries `outline-hidden` — a _transparent_ 2px outline the forced palette repaints — and one unlayered
-  block in `base.css` paints `outline: 2px solid Highlight` on focused inputs, textareas, contenteditables
-  and every `[data-field-group]`. The group is the element that paints when a field has addons: its
-  `overflow-hidden` clips the inner input's outward-offset outline, which is exactly how an addon field
-  ended up with no visible focus at all (audit B1-01, 2026-09-07). The control inside a painted group
-  stands down so the two never double-ring. The outline-REMOVING utility is banned on a text-entry
-  control for this reason; it leaves `outline-style: none` in force and the forced palette has nothing
-  to repaint.
-- **On a text-entry control, focus OUTRANKS every other border state** (#100, 2026-09-09). The border is
-  the only focus channel a text field has, so nothing may hold it while the field is focused: the
-  invalid tint (`aria-invalid`/`data-invalid`/`has-aria-invalid`) and `Field borderless`'s flattening
-  both stand down on `focus`/`focus-within` and return on blur. This is a **selector** rule, not a
-  source-order one — the invalid tint and the focus tint are the same property at the same specificity,
-  and Tailwind v4 emits `aria-invalid:` and arbitrary variants after `focus:`, so whichever one is
-  meant to lose has to say so (`not-focus:`, `:not(:focus)`). Until it did, a focused invalid field and
-  every borderless field showed **no focus indicator at all** — a WCAG 2.2 §2.4.7 failure that stood for
-  as long as the focus check could not fail. The error is still carried by `aria-invalid`, by Field's
-  message and icon, and by the tint returning on blur; focus has one channel and keeps it.
-- **The focus tint is contrast-gated as a composite, not as a token.** `ring` solid is measured by
-  `tooling/contrast-check.mjs`, but no text field renders it solid — `border-ring/(--alpha-tint-border)`
-  is `ring` at 70%, and that composite is what a user actually sees. It is gated against every focus
-  surface in both themes: measured 2026-09-09, **4.04–4.51:1 light** and **6.31–7.72:1 dark**, against a
-  3:1 floor (WCAG 1.4.11).
-- **A scroll viewport is a focus stop only while it can actually scroll — and the system measures rather than guesses.** `useOverflow` is the one overflow measurement (`inline`/`block`/`either`, observing the element AND its children so content that grows inside a fixed box is caught), and every scrolling viewport in the system is wired through it: the table container, ComparisonMatrix, TruncatedText's reveal affordance, Terminal's command pane. A region that scrolls and cannot be focused is unreachable without a pointer (axe `scrollable-region-focusable`); an unconditional `tabIndex` on a viewport that fits is the opposite error, a dead stop on every keyboard user's path. Names and roles do **not** move with the measurement — a `group`/`region` that appears and vanishes under a screen reader on resize is worse than a stable one — only the tab stop does. Because measuring needs hooks, the measuring element is isolated in its own `'use client'` leaf (`table-scroll-region.tsx`, `terminal-body.tsx`) so the surrounding component stays server-safe.
-- **The one permitted component-local focus deviation: the offset, and only when the outline would not be painted at all.** A focusable element whose outline cannot render outside its border box — an `overflow-hidden` ancestor, or a mask utility such as `scroll-fade-x` (a `mask-image` clips everything the element paints to that box) — keeps the same outline pulled inside with `focus-visible:-outline-offset-2`. Width, colour, and token stay centralized; only the offset inverts. A border-tint is **not** an alternative here: `forced-colors: active` replaces `border-color` outright, so a tint on a non-text-entry control leaves the forced palette with no indicator at all. Terminal's scrollable command pane is the reference case (`docs/ledger/bugs.md`, 2026-07-25).
-- **Live regions are polite by default, and silence is the default for anything already on the page.** A region that exists in the DOM when the page loads announces nothing, so `role="status"` costs nothing on a static banner — while `role="alert"` is assertive and interrupts whatever the screen reader is saying. So: every status surface is `role="status"`; the assertive `alert` role is reserved for a `destructive` or `warning` message that appears **after** mount in response to something the user did, opted into with an explicit `live` prop (D23). Page chrome that is present at load — the `AnnouncementBanner` strip — carries no live role at all, because announcing it competes with the page's own heading for the first thing a user hears. Three static alerts on one page must produce zero announcements, not three.
-- **A gap is not a space: an accessible name assembled from sibling elements takes an `sr-only` separator** (#103/#109, 2026-09-09). When a control takes its name from its contents and those contents are separate elements laid out by CSS `gap` — a label and a `CommandShortcut`, a title and a count `Badge`, a step name and its state — there is **no whitespace text node between them**, so accname concatenation runs them flush: `Activity3`, `Profile⌘P`, `Acme renewal$12,400`. `gap` is layout, and accname never sees it. The fix is one hidden text node: `<span className="sr-only">, </span>` immediately before the trailing element. It works because `sr-only` is `position: absolute` — **out of flow, so it consumes no gap track and moves nothing visually** — while still contributing to the name. Two properties keep it correct: the visible label stays a **verbatim substring** of the accessible name, so **SC 2.5.3 Label in Name** still holds and speech input still works; and the separator is a comma plus a space, which every screen reader renders as a pause rather than a spoken word. Put the payload in the same span when the trailing element is an icon or a state glyph rather than text (`, invalid entry`, `, Expand column, read-only`), and never reach for `&nbsp;`, a `::before` (generated content is not reliably named) or `aria-label` on the parent (which would break 2.5.3 the moment the visible label changes). **Out of flow still needs a containing block**: the host element carries `relative`, because an absolutely positioned span with no positioned ancestor resolves against the initial containing block, and inside a horizontally scrolled row its static x position extends the **page's** scroll width — measured on Board's collapsed column, and caught by the 320px reflow contract. Nine call sites carry this today: Board, Command, DataGrid (×2), FloatingSurface, Kbd, OnboardingChecklist, Tabs, ToolCallChip.
-- **Never signal by colour alone** (1.4.1) — pair status colour with an icon or label.
-- **Live regions — one hook, one node, one policy** (audit B5-05 / amendment 8, 2026-09-07). Politeness is decided first: `role="status"` `aria-live="polite"` by **default**, and `role="alert"` only for destructive or warning content rendered after mount (D23). Every polite announcement then goes through **`useAnnouncer`** — `const { announce, Announcer } = useAnnouncer()` — and a component renders **exactly one** `<Announcer />`, for its whole life. Three properties are non-negotiable and are why this is a hook rather than a snippet: the region is **mounted empty from first paint** (a region inserted at the moment it gains text is frequently never announced, because the platform was not observing it); its child is **keyed by a monotonic sequence**, so announcing the identical string twice in a row still mutates the DOM and is still spoken (a same-value `setState` is a React bail-out); and the state lives in the hook's own store, so an announcement re-renders the region, not the host. Announce the **destination**, never every intermediate frame — "Moved Design to position 3 of 7", not one message per pointer move. A live region is never also a visible status slot: a slot that renders icons would announce its own icon swaps.
-- **Target size** (2.5.8) — every interactive target has a ≥24×24px hit area or the permitted spacing;
-  prefer ≥44×44px for primary mobile actions. Validate invisible hit areas with an actual hit-test boundary
-  probe, not computed styles alone.
-- Respect **`prefers-reduced-motion`**.
-- Preserve zoom, keyboard order, logical reading order, and meaning in RTL; safe-area padding must not
-  reduce or cover a target.
+WCAG 2.2 AA, preserving every 2.1 assertion that was already true. The rules are the A11Y rows above;
+what follows is where each one is **proved**, because an accessibility claim with no lane behind it
+is a wish.
 
-## Brand & marketing
+- **Contrast** — `tooling/contrast-check.mjs` computes every gated pair from OKLCH and fails closed,
+  in both themes, including alpha composites. `contrast.browser.test.tsx` measures the same claims on
+  **compiled** CSS, which is what catches a class that reads correctly and resolves to nothing.
+- **Axe** — one `expectNoA11yViolations(...)` per meaningfully different state (rest, open, disabled,
+  invalid, loading), not one smoke test at rest. **There is no suppression list in the registry
+  suites**: the two engine defects that used to need one are fixed under A11Y-9, each with a test
+  pinning the engine's shape so the fix fails as stale rather than silently rotting.
+- **Geometry** — `packages/ui/test/geometry.browser.test.tsx` is the blocking visual-surface gate:
+  320px reflow, RTL containment, the effective 24px pointer target through a real `elementFromPoint`
+  probe, and the owned focus contract, which rejects the user agent's own ring
+  (`outline-style: auto`) by name. It always runs its compiled-CSS/token sentinel, so no assertion can
+  pass vacuously over an unstyled fixture, and every exclusion is per assertion and still executed in
+  expect-failure mode, so a fixed exclusion turns red instead of rotting.
+- **Keyboard** — every interactive affordance reachable and operable by keyboard alone. Base UI gives
+  this for its own interaction model; anything hand-rolled (a roving-tabindex group, a hit-area
+  expansion, a grid navigation layer) carries its own keyboard test.
+- **States** — default, hover, focus, loading, empty, error, success, disabled, wherever applicable.
 
-Everything above is the **product** system (light/dark co-primary, warm-neutral, one rationed
-`info` accent). Marketing surfaces — the docs-home hero, future landing pages — layer a small,
-strictly-rationed set of ADDITIONAL rules on top of the same tokens (evidence-based synthesis:
-`docs/audits/2026-07-14-system-audit/17-brand-direction.md`, D17/D18/D20). They do not replace or
-loosen anything above; a marketing surface still uses `bg-background` / `text-foreground` / the
-one `border` token — only the VALUES underneath change (see Scope mechanism, below).
+Two open accessibility gaps are recorded rather than hidden, each pinned by a test that fails the day
+it closes: a wide table scrolls in upstream's plain container and is **not** a tab stop (A11Y-6's
+second clause, see above), and `@shadcn/react`'s message-scroller viewport is an unconditional tab
+stop even when the transcript does not scroll.
 
-### Accent — marker roles only, not a wash
+## Docs canon
 
-The `--brand` phosphor accent (light `oklch(0.6 0.17 148)`, 3.5:1 on card/background; dark
-`oklch(0.86 0.21 148)`, 13.3:1 — MK's phosphor pick) is additive to the product's `info` accent, **not**
-a replacement — `info` still means link/informational UI everywhere; `brand` is the marketing-only
-signature.
-Marker roles: a live/AI-state dot, a sparkline endpoint, an eyebrow highlight (the small
-dot before a mono eyebrow), a terminal prompt glyph, and the **one** exception —
-the `cta` Button variant. Never a headline color, a full-strength surface, or a
-decorative wash beyond one radial. Budget: **guidance, not lint** — aim for ≤~10
-accent elements on any one marketing page (a `ParticleField` counts as ONE atmospheric accent
-instance, not per-particle, since it reads as a single texture, not N marks).
+A component's documentation page is part of the component, and it serves humans and agents from the
+same source. `tooling/content-lint.mjs` enforces the shape, with a `--self-test` that observes each
+rule failing; `tooling/upstream/verify-variant-coverage.mjs` enforces the **content** of row 5 for a
+component that is upstream-backed; `tooling/verify-docs-export.mjs` owns the Explorer policy and the
+markdown export.
 
-**`brand` is a marker value, and a marker value is not a text ink.** 3.5:1 clears WCAG 1.4.11 for a
-glyph and fails 1.4.3 for a label. The family therefore ships the same page-readable half every
-chromatic family ships — **`brand-text`** (light `oklch(0.46 0.17 148)`; on the dark and
-`.vs-marketing` grounds it carries the marker value itself, which already reads at 12.2:1). Any
-brand-coloured **text** — the `cta` label included — takes `brand-text`;
-`brand` stays the dot, the endpoint, the glyph, the outline and the wash.
-`tooling/contrast-check.mjs` gates `brand-text` at 4.5:1 over `background`/`card`/`popover` and
-ladder rungs 1–3, and over the `cta`'s own wash at `--alpha-surface-faint`/`--alpha-hover`/
-`--alpha-pressed` — measured 2026-09-09 at **5.93 / 5.80 / 5.59 light** and **11.41 / 10.90 /
-10.13 dark** over `card`. It was `text-brand` until then, and shipped at **3.41 / 3.33 / 3.21**
-in light on the public docs button playground.
+| #   | Section                          | Required content                                                                                                                                                                         | Source of truth                                                                               |
+| --- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 0   | **Frontmatter**                  | `title`, `description`, `preview`, `registry` (required, never inferred from the slug), `status`, `since`, `a11y`                                                                        | shape validated by `apps/docs/source.config.ts`; `status`/`since` GENERATED from the contract |
+| 1   | **Install**                      | one `<InstallSteps>` block — the `shadcn add` command, the item's `registryDependencies` and the engines it pulls in. Never a hand-typed `shadcn add` fence                              | generated from `registry.json`                                                                |
+| 2   | **Usage**                        | the minimal import plus one canonical snippet, ≤12 lines                                                                                                                                 | hand-written                                                                                  |
+| 3   | **Scope** _(composites)_         | at most three bullets: owns / does not own / compose with                                                                                                                                | hand-written                                                                                  |
+| 4   | **Anatomy** _(compounds)_        | every exported part with the `data-slot` names it renders                                                                                                                                | generated from the contract                                                                   |
+| 5   | **Examples**                     | **for an upstream-backed component, one `###` per section on upstream's own docs page, in upstream's order**, each with its own live `<ComponentPreview>`; for one of ours, our own list | `vendor/shadcn/<cli>/docs/<name>.json` + `components/preview/<name>.tsx`                      |
+| 6   | **Playground** _(where curated)_ | the curated `PropsPlayground`, or the Story explorer where none exists, or neither — never both                                                                                          | `components/*-playground.tsx`                                                                 |
+| 7   | **API Reference**                | one flat, expanded table per exported part — name · literal union · default · description. Own props only; a part with no own props gets one sentence, never placeholder rows            | `fumadocs-typescript` + the contract                                                          |
+| 8   | **Accessibility**                | the pattern name, the keyboard table, announcements, and `<StatesTested>`                                                                                                                | keyboard table hand-written; states generated                                                 |
+| 9   | **Do / Don't**                   | at least two pairs. Closes a page for a component that is **ours**                                                                                                                       | `DoDont`                                                                                      |
+| 10  | **Deviations** _(reset pages)_   | one bullet per decision ID the component's patch implements, in the patch header's order. Closes the page, and nothing follows it                                                        | `packages/ui/upstream/patches/<name>.patch`                                                   |
 
-**What the `cta` variant actually paints**, so the prose and the component agree: a faint brand
-wash (`bg-brand/(--alpha-surface-faint)`) inside a brand accent outline
-(`border-brand/(--alpha-outline-border)`, going full-strength on hover), sharp corners
-(`rounded-(--radius-sharp)`), a mono-uppercase `brand-text` label, and the family's alpha
-hover/pressed rungs. The wash and the outline ARE the treatment — the earlier "never a fill, a
-border-at-rest" line described the accent's use _outside_ this one exception and read as forbidding
-the exception itself.
+Row 10 is what makes the third success sentence of the reset — "every difference traces to a decision
+ID" — checkable by a reader rather than only by a gate.
 
-**Open (MK): nothing scopes `cta` to a marketing surface.** Its type is `{ variant: "cta"; tone?:
-never }` with no `MarketingSurface` requirement, so it is legal on a plain product page; the docs
-playground now renders it inside a `MarketingSurface`, which is where the recipe is written to live.
-Making the scope a type error, or resolving the label ink through a `--btn-*` var only
-`MarketingSurface` supplies, is a design decision rather than an accessibility one — `brand-text`
-clears AA on every surface either way.
+**A block page is not under this canon.** A block has no prop surface to document, so it lives in
+`apps/docs/content/docs/blocks/`, carries `registry`/`preview` frontmatter and a free section list.
+The 68 ported chart blocks share seven family gallery pages rather than a page each — the same
+shared-surface exemption the animated icons carry, reconciled member by member by
+`verify-component-contracts.mjs`.
 
-### Promotion — a ladder rung, never a hue
+**Humans and agents read the same page.** Every MDX component renders to markdown for the per-page
+`.md` route and `llms-full.txt`; a browser-only surface is replaced by an explicit one-line note
+rather than dropped silently. `verify-docs-export.mjs` fails the build on any JSX tag surviving
+outside a code fence, any unresolved placeholder, and any empty API table.
 
-A promoted plan, a recommended option, a "Popular" card: the thing being promoted is the SAME kind
-of object as the things beside it, so promotion is a difference in **elevation**, not in meaning.
-Lift it one rung of the surface ladder (`surface-3` — the rung selection already uses) and tint its
-hairline with `primary` at `--alpha-outline-border`. The badge stays neutral, or `primary` at most.
-
-Never `info`. `info` means link-or-informational-message everywhere in the system, and borrowing it
-for promotion makes a pricing card claim to be a notice. Never a full-strength chromatic border
-either: at full strength `border-primary` reads as the active/invalid state of a form control, which
-is exactly the wrong signal on a card someone is being invited to choose.
-
-This is the marketing face of the product rule in §Chromatic colour — rationed: a hue has to mean
-something, and "this one is better" is not a meaning the palette carries.
-
-### Sharp gesture — rationed to CTAs, chips, figure frames
-
-`rounded-(--radius-sharp)` (2px) is the marketing "sharp" signature — rationed to the `cta` Button
-variant, chips, and `FigureFrame`. **Product radii are unchanged** everywhere else (the 6/8/12
-scale above stays the product's own). Don't reach for `radius-sharp` outside those three roles, and
-don't apply it wholesale across a marketing page — it's a deliberate accent, not a new default.
-
-### Mono voice — uppercase is mono-exclusive, 12px floor
-
-Geist Mono, uppercase, `+0.04–0.06em` tracking (baked into the `text-mono-label` token), weight
-400/500, `tabular-nums` for any numeral content — eyebrows, section numbers, FIG-style captions,
-terminal annotations, the `cta` button label. **Uppercase Geist Sans is banned** — uppercase type
-must ALWAYS carry `font-mono`/`text-mono-label` in the same class literal (lint-enforced in
-`packages/ui`, design-lint rule `uppercase-mono`). The mono voice never appears in headlines or
-long-form body copy. 12px (`text-mono-label`) is the floor; the spec permits an optional 10px
-minimum for FIG-style annotations specifically, but no token below 12px ships today —
-`FigureFrame`'s caption intentionally stays at the 12px floor rather than hand-rolling a one-off
-size (see the component's own note).
-
-### Marketing leaves — quotes, marks and reveals
-
-Three conventions the leaf components encode, each because the obvious spelling breaks somewhere
-real:
-
-- **Quotation marks come from CSS, not from characters.** A pull-quote renders its text inside a
-  `<q>` with `quotes: auto`, so the browser inserts the pair the ACTIVE language uses (`„…“`,
-  `« … »`, `「…」`). Typing `“…”` into the markup ships English punctuation to every locale and puts
-  the marks in the text content, where a copy picks them up.
-- **A logo wall shows MARKS, not links.** Wordmarks rest in `text-muted-foreground` and lift to
-  `text-foreground` on hover, with no underline — a wall of underlined text reads as a paragraph of
-  links. Cell seams are logical (`border-s`, `-ms-px`), or RTL doubles the outer edge and erases the
-  inner rules. Column counts are a MAXIMUM over an `auto-fill` track with a cell floor, never a fixed
-  `grid-cols-N`, which squeezes four 80px cells onto a 320px screen.
-- **A scroll reveal waits for the scroll.** An entrance animation that starts on mount has already
-  finished by the time a reader reaches anything below the fold, so the motion was pure cost. Gate it
-  on an `IntersectionObserver` — and gate it so the animation is REMOVED by the client, never added:
-  the server-rendered markup animates, so a page whose JavaScript never runs still shows its text.
-
-### Serif accent — Newsreader, display emphasis + pull-quotes ONLY
-
-`font-serif` (Newsreader italic) is reserved for two roles: a single emphasis word/phrase inside a
-`SectionHeader` title, and the `Testimonial` pull-quote. **Never running body text**, never a
-whole headline, never non-italic. Both sanctioned uses live in this Phase B component set —
-extending the serif accent to a third role should re-open the decision, not silently spread it.
-
-### Geist Pixel — exactly ONE hero flourish
-
-`font-family-pixel` (Geist Pixel Square, `geist/font/pixel`'s `GeistPixelSquare`) is a single
-deliberate decorative glyph, used ONCE per surface — see the docs-home hero's `▪` flourish before
-the eyebrow. It is never a headline face, never running text, and never repeated within the same
-page. Adding a second use anywhere re-opens D17's "one sanctioned hero flourish" decision; don't
-do it without that conversation.
-
-### Alpha-ramp text hierarchy
-
-Marketing surfaces build text hierarchy from ONE ink, never a second gray token: full
-`text-foreground` for primary copy and `text-muted-foreground` for secondary, tertiary, and
-resting roles — `Terminal` output lines and `LogoRow`'s resting wordmarks both use it. Because
-`MarketingSurface` re-grounds the theme, `muted-foreground` resolves against the marketing ground
-rather than the page's, so one token covers the whole ramp without a marketing-only scale.
-
-> **Do not** express this as `text-foreground/(--opacity-hint|-soft|-dim)`. `--opacity-*` roles are
-> for whole-ELEMENT opacity; colour compositing takes an `--alpha-*` role. Mixing them is a lint
-> error (`alpha-opacity-role`), so that form fails the build — and no component uses it. Its
-> contrast is also below AA: `foreground` at 50% measures 3.70:1 on the marketing ground.
-
-### Marketing ground + scope mechanism
-
-Marketing surfaces render the warm ramp's **dark end** (not pure black) — the same `.dark`-half
-token values, but scoped to work **independent of the page's `.dark` class**, because the product
-default is light and a marketing page needs to be dark-first regardless. The mechanism is the
-`.vs-marketing` class (`packages/design-tokens/src/utilities.css`) plus the `MarketingSurface` primitive
-that applies it: every semantic token utility inside a `MarketingSurface` (`bg-background`,
-`text-foreground`, `border-border`, `bg-brand`, and any composed product component) resolves to
-the dark values with zero code changes. `Terminal` self-scopes the same way, so an install snippet
-reads dark even embedded in a light docs page. Base UI portals
-(Dialog/Popover/Menu/Select/Tooltip) mount to `<body>`, OUTSIDE any `MarketingSurface` subtree, so
-a portaled surface opened from inside one would inherit the PAGE theme rather than the marketing
-ground. That is handled: `MarketingSurface` publishes its ground through the theme-scope context
-(`@vegastack/design/theme-scope`) and all 12 portal-owning components re-apply it at the portal
-root, which `tooling/verify-portal-theme-scope.mjs` enforces as a 12/12 inventory. A portal opened
-from inside a marketing surface therefore carries the marketing ground with it, with no per-call
-styling. The docs-home page (`apps/docs/app/(home)/page.tsx`) is the reference implementation: one
-outer `MarketingSurface` wraps the entire page, and the rest of `/docs` stays the light-primary
-product surface — a single, deliberate temperature boundary at the home→docs navigation, not an
-alternating pattern within one page.
+**The docs shell obeys this system end to end.** Fumadocs' chrome and the typography plugin are
+compiled against Tailwind's stock theme, so their values are remapped once in
+`apps/docs/app/global.css`, and `design-lint --docs-shell --emitted-css` reads the **built**
+stylesheet to prove it — source linting cannot see a value this repo never wrote.
+`tooling/verify-docs-shell.mjs` asserts the rest in a real browser against the built public export,
+inside `pnpm verify:distribution`, and its `--self-test` injects, per assertion, the defect that
+assertion exists to catch.
 
 ## Toolchain — two pinned decisions
 
-Both were taken by MK on 2026-09-09, and both are decisions to **hold a version**, which is the kind
-of decision that rots quietly unless the reason is written down beside it. Each carries the evidence
-that made it, so the next agent re-measures rather than re-argues.
+Both taken by MK on 2026-09-09, and both are decisions to **hold a version** — the kind that rots
+quietly unless the reason is written beside it.
 
-### TypeScript stays at 6.0.3
+### TypeScript stays at 6.0.3 (DOC-9)
 
-`typescript@7.0.2` is the latest release; this repo pins `6.0.3` through the pnpm catalog, and that
-is deliberate.
-
-**Nothing downstream forces the upgrade.** `next@16.3.4` declares no `typescript` peer at all, and
-`react@19.2.8` declares no peers whatsoever, so a consumer's own TypeScript version is unconstrained
-by anything this system publishes.
-
-**The lint toolchain forbids it.** `typescript-eslint@8.70.0` — the latest published release — and
-the ten `@typescript-eslint/*` packages in the tree at the same version declare
-`typescript: ">=4.8.4 <6.1.0"` wherever they declare the peer at all (the meta package plus
-`eslint-plugin`, `parser`, `project-service`, `tsconfig-utils`, `type-utils` and `typescript-estree`;
-`scope-manager`, `types`, `utils` and `visitor-keys` declare none). No shipped typescript-eslint
-supports TypeScript 7. `twoslash@0.3.9` caps its peer at `^5.5.0 || ^6.0.0` for the same reason.
-Upgrading would run every type-aware ESLint rule on a compiler the rule authors have not validated —
-trading a real, enforced gate for a version number.
-
-**fumadocs at 7.0.2 is not drift.** `@fumadocs/story@1.3.0` and `fumadocs-typescript@5.4.0` each
-declare `typescript: "~7.0.2"` as a **direct dependency**, not a peer, for their own type-table
-generation. They get their own copy; nothing in this repo type-checks against it. A pnpm override
-forcing them to `^6.0.3` would violate a range they declare, to fix a problem that does not exist.
-
-**Revisit when typescript-eslint ships TypeScript 7 support** — that is the single unblocking
-condition, and the check is one `npm view typescript-eslint peerDependencies` away.
+`typescript@7.0.2` is the latest release; this repo pins `6.0.3` through the pnpm catalog.
+**Nothing downstream forces the upgrade** — `next@16` declares no `typescript` peer and `react@19`
+declares no peers at all, so a consumer's own version is unconstrained by anything we publish.
+**The lint toolchain forbids it** — `typescript-eslint@8.70.0`, the latest release, declares
+`typescript: ">=4.8.4 <6.1.0"` wherever it declares the peer; no shipped typescript-eslint supports
+TypeScript 7, so upgrading would run every type-aware rule on a compiler its authors have not
+validated. **fumadocs at 7.0.2 is not drift**: `@fumadocs/story` and `fumadocs-typescript` take their
+own copy as a direct dependency for type-table generation, and nothing here type-checks against it.
+Revisit when typescript-eslint ships TypeScript 7 support — one
+`npm view typescript-eslint peerDependencies` away.
 
 ### `tw-animate-css` stays in the public preset
 
 `packages/design/preset.css` opens with `@import "tw-animate-css"`, and the package is a regular
-dependency of `@vegastack/design`. A review proposed removing it as dead weight, having measured
-zero `animate-in` / `fade-in` / `zoom-in` / `slide-in-from-*` usages in this repo. That measurement
-is correct and it counts the wrong population: **the preset is consumer-facing API, and consumers are
-not in this repo.**
-
-It is documented as such in two places a consumer reads before anything else.
-`guides/quickstart.mdx` states that `preset.css` bundles it; `guides/troubleshooting.mdx` gives
-`Can't resolve 'tw-animate-css'` its own section, and records that `@vegastack/design` older than
-0.1.1 marked it an **optional peer that pnpm never installed** — bundling it _was_ the fix. Removing
-it now would re-open that closed defect in a subtler form: rather than failing the build, a
-consumer's `animate-in` would compile to nothing and their UI would silently stop animating.
-
-**The split is deliberate, and it is the point.** Our own components stay on the system's motion
-vocabulary — the `motion-*` utilities and the token `duration-*`/`ease-*` pairs — and `design-lint`
-rejects arbitrary animation values (`animate-[…]`, `duration-[…]`, `ease-[…]`, raw `cubic-bezier()`)
-in our source, which is why the usage count in this tree is zero and should stay zero. Consumers get
-the escape hatch, because a design system that ships a Tailwind preset ships the utilities that
-preset promises.
-
-**The two halves can no longer drift apart.** `tooling/verify-test-css-layers.mjs` takes the
-`@import` **specifier** as its unit rather than matching only the token layers, so every compiled-CSS
-test lane is required to import exactly what production imports — `tw-animate-css` included. Before
-that change no lane imported it and nothing said so: a `tw-animate-css` utility with no definition
-compiles to nothing, exactly like a missing `@utility`, and a lane would have measured a fixture
-stripped of its enter animation without failing.
-
-## Docs canon
-
-A component's documentation page is part of the component, not a follow-up, and it serves humans
-and agents from the same source. The table below is **the standard every component page is
-written to** — the shape, the order, and the authority each section is generated from. Approved
-2026-09-07 (audit `08-docs-structure.md` §2; decisions D19, D26, DD-1…DD-5).
-
-**Every component page is written to it, and a gate says so.** The generated sections shipped as
-MDX components in 0.7.0; Do1-b (2026-09-09) placed them on all 116 component pages, renamed
-`## Installation` to `## Install` in the same change, and made `tooling/content-lint.mjs` enforce
-the table: the frontmatter of row 0, the section vocabulary and order, Do / Don't as the final
-section, and the rule that the machine-readable half of a section is generated rather than typed.
-Each of those rules has a fixture that violates it in `content-lint --self-test`. The API Reference
-(row 7) and the markdown export below already held everywhere before that change.
-
-| #   | Section                          | Required content                                                                                                                                                                                                                                                         | Source of truth                                                                                                 |
-| --- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| 0   | **Frontmatter**                  | `title`, `description`, `preview` (hero fixture), `registry` (item name), `status` (`stable \| preview \| deprecated`), `since` (version), `a11y` (pattern name)                                                                                                         | shape validated by `apps/docs/source.config.ts`; `status` and `since` GENERATED from `component-contracts.json` |
-| 1   | **Install**                      | one `Steps` block: the `shadcn add` command, the item's `registryDependencies`, and the sanctioned engines it pulls in. The registry-auth notice is a site `Banner`, shown ONCE, never per page                                                                          | generated from `registry.json`                                                                                  |
-| 2   | **Usage**                        | the minimal import plus one canonical snippet — the "if you copy one thing" example, ≤12 lines                                                                                                                                                                           | hand-written                                                                                                    |
-| 3   | **Scope** _(composites)_         | three bullets at most: owns / does not own / compose with                                                                                                                                                                                                                | hand-written; the author judges compositeness                                                                   |
-| 4   | **Anatomy** _(compounds)_        | every exported part with the `data-slot` names it renders                                                                                                                                                                                                                | generated from the contract's `dataAttributes`                                                                  |
-| 5   | **Examples**                     | one `ComponentPreview` per fixture, each a contract-lane route; the fixture source appears in the markdown export                                                                                                                                                        | `components/preview/<name>.tsx`                                                                                 |
-| 6   | **Playground** _(where curated)_ | the curated `PropsPlayground`. The Story explorer is sanctioned ONLY where no curated playground exists — never both on one page (DD-3)                                                                                                                                  | `components/*-playground.tsx`                                                                                   |
-| 7   | **API Reference**                | one flat, expanded table per exported part — name · the literal union · default · description. Own props only; a part with no own props gets ONE sentence, never placeholder rows. A second small table lists the `data-*` attributes and CSS variables the part exposes | `fumadocs-typescript` + the contract's `dataAttributes`                                                         |
-| 8   | **Accessibility**                | the pattern name, the keyboard table, screen-reader announcements, and the states the lanes exercise                                                                                                                                                                     | keyboard table hand-written; states generated from the contract                                                 |
-| 9   | **Do / Don't**                   | at least two pairs                                                                                                                                                                                                                                                       | `DoDont`                                                                                                        |
-| 10  | **Deviations** _(reset pages)_   | one bullet per decision ID the component's patch implements, in the order the patch header lists them. A component that equals upstream apart from the `cn` import says so and lists only DOC-2                                                                          | `packages/ui/upstream/patches/<name>.patch`                                                                     |
-
-Row 10 arrived with Batch 2 of the shadcn reset (2026-09-18). A page for a component that is
-UPSTREAM'S FILE PLUS AN APPROVED PATCH has to name, on the page, the decisions that patch
-implements — the mandate's third success sentence ("every difference traces to a decision ID") is
-only checkable by a reader if the page carries the list. It closes the page, and nothing follows it;
-`content-lint` enforces both halves and observes each failing in `--self-test`.
-
-Do / Don't is the final section for a component that is ours, and Deviations for one that is
-upstream's. "Notes", "Voice" and "How it works" fold into Usage or Scope.
-Marketing-only leaves skip Scope, Anatomy and Playground and keep the rest. Component pages do not
-repeat release history: at retirement on 2026-09-15, 25 of 116 pages produced only an empty state,
-while broad release bullets were repeated across every component title they happened to mention.
-The canonical Changelog page remains the complete history.
-
-Row 6 is a permission, not a requirement: a page carries a curated playground, or the Story
-explorer where none exists, or **neither** — `tooling/verify-docs-export.mjs` enforces "never both,
-an Explorer always wrapped, and whichever one a page carries renders under its `## Playground`
-heading". Re-measured 2026-09-09 over 116 pages: 45 curated · 6 Explorer · 65 neither · 0 both.
-
-Row 0's `registry` is **required** on a component page and is never inferred from the slug: the
-docs route reads `page.data.registry` alone, so a page with a missing or wrong value fails
-content-lint instead of silently composing the wrong `shadcn add` target. Rows 3 and 6 stay
-conditional; row 4 is required wherever the contract exposes more than one component part.
-
-**Row 0's `status` and `since` are machine authorities, not prose (Do1-c, 2026-09-09).** Both are
-recorded per component in `packages/ui/component-contracts.json`, written onto the page by
-`pnpm design:derived`, and compared against the contract by `content-lint` — so a page cannot claim
-a status or an origin version the contract does not hold, and neither can be hand-edited into
-drifting. `status` was 116 identical hand-typed `stable` strings with no authority behind them;
-`since` was derived once from `git log --follow`, which is why `media-player-controls` read 0.5.0 —
-`--follow` walked into the `audio-player` source it was extracted from, and the item itself has
-never shipped. `since` is now **pinned data, never computed**: the values were verified against
-/CHANGELOG.md's enumerated release lists and against `packages/ui/registry.json` as it stood at each
-release commit, and a component authored between releases carries the next version, which
-`tooling/version-sync.mjs` re-stamps at version time with the version actually being released.
-
-**Humans and agents read the same page.** Every MDX component renders to markdown for the per-page
-`.md` route and `llms-full.txt`: the fixture source, the flat prop tables, the install steps and
-the do/don't pairs are all there, and a browser-only surface is replaced by an explicit one-line
-note rather than dropped silently. `tooling/verify-docs-export.mjs` fails the build on any JSX tag
-that survives outside a code fence, any unresolved placeholder, and any empty API table.
-`llms.txt` additionally carries the registry roster — every installable item with its page and its
-`shadcn add` target — and the public skill roster. The generated animated-icon wall is deliberately
-NOT an MDX component: the Icons foundation page links to its dedicated
-`/docs/foundations/icons/gallery` route, so the wall's client chunk cannot enter every catch-all
-docs page. The public-export gate identifies that chunk from an owned gallery-card sentinel and
-requires exactly the dedicated route — and no ordinary docs HTML — to reference it.
-
-**The docs shell obeys this system end to end (DD-1).** Fumadocs' chrome and the typography plugin
-are compiled against Tailwind's stock theme, so their weights, radii and shadows are remapped to
-system values once in `apps/docs/app/global.css`, and `design-lint --docs-shell --emitted-css`
-reads the BUILT stylesheet to prove it — source linting cannot see a value this repo never wrote.
-`tooling/verify-docs-shell.mjs` asserts the rest in a real browser against the built public export,
-in `pnpm verify:distribution`: the product type scope (including inside a portal), the weight ladder as
-computed, the fullscreen preview's background isolation, 25-step focus containment, Escape and
-focus return, the skip link as the first tab stop, and named tab stops. Base UI marks outside roots
-but does not make them natively inert, so Dialog, AlertDialog and Sheet share the internal
-`use-modal-inert` hook: each popup observes Base UI's live `data-base-ui-inert` stack markers and
-mirrors them to native `inert`. Ownership is reference-counted and restores each element's prior
-value, so nested portals follow Base UI's own modality decision instead of an independently guessed
-body-sibling list. Subtrees containing a region-level live surface (`[aria-live][role="region"]`)
-preserve Base UI's live-region exception, so portaled notifications remain announced and
-interactive above the modal without control-local status announcers reopening the background.
-Non-modal and `modal="trap-focus"` Dialog/Sheet roots retain their
-outside-interaction contracts. The `--self-test` runs in the same stage and injects, per assertion,
-the defect that assertion exists to catch — including removing native inert — so none of them can
-quietly go fail-open.
+dependency of `@vegastack/design`. It was once argued to be dead weight, on a measurement of zero
+`animate-in` / `fade-in` / `zoom-in` / `slide-in-from-*` usages in this repo. **That measurement no
+longer holds either way**: since the reset adopted upstream's overlay files verbatim, eleven registry
+components use those utilities directly, because that is how shadcn writes an overlay's enter and
+exit. And the original reason still stands — the preset is consumer-facing API, `guides/quickstart`
+and `guides/troubleshooting` both document that it bundles the package, and `@vegastack/design` older
+than 0.1.1 marked it an optional peer pnpm never installed. Removing it would reopen that defect in a
+subtler form: a consumer's `animate-in` would compile to nothing and their UI would silently stop
+animating. `tooling/verify-test-css-layers.mjs` takes the `@import` **specifier** as its unit, so
+every compiled-CSS test lane imports exactly what production imports.
 
 ---
 
-> **Provenance.** This is the canonical v2 specification for the finalized token system (v1, the pre-overhaul
-> grey/`action`+`agent` system, is preserved at `design-v1.md`). Values are intended to be **generated from
-> `@vegastack/design-tokens`** (DTCG → OKLCH) with a CI drift-check, so the spec can't diverge from the shipped
-> tokens; the prose layer (Overview, Voice, Do/Don't, Accessibility) is hand-authored. An early single-accent
-> exploration is archived at `docs/research/design-comparison/proposed-design-system.html` (superseded — it
-> predates the locked decisions: the one derived alpha hairline, neutral 2px ring, separate `info`=blue; not current). The live
-> showcase is the Fumadocs site under `apps/docs/`; decision history, the build plan, and the v2 rollout
-> ledger live in `docs/plans/`. Append-only normative `VS-*` rule IDs and external-source dispositions live
-> in `docs/research/design-md-audit/unified-reference.md`.
+> **Provenance.** This is the canonical design contract for **1.0**, rebuilt on shadcn `base-nova` by
+> the shadcn reset (`docs/plans/2026-09-18-shadcn-reset/`, approved by MK 2026-09-18). The decision
+> register is `decisions.md` there, with its machine copy at `packages/ui/upstream/decisions.json`;
+> the consumer-facing break is `docs/MIGRATING-1.0.md`. The pre-reset v2 fork is history: read
+> `docs/ledger/`, `docs/audits/` and `docs/plans/` for **why** something was once decided, never as
+> evidence of what is true now. v1, the pre-overhaul grey/`action`+`agent` system, is preserved at
+> `design-v1.md`. Append-only normative `VS-*` rule IDs and external-source dispositions live in
+> `docs/research/design-md-audit/unified-reference.md`.
