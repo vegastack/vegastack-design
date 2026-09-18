@@ -811,31 +811,6 @@
       }
     },
     {
-      "name": "comparison-matrix",
-      "type": "registry:ui",
-      "title": "Comparison Matrix",
-      "description": "A plan-feature matrix with accessible \u2713/\u2212 availability cells and a highlighted plan column.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/comparison-matrix.tsx",
-          "type": "registry:ui",
-          "target": "@ui/comparison-matrix.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Feature-by-plan comparison under a pricing section.",
-        "whenNotToUse": "Data tables (Table) or spec sheets without plan columns.",
-        "version": "0.9.1"
-      },
-      "registryDependencies": ["@vegastack/use-overflow"]
-    },
-    {
       "name": "context-menu",
       "type": "registry:ui",
       "title": "Context Menu",
@@ -1392,30 +1367,6 @@
       "meta": {
         "whenToUse": "Inline-edit a single text value in place \u2014 table cells, titles, detail rows.",
         "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation \u2014 use Field.",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "figure-frame",
-      "type": "registry:ui",
-      "title": "Figure Frame",
-      "description": "A sharp-cornered media frame with an optional mono FIG-annotation caption.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/figure-frame.tsx",
-          "type": "registry:ui",
-          "target": "@ui/figure-frame.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Frame a single screenshot, video, or live demo on a marketing surface.",
-        "whenNotToUse": "Product-surface media \u2014 product radii/framing stay unchanged (6/8/12 scale).",
         "version": "0.9.1"
       }
     },
@@ -12028,30 +11979,6 @@
       }
     },
     {
-      "name": "logo-row",
-      "type": "registry:ui",
-      "title": "Logo Row",
-      "description": "A muted logo/wordmark strip \u2014 alpha-dimmed at rest, restoring on hover for linked items.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/logo-row.tsx",
-          "type": "registry:ui",
-          "target": "@ui/logo-row.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A trust bar of partner/integration wordmarks (text only \u2014 never real, uncleared logos).",
-        "whenNotToUse": "A single featured partner/customer \u2014 use a dedicated callout instead.",
-        "version": "0.9.1"
-      }
-    },
-    {
       "name": "markdown-view",
       "type": "registry:ui",
       "title": "Markdown View",
@@ -12100,31 +12027,6 @@
       "meta": {
         "whenToUse": "Annotate a thread inline - a merged/status line, a date divider, or a small action row.",
         "whenNotToUse": "A standalone status chip outside a conversation (use Badge) or a full banner (use Alert).",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "marketing-surface",
-      "type": "registry:ui",
-      "title": "Marketing Surface",
-      "description": "Opts a subtree into the brand's dark warm ground, independent of the page's .dark class.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/marketing-surface.tsx",
-          "type": "registry:ui",
-          "target": "@ui/marketing-surface.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Wrap a marketing hero or section band so it renders the dark brand ground even when the surrounding product page is light.",
-        "whenNotToUse": "Anything that needs a Base UI portal (Select, Dialog, Popover, \u2026) to inherit the dark ground \u2014 portals mount outside this subtree.",
         "version": "0.9.1"
       }
     },
@@ -12454,30 +12356,6 @@
       }
     },
     {
-      "name": "particle-field",
-      "type": "registry:ui",
-      "title": "Particle Field",
-      "description": "A deterministic, very-low-alpha canvas field of drifting phosphor dots \u2014 hero atmosphere only.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": ["@vegastack/use-media-query"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/particle-field.tsx",
-          "type": "registry:ui",
-          "target": "@ui/particle-field.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Subtle hero-background atmosphere over a dark marketing ground.",
-        "whenNotToUse": "A focal element, or more than one instance in the same viewport.",
-        "version": "0.9.1"
-      }
-    },
-    {
       "name": "password-input",
       "type": "registry:ui",
       "title": "Password Input",
@@ -12527,31 +12405,6 @@
       "meta": {
         "whenToUse": "Rich, interactive content anchored to a control \u2014 a small form, a picker, a details card.",
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "pricing-section",
-      "type": "registry:ui",
-      "title": "Pricing Section",
-      "description": "Marketing plan cards \u2014 mono price display, check feature lists, highlighted-plan treatment.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": ["@vegastack/badge"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/pricing-section.tsx",
-          "type": "registry:ui",
-          "target": "@ui/pricing-section.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Marketing pricing pages and plan pickers.",
-        "whenNotToUse": "In-app plan state (Alert variant=strip) or feature comparison detail (ComparisonMatrix).",
         "version": "0.9.1"
       }
     },
@@ -12786,29 +12639,6 @@
       }
     },
     {
-      "name": "ruled-band",
-      "type": "registry:ui",
-      "title": "Ruled Band",
-      "description": "A hairline-bounded editorial strip with mono-label ends \u2014 the changelog/serial-number furniture.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/ruled-band.tsx",
-          "type": "registry:ui",
-          "target": "@ui/ruled-band.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Editorial page bands: section meta, dates, counts, serial codes.",
-        "whenNotToUse": "Page headers with actions (PageHeader) or table headers.",
-        "version": "0.9.1"
-      }
-    },
-    {
       "name": "scroll-area",
       "type": "registry:ui",
       "title": "Scroll Area",
@@ -12860,30 +12690,6 @@
       "meta": {
         "whenToUse": "A single-select field whose option list is long enough to need a search \u2014 countries, regions, projects, repositories, currencies.",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "section-header",
-      "type": "registry:ui",
-      "title": "Section Header",
-      "description": "A marketing section lead-in \u2014 mono uppercase eyebrow, display-scale title, optional description.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/section-header.tsx",
-          "type": "registry:ui",
-          "target": "@ui/section-header.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Lead in a marketing section with an eyebrow + display title + optional description.",
-        "whenNotToUse": "Product UI headings \u2014 use text-h1\u2026h4 directly; SectionHeader is marketing-scale.",
         "version": "0.9.1"
       }
     },
@@ -13243,30 +13049,6 @@
       }
     },
     {
-      "name": "staggered-text-reveal",
-      "type": "registry:ui",
-      "title": "Staggered Text Reveal",
-      "description": "Display text whose words rise in on mount, staggered one motion-enter-up step apart \u2014 CSS-only.",
-      "categories": ["marketing", "motion"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/staggered-text-reveal.tsx",
-          "type": "registry:ui",
-          "target": "@ui/staggered-text-reveal.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A hero headline's entrance, composed inside a real heading element.",
-        "whenNotToUse": "Body copy, or anywhere the entrance would replay on every re-render/scroll.",
-        "version": "0.9.1"
-      }
-    },
-    {
       "name": "stat",
       "type": "registry:ui",
       "title": "Stat",
@@ -13477,30 +13259,6 @@
       "meta": {
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples \u2014 use a standard code block.",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "testimonial",
-      "type": "registry:ui",
-      "title": "Testimonial",
-      "description": "A pull-quote \u2014 a serif-italic quote over a mono uppercase attribution line.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/testimonial.tsx",
-          "type": "registry:ui",
-          "target": "@ui/testimonial.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A short customer/user pull-quote on a marketing surface.",
-        "whenNotToUse": "Long-form endorsements \u2014 this is a display-scale pull-quote, not a case study.",
         "version": "0.9.1"
       }
     },

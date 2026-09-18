@@ -11,7 +11,7 @@ const InternalThemeScopeContext = React.createContext<string | undefined>(
  * portals whose DOM nodes are mounted outside the scoped source subtree.
  *
  * @internal Registry infrastructure only. This is not a consumer-facing
- * theming API; use `MarketingSurface` to establish the supported scope.
+ * theming API.
  */
 export function InternalThemeScopeProvider({
   children,

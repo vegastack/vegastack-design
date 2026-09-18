@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "d5a7d017d93234e36efc712038a220644bf05603dc7e43f5aa4e99f5447f7b05",
+  "contractSha256": "934c60e109d5d9f4ce977a4df58eb6c08f5ba8a85744a09f7445b35757d22a99",
   "inventory": {
-    "expected": 609,
-    "actual": 609,
-    "unique": 609
+    "expected": 599,
+    "actual": 599,
+    "unique": 599
   },
   "classes": {
-    "components": 128,
+    "components": 118,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -125,14 +125,13 @@
       ]
     },
     "Data display": {
-      "expected": 13,
-      "actual": 13,
+      "expected": 12,
+      "actual": 12,
       "members": [
         "card",
         "carousel",
         "chart",
         "chip",
-        "comparison-matrix",
         "data-grid",
         "data-list",
         "data-table-parts",
@@ -144,30 +143,21 @@
       ]
     },
     "Content/marketing": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 14,
+      "actual": 14,
       "members": [
         "alert",
         "announcement-banner",
         "audio-player",
         "code-block",
         "empty",
-        "figure-frame",
         "image",
         "item",
-        "logo-row",
         "markdown-view",
-        "marketing-surface",
         "media-player-controls",
         "onboarding-checklist",
         "page-header",
-        "particle-field",
-        "pricing-section",
-        "ruled-band",
-        "section-header",
-        "staggered-text-reveal",
         "terminal",
-        "testimonial",
         "truncated-text",
         "video-player"
       ]
@@ -683,7 +673,7 @@
       ]
     }
   },
-  "componentRoutes": 128,
+  "componentRoutes": 118,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

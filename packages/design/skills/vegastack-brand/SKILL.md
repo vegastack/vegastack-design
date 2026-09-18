@@ -25,5 +25,6 @@ Brand marks for external and marketing surfaces are rendered through `BrandIcon`
 - Logo usage: variants, clear-space, minimum sizes, prohibited treatments.
 - Brand colour and marketing typography — a separate layer from the product tokens, never a
   replacement for them.
-- Marketing surface patterns, which in the component library are scoped to `.vs-marketing` and must
-  never appear in product UI.
+- Marketing surface patterns. The component library ships none: the marketing layer — its
+  components, its `.vs-marketing` scope and its tokens — was deleted on 2026-09-18, so a marketing
+  surface is a brand-layer question with no product-side answer yet.

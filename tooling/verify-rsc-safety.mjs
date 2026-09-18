@@ -8,7 +8,7 @@
 //      at the module scope of the entry that 24 server-safe components import `cn` from. Under the
 //      `react-server` condition React exports `createContext` as `undefined`, so every one of those
 //      components threw `TypeError` the moment a Server Component imported it.
-//   2. `stat`, `comparison-matrix` and `tool-call-chip` used client-only React APIs with no
+//   2. `stat` and `tool-call-chip` used client-only React APIs with no
 //      `'use client'` directive — same crash, per component.
 //
 // Both are invisible to the rest of the suite because every in-repo consumer is itself a

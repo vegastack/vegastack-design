@@ -52,9 +52,6 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   `role="status"` node with a `{text, seq}` counter.
 - **`code-block`** for static syntax-highlighted source; **`terminal`** for command sessions.
 - **`navigation-menu`** is top-level site navigation with panels, not a menu inside a page.
-- **Marketing components** (`marketing-surface`, `section-header`, `figure-frame`, `terminal`,
-  `logo-row`, `testimonial`, `staggered-text-reveal`, `particle-field`, `pricing-section`, and
-  Button's `cta` variant) are scoped to `.vs-marketing` and must never appear in product UI.
 
 ## Tokens
 

@@ -101,6 +101,7 @@
     "---Feedback & Status---",
     "action-bar",
     "alert",
+    "announcement-banner",
     "toast",
     "sonner",
     "provider",
@@ -116,6 +117,7 @@
     "---Content & Typography---",
     "markdown-view",
     "code-block",
+    "terminal",
     "kbd",
     "truncated-text",
     "relative-time",
@@ -126,19 +128,6 @@
     "attachment",
     "tool-call-chip",
     "message-scroller",
-    "questionnaire",
-    "---Brand & Marketing---",
-    "marketing-surface",
-    "section-header",
-    "figure-frame",
-    "terminal",
-    "logo-row",
-    "testimonial",
-    "staggered-text-reveal",
-    "particle-field",
-    "announcement-banner",
-    "ruled-band",
-    "pricing-section",
-    "comparison-matrix"
+    "questionnaire"
   ]
 }

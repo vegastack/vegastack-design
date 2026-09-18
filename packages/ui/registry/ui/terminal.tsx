@@ -1,4 +1,4 @@
-// @vegastack terminal@0.9.1 sha256-n2r9SiRRUaH4qpHRHGfOMhsrn2BtwOQAjjSX9BP0Ts4=
+// @vegastack terminal@0.9.1 sha256-8pgFxZMLYHaiJKb5fuKYxQq2LcUfVCt4+arc2p1tA9k=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -61,17 +61,13 @@ function normalizeLine(line: string | TerminalLine): TerminalLine {
 }
 
 /**
- * `Terminal` (a.k.a. CommandBlock) — a dark mono command block: a title bar
+ * `Terminal` (a.k.a. CommandBlock) — a mono command block: a title bar
  * over command/output lines, each command prefixed with a `--brand` phosphor
  * prompt glyph, plus a composed trailing {@link CopyButton}. The command pane
  * scrolls independently, so the copy action remains visible at the inline end —
  * which makes it a keyboard focus stop **whenever it actually overflows**, named
  * from the visible `title` and exposed as a `group` (override with
  * `aria-label`/`aria-labelledby`). A pane whose commands fit adds no tab stop.
- * Self-scopes to the
- * marketing dark ground (`.vs-marketing`) so it reads correctly even embedded
- * in a light-theme docs page (e.g. an install snippet) — no `MarketingSurface`
- * wrapper required, though nesting one is harmless (values are identical).
  *
  * @example
  * <Terminal
@@ -108,7 +104,7 @@ export function Terminal({
       ref={ref}
       data-slot="terminal"
       className={cn(
-        "vs-marketing overflow-hidden rounded-[2px] border border-border bg-card",
+        "overflow-hidden rounded-[2px] border border-border bg-card",
         className,
       )}
       {...props}

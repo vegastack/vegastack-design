@@ -9,13 +9,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Icon } from "@vegastack/design/icons";
-import { HomeHeroParticles } from "@/components/home-hero-particles";
 import { HomeProofStatement } from "@/components/home-proof-statement";
+import { HomeSectionHeader } from "@/components/home-section-header";
 import { HomeSystemTrace } from "@/components/home-system-trace";
 import { Button } from "@/components/ui/button";
-import { MarketingSurface } from "@/components/ui/marketing-surface";
-import { SectionHeader } from "@/components/ui/section-header";
-import { StaggeredTextReveal } from "@/components/ui/staggered-text-reveal";
 import { Terminal } from "@/components/ui/terminal";
 import {
   HOME_ANIMATED_ICON_COUNT,
@@ -65,7 +62,7 @@ const FOUNDATION_GROUPS = [
             <span
               className={`block h-14 rounded-md border border-border ${className}`}
             />
-            <span className="mt-2 block font-mono text-mono-label text-muted-foreground">
+            <span className="mt-2 block font-mono text-xs tracking-wide uppercase text-muted-foreground">
               {label}
             </span>
           </div>
@@ -84,13 +81,17 @@ const FOUNDATION_GROUPS = [
     ],
     specimen: (
       <div className="flex min-h-40 flex-col justify-center gap-3 rounded-lg border border-border bg-card p-5">
-        <p className="text-display-sm text-foreground">Product hierarchy</p>
-        <p className="text-h3 text-foreground">Clear at every density</p>
+        <p className="text-3xl font-semibold text-foreground">
+          Product hierarchy
+        </p>
+        <p className="text-lg font-semibold text-foreground">
+          Clear at every density
+        </p>
         <p className="max-w-md text-base leading-relaxed text-muted-foreground">
           Body copy stays readable while labels and metadata remain compact.
         </p>
-        <p className="font-mono text-mono-label text-muted-foreground">
-          --text-h3 · --icon-default
+        <p className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+          --text-lg font-semibold · --icon-default
         </p>
       </div>
     ),
@@ -105,15 +106,15 @@ const FOUNDATION_GROUPS = [
       ["Elevation", "/docs/foundations/elevation"],
     ],
     specimen: (
-      <div className="flex min-h-40 items-center justify-center rounded-lg border border-border bg-muted/(--alpha-wash-faint) p-6">
+      <div className="flex min-h-40 items-center justify-center rounded-lg border border-border bg-muted/50 p-6">
         <div className="w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-overlay">
           <div className="h-3 w-2/5 rounded-sm bg-foreground" />
           <div className="mt-4 h-2 w-full rounded-sm bg-muted" />
           <div className="mt-2 h-2 w-4/5 rounded-sm bg-muted" />
           <div className="mt-5 grid grid-cols-3 gap-3">
-            <span className="h-(--size-lg) rounded-md border border-border bg-background" />
-            <span className="h-(--size-lg) rounded-md border border-border bg-background" />
-            <span className="h-(--size-lg) rounded-md border border-border bg-background" />
+            <span className="h-10 rounded-md border border-border bg-background" />
+            <span className="h-10 rounded-md border border-border bg-background" />
+            <span className="h-10 rounded-md border border-border bg-background" />
           </div>
         </div>
       </div>
@@ -138,7 +139,7 @@ const FOUNDATION_GROUPS = [
           <div key={label} className="grid grid-cols-2 items-center gap-4">
             <div className="min-w-0">
               <p className="truncate text-sm text-foreground">{label}</p>
-              <p className="truncate font-mono text-mono-label text-muted-foreground">
+              <p className="truncate font-mono text-xs tracking-wide uppercase text-muted-foreground">
                 {token}
               </p>
             </div>
@@ -193,15 +194,14 @@ export default function HomePage() {
       style={MONOCHROME_BRAND_STYLE}
     >
       <section className="relative isolate overflow-hidden border-b border-border px-6">
-        <HomeHeroParticles seed={7} count={28} />
         <div className="relative mx-auto flex max-w-5xl flex-col items-center py-24 text-center sm:py-32 lg:py-36">
           <div className="flex w-full flex-col items-center gap-8">
             <div className="flex flex-col items-center gap-5">
-              <p className="font-mono text-mono-label text-muted-foreground">
+              <p className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
                 Maintained by VegaStack team
               </p>
-              <h1 className="max-w-5xl text-balance text-display-lg text-foreground sm:text-display-xl">
-                <StaggeredTextReveal text="VegaStack Design System" />
+              <h1 className="max-w-5xl text-balance text-6xl font-semibold text-foreground sm:text-7xl">
+                VegaStack Design System
               </h1>
               <p className="max-w-2xl text-pretty text-xl leading-relaxed text-muted-foreground">
                 A production UI foundation for VegaStack: shared tokens,
@@ -248,7 +248,7 @@ export default function HomePage() {
               key={item.label}
               className="flex flex-col gap-1 border-e border-b border-border px-6 py-7"
             >
-              <span className="text-h2 tabular-nums text-foreground">
+              <span className="text-xl font-semibold tabular-nums text-foreground">
                 {item.value}
               </span>
               <span className="text-sm text-muted-foreground">
@@ -259,14 +259,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <MarketingSurface
-        render={<section />}
+      <section
         id="system-promise"
-        className="overflow-hidden border-b border-border px-6 py-24 sm:py-32 lg:py-36"
+        className="overflow-hidden border-b border-border bg-card px-6 py-24 sm:py-32 lg:py-36"
         aria-labelledby="system-promise-title"
       >
         <div className="mx-auto flex max-w-6xl flex-col gap-12">
-          <p className="font-mono text-mono-label text-muted-foreground">
+          <p className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
             One system contract
           </p>
           <HomeProofStatement id="system-promise-title" text={SYSTEM_PROMISE} />
@@ -276,7 +275,7 @@ export default function HomePage() {
               prove the result. Documentation and agent skills keep that
               contract intact from design intent to production source.
             </p>
-            <div className="grid gap-3 text-label">
+            <div className="grid gap-3 text-sm font-medium">
               {[
                 ["Inspect the system trace", "#system-trace"],
                 ["Browse the component catalog", "#component-catalog"],
@@ -285,7 +284,7 @@ export default function HomePage() {
                 <Link
                   key={href}
                   href={href}
-                  className="group flex min-h-(--size-sm) items-center justify-between gap-4 border-b border-border text-foreground"
+                  className="group flex min-h-7 items-center justify-between gap-4 border-b border-border text-foreground"
                 >
                   {label}
                   <span className="inline-flex shrink-0 transition-transform duration-fast ease-standard group-hover:translate-x-1 group-focus-visible:translate-x-1 motion-reduce:transform-none">
@@ -300,7 +299,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </MarketingSurface>
+      </section>
 
       <section
         id="system-trace"
@@ -309,7 +308,7 @@ export default function HomePage() {
       >
         <div className="mx-auto flex max-w-6xl flex-col gap-14">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
-            <SectionHeader
+            <HomeSectionHeader
               eyebrow="01 / System trace"
               title="Follow one decision from token to product."
               size="lg"
@@ -326,12 +325,12 @@ export default function HomePage() {
 
       <section
         id="foundations"
-        className="scroll-mt-20 border-y border-border bg-muted/(--alpha-wash-faint) px-6 py-24 sm:py-32"
+        className="scroll-mt-20 border-y border-border bg-muted/50 px-6 py-24 sm:py-32"
         aria-label="Design foundations"
       >
         <div className="mx-auto flex max-w-6xl flex-col gap-14">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
-            <SectionHeader
+            <HomeSectionHeader
               eyebrow="02 / Foundations"
               title="The rules are visible, not implied."
               size="lg"
@@ -360,7 +359,7 @@ export default function HomePage() {
               >
                 <div className="flex min-w-0 flex-col gap-5 py-8 sm:py-10 lg:col-span-2 lg:pe-10">
                   <div className="flex flex-col gap-3">
-                    <h3 className="text-h2 text-foreground">
+                    <h3 className="text-xl font-semibold text-foreground">
                       {foundation.title}
                     </h3>
                     <p className="max-w-md text-base leading-relaxed text-muted-foreground">
@@ -372,7 +371,7 @@ export default function HomePage() {
                       <Link
                         key={href}
                         href={href}
-                        className="text-label text-foreground underline-offset-4 hover:underline"
+                        className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
                       >
                         {label}
                       </Link>
@@ -394,12 +393,12 @@ export default function HomePage() {
         aria-label="Component catalog"
       >
         <div className="mx-auto flex max-w-6xl flex-col gap-14">
-          <SectionHeader
+          <HomeSectionHeader
             eyebrow="03 / Component catalog"
             title={`${HOME_COMPONENT_COUNT} components, organized by responsibility.`}
             description="Browse the complete production catalog by responsibility. Every title links to its documentation and stays synchronized with the verified component contract."
             size="md"
-            className="max-w-3xl sm:[&_[data-slot=section-header-title]]:text-display-lg"
+            className="max-w-3xl"
           />
           <div className="divide-y divide-border border-y border-border">
             {HOME_COMPONENT_GROUPS.map((group) => (
@@ -409,8 +408,10 @@ export default function HomePage() {
               >
                 <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
                   <div className="flex items-baseline justify-between gap-6 lg:flex-col lg:items-start lg:gap-2">
-                    <h3 className="text-h3 text-foreground">{group.title}</h3>
-                    <p className="shrink-0 font-mono text-mono-label text-muted-foreground">
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {group.title}
+                    </h3>
+                    <p className="shrink-0 font-mono text-xs tracking-wide uppercase text-muted-foreground">
                       {group.components.length} components
                     </p>
                   </div>
@@ -424,7 +425,7 @@ export default function HomePage() {
                       <li key={component.name} className="min-w-0">
                         <Link
                           href={component.href}
-                          className="flex min-h-(--size-xs) min-w-0 items-center py-1 text-sm leading-snug text-foreground underline-offset-4 hover:underline"
+                          className="flex min-h-6 min-w-0 items-center py-1 text-sm leading-snug text-foreground underline-offset-4 hover:underline"
                         >
                           {component.title}
                         </Link>
@@ -440,11 +441,11 @@ export default function HomePage() {
 
       <section
         id="get-started"
-        className="scroll-mt-20 bg-muted/(--alpha-wash-faint) px-6 py-24 sm:py-32"
+        className="scroll-mt-20 bg-muted/50 px-6 py-24 sm:py-32"
         aria-label="Get started"
       >
         <div className="mx-auto flex max-w-6xl flex-col gap-14">
-          <SectionHeader
+          <HomeSectionHeader
             eyebrow="04 / Get started"
             title="Start with the system. Bring your agent."
             description="Choose the path you need. Every command is copied independently, and every access boundary is stated before you run it."
@@ -455,11 +456,11 @@ export default function HomePage() {
 
           <div className="divide-y divide-border border-y border-border">
             <article className="grid min-w-0 gap-6 py-8 sm:py-10 lg:grid-cols-4 lg:items-start lg:gap-10">
-              <span className="font-mono text-mono-label text-muted-foreground">
+              <span className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
                 01 / Public runtime
               </span>
               <div className="flex min-w-0 flex-col gap-2">
-                <h3 className="text-h2 text-foreground">
+                <h3 className="text-xl font-semibold text-foreground">
                   Install the foundation
                 </h3>
                 <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
@@ -476,11 +477,11 @@ export default function HomePage() {
             </article>
 
             <article className="grid min-w-0 gap-6 py-8 sm:py-10 lg:grid-cols-4 lg:items-start lg:gap-10">
-              <span className="font-mono text-mono-label text-muted-foreground">
+              <span className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
                 02 / Agent skill
               </span>
               <div className="flex min-w-0 flex-col gap-2">
-                <h3 className="text-h2 text-foreground">
+                <h3 className="text-xl font-semibold text-foreground">
                   Teach your agent the system
                 </h3>
                 <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
@@ -498,11 +499,11 @@ export default function HomePage() {
             </article>
 
             <article className="grid min-w-0 gap-6 py-8 sm:py-10 lg:grid-cols-4 lg:items-start lg:gap-10">
-              <span className="font-mono text-mono-label text-muted-foreground">
+              <span className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
                 03 / Owned components
               </span>
               <div className="flex min-w-0 flex-col gap-2">
-                <h3 className="text-h2 text-foreground">
+                <h3 className="text-xl font-semibold text-foreground">
                   Copy in production source
                 </h3>
                 <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
@@ -547,7 +548,7 @@ export default function HomePage() {
       >
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2">
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <SectionHeader
+            <HomeSectionHeader
               eyebrow="05 / Evidence"
               title="A release is a chain of evidence."
               description="The system does not treat a styled file as a finished component. Source, behavior, documentation, distribution, and visual review must agree."
@@ -560,11 +561,11 @@ export default function HomePage() {
                 key={title}
                 className="grid grid-cols-[auto_minmax(0,1fr)] gap-4 border-b border-border py-6"
               >
-                <span className="flex size-(--size-sm) items-center justify-center rounded-full border border-border bg-background">
+                <span className="flex size-7 items-center justify-center rounded-full border border-border bg-background">
                   <Icon as={Check} size="xs" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-label text-foreground">{title}</p>
+                  <p className="text-sm font-medium text-foreground">{title}</p>
                   <p className="mt-1 text-base leading-relaxed text-muted-foreground">
                     {description}
                   </p>
@@ -606,7 +607,7 @@ export default function HomePage() {
                 className="mt-1 shrink-0 text-muted-foreground"
               />
               <div>
-                <p className="text-h3 tabular-nums text-foreground">
+                <p className="text-lg font-semibold tabular-nums text-foreground">
                   {String(value)}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
@@ -618,20 +619,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      <MarketingSurface
-        render={<section />}
+      <section
         id="build-with-vegastack"
-        className="px-6 py-24 sm:py-32"
+        className="bg-card px-6 py-24 sm:py-32"
         aria-labelledby="closing-title"
       >
         <div className="mx-auto max-w-6xl">
           <div className="flex max-w-4xl flex-col items-start gap-5">
-            <p className="font-mono text-mono-label text-muted-foreground">
+            <p className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
               Ready to build
             </p>
             <h2
               id="closing-title"
-              className="text-balance text-display-lg text-foreground sm:text-display-xl"
+              className="text-balance text-6xl font-semibold text-foreground sm:text-7xl"
             >
               Build with the VegaStack Design System.
             </h2>
@@ -650,7 +650,7 @@ export default function HomePage() {
             </Button>
           </div>
         </div>
-      </MarketingSurface>
+      </section>
     </div>
   );
 }

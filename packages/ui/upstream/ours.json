@@ -1,8 +1,8 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 79,
-    "fromExtras": 66
+    "total": 69,
+    "fromExtras": 56
   },
   "items": {
     "action-bar": {
@@ -65,11 +65,6 @@
       "family": "form",
       "source": "extras.md"
     },
-    "comparison-matrix": {
-      "disposition": "remove",
-      "family": "marketing",
-      "source": "extras.md"
-    },
     "copy-button": {
       "disposition": "keep",
       "family": "actions",
@@ -120,11 +115,6 @@
       "family": "form",
       "source": "extras.md"
     },
-    "figure-frame": {
-      "disposition": "remove",
-      "family": "marketing",
-      "source": "extras.md"
-    },
     "filter-bar": {
       "disposition": "keep",
       "family": "data",
@@ -150,19 +140,9 @@
       "family": "media",
       "source": "extras.md"
     },
-    "logo-row": {
-      "disposition": "remove",
-      "family": "marketing",
-      "source": "extras.md"
-    },
     "markdown-view": {
       "disposition": "keep",
       "family": "data-display",
-      "source": "extras.md"
-    },
-    "marketing-surface": {
-      "disposition": "remove",
-      "family": "marketing",
       "source": "extras.md"
     },
     "media-player-controls": {
@@ -195,19 +175,9 @@
       "family": "navigation",
       "source": "extras.md"
     },
-    "particle-field": {
-      "disposition": "remove",
-      "family": "marketing",
-      "source": "extras.md"
-    },
     "password-input": {
       "disposition": "retire",
       "family": "form",
-      "source": "extras.md"
-    },
-    "pricing-section": {
-      "disposition": "remove",
-      "family": "marketing",
       "source": "extras.md"
     },
     "progress-indicator": {
@@ -235,19 +205,9 @@
       "family": "data-display",
       "source": "extras.md"
     },
-    "ruled-band": {
-      "disposition": "remove",
-      "family": "marketing",
-      "source": "extras.md"
-    },
     "searchable-select": {
       "disposition": "keep",
       "family": "form",
-      "source": "extras.md"
-    },
-    "section-header": {
-      "disposition": "remove",
-      "family": "marketing",
       "source": "extras.md"
     },
     "segmented": {
@@ -273,11 +233,6 @@
     "split-button": {
       "disposition": "retire",
       "family": "actions",
-      "source": "extras.md"
-    },
-    "staggered-text-reveal": {
-      "disposition": "remove",
-      "family": "marketing/motion",
       "source": "extras.md"
     },
     "stat": {
@@ -314,11 +269,6 @@
       "disposition": "keep",
       "family": "internal",
       "source": "internal part of terminal (kept by MK); not listed in extras.md"
-    },
-    "testimonial": {
-      "disposition": "remove",
-      "family": "marketing",
-      "source": "extras.md"
     },
     "text-edit": {
       "disposition": "keep",

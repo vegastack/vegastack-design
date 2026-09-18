@@ -238,9 +238,8 @@ function namedByHost(button, sf) {
 }
 
 // `muted-foreground-faint` is intentionally sub-AA and therefore limited to placeholder/disabled
-// copy. These two files use it on aria-hidden decorative glyphs, never meaningful text.
-const FAINT_DECORATIVE_ALLOWLIST =
-  /(?:^|\/)(?:breadcrumb|comparison-matrix)\.tsx$/;
+// copy. This file uses it on aria-hidden decorative glyphs, never meaningful text.
+const FAINT_DECORATIVE_ALLOWLIST = /(?:^|\/)(?:breadcrumb)\.tsx$/;
 
 // Native controls are allowed only where the component owns a semantic adapter/integration that a
 // higher-level VegaStack control cannot replace. Exact per-tag counts fail closed in BOTH directions:

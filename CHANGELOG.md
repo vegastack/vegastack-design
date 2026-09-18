@@ -196,7 +196,6 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   whole-set toggle) and the system had no wrapper for it, so DataGrid, DataList and every permissions
   block computed it by hand. There is no `CheckboxGroupItem` — a child is a plain `Checkbox` with a
   `value`.
-  [docs](https://design.vegastack.com/docs/components/checkbox-group)
 
   **`useInlineEdit`** — the click-to-edit machine: draft, commit, cancel, focus restoration and the
   double-commit guard (Enter closes the edit, which unmounts the input, which fires blur, which would
@@ -247,7 +246,6 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   density, `tooltip` as the inverted ink chip, `navigation` for the morphing mega-menu). It also owns
   `menuItemVariants` — the one list-item recipe behind menu items, select options, combobox options and
   command rows — and `PanelSearchFrame`, the in-panel search row.
-  [docs](https://design.vegastack.com/docs/components/floating-surface) ·
   [`7915a71`](https://github.com/VegaStack/vegastack-design/commit/7915a71)
 - **`toast`** — the toast surface on Base UI's Toast primitive, replacing the sonner wrapper. It
   ships the whole vocabulary rather than a configured library root: `ToastProvider`, `Toaster`,
@@ -287,7 +285,6 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   system `Button` instead of a hand-rolled `<button>`, and emit `aria-sort` on every sortable column
   (`"none"` included). The doctrinal split is unchanged — `DataList` stays presentational, `DataGrid`
   keeps its engines.
-  [docs](https://design.vegastack.com/docs/components/data-table-parts) ·
   [`6d25185`](https://github.com/VegaStack/vegastack-design/commit/6d25185)
 - **`use-overflow`** — the system's one overflow measurement, live across resizes AND content
   growth: it observes the element and its children, so a table widening inside a fixed viewport is not
@@ -419,7 +416,6 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   loading contract and the required accessible name. New `iconButtonGeometry(size, shape)` styles an
   icon-only **link**: navigation stays a real `<a>` (PageHeader's back affordance) instead of acquiring
   `role="button"`.
-  [docs](https://design.vegastack.com/docs/components/icon-button) ·
   [`7915a71`](https://github.com/VegaStack/vegastack-design/commit/7915a71)
 - **One field chrome.** The border/hover/focus/invalid/disabled grammar was copy-pasted in Input,
   Textarea and NumberField, restated a fourth time as slot overrides in Field, and again in Combobox
@@ -448,11 +444,9 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   **PasswordInput's eye toggle is an `IconButton`** in the ghost recipe, and the eye swap has no
   motion. It replayed `motion-pop-in` behind a guard whose only job was to stop the animation firing
   on first paint — a tell that the animation did not belong there.
-  [docs](https://design.vegastack.com/docs/components/password-input)
 
   **FieldInline and EditableCell run on `useInlineEdit`**, and FieldInline's rest hover is the shared
   interactive-surface recipe, so it is visible on a card rather than only on the page ground.
-  [docs](https://design.vegastack.com/docs/components/field-inline)
 
   **AutoSaveInput** drops a `cn(className)` no-op, sizes its status slot with `--icon-default` instead
   of a raw `size-4`, and marks its spinner `decorative`.
@@ -534,13 +528,11 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   reads as a paragraph of links. Cell seams are logical (`-ms-px border-s`), so RTL keeps its inner
   rules instead of doubling the outer edge, and `wallColumns` is now a MAXIMUM over an `auto-fill`
   track with an 8rem cell floor: a 4-column wall at 320px gave 80px cells and clipped every mark.
-  [docs](https://design.vegastack.com/docs/components/logo-row) ·
   [`3663f8f`](https://github.com/VegaStack/vegastack-design/commit/3663f8f)
 - **PlanCard's promoted plan is a ladder rung, not a border colour.** It now lifts onto `surface-3`
   with its hairline tinted `primary` at `--alpha-outline-border`. A full-strength `border-primary`
   read as the active/invalid state of a form control — the wrong signal on a card someone is being
   invited to choose.
-  [docs](https://design.vegastack.com/docs/components/pricing-section) ·
   [`3663f8f`](https://github.com/VegaStack/vegastack-design/commit/3663f8f)
 - **`SettingsSection` gained `titleAs`** (`h2`…`h6`, default `h3`). A settings page nests sections
   at different depths, and a hard-coded `<h3>` everywhere breaks heading navigation. The visual size is
@@ -551,12 +543,10 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   fold used to finish before anyone scrolled to it. The gate only ever REMOVES the reveal — the
   server-rendered markup animates and the client pulls off-screen words back before the first paint —
   so a page whose JavaScript never runs still shows its text.
-  [docs](https://design.vegastack.com/docs/components/staggered-text-reveal) ·
   [`3663f8f`](https://github.com/VegaStack/vegastack-design/commit/3663f8f)
 - **Testimonial takes its quotation marks from CSS.** The quote renders inside a `<q>`, so the
   browser inserts the pair the ACTIVE language uses (`„…“`, `« … »`, `「…」`) instead of the hard-coded
   English `“…”` — which also kept the marks out of the copied text.
-  [docs](https://design.vegastack.com/docs/components/testimonial) ·
   [`3663f8f`](https://github.com/VegaStack/vegastack-design/commit/3663f8f)
 - **Navigation and layout take one selection recipe and one hover geometry.** **Tabs**,
   **Segmented**, **Toggle** and **ToggleGroup** move onto the shared `selectedChipVariants` recipe
@@ -602,7 +592,6 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   theme-scope plumbing. `ContextMenu` is bound to the same item parts as `DropdownMenu` through
   `createMenuParts` (Base UI's `ContextMenu` namespace re-exports `Menu`'s parts verbatim), so the two
   menus can no longer drift.
-  [docs](https://design.vegastack.com/docs/components/floating-surface) ·
   [`7915a71`](https://github.com/VegaStack/vegastack-design/commit/7915a71)
 - **Command**, **Combobox**, **EmojiPicker**, **ShortcutOverlay** — the in-panel search row
   is one recipe. A bordered `Input` inside a bordered popup drew two borders; `PanelSearchFrame` is a
@@ -1514,7 +1503,6 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   light `--brand` after a toggle to dark until something forced a remount. It now reads the canvas's
   own resolved `color` per frame, and the single static reduced-motion frame repaints on a theme
   change too.
-  [docs](https://design.vegastack.com/docs/components/particle-field) ·
   [`3663f8f`](https://github.com/VegaStack/vegastack-design/commit/3663f8f)
 - **The collapsed-breadcrumb trigger was a 20×20 pointer target.** Its visible box was the 20px
   `BreadcrumbEllipsis` glyph and nothing expanded it, so the one control that reveals a trail's
@@ -1675,7 +1663,6 @@ add` removes a JS/TS file's entire leading comment prologue as it writes it, for
 - **`Button` has no icon size tier.** `size="icon"` / `icon-xs` / `icon-sm` / `icon-lg`
   are gone; every icon-only action is `IconButton`, which makes the missing `aria-label` a type error
   and now owns `shape="square" | "round"`.
-  [docs](https://design.vegastack.com/docs/components/icon-button) ·
   [`7915a71`](https://github.com/VegaStack/vegastack-design/commit/7915a71)
 - **Button is two axes, not fifteen variants.** `variant` is now the SHAPE — `solid` ·
   `soft` · `outline` · `ghost` · `link` · `cta` — and the new `tone` prop is the HUE — `neutral`
@@ -1859,7 +1846,6 @@ add` removes a JS/TS file's entire leading comment prologue as it writes it, for
 
 - **ProgressIndicator** — new value-display variants render the percentage inline or contained
   within the glyph.
-  [docs](https://design.vegastack.com/docs/components/progress-indicator) ·
   [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
 - **Sidebar** — the desktop sidebar and its footer now stay pinned to the viewport while page and
   navigation content scrolls.
@@ -1948,7 +1934,6 @@ add` removes a JS/TS file's entire leading comment prologue as it writes it, for
 - **FieldInline** — additive controlled edit mode (`editing` / `onEditingChange`) and a `tabIndex`
   override for the display element, so `EditableCell` and grid hosts compose it instead of forking
   it. No behaviour change for existing consumers.
-  [docs](https://design.vegastack.com/docs/components/field-inline)
 - **ColorPicker** and **EmojiPicker** — internal refactor onto the shared `useListNav` hook; the
   API and visuals are unchanged, with one behavioural correction riding along: EmojiPicker's
   horizontal arrow keys become RTL-aware, matching ColorPicker. Safe to take or skip.

@@ -27,10 +27,6 @@ import { Terminal } from "@/components/ui/terminal";
 />;
 ```
 
-`Terminal` self-scopes to the marketing dark ground (`.vs-marketing`) — it reads correctly even
-embedded in a light-theme docs page (like this one), with no
-[`MarketingSurface`](/docs/components/marketing-surface) wrapper required.
-
 ## Anatomy
 
 `Terminal` is a compound component. Every exported part, with the
@@ -103,5 +99,5 @@ command"`) and announces the copy via a visually-hidden live region.
 
 <DoDont
   do="Use Terminal for install snippets and short command sequences with real, copyable text."
-  dont="Put a Terminal inside a MarketingSurface expecting a visual change — it already self-scopes to the dark ground; nesting is harmless but redundant."
+  dont="Reach for a Terminal to render program output the reader cannot copy — a CodeBlock or a plain pre carries that better."
 />

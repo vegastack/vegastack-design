@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**128 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 609 registry items in total.
+**118 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 599 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -167,17 +167,4 @@ component and never an icon.
 ## Marketing
 
 - **`announcement-banner`** — A dismissible one-line announcement — the full-width inverse page-top band (in-content notices use Alert variant=strip).
-- **`comparison-matrix`** — A plan-feature matrix with accessible ✓/− availability cells and a highlighted plan column.
-- **`figure-frame`** — A sharp-cornered media frame with an optional mono FIG-annotation caption.
-- **`logo-row`** — A muted logo/wordmark strip — alpha-dimmed at rest, restoring on hover for linked items.
-- **`marketing-surface`** — Opts a subtree into the brand's dark warm ground, independent of the page's .dark class.
-- **`particle-field`** — A deterministic, very-low-alpha canvas field of drifting phosphor dots — hero atmosphere only.
-- **`pricing-section`** — Marketing plan cards — mono price display, check feature lists, highlighted-plan treatment.
-- **`ruled-band`** — A hairline-bounded editorial strip with mono-label ends — the changelog/serial-number furniture.
-- **`section-header`** — A marketing section lead-in — mono uppercase eyebrow, display-scale title, optional description.
 - **`terminal`** — A dark mono command block with a phosphor prompt glyph and a composed copy button.
-- **`testimonial`** — A pull-quote — a serif-italic quote over a mono uppercase attribution line.
-
-## Marketing motion
-
-- **`staggered-text-reveal`** — Display text whose words rise in on mount, staggered one motion-enter-up step apart — CSS-only.

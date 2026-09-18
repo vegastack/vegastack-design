@@ -10,7 +10,6 @@ import { Button } from "../registry/ui/button";
 import { Toaster, toast } from "../registry/ui/toast";
 import { TextEdit } from "../registry/ui/text-edit";
 import { ColorPicker } from "../registry/ui/color-picker";
-import { LogoRow } from "../registry/ui/logo-row";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../registry/ui/tabs";
 import { FileWarningIcon } from "lucide-react";
 import {
@@ -140,11 +139,6 @@ function Surfaces() {
         <span className="size-4 bg-chart-7" aria-hidden="true" />
         <span className="size-4 bg-chart-8" aria-hidden="true" />
       </div>
-
-      <LogoRow
-        label="Trusted by"
-        items={[{ name: "Northstar" }, { name: "Kepler", href: "#kepler" }]}
-      />
 
       <Alert variant="success">
         <AlertTitle>Saved</AlertTitle>

@@ -51,7 +51,7 @@ export type { ClassValue };
  * It calls `React.createContext()` at module scope, which is `undefined` under the `react-server`
  * condition — re-exporting it from this entry would make every Server Component that imports
  * `cn` crash on import. This entry stays server-safe by contract (see tsup.config.ts).
- * Product code should use `MarketingSurface` rather than either symbol.
+ * Product code never reaches for either symbol; the canonical overlays apply the scope.
  */
 
 /**

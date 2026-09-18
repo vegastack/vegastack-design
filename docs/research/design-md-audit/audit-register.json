@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "d5a7d017d93234e36efc712038a220644bf05603dc7e43f5aa4e99f5447f7b05",
+  "contractSha256": "934c60e109d5d9f4ce977a4df58eb6c08f5ba8a85744a09f7445b35757d22a99",
   "expectedCounts": {
-    "totalRegistryItems": 609,
-    "components": 128,
+    "totalRegistryItems": 599,
+    "components": 118,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -354,17 +354,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "comparison-matrix",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/comparison-matrix.tsx"
-      ],
-      "docsSlug": "/docs/components/comparison-matrix",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "context-menu",
       "inventoryClass": "component",
       "wave": "Overlays",
@@ -552,17 +541,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "figure-frame",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/figure-frame.tsx"
-      ],
-      "docsSlug": "/docs/components/figure-frame",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "filter-bar",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -695,17 +673,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "logo-row",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/logo-row.tsx"
-      ],
-      "docsSlug": "/docs/components/logo-row",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "markdown-view",
       "inventoryClass": "component",
       "wave": "Content/marketing",
@@ -725,17 +692,6 @@
         "packages/ui/registry/ui/marker.tsx"
       ],
       "docsSlug": "/docs/components/marker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "marketing-surface",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/marketing-surface.tsx"
-      ],
-      "docsSlug": "/docs/components/marketing-surface",
       "contractStatus": "reconciled"
     },
     {
@@ -871,17 +827,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "particle-field",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/particle-field.tsx"
-      ],
-      "docsSlug": "/docs/components/particle-field",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "password-input",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -901,17 +846,6 @@
         "packages/ui/registry/ui/popover.tsx"
       ],
       "docsSlug": "/docs/components/popover",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "pricing-section",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/pricing-section.tsx"
-      ],
-      "docsSlug": "/docs/components/pricing-section",
       "contractStatus": "reconciled"
     },
     {
@@ -1014,17 +948,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "ruled-band",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/ruled-band.tsx"
-      ],
-      "docsSlug": "/docs/components/ruled-band",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "scroll-area",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -1044,17 +967,6 @@
         "packages/ui/registry/ui/searchable-select.tsx"
       ],
       "docsSlug": "/docs/components/searchable-select",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "section-header",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/section-header.tsx"
-      ],
-      "docsSlug": "/docs/components/section-header",
       "contractStatus": "reconciled"
     },
     {
@@ -1201,17 +1113,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "staggered-text-reveal",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing/motion",
-      "sourceFiles": [
-        "packages/ui/registry/ui/staggered-text-reveal.tsx"
-      ],
-      "docsSlug": "/docs/components/staggered-text-reveal",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "stat",
       "inventoryClass": "component",
       "wave": "Data display",
@@ -1299,17 +1200,6 @@
         "packages/ui/registry/ui/terminal-body.tsx"
       ],
       "docsSlug": "/docs/components/terminal",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "testimonial",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
-      "sourceFiles": [
-        "packages/ui/registry/ui/testimonial.tsx"
-      ],
-      "docsSlug": "/docs/components/testimonial",
       "contractStatus": "reconciled"
     },
     {

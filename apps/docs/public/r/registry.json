@@ -935,36 +935,6 @@
       }
     },
     {
-      "name": "comparison-matrix",
-      "type": "registry:ui",
-      "title": "Comparison Matrix",
-      "description": "A plan-feature matrix with accessible ✓/− availability cells and a highlighted plan column.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/comparison-matrix.tsx",
-          "type": "registry:ui",
-          "target": "@ui/comparison-matrix.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Feature-by-plan comparison under a pricing section.",
-        "whenNotToUse": "Data tables (Table) or spec sheets without plan columns.",
-        "version": "0.9.1",
-        "integrity": "sha256-KyfS5EfNMa29KBO9Cny8AUXpP0gc7f1w8fBVrgiYz5w="
-      },
-      "registryDependencies": [
-        "@vegastack/use-overflow"
-      ]
-    },
-    {
       "name": "context-menu",
       "type": "registry:ui",
       "title": "Context Menu",
@@ -1591,33 +1561,6 @@
         "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation — use Field.",
         "version": "0.9.1",
         "integrity": "sha256-YcCLfaEsMDPXD/Hpy8qQXH73JY2+8kWqZtrxUp1IIus="
-      }
-    },
-    {
-      "name": "figure-frame",
-      "type": "registry:ui",
-      "title": "Figure Frame",
-      "description": "A sharp-cornered media frame with an optional mono FIG-annotation caption.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/figure-frame.tsx",
-          "type": "registry:ui",
-          "target": "@ui/figure-frame.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Frame a single screenshot, video, or live demo on a marketing surface.",
-        "whenNotToUse": "Product-surface media — product radii/framing stay unchanged (6/8/12 scale).",
-        "version": "0.9.1",
-        "integrity": "sha256-giphKOpL2gbZ9vOBKH0yyjcquvCL3Mp0HTnN/86s6yY="
       }
     },
     {
@@ -15076,33 +15019,6 @@
       }
     },
     {
-      "name": "logo-row",
-      "type": "registry:ui",
-      "title": "Logo Row",
-      "description": "A muted logo/wordmark strip — alpha-dimmed at rest, restoring on hover for linked items.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/logo-row.tsx",
-          "type": "registry:ui",
-          "target": "@ui/logo-row.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A trust bar of partner/integration wordmarks (text only — never real, uncleared logos).",
-        "whenNotToUse": "A single featured partner/customer — use a dedicated callout instead.",
-        "version": "0.9.1",
-        "integrity": "sha256-D+E1JojpWhnNmHl/+5b5nFZCfhhUz0PfrfUaoz0KhvE="
-      }
-    },
-    {
       "name": "markdown-view",
       "type": "registry:ui",
       "title": "Markdown View",
@@ -15161,34 +15077,6 @@
         "whenNotToUse": "A standalone status chip outside a conversation (use Badge) or a full banner (use Alert).",
         "version": "0.9.1",
         "integrity": "sha256-JRt4ynM2DNS4/+50wA46JEfLpTTxhX7KGdMGsmqJlIA="
-      }
-    },
-    {
-      "name": "marketing-surface",
-      "type": "registry:ui",
-      "title": "Marketing Surface",
-      "description": "Opts a subtree into the brand's dark warm ground, independent of the page's .dark class.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/marketing-surface.tsx",
-          "type": "registry:ui",
-          "target": "@ui/marketing-surface.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Wrap a marketing hero or section band so it renders the dark brand ground even when the surrounding product page is light.",
-        "whenNotToUse": "Anything that needs a Base UI portal (Select, Dialog, Popover, …) to inherit the dark ground — portals mount outside this subtree.",
-        "version": "0.9.1",
-        "integrity": "sha256-q7cmw6ntoDyEdzjPUAJSoZwxQQRgn+oiuGOVakdFrbw="
       }
     },
     {
@@ -15557,35 +15445,6 @@
       }
     },
     {
-      "name": "particle-field",
-      "type": "registry:ui",
-      "title": "Particle Field",
-      "description": "A deterministic, very-low-alpha canvas field of drifting phosphor dots — hero atmosphere only.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/use-media-query"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/particle-field.tsx",
-          "type": "registry:ui",
-          "target": "@ui/particle-field.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Subtle hero-background atmosphere over a dark marketing ground.",
-        "whenNotToUse": "A focal element, or more than one instance in the same viewport.",
-        "version": "0.9.1",
-        "integrity": "sha256-hMD68zzdFkhJBfFXpLuhpu9ECb9bFZbj7w91nm6X8JY="
-      }
-    },
-    {
       "name": "password-input",
       "type": "registry:ui",
       "title": "Password Input",
@@ -15642,36 +15501,6 @@
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
         "version": "0.9.1",
         "integrity": "sha256-bdt2EHQfTtj5dR5Kkfdxl1jphPAyQmSu8KNBk46mHoE="
-      }
-    },
-    {
-      "name": "pricing-section",
-      "type": "registry:ui",
-      "title": "Pricing Section",
-      "description": "Marketing plan cards — mono price display, check feature lists, highlighted-plan treatment.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/badge"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/pricing-section.tsx",
-          "type": "registry:ui",
-          "target": "@ui/pricing-section.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Marketing pricing pages and plan pickers.",
-        "whenNotToUse": "In-app plan state (Alert variant=strip) or feature comparison detail (ComparisonMatrix).",
-        "version": "0.9.1",
-        "integrity": "sha256-tDVz+k+iWkKh8FvRv+6PC/3xZSBxb6hkcx4dClIqdcg="
       }
     },
     {
@@ -15936,32 +15765,6 @@
       }
     },
     {
-      "name": "ruled-band",
-      "type": "registry:ui",
-      "title": "Ruled Band",
-      "description": "A hairline-bounded editorial strip with mono-label ends — the changelog/serial-number furniture.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/ruled-band.tsx",
-          "type": "registry:ui",
-          "target": "@ui/ruled-band.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Editorial page bands: section meta, dates, counts, serial codes.",
-        "whenNotToUse": "Page headers with actions (PageHeader) or table headers.",
-        "version": "0.9.1",
-        "integrity": "sha256-YJgzahZ+WR8ygSs2f/n7la+EwLRhvug0g96IUpOW8Pc="
-      }
-    },
-    {
       "name": "scroll-area",
       "type": "registry:ui",
       "title": "Scroll Area",
@@ -16020,33 +15823,6 @@
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.9.1",
         "integrity": "sha256-ayRHzQIwXIAMba79LR5X3dQgZ+2pwFs82SWOZ5Um6Ik="
-      }
-    },
-    {
-      "name": "section-header",
-      "type": "registry:ui",
-      "title": "Section Header",
-      "description": "A marketing section lead-in — mono uppercase eyebrow, display-scale title, optional description.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/section-header.tsx",
-          "type": "registry:ui",
-          "target": "@ui/section-header.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Lead in a marketing section with an eyebrow + display title + optional description.",
-        "whenNotToUse": "Product UI headings — use text-h1…h4 directly; SectionHeader is marketing-scale.",
-        "version": "0.9.1",
-        "integrity": "sha256-UXvfSUCMwpjvy7JLkho4iSA03V7dhWEpMnARGf7U0Pg="
       }
     },
     {
@@ -16444,34 +16220,6 @@
       }
     },
     {
-      "name": "staggered-text-reveal",
-      "type": "registry:ui",
-      "title": "Staggered Text Reveal",
-      "description": "Display text whose words rise in on mount, staggered one motion-enter-up step apart — CSS-only.",
-      "categories": [
-        "marketing",
-        "motion"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/staggered-text-reveal.tsx",
-          "type": "registry:ui",
-          "target": "@ui/staggered-text-reveal.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A hero headline's entrance, composed inside a real heading element.",
-        "whenNotToUse": "Body copy, or anywhere the entrance would replay on every re-render/scroll.",
-        "version": "0.9.1",
-        "integrity": "sha256-bXdGHuOOt0aMf9/cdHcXecRGljELKZycHj9NZeO6NtI="
-      }
-    },
-    {
       "name": "stat",
       "type": "registry:ui",
       "title": "Stat",
@@ -16713,34 +16461,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.9.1",
-        "integrity": "sha256-n2r9SiRRUaH4qpHRHGfOMhsrn2BtwOQAjjSX9BP0Ts4="
-      }
-    },
-    {
-      "name": "testimonial",
-      "type": "registry:ui",
-      "title": "Testimonial",
-      "description": "A pull-quote — a serif-italic quote over a mono uppercase attribution line.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/testimonial.tsx",
-          "type": "registry:ui",
-          "target": "@ui/testimonial.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A short customer/user pull-quote on a marketing surface.",
-        "whenNotToUse": "Long-form endorsements — this is a display-scale pull-quote, not a case study.",
-        "version": "0.9.1",
-        "integrity": "sha256-IjznqzhKEpIQ4Wkji4bNYT79VsKxIYBACmZUWr8FmW4="
+        "integrity": "sha256-8pgFxZMLYHaiJKb5fuKYxQq2LcUfVCt4+arc2p1tA9k="
       }
     },
     {
@@ -17188,7 +16909,7 @@
         "whenToUse": "JavaScript genuinely has to branch on a media query — mounting a different component tree, skipping a requestAnimationFrame loop, enabling pointer drag.",
         "whenNotToUse": "A purely visual responsive change: a Tailwind breakpoint or a container query does it in CSS with no hydration cost.",
         "version": "0.9.1",
-        "integrity": "sha256-S/Azma0oScYgK+Svl71FcqpgfO93ERvWDZm5dRlT3eU="
+        "integrity": "sha256-jpAoP8LGDXtFymeLKt04nDmUBlx6twOd6RynOiRmXHg="
       }
     },
     {

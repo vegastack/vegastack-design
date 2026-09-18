@@ -855,9 +855,6 @@
  * silently never be generated downstream (it wasn't generated in our own docs
  * either — see the dead `packages/icons` @source). Shipping the rules in the
  * stylesheet consumers already import makes the swap work everywhere.
- *
- * `.vs-marketing` is included so a brand mark inside the marketing dark ground
- * picks the dark artwork even while the page theme is light.
  * ------------------------------------------------------------------------- */
 [data-brand-artwork="light"] {
   display: contents;
@@ -865,17 +862,9 @@
 [data-brand-artwork="dark"] {
   display: none;
 }
-.dark [data-brand-artwork="light"],
-.vs-marketing [data-brand-artwork="light"] {
+.dark [data-brand-artwork="light"] {
   display: none;
 }
-.dark [data-brand-artwork="dark"],
-.vs-marketing [data-brand-artwork="dark"] {
+.dark [data-brand-artwork="dark"] {
   display: contents;
 }
-
-/* `.vs-marketing`'s semantic variables and `color-scheme: dark` now live in
- * generated theme.css. build-tokens.mjs emits the scope from the SAME resolved
- * Style Dictionary dark run as `.dark`, and verify-theme-parity.mjs rejects any
- * variable-set or value drift. The artwork selectors above remain here because
- * they are presentation behavior, not token data. */
