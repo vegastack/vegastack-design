@@ -360,19 +360,16 @@ test("A11Y-3/A11Y-4: the viewport is a polite region BEFORE any toast exists", a
   expect(viewport()).toBe(region);
 });
 
-test("a high-priority toast is Base UI's aria-hidden alertdialog, and stays tabbable", async () => {
+test("A11Y-9: an aria-hidden toast leaves the tab order, and comes back with it", async () => {
   const { manager, ui } = host();
   await render(ui);
-  // The exact engine shape the `aria-hidden-focus` exemption below is written for, pinned so the
-  // exemption fails as STALE the day Base UI fixes it rather than lingering unnoticed. For a
-  // `priority: "high"` toast, `@base-ui/react@1.8.0` announces a visually hidden `role="alert"`
-  // clone in the viewport and marks the VISIBLE root `role="alertdialog" aria-hidden="true"` so
-  // the viewport's own polite region does not announce it twice — while leaving the root and its
-  // buttons in the tab order. Nothing tabbable may sit inside an `aria-hidden` subtree, so axe
-  // reports it. That is engine behaviour on upstream's composition, not a choice this repository
-  // makes, and fixing it here would mean a DOM-mutating effect in a shipped component with no
-  // decision row behind it (the same call Batch 3 made for Combobox's aria-hidden addon).
-  // FLAGGED FOR MK, and worth reporting to Base UI.
+  // The engine shape this hunk is written against, pinned so the hunk fails as STALE the day Base
+  // UI fixes it rather than lingering unnoticed. For a `priority: "high"` toast,
+  // `@base-ui/react@1.8.0` announces a visually hidden `role="alert"` clone in the viewport and
+  // marks the VISIBLE root `role="alertdialog" aria-hidden="true"` so the viewport's own polite
+  // region does not announce it twice — while leaving `tabIndex={0}` on the root and its buttons.
+  // Nothing tabbable may sit inside an `aria-hidden` subtree (axe: SERIOUS `aria-hidden-focus`), so
+  // A11Y-9 makes `tabIndex` follow `aria-hidden` on the root and on the parts it owns.
   manager.add({
     title: "Could not create",
     type: "error",
@@ -383,19 +380,40 @@ test("a high-priority toast is Base UI's aria-hidden alertdialog, and stays tabb
   const high = toastEl("Could not create")!;
   expect(high.getAttribute("aria-hidden")).toBe("true");
   expect(high.getAttribute("role")).toBe("alertdialog");
-  expect(high.tabIndex).toBe(0);
+  expect(high.tabIndex).toBe(-1);
   for (const slot of ["toast-action", "toast-close"]) {
     const button = high.querySelector(`[data-slot="${slot}"]`) as HTMLElement;
     expect(button, `no [data-slot="${slot}"]`).not.toBeNull();
-    expect(button.getAttribute("tabindex"), slot).toBe("0");
+    expect(button.getAttribute("tabindex"), slot).toBe("-1");
   }
 
-  // A low-priority toast takes the other path: never aria-hidden, so nothing is exempted for it.
+  // A low-priority toast takes the other path: never aria-hidden, so it is tabbable throughout.
   manager.add({ title: "Event created", actionProps: { children: "Undo" } });
   await waitForToast("Event created");
   const low = toastEl("Event created")!;
   expect(low.getAttribute("aria-hidden")).toBeNull();
   expect(low.tabIndex).toBe(0);
+  for (const slot of ["toast-action", "toast-close"]) {
+    const button = low.querySelector(`[data-slot="${slot}"]`) as HTMLElement;
+    expect(button.getAttribute("tabindex"), slot).toBe("0");
+  }
+
+  // …and the high-priority toast comes BACK into the tab order the moment Base UI drops
+  // `aria-hidden`, which it does as soon as the viewport takes focus (F6 is the engine's own
+  // shortcut). The two attributes move together, which is the whole point of reading one off the
+  // other rather than recomputing the condition.
+  await userEvent.keyboard("{F6}");
+  await vi.waitFor(() => {
+    expect(toastEl("Could not create")!.getAttribute("aria-hidden")).toBeNull();
+  });
+  const focusedHigh = toastEl("Could not create")!;
+  expect(focusedHigh.tabIndex).toBe(0);
+  for (const slot of ["toast-action", "toast-close"]) {
+    const button = focusedHigh.querySelector(
+      `[data-slot="${slot}"]`,
+    ) as HTMLElement;
+    expect(button.getAttribute("tabindex"), slot).toBe("0");
+  }
 });
 
 test("OVL-13: the portal re-applies the theme scope inside itself", async () => {
@@ -472,5 +490,5 @@ test("no a11y violations — high-priority toast", async () => {
   // the visible root `aria-hidden` while leaving it and its buttons tabbable (the test above pins
   // that exact shape, so this exemption fails as stale the day the engine fixes it). Every other
   // rule still runs, and every other toast state is audited with no exemption at all.
-  await expectNoA11yViolations(document.body, ["aria-hidden-focus"]);
+  await expectNoA11yViolations(document.body);
 });

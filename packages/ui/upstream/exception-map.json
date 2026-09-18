@@ -1,5 +1,5 @@
 {
-  "_note": "Which of the 59 'ours' decisions each SHARED (upstream-backed) component must implement. Transcribed from docs/plans/2026-09-18-shadcn-reset/implementation.md \u00a7 5.2, which measured each row against the pinned upstream source. verify-parity.mjs fails a migrated component whose patch header omits a 'required' ID assigned to it, and fails any patch naming an ID that is not 'ours' in decisions.json. Decisions with no entry here are global (they live in base.css, the tokens or the preset) or apply only to our own extras.",
+  "_note": "Which of the 59 'ours' decisions each SHARED (upstream-backed) component must implement. Transcribed from docs/plans/2026-09-18-shadcn-reset/implementation.md \u00a7 5.2, which measured each row against the pinned upstream source. verify-parity.mjs fails a migrated component whose patch header omits a 'required' ID assigned to it, and fails any patch naming an ID that is not 'ours' in decisions.json. Decisions with no entry here are global (they live in base.css, the tokens or the preset) or apply only to our own extras. One list has grown since: A11Y-9 gained 'toast' (Batch 5, 2026-09-18). § 5.2 measured A11Y-9 against the four modal surfaces, but the row states the invariant, not the surface — content hidden from assistive technology must not be reachable by keyboard — and Base UI's high-priority toast is the same defect on a non-modal surface. No new row was added; the existing one was applied where it holds.",
   "_advisory": "implementation.md \u00a7 5.2 states A11Y-2's list as 'candidates \u2014 audit each', not as an assignment. Auditing is the per-component judgement the batch makes, so the gate reports these and does not fail on them. Everything under 'required' is an assignment.",
   "required": {
     "FOC-1": [
@@ -129,7 +129,7 @@
     ],
     "A11Y-8": ["alert", "badge", "field", "toast"],
     "A11Y-13": ["alert", "badge", "button", "field"],
-    "A11Y-9": ["alert-dialog", "dialog", "drawer", "sheet"],
+    "A11Y-9": ["alert-dialog", "dialog", "drawer", "sheet", "toast"],
     "API-5": ["button", "tabs", "toggle"],
     "COL-12": ["alert", "badge", "field", "toast"],
     "OVL-13": [

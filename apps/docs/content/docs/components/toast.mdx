@@ -121,14 +121,15 @@ and `children`. `ToastProvider`, `ToastPortal`, `ToastContent`, `ToastTitle`, `T
   a scoped or dark surface survives the move.
 - The toast root takes the single global 2px `:focus-visible` outline — no ring, no halo (FOC-1,
   FOC-6).
-- **One known engine defect, unpatched and recorded.** For a `priority: "high"` toast, Base UI
-  announces a visually hidden `role="alert"` clone in the viewport and marks the visible root
-  `role="alertdialog" aria-hidden="true"` for its whole life, while leaving that root and its
-  buttons in the tab order — so axe reports `aria-hidden-focus`. It is engine behaviour on
-  upstream's own composition, not a choice this system makes, and no decision row authorises
-  patching it here, so `toast.test.tsx` exempts that one rule for that one state and pins the
-  engine's exact shape beside it. Keyboard users can still reach and activate the toast; a screen
-  reader hears the clone. Every other toast state is audited with no exemption at all.
+- **A `priority: "high"` toast leaves the tab order while it is hidden from assistive technology
+  (A11Y-9).** Base UI announces a visually hidden `role="alert"` clone in the viewport and marks the
+  visible root `role="alertdialog" aria-hidden="true"` for as long as the viewport is unfocused,
+  while leaving that root and its buttons tabbable — a keyboard user would land on a control no
+  screen reader can name. Here `tabIndex` follows `aria-hidden` on the root and on the action and
+  close buttons, so the toast re-enters the tab order the moment the engine drops `aria-hidden`,
+  which it does as soon as the viewport takes focus (press `F6`). The mouse is untouched —
+  an unfocused error toast's Retry button stays clickable — and every toast state, high priority
+  included, is audited with no axe suppression at all.
 
 <StatesTested name="toast" />
 
@@ -152,6 +153,10 @@ focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outlin
   a `popover` surface.
 - **OVL-13** — `ToastPortal` reads `useInternalThemeScope()` and wraps its children in a
   `display: contents` element carrying that class.
+- **A11Y-9** — `tabIndex` follows `aria-hidden`. The root's `render` reads `aria-hidden` off the
+  props Base UI hands it — never recomputing `priority === "high" && !focused` — and publishes it to
+  `ToastAction` and `ToastClose`, so nothing inside an `aria-hidden` toast is tabbable. `inert` is
+  deliberately not used: it would take the mouse with it.
 - **A11Y-8** — NO HUNK. Upstream already signals type with a shape as well as a colour: `ToastIcon`
   renders a distinct lucide glyph per type, and the COL-12 hunk above only colours glyphs that are
   already there. `toast.test.tsx` asserts the icon, so a future upstream that drops it fails here.
