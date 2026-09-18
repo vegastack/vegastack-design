@@ -1,4 +1,4 @@
-// @vegastack onboarding-01@0.9.1 sha256-p/iph+OlRAesh1Wuhl32xooYmZifg60qqRXlwVlbZ6Y=
+// @vegastack onboarding-01@0.9.1 sha256-SAEz9JYq6qc3+4yxo4T89xVqfgh9lBXkUuuSD1CjG0s=
 
 "use client";
 
@@ -40,6 +40,14 @@ const STEPS: Step[] = [
   },
 ];
 
+/**
+ * The checklist itself: `OnboardingChecklist` over five sample steps, with the host owning `done`
+ * exactly as the component's contract requires. Clicking a step marks it complete here; in a real
+ * app that call is the one that records the step server-side.
+ *
+ * @example
+ * <GettingStarted />
+ */
 export function GettingStarted() {
   const [steps, setSteps] = React.useState(STEPS);
   const done = steps.filter((step) => step.done).length;

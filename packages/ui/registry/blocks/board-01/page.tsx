@@ -1,10 +1,19 @@
-// @vegastack board-01@0.9.1 sha256-0k1cjv9FStrSO4B3smlS3NVNcYd6k5Qk1fdtIDVZxPw=
+// @vegastack board-01@0.9.1 sha256-t+gzY8VsfAxW35c1T+c2tshKxProvlMwWJRJk3Stpg8=
 
 import { Plus } from "lucide-react";
 
 import { BoardView } from "./components/board-view";
 import { Button } from "@/components/ui/button";
 
+/**
+ * `board-01` — the board starter page: a title row with a create action over `BoardView`.
+ *
+ * Server-safe: the interactive half is the client leaf it imports.
+ *
+ * @example
+ * // app/tasks/page.tsx, straight after `shadcn add @vegastack/board-01`
+ * export { default } from "./page";
+ */
 export default function Page() {
   return (
     <div className="flex min-h-svh flex-col gap-6 p-4 md:p-6">

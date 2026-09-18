@@ -16762,7 +16762,7 @@
         "whenToUse": "Starting an application whose every route sits inside one shell — copy it once, then hoist AppShell into a layout.",
         "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
         "version": "0.9.1",
-        "integrity": "sha256-clYAkUllSGxkELLVU6mVl/d9gtD66tWOhsgDaW9A1vc="
+        "integrity": "sha256-HgT+FvID1zI82NIqgQeMAJG9zW7DqAiKTsd37k/UMZE="
       }
     },
     {
@@ -16802,7 +16802,7 @@
         "whenToUse": "Starting a task, pipeline or triage board — copy it once and replace the sample columns with your own data.",
         "whenNotToUse": "A single sortable list (sortable-list) or a tabular view of the same records (data-grid).",
         "version": "0.9.1",
-        "integrity": "sha256-0k1cjv9FStrSO4B3smlS3NVNcYd6k5Qk1fdtIDVZxPw="
+        "integrity": "sha256-t+gzY8VsfAxW35c1T+c2tshKxProvlMwWJRJk3Stpg8="
       }
     },
     {
@@ -19301,7 +19301,7 @@
         "whenToUse": "A first-run or empty-workspace page that has to show the remaining setup steps.",
         "whenNotToUse": "A multi-step form the user walks through in order — that is stepper.",
         "version": "0.9.1",
-        "integrity": "sha256-p/iph+OlRAesh1Wuhl32xooYmZifg60qqRXlwVlbZ6Y="
+        "integrity": "sha256-SAEz9JYq6qc3+4yxo4T89xVqfgh9lBXkUuuSD1CjG0s="
       }
     },
     {
@@ -19362,7 +19362,7 @@
         "whenToUse": "Starting a preferences, profile or workspace-settings route — copy it once and wire each row to your own state.",
         "whenNotToUse": "One setting inside another page — compose settings-row directly.",
         "version": "0.9.1",
-        "integrity": "sha256-GIcacz8gTFH/84Efa412pyl/tHsas0GlkSrotU4sgms="
+        "integrity": "sha256-X2x9ERKtAjlU9v392yyE2rZGF+BiX3x8mCZBRbU1YXQ="
       }
     },
     {

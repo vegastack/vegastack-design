@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.9.1 sha256-clYAkUllSGxkELLVU6mVl/d9gtD66tWOhsgDaW9A1vc=
+// @vegastack app-shell-01@0.9.1 sha256-HgT+FvID1zI82NIqgQeMAJG9zW7DqAiKTsd37k/UMZE=
 
 import {
   BarChart3,
@@ -36,6 +36,17 @@ const data = {
   ],
 };
 
+/**
+ * The block's navigation rail: `AppShellSidebar` (the `<nav>` landmark) over upstream's
+ * `Sidebar` parts, with the workspace switcher, the main nav and a footer group. The items are
+ * inline sample data — replace `data` and swap each `<a>` for your router's link.
+ *
+ * @example
+ * <AppShell>
+ *   <AppSidebar />
+ *   <div className="flex h-svh min-w-0 flex-1 flex-col">…</div>
+ * </AppShell>
+ */
 export function AppSidebar() {
   return (
     <AppShellSidebar collapsible="icon">

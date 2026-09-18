@@ -1,4 +1,4 @@
-// @vegastack board-01@0.9.1 sha256-0k1cjv9FStrSO4B3smlS3NVNcYd6k5Qk1fdtIDVZxPw=
+// @vegastack board-01@0.9.1 sha256-t+gzY8VsfAxW35c1T+c2tshKxProvlMwWJRJk3Stpg8=
 
 "use client";
 
@@ -105,6 +105,16 @@ function applyMove(
   });
 }
 
+/**
+ * The board and its toolbar: a filter field, an assignee select and a view switch over `Board`.
+ *
+ * The filter narrows what each column SHOWS; a move always lands in the full column, which is why
+ * `onMove` updates `columns` rather than the filtered view. Replace `INITIAL` with your own data
+ * and `onMove` with the call that persists it.
+ *
+ * @example
+ * <BoardView />
+ */
 export function BoardView() {
   const [columns, setColumns] = React.useState(INITIAL);
   const [query, setQuery] = React.useState("");

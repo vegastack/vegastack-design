@@ -1,4 +1,4 @@
-// @vegastack onboarding-01@0.9.1 sha256-p/iph+OlRAesh1Wuhl32xooYmZifg60qqRXlwVlbZ6Y=
+// @vegastack onboarding-01@0.9.1 sha256-SAEz9JYq6qc3+4yxo4T89xVqfgh9lBXkUuuSD1CjG0s=
 
 import { ArrowRight, BookOpen, MessagesSquare } from "lucide-react";
 
@@ -25,6 +25,14 @@ const next = [
   },
 ];
 
+/**
+ * `onboarding-01` — the first-run starter page: the getting-started checklist beside two
+ * what-is-next cards.
+ *
+ * @example
+ * // app/welcome/page.tsx, straight after `shadcn add @vegastack/onboarding-01`
+ * export { default } from "./page";
+ */
 export default function Page() {
   return (
     <div className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-8 p-4 md:p-6">

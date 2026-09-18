@@ -1,4 +1,4 @@
-// @vegastack settings-01@0.9.1 sha256-GIcacz8gTFH/84Efa412pyl/tHsas0GlkSrotU4sgms=
+// @vegastack settings-01@0.9.1 sha256-X2x9ERKtAjlU9v392yyE2rZGF+BiX3x8mCZBRbU1YXQ=
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
@@ -15,6 +15,17 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
+/**
+ * `settings-01` — the settings starter page: three `SettingsSection` groups of `SettingsRow`s
+ * over `Field` controls, closed by a sticky save bar.
+ *
+ * Every control is uncontrolled sample state, so the page is server-safe; wire each row to your
+ * own state (and the save bar to your own mutation) once it is installed.
+ *
+ * @example
+ * // app/settings/page.tsx, straight after `shadcn add @vegastack/settings-01`
+ * export { default } from "./page";
+ */
 export default function Page() {
   return (
     <div className="mx-auto flex min-h-svh w-full max-w-3xl flex-col gap-8 p-4 pb-24 md:p-6">

@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.9.1 sha256-clYAkUllSGxkELLVU6mVl/d9gtD66tWOhsgDaW9A1vc=
+// @vegastack app-shell-01@0.9.1 sha256-HgT+FvID1zI82NIqgQeMAJG9zW7DqAiKTsd37k/UMZE=
 
 import { Plus } from "lucide-react";
 
@@ -31,6 +31,18 @@ const stats = [
   { label: "Escalations", value: "7", note: "-3" },
 ];
 
+/**
+ * `app-shell-01` — the shell starter page: `AppShell`'s landmark trio and skip link, the
+ * collapsible rail, a breadcrumb banner and a content grid of sample cards.
+ *
+ * Copy-once. Once a second route exists, move the `AppShell` composition into
+ * `app/<segment>/layout.tsx` and leave each page its own content — the shell then survives a
+ * navigation instead of remounting with it.
+ *
+ * @example
+ * // app/dashboard/page.tsx, straight after `shadcn add @vegastack/app-shell-01`
+ * export { default } from "./page";
+ */
 export default function Page() {
   return (
     <AppShell>
