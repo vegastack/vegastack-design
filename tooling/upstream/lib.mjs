@@ -11,6 +11,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -45,19 +46,33 @@ export const sha256 = (buffer) =>
   `sha256-${createHash("sha256").update(buffer).digest("hex")}`;
 
 /**
- * The names this repository has already reset onto upstream.
+ * The names parity and variant coverage are enforced for: EVERY component upstream ships a file
+ * for, minus the recorded fileless items.
  *
- * WHY A MIGRATED SET EXISTS (deviation from implementation.md § 3.3, recorded 2026-09-18)
- *   The plan asserts two things that cannot both hold literally: parity is enforced "for every
- *   component that has an upstream counterpart" (§ 3.3) AND `pnpm upstream:check` passes at the end
- *   of Batch 0 "with zero patches, because nothing is migrated yet" (§ 3.6). Before Batch 2, every
- *   shared component still carries years of VegaStack drift, so a literal reading fails 62 times on
- *   the day the gate is born. The reconciliation is this list: parity and variant coverage are
- *   enforced for the names on it, and each of Batches 2-6 appends the names it resets. It is empty
- *   at Batch 0 and complete at the end of Batch 6, at which point the two readings coincide.
+ * DERIVED, NOT LISTED (2026-09-18, Codex review of `main..HEAD`)
+ *   Batches 2-6 needed a growing set, because a component still carrying pre-reset VegaStack drift
+ *   cannot satisfy a byte-parity gate: the plan asserts both that parity covers "every component
+ *   that has an upstream counterpart" (implementation.md § 3.3) and that `upstream:check` passes on
+ *   the day the gate is born (§ 3.6). So the set was a hand-maintained list in `migrated.json` that
+ *   each batch appended to. That list was also the gate's only idea of what it must cover, so
+ *   DELETING a name from it silently disabled both gates for that component — a fail-open switch
+ *   with no alarm on it.
+ *   Batch 6 ended with all 62 migrated, so the two readings coincided and the list stopped earning
+ *   its keep. The set is now read off `vendor/<cli>/ui/*.tsx` — the same directory `pull.mjs` wrote
+ *   and `--verify-integrity` hashes — so a component enters the enforced set by existing upstream,
+ *   and nothing in this repository can take it out again.
  */
 export function migrated() {
-  return new Set(readJson(join(UPSTREAM_DIR, "migrated.json")).components);
+  const dir = join(VENDOR, "ui");
+  if (!existsSync(dir)) return new Set();
+  const exempt = exemptUpstreamItems();
+  return new Set(
+    readdirSync(dir)
+      .filter((file) => file.endsWith(".tsx"))
+      .map((file) => file.slice(0, -".tsx".length))
+      .filter((name) => !(name in exempt))
+      .sort(),
+  );
 }
 
 /**
@@ -67,6 +82,7 @@ export function migrated() {
  * markdown page either, because the react-hook-form wiring is documented on `field`. A name here is
  * neither migrated nor an extra, and `verify-parity.mjs` asserts BOTH halves of the claim — upstream
  * ships no file for it, and neither do we — so the record cannot quietly become a missing component.
+ * That assertion is what keeps this from being a way to opt a real component out of `migrated()`.
  */
 export function exemptUpstreamItems() {
   const { exempt } = readJson(join(UPSTREAM_DIR, "migrated.json"));
@@ -88,7 +104,7 @@ export function retired() {
 /**
  * The decision register, machine-readable.
  *
- * The prose register (`docs/plans/2026-09-18-shadcn-reset/decisions.md`, 169 rows) is an untracked
+ * The prose register (`docs/plans/2026-09-18-shadcn-reset/decisions.md`, 170 rows) is an untracked
  * planning document by MK's instruction, so a committed gate cannot read it. `decisions.json` is
  * its committed derivative and the authority the gates use; `parseDecisionsMarkdown` below
  * regenerates it when the plan file is present.

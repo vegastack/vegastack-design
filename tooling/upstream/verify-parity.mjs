@@ -7,6 +7,10 @@
 //   node tooling/upstream/verify-parity.mjs --sync-decisions   (regenerate decisions.json)
 //
 // WHAT IT CHECKS (implementation.md § 3.3, plus § 6.3 of the mandate)
+//   0. THE ENFORCED SET IS DERIVED, never listed: it is every `vendor/<cli>/ui/*.tsx` the pinned
+//      upstream ships, minus the fileless items recorded in upstream/migrated.json `exempt`. A
+//      hand-maintained list would be a switch that turns both this gate and variant coverage off
+//      for a component, silently, by deleting one line (Codex review of `main..HEAD`, 2026-09-18).
 //   1. A migrated component exists at packages/ui/registry/ui/<name>.tsx.
 //   2. With a patch: applying it to vendor/<cli>/ui/<name>.tsx reproduces the canonical file BYTE
 //      FOR BYTE. Without one: the canonical file EQUALS the vendor file byte for byte.
@@ -51,7 +55,6 @@ import {
   parseDecisionsMarkdown,
   decisions,
   exemptUpstreamItems,
-  migrated,
   ours,
   retired,
   report,
@@ -84,7 +87,6 @@ export function checkTree({
   patchDir,
   register,
   map,
-  migratedSet,
   oursMap,
   retiredSet,
   exemptMap = {},
@@ -96,6 +98,10 @@ export function checkTree({
         .sort()
     : [];
   const upstreamSet = new Set(upstreamNames);
+  // Check 0: the enforced set, derived. Nothing in this repository can remove a name from it.
+  const migratedSet = new Set(
+    upstreamNames.filter((name) => !(name in exemptMap)),
+  );
 
   // Top level only. `registry/ui/icons/` holds the 467 animated-icon mirrors, which are generated
   // from lucide (ICO-6) and are not components in this sense — `icons` itself is the recorded entry.
@@ -150,14 +156,14 @@ export function checkTree({
   for (const name of [...migratedSet].sort()) {
     if (!upstreamSet.has(name)) {
       failures.push(
-        `${name}: listed as migrated, but upstream ships no ui/${name}.tsx`,
+        `${name}: in the enforced set, but upstream ships no ui/${name}.tsx`,
       );
       continue;
     }
     const canonical = join(canonicalDir, `${name}.tsx`);
     if (!existsSync(canonical)) {
       failures.push(
-        `${name}: listed as migrated, but ${relativeToRoot(canonical)} is missing`,
+        `${name}: upstream ships ui/${name}.tsx, but ${relativeToRoot(canonical)} is missing`,
       );
       continue;
     }
@@ -238,7 +244,6 @@ function live() {
     patchDir: join(UPSTREAM_DIR, "patches"),
     register: decisions(),
     map: readJson(join(UPSTREAM_DIR, "exception-map.json")),
-    migratedSet: migrated(),
     oursMap: ours(),
     retiredSet: retired(),
     exemptMap: exemptUpstreamItems(),
@@ -248,6 +253,10 @@ function live() {
 /**
  * Observe the gate failing. Every claim is proven on a temp fixture tree, never on the repository,
  * so a self-test run cannot pass by accident and cannot damage anything.
+ *
+ * Claims match the FAILURE TEXT, not just "something failed": with the enforced set derived from the
+ * fixture's own vendor directory, several mutations below would trip more than one check, and a
+ * bare `failures.length > 0` would let the wrong one stand in for the right one.
  */
 function selfTest() {
   const failures = [];
@@ -277,12 +286,13 @@ function selfTest() {
     patchDir,
     register,
     map: { required: { "FOC-1": ["demo"] } },
-    migratedSet: new Set(["demo"]),
     oursMap: {},
     retiredSet: new Set(),
   };
-  const fails = (overrides) =>
-    checkTree({ ...base, ...overrides }).failures.length > 0;
+  const run = (overrides) => checkTree({ ...base, ...overrides }).failures;
+  const says = (text, overrides = {}) =>
+    run(overrides).some((failure) => failure.includes(text));
+  const clean = (overrides = {}) => run(overrides).length === 0;
 
   // A real patch, produced the way `upstream:diff` produces one.
   writeFileSync(join(canonicalDir, "demo.tsx"), PATCHED);
@@ -291,26 +301,32 @@ function selfTest() {
     "# component: demo\n# decisions: FOC-1\n# hunks:\n#   1: drop the focus ring glow (FOC-1)\n";
   writeFileSync(join(patchDir, "demo.patch"), header + body);
 
-  claim("a correct upstream + patch + canonical triple PASSES", !fails({}));
+  claim("a correct upstream + patch + canonical triple PASSES", clean());
 
   writeFileSync(
     join(canonicalDir, "demo.tsx"),
     PATCHED.replace("outline-2", "outline-4"),
   );
-  claim("a mutated canonical file is rejected", fails({}));
+  claim("a mutated canonical file is rejected", says("does not reproduce"));
   writeFileSync(join(canonicalDir, "demo.tsx"), PATCHED);
 
   writeFileSync(
     join(patchDir, "demo.patch"),
     header.replace("FOC-1", "INT-2") + body,
   );
-  claim("a patch naming a **shadcn** decision is rejected", fails({}));
+  claim(
+    "a patch naming a **shadcn** decision is rejected",
+    says("only an **ours** row may justify a hunk"),
+  );
 
   writeFileSync(
     join(patchDir, "demo.patch"),
     header.replace("FOC-1", "FOC-999") + body,
   );
-  claim("a patch naming an unknown decision is rejected", fails({}));
+  claim(
+    "a patch naming an unknown decision is rejected",
+    says("patch names unknown decision FOC-999"),
+  );
 
   writeFileSync(
     join(patchDir, "demo.patch"),
@@ -318,15 +334,50 @@ function selfTest() {
   );
   claim(
     "a patch omitting an assigned required ID is rejected",
-    fails({ register: { ...register, "A11Y-9": "ours" } }),
+    says("the patch header omits it", {
+      register: { ...register, "A11Y-9": "ours" },
+    }),
   );
 
-  writeFileSync(join(patchDir, "demo.patch"), header + body);
   rmSync(join(patchDir, "demo.patch"));
   claim(
     "a migrated component with no patch that differs from upstream is rejected",
-    fails({}),
+    says("it must equal upstream byte for byte"),
   );
+  writeFileSync(join(patchDir, "demo.patch"), header + body);
+
+  // ---- the enforced set is DERIVED from the vendor tree (check 0) ----
+  //
+  // The three claims below are the ones a hand-maintained `migrated.json` list could not make. Each
+  // takes a name out of the enforced set the only way that is left — by changing what upstream
+  // ships or what this repository ships — and watches the gate notice.
+
+  writeFileSync(join(vendorDir, "ui", "second.tsx"), UPSTREAM);
+  claim(
+    "a SECOND upstream component nobody listed anywhere is enforced too",
+    says("second.tsx, but"),
+  );
+  claim(
+    "…and passes once this repository ships it verbatim",
+    (() => {
+      writeFileSync(join(canonicalDir, "second.tsx"), UPSTREAM);
+      return clean();
+    })(),
+  );
+  rmSync(join(canonicalDir, "second.tsx"));
+  claim(
+    "deleting our copy of it is rejected, with no list to delete it from",
+    says("is missing"),
+  );
+  rmSync(join(vendorDir, "ui", "second.tsx"));
+
+  rmSync(join(vendorDir, "ui", "demo.tsx"));
+  claim(
+    "removing a name from the DERIVED INPUT does not disable the gate — the canonical file " +
+      "becomes an unrecorded extra",
+    says("no upstream counterpart and no entry"),
+  );
+  writeFileSync(join(vendorDir, "ui", "demo.tsx"), UPSTREAM);
 
   writeFileSync(
     join(canonicalDir, "extra.tsx"),
@@ -334,33 +385,25 @@ function selfTest() {
   );
   claim(
     "a registry name that is neither upstream-backed nor a recorded extra is rejected",
-    fails({}),
+    says("no upstream counterpart and no entry"),
   );
   claim(
     "the same name PASSES once it is recorded in ours.json",
-    !checkTree({
-      ...base,
-      migratedSet: new Set(),
-      oursMap: { extra: { disposition: "keep" } },
-    }).failures.length,
+    clean({ oursMap: { extra: { disposition: "keep" } } }),
   );
 
-  writeFileSync(join(canonicalDir, "demo.tsx"), UPSTREAM);
   claim(
     "a retired name still present in the registry is rejected",
-    fails({
-      migratedSet: new Set(),
-      oursMap: { extra: {}, demo: {} },
+    says("retired, but packages/ui/registry/ui still has it", {
+      oursMap: { extra: {} },
       retiredSet: new Set(["demo"]),
     }),
   );
 
-  writeFileSync(join(canonicalDir, "demo.tsx"), UPSTREAM);
   claim(
     "a fileless-upstream exemption naming a name upstream DOES ship a file for is rejected",
-    fails({
-      migratedSet: new Set(),
-      oursMap: { extra: {}, demo: {} },
+    says("migrate it instead of exempting it", {
+      oursMap: { extra: {} },
       exemptMap: { demo: "reason" },
     }),
   );
@@ -373,7 +416,7 @@ function selfTest() {
     );
     return 1;
   }
-  console.log(`${PREFIX}:selftest OK — 10 claims observed`);
+  console.log(`${PREFIX}:selftest OK — 14 claims observed`);
   return 0;
 }
 

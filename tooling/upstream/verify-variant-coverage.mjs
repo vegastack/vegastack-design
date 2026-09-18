@@ -16,8 +16,8 @@
 //   pinned with the components it describes.
 //
 // SCOPE
-//   The migrated set (packages/ui/upstream/migrated.json) — the same set `verify-parity.mjs` uses.
-//   A component still carrying pre-reset VegaStack docs is not yet claiming upstream's sections.
+//   The enforced set `verify-parity.mjs` uses, and derived the same way: every component the pinned
+//   upstream ships a `ui/<name>.tsx` for, minus the fileless items. There is no list to shorten.
 
 import {
   existsSync,

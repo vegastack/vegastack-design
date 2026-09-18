@@ -6,6 +6,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
+import { migrated } from "./upstream/lib.mjs";
+
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const contracts = JSON.parse(
   readFileSync(join(root, "packages/ui/component-contracts.json"), "utf8"),
@@ -15,20 +17,18 @@ const contracts = JSON.parse(
  * FILE PLUS AN APPROVED PATCH, and upstream ships no JSDoc on its exports. Adding a doc comment to
  * each one would be "improving it in passing" — the mandate's first non-negotiable forbids exactly
  * that, and `verify-parity.mjs` would then demand a patch hunk per comment with no decision ID
- * behind it. So this gate stops at the boundary the reset draws: a component in
- * `packages/ui/upstream/migrated.json` documents its API on its docs page (whose section list
- * `verify-variant-coverage.mjs` holds to upstream's), and every component that is OURS — the 79
- * extras, the hooks and the blocks — keeps the full JSDoc + `@example` requirement.
+ * behind it. So this gate stops at the boundary the reset draws: an UPSTREAM-BACKED component
+ * documents its API on its docs page (whose section list `verify-variant-coverage.mjs` holds to
+ * upstream's), and every component that is OURS — the extras, the hooks and the blocks — keeps the
+ * full JSDoc + `@example` requirement.
  *
- * This NARROWS the gate; it does not disable it. The set shrinks only as Batches 2-6 reset a
- * component onto upstream, and each name that enters it gains a parity + variant-coverage gate in
- * the same commit.
+ * This NARROWS the gate; it does not disable it, and the boundary is DERIVED rather than listed:
+ * `migrated()` reads `vendor/<cli>/ui/*.tsx`, so a name is exempt here exactly while upstream ships
+ * a file for it, and the same name is under the parity and variant-coverage gates for exactly as
+ * long. Editing a JSON list used to move all three at once (Codex review of `main..HEAD`,
+ * 2026-09-18).
  */
-const migrated = new Set(
-  JSON.parse(
-    readFileSync(join(root, "packages/ui/upstream/migrated.json"), "utf8"),
-  ).components,
-);
+const exemptFromJsdoc = migrated();
 /**
  * The same boundary, one level up, for BLOCKS (Batch 8 of the shadcn reset, 2026-09-18). 96 of the
  * 100 blocks are upstream's own files — the 28 Base UI blocks copied out of `vendor/` with their
@@ -47,7 +47,7 @@ const vendored = new Set([
   ).chartBlocks,
 ]);
 const records = [
-  ...contracts.components.filter((record) => !migrated.has(record.name)),
+  ...contracts.components.filter((record) => !exemptFromJsdoc.has(record.name)),
   ...contracts.hooks,
   ...contracts.blocks.filter((record) => !vendored.has(record.name)),
 ];
