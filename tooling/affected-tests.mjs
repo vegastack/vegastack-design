@@ -165,12 +165,25 @@ function iconRecords(contracts) {
   return contracts.animatedIcons?.members ?? [];
 }
 
+/**
+ * The 68 ported chart blocks (Batch 8 of the shadcn reset). Modeled like the icon mirrors: a
+ * compact member list under a shared contract, one shared browser suite, and a preview module per
+ * family — so they are indexed here the same way, by their own source file and preview module,
+ * and resolve to the shared test rather than to one of their own.
+ */
+function chartBlockRecords(contracts) {
+  return contracts.chartBlocks?.members ?? [];
+}
+
+const CHART_BLOCK_TEST = "packages/ui/registry/blocks/chart-blocks.test.tsx";
+
 function recordsByName(contracts) {
   return new Map(
-    [...richRecords(contracts), ...iconRecords(contracts)].map((record) => [
-      record.name,
-      record,
-    ]),
+    [
+      ...richRecords(contracts),
+      ...iconRecords(contracts),
+      ...chartBlockRecords(contracts),
+    ].map((record) => [record.name, record]),
   );
 }
 
@@ -186,6 +199,7 @@ function indexContracts(...contractSets) {
     for (const record of [
       ...richRecords(contracts),
       ...iconRecords(contracts),
+      ...chartBlockRecords(contracts),
     ]) {
       for (const path of recordSources(record))
         source.set(slash(path), record.name);
@@ -259,9 +273,12 @@ function changedContractRecords(before, after) {
     ? { icons: before.animatedIcons?.members ?? [] }
     : null;
   const newIcons = after ? { icons: after.animatedIcons?.members ?? [] } : null;
+  const oldCharts = before ? { charts: chartBlockRecords(before) } : null;
+  const newCharts = after ? { charts: chartBlockRecords(after) } : null;
   return sorted([
     ...rich,
     ...changedJsonRecords(oldIcons, newIcons, ["icons"]),
+    ...changedJsonRecords(oldCharts, newCharts, ["charts"]),
   ]);
 }
 
@@ -505,6 +522,10 @@ export function createAffectedPlan({
     ...iconRecords(contracts).map((record) => record.name),
     ...iconRecords(previousContracts ?? {}).map((record) => record.name),
   ]);
+  const chartBlockNames = new Set([
+    ...chartBlockRecords(contracts).map((record) => record.name),
+    ...chartBlockRecords(previousContracts ?? {}).map((record) => record.name),
+  ]);
   const indexes = indexContracts(contracts, previousContracts);
   const policy = contracts.affectedTestPolicy;
   // Current AND previous, for the same reason `indexContracts` unions both: a suite DELETED in this
@@ -618,6 +639,14 @@ export function createAffectedPlan({
       classifications.push({ path, kind: "animated-icon-source" });
       continue;
     }
+    // The ONE suite for all 68 chart blocks, for the same reason as the icons': the members are
+    // exempt from a per-item test, so no record lists this file and the pseudo-item owns it.
+    if (path === CHART_BLOCK_TEST) {
+      directTestOwners.add("__chart-blocks__");
+      registryCheck = true;
+      classifications.push({ path, kind: "chart-block-test" });
+      continue;
+    }
     if (
       path === "apps/docs/components/preview/index.tsx" ||
       path === "apps/docs/components/preview-controls.tsx" ||
@@ -726,6 +755,10 @@ export function createAffectedPlan({
   for (const owner of testedOwners) {
     if (owner === "__animated-icons__" || animatedIconNames.has(owner)) {
       componentTests.push("packages/ui/registry/ui/animated-icons.test.tsx");
+      continue;
+    }
+    if (owner === "__chart-blocks__" || chartBlockNames.has(owner)) {
+      componentTests.push(CHART_BLOCK_TEST);
       continue;
     }
     const record = currentRecords.get(owner) ?? oldRecords.get(owner);
