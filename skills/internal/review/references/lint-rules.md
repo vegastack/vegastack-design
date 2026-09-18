@@ -26,7 +26,14 @@ that catch bugs nobody can see in review.
 
 ## Component source rules
 
-1. **`hex-color`** — any `#fff`/`#a1b2c3` literal. Use a semantic token. (COL-20 — kept.)
+1. **`hex-color`** — any `#fff`/`#a1b2c3` literal. Use a semantic token. (COL-20 — kept.) One
+   position is masked out, and only one: a hex inside an **attribute-selector value**
+   (`[&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50`) is a colour being
+   TARGETED so a token can replace it, not one being authored — which is COL-20 being enforced
+   rather than broken. Batch 6 of the shadcn reset added it for upstream's `chart.tsx`; a file
+   allowlist would have switched the rule off for that whole file, so the mask is by position and
+   every authored hex in every file is still rejected. Both halves are observed in
+   `verify-design-lint-structural.mjs`.
 2. **`raw-palette`** — a colour-property utility against a raw Tailwind palette (`bg-neutral-900`,
    `text-red-500`, `border-slate-200`). Use a semantic token. Note the shape: the rule requires a
    NUMBERED palette step, so upstream's `bg-black/10` modal scrim and `bg-white` pass, which is
@@ -64,7 +71,11 @@ that catch bugs nobody can see in review.
 9. **`raw-interactive-html`** (AST) — canonical registry components may not render native
    `<button>`/`<input>`/`<select>`/`<textarea>` unless the file has an exact per-tag count and a
    concrete adapter/integration rationale in `RAW_INTERACTIVE_EXEMPTIONS`. Counts fail closed in both
-   directions: adding or removing a reviewed native control requires re-audit. (API-15.)
+   directions: adding or removing a reviewed native control requires re-audit. (API-15.) Batch 6 of
+   the shadcn reset is what "removing" looks like: upstream's `AttachmentTrigger` reaches its button
+   through `useRender({ defaultTagName: "button" })` and writes no `<button>` JSX, so the
+   `/attachment.tsx` entry dropped to zero and was DELETED rather than carried at `{}` — an
+   exemption that can no longer be reached is one that should not exist.
 10. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
     `'use client'` must contain a concrete client requirement: a Base UI/approved engine dependency, a
     React hook/context, an event binding, or a browser API. Pure presentational wrappers stay

@@ -1,19 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
-import {
-  Bubble,
-  BubbleContent,
-  type BubbleProps,
-} from "@/components/ui/bubble";
+import type { ComponentProps, ReactNode } from "react";
+import { Bubble, BubbleContent, BubbleReactions } from "@/components/ui/bubble";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type BubblePlaygroundKey = "variant" | "align" | "animateIn";
+type BubblePlaygroundKey = "variant" | "align" | "reactions";
 
-/** The seven token-driven surface skins. */
+/** Upstream's seven surface skins. */
 const VARIANT_OPTIONS = [
   { value: "default", label: "Default" },
   { value: "secondary", label: "Secondary" },
@@ -28,6 +24,8 @@ const ALIGN_OPTIONS = [
   { value: "start", label: "Start" },
   { value: "end", label: "End" },
 ] as const;
+
+type BubbleOwnProps = ComponentProps<typeof Bubble>;
 
 const bubblePlaygroundConfig: PlaygroundConfig<BubblePlaygroundKey> = {
   controls: [
@@ -47,24 +45,25 @@ const bubblePlaygroundConfig: PlaygroundConfig<BubblePlaygroundKey> = {
     },
     {
       type: "switch",
-      key: "animateIn",
-      label: "Animate in",
+      key: "reactions",
+      label: "Reactions",
       defaultValue: false,
     },
   ],
   render: (state): ReactNode => (
-    // Full-width flex column so `align="end"` can self-align the bubble to the end edge.
-    <div className="flex w-full max-w-md flex-col">
-      {/* Keyed on the serialized control state so every control change remounts the bubble —
-          with `animateIn` on, the `motion-enter-up` entrance replays instead of staying
-          static after the first mount. Defaults are all-off, so nothing animates on load. */}
+    // Full-width flex column so `align="end"` can self-align the bubble to the end edge, with room
+    // below for the reactions chip, which hangs outside the bubble's own box.
+    <div className="flex w-full max-w-md flex-col pb-4">
       <Bubble
-        key={`${state.variant}-${state.align}-${state.animateIn}`}
-        variant={state.variant as BubbleProps["variant"]}
-        align={state.align as BubbleProps["align"]}
-        animateIn={Boolean(state.animateIn)}
+        variant={state.variant as BubbleOwnProps["variant"]}
+        align={state.align as BubbleOwnProps["align"]}
       >
         <BubbleContent>On my way — be there in five.</BubbleContent>
+        {state.reactions ? (
+          <BubbleReactions align={state.align as "start" | "end"}>
+            👍 3
+          </BubbleReactions>
+        ) : null}
       </Bubble>
     </div>
   ),
@@ -72,17 +71,18 @@ const bubblePlaygroundConfig: PlaygroundConfig<BubblePlaygroundKey> = {
     const props: string[] = [];
     if (state.variant !== "default") props.push(`variant="${state.variant}"`);
     if (state.align !== "start") props.push(`align="${state.align}"`);
-    if (state.animateIn) props.push("animateIn");
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
-    return `<Bubble${propsString}>\n  <BubbleContent>On my way — be there in five.</BubbleContent>\n</Bubble>`;
+    const reactions = state.reactions
+      ? `\n  <BubbleReactions${state.align !== "end" ? ` align="${state.align}"` : ""}>👍 3</BubbleReactions>`
+      : "";
+    return `<Bubble${propsString}>\n  <BubbleContent>On my way — be there in five.</BubbleContent>${reactions}\n</Bubble>`;
   },
 };
 
 /**
- * `BubblePlayground` — interactive props playground for `Bubble` (`variant`, `align`,
- * `animateIn`, remounting on each change so the entrance replays), backed by the generic
- * {@link PropsPlayground}. Registered in `mdx.tsx`, adopted in
- * `content/docs/components/bubble.mdx`.
+ * `BubblePlayground` — interactive props playground for `Bubble` (`variant`, `align`, and the
+ * `BubbleReactions` chip), backed by the generic {@link PropsPlayground}. Registered in `mdx.tsx`,
+ * adopted in `content/docs/components/bubble.mdx`.
  */
 export function BubblePlayground() {
   return <PropsPlayground {...bubblePlaygroundConfig} />;

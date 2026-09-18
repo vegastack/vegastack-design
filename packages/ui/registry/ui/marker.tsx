@@ -1,4 +1,6 @@
-// @vegastack marker@0.9.1 sha256-BHQqh3QwmwVRAjC5YpVdBQqhLHOrtZAMUMWNbxg1zoI=
+// @vegastack marker@0.9.1 sha256-JRt4ynM2DNS4/+50wA46JEfLpTTxhX7KGdMGsmqJlIA=
+
+"use client";
 
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";

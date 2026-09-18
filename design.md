@@ -725,8 +725,22 @@ recipes:
 > `ProgressIndicator`, `ProgressLabel`, `ProgressValue`) with no `size` axis; `ScrollArea` renders
 > one vertical scrollbar and exports `ScrollBar` for a second axis, with no `orientation` prop;
 > `Sidebar` is divs rather than a `<nav>`, so the landmark is `AppShellSidebar`'s; and **`carousel`
-> is new here**, on `embla-carousel-react`. The live contract for each of them is its own docs page,
-> which ends in a `## Deviations` section naming every decision ID its patch implements.
+> is new here**, on `embla-carousel-react`. Batch 6 closed the shared set with the seven data and
+> AI/chat components — chart, attachment, bubble, marker, message, message-scroller and
+> questionnaire — at which point **all 62 upstream components that ship a file are on upstream**.
+> Among those: `Attachment`'s lifecycle states are upstream's `idle · uploading · processing ·
+error · done` (there is no `complete`, no `disabled` state, no `AttachmentProgress` and no `live`
+> prop on `AttachmentDescription`), and it gains an `xs` size and an `AttachmentAction` part;
+> `Bubble` and `Message` have no `animateIn` — a thread's entrance animation is the app's; `Chart`
+> exports `ChartStyle` and no `ChartGrid`, so a grid is recharts' own `CartesianGrid`, and its
+> `ChartConfig` takes any colour string rather than a token union; and **`questionnaire` is new
+> here**, on `@shadcn/react/questionnaire`, the second sanctioned subpath of the package that
+> already drives `message-scroller`. **The 8-hue chart palette is the one foundation deliberately
+> NOT taken from upstream** (MK, 2026-09-18): shadcn's `neutral` base ships a greyscale `chart-1…5`
+> ramp, so `--chart-1…8` and `--chart-single` stay ours, retuned and contrast-gated in Batch 1, and
+> the names upstream's own chart blocks consume keep working. The live contract for each component
+> is its own docs page, which ends in a `## Deviations` section naming every decision ID its patch
+> implements.
 >
 > The parts of this file that ARE current are the generated ones: the token tables, the recipe set
 > and the resolved values, all of which `pnpm design:sync:check` re-derives from the live DTCG

@@ -1,4 +1,6 @@
-// @vegastack attachment@0.9.1 sha256-eU+tFUFsTp2SgSl3dVTRC/+zufmWtjc6vTPVFg68Hmo=
+// @vegastack attachment@0.9.1 sha256-QODXl4uSwopeV5ZovGbu3wr2lZZeF0kQC42acXjznNg=
+
+"use client";
 
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
@@ -123,7 +125,13 @@ function AttachmentDescription({
     <span
       data-slot="attachment-description"
       className={cn(
-        "mt-0.5 block min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive/80",
+        // A11Y-13: upstream inks the error line with `text-destructive/80` — the status FILL,
+        // alpha-composited. Rasterised on `card` in this repository's tokens it measures 4.113:1
+        // at 12px (axe agrees: 4.11), a live WCAG 1.4.3 failure and squarely inside the
+        // 3.98–4.35 band `--destructive-text` exists for. Same pair, same rule, as Alert, Badge,
+        // Toast and the soft Button: a tinted status surface reads through the family's `-text`
+        // ink, never through its fill.
+        "mt-0.5 block min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive-text",
         "max-w-full",
         className,
       )}

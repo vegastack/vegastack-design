@@ -60,11 +60,30 @@ function sameStrings(actual, expected, label) {
   }
 }
 
-function expectedEnginePackages(dependencies = []) {
+/**
+ * The engine identities a component's dependency list implies.
+ *
+ * `@shadcn/react` is the one package with more than one sanctioned SUBPATH, so its identity is read
+ * from the SOURCE rather than assumed: Batch 6 of the shadcn reset added
+ * `@shadcn/react/questionnaire` beside `@shadcn/react/message-scroller`, and a hard-coded
+ * `message-scroller` would have quietly mislabelled the new component's engine. Everything else is
+ * one package, one identity.
+ */
+function expectedEnginePackages(dependencies = [], sourceFiles = []) {
   const packages = new Set();
   for (const dependency of dependencies) {
-    if (dependency.startsWith("@shadcn/react"))
-      packages.add("@shadcn/react/message-scroller");
+    if (dependency.startsWith("@shadcn/react")) {
+      for (const file of sourceFiles) {
+        const source = existsSync(join(root, file))
+          ? readFileSync(join(root, file), "utf8")
+          : "";
+        for (const match of source.matchAll(
+          /from\s+["']@shadcn\/react\/([a-z-]+)["']/g,
+        )) {
+          packages.add(`@shadcn/react/${match[1]}`);
+        }
+      }
+    }
     if (dependency.startsWith("react-resizable-panels"))
       packages.add("react-resizable-panels");
     if (dependency.startsWith("recharts")) packages.add("recharts");
@@ -503,7 +522,7 @@ function validateRichRecord(record, item, label) {
   assert(Array.isArray(record.engines), `${label}: engines must be an array`);
   sameStrings(
     (record.engines ?? []).map((engine) => engine.package),
-    expectedEnginePackages(item.dependencies),
+    expectedEnginePackages(item.dependencies, record.sourceFiles),
     `${label} engines`,
   );
   for (const engine of record.engines ?? []) {
@@ -556,7 +575,7 @@ const expectedWaves = {
   Overlays: 16,
   "Data display": 13,
   "Content/marketing": 23,
-  "AI/chat": 6,
+  "AI/chat": 7,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
@@ -711,6 +730,7 @@ const expectedComponentWaveMembers = {
     "marker",
     "message",
     "message-scroller",
+    "questionnaire",
     "tool-call-chip",
   ],
 };

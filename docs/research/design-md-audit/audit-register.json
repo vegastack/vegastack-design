@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8383f805f75ace0b8bd8db8f249af8cff1702200fadb52f92ce3748349398787",
+  "contractSha256": "b530a4303f2c82e8f4d29bc30b3255ec49df9cd6831b59e87868eb270fa1ffc2",
   "expectedCounts": {
-    "totalRegistryItems": 608,
-    "components": 127,
+    "totalRegistryItems": 609,
+    "components": 128,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -923,6 +923,17 @@
         "packages/ui/registry/ui/progress.tsx"
       ],
       "docsSlug": "/docs/components/progress",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "questionnaire",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "communication",
+      "sourceFiles": [
+        "packages/ui/registry/ui/questionnaire.tsx"
+      ],
+      "docsSlug": "/docs/components/questionnaire",
       "contractStatus": "reconciled"
     },
     {

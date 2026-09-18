@@ -1,5 +1,5 @@
 # component: marker
-# decisions: A11Y-2, DOC-1, DOC-2
+# decisions: A11Y-2, API-16, DOC-1, DOC-2
 # hunks:
 #   A11Y-2: `markerVariants`' base string gains, scoped to `[a,button]:`, an invisible
 #     `::after` hit area (`after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']`).
@@ -12,21 +12,29 @@
 #     `::after` with no background paints nothing. `marker.test.tsx` measures both shapes.
 #   Nothing else. Upstream's marker paints no focus glow, sets no cursor, disables nothing and
 #     opens no portal; `MarkerIcon` is already `aria-hidden`.
+#   API-16: `"use client"` is ADDED. Upstream ships none, and this file calls
+#     `useRender` from `@base-ui/react/use-render`, which calls `React.useRef` internally —
+#     under the `react-server` condition that hook is `undefined`, so a server component
+#     rendering it throws on import. `tooling/verify-rsc-safety.mjs` is what found it, the
+#     same way it found `breadcrumb` in Batch 5. API-16 puts the boundary at the lowest
+#     interactive leaf, and this file is it.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/marker.tsx b/marker.tsx
-index c01fc83..9baab3c 100644
+index c01fc83..94c485b 100644
 --- a/marker.tsx
 +++ b/marker.tsx
-@@ -1,11 +1,23 @@
+@@ -1,11 +1,25 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+// @vegastack marker@0.9.1 sha256-BHQqh3QwmwVRAjC5YpVdBQqhLHOrtZAMUMWNbxg1zoI=
++// @vegastack marker@0.9.1 sha256-JRt4ynM2DNS4/+50wA46JEfLpTTxhX7KGdMGsmqJlIA=
++
++"use client";
 +
 +import * as React from "react";
 +import { mergeProps } from "@base-ui/react/merge-props";
@@ -50,7 +58,7 @@ index c01fc83..9baab3c 100644
    {
      variants: {
        variant: {
-@@ -15,8 +27,8 @@ const markerVariants = cva(
+@@ -15,8 +29,8 @@ const markerVariants = cva(
          border: "border-b border-border pb-2",
        },
      },
@@ -61,7 +69,7 @@ index c01fc83..9baab3c 100644
  
  function Marker({
    className,
-@@ -30,14 +42,14 @@ function Marker({
+@@ -30,14 +44,14 @@ function Marker({
        {
          className: cn(markerVariants({ variant, className })),
        },
@@ -78,7 +86,7 @@ index c01fc83..9baab3c 100644
  }
  
  function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
-@@ -47,11 +59,11 @@ function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
+@@ -47,11 +61,11 @@ function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
        aria-hidden="true"
        className={cn(
          "size-4 shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -92,7 +100,7 @@ index c01fc83..9baab3c 100644
  }
  
  function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
-@@ -60,11 +72,11 @@ function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
+@@ -60,11 +74,11 @@ function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
        data-slot="marker-content"
        className={cn(
          "min-w-0 wrap-break-word group-data-[variant=separator]/marker:flex-none group-data-[variant=separator]/marker:text-center *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",

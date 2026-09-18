@@ -1,12 +1,12 @@
 ---
 title: Attachment
-description: A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, uploading/error/complete states, and remove/download actions.
+description: Displays a file or image attachment with media, metadata, upload state, and actions.
 audience: public
 registry: attachment
 status: stable
 since: 0.1.0
-a11y: labelled media tile
-preview: attachmentFileChip
+a11y: labelled card with an independent trigger
+preview: attachment
 ---
 
 ## Install
@@ -16,124 +16,151 @@ preview: attachmentFileChip
 ## Usage
 
 ```tsx
-import { X } from "lucide-react";
 import {
   Attachment,
+  AttachmentAction,
   AttachmentActions,
   AttachmentContent,
   AttachmentDescription,
   AttachmentMedia,
   AttachmentTitle,
 } from "@/components/ui/attachment";
-import { IconButton } from "@/components/ui/icon-button";
-import { FileText } from "lucide-react";
 
-<Attachment state="complete">
+<Attachment>
   <AttachmentMedia>
-    <FileText />
+    <FileTextIcon />
   </AttachmentMedia>
   <AttachmentContent>
-    <AttachmentTitle>release-notes.pdf</AttachmentTitle>
-    <AttachmentDescription>248 KB</AttachmentDescription>
+    <AttachmentTitle>sales-dashboard.pdf</AttachmentTitle>
+    <AttachmentDescription>PDF · 2.4 MB</AttachmentDescription>
   </AttachmentContent>
   <AttachmentActions>
-    <IconButton aria-label="Remove release-notes.pdf" variant="ghost" size="xs">
-      <X />
-    </IconButton>
+    <AttachmentAction aria-label="Remove sales-dashboard.pdf">
+      <XIcon />
+    </AttachmentAction>
   </AttachmentActions>
 </Attachment>;
 ```
 
-## Anatomy
+`Attachment` shows a file or image attachment — its media, its name, its metadata — with optional
+actions and an upload state. Use it for files and images in chat composers, message threads and
+upload lists. It renders that state; it owns no upload logic.
 
-There is no headless `@shadcn/react` Attachment primitive published (0.2.1
-exports only `./message-scroller`), so — like the rest of the chat family
-([`Message`](/docs/components/message), [`Bubble`](/docs/components/bubble),
-[`Marker`](/docs/components/marker)) — `Attachment` is fully self-owned: plain
-CVA + `data-slot`/`data-*` styling, no new npm dependency.
+<ComponentPreview name="attachment" file="components/preview/attachment.tsx" />
+
+## Anatomy
 
 <Anatomy name="attachment" />
 
-- `Attachment` — the root chip/card (`data-slot="attachment"`). Owns `state`,
-  `size`, `orientation`.
-- `AttachmentMedia` — the leading file-type icon or image thumbnail
-  (`data-slot="attachment-media"`, decorative `aria-hidden`). Shows an inline
-  `Spinner` overlay automatically while `state="uploading"`.
-- `AttachmentContent` — the vertical column of title / description / progress.
-- `AttachmentTitle` — the file name. Always truncates.
-- `AttachmentDescription` — the meta line (size, upload %, error message). Pass
-  `live` to make it an `aria-live="polite"` region.
-- `AttachmentProgress` — a thin determinate bar (wraps
-  [`Progress`](/docs/components/progress)) for the uploading state.
-- `AttachmentActions` — the trailing action row. Compose
-  [`IconButton`](/docs/components/icon-button) directly — its type-level
-  `aria-label` requirement covers the "remove button needs an accessible name"
-  contract, so there is no separate `AttachmentAction` wrapper.
-- `AttachmentTrigger` — an optional invisible overlay that turns the whole card
-  into one activation target (open/download). Built on Base UI `useRender`.
-- `AttachmentGroup` — wraps multiple attachments in a message-compose row.
-
 ## Examples
 
-### File chip
+### Composition
 
-The default anatomy: a file-type icon, name + size, and a remove action.
+```text
+Attachment
+├── AttachmentMedia
+├── AttachmentContent
+│   ├── AttachmentTitle
+│   └── AttachmentDescription
+├── AttachmentActions
+│   └── AttachmentAction
+└── AttachmentTrigger
+```
+
+Use `AttachmentGroup` to lay out multiple attachments in a scrollable row:
+
+```text
+AttachmentGroup
+├── Attachment
+└── Attachment
+```
 
 <ComponentPreview
-  name="attachmentFileChip"
+  name="attachmentComposition"
   file="components/preview/attachment.tsx"
 />
 
-### Image thumbnail
+### Features
 
-`orientation="vertical"` stacks the media on top; `AttachmentMedia
-variant="image"` expects a filled thumbnail — compose
-[`Image`](/docs/components/image) (`aspectRatio="square"
-className="size-full"`) for a real, resolved URL. `AttachmentActions` floats
-over the corner and an `AttachmentTrigger` makes the whole card open the file.
+- Icon and image media through `AttachmentMedia`
+- Upload states: `idle`, `uploading`, `processing`, `error` and `done`, with built-in styling and a
+  shimmer while the upload is in progress
+- Three sizes, and horizontal or vertical orientation
+- A full-card `AttachmentTrigger` that opens a link or a dialog while the actions stay
+  independently clickable above it
+- A scrollable, snapping `AttachmentGroup` with an edge fade
+- Customizable styling through the `className` prop on every part
 
 <ComponentPreview
-  name="attachmentImageThumbnail"
+  name="attachmentFeatures"
   file="components/preview/attachment.tsx"
 />
 
-### Uploading
+### Image
 
-`state="uploading"` shimmers the title and reveals the `AttachmentMedia`
-spinner overlay automatically. Pair `AttachmentProgress` (the visual bar) with
-a `live` `AttachmentDescription` (the text screen readers actually hear as the
-percentage changes).
+Set `variant="image"` on `AttachmentMedia` and render an `<img>` inside it. Use
+`orientation="vertical"` to stack the media above the content.
 
 <ComponentPreview
-  name="attachmentUploading"
+  name="attachmentImage"
   file="components/preview/attachment.tsx"
 />
 
-### Error
+### States
 
-`state="error"` tints the border, media, title, and description with
-destructive tokens. Give the `AttachmentDescription` `live` so the failure
-reason is announced.
+Set `state` to reflect the upload lifecycle. `uploading` and `processing` shimmer the title, and
+`error` switches to a destructive treatment.
 
 <ComponentPreview
-  name="attachmentError"
+  name="attachmentStates"
   file="components/preview/attachment.tsx"
 />
 
-### Removable compose list
+### Sizes
 
-`AttachmentGroup` wraps several `size="sm"` attachments under a
-message-compose input; each `IconButton` remove action drives real client
-state.
+Use `size` to switch between `default`, `sm` and `xs`.
 
 <ComponentPreview
-  name="attachmentComposeList"
+  name="attachmentSizes"
+  file="components/preview/attachment.tsx"
+/>
+
+### Group
+
+Wrap attachments in `AttachmentGroup` to lay them out in a horizontally scrollable, snapping row
+with an edge fade.
+
+<ComponentPreview
+  name="attachmentGroup"
+  file="components/preview/attachment.tsx"
+/>
+
+### Trigger
+
+Add an `AttachmentTrigger` to make the whole card open a link or a dialog. It fills the card behind
+the actions, so the actions stay clickable.
+
+```tsx
+<Dialog>
+  <Attachment>
+    {/* media, content, actions */}
+    <DialogTrigger
+      render={<AttachmentTrigger aria-label="Preview research-summary.pdf" />}
+    />
+  </Attachment>
+  <DialogContent>{/* ... */}</DialogContent>
+</Dialog>
+```
+
+<ComponentPreview
+  name="attachmentTrigger"
   file="components/preview/attachment.tsx"
 />
 
 ## Playground
 
-Step through the lifecycle states, densities, orientations, and media treatments, then copy the generated JSX.
+Step through the lifecycle states, sizes, orientations and media treatments, then copy the
+generated JSX.
 
 <AttachmentPlayground />
 
@@ -141,73 +168,105 @@ Step through the lifecycle states, densities, orientations, and media treatments
 
 ### Attachment
 
-<ApiTable
-  path="../../packages/ui/registry/ui/attachment.tsx"
-  name="AttachmentProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AttachmentProps" />
 
 ### AttachmentMedia
 
-<ApiTable
-  path="../../packages/ui/registry/ui/attachment.tsx"
-  name="AttachmentMediaProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AttachmentMediaProps" />
+
+### AttachmentContent
+
+<ApiTable path="lib/api-props.ts" name="AttachmentContentProps" />
+
+### AttachmentTitle
+
+<ApiTable path="lib/api-props.ts" name="AttachmentTitleProps" />
 
 ### AttachmentDescription
 
-<ApiTable
-  path="../../packages/ui/registry/ui/attachment.tsx"
-  name="AttachmentDescriptionProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AttachmentDescriptionProps" />
 
-### AttachmentProgress
+### AttachmentActions
 
-<ApiTable
-  path="../../packages/ui/registry/ui/attachment.tsx"
-  name="AttachmentProgressProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AttachmentActionsProps" />
+
+### AttachmentAction
+
+An action button. Renders a [`Button`](/docs/components/button) at `size="icon-xs"` and
+`variant="ghost"`, and accepts every prop that `Button` accepts.
+
+<ApiTable path="lib/api-props.ts" name="AttachmentActionProps" />
 
 ### AttachmentTrigger
 
-<ApiTable
-  path="../../packages/ui/registry/ui/attachment.tsx"
-  name="AttachmentTriggerProps"
-/>
+<ApiTable path="lib/api-props.ts" name="AttachmentTriggerProps" />
 
-### AttachmentGroup / AttachmentContent / AttachmentTitle / AttachmentActions
+### AttachmentGroup
 
-Plain layout wrappers with no own props — they accept standard `<div>` /
-`<span>` props (`className`, `children`, …).
+<ApiTable path="lib/api-props.ts" name="AttachmentGroupProps" />
 
 ## Accessibility
 
-- `AttachmentMedia` is decorative (`aria-hidden`) — `AttachmentTitle` (the file
-  name) carries the accessible identity, never the icon or thumbnail alone.
-- The remove/download action is a real `IconButton`, which **requires**
-  `aria-label` at the type level — always include the file name in it (e.g.
-  `"Remove release-notes.pdf"`) so multiple attachments stay distinguishable to
-  screen reader users.
-- Transient state changes (an upload percentage, an error message) are not
-  announced by color or a bare `role="progressbar"` alone — pass `live` to
-  `AttachmentDescription` so the text is read out via `role="status"
-aria-live="polite"`, the same pattern as
-  [`AutoSaveInput`](/docs/components/auto-save-input) and
-  [`CopyButton`](/docs/components/copy-button).
-- `state="disabled"` visually dims the card and sets `pointer-events-none` +
-  `aria-disabled`, but it cannot reach into children — also pass `disabled` to
-  any nested `IconButton` so it is unreachable by keyboard, not just the mouse.
-- `AttachmentTrigger` is a real button covering the card, and it shows the system's standard
-  `:focus-visible` outline, inset so the card's rounded corners do not clip it. It does not rely
-  on a border tint alone — a tint is the text-entry treatment, not a button's.
-- `AttachmentTrigger` and `AttachmentActions` share the same `z-(z-10)`
-  stacking band; place `AttachmentTrigger` first in JSX so the actions stay on
-  top and clickable.
+- **Label every icon-only action.** `AttachmentAction` is usually a bare icon, so give each one an
+  `aria-label` naming the action and its target — "Remove sales-dashboard.pdf", not "Remove".
+- **Label the trigger.** `AttachmentTrigger` covers the card and has no text of its own, so give it
+  an `aria-label` for what activating it does.
+- The trigger sits behind the actions in the stacking order, so an `AttachmentAction` and the
+  `AttachmentTrigger` never trap each other — both stay separately focusable and separately
+  clickable.
+- Focus is the global 2px `:focus-visible` outline from `base.css`, painted on the trigger itself
+  and following the card's own corner. The card wears no ring on the trigger's behalf — see
+  **Deviations**.
+- **Keyboard scrolling.** An `AttachmentGroup` scrolls horizontally. When its attachments are
+  interactive, keyboard users reach the off-screen ones by tabbing. For a row of _presentational_
+  attachments, make the group itself the scroller with `tabIndex={0}`, `role="group"` and an
+  `aria-label`.
+- **Meaning beyond colour.** The `error` state uses a destructive colour; keep the failure reason
+  in `AttachmentDescription` so the state is never carried by colour alone.
+- `AttachmentAction` is `size="icon-xs"` — `size-6`, 24px, exactly on the WCAG 2.2 SC 2.5.8 floor.
+  `attachment.test.tsx` measures it rather than assuming it.
+
+<ComponentPreview
+  name="attachmentAccessibility"
+  file="components/preview/attachment.tsx"
+/>
 
 <StatesTested name="attachment" />
 
 ## Do / Don't
 
 <DoDont
-  do="Pair a live AttachmentDescription with AttachmentProgress while uploading, and always include the file name in the remove IconButton's aria-label."
-  dont="Rely on the border/icon color alone to convey the error state, or drop AttachmentTitle's truncation by overriding className with `whitespace-normal`."
+  do="Put the failure reason in AttachmentDescription and a target-naming aria-label on every icon-only action."
+  dont="Use Attachment as a generic upload drop zone — it renders upload state, it does not acquire files."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/attachment.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — `attachmentVariants` drops `focus-within:ring-1 focus-within:ring-ring/50`, and
+  `AttachmentTrigger` drops `outline-none`. Upstream's arrangement is the card wearing a ring on
+  behalf of the invisible full-bleed trigger inside it, with the trigger's own affordance silenced;
+  this system has one focus affordance and it belongs on the element that has focus.
+  `rounded-[inherit]` on the trigger is part of the same hunk: the trigger is `absolute inset-0`
+  inside a `rounded-xl` (or `rounded-lg` at `size="xs"`) card, so without it the outline would cut a
+  rectangle across the card's corners.
+- **A11Y-2** — audited, **no hunk**. Every control in this file is a `Button`: `AttachmentAction`
+  defaults to `size="icon-xs"`, which is `size-6` — 24px, exactly on the SC 2.5.8 floor — and
+  `AttachmentTrigger` is the full card. `attachment.test.tsx` measures both, so the day upstream
+  shrinks the action tier below 24px it fails here rather than quietly shipping.
+- **A11Y-13** — `AttachmentDescription`'s error ink becomes `text-destructive-text` in place of
+  upstream's `text-destructive/80`. Rasterised on `card` with this system's tokens, upstream's pair
+  measures 4.113:1 at 12px — a WCAG 1.4.3 failure, and the same pair A11Y-13 already moved onto the
+  `-text` ink for Alert, Badge, Toast and the soft Button. It went unnoticed until Batch 6 because
+  attachment's test lane ran unstyled and the cross-cutting contrast lane had no attachment
+  subject; both gaps are closed. `AttachmentMedia`'s error _icon_ ink is deliberately left
+  upstream-verbatim: measured against its own composited `/10` tint it is 3.973:1, over the 3:1
+  floor for non-text UI.
+- **API-16** — `"use client"` is added. Upstream ships none, and this file calls `useRender`, which
+  calls `React.useRef` internally; under the `react-server` condition that hook is `undefined`, so a
+  server component rendering it throws on import. The boundary goes at the lowest interactive leaf,
+  and this file is it.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

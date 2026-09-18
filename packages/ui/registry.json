@@ -208,7 +208,7 @@
       "name": "attachment",
       "type": "registry:ui",
       "title": "Attachment",
-      "description": "A file chip / thumbnail card for chat and message-compose surfaces - media slot, name + meta, uploading/error/complete states, remove/download actions.",
+      "description": "A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.",
       "categories": ["communication"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -225,7 +225,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
+        "whenToUse": "A file attached to a chat message or a message-compose input — a chip or thumbnail with name, size, lifecycle state, and a remove or download action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
         "version": "0.9.1"
       }
@@ -550,7 +550,7 @@
       "name": "chart",
       "type": "registry:ui",
       "title": "Chart",
-      "description": "A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.",
+      "description": "A themed Recharts wrapper — a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.",
       "categories": ["data-display"],
       "dependencies": [
         "recharts@^3.10.1",
@@ -566,8 +566,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area chart that needs to match the design system's theme automatically in light and dark.",
-        "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress / ProgressIndicator).",
+        "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area/Pie/Radar chart that needs to match the design system's theme automatically in light and dark. Draw a one-series chart in --chart-single and reach for --chart-1…--chart-8 from two series up.",
+        "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress).",
         "version": "0.9.1"
       }
     },

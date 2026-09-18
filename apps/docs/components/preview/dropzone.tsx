@@ -71,7 +71,7 @@ export function dropzone(): ReactNode {
         {files.length > 0 ? (
           <AttachmentGroup>
             {files.map((file, index) => (
-              <Attachment key={`${file.name}-${index}`} state="complete">
+              <Attachment key={`${file.name}-${index}`} state="done">
                 <AttachmentMedia />
                 <AttachmentContent>
                   <AttachmentTitle>{file.name}</AttachmentTitle>

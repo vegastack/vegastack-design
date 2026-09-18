@@ -139,6 +139,39 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // two handles no longer cross — so the assertion passes and guard 2 above demanded the entry be
   // deleted rather than carried as a defect nobody owns. If two handles ever cross again, this map
   // is where that measurement goes back.
+  //
+  // Two entries came back on 2026-09-18, Batch 6 of the shadcn reset, and they are the SAME
+  // ACCEPTED OVERLAP the paragraph above describes — two adjacent targets that both meet the SC
+  // and therefore cannot both own the pixel between them.
+  //
+  // Measured, in this lane: upstream's `AttachmentActions` sets no gap in the horizontal
+  // orientation, so two `AttachmentAction`s sit flush. In `attachmentStates` the error row's pair
+  // lays out at L=332 R=356 and L=356 R=380, both exactly 24.00×24.00; probing "Retry upload" at
+  // its own right edge (355.5, half a pixel inside) resolves to "Remove financial-model.xlsx".
+  // `attachmentTrigger` is the identical shape with "Copy link" beside "Remove".
+  //
+  // That is not an SC 2.5.8 failure: both targets ARE 24×24, which satisfies the size requirement
+  // outright, and the SC's key-terms note removes the shared area from the measurement rather than
+  // demanding an unobstructed square. The spacing clause applies only to targets UNDER 24px. This
+  // probe asks for the stricter shape on purpose (it is what catches a control buried under an
+  // overlay), so the gap between the two is recorded here rather than dissolved by loosening it.
+  // The SIZE half of the contract still runs — only the obstruction sweep is exempted — and
+  // `attachment.test.tsx` measures both actions at 24×24 directly.
+  //
+  // Making these pass would mean putting a gap on `AttachmentActions`, which is a patch hunk with
+  // no decision ID behind it, or removing the second action from upstream's own documented
+  // examples. Both are worse than the entry.
+  attachmentStates: {
+    target:
+      "two flush 24×24 AttachmentActions (Retry at L=332 R=356, Remove at L=356 R=380): the " +
+      "right-edge probe at 355.5 resolves to the neighbour. Accepted overlap — both targets meet " +
+      "SC 2.5.8 on size, and the SC excludes shared area from the measurement.",
+  },
+  attachmentTrigger: {
+    target:
+      "the same flush pair (Copy link beside Remove, 24×24 each, no gap in AttachmentActions' " +
+      "horizontal orientation). Accepted overlap, identical reasoning to attachmentStates.",
+  },
 };
 
 /**
@@ -416,7 +449,11 @@ const TEXT_ENTRY_SLOTS =
   // border tint on a carrier — the active slot for the OTP, the group for the input group.
   // `command-input` is cmdk's input inside an `InputGroup`; upstream gives it its own slot name,
   // so it needs naming here too, and `input-group.tsx` carries the matching tint selector.
-  "[data-slot=input-otp],[data-slot=input-group-control],[data-slot=command-input]";
+  "[data-slot=input-otp],[data-slot=input-group-control],[data-slot=command-input]," +
+  // Batch 6 added upstream's `questionnaire`, whose freeform answer field is text entry with the
+  // same treatment `input` takes: `outline-hidden` suppresses the global ring and `focus:border-ring/70`
+  // is the whole affordance, so it must be held to branch (B) rather than an outline it should not have.
+  "[data-slot=questionnaire-input]";
 
 /**
  * The wrapper that owns a text-entry control's focus affordance, if any.

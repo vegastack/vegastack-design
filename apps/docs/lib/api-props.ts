@@ -190,6 +190,18 @@ import type {
   SidebarMenuSubButton,
   SidebarProvider,
 } from "@/components/ui/sidebar";
+import type {
+  Attachment,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentGroup,
+  AttachmentMedia,
+  AttachmentTitle,
+  AttachmentTrigger,
+} from "@/components/ui/attachment";
+import type { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
 
 export type AlertProps = React.ComponentProps<typeof Alert>;
 export type AlertTitleProps = React.ComponentProps<typeof AlertTitle>;
@@ -456,3 +468,27 @@ export type SidebarMenuSubButtonProps = React.ComponentProps<
 export type SidebarMenuSkeletonProps = React.ComponentProps<
   typeof SidebarMenuSkeleton
 >;
+
+export type AttachmentProps = React.ComponentProps<typeof Attachment>;
+export type AttachmentMediaProps = React.ComponentProps<typeof AttachmentMedia>;
+export type AttachmentContentProps = React.ComponentProps<
+  typeof AttachmentContent
+>;
+export type AttachmentTitleProps = React.ComponentProps<typeof AttachmentTitle>;
+export type AttachmentDescriptionProps = React.ComponentProps<
+  typeof AttachmentDescription
+>;
+export type AttachmentActionsProps = React.ComponentProps<
+  typeof AttachmentActions
+>;
+export type AttachmentActionProps = React.ComponentProps<
+  typeof AttachmentAction
+>;
+export type AttachmentTriggerProps = React.ComponentProps<
+  typeof AttachmentTrigger
+>;
+export type AttachmentGroupProps = React.ComponentProps<typeof AttachmentGroup>;
+
+export type MarkerProps = React.ComponentProps<typeof Marker>;
+export type MarkerIconProps = React.ComponentProps<typeof MarkerIcon>;
+export type MarkerContentProps = React.ComponentProps<typeof MarkerContent>;

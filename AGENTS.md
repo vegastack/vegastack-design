@@ -59,7 +59,7 @@ One line each; the rationale is in the cited plan or ledger, which are historica
 Adding to either list needs MK sign-off, tracked the same way.
 
 - **Headless primitives** — non-Base-UI packages that own a behavioural core (interaction semantics or the state machine under them) but render nothing. Exactly eight, each isolated behind one registry item so an engine swap touches one file:
-  - `@shadcn/react/message-scroller` (MessageScroller) — the original exception.
+  - `@shadcn/react` v0.3 — the original exception, and the only one with **two** subpaths. `@shadcn/react/message-scroller` (the auto-scroll, anchor and prepend-preservation engine behind `message-scroller`) is the entry MK approved first; Batch 6 of the shadcn reset (2026-09-18) adopted `@shadcn/react/questionnaire` with it — upstream's `questionnaire` is that package's question-flow state machine (item sequencing, answer and skip status, shortcut keys, validation, resume, and the `role="progressbar"` / `role="alert"` live regions). No new package and no new MK decision: the package is already sanctioned and its whole surface was pre-approved with upstream's dependency set (DOC-7). Each subpath is imported in exactly one **registry** file, `packages/ui/registry/ui/{message-scroller,questionnaire}.tsx`, so an engine swap still touches one shipped file each; the chrome, the choice card, the tokens and the reduced-motion scroll override are ours. The docs previews import the headless parts a second time, and deliberately: upstream documents an **Unstyled** section on exactly these two pages, and `verify-variant-coverage` requires a live `<ComponentPreview>` under it, so mounting the primitive directly is the only honest demonstration of that section.
   - `@tanstack/react-table` v9 — `data-grid`'s row-model state machine. v9 requires an explicit feature set, and `data-grid` registers exactly one: `rowSortingFeature` plus `createSortedRowModel()`. Column visibility and column order are `data-grid`'s own state, applied before the engine sees a column; `columnVisibilityFeature`, `columnOrderingFeature` and `rowSelectionFeature` exist and are deliberately not adopted. It never touches DOM or focus; the APG grid keyboard layer is ours.
   - `@atlaskit/pragmatic-drag-and-drop` (+ `-hitbox`) — the drag engine behind `use-drag-reorder` (consumed by `board` and `sortable-list`). Pointer-first by design; the keyboard layer, live-region announcements, and "Move to…" menu equivalents are ours.
   - `react-dropzone` — the drop/paste acquisition engine behind `use-file-drop` (and `dropzone`'s thin shell). The four above were approved by MK 2026-07-27 (plan `2026-07-26-crm-commissioned-components.md` §2.1, D1–D4).
@@ -75,7 +75,7 @@ Adding to either list needs MK sign-off, tracked the same way.
 - **Theme engine** — `next-themes` (0.4.6): the class/attribute theme switcher, the storage and system-preference listener, and the anti-FOUC inline script. Approved by MK 2026-09-07 (audit `2026-09-07-system-audit`, decision **D30**). It is **mounted** in `provider`, the sanctioned single app-root wrapper, and read in exactly two registry items: `provider` (`useVegaStackTheme` is a thin wrapper over its `useTheme()`) and, since Batch 4 of the shadcn reset, `sonner` — upstream's sonner toaster reads the resolved theme to pick the engine's own colour scheme, which is the one thing sonner cannot take from the CSS cascade. `toast`, the Base UI surface, still reads nothing: it inherits from the cascade. So a swap changes those two files.
 - **Notification engine** — `sonner` (^2.0.8): the toast stack, its imperative `toast()` API and its own portal and live region, behind the `sonner` registry item. Upstream ships **both** `toast` (Base UI) and `sonner`, and decision **OVL-10** resolves as **shadcn**, so both ship here (Batch 4, 2026-09-18); an app mounts one of them, not both. Imported in exactly one file, `packages/ui/registry/ui/sonner.tsx`; the token bridge (`--normal-bg`, `--normal-text`, `--normal-border`, `--border-radius`) and the icon set are ours. Pre-approved with upstream's dependency set (DOC-7).
 - **Measurement engine** — `@tanstack/react-virtual` (same D1/D2 sign-off): windowing maths for `data-grid`'s `virtualize` flag. It measures; it owns no interaction.
-- **Renderer / behavior engines** — `react-resizable-panels`, `recharts`, `motion`, `tiptap`, and `react-markdown` (^10.1.0) with `remark-gfm` (^4.0.1) — the markdown parser behind `markdown-view`, which turns a markdown string into a React tree through a components map we own, and touches neither interaction semantics nor focus (imported by exactly one file, `packages/ui/registry/ui/markdown-view.tsx`; `rehype-raw` is deliberately absent, so no raw HTML is executed). Approved by MK 2026-09-09. Each is named per-component in `packages/ui/registry.json`. These render or animate; they do not own interaction semantics, which is why they are a narrower class than the primitive exception above. Nothing else joins this list by pointing at one of these as a precedent — a new entry is a new MK decision.
+- **Renderer / behavior engines** — `react-resizable-panels`, `recharts` (^3.10.1 — upstream pins `3.8.0` exactly; Batch 6 of the shadcn reset reconciled rather than downgraded, because 3.10.1 is the same major, is what `chart.tsx`'s focus behaviour was measured against, and satisfies upstream's range), `motion`, `tiptap`, and `react-markdown` (^10.1.0) with `remark-gfm` (^4.0.1) — the markdown parser behind `markdown-view`, which turns a markdown string into a React tree through a components map we own, and touches neither interaction semantics nor focus (imported by exactly one file, `packages/ui/registry/ui/markdown-view.tsx`; `rehype-raw` is deliberately absent, so no raw HTML is executed). Approved by MK 2026-09-09. Each is named per-component in `packages/ui/registry.json`. These render or animate; they do not own interaction semantics, which is why they are a narrower class than the primitive exception above. Nothing else joins this list by pointing at one of these as a precedent — a new entry is a new MK decision.
 
 ## Build rules
 
@@ -94,9 +94,15 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   page and on the family's own `/10`–`/30` tint. Using the fill as text on its own tint measures
   3.98–4.35:1; `contrast-check.mjs` gates the `-text` role on every surface and every tint. **A
   tinted status surface therefore takes the `-text` ink, never the fill** (A11Y-13, MK 2026-09-18):
-  Button's `destructive` variant, Badge's four tinted variants, Alert's status variants and Field's
-  error copy. That is the whole scope — upstream's own `bg-<family>/10 text-<family>` pattern stays
-  verbatim everywhere else.
+  Button's `destructive` variant, Badge's four tinted variants, Alert's status variants, Field's
+  error copy and — since Batch 6 — Bubble's `destructive` variant and Attachment's error
+  description. **The row is the rule, not the roster**: it reaches a soft status surface when the
+  pair MEASURES under the AA floor A11Y-1 enforces, which is how Batch 2 extended it to Badge and
+  how Batch 6 extended it to those two (3.987:1 for `text-destructive` on its own `/10` tint,
+  4.116:1 for `text-destructive/80` on `card`; the `-text` ink reads 6.966:1 and 8.323:1 on the
+  same composites). Each extension is flagged for MK rather than decided silently, and everything
+  that MEASURES at or over the floor — Attachment's error ICON on its tint, at 3.973:1 against the
+  3:1 non-text floor — stays upstream verbatim.
 - **Focus is one outline, and there is no glow anywhere** — `base.css` owns
   `:focus-visible { outline-2 outline-offset-1 outline-ring }` with `ring` bound to the near-black /
   near-white ink (FOC-1, FOC-2); text entry shows `focus:border-ring/70` and no outline (FOC-3).
@@ -210,8 +216,8 @@ docs/                    requirements · gap analysis · plans · ledgers · res
 
 <!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
 
-- **Registry items: 608** — 127 components · 467 animated icons · 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`) · 1 block (`dashboard-01`) · 2 libs (`geo-data`, `drag-item`)
-- Contract SHA-256: `8383f805f75ace0b8bd8db8f249af8cff1702200fadb52f92ce3748349398787`
+- **Registry items: 609** — 128 components · 467 animated icons · 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`) · 1 block (`dashboard-01`) · 2 libs (`geo-data`, `drag-item`)
+- Contract SHA-256: `b530a4303f2c82e8f4d29bc30b3255ec49df9cd6831b59e87868eb270fa1ffc2`
 
 <!-- NUMBERS:END -->
 

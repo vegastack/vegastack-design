@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8383f805f75ace0b8bd8db8f249af8cff1702200fadb52f92ce3748349398787",
+  "contractSha256": "b530a4303f2c82e8f4d29bc30b3255ec49df9cd6831b59e87868eb270fa1ffc2",
   "inventory": {
-    "expected": 608,
-    "actual": 608,
-    "unique": 608
+    "expected": 609,
+    "actual": 609,
+    "unique": 609
   },
   "classes": {
-    "components": 127,
+    "components": 128,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -173,14 +173,15 @@
       ]
     },
     "AI/chat": {
-      "expected": 6,
-      "actual": 6,
+      "expected": 7,
+      "actual": 7,
       "members": [
         "attachment",
         "bubble",
         "marker",
         "message",
         "message-scroller",
+        "questionnaire",
         "tool-call-chip"
       ]
     },
@@ -682,7 +683,7 @@
       ]
     }
   },
-  "componentRoutes": 127,
+  "componentRoutes": 128,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

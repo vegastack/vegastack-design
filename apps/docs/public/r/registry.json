@@ -241,7 +241,7 @@
       "name": "attachment",
       "type": "registry:ui",
       "title": "Attachment",
-      "description": "A file chip / thumbnail card for chat and message-compose surfaces - media slot, name + meta, uploading/error/complete states, remove/download actions.",
+      "description": "A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.",
       "categories": [
         "communication"
       ],
@@ -262,10 +262,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
+        "whenToUse": "A file attached to a chat message or a message-compose input — a chip or thumbnail with name, size, lifecycle state, and a remove or download action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
         "version": "0.9.1",
-        "integrity": "sha256-eU+tFUFsTp2SgSl3dVTRC/+zufmWtjc6vTPVFg68Hmo="
+        "integrity": "sha256-QODXl4uSwopeV5ZovGbu3wr2lZZeF0kQC42acXjznNg="
       }
     },
     {
@@ -479,7 +479,7 @@
         "whenToUse": "The speech surface inside a Message - sent/received styling, reactions, interactive bubbles.",
         "whenNotToUse": "Non-conversational callouts - use Alert or Card.",
         "version": "0.9.1",
-        "integrity": "sha256-ksWmPPoq1e5IQ25icFiLcPk15+7iHqvn5Ow554OsVWo="
+        "integrity": "sha256-ELhV6dmIU+nZGrDKU1gMV/+Bh0dFn1GEeOOKP9FwLtE="
       }
     },
     {
@@ -637,7 +637,7 @@
       "name": "chart",
       "type": "registry:ui",
       "title": "Chart",
-      "description": "A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.",
+      "description": "A themed Recharts wrapper — a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.",
       "categories": [
         "data-display"
       ],
@@ -655,10 +655,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area chart that needs to match the design system's theme automatically in light and dark.",
-        "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress / ProgressIndicator).",
+        "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area/Pie/Radar chart that needs to match the design system's theme automatically in light and dark. Draw a one-series chart in --chart-single and reach for --chart-1…--chart-8 from two series up.",
+        "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress).",
         "version": "0.9.1",
-        "integrity": "sha256-DL68LmDf4jNsCvU6OwfB8TZMtoJR8SzVE81ylFF80II="
+        "integrity": "sha256-tzEpTqd8P4d28Q0e187LfMNHSMHQKPvp2KEZqTPPSp8="
       }
     },
     {
@@ -15160,7 +15160,7 @@
         "whenToUse": "Annotate a thread inline - a merged/status line, a date divider, or a small action row.",
         "whenNotToUse": "A standalone status chip outside a conversation (use Badge) or a full banner (use Alert).",
         "version": "0.9.1",
-        "integrity": "sha256-BHQqh3QwmwVRAjC5YpVdBQqhLHOrtZAMUMWNbxg1zoI="
+        "integrity": "sha256-JRt4ynM2DNS4/+50wA46JEfLpTTxhX7KGdMGsmqJlIA="
       }
     },
     {

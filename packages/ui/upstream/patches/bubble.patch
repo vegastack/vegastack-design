@@ -1,5 +1,5 @@
 # component: bubble
-# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-6
+# decisions: A11Y-2, A11Y-13, API-16, DOC-1, DOC-2, FOC-1, FOC-6
 # hunks:
 #   FOC-1, FOC-6: `BubbleContent` drops `[button,a]:outline-none`,
 #     `[button,a]:focus-visible:border-ring`, `[button,a]:focus-visible:ring-3` and
@@ -11,25 +11,39 @@
 #     Bubble by name; a Tailwind `ring` IS a box-shadow. The outline paints the identical 3px
 #     band in the identical token, outside the border box and following the radius, and the chip
 #     is a non-focusable `<div>` so it can never collide with the focus outline.
+#   A11Y-13: the `destructive` variant's ink becomes `text-destructive-text`. Upstream writes
+#     `bg-destructive/10 text-destructive`, which composites to 3.987:1 in light — under the AA
+#     floor A11Y-1 enforces as a fail-closed gate — while the family's `-text` ink reads 6.966:1
+#     on the identical composite. A11Y-13 is the RULE that a soft status surface reads through
+#     `-text`, not a list of four components; this is the identical pair Batch 2 extended it to on
+#     Badge and flagged for MK, and it is flagged the same way. FLAGGED FOR MK.
 #   A11Y-2: audited, NO HUNK. Nothing in this file is a pointer target of its own — `Bubble`,
 #     `BubbleGroup` and `BubbleReactions` are `<div>`s, and `BubbleContent` becomes a control
 #     only when the call site renders one into it, at which point the control's own size is the
 #     call site's. `bubble.test.tsx` measures the interactive-bubble fixture against the floor.
+#   API-16: `"use client"` is ADDED. Upstream ships none, and this file calls
+#     `useRender` from `@base-ui/react/use-render`, which calls `React.useRef` internally —
+#     under the `react-server` condition that hook is `undefined`, so a server component
+#     rendering it throws on import. `tooling/verify-rsc-safety.mjs` is what found it, the
+#     same way it found `breadcrumb` in Batch 5. API-16 puts the boundary at the lowest
+#     interactive leaf, and this file is it.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/bubble.tsx b/bubble.tsx
-index 639bba1..e904225 100644
+index 639bba1..64c5733 100644
 --- a/bubble.tsx
 +++ b/bubble.tsx
-@@ -1,8 +1,10 @@
+@@ -1,8 +1,12 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+// @vegastack bubble@0.9.1 sha256-ksWmPPoq1e5IQ25icFiLcPk15+7iHqvn5Ow554OsVWo=
++// @vegastack bubble@0.9.1 sha256-ELhV6dmIU+nZGrDKU1gMV/+Bh0dFn1GEeOOKP9FwLtE=
++
++"use client";
 +
 +import * as React from "react";
 +import { mergeProps } from "@base-ui/react/merge-props";
@@ -39,7 +53,7 @@ index 639bba1..e904225 100644
  
  function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -11,7 +13,7 @@ function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -11,7 +15,7 @@ function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex min-w-0 flex-col gap-2", className)}
        {...props}
      />
@@ -48,7 +62,19 @@ index 639bba1..e904225 100644
  }
  
  const bubbleVariants = cva(
-@@ -38,8 +40,8 @@ const bubbleVariants = cva(
+@@ -31,15 +35,19 @@ const bubbleVariants = cva(
+           "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-input/30",
+         ghost:
+           "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50",
++        // A11Y-13: upstream writes `text-destructive` here, which on its own `/10` tint measures
++        // 3.987:1 in light — under the AA floor A11Y-1 enforces as a fail-closed gate. The family's
++        // `-text` ink is the one A11Y-13 adds for exactly this pair, and it reads 6.966:1 on the
++        // same composite. Nothing else in the variant moves.
+         destructive:
+-          "*:data-[slot=bubble-content]:bg-destructive/10 *:data-[slot=bubble-content]:text-destructive dark:*:data-[slot=bubble-content]:bg-destructive/20 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/20 dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/30",
++          "*:data-[slot=bubble-content]:bg-destructive/10 *:data-[slot=bubble-content]:text-destructive-text dark:*:data-[slot=bubble-content]:bg-destructive/20 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/20 dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/30",
+       },
+     },
      defaultVariants: {
        variant: "default",
      },
@@ -59,7 +85,7 @@ index 639bba1..e904225 100644
  
  function Bubble({
    variant = "default",
-@@ -48,7 +50,7 @@ function Bubble({
+@@ -48,7 +56,7 @@ function Bubble({
    ...props
  }: React.ComponentProps<"div"> &
    VariantProps<typeof bubbleVariants> & {
@@ -68,7 +94,7 @@ index 639bba1..e904225 100644
    }) {
    return (
      <div
-@@ -58,7 +60,7 @@ function Bubble({
+@@ -58,7 +66,7 @@ function Bubble({
        className={cn(bubbleVariants({ variant }), className)}
        {...props}
      />
@@ -77,7 +103,7 @@ index 639bba1..e904225 100644
  }
  
  function BubbleContent({
-@@ -71,21 +73,32 @@ function BubbleContent({
+@@ -71,21 +79,32 @@ function BubbleContent({
      props: mergeProps<"div">(
        {
          className: cn(
@@ -115,7 +141,7 @@ index 639bba1..e904225 100644
    {
      variants: {
        side: {
-@@ -101,8 +114,8 @@ const bubbleReactionsVariants = cva(
+@@ -101,8 +120,8 @@ const bubbleReactionsVariants = cva(
        side: "bottom",
        align: "end",
      },
@@ -126,7 +152,7 @@ index 639bba1..e904225 100644
  
  function BubbleReactions({
    side = "bottom",
-@@ -110,8 +123,8 @@ function BubbleReactions({
+@@ -110,8 +129,8 @@ function BubbleReactions({
    className,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -137,7 +163,7 @@ index 639bba1..e904225 100644
  }) {
    return (
      <div
-@@ -121,7 +134,7 @@ function BubbleReactions({
+@@ -121,7 +140,7 @@ function BubbleReactions({
        className={cn(bubbleReactionsVariants({ side, align }), className)}
        {...props}
      />

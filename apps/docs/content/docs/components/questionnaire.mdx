@@ -1,0 +1,520 @@
+---
+title: Questionnaire
+description: A guided one-question-at-a-time form — fixed choices, a freeform answer, explicit skip, shortcut keys, validation, resume and conditional items.
+audience: public
+registry: questionnaire
+status: stable
+since: 0.1.0
+a11y: fieldset/legend per question, polite progressbar
+preview: questionnaire
+---
+
+## Install
+
+<InstallSteps name="questionnaire" />
+
+## Usage
+
+Declare the collection once. Passing it to `Questionnaire` as `items` is what lets progress, the
+navigation actions and the answer shortcuts render correctly on the server, before any measurement
+happens on the client.
+
+```tsx
+import {
+  Questionnaire,
+  QuestionnaireActions,
+  QuestionnaireChoice,
+  QuestionnaireChoices,
+  QuestionnaireDescription,
+  QuestionnaireError,
+  QuestionnaireInput,
+  QuestionnaireItem,
+  QuestionnaireNext,
+  QuestionnairePrevious,
+  QuestionnaireProgress,
+  QuestionnaireSkip,
+  QuestionnaireSubmit,
+  QuestionnaireTitle,
+} from "@/components/ui/questionnaire";
+
+const items = [
+  { name: "direction", required: true },
+  { name: "detail" },
+] as const;
+
+<Questionnaire items={items} onSubmit={handleSubmit}>
+  <QuestionnaireProgress />
+  <QuestionnaireItem name="direction" required>
+    <QuestionnaireTitle>What should we prototype next?</QuestionnaireTitle>
+    <QuestionnaireDescription>
+      Choose a direction or write your own.
+    </QuestionnaireDescription>
+    <QuestionnaireChoices>
+      <QuestionnaireChoice value="delegation">Delegation</QuestionnaireChoice>
+      <QuestionnaireChoice value="questions">
+        Question prompts
+      </QuestionnaireChoice>
+      <QuestionnaireInput
+        aria-label="Another answer"
+        placeholder="Type another answer…"
+      />
+    </QuestionnaireChoices>
+    <QuestionnaireError />
+  </QuestionnaireItem>
+  <QuestionnaireActions>
+    <QuestionnairePrevious />
+    <QuestionnaireSkip />
+    <QuestionnaireNext />
+    <QuestionnaireSubmit />
+  </QuestionnaireActions>
+</Questionnaire>;
+```
+
+The root is a real `<form>`, so the answers arrive as `FormData` — `get` for a single answer,
+`getAll` for a `multiple` item.
+
+```tsx
+function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+  const answers = new FormData(event.currentTarget);
+  // answers.get("direction"), answers.getAll(...) for multiple items.
+}
+```
+
+<ComponentPreview
+  name="questionnaire"
+  file="components/preview/questionnaire.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="questionnaire" />
+
+```text
+Questionnaire
+├── QuestionnaireProgress
+├── QuestionnaireItem
+│   ├── QuestionnaireTitle
+│   ├── QuestionnaireDescription
+│   ├── QuestionnaireChoices
+│   │   ├── QuestionnaireChoice
+│   │   │   └── QuestionnaireChoiceDescription
+│   │   └── QuestionnaireInput
+│   └── QuestionnaireError
+└── QuestionnaireActions
+    ├── QuestionnairePrevious
+    ├── QuestionnaireSkip
+    ├── QuestionnaireNext
+    └── QuestionnaireSubmit
+```
+
+Questionnaire owns the ordered items, the active item, the answer state, validation, progress and
+navigation. The page, card, dialog or drawer around it owns close and cancellation behaviour,
+persistence, transport and branching.
+
+## Examples
+
+### Composition
+
+Each `QuestionnaireItem` is a `<fieldset>` and its `QuestionnaireTitle` is the `<legend>`, so a
+question is a real group whichever chrome you wrap it in. Only the active item is rendered — the
+rest are `hidden` and `inert`.
+
+<ComponentPreview
+  name="questionnaireComposition"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Server Rendering
+
+Pass `items` and the active item, progress, actions and answer shortcuts are all server-rendered.
+Without it the flow still works, but the first paint has to wait for the client to discover how many
+questions there are.
+
+<ComponentPreview
+  name="questionnaireServerRendering"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Multiple Selection
+
+`multiple` on an item turns its choices into checkboxes and its answer into an array. Read it with
+`FormData.getAll(name)`.
+
+<ComponentPreview
+  name="questionnaireMultiple"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Freeform Answer
+
+Compose `QuestionnaireInput` inside `QuestionnaireChoices` when the reader may supply an answer you
+did not list. It is one more option in the same group: filling it clears the fixed choices, and
+picking a fixed choice clears it. Always give it an accessible name — a placeholder is not a label.
+
+<ComponentPreview
+  name="questionnaireFreeform"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Explicit Skip
+
+Add `QuestionnaireSkip` when an optional item may be left unanswered on purpose. `onStatusChange`
+reports `"unanswered" | "answered" | "skipped"`, so "deliberately skipped" is a value you can store
+rather than an absence you have to guess at.
+
+<ComponentPreview
+  name="questionnaireSkip"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Shortcuts
+
+`shortcuts="letters"` or `"numbers"` assigns a key to each answer and renders it in the choice's
+shortcut slot. The engine also puts the key on `aria-keyshortcuts`, so it is announced rather than
+merely drawn.
+
+<ComponentPreview
+  name="questionnaireShortcuts"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Custom Validation
+
+Combine controlled navigation with an external schema — Zod here — to return to an invalid item and
+present its error. `invalid` on the item drives `aria-invalid` and reveals `QuestionnaireError`,
+which is `role="alert"` only while it is showing.
+
+<ComponentPreview
+  name="questionnaireValidation"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Controlled
+
+`item` plus `onItemChange` hands the active item to the host, which is what lets a second control —
+a checkpoint label, a router, a saved draft — read the same value.
+
+<ComponentPreview
+  name="questionnaireControlled"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Resume
+
+`defaultItem` restores the saved position and `defaultChecked` / `defaultValue` restore the saved
+answers. A native `<button type="reset">` returns the form to exactly that state, and `onReset` is
+where you tell the reader it happened.
+
+<ComponentPreview
+  name="questionnaireResume"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Conditional Items
+
+Mark an item `disabled` — in the `items` collection and on the item itself — when an earlier answer
+makes it irrelevant. Navigation steps over it and progress stops counting it, so the reader never
+lands on a question that does not apply.
+
+<ComponentPreview
+  name="questionnaireConditional"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Navigation State
+
+Every navigation part exposes its own state — `disabled`, `visible`, `status` and the `Enter`
+shortcut — so you can hold `Next` until the question is answered, or restyle it from
+`data-status`.
+
+<ComponentPreview
+  name="questionnaireNavigationState"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Custom Progress
+
+`QuestionnaireProgress` takes a `render` prop with `{ current, first, last, total }`. Render whatever
+you like inside it; the engine keeps the `role="progressbar"`, the value attributes and the polite
+announcement on the element you return.
+
+<ComponentPreview
+  name="questionnaireProgress"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Animated Items
+
+Animate the active item and leave progress and navigation stationary — the eye should follow the
+question, not the chrome. `data-active:motion-enter-up` is the system's fade-and-rise arrival, and
+`base.css` collapses it under `prefers-reduced-motion`.
+
+<ComponentPreview
+  name="questionnaireAnimated"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Card
+
+Compose with Card slots while keeping the question's semantics: render the title through
+`render={<CardTitle />}` and give the item an `aria-labelledby` pointing at it, so the fieldset is
+still named by its question.
+
+<ComponentPreview
+  name="questionnaireCard"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Dialog
+
+Inside a Dialog, cancellation and dismissal stay host-owned: `DialogClose` is not a Questionnaire
+part, and closing the dialog is not the same as answering the question.
+
+<ComponentPreview
+  name="questionnaireDialog"
+  file="components/preview/questionnaire.tsx"
+/>
+
+### Unstyled
+
+The behaviour comes from `@shadcn/react/questionnaire`. Mount those parts directly when the flow has
+to look like something else entirely; the styled components above are that engine plus our token
+chrome and nothing more.
+
+<ComponentPreview
+  name="questionnaireUnstyled"
+  file="components/preview/questionnaire.tsx"
+/>
+
+## API Reference
+
+### Questionnaire
+
+<TypeTable
+  type={{
+    items: {
+      type: "readonly QuestionnaireItemDefinition[]",
+      description:
+        "The ordered collection: { name, required?, disabled?, choices? }. Pass it to server-render progress, actions and shortcuts.",
+    },
+    defaultItem: {
+      type: "string",
+      description:
+        "Uncontrolled starting item, by name. Use it to resume a saved flow.",
+    },
+    item: {
+      type: "string",
+      description: "Controlled active item, by name.",
+    },
+    onItemChange: {
+      type: "(item: string) => void",
+      description: "Called when the active item changes.",
+    },
+    shortcuts: {
+      type: '"letters" | "numbers"',
+      description:
+        "Assign a key to each answer and expose it on aria-keyshortcuts. Omit for no shortcuts.",
+    },
+  }}
+/>
+
+Everything else a `<form>` accepts — `onSubmit`, `onReset`, `noValidate`, `className`, `ref` — passes
+through.
+
+### QuestionnaireItem
+
+<TypeTable
+  type={{
+    name: {
+      type: "string",
+      description:
+        "The answer's form field name, and the item's identity for navigation and progress.",
+    },
+    required: {
+      type: "boolean",
+      default: "false",
+      description:
+        "Block navigation past this item until it is answered or skipped.",
+    },
+    multiple: {
+      type: "boolean",
+      default: "false",
+      description:
+        "Accept more than one fixed answer. Choices become checkboxes and the answer becomes an array.",
+    },
+    disabled: {
+      type: "boolean",
+      default: "false",
+      description:
+        "Skip this item entirely: navigation steps over it and progress stops counting it.",
+    },
+    invalid: {
+      type: "boolean",
+      default: "false",
+      description:
+        "Mark the item invalid. Drives aria-invalid and reveals QuestionnaireError.",
+    },
+    onStatusChange: {
+      type: '(status: "unanswered" | "answered" | "skipped") => void',
+      description: "Called whenever this item's answer status changes.",
+    },
+  }}
+/>
+
+### QuestionnaireChoice
+
+<TypeTable
+  type={{
+    value: {
+      type: "string",
+      description: "The submitted value for this answer.",
+    },
+    checked: {
+      type: "boolean",
+      description: "Controlled checked state.",
+    },
+    defaultChecked: {
+      type: "boolean",
+      description:
+        "Uncontrolled initial checked state — how a resumed answer is restored.",
+    },
+    disabled: {
+      type: "boolean",
+      default: "false",
+      description:
+        "Disable this answer. It stays hoverable so a Tooltip can explain why (FRM-4).",
+    },
+    onChange: {
+      type: "React.ChangeEventHandler<HTMLInputElement>",
+      description: "Called when this answer is picked or cleared.",
+    },
+  }}
+/>
+
+### QuestionnaireInput
+
+<TypeTable
+  type={{
+    type: {
+      type: '"text" | "email" | "number" | "password" | "search" | "tel" | "url" | "date" | "datetime-local" | "month" | "time" | "week"',
+      default: '"text"',
+      description: "The input type. There is no textarea variant.",
+    },
+    "aria-label": {
+      type: "string",
+      description:
+        "Required unless a visible label or aria-labelledby names it. A placeholder is not a label.",
+    },
+  }}
+/>
+
+### QuestionnaireProgress
+
+<TypeTable
+  type={{
+    render: {
+      type: "(props, state: { current: number; first: boolean; last: boolean; total: number }) => React.ReactElement",
+      description:
+        "Render your own indicator. The engine keeps role=progressbar, the value attributes and the polite announcement on the element you return.",
+    },
+  }}
+/>
+
+### QuestionnairePrevious, QuestionnaireSkip, QuestionnaireNext, QuestionnaireSubmit
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"default" | "secondary" | "destructive" | "outline" | "ghost" | "link"',
+      default: '"outline" for Previous and Skip, "default" for Next and Submit',
+      description: "Forwarded to buttonVariants.",
+    },
+    size: {
+      type: '"default" | "sm" | "lg" | "icon" | "icon-sm" | "icon-lg"',
+      default: '"default"',
+      description: "Forwarded to buttonVariants.",
+    },
+    disabled: {
+      type: "boolean",
+      description:
+        "Force the control disabled. The engine already disables it when the step does not allow it.",
+    },
+  }}
+/>
+
+`QuestionnaireActions`, `QuestionnaireTitle`, `QuestionnaireDescription`, `QuestionnaireChoices`,
+`QuestionnaireChoiceDescription` and `QuestionnaireError` add no props of their own — each accepts
+everything the underlying element accepts, plus `render` where the engine exposes one.
+
+## Accessibility
+
+- `QuestionnaireItem` renders a `<fieldset>` and `QuestionnaireTitle` renders its `<legend>`, so a
+  screen reader announces the question before every answer inside it. Descriptions and active errors
+  are associated with the current item, and invalid items and answer controls expose `aria-invalid`.
+- Fixed choices are native radios and checkboxes, so arrow keys, <kbd>Space</kbd> and grouping all
+  behave the way the platform already taught the reader. The real control is an `opacity-0` input
+  stretched over the card, which is why the card's own border — not an outline on something
+  invisible — is the focus affordance (FOC-1, FOC-6).
+- `QuestionnaireProgress` is a named `role="progressbar"` with `aria-live="polite"`, so a step change
+  is announced at a comfortable pace rather than interrupting (A11Y-3).
+- `QuestionnaireError` is `role="alert"` **only while the item is invalid**, and `hidden` otherwise —
+  an alert for destructive content rendered after mount, never static chrome. Those two are the only
+  live regions in the component, which is A11Y-4's one-region rule met by the engine itself.
+- Navigation uses real buttons; inactive items and actions are `hidden` and `inert`. Successful
+  navigation focuses the newly active item, and failed validation focuses an available answer
+  control.
+- Every target clears the 24px floor: the choice card and the answer input are `min-h-11` (44px), and
+  the four navigation buttons are `min-h-11` on touch widths, relaxing to the `Button` tier at `sm:`.
+- Always give `QuestionnaireInput` an accessible name with a visible label, `aria-label` or
+  `aria-labelledby`. A placeholder is not a label.
+
+<ComponentPreview
+  name="questionnaireAccessibility"
+  file="components/preview/questionnaire.tsx"
+/>
+
+<StatesTested name="questionnaire" />
+
+## Do / Don't
+
+<DoDont
+  do="Ask one question at a time when each answer changes what to ask next — intake, triage, onboarding, a clarification the agent needs before it can act."
+  dont="Use it for a conventional form where every field is visible at once — compose Field with the form primitives instead."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/questionnaire.patch`. Every hunk:
+
+- **FOC-1, FOC-6 (choice)** — `QuestionnaireChoice` drops `has-[>input:focus-visible]:ring-3` and
+  `has-[>input:focus-visible]:ring-ring/50` and keeps `has-[>input:focus-visible]:border-ring`. The
+  real control is an `opacity-0` input stretched over the whole card, so `base.css`'s outline paints
+  on something invisible — the same shape `input-otp`'s hidden input has, and the same answer: the
+  visible card's border **is** the affordance.
+- **FOC-5 (choice)** — `data-invalid:border-destructive` becomes
+  `not-has-[>input:focus-visible]:data-invalid:border-destructive`, so focus outranks the invalid
+  tint exactly as it does on `input`, `checkbox` and `select`.
+- **FRM-4 (choice)** — `data-disabled:pointer-events-none` is dropped, so a disabled choice stays
+  hoverable and a Tooltip can explain it. The engine keeps the input's own `disabled`, so nothing
+  becomes answerable; upstream's `data-disabled:cursor-not-allowed` stays.
+- **FOC-1, FOC-3, FOC-6, FOC-8, FOC-5, FRM-4 (input)** — `QuestionnaireInput` takes the same
+  treatment `input.tsx` takes: `outline-none` becomes `outline-hidden` (so the FOC-7 forced-colours
+  block has an outline to repaint), `focus-visible:border-ring focus-visible:ring-3
+focus-visible:ring-ring/50` becomes `focus:border-ring/70` — the 70% text-entry tint, on `:focus`
+  so it fires for mouse and keyboard alike — `aria-invalid:border-destructive aria-invalid:ring-3
+aria-invalid:ring-destructive/20` becomes `not-focus:aria-invalid:border-destructive` with its dark
+  counterpart, and `disabled:pointer-events-none` is dropped.
+- **A11Y-3, A11Y-4 — NO HUNK.** Measured in `@shadcn/react@0.3.1`: `Progress` renders
+  `role="progressbar"` with `aria-live="polite"` and `aria-label="Questionnaire progress"` — A11Y-3's
+  polite status by default — and `Error` renders `role="alert"` **only** while the item is invalid
+  and `hidden` otherwise, which is A11Y-3's "alert only for destructive content rendered after
+  mount" and never static chrome. One region per concern, so A11Y-4's single-region rule is met by
+  the engine; a `useAnnouncer` beside it would double-announce every step.
+  `questionnaire.test.tsx` asserts both shapes.
+- **A11Y-2 — audited, NO HUNK.** Every target upstream ships is already at or over the floor: the
+  choice is `min-h-11` (44px), the answer input `min-h-11`, and the four navigation buttons
+  `min-h-11`, relaxed to the `Button` tier at `sm:`, which is 32px. Measured in
+  `questionnaire.test.tsx`.
+- **DOC-1, DOC-2** — `cn` is imported from `@vegastack/design`, and the rest of the diff is
+  prettier's reflow plus the `registry-stamp.mjs` provenance header the three-copy model needs.

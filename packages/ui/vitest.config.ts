@@ -51,9 +51,12 @@ export default defineConfig({
     // (otherwise a subpath's optimized chunk can resolve a second React and crash on useId).
     include: [
       "@base-ui/react/use-render",
-      // The headless message-scroller primitive (the one non-Base-UI primitive) — pre-bundle so it
-      // shares the single deduped React copy (otherwise its chunk resolves a 2nd React → useId crash).
+      // The two headless `@shadcn/react` subpaths — pre-bundle so each shares the single deduped
+      // React copy (otherwise its chunk resolves a 2nd React → useId crash), and so Vite never
+      // discovers one mid-run and reloads a live test page. Batch 6 of the shadcn reset added the
+      // questionnaire engine beside the message-scroller one.
       "@shadcn/react/message-scroller",
+      "@shadcn/react/questionnaire",
       "@base-ui/react/input",
       "@base-ui/react/field",
       "@base-ui/react/form",

@@ -1,281 +1,795 @@
+/*
+ * COMPILED CSS, ON PURPOSE.
+ *
+ * Almost every component test in this repository runs unstyled — a fast structural lane where
+ * `size-6` and `absolute inset-0` are inert. Attachment cannot, because three of the claims its
+ * patch makes are only checkable against real compiled colour and geometry:
+ *
+ *   A11Y-2 is recorded in `attachment.patch` as AUDITED WITH NO HUNK, on the strength of one
+ *   measurement: `AttachmentAction` defaults to `size="icon-xs"`, which is `size-6` — 24px, EXACTLY
+ *   on the SC 2.5.8 floor with nothing to spare. A class-string assertion cannot tell that from
+ *   23px; the day upstream retunes the icon tier this file is what notices.
+ *
+ *   FOC-1/FOC-6 deletes upstream's `focus-within:ring-1 ring-ring/50` from the CARD and upstream's
+ *   `outline-none` from the TRIGGER, on the claim that the trigger then paints `base.css`'s one
+ *   outline instead. "The class is absent" is half of that claim; the other half is that a focused
+ *   trigger really does wear a ≥2px AUTHORED outline, which is only true with the token stylesheet
+ *   compiled and a real keyboard focus path.
+ *
+ *   A11Y-13 exists BECAUSE of this import. axe's `color-contrast` rule is vacuous in the unstyled
+ *   lanes, so upstream's `text-destructive/80` error ink — 4.113:1 on `card` at 12px — shipped
+ *   unmeasured until this file compiled the stylesheet and the very first run reported it. The ink
+ *   is now `text-destructive-text`, and `no a11y violations — state=error` below is what holds it
+ *   there. `packages/ui/test/contrast.browser.test.tsx` carries the same card in BOTH themes.
+ *
+ * Two consequences worth knowing before editing this file:
+ *   1. Every `expectNoA11yViolations` below is a real rendered-colour assertion, not only a
+ *      structural one. None of them carries a suppression list, and none may gain one.
+ *   2. Motion is neutralised by `geometry.css`, so a measurement is of the settled layout.
+ */
+import "../../test/geometry.css";
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
-import { FileText, X } from "lucide-react";
+import { userEvent } from "vitest/browser";
+import { beforeAll, expect, test } from "vitest";
+import {
+  CheckIcon,
+  ClockIcon,
+  FileTextIcon,
+  FileWarningIcon,
+  XIcon,
+} from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { IconButton } from "./icon-button";
 import {
   Attachment,
+  AttachmentAction,
   AttachmentActions,
   AttachmentContent,
   AttachmentDescription,
   AttachmentGroup,
   AttachmentMedia,
-  AttachmentProgress,
   AttachmentTitle,
   AttachmentTrigger,
-  type AttachmentState,
 } from "./attachment";
+import { Spinner } from "./spinner";
 
-const LONG_NAME =
-  "q4-2026-board-deck-final-final-v3-actually-final-reviewed-by-legal.pptx";
+const STATES = ["idle", "uploading", "processing", "error", "done"] as const;
+type State = (typeof STATES)[number];
 
-function Chip({
+const slot = (root: ParentNode, name: string) =>
+  root.querySelector<HTMLElement>(`[data-slot="${name}"]`);
+
+const slots = (root: ParentNode, name: string) => [
+  ...root.querySelectorAll<HTMLElement>(`[data-slot="${name}"]`),
+];
+
+/** Every class literal anywhere in a rendered tree, including the root. */
+function classesOf(root: HTMLElement): string {
+  return [root, ...root.querySelectorAll<HTMLElement>("*")]
+    .map((element) =>
+      typeof element.className === "string" ? element.className : "",
+    )
+    .join(" ");
+}
+
+/**
+ * A CSS outline style somebody AUTHORED. `auto` is excluded deliberately — it is the user agent's
+ * own ring, and accepting it is exactly how a focus assertion becomes unable to fail. Same
+ * constant, same reasoning, as `packages/ui/test/geometry.browser.test.tsx`.
+ */
+const AUTHORED_OUTLINE =
+  /^(?:solid|dashed|dotted|double|groove|ridge|inset|outset)$/;
+
+/**
+ * The 24px effective pointer target of one control, measured the way the geometry lane measures
+ * it: the union of the border box and any absolutely positioned `::before`/`::after` hit area for
+ * SIZE, plus five `document.elementFromPoint` probes inside the centred 24px square for
+ * OBSTRUCTION. A pseudo-element the cascade has switched off is skipped, so a hit area that is
+ * present in the class string but inert in the browser cannot pass on the class string's behalf.
+ */
+function effectiveTarget(element: HTMLElement) {
+  element.scrollIntoView({ block: "center", inline: "center" });
+  const rect = element.getBoundingClientRect();
+  let { left, top, right, bottom } = rect;
+  for (const pseudo of ["::before", "::after"]) {
+    const style = getComputedStyle(element, pseudo);
+    if (style.content === "none" || style.position !== "absolute") continue;
+    if (style.display === "none" || style.visibility === "hidden") continue;
+    const parse = (value: string) =>
+      value.endsWith("px") ? Number.parseFloat(value) : Number.NaN;
+    const [t, r, b, l] = [style.top, style.right, style.bottom, style.left].map(
+      parse,
+    ) as [number, number, number, number];
+    if ([t, r, b, l].some(Number.isNaN)) continue;
+    left = Math.min(left, rect.left + l);
+    top = Math.min(top, rect.top + t);
+    right = Math.max(right, rect.right - r);
+    bottom = Math.max(bottom, rect.bottom - b);
+  }
+
+  const centerX = (rect.left + rect.right) / 2;
+  const centerY = (rect.top + rect.bottom) / 2;
+  // Half a pixel in from the 24px square's edge: Blink hit-tests against pixel-snapped bounds, so
+  // a smaller inset reports phantom misses on the right/bottom edge of a perfectly sized control —
+  // and `AttachmentAction` is perfectly sized, which is exactly the shape that flaked before.
+  const half = 12 - 0.5;
+  const misses = (
+    [
+      [centerX - half, centerY],
+      [centerX + half, centerY],
+      [centerX, centerY - half],
+      [centerX, centerY + half],
+      [centerX, centerY],
+    ] as const
+  )
+    .map(([x, y]) => ({ x, y, hit: document.elementFromPoint(x, y) }))
+    .filter(({ hit }) => !hit || !(hit === element || element.contains(hit)))
+    .map(({ x, y, hit }) => ({
+      x,
+      y,
+      hit: hit instanceof Element ? hit.outerHTML.slice(0, 120) : null,
+    }));
+
+  return {
+    visual: { width: rect.width, height: rect.height },
+    effective: { width: right - left, height: bottom - top },
+    misses,
+  };
+}
+
+/** Walk the keyboard path until `target` has focus — `.focus()` does not imply `:focus-visible`. */
+async function tabTo(target: HTMLElement) {
+  for (let step = 0; step < 12 && document.activeElement !== target; step++) {
+    await userEvent.tab();
+  }
+  expect(
+    document.activeElement,
+    "the keyboard path never reached the control",
+  ).toBe(target);
+  await Promise.all(
+    target
+      .getAnimations()
+      .map((animation) => animation.finished.catch(() => {})),
+  );
+}
+
+function Card({
   state,
-  onRemove,
-}: {
-  state: AttachmentState;
-  onRemove?: () => void;
-}) {
+  ...props
+}: { state?: State } & Omit<React.ComponentProps<typeof Attachment>, "state">) {
   return (
-    <Attachment state={state}>
+    <Attachment state={state} className="w-full max-w-sm" {...props}>
       <AttachmentMedia>
-        <FileText />
+        {state === "uploading" ? (
+          <Spinner />
+        ) : state === "error" ? (
+          <FileWarningIcon />
+        ) : state === "idle" ? (
+          <ClockIcon />
+        ) : state === "done" ? (
+          <CheckIcon />
+        ) : (
+          <FileTextIcon />
+        )}
       </AttachmentMedia>
       <AttachmentContent>
-        <AttachmentTitle>{LONG_NAME}</AttachmentTitle>
-        <AttachmentDescription
-          live={state === "uploading" || state === "error"}
-        >
-          {state === "uploading"
-            ? "Uploading — 42%"
-            : state === "error"
-              ? "Upload failed — try again"
-              : "1.2 MB"}
+        <AttachmentTitle>sales-dashboard.pdf</AttachmentTitle>
+        <AttachmentDescription>
+          {state === "error"
+            ? "Upload failed — the file is over 25 MB."
+            : "PDF · 2.4 MB"}
         </AttachmentDescription>
-        {state === "uploading" ? (
-          <AttachmentProgress
-            value={42}
-            aria-label={`${LONG_NAME} upload progress`}
-          />
-        ) : null}
       </AttachmentContent>
       <AttachmentActions>
-        <IconButton
-          aria-label={`Remove ${LONG_NAME}`}
-          variant="ghost"
-          size="xs"
-          onClick={onRemove}
-        >
-          <X />
-        </IconButton>
+        <AttachmentAction aria-label="Remove sales-dashboard.pdf">
+          <XIcon />
+        </AttachmentAction>
       </AttachmentActions>
     </Attachment>
   );
 }
 
-test("renders the full anatomy with every data-slot", async () => {
-  const screen = await render(<Chip state="complete" />);
-  const root = screen.container.querySelector('[data-slot="attachment"]');
-  expect(root).not.toBeNull();
+beforeAll(async () => {
+  // The lane's own sentinel: if `geometry.css` did not reach the page, `size-6` compiles to
+  // nothing and every measurement below silently becomes an assertion about an unstyled box.
+  const probe = document.createElement("div");
+  probe.className = "size-6";
+  document.body.append(probe);
+  const { width, height } = probe.getBoundingClientRect();
+  probe.remove();
   expect(
-    screen.container.querySelector('[data-slot="attachment-media"]'),
-  ).not.toBeNull();
-  expect(
-    screen.container.querySelector('[data-slot="attachment-content"]'),
-  ).not.toBeNull();
-  expect(
-    screen.container.querySelector('[data-slot="attachment-title"]'),
-  ).not.toBeNull();
-  expect(
-    screen.container.querySelector('[data-slot="attachment-description"]'),
-  ).not.toBeNull();
-  expect(
-    screen.container.querySelector('[data-slot="attachment-actions"]'),
-  ).not.toBeNull();
+    { width, height },
+    "compiled CSS did not reach the page — every measurement in this file would be vacuous",
+  ).toEqual({ width: 24, height: 24 });
 });
 
-test("AttachmentGroup exposes its slot and wraps multiple chips", async () => {
+/* ── Usage ──────────────────────────────────────────────────────────────────────────────────── */
+
+test("renders every exported part with its data-slot (Usage)", async () => {
   const screen = await render(
     <AttachmentGroup>
-      <Chip state="complete" />
-      <Chip state="idle" />
+      <Attachment>
+        <AttachmentMedia variant="image">
+          <img src="/preview/landscape.svg" alt="A scenic landscape" />
+        </AttachmentMedia>
+        <AttachmentContent>
+          <AttachmentTitle>landscape.svg</AttachmentTitle>
+          <AttachmentDescription>SVG · 820 KB</AttachmentDescription>
+        </AttachmentContent>
+        <AttachmentActions>
+          <AttachmentAction aria-label="Remove landscape.svg">
+            <XIcon />
+          </AttachmentAction>
+        </AttachmentActions>
+        <AttachmentTrigger aria-label="Open landscape.svg" />
+      </Attachment>
     </AttachmentGroup>,
   );
-  expect(
-    screen.container.querySelector('[data-slot="attachment-group"]'),
-  ).not.toBeNull();
-  expect(
-    screen.container.querySelectorAll('[data-slot="attachment"]'),
-  ).toHaveLength(2);
+  for (const name of [
+    "attachment-group",
+    "attachment",
+    "attachment-media",
+    "attachment-content",
+    "attachment-title",
+    "attachment-description",
+    "attachment-actions",
+    "attachment-action",
+    "attachment-trigger",
+  ]) {
+    expect(slot(screen.container, name), name).not.toBeNull();
+  }
 });
 
-test.each<AttachmentState>([
-  "idle",
-  "uploading",
-  "error",
-  "complete",
-  "disabled",
-])("reflects state=%s on the root data-state attribute", async (state) => {
-  const screen = await render(<Chip state={state} />);
-  const root = screen.container.querySelector('[data-slot="attachment"]');
-  expect(root).toHaveAttribute("data-state", state);
-});
-
-test("disabled state marks the root aria-disabled and dims it", async () => {
-  const screen = await render(<Chip state="disabled" />);
-  const root = screen.container.querySelector('[data-slot="attachment"]')!;
-  expect(root).toHaveAttribute("aria-disabled", "true");
-  expect(root.className).toContain("data-[state=disabled]:opacity-50");
-});
-
-test("idle/complete are not aria-disabled", async () => {
-  const idle = await render(<Chip state="idle" />);
-  expect(
-    idle.container.querySelector('[data-slot="attachment"]'),
-  ).not.toHaveAttribute("aria-disabled");
-});
-
-test("uploading state reveals the AttachmentMedia spinner overlay and progress bar", async () => {
-  const screen = await render(<Chip state="uploading" />);
-  const overlay = screen.container.querySelector(
-    '[data-slot="attachment-media-overlay"]',
-  )!;
-  expect(overlay.className).toContain(
-    "group-data-[state=uploading]/attachment:flex",
-  );
-  const progress = screen.getByRole("progressbar", {
-    name: `${LONG_NAME} upload progress`,
-  });
-  await expect.element(progress).toBeInTheDocument();
-  await expect.element(progress).toHaveAttribute("aria-valuenow", "42");
-});
-
-test("error state tints title/description via destructive data-state selectors", async () => {
-  const screen = await render(<Chip state="error" />);
-  const title = screen.container.querySelector(
-    '[data-slot="attachment-title"]',
-  )!;
-  const description = screen.container.querySelector(
-    '[data-slot="attachment-description"]',
-  )!;
-  expect(title.className).toContain(
-    "group-data-[state=error]/attachment:text-destructive-text",
-  );
-  expect(description.className).toContain(
-    "group-data-[state=error]/attachment:text-destructive-text",
-  );
-  expect(
-    screen.container.querySelector('[data-slot="attachment"]'),
-  ).toHaveAttribute("data-state", "error");
-});
-
-test("the remove action fires its callback and exposes an accessible name with the file name", async () => {
-  const onRemove = vi.fn();
-  const screen = await render(<Chip state="complete" onRemove={onRemove} />);
-  const button = screen.getByRole("button", { name: `Remove ${LONG_NAME}` });
-  await expect.element(button).toBeInTheDocument();
-  await button.click();
-  expect(onRemove).toHaveBeenCalledOnce();
-});
-
-test("AttachmentTitle truncates a long file name instead of wrapping/overflowing", async () => {
-  const screen = await render(<Chip state="idle" />);
-  const title = screen.container.querySelector(
-    '[data-slot="attachment-title"]',
-  )!;
-  expect(title.className).toContain("truncate");
-  expect(title.textContent).toBe(LONG_NAME);
-});
-
-test("AttachmentDescription is a live region only when `live` is set", async () => {
-  const live = await render(
-    <AttachmentDescription live>Uploading — 42%</AttachmentDescription>,
-  );
-  const liveEl = live.getByText("Uploading — 42%");
-  await expect.element(liveEl).toHaveAttribute("role", "status");
-  await expect.element(liveEl).toHaveAttribute("aria-live", "polite");
-  await expect.element(liveEl).toHaveAttribute("aria-atomic", "true");
-
-  const passive = await render(
-    <AttachmentDescription>1.2 MB</AttachmentDescription>,
-  );
-  const passiveEl = passive.getByText("1.2 MB");
-  await expect.element(passiveEl).not.toHaveAttribute("role");
-  await expect.element(passiveEl).not.toHaveAttribute("aria-live");
-});
-
-test("AttachmentTrigger renders as a button by default and supports render composition", async () => {
-  const screen = await render(
+test("the trigger is a real button by default, and `render` makes it a link (Usage)", async () => {
+  const plain = await render(
     <Attachment>
-      <AttachmentTrigger aria-label="Open release-notes.pdf" />
-      <AttachmentContent>
-        <AttachmentTitle>release-notes.pdf</AttachmentTitle>
-      </AttachmentContent>
+      <AttachmentTrigger aria-label="Preview report.pdf" />
     </Attachment>,
   );
-  const trigger = screen.getByRole("button", {
-    name: "Open release-notes.pdf",
-  });
-  await expect
-    .element(trigger)
-    .toHaveAttribute("data-slot", "attachment-trigger");
+  const button = slot(plain.container, "attachment-trigger") as HTMLElement;
+  expect(button.tagName).toBe("BUTTON");
+  expect(button.getAttribute("type")).toBe("button");
 
   const linked = await render(
     <Attachment>
       <AttachmentTrigger
-        aria-label="Download release-notes.pdf"
-        render={<a href="https://example.com/release-notes.pdf" />}
+        render={
+          <a href="/preview/landscape.svg" aria-label="Open landscape.svg" />
+        }
       />
     </Attachment>,
   );
-  const link = linked.getByRole("link", { name: "Download release-notes.pdf" });
-  await expect
-    .element(link)
-    .toHaveAttribute("href", "https://example.com/release-notes.pdf");
+  const anchor = slot(linked.container, "attachment-trigger") as HTMLElement;
+  expect(anchor.tagName).toBe("A");
+  // `type` is only defaulted for the button spelling — an `<a type="button">` would be nonsense.
+  expect(anchor.hasAttribute("type")).toBe(false);
 });
 
-test("forwards ref to the root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(<Attachment ref={ref} />);
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("attachment");
+/* ── Composition ────────────────────────────────────────────────────────────────────────────── */
+
+test("Composition: content holds the title and description, actions sit above the trigger", async () => {
+  const screen = await render(<Card state="done" />);
+  const content = slot(screen.container, "attachment-content") as HTMLElement;
+  expect(slot(content, "attachment-title")).not.toBeNull();
+  expect(slot(content, "attachment-description")).not.toBeNull();
+
+  const withTrigger = await render(
+    <Attachment className="w-full max-w-sm">
+      <AttachmentContent>
+        <AttachmentTitle>research-summary.pdf</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction aria-label="Remove research-summary.pdf">
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+      <AttachmentTrigger aria-label="Preview research-summary.pdf" />
+    </Attachment>,
+  );
+  const actions = slot(
+    withTrigger.container,
+    "attachment-actions",
+  ) as HTMLElement;
+  const trigger = slot(
+    withTrigger.container,
+    "attachment-trigger",
+  ) as HTMLElement;
+  // The whole point of the arrangement: the trigger fills the card BEHIND the actions.
+  expect(Number(getComputedStyle(actions).zIndex)).toBeGreaterThan(
+    Number(getComputedStyle(trigger).zIndex),
+  );
+  expect(getComputedStyle(trigger).position).toBe("absolute");
 });
 
-test.each<AttachmentState>([
-  "idle",
-  "uploading",
-  "error",
-  "complete",
-  "disabled",
-])("no a11y violations — state=%s", async (state) => {
-  const screen = await render(<Chip state={state} />);
-  await expectNoA11yViolations(screen.container);
-});
-
-test("no a11y violations — AttachmentGroup with multiple attachments", async () => {
+test("Composition: AttachmentGroup lays its attachments out in one scrollable row", async () => {
   const screen = await render(
-    <AttachmentGroup>
-      <Chip state="complete" />
-      <Chip state="error" />
-      <Chip state="uploading" />
+    <AttachmentGroup className="w-64">
+      <Attachment className="w-64">
+        <AttachmentContent>
+          <AttachmentTitle>one.pdf</AttachmentTitle>
+        </AttachmentContent>
+      </Attachment>
+      <Attachment className="w-64">
+        <AttachmentContent>
+          <AttachmentTitle>two.pdf</AttachmentTitle>
+        </AttachmentContent>
+      </Attachment>
     </AttachmentGroup>,
   );
-  await expectNoA11yViolations(screen.container);
+  const group = slot(screen.container, "attachment-group") as HTMLElement;
+  const style = getComputedStyle(group);
+  expect(style.overflowX).toBe("auto");
+  expect(style.scrollSnapType).toContain("x");
+  expect(group.scrollWidth).toBeGreaterThan(group.clientWidth);
+  const [first, second] = slots(screen.container, "attachment");
+  expect(first!.getBoundingClientRect().top).toBeCloseTo(
+    second!.getBoundingClientRect().top,
+    0,
+  );
 });
 
-test("vertical orientation: media releases its fixed height so aspect-square can apply", async () => {
-  // The base class sets `size-10` (definite width AND height). With both dimensions
-  // definite, CSS ignores `aspect-ratio` — the vertical thumbnail rendered 110×40 instead of
-  // square (audit finding). The vertical override must therefore carry `h-auto` alongside
-  // `aspect-square w-full`. Class-contract assertion (this suite loads no compiled CSS).
+/* ── Features ───────────────────────────────────────────────────────────────────────────────── */
+
+test.each(STATES)(
+  "Features: the title shimmers while %s only when the upload is in progress",
+  async (state) => {
+    const screen = await render(<Card state={state} />);
+    const title = slot(screen.container, "attachment-title") as HTMLElement;
+    const running = ["uploading", "processing"].includes(state);
+    expect(
+      getComputedStyle(title).animationName,
+      `state="${state}" shimmer`,
+    ).toBe(running ? "tw-shimmer" : "none");
+  },
+);
+
+test("Features: an action stays clickable while the trigger fills the card", async () => {
+  const opened: string[] = [];
+  const screen = await render(
+    <Attachment className="w-full max-w-sm">
+      <AttachmentContent>
+        <AttachmentTitle>research-summary.pdf</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction
+          aria-label="Remove research-summary.pdf"
+          onClick={() => opened.push("action")}
+        >
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+      <AttachmentTrigger
+        aria-label="Preview research-summary.pdf"
+        onClick={() => opened.push("trigger")}
+      />
+    </Attachment>,
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: "Remove research-summary.pdf" }),
+  );
+  expect(opened).toEqual(["action"]);
+  await userEvent.click(
+    screen.getByRole("button", { name: "Preview research-summary.pdf" }),
+  );
+  expect(opened).toEqual(["action", "trigger"]);
+});
+
+/* ── Image ──────────────────────────────────────────────────────────────────────────────────── */
+
+test.each([
+  ["icon", "icon"],
+  ["image", "image"],
+] as const)(
+  "Image: AttachmentMedia variant=%s reports data-variant",
+  async (variant, expected) => {
+    const screen = await render(
+      <Attachment>
+        <AttachmentMedia variant={variant}>
+          {variant === "image" ? (
+            <img src="/preview/landscape.svg" alt="A scenic landscape" />
+          ) : (
+            <FileTextIcon />
+          )}
+        </AttachmentMedia>
+      </Attachment>,
+    );
+    const media = slot(screen.container, "attachment-media") as HTMLElement;
+    expect(media.getAttribute("data-variant")).toBe(expected);
+  },
+);
+
+test("Image: an image fills its media slot and is cropped rather than squashed", async () => {
   const screen = await render(
     <Attachment orientation="vertical">
       <AttachmentMedia variant="image">
-        <FileText aria-hidden />
+        <img src="/preview/landscape.svg" alt="A scenic landscape" />
       </AttachmentMedia>
       <AttachmentContent>
-        <AttachmentTitle>cover-photo.png</AttachmentTitle>
+        <AttachmentTitle>landscape.svg</AttachmentTitle>
       </AttachmentContent>
     </Attachment>,
   );
-  const media = screen.container.querySelector(
-    '[data-slot="attachment-media"]',
+  const media = slot(screen.container, "attachment-media") as HTMLElement;
+  const image = media.querySelector("img") as HTMLImageElement;
+  expect(getComputedStyle(image).objectFit).toBe("cover");
+  expect(image.getBoundingClientRect().width).toBeCloseTo(
+    media.getBoundingClientRect().width,
+    0,
   );
-  expect(media?.className).toContain(
-    "group-data-[orientation=vertical]/attachment:h-auto",
+});
+
+/* ── States ─────────────────────────────────────────────────────────────────────────────────── */
+
+test.each(STATES)(
+  "States: state=%s reaches the root as data-state",
+  async (state) => {
+    const screen = await render(<Card state={state} />);
+    expect(
+      (slot(screen.container, "attachment") as HTMLElement).getAttribute(
+        "data-state",
+      ),
+    ).toBe(state);
+  },
+);
+
+test("States: `done` is the default, and there is no `complete`", async () => {
+  const screen = await render(
+    <Attachment>
+      <AttachmentContent>
+        <AttachmentTitle>report.pdf</AttachmentTitle>
+      </AttachmentContent>
+    </Attachment>,
   );
-  expect(media?.className).toContain(
-    "group-data-[orientation=vertical]/attachment:aspect-square",
+  // Upstream renamed the settled state; the pre-reset `complete` is gone with no alias behind it.
+  expect(
+    (slot(screen.container, "attachment") as HTMLElement).getAttribute(
+      "data-state",
+    ),
+  ).toBe("done");
+});
+
+test("States: `error` re-inks the description and the media, `idle` dashes the border", async () => {
+  const settled = await render(<Card state="done" />);
+  const errored = await render(<Card state="error" />);
+  const idle = await render(<Card state="idle" />);
+
+  const ink = (root: HTMLElement) =>
+    getComputedStyle(slot(root, "attachment-description") as HTMLElement).color;
+  expect(ink(errored.container as HTMLElement)).not.toBe(
+    ink(settled.container as HTMLElement),
   );
+  expect(
+    getComputedStyle(slot(errored.container, "attachment-media") as HTMLElement)
+      .color,
+  ).not.toBe(
+    getComputedStyle(slot(settled.container, "attachment-media") as HTMLElement)
+      .color,
+  );
+  expect(
+    getComputedStyle(slot(idle.container, "attachment") as HTMLElement)
+      .borderTopStyle,
+  ).toBe("dashed");
+});
+
+/* ── Sizes ──────────────────────────────────────────────────────────────────────────────────── */
+
+test.each(["default", "sm", "xs"] as const)(
+  "Sizes: size=%s reaches the root as data-size",
+  async (size) => {
+    const screen = await render(<Card state="done" size={size} />);
+    expect(
+      (slot(screen.container, "attachment") as HTMLElement).getAttribute(
+        "data-size",
+      ),
+    ).toBe(size);
+  },
+);
+
+test("Sizes: the three sizes are a real ladder, tallest to shortest", async () => {
+  const heights: number[] = [];
+  for (const size of ["default", "sm", "xs"] as const) {
+    const screen = await render(
+      <Attachment size={size} className="w-full max-w-sm">
+        <AttachmentMedia>
+          <FileTextIcon />
+        </AttachmentMedia>
+        <AttachmentContent>
+          <AttachmentTitle>report.pdf</AttachmentTitle>
+        </AttachmentContent>
+      </Attachment>,
+    );
+    heights.push(
+      (
+        slot(screen.container, "attachment") as HTMLElement
+      ).getBoundingClientRect().height,
+    );
+  }
+  const [large, medium, small] = heights as [number, number, number];
+  expect(large).toBeGreaterThan(medium);
+  expect(medium).toBeGreaterThan(small);
+});
+
+/* ── Group ──────────────────────────────────────────────────────────────────────────────────── */
+
+test("Group: every attachment snaps and refuses to shrink", async () => {
+  const screen = await render(
+    <AttachmentGroup className="w-64">
+      {["one.pdf", "two.pdf", "three.pdf"].map((name) => (
+        <Attachment key={name} className="w-64">
+          <AttachmentContent>
+            <AttachmentTitle>{name}</AttachmentTitle>
+          </AttachmentContent>
+        </Attachment>
+      ))}
+    </AttachmentGroup>,
+  );
+  const cards = slots(screen.container, "attachment");
+  expect(cards).toHaveLength(3);
+  for (const card of cards) {
+    const style = getComputedStyle(card);
+    expect(style.scrollSnapAlign).toBe("start");
+    expect(style.flexShrink).toBe("0");
+  }
+});
+
+/* ── Trigger ────────────────────────────────────────────────────────────────────────────────── */
+
+test("Trigger: the trigger owns the card's interior and the action owns its own", async () => {
+  const screen = await render(
+    <Attachment className="w-full max-w-sm">
+      <AttachmentMedia>
+        <FileTextIcon />
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>research-summary.pdf</AttachmentTitle>
+        <AttachmentDescription>Open preview dialog</AttachmentDescription>
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction aria-label="Remove research-summary.pdf">
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+      <AttachmentTrigger aria-label="Preview research-summary.pdf" />
+    </Attachment>,
+  );
+  const card = slot(screen.container, "attachment") as HTMLElement;
+  const trigger = slot(screen.container, "attachment-trigger") as HTMLElement;
+  const action = slot(screen.container, "attachment-action") as HTMLElement;
+
+  // `absolute inset-0` resolves against the card's PADDING box, so the trigger is the card minus
+  // its 1px border on each side — measured, rather than assumed to be the border box.
+  const triggerBox = trigger.getBoundingClientRect();
+  expect(triggerBox.width).toBeCloseTo(card.clientWidth, 0);
+  expect(triggerBox.height).toBeCloseTo(card.clientHeight, 0);
+
+  // The media sits UNDER the trigger…
+  const media = slot(screen.container, "attachment-media") as HTMLElement;
+  const mediaBox = media.getBoundingClientRect();
+  expect(
+    document.elementFromPoint(
+      (mediaBox.left + mediaBox.right) / 2,
+      (mediaBox.top + mediaBox.bottom) / 2,
+    ),
+  ).toBe(trigger);
+  // …and the action sits OVER it.
+  const actionBox = action.getBoundingClientRect();
+  const hit = document.elementFromPoint(
+    (actionBox.left + actionBox.right) / 2,
+    (actionBox.top + actionBox.bottom) / 2,
+  );
+  expect(hit === action || action.contains(hit)).toBe(true);
+});
+
+/* ── Accessibility ──────────────────────────────────────────────────────────────────────────── */
+
+test("Accessibility: an icon-only action and the full-card trigger both carry a name", async () => {
+  const screen = await render(
+    <Attachment className="w-full max-w-sm">
+      <AttachmentContent>
+        <AttachmentTitle>sales-dashboard.pdf</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction aria-label="Remove sales-dashboard.pdf">
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+      <AttachmentTrigger aria-label="Open sales-dashboard.pdf" />
+    </Attachment>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Remove sales-dashboard.pdf" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Open sales-dashboard.pdf" }))
+    .toBeInTheDocument();
+});
+
+test("Accessibility: an action and the trigger are separate tab stops, in DOM order", async () => {
+  const screen = await render(
+    <Attachment className="w-full max-w-sm">
+      <AttachmentContent>
+        <AttachmentTitle>sales-dashboard.pdf</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction aria-label="Remove sales-dashboard.pdf">
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+      <AttachmentTrigger aria-label="Open sales-dashboard.pdf" />
+    </Attachment>,
+  );
+  const action = slot(screen.container, "attachment-action") as HTMLElement;
+  const trigger = slot(screen.container, "attachment-trigger") as HTMLElement;
+  await tabTo(action);
+  await userEvent.tab();
+  expect(document.activeElement).toBe(trigger);
+});
+
+/* ── the exceptions `attachment.patch` implements ───────────────────────────────────────────── */
+
+test("A11Y-2 (audited, NO HUNK): an AttachmentAction measures at least 24×24", async () => {
+  const screen = await render(<Card state="error" />);
+  const action = slot(screen.container, "attachment-action") as HTMLElement;
+  const probe = effectiveTarget(action);
+  // `size="icon-xs"` is `size-6`: 24px, exactly on the SC 2.5.8 floor and with nothing to spare.
+  // That is the whole basis of the patch's "audited, no hunk" row, so it is measured, not assumed.
+  expect(
+    {
+      width: probe.effective.width >= 23.5,
+      height: probe.effective.height >= 23.5,
+    },
+    `AttachmentAction measured ${probe.effective.width.toFixed(2)}×${probe.effective.height.toFixed(2)}px`,
+  ).toEqual({ width: true, height: true });
+  expect(
+    probe.misses,
+    "AttachmentAction must own the interior of its centred 24px square",
+  ).toEqual([]);
+});
+
+test("A11Y-2 (audited, NO HUNK): the trigger is the whole card, so it needs no hit area", async () => {
+  const screen = await render(
+    <Attachment className="w-full max-w-sm">
+      <AttachmentContent>
+        <AttachmentTitle>research-summary.pdf</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentTrigger aria-label="Preview research-summary.pdf" />
+    </Attachment>,
+  );
+  const probe = effectiveTarget(
+    slot(screen.container, "attachment-trigger") as HTMLElement,
+  );
+  expect(probe.effective.width).toBeGreaterThanOrEqual(24);
+  expect(probe.effective.height).toBeGreaterThanOrEqual(24);
+  expect(probe.misses).toEqual([]);
+});
+
+test("A11Y-13: the error line reads through the family's `-text` ink, not its fill", async () => {
+  const screen = await render(<Card state="error" />);
+  const description = slot(
+    screen.container,
+    "attachment-description",
+  ) as HTMLElement;
+
+  // Upstream's ink is the FILL at 80% — `text-destructive/80`, which rasterises to 4.113:1 on
+  // `card` at 12px. The class assertion pins which ink is selected…
+  expect(description.className).toContain(
+    "group-data-[state=error]/attachment:text-destructive-text",
+  );
+  expect(description.className).not.toContain("text-destructive/80");
+
+  // …and the rendered colour proves the selector actually wins, which a class string cannot. The
+  // `-text` role is a darker, fully opaque red, so it is measurably not the composited fill.
+  const rendered = getComputedStyle(description).color;
+  const settled = await render(<Card state="done" />);
+  expect(rendered).not.toBe(
+    getComputedStyle(
+      slot(settled.container, "attachment-description") as HTMLElement,
+    ).color,
+  );
+  // An alpha channel in the computed value would mean the fill-at-80% ink came back.
+  expect(rendered).not.toMatch(/\/\s*0?\.\d/);
+
+  // `AttachmentMedia`'s error ICON ink is deliberately upstream-verbatim: measured 3.973:1 against
+  // its own composited `/10` tint, over the 3:1 floor for non-text UI (WCAG 1.4.11). If a token
+  // change ever drops it under, `contrast.browser.test.tsx`'s attachment card is where that shows.
+  expect(
+    (slot(screen.container, "attachment-media") as HTMLElement).className,
+  ).toContain("group-data-[state=error]/attachment:text-destructive");
+});
+
+test("FOC-1/FOC-6: no focus glow survives anywhere in the rendered tree", async () => {
+  const screen = await render(
+    <AttachmentGroup>
+      <Card state="error" />
+      <Attachment>
+        <AttachmentContent>
+          <AttachmentTitle>report.pdf</AttachmentTitle>
+        </AttachmentContent>
+        <AttachmentTrigger aria-label="Open report.pdf" />
+      </Attachment>
+    </AttachmentGroup>,
+  );
+  const classes = classesOf(screen.container as HTMLElement);
+  // Upstream's card wore `focus-within:ring-1 focus-within:ring-ring/50` on behalf of the
+  // invisible trigger inside it. Both halves of that arrangement are gone.
+  expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+  expect(classes).not.toContain("focus-within:ring-");
+  expect(classes).not.toContain("focus-visible:ring-");
+});
+
+test("FOC-1: the trigger keeps its own outline, and follows the card's corner", async () => {
+  const screen = await render(
+    <Attachment className="w-full max-w-sm">
+      <AttachmentContent>
+        <AttachmentTitle>research-summary.pdf</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentTrigger aria-label="Preview research-summary.pdf" />
+    </Attachment>,
+  );
+  const trigger = slot(screen.container, "attachment-trigger") as HTMLElement;
+  const card = slot(screen.container, "attachment") as HTMLElement;
+
+  // Upstream writes `outline-none` here; the patch deletes it. The class string is one half of
+  // that claim…
+  expect(trigger.className).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
+  expect(trigger.className).not.toMatch(/(?:^|\s)outline-hidden(?:\s|$)/);
+  expect(trigger.className).toContain("rounded-[inherit]");
+  // …and the corner is the other: without `rounded-[inherit]` the outline would cut a rectangle
+  // across a `rounded-xl` card.
+  expect(getComputedStyle(trigger).borderTopLeftRadius).toBe(
+    getComputedStyle(card).borderTopLeftRadius,
+  );
+});
+
+test("FOC-1: a keyboard-focused trigger paints an authored outline of at least 2px", async () => {
+  const screen = await render(
+    <Attachment className="w-full max-w-sm">
+      <AttachmentContent>
+        <AttachmentTitle>research-summary.pdf</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentTrigger aria-label="Preview research-summary.pdf" />
+    </Attachment>,
+  );
+  const trigger = slot(screen.container, "attachment-trigger") as HTMLElement;
+  await tabTo(trigger);
+  expect(trigger.matches(":focus-visible")).toBe(true);
+  const style = getComputedStyle(trigger);
+  // `auto` is the user agent's own ring. Accepting it is how this assertion would stop being able
+  // to fail, so it is rejected by name.
+  expect(style.outlineStyle, "the trigger paints no authored outline").toMatch(
+    AUTHORED_OUTLINE,
+  );
+  expect(Number.parseFloat(style.outlineWidth)).toBeGreaterThanOrEqual(2);
+});
+
+/* ── axe, per distinct state ────────────────────────────────────────────────────────────────── */
+
+test.each(STATES)("no a11y violations — state=%s", async (state) => {
+  const screen = await render(<Card state={state} />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — a group with a trigger and actions", async () => {
+  const screen = await render(
+    <AttachmentGroup>
+      {["one.pdf", "two.pdf"].map((name) => (
+        <Attachment key={name} className="w-64">
+          <AttachmentMedia>
+            <FileTextIcon />
+          </AttachmentMedia>
+          <AttachmentContent>
+            <AttachmentTitle>{name}</AttachmentTitle>
+            <AttachmentDescription>PDF · 2.4 MB</AttachmentDescription>
+          </AttachmentContent>
+          <AttachmentActions>
+            <AttachmentAction aria-label={`Remove ${name}`}>
+              <XIcon />
+            </AttachmentAction>
+          </AttachmentActions>
+          <AttachmentTrigger aria-label={`Open ${name}`} />
+        </Attachment>
+      ))}
+    </AttachmentGroup>,
+  );
+  await expectNoA11yViolations(screen.container);
 });

@@ -12,6 +12,14 @@ import { TextEdit } from "../registry/ui/text-edit";
 import { ColorPicker } from "../registry/ui/color-picker";
 import { LogoRow } from "../registry/ui/logo-row";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../registry/ui/tabs";
+import { FileWarningIcon } from "lucide-react";
+import {
+  Attachment,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "../registry/ui/attachment";
 
 /**
  * Rendered color-contrast a11y gate (Codex R3 HIGH-2/HIGH-3). Unlike the per-component unit a11y
@@ -150,6 +158,30 @@ function Surfaces() {
         <AlertTitle>FYI</AlertTitle>
         <AlertDescription>An informational note.</AlertDescription>
       </Alert>
+
+      {/* Attachment's `error` card (Batch 6 of the shadcn reset). This subject exists because it
+          did not: upstream's `AttachmentDescription` inked its failure line with the destructive
+          FILL at 80% (`text-destructive/80`), which rasterises to 4.113:1 on `card` at 12px, and
+          nothing in the repository measured it — attachment's own unit lane ran unstyled and this
+          file had no attachment subject. A11Y-13 moved the ink onto `text-destructive-text`; this
+          node is what holds it there, in BOTH themes, rather than only in the light-mode axe run
+          inside `attachment.test.tsx`. The media slot is deliberately included too: its error icon
+          ink is upstream's fill on the family's own `/10` tint, measured at 3.973:1 — over the 3:1
+          non-text floor and therefore left verbatim, which is a number worth re-measuring on every
+          token change. */}
+      <div className="rounded-md bg-card p-3">
+        <Attachment state="error" className="w-full max-w-sm">
+          <AttachmentMedia>
+            <FileWarningIcon />
+          </AttachmentMedia>
+          <AttachmentContent>
+            <AttachmentTitle>financial-model.xlsx</AttachmentTitle>
+            <AttachmentDescription>
+              Upload failed — the file is larger than 25 MB.
+            </AttachmentDescription>
+          </AttachmentContent>
+        </Attachment>
+      </div>
     </div>
   );
 }

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 608,
-    "components": 127,
+    "totalRegistryItems": 609,
+    "components": 128,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -26,7 +26,7 @@
     "Overlays": 16,
     "Data display": 13,
     "Content/marketing": 23,
-    "AI/chat": 6,
+    "AI/chat": 7,
     "Hooks": 11,
     "Block": 1,
     "Animated icons": 467
@@ -171,7 +171,8 @@
       "bubble",
       "message-scroller",
       "attachment",
-      "tool-call-chip"
+      "tool-call-chip",
+      "questionnaire"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -242,7 +243,8 @@
           "text-edit",
           "color-picker",
           "logo-row",
-          "tabs"
+          "tabs",
+          "attachment"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
@@ -1650,7 +1652,7 @@
       "name": "attachment",
       "registryType": "registry:ui",
       "title": "Attachment",
-      "summary": "A file chip / thumbnail card for chat and message-compose surfaces - media slot, name + meta, uploading/error/complete states, remove/download actions.",
+      "summary": "A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.",
       "status": "stable",
       "since": "0.1.0",
       "family": "communication",
@@ -1663,8 +1665,18 @@
           "source": "packages/ui/registry/ui/attachment.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "AttachmentAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/attachment.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -1673,17 +1685,8 @@
           "source": "packages/ui/registry/ui/attachment.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AttachmentActionsProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -1692,17 +1695,8 @@
           "source": "packages/ui/registry/ui/attachment.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AttachmentContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -1711,17 +1705,8 @@
           "source": "packages/ui/registry/ui/attachment.tsx",
           "ref": {
             "status": "observed",
-            "target": "span",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AttachmentDescriptionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -1730,17 +1715,8 @@
           "source": "packages/ui/registry/ui/attachment.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AttachmentGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -1749,90 +1725,8 @@
           "source": "packages/ui/registry/ui/attachment.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AttachmentMediaProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AttachmentMediaVariant",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "attachmentMediaVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "AttachmentOrientation",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AttachmentProgress",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Progress",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/attachment.tsx."
-          }
-        },
-        {
-          "name": "AttachmentProgressProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AttachmentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AttachmentSize",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AttachmentState",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -1841,17 +1735,8 @@
           "source": "packages/ui/registry/ui/attachment.tsx",
           "ref": {
             "status": "observed",
-            "target": "span",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AttachmentTitleProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -1860,26 +1745,8 @@
           "source": "packages/ui/registry/ui/attachment.tsx",
           "ref": {
             "status": "observed",
-            "target": "button",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AttachmentTriggerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "attachmentVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/attachment.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
@@ -1887,17 +1754,22 @@
         "status": "observed",
         "dimensions": [
           {
+            "name": "size",
+            "values": ["default", "sm", "xs"],
+            "evidence": "packages/ui/registry/ui/attachment.tsx: CVA"
+          },
+          {
             "name": "orientation",
             "values": ["horizontal", "vertical"],
             "evidence": "packages/ui/registry/ui/attachment.tsx: CVA"
           },
           {
             "name": "state",
-            "values": ["complete", "disabled", "error", "idle", "uploading"],
+            "values": ["done", "error", "idle", "processing", "uploading"],
             "evidence": "packages/ui/registry/ui/attachment.tsx: prop union"
           },
           {
-            "name": "variant",
+            "name": "media variant",
             "values": ["icon", "image"],
             "evidence": "packages/ui/registry/ui/attachment.tsx: CVA"
           }
@@ -1963,7 +1835,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/attachment",
-      "registryDependencies": ["@vegastack/spinner", "@vegastack/progress"],
+      "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -2002,20 +1874,11 @@
           ],
           "cssVariables": []
         },
-        "AttachmentGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["attachment-group"]
-            }
-          ],
-          "cssVariables": []
-        },
         "AttachmentMedia": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["attachment-media", "attachment-media-overlay"]
+              "values": ["attachment-media"]
             },
             {
               "name": "data-variant",
@@ -2051,20 +1914,29 @@
           ],
           "cssVariables": []
         },
-        "AttachmentProgress": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["attachment-progress"]
-            }
-          ],
-          "cssVariables": []
-        },
         "AttachmentActions": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["attachment-actions"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentAction": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-group"]
             }
           ],
           "cssVariables": []
@@ -3041,8 +2913,8 @@
           "source": "packages/ui/registry/ui/bubble.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -3051,17 +2923,8 @@
           "source": "packages/ui/registry/ui/bubble.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "BubbleContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/bubble.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -3070,26 +2933,8 @@
           "source": "packages/ui/registry/ui/bubble.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "BubbleGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/bubble.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "BubbleProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/bubble.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -3098,60 +2943,14 @@
           "source": "packages/ui/registry/ui/bubble.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "BubbleReactionsProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/bubble.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "bubbleReactionsVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/bubble.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "BubbleVariant",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/bubble.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "bubbleVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/bubble.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "observed",
         "dimensions": [
-          {
-            "name": "align",
-            "values": ["end", "start"],
-            "evidence": "packages/ui/registry/ui/bubble.tsx: CVA; packages/ui/registry/ui/bubble.tsx: prop union"
-          },
-          {
-            "name": "side",
-            "values": ["bottom", "top"],
-            "evidence": "packages/ui/registry/ui/bubble.tsx: CVA; packages/ui/registry/ui/bubble.tsx: prop union"
-          },
           {
             "name": "variant",
             "values": [
@@ -3163,6 +2962,16 @@
               "secondary",
               "tinted"
             ],
+            "evidence": "packages/ui/registry/ui/bubble.tsx: CVA"
+          },
+          {
+            "name": "align",
+            "values": ["end", "start"],
+            "evidence": "packages/ui/registry/ui/bubble.tsx: prop union"
+          },
+          {
+            "name": "reactions side",
+            "values": ["bottom", "top"],
             "evidence": "packages/ui/registry/ui/bubble.tsx: CVA"
           }
         ]
@@ -4140,22 +3949,13 @@
       "name": "chart",
       "registryType": "registry:ui",
       "title": "Chart",
-      "summary": "A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.",
+      "summary": "A themed Recharts wrapper — a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/chart.tsx"],
       "publicSymbols": [
-        {
-          "name": "ChartColorToken",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/chart.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
         {
           "name": "ChartConfig",
           "kind": "type",
@@ -4170,36 +3970,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/chart.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by ChartContainer in packages/ui/registry/ui/chart.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "ChartContainerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/chart.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ChartGrid",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chart.tsx",
-          "ref": {
             "status": "observed",
-            "target": "RechartsPrimitive.CartesianGrid",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/chart.tsx."
-          }
-        },
-        {
-          "name": "ChartGridProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/chart.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -4216,17 +3989,19 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/chart.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by ChartLegendContent in packages/ui/registry/ui/chart.tsx; incidental internal nodes are not part of its API."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ChartLegendContentProps",
-          "kind": "type",
+          "name": "ChartStyle",
+          "kind": "component",
           "source": "packages/ui/registry/ui/chart.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -4243,17 +4018,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/chart.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by ChartTooltipContent in packages/ui/registry/ui/chart.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "ChartTooltipContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/chart.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
@@ -4261,17 +4028,8 @@
         "status": "observed",
         "dimensions": [
           {
-            "name": "color",
-            "values": [
-              "chart-1",
-              "chart-2",
-              "chart-3",
-              "chart-4",
-              "chart-5",
-              "chart-6",
-              "chart-7",
-              "chart-8"
-            ],
+            "name": "tooltip indicator",
+            "values": ["dashed", "dot", "line"],
             "evidence": "packages/ui/registry/ui/chart.tsx: prop union"
           }
         ]
@@ -4323,7 +4081,7 @@
       "docsSlug": "/docs/components/chart",
       "registryDependencies": [],
       "npmDependencies": [
-        "recharts@^3.8.0",
+        "recharts@^3.10.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -4341,6 +4099,10 @@
         "ChartContainer": {
           "attributes": [
             {
+              "name": "data-chart",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["chart"]
             }
@@ -4348,22 +4110,8 @@
           "cssVariables": []
         },
         "ChartTooltipContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["chart-tooltip-content", "chart-tooltip-indicator"]
-            }
-          ],
+          "attributes": [],
           "cssVariables": ["--color-bg", "--color-border"]
-        },
-        "ChartLegendContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["chart-legend-content", "chart-legend-indicator"]
-            }
-          ],
-          "cssVariables": ["--color-bg"]
         }
       }
     },
@@ -12411,8 +12159,8 @@
           "source": "packages/ui/registry/ui/marker.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -12421,17 +12169,8 @@
           "source": "packages/ui/registry/ui/marker.tsx",
           "ref": {
             "status": "observed",
-            "target": "span",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "MarkerContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/marker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -12440,35 +12179,8 @@
           "source": "packages/ui/registry/ui/marker.tsx",
           "ref": {
             "status": "observed",
-            "target": "span",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "MarkerIconProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/marker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MarkerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/marker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MarkerVariant",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/marker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13330,8 +13042,8 @@
           "source": "packages/ui/registry/ui/message.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13340,17 +13052,8 @@
           "source": "packages/ui/registry/ui/message.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "MessageAvatarProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13359,17 +13062,8 @@
           "source": "packages/ui/registry/ui/message.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "MessageContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13378,17 +13072,8 @@
           "source": "packages/ui/registry/ui/message.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "MessageFooterProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13397,17 +13082,8 @@
           "source": "packages/ui/registry/ui/message.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "MessageGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13416,26 +13092,8 @@
           "source": "packages/ui/registry/ui/message.tsx",
           "ref": {
             "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "MessageHeaderProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MessageProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/message.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
@@ -13583,8 +13241,8 @@
           "source": "packages/ui/registry/ui/message-scroller.tsx",
           "ref": {
             "status": "observed",
-            "target": "MessageScrollerPrimitive.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/message-scroller.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13593,17 +13251,8 @@
           "source": "packages/ui/registry/ui/message-scroller.tsx",
           "ref": {
             "status": "observed",
-            "target": "MessageScrollerPrimitive.Button",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/message-scroller.tsx."
-          }
-        },
-        {
-          "name": "MessageScrollerButtonProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message-scroller.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13612,17 +13261,8 @@
           "source": "packages/ui/registry/ui/message-scroller.tsx",
           "ref": {
             "status": "observed",
-            "target": "MessageScrollerPrimitive.Content",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/message-scroller.tsx."
-          }
-        },
-        {
-          "name": "MessageScrollerContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message-scroller.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13631,26 +13271,8 @@
           "source": "packages/ui/registry/ui/message-scroller.tsx",
           "ref": {
             "status": "observed",
-            "target": "MessageScrollerPrimitive.Item",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/message-scroller.tsx."
-          }
-        },
-        {
-          "name": "MessageScrollerItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message-scroller.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MessageScrollerProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message-scroller.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13659,17 +13281,8 @@
           "source": "packages/ui/registry/ui/message-scroller.tsx",
           "ref": {
             "status": "observed",
-            "target": "MessageScrollerPrimitive.Provider",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/message-scroller.tsx."
-          }
-        },
-        {
-          "name": "MessageScrollerProviderProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message-scroller.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13678,17 +13291,8 @@
           "source": "packages/ui/registry/ui/message-scroller.tsx",
           "ref": {
             "status": "observed",
-            "target": "MessageScrollerPrimitive.Viewport",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/message-scroller.tsx."
-          }
-        },
-        {
-          "name": "MessageScrollerViewportProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/message-scroller.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -13768,11 +13372,11 @@
       "docsSlug": "/docs/components/message-scroller",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/icon-button",
         "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@shadcn/react@^0.3.1",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15838,6 +15442,439 @@
             {
               "name": "data-slot",
               "values": ["progress-value"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "questionnaire",
+      "registryType": "registry:ui",
+      "title": "Questionnaire",
+      "summary": "A guided one-question-at-a-time form — choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.",
+      "status": "stable",
+      "since": "0.1.0",
+      "family": "communication",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/questionnaire.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Questionnaire",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireChoice",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireChoiceDescription",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireChoices",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireDescription",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireError",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireNext",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnairePrevious",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireProgress",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireSkip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireSubmit",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "QuestionnaireTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/questionnaire.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "choice type",
+            "values": ["checkbox", "radio"],
+            "evidence": "packages/ui/registry/ui/questionnaire.tsx: engine state attribute (data-type)"
+          },
+          {
+            "name": "action variant",
+            "values": ["default", "outline"],
+            "evidence": "packages/ui/registry/ui/questionnaire.tsx: Button variant passthrough"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension; the navigation buttons inherit Button's own tiers."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "checked",
+            "disabled",
+            "invalid",
+            "active",
+            "skipped"
+          ],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "live-region"
+          ],
+          "evidence": "packages/ui/registry/ui/questionnaire.tsx + packages/ui/registry/ui/questionnaire.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "checked",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["mobile-or-touch-mode"],
+        "rationale": "Every target is min-h-11 (44px) below the `sm` breakpoint and relaxes to the Button tier above it, so a touch flow keeps a comfortable target and a desktop flow keeps the system's control height."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [
+        {
+          "package": "@shadcn/react/questionnaire",
+          "role": "headless question-flow state machine"
+        }
+      ],
+      "docsSlug": "/docs/components/questionnaire",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "@shadcn/react@^0.3.1",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/questionnaire.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "questionnaire",
+      "dataAttributes": {
+        "Questionnaire": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireProgress": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-progress"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireChoices": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-choices"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireChoice": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "questionnaire-choice",
+                "questionnaire-choice-indicator",
+                "questionnaire-choice-indicator-check",
+                "questionnaire-choice-indicator-dot",
+                "questionnaire-choice-input",
+                "questionnaire-choice-label",
+                "questionnaire-choice-shortcut"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireChoiceDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-choice-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-input", "questionnaire-input-wrapper"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireError": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-error"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-actions"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnairePrevious": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-previous"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireSkip": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-skip"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireNext": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-next"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "QuestionnaireSubmit": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["questionnaire-submit"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
