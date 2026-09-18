@@ -1187,9 +1187,15 @@ assert.ok(
   Buffer.byteLength(llmsIndex) < 100 * 1024,
   "llms.txt exceeds 100 KiB",
 );
+// The agent corpus budget. 2 MiB was the figure this system shipped with; the shadcn reset put
+// every component back on upstream's own docs sections, which are richer than the pages they
+// replaced (62 components, 663 sections), and the corpus crossed it at ~2.08 MiB. Raised to 4 MiB
+// rather than trimming what agents read: this file exists to be consumed whole, and the components
+// it now documents are the ones consumers actually get. It stays a real ceiling — a corpus that
+// doubles again is a signal, not a rounding error. (MK flagged, 2026-09-18.)
 assert.ok(
-  Buffer.byteLength(llmsFull) < 2 * 1024 * 1024,
-  "llms-full.txt exceeds 2 MiB",
+  Buffer.byteLength(llmsFull) < 4 * 1024 * 1024,
+  "llms-full.txt exceeds 4 MiB",
 );
 assert.doesNotMatch(
   llmsIndex,
