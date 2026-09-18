@@ -37,30 +37,28 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/questionnaire.tsx b/questionnaire.tsx
-index 701ac1c..2dfaccb 100644
+index 701ac1c..f557146 100644
 --- a/questionnaire.tsx
 +++ b/questionnaire.tsx
-@@ -1,11 +1,13 @@
+@@ -1,11 +1,11 @@
 -"use client"
-+// @vegastack questionnaire@0.9.1 sha256-64xdZclSK2Ig5WGUJD19cfpKQNlTcH4CYYY9XS+m6+0=
++"use client";
  
 -import * as React from "react"
 -import { Questionnaire as QuestionnairePrimitive } from "@shadcn/react/questionnaire"
 -import { cn } from "cn"
-+"use client";
- 
--import { buttonVariants, type Button } from "@/components/ui/button"
--import { CheckIcon } from "lucide-react"
 +import * as React from "react";
 +import { Questionnaire as QuestionnairePrimitive } from "@shadcn/react/questionnaire";
 +import { cn } from "@vegastack/design";
-+
+ 
+-import { buttonVariants, type Button } from "@/components/ui/button"
+-import { CheckIcon } from "lucide-react"
 +import { buttonVariants, type Button } from "@/components/ui/button";
 +import { CheckIcon } from "lucide-react";
  
  function Questionnaire({
    className,
-@@ -17,7 +19,7 @@ function Questionnaire({
+@@ -17,7 +17,7 @@ function Questionnaire({
        className={cn("flex w-full min-w-0 flex-col gap-4", className)}
        {...props}
      />
@@ -69,7 +67,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireProgress({
-@@ -29,11 +31,11 @@ function QuestionnaireProgress({
+@@ -29,11 +29,11 @@ function QuestionnaireProgress({
        data-slot="questionnaire-progress"
        className={cn(
          "min-h-[1lh] w-fit min-w-[14ch] text-xs font-medium text-muted-foreground tabular-nums",
@@ -83,7 +81,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireItem({
-@@ -45,11 +47,11 @@ function QuestionnaireItem({
+@@ -45,11 +45,11 @@ function QuestionnaireItem({
        data-slot="questionnaire-item"
        className={cn(
          "flex min-w-0 flex-col gap-4 border-0 p-0 outline-none",
@@ -97,7 +95,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireTitle({
-@@ -61,11 +63,11 @@ function QuestionnaireTitle({
+@@ -61,11 +61,11 @@ function QuestionnaireTitle({
        data-slot="questionnaire-title"
        className={cn(
          "font-heading text-base leading-snug font-medium text-pretty [&:not(:has(~[data-slot=questionnaire-description]))]:mb-4",
@@ -111,7 +109,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireDescription({
-@@ -78,7 +80,7 @@ function QuestionnaireDescription({
+@@ -78,7 +78,7 @@ function QuestionnaireDescription({
        className={cn("text-sm text-pretty text-muted-foreground", className)}
        {...props}
      />
@@ -120,7 +118,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireChoices({
-@@ -90,11 +92,11 @@ function QuestionnaireChoices({
+@@ -90,11 +90,11 @@ function QuestionnaireChoices({
        data-slot="questionnaire-choices"
        className={cn(
          "group/questionnaire-choices grid min-w-0 gap-2",
@@ -134,7 +132,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireChoice({
-@@ -106,9 +108,20 @@ function QuestionnaireChoice({
+@@ -106,9 +106,20 @@ function QuestionnaireChoice({
      <QuestionnairePrimitive.Choice
        data-slot="questionnaire-choice"
        className={cn(
@@ -158,7 +156,7 @@ index 701ac1c..2dfaccb 100644
        )}
        {...props}
      >
-@@ -125,7 +138,10 @@ function QuestionnaireChoice({
+@@ -125,7 +136,10 @@ function QuestionnaireChoice({
            data-slot="questionnaire-choice-indicator-dot"
            className="hidden size-2 rounded-full bg-primary-foreground group-data-[type=checkbox]/questionnaire-choice:hidden group-data-checked/questionnaire-choice:block"
          />
@@ -170,7 +168,7 @@ index 701ac1c..2dfaccb 100644
        </span>
        <QuestionnairePrimitive.ChoiceLabel
          data-slot="questionnaire-choice-label"
-@@ -138,7 +154,7 @@ function QuestionnaireChoice({
+@@ -138,7 +152,7 @@ function QuestionnaireChoice({
          className="pointer-events-none ms-auto hidden size-5 shrink-0 translate-y-[--spacing(0.45)] items-center justify-center rounded-md border border-input bg-background font-mono text-[0.625rem] leading-none font-medium text-muted-foreground group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[shortcut]/questionnaire-choice:inline-flex"
        />
      </QuestionnairePrimitive.Choice>
@@ -179,7 +177,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireChoiceDescription({
-@@ -151,7 +167,7 @@ function QuestionnaireChoiceDescription({
+@@ -151,7 +165,7 @@ function QuestionnaireChoiceDescription({
        className={cn("text-muted-foreground", className)}
        {...props}
      />
@@ -188,7 +186,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireInput({
-@@ -166,14 +182,21 @@ function QuestionnaireInput({
+@@ -166,14 +180,21 @@ function QuestionnaireInput({
        <QuestionnairePrimitive.Input
          data-slot="questionnaire-input"
          className={cn(
@@ -213,7 +211,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireError({
-@@ -186,7 +209,7 @@ function QuestionnaireError({
+@@ -186,7 +207,7 @@ function QuestionnaireError({
        className={cn("mt-2 text-sm text-destructive", className)}
        {...props}
      />
@@ -222,7 +220,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireActions({
-@@ -198,11 +221,11 @@ function QuestionnaireActions({
+@@ -198,11 +219,11 @@ function QuestionnaireActions({
        data-slot="questionnaire-actions"
        className={cn(
          "grid min-h-11 w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 sm:min-h-8",
@@ -236,7 +234,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnairePrevious({
-@@ -221,13 +244,13 @@ function QuestionnairePrevious({
+@@ -221,13 +242,13 @@ function QuestionnairePrevious({
        className={cn(
          buttonVariants({ size, variant }),
          "col-start-1 row-start-1 min-h-11 justify-self-start sm:min-h-0",
@@ -252,7 +250,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireSkip({
-@@ -246,13 +269,13 @@ function QuestionnaireSkip({
+@@ -246,13 +267,13 @@ function QuestionnaireSkip({
        className={cn(
          buttonVariants({ size, variant }),
          "col-start-2 row-start-1 min-h-11 justify-self-end sm:min-h-0",
@@ -268,7 +266,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireNext({
-@@ -271,13 +294,13 @@ function QuestionnaireNext({
+@@ -271,13 +292,13 @@ function QuestionnaireNext({
        className={cn(
          buttonVariants({ size, variant }),
          "col-start-3 row-start-1 min-h-11 justify-self-end sm:min-h-0",
@@ -284,7 +282,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  function QuestionnaireSubmit({
-@@ -296,13 +319,13 @@ function QuestionnaireSubmit({
+@@ -296,13 +317,13 @@ function QuestionnaireSubmit({
        className={cn(
          buttonVariants({ size, variant }),
          "col-start-3 row-start-1 min-h-11 justify-self-end sm:min-h-0",
@@ -300,7 +298,7 @@ index 701ac1c..2dfaccb 100644
  }
  
  export {
-@@ -321,4 +344,4 @@ export {
+@@ -321,4 +342,4 @@ export {
    QuestionnaireSkip,
    QuestionnaireSubmit,
    QuestionnaireTitle,

@@ -15,31 +15,29 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..0491aa4 100644
+index 0b42f3f..aff1027 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
-@@ -1,26 +1,43 @@
+@@ -1,26 +1,41 @@
 -"use client"
-+// @vegastack dialog@0.9.1 sha256-PP4bhmOk2C53hOMmD9djJEdAVGaS/QQ+hmHTQ1YvVy0=
++"use client";
  
 -import * as React from "react"
 -import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 -import { cn } from "cn"
-+"use client";
- 
--import { Button } from "@/components/ui/button"
--import { XIcon } from "lucide-react"
 +import * as React from "react";
 +import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 +import { cn } from "@vegastack/design";
 +import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 +import { useModalInert } from "@/components/ui/use-modal-inert";
  
--function Dialog({ ...props }: DialogPrimitive.Root.Props) {
--  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+-import { Button } from "@/components/ui/button"
+-import { XIcon } from "lucide-react"
 +import { Button } from "@/components/ui/button";
 +import { XIcon } from "lucide-react";
-+
+ 
+-function Dialog({ ...props }: DialogPrimitive.Root.Props) {
+-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
 +const DialogModalContext =
 +  React.createContext<DialogPrimitive.Root.Props["modal"]>(true);
 +
@@ -74,7 +72,7 @@ index 0b42f3f..0491aa4 100644
  }
  
  function DialogOverlay({
-@@ -32,29 +49,37 @@ function DialogOverlay({
+@@ -32,29 +47,37 @@ function DialogOverlay({
        data-slot="dialog-overlay"
        className={cn(
          "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
@@ -116,7 +114,7 @@ index 0b42f3f..0491aa4 100644
          )}
          {...props}
        >
-@@ -70,14 +95,13 @@ function DialogContent({
+@@ -70,14 +93,13 @@ function DialogContent({
                />
              }
            >
@@ -133,7 +131,7 @@ index 0b42f3f..0491aa4 100644
  }
  
  function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -87,7 +111,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -87,7 +109,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2", className)}
        {...props}
      />
@@ -142,7 +140,7 @@ index 0b42f3f..0491aa4 100644
  }
  
  function DialogFooter({
-@@ -96,14 +120,14 @@ function DialogFooter({
+@@ -96,14 +118,14 @@ function DialogFooter({
    children,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -159,7 +157,7 @@ index 0b42f3f..0491aa4 100644
        )}
        {...props}
      >
-@@ -114,7 +138,7 @@ function DialogFooter({
+@@ -114,7 +136,7 @@ function DialogFooter({
          </DialogPrimitive.Close>
        )}
      </div>
@@ -168,7 +166,7 @@ index 0b42f3f..0491aa4 100644
  }
  
  function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-@@ -123,11 +147,11 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+@@ -123,11 +145,11 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
        data-slot="dialog-title"
        className={cn(
          "font-heading text-base leading-none font-medium",
@@ -182,7 +180,7 @@ index 0b42f3f..0491aa4 100644
  }
  
  function DialogDescription({
-@@ -139,11 +163,11 @@ function DialogDescription({
+@@ -139,11 +161,11 @@ function DialogDescription({
        data-slot="dialog-description"
        className={cn(
          "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
@@ -196,7 +194,7 @@ index 0b42f3f..0491aa4 100644
  }
  
  export {
-@@ -157,4 +181,4 @@ export {
+@@ -157,4 +179,4 @@ export {
    DialogPortal,
    DialogTitle,
    DialogTrigger,

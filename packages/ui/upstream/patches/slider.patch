@@ -23,20 +23,18 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/slider.tsx b/slider.tsx
-index f517abd..3ed5194 100644
+index f517abd..7eb9529 100644
 --- a/slider.tsx
 +++ b/slider.tsx
-@@ -1,5 +1,7 @@
+@@ -1,5 +1,5 @@
 -import { Slider as SliderPrimitive } from "@base-ui/react/slider"
 -import { cn } from "cn"
-+// @vegastack slider@0.9.1 sha256-4mskPwGRyb5Wt89AUTKOkcV8k5yZnNagRnuAGXLmu9g=
-+
 +import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 +import { cn } from "@vegastack/design";
  
  function Slider({
    className,
-@@ -9,11 +11,20 @@ function Slider({
+@@ -9,11 +9,20 @@ function Slider({
    max = 100,
    ...props
  }: SliderPrimitive.Root.Props) {
@@ -58,7 +56,7 @@ index f517abd..3ed5194 100644
  
    return (
      <SliderPrimitive.Root
-@@ -40,12 +51,13 @@ function Slider({
+@@ -40,12 +49,13 @@ function Slider({
            <SliderPrimitive.Thumb
              data-slot="slider-thumb"
              key={index}

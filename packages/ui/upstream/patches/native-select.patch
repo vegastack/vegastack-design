@@ -14,15 +14,13 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/native-select.tsx b/native-select.tsx
-index 09535b2..7433c0e 100644
+index 09535b2..9e64627 100644
 --- a/native-select.tsx
 +++ b/native-select.tsx
-@@ -1,10 +1,12 @@
+@@ -1,10 +1,10 @@
 -import * as React from "react"
 -import { cn } from "cn"
 -import { ChevronDownIcon } from "lucide-react"
-+// @vegastack native-select@0.9.1 sha256-USYWwX3x6ESrmmKCO8D/uJBNIvUaDnZOHsZfJyIQvj0=
-+
 +import * as React from "react";
 +import { cn } from "@vegastack/design";
 +import { ChevronDownIcon } from "lucide-react";
@@ -35,7 +33,7 @@ index 09535b2..7433c0e 100644
  
  function NativeSelect({
    className,
-@@ -15,7 +17,7 @@ function NativeSelect({
+@@ -15,7 +15,7 @@ function NativeSelect({
      <div
        className={cn(
          "group/native-select relative w-fit has-[select:disabled]:opacity-50",
@@ -44,7 +42,7 @@ index 09535b2..7433c0e 100644
        )}
        data-slot="native-select-wrapper"
        data-size={size}
-@@ -23,12 +25,16 @@ function NativeSelect({
+@@ -23,12 +23,16 @@ function NativeSelect({
        <select
          data-slot="native-select"
          data-size={size}
@@ -64,7 +62,7 @@ index 09535b2..7433c0e 100644
  }
  
  function NativeSelectOption({
-@@ -41,7 +47,7 @@ function NativeSelectOption({
+@@ -41,7 +45,7 @@ function NativeSelectOption({
        className={cn("bg-[Canvas] text-[CanvasText]", className)}
        {...props}
      />
@@ -73,7 +71,7 @@ index 09535b2..7433c0e 100644
  }
  
  function NativeSelectOptGroup({
-@@ -54,7 +60,7 @@ function NativeSelectOptGroup({
+@@ -54,7 +58,7 @@ function NativeSelectOptGroup({
        className={cn("bg-[Canvas] text-[CanvasText]", className)}
        {...props}
      />

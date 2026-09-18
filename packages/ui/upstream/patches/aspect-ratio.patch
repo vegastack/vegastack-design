@@ -5,18 +5,16 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/aspect-ratio.tsx b/aspect-ratio.tsx
-index ebe2783..2fe6277 100644
+index ebe2783..29bdf16 100644
 --- a/aspect-ratio.tsx
 +++ b/aspect-ratio.tsx
-@@ -1,4 +1,6 @@
+@@ -1,4 +1,4 @@
 -import { cn } from "cn"
-+// @vegastack aspect-ratio@0.9.1 sha256-SBHXDOg0JQoDX3Ox8+sgtbFApOJa64baiZrRXgOXAFU=
-+
 +import { cn } from "@vegastack/design";
  
  function AspectRatio({
    ratio,
-@@ -16,7 +18,7 @@ function AspectRatio({
+@@ -16,7 +16,7 @@ function AspectRatio({
        className={cn("relative aspect-(--ratio)", className)}
        {...props}
      />

@@ -15,6 +15,14 @@
 //   `git diff --no-index --no-prefix --unified=3` over two temp directories named `a/` and `b/`,
 //   which produces exactly the `a/<name>.tsx` / `b/<name>.tsx` paths `git apply` reverses with its
 //   default `-p1`. Git owns unified diff; nothing here reimplements it.
+//
+// THE GENERATED PROVENANCE HEADER IS NOT DIFFED
+//   `// @vegastack <name>@<version> sha256-<hash>` is written onto the canonical file by
+//   `tooling/registry-header.mjs` and RE-WRITTEN on every release, because `version-packages` runs
+//   `version-sync`. Encoding it in a patch made every patch churn on every version bump, and made
+//   byte parity impossible to satisfy on a Version Packages PR. The canonical side is therefore
+//   stripped before diffing, exactly as `verify-parity.mjs` strips both sides before comparing,
+//   and `tooling/verify-headers.mjs` stays the one authority for the header itself.
 
 import {
   existsSync,
@@ -26,6 +34,7 @@ import {
 import { basename, join } from "node:path";
 
 import { walk, relativeToRoot, fatal } from "../lib/fs.mjs";
+import { stripProvenanceHeader } from "../registry-hash.mjs";
 import {
   VENDOR,
   PATCHES,
@@ -55,7 +64,7 @@ function generate(name) {
   const body = unifiedDiff(
     name,
     vendorComponent(name),
-    readFileSync(canonical, "utf8"),
+    stripProvenanceHeader(readFileSync(canonical, "utf8")),
   );
   const target = patchPath(name);
 

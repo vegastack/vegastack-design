@@ -10,23 +10,21 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/progress.tsx b/progress.tsx
-index c3ff9ed..1642131 100644
+index c3ff9ed..1ddbb68 100644
 --- a/progress.tsx
 +++ b/progress.tsx
-@@ -1,7 +1,9 @@
+@@ -1,7 +1,7 @@
 -"use client"
-+// @vegastack progress@0.9.1 sha256-Zp+TjSKUueoF8noZp5sl5pewOj2DZ87OOMfJ5ij2ylY=
++"use client";
  
 -import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 -import { cn } from "cn"
-+"use client";
-+
 +import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 +import { cn } from "@vegastack/design";
  
  function Progress({
    className,
-@@ -21,7 +23,7 @@ function Progress({
+@@ -21,7 +21,7 @@ function Progress({
          <ProgressIndicator />
        </ProgressTrack>
      </ProgressPrimitive.Root>
@@ -35,7 +33,7 @@ index c3ff9ed..1642131 100644
  }
  
  function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
-@@ -29,12 +31,12 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
+@@ -29,12 +29,12 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
      <ProgressPrimitive.Track
        className={cn(
          "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
@@ -50,7 +48,7 @@ index c3ff9ed..1642131 100644
  }
  
  function ProgressIndicator({
-@@ -47,7 +49,7 @@ function ProgressIndicator({
+@@ -47,7 +47,7 @@ function ProgressIndicator({
        className={cn("h-full bg-primary transition-all", className)}
        {...props}
      />
@@ -59,7 +57,7 @@ index c3ff9ed..1642131 100644
  }
  
  function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
-@@ -57,7 +59,7 @@ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
+@@ -57,7 +57,7 @@ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
        data-slot="progress-label"
        {...props}
      />
@@ -68,7 +66,7 @@ index c3ff9ed..1642131 100644
  }
  
  function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
-@@ -65,12 +67,12 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
+@@ -65,12 +65,12 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
      <ProgressPrimitive.Value
        className={cn(
          "ms-auto text-sm text-muted-foreground tabular-nums",
@@ -83,7 +81,7 @@ index c3ff9ed..1642131 100644
  }
  
  export {
-@@ -79,4 +81,4 @@ export {
+@@ -79,4 +79,4 @@ export {
    ProgressIndicator,
    ProgressLabel,
    ProgressValue,

@@ -5,13 +5,11 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/direction.tsx b/direction.tsx
-index d8cf134..ad3293a 100644
+index d8cf134..0926874 100644
 --- a/direction.tsx
 +++ b/direction.tsx
-@@ -1,6 +1,8 @@
+@@ -1,6 +1,6 @@
 -"use client"
-+// @vegastack direction@0.9.1 sha256-mPTE9GlV9BIjaVPlZ8RQY4GEfQWwX/bGw4jGF4WZEhA=
-+
 +"use client";
  
  export {

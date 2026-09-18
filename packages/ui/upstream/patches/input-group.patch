@@ -19,32 +19,30 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input-group.tsx b/input-group.tsx
-index 2e3e7cd..d22776e 100644
+index 2e3e7cd..cc77c04 100644
 --- a/input-group.tsx
 +++ b/input-group.tsx
-@@ -1,12 +1,14 @@
+@@ -1,12 +1,12 @@
 -"use client"
-+// @vegastack input-group@0.9.1 sha256-wxDpIH3GEgsOGNC/8S+HW+BnOs0cwDIf2/addPQO/XY=
++"use client";
  
 -import * as React from "react"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+"use client";
++import * as React from "react";
++import { cva, type VariantProps } from "class-variance-authority";
++import { cn } from "@vegastack/design";
  
 -import { Button } from "@/components/ui/button"
 -import { Input } from "@/components/ui/input"
 -import { Textarea } from "@/components/ui/textarea"
-+import * as React from "react";
-+import { cva, type VariantProps } from "class-variance-authority";
-+import { cn } from "@vegastack/design";
-+
 +import { Button } from "@/components/ui/button";
 +import { Input } from "@/components/ui/input";
 +import { Textarea } from "@/components/ui/textarea";
  
  function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -14,12 +16,12 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -14,12 +14,12 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="input-group"
        role="group"
        className={cn(
@@ -60,7 +58,7 @@ index 2e3e7cd..d22776e 100644
  }
  
  const inputGroupAddonVariants = cva(
-@@ -40,8 +42,8 @@ const inputGroupAddonVariants = cva(
+@@ -40,8 +40,8 @@ const inputGroupAddonVariants = cva(
      defaultVariants: {
        align: "inline-start",
      },
@@ -71,7 +69,7 @@ index 2e3e7cd..d22776e 100644
  
  function InputGroupAddon({
    className,
-@@ -56,13 +58,13 @@ function InputGroupAddon({
+@@ -56,13 +56,13 @@ function InputGroupAddon({
        className={cn(inputGroupAddonVariants({ align }), className)}
        onClick={(e) => {
          if ((e.target as HTMLElement).closest("button")) {
@@ -88,7 +86,7 @@ index 2e3e7cd..d22776e 100644
  }
  
  const inputGroupButtonVariants = cva(
-@@ -80,8 +82,8 @@ const inputGroupButtonVariants = cva(
+@@ -80,8 +80,8 @@ const inputGroupButtonVariants = cva(
      defaultVariants: {
        size: "xs",
      },
@@ -99,7 +97,7 @@ index 2e3e7cd..d22776e 100644
  
  function InputGroupButton({
    className,
-@@ -91,7 +93,7 @@ function InputGroupButton({
+@@ -91,7 +91,7 @@ function InputGroupButton({
    ...props
  }: Omit<React.ComponentProps<typeof Button>, "size" | "type"> &
    VariantProps<typeof inputGroupButtonVariants> & {
@@ -108,7 +106,7 @@ index 2e3e7cd..d22776e 100644
    }) {
    return (
      <Button
-@@ -101,7 +103,7 @@ function InputGroupButton({
+@@ -101,7 +101,7 @@ function InputGroupButton({
        className={cn(inputGroupButtonVariants({ size }), className)}
        {...props}
      />
@@ -117,7 +115,7 @@ index 2e3e7cd..d22776e 100644
  }
  
  function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
-@@ -109,11 +111,11 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
+@@ -109,11 +109,11 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
      <span
        className={cn(
          "flex items-center gap-2 text-sm text-muted-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
@@ -131,7 +129,7 @@ index 2e3e7cd..d22776e 100644
  }
  
  function InputGroupInput({
-@@ -124,12 +126,12 @@ function InputGroupInput({
+@@ -124,12 +124,12 @@ function InputGroupInput({
      <Input
        data-slot="input-group-control"
        className={cn(
@@ -147,7 +145,7 @@ index 2e3e7cd..d22776e 100644
  }
  
  function InputGroupTextarea({
-@@ -140,12 +142,12 @@ function InputGroupTextarea({
+@@ -140,12 +140,12 @@ function InputGroupTextarea({
      <Textarea
        data-slot="input-group-control"
        className={cn(
@@ -163,7 +161,7 @@ index 2e3e7cd..d22776e 100644
  }
  
  export {
-@@ -155,4 +157,4 @@ export {
+@@ -155,4 +155,4 @@ export {
    InputGroupText,
    InputGroupInput,
    InputGroupTextarea,

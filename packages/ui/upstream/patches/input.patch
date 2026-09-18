@@ -16,22 +16,20 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input.tsx b/input.tsx
-index 7c4ab5a..5d26a5b 100644
+index 7c4ab5a..2b47064 100644
 --- a/input.tsx
 +++ b/input.tsx
-@@ -1,6 +1,8 @@
+@@ -1,6 +1,6 @@
 -import * as React from "react"
 -import { Input as InputPrimitive } from "@base-ui/react/input"
 -import { cn } from "cn"
-+// @vegastack input@0.9.1 sha256-AJJb3FkK9B3oGyhb4ZOP7DIMgjY3ulkgZa2ODpyQwWA=
-+
 +import * as React from "react";
 +import { Input as InputPrimitive } from "@base-ui/react/input";
 +import { cn } from "@vegastack/design";
  
  function Input({ className, type, ...props }: React.ComponentProps<"input">) {
    return (
-@@ -8,12 +10,12 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+@@ -8,12 +8,12 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
        type={type}
        data-slot="input"
        className={cn(

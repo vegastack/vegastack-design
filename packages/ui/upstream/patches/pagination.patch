@@ -11,19 +11,17 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/pagination.tsx b/pagination.tsx
-index 6fec19a..6aa1778 100644
+index 6fec19a..0514146 100644
 --- a/pagination.tsx
 +++ b/pagination.tsx
-@@ -1,8 +1,14 @@
+@@ -1,8 +1,12 @@
 -import * as React from "react"
 -import { cn } from "cn"
-+// @vegastack pagination@0.9.1 sha256-171z9Vng6RpU14posSSpDE2ySEglZa/vyzBqqxyK4JM=
++import * as React from "react";
++import { cn } from "@vegastack/design";
  
 -import { Button } from "@/components/ui/button"
 -import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
-+import * as React from "react";
-+import { cn } from "@vegastack/design";
-+
 +import { Button } from "@/components/ui/button";
 +import {
 +  ChevronLeftIcon,
@@ -33,7 +31,7 @@ index 6fec19a..6aa1778 100644
  
  function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
    return (
-@@ -13,7 +19,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
+@@ -13,7 +17,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
        className={cn("mx-auto flex w-full justify-center", className)}
        {...props}
      />
@@ -42,7 +40,7 @@ index 6fec19a..6aa1778 100644
  }
  
  function PaginationContent({
-@@ -26,17 +32,17 @@ function PaginationContent({
+@@ -26,17 +30,17 @@ function PaginationContent({
        className={cn("flex items-center gap-0.5", className)}
        {...props}
      />
@@ -64,7 +62,7 @@ index 6fec19a..6aa1778 100644
  
  function PaginationLink({
    className,
-@@ -59,7 +65,7 @@ function PaginationLink({
+@@ -59,7 +63,7 @@ function PaginationLink({
          />
        }
      />
@@ -73,7 +71,7 @@ index 6fec19a..6aa1778 100644
  }
  
  function PaginationPrevious({
-@@ -77,7 +83,7 @@ function PaginationPrevious({
+@@ -77,7 +81,7 @@ function PaginationPrevious({
        <ChevronLeftIcon data-icon="inline-start" className="rtl:rotate-180" />
        <span className="hidden sm:block">{text}</span>
      </PaginationLink>
@@ -82,7 +80,7 @@ index 6fec19a..6aa1778 100644
  }
  
  function PaginationNext({
-@@ -95,7 +101,7 @@ function PaginationNext({
+@@ -95,7 +99,7 @@ function PaginationNext({
        <span className="hidden sm:block">{text}</span>
        <ChevronRightIcon data-icon="inline-end" className="rtl:rotate-180" />
      </PaginationLink>
@@ -91,7 +89,7 @@ index 6fec19a..6aa1778 100644
  }
  
  function PaginationEllipsis({
-@@ -108,15 +114,14 @@ function PaginationEllipsis({
+@@ -108,15 +112,14 @@ function PaginationEllipsis({
        data-slot="pagination-ellipsis"
        className={cn(
          "flex size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
@@ -110,7 +108,7 @@ index 6fec19a..6aa1778 100644
  }
  
  export {
-@@ -127,4 +132,4 @@ export {
+@@ -127,4 +130,4 @@ export {
    PaginationLink,
    PaginationNext,
    PaginationPrevious,

@@ -32,17 +32,15 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/bubble.tsx b/bubble.tsx
-index 639bba1..64c5733 100644
+index 639bba1..0d32b54 100644
 --- a/bubble.tsx
 +++ b/bubble.tsx
-@@ -1,8 +1,12 @@
+@@ -1,8 +1,10 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+// @vegastack bubble@0.9.1 sha256-ELhV6dmIU+nZGrDKU1gMV/+Bh0dFn1GEeOOKP9FwLtE=
-+
 +"use client";
 +
 +import * as React from "react";
@@ -53,7 +51,7 @@ index 639bba1..64c5733 100644
  
  function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -11,7 +15,7 @@ function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -11,7 +13,7 @@ function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex min-w-0 flex-col gap-2", className)}
        {...props}
      />
@@ -62,7 +60,7 @@ index 639bba1..64c5733 100644
  }
  
  const bubbleVariants = cva(
-@@ -31,15 +35,19 @@ const bubbleVariants = cva(
+@@ -31,15 +33,19 @@ const bubbleVariants = cva(
            "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-input/30",
          ghost:
            "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50",
@@ -85,7 +83,7 @@ index 639bba1..64c5733 100644
  
  function Bubble({
    variant = "default",
-@@ -48,7 +56,7 @@ function Bubble({
+@@ -48,7 +54,7 @@ function Bubble({
    ...props
  }: React.ComponentProps<"div"> &
    VariantProps<typeof bubbleVariants> & {
@@ -94,7 +92,7 @@ index 639bba1..64c5733 100644
    }) {
    return (
      <div
-@@ -58,7 +66,7 @@ function Bubble({
+@@ -58,7 +64,7 @@ function Bubble({
        className={cn(bubbleVariants({ variant }), className)}
        {...props}
      />
@@ -103,7 +101,7 @@ index 639bba1..64c5733 100644
  }
  
  function BubbleContent({
-@@ -71,21 +79,32 @@ function BubbleContent({
+@@ -71,21 +77,32 @@ function BubbleContent({
      props: mergeProps<"div">(
        {
          className: cn(
@@ -141,7 +139,7 @@ index 639bba1..64c5733 100644
    {
      variants: {
        side: {
-@@ -101,8 +120,8 @@ const bubbleReactionsVariants = cva(
+@@ -101,8 +118,8 @@ const bubbleReactionsVariants = cva(
        side: "bottom",
        align: "end",
      },
@@ -152,7 +150,7 @@ index 639bba1..64c5733 100644
  
  function BubbleReactions({
    side = "bottom",
-@@ -110,8 +129,8 @@ function BubbleReactions({
+@@ -110,8 +127,8 @@ function BubbleReactions({
    className,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -163,7 +161,7 @@ index 639bba1..64c5733 100644
  }) {
    return (
      <div
-@@ -121,7 +140,7 @@ function BubbleReactions({
+@@ -121,7 +138,7 @@ function BubbleReactions({
        className={cn(bubbleReactionsVariants({ side, align }), className)}
        {...props}
      />
