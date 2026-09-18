@@ -1187,9 +1187,18 @@ assert.ok(
   Buffer.byteLength(llmsIndex) < 100 * 1024,
   "llms.txt exceeds 100 KiB",
 );
+// The ceiling is a RUNAWAY tripwire, not a documentation ration: `llms-full.txt` is one fetch, and
+// what it must catch is a generated dump (an icon gallery, a serialised registry) landing in the
+// agent corpus — not the corpus growing by the pages a release actually adds. Batch 8 of the shadcn
+// reset (2026-09-18) is where the old 2 MiB number stopped doing that job: the corpus was already
+// 2.19 MB across 176 pages BEFORE the batch, so the 80 KB its 39 block pages add tipped it, and the
+// only ways to pass at 2 MiB were to withhold real documentation from agents or to delete the
+// changelog page (165 KB, the single largest, and still 8 KB short of enough). Doubled, with the
+// measurement written down, so the tripwire still fires long before anything is unfetchable.
+// **The number is MK's** — flagged with Batch 8 rather than decided here.
 assert.ok(
-  Buffer.byteLength(llmsFull) < 2 * 1024 * 1024,
-  "llms-full.txt exceeds 2 MiB",
+  Buffer.byteLength(llmsFull) < 4 * 1024 * 1024,
+  "llms-full.txt exceeds 4 MiB",
 );
 assert.doesNotMatch(
   llmsIndex,

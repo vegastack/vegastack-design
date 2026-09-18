@@ -9,7 +9,6 @@ const withStory = createNextStory();
 /** @type {import('next').NextConfig} */
 const config = {
   output: "export",
-  devIndicators: false,
   reactStrictMode: true,
   // Any *.vegastack.dev tunnel host may serve a dev preview (Cloudflare
   // tunnel → the mini's dev server); without it Next dev blocks /_next/*

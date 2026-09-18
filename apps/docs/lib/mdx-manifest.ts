@@ -39,8 +39,6 @@ export const BROWSER_ONLY_NOTES: Record<string, string> = {
     "_Type scale specimen — browser only; the ladder is in design.md §Typography._",
   TypeScaleSizes:
     "_Type size specimen — browser only; the ladder is in design.md §Typography._",
-  TypeCoreLadder:
-    "_Type ladder specimen — browser only; the ladder is in design.md §Typography._",
   RadiusScale:
     "_Radius specimen — browser only; the scale is in design.md §Shapes._",
   ShadowScale:
@@ -68,14 +66,11 @@ export const PLAYGROUND_COMPONENTS = new Set([
   "DialogPlayground",
   "FieldInlinePlayground",
   "FieldPlayground",
-  "IconButtonPlayground",
   "ImagePlayground",
   "InputPlayground",
   "NotificationBellPlayground",
-  "OTPInputPlayground",
   "PaginationPlayground",
   "PopoverPlayground",
-  "ProgressIndicatorPlayground",
   "ProgressPlayground",
   "RadioGroupPlayground",
   "RelativeTimePlayground",
@@ -83,7 +78,6 @@ export const PLAYGROUND_COMPONENTS = new Set([
   "ScrollAreaPlayground",
   "SelectPlayground",
   "SheetPlayground",
-  "SplitButtonPlayground",
   "StatusIconPlayground",
   "SwitchPlayground",
   "TabsPlayground",
