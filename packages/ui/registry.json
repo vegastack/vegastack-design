@@ -13453,6 +13453,77 @@
       }
     },
     {
+      "name": "app-shell-01",
+      "type": "registry:block",
+      "title": "App Shell 01",
+      "description": "A full application shell page — AppShell's landmark trio and skip link, a collapsible sidebar, a breadcrumb header and a content area with sample cards.",
+      "categories": ["dashboard", "layout"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/sidebar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx",
+          "type": "registry:component",
+          "target": "app/app-shell-01/components/app-sidebar.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/app-shell-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/app-shell-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Starting an application whose every route sits inside one shell — copy it once, then hoist AppShell into a layout.",
+        "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "board-01",
+      "type": "registry:block",
+      "title": "Board 01",
+      "description": "A kanban board page — Board's drag-and-drop columns under a toolbar with a search field, an assignee filter and a view switch.",
+      "categories": ["board", "data"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/board",
+        "@vegastack/button",
+        "@vegastack/input-group",
+        "@vegastack/select",
+        "@vegastack/toggle-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/board-01/components/board-view.tsx",
+          "type": "registry:component",
+          "target": "app/board-01/components/board-view.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/board-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/board-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Starting a task, pipeline or triage board — copy it once and replace the sample columns with your own data.",
+        "whenNotToUse": "A single sortable list (sortable-list) or a tabular view of the same records (data-grid).",
+        "version": "0.9.1"
+      }
+    },
+    {
       "name": "chart-area-axes",
       "type": "registry:block",
       "title": "Chart Area Axes",
@@ -13468,7 +13539,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-axes/chart-area-axes.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-axes/chart-area-axes.tsx"
+          "target": "components/charts/chart-area-axes.tsx"
         }
       ],
       "meta": {
@@ -13493,7 +13564,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-default/chart-area-default.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-default/chart-area-default.tsx"
+          "target": "components/charts/chart-area-default.tsx"
         }
       ],
       "meta": {
@@ -13518,7 +13589,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-gradient/chart-area-gradient.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-gradient/chart-area-gradient.tsx"
+          "target": "components/charts/chart-area-gradient.tsx"
         }
       ],
       "meta": {
@@ -13543,7 +13614,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-icons/chart-area-icons.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-icons/chart-area-icons.tsx"
+          "target": "components/charts/chart-area-icons.tsx"
         }
       ],
       "meta": {
@@ -13568,7 +13639,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-interactive/chart-area-interactive.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-interactive/chart-area-interactive.tsx"
+          "target": "components/charts/chart-area-interactive.tsx"
         }
       ],
       "meta": {
@@ -13593,7 +13664,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-legend/chart-area-legend.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-legend/chart-area-legend.tsx"
+          "target": "components/charts/chart-area-legend.tsx"
         }
       ],
       "meta": {
@@ -13618,7 +13689,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-linear/chart-area-linear.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-linear/chart-area-linear.tsx"
+          "target": "components/charts/chart-area-linear.tsx"
         }
       ],
       "meta": {
@@ -13643,7 +13714,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-stacked/chart-area-stacked.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-stacked/chart-area-stacked.tsx"
+          "target": "components/charts/chart-area-stacked.tsx"
         }
       ],
       "meta": {
@@ -13668,7 +13739,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-stacked-expand/chart-area-stacked-expand.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-stacked-expand/chart-area-stacked-expand.tsx"
+          "target": "components/charts/chart-area-stacked-expand.tsx"
         }
       ],
       "meta": {
@@ -13693,7 +13764,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-area-step/chart-area-step.tsx",
           "type": "registry:component",
-          "target": "app/chart-area-step/chart-area-step.tsx"
+          "target": "components/charts/chart-area-step.tsx"
         }
       ],
       "meta": {
@@ -13718,7 +13789,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-active/chart-bar-active.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-active/chart-bar-active.tsx"
+          "target": "components/charts/chart-bar-active.tsx"
         }
       ],
       "meta": {
@@ -13743,7 +13814,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-default/chart-bar-default.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-default/chart-bar-default.tsx"
+          "target": "components/charts/chart-bar-default.tsx"
         }
       ],
       "meta": {
@@ -13768,7 +13839,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-horizontal/chart-bar-horizontal.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-horizontal/chart-bar-horizontal.tsx"
+          "target": "components/charts/chart-bar-horizontal.tsx"
         }
       ],
       "meta": {
@@ -13789,7 +13860,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-interactive/chart-bar-interactive.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-interactive/chart-bar-interactive.tsx"
+          "target": "components/charts/chart-bar-interactive.tsx"
         }
       ],
       "meta": {
@@ -13814,7 +13885,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-label/chart-bar-label.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-label/chart-bar-label.tsx"
+          "target": "components/charts/chart-bar-label.tsx"
         }
       ],
       "meta": {
@@ -13839,7 +13910,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-label-custom/chart-bar-label-custom.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-label-custom/chart-bar-label-custom.tsx"
+          "target": "components/charts/chart-bar-label-custom.tsx"
         }
       ],
       "meta": {
@@ -13864,7 +13935,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-mixed/chart-bar-mixed.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-mixed/chart-bar-mixed.tsx"
+          "target": "components/charts/chart-bar-mixed.tsx"
         }
       ],
       "meta": {
@@ -13889,7 +13960,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-multiple/chart-bar-multiple.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-multiple/chart-bar-multiple.tsx"
+          "target": "components/charts/chart-bar-multiple.tsx"
         }
       ],
       "meta": {
@@ -13914,7 +13985,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-negative/chart-bar-negative.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-negative/chart-bar-negative.tsx"
+          "target": "components/charts/chart-bar-negative.tsx"
         }
       ],
       "meta": {
@@ -13939,7 +14010,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-bar-stacked/chart-bar-stacked.tsx",
           "type": "registry:component",
-          "target": "app/chart-bar-stacked/chart-bar-stacked.tsx"
+          "target": "components/charts/chart-bar-stacked.tsx"
         }
       ],
       "meta": {
@@ -13964,7 +14035,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-default/chart-line-default.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-default/chart-line-default.tsx"
+          "target": "components/charts/chart-line-default.tsx"
         }
       ],
       "meta": {
@@ -13989,7 +14060,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-dots/chart-line-dots.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-dots/chart-line-dots.tsx"
+          "target": "components/charts/chart-line-dots.tsx"
         }
       ],
       "meta": {
@@ -14014,7 +14085,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-dots-colors/chart-line-dots-colors.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-dots-colors/chart-line-dots-colors.tsx"
+          "target": "components/charts/chart-line-dots-colors.tsx"
         }
       ],
       "meta": {
@@ -14039,7 +14110,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-dots-custom/chart-line-dots-custom.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-dots-custom/chart-line-dots-custom.tsx"
+          "target": "components/charts/chart-line-dots-custom.tsx"
         }
       ],
       "meta": {
@@ -14060,7 +14131,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-interactive/chart-line-interactive.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-interactive/chart-line-interactive.tsx"
+          "target": "components/charts/chart-line-interactive.tsx"
         }
       ],
       "meta": {
@@ -14085,7 +14156,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-label/chart-line-label.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-label/chart-line-label.tsx"
+          "target": "components/charts/chart-line-label.tsx"
         }
       ],
       "meta": {
@@ -14110,7 +14181,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-label-custom/chart-line-label-custom.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-label-custom/chart-line-label-custom.tsx"
+          "target": "components/charts/chart-line-label-custom.tsx"
         }
       ],
       "meta": {
@@ -14135,7 +14206,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-linear/chart-line-linear.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-linear/chart-line-linear.tsx"
+          "target": "components/charts/chart-line-linear.tsx"
         }
       ],
       "meta": {
@@ -14160,7 +14231,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-multiple/chart-line-multiple.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-multiple/chart-line-multiple.tsx"
+          "target": "components/charts/chart-line-multiple.tsx"
         }
       ],
       "meta": {
@@ -14185,7 +14256,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-line-step/chart-line-step.tsx",
           "type": "registry:component",
-          "target": "app/chart-line-step/chart-line-step.tsx"
+          "target": "components/charts/chart-line-step.tsx"
         }
       ],
       "meta": {
@@ -14210,7 +14281,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-donut/chart-pie-donut.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-donut/chart-pie-donut.tsx"
+          "target": "components/charts/chart-pie-donut.tsx"
         }
       ],
       "meta": {
@@ -14235,7 +14306,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-donut-active/chart-pie-donut-active.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-donut-active/chart-pie-donut-active.tsx"
+          "target": "components/charts/chart-pie-donut-active.tsx"
         }
       ],
       "meta": {
@@ -14260,7 +14331,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-donut-text/chart-pie-donut-text.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-donut-text/chart-pie-donut-text.tsx"
+          "target": "components/charts/chart-pie-donut-text.tsx"
         }
       ],
       "meta": {
@@ -14285,7 +14356,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-interactive/chart-pie-interactive.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-interactive/chart-pie-interactive.tsx"
+          "target": "components/charts/chart-pie-interactive.tsx"
         }
       ],
       "meta": {
@@ -14310,7 +14381,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-label/chart-pie-label.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-label/chart-pie-label.tsx"
+          "target": "components/charts/chart-pie-label.tsx"
         }
       ],
       "meta": {
@@ -14335,7 +14406,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-label-custom/chart-pie-label-custom.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-label-custom/chart-pie-label-custom.tsx"
+          "target": "components/charts/chart-pie-label-custom.tsx"
         }
       ],
       "meta": {
@@ -14360,7 +14431,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-label-list/chart-pie-label-list.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-label-list/chart-pie-label-list.tsx"
+          "target": "components/charts/chart-pie-label-list.tsx"
         }
       ],
       "meta": {
@@ -14381,7 +14452,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-legend/chart-pie-legend.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-legend/chart-pie-legend.tsx"
+          "target": "components/charts/chart-pie-legend.tsx"
         }
       ],
       "meta": {
@@ -14406,7 +14477,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-separator-none/chart-pie-separator-none.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-separator-none/chart-pie-separator-none.tsx"
+          "target": "components/charts/chart-pie-separator-none.tsx"
         }
       ],
       "meta": {
@@ -14431,7 +14502,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-simple/chart-pie-simple.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-simple/chart-pie-simple.tsx"
+          "target": "components/charts/chart-pie-simple.tsx"
         }
       ],
       "meta": {
@@ -14456,7 +14527,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-pie-stacked/chart-pie-stacked.tsx",
           "type": "registry:component",
-          "target": "app/chart-pie-stacked/chart-pie-stacked.tsx"
+          "target": "components/charts/chart-pie-stacked.tsx"
         }
       ],
       "meta": {
@@ -14481,7 +14552,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-default/chart-radar-default.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-default/chart-radar-default.tsx"
+          "target": "components/charts/chart-radar-default.tsx"
         }
       ],
       "meta": {
@@ -14506,7 +14577,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-dots/chart-radar-dots.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-dots/chart-radar-dots.tsx"
+          "target": "components/charts/chart-radar-dots.tsx"
         }
       ],
       "meta": {
@@ -14531,7 +14602,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-grid-circle/chart-radar-grid-circle.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-grid-circle/chart-radar-grid-circle.tsx"
+          "target": "components/charts/chart-radar-grid-circle.tsx"
         }
       ],
       "meta": {
@@ -14556,7 +14627,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-grid-circle-fill/chart-radar-grid-circle-fill.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-grid-circle-fill/chart-radar-grid-circle-fill.tsx"
+          "target": "components/charts/chart-radar-grid-circle-fill.tsx"
         }
       ],
       "meta": {
@@ -14581,7 +14652,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-grid-circle-no-lines/chart-radar-grid-circle-no-lines.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-grid-circle-no-lines/chart-radar-grid-circle-no-lines.tsx"
+          "target": "components/charts/chart-radar-grid-circle-no-lines.tsx"
         }
       ],
       "meta": {
@@ -14606,7 +14677,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-grid-custom/chart-radar-grid-custom.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-grid-custom/chart-radar-grid-custom.tsx"
+          "target": "components/charts/chart-radar-grid-custom.tsx"
         }
       ],
       "meta": {
@@ -14631,7 +14702,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-grid-fill/chart-radar-grid-fill.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-grid-fill/chart-radar-grid-fill.tsx"
+          "target": "components/charts/chart-radar-grid-fill.tsx"
         }
       ],
       "meta": {
@@ -14656,7 +14727,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-grid-none/chart-radar-grid-none.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-grid-none/chart-radar-grid-none.tsx"
+          "target": "components/charts/chart-radar-grid-none.tsx"
         }
       ],
       "meta": {
@@ -14681,7 +14752,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-label-custom/chart-radar-label-custom.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-label-custom/chart-radar-label-custom.tsx"
+          "target": "components/charts/chart-radar-label-custom.tsx"
         }
       ],
       "meta": {
@@ -14706,7 +14777,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-legend/chart-radar-legend.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-legend/chart-radar-legend.tsx"
+          "target": "components/charts/chart-radar-legend.tsx"
         }
       ],
       "meta": {
@@ -14731,7 +14802,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-lines-only/chart-radar-lines-only.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-lines-only/chart-radar-lines-only.tsx"
+          "target": "components/charts/chart-radar-lines-only.tsx"
         }
       ],
       "meta": {
@@ -14756,7 +14827,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radar-multiple/chart-radar-multiple.tsx",
           "type": "registry:component",
-          "target": "app/chart-radar-multiple/chart-radar-multiple.tsx"
+          "target": "components/charts/chart-radar-multiple.tsx"
         }
       ],
       "meta": {
@@ -14781,7 +14852,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radial-grid/chart-radial-grid.tsx",
           "type": "registry:component",
-          "target": "app/chart-radial-grid/chart-radial-grid.tsx"
+          "target": "components/charts/chart-radial-grid.tsx"
         }
       ],
       "meta": {
@@ -14806,7 +14877,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radial-label/chart-radial-label.tsx",
           "type": "registry:component",
-          "target": "app/chart-radial-label/chart-radial-label.tsx"
+          "target": "components/charts/chart-radial-label.tsx"
         }
       ],
       "meta": {
@@ -14831,7 +14902,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radial-shape/chart-radial-shape.tsx",
           "type": "registry:component",
-          "target": "app/chart-radial-shape/chart-radial-shape.tsx"
+          "target": "components/charts/chart-radial-shape.tsx"
         }
       ],
       "meta": {
@@ -14856,7 +14927,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radial-simple/chart-radial-simple.tsx",
           "type": "registry:component",
-          "target": "app/chart-radial-simple/chart-radial-simple.tsx"
+          "target": "components/charts/chart-radial-simple.tsx"
         }
       ],
       "meta": {
@@ -14881,7 +14952,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radial-stacked/chart-radial-stacked.tsx",
           "type": "registry:component",
-          "target": "app/chart-radial-stacked/chart-radial-stacked.tsx"
+          "target": "components/charts/chart-radial-stacked.tsx"
         }
       ],
       "meta": {
@@ -14906,7 +14977,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-radial-text/chart-radial-text.tsx",
           "type": "registry:component",
-          "target": "app/chart-radial-text/chart-radial-text.tsx"
+          "target": "components/charts/chart-radial-text.tsx"
         }
       ],
       "meta": {
@@ -14927,7 +14998,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-advanced/chart-tooltip-advanced.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-advanced/chart-tooltip-advanced.tsx"
+          "target": "components/charts/chart-tooltip-advanced.tsx"
         }
       ],
       "meta": {
@@ -14948,7 +15019,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-default/chart-tooltip-default.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-default/chart-tooltip-default.tsx"
+          "target": "components/charts/chart-tooltip-default.tsx"
         }
       ],
       "meta": {
@@ -14969,7 +15040,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-formatter/chart-tooltip-formatter.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-formatter/chart-tooltip-formatter.tsx"
+          "target": "components/charts/chart-tooltip-formatter.tsx"
         }
       ],
       "meta": {
@@ -14994,7 +15065,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-icons/chart-tooltip-icons.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-icons/chart-tooltip-icons.tsx"
+          "target": "components/charts/chart-tooltip-icons.tsx"
         }
       ],
       "meta": {
@@ -15015,7 +15086,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-indicator-line/chart-tooltip-indicator-line.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-indicator-line/chart-tooltip-indicator-line.tsx"
+          "target": "components/charts/chart-tooltip-indicator-line.tsx"
         }
       ],
       "meta": {
@@ -15036,7 +15107,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-indicator-none/chart-tooltip-indicator-none.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-indicator-none/chart-tooltip-indicator-none.tsx"
+          "target": "components/charts/chart-tooltip-indicator-none.tsx"
         }
       ],
       "meta": {
@@ -15057,7 +15128,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-label-custom/chart-tooltip-label-custom.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-label-custom/chart-tooltip-label-custom.tsx"
+          "target": "components/charts/chart-tooltip-label-custom.tsx"
         }
       ],
       "meta": {
@@ -15078,7 +15149,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-label-formatter/chart-tooltip-label-formatter.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-label-formatter/chart-tooltip-label-formatter.tsx"
+          "target": "components/charts/chart-tooltip-label-formatter.tsx"
         }
       ],
       "meta": {
@@ -15099,7 +15170,7 @@
         {
           "path": "packages/ui/registry/blocks/chart-tooltip-label-none/chart-tooltip-label-none.tsx",
           "type": "registry:component",
-          "target": "app/chart-tooltip-label-none/chart-tooltip-label-none.tsx"
+          "target": "components/charts/chart-tooltip-label-none.tsx"
         }
       ],
       "meta": {
@@ -15250,6 +15321,7 @@
       "categories": ["authentication", "login"],
       "dependencies": [
         "lucide-react@^1.24.0",
+        "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15284,6 +15356,7 @@
       "categories": ["authentication", "login"],
       "dependencies": [
         "lucide-react@^1.24.0",
+        "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15318,6 +15391,7 @@
       "description": "A login page with form and image.",
       "categories": ["authentication", "login"],
       "dependencies": [
+        "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15353,6 +15427,7 @@
       "categories": ["authentication", "login"],
       "dependencies": [
         "lucide-react@^1.24.0",
+        "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15380,6 +15455,39 @@
       }
     },
     {
+      "name": "onboarding-01",
+      "type": "registry:block",
+      "title": "Onboarding 01",
+      "description": "An onboarding page section — the checklist with its progress, beside a what-is-next card.",
+      "categories": ["onboarding"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/onboarding-checklist"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/onboarding-01/components/getting-started.tsx",
+          "type": "registry:component",
+          "target": "app/onboarding-01/components/getting-started.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/onboarding-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/onboarding-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A first-run or empty-workspace page that has to show the remaining setup steps.",
+        "whenNotToUse": "A multi-step form the user walks through in order — that is stepper.",
+        "version": "0.9.1"
+      }
+    },
+    {
       "name": "preview-03",
       "type": "registry:block",
       "title": "Preview 03",
@@ -15397,6 +15505,35 @@
       "meta": {
         "whenToUse": "Nothing: upstream ships it as a placeholder and it is here so the block set is complete.",
         "whenNotToUse": "Any real page — start from a login, signup, sidebar or dashboard block instead.",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "settings-01",
+      "type": "registry:block",
+      "title": "Settings 01",
+      "description": "A settings page — grouped SettingsRow sections over Field controls, with a sticky save bar.",
+      "categories": ["settings", "forms"],
+      "dependencies": ["@vegastack/design-tokens@^0.4.0"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/field",
+        "@vegastack/input",
+        "@vegastack/native-select",
+        "@vegastack/settings-row",
+        "@vegastack/switch",
+        "@vegastack/textarea"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/settings-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/settings-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Starting a preferences, profile or workspace-settings route — copy it once and wire each row to your own state.",
+        "whenNotToUse": "One setting inside another page — compose settings-row directly.",
         "version": "0.9.1"
       }
     },
@@ -16199,6 +16336,7 @@
       "categories": ["authentication", "signup"],
       "dependencies": [
         "lucide-react@^1.24.0",
+        "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16267,6 +16405,7 @@
       "description": "A signup page with form and image.",
       "categories": ["authentication", "signup"],
       "dependencies": [
+        "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16302,6 +16441,7 @@
       "categories": ["authentication", "signup"],
       "dependencies": [
         "lucide-react@^1.24.0",
+        "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],

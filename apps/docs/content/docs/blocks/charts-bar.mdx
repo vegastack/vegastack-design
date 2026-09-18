@@ -1,0 +1,92 @@
+---
+title: charts-bar
+description: The 10 bar chart blocks — copy-once Card compositions over the chart component and recharts, with their sample data inline.
+audience: public
+registry: chart-bar-active
+preview: chartBarActive
+---
+
+## What it is
+
+10 chart **blocks** in the `bar` family. Each is one `Card` wrapping a
+`ChartContainer`, with its sample data inline — pull one, then point it at your own series.
+They depend on `card` and `chart` and nothing else.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/chart-bar-active
+```
+
+<RegistryInstallCallout />
+
+Every block on this page installs the same way; swap the name.
+
+## Examples
+
+### chart-bar-active
+
+A bar chart with an active bar.
+
+<ComponentPreview name="chartBarActive" />
+
+### chart-bar-default
+
+A bar chart.
+
+<ComponentPreview name="chartBarDefault" />
+
+### chart-bar-horizontal
+
+A horizontal bar chart.
+
+<ComponentPreview name="chartBarHorizontal" />
+
+### chart-bar-interactive
+
+An interactive bar chart.
+
+<ComponentPreview name="chartBarInteractive" />
+
+### chart-bar-label
+
+A bar chart with a label.
+
+<ComponentPreview name="chartBarLabel" />
+
+### chart-bar-label-custom
+
+A bar chart with a custom label.
+
+<ComponentPreview name="chartBarLabelCustom" />
+
+### chart-bar-mixed
+
+A mixed bar chart.
+
+<ComponentPreview name="chartBarMixed" />
+
+### chart-bar-multiple
+
+A multiple bar chart.
+
+<ComponentPreview name="chartBarMultiple" />
+
+### chart-bar-negative
+
+A bar chart with negative values.
+
+<ComponentPreview name="chartBarNegative" />
+
+### chart-bar-stacked
+
+A stacked bar chart with a legend.
+
+<ComponentPreview name="chartBarStacked" />
+
+## Do / Don't
+
+<DoDont
+  do="Copy the one whose shape matches your data, then replace chartData and chartConfig."
+  dont="Import a chart block from the registry as a shared component — it is a starting point, not an API."
+/>

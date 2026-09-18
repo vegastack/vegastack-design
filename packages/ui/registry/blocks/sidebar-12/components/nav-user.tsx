@@ -1,3 +1,5 @@
+// @vegastack sidebar-12@0.9.1 sha256-g8ZlGOD2r9io91RHDpil62Hq0YvcPSJdpCNOo6W0Un8=
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

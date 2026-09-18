@@ -1,3 +1,5 @@
+// @vegastack chart-line-dots-custom@0.9.1 sha256-+iDmY2bBaKosh77vDKo29tSkA1qyqNncIUn0DPDcQpU=
+
 "use client";
 
 import { GitCommitVertical, TrendingUp } from "lucide-react";

@@ -1,3 +1,5 @@
+// @vegastack sidebar-06@0.9.1 sha256-hv4rsVQhRH+QnMEauhBbRY5rqmOZ/vURDJI0QlCoFRA=
+
 "use client";
 
 import {

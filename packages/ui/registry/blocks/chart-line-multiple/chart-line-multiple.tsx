@@ -1,3 +1,5 @@
+// @vegastack chart-line-multiple@0.9.1 sha256-2fDvjGEcb40ZqY0Y6WJslBwXLctWML2lNwsjostQTt0=
+
 "use client";
 
 import { TrendingUp } from "lucide-react";

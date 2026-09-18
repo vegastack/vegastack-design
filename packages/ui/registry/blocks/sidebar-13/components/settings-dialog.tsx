@@ -1,3 +1,5 @@
+// @vegastack sidebar-13@0.9.1 sha256-uihfd69EhJNWfY1n7PA2HY6pi4lfuggVntaj2uLKfCM=
+
 "use client";
 
 import * as React from "react";

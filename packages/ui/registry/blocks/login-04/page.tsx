@@ -1,3 +1,5 @@
+// @vegastack login-04@0.9.1 sha256-P7bdonUNwU7vujdkoh77m08n+0JESE4M6Caef352N8Q=
+
 import { LoginForm } from "./components/login-form";
 
 export default function LoginPage() {

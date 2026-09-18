@@ -1,0 +1,104 @@
+---
+title: charts-radar
+description: The 12 radar chart blocks — copy-once Card compositions over the chart component and recharts, with their sample data inline.
+audience: public
+registry: chart-radar-default
+preview: chartRadarDefault
+---
+
+## What it is
+
+12 chart **blocks** in the `radar` family. Each is one `Card` wrapping a
+`ChartContainer`, with its sample data inline — pull one, then point it at your own series.
+They depend on `card` and `chart` and nothing else.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/chart-radar-default
+```
+
+<RegistryInstallCallout />
+
+Every block on this page installs the same way; swap the name.
+
+## Examples
+
+### chart-radar-default
+
+A radar chart.
+
+<ComponentPreview name="chartRadarDefault" />
+
+### chart-radar-dots
+
+A radar chart with dots.
+
+<ComponentPreview name="chartRadarDots" />
+
+### chart-radar-grid-circle
+
+A radar chart with a grid and circle.
+
+<ComponentPreview name="chartRadarGridCircle" />
+
+### chart-radar-grid-circle-fill
+
+A radar chart with a grid and circle fill.
+
+<ComponentPreview name="chartRadarGridCircleFill" />
+
+### chart-radar-grid-circle-no-lines
+
+A radar chart with a grid and circle fill.
+
+<ComponentPreview name="chartRadarGridCircleNoLines" />
+
+### chart-radar-grid-custom
+
+A radar chart with a custom grid.
+
+<ComponentPreview name="chartRadarGridCustom" />
+
+### chart-radar-grid-fill
+
+A radar chart with a grid filled.
+
+<ComponentPreview name="chartRadarGridFill" />
+
+### chart-radar-grid-none
+
+A radar chart with no grid.
+
+<ComponentPreview name="chartRadarGridNone" />
+
+### chart-radar-label-custom
+
+A radar chart with a custom label.
+
+<ComponentPreview name="chartRadarLabelCustom" />
+
+### chart-radar-legend
+
+A radar chart with a legend.
+
+<ComponentPreview name="chartRadarLegend" />
+
+### chart-radar-lines-only
+
+A radar chart with lines only.
+
+<ComponentPreview name="chartRadarLinesOnly" />
+
+### chart-radar-multiple
+
+A radar chart with multiple data.
+
+<ComponentPreview name="chartRadarMultiple" />
+
+## Do / Don't
+
+<DoDont
+  do="Copy the one whose shape matches your data, then replace chartData and chartConfig."
+  dont="Import a chart block from the registry as a shared component — it is a starting point, not an API."
+/>

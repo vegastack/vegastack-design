@@ -1,3 +1,5 @@
+// @vegastack chart-tooltip-label-formatter@0.9.1 sha256-+lGhKIIrfEsFRm5O8COdWuKOiKBvn81bJNJQ5R/Xxz8=
+
 "use client";
 
 import { Bar, BarChart, XAxis } from "recharts";

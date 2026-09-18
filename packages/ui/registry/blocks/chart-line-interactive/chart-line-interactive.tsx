@@ -1,3 +1,5 @@
+// @vegastack chart-line-interactive@0.9.1 sha256-/9/8lsygcVVg6415pL+EiPywnGMbX9pRN4d+Yfl8Neo=
+
 "use client";
 
 import * as React from "react";

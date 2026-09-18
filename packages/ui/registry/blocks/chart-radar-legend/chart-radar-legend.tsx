@@ -1,3 +1,5 @@
+// @vegastack chart-radar-legend@0.9.1 sha256-SrEIkwTKuy+QgtmXiZQkiDvXRIgKjM6Trwx+fYj/tIo=
+
 "use client";
 
 import { TrendingUp } from "lucide-react";

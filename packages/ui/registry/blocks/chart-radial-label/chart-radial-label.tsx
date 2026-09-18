@@ -1,3 +1,5 @@
+// @vegastack chart-radial-label@0.9.1 sha256-EcX5PqSE4yHdhcN/TsThuSDdGsJ/OkJ0T/gxUiz8WgE=
+
 "use client";
 
 import { TrendingUp } from "lucide-react";

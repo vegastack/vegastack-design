@@ -1,3 +1,5 @@
+// @vegastack signup-03@0.9.1 sha256-0lC2hCG2ePmtI5IxXn+rPBncYGwPEDSxfUWAcpxqK2M=
+
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";

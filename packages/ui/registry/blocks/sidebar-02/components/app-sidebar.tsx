@@ -1,3 +1,5 @@
+// @vegastack sidebar-02@0.9.1 sha256-Y4Jl5l+41W9xhBGWdvhdisGjqPgQyxxuSCd1Gsz1r6M=
+
 import * as React from "react";
 
 import { SearchForm } from "./search-form";

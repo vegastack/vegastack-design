@@ -1,3 +1,5 @@
+// @vegastack chart-tooltip-icons@0.9.1 sha256-zPcxgaxPpcI1y7Qc4kjQZOw7oWW41tfC13dV9vEYZHs=
+
 "use client";
 
 import { Footprints, Waves } from "lucide-react";

@@ -1,3 +1,5 @@
+// @vegastack signup-01@0.9.1 sha256-ZKeCDY9RZLZXJ4aJqGyu4fBlayT4M9nqz6+3FV+pZb4=
+
 import { SignupForm } from "./components/signup-form";
 
 export default function Page() {

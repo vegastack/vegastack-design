@@ -1,3 +1,5 @@
+// @vegastack sidebar-14@0.9.1 sha256-FeAzKm4SLbydhZt+c4c96HXGgIRBOtGmBd67ERjFRrg=
+
 import { AppSidebar } from "./components/app-sidebar";
 import {
   Breadcrumb,

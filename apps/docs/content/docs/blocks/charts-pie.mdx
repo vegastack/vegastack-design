@@ -1,0 +1,98 @@
+---
+title: charts-pie
+description: The 11 pie chart blocks — copy-once Card compositions over the chart component and recharts, with their sample data inline.
+audience: public
+registry: chart-pie-donut
+preview: chartPieDonut
+---
+
+## What it is
+
+11 chart **blocks** in the `pie` family. Each is one `Card` wrapping a
+`ChartContainer`, with its sample data inline — pull one, then point it at your own series.
+They depend on `card` and `chart` and nothing else.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/chart-pie-donut
+```
+
+<RegistryInstallCallout />
+
+Every block on this page installs the same way; swap the name.
+
+## Examples
+
+### chart-pie-donut
+
+A donut chart.
+
+<ComponentPreview name="chartPieDonut" />
+
+### chart-pie-donut-active
+
+A donut chart with an active sector.
+
+<ComponentPreview name="chartPieDonutActive" />
+
+### chart-pie-donut-text
+
+A donut chart with text.
+
+<ComponentPreview name="chartPieDonutText" />
+
+### chart-pie-interactive
+
+An interactive pie chart.
+
+<ComponentPreview name="chartPieInteractive" />
+
+### chart-pie-label
+
+A pie chart with a label.
+
+<ComponentPreview name="chartPieLabel" />
+
+### chart-pie-label-custom
+
+A pie chart with a custom label.
+
+<ComponentPreview name="chartPieLabelCustom" />
+
+### chart-pie-label-list
+
+A pie chart with a label list.
+
+<ComponentPreview name="chartPieLabelList" />
+
+### chart-pie-legend
+
+A pie chart with a legend.
+
+<ComponentPreview name="chartPieLegend" />
+
+### chart-pie-separator-none
+
+A pie chart with no separator.
+
+<ComponentPreview name="chartPieSeparatorNone" />
+
+### chart-pie-simple
+
+A simple pie chart.
+
+<ComponentPreview name="chartPieSimple" />
+
+### chart-pie-stacked
+
+A pie chart with stacked sections.
+
+<ComponentPreview name="chartPieStacked" />
+
+## Do / Don't
+
+<DoDont
+  do="Copy the one whose shape matches your data, then replace chartData and chartConfig."
+  dont="Import a chart block from the registry as a shared component — it is a starting point, not an API."
+/>

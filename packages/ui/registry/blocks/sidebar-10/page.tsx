@@ -1,3 +1,5 @@
+// @vegastack sidebar-10@0.9.1 sha256-a1BwmSiQtV+aIZEjUZlc1NZKu0DRBJMQMKyDcRTAPHo=
+
 import { AppSidebar } from "./components/app-sidebar";
 import { NavActions } from "./components/nav-actions";
 import {

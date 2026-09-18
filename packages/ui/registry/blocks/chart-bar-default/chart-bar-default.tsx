@@ -1,3 +1,5 @@
+// @vegastack chart-bar-default@0.9.1 sha256-rx9NXfdCBrwjmA6hPlgfson3+DIPukWZ6rRodcfEMV4=
+
 "use client";
 
 import { TrendingUp } from "lucide-react";

@@ -1,3 +1,5 @@
+// @vegastack chart-bar-interactive@0.9.1 sha256-hfd1HKNeiqQ5do2wcby8BbHxY9UhmHeVEEOs8tAl7+w=
+
 "use client";
 
 import * as React from "react";

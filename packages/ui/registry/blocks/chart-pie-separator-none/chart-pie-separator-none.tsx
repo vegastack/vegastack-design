@@ -1,3 +1,5 @@
+// @vegastack chart-pie-separator-none@0.9.1 sha256-T5y/QnmDYKPYclbe3KYMwGxrJby//Z4F+PgAz+1WYhM=
+
 "use client";
 
 import { TrendingUp } from "lucide-react";

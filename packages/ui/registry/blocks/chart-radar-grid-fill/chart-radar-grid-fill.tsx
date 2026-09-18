@@ -1,3 +1,5 @@
+// @vegastack chart-radar-grid-fill@0.9.1 sha256-LdZNB0ZlXoZFqwY7kPx0jy0z6ISFNZrHBNaucWmua6o=
+
 "use client";
 
 import { TrendingUp } from "lucide-react";

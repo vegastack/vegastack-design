@@ -1,0 +1,39 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "onboarding-01",
+  "title": "Onboarding 01",
+  "description": "An onboarding page section — the checklist with its progress, beside a what-is-next card.",
+  "dependencies": [
+    "lucide-react@^1.24.0",
+    "@vegastack/design-tokens@^0.4.0"
+  ],
+  "registryDependencies": [
+    "@vegastack/button",
+    "@vegastack/card",
+    "@vegastack/onboarding-checklist"
+  ],
+  "files": [
+    {
+      "path": "packages/ui/registry/blocks/onboarding-01/components/getting-started.tsx",
+      "content": "// @vegastack onboarding-01@0.9.1 sha256-p/iph+OlRAesh1Wuhl32xooYmZifg60qqRXlwVlbZ6Y=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { Bot, CreditCard, Mail, Plug, Users } from \"lucide-react\";\n\nimport {\n  OnboardingChecklist,\n  OnboardingChecklistItem,\n} from \"@/components/ui/onboarding-checklist\";\n\ninterface Step {\n  id: string;\n  label: string;\n  icon: React.ReactNode;\n  done: boolean;\n}\n\nconst STEPS: Step[] = [\n  {\n    id: \"workspace\",\n    label: \"Name your workspace\",\n    icon: <Users />,\n    done: true,\n  },\n  { id: \"email\", label: \"Connect an inbox\", icon: <Mail />, done: true },\n  { id: \"agent\", label: \"Create your first agent\", icon: <Bot />, done: false },\n  {\n    id: \"integration\",\n    label: \"Install an integration\",\n    icon: <Plug />,\n    done: false,\n  },\n  {\n    id: \"billing\",\n    label: \"Add a payment method\",\n    icon: <CreditCard />,\n    done: false,\n  },\n];\n\nexport function GettingStarted() {\n  const [steps, setSteps] = React.useState(STEPS);\n  const done = steps.filter((step) => step.done).length;\n\n  return (\n    <OnboardingChecklist\n      title=\"Getting started\"\n      done={done}\n      total={steps.length}\n    >\n      {steps.map((step) => (\n        <OnboardingChecklistItem\n          key={step.id}\n          icon={step.icon}\n          done={step.done}\n          onClick={() =>\n            setSteps((previous) =>\n              previous.map((candidate) =>\n                candidate.id === step.id\n                  ? { ...candidate, done: true }\n                  : candidate,\n              ),\n            )\n          }\n        >\n          {step.label}\n        </OnboardingChecklistItem>\n      ))}\n    </OnboardingChecklist>\n  );\n}\n",
+      "type": "registry:component",
+      "target": "app/onboarding-01/components/getting-started.tsx"
+    },
+    {
+      "path": "packages/ui/registry/blocks/onboarding-01/page.tsx",
+      "content": "// @vegastack onboarding-01@0.9.1 sha256-p/iph+OlRAesh1Wuhl32xooYmZifg60qqRXlwVlbZ6Y=\n\nimport { ArrowRight, BookOpen, MessagesSquare } from \"lucide-react\";\n\nimport { GettingStarted } from \"./components/getting-started\";\nimport { Button } from \"@/components/ui/button\";\nimport {\n  Card,\n  CardContent,\n  CardDescription,\n  CardHeader,\n  CardTitle,\n} from \"@/components/ui/card\";\n\nconst next = [\n  {\n    title: \"Read the quickstart\",\n    description: \"Ten minutes from an empty workspace to a running agent.\",\n    icon: BookOpen,\n  },\n  {\n    title: \"Talk to us\",\n    description: \"A setup call with the team that builds Acme.\",\n    icon: MessagesSquare,\n  },\n];\n\nexport default function Page() {\n  return (\n    <div className=\"mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-8 p-4 md:p-6\">\n      <div>\n        <h1 className=\"text-xl font-semibold\">Welcome to Acme</h1>\n        <p className=\"text-sm text-muted-foreground\">\n          Five short steps and your workspace is doing real work.\n        </p>\n      </div>\n\n      <div className=\"grid gap-4 md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]\">\n        <GettingStarted />\n        <div className=\"grid gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2\">\n          {next.map((item) => (\n            <Card key={item.title}>\n              <CardHeader>\n                <item.icon className=\"size-5 text-muted-foreground\" />\n                <CardTitle>{item.title}</CardTitle>\n                <CardDescription>{item.description}</CardDescription>\n              </CardHeader>\n              <CardContent>\n                <Button variant=\"outline\" size=\"sm\">\n                  Open\n                  <ArrowRight />\n                </Button>\n              </CardContent>\n            </Card>\n          ))}\n        </div>\n      </div>\n    </div>\n  );\n}\n",
+      "type": "registry:page",
+      "target": "app/onboarding-01/page.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "A first-run or empty-workspace page that has to show the remaining setup steps.",
+    "whenNotToUse": "A multi-step form the user walks through in order — that is stepper.",
+    "version": "0.9.1",
+    "integrity": "sha256-p/iph+OlRAesh1Wuhl32xooYmZifg60qqRXlwVlbZ6Y="
+  },
+  "categories": [
+    "onboarding"
+  ],
+  "type": "registry:block"
+}

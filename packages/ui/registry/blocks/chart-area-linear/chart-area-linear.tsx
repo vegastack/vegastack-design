@@ -1,3 +1,5 @@
+// @vegastack chart-area-linear@0.9.1 sha256-C4t9vfcYSLuA7itJNJJUGREHhW2IHk+2UWsNgyF4nkE=
+
 "use client";
 
 import { TrendingUp } from "lucide-react";

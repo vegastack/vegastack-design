@@ -1,3 +1,5 @@
+// @vegastack login-02@0.9.1 sha256-fN7tOQRSYNRCIzjrOS8388smC+xqHwe8XactcPPdHEs=
+
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";

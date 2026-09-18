@@ -1,3 +1,5 @@
+// @vegastack chart-tooltip-default@0.9.1 sha256-yXLzRHHS1UPQA1ibBqgmlzO1yiu0pkN8Ldp9ZupP/R0=
+
 "use client";
 
 import { Bar, BarChart, XAxis } from "recharts";

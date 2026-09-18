@@ -1,3 +1,5 @@
+// @vegastack chart-area-gradient@0.9.1 sha256-V/KWSMJ0HjDFW0JRBdXOzXaUpuuTkyuF/dCGQtGIv5k=
+
 "use client";
 
 import { TrendingUp } from "lucide-react";

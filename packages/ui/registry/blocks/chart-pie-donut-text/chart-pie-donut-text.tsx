@@ -1,3 +1,5 @@
+// @vegastack chart-pie-donut-text@0.9.1 sha256-ytH4VvmcoaJfRVV+npYNEqba4/LcMfSacji+6+o5QNA=
+
 "use client";
 
 import * as React from "react";

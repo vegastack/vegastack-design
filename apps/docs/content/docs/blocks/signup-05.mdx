@@ -1,0 +1,40 @@
+---
+title: signup-05
+description: A simple signup form with social providers. Composed from button, field, input.
+audience: public
+registry: signup-05
+preview: signup05Demo
+---
+
+## What it is
+
+A simple signup form with social providers. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/signup-05
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `button`, `field`, `input`.
+
+## Preview
+
+<ComponentPreview name="signup05Demo" />
+
+## Files
+
+| File                                   | Registry type        | Target                                     |
+| -------------------------------------- | -------------------- | ------------------------------------------ |
+| `signup-05/components/signup-form.tsx` | `registry:component` | `app/signup-05/components/signup-form.tsx` |
+| `signup-05/page.tsx`                   | `registry:page`      | `app/signup-05/page.tsx`                   |
+
+## Do / Don't
+
+<DoDont
+  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
+  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+/>

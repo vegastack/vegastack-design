@@ -1,0 +1,68 @@
+---
+title: charts-radial
+description: The 6 radial chart blocks — copy-once Card compositions over the chart component and recharts, with their sample data inline.
+audience: public
+registry: chart-radial-grid
+preview: chartRadialGrid
+---
+
+## What it is
+
+6 chart **blocks** in the `radial` family. Each is one `Card` wrapping a
+`ChartContainer`, with its sample data inline — pull one, then point it at your own series.
+They depend on `card` and `chart` and nothing else.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/chart-radial-grid
+```
+
+<RegistryInstallCallout />
+
+Every block on this page installs the same way; swap the name.
+
+## Examples
+
+### chart-radial-grid
+
+A radial chart with a grid.
+
+<ComponentPreview name="chartRadialGrid" />
+
+### chart-radial-label
+
+A radial chart with a label.
+
+<ComponentPreview name="chartRadialLabel" />
+
+### chart-radial-shape
+
+A radial chart with a custom shape.
+
+<ComponentPreview name="chartRadialShape" />
+
+### chart-radial-simple
+
+A radial chart.
+
+<ComponentPreview name="chartRadialSimple" />
+
+### chart-radial-stacked
+
+A radial chart with stacked sections.
+
+<ComponentPreview name="chartRadialStacked" />
+
+### chart-radial-text
+
+A radial chart with text.
+
+<ComponentPreview name="chartRadialText" />
+
+## Do / Don't
+
+<DoDont
+  do="Copy the one whose shape matches your data, then replace chartData and chartConfig."
+  dont="Import a chart block from the registry as a shared component — it is a starting point, not an API."
+/>

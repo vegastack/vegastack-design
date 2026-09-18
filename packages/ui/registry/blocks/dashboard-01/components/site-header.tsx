@@ -1,3 +1,5 @@
+// @vegastack dashboard-01@0.9.1 sha256-LZLMS1Hm9uVLpEpspzGpQJZi7mi2NZJXZvkZGrd1+kU=
+
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 

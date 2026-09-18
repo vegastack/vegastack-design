@@ -106,6 +106,9 @@ function expectedEnginePackages(dependencies = [], sourceFiles = []) {
     if (dependency.startsWith("@atlaskit/pragmatic-drag-and-drop"))
       packages.add("@atlaskit/pragmatic-drag-and-drop");
     if (dependency.startsWith("react-dropzone")) packages.add("react-dropzone");
+    // Batch 8: upstream's `dashboard-01` block drags its data-table rows with @dnd-kit. The four
+    // packages are one engine identity, exactly as `-hitbox` folds into the pragmatic one.
+    if (dependency.startsWith("@dnd-kit/")) packages.add("@dnd-kit");
     // Pre-approved with upstream's whole dependency set (DOC-7, MK 2026-09-18) and adopted by the
     // shadcn reset: `input-otp` in Batch 3, `cmdk` and `sonner` in Batch 4.
     if (dependency.startsWith("input-otp")) packages.add("input-otp");
@@ -749,6 +752,21 @@ const registryHooks = registry.items.filter(
 const registryBlocks = registry.items.filter(
   (item) => item.type === "registry:block",
 );
+// Batch 8 of the shadcn reset (2026-09-18) split the block partition in two. 68 of the 100 blocks
+// are the ported chart cards: one shape over `card` + `chart` + recharts, documented as seven
+// family galleries and modeled by a shared contract plus a compact member list, exactly as the 467
+// generated icon mirrors are. The split is read off the CONTRACT's member list rather than the
+// name, so a chart block that leaves `chartBlocks.members` immediately fails the page-block arm
+// (it becomes an unmodeled `registry:block`) instead of being silently reclassified by a prefix.
+const chartBlockNames = new Set(
+  (contracts.chartBlocks?.members ?? []).map((member) => member.name),
+);
+const registryChartBlocks = registryBlocks.filter((item) =>
+  chartBlockNames.has(item.name),
+);
+const registryPageBlocks = registryBlocks.filter(
+  (item) => !chartBlockNames.has(item.name),
+);
 // `registry:lib` — a pure data/helper module with no React in it, installed under the consumer's
 // `lib` alias. It renders nothing, so it carries no docs page, preview, VRT route or wave.
 const registryLibs = registry.items.filter(
@@ -773,7 +791,8 @@ const expected = {
   components: registryComponents.length,
   animatedIcons: registryIcons.length,
   hooks: registryHooks.length,
-  blocks: registryBlocks.length,
+  blocks: registryPageBlocks.length,
+  chartBlocks: registryChartBlocks.length,
   libs: registryLibs.length,
 };
 
@@ -785,11 +804,12 @@ assert(
     expected.animatedIcons +
     expected.hooks +
     expected.blocks +
+    expected.chartBlocks +
     expected.libs ===
     expected.totalRegistryItems,
   `registry.json partition does not close: ${expected.components} components + ` +
     `${expected.animatedIcons} animated icons + ${expected.hooks} hooks + ${expected.blocks} ` +
-    `blocks + ${expected.libs} libs = ${expected.components + expected.animatedIcons + expected.hooks + expected.blocks + expected.libs}, ` +
+    `blocks + ${expected.chartBlocks} chart blocks + ${expected.libs} libs = ${expected.components + expected.animatedIcons + expected.hooks + expected.blocks + expected.chartBlocks + expected.libs}, ` +
     `but the registry holds ${expected.totalRegistryItems} items. Some item is of a kind this ` +
     `gate does not model.`,
 );
@@ -809,6 +829,7 @@ const components = contracts.components ?? [];
 const icons = contracts.animatedIcons?.members ?? [];
 const hooks = contracts.hooks ?? [];
 const blocks = contracts.blocks ?? [];
+const chartBlocks = contracts.chartBlocks?.members ?? [];
 const libs = contracts.libs ?? [];
 assert(
   components.length === expected.components,
@@ -827,11 +848,22 @@ assert(
   `contracts.blocks must contain ${expected.blocks} record`,
 );
 assert(
+  chartBlocks.length === expected.chartBlocks,
+  `chartBlocks.members must contain ${expected.chartBlocks} records`,
+);
+assert(
   libs.length === expected.libs,
   `contracts.libs must contain ${expected.libs} record`,
 );
 
-const modeled = [...components, ...icons, ...hooks, ...blocks, ...libs];
+const modeled = [
+  ...components,
+  ...icons,
+  ...hooks,
+  ...blocks,
+  ...chartBlocks,
+  ...libs,
+];
 const modeledNames = modeled.map((record) => record.name);
 assert(
   modeledNames.length === expected.totalRegistryItems,
@@ -1215,6 +1247,95 @@ for (const record of blocks) {
   );
 }
 
+// ── the chart blocks, reconciled member by member against their shared contract ─────────────────
+// The shape animatedIcons established: one contract for the family, a compact member list, and a
+// gate that still checks EVERY member against the registry and the source. What is shared is the
+// docs page, the preview module and the test file; what is not shared is membership, the file, its
+// exports, or its dependency lists.
+const chartShared = contracts.chartBlocks?.sharedContract;
+assert(
+  chartShared && typeof chartShared === "object",
+  "chartBlocks.sharedContract is missing",
+);
+assert(
+  chartShared?.ported === "new-york-v4",
+  "chartBlocks.sharedContract.ported must name the style the members were ported from",
+);
+const chartTestFile = chartShared?.testFile ?? "";
+assert(
+  existsSync(join(root, chartTestFile)),
+  `chartBlocks.sharedContract.testFile is missing on disk: ${chartTestFile}`,
+);
+const chartTestSource = existsSync(join(root, chartTestFile))
+  ? readFileSync(join(root, chartTestFile), "utf8")
+  : "";
+assert(
+  chartTestSource.includes("expectNoA11yViolations"),
+  "the chart blocks' shared browser test lacks the axe helper",
+);
+const chartFamilies = new Set();
+for (const member of chartBlocks) {
+  const label = `chart block ${member.name}`;
+  const item = registryByName.get(member.name);
+  assert(
+    item && registryChartBlocks.includes(item),
+    `${label} does not map to a registry block`,
+  );
+  if (!item) continue;
+  sameStrings(
+    [member.sourceFile],
+    registryFilePaths(item),
+    `${label} sourceFile`,
+  );
+  assert(
+    existsSync(join(root, member.sourceFile)),
+    `${label}: source file is missing: ${member.sourceFile}`,
+  );
+  sameStrings(
+    member.publicSymbols ?? [],
+    sourceExports([member.sourceFile]),
+    `${label} public symbols`,
+  );
+  sameStrings(
+    member.registryDependencies ?? [],
+    item.registryDependencies ?? [],
+    `${label} registryDependencies`,
+  );
+  sameStrings(
+    member.npmDependencies ?? [],
+    item.dependencies ?? [],
+    `${label} npmDependencies`,
+  );
+  assert(
+    typeof member.chartFamily === "string" &&
+      member.docsSlug === `/docs/blocks/charts-${member.chartFamily}` &&
+      member.previewModule === `charts-${member.chartFamily}`,
+    `${label}: docsSlug and previewModule must be the ${member.chartFamily} family's gallery`,
+  );
+  chartFamilies.add(member.chartFamily);
+  assert(
+    existsSync(join(root, "apps/docs/content", `${member.docsSlug}.mdx`)),
+    `${label}: gallery page missing for ${member.docsSlug}`,
+  );
+  // Every member is RENDERED by the shared suite and PREVIEWED by its family module — the two
+  // things the per-item exemption gives up, proven per member rather than assumed.
+  assert(
+    chartTestSource.includes(`"${member.name}":`),
+    `${label}: the shared browser test does not render it`,
+  );
+  const previewSource = readFileSync(
+    join(root, "apps/docs/components/preview", `${member.previewModule}.tsx`),
+    "utf8",
+  );
+  assert(
+    extractExports(previewSource).includes(member.previewFixture),
+    `${label}: ${member.previewModule}.tsx does not export the fixture ${member.previewFixture}`,
+  );
+}
+const chartGallerySlugs = [...chartFamilies]
+  .sort()
+  .map((family) => `/docs/blocks/charts-${family}`);
+
 // Canonical source parity: no unregistered non-test implementation may hide beside the modeled
 // files. Generated icon mirrors are reconciled separately from top-level components/hooks.
 const topLevelCanonical = readdirSync(join(root, "packages/ui/registry/ui"), {
@@ -1268,7 +1389,10 @@ const blockFiles = walk(join(root, "packages/ui/registry/blocks"), {
   include: (relative) => !/\.test\.tsx?$/.test(relative),
 }).map((absolute) => relativeToRoot(absolute));
 sameStrings(
-  blocks.flatMap((record) => record.sourceFiles),
+  [
+    ...blocks.flatMap((record) => record.sourceFiles),
+    ...chartBlocks.map((member) => member.sourceFile),
+  ],
   blockFiles,
   "block source inventory",
 );
@@ -1290,7 +1414,12 @@ const blockNav = readJson(
 ).pages.filter((page) => !page.startsWith("---"));
 sameStrings(
   blockNav,
-  blocks.map((record) => record.docsSlug.split("/").at(-1)),
+  [
+    ...blocks.map((record) => record.docsSlug.split("/").at(-1)),
+    // Seven gallery pages for the 68 chart blocks, derived from the members' own families rather
+    // than listed here, so a new family cannot arrive without its page.
+    ...chartGallerySlugs.map((slug) => slug.split("/").at(-1)),
+  ],
   "block docs navigation",
 );
 
@@ -1305,7 +1434,7 @@ assert(
   new Set(previewExports).size === previewExports.length,
   "preview index contains duplicate exports",
 );
-for (const record of [...components, ...blocks]) {
+for (const record of [...components, ...blocks, ...chartBlocks]) {
   assert(
     previewExports.includes(record.previewModule),
     `${record.name}: preview index does not export ${record.previewModule}`,
@@ -1318,7 +1447,10 @@ const previewFiles = readdirSync(join(root, "apps/docs/components/preview"))
   .filter((name) => !allowedPreviewInfrastructure.has(name));
 sameStrings(
   previewFiles,
-  [...components, ...blocks].map((record) => record.previewModule),
+  [
+    ...[...components, ...blocks].map((record) => record.previewModule),
+    ...chartGallerySlugs.map((slug) => slug.split("/").at(-1)),
+  ],
   "preview module inventory",
 );
 const allPreviewFixtureExports = new Set(
@@ -1530,10 +1662,13 @@ if (problems.length > 0) {
 
 console.log("✓ verify-component-contracts: complete registry reconciliation");
 console.log(
-  `  inventory: ${modeledNames.length} unique items (${components.length} components + ${icons.length} animated icons + ${hooks.length} hooks + ${blocks.length} block + ${libs.length} libs)`,
+  `  inventory: ${modeledNames.length} unique items (${components.length} components + ${icons.length} animated icons + ${hooks.length} hooks + ${blocks.length} blocks + ${chartBlocks.length} chart blocks + ${libs.length} libs)`,
 );
 console.log(
   `  component audit matrix: ${components.length}/${components.length} source + test + docs + nav + preview contracts reconciled`,
+);
+console.log(
+  `  chart blocks: ${chartBlocks.length}/${chartBlocks.length} members reconciled through the shared contract across ${chartGallerySlugs.length} family galleries`,
 );
 console.log(
   `  animated icons: ${icons.length}/${icons.length} exact generated members reconciled through the shared contract`,

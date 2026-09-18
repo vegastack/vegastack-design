@@ -1,3 +1,5 @@
+// @vegastack chart-pie-legend@0.9.1 sha256-DRBJvK7ldc2GwigUOOIogLq3hgHs+20I4KvzOMF/7CA=
+
 "use client";
 
 import { Pie, PieChart } from "recharts";

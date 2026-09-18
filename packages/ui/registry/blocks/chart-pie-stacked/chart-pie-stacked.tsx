@@ -1,3 +1,5 @@
+// @vegastack chart-pie-stacked@0.9.1 sha256-2KGSo48c+Ks3p5WSqYnwrUrv5zuDbx/0rDIUcL3DfnM=
+
 "use client";
 
 import * as React from "react";
