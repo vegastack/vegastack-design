@@ -1,4 +1,4 @@
-// @vegastack announcement-banner@0.9.1 sha256-EQitUaLfDjUSm249QMATlMAx2XMvzZ3p6fOOr8mJ9gk=
+// @vegastack announcement-banner@0.9.1 sha256-e3A4LolBNBvXbevEeuTXyu6gXZDH7UwqYCqbxaoNTLw=
 
 "use client";
 
@@ -90,7 +90,11 @@ export function AnnouncementBanner({
       data-slot="announcement-banner"
       className={cn(
         "flex w-full items-center justify-center gap-3 bg-foreground px-4 py-2 text-sm text-background",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+        // Scoped to the band's OWN glyphs and the action slot. As a descendant rule it also
+        // matched the `<X/>` inside the dismiss `Button`, competing at equal specificity with
+        // `button.tsx`'s `icon-xs` rule — so which size landed was decided by Tailwind's emission
+        // order rather than by intent. Button owns its own icon geometry.
+        "[&>svg]:pointer-events-none [&>svg]:shrink-0 [&>svg:not([class*='size-'])]:size-3.5",
         className,
       )}
       {...props}
@@ -111,7 +115,11 @@ export function AnnouncementBanner({
           aria-label={dismissLabel}
           onClick={handleDismiss}
           data-slot="announcement-banner-dismiss"
-          className="text-current"
+          // Upstream's `ghost` hovers to `bg-muted` / `text-foreground` — page tokens. On this
+          // inverse band that painted a light chip with near-black ink in light theme, i.e. the
+          // page's own colours inside the strip. The hover and pressed steps are restated in the
+          // band's own ink so it stays inside the flip.
+          className="text-current hover:bg-background/15 hover:text-current active:bg-background/25"
         >
           <X aria-hidden />
         </Button>

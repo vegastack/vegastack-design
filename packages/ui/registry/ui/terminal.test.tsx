@@ -189,9 +189,13 @@ test("the trailing icon CopyButton copies only the command lines, joined by newl
   await expect
     .element(copiedButton)
     .toHaveAttribute("aria-label", "Copied command");
-  expect(copiedButton.element().className).toContain(
-    "data-[copied]:text-primary",
-  );
+  // The copied tint is `CopyButton`'s own (`text-primary hover:text-primary`). Terminal used to
+  // restate it through `text-foreground data-[copied]:text-primary …`, which CANCELLED the
+  // component's tint with the unprefixed class and then won it back on attribute specificity —
+  // a round trip to the same paint. Batch 7c of the shadcn reset deleted the override; this
+  // asserts the component's behaviour reaches the terminal unaided.
+  expect(copiedButton.element().className).toContain("text-primary");
+  expect(copiedButton.element().className).not.toContain("data-[copied]:");
   expect(copiedButton.element().className).not.toContain("text-success-text");
 });
 

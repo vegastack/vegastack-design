@@ -1,4 +1,4 @@
-// @vegastack stepper@0.9.1 sha256-j4omeWgWQjbCZnjjLsZj0euO3z0IDHYr/3IdXKFBDZE=
+// @vegastack stepper@0.9.1 sha256-auFWRNZMa4QhUZrvFBfl9/qzxipsvj40qlXg+spjQJg=
 
 "use client";
 
@@ -278,7 +278,11 @@ export function Stepper({
                   data-slot="stepper-label"
                   onClick={() => onStepSelect?.(step.id)}
                   className={cn(
-                    "min-w-0 justify-start gap-1",
+                    // `px-0`: `Button` takes its `default` size here, whose `px-2.5` would indent
+                    // the navigable label ~10px past the non-navigable `<span>` form and past the
+                    // step's own description, so a navigable stepper and a linear one did not line
+                    // up. The height stays the Button's; only the lead padding goes.
+                    "min-w-0 justify-start gap-1 px-0",
                     orientation === "horizontal" && "w-full",
                   )}
                 >

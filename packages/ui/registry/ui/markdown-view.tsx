@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.9.1 sha256-HWp+8yqdKHcGTTGnCsZjXHqa1bCDYAoksIqBCwnVuao=
+// @vegastack markdown-view@0.9.1 sha256-tHhgmb0NCHtUYbH8GU0bnxT7J8cGFSqZh+5X9R9rP/E=
 
 import * as React from "react";
 import Markdown, { type Components } from "react-markdown";
@@ -68,7 +68,13 @@ const markdownComponents: Components = {
         checked={Boolean(checked)}
         disabled
         className={cn(
-          "pointer-events-none me-1.5 align-middle disabled:opacity-100",
+          // `inline-flex` is not decoration. Upstream's checkbox root is `flex`, and
+          // `vertical-align` does not apply to a block-level box — so `align-middle` resolved to
+          // nothing AND the tick took its own line, wrapping every task-list label underneath it.
+          // The pre-reset root was `inline-flex`; Batch 3 put the file on upstream's and this
+          // override was left behind. `tailwind-merge` swaps `flex` for `inline-flex` (same
+          // group), which restores the inline flow this component's own task-list example shows.
+          "pointer-events-none inline-flex me-1.5 align-middle disabled:opacity-100",
           className,
         )}
       />

@@ -79,10 +79,12 @@ export function copyButtonVariants(): ReactNode {
 export function copyButtonSizes(): ReactNode {
   return (
     <Wrapper>
-      {/* `size` is forwarded too — icon sizes keep the button square. */}
-      <CopyButton value="sm" variant="outline" size="sm" />
-      <CopyButton value="md" variant="outline" />
-      <CopyButton value="lg" variant="outline" size="lg" />
+      {/* `size` is forwarded too. A label-less CopyButton takes an ICON tier — upstream's
+          `sm`/`lg` are text tiers with horizontal padding, so they would render a wide box
+          around a single glyph, and `md` is not one of upstream's sizes at all. */}
+      <CopyButton value="icon-sm" variant="outline" size="icon-sm" />
+      <CopyButton value="icon" variant="outline" size="icon" />
+      <CopyButton value="icon-lg" variant="outline" size="icon-lg" />
     </Wrapper>
   );
 }

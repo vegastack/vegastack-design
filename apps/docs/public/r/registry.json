@@ -177,7 +177,7 @@
         "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
         "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
         "version": "0.9.1",
-        "integrity": "sha256-EQitUaLfDjUSm249QMATlMAx2XMvzZ3p6fOOr8mJ9gk="
+        "integrity": "sha256-e3A4LolBNBvXbevEeuTXyu6gXZDH7UwqYCqbxaoNTLw="
       }
     },
     {
@@ -777,7 +777,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.9.1",
-        "integrity": "sha256-gdHUiiEHD5goA8h9/JDgMp8owjbYr0jN361dEuJZ/ik="
+        "integrity": "sha256-P4Vk0FvgOlrYcwD4liKWuk9SILN8OyFZi4J4SBC7V2o="
       }
     },
     {
@@ -14957,7 +14957,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.9.1",
-        "integrity": "sha256-HWp+8yqdKHcGTTGnCsZjXHqa1bCDYAoksIqBCwnVuao="
+        "integrity": "sha256-tHhgmb0NCHtUYbH8GU0bnxT7J8cGFSqZh+5X9R9rP/E="
       }
     },
     {
@@ -15019,7 +15019,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.9.1",
-        "integrity": "sha256-fvDhcOJZ6LcuNT58zvSwn+hk2jylF2s9UqNatMPTI78="
+        "integrity": "sha256-3+WlqcZhNzo9rlIrhkSGYhRs/dmRccRj2GuBWrg/0es="
       }
     },
     {
@@ -15199,7 +15199,7 @@
         "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
         "version": "0.9.1",
-        "integrity": "sha256-Y6zSS8NwTLzEjnQgZcQ/zSYwI/XLDVnEXJd6jOysYrk="
+        "integrity": "sha256-9lctzLMx1SvCkKghen8upbBkxywg1HJabxWeEY34ssU="
       }
     },
     {
@@ -15261,7 +15261,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.9.1",
-        "integrity": "sha256-mVZFBKRTm991KbkpwRhSWDhEMn0S13u/HlOLcHc1OPc="
+        "integrity": "sha256-FItYc7FSERVdDKZ0wykFQ6o1ACKCAtxlk0j1TEbfus4="
       }
     },
     {
@@ -16035,7 +16035,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or compact progress where a full step list is too heavy (Progress plus a \"Step n of N\" line).",
         "version": "0.9.1",
-        "integrity": "sha256-j4omeWgWQjbCZnjjLsZj0euO3z0IDHYr/3IdXKFBDZE="
+        "integrity": "sha256-auFWRNZMa4QhUZrvFBfl9/qzxipsvj40qlXg+spjQJg="
       }
     },
     {
@@ -16194,7 +16194,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.9.1",
-        "integrity": "sha256-WqCYXlQaWBCM1+zRYxdoewxT0OYLel6GGaq8xMkWaGg="
+        "integrity": "sha256-FlExIcHaxyvUGg2CjBvlLJqJ7YdA38iL6My/NXWFwt0="
       }
     },
     {

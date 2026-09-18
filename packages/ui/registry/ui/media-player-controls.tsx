@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.9.1 sha256-fvDhcOJZ6LcuNT58zvSwn+hk2jylF2s9UqNatMPTI78=
+// @vegastack media-player-controls@0.9.1 sha256-3+WlqcZhNzo9rlIrhkSGYhRs/dmRccRj2GuBWrg/0es=
 
 "use client";
 
@@ -40,9 +40,16 @@ import { Slider } from "@/components/ui/slider";
  * it. Batch 7 rebuilds this component; these are what keep it looking right until then.
  * ----------------------------------------------------------------------------------------------*/
 
-/** The in-page player: a slightly thicker rail whose fill brightens on hover, focus and drag. */
+/**
+ * The in-page player: a rail whose fill brightens on hover, focus and drag.
+ *
+ * It owns the INK only. The two track-thickness declarations that used to open this string were
+ * silently dropped by `tailwind-merge` wherever it is combined with `GROWING_RAIL` — identical
+ * modifier set, and `GROWING_RAIL` comes later in the `cn()` — so the "slightly thicker rail" the
+ * old doc line promised was true for the volume rail and false for the seek rail it was written
+ * about. Thickness is `GROWING_RAIL`'s job; Batch 7c of the shadcn reset removed the duplicate.
+ */
 const MEDIA_SLIDER =
-  "[&_[data-slot=slider-track]]:data-horizontal:h-1.5 [&_[data-slot=slider-track]]:data-vertical:w-1.5 " +
   "[&_[data-slot=slider-range]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:border-muted-foreground " +
   "[&_[data-slot=slider-thumb]]:bg-muted-foreground " +
   "hover:[&_[data-slot=slider-range]]:bg-foreground focus-within:[&_[data-slot=slider-range]]:bg-foreground " +
@@ -98,11 +105,17 @@ const MEDIA_ACTION_ICON_CLASS = "[&_svg:not([class*='size-'])]:size-5";
 // play/pause glyph on the narrow, two-line audio layout only, so the primary
 // control reads larger than the flanking skip buttons on a phone.
 const MEDIA_PLAY_ICON_LG_CLASS = "[&_svg:not([class*='size-'])]:size-6";
-// Media settings submenu: left-align the option label and move the selected dot
-// to the trailing edge (default radio items lead with the dot). Shared by the
-// audio card and the video overlay so both settings menus read identically.
+// Media settings submenu: half a step more lead padding than upstream's `ps-1.5`, so the option
+// label clears the submenu's own edge. Shared by the audio card and the video overlay so both
+// settings menus read identically.
+//
+// It used to carry three more declarations — `pe-8` and two on the indicator span (`start-auto`,
+// `end-2`) — under a comment claiming "default radio items lead with the dot". Read against
+// `dropdown-menu.tsx`, upstream's own radio item is already `pe-8` with its indicator `absolute
+// end-2`, so the dot already trails and all three were restating upstream to itself. Batch 7c of
+// the shadcn reset dropped them.
 const MEDIA_SUBMENU_RADIO_ITEM_CLASS =
-  "[&_[data-slot=dropdown-menu-radio-item]]:ps-2 [&_[data-slot=dropdown-menu-radio-item]]:pe-8 [&_[data-slot=dropdown-menu-radio-item]>span]:start-auto [&_[data-slot=dropdown-menu-radio-item]>span]:end-2";
+  "[&_[data-slot=dropdown-menu-radio-item]]:ps-2";
 
 /**
  * The theme-invariant media chrome (audit B4-01, D16). The overlay used to be built on
@@ -111,17 +124,24 @@ const MEDIA_SUBMENU_RADIO_ITEM_CLASS =
  * are authored once and never overridden per theme, so chrome over video always reads dark-scrim +
  * light-ink.
  *
- * The buttons are plain `Button variant="ghost" size="icon-*"` in a `rounded-full` (D16 — there is no `glass`
- * variant). Their hue comes from the Button tone vars set HERE, once, instead of a colour override
- * per call site: `ghost` reads its rest ink from `--btn-ghost-ink` (`inherit`, so it picks up the
- * container's `text-media-foreground`), its hover ink from `--btn-tint`, and its hover/pressed wash
- * from `--btn-soft-hover`/`--btn-soft-active`.
+ * The buttons are plain `Button variant="ghost" size="icon-*"` in a `rounded-full` (D16 — there is
+ * no `glass` variant). Their REST ink is inherited: upstream's `ghost` sets no colour of its own, so
+ * it picks up the container's `text-media-foreground`. Their HOVER and PRESSED steps have to be
+ * named here, because upstream's `ghost` hovers to `bg-muted`/`text-foreground` — theme tokens that
+ * flip with the page and put near-black ink on a light wash over a video in light theme, which is
+ * exactly the D16 / B4-01 defect `--media-*` exists to prevent.
+ *
+ * Batch 7c of the shadcn reset replaced three declarations here — `[--btn-tint]`,
+ * `[--btn-soft-hover]` and `[--btn-soft-active]` — with the classes below. Those were the
+ * pre-reset Button's tone vars; since Batch 2 put `button.tsx` back on upstream, `button.tsx` reads
+ * no custom property at all, so all three resolved to nothing and every overlay control had been
+ * hovering to page ink over video ever since.
  */
 const MEDIA_OVERLAY_CHROME_CLASS = cn(
   "text-media-foreground",
-  "[--btn-tint:var(--media-foreground)]",
-  "[--btn-soft-hover:color-mix(in_oklab,var(--media-foreground)_7%,transparent)]",
-  "[--btn-soft-active:color-mix(in_oklab,var(--media-foreground)_10%,transparent)]",
+  "[&_button]:hover:bg-media-foreground/10 [&_button]:hover:text-media-foreground",
+  "[&_button]:active:bg-media-foreground/15 [&_button]:active:text-media-foreground",
+  "[&_button]:aria-expanded:bg-media-foreground/15 [&_button]:aria-expanded:text-media-foreground",
 );
 
 /**
@@ -417,7 +437,7 @@ function MediaWaveformSeek({
   return (
     <div
       data-slot="media-player-waveform"
-      className="group/media-progress relative h-12 w-full min-w-0 hover:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground focus-within:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground has-[[data-slot=slider-thumb][data-dragging]]:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground"
+      className="relative h-12 w-full min-w-0 hover:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground focus-within:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground has-[[data-slot=slider-thumb][data-dragging]]:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground"
     >
       {/*
         Bars are decoration only (`aria-hidden`); the transparent Slider on top
@@ -1080,7 +1100,6 @@ export function MediaPlayerControls({
           >
             <Slider
               orientation="vertical"
-              thumbAlignment="edge"
               value={[Math.round(volume * 100)]}
               min={0}
               max={100}
@@ -1089,9 +1108,20 @@ export function MediaPlayerControls({
               onValueChange={setVolumeValue}
               className={cn(
                 isOverlay ? OVERLAY_SLIDER : MEDIA_SLIDER,
-                isOverlay
-                  ? "h-[calc(2.5rem+var(--spacing)*4)] w-6"
-                  : "h-20 w-6",
+                "w-6",
+                // Upstream's vertical `Slider` floors its Control at `min-h-40` — 160px — which is
+                // 48px taller than this pill in the card variant and 80px taller in the overlay,
+                // and the pill does not clip. MEASURED, not inferred: before Batch 7c of the
+                // shadcn reset the rail's box ran from 21178 to 21338 inside a pill that ended at
+                // 21277, so the track hung out of the bottom of its own surface. The floor is
+                // released here rather than patched into `slider.tsx`, which has no decision row
+                // behind it; `!` is upstream's own vocabulary for exactly this (see `badge.tsx`'s
+                // `[&>svg]:size-3!`), and it is needed because upstream's declaration carries the
+                // same specificity. The height then comes from the pill, which is what sizes it.
+                //
+                // The root's own `h-20` / `h-[calc(…)]` went with this: upstream's root already
+                // carries `data-vertical:h-full` at a higher specificity, so both were dead.
+                "*:min-h-0!",
               )}
             />
           </div>

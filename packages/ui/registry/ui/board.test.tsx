@@ -405,6 +405,7 @@ test("the drop-over highlight moves the column Card's RING, not a zero-width bor
       columns={makeColumns()}
       getItemId={(deal) => deal.id}
       renderCard={(deal) => <span>{deal.name}</span>}
+      onMove={() => {}}
     />,
   );
   const column = screen.container.querySelector(

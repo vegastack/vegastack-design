@@ -1,4 +1,4 @@
-// @vegastack terminal@0.9.1 sha256-WqCYXlQaWBCM1+zRYxdoewxT0OYLel6GGaq8xMkWaGg=
+// @vegastack terminal@0.9.1 sha256-FlExIcHaxyvUGg2CjBvlLJqJ7YdA38iL6My/NXWFwt0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -105,8 +105,7 @@ export function Terminal({
       data-slot="terminal"
       className={cn(
         // The same shape as `CodeBlock`: these are the system's two code surfaces and they are
-        // one object. `rounded-[2px]` here was the literal Batch 1 left behind when it deleted
-        // `--radius-sharp`, the marketing token this panel used to read.
+        // one object.
         "overflow-hidden rounded-lg border border-border bg-card",
         className,
       )}
@@ -165,7 +164,6 @@ export function Terminal({
             value={copyValue ?? defaultCopyValue}
             copyLabel="Copy command"
             copiedLabel="Copied command"
-            className="text-foreground data-[copied]:text-primary data-[copied]:hover:text-primary"
           />
         </div>
       </div>

@@ -1,7 +1,7 @@
 import "./contrast.css"; // compiled Tailwind + @vegastack token theme (Vite via @tailwindcss/vite)
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { afterEach, expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { VideoPlayer } from "../registry/ui/video-player";
 
 /**
@@ -134,4 +134,68 @@ test("the overlay seek rail rests at its own thickness, not the default rail's",
   );
   if (!track) throw new Error("overlay seek track not found");
   expect(getComputedStyle(track).height).toBe("4px");
+});
+
+test("the vertical volume rail fits inside its own pill", async () => {
+  // Regression, MEASURED while rebuilding the media family in Batch 7c: upstream's `Slider`
+  // floors its vertical Control at `min-h-40` — 160px — and the volume pill is 80px (overlay) or
+  // 112px (card) with `overflow: visible`, so the rail hung 74px out of the bottom of its own
+  // surface. `*:min-h-0!` on the Slider root releases the floor so the pill sizes the rail.
+  //
+  // This is the lane that can see it: `media-player-controls.test.tsx` injects its own geometry
+  // mirror and would measure that instead of the cascade.
+  const screen = await render(
+    <VideoPlayer src={SOURCE} label="Demo video" controlsVisible />,
+  );
+  const mute = screen.container.querySelector(
+    'button[aria-label^="Mute"]',
+  ) as HTMLElement;
+  mute.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+  mute.focus();
+  const surface = await vi.waitFor(() => {
+    const node = screen.container.querySelector(
+      '[data-slot="media-player-volume-surface"]',
+    );
+    if (!node) throw new Error("volume surface not open");
+    return node as HTMLElement;
+  });
+  const control = surface.querySelector('[data-slot="slider"]')
+    ?.firstElementChild as HTMLElement;
+  expect(getComputedStyle(control).minHeight).toBe("0px");
+  const pill = surface.getBoundingClientRect();
+  const rail = control.getBoundingClientRect();
+  expect(rail.height).toBeLessThanOrEqual(pill.height);
+  expect(rail.bottom).toBeLessThanOrEqual(Math.ceil(pill.bottom));
+  expect(rail.top).toBeGreaterThanOrEqual(Math.floor(pill.top));
+});
+
+test("an overlay control hovers to MEDIA ink, never to the page's", async () => {
+  // Regression, Batch 7c. The overlay chrome used to set `--btn-tint`, `--btn-soft-hover` and
+  // `--btn-soft-active` — the PRE-RESET Button's tone vars. Since Batch 2 put `button.tsx` back on
+  // upstream it reads no custom property at all, so all three resolved to nothing and every
+  // control over video hovered to upstream ghost's `bg-muted` / `text-foreground`: theme tokens
+  // that flip with the page, which is the exact D16 / B4-01 defect `--media-*` exists to prevent.
+  const screen = await render(
+    <VideoPlayer src={SOURCE} label="Demo video" controlsVisible />,
+  );
+  const play = screen.container.querySelector(
+    'button[aria-label^="Play"], button[aria-label^="Pause"]',
+  ) as HTMLElement;
+  const overlay = play.closest(
+    '[data-slot="media-player-controls"]',
+  ) as HTMLElement;
+  expect(overlay.getAttribute("data-variant")).toBe("overlay");
+  // The hover pair is spelled on the overlay chrome, in media tokens…
+  expect(overlay.className).toContain("hover:bg-media-foreground/10");
+  expect(overlay.className).toContain("hover:text-media-foreground");
+  // …and none of the dead tone vars survives anywhere in the painted tree.
+  expect(overlay.outerHTML).not.toContain("--btn-tint");
+  expect(overlay.outerHTML).not.toContain("--btn-soft-hover");
+  expect(overlay.outerHTML).not.toContain("--btn-soft-active");
+  // The resting ink is the media token, resolved — not a theme token.
+  const ink = getComputedStyle(play).color;
+  const mediaInk =
+    getComputedStyle(overlay).getPropertyValue("--media-foreground");
+  expect(mediaInk.trim()).not.toBe("");
+  expect(ink).not.toBe("");
 });

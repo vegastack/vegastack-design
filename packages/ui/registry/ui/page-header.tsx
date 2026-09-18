@@ -1,4 +1,4 @@
-// @vegastack page-header@0.9.1 sha256-mVZFBKRTm991KbkpwRhSWDhEMn0S13u/HlOLcHc1OPc=
+// @vegastack page-header@0.9.1 sha256-FItYc7FSERVdDKZ0wykFQ6o1ACKCAtxlk0j1TEbfus4=
 
 "use client";
 
@@ -145,7 +145,7 @@ function FavoriteStar({
       aria-pressed={isActive}
       data-slot="page-header-favorite"
       data-active={isActive ? "" : undefined}
-      className="shrink-0 text-muted-foreground hover:text-foreground"
+      className="shrink-0 text-muted-foreground"
     >
       {/* Neutral ink, not warning yellow (D21). Doctrine rations the status hues to actual
           status; a favourite is a user's own mark, not a caution — Linear and Vercel both fill

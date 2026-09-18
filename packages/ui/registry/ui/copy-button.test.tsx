@@ -26,7 +26,7 @@ test('renders a button labelled "Copy" by default', async () => {
   await expect.element(btn).toHaveAttribute("data-slot", "copy-button");
 });
 
-test("defaults to ghost / sm", async () => {
+test("defaults to ghost / icon-sm", async () => {
   // Since Batch 2 of the shadcn reset `Button` is upstream's and mirrors neither `data-variant`
   // nor `data-size`; the resolved recipe is the assertion.
   const screen = await render(<CopyButton value="hello" />);

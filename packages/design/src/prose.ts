@@ -39,8 +39,9 @@ export const prose = {
   /** The root's own ink and size — every rule below is relative to this. */
   root: "text-sm text-foreground",
 
-  // Headings. `scroll-m-20` keeps an anchored heading clear of a sticky header; the weight ladder
-  // caps at 500, which the `text-h*` roles already carry.
+  // Headings. `scroll-m-20` keeps an anchored heading clear of a sticky header; the weight is
+  // `font-semibold`, the ordinary Tailwind weight upstream uses — Batch 1 of the shadcn reset
+  // deleted both the 400/500 ladder and the `text-h*` roles this comment used to name.
   h1: "[&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:scroll-m-20 [&_h1]:text-3xl [&_h1]:font-semibold [&_h1]:text-foreground [&_h1]:first:mt-0",
   h2: "[&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:scroll-m-20 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:first:mt-0",
   h3: "[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:scroll-m-20 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:first:mt-0",
@@ -76,7 +77,7 @@ export const prose = {
   // radius and ground, and re-applying them here would draw a second panel inside the first.
   pre: "[&_pre:not([data-slot='code-block-pre'])]:my-3 [&_pre:not([data-slot='code-block-pre'])]:overflow-x-auto [&_pre:not([data-slot='code-block-pre'])]:rounded-lg [&_pre:not([data-slot='code-block-pre'])]:border [&_pre:not([data-slot='code-block-pre'])]:border-border [&_pre:not([data-slot='code-block-pre'])]:bg-muted [&_pre:not([data-slot='code-block-pre'])]:p-4 [&_pre:not([data-slot='code-block-pre'])]:text-foreground",
   preCode:
-    "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:font-mono [&_pre_code]:font-mono [&_pre_code]:text-sm [&_pre_code]:text-foreground",
+    "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:font-mono [&_pre_code]:text-sm [&_pre_code]:text-foreground",
 
   hr: "[&_hr]:my-6 [&_hr]:border-border",
 

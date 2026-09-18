@@ -63,8 +63,10 @@ number changes.
 
 `NotificationBell` extends [`Button`](/docs/components/button), so every Button prop — `size`
 (`icon-xs` / `icon-sm` / `icon` / `icon-lg`), `variant`, `disabled`, `loading`, `render`, `onClick` —
-forwards straight through to the underlying button. Only `children`, `aria-label`, and `label` are
-managed for you (the bell icon and the count-folded accessible name).
+forwards straight through to the underlying button. Two are managed for you: `children` (the bell
+icon) and `aria-label` (the count-folded accessible name). `className` is the one exception to
+"straight through" — it lands on the wrapper `<span>` that positions the badge, not on the button,
+so reach for it to place the bell and for `render` to restyle it.
 
 <ComponentPreview
   name="notificationBellPassthrough"
@@ -81,7 +83,7 @@ Try the count values — including the 99+ overflow — and the dot mode, then c
 
 `NotificationBell` adds the three props below and inherits the rest from
 [`Button`](/docs/components/button#api-reference) (e.g. `size`, `variant`, `disabled`, `loading`,
-`render`, `onClick`), minus `children` / `aria-label` / `label`, which it manages.
+`render`, `onClick`), minus `children` / `aria-label`, which it manages.
 
 <ApiTable
   path="../../packages/ui/registry/ui/notification-bell.tsx"

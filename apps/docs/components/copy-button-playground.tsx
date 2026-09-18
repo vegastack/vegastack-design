@@ -22,12 +22,17 @@ const VARIANT_OPTIONS = [
   { value: "link", label: "Link" },
 ] as const;
 
-/** The one size vocabulary — without a visible label the control takes an icon size. */
+/**
+ * The ICON tiers, because a CopyButton without a visible label is an icon-only control. Since
+ * Batch 2 of the shadcn reset put `button.tsx` back on upstream, `xs`/`sm`/`lg` are TEXT tiers
+ * (`h-6 px-2`, `h-7 px-2.5`, `h-9 px-2.5`) and the square ones are named `icon-*` — and `md` is
+ * not a size at all, so that cell rendered with no height and no padding.
+ */
 const SIZE_OPTIONS = [
-  { value: "xs", label: "Extra small" },
-  { value: "sm", label: "Small" },
-  { value: "md", label: "Medium" },
-  { value: "lg", label: "Large" },
+  { value: "icon-xs", label: "Extra small" },
+  { value: "icon-sm", label: "Small" },
+  { value: "icon", label: "Medium" },
+  { value: "icon-lg", label: "Large" },
 ] as const;
 
 const copyButtonPlaygroundConfig: PlaygroundConfig<CopyButtonPlaygroundKey> = {

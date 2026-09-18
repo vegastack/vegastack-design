@@ -94,7 +94,7 @@ function injectVideoControlStyleMirror(): () => void {
       padding: 4px;
       width: 32px;
     }
-    [data-slot="media-player-volume-surface"][data-variant="overlay"] [data-slot="slider-control"] {
+    [data-slot="media-player-volume-surface"][data-variant="overlay"] [data-slot="slider"] > * {
       box-sizing: border-box;
       height: 56px;
       width: 24px;
@@ -246,7 +246,8 @@ test("uses larger video actions and a sans time readout", async () => {
   await showVideoControls(screen.container);
 
   // Since Batch 2 of the shadcn reset `Button` is upstream's and mirrors no `data-size`; the
-  // square tier it resolves to IS the assertion, and `size-8` is what `md` maps onto.
+  // square tier it resolves to IS the assertion. `size-8` is upstream's `icon`, the default
+  // square tier — upstream has no `md`.
   for (const name of [
     "Play Demo video",
     "Mute Demo video",

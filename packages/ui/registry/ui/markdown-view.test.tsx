@@ -147,8 +147,19 @@ test("renders GFM tables, strikethrough, and task lists", async () => {
   const { container } = screen;
   expect(container.querySelector("table")).not.toBeNull();
   expect(container.querySelector("del")).not.toBeNull();
-  // remark-gfm task lists serialize disabled checkboxes
-  expect(container.querySelector('input[type="checkbox"]')).not.toBeNull();
+  // A GFM task list is rendered with the DESIGN-SYSTEM `Checkbox`, not react-markdown's native
+  // `<input type="checkbox">`. Asserting on that input was false coverage: Base UI's own
+  // `CheckboxRoot` renders a visually-hidden input of its own, so the old assertion passed on
+  // Base UI's element and would have passed identically if the swap had regressed. This is what
+  // let Batch 7c find a broken task list (the inert tick had taken its own line) with the suite
+  // green. Assert the slot and its state instead.
+  const tick = container.querySelector('[data-slot="checkbox"]');
+  expect(tick).not.toBeNull();
+  expect(tick).toHaveAttribute("data-checked");
+  // Inert but full-contrast: it is content, not a control the reader could have used.
+  expect(tick!.className).toContain("disabled:opacity-100");
+  // …and inline, so the label sits beside its tick rather than wrapping under it.
+  expect(tick!.className).toContain("inline-flex");
 });
 
 test("accepts markdown via the content prop", async () => {

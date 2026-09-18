@@ -118,7 +118,7 @@ function injectVolumeRailStyleMirror(): () => void {
       padding: 8px;
       width: 40px;
     }
-    [data-slot="media-player-volume-surface"] [data-slot="slider-control"] {
+    [data-slot="media-player-volume-surface"] [data-slot="slider"] > * {
       box-sizing: border-box;
       height: 80px;
       width: 24px;
@@ -583,4 +583,28 @@ test("control tooltips portal to <body> — the named fullscreen gap, pinned", a
   // It is under <body>, NOT inside the element a player would pass to requestFullscreen().
   expect(frame.contains(tip)).toBe(false);
   expect(document.body.contains(tip)).toBe(true);
+});
+
+test("the vertical volume rail releases upstream's 160px floor", async () => {
+  // Upstream's `Slider` floors its vertical Control at `min-h-40` (160px), which is 48px taller
+  // than this pill in the card variant and 80px taller in the overlay — and the pill does not
+  // clip, so before Batch 7c of the shadcn reset the rail hung out of the bottom of its own
+  // surface. Measured in the browser at the time: the control ran to 21338 inside a pill that
+  // ended at 21277.
+  //
+  // What is asserted HERE is the class contract, because this lane injects its own stylesheet
+  // (top of file) and would measure the mirror rather than the cascade. The PAINTED box is
+  // measured in `test/media-chrome.browser.test.tsx`, which compiles the real theme.
+  const screen = await render(<Host />);
+  const group = compactLayout(screen.container);
+  within(group, 'button[aria-label="Mute Demo media"]').focus();
+  const surface = await vi.waitFor(() =>
+    within(group, '[data-slot="media-player-volume-surface"]'),
+  );
+  const root = surface.querySelector('[data-slot="slider"]') as HTMLElement;
+  expect(root.className).toContain("*:min-h-0!");
+  // …and the two dead height classes that used to sit beside it are gone: upstream's root already
+  // carries `data-vertical:h-full` at a higher specificity, so the pill is what sizes the rail.
+  expect(root.className).not.toMatch(/(^|\s)h-20(\s|$)/);
+  expect(root.className).not.toContain("h-[calc(2.5rem");
 });

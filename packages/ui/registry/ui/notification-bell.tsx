@@ -1,4 +1,4 @@
-// @vegastack notification-bell@0.9.1 sha256-Y6zSS8NwTLzEjnQgZcQ/zSYwI/XLDVnEXJd6jOysYrk=
+// @vegastack notification-bell@0.9.1 sha256-9lctzLMx1SvCkKghen8upbBkxywg1HJabxWeEY34ssU=
 
 "use client";
 
@@ -141,7 +141,13 @@ export function NotificationBell({
       </Button>
       {hasUnread ? (
         dot ? (
-          // Dot mode stays a bare status dot — Badge has no 8px dot-only form.
+          // Dot mode stays a bare status dot — Badge has no 8px dot-only form — and it is
+          // SOLID `bg-destructive` while the count pill below is `Badge variant="destructive"`,
+          // a tint. The two look different on purpose, and the reason is the content, not an
+          // oversight: a pill carries a NUMBER, so A11Y-13 puts `text-destructive-text` on the
+          // family's own `/10` tint (the solid fill measures under the AA floor as text), while a
+          // dot carries no text at all, so the 3:1 non-text floor applies and the saturated fill
+          // is both legal and the only thing legible at 8px. A tinted 8px dot is invisible.
           <span
             data-slot="notification-bell-badge"
             aria-hidden
@@ -152,7 +158,8 @@ export function NotificationBell({
             onAnimationEnd={badgePop.onAnimationEnd}
           />
         ) : (
-          // Count mode COMPOSES <Badge> (register P2-06) — same tokens, one badge implementation.
+          // Count mode COMPOSES <Badge> (register P2-06) — one badge implementation. It reads as
+          // the family's tint rather than the dot's solid fill; see the note on the dot above.
           // No `key` here: replaying by REMOUNT was the other half of B7-03, and a remount is
           // exactly what a class toggle must not depend on.
           // Anchored by its INLINE-START edge, so single digits stay aligned while wider counts
@@ -164,7 +171,7 @@ export function NotificationBell({
             aria-hidden
             variant="destructive"
             className={cn(
-              "pointer-events-none absolute -top-1 start-full h-4 min-w-4 -translate-x-3 px-1 tabular-nums rtl:translate-x-3",
+              "pointer-events-none absolute -top-1 start-full h-4 min-w-4 -translate-x-3 px-1 py-0 tabular-nums rtl:translate-x-3",
               badgePop.className,
             )}
             onAnimationEnd={badgePop.onAnimationEnd}
