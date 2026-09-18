@@ -109,7 +109,9 @@ export function findProblems(markdown) {
     if (TABLE_HEADER.test(line)) {
       const separator = lines[index + 1] ?? "";
       const firstRow = lines[index + 2] ?? "";
-      if (!/^\|\s*-/.test(separator) || !firstRow.startsWith("|")) {
+      // `| :---` as well as `| ---`: a hand-written table declares its column alignment, and
+      // Prettier keeps the colon. Same table, same rule.
+      if (!/^\|\s*:?-/.test(separator) || !firstRow.startsWith("|")) {
         problems.push(`line ${index + 1}: empty API table`);
       }
     }
