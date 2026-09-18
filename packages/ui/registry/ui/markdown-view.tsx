@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.9.1 sha256-Hdnp5b55l0fznrQV8rnm/xPWfRwF+WolZCzTLYWHwR8=
+// @vegastack markdown-view@0.9.1 sha256-HWp+8yqdKHcGTTGnCsZjXHqa1bCDYAoksIqBCwnVuao=
 
 import * as React from "react";
 import Markdown, { type Components } from "react-markdown";
@@ -65,7 +65,6 @@ const markdownComponents: Components = {
   input: ({ type, checked, className, ...props }) =>
     type === "checkbox" ? (
       <Checkbox
-        size="sm"
         checked={Boolean(checked)}
         disabled
         className={cn(

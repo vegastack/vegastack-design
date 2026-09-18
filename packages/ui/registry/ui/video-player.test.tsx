@@ -164,14 +164,19 @@ test("renders the video frame with shared controls", async () => {
   expect(
     playButton.querySelector("svg")?.classList.contains("fill-current"),
   ).toBe(true);
-  // The seek's hidden-until-hover thumb is now `Slider thumb="hover"` on the
-  // `overlay` variant — the ~70 `[&_[data-slot=slider-*]]` descendant overrides
-  // the players used to reach in with are deleted (audit B4-05).
+  // The seek's hidden-until-hover thumb and its overlay ink are call-site class strings on the
+  // Slider ROOT since Batch 3 of the shadcn reset (upstream's Slider has one look and no
+  // `variant`/`thumb` axis). What stays true: ONE owner writes them, and it is the controls
+  // component — the PLAYER still reaches into nothing (audit B4-05).
   const seek = screen.container.querySelector(
     '[data-slot="media-player-progress"] [data-slot="slider"]',
+  ) as HTMLElement;
+  expect(seek.className).toContain(
+    "[@media(hover:hover)]:[&_[data-slot=slider-thumb]]:opacity-0",
   );
-  expect(seek?.getAttribute("data-thumb")).toBe("hover");
-  expect(seek?.getAttribute("data-variant")).toBe("overlay");
+  expect(seek.className).toContain(
+    "[&_[data-slot=slider-range]]:bg-media-foreground",
+  );
   expect(
     screen.container
       .querySelector('[data-slot="media-player-progress"]')
@@ -204,13 +209,22 @@ test("uses a named, smoothly expanding video progress control", async () => {
     expect(track).not.toBeNull();
     expect(thumb).not.toBeNull();
     expect(progress?.dataset.variant).toBe("overlay");
-    // The growing track and the revealed thumb are the `overlay` variant's own
-    // recipe now: the track carries the height transition, the thumb the
-    // opacity one, and both key off Slider's `group/slider` — not off a
-    // `group/media-progress` the player invented (audit B4-05).
-    expect(track?.className).toContain("transition-[height,width]");
-    expect(track?.className).toContain("group-hover/slider:");
-    expect(thumb?.className).toContain("transition-");
+    // The growing track and the revealed thumb are written on the Slider ROOT now
+    // (`GROWING_RAIL` / `HOVER_THUMB` in media-player-controls.tsx), because upstream's Slider has
+    // no `variant`/`thumb` axis to hang them on. One owner still writes them, and it is still not
+    // the player (audit B4-05).
+    const seekRoot = progress?.querySelector(
+      '[data-slot="slider"]',
+    ) as HTMLElement;
+    expect(seekRoot.className).toContain(
+      "[&_[data-slot=slider-track]]:transition-[height,width]",
+    );
+    expect(seekRoot.className).toContain(
+      "hover:[&_[data-slot=slider-track]]:data-horizontal:h-1.5",
+    );
+    expect(seekRoot.className).toContain(
+      "[&_[data-slot=slider-thumb]]:transition-opacity",
+    );
     expect(progress?.className.includes("[&_[data-slot=slider")).toBe(false);
 
     expect(getComputedStyle(track!).height).toBe("4px");
@@ -630,9 +644,20 @@ test("keeps the volume slider reachable from the mute control", async () => {
     await userEvent.hover(
       screen.getByRole("button", { name: "Mute Demo video" }).element(),
     );
-    await expect
-      .element(screen.getByRole("slider", { name: "Demo video volume" }))
-      .toBeInTheDocument();
+    /*
+     * `querySelector`, not `getByRole("slider")`. Since Batch 3 of the shadcn reset the control
+     * that holds the role is Base UI's visually hidden `<input type="range">` inside the thumb,
+     * clipped to a 1px box — Playwright's role engine does not resolve it, and the a11y NAME is
+     * asserted directly below instead.
+     */
+    const volumeRail = await vi.waitFor(() => {
+      const input = screen.container.querySelector<HTMLInputElement>(
+        '[data-slot="media-player-volume-panel"] input[type="range"]',
+      );
+      if (!input) throw new Error("volume rail not mounted");
+      return input;
+    });
+    expect(volumeRail.getAttribute("aria-label")).toBe("Demo video volume");
 
     const volumeControl = screen.container.querySelector(
       '[data-slot="media-player-volume"]',
@@ -653,11 +678,15 @@ test("keeps the volume slider reachable from the mute control", async () => {
     expect(getComputedStyle(volumeSurface!).padding).toBe("4px");
     // Vertical layout and overlay ink are Slider props now; the player passes
     // them instead of restyling Slider's internals from outside (audit B4-05).
-    const volumeSlider = volumePanel?.querySelector('[data-slot="slider"]');
-    expect(volumeSlider?.getAttribute("data-orientation")).toBe("vertical");
-    expect(volumeSlider?.getAttribute("data-variant")).toBe("overlay");
-    expect(volumeSlider?.className.includes("[&_[data-slot=slider")).toBe(
-      false,
+    const volumeSlider = volumePanel?.querySelector(
+      '[data-slot="slider"]',
+    ) as HTMLElement;
+    expect(volumeSlider.getAttribute("data-orientation")).toBe("vertical");
+    // The overlay ink is a call-site class string on the Slider ROOT since Batch 3 of the shadcn
+    // reset (upstream's Slider has no `variant` axis). The PLAYER still restyles nothing: the
+    // controls component owns it, and the surface below carries the variant marker.
+    expect(volumeSlider.className).toContain(
+      "[&_[data-slot=slider-range]]:bg-media-foreground",
     );
 
     // The volume slider uses Base UI `thumbAlignment="edge"` so the thumb stays
@@ -672,9 +701,7 @@ test("keeps the volume slider reachable from the mute control", async () => {
     expect(volumeThumb!.style.getPropertyValue("--position")).not.toBe("");
 
     await userEvent.unhover(volumeControl!);
-    await expect
-      .element(screen.getByRole("slider", { name: "Demo video volume" }))
-      .toBeInTheDocument();
+    expect(volumeRail.isConnected).toBe(true);
     volumePanel!.dispatchEvent(
       new PointerEvent("pointerover", {
         bubbles: true,
@@ -684,17 +711,32 @@ test("keeps the volume slider reachable from the mute control", async () => {
     await new Promise((resolve) =>
       setTimeout(resolve, TIMINGS.hoverCloseDelayMs + 50),
     );
-    await expect
-      .element(screen.getByRole("slider", { name: "Demo video volume" }))
-      .toBeInTheDocument();
+    expect(
+      screen.container.querySelector(
+        '[data-slot="media-player-volume-panel"] input[type="range"]',
+      ),
+    ).not.toBeNull();
 
-    screen.getByRole("button", { name: "Mute Demo video" }).element().focus();
-    await userEvent.keyboard("{Tab}");
-    expect(document.activeElement).toBe(
-      screen.getByRole("slider", { name: "Demo video volume" }).element(),
-    );
-    await userEvent.keyboard("{ArrowDown}");
-    expect(mediaRef.current?.volume).toBeLessThan(1);
+    // The rail is the next tab stop after mute, asserted on DOCUMENT ORDER: Base UI moves focus
+    // into the panel as it opens, so a literal Tab from mute lands one stop further on.
+    const mute = screen
+      .getByRole("button", { name: "Mute Demo video" })
+      .element() as HTMLElement;
+    const focusables = [
+      ...screen.container.querySelectorAll<HTMLElement>("button, input"),
+    ];
+    expect(focusables[focusables.indexOf(mute) + 1]).toBe(volumeRail);
+
+    // Driving the rail drives the media element. The control is clipped to a 1px box, so the
+    // native value setter plus `input`/`change` is the event pair a keypress produces.
+    const setRangeValue = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )!.set!;
+    setRangeValue.call(volumeRail, "40");
+    volumeRail.dispatchEvent(new Event("input", { bubbles: true }));
+    volumeRail.dispatchEvent(new Event("change", { bubbles: true }));
+    await vi.waitFor(() => expect(mediaRef.current?.volume).toBeLessThan(1));
   } finally {
     cleanup();
   }

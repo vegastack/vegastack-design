@@ -695,13 +695,20 @@ test("no a11y violations — loading", async () => {
  * data-list.tsx was needed.
  * ------------------------------------------------------------------------------------------- */
 
+/*
+ * A CSS MIRROR of the shipped Checkbox's own geometry, because this lane compiles no Tailwind.
+ *
+ * Batch 3 of the shadcn reset put Checkbox back on upstream's file: one size (16px, no `data-size`)
+ * and an `::after` hit area at `-inset-x-3 -inset-y-2` (40x32) rather than the fork's 14px `sm`
+ * tier with a `::before` at `-inset-1.5`. The mirror below tracks that; if the two ever disagree,
+ * `test/geometry.browser.test.tsx` measures the REAL compiled control and fails there.
+ */
 function injectDataListCheckboxHitAreaMirror(): () => void {
   const style = document.createElement("style");
   style.textContent = `
     body { margin: 24px; }
-    [data-slot="checkbox"] { position: relative; display: inline-flex; box-sizing: border-box; }
-    [data-slot="checkbox"][data-size="sm"] { width: 14px; height: 14px; }
-    [data-slot="checkbox"][data-size="sm"]::before { content: ""; position: absolute; inset: -6px; }
+    [data-slot="checkbox"] { position: relative; display: inline-flex; box-sizing: border-box; width: 16px; height: 16px; }
+    [data-slot="checkbox"]::after { content: ""; position: absolute; inset: -8px -12px; }
     [data-slot="table-head"] { box-sizing: border-box; height: 32px; padding: 0 0 0 12px; }
     [data-slot="table-cell"] { box-sizing: border-box; padding: 8px 0 8px 12px; }
   `;
@@ -724,9 +731,9 @@ test("the header select-all checkbox (sm, 14px) resolves an effective hit area >
       .getByRole("checkbox", { name: "Select all rows" })
       .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
+    const hitArea = getComputedStyle(el, "::after");
+    expect(parseFloat(hitArea.width)).toBeGreaterThanOrEqual(24);
+    expect(parseFloat(hitArea.height)).toBeGreaterThanOrEqual(24);
   } finally {
     cleanup();
   }
@@ -747,9 +754,9 @@ test("a row select checkbox (sm, 14px) resolves an effective hit area >= 24x24 i
       .getByRole("checkbox", { name: "Select row 1" })
       .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
+    const hitArea = getComputedStyle(el, "::after");
+    expect(parseFloat(hitArea.width)).toBeGreaterThanOrEqual(24);
+    expect(parseFloat(hitArea.height)).toBeGreaterThanOrEqual(24);
   } finally {
     cleanup();
   }
@@ -772,7 +779,8 @@ test("a point just outside the row checkbox's visual box, inside the expanded hi
       .getByRole("checkbox", { name: "Select row 1" })
       .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
-    // 4px above the visual top edge — inside the 6px `before:-inset-1.5` expansion, outside the 14px box.
+    // 4px above the visual top edge — inside the 8px `after:-inset-y-2` expansion, outside the
+    // 16px box.
     const x = rect.left + rect.width / 2;
     const y = rect.top - 4;
     const hit = document.elementFromPoint(x, y);

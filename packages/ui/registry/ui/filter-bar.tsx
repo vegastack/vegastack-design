@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.9.1 sha256-DfVDbxFtyIg5vTRBVBOxWahJhIrA5NPGfTAuiaPYfw0=
+// @vegastack filter-bar@0.9.1 sha256-tAOYVQWNNRNk4mm41afmm1OR4ng8H5n+RzIa/VyfcCM=
 
 "use client";
 
@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   type DropdownMenuContentProps,
 } from "@/components/ui/dropdown-menu";
-import { Input, type InputProps } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 
 /* ------------------------------------------------------------------------------------------------
  * Types
@@ -136,7 +136,10 @@ export interface FilterBarProps extends Omit<
   /** Props forwarded to the underlying search {@link Input}.
    * @default undefined
    */
-  searchInputProps?: Omit<InputProps, "value" | "onChange" | "placeholder">;
+  searchInputProps?: Omit<
+    React.ComponentProps<typeof Input>,
+    "value" | "onChange" | "placeholder"
+  >;
   /**
    * Content rendered at the trailing (right) end of the bar — e.g. a
    * "Save view" or "Clear all" {@link Button}.

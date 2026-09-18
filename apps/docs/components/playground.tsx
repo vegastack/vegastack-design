@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Field } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
@@ -126,8 +126,13 @@ function PlaygroundControlField<Keys extends string>({
 }) {
   if (control.type === "switch") {
     return (
-      <Field label={control.label} orientation="horizontal">
-        <Switch checked={Boolean(value)} onCheckedChange={onChange} />
+      <Field orientation="horizontal">
+        <Switch
+          id={control.key}
+          checked={Boolean(value)}
+          onCheckedChange={onChange}
+        />
+        <FieldLabel htmlFor={control.key}>{control.label}</FieldLabel>
       </Field>
     );
   }
@@ -138,12 +143,13 @@ function PlaygroundControlField<Keys extends string>({
   );
 
   return (
-    <Field label={control.label} className={cn("w-40")}>
+    <Field className={cn("w-40")}>
+      <FieldLabel htmlFor={control.key}>{control.label}</FieldLabel>
       <Select
         value={selected}
         onValueChange={(next) => onChange(next as string)}
       >
-        <SelectTrigger size="sm" aria-label={control.label}>
+        <SelectTrigger id={control.key} size="sm" aria-label={control.label}>
           <SelectValue>{selectedOption?.label ?? selected}</SelectValue>
         </SelectTrigger>
         <SelectContent>

@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.9.1 sha256-EFsTMGS3tDYrSN3WQ2o7R/vM0BcR8Fo/GF/gQOGqKMc=
+// @vegastack searchable-select@0.9.1 sha256-ayRHzQIwXIAMba79LR5X3dQgZ+2pwFs82SWOZ5Um6Ik=
 
 "use client";
 
@@ -9,7 +9,7 @@ import { cn } from "@vegastack/design";
 import {
   Combobox,
   ComboboxValue,
-  ComboboxPopupInput,
+  ComboboxInput,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxList,
@@ -231,7 +231,7 @@ export function SearchableSelect<Item>({
             />
           }
         >
-          <ComboboxValue className="flex-1">
+          <ComboboxValue>
             {(selected: Item | null) =>
               selected ? (
                 face(selected)
@@ -244,7 +244,8 @@ export function SearchableSelect<Item>({
           </ComboboxValue>
         </BaseCombobox.Trigger>
         <ComboboxContent align="start" className="w-(--anchor-width) p-0">
-          <ComboboxPopupInput
+          <ComboboxInput
+            showTrigger={false}
             aria-label={searchLabel}
             placeholder={searchPlaceholder}
           />

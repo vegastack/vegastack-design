@@ -1,4 +1,4 @@
-// @vegastack field-inline@0.9.1 sha256-Ob9RGgX6LMpXL9Ez1Y7g4CJyRe5eyva0i8OkDUsYzoM=
+// @vegastack field-inline@0.9.1 sha256-YcCLfaEsMDPXD/Hpy8qQXH73JY2+8kWqZtrxUp1IIus=
 
 "use client";
 
@@ -279,7 +279,7 @@ export function FieldInline({
         className={cn(
           // Mirror Input's default 32px box, 1px border reservation, and horizontal padding so
           // swapping display text for the focused editor never moves adjacent layout or text.
-          "inline-flex h-8 max-w-full min-w-0 items-center rounded-md border border-transparent px-3 py-1 text-sm",
+          "inline-flex h-8 max-w-full min-w-0 items-center rounded-lg border border-transparent px-2.5 py-1 text-sm",
           borderless && "h-auto rounded-none px-0 py-0",
           !disabled && !readOnly && cn("cursor-text", "hover:bg-accent"),
           // D7: no `pointer-events-none`. A disabled inline field stays hoverable so a Tooltip

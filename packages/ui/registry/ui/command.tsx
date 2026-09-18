@@ -1,4 +1,4 @@
-// @vegastack command@0.9.1 sha256-R4h1WSHQPsnw5JX/cBE26Ve9ZEVtW90u1k3yqjCMlnk=
+// @vegastack command@0.9.1 sha256-ya5x4YI/iF5rSe7QUuDSohh46Gw2H0SyT4+VrsSmt1s=
 
 "use client";
 
@@ -33,8 +33,8 @@ import {
  * combobox.tsx's own finding #5). Pass `items` to `Command` (flat, or an array of
  * `{ heading, items }` groups) and render with a function child: `{(item) => <CommandItem .../>}`
  * on `CommandList` for a flat list, or call {@link useCommandFilteredItems} + map to
- * `CommandGroup`s for a grouped one (mirrors combobox.tsx's `useComboboxFilteredItems` — its own
- * `ComboboxGroup.items` is read verbatim, NOT re-filtered, so always feed it the filtered result).
+ * `CommandGroup`s for a grouped one. Base UI reads `ComboboxGroup.items` VERBATIM and does not
+ * re-filter it, so always feed it the filtered result.
  *
  * ANATOMY CHANGE: `CommandEmpty`/`CommandLoading` render `role="status"`, which is not a valid
  * child of `CommandList`'s `role="listbox"` (ARIA only permits `option`/`group`). The old

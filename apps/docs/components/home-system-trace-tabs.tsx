@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Field } from "@/components/ui/field";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { StatusIcon } from "@/components/ui/status-icon";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -74,17 +74,19 @@ export function TraceInputLayers({
       <div className="flex h-full min-w-0 flex-col gap-5 p-5">
         {componentHeader}
         <div className="flex min-h-44 flex-1 items-center justify-center rounded-lg border border-border bg-background p-5">
-          <Field
-            label="Project name"
-            description="The composed pattern updates while you type."
-          >
+          <Field>
+            <FieldLabel htmlFor="trace-project-name">Project name</FieldLabel>
             <Input
+              id="trace-project-name"
               name="trace-project-name"
               autoComplete="off"
               value={projectName}
-              onValueChange={setProjectName}
+              onChange={(event) => setProjectName(event.currentTarget.value)}
               placeholder="VegaStack Design…"
             />
+            <FieldDescription>
+              The composed pattern updates while you type.
+            </FieldDescription>
           </Field>
         </div>
         {componentCaption}

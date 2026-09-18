@@ -1,4 +1,4 @@
-// @vegastack password-input@0.9.1 sha256-4SlnGLjFQICwYQHC4fbK3pIBZw4F46XbNVlKZymhffQ=
+// @vegastack password-input@0.9.1 sha256-q3jZgE0zHRpeGjimzt2CiPbg1X1JcO+IHwQ6jFjFrlU=
 
 "use client";
 
@@ -6,7 +6,11 @@ import * as React from "react";
 import { Eye, EyeOff, Check, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { IconButton } from "@/components/ui/icon-button";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 /** A single password rule shown in the optional requirements checklist. */
 export interface PasswordRequirement {
@@ -18,8 +22,8 @@ export interface PasswordRequirement {
 
 /** Props accepted by `PasswordInput`. */
 export interface PasswordInputProps extends Omit<
-  React.ComponentProps<typeof Input>,
-  "type" | "prefix" | "suffix"
+  React.ComponentProps<typeof InputGroupInput>,
+  "type"
 > {
   /**
    * Optional checklist of rules rendered below the field. Each entry shows a
@@ -86,20 +90,24 @@ export function PasswordInput({
 
   return (
     <div data-slot="password-input" className={cn("w-full", className)}>
-      <Input
-        ref={ref}
-        type={visible ? "text" : "password"}
-        disabled={disabled}
-        aria-describedby={describedBy}
-        suffix={
-          // `IconButton` rather than a hand-rolled `<button>` (audit B8-08): it already owns
-          // the 24px pointer target, the focus grammar and the ghost hover/pressed pair, and
-          // it makes the accessible name a compile-time requirement. `xs` is 24px, which
-          // leaves the wash inset 4px inside a 32px field — clear of the hairline, so the
-          // ghost fill satisfies the hover-geometry rule that forced the old ink-only hover.
-          // No `data-slot` of our own: `IconButton` writes `data-slot="icon-button"` AFTER its
-          // prop spread, so a caller's value never reaches the DOM. The toggle is addressed by
-          // role + accessible name, which is what assistive tech and tests both use anyway.
+      <InputGroup>
+        <InputGroupInput
+          ref={ref}
+          type={visible ? "text" : "password"}
+          disabled={disabled}
+          aria-describedby={describedBy}
+          {...props}
+        />
+        <InputGroupAddon align="inline-end">
+          {/*
+           * `IconButton` rather than a hand-rolled `<button>` (audit B8-08): it already owns the
+           * 24px pointer target, the focus grammar and the ghost hover/pressed pair, and it makes
+           * the accessible name a compile-time requirement. `xs` is 24px, which leaves the wash
+           * inset inside the 32px field. No `data-slot` of our own: `IconButton` writes
+           * `data-slot="icon-button"` AFTER its prop spread, so a caller's value never reaches the
+           * DOM. The toggle is addressed by role + accessible name, which is what assistive tech
+           * and tests both use anyway.
+           */}
           <IconButton
             variant="ghost"
             size="xs"
@@ -110,9 +118,8 @@ export function PasswordInput({
           >
             {visible ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
           </IconButton>
-        }
-        {...props}
-      />
+        </InputGroupAddon>
+      </InputGroup>
       {hasRequirements ? (
         <>
           <p

@@ -131,7 +131,10 @@ test("forwards ref to the underlying input element", async () => {
   const ref = React.createRef<HTMLInputElement>();
   await render(<PasswordInput ref={ref} aria-label="Password" />);
   expect(ref.current).toBeInstanceOf(HTMLInputElement);
-  expect(ref.current?.dataset.slot).toBe("input");
+  // Batch 3 of the shadcn reset moved the reveal toggle from Input's retired `suffix` prop onto an
+  // `InputGroup`, so the control is now `InputGroupInput` — an `Input` wearing the group's control
+  // slot. Batch 7 rebuilds this component; the ref still lands on the real `<input>`.
+  expect(ref.current?.dataset.slot).toBe("input-group-control");
 });
 
 test("no a11y violations", async () => {

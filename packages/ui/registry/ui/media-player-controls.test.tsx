@@ -231,7 +231,8 @@ test("reveals the volume rail on focus and sets media volume", async () => {
       volume.querySelector('[data-slot="media-player-volume-panel"]'),
     ).toBeNull();
 
-    within(volume, "button").focus();
+    const mute = within(volume, "button");
+    mute.focus();
     const rail = await vi.waitFor(() =>
       within(
         volume,
@@ -243,11 +244,35 @@ test("reveals the volume rail on focus and sets media volume", async () => {
     expect(rail.getAttribute("aria-orientation")).toBe("vertical");
     expect(rail.getAttribute("aria-label")).toBe("Demo media volume");
 
-    // The rail is the next tab stop after mute, and driving it drives the media
-    // element's volume — the whole point of B4-04 for audio.
-    await userEvent.keyboard("{Tab}");
-    expect(document.activeElement).toBe(rail);
-    await userEvent.keyboard("{ArrowDown}");
+    // The rail is the next tab stop after mute, and driving it drives the media element's volume —
+    // the whole point of B4-04 for audio. Asserted on DOCUMENT ORDER rather than by pressing Tab:
+    // since Batch 3 of the shadcn reset the real control is Base UI's hidden `<input type="range">`
+    // inside the thumb, and it takes focus as the panel opens, so a literal Tab from mute now lands
+    // one stop FURTHER on. Document order is the fact the claim was always about.
+    const focusables = [
+      ...compact.querySelectorAll<HTMLElement>("button, input"),
+    ];
+    expect(focusables[focusables.indexOf(mute) + 1]).toBe(rail);
+
+    rail.focus();
+    // `Home`, not an arrow: a vertical slider's real control is a native range input in
+    // `writing-mode: vertical-lr`, where the platform decides which arrow walks which way — and the
+    // rail starts at max, so half the mappings are a no-op. `Home` is min in every mapping, which
+    // is what makes this assert the WIRING rather than a key map.
+    // Drive the rail the way its own control is driven. Since Batch 3 of the shadcn reset the
+    // control is Base UI's visually hidden `<input type="range">`: it is clipped to a 1px box, so
+    // neither a hit test nor `userEvent.keyboard` reaches it in this CSS-free lane, and the
+    // vertical rail additionally runs in `writing-mode: vertical-lr`, where the platform decides
+    // which arrow walks which way. Setting the value through the native setter and dispatching
+    // `input`/`change` is exactly the event pair a keypress produces, so the WIRING is what is
+    // asserted rather than a key map.
+    const setRangeValue = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )!.set!;
+    setRangeValue.call(rail, "40");
+    rail.dispatchEvent(new Event("input", { bubbles: true }));
+    rail.dispatchEvent(new Event("change", { bubbles: true }));
     await vi.waitFor(() => {
       expect(mediaRef.current!.volume).toBeLessThan(1);
     });
@@ -372,10 +397,22 @@ test("the seek slider asks for a touch-visible thumb (B4-04)", async () => {
     screen.container,
     '[data-slot="media-player-progress"] [data-slot="slider"]',
   );
-  // `thumb="hover"` is the Slider API; the component — not the player — owns
-  // the "visible at rest under (hover: none)" rule.
-  expect(seek.getAttribute("data-thumb")).toBe("hover");
-  expect(seek.getAttribute("data-variant")).toBe("media");
+  // Batch 3 of the shadcn reset put Slider back on upstream's file, which has ONE look and no
+  // `variant`/`thumb` axis, so the three media looks are call-site class strings on the Slider
+  // root (`MEDIA_SLIDER` / `OVERLAY_SLIDER` / `HOVER_THUMB` in media-player-controls.tsx). The
+  // rule this test exists for is unchanged and still asserted: the thumb is hidden at rest ONLY
+  // where a pointer can hover, so a touch device keeps its scrub handle.
+  const classes = seek.className;
+  expect(classes).toContain(
+    "[@media(hover:hover)]:[&_[data-slot=slider-thumb]]:opacity-0",
+  );
+  expect(classes).toContain("hover:[&_[data-slot=slider-thumb]]:opacity-100");
+  expect(classes).toContain(
+    "focus-within:[&_[data-slot=slider-thumb]]:opacity-100",
+  );
+  // The in-page player wears the muted media ink, not the overlay's.
+  expect(classes).toContain("[&_[data-slot=slider-range]]:bg-muted-foreground");
+  expect(classes).not.toContain("bg-media-foreground");
 });
 
 test("has no accessibility violations", async () => {

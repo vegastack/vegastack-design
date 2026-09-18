@@ -1,28 +1,18 @@
 "use client";
 
 import type { ReactNode } from "react";
-import {
-  RadioGroup,
-  RadioGroupItem,
-  type RadioGroupProps,
-  type RadioGroupItemProps,
-} from "@/components/ui/radio-group";
-import { Field } from "@/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type RadioGroupPlaygroundKey = "orientation" | "size" | "disabled";
+type RadioGroupPlaygroundKey = "orientation" | "disabled" | "invalid";
 
 const ORIENTATION_OPTIONS = [
   { value: "vertical", label: "Vertical" },
   { value: "horizontal", label: "Horizontal" },
-] as const;
-
-const SIZE_OPTIONS = [
-  { value: "md", label: "Medium" },
-  { value: "sm", label: "Small" },
 ] as const;
 
 const DENSITY_OPTIONS = [
@@ -36,46 +26,57 @@ const radioGroupPlaygroundConfig: PlaygroundConfig<RadioGroupPlaygroundKey> = {
     {
       type: "select",
       key: "orientation",
-      label: "Orientation",
+      label: "Layout",
       options: ORIENTATION_OPTIONS,
       defaultValue: "vertical",
     },
-    {
-      type: "select",
-      key: "size",
-      label: "Item size",
-      options: SIZE_OPTIONS,
-      defaultValue: "md",
-    },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
+    { type: "switch", key: "invalid", label: "Invalid", defaultValue: false },
   ],
   render: (state): ReactNode => (
     <RadioGroup
       defaultValue="comfortable"
-      orientation={state.orientation as RadioGroupProps["orientation"]}
       disabled={Boolean(state.disabled)}
       aria-label="Density"
+      className={state.orientation === "horizontal" ? "grid-flow-col" : ""}
     >
       {DENSITY_OPTIONS.map((option) => (
-        <Field key={option.value} label={option.label} orientation="horizontal">
+        <Field
+          key={option.value}
+          orientation="horizontal"
+          data-disabled={state.disabled ? true : undefined}
+          data-invalid={state.invalid ? true : undefined}
+        >
           <RadioGroupItem
             value={option.value}
-            size={state.size as RadioGroupItemProps["size"]}
+            id={`density-${option.value}`}
+            aria-invalid={state.invalid ? true : undefined}
           />
+          <FieldLabel htmlFor={`density-${option.value}`}>
+            {option.label}
+          </FieldLabel>
         </Field>
       ))}
     </RadioGroup>
   ),
   toCode: (state) => {
     const groupProps: string[] = ['defaultValue="comfortable"'];
-    if (state.orientation !== "vertical")
-      groupProps.push(`orientation="${state.orientation}"`);
+    if (state.orientation === "horizontal")
+      groupProps.push('className="grid-flow-col"');
     if (state.disabled) groupProps.push("disabled");
-    const itemProps = state.size !== "md" ? ` size="${state.size}"` : "";
+    const itemProps = state.invalid ? " aria-invalid" : "";
+    const fieldProps = [
+      'orientation="horizontal"',
+      state.disabled ? "data-disabled" : "",
+      state.invalid ? "data-invalid" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     const items = DENSITY_OPTIONS.map((option) =>
       [
-        `  <Field label="${option.label}" orientation="horizontal">`,
-        `    <RadioGroupItem value="${option.value}"${itemProps} />`,
+        `  <Field ${fieldProps}>`,
+        `    <RadioGroupItem value="${option.value}" id="${option.value}"${itemProps} />`,
+        `    <FieldLabel htmlFor="${option.value}">${option.label}</FieldLabel>`,
         "  </Field>",
       ].join("\n"),
     );
@@ -88,10 +89,11 @@ const radioGroupPlaygroundConfig: PlaygroundConfig<RadioGroupPlaygroundKey> = {
 };
 
 /**
- * `RadioGroupPlayground` — interactive props playground for `RadioGroup` (orientation / item
- * size / disabled), with three options each labeled via a horizontal `Field`. Backed by the
- * generic {@link PropsPlayground}. Registered in `mdx.tsx`, adopted in
- * `content/docs/components/radio-group.mdx`.
+ * `RadioGroupPlayground` — interactive props playground for `RadioGroup` (layout / disabled /
+ * invalid), with three options each bound to a `FieldLabel`. Upstream's RadioGroup is a grid with
+ * one item size and no `orientation` prop, so the layout control is a `grid-flow-col` className
+ * rather than a prop. Backed by the generic {@link PropsPlayground}. Registered in `mdx.tsx`,
+ * adopted in `content/docs/components/radio-group.mdx`.
  */
 export function RadioGroupPlayground() {
   return <PropsPlayground {...radioGroupPlaygroundConfig} />;

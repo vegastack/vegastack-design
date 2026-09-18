@@ -74,7 +74,11 @@ test("display and edit modes reserve the same control geometry", async () => {
   expect(displayElement.classList.contains("h-8")).toBe(true);
   expect(displayElement.classList.contains("border")).toBe(true);
   expect(displayElement.classList.contains("border-transparent")).toBe(true);
-  expect(displayElement.classList.contains("px-3")).toBe(true);
+  // Batch 3 of the shadcn reset put Input back on upstream's file, whose padding is `px-2.5` and
+  // whose radius is `rounded-lg`. The display face follows the control it stands in for; Batch 7
+  // rebuilds this component, and this test is what keeps the two in step until then.
+  expect(displayElement.classList.contains("px-2.5")).toBe(true);
+  expect(displayElement.classList.contains("rounded-lg")).toBe(true);
 
   await display.click();
   const textbox = screen.getByRole("textbox");
@@ -82,7 +86,8 @@ test("display and edit modes reserve the same control geometry", async () => {
   const input = textbox.element();
   expect(input.classList.contains("h-8")).toBe(true);
   expect(input.classList.contains("border")).toBe(true);
-  expect(input.classList.contains("px-3")).toBe(true);
+  expect(input.classList.contains("px-2.5")).toBe(true);
+  expect(input.classList.contains("rounded-lg")).toBe(true);
 });
 
 test("borderless display and edit modes both remove control height and padding", async () => {

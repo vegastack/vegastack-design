@@ -1,19 +1,19 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Switch, type SwitchProps } from "@/components/ui/switch";
-import { Field } from "@/components/ui/field";
+import { Switch } from "@/components/ui/switch";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type SwitchPlaygroundKey = "size" | "disabled";
+type SwitchPlaygroundKey = "size" | "disabled" | "invalid";
 
+/** Upstream's two size tiers. */
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "md", label: "Medium" },
-  { value: "lg", label: "Large" },
+  { value: "default", label: "Default" },
 ] as const;
 
 const switchPlaygroundConfig: PlaygroundConfig<SwitchPlaygroundKey> = {
@@ -23,34 +23,50 @@ const switchPlaygroundConfig: PlaygroundConfig<SwitchPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "md",
+      defaultValue: "default",
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
+    { type: "switch", key: "invalid", label: "Invalid", defaultValue: false },
   ],
   render: (state): ReactNode => (
-    <Field label="Email notifications" orientation="horizontal">
+    <Field
+      orientation="horizontal"
+      data-disabled={state.disabled ? true : undefined}
+      data-invalid={state.invalid ? true : undefined}
+    >
       <Switch
-        size={state.size as SwitchProps["size"]}
+        id="switch-playground"
+        size={state.size === "sm" ? "sm" : "default"}
         disabled={Boolean(state.disabled)}
+        aria-invalid={state.invalid ? true : undefined}
       />
+      <FieldLabel htmlFor="switch-playground">Email notifications</FieldLabel>
     </Field>
   ),
   toCode: (state) => {
-    const props: string[] = [];
-    if (state.size !== "md") props.push(`size="${state.size}"`);
+    const props: string[] = ['id="notifications"'];
+    if (state.size !== "default") props.push(`size="${state.size}"`);
     if (state.disabled) props.push("disabled");
-    const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
+    if (state.invalid) props.push("aria-invalid");
+    const fieldProps = [
+      'orientation="horizontal"',
+      state.disabled ? "data-disabled" : "",
+      state.invalid ? "data-invalid" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     return [
-      '<Field label="Email notifications" orientation="horizontal">',
-      `  <Switch${propsString} />`,
+      `<Field ${fieldProps}>`,
+      `  <Switch ${props.join(" ")} />`,
+      '  <FieldLabel htmlFor="notifications">Email notifications</FieldLabel>',
       "</Field>",
     ].join("\n");
   },
 };
 
 /**
- * `SwitchPlayground` — interactive props playground for `Switch` (size / disabled), rendered
- * inside a horizontal `Field` for a visible, auto-associated label. Backed by the generic
+ * `SwitchPlayground` — interactive props playground for `Switch` (size / disabled / invalid),
+ * rendered inside a horizontal `Field` for a visible, bound label. Backed by the generic
  * {@link PropsPlayground}. Registered in `mdx.tsx`, adopted in
  * `content/docs/components/switch.mdx`.
  */

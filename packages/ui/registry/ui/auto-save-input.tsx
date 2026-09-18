@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.9.1 sha256-vLgGFWwx/HgXTTYjsNnAsTgL7/93YTBDTgJrGrvDD18=
+// @vegastack auto-save-input@0.9.1 sha256-0wLK15MnYLtgmNlJW4Aqzqm6xGHMq6760gREubiMg64=
 
 "use client";
 
@@ -6,9 +6,13 @@ import * as React from "react";
 import { Check, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { TIMINGS } from "@vegastack/design";
-// `Input` is owned by the sibling Input component; shadcn rewrites this alias on
+// `InputGroup` is owned by the sibling Input Group component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 /**
  * Lifecycle of an auto-save: `idle` (no pending change), `saving` (debounce
@@ -19,8 +23,8 @@ export type AutoSaveStatus = "idle" | "saving" | "saved" | "error";
 
 /** Props accepted by `AutoSaveInput`. */
 export interface AutoSaveInputProps extends Omit<
-  React.ComponentProps<typeof Input>,
-  "value" | "defaultValue" | "onChange" | "suffix"
+  React.ComponentProps<typeof InputGroupInput>,
+  "value" | "defaultValue" | "onChange"
 > {
   /**
    * Controlled value of the field. Pair with `onValueChange` so user edits are
@@ -201,20 +205,23 @@ export function AutoSaveInput({
   }, [value, debounceMs, updateStatus]);
 
   return (
-    <Input
-      ref={ref}
-      data-slot="auto-save-input"
-      data-state={status}
-      value={value}
-      onChange={(e) => {
-        const next = e.target.value;
-        pendingControlledEdit.current = next;
-        if (!isControlled) setUncontrolledValue(next);
-        onValueChange?.(next);
-      }}
-      disabled={disabled}
-      aria-invalid={status === "error" || undefined}
-      suffix={
+    <InputGroup className={className}>
+      <InputGroupInput
+        ref={ref}
+        data-slot="auto-save-input"
+        data-state={status}
+        value={value}
+        onChange={(e) => {
+          const next = e.target.value;
+          pendingControlledEdit.current = next;
+          if (!isControlled) setUncontrolledValue(next);
+          onValueChange?.(next);
+        }}
+        disabled={disabled}
+        aria-invalid={status === "error" || undefined}
+        {...props}
+      />
+      <InputGroupAddon align="inline-end">
         <span
           data-slot="auto-save-input-status"
           className={statusSlotClasses}
@@ -268,9 +275,7 @@ export function AutoSaveInput({
             </span>
           )}
         </span>
-      }
-      className={className}
-      {...props}
-    />
+      </InputGroupAddon>
+    </InputGroup>
   );
 }

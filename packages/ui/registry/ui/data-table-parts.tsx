@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.9.1 sha256-v75AgUk8QC8qsQkAQOMogFIXUXCrrmoLBXqm7Z0dk4s=
+// @vegastack data-table-parts@0.9.1 sha256-vbs7KALADQldlD6EqS7mUQdnJiPFtWINSJCurmm9XNY=
 
 "use client";
 
@@ -328,7 +328,6 @@ export function SelectAllHead({
       {...props}
     >
       <Checkbox
-        size="sm"
         checked={checked}
         indeterminate={indeterminate}
         onCheckedChange={onToggle}
@@ -381,7 +380,6 @@ export function SelectionCell({
       {...props}
     >
       <Checkbox
-        size="sm"
         checked={checked}
         onCheckedChange={onToggle}
         aria-label={label}
