@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Produce `vendor/shadcn/4.21.0/` — the PRISTINE pinned upstream this repository is rebuilt on.
 //
-//   pnpm upstream:pull            write the baseline
-//   pnpm upstream:pull --check    fail if re-deriving the baseline would change it
-//   pnpm upstream:pull --self-test  prove the gate can fail
+//   pnpm upstream:pull                   write the baseline
+//   pnpm upstream:pull --check           fail if re-deriving the baseline would change it
+//   pnpm upstream:pull --verify-integrity  OFFLINE: hash the committed tree against manifest.json
+//   pnpm upstream:pull --self-test       prove the gate can fail
 //
 // WHY THIS SCRIPT EXISTS
 //   "Pull upstream and adapt only what is necessary" is aspiration until something can say what
@@ -11,6 +12,16 @@
 //   `verify-parity.mjs` can prove every canonical component is upstream's file plus an approved
 //   patch. Nothing under `vendor/` is ever hand-edited; the only way to change it is to re-run this
 //   against a version MK approved.
+//
+// THE TWO PROOFS, AND WHY THEY ARE DIFFERENT (added 2026-09-18, Codex review of `main..HEAD`)
+//   `--check` re-derives the baseline from the network and the CLI, which makes it slow, online,
+//   and — because `ensureApp()` reuses `.upstream-cache/` whenever the version-and-flags lock
+//   matches — a proof about the STAGED app rather than about the committed bytes. So it is not the
+//   gate a PR runs. `--verify-integrity` is: it opens `vendor/<cli>/manifest.json`, hashes every
+//   committed file under that directory, and fails on a content mismatch, on a recorded file that
+//   is gone, and on a file nobody recorded. It touches no network and no cache, so it is what
+//   `pnpm upstream:check` runs, and it is what makes "nothing under `vendor/` is ever hand-edited"
+//   a checked claim instead of a comment. `--check` remains the way to move a version.
 //
 // HOW THE BASELINE IS PRODUCED
 //   The registry JSON is not the baseline. The CLI applies two transforms the raw JSON does not
@@ -32,11 +43,13 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { dirname, join, basename } from "node:path";
 
 import { ROOT, walk, relativeToRoot, readJson, fatal } from "../lib/fs.mjs";
@@ -49,6 +62,7 @@ import {
   PORTED_STYLE,
   VENDOR,
   CACHE,
+  report,
   sha256,
 } from "./lib.mjs";
 
@@ -179,21 +193,95 @@ function write(path, content) {
   writeFileSync(path, content);
 }
 
+/**
+ * The complaint a given installed `shadcn` version earns, or `null` when it is the pin.
+ *
+ * Split out from `assertCliVersion` so the self-test can invoke the REAL comparison with a wrong
+ * version, rather than re-stating the equality it is supposed to be proving.
+ */
+export function cliVersionProblem(found) {
+  if (found === CLI_VERSION) return null;
+  return (
+    `shadcn is ${found}, and the baseline is pinned to ${CLI_VERSION}. ` +
+    `A version move is MK's decision (README.md § 3).`
+  );
+}
+
 /** The installed `shadcn` must be EXACTLY the pinned version, or the baseline is not the baseline. */
 function assertCliVersion() {
   const pkg = join(ROOT, "apps/docs/node_modules/shadcn/package.json");
   if (!existsSync(pkg))
     fatal(PREFIX, `shadcn is not installed at ${relativeToRoot(pkg)}`);
   const found = readJson(pkg).version;
-  if (found !== CLI_VERSION) {
-    fatal(
-      PREFIX,
-      `shadcn is ${found}, and the baseline is pinned to ${CLI_VERSION}. ` +
-        `A version move is MK's decision (README.md § 3).`,
-      { code: 1 },
-    );
-  }
+  const problem = cliVersionProblem(found);
+  if (problem) fatal(PREFIX, problem, { code: 1 });
   return found;
+}
+
+/**
+ * OFFLINE: prove the committed vendor tree is byte-for-byte what `manifest.json` records.
+ *
+ * Three ways to fail, and all three are how a hand-edit shows up:
+ *   - a recorded file whose sha256 no longer matches (someone edited upstream in place);
+ *   - a recorded file that is gone (someone deleted one);
+ *   - a file under `vendor/` that no pull produced (someone added one).
+ * `manifest.json` itself is excluded, because it is written after the hashes and cannot hash itself.
+ *
+ * This is a pure function of one directory so `--self-test` runs it against a tampered COPY of the
+ * real baseline and watches it fail, which is the only evidence that it can.
+ */
+export function checkManifestIntegrity(vendorDir) {
+  const failures = [];
+  const manifestPath = join(vendorDir, "manifest.json");
+  if (!existsSync(manifestPath)) {
+    return {
+      failures: [
+        `no manifest.json under ${relativeToRoot(vendorDir)} — the baseline has no integrity record`,
+      ],
+      checked: 0,
+    };
+  }
+  const recorded = readJson(manifestPath).files;
+  if (!recorded || Object.keys(recorded).length === 0) {
+    return {
+      failures: [
+        `${relativeToRoot(manifestPath)} records no files — an empty integrity record proves nothing`,
+      ],
+      checked: 0,
+    };
+  }
+
+  const onDisk = new Map();
+  for (const absolute of walk(vendorDir)) {
+    const rel = absolute
+      .slice(vendorDir.length + 1)
+      .split("\\")
+      .join("/");
+    if (rel === "manifest.json") continue;
+    onDisk.set(rel, absolute);
+  }
+
+  for (const [rel, hash] of Object.entries(recorded)) {
+    const absolute = onDisk.get(rel);
+    if (!absolute) {
+      failures.push(`${rel}: recorded in manifest.json, but not on disk`);
+      continue;
+    }
+    const actual = sha256(readFileSync(absolute));
+    if (actual !== hash) {
+      failures.push(
+        `${rel}: content does not match manifest.json (recorded ${hash}, found ${actual}) — ` +
+          `vendor/ is never hand-edited; re-run \`pnpm upstream:pull\` instead`,
+      );
+    }
+  }
+  for (const rel of onDisk.keys()) {
+    if (!(rel in recorded)) {
+      failures.push(`${rel}: on disk, but no pull produced it`);
+    }
+  }
+
+  return { failures, checked: Object.keys(recorded).length };
 }
 
 /** Scaffold the upstream app, or reuse the cached one when its lock matches. */
@@ -410,12 +498,12 @@ function compare(check) {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Observe the gate failing. Three claims, each proven by making it false:
- *   1. a wrong CLI version is rejected;
- *   2. a tampered vendor file makes `--check` fail;
- *   3. a vendor file a pull does not produce makes `--check` fail.
- * Claims 2 and 3 run against the committed vendor tree through `fingerprint`/`compare`, in a temp
- * copy, so the self-test never re-pulls and never touches `vendor/`.
+ * Observe the gate failing — by RUNNING it, never by re-stating what it should conclude.
+ *
+ * Every integrity claim calls `checkManifestIntegrity` itself, against a temp COPY of the real
+ * committed baseline that the claim then tampers with. The version claim calls the real
+ * `cliVersionProblem`. The previous shape compared two objects this function had just built, which
+ * is a test of `Object.assign` (Codex review of `main..HEAD`, 2026-09-18).
  */
 function selfTest() {
   const failures = [];
@@ -428,36 +516,56 @@ function selfTest() {
 
   claim(
     "a CLI version other than the pin is rejected",
-    (() => {
-      const found = readJson(
-        join(ROOT, "apps/docs/node_modules/shadcn/package.json"),
-      ).version;
-      return found === CLI_VERSION;
-    })() && CLI_VERSION !== "0.0.0",
+    cliVersionProblem("4.20.0") !== null &&
+      cliVersionProblem(CLI_VERSION) === null,
   );
 
-  // Fingerprint the real vendor tree, then mutate the COPY and prove the comparison notices.
-  const truth = fingerprint(VENDOR);
-  const names = Object.keys(truth);
-  claim("the vendor baseline is present and non-empty", names.length > 0);
+  // A COPY of the committed baseline. Every mutation below happens here; `vendor/` is never touched.
+  const dir = mkdtempSync(join(tmpdir(), "vs-vendor-selftest-"));
+  const fixture = join(dir, "vendor");
+  cpSync(VENDOR, fixture, { recursive: true });
+  const fails = () => checkManifestIntegrity(fixture).failures;
 
-  const tampered = { ...truth, [names[0]]: "sha256-0000" };
   claim(
-    "a tampered vendor file is detected",
-    Object.entries(truth).some(([k, v]) => tampered[k] !== v),
+    "the committed baseline hashes clean against its own manifest",
+    checkManifestIntegrity(VENDOR).failures.length === 0,
+  );
+  claim("a faithful copy of it also hashes clean", fails().length === 0);
+
+  const victim = join(fixture, "ui", "button.tsx");
+  const original = readFileSync(victim);
+  writeFileSync(victim, `${original.toString("utf8")}// tampered\n`);
+  claim(
+    "a tampered vendor file is detected by CONTENT, not by name",
+    fails().some((f) => f.includes("ui/button.tsx: content does not match")),
+  );
+  writeFileSync(victim, original);
+  claim("restoring the byte-for-byte original clears it", fails().length === 0);
+
+  rmSync(victim);
+  claim(
+    "a recorded vendor file that is gone is detected",
+    fails().some((f) => f.includes("ui/button.tsx: recorded in manifest.json")),
+  );
+  writeFileSync(victim, original);
+
+  const intruder = join(fixture, "ui", "not-from-upstream.tsx");
+  writeFileSync(intruder, "export const Nope = () => null\n");
+  claim(
+    "a vendor file no pull produced is detected",
+    fails().some((f) => f.includes("ui/not-from-upstream.tsx: on disk")),
+  );
+  rmSync(intruder);
+
+  rmSync(join(fixture, "manifest.json"));
+  claim(
+    "a baseline with no manifest.json fails closed",
+    fails().some((f) => f.includes("no manifest.json")),
   );
 
-  const extra = { ...truth, "ui/not-from-upstream.tsx": "sha256-0000" };
-  claim(
-    "a vendor file no pull produces is detected",
-    Object.keys(extra).some((k) => !(k in truth)),
-  );
+  rmSync(dir, { recursive: true, force: true });
 
   const manifest = readJson(join(VENDOR, "manifest.json"));
-  claim(
-    "every manifest file entry exists on disk",
-    Object.keys(manifest.files).every((rel) => existsSync(join(VENDOR, rel))),
-  );
   claim(
     "a docs cache entry exists for every component",
     manifest.components.every((n) =>
@@ -471,13 +579,22 @@ function selfTest() {
     );
     return 1;
   }
-  console.log(`${PREFIX}:selftest OK — 6 claims observed`);
+  console.log(`${PREFIX}:selftest OK — 9 claims observed`);
   return 0;
 }
 
 const argv = process.argv.slice(2);
 if (argv.includes("--self-test")) {
   process.exit(selfTest());
+} else if (argv.includes("--verify-integrity")) {
+  const { failures, checked } = checkManifestIntegrity(VENDOR);
+  process.exit(
+    report(
+      "upstream:integrity",
+      failures,
+      `${checked} committed file(s) under ${relativeToRoot(VENDOR)} match manifest.json`,
+    ),
+  );
 } else {
   const check = argv.includes("--check");
   assertCliVersion();
