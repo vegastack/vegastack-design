@@ -22,12 +22,14 @@ const invalidDir = join(scratch, "packages/ui/registry/ui/invalid");
 const vocabularyDir = join(scratch, "packages/ui/registry/ui/vocabulary");
 const glowDir = join(scratch, "packages/ui/registry/ui/glow");
 const classGlueDir = join(scratch, "packages/ui/registry/ui/class-glue");
+const iconNameDir = join(scratch, "packages/ui/registry/ui/icon-name");
 const validDir = join(scratch, "packages/ui/registry/ui/valid");
 for (const dir of [
   invalidDir,
   vocabularyDir,
   glowDir,
   classGlueDir,
+  iconNameDir,
   validDir,
 ]) {
   mkdirSync(dir, { recursive: true });
@@ -183,6 +185,32 @@ export function Glue() {
     );
   }
 
+  // ── icon-button-name, and the host escape hatch the reset added ─────────────────────────────
+  // Both halves, because this rule was NARROWED in Batch 4 (2026-09-18) and a narrowing nobody
+  // watches is a rule quietly switched off. Upstream names the HOST, not the Button: an icon
+  // Button in a `render` prop is named when the element rendering it carries `aria-label` or an
+  // `sr-only` label. An anonymous host must still fail.
+  writeFileSync(
+    join(iconNameDir, "icon-name.tsx"),
+    `import { Button } from '@/components/ui/button';
+
+export function Anonymous() {
+  return <Anything render={<Button size="icon-sm" />} />;
+}
+`,
+  );
+  const iconName = run(iconNameDir);
+  if (
+    iconName.status === 0 ||
+    !iconName.output.includes("[icon-button-name]")
+  ) {
+    fail(
+      "design-lint accepted an icon-only Button whose host names it neither with aria-label " +
+        "nor with an sr-only label",
+      iconName.output,
+    );
+  }
+
   // ── the structural rules ────────────────────────────────────────────────────────────────────
   const invalid = run(invalidDir);
   const requiredIds = [
@@ -242,7 +270,14 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <div className={["flex items-center", "gap-2 rounded-md"].join(" ")} />{/* the canonical multi-fragment join — cannot express the class-glue bug */}
     <div title={"a sentence split across two source lines " + "is prose, not a class seam"} />{/* no class context on either side */}
     <p>{"a multi-line literal mentioning max-h-40\\n\\nkeeps its blank lines: it is prose, not a class string"}</p>
+    <Close aria-label="Close toast" render={<Button size="icon-sm" />} />{/* the host names it with aria-label */}
+    <Close render={<Button size="icon-sm" />}><XIcon /><span className="sr-only">Close</span></Close>{/* the host names it with an sr-only label */}
   </>;
+}
+
+// The 'render' DEFAULT spelling: the Button never sees the name, the host forwards the binding on.
+export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: unknown }) {
+  return <Close aria-label="Close toast" render={render} />;
 }
 `,
   );
@@ -254,9 +289,10 @@ export function Textarea(props: ComponentProps<'textarea'>) {
   console.log(
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms are rejected, a class seam ` +
-      `with no separating space is rejected; the reviewed Textarea adapter passes, and with it ` +
-      `13 deliberate non-violations covering upstream's motion, radius, shadow, alpha, arbitrary ` +
-      `value, type, z-index and hover vocabulary`,
+      `with no separating space is rejected, an icon-only Button with an anonymous host is ` +
+      `rejected; the reviewed Textarea adapter passes, and with it 16 deliberate non-violations ` +
+      `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
+      `hover vocabulary, plus all three spellings of naming an icon Button through its host`,
   );
 } finally {
   rmSync(scratch, { recursive: true, force: true });

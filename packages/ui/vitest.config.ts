@@ -67,6 +67,7 @@ export default defineConfig({
       "@base-ui/react/popover",
       "@base-ui/react/tooltip",
       "@base-ui/react/menu",
+      "@base-ui/react/menubar",
       "@base-ui/react/navigation-menu",
       "@base-ui/react/context-menu",
       "@base-ui/react/select",

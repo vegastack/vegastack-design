@@ -84,9 +84,19 @@ const RUNTIME_VARIABLES = new Set([
   "--toast-offset-y",
   "--toast-swipe-movement-x",
   "--toast-swipe-movement-y",
-  // Base UI Drawer (Sheet runs on it) swipe telemetry.
+  // Base UI Drawer. Batch 4 of the shadcn reset brought the real Drawer in as its own component
+  // (Sheet went back to being Base UI's Dialog), and its popup reads the engine's whole telemetry
+  // set: the swipe offsets and their normalised progress/strength, the measured heights the nested
+  // stack animates between, the active snap point's offset, and the inset the viewport applies.
   "--drawer-swipe-movement-x",
   "--drawer-swipe-movement-y",
+  "--drawer-swipe-progress",
+  "--drawer-swipe-strength",
+  "--drawer-height",
+  "--drawer-frontmost-height",
+  "--drawer-inset",
+  "--drawer-snap-point-offset",
+  "--nested-drawers",
   // react-remove-scroll-bar, injected as a runtime <style> during scroll lock.
   "--removed-body-scroll-bar-size",
 ]);

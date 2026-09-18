@@ -154,6 +154,80 @@ const RULES = [
 // directly. An exemption that can no longer be reached is an exemption that should not exist.
 const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|progress-indicator)\.tsx$/;
 
+/**
+ * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).
+ *
+ * Upstream never puts the name on the Button. It puts the Button in a `render` prop and names the
+ * HOST — `<Dialog.Close render={<Button size="icon-sm" />}><XIcon /><span className="sr-only">
+ * Close</span></Dialog.Close>`, or `<Toast.Close aria-label="Close toast" render={render} />`.
+ * The rendered control is the host element wearing the Button's classes, so the accessible name is
+ * the host's, and a rule that only reads the Button's own attributes reports four false positives
+ * against dialog, sheet, toast and their mirror.
+ *
+ * The invariant is unchanged — an icon-only control must have an accessible name. What changes is
+ * WHERE the rule is allowed to find it: on the Button, or on the host that renders it. A Button in
+ * a `render` position with an anonymous host still fails, and
+ * `tooling/verify-design-lint-structural.mjs` observes both halves.
+ */
+function namedByHost(button, sf) {
+  const nameOn = (opening) => {
+    const attrs = opening.attributes.properties.filter(ts.isJsxAttribute);
+    if (
+      attrs.some((a) => /^aria-(label|labelledby)$/.test(a.name.getText(sf)))
+    ) {
+      return true;
+    }
+    // An `sr-only` label anywhere in the host's own children is the other upstream spelling.
+    const element = ts.isJsxOpeningElement(opening) ? opening.parent : null;
+    return element ? /\bsr-only\b/.test(element.getText(sf)) : false;
+  };
+
+  // 1. `<Host render={<Button size="icon" />}>` — walk up to the `render` attribute's own element.
+  for (let node = button.parent; node; node = node.parent) {
+    if (ts.isJsxAttribute(node) && node.name.getText(sf) === "render") {
+      const host = node.parent.parent;
+      return nameOn(host);
+    }
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) break;
+    if (ts.isFunctionLike(node)) break;
+  }
+
+  // 2. `function Close({ render = <Button size="icon" />, … })` — the host is whichever element in
+  //    the same function forwards that binding on. Only a binding literally named `render`
+  //    qualifies, so this cannot be stretched into "some Button somewhere is named".
+  const binding = (() => {
+    for (let node = button.parent; node; node = node.parent) {
+      if (ts.isBindingElement(node) || ts.isVariableDeclaration(node)) {
+        return node.name.getText(sf) === "render" ? node : null;
+      }
+      if (ts.isFunctionLike(node)) return null;
+    }
+    return null;
+  })();
+  if (!binding) return false;
+
+  let owner = binding.parent;
+  while (owner && !ts.isFunctionLike(owner)) owner = owner.parent;
+  if (!owner) return false;
+
+  let named = false;
+  const visit = (node) => {
+    if (named) return;
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+      const forwards = node.attributes.properties.some(
+        (a) =>
+          ts.isJsxAttribute(a) &&
+          a.name.getText(sf) === "render" &&
+          /^\{\s*render\s*\}$/.test(a.initializer?.getText(sf) ?? ""),
+      );
+      if (forwards && nameOn(node)) named = true;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(owner);
+  return named;
+}
+
 // `muted-foreground-faint` is intentionally sub-AA and therefore limited to placeholder/disabled
 // copy. These two files use it on aria-hidden decorative glyphs, never meaningful text.
 const FAINT_DECORATIVE_ALLOWLIST =
@@ -942,12 +1016,12 @@ for (const root of tokenCssRoots) {
               const hasSpread = node.attributes.properties.some(
                 ts.isJsxSpreadAttribute,
               );
-              if (!named && !hasSpread) {
+              if (!named && !hasSpread && !namedByHost(node, sf)) {
                 const { line } = sf.getLineAndCharacterOfPosition(
                   node.getStart(sf),
                 );
                 console.log(
-                  `${file}:${line + 1} [icon-button-name] <Button size=${sizeText}> without aria-label/aria-labelledby — icon-only controls need an accessible name (or use IconButton, which requires one at the type level)`,
+                  `${file}:${line + 1} [icon-button-name] <Button size=${sizeText}> without aria-label/aria-labelledby — icon-only controls need an accessible name (or use IconButton, which requires one at the type level, or a host that names it: \`render={<Button size="icon" />}\` on an element carrying aria-label or an sr-only label)`,
                 );
                 violations++;
               }
