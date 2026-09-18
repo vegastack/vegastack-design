@@ -272,6 +272,20 @@ What does NOT belong in a component PR: `design.md`, the skills and their mirror
 component change is never blocked on doctrine prose and doctrine is never edited eight times a week
 by eight branches.
 
+**A BLOCK carries the same four, in a different shape** (Batch 8 of the shadcn reset,
+2026-09-18). A block is a copy-once PAGE with no prop surface, so: its source is
+`packages/ui/registry/blocks/<name>/page.tsx` plus `components/*.tsx`, and those parts import each
+other RELATIVELY (`./components/<x>`) — never `@/components/<x>`, which upstream uses and which
+would make fifteen blocks fight over one flat `components/app-sidebar.tsx` on install. Its test
+asserts that the composition mounts, shows its own content and is axe-clean; the behaviour of each
+part belongs to that part's suite. Its page lives under `apps/docs/content/docs/blocks/` and is NOT
+under the docs canon. Its contract record goes in `contracts.blocks`, and a block whose source is
+upstream's (it is named in `vendor/shadcn/4.21.0/manifest.json`) is exempt from
+`verify-public-api-docs` for the same reason a migrated component is — adding JSDoc to upstream's
+file would be a hunk with no decision ID behind it. A block that mounts a `Sidebar` needs the
+desktop `matchMedia` mock in its suite, or the rail mounts as a closed Sheet and nothing is in the
+DOM.
+
 For component `<name>` (PascalCase `<Name>`), in dependency order:
 
 1. **`packages/ui/registry/ui/<name>.tsx`** — or `.ts` for a pure hook (`type: registry:hook`).
