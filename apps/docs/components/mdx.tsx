@@ -28,7 +28,6 @@ import {
 import { RegistryInstallCallout } from "@/components/registry-install-callout";
 import { AnimatedNumberPlayground } from "@/components/animated-number-playground";
 import { AttachmentPlayground } from "@/components/attachment-playground";
-import { BubblePlayground } from "@/components/bubble-playground";
 import { CheckboxPlayground } from "@/components/checkbox-playground";
 import { ComboboxPlayground } from "@/components/combobox-playground";
 import { CopyButtonPlayground } from "@/components/copy-button-playground";
@@ -46,7 +45,6 @@ import { ResizablePlayground } from "@/components/resizable-playground";
 import { ScrollAreaPlayground } from "@/components/scroll-area-playground";
 import { SelectPlayground } from "@/components/select-playground";
 import { SheetPlayground } from "@/components/sheet-playground";
-import { ToastPlayground } from "@/components/toast-playground";
 import { StatusIconPlayground } from "@/components/status-icon-playground";
 import { SwitchPlayground } from "@/components/switch-playground";
 import { TabsPlayground } from "@/components/tabs-playground";
@@ -96,7 +94,6 @@ export function getMDXComponents(components?: MDXComponents) {
     FocusRingSpecimen,
     AnimatedNumberPlayground,
     AttachmentPlayground,
-    BubblePlayground,
     CheckboxPlayground,
     ComboboxPlayground,
     CopyButtonPlayground,
@@ -114,7 +111,6 @@ export function getMDXComponents(components?: MDXComponents) {
     ScrollAreaPlayground,
     SelectPlayground,
     SheetPlayground,
-    ToastPlayground,
     StatusIconPlayground,
     SwitchPlayground,
     TabsPlayground,

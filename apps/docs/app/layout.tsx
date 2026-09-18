@@ -71,7 +71,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
             `#content` root the docs page (`DocsPage id="content"`) and the home page both set. */}
         <a
           href="#content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-(--z-overlay) focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:text-foreground"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-50 focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:text-foreground"
         >
           Skip to content
         </a>

@@ -42,7 +42,7 @@ const COLOUR_RE = /okl(?:ch|ab)\([^)]*\)|color\(srgb[^)]*\)|rgba?\([^)]*\)/;
 /**
  * Lightness of a computed colour. In `oklch()` / `oklab()` the first component IS the lightness; an
  * sRGB fallback is reduced to a cube-root-of-luminance proxy, which orders the two cases the same
- * way. (Same reduction as the surface-ladder gate.)
+ * way.
  */
 function lightness(color: string): number {
   const oklxx = color.match(/okl(?:ch|ab)\(\s*([\d.]+)[\s,]/);

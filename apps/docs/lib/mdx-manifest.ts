@@ -59,7 +59,6 @@ export const BROWSER_ONLY_NOTES: Record<string, string> = {
 export const PLAYGROUND_COMPONENTS = new Set([
   "AnimatedNumberPlayground",
   "AttachmentPlayground",
-  "BubblePlayground",
   "CheckboxPlayground",
   "ComboboxPlayground",
   "CopyButtonPlayground",
@@ -81,7 +80,6 @@ export const PLAYGROUND_COMPONENTS = new Set([
   "SwitchPlayground",
   "TabsPlayground",
   "TextareaPlayground",
-  "ToastPlayground",
   "TruncatedTextPlayground",
 ]);
 

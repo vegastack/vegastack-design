@@ -213,8 +213,13 @@ function fileProblems(relative, source, contract, siblings = new Set()) {
 
 const ROOTS = [
   "packages/ui/registry",
-  "apps/docs/components/preview",
-  "apps/docs/components/ui",
+  // The whole docs app, not only its fixtures. Until the shadcn reset's closing pass this root was
+  // `components/preview` + `components/ui`, so the SITE's own chrome was unscanned — and it had
+  // four dead references to tokens Batch 1 deleted, including a skip link whose `z-(--z-overlay)`
+  // left it with no z-index at all. The defect class is the same one the message below describes;
+  // the only thing that varied was whether anything looked.
+  "apps/docs/app",
+  "apps/docs/components",
   // The shared recipes (`fieldControl`, `fieldControlGroup`, `selectedChipVariants`,
   // `fillInteractive`, `surfaceInteractive`, `prose`) are class-literal source too, and they name
   // `--alpha-hover`, `--alpha-pressed`, `--alpha-ink-tint`, `--alpha-tint-border`,
@@ -228,7 +233,17 @@ function sourceFiles() {
   return ROOTS.flatMap((root) =>
     walk(join(ROOT, root), {
       include: (relative) =>
-        /\.(tsx?|css)$/.test(relative) && !/\.test\.tsx?$/.test(relative),
+        /\.(tsx?|css)$/.test(relative) &&
+        !/\.test\.tsx?$/.test(relative) &&
+        // The docs app's own stylesheet, and the ONE file in these roots whose job is to bind
+        // variables this gate cannot see the declaration of: `next/font` injects
+        // `--font-geist-sans`, `--font-geist-mono` and `--font-newsreader` onto `<html>` at run
+        // time, and `--home-proof-*` is set inline by the component that reads it. Its class
+        // literals are what this gate checks and it has none — it is `@import`s, `@theme`
+        // bindings and `@layer base`. Scoped OUT by path rather than allowlisted IN by name, so
+        // no list of token names can rot: every `.tsx` under both docs roots is scanned, which is
+        // where all four dead references the closing pass found actually were.
+        relative !== "global.css",
       // The mirrored animated icons are generated data modules; they carry no class literals.
       prune: (relative) => relative.endsWith("ui/icons"),
     }).map((file) => file),

@@ -76,7 +76,7 @@ export function HomeProofStatement({
       ref={headingRef}
       id={id}
       className={cn(
-        "max-w-5xl text-balance text-display-lg text-foreground sm:text-display-xl",
+        "max-w-5xl text-balance text-6xl tracking-tighter text-foreground sm:text-7xl",
         className,
       )}
       style={{ "--home-proof-progress": 1 } as ProofStyle}

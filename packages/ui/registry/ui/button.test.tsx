@@ -114,7 +114,7 @@ test("A11Y-12: the loading label keeps its box rather than being removed", async
   const screen = await render(<Button loading>Save changes</Button>);
   // `opacity-0`, never `invisible`: `visibility: hidden` would drop the label out of the
   // accessibility tree and leave a loading button with no discernible name. The RENDERED
-  // proof (real width, real computed opacity) is in test/button-matrix.browser.test.tsx,
+  // proof (real width, real computed opacity) is in test/button-states.browser.test.tsx,
   // which compiles the CSS this lane deliberately does not load.
   const label = screen.getByText("Save changes");
   await expect.element(label).toHaveClass("opacity-0");

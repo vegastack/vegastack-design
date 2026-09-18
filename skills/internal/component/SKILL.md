@@ -286,8 +286,9 @@ Contract for every new animated element:
   `focus-visible:`/`focus-within:` ring, the sanctioned text-entry `focus:border-…` tint (Input,
   Textarea, OTP — deliberately `focus` not `focus-visible` so click and Tab read identically), or
   Base UI's `data-[highlighted]`/`data-[selected]`/`data-[focused]` styling. `outline-none` on a
-  genuinely non-focusable fixed viewport container (a dialog's outer positioner) is fine; a new
-  blanket file exemption needs a one-line rationale in `OUTLINE_NONE_EXEMPT`.
+  genuinely non-focusable fixed viewport container (a dialog's outer positioner) is fine. There is
+  no file-level exemption list any more — the shadcn reset deleted it along with the rule that
+  read it — so a file that needs one is a stop-and-ask, not an entry to add.
 - **Live regions — use `useAnnouncer`; do not hand-roll one.** Destructure `announce` and
   `Announcer` from `useAnnouncer()` (`registry/ui/use-announcer.ts`) and render ONE `Announcer`
   element per component, mounted for its whole life. The hook owns the three things a hand-rolled region gets wrong: it is mounted

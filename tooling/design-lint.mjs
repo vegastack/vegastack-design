@@ -88,19 +88,6 @@ const PALETTES =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
 const COLOR_PROPS =
   "bg|text|border|ring|fill|stroke|decoration|divide|from|via|to|caret|accent|shadow|outline";
-const LEN_PROPS =
-  "h|w|size|min-w|max-w|min-h|max-h|p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|gap-x|gap-y|space-x|space-y|top|bottom|left|right|inset|rounded|leading|text|basis|grid-cols|grid-rows|translate-x|translate-y|scale|scale-x|scale-y|aspect|origin";
-
-// The motion vocabulary the transition-pairing rule accepts. A variant prefix (`hover:`,
-// `data-[open]:`) may precede a token; a bare Tailwind step may not stand in for one.
-const MOTION_DURATION_UTILITY =
-  /(?:^|[\s:\]])duration-(?:fast|base|slow)(?=\s|$)/;
-const MOTION_EASE_UTILITY =
-  /(?:^|[\s:\]])ease-(?:standard|emphasized|exit|spring)(?=\s|$)/;
-// Tailwind's own steps: `duration-<n>` for any n but 0 (`duration-0` is the structural collapse a
-// `data-[instant]:` variant needs and is not a duration choice) and the five named default curves.
-const RAW_MOTION_STEP =
-  /(?:^|[\s:\]])(duration-(?!0(?=\s|$))\d+|ease-(?:in-out|in|out|linear|initial))(?=\s|$)/g;
 
 // A class literal reaches more than this many levels into its own descendants and it has stopped
 // styling itself. 20 is the audit's figure (04 §7); `audio-player` held 76 in one string.
@@ -245,10 +232,6 @@ function namedByHost(button, sf) {
   visit(owner);
   return named;
 }
-
-// `muted-foreground-faint` is intentionally sub-AA and therefore limited to placeholder/disabled
-// copy. This file uses it on aria-hidden decorative glyphs, never meaningful text.
-const FAINT_DECORATIVE_ALLOWLIST = /(?:^|\/)(?:breadcrumb)\.tsx$/;
 
 // Native controls are allowed only where the component owns a semantic adapter/integration that a
 // higher-level VegaStack control cannot replace. Exact per-tag counts fail closed in BOTH directions:
@@ -506,18 +489,6 @@ function renderOmitLines(file, src) {
   return lines;
 }
 
-// §7.1 inline-style contract — `style={…}` may ONLY (a) assign CSS custom properties (every key is a
-// `--*` variable; runtime layout/sizing routes through a var consumed by an arbitrary-value class),
-// or (b) be the documented swatch-fill exception: a dynamic `backgroundColor`/`background` on the
-// color-picker swatch. ANY direct visual property (gridTemplateColumns, width, height, minHeight,
-// padding, …) — dynamic OR literal — fails, plus any hex/px/rem literal in the style expression.
-const STYLE_FILL_EXCEPTION_FILE = /(?:^|\/)color-picker\.tsx$/;
-// Satori requires serializable inline style objects and cannot consume the app's Tailwind runtime.
-const INLINE_STYLE_FILE_ALLOWLIST =
-  /apps\/docs\/(?:lib\/og\.tsx|components\/foundations\.tsx)$/;
-// This one docs-only specimen displays the exact authored easing strings and token-driven inline
-// animation recipes. It is a visualizer, not shipped component motion.
-const RAW_MOTION_FILE_ALLOWLIST = /apps\/docs\/components\/foundations\.tsx$/;
 // Browser/PWA metadata intentionally uses the broadly supported hex serialization of generated
 // semantic theme colors; Satori likewise needs concrete paint values at image-render time.
 const HEX_COLOR_FILE_ALLOWLIST =
@@ -536,71 +507,6 @@ const HEX_COLOR_FILE_ALLOWLIST =
  * `[stroke='#ccc']` selector in the positive one.
  */
 const SELECTOR_HEX = /\[[^\][]*?=(['"])#[0-9a-fA-F]{3,8}\1\]/g;
-const STYLE_LITERAL = /#[0-9a-fA-F]{3,8}\b|\b\d+(?:\.\d+)?(?:px|rem)\b/;
-// Extract the balanced `{…}` expression of a `style={…}` attribute starting at the `{` after `=`.
-function readBalancedBraces(src, openIdx) {
-  let depth = 0;
-  for (let i = openIdx; i < src.length; i++) {
-    const ch = src[i];
-    if (ch === "{") depth++;
-    else if (ch === "}") {
-      depth--;
-      if (depth === 0) return { expr: src.slice(openIdx, i + 1), end: i };
-    }
-  }
-  return null;
-}
-// Collect the property KEYS declared in an object literal inside a style expression. Recognizes bare
-// identifier keys (`backgroundColor:`), quoted/computed keys (`'--x':`, `["--x"]:`), and reports
-// spreads separately. Returns null when the expression has NO object literal (a bare variable
-// reference like `style={contentStyle}` — its keys are validated at the construction site).
-function styleObjectKeys(expr) {
-  if (!/\{/.test(expr)) return null; // no object literal — e.g. style={someVar}
-  const keys = [];
-  let hasSpread = false;
-  // bare-identifier keys:  foo:  (not `::`, not after a `.`); guard against pseudo matches via word boundary
-  for (const m of expr.matchAll(/(?:^|[{,(\s])([A-Za-z_$][\w$]*)\s*:/g))
-    keys.push(m[1]);
-  // quoted keys: '--x':  "--x":
-  for (const m of expr.matchAll(/['"]([^'"]+)['"]\s*:/g)) keys.push(m[1]);
-  // computed keys: ['--x']:  ["--x"]:
-  for (const m of expr.matchAll(/\[\s*['"]([^'"]+)['"]\s*\]\s*:/g))
-    keys.push(m[1]);
-  if (/\.\.\./.test(expr)) hasSpread = true;
-  return { keys, hasSpread };
-}
-
-// arbitrary value with a hard color/length — but allow var(--token), CSS custom props, calc, and %.
-const ARB = new RegExp(
-  `\\b(?:${COLOR_PROPS}|${LEN_PROPS})-\\[([^\\]]+)\\]`,
-  "g",
-);
-const LAYOUT_ATOM =
-  "(?:\\d+(?:\\.\\d+)?(?:fr|%)|min-content|max-content|auto|0)";
-const LAYOUT_TRACK = `(?:${LAYOUT_ATOM}|minmax\\(${LAYOUT_ATOM},${LAYOUT_ATOM}\\))`;
-const LAYOUT_COMPOSITE = new RegExp(
-  `^(?:${LAYOUT_TRACK}|repeat\\([1-9]\\d*,${LAYOUT_TRACK}\\))(?:_(?:${LAYOUT_TRACK}|repeat\\([1-9]\\d*,${LAYOUT_TRACK}\\)))*$`,
-);
-
-// Sanctioned focus affordances that legitimately replace the native outline (see the outline-none
-// file rule below): a focus-visible/focus-within ring, Base UI roving-tabindex state styling, or
-// the text-entry border-tint pattern (`focus:border-…` — design.md §Components: Input/Textarea/OTP
-// use the darkened `ring/70` border as their sole focus cue, deliberately on `focus` not
-// `focus-visible` so click and Tab read identically in a text field).
-const FOCUS_AFFORDANCE =
-  /focus-visible:|focus-within:|focus:border-|data-\[highlighted\]|data-\[selected\]|data-\[focused\]/;
-// Files exempt from the outline-none focus contract. As of the P0-02 fix, overlay POPUP surfaces
-// no longer carry `outline-none` (the centralized base.css `:focus-visible` outline is their
-// keyboard-focus indicator); the remaining `outline-none` in these files sits on the non-focusable
-// fixed VIEWPORT containers only (never keyboard-reachable — a dialog always contains tabbable
-// controls, so browsers never promote the scroll container into the tab order). Add a filename
-// suffix here WITH a one-line rationale only for this non-focusable-container pattern.
-const OUTLINE_NONE_EXEMPT = [
-  "/alert-dialog.tsx", // viewport container only
-  "/dialog.tsx", // viewport container only
-  "/sheet.tsx", // viewport container only
-];
-
 function walk(dir) {
   const absoluteRoot = resolve(dir).replaceAll("\\", "/");
   return walkTree(dir, {

@@ -107,7 +107,7 @@ const FOUNDATION_GROUPS = [
     ],
     specimen: (
       <div className="flex min-h-40 items-center justify-center rounded-lg border border-border bg-muted/50 p-6">
-        <div className="w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-overlay">
+        <div className="w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-lg">
           <div className="h-3 w-2/5 rounded-sm bg-foreground" />
           <div className="mt-4 h-2 w-full rounded-sm bg-muted" />
           <div className="mt-2 h-2 w-4/5 rounded-sm bg-muted" />
