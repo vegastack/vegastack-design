@@ -4,6 +4,9 @@
 
 ⚠️ **The shadcn `base-nova` reset — the runtime and token bridge are rebuilt on shadcn `base-nova`, with no compatibility layer.**
 
+The optional `lucide-react` peer range moves to `^1.47.0`, matching the version the system is built
+and tested against; a consumer on an older lucide should upgrade alongside this release.
+
 `cn` is plain `twMerge` again, because the custom font-size class group it extended no longer exists,
 and seven shared class-string recipes are **deleted with no alias**: `surfaceInteractive`,
 `surfaceInteractiveGroup`, `fillInteractive`, `FillTone`, `fieldControl`, `fieldControlGroup` and
