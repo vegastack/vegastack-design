@@ -243,7 +243,8 @@ Reviewing the contract gate:
 - A selected geometry run that executes zero fixtures is red. The barrel, exclusions, dynamic
   declarations, requested names, and CSS/token sentinels remain global guards on every invocation.
 - **Scope risk is explicit.** `component-contracts.json` owns the graph and cross-cutting tests;
-  `verify-registry-deps` proves registry edges against imports; `affected-tests` fails unknown paths.
+  `verify-registry-deps` proves registry edges against imports and every npm pin against the version
+  `pnpm-lock.yaml` resolves for `packages/ui`; `affected-tests` fails unknown paths.
   A missing owner or dependency edge is a high finding about the selector.
 
 ## 9. Fix at the root

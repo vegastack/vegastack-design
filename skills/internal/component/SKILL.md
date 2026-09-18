@@ -422,11 +422,13 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
    `verify-registry-deps.mjs` fail-closes on phantom AND missing deps — let the gate catch drift
    rather than hand-guessing _which_ deps to list.
 
-   It does **not** check version ranges, so the range is on you: take each `dependencies` pin from
-   `packages/ui/package.json`, which is the version actually installed and tested. Do not copy the
-   range from a neighbouring registry item — items were stamped at different times and disagree
-   (`lucide-react` appears as both `^1.20.0` and `^0.525.0` in `registry.json` today, across a major
-   boundary), so copying is a coin flip that no gate will catch.
+   It also checks version ranges, against the version `pnpm-lock.yaml` actually resolves for
+   `packages/ui` — so take each `dependencies` pin from `packages/ui/package.json`, which declares
+   that version, and never from a neighbouring registry item, which was stamped at a different time.
+   A pin that does not admit the installed version fails the gate by name. (Until 2026-09-18 the
+   check compared against the FLOOR of the workspace's own range, which a range always admits, so it
+   could only notice two declarations disagreeing — that is how `lucide-react` once shipped at both
+   `^1.20.0` and `^0.525.0` across a major boundary.)
 
 6. **A changeset** — `pnpm changeset`. Its body OPENS with one of the eight CHANGELOG section
    emoji (`🧩 🔧 🗑 🛠 📦 📚 🐛 ⚠️`), which is how the release entry is assembled at version time;
