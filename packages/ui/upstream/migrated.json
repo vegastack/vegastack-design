@@ -7,16 +7,34 @@
     "badge",
     "button",
     "button-group",
+    "calendar",
     "card",
+    "checkbox",
+    "combobox",
+    "direction",
     "empty",
+    "field",
+    "input",
+    "input-group",
+    "input-otp",
     "item",
     "kbd",
     "label",
+    "native-select",
+    "radio-group",
+    "select",
     "separator",
     "skeleton",
+    "slider",
     "spinner",
+    "switch",
+    "textarea",
     "toggle",
     "toggle-group",
     "tooltip"
-  ]
+  ],
+  "exempt": {
+    "_note": "Upstream registry items with NO file to migrate. verify-parity.mjs asserts the claim — upstream must ship no ui/<name>.tsx and this repository must ship none either — so the record cannot rot into a silent omission.",
+    "form": "Upstream's `form` is a docs-only registry item: the CLI writes no file for it and upstream publishes no docs markdown page, because the react-hook-form wiring is documented on `field` and in the Forms guide. There is nothing to copy, patch, test or mirror, so it is neither migrated nor an extra — and it is exempt from variant coverage for the same reason (implementation.md § 5.3, MK 2026-09-18)."
+  }
 }

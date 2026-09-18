@@ -60,6 +60,21 @@ export function migrated() {
   return new Set(readJson(join(UPSTREAM_DIR, "migrated.json")).components);
 }
 
+/**
+ * Upstream registry items that ship NO FILE, so there is nothing to migrate.
+ *
+ * `form` is the only one: the CLI writes no `ui/form.tsx` for it and upstream publishes no docs
+ * markdown page either, because the react-hook-form wiring is documented on `field`. A name here is
+ * neither migrated nor an extra, and `verify-parity.mjs` asserts BOTH halves of the claim — upstream
+ * ships no file for it, and neither do we — so the record cannot quietly become a missing component.
+ */
+export function exemptUpstreamItems() {
+  const { exempt } = readJson(join(UPSTREAM_DIR, "migrated.json"));
+  return Object.fromEntries(
+    Object.entries(exempt ?? {}).filter(([name]) => !name.startsWith("_")),
+  );
+}
+
 /** Extras: names of ours with no upstream counterpart, with their `extras.md` disposition. */
 export function ours() {
   return readJson(join(UPSTREAM_DIR, "ours.json")).items;

@@ -1,0 +1,121 @@
+# component: input-otp
+# decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6
+# hunks:
+#   FOC-1, FOC-3, FOC-6: the active slot's `data-[active=true]:border-ring` plus
+#     `ring-3 ring-ring/50` becomes `data-[active=true]:border-ring/70` — the same border tint the
+#     rest of the text-entry family uses, and no glow.
+#   FOC-5: the slot's invalid tint becomes
+#     `not-data-[active=true]:aria-invalid:border-destructive`, so the slot holding the caret shows
+#     its own cue; the group's `has-aria-invalid` halo rings are removed and its border tint becomes
+#     `not-focus-within:has-aria-invalid:border-destructive`.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/input-otp.tsx b/input-otp.tsx
+index 401d035..fe6b9c8 100644
+--- a/input-otp.tsx
++++ b/input-otp.tsx
+@@ -1,29 +1,31 @@
+-"use client"
++// @vegastack input-otp@0.9.1 sha256-7sdKZoPcrwo/0doTKoDxnawqLoeNu3N/sl7n4M21UHM=
+ 
+-import * as React from "react"
+-import { cn } from "cn"
+-import { OTPInput, OTPInputContext } from "input-otp"
+-import { MinusIcon } from "lucide-react"
++"use client";
++
++import * as React from "react";
++import { cn } from "@vegastack/design";
++import { OTPInput, OTPInputContext } from "input-otp";
++import { MinusIcon } from "lucide-react";
+ 
+ function InputOTP({
+   className,
+   containerClassName,
+   ...props
+ }: React.ComponentProps<typeof OTPInput> & {
+-  containerClassName?: string
++  containerClassName?: string;
+ }) {
+   return (
+     <OTPInput
+       data-slot="input-otp"
+       containerClassName={cn(
+         "cn-input-otp flex items-center has-disabled:opacity-50",
+-        containerClassName
++        containerClassName,
+       )}
+       spellCheck={false}
+       className={cn("disabled:cursor-not-allowed", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -31,12 +33,12 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
+     <div
+       data-slot="input-otp-group"
+       className={cn(
+-        "flex items-center rounded-lg has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40",
+-        className
++        "flex items-center rounded-lg not-focus-within:has-aria-invalid:border-destructive",
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function InputOTPSlot({
+@@ -44,18 +46,18 @@ function InputOTPSlot({
+   className,
+   ...props
+ }: React.ComponentProps<"div"> & {
+-  index: number
++  index: number;
+ }) {
+-  const inputOTPContext = React.useContext(OTPInputContext)
+-  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}
++  const inputOTPContext = React.useContext(OTPInputContext);
++  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {};
+ 
+   return (
+     <div
+       data-slot="input-otp-slot"
+       data-active={isActive}
+       className={cn(
+-        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-all outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-3 data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40",
+-        className
++        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-all outline-none first:rounded-s-lg first:border-s last:rounded-e-lg not-data-[active=true]:aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring/70 dark:bg-input/30",
++        className,
+       )}
+       {...props}
+     >
+@@ -66,7 +68,7 @@ function InputOTPSlot({
+         </div>
+       )}
+     </div>
+-  )
++  );
+ }
+ 
+ function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
+@@ -77,10 +79,9 @@ function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
+       role="separator"
+       {...props}
+     >
+-      <MinusIcon
+-      />
++      <MinusIcon />
+     </div>
+-  )
++  );
+ }
+ 
+-export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator }
++export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator };

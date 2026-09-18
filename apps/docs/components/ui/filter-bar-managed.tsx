@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.9.1 sha256-FRo6VayBDhozeuksEKihdzcDUamevHlm6EjmUaIlMPw=
+// @vegastack filter-bar-managed@0.9.1 sha256-3b1RC3NVvsG6dO2ydoX0WhBdF2amMKInM89DEdtyHfY=
 
 "use client";
 
@@ -236,7 +236,6 @@ function TextValueEditor<V>({
   void field;
   return (
     <Input
-      size="sm"
       id={id}
       aria-label={ariaLabel}
       aria-invalid={ariaInvalid || undefined}

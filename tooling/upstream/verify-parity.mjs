@@ -14,6 +14,8 @@
 //   4. Every required ID the exception map assigns to that component appears in its header.
 //   5. A registry name with no upstream counterpart is listed in upstream/ours.json.
 //   6. A retired name is absent from the registry, and carries no patch.
+//   7. A name recorded as a FILELESS upstream item (upstream/migrated.json `exempt`) really has no
+//      file on either side — upstream ships none, and neither do we.
 //
 // WHY THE EXCEPTIONS CHECK LIVES HERE AND NOT IN ITS OWN FILE
 //   The mandate (§ 5) sketches `verify-exceptions.mjs` as a fifth script. Checks 3 and 4 need the
@@ -48,6 +50,7 @@ import {
   parsePatch,
   parseDecisionsMarkdown,
   decisions,
+  exemptUpstreamItems,
   migrated,
   ours,
   retired,
@@ -84,6 +87,7 @@ export function checkTree({
   migratedSet,
   oursMap,
   retiredSet,
+  exemptMap = {},
 }) {
   const failures = [];
   const upstreamNames = existsSync(join(vendorDir, "ui"))
@@ -113,6 +117,21 @@ export function checkTree({
     }
     if (existsSync(join(patchDir, `${name}.patch`))) {
       failures.push(`${name}: retired, but still carries a patch`);
+    }
+  }
+
+  // 7. An exempt name really is fileless, on BOTH sides.
+  for (const name of Object.keys(exemptMap)) {
+    if (upstreamSet.has(name)) {
+      failures.push(
+        `${name}: recorded as an upstream item with no file, but vendor ships ui/${name}.tsx — ` +
+          `migrate it instead of exempting it`,
+      );
+    }
+    if (registryNames.includes(name)) {
+      failures.push(
+        `${name}: recorded as an upstream item with no file, but packages/ui/registry/ui has one`,
+      );
     }
   }
 
@@ -208,7 +227,7 @@ export function checkTree({
       `${migratedSet.size}/${upstreamNames.length} upstream components migrated ` +
       `(${withPatch} patched, ${migratedSet.size - withPatch} verbatim) · ` +
       `${registryNames.length} registry names · ${Object.keys(oursMap).length} recorded extras · ` +
-      `${retiredSet.size} retired`,
+      `${Object.keys(exemptMap).length} fileless upstream items · ${retiredSet.size} retired`,
   };
 }
 
@@ -222,6 +241,7 @@ function live() {
     migratedSet: migrated(),
     oursMap: ours(),
     retiredSet: retired(),
+    exemptMap: exemptUpstreamItems(),
   });
 }
 
@@ -335,6 +355,16 @@ function selfTest() {
     }),
   );
 
+  writeFileSync(join(canonicalDir, "demo.tsx"), UPSTREAM);
+  claim(
+    "a fileless-upstream exemption naming a name upstream DOES ship a file for is rejected",
+    fails({
+      migratedSet: new Set(),
+      oursMap: { extra: {}, demo: {} },
+      exemptMap: { demo: "reason" },
+    }),
+  );
+
   rmSync(dir, { recursive: true, force: true });
 
   if (failures.length) {
@@ -343,7 +373,7 @@ function selfTest() {
     );
     return 1;
   }
-  console.log(`${PREFIX}:selftest OK — 9 claims observed`);
+  console.log(`${PREFIX}:selftest OK — 10 claims observed`);
   return 0;
 }
 

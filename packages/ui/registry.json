@@ -265,7 +265,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/input", "@vegastack/spinner"],
+      "registryDependencies": ["@vegastack/input-group", "@vegastack/spinner"],
       "files": [
         {
           "path": "packages/ui/registry/ui/auto-save-input.tsx",
@@ -471,6 +471,32 @@
       }
     },
     {
+      "name": "calendar",
+      "type": "registry:ui",
+      "title": "Calendar",
+      "description": "A date-field calendar built on react-day-picker — single, multiple and range selection, month/year dropdowns, week numbers and custom cell sizes.",
+      "categories": ["form"],
+      "dependencies": [
+        "react-day-picker@^10.0.1",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": ["@vegastack/button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/calendar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/calendar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing one or more dates from a month grid — a booking range, a report period, a due date inside a Popover.",
+        "whenNotToUse": "A free-text date a user already knows (an input with a mask) or a time-only value.",
+        "version": "0.9.1"
+      }
+    },
+    {
       "name": "card",
       "type": "registry:ui",
       "title": "Card",
@@ -523,11 +549,10 @@
       "name": "checkbox",
       "type": "registry:ui",
       "title": "Checkbox",
-      "description": "A binary (or tri-state) toggle — checked, unchecked, indeterminate, disabled, built on Base UI Checkbox.",
+      "description": "A binary (or indeterminate) toggle built on Base UI Checkbox, with a 24px invisible hit area (A11Y-2).",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -708,19 +733,15 @@
       "name": "combobox",
       "type": "registry:ui",
       "title": "Combobox",
-      "description": "A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.",
+      "description": "A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, an announced empty state, and a multi-select chips mode.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [
-        "@vegastack/chip",
-        "@vegastack/floating-surface"
-      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/input-group"],
       "files": [
         {
           "path": "packages/ui/registry/ui/combobox.tsx",
@@ -1094,6 +1115,27 @@
       }
     },
     {
+      "name": "direction",
+      "type": "registry:ui",
+      "title": "Direction",
+      "description": "Base UI's DirectionProvider and useDirection — the text-direction context every component reads for its logical-property layout.",
+      "categories": ["layout"],
+      "dependencies": ["@base-ui/react@^1.6.0"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/direction.tsx",
+          "type": "registry:ui",
+          "target": "@ui/direction.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Rendering a right-to-left subtree, or reading the active direction inside a component.",
+        "whenNotToUse": "Setting the document direction — that is the `dir` attribute on <html>.",
+        "version": "0.9.1"
+      }
+    },
+    {
       "name": "drag-item",
       "type": "registry:lib",
       "title": "Drag Item",
@@ -1256,18 +1298,15 @@
       "name": "field",
       "type": "registry:ui",
       "title": "Field",
-      "description": "A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.",
+      "description": "The form-field scaffold — label, description, error, legend, separator and choice-card layouts in vertical, horizontal or responsive orientation.",
       "categories": ["form"],
       "dependencies": [
-        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [
-        "@vegastack/input",
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": ["@vegastack/label", "@vegastack/separator"],
       "files": [
         {
           "path": "packages/ui/registry/ui/field.tsx",
@@ -11790,7 +11829,7 @@
       "name": "input",
       "type": "registry:ui",
       "title": "Input",
-      "description": "A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus-visible ring, and optional prefix/suffix addons.",
+      "description": "A styled Base UI input for every text-entry type — Field-aware state, invalid and disabled chrome, and the text-entry focus border tint (FOC-3).",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -11808,6 +11847,61 @@
       "meta": {
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "input-group",
+      "type": "registry:ui",
+      "title": "Input Group",
+      "description": "An input or textarea with addons — icons, text, buttons, kbd hints, spinners and dropdowns, aligned inline or block, sharing one bordered surface.",
+      "categories": ["form"],
+      "dependencies": [
+        "class-variance-authority@^0.7.1",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/input",
+        "@vegastack/textarea"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/input-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/input-group.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
+        "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
+        "version": "0.9.1"
+      }
+    },
+    {
+      "name": "input-otp",
+      "type": "registry:ui",
+      "title": "Input OTP",
+      "description": "A one-time-password field with per-character slots — copy/paste aware, patterned, separable, and driven by one hidden input.",
+      "categories": ["form"],
+      "dependencies": [
+        "input-otp@^1.5.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/input-otp.tsx",
+          "type": "registry:ui",
+          "target": "@ui/input-otp.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Entering a short verification code — 2FA, email confirmation, a device-pairing PIN.",
+        "whenNotToUse": "Any value longer than a handful of characters, or one the user may not know the length of — use an Input.",
         "version": "0.9.1"
       }
     },
@@ -12071,6 +12165,31 @@
       }
     },
     {
+      "name": "native-select",
+      "type": "registry:ui",
+      "title": "Native Select",
+      "description": "The platform <select>, tokenized — the OS picker on mobile, option groups, and the same chrome as every other field.",
+      "categories": ["form"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/native-select.tsx",
+          "type": "registry:ui",
+          "target": "@ui/native-select.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A short list of plain options where the platform picker is the better experience — mobile forms, dense tables, settings rows.",
+        "whenNotToUse": "Options that need icons, descriptions or custom markup, or a list long enough to want search — use Select or Combobox.",
+        "version": "0.9.1"
+      }
+    },
+    {
       "name": "navigation-menu",
       "type": "registry:ui",
       "title": "Navigation Menu",
@@ -12296,7 +12415,10 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/icon-button", "@vegastack/input"],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/input-group"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/password-input.tsx",
@@ -12463,11 +12585,10 @@
       "name": "radio-group",
       "type": "registry:ui",
       "title": "Radio Group",
-      "description": "A set of mutually-exclusive options — single selection, arrow-key navigation, disabled, built on Base UI Radio Group.",
+      "description": "A set of mutually-exclusive options — single selection, arrow-key navigation, and a 24px invisible hit area (A11Y-2). Built on Base UI Radio Group.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12698,16 +12819,15 @@
       "name": "select",
       "type": "registry:ui",
       "title": "Select",
-      "description": "A dropdown for choosing one option — trigger with value and chevron, grouped scrollable popup, full keyboard navigation, animated enter/exit.",
+      "description": "A dropdown for choosing one option — trigger with value and chevron, grouped scrollable popup, item-aligned positioning, and full keyboard navigation.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "files": [
         {
           "path": "packages/ui/registry/ui/select.tsx",
@@ -12891,7 +13011,7 @@
       "name": "slider",
       "type": "registry:ui",
       "title": "Slider",
-      "description": "Pick a number or a [from, to] range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.",
+      "description": "Pick a number or a range from a continuous track — horizontal or vertical, any number of thumbs, each with a 24px invisible hit area (A11Y-2).",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -13099,11 +13219,10 @@
       "name": "switch",
       "type": "registry:ui",
       "title": "Switch",
-      "description": "An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.",
+      "description": "An on/off toggle for instant, self-saving binary settings — two sizes and a 24px invisible hit area (A11Y-2). Built on Base UI Switch.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13293,7 +13412,7 @@
       "name": "textarea",
       "type": "registry:ui",
       "title": "Textarea",
-      "description": "A styled native textarea for multi-line text — error/disabled states, a focus-visible ring, and an optional auto-grow mode.",
+      "description": "A styled native textarea for multi-line text — auto-sizing to its content, invalid and disabled chrome, and the text-entry focus border tint (FOC-3).",
       "categories": ["form"],
       "dependencies": [
         "@vegastack/design@^0.4.1",

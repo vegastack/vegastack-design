@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.9.1 sha256-QThl2kCz+uFegbfsD4Y57LoJqNUonrGToduPZZ1Xq6I=
+// @vegastack media-player-controls@0.9.1 sha256-0CIbiPEvF8WXQY2SBkzrPI4xcd4xM/vcMyE2AMQ2DHs=
 
 "use client";
 
@@ -30,6 +30,54 @@ import {
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Slider } from "@/components/ui/slider";
+
+/* ------------------------------------------------------------------------------------------------
+ * Media Slider looks
+ *
+ * Batch 3 of the shadcn reset put `Slider` back on upstream's file, which has exactly ONE look: a
+ * `muted` track, a `primary` indicator and an always-drawn thumb. The three looks the media
+ * surfaces need used to be `variant`/`thumb` props on our fork (`media`, `overlay`, `bare`/`none`).
+ * They are call-site class strings now — the player asks for its look, the component owns none of
+ * it. Batch 7 rebuilds this component; these are what keep it looking right until then.
+ * ----------------------------------------------------------------------------------------------*/
+
+/** The in-page player: a slightly thicker rail whose fill brightens on hover, focus and drag. */
+const MEDIA_SLIDER =
+  "[&_[data-slot=slider-track]]:data-horizontal:h-1.5 [&_[data-slot=slider-track]]:data-vertical:w-1.5 " +
+  "[&_[data-slot=slider-range]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:border-muted-foreground " +
+  "[&_[data-slot=slider-thumb]]:bg-muted-foreground " +
+  "hover:[&_[data-slot=slider-range]]:bg-foreground focus-within:[&_[data-slot=slider-range]]:bg-foreground " +
+  "hover:[&_[data-slot=slider-thumb]]:border-foreground hover:[&_[data-slot=slider-thumb]]:bg-foreground " +
+  "focus-within:[&_[data-slot=slider-thumb]]:border-foreground focus-within:[&_[data-slot=slider-thumb]]:bg-foreground";
+
+/** The overlay player, drawn over video: media ink on a translucent rail. */
+const OVERLAY_SLIDER =
+  "[&_[data-slot=slider-track]]:bg-media-foreground/60 [&_[data-slot=slider-range]]:bg-media-foreground " +
+  "[&_[data-slot=slider-thumb]]:border-media-foreground [&_[data-slot=slider-thumb]]:bg-media-foreground";
+
+/* The seek rail grows under the pointer and on focus, so the target is thin at rest and easy to
+ * hit while it is being used. `transition-[height,width]` covers both orientations. */
+const GROWING_RAIL =
+  "[&_[data-slot=slider-track]]:transition-[height,width] " +
+  "[&_[data-slot=slider-track]]:data-horizontal:h-1 [&_[data-slot=slider-track]]:data-vertical:w-1 " +
+  "hover:[&_[data-slot=slider-track]]:data-horizontal:h-1.5 hover:[&_[data-slot=slider-track]]:data-vertical:w-1.5 " +
+  "focus-within:[&_[data-slot=slider-track]]:data-horizontal:h-1.5 focus-within:[&_[data-slot=slider-track]]:data-vertical:w-1.5";
+
+/* The seek thumb is hidden at rest on hover-capable devices and shown on hover, focus or drag — it
+ * stays VISIBLE on touch, where there is no hover to reveal it with and a hidden thumb means no
+ * scrub affordance at all (audit B4-04). Tailwind's own `hover:` variant is wrapped in
+ * `@media (hover: hover)`, so the hide has to name the same query or the two would disagree. */
+const HOVER_THUMB =
+  "[&_[data-slot=slider-thumb]]:transition-opacity " +
+  "[@media(hover:hover)]:[&_[data-slot=slider-thumb]]:opacity-0 " +
+  "hover:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 " +
+  "[&_[data-slot=slider-thumb][data-dragging]]:opacity-100";
+
+/* The waveform layer is a transparent hit target over custom-drawn bars: the bars ARE the position
+ * cue, so nothing of the slider is painted, and the thumb stays focusable so arrow/Home/End seek. */
+const BARE_SLIDER =
+  "[&_[data-slot=slider-track]]:bg-transparent [&_[data-slot=slider-range]]:bg-transparent " +
+  "[&_[data-slot=slider-thumb]]:border-transparent [&_[data-slot=slider-thumb]]:bg-transparent";
 import {
   Tooltip,
   TooltipContent,
@@ -298,9 +346,17 @@ function MediaProgressSlider({
         // hover/focus/drag — but it stays VISIBLE on touch, where there is no
         // hover to reveal it with and a hidden thumb means no scrub affordance
         // at all (audit B4-04). `Slider` owns that rule; the player just asks.
-        variant={variant === "overlay" ? "overlay" : "media"}
-        thumb="hover"
-        value={value}
+        className={cn(
+          variant === "overlay" ? OVERLAY_SLIDER : MEDIA_SLIDER,
+          GROWING_RAIL,
+          HOVER_THUMB,
+        )}
+        /*
+         * `[value]`, not `value`: upstream's Slider counts thumbs from the ARRAY form
+         * (`Array.isArray(value) ? value : … : [min, max]`), so a scalar falls through to the
+         * two-element fallback and renders TWO thumbs. Batch 3 of the shadcn reset.
+         */
+        value={[value]}
         min={0}
         max={max}
         step={1}
@@ -365,8 +421,8 @@ function MediaWaveformSeek({
         Bars are decoration only (`aria-hidden`); the transparent Slider on top
         owns all keyboard/pointer/seek semantics and the hidden range input. No
         visible scrubber — the fill IS the position cue, which is exactly what
-        `Slider variant="bare" thumb="none"` describes: a transparent rail and
-        no drawn thumb, still focusable so arrow/Home/End seeking works.
+        `BARE_SLIDER` above describes: a transparent rail and no painted thumb,
+        still focusable so arrow/Home/End seeking works.
 
         Two aligned layers make the progress edge smooth: a muted base under a
         `muted-foreground` played copy clipped to the exact played ratio. The clip
@@ -382,16 +438,19 @@ function MediaWaveformSeek({
         {renderBars("bg-muted-foreground")}
       </div>
       <Slider
-        variant="bare"
-        thumb="none"
-        value={value}
+        /*
+         * `[value]`, not `value`: upstream's Slider counts thumbs from the ARRAY form
+         * (`Array.isArray(value) ? value : … : [min, max]`), so a scalar falls through to the
+         * two-element fallback and renders TWO thumbs. Batch 3 of the shadcn reset.
+         */
+        value={[value]}
         min={0}
         max={max}
         step={1}
         disabled={disabled}
         aria-label={`${label} seek`}
         onValueChange={onValueChange}
-        className="absolute inset-0"
+        className={cn("absolute inset-0", BARE_SLIDER)}
       />
     </div>
   );
@@ -1045,16 +1104,18 @@ export function MediaPlayerControls({
             <Slider
               orientation="vertical"
               thumbAlignment="edge"
-              variant={isOverlay ? "overlay" : "media"}
-              value={Math.round(volume * 100)}
+              value={[Math.round(volume * 100)]}
               min={0}
               max={100}
               step={1}
               aria-label={`${label} volume`}
               onValueChange={setVolumeValue}
-              className={
-                isOverlay ? "h-[calc(2.5rem+var(--spacing)*4)] w-6" : "h-20 w-6"
-              }
+              className={cn(
+                isOverlay ? OVERLAY_SLIDER : MEDIA_SLIDER,
+                isOverlay
+                  ? "h-[calc(2.5rem+var(--spacing)*4)] w-6"
+                  : "h-20 w-6",
+              )}
             />
           </div>
         </div>
