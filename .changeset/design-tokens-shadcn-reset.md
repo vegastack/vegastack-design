@@ -1,8 +1,8 @@
 ---
-"@vegastack/design-tokens": major
+"@vegastack/design-tokens": minor
 ---
 
-⚠️ **1.0 — the token contract is shadcn `base-nova`'s `neutral` base plus our recorded additions, and every deleted family is gone with no alias.**
+⚠️ **The shadcn `base-nova` reset — the token contract is shadcn `base-nova`'s `neutral` base plus our recorded additions, and every deleted family is gone with no alias.**
 
 94 resolved tokens per theme, down from 185. **Deleted:** the surface ladder
 (`--surface-1/2/3`, `--surface-raised`), the 22-entry `--alpha-*` ladder, the `--opacity-*` ladder,
@@ -18,4 +18,4 @@ Geist families, and the `--duration-*`/`--motion-ease-*` pairs behind the `motio
 **Who this affects:** every consumer, including ones that never touched a component. A deleted token
 compiles to nothing rather than failing, so a page keeps rendering and quietly looks wrong. The
 searches that find every holdover, and the write-instead table for each family, are
-`docs/MIGRATING-1.0.md` §§ 3–5 and § 11.
+the migration guide §§ 3–5 and § 11.

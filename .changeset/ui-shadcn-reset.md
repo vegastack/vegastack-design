@@ -1,8 +1,8 @@
 ---
-"@vegastack/ui": major
+"@vegastack/ui": minor
 ---
 
-⚠️ **1.0 — every component shadcn ships is now upstream's own file plus a recorded patch, and there is no compatibility layer.**
+⚠️ **The shadcn `base-nova` reset — every component shadcn ships is now upstream's own file plus a recorded patch, and there is no compatibility layer.**
 
 62 upstream components were reset onto pinned `shadcn@4.21.0` `base-nova`, so their props, variants
 and behaviour are upstream's; 13 are new here (`aspect-ratio`, `button-group`, `calendar`, `carousel`,
@@ -23,4 +23,4 @@ What is ours is 60 recorded exceptions, every one traceable: a component's docs 
 
 **Who this affects:** every consumer. Re-pull every copied-in component; a retired import fails to
 resolve, and each retirement's prop map — including what did **not** survive it — is in
-`docs/MIGRATING-1.0.md` § 7.
+the migration guide § 7.

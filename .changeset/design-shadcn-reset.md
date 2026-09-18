@@ -1,8 +1,8 @@
 ---
-"@vegastack/design": major
+"@vegastack/design": minor
 ---
 
-⚠️ **1.0 — the runtime and token bridge are rebuilt on shadcn `base-nova`, with no compatibility layer.**
+⚠️ **The shadcn `base-nova` reset — the runtime and token bridge are rebuilt on shadcn `base-nova`, with no compatibility layer.**
 
 `cn` is plain `twMerge` again, because the custom font-size class group it extended no longer exists,
 and seven shared class-string recipes are **deleted with no alias**: `surfaceInteractive`,
@@ -15,4 +15,4 @@ it expanded to, or compose the upstream component it was re-deriving. `cn`, `TIM
 
 **Who this affects:** every consumer. Nothing is deprecated first — an import of a removed export
 fails to resolve. The complete break, with a replacement for each removed export, is
-`docs/MIGRATING-1.0.md` § 6.
+the migration guide § 6.
