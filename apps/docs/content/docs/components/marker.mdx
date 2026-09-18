@@ -183,8 +183,8 @@ the role from intent rather than relying on one default.
 ## Do / Don't
 
 <DoDont
-  do="Render an interactive marker as a real <a> or <button> through render, and give a streaming one role=\"status\"."
-  dont="Add role=\"separator\" to a labelled divider — the label stops being announced."
+  do="Render an interactive marker as a real anchor or button through the render prop, and give a streaming one role=status so the update is announced."
+  dont="Put role=separator on a labelled divider — a separator takes its name from aria-label, so the visible label stops being announced."
 />
 
 ## Deviations
