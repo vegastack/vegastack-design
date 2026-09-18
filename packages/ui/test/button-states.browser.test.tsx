@@ -4,7 +4,6 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { Button } from "../registry/ui/button";
-import { IconButton } from "../registry/ui/icon-button";
 
 /**
  * Button state gate. The unit suite runs WITHOUT compiled CSS, so a claim about geometry, opacity
@@ -25,7 +24,7 @@ import { IconButton } from "../registry/ui/icon-button";
  *  - the `destructive` variant paints a TINT and inks it with `--destructive-text` (A11Y-13);
  *  - a keyboard-focused button paints the ONE global outline and no ring/box-shadow glow
  *    (FOC-1 / FOC-6) — the class-string half is asserted in the unit test, the painted half here;
- *  - `IconButton` is a true square at every tier and `shape="round"` is actually round.
+ *  - the four icon sizes are true squares, and `rounded-full` is actually round.
  */
 
 const VARIANTS = [
@@ -133,17 +132,20 @@ test("FOC-1 / FOC-6: a keyboard-focused button paints one outline and no glow", 
   }
 });
 
-test("IconButton is a true square at every size, and shape=round is round", async () => {
+// Batch 7a of the shadcn reset retired `IconButton` in favour of upstream's four icon sizes on
+// `Button`. The geometry claim survives the wrapper: these are the sizes a consumer now writes,
+// and `rounded-full` is the shape the wrapper's `shape="round"` used to apply.
+test("each icon size is a true square, and rounded-full is round", async () => {
   for (const [size, px] of [
-    ["xs", 24],
-    ["sm", 28],
-    ["md", 32],
-    ["lg", 36],
+    ["icon-xs", 24],
+    ["icon-sm", 28],
+    ["icon", 32],
+    ["icon-lg", 36],
   ] as const) {
     const screen = await render(
-      <IconButton aria-label="Add" size={size} data-testid={`s-${size}`}>
+      <Button aria-label="Add" size={size} data-testid={`s-${size}`}>
         <svg aria-hidden="true" />
-      </IconButton>,
+      </Button>,
     );
     const box = screen
       .getByTestId(`s-${size}`)
@@ -154,9 +156,14 @@ test("IconButton is a true square at every size, and shape=round is round", asyn
   }
 
   const round = await render(
-    <IconButton aria-label="Dismiss" shape="round" data-testid="round">
+    <Button
+      aria-label="Dismiss"
+      size="icon"
+      className="rounded-full"
+      data-testid="round"
+    >
       <svg aria-hidden="true" />
-    </IconButton>,
+    </Button>,
   );
   const element = round.getByTestId("round").element();
   const { width } = element.getBoundingClientRect();

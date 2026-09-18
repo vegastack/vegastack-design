@@ -117,8 +117,9 @@ four status families surface as EXTRA`variant`values written in upstream's own`d
 - **Render-prop contract** — a component owning a SINGLE polymorphic root must expose Base UI's
   `render` prop: either a thin Base UI wrapper (props extend the Base UI component's own, never
   `Omit<…, 'render'>`), or you own the root via `useRender` with `render?: useRender.RenderProp`
-  threaded through. `Omit<…, 'render'>` is banned (`render-contract`) except for the allowlisted
-  `split-button.tsx`. Purely-presentational multi-element shells (Card, PageHeader, Empty) never had
+  threaded through. `Omit<…, 'render'>` is banned (`render-contract`) with no exemptions at all —
+  the one entry, `split-button.tsx`, went with Batch 7a of the shadcn reset.
+  Purely-presentational multi-element shells (Card, PageHeader, Empty) never had
   `render` — that is not a regression, and it is different from stripping one via `Omit`. A new
   exemption goes in the lint's allowlist with a one-line rationale, and needs review — do not add one
   to work around a type error.
@@ -146,12 +147,13 @@ four status families surface as EXTRA`variant`values written in upstream's own`d
   `<svg>` as an icon (`inline-svg-icon`).
 - **Icon-only controls are `<Button size="icon">`** — plus `icon-xs`, `icon-sm` and `icon-lg`,
   upstream's four square tiers, each needing an explicit `aria-label`, which `icon-button-name`
-  checks. `IconButton` survives Batch 2 only as a thin wrapper that maps its `xs · sm · md · lg`
-  onto those tiers; it is retired in Batch 7.
+  checks. There is no `IconButton`: Batch 7a of the shadcn reset retired it, so the accessible name
+  is a lint guarantee rather than a type-level one, and a round control is `className="rounded-full"`
+  on the same Button.
 - **Chevron policy** — `ChevronsUpDown` marks combobox-style triggers that filter/search (Combobox,
   CountrySelect, RegionSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
-  that open a fixed list (Select, DatePicker, SplitButton, Accordion — rotates 180°). Never mix the
-  two within one trigger family.
+  that open a fixed list (Select, DatePicker, ButtonGroup's menu trigger, Accordion — rotates
+  180°). Never mix the two within one trigger family.
 - **One size vocabulary, system-wide** — `xs`/`sm`/`md`/`lg`, on `--size-*`, with `md` the default
   tier. No component may name a tier `default`, and none may invent a private scale.
 - **No native interactive HTML** — canonical components may not render native

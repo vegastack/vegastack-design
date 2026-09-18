@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.9.1 sha256-LmiUU66/dXkVb+NjN8RpvqVAuW6gIzgyoqOnhnSvXGg=
+// @vegastack action-bar@0.9.1 sha256-oEXUY5bhAuYaOm2n10/Tg+T7Iut4SakgWt31bQCWumU=
 
 "use client";
 
@@ -242,7 +242,7 @@ export type ActionBarButtonProps = React.ComponentPropsWithRef<
  * still renders, but stays its own tab stop and the arrows skip it. This is that registration, with
  * the bar's default action shape (a `ghost` `sm` button) already applied.
  *
- * Pass `render` to change the shape — a destructive action, an `IconButton`, a menu trigger:
+ * Pass `render` to change the shape — a destructive action, an icon `Button`, a menu trigger:
  *
  * @example
  * <ActionBarButton onClick={tag}>Tag</ActionBarButton>

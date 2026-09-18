@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.9.1 sha256-JIm9o89YoR+1eBg0WfLDJPIDtURKvnxCRkn8LPPHmkc=
+// @vegastack media-player-controls@0.9.1 sha256-6osb/xitiuczKJI8M1zmLDiRQqTlt3Hyo5tslYIhh7w=
 
 "use client";
 
@@ -28,7 +28,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import { Slider } from "@/components/ui/slider";
 
 /* ------------------------------------------------------------------------------------------------
@@ -112,7 +111,7 @@ const MEDIA_SUBMENU_RADIO_ITEM_CLASS =
  * are authored once and never overridden per theme, so chrome over video always reads dark-scrim +
  * light-ink.
  *
- * The buttons are plain `IconButton variant="ghost" shape="round"` (D16 — there is no `glass`
+ * The buttons are plain `Button variant="ghost" size="icon-*"` in a `rounded-full` (D16 — there is no `glass`
  * variant). Their hue comes from the Button tone vars set HERE, once, instead of a colour override
  * per call site: `ghost` reads its rest ink from `--btn-ghost-ink` (`inherit`, so it picks up the
  * container's `text-media-foreground`), its hover ink from `--btn-tint`, and its hover/pressed wash
@@ -839,15 +838,14 @@ export function MediaPlayerControls({
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <IconButton
+          <Button
             aria-label={`${label} settings`}
-            size="md"
-            shape="round"
+            size="icon"
             variant="ghost"
-            className={MEDIA_ACTION_ICON_CLASS}
+            className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
           >
             <Settings />
-          </IconButton>
+          </Button>
         }
       />
       <DropdownMenuContent align="end" className="min-w-52">
@@ -944,21 +942,20 @@ export function MediaPlayerControls({
     <MediaControlTooltip
       content={playing ? "Pause (Space or K)" : "Play (Space or K)"}
     >
-      <IconButton
+      <Button
         aria-label={playing ? `Pause ${label}` : `Play ${label}`}
         aria-pressed={playing}
-        size="md"
-        shape="round"
+        size="icon"
         variant="ghost"
         onClick={togglePlayback}
-        className={iconClass}
+        className={cn("rounded-full", iconClass)}
       >
         {playing ? (
           <Pause className="fill-current" />
         ) : (
           <Play className="fill-current" />
         )}
-      </IconButton>
+      </Button>
     </MediaControlTooltip>
   );
   const playButton = renderPlayButton();
@@ -970,31 +967,29 @@ export function MediaPlayerControls({
   // centred play/pause on the second line. Skip stays on the keyboard either way.
   const rewindButton = (
     <MediaControlTooltip content={`Rewind ${skipSeconds}s (J)`}>
-      <IconButton
+      <Button
         aria-label={`Rewind ${skipSeconds} seconds`}
-        size="md"
-        shape="round"
+        size="icon"
         variant="ghost"
         onClick={() => skipBy(-skipSeconds)}
-        className={MEDIA_ACTION_ICON_CLASS}
+        className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
       >
         <RotateCcw />
-      </IconButton>
+      </Button>
     </MediaControlTooltip>
   );
 
   const forwardButton = (
     <MediaControlTooltip content={`Forward ${skipSeconds}s (L)`}>
-      <IconButton
+      <Button
         aria-label={`Forward ${skipSeconds} seconds`}
-        size="md"
-        shape="round"
+        size="icon"
         variant="ghost"
         onClick={() => skipBy(skipSeconds)}
-        className={MEDIA_ACTION_ICON_CLASS}
+        className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
       >
         <RotateCw />
-      </IconButton>
+      </Button>
     </MediaControlTooltip>
   );
 
@@ -1003,16 +998,15 @@ export function MediaPlayerControls({
   // supplied, mirroring the fullscreen control's conditional-on-handler pattern.
   const transcriptButton = onTranscriptClick ? (
     <MediaControlTooltip content="Transcript">
-      <IconButton
+      <Button
         aria-label={`${label} transcript`}
-        size="md"
-        shape="round"
+        size="icon"
         variant="ghost"
         onClick={onTranscriptClick}
-        className={MEDIA_ACTION_ICON_CLASS}
+        className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
       >
         <AudioLines />
-      </IconButton>
+      </Button>
     </MediaControlTooltip>
   ) : null;
 
@@ -1062,17 +1056,16 @@ export function MediaPlayerControls({
       }}
     >
       <MediaControlTooltip content={muted ? "Unmute (M)" : "Mute (M)"}>
-        <IconButton
+        <Button
           aria-label={muted ? `Unmute ${label}` : `Mute ${label}`}
           aria-pressed={muted}
-          size="md"
-          shape="round"
+          size="icon"
           variant="ghost"
           onClick={toggleMuted}
-          className={MEDIA_ACTION_ICON_CLASS}
+          className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
         >
           {muted ? <VolumeX /> : <Volume2 />}
-        </IconButton>
+        </Button>
       </MediaControlTooltip>
       {volumeOpen ? (
         <div
@@ -1115,17 +1108,16 @@ export function MediaPlayerControls({
     <MediaControlTooltip
       content={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
     >
-      <IconButton
+      <Button
         aria-label={`${isFullscreen ? "Exit fullscreen" : "Fullscreen"} ${label}`}
         aria-pressed={isFullscreen}
-        size="md"
-        shape="round"
+        size="icon"
         variant="ghost"
         onClick={onFullscreenToggle}
-        className={MEDIA_ACTION_ICON_CLASS}
+        className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
       >
         {isFullscreen ? <Minimize /> : <Maximize />}
-      </IconButton>
+      </Button>
     </MediaControlTooltip>
   ) : null;
 

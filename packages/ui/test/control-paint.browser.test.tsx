@@ -12,7 +12,6 @@ import {
   InputGroupText,
 } from "../registry/ui/input-group";
 import { NumberField } from "../registry/ui/number-field";
-import { OTPInput } from "../registry/ui/otp-input";
 import { Switch } from "../registry/ui/switch";
 import { Textarea } from "../registry/ui/textarea";
 import { Toaster, toast } from "../registry/ui/toast";
@@ -296,30 +295,14 @@ describe("Switch — the track is painted, in both states", () => {
   });
 });
 
-describe("Text entry suppresses the global focus ring", () => {
-  /**
-   * `outline-hiddencaret-foreground` left the OTP slot as the one text-entry surface in the system
-   * wearing the 2px `:focus-visible` outline — contradicting its own JSDoc and AGENTS.md
-   * § Accessibility, and passing the geometry lane's focus assertion BECAUSE of the defect.
-   */
-  test("a focused OTP slot shows no outline; the border tint is the affordance", async () => {
-    const screen = await render(
-      <Stage>
-        <OTPInput data-testid="otp-focus" aria-label="code" length={4} />
-      </Stage>,
-    );
-    await settle();
-    const slot = within(screen.container).slot("otp-input-slot");
-    const rest = numbers(getComputedStyle(slot).borderTopColor);
-    slot.focus();
-    await settle();
-    const focused = getComputedStyle(slot);
-    // `outline-hidden` compiles to a TRANSPARENT 2px outline (kept so `forced-colors: active` has
-    // something to repaint), which computes as `outline-style: none`.
-    expect(focused.outlineStyle).toBe("none");
-    expect(numbers(focused.borderTopColor)).not.toEqual(rest);
-  });
-});
+/*
+ * "Text entry suppresses the global focus ring" USED to live here, mounting our `OTPInput` and
+ * focusing one slot. Batch 7a of the shadcn reset retired that component for upstream's
+ * `input-otp`, whose real control is ONE hidden input behind presentational slot divs — there is no
+ * slot to focus. The claim is not dropped: `geometry.browser.test.tsx`'s `TEXT_ENTRY_SLOTS` pins
+ * `[data-slot=input-otp]` to branch (B), asserting `outline-style: none` outright on a really
+ * focused element, which is the stronger form of the same measurement.
+ */
 
 describe("NumberField — the stepper is muted ink with a hover step", () => {
   test("the stepper rests on muted-foreground, not foreground", async () => {
@@ -347,18 +330,17 @@ describe("NumberField — the stepper is muted ink with a hover step", () => {
 
 describe("aria-invalid reaches the element that paints the tint", () => {
   /**
-   * `aria-invalid` was accepted and inert on two controls: on `OTPInput` it landed on
+   * `aria-invalid` was accepted and inert on two controls: on the retired `OTPInput` it landed on
    * `OTPField.Root` and the slots never saw it; on `NumberField` it landed on the
    * `[data-field-group]` element itself, and `"rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring data-focused:border-ring not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30"`'s `has-aria-invalid:` is a
    * `:has()` over DESCENDANTS. Both measured the neutral `--input` hairline.
    *
    * `<Input aria-invalid />` is the reference: it is the path that always worked.
    */
-  test("a standalone invalid OTPInput and NumberField tint like an invalid Input", async () => {
+  test("a standalone invalid NumberField tints like an invalid Input", async () => {
     const screen = await render(
       <Stage>
         <Input data-testid="ref-invalid" aria-label="reference" aria-invalid />
-        <OTPInput aria-label="code" length={4} aria-invalid />
         <NumberField aria-label="quantity" defaultValue={1} aria-invalid />
       </Stage>,
     );
@@ -367,11 +349,8 @@ describe("aria-invalid reaches the element that paints the tint", () => {
     const reference = numbers(
       getComputedStyle(q.testId("ref-invalid")).borderTopColor,
     );
-    const slot = q.slot("otp-input-slot");
     const group = q.one("[data-field-group]");
 
-    expect(slot.getAttribute("aria-invalid")).toBe("true");
-    expect(numbers(getComputedStyle(slot).borderTopColor)).toEqual(reference);
     expect(numbers(getComputedStyle(group).borderTopColor)).toEqual(reference);
     // Non-vacuous: the reference really is a different colour from the resting hairline.
     expect(reference).not.toEqual(numbers(token("--input")));

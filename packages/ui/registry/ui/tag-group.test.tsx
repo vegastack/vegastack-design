@@ -75,7 +75,7 @@ test("onRemove renders a labelled remove button and fires", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Remove SaaS" }));
   expect(onRemove).toHaveBeenCalledTimes(1);
   const remove = screen.getByRole("button", { name: "Remove SaaS" }).element();
-  // The shared ChipRemove: a round ghost IconButton whose REAL box is the target. The old
+  // The shared ChipRemove: a round ghost icon Button whose REAL box is the target. The old
   // `before:-inset-2` hit area was never hit-testable — Chromium clips a nested <button>'s
   // generated content to its own border box (see chip.test.tsx for the elementFromPoint proof).
   expect(remove.dataset.slot).toBe("chip-remove");
@@ -123,7 +123,7 @@ test("a Tag is the Chip primitive at the inline tier, with a real 24px remove co
   expect((tag as HTMLElement).dataset.hue).toBe("blue");
   expect((tag as HTMLElement).dataset.size).toBe("sm");
   const remove = screen.getByRole("button", { name: "Remove API" }).element();
-  // The shared ChipRemove — a real 24x24 IconButton, not the `::before` hit area that
+  // The shared ChipRemove — a real 24x24 icon Button, not the `::before` hit area that
   // native <button> clipping made un-hittable (B5-03). The real-geometry proof lives in
   // chip.test.tsx, which mirrors the compiled CSS this harness does not build.
   expect(remove.dataset.slot).toBe("chip-remove");

@@ -101,7 +101,7 @@ test("the quiet form renders message-only — no action, no dismiss", async () =
   ).toBeNull();
 });
 
-test("the dismiss control is an IconButton, so it inherits the 24px geometry", async () => {
+test("the dismiss control is an icon Button, so it inherits the 24px geometry", async () => {
   const screen = await render(
     <AnnouncementBanner dismissable>Old news.</AnnouncementBanner>,
   );
@@ -109,7 +109,7 @@ test("the dismiss control is an IconButton, so it inherits the 24px geometry", a
     .getByRole("button", { name: "Dismiss announcement" })
     .element() as HTMLElement;
   // The point of B7-06: the control is not a hand-rolled <button> with its own hit-area hack, so
-  // the target floor is IconButton's contract rather than this file's. Measured geometry lives in
+  // the target floor is Button's `icon-xs` contract rather than this file's. Measured geometry lives in
   // the contract lane — this env has no compiled sheet, so every rect here would be 0.
   expect(dismiss.dataset.slot).toBe("announcement-banner-dismiss");
   expect(dismiss.className).toContain("6");

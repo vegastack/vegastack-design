@@ -27,21 +27,20 @@ function Example(
   );
 }
 
-test("renders progress copy, segmented bar, and step rows", async () => {
+test("renders progress copy, the progress bar, and step rows", async () => {
   const screen = await render(<Example />);
   await expect
     .element(screen.getByText("1 of 3 steps completed"))
     .toBeInTheDocument();
   const bar = screen.getByRole("progressbar");
-  await expect.element(bar).toHaveAttribute("aria-valuenow", "33");
-  // B7-04: the bar IS `ProgressIndicator segments` — there is exactly ONE role="progressbar"
+  await expect.element(bar).toHaveAttribute("aria-valuenow", "1");
+  await expect.element(bar).toHaveAttribute("aria-valuemax", "3");
+  // B7-04: the bar IS upstream's `Progress` — there is exactly ONE role="progressbar"
   // in the tree, and it belongs to the primitive rather than a second hand-rolled copy.
   expect(screen.container.querySelectorAll('[role="progressbar"]').length).toBe(
     1,
   );
-  expect(bar.element()).toHaveAttribute("data-slot", "progress-indicator");
-  expect(bar.element()).toHaveAttribute("data-shape", "segments");
-  expect(bar.element()).toHaveAttribute("data-segments-fill", "");
+  expect(bar.element()).toHaveAttribute("data-slot", "progress");
   const doneItem = document.querySelector(
     '[data-slot="onboarding-checklist-item"][data-done]',
   ) as HTMLButtonElement;
@@ -104,7 +103,7 @@ test("progress clamps ABOVE the total — a complete checklist reads 100", async
   );
   await expect
     .element(screen.getByRole("progressbar"))
-    .toHaveAttribute("aria-valuenow", "100");
+    .toHaveAttribute("aria-valuenow", "3");
   await expect.element(screen.getByText("3 of 3")).toBeInTheDocument();
 });
 

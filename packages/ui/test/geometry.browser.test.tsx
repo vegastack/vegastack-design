@@ -332,7 +332,7 @@ function effectiveTargetProbe(element: Element) {
   // fractionally positioned control (here top 394.265625, bottom 418.265625) the final fraction
   // of a pixel resolves to the PARENT: ownership was measured to flip between 0.25px and 0.5px
   // inside the bottom edge. Probing at a hair's inset therefore reported a miss for perfectly
-  // sized 24px controls (attachment, code-block, filter-bar, password-input, text-edit) — always
+  // sized 24px controls (attachment, code-block, filter-bar, text-edit) — always
   // on the right/bottom edge, never left/top, the signature of snapping
   // rather than a real defect. An earlier 0.001px inset failed for the same reason and was
   // additionally below LayoutUnit precision (1/64 px) entirely.
@@ -428,7 +428,7 @@ const AUTHORED_OUTLINE =
  * instead)". These controls carry `outline-hidden` precisely so the global ring does NOT paint on
  * them, and the border tint is their whole affordance. The generic predicate below accepted
  * whichever branch happened to be true, so a text-entry control that had LOST its `outline-hidden`
- * passed on the ring it is not supposed to have: `otp-input-slot` measured
+ * passed on the ring it is not supposed to have: the retired `otp-input`'s slot measured
  * `outline-style: solid / 2px` here and this assertion went green, because a class-glue defect had
  * destroyed `outline-hidden` and handed it branch (A). Pinning the set to branch (B) — and
  * asserting `outline-style: none` outright — is what makes that visible.
@@ -442,7 +442,7 @@ const AUTHORED_OUTLINE =
  */
 const TEXT_ENTRY_SLOTS =
   "[data-slot=input],[data-slot=textarea],[data-slot=field-control]," +
-  "[data-slot=otp-input-slot],[data-slot=combobox-input]," +
+  "[data-slot=combobox-input]," +
   // Batch 3 of the shadcn reset added upstream's `input-otp`, whose real control is ONE hidden
   // input behind the slots, and `input-group-control`, which is the `Input`/`Textarea` inside an
   // `InputGroup`. Both are text entry: they suppress the global ring and signal focus with a

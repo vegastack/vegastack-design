@@ -92,7 +92,8 @@ it. Every one of those is upstream's own vocabulary, which this system now adopt
   and `Icon`/`BrandIcon` from `@vegastack/design/icons` are sanctioned. **error**
 - **`outline-none` with no replacement focus affordance** anywhere in the file. **error**
 - **Icon-only controls with no accessible name** — a button with no visible text needs `aria-label`
-  or `aria-labelledby`. Prefer `IconButton`, which requires it at the type level. **error**
+  or `aria-labelledby`. `<Button size="icon">` (and `icon-xs`/`icon-sm`/`icon-lg`) is the one
+  icon-only control; the name is never optional. **error**
 - **Missing states** — a surface that fetches data needs loading, empty, and error states, not just
   the success path. **warning**
 - **Truncation** — `truncate`/`line-clamp-*` on the same element as `flex`/`inline-flex` silently

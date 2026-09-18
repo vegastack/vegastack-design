@@ -35,14 +35,11 @@ import { CopyButtonPlayground } from "@/components/copy-button-playground";
 import { DialogPlayground } from "@/components/dialog-playground";
 import { FieldInlinePlayground } from "@/components/field-inline-playground";
 import { FieldPlayground } from "@/components/field-playground";
-import { IconButtonPlayground } from "@/components/icon-button-playground";
 import { ImagePlayground } from "@/components/image-playground";
 import { InputPlayground } from "@/components/input-playground";
 import { NotificationBellPlayground } from "@/components/notification-bell-playground";
-import { OTPInputPlayground } from "@/components/otp-input-playground";
 import { PaginationPlayground } from "@/components/pagination-playground";
 import { PopoverPlayground } from "@/components/popover-playground";
-import { ProgressIndicatorPlayground } from "@/components/progress-indicator-playground";
 import { ProgressPlayground } from "@/components/progress-playground";
 import { RadioGroupPlayground } from "@/components/radio-group-playground";
 import { RelativeTimePlayground } from "@/components/relative-time-playground";
@@ -51,7 +48,6 @@ import { ScrollAreaPlayground } from "@/components/scroll-area-playground";
 import { SelectPlayground } from "@/components/select-playground";
 import { SheetPlayground } from "@/components/sheet-playground";
 import { ToastPlayground } from "@/components/toast-playground";
-import { SplitButtonPlayground } from "@/components/split-button-playground";
 import { StatusIconPlayground } from "@/components/status-icon-playground";
 import { SwitchPlayground } from "@/components/switch-playground";
 import { TabsPlayground } from "@/components/tabs-playground";
@@ -108,14 +104,11 @@ export function getMDXComponents(components?: MDXComponents) {
     DialogPlayground,
     FieldInlinePlayground,
     FieldPlayground,
-    IconButtonPlayground,
     ImagePlayground,
     InputPlayground,
     NotificationBellPlayground,
-    OTPInputPlayground,
     PaginationPlayground,
     PopoverPlayground,
-    ProgressIndicatorPlayground,
     ProgressPlayground,
     RadioGroupPlayground,
     RelativeTimePlayground,
@@ -124,7 +117,6 @@ export function getMDXComponents(components?: MDXComponents) {
     SelectPlayground,
     SheetPlayground,
     ToastPlayground,
-    SplitButtonPlayground,
     StatusIconPlayground,
     SwitchPlayground,
     TabsPlayground,

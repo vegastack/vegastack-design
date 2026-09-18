@@ -60,8 +60,9 @@ that catch bugs nobody can see in review.
    `progress-indicator.tsx` (non-icon graphic primitives) and `registry/ui/icons/**` (the vendored
    lucide-animated mirrors, which are data modules with no JSX at all). (ICO-3.)
 7. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
-   UI's polymorphic `render` prop. The ONLY allowlisted exemption is `split-button.tsx` (a genuine
-   multi-root composite). "Purely presentational, no single root" (Card/PageHeader/Empty/SettingsRow)
+   UI's polymorphic `render` prop. There is NO allowlisted exemption: `split-button.tsx` was the one
+   entry, and Batch 7a of the shadcn reset retired it, so the rule now fails closed for every file.
+   "Purely presentational, no single root" (Card/PageHeader/Empty/SettingsRow)
    is a valid reason to have NO `render` prop at all, which is different from stripping one via
    `Omit` — do not accept the former as justification for the latter. (API-15.)
 8. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
@@ -83,9 +84,9 @@ that catch bugs nobody can see in review.
 11. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
     `<Button size="icon*">` with no `aria-label`/`aria-labelledby` on the same element AND no spread
     that could supply one. Upstream's Button HAS `icon`, `icon-xs`, `icon-sm` and `icon-lg` sizes
-    (API-4 is decided as **shadcn** and `IconButton` is retired in Batch 7), so from Batch 2 this
-    rule stops being a residual guard and becomes the live accessible-name check for every icon-only
-    button in the system.
+    (API-4 is decided as **shadcn**, and Batch 7a retired `IconButton`), so this rule is now the ONE
+    accessible-name check for every icon-only button in the system — there is no longer a wrapper
+    enforcing it at the type level.
 12. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
     assigned through `x.current = …` in one file. That pair is a ref fan-out and nothing else. Under
     React 19 ref-as-prop, "I need the node and must also forward it" is the normal case, so the

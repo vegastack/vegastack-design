@@ -1,4 +1,4 @@
-// @vegastack chip@0.9.1 sha256-cz/fNCxO+iDOjExAsL3YG1ENOu5EcgzbhlXHEH/QCnw=
+// @vegastack chip@0.9.1 sha256-sCZp5QrzrFUnhWAr4sx0SslrrUNVLRMRkX2E/3pG7bw=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { X } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { IconButton } from "@/components/ui/icon-button";
+import { Button } from "@/components/ui/button";
 
 /* ------------------------------------------------------------------------------------------------
  * Chip — THE pill primitive (audit 2026-09-07, B5-03 / 04-cross-cutting §1).
@@ -109,7 +109,7 @@ export interface ChipProps extends Omit<
   active?: boolean;
   /**
    * Render a remove affordance and call this when it is activated. The control is a real
-   * 24×24 `IconButton`, never a pseudo-element hit area.
+   * 24×24 `Button size="icon-xs"`, never a pseudo-element hit area.
    * @default undefined
    */
   onRemove?: () => void;
@@ -144,7 +144,7 @@ export interface ChipProps extends Omit<
  *
  * The chip itself is NOT interactive: it has no hover or pressed step, because nothing happens when
  * you click it. The remove control is the interactive part and it carries the full grammar — hover
- * climbs the surface ladder, pressing climbs one more — from the `ghost` `IconButton` it composes.
+ * climbs the surface ladder, pressing climbs one more — from the `ghost` `Button` it composes.
  *
  * @example
  * <Chip hue="blue" onRemove={() => remove("API")} removeLabel="Remove API">API</Chip>
@@ -200,10 +200,13 @@ export function Chip({
 }
 
 /** Props accepted by `ChipRemove`. */
-export type ChipRemoveProps = React.ComponentProps<typeof IconButton>;
+export type ChipRemoveProps = React.ComponentProps<typeof Button> & {
+  /** Overridable slot marker, so a wrapper can rename the control it composes. */
+  "data-slot"?: string;
+};
 
 /**
- * `ChipRemove` — the trailing `×` on a {@link Chip}. A round, ghost, 24×24 `IconButton`: the real
+ * `ChipRemove` — the trailing `×` on a {@link Chip}. A round, ghost, 24×24 `Button size="icon-xs"`: the real
  * border box IS the WCAG 2.5.8 target, so no invisible `::before` expansion is involved and nothing
  * can clip it. (`Tag`'s old pseudo-element hit area silently failed to expand anything at all —
  * Preflight's `appearance: button` clips generated content to a nested `<button>`'s own border box,
@@ -224,15 +227,14 @@ export function ChipRemove({
   ...props
 }: ChipRemoveProps) {
   return (
-    <IconButton
+    <Button
       variant="ghost"
-      size="xs"
-      shape="round"
+      size="icon-xs"
       data-slot={dataSlot ?? "chip-remove"}
-      className={cn("shrink-0", className)}
+      className={cn("rounded-full shrink-0", className)}
       {...props}
     >
       {children ?? <X className="size-3" aria-hidden />}
-    </IconButton>
+    </Button>
   );
 }

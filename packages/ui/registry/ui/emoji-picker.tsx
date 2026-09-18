@@ -1,21 +1,62 @@
-// @vegastack emoji-picker@0.9.1 sha256-wzepccxw7+5TI4pTb1DBNSnw/Dc3nS26Z0UECie79KI=
+// @vegastack emoji-picker@0.9.1 sha256-efe4Jc9sWVE87H/sd9wEVSn8iF4wpbfD8Rs1H06qEeE=
 
 "use client";
 
 import * as React from "react";
-import { SmilePlus } from "lucide-react";
+import { Search, SmilePlus } from "lucide-react";
+import { Input as BaseInput } from "@base-ui/react/input";
 import { cn, FLOATING } from "@vegastack/design";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { IconButton } from "@/components/ui/icon-button";
-import {
-  PanelSearchFrame,
-  PanelSearchInput,
-} from "@/components/ui/floating-surface";
+import { Button } from "@/components/ui/button";
 import { useListNav } from "@/components/ui/use-list-nav";
+
+/* ------------------------------------------------------------------------------------------------
+ * The panel's own search row (OVL-11): a sticky header with a leading glyph, a hairline below, and
+ * NO bordered box of its own — a bordered input inside a bordered popup nests two borders (B8-04).
+ * It used to be `floating-surface`'s shared `PanelSearchFrame`/`PanelSearchInput`; Batch 7a of the
+ * shadcn reset retired that component, and each popup owns its chrome instead.
+ * ----------------------------------------------------------------------------------------------*/
+
+function PanelSearch({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      data-slot="panel-search"
+      className={cn(
+        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3 focus-within:border-ring/70",
+        className,
+      )}
+    >
+      <Search aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+      {children}
+    </div>
+  );
+}
+
+function PanelSearchField({
+  className,
+  ...props
+}: React.ComponentProps<typeof BaseInput>) {
+  return (
+    <BaseInput
+      type="search"
+      className={cn(
+        "h-full w-full min-w-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
 /* ------------------------------------------------------------------------------------------------
  * EmojiPicker — a Popover-housed, searchable grid of emoji, grouped by category, that returns the
@@ -595,14 +636,14 @@ export function EmojiPicker({
         ref={ref}
         render={
           trigger ?? (
-            <IconButton
+            <Button
               variant="ghost"
-              size="sm"
+              size="icon-sm"
               className="text-muted-foreground"
               aria-label={triggerLabel}
             >
               <SmilePlus />
-            </IconButton>
+            </Button>
           )
         }
       />
@@ -619,15 +660,15 @@ export function EmojiPicker({
         <div className="flex flex-col">
           {/* Search — the shared in-panel recipe: leading glyph, no box of its own, hairline
               below. A bordered `Input` inside a bordered popup nests two borders (B8-04). */}
-          <PanelSearchFrame>
-            <PanelSearchInput
+          <PanelSearch>
+            <PanelSearchField
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
               data-slot="emoji-picker-search"
             />
-          </PanelSearchFrame>
+          </PanelSearch>
           <div
             data-slot="emoji-picker-status"
             role="status"
@@ -666,11 +707,11 @@ export function EmojiPicker({
                         flatIndex += 1;
                         const index = flatIndex;
                         return (
-                          <IconButton
+                          <Button
                             key={entry.char}
                             type="button"
                             variant="ghost"
-                            size="md"
+                            size="icon"
                             data-slot="emoji-picker-item"
                             aria-label={entry.name}
                             title={entry.name}
@@ -683,7 +724,7 @@ export function EmojiPicker({
                             className="text-lg leading-none"
                           >
                             <span aria-hidden>{entry.char}</span>
-                          </IconButton>
+                          </Button>
                         );
                       })}
                     </div>

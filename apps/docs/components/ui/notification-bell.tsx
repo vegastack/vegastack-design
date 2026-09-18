@@ -1,4 +1,4 @@
-// @vegastack notification-bell@0.9.1 sha256-K/vyBdGOJFSnwTYZQiqhZWKxBXCRHMA111YtxArKukI=
+// @vegastack notification-bell@0.9.1 sha256-Y6zSS8NwTLzEjnQgZcQ/zSYwI/XLDVnEXJd6jOysYrk=
 
 "use client";
 
@@ -6,11 +6,6 @@ import * as React from "react";
 import { Bell } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import {
-  IconButton,
-  type IconButtonOwnProps,
-  type IconButtonProps,
-} from "@/components/ui/icon-button";
 import { Badge } from "@/components/ui/badge";
 import { useAnimationReplay } from "@/components/ui/use-animation-replay";
 
@@ -45,7 +40,7 @@ function badgeKeyFor(count: number, dot: boolean): string {
  * with the `onClick` that opens the notifications surface.
  */
 export type NotificationBellProps = Omit<
-  IconButtonOwnProps,
+  ButtonOwnProps,
   "children" | "aria-label" | "label"
 > &
   ButtonAppearance & {
@@ -71,7 +66,7 @@ export type NotificationBellProps = Omit<
   };
 
 /**
- * `NotificationBell` — a bell {@link IconButton} with an unread-count badge
+ * `NotificationBell` — a bell icon `Button` with an unread-count badge
  * overlaid at the top inline-end edge. **Purely presentational:** the app provides `count` and
  * the `onClick` handler; this component owns no data-fetching or state.
  *
@@ -137,9 +132,13 @@ export function NotificationBell({
       data-unread={hasUnread ? "" : undefined}
       className={cn("relative inline-flex", className)}
     >
-      <IconButton {...(props as IconButtonProps)} aria-label={accessibleName}>
+      <Button
+        size="icon"
+        {...(props as ButtonOwnProps)}
+        aria-label={accessibleName}
+      >
         <Bell />
-      </IconButton>
+      </Button>
       {hasUnread ? (
         dot ? (
           // Dot mode stays a bare status dot — Badge has no 8px dot-only form.

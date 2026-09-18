@@ -1,19 +1,19 @@
-// @vegastack onboarding-checklist@0.9.1 sha256-aHXwbTkQdC6pJ/vmutMNI60ZQXtnygHxSai/GWDhfWU=
+// @vegastack onboarding-checklist@0.9.1 sha256-G49BP+gOLTt7R1wtp4lgqKh5ig65pvq9yTESKKFbkiM=
 
 "use client";
 
 import * as React from "react";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { IconButton } from "@/components/ui/icon-button";
-import { ProgressIndicator } from "@/components/ui/progress-indicator";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 /* ------------------------------------------------------------------------------------------------
  * OnboardingChecklist — the getting-started card (Wave 4, from the app teardown's floating
- * checklist): a title + "n of N" progress + segmented dash bar + icon action rows, collapsible
+ * checklist): a title + "n of N" progress + a determinate bar + icon action rows, collapsible
  * to a compact progress pill. Presentational: the HOST owns step state (`done` per item) and
  * what each action does; the component owns layout, progress math, and the collapse toggle.
- * The dash bar IS `ProgressIndicator segments` — this file owns no second `role="progressbar"`.
+ * The bar IS upstream's `Progress` — this file owns no second `role="progressbar"`.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props accepted by `OnboardingChecklist`. */
@@ -120,9 +120,9 @@ export function OnboardingChecklist({
     >
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-medium">{title}</h3>
-        <IconButton
+        <Button
           variant="ghost"
-          size="xs"
+          size="icon-xs"
           // Icon-only, so `aria-label` IS the accessible name here (no visible text to preserve —
           // unlike the collapsed pill above). `aria-expanded` pairs the two toggles.
           aria-label={collapseLabel}
@@ -132,7 +132,7 @@ export function OnboardingChecklist({
           className="text-muted-foreground"
         >
           <ChevronDown aria-hidden className="size-3.5" />
-        </IconButton>
+        </Button>
       </div>
       <p className="mt-0.5 text-xs text-muted-foreground">
         <span className="tabular-nums">
@@ -140,12 +140,11 @@ export function OnboardingChecklist({
         </span>{" "}
         steps completed
       </p>
-      {/* Segmented dash progress — the primitive, not a second copy of it (B7-04). One
-          `role="progressbar"` lives in `ProgressIndicator`; this component owns only the maths. */}
-      <ProgressIndicator
-        segments={clampedTotal}
-        segmentsFill
-        size="md"
+      {/* The progress bar is upstream's `Progress`, not a second copy of it (B7-04). One
+          `role="progressbar"` lives there; this component owns only the maths. Batch 7a of the
+          shadcn reset retired `progress-indicator`, whose segmented dash shape this used to take;
+          the value, the max and the accessible name are unchanged. */}
+      <Progress
         value={clampedDone}
         max={clampedTotal}
         aria-label={`${clampedDone} of ${clampedTotal} steps completed`}

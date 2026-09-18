@@ -15,7 +15,7 @@ import {
   AttachmentMedia,
   AttachmentTitle,
 } from "@/components/ui/attachment";
-import { IconButton } from "@/components/ui/icon-button";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -80,14 +80,14 @@ export function dropzone(): ReactNode {
                   </AttachmentDescription>
                 </AttachmentContent>
                 <AttachmentActions>
-                  <IconButton
+                  <Button
                     aria-label={`Remove ${file.name}`}
                     variant="ghost"
-                    size="xs"
+                    size="icon-xs"
                     onClick={() => removeFile(file, index)}
                   >
                     <X />
-                  </IconButton>
+                  </Button>
                 </AttachmentActions>
               </Attachment>
             ))}

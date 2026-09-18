@@ -276,7 +276,7 @@ test("chip value truncates within max-w-xs — the value span carries min-w-0 al
  * content to their own border box once nested a couple of levels deep (a genuine Chromium
  * behavior, verified by hand — identical CSS on a `<span>` at the same depth is NOT clipped), so a
  * pseudo would compute correctly via getComputedStyle but never actually be hit-testable. The
- * shared `ChipRemove` is instead a real 24x24 `IconButton size="xs"`. That means this suite doesn't
+ * shared `ChipRemove` is instead a real 24x24 `Button size="icon-xs"`. That means this suite doesn't
  * need the getComputedStyle(el, '::before') trick at all — the real box IS the hit area, so a plain
  * mirror of `width`/`height` is enough for a REAL getBoundingClientRect() + elementFromPoint()
  * measurement (this harness runs without compiled Tailwind, same as every other file in this

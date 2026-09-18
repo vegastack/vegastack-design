@@ -183,8 +183,8 @@ export function LiteralRules(_props: RenderlessProps) {
   // ── class-glue ──────────────────────────────────────────────────────────────────────────────
   // Two adjacent class literals joined by `+` with no separating space. The seam is invisible to
   // every literal-scoped rule, and it destroys the utility on BOTH sides — the exact shape of the
-  // four live defects found on `main` (switch ×2, otp-input, number-field), which is why this rule
-  // reads the AST rather than the literal.
+  // four live defects found on `main` (switch ×2, the retired OTP field, number-field), which is
+  // why this rule reads the AST rather than the literal.
   writeFileSync(
     join(classGlueDir, "class-glue.tsx"),
     `const glued =

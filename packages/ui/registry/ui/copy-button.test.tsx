@@ -43,7 +43,7 @@ test("showLabel renders visible status text and defaults to the small text-butto
   );
 
   // With a visible label the control is a text Button, so `sm` is the h-7 text tier rather than
-  // IconButton's square `size-7`.
+  // the icon Button's square `size-7`.
   await expect.element(btn).toHaveClass("h-7");
   await expect.element(btn).toHaveAttribute("data-label-visible", "");
   expect(label?.textContent).toBe("Copy");

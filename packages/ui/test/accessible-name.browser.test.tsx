@@ -260,7 +260,7 @@ test("command: an item names its label and its shortcut hint separately", async 
     .toBeInTheDocument();
 });
 
-test("floating-surface: a menu row names its label and its shortcut hint separately", async () => {
+test("dropdown-menu: a menu row names its label and its shortcut hint separately", async () => {
   await render(
     <DropdownMenu>
       <DropdownMenuTrigger>Open</DropdownMenuTrigger>

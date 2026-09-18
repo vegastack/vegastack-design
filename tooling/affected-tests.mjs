@@ -715,13 +715,24 @@ export function createAffectedPlan({
   const testedOwners = new Set([...affectedItems, ...directTestOwners]);
 
   const componentTests = [];
+  // A component test file that the range DELETED reaches here through `oldRecords`, exactly the way
+  // a DELETED cross-cutting suite reaches `crossByFile` above — and for the same reason: the base
+  // contracts are unioned in so the deletion classifies instead of failing as unowned. The same
+  // presence check keeps it out of the RUN. Handing vitest a path that no longer exists is not a
+  // no-op: vitest resolves no file, reports success, and the lane is silently empty — which is
+  // exactly the fail-open shape the affected selector exists to prevent. Batch 7a of the shadcn
+  // reset is the first range to delete twenty components at once and see it.
+  const droppedTestFiles = [];
   for (const owner of testedOwners) {
     if (owner === "__animated-icons__" || animatedIconNames.has(owner)) {
       componentTests.push("packages/ui/registry/ui/animated-icons.test.tsx");
       continue;
     }
     const record = currentRecords.get(owner) ?? oldRecords.get(owner);
-    for (const file of record?.testFiles ?? []) componentTests.push(file);
+    for (const file of record?.testFiles ?? []) {
+      if (existsSync(join(cwd, file))) componentTests.push(file);
+      else droppedTestFiles.push(file);
+    }
   }
 
   const previewModules = new Set();
@@ -782,6 +793,7 @@ export function createAffectedPlan({
     previewOwners: sorted(previewOwners),
     affectedItems,
     componentTestFiles: sorted(componentTests),
+    droppedTestFiles: sorted(droppedTestFiles),
     previewModules: sorted(previewModules),
     geometryFixtures: selectedGeometryFixtures,
     crossCuttingTestFiles: sorted(crossCuttingTests),
@@ -809,6 +821,8 @@ function printPlan(plan) {
   console.log(`  seeds: ${list(plan.seedItems)}`);
   console.log(`  affected items: ${list(plan.affectedItems)}`);
   console.log(`  component tests: ${list(plan.componentTestFiles)}`);
+  if (plan.droppedTestFiles.length > 0)
+    console.log(`  deleted in range, not run: ${list(plan.droppedTestFiles)}`);
   console.log(`  cross-cutting tests: ${list(plan.crossCuttingTestFiles)}`);
   console.log(`  geometry fixtures: ${list(plan.geometryFixtures)}`);
   console.log(`  broad groups: ${list(plan.broadImpactGroups)}`);

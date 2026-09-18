@@ -22,7 +22,7 @@ const VARIANT_OPTIONS = [
   { value: "link", label: "Link" },
 ] as const;
 
-/** The one size vocabulary — without a visible label the control is a square `IconButton`. */
+/** The one size vocabulary — without a visible label the control takes an icon size. */
 const SIZE_OPTIONS = [
   { value: "xs", label: "Extra small" },
   { value: "sm", label: "Small" },

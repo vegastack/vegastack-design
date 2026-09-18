@@ -1,4 +1,4 @@
-// @vegastack stepper@0.9.1 sha256-mDnGj7D42pT8rCQP2kQpZ2sGHgBY/EWHgH2I7ZvPNTo=
+// @vegastack stepper@0.9.1 sha256-rba2Sv7PJHU8iBHwzMGfWRb2k5lIon8XZASZl5LonoM=
 
 "use client";
 
@@ -132,8 +132,8 @@ export interface StepperProps extends Omit<
  * step's label whenever the current step changes (never on first mount).
  *
  * **Not `Tabs`** — `role="tab"` implies free navigation and misleads assistive
- * tech in a linear flow. **Not `Segmented`** — that is radio semantics for view
- * switching.
+ * tech in a linear flow. **Not a joined `ToggleGroup`** — that is a view
+ * switcher, not a sequence.
  *
  * @example
  * <Stepper

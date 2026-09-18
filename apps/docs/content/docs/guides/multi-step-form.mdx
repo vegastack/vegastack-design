@@ -118,9 +118,9 @@ non-interactive steps are a promise that order matters.
 
 ## Where the pieces live
 
-| Concern                         | Owner                                                                 |
-| ------------------------------- | --------------------------------------------------------------------- |
-| Progress display, states, focus | `Stepper`                                                             |
-| Step bodies, validation         | Your forms (`Field`, `Input`, zod)                                    |
-| Advance gating logic            | Your `next()` — `Stepper` only communicates the block                 |
-| Compact progress (no step list) | [`ProgressIndicator`](/docs/components/progress-indicator) `segments` |
+| Concern                         | Owner                                                 |
+| ------------------------------- | ----------------------------------------------------- |
+| Progress display, states, focus | `Stepper`                                             |
+| Step bodies, validation         | Your forms (`Field`, `Input`, zod)                    |
+| Advance gating logic            | Your `next()` — `Stepper` only communicates the block |
+| Compact progress (no step list) | [`Progress`](/docs/components/progress)               |

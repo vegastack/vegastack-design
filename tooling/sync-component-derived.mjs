@@ -304,8 +304,8 @@ const componentRoster = `# Component roster
   )}) — ${contracts.expectedCounts.totalRegistryItems} registry items in total.
 
 Install any of them with \`shadcn add @vegastack/<name>\`. Animated icons install as
-\`@vegastack/icon-<name>\`; the bare name is reserved for components, so \`icon-button\` is the
-component and never an icon.
+\`@vegastack/icon-<name>\`; the bare name is reserved for components, so a component whose name
+starts with \`icon-\` is a component and never an icon.
 
 ${rosterSections.join("\n\n")}
 `;

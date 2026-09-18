@@ -1,6 +1,6 @@
 ---
 title: Onboarding Checklist
-description: A getting-started card — segmented progress and step rows, collapsible to a progress pill.
+description: A getting-started card — a progress bar and step rows, collapsible to a progress pill.
 audience: public
 registry: onboarding-checklist
 status: stable
@@ -64,7 +64,7 @@ collapse-to-pill toggle (`collapsed`/`defaultCollapsed`/`onCollapsedChange`).
 
 ## Accessibility
 
-- The segmented meter is a composed [`ProgressIndicator`](/docs/components/progress-indicator) in `segments` mode — one named `progressbar` for the whole card, with its decorative segments hidden from assistive technology.
+- The meter is a composed [`Progress`](/docs/components/progress) — one named `progressbar` for the whole card.
 - Collapse and expand controls expose complete action labels, and the collapsed pill preserves the current count in visible text.
 - The collapsed pill takes its accessible name from that visible text (WCAG 2.2 SC 2.5.3, Label in Name), so it carries no `aria-label`. Its parts are laid out by flex, which blockifies them, and accessible-name computation spaces any part whose computed `display` is not `inline` — so the pill announces as `Getting started 2/6 Expand checklist` with no separator markup of any kind.
 - Completed items are disabled and use a check plus struck label, so completion is never communicated by color alone.

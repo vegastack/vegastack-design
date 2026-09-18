@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.9.1 sha256-3b1RC3NVvsG6dO2ydoX0WhBdF2amMKInM89DEdtyHfY=
+// @vegastack filter-bar-managed@0.9.1 sha256-helZFFRO4C0XSfgWGrNP4+gc4FSQHv6v0ZkDbs8qecY=
 
 "use client";
 
@@ -6,7 +6,6 @@ import * as React from "react";
 import { Plus, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { FilterChip } from "@/components/ui/filter-bar";
 import {
@@ -448,9 +447,9 @@ export function FilterBuilder<V = unknown>({
             </SelectContent>
           </Select>
           {depth > 1 ? (
-            <IconButton
+            <Button
               variant="ghost"
-              size="sm"
+              size="icon-sm"
               aria-label="Remove group"
               disabled={disabled}
               onClick={() => {
@@ -466,7 +465,7 @@ export function FilterBuilder<V = unknown>({
               }}
             >
               <X />
-            </IconButton>
+            </Button>
           ) : null}
         </div>
 
@@ -600,15 +599,15 @@ export function FilterBuilder<V = unknown>({
                   Value required
                 </span>
               ) : null}
-              <IconButton
+              <Button
                 variant="ghost"
-                size="sm"
+                size="icon-sm"
                 aria-label={`Remove ${field.label} condition`}
                 disabled={disabled}
                 onClick={() => removeChild(index)}
               >
                 <X />
-              </IconButton>
+              </Button>
             </div>
           );
         })}

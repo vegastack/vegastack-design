@@ -1,4 +1,4 @@
-// @vegastack copy-button@0.9.1 sha256-yiKEqzVANOlwIPTuD2IfSUWxBLQnkeLNil+pTjgXcwo=
+// @vegastack copy-button@0.9.1 sha256-gThGQqdEBoLtzikywrbUsPibVtKurKZiXjULXLYEH2Y=
 
 "use client";
 
@@ -8,7 +8,6 @@ import { cn, TIMINGS } from "@vegastack/design";
 // `Button` is owned by the sibling Button component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { Button } from "@/components/ui/button";
-import { IconButton, type IconButtonProps } from "@/components/ui/icon-button";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /**
@@ -55,7 +54,8 @@ export type CopyButtonProps = Omit<
     copiedLabel?: string;
     /**
      * Show the current copy status as visible text beside the icon. With a label the control is a
-     * text `Button`; without one it is an `IconButton`. An explicit `size` still wins.
+     * text `Button`; without one it is the same `Button` at an icon size. An explicit `size` still
+     * wins.
      * @default false
      */
     showLabel?: boolean;
@@ -71,7 +71,7 @@ export type CopyButtonProps = Omit<
 /**
  * `CopyButton` — copy a string to the clipboard with transient check feedback.
  *
- * Wraps `IconButton` (default `ghost` / `sm`), or `Button` when `showLabel` is set, and swaps the
+ * Wraps `Button` — `size="icon-sm"` by default, `size="sm"` when `showLabel` is set — and swaps the
  * `lucide-react`
  * `Copy` icon for a `Check` for ~1.5s after a successful copy, tinting it
  * `text-primary` for that window. Copying is neutral action feedback rather than a
@@ -125,31 +125,24 @@ export function CopyButton({
     [announce, copiedLabel, onCopied, onPress, timeout, value],
   );
 
-  // A label-less CopyButton is icon-only, so it goes through `IconButton` — the ONE sanctioned
-  // icon-only path, and the reason the `aria-label` below can never go missing. With a visible
-  // label it is a normal text Button.
-  // One JSX tree, two hosts: the cast is safe because `aria-label` (IconButton's only extra
-  // requirement) is always supplied below.
-  const Control = (
-    showLabel ? Button : IconButton
-  ) as React.ComponentType<IconButtonProps>;
-  // Assembled once and cast once: the two hosts take the same prop bag, and building it in one
-  // place keeps the icon-only and text forms from drifting apart.
+  // A label-less CopyButton is icon-only, so it takes an icon size and the `aria-label` below is
+  // its whole accessible name. With a visible label it is a normal text Button. Since Batch 7a
+  // retired `IconButton` there is ONE host either way — the size is the only thing that moves.
   const controlProps = {
     ...props,
     type: "button",
     variant,
-    size: size ?? "sm",
+    size: size ?? (showLabel ? "sm" : "icon-sm"),
     "data-slot": "copy-button",
     "data-copied": copied ? "" : undefined,
     "data-label-visible": showLabel ? "" : undefined,
     "aria-label": copied ? copiedLabel : copyLabel,
     onClick: handleClick,
     className: cn(copied && "text-primary hover:text-primary", className),
-  } as unknown as IconButtonProps;
+  } as unknown as ButtonOwnProps;
 
   return (
-    <Control {...controlProps}>
+    <Button {...controlProps}>
       {/*
        * Keyed presence (CX-13): the key ties each icon to the copied boundary so
        * it remounts and its pop-in mount animation replays on every swap. A
@@ -179,6 +172,6 @@ export function CopyButton({
           (a region inserted at the moment it gains content is frequently missed) and
           re-keys it per call, so copying twice in a row speaks twice. */}
       <Announcer />
-    </Control>
+    </Button>
   );
 }

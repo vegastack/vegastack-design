@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.9.1 sha256-ayRHzQIwXIAMba79LR5X3dQgZ+2pwFs82SWOZ5Um6Ik=
+// @vegastack searchable-select@0.9.1 sha256-uxj9UN+gFNQUkIekD2IsClJgsLlK6hqstrATjGTp/Ho=
 
 "use client";
 
@@ -16,7 +16,6 @@ import {
   ComboboxItem,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 
 /* ------------------------------------------------------------------------------------------------
  * SearchableSelect — the ONE "Select-shaped Combobox" preset: a full-width trigger that reads like
@@ -36,7 +35,7 @@ import { IconButton } from "@/components/ui/icon-button";
  *    silently fatal for a text label).
  * 3. **The chevron and the clear control are SIBLINGS of the trigger, absolutely positioned inside
  *    the wrapper.** An interactive control may not contain another (axe `nested-interactive`), so
- *    the clear `IconButton` can never live inside the trigger button. They share one 36px trailing
+ *    the clear `Button` can never live inside the trigger button. They share one 36px trailing
  *    reserve (`pe-9`) and swap in place, so the trigger's text box does not move when a value is
  *    set — no width jump, no second magic padding.
  * ----------------------------------------------------------------------------------------------*/
@@ -264,9 +263,9 @@ export function SearchableSelect<Item>({
         </ComboboxContent>
       </Combobox>
       {showClear ? (
-        <IconButton
+        <Button
           variant="ghost"
-          size="xs"
+          size="icon-xs"
           aria-label={clearLabel}
           disabled={disabled}
           data-slot={`${slot}-clear`}
@@ -274,7 +273,7 @@ export function SearchableSelect<Item>({
           onClick={() => onValueChange?.(null)}
         >
           <X />
-        </IconButton>
+        </Button>
       ) : (
         <ChevronsUpDown
           aria-hidden

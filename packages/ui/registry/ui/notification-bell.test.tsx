@@ -215,11 +215,11 @@ test("the count badge is inline-start anchored so wide counts grow outward", asy
   expect(badge.classList.contains("-right-1")).toBe(false);
 });
 
-test("forwards ref to the underlying IconButton button element", async () => {
-  // Delegating wrapper: {...props} (carrying ref) is spread onto IconButton,
+test("forwards ref to the underlying Button element", async () => {
+  // Delegating wrapper: {...props} (carrying ref) is spread onto Button,
   // which forwards onto its <button> host. No code change needed (Pattern D).
   const ref = React.createRef<HTMLButtonElement>();
   await render(<NotificationBell ref={ref} count={3} />);
   expect(ref.current).toBeInstanceOf(HTMLButtonElement);
-  expect(ref.current?.dataset.slot).toBe("icon-button");
+  expect(ref.current?.dataset.slot).toBe("button");
 });

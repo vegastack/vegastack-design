@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "934c60e109d5d9f4ce977a4df58eb6c08f5ba8a85744a09f7445b35757d22a99",
+  "contractSha256": "51b2acc92278bda31881df8f9d3b90bc074f38b2c31845f5dff42ba058ae9aad",
   "inventory": {
-    "expected": 599,
-    "actual": 599,
-    "unique": 599
+    "expected": 591,
+    "actual": 591,
+    "unique": 591
   },
   "classes": {
-    "components": 118,
+    "components": 110,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -16,8 +16,8 @@
   },
   "waves": {
     "Core controls": {
-      "expected": 25,
-      "actual": 25,
+      "expected": 23,
+      "actual": 23,
       "members": [
         "animated-number",
         "avatar",
@@ -25,9 +25,7 @@
         "button",
         "button-group",
         "checkbox",
-        "checkbox-group",
         "copy-button",
-        "icon-button",
         "input",
         "kbd",
         "label",
@@ -47,8 +45,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 27,
-      "actual": 27,
+      "expected": 24,
+      "actual": 24,
       "members": [
         "auto-save-input",
         "calendar",
@@ -67,11 +65,8 @@
         "input-otp",
         "native-select",
         "number-field",
-        "otp-input",
-        "password-input",
         "region-select",
         "searchable-select",
-        "segmented",
         "select",
         "settings-row",
         "sortable-list",
@@ -80,8 +75,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 17,
-      "actual": 17,
+      "expected": 16,
+      "actual": 16,
       "members": [
         "accordion",
         "app-shell",
@@ -97,14 +92,13 @@
         "resizable",
         "scroll-area",
         "sidebar",
-        "split-button",
         "stepper",
         "tabs"
       ]
     },
     "Overlays": {
-      "expected": 16,
-      "actual": 16,
+      "expected": 15,
+      "actual": 15,
       "members": [
         "action-bar",
         "alert-dialog",
@@ -113,7 +107,6 @@
         "drawer",
         "dropdown-menu",
         "emoji-picker",
-        "floating-surface",
         "hover-card",
         "popover",
         "provider",
@@ -125,8 +118,8 @@
       ]
     },
     "Data display": {
-      "expected": 12,
-      "actual": 12,
+      "expected": 11,
+      "actual": 11,
       "members": [
         "card",
         "carousel",
@@ -135,7 +128,6 @@
         "data-grid",
         "data-list",
         "data-table-parts",
-        "progress-indicator",
         "property-list",
         "stat",
         "table",
@@ -673,7 +665,7 @@
       ]
     }
   },
-  "componentRoutes": 118,
+  "componentRoutes": 110,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

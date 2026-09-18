@@ -7,7 +7,7 @@
 // registry is NOT proven consumable. This script proves consumability TWO ways:
 //
 //   A) THE LOAD-BEARING GATE — REAL `shadcn add` (Codex R13): for a representative
-//      dependency-graph set (button leaf, split-button→button+dropdown-menu,
+//      dependency-graph set (button leaf, filter-bar→button+chip+dropdown-menu+input,
 //      data-list→table+checkbox+skeleton+empty-state) we run the repository-pinned shadcn CLI
 //      against a served local component registry, with the declared `@vegastack/*` deps made
 //      INSTALLABLE LOCALLY (no public-npm publish) by:
@@ -90,7 +90,9 @@ const VEGASTACK_DEP_PKGS = [
 
 // Baseline dependency-graph set for the REAL `shadcn add` gate.
 //   button         — leaf (no registryDependencies).
-//   split-button   — → button + dropdown-menu.
+//   filter-bar     — → button + chip + dropdown-menu + input. It replaced `split-button` here
+//                    when Batch 7a of the shadcn reset retired that component; the shape the gate
+//                    needs is a component whose registryDependencies fan out to several siblings.
 //   data-list      — → table + checkbox + skeleton + empty-state (deep fan-out).
 //   field          — hidden-dependency regression guard: must bring input on a clean install.
 //   toast          — dependency-sensitive provider/toaster item.
@@ -98,7 +100,7 @@ const VEGASTACK_DEP_PKGS = [
 //   country-select — search/select graph with popover + command + button.
 const REAL_CRITICAL_GRAPHS = [
   "button",
-  "split-button",
+  "filter-bar",
   "data-list",
   "field",
   "toast",

@@ -156,12 +156,13 @@ const RULES = [
 
 // Inline <svg> used as an icon is banned in component source — use a sanctioned lucide icon or the
 // `Icon`/`BrandIcon` wrapper. Allowlist files that legitimately draw a NON-icon graphic primitive
-// with SVG geometry (e.g. a determinate progress ring) — those aren't icons.
-// `progress-indicator` draws a non-icon graphic primitive. The mirrored lucide-animated icons used
-// to need an exemption here too — they were Motion <svg> components — but they are now data modules
-// over one factory and contain no JSX at all, which `tooling/verify-animated-icons.mjs` asserts
-// directly. An exemption that can no longer be reached is an exemption that should not exist.
-const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|progress-indicator)\.tsx$/;
+// with SVG geometry — those aren't icons. `empty` draws upstream's decorative backdrop.
+// Two entries have left this list rather than being carried: the mirrored lucide-animated icons
+// (now data modules over one factory with no JSX at all, which `tooling/verify-animated-icons.mjs`
+// asserts directly) and `progress-indicator`, whose determinate ring went with the component when
+// Batch 7a of the shadcn reset retired it for `progress` + `spinner`. An exemption that can no
+// longer be reached is an exemption that should not exist.
+const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty)\.tsx$/;
 
 /**
  * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).
@@ -265,7 +266,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     {
       counts: { button: 1 },
       rationale:
-        "group-toggle control preserves table semantics (the sort header now composes Button via data-table-parts)",
+        "group-toggle control preserves table semantics \u2014 the sort header composes Button through the shared table parts",
     },
   ],
   [
@@ -273,7 +274,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     {
       counts: { button: 1 },
       rationale:
-        "row activation control preserves table semantics (the sort header now composes Button via data-table-parts)",
+        "row activation control preserves table semantics \u2014 the sort header composes Button through the shared table parts",
     },
   ],
   [
@@ -295,7 +296,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     {
       counts: { button: 2 },
       rationale:
-        "the collapsed progress pill and the step rows — both carry VISIBLE text, so they are text controls, not icon buttons (the icon-only collapse toggle became an IconButton in F2)",
+        "the collapsed progress pill and the step rows — both carry VISIBLE text, so they are text controls, not icon buttons (the icon-only collapse toggle became an icon Button in F2)",
     },
   ],
   [
@@ -311,7 +312,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     {
       counts: { button: 1 },
       rationale:
-        "the overflow disclosure control — a Chip rendered as a button, because a chip's root is a span and no VegaStack control is a pill-shaped text button (tag removal became Chip's IconButton in T2)",
+        "the overflow disclosure control — a Chip rendered as a button, because a chip's root is a span and no VegaStack control is a pill-shaped text button (tag removal became Chip's icon Button in T2)",
     },
   ],
   [
@@ -336,10 +337,14 @@ const RAW_INTERACTIVE_TAGS = new Set(["button", "input", "select", "textarea"]);
 // §7.6 Base UI render contract — a wrapper over a SINGLE Base UI root MUST keep Base UI's
 // polymorphic `render` prop in its public API.
 // `Omit<..., 'render'>` (or `'value' | 'render'`, etc.) silently removes it, regressing the
-// contract. Flag any `Omit<...>` that strips `'render'` in registry component source — EXCEPT the
-// documented exemptions: multi-element composites that own no single polymorphic root (compose
-// them via their slots/children instead; see docs/ledger/component-matrix.md §7.6 note).
-const RENDER_OMIT_EXEMPT = /(?:^|\/)(?:split-button)\.tsx$/;
+// contract. Flag any `Omit<...>` that strips `'render'` in registry component source.
+//
+// There is NO exemption list any more. `split-button.tsx` was the single entry — a multi-element
+// composite with no polymorphic root — and Batch 7a of the shadcn reset retired it in favour of
+// upstream's `button-group` example. An exemption that can no longer be reached is an exemption
+// that should not exist (the call Batch 5 made on the geometry lane's `resizableNested`, and
+// Batch 6 on `/attachment.tsx`'s raw-interactive count). A composite that genuinely owns no single
+// root has no `render` prop to begin with, which is not the same thing as stripping one.
 
 function sourceFileFor(file, src) {
   return ts.createSourceFile(
@@ -749,13 +754,11 @@ for (const root of ROOTS) {
       violations++;
     }
 
-    if (!RENDER_OMIT_EXEMPT.test(file)) {
-      for (const line of renderOmitLines(file, src)) {
-        console.log(
-          `${file}:${line} [render-contract] Omit<…, 'render'> removes Base UI's polymorphic render prop (§7.6). Expose render on single-root wrappers; only multi-element composites (split-button) are exempt — see docs/ledger/component-matrix.md.`,
-        );
-        violations++;
-      }
+    for (const line of renderOmitLines(file, src)) {
+      console.log(
+        `${file}:${line} [render-contract] Omit<…, 'render'> removes Base UI's polymorphic render prop (§7.6). Expose render on single-root wrappers; a multi-element composite that owns no single root simply has no render prop to strip — see docs/ledger/component-matrix.md.`,
+      );
+      violations++;
     }
 
     // The `outline-none` file rule is GONE (FOC-11 = shadcn). Upstream writes `outline-none` on
@@ -1049,7 +1052,7 @@ for (const root of tokenCssRoots) {
                   node.getStart(sf),
                 );
                 console.log(
-                  `${file}:${line + 1} [icon-button-name] <Button size=${sizeText}> without aria-label/aria-labelledby — icon-only controls need an accessible name (or use IconButton, which requires one at the type level, or a host that names it: \`render={<Button size="icon" />}\` on an element carrying aria-label or an sr-only label)`,
+                  `${file}:${line + 1} [icon-button-name] <Button size=${sizeText}> without aria-label/aria-labelledby — icon-only controls need an accessible name (or a host that names it: \`render={<Button size="icon" />}\` on an element carrying aria-label or an sr-only label)`,
                 );
                 violations++;
               }

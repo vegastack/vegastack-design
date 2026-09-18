@@ -3,20 +3,17 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**118 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 599 registry items in total.
+**110 components**, plus 467 animated-icon items, 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 591 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
-`@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
-component and never an icon.
+`@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
+starts with `icon-` is a component and never an icon.
 
 ## Actions
 
 - **`button`** — Trigger an action — upstream's six variants and eight sizes, plus a loading state (API-5).
 - **`button-group`** — Joins buttons, inputs, selects and dropdowns into one connected control group — horizontal or vertical, with a separator and a text addon.
 - **`copy-button`** — Copy a value to the clipboard with transient check feedback — a ghost icon button that swaps Copy → Check and fires onCopied.
-- **`icon-button`** — A square or round icon-only action button — a thin Button wrapper that requires an accessible label.
-- **`segmented`** — Segmented control — a single-select, always-one-selected view/mode switcher on a muted track with a raised active chip.
-- **`split-button`** — A primary action joined to a dropdown of related secondary actions — one default click, plus a chevron menu.
 - **`toggle`** — A two-state button that can be pressed on or off, with a loading state (API-5).
 - **`toggle-group`** — Toggle buttons sharing one selection — single or multiple, horizontal or vertical.
 
@@ -25,7 +22,6 @@ component and never an icon.
 - **`auto-save-input`** — An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.
 - **`calendar`** — A date-field calendar on React DayPicker — single, multiple and range selection.
 - **`checkbox`** — A binary (or indeterminate) toggle on Base UI Checkbox, with a 24px invisible hit area (A11Y-2).
-- **`checkbox-group`** — Shared state for a set of checkboxes, with first-class “select all” — parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.
 - **`chip-input`** — Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.
 - **`color-picker`** — A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.
 - **`combobox`** — A filterable listbox behind a text input — grouped items, an announced empty state and a chips mode.
@@ -42,8 +38,6 @@ component and never an icon.
 - **`label`** — A styled native label for form controls.
 - **`native-select`** — The platform <select>, tokenized — the OS picker on mobile, with option groups.
 - **`number-field`** — Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.
-- **`otp-input`** — A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.
-- **`password-input`** — A password field with a show/hide eye toggle and an optional live requirements checklist.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
 - **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.
@@ -97,7 +91,6 @@ component and never an icon.
 - **`dialog`** — A modal overlay — a backdrop, a centred popup, an optional close button and a sticky footer band.
 - **`drawer`** — A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.
 - **`dropdown-menu`** — An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.
-- **`floating-surface`** — The shared floating-overlay module: one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.
 - **`hover-card`** — A preview surface that opens on hover or focus, with configurable delays and sides.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
 - **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.
@@ -121,7 +114,6 @@ component and never an icon.
 - **`action-bar`** — Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.
 - **`alert`** — A status banner — upstream's two variants plus our three extra status tones (COL-12).
 - **`progress`** — Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.
-- **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.
 - **`skeleton`** — A pulsing placeholder that reserves layout space while content loads.
 - **`sonner`** — The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.

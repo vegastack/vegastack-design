@@ -41,7 +41,7 @@ export function registryFilePaths(item) {
 /**
  * An item is a GENERATED animated icon iff it is a single-file `registry:ui` whose one source lives
  * under the mirrored icon directory. Deliberately path-derived rather than name-derived, so the
- * hand-written `icon-button` component can never be mistaken for one of the mirrors.
+ * hand-written component whose name begins with `icon-` can never be mistaken for a mirror.
  */
 export function isGeneratedAnimatedIcon(item) {
   const paths = registryFilePaths(item);

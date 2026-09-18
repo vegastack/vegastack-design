@@ -203,12 +203,19 @@ test("copyValue overrides the default joined command text", async () => {
   expect(writeText).toHaveBeenCalledWith("explicit");
 });
 
-test("is scoped to the marketing dark ground", async () => {
+// `is scoped to the marketing dark ground` USED to live here, asserting `vs-marketing` on the root.
+// Batch 1 of the shadcn reset deleted that scope's variables and Batch 7a deleted the scope itself
+// with the marketing layer, so the class had been inert for six batches. What replaces the
+// assertion is the one that was always the real claim: the block is a card surface with a hairline,
+// which is what `terminal.tsx` writes and what `contrast.browser.test.tsx` measures.
+test("the block paints on the card surface, with its own hairline", async () => {
   const screen = await render(
     <Terminal lines={["x"]} data-testid="terminal" />,
   );
   const el = screen.getByTestId("terminal").element() as HTMLElement;
-  expect(el.classList.contains("vs-marketing")).toBe(true);
+  expect(el.classList.contains("vs-marketing")).toBe(false);
+  expect(el.className).toContain("bg-card");
+  expect(el.className).toContain("border-border");
 });
 
 test("no a11y violations", async () => {

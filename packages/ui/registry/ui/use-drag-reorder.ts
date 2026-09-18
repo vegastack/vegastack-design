@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.9.1 sha256-EvlZ979miDE7tEty7Z3vMIHGMaWFTy6KdcSp0qyWZJ8=
+// @vegastack use-drag-reorder@0.9.1 sha256-vklaXpDny+CeTAfjuGwwyWmmFNmcfN5ojSVEnMQLnIM=
 
 "use client";
 
@@ -161,7 +161,7 @@ export interface UseDragReorderReturn {
   };
   /**
    * Keyboard move-mode handler props for the item's drag handle (an
-   * `IconButton`). Space/Enter toggles move mode; arrows commit steps;
+   * icon `Button`). Space/Enter toggles move mode; arrows commit steps;
    * Escape ends.
    */
   getHandleProps: (
@@ -222,9 +222,9 @@ function positionOf(
  *   onReorder: ({ id, to }) => moveItem(id, to.index),
  * });
  * // <li {...reorder.getItemProps("list", id)}>
- * //   <IconButton aria-label={`Move ${label}`} {...reorder.getHandleProps("list", id)}>
+ * //   <Button size="icon-sm" aria-label={`Move ${label}`} {...reorder.getHandleProps("list", id)}>
  * //     <GripVertical />
- * //   </IconButton>
+ * //   </Button>
  * // </li>
  * // <reorder.Announcer />
  */

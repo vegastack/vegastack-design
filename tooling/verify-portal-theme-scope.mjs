@@ -13,12 +13,13 @@ const ROOT = "packages/ui/registry/ui";
 // architecture change, not something that should silently change the expected coverage count.
 const EXPECTED_HOSTS = new Map([
   // `floating-surface.tsx` was the single portal host for every anchored overlay from the
-  // 2026-09-07 audit (B3-01). The reset has been emptying it one batch at a time — tooltip left in
-  // Batch 2, select and combobox in Batch 3, popover, hover-card and the two menus in Batch 4 — so
-  // Batch 5 took navigation-menu too, so what it still covers is `emoji-picker` and
-  // `shortcut-overlay` — the two ours-only overlays Batch 7 owns. The record stays until that
-  // batch retires the composer.
-  ["packages/ui/registry/ui/floating-surface.tsx", ["Portal"]],
+  // 2026-09-07 audit (B3-01), and it is GONE. The reset emptied it one batch at a time — tooltip in
+  // Batch 2, select and combobox in Batch 3, popover, hover-card and the two menus in Batch 4,
+  // navigation-menu in Batch 5 — until its last two consumers, `emoji-picker` and
+  // `shortcut-overlay`, used it only for the panel-search row and no portal at all. Batch 7a
+  // retired it (extras.md RETIRE: "each upstream popup owns its chrome"), so it has no entry here:
+  // both of those overlays now compose `popover` and `dialog`, whose own entries below carry the
+  // scope for them.
   // Batch 5 put `navigation-menu` on upstream's file, which hosts its own Portal around the
   // Positioner instead of composing `floating-surface`. Same host shape as the other anchored
   // overlays: `NavigationMenuPositioner` reads `useInternalThemeScope()` and attaches it to the

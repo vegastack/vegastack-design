@@ -1,8 +1,8 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 69,
-    "fromExtras": 56
+    "total": 61,
+    "fromExtras": 48
   },
   "items": {
     "action-bar": {
@@ -38,11 +38,6 @@
     "board": {
       "disposition": "keep+block",
       "family": "layout",
-      "source": "extras.md"
-    },
-    "checkbox-group": {
-      "disposition": "retire",
-      "family": "form",
       "source": "extras.md"
     },
     "chip": {
@@ -125,16 +120,6 @@
       "family": "data",
       "source": "extras.md"
     },
-    "floating-surface": {
-      "disposition": "retire",
-      "family": "overlay",
-      "source": "extras.md"
-    },
-    "icon-button": {
-      "disposition": "retire",
-      "family": "actions",
-      "source": "extras.md"
-    },
     "image": {
       "disposition": "keep",
       "family": "media",
@@ -165,24 +150,9 @@
       "family": "display",
       "source": "extras.md"
     },
-    "otp-input": {
-      "disposition": "retire",
-      "family": "form",
-      "source": "extras.md"
-    },
     "page-header": {
       "disposition": "keep",
       "family": "navigation",
-      "source": "extras.md"
-    },
-    "password-input": {
-      "disposition": "retire",
-      "family": "form",
-      "source": "extras.md"
-    },
-    "progress-indicator": {
-      "disposition": "retire",
-      "family": "feedback",
       "source": "extras.md"
     },
     "property-list": {
@@ -210,11 +180,6 @@
       "family": "form",
       "source": "extras.md"
     },
-    "segmented": {
-      "disposition": "retire",
-      "family": "actions",
-      "source": "extras.md"
-    },
     "settings-row": {
       "disposition": "keep+block",
       "family": "layout",
@@ -228,11 +193,6 @@
     "sortable-list": {
       "disposition": "keep",
       "family": "data",
-      "source": "extras.md"
-    },
-    "split-button": {
-      "disposition": "retire",
-      "family": "actions",
       "source": "extras.md"
     },
     "stat": {

@@ -1,4 +1,4 @@
-// @vegastack board@0.9.1 sha256-4M0q1/Vu+X1VPaFz0j951WeKCNIoQZPCnyMVkR/WhZ8=
+// @vegastack board@0.9.1 sha256-RdFRNmkBWorG0/N8P9s5vwVf7EhMzAY6fgxkCDK1MJw=
 
 "use client";
 
@@ -27,7 +27,6 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { IconButton } from "@/components/ui/icon-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/components/ui/use-mobile";
 import {
@@ -520,9 +519,9 @@ export function Board<T>({
                                 >
                                   <DropdownMenuTrigger
                                     render={
-                                      <IconButton
+                                      <Button
                                         variant="ghost"
-                                        size="xs"
+                                        size="icon-xs"
                                         aria-label="Move card"
                                         // The roving model's promise is ONE
                                         // card-layer tab stop per board — a
@@ -534,7 +533,7 @@ export function Board<T>({
                                         className="absolute end-1 top-1"
                                       >
                                         <EllipsisVertical />
-                                      </IconButton>
+                                      </Button>
                                     }
                                   />
                                   <DropdownMenuContent align="end">

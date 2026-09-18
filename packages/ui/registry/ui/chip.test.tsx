@@ -97,7 +97,7 @@ test("onRemove mounts a labelled remove control and fires on activation", async 
   await expectNoA11yViolations(screen.container);
 });
 
-test("the remove control is a round ghost IconButton with the shared hover/pressed grammar", async () => {
+test("the remove control is a round ghost icon Button with the shared hover/pressed grammar", async () => {
   const screen = await render(
     <Chip onRemove={() => {}} removeLabel="Remove API">
       API
@@ -107,7 +107,6 @@ test("the remove control is a round ghost IconButton with the shared hover/press
     .getByRole("button", { name: "Remove API" })
     .element() as HTMLElement;
   expect(remove.dataset.slot).toBe("chip-remove");
-  expect(remove.dataset.shape).toBe("round");
   expect(remove.className).toContain("rounded-full");
   // The hover wash comes from Button's own `ghost` recipe, never a literal restated here.
   // Since Batch 2 of the shadcn reset that recipe is upstream's (`hover:bg-muted`), so the
@@ -117,7 +116,7 @@ test("the remove control is a round ghost IconButton with the shared hover/press
 
 /* ---------------------------------------------------------------------------------------------
  * Touch-target proof (WCAG 2.5.8). The harness compiles no Tailwind, so `h-6` collapses to
- * zero — the mirror below is a 1:1 hand-transcription of what `IconButton size="xs"` compiles to
+ * zero — the mirror below is a 1:1 hand-transcription of what `Button size="icon-xs"` compiles to
  * (24px square), keyed off the real `data-slot`. Unlike checkbox/radio/slider, this control uses
  * NO `::before` expansion: its own border box is the target, which is precisely the fix — a
  * `::before` on a nested native `<button>` is clipped to the button's border box by Chromium and

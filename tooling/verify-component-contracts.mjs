@@ -4,8 +4,10 @@
  * Fail-closed reconciliation for packages/ui/component-contracts.json.
  *
  * The contract inventory is tooling metadata, not a consumer API. This verifier deliberately
- * derives the authoritative item classes from registry type + source path so `icon-button` can
- * never be mistaken for one of the generated `icon-*` mirrors.
+ * derives the authoritative item classes from registry type + SOURCE PATH, never from the name, so
+ * a component whose name begins with `icon-` can never be mistaken for one of the generated
+ * `icon-*` mirrors. `icon-button` was the component that made the point; Batch 7a of the shadcn
+ * reset retired it, and the path-based classification is what still holds the line.
  *
  *   node tooling/verify-component-contracts.mjs                          # reconcile
  *   node tooling/verify-component-contracts.mjs --write-data-attributes  # resync the extraction
@@ -569,11 +571,11 @@ assert(
 );
 
 const expectedWaves = {
-  "Core controls": 25,
-  "Forms/editing": 27,
-  "Navigation/layout": 17,
-  Overlays: 16,
-  "Data display": 12,
+  "Core controls": 23,
+  "Forms/editing": 24,
+  "Navigation/layout": 16,
+  Overlays: 15,
+  "Data display": 11,
   "Content/marketing": 14,
   "AI/chat": 7,
 };
@@ -598,9 +600,7 @@ const expectedComponentWaveMembers = {
     "button",
     "button-group",
     "checkbox",
-    "checkbox-group",
     "copy-button",
-    "icon-button",
     "input",
     "kbd",
     "label",
@@ -636,11 +636,8 @@ const expectedComponentWaveMembers = {
     "input-otp",
     "native-select",
     "number-field",
-    "otp-input",
-    "password-input",
     "region-select",
     "searchable-select",
-    "segmented",
     "select",
     "settings-row",
     "sortable-list",
@@ -662,7 +659,6 @@ const expectedComponentWaveMembers = {
     "resizable",
     "scroll-area",
     "sidebar",
-    "split-button",
     "stepper",
     "tabs",
   ],
@@ -674,7 +670,6 @@ const expectedComponentWaveMembers = {
     "drawer",
     "dropdown-menu",
     "emoji-picker",
-    "floating-surface",
     "hover-card",
     "popover",
     "provider",
@@ -692,7 +687,6 @@ const expectedComponentWaveMembers = {
     "data-grid",
     "data-list",
     "data-table-parts",
-    "progress-indicator",
     "property-list",
     "stat",
     "table",
@@ -811,15 +805,6 @@ for (const [key, value] of Object.entries(expected)) {
       `itself is wrong, fix it there instead and re-run.`,
   );
 }
-assert(
-  registryComponents.some((item) => item.name === "icon-button"),
-  "icon-button must be modeled as a component",
-);
-assert(
-  !registryIcons.some((item) => item.name === "icon-button"),
-  "icon-button must not be modeled as an animated icon",
-);
-
 const components = contracts.components ?? [];
 const icons = contracts.animatedIcons?.members ?? [];
 const hooks = contracts.hooks ?? [];

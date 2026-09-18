@@ -1,8 +1,10 @@
-// @vegastack shortcut-overlay@0.9.1 sha256-Wz1nqCwCGfvcKgBojlf3Z/UlGazRVfTb+q1aVXr/SgY=
+// @vegastack shortcut-overlay@0.9.1 sha256-gX9xo4/Sst+FOxwUtywaO96KaryPDAuU9ei8x67WHRw=
 
 "use client";
 
 import * as React from "react";
+import { Search } from "lucide-react";
+import { Input as BaseInput } from "@base-ui/react/input";
 import { cn } from "@vegastack/design";
 import {
   Dialog,
@@ -11,11 +13,51 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  PanelSearchFrame,
-  PanelSearchInput,
-} from "@/components/ui/floating-surface";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+
+/* ------------------------------------------------------------------------------------------------
+ * The panel's own search row (OVL-11): a sticky header with a leading glyph, a hairline below, and
+ * NO bordered box of its own — a bordered input inside a bordered popup nests two borders (B8-04).
+ * It used to be `floating-surface`'s shared `PanelSearchFrame`/`PanelSearchInput`; Batch 7a of the
+ * shadcn reset retired that component, and each popup owns its chrome instead.
+ * ----------------------------------------------------------------------------------------------*/
+
+function PanelSearch({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      data-slot="panel-search"
+      className={cn(
+        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3 focus-within:border-ring/70",
+        className,
+      )}
+    >
+      <Search aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+      {children}
+    </div>
+  );
+}
+
+function PanelSearchField({
+  className,
+  ...props
+}: React.ComponentProps<typeof BaseInput>) {
+  return (
+    <BaseInput
+      type="search"
+      className={cn(
+        "h-full w-full min-w-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
 /**
  * Mac modifier glyphs and their Windows/Linux words. Since the shadcn reset (Batch 2) `Kbd` is
@@ -232,14 +274,14 @@ export function ShortcutOverlay({
           </DialogDescription>
         </DialogHeader>
         {showSearch ? (
-          <PanelSearchFrame className="border-t">
-            <PanelSearchInput
+          <PanelSearch className="border-t">
+            <PanelSearchField
               aria-label="Filter shortcuts"
               placeholder="Filter shortcuts…"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
-          </PanelSearchFrame>
+          </PanelSearch>
         ) : null}
         <ScrollArea className="max-h-[calc(100dvh-16rem)]">
           <div className="flex flex-col gap-4 p-6 pt-4 pe-3">

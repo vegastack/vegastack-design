@@ -142,7 +142,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": ["@vegastack/button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/announcement-banner.tsx",
@@ -348,7 +348,6 @@
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
-        "@vegastack/icon-button",
         "@vegastack/scroll-area",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-mobile"
@@ -598,31 +597,6 @@
       }
     },
     {
-      "name": "checkbox-group",
-      "type": "registry:ui",
-      "title": "Checkbox Group",
-      "description": "Shared state for a set of checkboxes, with first-class \u201cselect all\u201d - parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.",
-      "categories": ["form"],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/checkbox-group.tsx",
-          "type": "registry:ui",
-          "target": "@ui/checkbox-group.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A set of related checkboxes sharing one value array - permissions, notification channels, filter facets - and any 'select all' row with a mixed state.",
-        "whenNotToUse": "Mutually-exclusive choices (RadioGroup); a single standalone toggle (Checkbox); an instant self-saving setting (Switch).",
-        "version": "0.9.1"
-      }
-    },
-    {
       "name": "chip",
       "type": "registry:ui",
       "title": "Chip",
@@ -634,7 +608,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": ["@vegastack/button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/chip.tsx",
@@ -737,7 +711,7 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button",
+        "@vegastack/button",
         "@vegastack/popover",
         "@vegastack/use-list-nav"
       ],
@@ -847,11 +821,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/icon-button",
-        "@vegastack/use-announcer"
-      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/use-announcer"],
       "files": [
         {
           "path": "packages/ui/registry/ui/copy-button.tsx",
@@ -1274,8 +1244,7 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
-        "@vegastack/floating-surface",
-        "@vegastack/icon-button",
+        "@vegastack/button",
         "@vegastack/popover",
         "@vegastack/use-list-nav"
       ],
@@ -1413,7 +1382,6 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/icon-button",
         "@vegastack/input",
         "@vegastack/filter-bar",
         "@vegastack/select"
@@ -1428,33 +1396,6 @@
       "meta": {
         "whenToUse": "Structured, saveable filters with nesting \u2014 build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "floating-surface",
-      "type": "registry:ui",
-      "title": "Floating Surface",
-      "description": "The shared floating-overlay module: one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.",
-      "categories": ["overlay"],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/floating-surface.tsx",
-          "type": "registry:ui",
-          "target": "@ui/floating-surface.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Building or restyling an anchored overlay, a menu-like list, or a search row inside a panel \u2014 compose this rather than restating the plumbing.",
-        "whenNotToUse": "Product UI: install the overlay you actually want (Popover, DropdownMenu, Command); they already compose it.",
         "version": "0.9.1"
       }
     },
@@ -3262,27 +3203,6 @@
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/briefcase-business.json",
         "license": "MIT"
-      }
-    },
-    {
-      "name": "icon-button",
-      "type": "registry:ui",
-      "title": "Icon Button",
-      "description": "A square, icon-only action button \u2014 a thin Button wrapper that requires an accessible label.",
-      "categories": ["actions"],
-      "dependencies": ["@vegastack/design-tokens@^0.4.0"],
-      "registryDependencies": ["@vegastack/button"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/icon-button.tsx",
-          "type": "registry:ui",
-          "target": "@ui/icon-button.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A compact icon-only action \u2014 toolbar buttons, row actions, close/dismiss.",
-        "whenNotToUse": "Actions needing a visible text label (Button with icon) or URL navigation (link).",
-        "version": "0.9.1"
       }
     },
     {
@@ -12044,7 +11964,6 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/icon-button",
         "@vegastack/slider",
         "@vegastack/tooltip"
       ],
@@ -12206,7 +12125,6 @@
       "registryDependencies": [
         "@vegastack/badge",
         "@vegastack/button",
-        "@vegastack/icon-button",
         "@vegastack/use-animation-replay"
       ],
       "files": [
@@ -12252,17 +12170,14 @@
       "name": "onboarding-checklist",
       "type": "registry:ui",
       "title": "Onboarding Checklist",
-      "description": "A getting-started card \u2014 segmented progress + step rows, collapsible to a progress pill.",
+      "description": "A getting-started card \u2014 a progress bar + step rows, collapsible to a progress pill.",
       "categories": ["display"],
       "dependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [
-        "@vegastack/icon-button",
-        "@vegastack/progress-indicator"
-      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
       "files": [
         {
           "path": "packages/ui/registry/ui/onboarding-checklist.tsx",
@@ -12273,31 +12188,6 @@
       "meta": {
         "whenToUse": "Product onboarding/setup checklists that live in the chrome.",
         "whenNotToUse": "Linear multi-step forms (compose Field/Progress) or task lists (app domain).",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "otp-input",
-      "type": "registry:ui",
-      "title": "OTP Input",
-      "description": "A multi-slot one-time-passcode input \u2014 keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.",
-      "categories": ["form"],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/otp-input.tsx",
-          "type": "registry:ui",
-          "target": "@ui/otp-input.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A short fixed-length verification code \u2014 2FA/MFA, email/SMS OTP.",
-        "whenNotToUse": "Free-form/variable-length text (Input) or a single masked secret (Password Input).",
         "version": "0.9.1"
       }
     },
@@ -12314,7 +12204,6 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/icon-button",
         "@vegastack/truncated-text"
       ],
       "files": [
@@ -12352,34 +12241,6 @@
       "meta": {
         "whenToUse": "Navigate paged content \u2014 a long list/table split across numbered pages.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "password-input",
-      "type": "registry:ui",
-      "title": "Password Input",
-      "description": "A password field with a show/hide eye toggle and an optional live requirements checklist.",
-      "categories": ["form"],
-      "dependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/icon-button",
-        "@vegastack/input-group"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/password-input.tsx",
-          "type": "registry:ui",
-          "target": "@ui/password-input.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Any password entry \u2014 login, signup, reset, settings. Use requirements for enforced rules.",
-        "whenNotToUse": "Non-secret text (Input) or one-time codes (OTP Input).",
         "version": "0.9.1"
       }
     },
@@ -12456,31 +12317,6 @@
       "meta": {
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once \u2014 compose Field with the form primitives instead.",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "progress-indicator",
-      "type": "registry:ui",
-      "title": "Progress Indicator",
-      "description": "A compact circular pie-fill progress indicator (0\u2013100%) with optional visible percentage variants.",
-      "categories": ["feedback"],
-      "dependencies": [
-        "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/progress-indicator.tsx",
-          "type": "registry:ui",
-          "target": "@ui/progress-indicator.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A compact determinate percentage glyph \u2014 inline beside a label or metric, or with a visible percentage value.",
-        "whenNotToUse": "Indefinite waits (Spinner) or wide tasks where a linear Progress bar reads better.",
         "version": "0.9.1"
       }
     },
@@ -12675,11 +12511,7 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": [
-        "@vegastack/combobox",
-        "@vegastack/button",
-        "@vegastack/icon-button"
-      ],
+      "registryDependencies": ["@vegastack/combobox", "@vegastack/button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/searchable-select.tsx",
@@ -12690,31 +12522,6 @@
       "meta": {
         "whenToUse": "A single-select field whose option list is long enough to need a search \u2014 countries, regions, projects, repositories, currencies.",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "segmented",
-      "type": "registry:ui",
-      "title": "Segmented",
-      "description": "Segmented control \u2014 a single-select, always-one-selected view/mode switcher on a muted track with a raised active chip.",
-      "categories": ["actions"],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/segmented.tsx",
-          "type": "registry:ui",
-          "target": "@ui/segmented.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Peer view/mode switches where one option is always active \u2014 view modes, billing cycles, filter scopes.",
-        "whenNotToUse": "Content panels swapping (Tabs), meaningful empty/multi selection (ToggleGroup), or on/off (Switch).",
         "version": "0.9.1"
       }
     },
@@ -12834,7 +12641,6 @@
       ],
       "registryDependencies": [
         "@vegastack/dialog",
-        "@vegastack/floating-surface",
         "@vegastack/kbd",
         "@vegastack/scroll-area",
         "@vegastack/use-platform"
@@ -12975,9 +12781,9 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
-        "@vegastack/icon-button",
         "@vegastack/item",
         "@vegastack/use-drag-reorder"
       ],
@@ -13016,35 +12822,6 @@
       "meta": {
         "whenToUse": "Signal an indeterminate, in-progress load \u2014 inside a button or a loading region.",
         "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "split-button",
-      "type": "registry:ui",
-      "title": "Split Button",
-      "description": "A primary action joined to a dropdown of related secondary actions \u2014 one default click, plus a chevron menu.",
-      "categories": ["actions"],
-      "dependencies": [
-        "lucide-react@^1.24.0",
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/dropdown-menu",
-        "@vegastack/icon-button"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/split-button.tsx",
-          "type": "registry:ui",
-          "target": "@ui/split-button.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "One primary action plus closely related variants \u2014 Save / Save as draft, Publish / Schedule.",
-        "whenNotToUse": "Unrelated actions (DropdownMenu), a single action (Button), or value selection (Select).",
         "version": "0.9.1"
       }
     },

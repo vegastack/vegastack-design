@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { Maximize2, Monitor, Smartphone, Tablet } from "lucide-react";
-import { Segmented, SegmentedItem } from "@/components/ui/segmented";
-import { IconButton } from "@/components/ui/icon-button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -96,22 +96,29 @@ export function usePreviewFrameWidth(): FrameWidth {
 export function FrameWidthToggle() {
   const { width, setWidth } = usePreviewControls();
   return (
-    <Segmented
-      value={width}
-      onValueChange={(next) => setWidth(next as FrameWidth)}
-      size="md"
+    // Batch 7a of the shadcn reset retired `Segmented` in favour of a joined `ToggleGroup`
+    // (`spacing={0}`). ToggleGroup lets the active item be deselected, which Segmented never did,
+    // so the handler ignores an empty selection and keeps exactly one preset active.
+    <ToggleGroup
+      value={[width]}
+      onValueChange={(next) => {
+        const [selected] = next;
+        if (selected) setWidth(selected as FrameWidth);
+      }}
+      variant="outline"
+      spacing={0}
       aria-label="Preview frame width"
     >
-      <SegmentedItem value="mobile" aria-label="Mobile width, 375 pixels">
+      <ToggleGroupItem value="mobile" aria-label="Mobile width, 375 pixels">
         <Smartphone />
-      </SegmentedItem>
-      <SegmentedItem value="tablet" aria-label="Tablet width, 768 pixels">
+      </ToggleGroupItem>
+      <ToggleGroupItem value="tablet" aria-label="Tablet width, 768 pixels">
         <Tablet />
-      </SegmentedItem>
-      <SegmentedItem value="full" aria-label="Full width">
+      </ToggleGroupItem>
+      <ToggleGroupItem value="full" aria-label="Full width">
         <Monitor />
-      </SegmentedItem>
-    </Segmented>
+      </ToggleGroupItem>
+    </ToggleGroup>
   );
 }
 
@@ -123,15 +130,15 @@ export function FrameWidthToggle() {
 export function FullscreenToggle() {
   const { fullscreen, setFullscreen } = usePreviewControls();
   return (
-    <IconButton
+    <Button
       variant="ghost"
-      size="sm"
+      size="icon-sm"
       aria-label="Fullscreen preview"
       aria-pressed={fullscreen}
       onClick={() => setFullscreen(true)}
     >
       <Maximize2 />
-    </IconButton>
+    </Button>
   );
 }
 

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "934c60e109d5d9f4ce977a4df58eb6c08f5ba8a85744a09f7445b35757d22a99",
+  "contractSha256": "51b2acc92278bda31881df8f9d3b90bc074f38b2c31845f5dff42ba058ae9aad",
   "expectedCounts": {
-    "totalRegistryItems": 599,
-    "components": 118,
+    "totalRegistryItems": 591,
+    "components": 110,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -263,17 +263,6 @@
         "packages/ui/registry/ui/checkbox.tsx"
       ],
       "docsSlug": "/docs/components/checkbox",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "checkbox-group",
-      "inventoryClass": "component",
-      "wave": "Core controls",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/checkbox-group.tsx"
-      ],
-      "docsSlug": "/docs/components/checkbox-group",
       "contractStatus": "reconciled"
     },
     {
@@ -563,17 +552,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "floating-surface",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/floating-surface.tsx"
-      ],
-      "docsSlug": "/docs/components/floating-surface",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "hover-card",
       "inventoryClass": "component",
       "wave": "Overlays",
@@ -582,17 +560,6 @@
         "packages/ui/registry/ui/hover-card.tsx"
       ],
       "docsSlug": "/docs/components/hover-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "icon-button",
-      "inventoryClass": "component",
-      "wave": "Core controls",
-      "family": "actions",
-      "sourceFiles": [
-        "packages/ui/registry/ui/icon-button.tsx"
-      ],
-      "docsSlug": "/docs/components/icon-button",
       "contractStatus": "reconciled"
     },
     {
@@ -794,17 +761,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "otp-input",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/otp-input.tsx"
-      ],
-      "docsSlug": "/docs/components/otp-input",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "page-header",
       "inventoryClass": "component",
       "wave": "Content/marketing",
@@ -824,17 +780,6 @@
         "packages/ui/registry/ui/pagination.tsx"
       ],
       "docsSlug": "/docs/components/pagination",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "password-input",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/password-input.tsx"
-      ],
-      "docsSlug": "/docs/components/password-input",
       "contractStatus": "reconciled"
     },
     {
@@ -868,17 +813,6 @@
         "packages/ui/registry/ui/questionnaire.tsx"
       ],
       "docsSlug": "/docs/components/questionnaire",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "progress-indicator",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "feedback",
-      "sourceFiles": [
-        "packages/ui/registry/ui/progress-indicator.tsx"
-      ],
-      "docsSlug": "/docs/components/progress-indicator",
       "contractStatus": "reconciled"
     },
     {
@@ -967,17 +901,6 @@
         "packages/ui/registry/ui/searchable-select.tsx"
       ],
       "docsSlug": "/docs/components/searchable-select",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "segmented",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "actions",
-      "sourceFiles": [
-        "packages/ui/registry/ui/segmented.tsx"
-      ],
-      "docsSlug": "/docs/components/segmented",
       "contractStatus": "reconciled"
     },
     {
@@ -1099,17 +1022,6 @@
         "packages/ui/registry/ui/spinner.tsx"
       ],
       "docsSlug": "/docs/components/spinner",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "split-button",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "actions",
-      "sourceFiles": [
-        "packages/ui/registry/ui/split-button.tsx"
-      ],
-      "docsSlug": "/docs/components/split-button",
       "contractStatus": "reconciled"
     },
     {
