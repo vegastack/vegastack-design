@@ -134,11 +134,14 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   never on the same element as `flex`; touch targets ≥24px via an invisible hit area, verified with a
   real `elementFromPoint` probe rather than `getComputedStyle`.
 - **Public API documentation** — every component that is OURS carries JSDoc plus an `@example` on
-  each exported part, checked by `tooling/verify-public-api-docs.mjs`. A component in
-  `packages/ui/upstream/migrated.json` is exempt and documents its API on its docs page instead:
-  upstream ships no JSDoc, and adding it would be a patch hunk with no decision ID behind it. The
-  exemption set only grows as Batches 2–6 reset a component, and each name entering it gains a
-  parity and a variant-coverage gate in the same commit.
+  each exported part, checked by `tooling/verify-public-api-docs.mjs`. An **upstream-backed**
+  component is exempt and documents its API on its docs page instead: upstream ships no JSDoc, and
+  adding it would be a patch hunk with no decision ID behind it. **That boundary is derived, never
+  listed** (2026-09-18): `tooling/upstream/lib.mjs`'s `migrated()` reads
+  `vendor/shadcn/<cli>/ui/*.tsx`, minus the `exempt` record in `packages/ui/upstream/migrated.json`
+  — so a name is exempt here exactly while upstream ships a file for it, and is under the parity and
+  variant-coverage gates for exactly as long. Editing a JSON array used to move all three at once,
+  silently.
 - **Server-safe by default** — a _runtime_ claim enforced by `tooling/verify-rsc-safety.mjs`: under
   the `react-server` condition most React hooks are `undefined`, so touching one without
   `'use client'` throws on import in an RSC. Which hooks, and why `@vegastack/design/theme-scope` is a
@@ -179,7 +182,7 @@ pnpm run clean                # report only; --after-run / --weekly reclaim, --d
 
 `verify:distribution` is public-only: workspace/registry build, registry idempotency, docs export and its metadata/emitted-CSS contract, links, docs-shell browser contracts and self-test, and the real shadcn consume round-trip. It never runs component regression. Every orchestrator reports per-stage wall time and cleans build artifacts on pass, fail, or interrupt without changing the original exit code.
 
-`pnpm lint` is the static umbrella: Prettier, shadcn base, skill and mirror integrity, changesets, security boundaries, workflow security plus its negative harness, secret scan, tooling tests, and package lints. Design invariants live in `design:verify`, not inside lint, so `verify:static` does not execute them twice. **A changeset must not link a commit** — squash would orphan it; release assembly adds merged commit links. Gates with fail-open risk keep negative/self-test coverage, including the affected selector, workflow security, design-lint structure, registry integrity, CSS layers, token references and docs shell.
+`pnpm lint` is the static umbrella: Prettier, shadcn base, skill and mirror integrity, changesets, security boundaries, workflow security plus its negative harness, secret scan, **`pnpm upstream:check` plus `pnpm upstream:selftest`**, tooling tests, and package lints. `upstream:check` is three offline gates in order — the committed `vendor/shadcn/<cli>/` tree hashed against its own `manifest.json`, byte parity of every upstream-backed component against upstream-plus-its-approved-patch, and upstream's docs sections present on our page with a distinct live preview each. All three read the vendor tree directly, so none of them can be switched off by editing a list. Design invariants live in `design:verify`, not inside lint, so `verify:static` does not execute them twice. **A changeset must not link a commit** — squash would orphan it; release assembly adds merged commit links. Gates with fail-open risk keep negative/self-test coverage, including the affected selector, workflow security, design-lint structure, registry integrity, CSS layers, token references and docs shell.
 
 **Two deviations from `docs/plans/2026-09-08-verification-rebuild.md`, recorded here because the plan is a point-in-time record and this file is the rulebook.** (1) The plan (§ 3.4) named `tooling/test/playwright-image-pin.test.mjs`; **that file was never written and must not be.** The invariant it described is enforced instead inside `tooling/verify-workflow-security.mjs`, which derives the container tag from the `playwright` version in `pnpm-lock.yaml` and rejects any second literal copy of it — one authority, checked in `pnpm lint`, so a separate test would only be a third place to drift. (2) The plan (§ 3.3, § 4 WP3) listed `tooling/verify-workflow-security-negative.mjs` for DELETION; it was **kept, expanded, and wired into `pnpm lint`** instead. A gate nothing ever observes failing is indistinguishable from a gate that cannot fail, and the workflow-security gate is exactly that kind — so the negative harness is a locked property of the verification set, not a leftover.
 
