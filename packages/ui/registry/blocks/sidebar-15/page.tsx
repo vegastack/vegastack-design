@@ -1,4 +1,4 @@
-// @vegastack sidebar-15@0.9.1 sha256-gxiD0PyDL+At5mHwg58XBXro0EMTtLcJmIv31tT1RDc=
+// @vegastack sidebar-15@0.10.0 sha256-fkvJqDqLMnlb8MjvKfk7rePqZMsnhnlM9yYt9VpfMqM=
 
 import { SidebarLeft } from "./components/sidebar-left";
 import { SidebarRight } from "./components/sidebar-right";
