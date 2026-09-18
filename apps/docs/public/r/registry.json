@@ -868,7 +868,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.9.1",
-        "integrity": "sha256-T0f/Mm5w1+VbVL/A5rTgyw5QRbpp4Yrb8Js68xoC9z8="
+        "integrity": "sha256-NhltoVZHyCqBYkMCzn7IZ+CB2RIW8BB/K5x7guvcmGY="
       }
     },
     {
@@ -15781,7 +15781,7 @@
         "whenToUse": "An imprecise value over a bounded range — volume, brightness, a price filter.",
         "whenNotToUse": "Exact values or large/open ranges (number input); on/off (Switch).",
         "version": "0.9.1",
-        "integrity": "sha256-nUFPNzca8MMfAchDy9MYSad6M/JuT/fHhz5ls/h39Tc="
+        "integrity": "sha256-4mskPwGRyb5Wt89AUTKOkcV8k5yZnNagRnuAGXLmu9g="
       }
     },
     {

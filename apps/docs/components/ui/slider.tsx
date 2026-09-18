@@ -1,4 +1,4 @@
-// @vegastack slider@0.9.1 sha256-nUFPNzca8MMfAchDy9MYSad6M/JuT/fHhz5ls/h39Tc=
+// @vegastack slider@0.9.1 sha256-4mskPwGRyb5Wt89AUTKOkcV8k5yZnNagRnuAGXLmu9g=
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 import { cn } from "@vegastack/design";
@@ -12,7 +12,7 @@ function Slider({
   ...props
 }: SliderPrimitive.Root.Props) {
   /*
-   * A11Y-5 — Base UI's Slider keeps the real control in a visually hidden `<input type="range">`
+   * A11Y-16 — Base UI's Slider keeps the real control in a visually hidden `<input type="range">`
    * INSIDE each thumb, and an `aria-label` on the root lands on a `<div>` with no role. Upstream's
    * file forwards neither, so every slider it ships is a nameless `role="slider"`: axe reports
    * `label` (critical) and a screen reader announces "slider" with no subject. `getAriaLabel` is

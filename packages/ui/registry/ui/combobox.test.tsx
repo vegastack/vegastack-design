@@ -449,23 +449,43 @@ test("no a11y violations — closed", async () => {
 test("no a11y violations — open", async () => {
   const screen = await render(<Basic />);
   await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
-  // `aria-hidden-focus` is disabled for the OPEN state only, and only here. While the popup is
-  // open Base UI marks the trailing addon `aria-hidden="true"` WITHOUT also making it `inert`, so
-  // the toggle button inside it stays focusable. That is engine behaviour on upstream's
-  // composition, not a choice this repository makes — and the test below asserts the exact shape,
-  // so the day Base UI fixes it this exemption fails as stale rather than lingering.
-  await expectNoA11yViolations(document.body, ["aria-hidden-focus"]);
+  // No disable list: the open state is audited whole. Its one violation — a tabbable control
+  // inside the addon Base UI marks `aria-hidden` — is fixed in the source under A11Y-9.
+  await expectNoA11yViolations(document.body);
 });
 
-test("the open popup's aria-hidden background is Base UI's, and is still focusable", async () => {
+test("A11Y-9: nothing inside the open popup's aria-hidden addon is tabbable", async () => {
   const screen = await render(<Basic />);
-  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
   const addon = screen.container.querySelector(
     '[data-slot="input-group-addon"]',
   ) as HTMLElement;
+  const toggle = addon.querySelector("button") as HTMLButtonElement;
+  // Closed, the addon is exposed to assistive technology; the toggle is still out of the tab
+  // sequence, exactly as Base UI's own `Combobox.Clear` is and as APG's editable combobox asks.
+  expect(addon.getAttribute("aria-hidden")).toBe(null);
+  expect(toggle.tabIndex).toBe(-1);
+
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  // Open, Base UI hides the whole addon from assistive technology. Pin that shape: the day Base UI
+  // stops hiding it, this fails as stale rather than lingering as a silent exemption.
   expect(addon.getAttribute("aria-hidden")).toBe("true");
+  expect(
+    [
+      ...addon.querySelectorAll<HTMLElement>("button,input,a,[tabindex]"),
+    ].filter((element) => element.tabIndex >= 0),
+  ).toEqual([]);
+});
+
+test("A11Y-9: the toggle still works with a mouse, so it is not inert (Usage)", async () => {
+  const screen = await render(<Basic />);
+  const addon = screen.container.querySelector(
+    '[data-slot="input-group-addon"]',
+  ) as HTMLElement;
   expect(addon.hasAttribute("inert")).toBe(false);
-  expect(addon.querySelector("button")).not.toBeNull();
+  await userEvent.click(addon.querySelector("button") as HTMLElement);
+  expect(
+    document.querySelector('[data-slot="combobox-content"]'),
+  ).not.toBeNull();
 });
 
 test("no a11y violations — disabled", async () => {

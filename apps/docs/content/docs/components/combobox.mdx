@@ -209,10 +209,11 @@ UI part accepts.
 - The popup portals out of the input's subtree, so `ComboboxContent` re-applies the theme scope on
   the positioner inside the portal (OVL-13).
 - Rows carry the hand cursor from the one global rule in `base.css` (INT-1).
-- **Known Base UI behaviour:** while the popup is open the engine marks the trailing addon
-  `aria-hidden="true"` without also making it `inert`, so the toggle button inside it stays
-  focusable. `combobox.test.tsx` asserts that shape directly, so the day Base UI fixes it the test
-  says so.
+- While the popup is open Base UI marks the trailing addon `aria-hidden="true"`, so the toggle
+  inside it is out of the tab sequence (A11Y-9) — it stays clickable, and the `role="combobox"`
+  input beside it is the single tab stop that opens the list, exactly as APG's editable combobox
+  asks. `combobox.test.tsx` audits the open state with no axe exemption and pins the engine's
+  shape, so the day Base UI stops hiding the addon the test says so.
 
 <StatesTested name="combobox" />
 
@@ -245,9 +246,14 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
   expands when the list is empty.
 - **A11Y-2** — `ComboboxChipsInput` gains `min-h-6`. Upstream's chips input measures 20px inside the
   32px chips field, under the 24px target floor; the input is transparent, so nothing visible moves.
-- **A11Y-5** — the toggle inside `ComboboxInput`, the clear control and the chip's remove control
+- **A11Y-16** — the toggle inside `ComboboxInput`, the clear control and the chip's remove control
   each gain an `aria-label`. All three are icon-only `<button>`s upstream ships with no text, and
   Base UI names none of them.
+- **A11Y-9** — the toggle inside `ComboboxInput` takes `tabIndex={-1}`. Base UI marks the whole
+  trailing addon `aria-hidden="true"` while the popup is open, and nothing tabbable may sit inside
+  an `aria-hidden` subtree (axe `aria-hidden-focus`, serious). The attribute is set at that one
+  call site, so the standalone `ComboboxTrigger` of the Popup composition keeps its tab stop; the
+  addon is not made `inert`, so the mouse still reaches the control.
 - **OVL-13** — `ComboboxContent` reads `useInternalThemeScope()` and attaches it to the positioner
   inside the portal; `tooling/verify-portal-theme-scope.mjs` inventories this host.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

@@ -119,7 +119,7 @@ Upstream's file plus `packages/ui/upstream/patches/slider.patch`. Every hunk:
   `focus-visible:outline-hidden`, which would have suppressed the global outline.
 - **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled slider stays hoverable and a
   Tooltip can explain it.
-- **A11Y-5** — the root's `aria-label` is forwarded to every thumb through `getAriaLabel`. Base UI
+- **A11Y-16** — the root's `aria-label` is forwarded to every thumb through `getAriaLabel`. Base UI
   keeps the real control in a visually hidden `<input type="range">` inside the thumb, and a label
   on the root lands on a `<div>` with no role, so upstream's file ships a nameless `role="slider"`
   in every composition. A range slider gives both thumbs the group's name: upstream has no

@@ -1,4 +1,4 @@
-// @vegastack combobox@0.9.1 sha256-T0f/Mm5w1+VbVL/A5rTgyw5QRbpp4Yrb8Js68xoC9z8=
+// @vegastack combobox@0.9.1 sha256-NhltoVZHyCqBYkMCzn7IZ+CB2RIW8BB/K5x7guvcmGY=
 
 "use client";
 
@@ -85,6 +85,20 @@ function ComboboxInput({
             data-slot="input-group-button"
             className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
             disabled={disabled}
+            /*
+             * A11Y-9: what is hidden from assistive technology must not be reachable by keyboard.
+             * While the popup is open Base UI marks this whole addon `aria-hidden="true"` (it is
+             * outside the popup, and the input beside it is the anchor it keeps exposed), so a
+             * tabbable control in here is a tab stop no screen reader will name — axe `serious
+             * aria-hidden-focus`. Base UI's own `Combobox.Clear`, the addon's other control, ships
+             * `tabIndex={-1}` for the same reason, and APG's editable combobox keeps its popup
+             * toggle out of the tab sequence because the `role="combobox"` input beside it already
+             * opens the list. Mouse and touch are untouched, which is why this is not `inert` on
+             * the addon. The STANDALONE `ComboboxTrigger` — the Popup composition, where the
+             * trigger IS the control — keeps its tab stop: the attribute is set here, at the one
+             * call site that puts a button inside the region Base UI hides.
+             */
+            tabIndex={-1}
           />
         )}
         {showClear && <ComboboxClear disabled={disabled} />}

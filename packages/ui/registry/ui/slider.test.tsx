@@ -9,7 +9,7 @@ import { Label } from "./label";
 /*
  * Base UI keeps the real control in a visually hidden `<input type="range">` inside the thumb, so
  * `role="slider"` resolves to THAT input, not to the thumb span. The reset forwards the root's
- * `aria-label` to it through `getAriaLabel` (A11Y-5) — these helpers read the input directly so a
+ * `aria-label` to it through `getAriaLabel` (A11Y-16) — these helpers read the input directly so a
  * naming regression fails on the assertion rather than on a locator timeout.
  */
 const inputs = (screen: { container: HTMLElement }) => [
@@ -53,14 +53,14 @@ test("the thumb reports its value to assistive tech (Usage)", async () => {
   expect(input.max).toBe("100");
 });
 
-test("A11Y-5: the root's aria-label names the control that holds the role", async () => {
+test("A11Y-16: the root's aria-label names the control that holds the role", async () => {
   const screen = await render(
     <Slider defaultValue={[33]} aria-label="Value" />,
   );
   expect(firstInput(screen).getAttribute("aria-label")).toBe("Value");
 });
 
-test("A11Y-5: every thumb of a range slider is named", async () => {
+test("A11Y-16: every thumb of a range slider is named", async () => {
   const screen = await render(
     <Slider defaultValue={[25, 50]} aria-label="Price range" />,
   );

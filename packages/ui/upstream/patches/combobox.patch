@@ -1,5 +1,5 @@
 # component: combobox
-# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-5, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-9, A11Y-16, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
 # hunks:
 #   FOC-1, FOC-3, FOC-6: `ComboboxChips` loses `focus-within:ring-3 focus-within:ring-ring/50` and
 #     keeps a `focus-within:border-ring/70` tint; `ComboboxChipsInput`'s `outline-none` becomes
@@ -16,13 +16,32 @@
 #   A11Y-3, A11Y-4: `ComboboxEmpty` no longer hides itself with `hidden` (`display: none`). It IS
 #     Base UI's own polite live region, and Base UI documents that hiding it that way breaks the
 #     announcement, so it stays in layout at `h-0 overflow-hidden` and expands when the list empties.
-#   A11Y-5: the chip's remove control and the field's clear control get an `aria-label`. Upstream
-#     renders both as icon-only `<button>`s holding an `XIcon` and no text, and Base UI supplies no
-#     name for either — the chip's own label is a SIBLING of its button rather than its content, so
-#     both read as "button" to a screen reader. FLAGGED FOR MK rather than decided silently: A11Y-5
-#     is the row about composing an accessible name where the parts are siblings, which is this
-#     shape, but its letter is the `", "` separator. The alternative was a reviewed
-#     `icon-button-name` exemption, which would have RECORDED the defect instead of fixing it.
+#   A11Y-16: the toggle inside `ComboboxInput`, the chip's remove control and the field's clear
+#     control get an `aria-label`. Upstream renders all three as icon-only `<button>`s holding an
+#     `XIcon` or a `ChevronDownIcon` and no text, and Base UI supplies no name for any of them —
+#     the chip's own label is a SIBLING of its button rather than its content, so they read as
+#     "button" to a screen reader. Batch 3 recorded this hunk under A11Y-5 and FLAGGED it for MK,
+#     because A11Y-5's letter is the `sr-only ", "` separator between sibling name parts and does
+#     not authorise naming a control. MK settled it on 2026-09-18 by adding A11Y-16 — every
+#     interactive control carries an accessible name — which is the row cited here. The hunk never
+#     changed; only its citation did.
+#   A11Y-9: the toggle inside `ComboboxInput` takes `tabIndex={-1}`. While the popup is open Base
+#     UI marks the WHOLE trailing addon `aria-hidden="true"` — the addon sits outside the popup,
+#     and the input beside it is the anchor the engine keeps exposed — so the toggle was a tab stop
+#     inside an `aria-hidden` subtree, which no screen reader will name (axe: SERIOUS
+#     `aria-hidden-focus`). A11Y-9 is that invariant, stated for the modal surfaces; Batch 5
+#     applied it to the non-modal toast on the same reading, and this is the third surface. Base
+#     UI's own `Combobox.Clear` — the addon's other control — already ships `tabIndex={-1}`, and
+#     APG's editable combobox keeps its popup toggle out of the tab sequence because the
+#     `role="combobox"` input beside it already opens the list, so the attribute costs no keyboard
+#     affordance. The addon is deliberately NOT made `inert`: that would kill the mouse too, and
+#     clicking the chevron to close an open popup has to keep working. It is set at the ONE call
+#     site that puts a button inside the region Base UI hides, so the standalone `ComboboxTrigger`
+#     of the Popup composition keeps its own tab stop. `combobox.test.tsx` now audits the open
+#     state with NO axe suppression list, and pins the engine's shape beside it, so the hunk fails
+#     as stale the day Base UI stops hiding the addon. Before this, the violation was RECORDED by
+#     an `aria-hidden-focus` exemption in the test and published as known behaviour on the docs
+#     page; both are gone. Worth reporting to Base UI.
 #   A11Y-2: `ComboboxChipsInput` gains `min-h-6`. Upstream's chips input measures 20px tall inside
 #     the 32px chips field, which is under the 24px target floor; the input is transparent, so the
 #     extra 4px changes nothing visible.
@@ -33,12 +52,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..1d297f9 100644
+index 39e776a..375d956 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,25 @@
 -"use client"
-+// @vegastack combobox@0.9.1 sha256-T0f/Mm5w1+VbVL/A5rTgyw5QRbpp4Yrb8Js68xoC9z8=
++// @vegastack combobox@0.9.1 sha256-NhltoVZHyCqBYkMCzn7IZ+CB2RIW8BB/K5x7guvcmGY=
  
 -import * as React from "react"
 -import { Combobox as ComboboxPrimitive } from "@base-ui/react"
@@ -112,7 +131,7 @@ index 39e776a..1d297f9 100644
  }) {
    return (
      <InputGroup className={cn("w-auto", className)}>
-@@ -72,6 +81,7 @@ function ComboboxInput({
+@@ -72,16 +81,31 @@ function ComboboxInput({
              size="icon-xs"
              variant="ghost"
              render={<ComboboxTrigger />}
@@ -120,7 +139,23 @@ index 39e776a..1d297f9 100644
              data-slot="input-group-button"
              className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
              disabled={disabled}
-@@ -81,7 +91,7 @@ function ComboboxInput({
++            /*
++             * A11Y-9: what is hidden from assistive technology must not be reachable by keyboard.
++             * While the popup is open Base UI marks this whole addon `aria-hidden="true"` (it is
++             * outside the popup, and the input beside it is the anchor it keeps exposed), so a
++             * tabbable control in here is a tab stop no screen reader will name — axe `serious
++             * aria-hidden-focus`. Base UI's own `Combobox.Clear`, the addon's other control, ships
++             * `tabIndex={-1}` for the same reason, and APG's editable combobox keeps its popup
++             * toggle out of the tab sequence because the `role="combobox"` input beside it already
++             * opens the list. Mouse and touch are untouched, which is why this is not `inert` on
++             * the addon. The STANDALONE `ComboboxTrigger` — the Popup composition, where the
++             * trigger IS the control — keeps its tab stop: the attribute is set here, at the one
++             * call site that puts a button inside the region Base UI hides.
++             */
++            tabIndex={-1}
+           />
+         )}
+         {showClear && <ComboboxClear disabled={disabled} />}
        </InputGroupAddon>
        {children}
      </InputGroup>
@@ -129,7 +164,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxContent({
-@@ -97,6 +107,8 @@ function ComboboxContent({
+@@ -97,6 +121,8 @@ function ComboboxContent({
      ComboboxPrimitive.Positioner.Props,
      "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
    >) {
@@ -138,7 +173,7 @@ index 39e776a..1d297f9 100644
    return (
      <ComboboxPrimitive.Portal>
        <ComboboxPrimitive.Positioner
-@@ -105,17 +117,20 @@ function ComboboxContent({
+@@ -105,17 +131,20 @@ function ComboboxContent({
          align={align}
          alignOffset={alignOffset}
          anchor={anchor}
@@ -162,7 +197,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
-@@ -124,11 +139,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+@@ -124,11 +153,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
        data-slot="combobox-list"
        className={cn(
          "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1 data-empty:p-0",
@@ -176,7 +211,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxItem({
-@@ -140,8 +155,8 @@ function ComboboxItem({
+@@ -140,8 +169,8 @@ function ComboboxItem({
      <ComboboxPrimitive.Item
        data-slot="combobox-item"
        className={cn(
@@ -187,7 +222,7 @@ index 39e776a..1d297f9 100644
        )}
        {...props}
      >
-@@ -154,7 +169,7 @@ function ComboboxItem({
+@@ -154,7 +183,7 @@ function ComboboxItem({
          <CheckIcon className="pointer-events-none" />
        </ComboboxPrimitive.ItemIndicator>
      </ComboboxPrimitive.Item>
@@ -196,7 +231,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
-@@ -164,7 +179,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
+@@ -164,7 +193,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
        className={cn(className)}
        {...props}
      />
@@ -205,7 +240,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxLabel({
-@@ -177,13 +192,13 @@ function ComboboxLabel({
+@@ -177,13 +206,13 @@ function ComboboxLabel({
        className={cn("px-2 py-1.5 text-xs text-muted-foreground", className)}
        {...props}
      />
@@ -221,7 +256,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
-@@ -191,12 +206,12 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+@@ -191,12 +220,12 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
      <ComboboxPrimitive.Empty
        data-slot="combobox-empty"
        className={cn(
@@ -237,7 +272,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxSeparator({
-@@ -209,7 +224,7 @@ function ComboboxSeparator({
+@@ -209,7 +238,7 @@ function ComboboxSeparator({
        className={cn("-mx-1 my-1 h-px bg-border", className)}
        {...props}
      />
@@ -246,7 +281,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxChips({
-@@ -221,12 +236,12 @@ function ComboboxChips({
+@@ -221,12 +250,12 @@ function ComboboxChips({
      <ComboboxPrimitive.Chips
        data-slot="combobox-chips"
        className={cn(
@@ -262,7 +297,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxChip({
-@@ -235,21 +250,21 @@ function ComboboxChip({
+@@ -235,21 +264,21 @@ function ComboboxChip({
    showRemove = true,
    ...props
  }: ComboboxPrimitive.Chip.Props & {
@@ -288,7 +323,7 @@ index 39e776a..1d297f9 100644
            className="-ms-1 opacity-50 hover:opacity-100"
            data-slot="combobox-chip-remove"
          >
-@@ -257,7 +272,7 @@ function ComboboxChip({
+@@ -257,7 +286,7 @@ function ComboboxChip({
          </ComboboxPrimitive.ChipRemove>
        )}
      </ComboboxPrimitive.Chip>
@@ -297,7 +332,7 @@ index 39e776a..1d297f9 100644
  }
  
  function ComboboxChipsInput({
-@@ -267,14 +282,14 @@ function ComboboxChipsInput({
+@@ -267,14 +296,14 @@ function ComboboxChipsInput({
    return (
      <ComboboxPrimitive.Input
        data-slot="combobox-chip-input"
@@ -315,7 +350,7 @@ index 39e776a..1d297f9 100644
  }
  
  export {
-@@ -294,4 +309,4 @@ export {
+@@ -294,4 +323,4 @@ export {
    ComboboxTrigger,
    ComboboxValue,
    useComboboxAnchor,
