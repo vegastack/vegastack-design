@@ -1,0 +1,16 @@
+{
+  "component": "menubar",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/menubar.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Checkbox",
+    "Radio",
+    "Submenu",
+    "With Icons",
+    "RTL",
+    "API Reference"
+  ]
+}

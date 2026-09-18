@@ -1,0 +1,16 @@
+{
+  "component": "tabs",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/tabs.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Line",
+    "Vertical",
+    "Disabled",
+    "Icons",
+    "RTL",
+    "API Reference"
+  ]
+}

@@ -12,13 +12,13 @@ test("renders a neutral sm chip on the rest fill with the slot markers", async (
   expect(chip.dataset.hue).toBe("neutral");
   expect(chip.dataset.size).toBe("sm");
   expect(chip.dataset.active).toBeUndefined();
-  expect(chip.className).toContain("bg-surface-1");
+  expect(chip.className).toContain("bg-muted");
   expect(chip.className).toContain("rounded-full");
-  expect(chip.className).toContain("h-(--size-sm)");
+  expect(chip.className).toContain("h-7");
   await expectNoA11yViolations(screen.container);
 });
 
-test("active promotes the neutral chip to the selection rung", async () => {
+test("active moves the neutral chip to the selected fill", async () => {
   const screen = await render(
     <Chip size="md" active>
       Status: Open
@@ -27,8 +27,8 @@ test("active promotes the neutral chip to the selection rung", async () => {
   const chip = screen.getByText("Status: Open").element() as HTMLElement;
   expect(chip.dataset.active).toBe("");
   expect(chip.dataset.size).toBe("md");
-  expect(chip.className).toContain("bg-surface-2");
-  expect(chip.className).toContain("h-(--size-md)");
+  expect(chip.className).toContain("bg-accent");
+  expect(chip.className).toContain("h-8");
 });
 
 test("a chromatic hue ignores active and keeps its own tint", async () => {
@@ -42,7 +42,7 @@ test("a chromatic hue ignores active and keeps its own tint", async () => {
   // `active` is a NEUTRAL-only promotion — a hue already carries the meaning.
   expect(chip.className).toContain("bg-tag-blue-subtle");
   expect(chip.className).toContain("text-tag-blue-text");
-  expect(chip.className).not.toContain("bg-surface-2");
+  expect(chip.className).not.toContain("bg-accent");
 });
 
 test("every hue resolves to its own three token classes", async () => {
@@ -75,7 +75,7 @@ test("every hue resolves to its own three token classes", async () => {
   }
 });
 
-test("the chip root is not interactive and carries no hover or pressed step", async () => {
+test("the chip root is not interactive and carries no hover or pressed state", async () => {
   const screen = await render(<Chip>Label</Chip>);
   const chip = screen.getByText("Label").element() as HTMLElement;
   // Clicking a chip does nothing, so it must not pretend to be a control.
@@ -97,7 +97,7 @@ test("onRemove mounts a labelled remove control and fires on activation", async 
   await expectNoA11yViolations(screen.container);
 });
 
-test("the remove control is a round ghost IconButton with the shared hover/pressed grammar", async () => {
+test("the remove control is a round ghost icon Button with the shared hover/pressed grammar", async () => {
   const screen = await render(
     <Chip onRemove={() => {}} removeLabel="Remove API">
       API
@@ -107,17 +107,15 @@ test("the remove control is a round ghost IconButton with the shared hover/press
     .getByRole("button", { name: "Remove API" })
     .element() as HTMLElement;
   expect(remove.dataset.slot).toBe("chip-remove");
-  expect(remove.dataset.shape).toBe("round");
   expect(remove.className).toContain("rounded-full");
-  // Hover climbs surface ladder rung 2, pressing climbs rung 3 — from Button's `ghost`
-  // recipe, never a literal restated here (SP-01: every control needs a pressed step).
-  expect(remove.className).toContain("hover:bg-(--btn-soft-hover)");
-  expect(remove.className).toContain("active:bg-(--btn-soft-active)");
+  // The hover wash comes from Button's own `ghost` recipe, never a literal restated here.
+  // Since Batch 2 of the shadcn reset that recipe is upstream's own `hover:bg-muted`.
+  expect(remove.className).toContain("hover:bg-muted");
 });
 
 /* ---------------------------------------------------------------------------------------------
- * Touch-target proof (WCAG 2.5.8). The harness compiles no Tailwind, so `--size-xs` collapses to
- * zero — the mirror below is a 1:1 hand-transcription of what `IconButton size="xs"` compiles to
+ * Touch-target proof (WCAG 2.5.8). The harness compiles no Tailwind, so `h-6` collapses to
+ * zero — the mirror below is a 1:1 hand-transcription of what `Button size="icon-xs"` compiles to
  * (24px square), keyed off the real `data-slot`. Unlike checkbox/radio/slider, this control uses
  * NO `::before` expansion: its own border box is the target, which is precisely the fix — a
  * `::before` on a nested native `<button>` is clipped to the button's border box by Chromium and
@@ -171,7 +169,7 @@ test("render composes the geometry onto a host element without losing its props"
     .element() as HTMLElement;
   expect(chip.tagName).toBe("BUTTON");
   expect(chip.dataset.slot).toBe("chip");
-  expect(chip.className).toContain("h-(--size-md)");
+  expect(chip.className).toContain("h-8");
   await userEvent.click(screen.getByRole("button", { name: "Show more" }));
   expect(onClick).toHaveBeenCalledOnce();
 });

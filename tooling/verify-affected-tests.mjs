@@ -39,6 +39,18 @@ function verify(sources) {
   assert.match(sources.planner, /changedContractRecords/);
   assert.match(sources.planner, /changedRegistryRecords/);
   assert.match(sources.planner, /unclassified path:/);
+  // A DELETED registry path has no owner left to find, so the classifier must recognise the
+  // deletion rather than fail closed on it — otherwise no batch can ever retire a component.
+  assert.match(sources.planner, /registry-deletion/);
+  assert.match(sources.planner, /change\.status\.startsWith\("D"\)/);
+  // ...and a component test file the range DELETED must never reach the vitest command line.
+  // vitest resolves no file, exits 0, and the lane is silently empty — the exact fail-open the
+  // selector exists to prevent. The presence check plus its `droppedTestFiles` report is the fix.
+  assert.match(sources.planner, /deleted in range, not run:/);
+  assert.match(
+    sources.planner,
+    /if \(existsSync\(join\(cwd, file\)\)\) componentTests\.push\(file\);/,
+  );
   assert.match(sources.planner, /VEGASTACK_GEOMETRY_FIXTURES/);
   assert.match(sources.planner, /geometryCanaries/);
 
@@ -78,6 +90,30 @@ if (process.argv.includes("--self-test")) {
       "planner",
       "unclassified path:",
       "ignored path:",
+    ],
+    [
+      "planner stops recognising a deletion",
+      "planner",
+      "registry-deletion",
+      "registry-unknown",
+    ],
+    [
+      "planner treats a rename's old path as a deletion",
+      "planner",
+      'change.status.startsWith("D")',
+      'change.status.startsWith("R")',
+    ],
+    [
+      "planner runs a test file the range deleted",
+      "planner",
+      "if (existsSync(join(cwd, file))) componentTests.push(file);",
+      "componentTests.push(file);",
+    ],
+    [
+      "planner stops reporting the tests it dropped",
+      "planner",
+      "deleted in range, not run:",
+      "silently skipped:",
     ],
     [
       "planner drops geometry env",

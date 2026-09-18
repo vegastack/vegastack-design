@@ -1,442 +1,399 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { userEvent } from "vitest/browser";
+import { expect, test } from "vitest";
+import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuLabel,
-  ContextMenuGroup,
-  ContextMenuShortcut,
   ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuPortal,
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
   ContextMenuSub,
-  ContextMenuSubTrigger,
   ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
 } from "./context-menu";
 
+const slot = (name: string) =>
+  document.querySelector<HTMLElement>(`[data-slot="context-menu-${name}"]`);
+const slots = (name: string) => [
+  ...document.querySelectorAll<HTMLElement>(
+    `[data-slot="context-menu-${name}"]`,
+  ),
+];
+
+/** Every class string in a subtree. SVG `className` is an SVGAnimatedString, so filter to strings. */
+const classStrings = (root: ParentNode) =>
+  [...root.querySelectorAll("*")]
+    .map((element) => element.className)
+    .filter((value): value is string => typeof value === "string");
+
 /**
- * Base UI's `ContextMenu.Trigger` opens on the native `contextmenu` event
- * (right-click / long-press). `userEvent.click` can't issue a right-click in a
- * provider-agnostic way, so we dispatch a bubbling `contextmenu` MouseEvent —
- * React's synthetic event system listens for it at the root and runs the
- * trigger's `onContextMenu` handler exactly as a real right-click would.
+ * A real secondary-button click through Playwright, not a synthesised `contextmenu` event: the
+ * whole point of this component is that the platform gesture opens it, and a dispatched event
+ * would pass even if the trigger stopped listening for the real one.
  */
-function rightClick(el: Element): void {
-  el.dispatchEvent(
-    new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+const rightClick = (element: Element) =>
+  userEvent.click(element as HTMLElement, { button: "right" });
+
+/** Padding keeps the pointer away from the viewport edges, so the positioner never has to flip. */
+function Frame({ children }: { children: React.ReactNode }) {
+  return <div style={{ padding: 160 }}>{children}</div>;
+}
+
+/** One of every part, in one popup. */
+function Everything({
+  contentProps,
+}: {
+  contentProps?: React.ComponentProps<typeof ContextMenuContent>;
+} = {}) {
+  const [checked, setChecked] = React.useState(false);
+  const [theme, setTheme] = React.useState("light");
+
+  return (
+    <Frame>
+      <ContextMenu>
+        <ContextMenuTrigger>Right click here</ContextMenuTrigger>
+        <ContextMenuContent {...contentProps}>
+          <ContextMenuGroup>
+            <ContextMenuLabel>Navigation</ContextMenuLabel>
+            <ContextMenuItem>
+              Back
+              <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem disabled>Forward</ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuLabel>View</ContextMenuLabel>
+            <ContextMenuCheckboxItem
+              checked={checked}
+              onCheckedChange={(next) => setChecked(next === true)}
+            >
+              Show Bookmarks Bar
+            </ContextMenuCheckboxItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuLabel>Theme</ContextMenuLabel>
+            <ContextMenuRadioGroup value={theme} onValueChange={setTheme}>
+              <ContextMenuRadioItem value="light">Light</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="dark">Dark</ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Frame>
   );
 }
 
-test("right-clicking the trigger opens the menu and renders items", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem>Edit</ContextMenuItem>
-        <ContextMenuItem>Duplicate</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
+/** A menu whose ONLY row is the submenu trigger, so one ArrowDown always lands on it. */
+function WithSubmenu() {
+  return (
+    <Frame>
+      <ContextMenu>
+        <ContextMenuTrigger>Right click here</ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              <ContextMenuItem>Save Page...</ContextMenuItem>
+              <ContextMenuItem>Developer Tools</ContextMenuItem>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Frame>
   );
+}
 
-  // Closed: the menu is not in the DOM.
-  expect(document.querySelector('[role="menu"]')).toBeNull();
-
-  const trigger = screen.container.querySelector(
-    '[data-slot="context-menu-trigger"]',
-  ) as Element;
-  rightClick(trigger);
-
-  await expect.element(page.getByRole("menu")).toBeInTheDocument();
+test("renders the trigger surface, closed (Usage)", async () => {
+  const screen = await render(<Everything />);
+  const trigger = screen.getByText("Right click here");
   await expect
-    .element(page.getByRole("menuitem", { name: "Edit" }))
-    .toBeInTheDocument();
+    .element(trigger)
+    .toHaveAttribute("data-slot", "context-menu-trigger");
+  expect(slot("content")).toBeNull();
+});
+
+test("a right-click on the trigger opens a role=menu popup (Usage, Composition)", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+
+  const popup = slot("content");
+  expect(popup).not.toBeNull();
+  expect(popup!.getAttribute("role")).toBe("menu");
+  // Portaled: the popup is not inside the component's own container subtree.
+  expect(screen.container.contains(popup)).toBe(false);
+
+  expect(slots("group").length).toBe(3);
+  expect(slots("label").length).toBe(3);
+  expect(slots("item").length).toBe(3);
+  expect(slots("separator").length).toBe(3);
+  expect(slot("shortcut")).not.toBeNull();
+  expect(slot("checkbox-item")).not.toBeNull();
+  expect(slot("radio-group")).not.toBeNull();
+  expect(slots("radio-item").length).toBe(2);
+});
+
+test("Escape closes the popup (Usage)", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+  expect(slot("content")).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  // The trigger's own open flag, not the popup's presence: the popup plays an exit animation, so
+  // the element outlives the state change by a frame or two.
   await expect
-    .element(page.getByRole("menuitem", { name: "Duplicate" }))
-    .toBeInTheDocument();
+    .element(screen.getByText("Right click here"))
+    .not.toHaveAttribute("data-popup-open");
 });
 
-test("clicking an item fires onClick and closes the menu", async () => {
-  const onClick = vi.fn();
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onClick={onClick}>Edit</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await page.getByRole("menuitem", { name: "Edit" }).click();
-
-  expect(onClick).toHaveBeenCalledOnce();
-  await vi.waitFor(() =>
-    expect(document.querySelector('[role="menu"]')).toBeNull(),
-  );
+test("a disabled row stays in the menu and reports itself disabled (Basic)", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+  const disabled = slots("item").find((item) => item.textContent === "Forward");
+  expect(disabled).toBeDefined();
+  expect(disabled!.hasAttribute("data-disabled")).toBe(true);
+  expect(disabled!.getAttribute("aria-disabled")).toBe("true");
 });
 
-test("applies the destructive variant data attribute", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem tone="destructive">Delete</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
+test("ArrowRight on the sub trigger opens the submenu (Submenu)", async () => {
+  const screen = await render(<WithSubmenu />);
+  await rightClick(screen.getByText("Right click here").element());
+  const subTrigger = slot("sub-trigger");
+  expect(subTrigger).not.toBeNull();
+  expect(subTrigger!.getAttribute("aria-haspopup")).toBe("menu");
 
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await expect
-    .element(page.getByRole("menuitem", { name: "Delete" }))
-    .toHaveAttribute("data-tone", "destructive");
-});
-
-test("renders label, separator and a shortcut hint", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>
-          <ContextMenuLabel>Account</ContextMenuLabel>
-          <ContextMenuItem>
-            Settings
-            <ContextMenuShortcut>⌘S</ContextMenuShortcut>
-          </ContextMenuItem>
-        </ContextMenuGroup>
-        <ContextMenuSeparator />
-        <ContextMenuItem>Log out</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await expect.element(page.getByText("Account")).toBeInTheDocument();
-  await expect.element(page.getByText("⌘S")).toBeInTheDocument();
-  await expect.element(page.getByRole("separator")).toBeInTheDocument();
-});
-
-test("inset group items activate without navigating", async () => {
-  const onSelect = vi.fn();
-  const startUrl = window.location.href;
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click here</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>
-          <ContextMenuLabel inset>Layout</ContextMenuLabel>
-          <ContextMenuItem inset onClick={onSelect}>
-            Back
-          </ContextMenuItem>
-        </ContextMenuGroup>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await page.getByRole("menuitem", { name: "Back" }).click();
-  expect(onSelect).toHaveBeenCalledTimes(1);
-  expect(window.location.href).toBe(startUrl);
-});
-
-test("checkbox item toggles via onCheckedChange", async () => {
-  const onCheckedChange = vi.fn();
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuCheckboxItem
-          checked={false}
-          onCheckedChange={onCheckedChange}
-        >
-          Show grid
-        </ContextMenuCheckboxItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await page.getByRole("menuitemcheckbox", { name: "Show grid" }).click();
-  expect(onCheckedChange).toHaveBeenCalledWith(true, expect.anything());
-});
-
-test("radio group selects via onValueChange", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuRadioGroup value="member" onValueChange={onValueChange}>
-          <ContextMenuRadioItem value="admin">Admin</ContextMenuRadioItem>
-          <ContextMenuRadioItem value="member">Member</ContextMenuRadioItem>
-        </ContextMenuRadioGroup>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await page.getByRole("menuitemradio", { name: "Admin" }).click();
-  expect(onValueChange).toHaveBeenCalledWith("admin", expect.anything());
-});
-
-test("opens from Shift+F10 when the trigger is focused", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger tabIndex={0}>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem>Edit</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  const trigger = screen.container.querySelector(
-    '[data-slot="context-menu-trigger"]',
-  ) as HTMLElement;
-  trigger.focus();
-  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
-
-  await expect.element(page.getByRole("menu")).toBeInTheDocument();
-  await expect
-    .element(page.getByRole("menuitem", { name: "Edit" }))
-    .toBeInTheDocument();
-});
-
-test("opens from the Menu key when the trigger is focused", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger tabIndex={0}>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem>Edit</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  const trigger = screen.container.querySelector(
-    '[data-slot="context-menu-trigger"]',
-  ) as HTMLElement;
-  trigger.focus();
-  await userEvent.keyboard("{ContextMenu}");
-
-  await expect.element(page.getByRole("menu")).toBeInTheDocument();
-  await expect
-    .element(page.getByRole("menuitem", { name: "Edit" }))
-    .toBeInTheDocument();
-});
-
-test("merges positioner className and forwards portal props", async () => {
-  await render(
-    <ContextMenu open>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent
-        portalProps={{ className: "context-menu-portal-prop" }}
-        positionerProps={{ className: "consumer-positioner" }}
-      >
-        <ContextMenuItem>Edit</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  await expect
-    .element(page.getByRole("menuitem", { name: "Edit" }))
-    .toBeInTheDocument();
-
-  const positioner = document.querySelector(
-    '[data-slot="context-menu-positioner"]',
-  )!;
-  expect(positioner.className).toContain("z-(--z-overlay)");
-  expect(positioner.className).toContain("outline-none");
-  expect(positioner.className).toContain("consumer-positioner");
-  expect(document.querySelector(".context-menu-portal-prop")).not.toBeNull();
-});
-
-test("opens a submenu on pointer hover and activates a nested item", async () => {
-  const onEmail = vi.fn();
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>Invite users</ContextMenuSubTrigger>
-          <ContextMenuSubContent>
-            <ContextMenuItem onClick={onEmail}>Email</ContextMenuItem>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await userEvent.hover(page.getByRole("menuitem", { name: "Invite users" }));
-  await expect
-    .element(page.getByRole("menuitem", { name: "Email" }))
-    .toBeInTheDocument();
-
-  await page.getByRole("menuitem", { name: "Email" }).click();
-  expect(onEmail).toHaveBeenCalledOnce();
-  await vi.waitFor(() =>
-    expect(document.querySelector('[role="menu"]')).toBeNull(),
-  );
-});
-
-test("opens and closes a submenu with ArrowRight and ArrowLeft", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>Invite users</ContextMenuSubTrigger>
-          <ContextMenuSubContent>
-            <ContextMenuItem>Email</ContextMenuItem>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  const subTrigger = page.getByRole("menuitem", { name: "Invite users" });
-  await expect.element(subTrigger).toBeInTheDocument();
-  subTrigger.element().focus();
-
+  await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
+
+  await expect.element(screen.getByText("Developer Tools")).toBeInTheDocument();
+  expect(slot("sub-content")).not.toBeNull();
+});
+
+test("a shortcut renders at the inline end of its row (Shortcuts)", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+  const shortcut = slot("shortcut");
+  expect(shortcut).not.toBeNull();
+  expect(shortcut!.textContent).toBe("⌘[");
+  expect(shortcut!.className).toContain("ms-auto");
+  expect(shortcut!.closest('[data-slot="context-menu-item"]')).not.toBeNull();
+});
+
+test("groups, labels and separators divide the popup (Groups)", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+  const labels = slots("label").map((label) => label.textContent);
+  expect(labels).toEqual(["Navigation", "View", "Theme"]);
+  for (const label of slots("label"))
+    expect(label.closest('[data-slot="context-menu-group"]')).not.toBeNull();
+  expect(slots("separator").length).toBe(3);
+});
+
+test("a leading icon renders inside the row (Icons)", async () => {
+  const screen = await render(
+    <Frame>
+      <ContextMenu>
+        <ContextMenuTrigger>Right click here</ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem>
+            <svg aria-hidden="true" data-testid="row-icon" />
+            Copy
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Frame>,
+  );
+  await rightClick(screen.getByText("Right click here").element());
+  const item = slot("item")!;
+  expect(item.querySelector('[data-testid="row-icon"]')).not.toBeNull();
+  // The row sizes its own icons, which is why a lucide component never takes a `size` prop here.
+  expect(item.className).toContain("[&_svg:not([class*='size-'])]:size-4");
+});
+
+test("a checkbox item toggles aria-checked (Checkboxes)", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+  const checkbox = screen.getByRole("menuitemcheckbox", {
+    name: "Show Bookmarks Bar",
+  });
+  await expect.element(checkbox).toHaveAttribute("aria-checked", "false");
+  await userEvent.click(checkbox);
+  await expect.element(checkbox).toHaveAttribute("aria-checked", "true");
+});
+
+test("a radio group selects exactly one value (Radio)", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
   await expect
-    .poll(
-      () =>
-        document.querySelectorAll('[data-slot="context-menu-content"]').length,
-    )
-    .toBe(2);
-  const subItem = page.getByRole("menuitem", { name: "Email" });
-  await expect.element(subItem).toBeInTheDocument();
-
-  // Submenu mount and focus transfer are distinct tasks in WebKit. Establish
-  // the documented ArrowLeft precondition explicitly before closing it.
-  subItem.element().focus();
-  expect(document.activeElement).toBe(subItem.element());
-  await userEvent.keyboard("{ArrowLeft}");
+    .element(screen.getByRole("menuitemradio", { name: "Light" }))
+    .toHaveAttribute("aria-checked", "true");
   await expect
-    .poll(
-      () =>
-        document.querySelectorAll('[data-slot="context-menu-content"]').length,
-    )
-    .toBe(1);
+    .element(screen.getByRole("menuitemradio", { name: "Dark" }))
+    .toHaveAttribute("aria-checked", "false");
+
+  // A radio row does not close the menu, so the selection is observed in place — reopening would
+  // mean right-clicking through Base UI's own inert backdrop.
+  await userEvent.click(screen.getByRole("menuitemradio", { name: "Dark" }));
+  await expect
+    .element(screen.getByRole("menuitemradio", { name: "Dark" }))
+    .toHaveAttribute("aria-checked", "true");
+  await expect
+    .element(screen.getByRole("menuitemradio", { name: "Light" }))
+    .toHaveAttribute("aria-checked", "false");
 });
 
-test("no a11y violations — disabled", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem>Edit</ContextMenuItem>
-        <ContextMenuItem disabled>Duplicate</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
+test("variant=destructive is recorded on the row (Destructive)", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+  const rows = slots("item");
+  const destructive = rows.find((row) => row.textContent === "Delete")!;
+  expect(destructive.getAttribute("data-variant")).toBe("destructive");
+  expect(rows[0]!.getAttribute("data-variant")).toBe("default");
+});
 
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
+test("side=top places the popup above the pointer (Sides)", async () => {
+  const screen = await render(<Everything contentProps={{ side: "top" }} />);
+  await rightClick(screen.getByText("Right click here").element());
+  expect(slot("content")!.getAttribute("data-side")).toBe("top");
+});
+
+test("side=bottom places the popup below the pointer (Sides)", async () => {
+  const screen = await render(<Everything contentProps={{ side: "bottom" }} />);
+  await rightClick(screen.getByText("Right click here").element());
+  expect(slot("content")!.getAttribute("data-side")).toBe("bottom");
+});
+
+test("RTL: the popup mirrors when the direction is rtl (RTL)", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Everything contentProps={{ dir: "rtl" }} />
+    </div>,
   );
-  await expect.element(page.getByRole("menu")).toBeInTheDocument();
-  // The popup portals to <body>, so audit the whole document.
+  const trigger = screen.getByText("Right click here");
+  expect(getComputedStyle(trigger.element() as HTMLElement).direction).toBe(
+    "rtl",
+  );
+  await rightClick(trigger.element());
+  // The popup portals to <body>, so it does not inherit `dir` — it is set on the popup, which is
+  // exactly what upstream's own RTL example does.
+  expect(getComputedStyle(slot("content")!).direction).toBe("rtl");
+  expect(slot("shortcut")!.className).toContain("ms-auto");
+  expect(slot("checkbox-item")!.className).toContain("ps-1.5");
+});
+
+test("INT-1: no menu row forces the default cursor", async () => {
+  const screen = await render(<WithSubmenu />);
+  await rightClick(screen.getByText("Right click here").element());
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowRight}");
+  const rows = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-slot^="context-menu-"][role]',
+    ),
+  ];
+  expect(rows.length).toBeGreaterThan(0);
+  for (const row of rows) expect(row.className).not.toContain("cursor-default");
+});
+
+test("FRM-4: a disabled row keeps its pointer events", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+  const disabled = slots("item").find(
+    (item) => item.textContent === "Forward",
+  )!;
+  expect(disabled.hasAttribute("data-disabled")).toBe(true);
+  // `[&_svg]:pointer-events-none` is upstream's icon rule and stays; what FRM-4 removed is the
+  // ROW's own disabled rule, so name it exactly.
+  expect(disabled.className).not.toContain("data-disabled:pointer-events-none");
+  // The computed result is what a Tooltip would need, so assert that rather than the class alone.
+  expect(getComputedStyle(disabled).pointerEvents).not.toBe("none");
+});
+
+test("OVL-13: the content's positioner re-applies the theme scope inside the portal", async () => {
+  const screen = await render(
+    <InternalThemeScopeProvider scope="vs-scope-under-test">
+      <Everything />
+    </InternalThemeScopeProvider>,
+  );
+  await rightClick(screen.getByText("Right click here").element());
+  const positioner = slot("content")!.parentElement!;
+  expect(positioner.className).toContain("vs-scope-under-test");
+  expect(positioner.className).toContain("isolate");
+});
+
+test("OVL-13: the exported ContextMenuPortal scopes a display:contents wrapper", async () => {
+  const screen = await render(
+    <InternalThemeScopeProvider scope="vs-scope-under-test">
+      <Frame>
+        <ContextMenu>
+          <ContextMenuTrigger>Right click here</ContextMenuTrigger>
+          <ContextMenuPortal>
+            <span data-testid="escape-hatch">portaled</span>
+          </ContextMenuPortal>
+        </ContextMenu>
+      </Frame>
+    </InternalThemeScopeProvider>,
+  );
+  await rightClick(screen.getByText("Right click here").element());
+  const child = document.querySelector<HTMLElement>(
+    '[data-testid="escape-hatch"]',
+  );
+  expect(child).not.toBeNull();
+  const wrapper = child!.parentElement!;
+  expect(wrapper.className).toContain("contents");
+  expect(wrapper.className).toContain("vs-scope-under-test");
+});
+
+test("OVL-13: with no scope in the tree the positioner keeps only its own classes", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
+  const positioner = slot("content")!.parentElement!;
+  expect(positioner.className).toContain("isolate");
+  expect(positioner.className).not.toContain("vs-scope-under-test");
+});
+
+test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
+  const screen = await render(<WithSubmenu />);
+  await rightClick(screen.getByText("Right click here").element());
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowRight}");
+  for (const classes of [
+    ...classStrings(screen.container),
+    ...classStrings(document.body),
+  ]) {
+    expect(classes).not.toMatch(/ring-3|ring-\[3px\]/);
+    expect(classes).not.toContain("focus-visible:ring-");
+  }
+});
+
+test("no a11y violations — closed", async () => {
+  const screen = await render(<Everything />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — open", async () => {
+  const screen = await render(<Everything />);
+  await rightClick(screen.getByText("Right click here").element());
   await expectNoA11yViolations(document.body);
 });
 
-test("no a11y violations — checked", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuCheckboxItem checked>Show grid</ContextMenuCheckboxItem>
-        <ContextMenuRadioGroup value="member">
-          <ContextMenuRadioItem value="admin">Admin</ContextMenuRadioItem>
-          <ContextMenuRadioItem value="member">Member</ContextMenuRadioItem>
-        </ContextMenuRadioGroup>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await expect.element(page.getByRole("menu")).toBeInTheDocument();
-  // The popup portals to <body>, so audit the whole document.
+test("no a11y violations — submenu open", async () => {
+  const screen = await render(<WithSubmenu />);
+  await rightClick(screen.getByText("Right click here").element());
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.element(screen.getByText("Developer Tools")).toBeInTheDocument();
   await expectNoA11yViolations(document.body);
-});
-
-test("no a11y violations with the menu open", async () => {
-  const screen = await render(
-    <ContextMenu>
-      <ContextMenuTrigger>Right-click region</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>
-          <ContextMenuLabel>Account</ContextMenuLabel>
-          <ContextMenuItem>Settings</ContextMenuItem>
-          <ContextMenuItem tone="destructive">Delete account</ContextMenuItem>
-        </ContextMenuGroup>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-
-  rightClick(
-    screen.container.querySelector(
-      '[data-slot="context-menu-trigger"]',
-    ) as Element,
-  );
-  await expect.element(page.getByRole("menu")).toBeInTheDocument();
-  // The popup portals to <body>, so audit the whole document.
-  await expectNoA11yViolations(document.body);
-});
-
-test("ContextMenuTrigger forwards ref to its host element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
-    <ContextMenu>
-      <ContextMenuTrigger ref={ref}>Right-click me</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem>Edit</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLElement);
-  expect(ref.current?.dataset.slot).toBe("context-menu-trigger");
 });

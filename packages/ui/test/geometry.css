@@ -14,12 +14,11 @@
    TWO GLOBS WERE REMOVED ON 2026-09-09 BECAUSE THEY WERE THAT NO-OP IN REVERSE — declared, and
    measured by nothing. An adversarial review deleted both and this lane stayed 590/590 green:
 
-     `../../design/src/index.ts`, commented as "the surfaceInteractive / fillInteractive recipe
+     `../../design/src/index.ts`, commented as "the "hover:bg-accent" / the family's own hover wash recipe
        literals". Those recipes change a BACKGROUND COLOUR; this lane measures reflow, containment
-       and pointer targets, so no assertion here could ever have seen them. They are now measured
-       where colour is — `button-matrix.browser.test.tsx`, over `contrast.css`, which mounts the
-       chromatic tones and the group-scoped wash and fails if the rules are absent. That glob is
-       load-bearing THERE (proven by deleting it: two assertions go red).
+       and pointer targets, so no assertion here could ever have seen them. (Batch 1 of the shadcn
+       reset then deleted the recipes themselves; a painted colour is measured over `contrast.css`
+       — `contrast.browser.test.tsx` and `button-states.browser.test.tsx`.)
 
      `../../../apps/docs/components/preview-controls.tsx`. Docs chrome, not a fixture. This lane
        mounts the preview barrel's exports and nothing else — see "FIXTURE-LOCAL CONTROLS" in

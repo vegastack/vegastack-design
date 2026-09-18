@@ -1,0 +1,21 @@
+{
+  "component": "input-group",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/input-group.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Align",
+    "Icon",
+    "Text",
+    "Button",
+    "Kbd",
+    "Dropdown",
+    "Spinner",
+    "Textarea",
+    "Custom Input",
+    "RTL",
+    "API Reference"
+  ]
+}

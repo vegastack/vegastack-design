@@ -1,0 +1,17 @@
+{
+  "component": "select",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/select.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Align Item With Trigger",
+    "Groups",
+    "Scrollable",
+    "Disabled",
+    "Invalid",
+    "RTL",
+    "API Reference"
+  ]
+}

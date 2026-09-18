@@ -1,0 +1,41 @@
+---
+title: sidebar-09
+description: Collapsible nested sidebars. Composed from avatar, breadcrumb, dropdown-menu, label.
+audience: public
+registry: sidebar-09
+preview: sidebar09Demo
+---
+
+## What it is
+
+Collapsible nested sidebars. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/sidebar-09
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `avatar`, `breadcrumb`, `dropdown-menu`, `label`, `separator`, `sidebar`, `switch`.
+
+## Preview
+
+<ComponentPreview name="sidebar09Demo" />
+
+## Files
+
+| File                                    | Registry type        | Target                                      |
+| --------------------------------------- | -------------------- | ------------------------------------------- |
+| `sidebar-09/components/app-sidebar.tsx` | `registry:component` | `app/sidebar-09/components/app-sidebar.tsx` |
+| `sidebar-09/components/nav-user.tsx`    | `registry:component` | `app/sidebar-09/components/nav-user.tsx`    |
+| `sidebar-09/page.tsx`                   | `registry:page`      | `app/sidebar-09/page.tsx`                   |
+
+## Do / Don't
+
+<DoDont
+  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
+  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+/>

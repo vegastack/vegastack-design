@@ -1,0 +1,23 @@
+{
+  "component": "input",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/input.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Basic",
+    "Field",
+    "Field Group",
+    "Disabled",
+    "Invalid",
+    "File",
+    "Inline",
+    "Grid",
+    "Required",
+    "Badge",
+    "Input Group",
+    "Button Group",
+    "Form",
+    "RTL"
+  ]
+}

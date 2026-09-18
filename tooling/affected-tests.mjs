@@ -32,6 +32,11 @@ const STATIC_PREFIXES = [
   ".claude/",
   "docs/",
   "skills/",
+  // The pinned pristine shadcn baseline (`tooling/upstream/pull.mjs`). Nothing imports it and
+  // nothing builds from it: it is the reference a patch is measured against, so a change to it
+  // changes no rendered component until a batch re-derives one. The gate that reacts to it is
+  // `upstream:check`, which runs inside `pnpm lint` on the static side.
+  "vendor/",
 ];
 const STATIC_FILES = new Set([
   "AGENTS.md",
@@ -160,12 +165,25 @@ function iconRecords(contracts) {
   return contracts.animatedIcons?.members ?? [];
 }
 
+/**
+ * The 68 ported chart blocks (Batch 8 of the shadcn reset). Modeled like the icon mirrors: a
+ * compact member list under a shared contract, one shared browser suite, and a preview module per
+ * family — so they are indexed here the same way, by their own source file and preview module,
+ * and resolve to the shared test rather than to one of their own.
+ */
+function chartBlockRecords(contracts) {
+  return contracts.chartBlocks?.members ?? [];
+}
+
+const CHART_BLOCK_TEST = "packages/ui/registry/blocks/chart-blocks.test.tsx";
+
 function recordsByName(contracts) {
   return new Map(
-    [...richRecords(contracts), ...iconRecords(contracts)].map((record) => [
-      record.name,
-      record,
-    ]),
+    [
+      ...richRecords(contracts),
+      ...iconRecords(contracts),
+      ...chartBlockRecords(contracts),
+    ].map((record) => [record.name, record]),
   );
 }
 
@@ -181,6 +199,7 @@ function indexContracts(...contractSets) {
     for (const record of [
       ...richRecords(contracts),
       ...iconRecords(contracts),
+      ...chartBlockRecords(contracts),
     ]) {
       for (const path of recordSources(record))
         source.set(slash(path), record.name);
@@ -254,9 +273,12 @@ function changedContractRecords(before, after) {
     ? { icons: before.animatedIcons?.members ?? [] }
     : null;
   const newIcons = after ? { icons: after.animatedIcons?.members ?? [] } : null;
+  const oldCharts = before ? { charts: chartBlockRecords(before) } : null;
+  const newCharts = after ? { charts: chartBlockRecords(after) } : null;
   return sorted([
     ...rich,
     ...changedJsonRecords(oldIcons, newIcons, ["icons"]),
+    ...changedJsonRecords(oldCharts, newCharts, ["charts"]),
   ]);
 }
 
@@ -316,6 +338,13 @@ export function validateAffectedPolicy(contracts, { cwd = ROOT } = {}) {
   if (!policy || typeof policy !== "object")
     return ["component contracts have no affectedTestPolicy"];
   const records = recordsByName(contracts);
+  if (
+    !policy.geometryUnswept ||
+    typeof policy.geometryUnswept !== "object" ||
+    Array.isArray(policy.geometryUnswept)
+  ) {
+    errors.push("geometryUnswept must be an object of fixture -> reason");
+  }
   const entries = policy.crossCuttingTests;
   if (!Array.isArray(entries)) return ["crossCuttingTests must be an array"];
   const declaredFiles = entries.map((entry) => entry.file);
@@ -493,10 +522,20 @@ export function createAffectedPlan({
     ...iconRecords(contracts).map((record) => record.name),
     ...iconRecords(previousContracts ?? {}).map((record) => record.name),
   ]);
+  const chartBlockNames = new Set([
+    ...chartBlockRecords(contracts).map((record) => record.name),
+    ...chartBlockRecords(previousContracts ?? {}).map((record) => record.name),
+  ]);
   const indexes = indexContracts(contracts, previousContracts);
   const policy = contracts.affectedTestPolicy;
+  // Current AND previous, for the same reason `indexContracts` unions both: a suite DELETED in this
+  // range exists only in the base contracts, and an unindexed deletion reports as an unowned
+  // cross-cutting test — a gate failing on the one change that is unambiguously safe.
   const crossByFile = new Map(
-    policy.crossCuttingTests.map((entry) => [slash(entry.file), entry]),
+    [
+      ...(previousContracts?.affectedTestPolicy?.crossCuttingTests ?? []),
+      ...policy.crossCuttingTests,
+    ].map((entry) => [slash(entry.file), entry]),
   );
   const sourceSeeds = new Set();
   const directTestOwners = new Set();
@@ -515,6 +554,18 @@ export function createAffectedPlan({
   }
 
   const changedPaths = sorted(changes.flatMap((change) => change.paths));
+  // A deletion whose path is owned by the BASE contract still seeds its item, so the dependents of
+  // a retired component are still exercised — that is the `retains base ownership` case the
+  // indexes already handle. What they cannot handle is a deletion of a path NO contract ever
+  // named: there is no owner to find in either revision, so it reaches the unowned-path error and
+  // fails closed on a file that is gone. Batch 4 hit it on `command.characterization.test.tsx`.
+  // Only a pure `D` counts — a rename carries its old path in the same record and must keep
+  // resolving through the indexes.
+  const deletedPaths = new Set(
+    changes
+      .filter((change) => change.status.startsWith("D"))
+      .flatMap((change) => change.paths),
+  );
   for (const path of changedPaths) {
     if (indexes.source.has(path)) {
       const item = indexes.source.get(path);
@@ -536,7 +587,10 @@ export function createAffectedPlan({
       continue;
     }
     if (crossByFile.has(path)) {
-      changedCrossTests.add(path);
+      // A suite the range DELETED is classified (so it is not "unowned") but never SELECTED —
+      // vitest would fail to resolve the file. `crossByFile` carries the base contracts so the
+      // deletion classifies; the presence check is what keeps it out of the run.
+      if (existsSync(join(cwd, path))) changedCrossTests.add(path);
       if (path === policy.geometryTestFile)
         broadGroups.add("test-infrastructure");
       classifications.push({ path, kind: "cross-cutting-test" });
@@ -574,16 +628,35 @@ export function createAffectedPlan({
     }
     if (
       path.startsWith("packages/ui/registry/ui/icons/") ||
-      path === "packages/ui/animated-icon-sources.json"
+      path === "packages/ui/animated-icon-sources.json" ||
+      // The ONE test file for all 467 mirrors. `modeledExemptions.animated-icons-share-surfaces`
+      // exempts the members from a per-item test, so no record lists this file and the pseudo-item
+      // is its owner — the same owner the icon sources themselves resolve to.
+      path === "packages/ui/registry/ui/animated-icons.test.tsx"
     ) {
       directTestOwners.add("__animated-icons__");
       registryCheck = true;
       classifications.push({ path, kind: "animated-icon-source" });
       continue;
     }
+    // The ONE suite for all 68 chart blocks, for the same reason as the icons': the members are
+    // exempt from a per-item test, so no record lists this file and the pseudo-item owns it.
+    if (path === CHART_BLOCK_TEST) {
+      directTestOwners.add("__chart-blocks__");
+      registryCheck = true;
+      classifications.push({ path, kind: "chart-block-test" });
+      continue;
+    }
     if (
       path === "apps/docs/components/preview/index.tsx" ||
-      path === "apps/docs/components/preview-controls.tsx"
+      path === "apps/docs/components/preview-controls.tsx" ||
+      // Not a component's preview module: `utilities.tsx` demonstrates the shared `@utility`
+      // helpers (shimmer, scroll-fade, scrollbar) on the Foundations pages and `wrapper.tsx` is the
+      // frame every hero demo mounts inside, so no contract record owns either and none should.
+      // Both are preview INFRASTRUCTURE, and a change to one selects the named contracts plus the
+      // fixed canaries rather than nothing.
+      path === "apps/docs/components/preview/utilities.tsx" ||
+      path === "apps/docs/components/preview/wrapper.tsx"
     ) {
       broadGroups.add("test-infrastructure");
       classifications.push({ path, kind: "preview-infrastructure" });
@@ -598,6 +671,12 @@ export function createAffectedPlan({
       continue;
     }
     if (path.startsWith("packages/ui/registry/")) {
+      if (deletedPaths.has(path)) {
+        // Gone, and never owned. The registry check still runs so nothing is left dangling.
+        registryCheck = true;
+        classifications.push({ path, kind: "registry-deletion" });
+        continue;
+      }
       errors.push(`unowned registry path: ${path}`);
       continue;
     }
@@ -635,7 +714,13 @@ export function createAffectedPlan({
   // A generated item is legal only alongside its source/contract seed. This catches hand edits to
   // copy-ins and public item JSON without requiring a full registry rebuild to discover them.
   for (const item of generatedItems) {
-    if (!sourceSeeds.has(item))
+    // A registry item is not always a contract RECORD. `table-scroll-region` and `terminal-body`
+    // are separate registry items whose canonical sources are listed under `table` and `terminal`
+    // respectively, so the seed their source adds is the parent's name. Resolve through the source
+    // index before reporting, or the gate fails on a correctly regenerated copy-in.
+    const owner =
+      indexes.source.get(`packages/ui/registry/ui/${item}.tsx`) ?? item;
+    if (!sourceSeeds.has(item) && !sourceSeeds.has(owner))
       errors.push(
         `generated registry item ${item} changed without its canonical source or contract`,
       );
@@ -659,13 +744,28 @@ export function createAffectedPlan({
   const testedOwners = new Set([...affectedItems, ...directTestOwners]);
 
   const componentTests = [];
+  // A component test file that the range DELETED reaches here through `oldRecords`, exactly the way
+  // a DELETED cross-cutting suite reaches `crossByFile` above — and for the same reason: the base
+  // contracts are unioned in so the deletion classifies instead of failing as unowned. The same
+  // presence check keeps it out of the RUN. Handing vitest a path that no longer exists is not a
+  // no-op: vitest resolves no file, reports success, and the lane is silently empty — which is
+  // exactly the fail-open shape the affected selector exists to prevent. Batch 7a of the shadcn
+  // reset is the first range to delete twenty components at once and see it.
+  const droppedTestFiles = [];
   for (const owner of testedOwners) {
     if (owner === "__animated-icons__" || animatedIconNames.has(owner)) {
       componentTests.push("packages/ui/registry/ui/animated-icons.test.tsx");
       continue;
     }
+    if (owner === "__chart-blocks__" || chartBlockNames.has(owner)) {
+      componentTests.push(CHART_BLOCK_TEST);
+      continue;
+    }
     const record = currentRecords.get(owner) ?? oldRecords.get(owner);
-    for (const file of record?.testFiles ?? []) componentTests.push(file);
+    for (const file of record?.testFiles ?? []) {
+      if (existsSync(join(cwd, file))) componentTests.push(file);
+      else droppedTestFiles.push(file);
+    }
   }
 
   const previewModules = new Set();
@@ -673,12 +773,18 @@ export function createAffectedPlan({
     const record = currentRecords.get(owner) ?? oldRecords.get(owner);
     if (record?.previewModule) previewModules.add(record.previewModule);
   }
+  // A fixture the geometry suite declares UNSWEPT is never requested. The suite rejects an unswept
+  // request by name — correctly, because an author asking for one is asking for an assertion that
+  // does not exist — and an automated planner enumerating a preview module's exports would hit that
+  // every time the module became affected. `geometryUnswept` in the contracts is the one authority
+  // both sides read, so the planner and the suite cannot disagree about it.
+  const unswept = new Set(Object.keys(policy.geometryUnswept ?? {}));
   const geometryFixtures = [];
   for (const module of previewModules) {
     geometryFixtures.push(
       ...exportedPreviewFixtures(`apps/docs/components/preview/${module}.tsx`, {
         cwd,
-      }),
+      }).filter((name) => !unswept.has(name)),
     );
   }
   if ([...broadGroups].some((group) => CANARY_BROAD_GROUPS.has(group)))
@@ -720,6 +826,7 @@ export function createAffectedPlan({
     previewOwners: sorted(previewOwners),
     affectedItems,
     componentTestFiles: sorted(componentTests),
+    droppedTestFiles: sorted(droppedTestFiles),
     previewModules: sorted(previewModules),
     geometryFixtures: selectedGeometryFixtures,
     crossCuttingTestFiles: sorted(crossCuttingTests),
@@ -747,6 +854,8 @@ function printPlan(plan) {
   console.log(`  seeds: ${list(plan.seedItems)}`);
   console.log(`  affected items: ${list(plan.affectedItems)}`);
   console.log(`  component tests: ${list(plan.componentTestFiles)}`);
+  if (plan.droppedTestFiles.length > 0)
+    console.log(`  deleted in range, not run: ${list(plan.droppedTestFiles)}`);
   console.log(`  cross-cutting tests: ${list(plan.crossCuttingTestFiles)}`);
   console.log(`  geometry fixtures: ${list(plan.geometryFixtures)}`);
   console.log(`  broad groups: ${list(plan.broadImpactGroups)}`);

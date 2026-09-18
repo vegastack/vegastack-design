@@ -1,258 +1,248 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
-import { selectedChipVariants } from "@vegastack/design";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
-function Basic({
-  multiple,
-  onValueChange,
-  size,
-}: {
-  multiple?: boolean;
-  onValueChange?: (value: string[]) => void;
-  size?: "sm" | "md" | "lg";
-} = {}) {
+/** Upstream's two variants and three size tiers, inherited from `toggle`'s recipe. */
+const VARIANTS = ["default", "outline"] as const;
+const SIZES = ["default", "sm", "lg"] as const;
+
+function Group({
+  children,
+  ...props
+}: React.ComponentProps<typeof ToggleGroup>) {
   return (
-    <ToggleGroup
-      aria-label="Text alignment"
-      multiple={multiple}
-      onValueChange={onValueChange}
-      size={size}
-    >
-      <ToggleGroupItem value="left">Left</ToggleGroupItem>
-      <ToggleGroupItem value="center">Center</ToggleGroupItem>
-      <ToggleGroupItem value="right">Right</ToggleGroupItem>
+    <ToggleGroup aria-label="Text formatting" {...props}>
+      {children}
     </ToggleGroup>
   );
 }
 
-test("renders all items as toggle buttons", async () => {
-  const screen = await render(<Basic />);
-  await expect
-    .element(screen.getByRole("button", { name: "Left" }))
-    .toBeInTheDocument();
-  await expect
-    .element(screen.getByRole("button", { name: "Center" }))
-    .toBeInTheDocument();
-  await expect
-    .element(screen.getByRole("button", { name: "Right" }))
-    .toBeInTheDocument();
-});
-
-test("draws one visible group boundary without changing item sizing", async () => {
-  const screen = await render(<Basic size="sm" />);
-  const group = screen.container.querySelector(
-    '[data-slot="toggle-group"]',
-  ) as HTMLElement;
-  const item = screen.getByRole("button", { name: "Left" }).element();
-  for (const rule of selectedChipVariants.track.split(" "))
-    expect(group.className).toContain(rule);
-  expect(item.className).toContain("h-(--size-sm)");
-});
-
-test("selecting an item presses it and fires onValueChange", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(<Basic onValueChange={onValueChange} />);
-  const center = screen.getByRole("button", { name: "Center" });
-  await center.click();
-  await expect.element(center).toHaveAttribute("data-pressed");
-  await expect.element(center).toHaveAttribute("aria-pressed", "true");
-  expect(onValueChange).toHaveBeenCalledWith(["center"]);
-});
-
-test("single-select: pressing a second item unpresses the first", async () => {
-  const screen = await render(<Basic />);
-  const left = screen.getByRole("button", { name: "Left" });
-  const right = screen.getByRole("button", { name: "Right" });
-  await left.click();
-  await expect.element(left).toHaveAttribute("data-pressed");
-  await right.click();
-  await expect.element(right).toHaveAttribute("data-pressed");
-  await expect.element(left).not.toHaveAttribute("data-pressed");
-});
-
-test("multiple-select: items press independently and accumulate", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(<Basic multiple onValueChange={onValueChange} />);
-  const left = screen.getByRole("button", { name: "Left" });
-  const right = screen.getByRole("button", { name: "Right" });
-  await left.click();
-  await right.click();
-  await expect.element(left).toHaveAttribute("data-pressed");
-  await expect.element(right).toHaveAttribute("data-pressed");
-  // Last call carries both pressed values, and only the array (no event details).
-  expect(onValueChange).toHaveBeenLastCalledWith(["left", "right"]);
-});
-
-test("multiple-select sets data-multiple on the group", async () => {
-  const screen = await render(<Basic multiple />);
-  const group = screen.container.querySelector('[data-slot="toggle-group"]');
-  expect(group).toHaveAttribute("data-multiple");
-});
-
-test("clicking a pressed item again unpresses it (multiple)", async () => {
-  const screen = await render(<Basic multiple />);
-  const left = screen.getByRole("button", { name: "Left" });
-  await left.click();
-  await expect.element(left).toHaveAttribute("data-pressed");
-  await left.click();
-  await expect.element(left).not.toHaveAttribute("data-pressed");
-});
-
-test("applies size data attribute to the group and items", async () => {
-  const screen = await render(<Basic size="lg" />);
-  const group = screen.container.querySelector('[data-slot="toggle-group"]');
-  expect(group).toHaveAttribute("data-size", "lg");
-  const item = screen.container.querySelector(
-    '[data-slot="toggle-group-item"]',
-  );
-  expect(item).toHaveAttribute("data-size", "lg");
-});
-
-test("group size flows to items via context", async () => {
-  const screen = await render(<Basic size="lg" />);
-  const items = screen.container.querySelectorAll(
-    '[data-slot="toggle-group-item"]',
-  );
-  expect(items.length).toBe(3);
-  items.forEach((item) => expect(item).toHaveAttribute("data-size", "lg"));
-});
-
-test("item size overrides the group context", async () => {
+test("renders a role=group root and its items, each carrying its data-slot", async () => {
   const screen = await render(
-    <ToggleGroup aria-label="Text alignment" size="lg">
-      <ToggleGroupItem value="left" size="sm">
-        Left
-      </ToggleGroupItem>
-    </ToggleGroup>,
+    <Group defaultValue={["a"]}>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+    </Group>,
   );
-  const item = screen.getByRole("button", { name: "Left" });
-  await expect.element(item).toHaveAttribute("data-size", "sm");
+  const group = screen.getByRole("group", { name: "Text formatting" });
+  await expect.element(group).toBeInTheDocument();
+  await expect.element(group).toHaveAttribute("data-slot", "toggle-group");
+
+  for (const name of ["A", "B"]) {
+    const item = screen.getByRole("button", { name });
+    await expect.element(item).toBeInTheDocument();
+    await expect
+      .element(item)
+      .toHaveAttribute("data-slot", "toggle-group-item");
+  }
 });
 
-test("supports Base UI state-function className on root and item", async () => {
+test("single selection replaces the pressed item (Composition)", async () => {
   const screen = await render(
-    <ToggleGroup
-      aria-label="Text formatting"
-      defaultValue={["bold"]}
-      className={({ disabled }) =>
-        disabled ? "group-disabled" : "group-ready"
-      }
-    >
-      <ToggleGroupItem
-        value="bold"
-        className={({ pressed }) => (pressed ? "item-pressed" : "item-idle")}
+    <Group defaultValue={["a"]}>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+    </Group>,
+  );
+  const a = screen.getByRole("button", { name: "A" });
+  const b = screen.getByRole("button", { name: "B" });
+  await expect.element(a).toHaveAttribute("aria-pressed", "true");
+  await userEvent.click(b);
+  await expect.element(b).toHaveAttribute("aria-pressed", "true");
+  await expect.element(a).toHaveAttribute("aria-pressed", "false");
+});
+
+test("multiple selection keeps both items pressed (Usage)", async () => {
+  const screen = await render(
+    <Group multiple defaultValue={["a"]}>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+    </Group>,
+  );
+  const a = screen.getByRole("button", { name: "A" });
+  const b = screen.getByRole("button", { name: "B" });
+  await userEvent.click(b);
+  await expect.element(a).toHaveAttribute("aria-pressed", "true");
+  await expect.element(b).toHaveAttribute("aria-pressed", "true");
+});
+
+test("the group's variant and size reach every item through context (Outline, Size)", async () => {
+  const screen = await render(
+    <div>
+      {VARIANTS.flatMap((variant) =>
+        SIZES.map((size) => (
+          <ToggleGroup
+            key={`${variant}-${size}`}
+            aria-label={`${variant} ${size} group`}
+            variant={variant}
+            size={size}
+            defaultValue={["a"]}
+          >
+            <ToggleGroupItem value="a">{`${variant} ${size}`}</ToggleGroupItem>
+          </ToggleGroup>
+        )),
+      )}
+    </div>,
+  );
+  for (const variant of VARIANTS) {
+    for (const size of SIZES) {
+      const item = screen.getByRole("button", { name: `${variant} ${size}` });
+      await expect.element(item).toHaveAttribute("data-variant", variant);
+      await expect.element(item).toHaveAttribute("data-size", size);
+    }
+  }
+});
+
+test("each size tier gives the item a different control height (Size)", async () => {
+  const heights = [
+    ["sm", "h-7"],
+    ["default", "h-8"],
+    ["lg", "h-9"],
+  ] as const;
+  const screen = await render(
+    <div>
+      {heights.map(([size]) => (
+        <ToggleGroup
+          key={size}
+          aria-label={`${size} group`}
+          size={size}
+          defaultValue={["a"]}
+        >
+          <ToggleGroupItem value="a">{size}</ToggleGroupItem>
+        </ToggleGroup>
+      ))}
+    </div>,
+  );
+  for (const [size, height] of heights) {
+    await expect
+      .element(screen.getByRole("button", { name: size }))
+      .toHaveClass(height);
+  }
+});
+
+test("spacing is a step on the root and reaches the items (Spacing)", async () => {
+  const screen = await render(
+    <Group spacing={0} variant="outline" defaultValue={["a"]}>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+    </Group>,
+  );
+  const group = screen.getByRole("group", { name: "Text formatting" });
+  await expect.element(group).toHaveAttribute("data-spacing", "0");
+  expect((group.element() as HTMLElement).style.getPropertyValue("--gap")).toBe(
+    "0",
+  );
+  const item = screen.getByRole("button", { name: "A" });
+  await expect.element(item).toHaveAttribute("data-spacing", "0");
+  // The joined seams are group-scoped variants, so the item always carries them and the root's
+  // `data-spacing` is what switches them on.
+  await expect
+    .element(item)
+    .toHaveClass("group-data-[spacing=0]/toggle-group:rounded-none");
+});
+
+test("the default spacing is 2, not the pre-2026-05 joined control (Spacing)", async () => {
+  const screen = await render(
+    <Group defaultValue={["a"]}>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+    </Group>,
+  );
+  await expect
+    .element(screen.getByRole("group", { name: "Text formatting" }))
+    .toHaveAttribute("data-spacing", "2");
+});
+
+test("orientation=vertical is declared on the root and drives the column classes (Vertical)", async () => {
+  const screen = await render(
+    <Group orientation="vertical" multiple defaultValue={["a"]}>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+    </Group>,
+  );
+  const group = screen.getByRole("group", { name: "Text formatting" });
+  await expect.element(group).toHaveAttribute("data-orientation", "vertical");
+  await expect.element(group).toHaveClass("data-vertical:flex-col");
+});
+
+test("a disabled group disables every item (Disabled)", async () => {
+  const screen = await render(
+    <Group disabled>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+    </Group>,
+  );
+  for (const name of ["A", "B"]) {
+    const item = screen.getByRole("button", { name });
+    expect((item.element() as HTMLButtonElement).disabled).toBe(true);
+  }
+});
+
+test("a controlled group reports the value it was given (Custom)", async () => {
+  function Controlled() {
+    const [value, setValue] = React.useState<string[]>(["normal"]);
+    return (
+      <ToggleGroup
+        aria-label="Font weight"
+        value={value}
+        onValueChange={(next) => setValue(next.length ? next : value)}
       >
-        Bold
-      </ToggleGroupItem>
-    </ToggleGroup>,
-  );
-  const group = screen.container.querySelector('[data-slot="toggle-group"]');
-  expect(group?.className).toContain("group-ready");
-  expect(
-    screen.getByRole("button", { name: "Bold" }).element().className,
-  ).toContain("item-pressed");
-});
-
-test("honors defaultValue (uncontrolled)", async () => {
-  const screen = await render(
-    <ToggleGroup aria-label="Text formatting" defaultValue={["center"]}>
-      <ToggleGroupItem value="left">Left</ToggleGroupItem>
-      <ToggleGroupItem value="center">Center</ToggleGroupItem>
-      <ToggleGroupItem value="right">Right</ToggleGroupItem>
-    </ToggleGroup>,
-  );
+        <ToggleGroupItem value="normal">Normal</ToggleGroupItem>
+        <ToggleGroupItem value="medium">Medium</ToggleGroupItem>
+      </ToggleGroup>
+    );
+  }
+  const screen = await render(<Controlled />);
+  const medium = screen.getByRole("button", { name: "Medium" });
+  await expect.element(medium).toHaveAttribute("aria-pressed", "false");
+  await userEvent.click(medium);
+  await expect.element(medium).toHaveAttribute("aria-pressed", "true");
   await expect
-    .element(screen.getByRole("button", { name: "Center" }))
-    .toHaveAttribute("data-pressed");
+    .element(screen.getByRole("button", { name: "Normal" }))
+    .toHaveAttribute("aria-pressed", "false");
 });
 
-test("arrow-key keyboard navigation moves focus to the next item", async () => {
-  const screen = await render(<Basic />);
-  const left = screen.getByRole("button", { name: "Left" });
-  const center = screen.getByRole("button", { name: "Center" });
-
-  // Click-to-focus varies by browser/platform convention. Establish the keyboard precondition
-  // directly, then make roving focus the only transition under test.
-  left.element().focus();
-  expect(document.activeElement).toBe(left.element());
-  await userEvent.keyboard("{ArrowRight}");
-  await expect.poll(() => document.activeElement).toBe(center.element());
-});
-
-test("a focused toggle-group item activates with Enter", async () => {
-  const screen = await render(<Basic />);
-  const center = screen.getByRole("button", { name: "Center" });
-
-  // Keep native-button activation independent from the roving-focus transition above. Firefox can
-  // otherwise receive Enter while Base UI is still completing the preceding focus handoff.
-  center.element().focus();
-  expect(document.activeElement).toBe(center.element());
-  await userEvent.keyboard("{Enter}");
-  await expect.element(center).toHaveAttribute("data-pressed");
-});
-
-test("disabled group does not toggle on click", async () => {
-  const onValueChange = vi.fn();
+test("no a11y violations — rest", async () => {
   const screen = await render(
-    <ToggleGroup
-      aria-label="Text alignment"
-      disabled
-      onValueChange={onValueChange}
-    >
-      <ToggleGroupItem value="left">Left</ToggleGroupItem>
-      <ToggleGroupItem value="center">Center</ToggleGroupItem>
-    </ToggleGroup>,
+    <Group defaultValue={["a"]}>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+    </Group>,
   );
-  const left = screen.getByRole("button", { name: "Left" });
-  await expect.element(left).toBeDisabled();
-  await left.click({ force: true });
-  await expect.element(left).not.toHaveAttribute("data-pressed");
-  expect(onValueChange).not.toHaveBeenCalled();
-});
-
-test("vertical orientation is reflected on the group", async () => {
-  const screen = await render(
-    <ToggleGroup aria-label="View" orientation="vertical">
-      <ToggleGroupItem value="list">List</ToggleGroupItem>
-      <ToggleGroupItem value="grid">Grid</ToggleGroupItem>
-    </ToggleGroup>,
-  );
-  const group = screen.container.querySelector('[data-slot="toggle-group"]');
-  expect(group).toHaveAttribute("data-orientation", "vertical");
-});
-
-test("no a11y violations", async () => {
-  const screen = await render(<Basic />);
   await expectNoA11yViolations(screen.container);
 });
 
-test("no a11y violations — pressed", async () => {
-  const screen = await render(<Basic />);
-  await screen.getByRole("button", { name: "Left" }).click();
+test("no a11y violations — pressed, icon-only items", async () => {
+  const screen = await render(
+    <Group multiple defaultValue={["bold"]}>
+      <ToggleGroupItem value="bold" aria-label="Toggle bold">
+        <svg aria-hidden="true" />
+      </ToggleGroupItem>
+      <ToggleGroupItem value="italic" aria-label="Toggle italic">
+        <svg aria-hidden="true" />
+      </ToggleGroupItem>
+    </Group>,
+  );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — disabled", async () => {
   const screen = await render(
-    <ToggleGroup aria-label="Text alignment" disabled>
-      <ToggleGroupItem value="left">Left</ToggleGroupItem>
-      <ToggleGroupItem value="center">Center</ToggleGroupItem>
-    </ToggleGroup>,
+    <Group disabled>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+    </Group>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
-test("forwards ref to the underlying toggle-group root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
-    <ToggleGroup ref={ref} aria-label="Text alignment">
-      <ToggleGroupItem value="left">Left</ToggleGroupItem>
-    </ToggleGroup>,
+test("no a11y violations — vertical", async () => {
+  const screen = await render(
+    <Group orientation="vertical" multiple defaultValue={["a"]}>
+      <ToggleGroupItem value="a">A</ToggleGroupItem>
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+    </Group>,
   );
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("toggle-group");
+  await expectNoA11yViolations(screen.container);
 });

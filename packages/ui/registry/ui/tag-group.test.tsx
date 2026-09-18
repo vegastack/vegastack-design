@@ -24,7 +24,7 @@ test("renders hue chips with the tag-token classes and data-hue", async () => {
   const neutral = (
     screen.getByText("Neutral").element() as HTMLElement
   ).closest('[data-slot="tag"]') as HTMLElement;
-  expect(neutral.className).toContain("bg-surface-1");
+  expect(neutral.className).toContain("bg-muted");
 });
 
 test("group announces as a list with one listitem per tag", async () => {
@@ -75,7 +75,7 @@ test("onRemove renders a labelled remove button and fires", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Remove SaaS" }));
   expect(onRemove).toHaveBeenCalledTimes(1);
   const remove = screen.getByRole("button", { name: "Remove SaaS" }).element();
-  // The shared ChipRemove: a round ghost IconButton whose REAL box is the target. The old
+  // The shared ChipRemove: a round ghost icon Button whose REAL box is the target. The old
   // `before:-inset-2` hit area was never hit-testable — Chromium clips a nested <button>'s
   // generated content to its own border box (see chip.test.tsx for the elementFromPoint proof).
   expect(remove.dataset.slot).toBe("chip-remove");
@@ -98,15 +98,16 @@ test("overflow chip IS a chip — one pill that is its own 28px pointer target",
   // the target, so nothing can clip it below the 24px floor.
   expect(overflow.dataset.slot).toBe("tag-group-overflow");
   expect(overflow.dataset.size).toBe("sm");
-  expect(overflow.className).toContain("h-(--size-sm)");
+  expect(overflow.className).toContain("h-7");
   // A chip is `w-fit`, and "+1" is narrower than the 24px pointer floor — the contract lane
   // measured 23.8px. The width floors at the tier's own height so the short cases are circles.
-  expect(overflow.className).toContain("min-w-(--size-sm)");
+  expect(overflow.className).toContain("min-w-7");
   expect(overflow.className).toContain("rounded-full");
   expect(overflow.querySelector("span")).toBeNull();
-  // The one interactive chip carries the shared hover/pressed recipe verbatim.
-  expect(overflow.className).toContain("hover:bg-surface-2");
-  expect(overflow.className).toContain("active:bg-surface-3");
+  // The one interactive chip carries a hover wash. No pressed state is asserted: INT-4 is decided
+  // as **shadcn**, so a hover no longer owes one.
+  expect(overflow.className).toContain("hover:bg-accent");
+  expect(overflow.className).toContain("hover:text-foreground");
 });
 
 test("a Tag is the Chip primitive at the inline tier, with a real 24px remove control", async () => {
@@ -122,12 +123,12 @@ test("a Tag is the Chip primitive at the inline tier, with a real 24px remove co
   expect((tag as HTMLElement).dataset.hue).toBe("blue");
   expect((tag as HTMLElement).dataset.size).toBe("sm");
   const remove = screen.getByRole("button", { name: "Remove API" }).element();
-  // The shared ChipRemove — a real 24x24 IconButton, not the `::before` hit area that
+  // The shared ChipRemove — a real 24x24 icon Button, not the `::before` hit area that
   // native <button> clipping made un-hittable (B5-03). The real-geometry proof lives in
   // chip.test.tsx, which mirrors the compiled CSS this harness does not build.
   expect(remove.dataset.slot).toBe("chip-remove");
-  expect(remove.className).toContain("w-(--size-xs)");
-  expect(remove.className).toContain("h-(--size-xs)");
+  // Since Batch 2 the square tier is upstream's own `size-6`, not a `w-6` override of a text tier.
+  expect(remove.className).toContain("size-6");
   expect(remove.className).toContain("rounded-full");
 });
 

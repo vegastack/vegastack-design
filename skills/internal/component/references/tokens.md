@@ -1,245 +1,174 @@
 # Token vocabulary
 
-Every visual value routes through a token utility or a `var(--token)` arbitrary — zero hardcoded
-visual values, enforced by `tooling/design-lint.mjs`. Token names verified against
-`packages/design-tokens/dist/theme.css`; that file is the ground truth if anything here looks stale.
+The token contract, rebuilt on shadcn `base-nova`'s `neutral` base by Batch 1 of the shadcn reset
+(`docs/plans/2026-09-18-shadcn-reset/`). Names verified against
+`packages/design-tokens/dist/theme.css`; that file is the ground truth if anything here looks stale,
+and `tooling/verify-token-references.mjs` fails the build on any `--token` a component names that
+does not exist in it.
+
+**Read this first.** The vocabulary shrank by roughly two thirds. A surface ladder, an alpha ladder,
+an opacity ladder, a size family, an icon family, a panel family, z bands and a whole type scale
+were deleted — not renamed. Where a token used to carry a design decision, **upstream's own plain
+Tailwind utility carries it now**, because the decision register resolved that row to shadcn. If you
+are reaching for a token this file does not list, the answer is almost always "write the utility".
 
 ## Contents
 
-- [Semantic colors](#semantic-colors)
-- [Control size scale](#control-size-scale)
-- [Icon role tokens](#icon-role-tokens)
+- [Semantic colours](#semantic-colours)
+- [Status families](#status-families)
+- [Chart, tag and brand](#chart-tag-and-brand)
 - [Radius](#radius)
-- [Alpha vs. opacity](#alpha-vs-opacity)
-- [Z-index](#z-index)
-- [Type scale](#type-scale)
-- [Motion durations and eases](#motion-durations-and-eases)
+- [Type](#type)
+- [Size, spacing, z-index, shadow](#size-spacing-z-index-shadow)
+- [Motion](#motion)
 - [Shared constants](#shared-constants)
-- [Arbitrary-value contract](#arbitrary-value-contract)
-- [Inline style contract](#inline-style-contract)
+- [What was deleted, and what replaced it](#what-was-deleted-and-what-replaced-it)
 
-## Semantic colors
+## Semantic colours
 
-### The surface ladder — the only neutral vocabulary
+shadcn's `neutral` base, verbatim except for the two rows the register marks **ours**.
 
-Neutral surfaces and every interaction step are ONE ladder. Reach for a rung by name:
+| token                                                                            | role                                                           |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `bg-background` / `text-foreground`                                              | the page and its ink                                           |
+| `bg-card` / `text-card-foreground`                                               | a card                                                         |
+| `bg-popover` / `text-popover-foreground`                                         | every floating surface                                         |
+| `bg-primary` / `text-primary-foreground`                                         | the solid action fill and every checked control                |
+| `bg-secondary` / `text-secondary-foreground`                                     | the soft neutral fill                                          |
+| `bg-muted` / `text-muted-foreground`                                             | wells, tracks, skeletons; and the secondary ink                |
+| `bg-accent` / `text-accent-foreground`                                           | the hover wash                                                 |
+| `border-border` / `border-input`                                                 | the hairline, and the field hairline                           |
+| `outline-ring`                                                                   | the focus ring — near-black light, near-white dark (**FOC-2**) |
+| `bg-sidebar` and its `-foreground`/`-accent`/`-border`/`-ring`/`-primary` family | the sidebar rail                                               |
 
-| token           | role                                                                                                           |
-| --------------- | -------------------------------------------------------------------------------------------------------------- |
-| `bg-background` | the page                                                                                                       |
-| `bg-card`       | every surface — card, popover, sheet, dialog, sidebar rail (`popover`/`sidebar` ARE `card`)                    |
-| `bg-surface-1`  | the rest fill of a filled control (soft button, kbd, chip, tab rail) and every well (not the switch off-track) |
-| `bg-surface-2`  | **hover**                                                                                                      |
-| `bg-surface-3`  | **pressed / selected** (`data-selected:bg-surface-3`)                                                          |
+`muted`, `accent` and `secondary` carry the SAME value in this base. They are all kept anyway,
+because a consumer retuning one of them must not silently retune the other two — name the one whose
+role you mean.
 
-`secondary`, `muted`, `accent` and every `sidebar-*` name are **ALIASES** of these rungs
-(`secondary` = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`).
-They compile, but new code names the rung. There is no `track` token: the slider rail, progress track,
-skeleton and every well are `surface-1`; the **switch off-track is `surface-3`** (a pressed-weight
-affordance, not a well).
+Two deviations from upstream, both recorded in the token source:
 
-**Never write a `hover:bg-*` literal.** Both washes come from the recipes exported by
-`@vegastack/design`:
+- **`--ring` is the ink, not a mid-grey** (FOC-2). shadcn ships `oklch(0.708 0 0)` light, which only
+  reads as a focus cue because it is wrapped in a 3px glow. There is no glow here, so the ring has
+  to carry its own contrast.
+- **`--muted-foreground` is `0.539`, not `0.556`.** Upstream's value measures 4.34:1 on `muted`,
+  below the AA floor A11Y-1 gates fail-closed. The headroom is deliberate: axe measures the 8-bit
+  sRGB round-trip, which reads about 0.04 lower than the OKLCH computation.
 
-```tsx
-import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
+### Hover and pressed
 
-surfaceInteractive; // "hover:bg-surface-2 active:bg-surface-3" — a control on a known surface
-fillInteractive.destructive; // "hover:bg-destructive/(--alpha-hover) active:bg-destructive/(--alpha-pressed)"
-```
+There is no ladder and no shared recipe. A component writes its own hover, the way upstream writes
+it: `hover:bg-accent`, `hover:bg-muted`, `hover:bg-primary/80`, `dark:hover:bg-muted/50`. A pressed
+rung is optional — INT-4 is decided as shadcn, and `design-lint`'s `hover-without-pressed` rule is
+gone with it.
 
-Use `fillInteractive.<tone>` when the backdrop is NOT a ladder surface (a kbd inside a hovered row,
-a chip on a well, chrome over media) or when the control hovers in its own hue. A SOLID fill uses
-neither — it owns darker `-hover`/`-active` steps already; a soft fill steps through its precomposed
-`{family}-subtle-hover` / `{family}-subtle-active`.
+## Status families
 
-**Every control needs a pressed step.** Hover moves one rung, pressing moves one more; a hover wash
-is inset ≥4px from any container hairline and inherits the container's inner radius.
+Four families (COL-12, **ours**), each written in the shape shadcn gives `destructive`:
 
-**A "raised chip on a muted track" has its own recipe — do not hand-roll a fifth one.**
-`selectedChipVariants` is the single formula behind Tabs `pill`/`chip`, `Segmented`, and pressed
-`Toggle`/`ToggleGroup`:
+| token                                                      | role                                              |
+| ---------------------------------------------------------- | ------------------------------------------------- |
+| `bg-destructive` / `bg-success` / `bg-warning` / `bg-info` | the solid fill                                    |
+| `text-<family>-foreground`                                 | the ink ON that fill                              |
+| `text-<family>-text`                                       | the ink on the PAGE, and on the family's own tint |
 
-```tsx
-import { cn, selectedChipVariants } from "@vegastack/design";
+A tinted status surface is `bg-<family>/10` at rest, `/20` on hover, `/30` pressed — upstream's own
+vocabulary. **The ink on a tint is `-text`, never the fill**: the fill measures 3.98-4.35:1 on its
+own tint, which the rendered axe lane rejects. `contrast-check.mjs` gates `-text` on background,
+card, popover and on all three tints over each.
 
-selectedChipVariants.track; // "bg-surface-1" — the well the chips sit in
-selectedChipVariants.item; // reserved transparent hairline + the muted→ink text step
-selectedChipVariants.pressed; // the state rules keyed on Base UI's `data-pressed`
-selectedChipVariants.active; // …and the same rules keyed on `data-active` (Tabs)
-```
+`destructive` is shadcn's value verbatim. The other three sit in the same chroma band and are
+AA-gated rather than eyeballed.
 
-The chip is the pressed/selected rung in its ALPHA form, because the backdrop is a well — and
-because that is the only form with anywhere left to climb: a SELECTED chip must still hover
-(`--alpha-ink-tint-strong`) and still press (back to the resting tint). Never guard the selected
-state out of hover/press with `not-data-pressed:` / `not-data-[active]:`; that is the defect this
-recipe exists to prevent, not a pattern.
+## Chart, tag and brand
 
-### The rest
-
-`bg-primary` / `text-muted-foreground` / `border-border` / per-family
-`{success,warning,destructive,info}` each with
-`-hover`/`-active`/`-subtle`/`-subtle-hover`/`-subtle-active`/`-text`/`-foreground` variants /
-`--brand` (marker-role accent — never a functional-state color; never hue-alone, see
-`colors.mdx`) / `--brand-text` (the family's page-readable half: brand-coloured TEXT, the `cta`
-Button label included, never `--brand` itself, which is a 3.5:1 marker and fails 1.4.3 as a label) / `--chart-single` (a ONE-series chart is drawn in foreground ink; `chart-1…8` start
-at two series) / theme-invariant media chrome `bg-media-scrim`, `bg-media-scrim-strong`,
-`text-media-foreground` (never `primary` over video — it inverts with the theme).
-
-`info` is **links and informational UI only**. Promotion, selection and emphasis take a ladder rung
-or `primary` — never `info`.
-
-`border` is DERIVED as `foreground` at `--alpha-border` (8% light / 14% dark): one translucent
-hairline that reads on page, card, well and dark band. `input` and `sidebar-border` alias it.
-
-No hex, no raw Tailwind palette (`bg-neutral-900`, `text-red-500`).
-
-`text-muted-foreground-faint` is sub-AA and restricted to placeholder/disabled copy.
-
-## Control size scale
-
-`--size-*` is 28/32/40, plus `--size-xs` 24px for the kept `xs` control tier:
-`h-(--size-sm|md|lg)`, `size-(--size-xs)`.
-
-Raw `h-7`/`h-8`/`h-10` (and `size-`/`min-w-` mirrors) are lint-banned (`raw-control-size`).
-`h-6`/`size-6` (24px) is NOT banned — it is shared by non-control scales (badge, switch track,
-select scroll strips).
-
-Physical rhythm: xs 24 · sm 28 · md 32 (default) · lg 40.
-
-## Icon role tokens
-
-`--icon-compact` 12 (xs-tier controls only) · `--icon-inline` 14 · `--icon-default` 16 ·
-`--icon-action` 20 · `--icon-feature` 24.
-
-Apply via an `svg` descendant selector: `[&_svg:not([class*='size-'])]:size-(--icon-default)`.
-Raw sizes inside an svg selector (`]:size-3`, `-3.5`, `-4`, `-5`, `-6`) are lint-banned
-(`raw-icon-size`). `size-1`/fractional glyphs (dots) are geometry, not icon scale, and stay allowed.
-
-Never pass `size`/`width`/`height` directly to a lucide component (`direct-lucide-size`) — that
-bypasses the role tokens.
+- **`--chart-1` … `--chart-8` plus `--chart-single`** (MK, 2026-09-18). shadcn's `neutral` base ships
+  a GREYSCALE chart ramp, which cannot carry multi-series data, so our 8-hue palette is kept —
+  retuned for the pure-white page and the 0.97 `muted` ground, both themes, every hue over the
+  1.4.11 3:1 floor. `chart-single` is `foreground`: one series is drawn in ink.
+- **`--tag-<hue>` / `-subtle` / `-text`**, ten hues. `-text` on `-subtle` and on the page at AA;
+  `-<hue>` as a 3:1 non-text accent.
+- **`--brand`** is a 3:1 MARKER (dot, sparkline endpoint, prompt glyph). Brand TEXT reads
+  `--brand-text`, which is AA-gated. Never use `text-brand` for a label.
+- **`--media-scrim`, `--media-scrim-strong`, `--media-foreground`** — theme-invariant media chrome,
+  both scrims gated at the AA TEXT floor because labels are drawn on them.
 
 ## Radius
 
-`rounded-sm` (`--radius-sm`) · `rounded-md` (`--radius-md`, most controls) · `rounded-lg`
-(`--radius-lg`, containers/popups — the scale's CAP) · `rounded-(--radius-xs)` (2px) ·
-`rounded-(--radius-sharp)` (2px, the marketing "sharp" gesture — same value today, a distinct role).
+**One token.** `--radius` is `0.625rem`, and Tailwind's ramp is derived from it exactly as upstream
+derives it: `sm` 0.6x, `md` 0.8x, `lg` 1x, `xl` 1.4x, `2xl` 1.8x, `3xl` 2.2x, `4xl` 2.6x.
 
-**`rounded-xl` was REMOVED and is lint-banned** (`removed-radius-xl`) — it used to silently fall back
-to Tailwind's unthemed default. Containers cap at `rounded-lg`.
+`rounded-xl` is a normal utility again — a card and a dialog wear it. The 12px cap, the
+`removed-radius-xl` lint and `--radius-sharp` are gone.
 
-## Alpha vs. opacity
+## Type
 
-Two distinct roles that are **not** interchangeable (CX-7). Color compositing takes an `--alpha-*`
-role; whole-element opacity takes an `--opacity-*` role. Crossing them fails lint
-(`alpha-opacity-role` / `opacity-alpha-role`).
+**Tailwind's stock scale, unremapped.** `text-sm` is 14px here, in a preview, in the docs shell and
+in a pasted shadcn snippet. `text-base` is 16px.
 
-Never a raw `/NN` alpha step (`raw-alpha`) or a raw `opacity-NN` (`raw-opacity`; `opacity-0`/
-`opacity-100` are exempt structural endpoints).
+There are no role utilities. Write the two or three stock utilities each one stood for:
 
-Alpha role tokens (not exhaustive — see `theme.css`): `--alpha-tint-border` (focus/invalid border
-tint), `--alpha-input` (dark-mode input wash), `--alpha-wash`/
-`--alpha-wash-faint`/`--alpha-wash-strong` (hover washes), `--alpha-surface-faint`,
-`--alpha-ink-tint`/`--alpha-ink-tint-strong`, `--alpha-border-soft`/`--alpha-border-subtle`/
-`--alpha-outline-border`/`--alpha-outline-soft`, `--alpha-glass`/`--alpha-glass-hover`,
-`--alpha-backdrop-soft`, `--alpha-link-hover` (88% — the hovered-link dim; it is 88 and not 80
-because at 80 the light composites of `success-text`/`info-text`/`warning-text` measured
-4.03–4.11:1, below AA), and the ladder's own twins
-`--alpha-hover` (7%) / `--alpha-pressed` (10%) / `--alpha-border` (8% light, 14% dark).
+| was               | write                    |
+| ----------------- | ------------------------ |
+| `text-h1`         | `text-3xl font-semibold` |
+| `text-h2`         | `text-2xl font-semibold` |
+| `text-h3`         | `text-xl font-semibold`  |
+| `text-h4`         | `text-base font-medium`  |
+| `text-label`      | `text-sm font-medium`    |
+| `text-label-sm`   | `text-xs font-medium`    |
+| `text-code`       | `font-mono text-sm`      |
+| `text-code-sm`    | `font-mono text-xs`      |
+| `text-mono-label` | `font-mono text-xs`      |
+| `text-display-*`  | `text-4xl` … `text-7xl`  |
 
-Element-opacity tokens: `--opacity-dim` (50%, the uniform disabled-state opacity — NOT design.md's
-stale 45%), `--opacity-hint`/`--opacity-hint-soft`, `--opacity-track`.
+`font-semibold`, `font-bold`, `tracking-*` and `text-4xl`+ are ordinary utilities: TYP-4, TYP-6 and
+TYP-8 are all decided as shadcn. Fonts are still Geist (TYP-10) through `font-sans`, `font-mono`,
+`font-serif` and `font-heading`.
 
-Precomposed `{family}-subtle-hover` and `{family}-subtle-active` colors exist where an
-alpha-over-surface composite would fail AA — prefer them over hand-rolling a new alpha composite for
-a hover or pressed state.
+## Size, spacing, z-index, shadow
 
-Layout dimension tokens: `--layout-header-height` (3.5rem), `--sidebar-width` / `--sidebar-width-icon`
-/ `--sidebar-width-mobile`, `--layout-overlay-max-height` (the ceiling for a scrolling overlay body),
-`--panel-width-sm/md/lg` (14/18/20rem floating panels).
+All plain Tailwind. A control is `h-6`/`h-7`/`h-8`/`h-9`, an icon is `size-3`/`size-3.5`/`size-4`, a
+popover is `w-72`, a portal is `z-50`, a menu casts `shadow-md`. The `--size-*`, `--icon-*`,
+`--panel-width-*`, `--z-*` and `--shadow-overlay` families are deleted; spacing was always
+Tailwind's `--spacing`.
 
-## Z-index
+Three stacking bands survive as a convention rather than tokens: `z-10` local, `z-50` portaled,
+`z-60` the toast stack alone. `test/stacking.browser.test.tsx` measures the toast rule.
 
-Three bands: `z-(--z-raised)` (10, local raises inside a component's own stacking context),
-`z-(--z-overlay)` (50, every portaled surface — DOM order resolves nesting since Base UI appends
-portals to `<body>`, which is `isolate`), and `z-(--z-toast)` (60, the toast stack alone).
+## Motion
 
-The toast band exists because DOM order cannot express its rule: the toast viewport mounts with the
-app provider, before any dialog opens, so on mount order every later dialog would cover it — yet a
-toast fired from inside a modal must stay visible. `toast.tsx` is the only file allowed to name it,
-and the stack counts DOWN from it by `--toast-index`.
+Kept, because our own utilities consume them (MOT-6/MOT-7): `--duration-fast|base|slow`
+(150/200/300ms), `--duration-indeterminate`, and `--motion-ease-standard|emphasized|exit|spring`,
+bridged as `duration-fast`, `ease-standard` and friends.
 
-Raw `z-N` is lint-banned (`raw-z-index`), with no library-level exception left.
-
-## Type scale
-
-`text-xs…3xl` (xs 11/16 · sm 12/16 · base 14/21 · lg 16/24 · xl 18/26 · 2xl 20/28 · 3xl 24/32).
-
-Role utilities: `text-h1…h4` (24/20/18, weight 400 except h4) · `text-label` · `text-label-sm` ·
-`text-code` · `text-code-sm` · `text-mono-label` (12/16 mono +0.05em, the "voice" role — apply
-`uppercase` at the call site, it is not baked in).
-
-Display tier: `text-display-sm/md/lg/xl` (32/40/56/72, weight 400, tracking −0.04→−0.06em).
-
-`text-4xl` and above are off-scale and lint-banned (`off-scale-text`) — use a display-tier utility.
-
-**Two-layer scale awareness**: the ladder is SCOPED. `.vs-type-product` (previews + anything under
-`[data-base-ui-portal]`) resolves the tighter product ladder (`--type-product-*`); the Fumadocs doc
-shell resolves the roomier `--type-doc-*` ladder (16px prose). If a preview or portaled popup renders
-at doc-shell size, the `vs-type-product` scope is missing — see
-`apps/docs/components/preview/wrapper.tsx` for where it is applied.
-
-**Weight and tracking are owned by the roles.** The ladder is 400/500 — `font-bold`/`font-semibold`
-are lint-banned (`raw-heavy-weight`), as is raw `tracking-*` (`raw-tracking`) and raw
-`blur-*`/`shadow-*` (`raw-effect`).
-
-**Uppercase is mono-exclusive** (D20): any uppercase `text-*` utility must carry
-`font-mono`/`text-mono-label` in the same literal and stay ≤14px (`uppercase-mono`). Uppercase
-content-transforms (avatar initials) are exempt.
-
-## Motion durations and eases
-
-`duration-fast/base/slow` (a 3-step scale, NOT 4) + `ease-standard/emphasized/exit/spring`.
-
-A `transition*` utility in a class string MUST pair a `duration-*` AND an `ease-*` token in the SAME
-string literal (`transition-pairing`) — `transition-none`/`-discrete` are exempt. `--ease-spring` is
-the audit's `linear()` curve, used by `motion-pop-in`.
-
-Never `duration-[…]`/`ease-[…]`/`cubic-bezier()`/bare `linear()` in a class string (`raw-motion`) —
-`animate-spin`/`animate-pulse` are the one documented loader exception.
-
-**Colour changes are immediate, not animated**: `transition-colors` and any `transition-[…]` naming a
-colour property are banned (`color-transition`), as is `transition-all` (`transition-all`) —
-enumerate the causal opacity/transform/geometry properties instead.
+**Nothing pairs them any more.** MOT-2 and MOT-3 are decided as shadcn, so `transition-all`,
+`transition-colors`, `duration-100` and `ease-in-out` are all legal, and the `transition-pairing`
+and `color-transition` lints are gone. The keyed-presence utilities — `motion-pop-in`,
+`motion-enter-up`, `motion-shake`, `motion-flash`, `motion-dock-in`, `motion-dock-out`,
+`motion-indeterminate` — are ours and live in `packages/design-tokens/src/utilities.css`.
 
 ## Shared constants
 
-Not tokens, but shared and exported from `@vegastack/design` — import and reuse rather than
-introducing a new magic number:
+`@vegastack/design` exports `cn`, `mergeRefs`, `prose`/`proseClassName`, `TIMINGS` and `FLOATING`.
 
-- `TIMINGS` — `feedbackRevertMs` 1500 · `autoSaveDebounceMs` 800 · `hoverOpenDelayMs` 700 ·
-  `hoverCloseDelayMs` 300
-- `FLOATING` — `sideOffsetAttached` 4 (attached-reading popups) · `sideOffsetDetached` 8
-  (detached-reading) · `collisionPadding` 8
+`surfaceInteractive`, `surfaceInteractiveGroup`, `fillInteractive`, `FillTone`, `fieldControl`,
+`fieldControlGroup` and `selectedChipVariants` were **deleted with no replacement and no alias**
+(mandate non-negotiable 2). Each was a shared class string over the deleted ladders; the component
+owns its own chrome now.
 
-## Arbitrary-value contract
+## What was deleted, and what replaced it
 
-(`arbitrary-value` lint) A `*-[…]` is allowed ONLY when it is:
-
-1. a `var(--token)` or a Base UI runtime positioner var (`--available-height`, `--anchor-width`,
-   `--transform-origin`),
-2. a `calc()` that itself contains a `var(--…)`,
-3. a layout primitive (`fr`/`%`/`auto`/`min-content`/`max-content`/`0`), or
-4. a CSS-wide keyword.
-
-A hardcoded literal fails: `h-[13px]`, `calc(100dvh-2rem)`. A fixed offset inside `calc()` must
-itself be a token.
-
-## Inline style contract
-
-(`inline-style` lint) `style={}` is allowed ONLY when it assigns EXCLUSIVELY CSS custom properties
-(every key is `--*`, consumed by an arbitrary-value class), or is the ONE documented exception
-(color-picker's dynamic swatch fill).
-
-Any direct visual property (`width`, `gridTemplateColumns`, `minHeight`, …) fails, dynamic or
-literal. Any hex/px/rem literal inside a style expression fails regardless.
+| deleted                                                       | write instead                                          |
+| ------------------------------------------------------------- | ------------------------------------------------------ |
+| `surface-1` / `surface-2` / `surface-3`                       | `muted` (rest/well) · `accent` (hover, pressed)        |
+| `muted-foreground-faint`                                      | `muted-foreground` (FRM-2 = shadcn)                    |
+| `primary-hover` / `primary-active`                            | `hover:bg-primary/80` · `active:bg-primary/70`         |
+| `<family>-subtle` / `-subtle-hover` / `-border`               | `bg-<family>/10` · `/20` · `border-<family>`           |
+| every `--alpha-*`                                             | the literal percentage (`bg-foreground/10`)            |
+| every `--opacity-*`                                           | the literal step (`opacity-50`)                        |
+| `--size-*` / `--icon-*` / `--panel-width-*`                   | `h-8` · `size-4` · `w-72`                              |
+| `--z-raised` / `--z-overlay` / `--z-toast`                    | `z-10` · `z-50` · `z-60`                               |
+| `--shadow-overlay`                                            | `shadow-sm` / `shadow-md` / `shadow-lg`, per component |
+| `--radius-sharp` / `--radius-xs`                              | `rounded-[2px]` (marketing is deleted) · `rounded-sm`  |
+| `--overlay`                                                   | `bg-black/10` (upstream's scrim)                       |
+| the `--type-product-*` / `--type-doc-*` ladders               | Tailwind's own `--text-*`                              |
+| `--font-family-pixel`, `--motion-blur`, `--effect-blur-glass` | deleted with the marketing layer and its effects       |

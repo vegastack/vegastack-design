@@ -1,0 +1,41 @@
+---
+title: onboarding-01
+description: An onboarding page section — the checklist with its progress, beside a what-is-next card. Composed from button, card, progress.
+audience: public
+registry: onboarding-01
+preview: onboarding01Demo
+---
+
+## What it is
+
+An onboarding page section — the checklist with its progress, beside a what-is-next card. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/onboarding-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `button`, `card`, `progress`.
+
+## Preview
+
+<ComponentPreview name="onboarding01Demo" />
+
+## Files
+
+| File                                           | Registry type        | Target                                             |
+| ---------------------------------------------- | -------------------- | -------------------------------------------------- |
+| `onboarding-01/components/checklist.tsx`       | `registry:component` | `app/onboarding-01/components/checklist.tsx`       |
+| `onboarding-01/components/getting-started.tsx` | `registry:component` | `app/onboarding-01/components/getting-started.tsx` |
+| `onboarding-01/page.tsx`                       | `registry:page`      | `app/onboarding-01/page.tsx`                       |
+
+## Do / Don't
+
+<DoDont
+  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
+  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+/>

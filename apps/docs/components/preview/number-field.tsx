@@ -16,7 +16,7 @@ export function numberField(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-xs flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Quantity
         </span>
         <NumberField aria-label="Quantity" defaultValue={2} min={0} max={99} />
@@ -36,7 +36,7 @@ export function numberFieldMoney(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-xs flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Deal amount
         </span>
         <NumberField
@@ -71,7 +71,7 @@ export function numberFieldMoney(): ReactNode {
             </Select>
           }
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Money is a format prop — the currency Select sits in the suffix slot.
         </p>
       </div>
@@ -85,18 +85,12 @@ export function numberFieldVariants(): ReactNode {
       <div className="mx-auto flex w-full max-w-xs flex-col gap-3">
         <NumberField
           aria-label="Percent"
-          size="sm"
           defaultValue={0.72}
           format={{ style: "percent" }}
           step={0.01}
         />
         <NumberField aria-label="Weight" defaultValue={12} suffix="kg" />
-        <NumberField
-          aria-label="Rows"
-          size="lg"
-          defaultValue={25}
-          hideControls
-        />
+        <NumberField aria-label="Rows" defaultValue={25} hideControls />
         <NumberField aria-label="Locked" defaultValue={5} disabled />
         {/* Invalid — the destructive border tint, with no motion of its own. Wrap the
             field in a Field to get the shake and the message alongside it. */}

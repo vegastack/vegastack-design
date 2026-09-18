@@ -1,4 +1,4 @@
-// @vegastack terminal@0.9.1 sha256-xDc2je7d1eOhNMiHdm3zUKxCkgTw1R2uIreaeJJXNt8=
+// @vegastack terminal@0.9.1 sha256-LlHvbEByeD66h/UBQsDdQebQaz1kWjA6egyvM6Kh1CI=
 
 "use client";
 
@@ -34,8 +34,8 @@ export interface TerminalBodyProps extends React.ComponentProps<"div"> {
  * The pane takes `tabIndex={0}` **only while it overflows**. A scrollable region
  * that cannot be focused is unreachable without a pointer (axe
  * `scrollable-region-focusable`); an unconditional tab stop on a one-line install
- * snippet is the opposite error — a dead stop on every marketing page that shows
- * one. `useOverflow` settles which of the two applies, live.
+ * snippet is the opposite error — a dead stop on every docs or install page that
+ * shows one. `useOverflow` settles which of the two applies, live.
  *
  * The NAME and the ROLE are unconditional, and only the tab stop moves. A bare
  * `<div tabindex="0">` maps to `generic`, which prohibits naming, so `aria-label`
@@ -82,7 +82,7 @@ export function TerminalBody({
       // `aria-label` would otherwise be silently ignored.
       aria-labelledby={label ? undefined : labelledBy}
       className={cn(
-        "flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x px-4 py-3 font-mono text-code text-foreground focus-visible:-outline-offset-2",
+        "flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x px-4 py-3 font-mono text-sm text-foreground focus-visible:-outline-offset-2",
         className,
       )}
     >

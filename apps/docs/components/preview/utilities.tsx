@@ -31,7 +31,7 @@ export function shimmerWithMarker(): ReactNode {
 export function shimmerColor(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex flex-col items-center gap-3 text-base text-muted-foreground">
+      <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
         <p className="shimmer shimmer-color-primary">Highlight: primary ink</p>
         <p className="shimmer shimmer-color-info">Highlight: info blue</p>
         <p className="shimmer shimmer-color-info/60">Highlight: info / 60%</p>
@@ -43,7 +43,7 @@ export function shimmerColor(): ReactNode {
 export function shimmerDuration(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex flex-col items-center gap-3 text-base text-muted-foreground">
+      <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
         <p className="shimmer">Default (2s)</p>
         <p className="shimmer shimmer-duration-1000">Faster (1s)</p>
       </div>
@@ -54,7 +54,7 @@ export function shimmerDuration(): ReactNode {
 export function shimmerSpread(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex flex-col items-center gap-3 text-base text-muted-foreground">
+      <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
         <p className="shimmer shimmer-spread-4">Narrow highlight band</p>
         <p className="shimmer shimmer-spread-24">Wide highlight band</p>
       </div>
@@ -65,7 +65,7 @@ export function shimmerSpread(): ReactNode {
 export function shimmerAngle(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex flex-col items-center gap-3 text-base text-muted-foreground">
+      <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
         <p className="shimmer">Default tilt (20°)</p>
         <p className="shimmer shimmer-angle-45">Steeper tilt (45°)</p>
       </div>
@@ -115,7 +115,7 @@ export function scrollFade(): ReactNode {
           {Array.from({ length: 24 }, (_, i) => (
             <div
               key={i}
-              className="rounded-md bg-muted px-3 py-2 text-base text-muted-foreground"
+              className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
             >
               Row {i + 1}
             </div>
@@ -133,7 +133,7 @@ export function scrollFadeHorizontal(): ReactNode {
         {Array.from({ length: 16 }, (_, i) => (
           <div
             key={i}
-            className="flex size-20 shrink-0 items-center justify-center rounded-md bg-muted text-base text-muted-foreground"
+            className="flex size-20 shrink-0 items-center justify-center rounded-md bg-muted text-sm text-muted-foreground"
           >
             {i + 1}
           </div>
@@ -152,7 +152,7 @@ export function scrollFadeEdge(): ReactNode {
       <div className="flex flex-wrap justify-center gap-6">
         {(["scroll-fade-t", "scroll-fade-b"] as const).map((edge) => (
           <div key={edge} className="flex flex-col items-center gap-2">
-            <span className="font-mono text-sm text-muted-foreground">
+            <span className="font-mono text-xs text-muted-foreground">
               {edge}
             </span>
             <div
@@ -162,7 +162,7 @@ export function scrollFadeEdge(): ReactNode {
                 {Array.from({ length: 20 }, (_, i) => (
                   <div
                     key={i}
-                    className="rounded-md bg-muted px-3 py-2 text-base text-muted-foreground"
+                    className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
                   >
                     Row {i + 1}
                   </div>
@@ -183,7 +183,7 @@ export function scrollFadeSize(): ReactNode {
       <div className="flex flex-wrap justify-center gap-6">
         {(["scroll-fade-4", "scroll-fade-24"] as const).map((size) => (
           <div key={size} className="flex flex-col items-center gap-2">
-            <span className="font-mono text-sm text-muted-foreground">
+            <span className="font-mono text-xs text-muted-foreground">
               {size}
             </span>
             <div
@@ -193,7 +193,7 @@ export function scrollFadeSize(): ReactNode {
                 {Array.from({ length: 20 }, (_, i) => (
                   <div
                     key={i}
-                    className="rounded-md bg-muted px-3 py-2 text-base text-muted-foreground"
+                    className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
                   >
                     Row {i + 1}
                   </div>

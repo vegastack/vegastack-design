@@ -1,0 +1,220 @@
+---
+title: Button Group
+description: A container that welds related buttons, inputs, selects and menus into one connected control with shared seams.
+audience: public
+registry: button-group
+status: stable
+since: 0.10.0
+a11y: labelled group role
+preview: buttonGroup
+---
+
+## Install
+
+<InstallSteps name="button-group" />
+
+## Usage
+
+```tsx
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+} from "@/components/ui/button-group";
+
+<ButtonGroup>
+  <Button>Button 1</Button>
+  <Button>Button 2</Button>
+</ButtonGroup>;
+```
+
+<ComponentPreview
+  name="buttonGroup"
+  file="components/preview/button-group.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="button-group" />
+
+## Examples
+
+### Composition
+
+Use the following composition to build a `ButtonGroup`:
+
+```text
+ButtonGroup
+├── Button or Input
+├── ButtonGroupSeparator
+└── ButtonGroupText
+```
+
+<ComponentPreview
+  name="buttonGroupComposition"
+  file="components/preview/button-group.tsx"
+/>
+
+### ButtonGroup vs ToggleGroup
+
+- Use the `ButtonGroup` component when you want to group buttons that perform an action.
+- Use the `ToggleGroup` component when you want to group buttons that toggle a state.
+
+<ComponentPreview
+  name="buttonGroupVsToggleGroup"
+  file="components/preview/button-group.tsx"
+/>
+
+### Orientation
+
+Set the `orientation` prop to change the button group layout. The horizontal group flattens the
+inline-end corners and drops the inline-start border of every button after the first; the vertical
+group does the same along the block axis.
+
+<ComponentPreview
+  name="buttonGroupOrientation"
+  file="components/preview/button-group.tsx"
+/>
+
+### Size
+
+Control the size of buttons using the `size` prop on individual buttons — the group owns the seams,
+never the height.
+
+<ComponentPreview
+  name="buttonGroupSize"
+  file="components/preview/button-group.tsx"
+/>
+
+### Nested
+
+Nest `ButtonGroup` components to create button groups with spacing: a group whose children are
+groups picks up `gap-2`, so the seams stay welded inside each inner group and open up between them.
+
+<ComponentPreview
+  name="buttonGroupNested"
+  file="components/preview/button-group.tsx"
+/>
+
+### Separator
+
+The `ButtonGroupSeparator` component visually divides buttons within a group.
+
+Buttons with variant `outline` do not need a separator since they have a border. For other variants,
+a separator is recommended to improve the visual hierarchy.
+
+<ComponentPreview
+  name="buttonGroupSeparator"
+  file="components/preview/button-group.tsx"
+/>
+
+### Split
+
+Create a split button group by adding two buttons separated by a `ButtonGroupSeparator`.
+
+<ComponentPreview
+  name="buttonGroupSplit"
+  file="components/preview/button-group.tsx"
+/>
+
+### Input
+
+Wrap an `Input` component with buttons. The group stretches the input with `flex-1`, so the button
+keeps its intrinsic width.
+
+<ComponentPreview
+  name="buttonGroupInput"
+  file="components/preview/button-group.tsx"
+/>
+
+### Input Group
+
+A button group welds to an [`InputGroup`](/docs/components/input-group) exactly as upstream's does:
+the group owns the shared seams, `InputGroup` owns the bordered field surface and its addons.
+
+<ComponentPreview
+  name="buttonGroupInputGroup"
+  file="components/preview/button-group.tsx"
+/>
+
+### Dropdown Menu
+
+Create a split button group with a `DropdownMenu` component. Render the trigger through a `Button`
+so the menu inherits the group's seam.
+
+<ComponentPreview
+  name="buttonGroupDropdownMenu"
+  file="components/preview/button-group.tsx"
+/>
+
+### Select
+
+Pair with a `Select` component. The group gives the trailing trigger back its inline-end radius, so
+a select at the end of a row does not read as clipped.
+
+<ComponentPreview
+  name="buttonGroupSelect"
+  file="components/preview/button-group.tsx"
+/>
+
+### Popover
+
+Use with a `Popover` component — the same split-action shape as the dropdown, with a form inside
+the surface instead of a menu.
+
+<ComponentPreview
+  name="buttonGroupPopover"
+  file="components/preview/button-group.tsx"
+/>
+
+### RTL
+
+Every seam is written in logical properties (`rounded-e-*`, `rounded-s-*`, `border-s-0`), so a
+right-to-left document mirrors the welded corners and the dropped borders with no extra work.
+
+<ComponentPreview
+  name="buttonGroupRtl"
+  file="components/preview/button-group.tsx"
+/>
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="ButtonGroupProps" />
+
+<ApiTable path="lib/api-props.ts" name="ButtonGroupSeparatorProps" />
+
+<ApiTable path="lib/api-props.ts" name="ButtonGroupTextProps" />
+
+## Accessibility
+
+- The `ButtonGroup` component has the `role` attribute set to `group`.
+- Use <kbd>Tab</kbd> to navigate between the buttons in the group. The group is not a roving-focus
+  widget: every member is its own tab stop.
+- Use `aria-label` or `aria-labelledby` to label the button group.
+- The group raises a focused member with `*:focus-visible:relative` and `*:focus-visible:z-10`, so
+  the global outline from `base.css` is never clipped by the neighbour that overlaps its seam.
+- `ButtonGroupSeparator` renders a Base UI `Separator`, which is `role="separator"` with the right
+  `aria-orientation` — it is announced as a divider, not as another control.
+- An icon-only button inside a group still has no visible text; give it an `aria-label`.
+
+<ComponentPreview
+  name="buttonGroupAccessibility"
+  file="components/preview/button-group.tsx"
+/>
+
+<StatesTested name="button-group" />
+
+## Do / Don't
+
+<DoDont
+  do="Give every group an aria-label, and use ButtonGroup for actions and ToggleGroup for state."
+  dont="Hand-roll the seam with negative margins — the group owns the radius and border rules."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/button-group.patch`. Every hunk:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the
+  module throws on import in a React Server Component without the boundary.

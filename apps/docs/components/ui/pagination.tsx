@@ -1,65 +1,20 @@
-// @vegastack pagination@0.9.1 sha256-bVyP1kX5L1QCklUWUs+pa2rKgmYyWKXdin8vjUp8lGE=
-
-"use client";
+// @vegastack pagination@0.9.1 sha256-171z9Vng6RpU14posSSpDE2ySEglZa/vyzBqqxyK4JM=
 
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { useRender } from "@base-ui/react/use-render";
+import { cn } from "@vegastack/design";
+
+import { Button } from "@/components/ui/button";
 import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  MoreHorizontal,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MoreHorizontalIcon,
 } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
-import { IconButton } from "@/components/ui/icon-button";
 
-/** Props accepted by `Pagination`. */
-export type PaginationProps = React.ComponentPropsWithRef<"nav">;
-
-/**
- * `Pagination` — the navigation landmark for paged content. Renders a plain `<nav>`: `<nav>` IS the
- * navigation landmark, so restating `role="navigation"` adds nothing, and the hard-coded
- * `aria-label="pagination"` it used to carry made every additional pager on a page an axe
- * `landmark-unique` failure (audit B5-08 — the docs page shows six). The label now defaults to
- * "Pagination" and **must** be overridden whenever a page has more than one: name what is being
- * paged ("Search results pagination", "Invoices pagination").
- *
- * Links use Base UI `useRender` composition for router integration, so the module keeps a client
- * boundary even though the emitted DOM is presentational. Compose with `PaginationContent`,
- * `PaginationItem`, `PaginationLink`, `PaginationPrevious`, `PaginationNext`, and
- * `PaginationEllipsis`.
- *
- * @example
- * <Pagination aria-label="Search results pagination">
- *   <PaginationContent>
- *     <PaginationItem>
- *       <PaginationPrevious href="?page=1" />
- *     </PaginationItem>
- *     <PaginationItem>
- *       <PaginationLink href="?page=1" isActive>1</PaginationLink>
- *     </PaginationItem>
- *     <PaginationItem>
- *       <PaginationLink href="?page=2">2</PaginationLink>
- *     </PaginationItem>
- *     <PaginationItem>
- *       <PaginationEllipsis />
- *     </PaginationItem>
- *     <PaginationItem>
- *       <PaginationNext href="?page=2" />
- *     </PaginationItem>
- *   </PaginationContent>
- * </Pagination>
- */
-function Pagination({
-  className,
-  "aria-label": ariaLabel,
-  ...props
-}: PaginationProps) {
+function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
-      aria-label={ariaLabel ?? "Pagination"}
+      role="navigation"
+      aria-label="pagination"
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
@@ -67,330 +22,114 @@ function Pagination({
   );
 }
 
-/** Props accepted by `PaginationContent`. */
-export type PaginationContentProps = React.ComponentPropsWithRef<"ul">;
-
-/**
- * `PaginationContent` — the unordered list (`<ul>`) holding the page items.
- * Flex-aligned with a consistent gap between controls.
-
- *
- * @example
- * <PaginationContent />
- */
-function PaginationContent({ className, ...props }: PaginationContentProps) {
+function PaginationContent({
+  className,
+  ...props
+}: React.ComponentProps<"ul">) {
   return (
     <ul
       data-slot="pagination-content"
-      className={cn("flex flex-row flex-wrap items-center gap-1", className)}
+      className={cn("flex items-center gap-0.5", className)}
       {...props}
     />
   );
 }
 
-/** Props accepted by `PaginationItem`. */
-export type PaginationItemProps = React.ComponentPropsWithRef<"li">;
-
-/** `PaginationItem` — a single list slot (`<li>`) wrapping a link or ellipsis.
- *
- * @example
- * <PaginationItem />
- */
-function PaginationItem({ className, ...props }: PaginationItemProps) {
-  return <li data-slot="pagination-item" className={className} {...props} />;
+function PaginationItem({ ...props }: React.ComponentProps<"li">) {
+  return <li data-slot="pagination-item" {...props} />;
 }
 
-/**
- * Pagination link variants — styled like a ghost button. The active (current)
- * page is the one selection in the control, so it carries the **primary** fill
- * (`bg-primary` + `primary-foreground`); inactive pages are ghost and lift to
- * the surface ladder’s hover rung. Disabled prev/next dim to 50% opacity. Every
- * value is a semantic token (no hardcoded colors).
- */
-export const paginationLinkVariants = cva(
-  cn(
-    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap tabular-nums select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-    // A page link is a transparent control on a known surface, so its two steps come from THE
-    // recipe rather than a restated `hover:bg-*` literal (`design.md` §Hover geometry).
-    surfaceInteractive,
-  ),
-  {
-    variants: {
-      isActive: {
-        true: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
-        false: "",
-      },
-      size: {
-        md: "h-(--size-md) min-w-(--size-md) gap-1.5 px-2.5",
-        sm: "h-(--size-sm) min-w-(--size-sm) gap-1 px-2.5 text-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
-        lg: "h-(--size-lg) min-w-(--size-lg) gap-1.5 px-3",
-        icon: "size-(--size-md)",
-      },
-    },
-    defaultVariants: { isActive: false, size: "icon" },
-  },
-);
-
-/** Props accepted by `PaginationLink`. */
-export interface PaginationLinkProps
-  extends
-    React.ComponentPropsWithRef<"a">,
-    Pick<VariantProps<typeof paginationLinkVariants>, "size"> {
-  /**
-   * Marks the link as the current page — applies the active **primary**-fill
-   * styling and sets `aria-current="page"`.
-   * @default false
-   */
+type PaginationLinkProps = {
   isActive?: boolean;
-  /**
-   * Replace the rendered `<a>` element via Base UI `render` composition. Pass a
-   * routing link element (e.g. `<NextLink href="/x" />`) or a render function to
-   * integrate with a router while keeping pagination styling.
+} & Pick<React.ComponentProps<typeof Button>, "size"> &
+  React.ComponentProps<"a">;
 
-   * @default undefined
-   */
-  render?: useRender.RenderProp;
-}
-
-/**
- * `PaginationLink` — a navigable page link. Renders an `<a>` by default and
- * supports the Base UI `render` prop for client-side routing. Set `isActive` on
- * the current page. When `aria-disabled` is truthy, the link enforces its own
- * disabled state instead of relying on the consumer: it drops out of the tab
- * order (`tabIndex={-1}`) and swallows clicks (`preventDefault`, and the
- * consumer's `onClick` is never called) — pointer dismissal was already
- * handled by `aria-disabled:pointer-events-none`, this closes the remaining
- * keyboard-Enter/programmatic-click gap. No extra prop needed on the consumer
- * side (previously `tabIndex={-1}` had to be set by hand alongside
- * `aria-disabled`).
-
- *
- * @example
- * <PaginationLink />
- */
 function PaginationLink({
   className,
-  isActive = false,
+  isActive,
   size = "icon",
-  render,
-  ref,
-  "aria-disabled": ariaDisabled,
-  onClick,
-  tabIndex,
   ...props
 }: PaginationLinkProps) {
-  const isDisabled = ariaDisabled === true || ariaDisabled === "true";
-
-  return useRender({
-    render: render ?? <a />,
-    defaultTagName: "a",
-    ref, // forward the consumer ref onto the rendered (or composed) element
-    props: {
-      "aria-current": isActive ? "page" : undefined,
-      "aria-disabled": ariaDisabled,
-      "data-slot": "pagination-link",
-      "data-active": isActive ? "" : undefined,
-      "data-size": size ?? "icon",
-      tabIndex: isDisabled ? -1 : tabIndex,
-      onClick: isDisabled
-        ? (event: React.MouseEvent<HTMLAnchorElement>) => {
-            // Disabled: block navigation and never call the consumer's onClick.
-            event.preventDefault();
-          }
-        : onClick,
-      className: cn(paginationLinkVariants({ isActive, size }), className),
-      ...props,
-    },
-  });
+  return (
+    <Button
+      variant={isActive ? "outline" : "ghost"}
+      size={size}
+      className={cn(className)}
+      nativeButton={false}
+      render={
+        <a
+          aria-current={isActive ? "page" : undefined}
+          data-slot="pagination-link"
+          data-active={isActive}
+          {...props}
+        />
+      }
+    />
+  );
 }
 
-/** Props accepted by `PaginationPrevious`. */
-export type PaginationPreviousProps = PaginationLinkProps;
-
-/**
- * `PaginationPrevious` — a labelled "previous page" control. A
- * `PaginationLink` with a leading `lucide-react` chevron and an accessible
- * `aria-label`.
-
- *
- * @example
- * <PaginationPrevious />
- */
 function PaginationPrevious({
   className,
-  children,
+  text = "Previous",
   ...props
-}: PaginationPreviousProps) {
+}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
       aria-label="Go to previous page"
-      size="md"
-      className={cn("gap-1 px-2.5", className)}
+      size="default"
+      className={cn("ps-1.5!", className)}
       {...props}
     >
-      <ChevronLeft />
-      {/* Below sm the text collapses to icon-only (sr-only keeps the name audible) so the bar
-          fits narrow viewports; the aria-label above already names the control regardless. */}
-      <span className="max-sm:sr-only">{children ?? "Previous"}</span>
+      <ChevronLeftIcon data-icon="inline-start" className="rtl:rotate-180" />
+      <span className="hidden sm:block">{text}</span>
     </PaginationLink>
   );
 }
 
-/** Props accepted by `PaginationNext`. */
-export type PaginationNextProps = PaginationLinkProps;
-
-/**
- * `PaginationNext` — a labelled "next page" control. A `PaginationLink` with a
- * trailing `lucide-react` chevron and an accessible `aria-label`.
-
- *
- * @example
- * <PaginationNext />
- */
 function PaginationNext({
   className,
-  children,
+  text = "Next",
   ...props
-}: PaginationNextProps) {
+}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
       aria-label="Go to next page"
-      size="md"
-      className={cn("gap-1 px-2.5", className)}
+      size="default"
+      className={cn("pe-1.5!", className)}
       {...props}
     >
-      <span className="max-sm:sr-only">{children ?? "Next"}</span>
-      <ChevronRight />
+      <span className="hidden sm:block">{text}</span>
+      <ChevronRightIcon data-icon="inline-end" className="rtl:rotate-180" />
     </PaginationLink>
   );
 }
 
-/** Props accepted by `PaginationEllipsis`. */
-export type PaginationEllipsisProps = React.ComponentPropsWithRef<"span">;
-
-/**
- * `PaginationEllipsis` — a collapsed-pages indicator (`…`) for long ranges.
- * Decorative only; expose skipped pages through real links or a labelled menu
- * trigger when they need to be reachable. Place inside a `PaginationItem`.
-
- *
- * @example
- * <PaginationEllipsis />
- */
-function PaginationEllipsis({ className, ...props }: PaginationEllipsisProps) {
+function PaginationEllipsis({
+  className,
+  ...props
+}: React.ComponentProps<"span">) {
   return (
     <span
+      aria-hidden
       data-slot="pagination-ellipsis"
-      role="presentation"
-      aria-hidden="true"
       className={cn(
-        "flex size-(--size-md) items-center justify-center [&>svg]:size-(--icon-default)",
+        "flex size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
     >
-      <MoreHorizontal />
+      <MoreHorizontalIcon />
+      <span className="sr-only">More pages</span>
     </span>
-  );
-}
-
-/** Props accepted by `PaginationPager`. */
-export interface PaginationPagerProps extends React.ComponentPropsWithRef<"div"> {
-  /** 1-based position of the current item. */
-  index: number;
-  /** Total number of items. */
-  total: number;
-  /**
-   * Context suffix after the count — e.g. `in All Companies` renders
-   * "3 of 10 in All Companies". Plain string; keep it short.
-
-   * @default undefined
-   */
-  context?: string;
-  /** Called with the next 1-based index. Buttons disable at the ends.
-   * @default undefined
-   */
-  onIndexChange?: (index: number) => void;
-  /** Accessible labels for the step buttons.
-   * @default 'Previous item'
-   */
-  previousLabel?: string;
-  /** Accessible label for the next-item button.
-   * @default 'Next item'
-   */
-  nextLabel?: string;
-}
-
-/**
- * `PaginationPager` — the compact positional pager (Wave 2 — the record-pager
- * pattern): previous/next icon buttons + a "n of N [context]" label. For
- * stepping through items of a known list (records in a view, results of a
- * search), not for numbered page navigation — that stays `Pagination`.
- * `role="status"` on the label announces position changes politely.
-
- *
- * @example
- * <PaginationPager />
- */
-function PaginationPager({
-  className,
-  index,
-  total,
-  context,
-  onIndexChange,
-  previousLabel = "Previous item",
-  nextLabel = "Next item",
-  ref,
-  ...props
-}: PaginationPagerProps) {
-  const clampedTotal = Math.max(total, 0);
-  const clamped = Math.min(Math.max(index, 1), Math.max(clampedTotal, 1));
-  return (
-    <div
-      ref={ref}
-      data-slot="pagination-pager"
-      className={cn("flex w-fit items-center gap-1", className)}
-      {...props}
-    >
-      <IconButton
-        variant="ghost"
-        size="sm"
-        aria-label={previousLabel}
-        disabled={clamped <= 1}
-        onClick={() => onIndexChange?.(clamped - 1)}
-        data-slot="pagination-pager-previous"
-      >
-        <ChevronUp aria-hidden />
-      </IconButton>
-      <IconButton
-        variant="ghost"
-        size="sm"
-        aria-label={nextLabel}
-        disabled={clamped >= clampedTotal}
-        onClick={() => onIndexChange?.(clamped + 1)}
-        data-slot="pagination-pager-next"
-      >
-        <ChevronDown aria-hidden />
-      </IconButton>
-      <span
-        role="status"
-        className="text-sm whitespace-nowrap text-muted-foreground"
-      >
-        <span className="tabular-nums">{clamped}</span> of{" "}
-        <span className="tabular-nums">{clampedTotal}</span>
-        {context ? ` ${context}` : null}
-      </span>
-    </div>
   );
 }
 
 export {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
-  PaginationPrevious,
   PaginationNext,
-  PaginationEllipsis,
-  PaginationPager,
+  PaginationPrevious,
 };

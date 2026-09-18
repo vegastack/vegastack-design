@@ -1,11 +1,11 @@
 ---
 title: Card
-description: A borders-only content surface for grouping related information — no shadows, with composable header, content, and footer parts.
+description: Displays a card with header, content, and footer — one spacing variable drives every section gap and part inset.
 audience: public
 registry: card
 status: stable
 since: 0.1.0
-a11y: presentational grouping
+a11y: plain container, no implicit role
 preview: card
 ---
 
@@ -28,93 +28,122 @@ import {
 
 <Card>
   <CardHeader>
-    <CardTitle>Account activity</CardTitle>
-    <CardDescription>A summary of your recent sign-ins.</CardDescription>
+    <CardTitle>Card Title</CardTitle>
+    <CardDescription>Card Description</CardDescription>
+    <CardAction>Card Action</CardAction>
   </CardHeader>
-  <CardContent>You signed in from 3 devices in the last 7 days.</CardContent>
+  <CardContent>
+    <p>Card Content</p>
+  </CardContent>
+  <CardFooter>
+    <p>Card Footer</p>
+  </CardFooter>
 </Card>;
 ```
 
-## Anatomy
+<ComponentPreview name="card" file="components/preview/card.tsx" />
 
-`Card` is a compound component built from plain, server-safe `div`s. Compose the parts inside the
-root — every part forwards its ref and exposes a `data-slot`:
+## Anatomy
 
 <Anatomy name="card" />
 
-```tsx
-<Card>
-  <CardHeader>
-    <CardTitle>Title</CardTitle>
-    <CardDescription>Supporting description text.</CardDescription>
-    <CardAction>{/* optional top-right control */}</CardAction>
-  </CardHeader>
-  <CardContent>{/* main body */}</CardContent>
-  <CardFooter>{/* actions */}</CardFooter>
-</Card>
-```
-
-- `Card` — the root surface (`data-slot="card"`). Borders-only, `rounded-lg`, `bg-card text-card-foreground`. Owns the `size` density (`md` / `sm`).
-- `CardHeader` — top region (`data-slot="card-header"`). Switches to a two-column grid when a `CardAction` is present.
-- `CardTitle` — the heading line (`data-slot="card-title"`).
-- `CardDescription` — muted supporting text under the title (`data-slot="card-description"`).
-- `CardAction` — an optional control anchored top-right of the header (`data-slot="card-action"`).
-- `CardContent` — the main body region (`data-slot="card-content"`).
-- `CardFooter` — a bottom region with a top border and muted background (`data-slot="card-footer"`). When a footer is present, the root drops its own bottom padding (`pb-0`) so the footer sits flush against the bottom edge.
-
 ## Examples
 
-A card with a header, content, and a footer action row:
+### Composition
 
-<ComponentPreview name="cardWithFooter" file="components/preview/card.tsx" />
+`CardHeader` holds the title, the description and the action; `CardContent` holds the body;
+`CardFooter` holds what closes the card. `CardAction` places itself in the top corner of the header
+grid, so it is written inside `CardHeader` rather than floated over the card.
 
-### Sizes
+<ComponentPreview name="cardComposition" file="components/preview/card.tsx" />
 
-`Card` exposes a single `size` density prop (`md` / `sm`). `sm` tightens the
-internal padding (`py-3` / `px-3` instead of `py-4` / `px-4`), shrinks the part gap
-(`gap-3` vs `gap-4`), and steps the title down to `text-sm`. Set it once on the root —
-the header, content, and footer all react via `group-data-[size=sm]`.
+### Size
 
-<ComponentPreview name="cardSizes" file="components/preview/card.tsx" />
+Use `size="sm"` to set the card to the small size, which uses smaller spacing throughout.
 
-## Playground
+<ComponentPreview name="cardSize" file="components/preview/card.tsx" />
 
-Toggle the density between default and small, then copy the generated JSX.
+### Spacing
 
-<CardPlayground />
+In addition to the `size` prop, the `--card-spacing` CSS variable controls the gap between sections
+and the inset of every card part. Set it on the root and every part follows.
+
+Use negative margins with `-mx-(--card-spacing)` to take content edge to edge while keeping it
+aligned with the card inset. When that content sits above a footer, add `-mb-(--card-spacing)` to
+`CardContent` to remove the section gap.
+
+<ComponentPreview name="cardSpacing" file="components/preview/card.tsx" />
+
+### Image
+
+Add an image before the card header to create a card with an image. The root drops its top padding
+and rounds the first and last image for you.
+
+<ComponentPreview name="cardImage" file="components/preview/card.tsx" />
+
+### RTL
+
+The card is written in logical properties throughout, so a right-to-left document mirrors the
+header grid, the action corner and the part insets without any extra work.
+
+<ComponentPreview name="cardRtl" file="components/preview/card.tsx" />
 
 ## API Reference
 
 ### Card
 
-<ApiTable path="../../packages/ui/registry/ui/card.tsx" name="CardProps" />
+<ApiTable path="lib/api-props.ts" name="CardProps" />
 
-`CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, and
-`CardFooter` add no props of their own — each accepts everything a `<div>`
-accepts (`className`, `ref`, `children`, …).
+### CardHeader
+
+<ApiTable path="lib/api-props.ts" name="CardHeaderProps" />
+
+### CardTitle
+
+<ApiTable path="lib/api-props.ts" name="CardTitleProps" />
+
+### CardDescription
+
+<ApiTable path="lib/api-props.ts" name="CardDescriptionProps" />
+
+### CardAction
+
+<ApiTable path="lib/api-props.ts" name="CardActionProps" />
+
+### CardContent
+
+<ApiTable path="lib/api-props.ts" name="CardContentProps" />
+
+### CardFooter
+
+<ApiTable path="lib/api-props.ts" name="CardFooterProps" />
 
 ## Accessibility
 
-- `Card` is a presentational grouping element with no implicit ARIA role — give it semantic meaning
-  through its content (a real heading inside `CardTitle`, a `role`/`aria-label` on the root if it
-  is interactive).
-- `CardTitle` renders a styled `div`. When the card should participate in the page outline, place
-  a real heading inside it, for example `<CardTitle><h3>Team plan</h3></CardTitle>`.
-- Interactive controls (`CardAction`, footer buttons) are native elements and keep their own focus
-  rings — the card never suppresses `outline`.
-- Borders-only by design: the surface is distinguished by `border-border`, not a shadow, keeping it
-  legible in high-contrast and forced-colors modes.
-
-| Key                                 | Action                                                                             |
-| ----------------------------------- | ---------------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move focus through interactive controls inside the card (actions, footer buttons). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control.                                                      |
+- Every part renders a plain `div` with no implicit role, so a card adds nothing to the
+  accessibility tree on its own. Give it the landmark or heading it deserves — pass `render` on a
+  heading inside `CardTitle`, or wrap the card in a `section` with an accessible name.
+- `CardTitle` is styled, not semantic. A page of cards still needs a real heading level so the
+  document outline reads correctly.
+- Keep the reading order the visual order: `CardAction` sits in the top corner but is written
+  inside `CardHeader`, after the title and description, which is where a keyboard reaches it.
+- An image placed before the header is decorative in these examples and takes an empty `alt`. Give
+  it a real description when it carries information the copy does not.
 
 <StatesTested name="card" />
 
 ## Do / Don't
 
 <DoDont
-  do="Group genuinely related content and put primary actions in the footer."
-  dont="Add a drop shadow or nest cards inside cards — the design system is borders-only and flat."
+  do="Set --card-spacing on the root when a card needs a different rhythm."
+  dont="Re-pad CardHeader, CardContent and CardFooter one by one to fake a denser card."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/card.patch`. Every hunk:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`.
+
+Nothing else. The class strings, the `--card-spacing` mechanism and the seven parts are upstream's,
+byte for byte; the remaining diff is the repository formatter reflowing the file.

@@ -1,0 +1,287 @@
+---
+title: Carousel
+description: A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, plus Embla's options, events and plugins.
+audience: public
+registry: carousel
+status: stable
+since: 0.10.0
+a11y: labelled carousel region with slide groups
+preview: carousel
+---
+
+## Install
+
+<InstallSteps name="carousel" />
+
+## Usage
+
+```tsx
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+
+<Carousel>
+  <CarouselContent>
+    <CarouselItem>...</CarouselItem>
+    <CarouselItem>...</CarouselItem>
+    <CarouselItem>...</CarouselItem>
+  </CarouselContent>
+  <CarouselPrevious />
+  <CarouselNext />
+</Carousel>;
+```
+
+<ComponentPreview name="carousel" file="components/preview/carousel.tsx" />
+
+## Anatomy
+
+<Anatomy name="carousel" />
+
+## Examples
+
+### About
+
+The carousel is built on [Embla Carousel](https://www.embla-carousel.com/). Embla owns the scroll
+snapping, the drag and its momentum, the slide index and whether there is anywhere left to scroll;
+the arrows, the slide chrome and the arrow-key handler are ours. That division is why the carousel
+below disables its previous arrow on the first slide without being told to.
+
+<ComponentPreview name="carouselAbout" file="components/preview/carousel.tsx" />
+
+### Composition
+
+`CarouselContent` is the scroll viewport and the flex track inside it; each `CarouselItem` is one
+slide. `CarouselPrevious` and `CarouselNext` are `Button`s positioned outside the track, so give the
+carousel horizontal room for them or move them with `className`.
+
+```text
+Carousel
+├── CarouselContent
+│   ├── CarouselItem
+│   └── CarouselItem
+├── CarouselPrevious
+└── CarouselNext
+```
+
+<ComponentPreview
+  name="carouselComposition"
+  file="components/preview/carousel.tsx"
+/>
+
+### Sizes
+
+Slide width is the `basis-*` utility on `CarouselItem`, which is why it is responsive for free.
+
+```tsx
+// 33% of the carousel width.
+<CarouselItem className="basis-1/3">...</CarouselItem>
+
+// 50% on small screens, 33% on larger ones.
+<CarouselItem className="md:basis-1/2 lg:basis-1/3">...</CarouselItem>
+```
+
+<ComponentPreview name="carouselSizes" file="components/preview/carousel.tsx" />
+
+### Spacing
+
+The gap between slides is a negative margin on `CarouselContent` matched by padding on
+`CarouselItem`, so the first slide still sits flush with the viewport edge. The component's own
+default is `-ms-4` / `ps-4`; override both together.
+
+```tsx
+<CarouselContent className="-ml-2 md:-ml-4">
+  <CarouselItem className="pl-2 md:pl-4">...</CarouselItem>
+</CarouselContent>
+```
+
+<ComponentPreview
+  name="carouselSpacing"
+  file="components/preview/carousel.tsx"
+/>
+
+### Orientation
+
+`orientation` takes `horizontal` (the default) and `vertical`. It sets Embla's axis, swaps the
+spacing utilities for their vertical pair, and rotates the two arrows onto the top and bottom edges.
+A vertical carousel needs an explicit height on `CarouselContent`.
+
+<ComponentPreview
+  name="carouselOrientation"
+  file="components/preview/carousel.tsx"
+/>
+
+### Options
+
+`opts` is passed straight to Embla — see the
+[Embla options reference](https://www.embla-carousel.com/docs/api/options). `loop` and `align` are the
+two that change what the reader sees: with `loop: true` the track wraps, so neither arrow ever
+disables.
+
+```tsx
+<Carousel opts={{ align: "start", loop: true }}>...</Carousel>
+```
+
+<ComponentPreview
+  name="carouselOptions"
+  file="components/preview/carousel.tsx"
+/>
+
+### API
+
+`setApi` hands you the Embla instance, which is how anything outside the carousel reads or drives
+it — a slide counter, dots, a "jump to slide" control.
+
+```tsx
+const [api, setApi] = React.useState<CarouselApi>();
+
+React.useEffect(() => {
+  if (!api) return;
+  setCount(api.scrollSnapList().length);
+  setCurrent(api.selectedScrollSnap() + 1);
+}, [api]);
+
+<Carousel setApi={setApi}>...</Carousel>;
+```
+
+<ComponentPreview name="carouselApi" file="components/preview/carousel.tsx" />
+
+### Events
+
+The same instance emits Embla's events — see the
+[Embla events reference](https://www.embla-carousel.com/docs/api/events). `select` fires when the
+settled slide changes, whatever moved it: an arrow, a drag, an arrow key or a programmatic
+`scrollTo`. Unsubscribe in the effect's cleanup, or a remount leaves the old handler attached.
+
+```tsx
+React.useEffect(() => {
+  if (!api) return;
+  const onSelect = () => {
+    // Do something on select.
+  };
+  api.on("select", onSelect);
+  return () => {
+    api.off("select", onSelect);
+  };
+}, [api]);
+```
+
+<ComponentPreview
+  name="carouselEvents"
+  file="components/preview/carousel.tsx"
+/>
+
+### Plugins
+
+`plugins` takes Embla plugins — objects with a `name`, an `options` bag, an `init(embla)` and a
+`destroy()`. The carousel hands each one the engine instance, and Embla tears them down with it.
+Keep the instance in a ref: re-creating it on every render rebuilds the engine.
+
+The published plugin most people reach for first is autoplay, which is a separate package:
+
+```bash
+npm install embla-carousel-autoplay
+```
+
+```tsx
+import Autoplay from "embla-carousel-autoplay";
+
+const plugin = React.useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
+
+<Carousel
+  plugins={[plugin.current]}
+  onMouseEnter={plugin.current.stop}
+  onMouseLeave={plugin.current.reset}
+>
+  ...
+</Carousel>;
+```
+
+That package is deliberately not installed in this design system, so the live example below uses a
+small plugin written inline instead: it subscribes to the engine's `select` and `reInit` events and
+reports the settled slide. It is the same protocol autoplay uses, minus the timer.
+
+<ComponentPreview
+  name="carouselPlugins"
+  file="components/preview/carousel.tsx"
+/>
+
+### RTL
+
+Set both `dir="rtl"` and Embla's own `direction` option — `dir` alone mirrors the layout while the
+engine keeps scrolling left to right. The arrows carry `rtl:rotate-180`, so they point the way the
+track moves.
+
+```tsx
+<Carousel dir="rtl" opts={{ direction: "rtl" }}>
+  ...
+</Carousel>
+```
+
+<ComponentPreview name="carouselRtl" file="components/preview/carousel.tsx" />
+
+## API Reference
+
+### Carousel
+
+<ApiTable path="lib/api-props.ts" name="CarouselProps" />
+
+### CarouselContent
+
+<ApiTable path="lib/api-props.ts" name="CarouselContentProps" />
+
+### CarouselItem
+
+<ApiTable path="lib/api-props.ts" name="CarouselItemProps" />
+
+### CarouselPrevious
+
+<ApiTable path="lib/api-props.ts" name="CarouselPreviousProps" />
+
+### CarouselNext
+
+<ApiTable path="lib/api-props.ts" name="CarouselNextProps" />
+
+`useCarousel()` returns the same context the arrows read — `api`, `scrollPrev`, `scrollNext`,
+`canScrollPrev`, `canScrollNext` and `orientation` — for a control of your own inside the carousel.
+`CarouselApi` is the Embla instance type; see the
+[Embla API reference](https://www.embla-carousel.com/docs/api) for what it exposes.
+
+## Accessibility
+
+- The root is `role="region"` with `aria-roledescription="carousel"`, and every slide is
+  `role="group"` with `aria-roledescription="slide"`, which is the ARIA carousel pattern. Give the
+  root an `aria-label` naming what it holds — the roledescription says it is a carousel, not what is
+  in it.
+- The arrows are `Button`s with an `sr-only` "Previous slide" / "Next slide" name, and they disable
+  at the ends of a non-looping track, so the control's state matches what the engine can actually do.
+- <kbd>←</kbd> and <kbd>→</kbd> scroll the track while focus is anywhere inside
+  the carousel, so a keyboard user is not forced through the arrows.
+- The slide track scrolls but takes no focus of its own; put the reachable content inside the slides.
+  Nothing in the carousel is revealed by hover alone.
+- Focus is the global 2px `:focus-visible` outline from `base.css`, inherited from `Button`; there is
+  no ring glow.
+
+<StatesTested name="carousel" />
+
+## Do / Don't
+
+<DoDont
+  do="Use a Carousel for a run of peer items the reader can browse — a gallery, feature cards, testimonials — and give the region an aria-label."
+  dont="Put content the reader must not miss behind a Carousel, or autoplay it without a way to stop; a list they need to compare belongs in the page."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/carousel.patch`. Every hunk:
+
+- **No styling hunk.** New to this system in Batch 5. The arrows render through `Button`, which
+  already owns focus, cursor and disabled behaviour, and the slide track has no focus affordance of
+  its own. `embla-carousel-react` is the engine; it is pre-approved with upstream's whole dependency
+  set (DOC-7).
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

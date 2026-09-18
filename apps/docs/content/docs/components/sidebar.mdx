@@ -1,11 +1,11 @@
 ---
 title: Sidebar
-description: A collapsible app navigation rail — header / content / footer, labelled groups, menu items with active state, and an expand/collapse trigger.
+description: A composable, collapsible navigation rail — provider, panel, groups, menu rows with actions, badges and submenus, plus a rail and a trigger.
 audience: public
 registry: sidebar
 status: stable
 since: 0.1.0
-a11y: navigation landmark
+a11y: composed shell region, main landmark on the inset
 preview: sidebar
 ---
 
@@ -15,348 +15,602 @@ preview: sidebar
 
 ## Usage
 
-```tsx
+Wrap the application in `SidebarProvider`, put the navigation in `Sidebar`, and put the page in
+`SidebarInset`. `SidebarTrigger` toggles the panel from anywhere inside the provider.
+
+```tsx title="app/layout.tsx"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <main>
+        <SidebarTrigger />
+        {children}
+      </main>
+    </SidebarProvider>
+  );
+}
+```
+
+```tsx title="components/app-sidebar.tsx"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-<SidebarProvider>
-  <Sidebar aria-label="Main navigation">
-    <SidebarHeader>…logo / workspace switcher…</SidebarHeader>
-    <SidebarContent>
-      <SidebarGroup>
-        <SidebarGroupLabel>Workspace</SidebarGroupLabel>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton isActive render={<a href="/" />}>
-              <Home />
-              <span>Home</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton render={<a href="/inbox" />}>
-              <Inbox />
-              <span>Inbox</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroup>
-    </SidebarContent>
-    <SidebarFooter>
-      <SidebarMenuButton render={<a href="/settings" />}>
-        <Settings />
-        <span>Settings</span>
-      </SidebarMenuButton>
-    </SidebarFooter>
-  </Sidebar>
-  <div className="flex min-w-0 flex-1 flex-col">
-    <header>
-      {/* Always mounted: collapses the desktop rail and opens the mobile Sheet. */}
-      <SidebarTrigger />
-    </header>
-    {/* …your page content… */}
-  </div>
-</SidebarProvider>;
-```
-
-### Persistence
-
-While `persist` is on — it is by default — every desktop toggle writes a `sidebar_state` cookie
-(`path=/`, `max-age` ~1 year) so the sidebar can restore its state across page loads. The cookie is
-the only piece of application policy this component holds, so it is deliberately switchable:
-
-| you want                                           | pass                                                        |
-| -------------------------------------------------- | ----------------------------------------------------------- |
-| the default — restore the rail across reloads      | nothing; `persist` defaults to `true`                       |
-| no cookie at all (consent regimes, your own store) | `persist={false}`, and persist from `onOpenChange` yourself |
-
-`persist={false}` gates the **write only**. `onOpenChange` still fires on every toggle either way,
-so nothing about the component's behaviour changes except that it stops touching `document.cookie`.
-
-`SidebarProvider` only ever WRITES the cookie, client-side, in response to a user action; it never
-reads `document.cookie` at render (that would differ between server and client and trigger a
-hydration mismatch). To restore state on the next load, read the cookie in your server layout and
-pass it as `defaultOpen`:
-
-```tsx
-// app/layout.tsx (Server Component)
-import { cookies } from "next/headers";
-
-export default async function Layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const defaultOpen = (await cookies()).get("sidebar_state")?.value !== "false";
+export function AppSidebar() {
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>{children}</SidebarProvider>
+    <Sidebar>
+      <SidebarHeader />
+      <SidebarContent>
+        <SidebarGroup />
+        <SidebarGroup />
+      </SidebarContent>
+      <SidebarFooter />
+    </Sidebar>
   );
 }
 ```
 
-## Anatomy
+The desktop panel is `position: fixed` and appears at the `md` breakpoint; below it the same
+children mount inside a `Sheet`. Every demo on this page therefore renders in a frame that carries
+`contain: paint`, which makes the frame the fixed-positioning containing block — an application
+shell has the viewport for that, a documentation page does not.
 
-`Sidebar` is a compound component. `SidebarProvider` owns the expanded/collapsed state and lays the
-rail out next to your page content; everything else composes inside the `<nav>` landmark:
+<ComponentPreview name="sidebar" file="components/preview/sidebar.tsx" />
+
+## Anatomy
 
 <Anatomy name="sidebar" />
 
+## Examples
+
+### Composition
+
+`SidebarProvider` owns the state; `Sidebar` and `SidebarInset` are its two children. Everything else
+nests inside `Sidebar`.
+
+```text
+SidebarProvider
+├── Sidebar
+│   ├── SidebarHeader
+│   ├── SidebarContent
+│   │   ├── SidebarGroup
+│   │   │   ├── SidebarGroupLabel
+│   │   │   ├── SidebarGroupAction
+│   │   │   ├── SidebarGroupContent
+│   │   │   └── SidebarMenu
+│   │   │       ├── SidebarMenuItem
+│   │   │       │   ├── SidebarMenuButton
+│   │   │       │   ├── SidebarMenuAction
+│   │   │       │   └── SidebarMenuBadge
+│   │   │       └── SidebarMenuItem
+│   │   │           ├── SidebarMenuButton
+│   │   │           └── SidebarMenuSub
+│   │   │               ├── SidebarMenuSubItem
+│   │   │               └── SidebarMenuSubItem
+│   │   └── SidebarGroup
+│   │       └── SidebarMenu
+│   │           ├── SidebarMenuItem
+│   │           └── SidebarMenuItem
+│   ├── SidebarFooter
+│   └── SidebarRail
+├── SidebarInset
+└── SidebarTrigger
+```
+
+<ComponentPreview
+  name="sidebarComposition"
+  file="components/preview/sidebar.tsx"
+/>
+
+### Structure
+
+- **SidebarProvider** — holds the collapsible state and provides the sidebar context to every child.
+- **Sidebar** — the collapsible panel itself.
+- **SidebarHeader** — the top of the panel: branding, titles, workspace switchers.
+- **SidebarFooter** — the bottom of the panel: user menus, settings, actions.
+- **SidebarContent** — the scrollable region between the two.
+- **SidebarGroup** — one labelled section, with an optional action and a content area.
+- **SidebarMenu** / **SidebarMenuItem** — a real `ul`/`li` list for links, badges, actions and
+  submenus.
+- **SidebarRail** — the thin strip on the panel's outer edge that toggles it.
+- **SidebarInset** — the `main` landmark that wraps the page beside the panel.
+- **SidebarTrigger** — the button that toggles the panel.
+
+<ComponentPreview
+  name="sidebarStructure"
+  file="components/preview/sidebar.tsx"
+/>
+
+### SidebarProvider
+
+Always wrap the application in `SidebarProvider`. It owns `open`, writes the `sidebar_state` cookie
+on every uncontrolled toggle, and binds <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd>.
+
+For a single sidebar, the `SIDEBAR_WIDTH`, `SIDEBAR_WIDTH_ICON` and `SIDEBAR_WIDTH_MOBILE`
+constants in `sidebar.tsx` set the widths. For more than one, set `--sidebar-width` and
+`--sidebar-width-icon` in the provider's `style` — those are the two variables the provider
+publishes on its wrapper, so a second sidebar can carry its own. The mobile sheet is not
+overridable this way: it sets `--sidebar-width` to `SIDEBAR_WIDTH_MOBILE` on its own content, which
+wins over anything inherited.
+
 ```tsx
-<SidebarProvider defaultOpen>
-  <Sidebar aria-label="Main navigation">
-    <SidebarHeader>…app switcher / logo + SidebarTrigger…</SidebarHeader>
-    <SidebarContent>
-      <SidebarGroup>
-        <SidebarGroupLabel>Group</SidebarGroupLabel>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton isActive>
-              <Icon />
-              <span>Label</span>
-            </SidebarMenuButton>
-            <SidebarMenuBadge>3</SidebarMenuBadge>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroup>
-      <SidebarSeparator />
-    </SidebarContent>
-    <SidebarFooter>…user menu…</SidebarFooter>
-  </Sidebar>
+<SidebarProvider
+  style={
+    {
+      "--sidebar-width": "20rem",
+      "--sidebar-width-icon": "3rem",
+    } as React.CSSProperties
+  }
+>
+  <Sidebar />
 </SidebarProvider>
 ```
 
-- `SidebarProvider` — owns the open state (controlled `open`/`onOpenChange` or uncontrolled
-  `defaultOpen`), the mobile Sheet's `openMobile` state, and exposes both via `useSidebar()`.
-  Registers <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> to toggle, and — unless `persist={false}` —
-  writes the `sidebar_state` cookie on every desktop toggle (see "Persistence" below).
-- `Sidebar` — the `<nav>` rail (`data-slot="sidebar"`). Carries `data-state="expanded|collapsed"`,
-  `data-collapsible`, and `data-variant` for descendant styling, and animates its width between
-  states. On desktop it stays anchored to the viewport while the adjacent document scrolls. Below
-  the mobile breakpoint (768px by default) it renders its children inside a `Sheet` instead — see
-  "Mobile" below.
-- `SidebarHeader` / `SidebarFooter` — the non-shrinking top and bottom regions (logo / app switcher,
-  user menu). The footer remains at the viewport bottom on desktop.
-- `SidebarContent` — the flexible, scrollable middle region that holds the groups. When navigation
-  is taller than the viewport, scroll this region rather than the header/footer or entire rail.
-- `SidebarGroup` + `SidebarGroupLabel` — a labelled section; the label fades out when collapsed.
-- `SidebarMenu` / `SidebarMenuItem` — the `<ul>` / `<li>` list structure for nav entries.
-- `SidebarMenuButton` — the interactive row. Renders a `<button>` by default; pass `render={<a />}`
-  for a nav link. `isActive` applies the accent background, leading rail, and `aria-current="page"`.
-- `SidebarMenuBadge` — an optional count/status pill on a menu item; it becomes a compact status dot
-  in the collapsed icon rail while retaining its text for assistive technology.
-- `SidebarMenuSkeleton` — a loading placeholder shaped like a `SidebarMenuButton` row.
-- `SidebarSeparator` — a thin inset rule between sections.
-- `SidebarTrigger` — a `PanelLeft` icon button that toggles the rail (or, on mobile, the Sheet);
-  place it in a header.
-- `SidebarRail` — a thin click-to-toggle edge strip; render it as a child of `Sidebar`.
-- `SidebarInset` — the main-content wrapper for `variant="inset"`; render it as `Sidebar`'s sibling.
-
-## Examples
-
-Multiple labelled groups, each with its own menu items:
-
-<ComponentPreview name="sidebarGroups" file="components/preview/sidebar.tsx" />
-
-The collapsed icon rail — labels and group headings hide, leaving only icons (toggle it with the
-trigger):
-
 <ComponentPreview
-  name="sidebarCollapsed"
+  name="sidebarProvider"
   file="components/preview/sidebar.tsx"
 />
 
-### Right edge
+### Sidebar
 
-Set `side="right"` to dock the rail on the trailing edge — it picks up a left border and orders
-itself after the page content:
+`side` picks the edge, `variant` picks the surface treatment, and `collapsible` picks what collapsing
+means: `offcanvas` slides the panel out, `icon` shrinks it to a rail of icons, and `none` renders a
+plain, always-visible column. Each value lands on the panel as `data-side`, `data-variant` and
+`data-collapsible`, which is what the `group-data-*` recipes below read.
 
-<ComponentPreview name="sidebarRight" file="components/preview/sidebar.tsx" />
+With `variant="inset"`, wrap the page in `SidebarInset` — the provider paints the sidebar surface
+behind an inset page, and the main content is the floating card on top of it.
 
-### Menu button sizes
+```tsx
+<SidebarProvider>
+  <Sidebar variant="inset" />
+  <SidebarInset>
+    <main>{children}</main>
+  </SidebarInset>
+</SidebarProvider>
+```
 
-`SidebarMenuButton` accepts a `size` of `sm` (`h-7`), `md` (`h-8`), or `lg` (`h-10`):
+<ComponentPreview name="sidebarPanel" file="components/preview/sidebar.tsx" />
 
-<ComponentPreview name="sidebarSizes" file="components/preview/sidebar.tsx" />
+### useSidebar
 
-### Controlled mode
+`useSidebar` reads and drives the panel from anywhere inside the provider. It throws outside one, so
+a custom trigger has to live in the tree the provider wraps.
 
-Drive the open state yourself with `open` / `onOpenChange` on `SidebarProvider`, and read or toggle
-it from any descendant with `useSidebar()` — here an external button outside the rail:
+| Property        | Type                      | Description                                   |
+| --------------- | ------------------------- | --------------------------------------------- |
+| `state`         | `expanded` or `collapsed` | The current state of the sidebar.             |
+| `open`          | `boolean`                 | Whether the sidebar is open.                  |
+| `setOpen`       | `(open: boolean) => void` | Sets the open state of the sidebar.           |
+| `openMobile`    | `boolean`                 | Whether the sidebar is open on mobile.        |
+| `setOpenMobile` | `(open: boolean) => void` | Sets the open state of the sidebar on mobile. |
+| `isMobile`      | `boolean`                 | Whether the sidebar is on mobile.             |
+| `toggleSidebar` | `() => void`              | Toggles the sidebar. Desktop and mobile.      |
 
 <ComponentPreview
-  name="sidebarControlled"
+  name="sidebarUseSidebar"
   file="components/preview/sidebar.tsx"
 />
 
-### Variants
+### SidebarHeader
 
-`variant="floating"` detaches the rail into its own bordered, shadowed panel:
+`SidebarHeader` is the sticky top of the panel — a workspace switcher, a logo, or a `SidebarInput`
+search field.
+
+```tsx
+<Sidebar>
+  <SidebarHeader>
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<SidebarMenuButton />}>
+            Select Workspace
+            <ChevronDown className="ms-auto" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Acme Inc</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  </SidebarHeader>
+</Sidebar>
+```
+
+<ComponentPreview name="sidebarHeader" file="components/preview/sidebar.tsx" />
+
+### SidebarFooter
+
+`SidebarFooter` is the sticky bottom of the panel — the account row, settings, a sign-out.
+
+```tsx
+<Sidebar>
+  <SidebarFooter>
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton>
+          <User2 /> Username
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  </SidebarFooter>
+</Sidebar>
+```
+
+<ComponentPreview name="sidebarFooter" file="components/preview/sidebar.tsx" />
+
+### SidebarContent
+
+`SidebarContent` is the scrollable region between the header and the footer, and it is where
+`SidebarGroup` belongs.
+
+```tsx
+<Sidebar>
+  <SidebarContent>
+    <SidebarGroup />
+    <SidebarGroup />
+  </SidebarContent>
+</Sidebar>
+```
+
+<ComponentPreview name="sidebarContent" file="components/preview/sidebar.tsx" />
+
+### SidebarGroup
+
+A group is one section of the panel: a `SidebarGroupLabel`, an optional `SidebarGroupAction`, and a
+`SidebarGroupContent`.
+
+```tsx
+<SidebarGroup>
+  <SidebarGroupLabel>Application</SidebarGroupLabel>
+  <SidebarGroupAction>
+    <Plus /> <span className="sr-only">Add Project</span>
+  </SidebarGroupAction>
+  <SidebarGroupContent></SidebarGroupContent>
+</SidebarGroup>
+```
+
+To make a group collapsible, wrap it in a `Collapsible` and make the label the trigger with `render`.
+
+```tsx
+<Collapsible defaultOpen className="group/collapsible">
+  <SidebarGroup>
+    <SidebarGroupLabel render={<CollapsibleTrigger />}>
+      Help
+      <ChevronDown className="ms-auto group-data-open/collapsible:rotate-180" />
+    </SidebarGroupLabel>
+    <CollapsibleContent>
+      <SidebarGroupContent />
+    </CollapsibleContent>
+  </SidebarGroup>
+</Collapsible>
+```
+
+<ComponentPreview name="sidebarGroup" file="components/preview/sidebar.tsx" />
+
+### SidebarMenu
+
+`SidebarMenu` is a `ul`, and every `SidebarMenuItem` is an `li`, so a screen reader announces the
+navigation as a list with a length.
+
+```tsx
+<SidebarMenu>
+  {projects.map((project) => (
+    <SidebarMenuItem key={project.name}>
+      <SidebarMenuButton render={<a href={project.url} />}>
+        <project.icon />
+        <span>{project.name}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  ))}
+</SidebarMenu>
+```
+
+<ComponentPreview name="sidebarMenu" file="components/preview/sidebar.tsx" />
+
+### SidebarMenuButton
+
+`SidebarMenuButton` is the row itself. It renders a `button` by default; pass `render` to make it an
+anchor or a framework `Link`. `isActive` marks the current route, `size` picks between a compact
+row, the default and a two-line row, and `variant="outline"` gives it a hairline.
+
+```tsx
+<SidebarMenuButton render={<a href="#" />} isActive>
+  Home
+</SidebarMenuButton>
+```
 
 <ComponentPreview
-  name="sidebarFloating"
+  name="sidebarMenuButton"
   file="components/preview/sidebar.tsx"
 />
 
-`variant="inset"` keeps the rail flush, and instead makes `SidebarInset` (the main content) the
-rounded/bordered/shadowed panel. Pair it with `SidebarRail` for a click-to-toggle edge strip
-alongside the explicit trigger:
+### SidebarMenuAction
 
-<ComponentPreview name="sidebarInset" file="components/preview/sidebar.tsx" />
+`SidebarMenuAction` is a second control on the same row — an overflow menu, an add button. It sits
+inside the `SidebarMenuItem`, after the button, and `showOnHover` keeps it out of the way until the
+row is hovered or something inside it takes focus.
 
-### Off-canvas collapse
-
-`collapsible="offcanvas"` slides the rail fully off-screen (instead of shrinking to an icon rail)
-when toggled — page content reflows to fill the space:
+```tsx
+<SidebarMenuItem>
+  <SidebarMenuButton render={<a href="#" />}>
+    <Home />
+    <span>Home</span>
+  </SidebarMenuButton>
+  <SidebarMenuAction>
+    <Plus /> <span className="sr-only">Add Project</span>
+  </SidebarMenuAction>
+</SidebarMenuItem>
+```
 
 <ComponentPreview
-  name="sidebarOffcanvas"
+  name="sidebarMenuAction"
   file="components/preview/sidebar.tsx"
 />
 
-`collapsible="none"` is also available for a rail that should never collapse at all (and never
-becomes the mobile Sheet) — useful inside a fixed-size panel where collapsing doesn't make sense.
+### SidebarMenuSub
 
-### Loading state
+A submenu is a nested list under a row, hidden entirely in icon mode. `SidebarMenuSubButton` takes
+the same `render` and `isActive` props as the row above it, plus a `size` of `sm` or `md`.
 
-`SidebarMenuSkeleton` composes `Skeleton` into an icon-circle + text-line row shaped like
-`SidebarMenuButton`. Pass each row's `index` so the text-line widths vary — deterministically, off
-a small fixed cycle, never `Math.random()` — instead of every row rendering identically:
+```tsx
+<SidebarMenuItem>
+  <SidebarMenuButton />
+  <SidebarMenuSub>
+    <SidebarMenuSubItem>
+      <SidebarMenuSubButton />
+    </SidebarMenuSubItem>
+  </SidebarMenuSub>
+</SidebarMenuItem>
+```
+
+<ComponentPreview name="sidebarMenuSub" file="components/preview/sidebar.tsx" />
+
+### SidebarMenuBadge
+
+A badge is a count pinned to the end of a row. It is `pointer-events: none`, so it never steals the
+row's click, and it disappears in icon mode.
+
+```tsx
+<SidebarMenuItem>
+  <SidebarMenuButton />
+  <SidebarMenuBadge>24</SidebarMenuBadge>
+</SidebarMenuItem>
+```
+
+<ComponentPreview
+  name="sidebarMenuBadge"
+  file="components/preview/sidebar.tsx"
+/>
+
+### SidebarMenuSkeleton
+
+`SidebarMenuSkeleton` stands in for a row while the navigation loads. `showIcon` adds the leading
+square, and each instance picks its own text width between 50% and 90% once, on mount.
+
+```tsx
+<SidebarMenu>
+  {Array.from({ length: 5 }).map((_, index) => (
+    <SidebarMenuItem key={index}>
+      <SidebarMenuSkeleton />
+    </SidebarMenuItem>
+  ))}
+</SidebarMenu>
+```
 
 <ComponentPreview
   name="sidebarMenuSkeleton"
   file="components/preview/sidebar.tsx"
 />
 
-### Mobile
+### SidebarTrigger
 
-Below the mobile breakpoint (768px by default — override with `SidebarProvider`'s
-`mobileBreakpoint`), `Sidebar` renders its children inside a `Sheet` (`side="left"` by default,
-following the `side` prop) instead of the static rail — you get focus trapping, scroll locking, and
-Escape-to-close for free from `Sheet`. `SidebarProvider` tracks this as `openMobile`, separate from
-desktop `open`: collapsing to icons and sliding a Sheet in are different interactions that can't
-share one boolean. `useSidebar()` also exposes `isMobile` if you need to branch on it directly.
-
-**Place `SidebarTrigger` (or any custom control that calls `toggleSidebar()`) OUTSIDE `Sidebar`** —
-typically in your persistent page header — not inside `SidebarHeader`. Below the breakpoint,
-`Sidebar`'s own children (the trigger included, if nested inside it) only mount once the Sheet is
-already open; nesting the one control that opens it in there is a dead end. A layout that needs to
-work at every width composes it like this:
+`SidebarTrigger` is the toggle. It is an ordinary `Button` wired to `toggleSidebar`, so any button
+can do the same job through `useSidebar`.
 
 ```tsx
-<SidebarProvider>
-  <SidebarTrigger />{" "}
-  {/* outside Sidebar — always mounted, opens the Sheet on mobile */}
-  <Sidebar aria-label="Main navigation">…</Sidebar>
-  <SidebarInset>…page content…</SidebarInset>
-</SidebarProvider>
+import { useSidebar } from "@/components/ui/sidebar";
+
+export function CustomTrigger() {
+  const { toggleSidebar } = useSidebar();
+
+  return <button onClick={toggleSidebar}>Toggle Sidebar</button>;
+}
 ```
 
-Switch the preview's width toggle (the toolbar's phone icon) to mobile to watch the rail collapse
-into a Sheet you open from the header trigger. This is viewport-driven in a real app; the toggle only
-constrains a container, so this demo forces the branch to make it visible without resizing your
-window.
+<ComponentPreview name="sidebarTrigger" file="components/preview/sidebar.tsx" />
 
-<ComponentPreview name="sidebarMobile" file="components/preview/sidebar.tsx" />
+### SidebarRail
+
+`SidebarRail` is the thin strip along the panel's outer edge that toggles it on click. It is
+deliberately outside the tab order — `SidebarTrigger` is the keyboard affordance and the rail is the
+pointer one — so a sidebar that ships a rail still ships a trigger.
+
+```tsx
+<Sidebar>
+  <SidebarHeader />
+  <SidebarContent>
+    <SidebarGroup />
+  </SidebarContent>
+  <SidebarFooter />
+  <SidebarRail />
+</Sidebar>
+```
+
+<ComponentPreview name="sidebarRail" file="components/preview/sidebar.tsx" />
+
+### Controlled Sidebar
+
+Pass `open` and `onOpenChange` to drive the panel from your own state. A controlled provider stops
+writing the `sidebar_state` cookie on its own — persistence becomes the host's decision.
+
+```tsx
+export function AppSidebar() {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <SidebarProvider open={open} onOpenChange={setOpen}>
+      <Sidebar />
+    </SidebarProvider>
+  );
+}
+```
+
+<ComponentPreview
+  name="sidebarControlled"
+  file="components/preview/sidebar.tsx"
+/>
+
+### Theming
+
+Eight CSS variables theme the whole panel. Set them anywhere above the provider — the root, a
+wrapper, or the provider's own `style` — and every part below inherits them.
+
+```css
+:root {
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.205 0 0);
+}
+```
+
+<ComponentPreview name="sidebarTheming" file="components/preview/sidebar.tsx" />
+
+### Styling
+
+The panel publishes its state as data attributes, so a consumer styles against them rather than
+against a prop. `group-data-[collapsible=icon]:` hides what icon mode cannot show:
+
+```tsx
+<Sidebar collapsible="icon">
+  <SidebarContent>
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden" />
+  </SidebarContent>
+</Sidebar>
+```
+
+…and `peer-data-active/menu-button:` reaches an action from the state of the row beside it. Prefix it
+with `md:` when the action also carries `showOnHover`: that recipe's own `md:opacity-0` compiles to
+the same specificity as the override, so without the media prefix the hidden state wins on source
+order.
+
+```tsx
+<SidebarMenuItem>
+  <SidebarMenuButton />
+  <SidebarMenuAction
+    showOnHover
+    className="md:peer-data-active/menu-button:opacity-100"
+  />
+</SidebarMenuItem>
+```
+
+<ComponentPreview name="sidebarStyling" file="components/preview/sidebar.tsx" />
+
+### RTL
+
+Wrap the subtree in `DirectionProvider direction="rtl"` and pass `dir="rtl"` to `Sidebar` — the `dir`
+travels to the mobile `SheetContent`, which portals out of that subtree and would otherwise render
+left to right. Every inset, border and margin in the panel is already logical, so `side="right"`
+anchors it to the reading start and `SidebarTrigger`'s icon flips with it.
+
+```tsx
+<Sidebar dir="rtl" side="right">
+  {/* ... */}
+</Sidebar>
+```
+
+<ComponentPreview name="sidebarRtl" file="components/preview/sidebar.tsx" />
 
 ## API Reference
 
-### SidebarProvider
+<ApiTable path="lib/api-props.ts" name="SidebarProviderProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/sidebar.tsx"
-  name="SidebarProviderProps"
-/>
+<ApiTable path="lib/api-props.ts" name="SidebarProps" />
 
-### Sidebar
+<ApiTable path="lib/api-props.ts" name="SidebarMenuButtonProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/sidebar.tsx"
-  name="SidebarProps"
-/>
+<ApiTable path="lib/api-props.ts" name="SidebarMenuActionProps" />
 
-### SidebarMenuButton
+<ApiTable path="lib/api-props.ts" name="SidebarMenuSubButtonProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/sidebar.tsx"
-  name="SidebarMenuButtonProps"
-/>
+<ApiTable path="lib/api-props.ts" name="SidebarMenuSkeletonProps" />
 
-### SidebarMenuSkeleton
-
-<ApiTable
-  path="../../packages/ui/registry/ui/sidebar.tsx"
-  name="SidebarMenuSkeletonProps"
-/>
-
-### SidebarSeparator
-
-<ApiTable
-  path="../../packages/ui/registry/ui/sidebar.tsx"
-  name="SidebarSeparatorProps"
-/>
-
-### SidebarTrigger
-
-<ApiTable
-  path="../../packages/ui/registry/ui/sidebar.tsx"
-  name="SidebarTriggerProps"
-/>
-
-`SidebarHeader`, `SidebarContent`, `SidebarFooter`, `SidebarGroup`,
-`SidebarGroupLabel`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuBadge`,
-`SidebarRail`, and `SidebarInset` add no props of their own — each accepts
-everything its underlying element accepts (`<div>`, `<h3>`, `<ul>`, `<li>`,
-`<span>`, `<button>`, `<main>`), plus `className` and `ref`.
+`SidebarGroupLabel` and `SidebarGroupAction` add only Base UI's `render`, which swaps the rendered
+element — that is how a `CollapsibleTrigger` becomes a group label. `SidebarHeader`, `SidebarContent`,
+`SidebarFooter`, `SidebarGroup`, `SidebarGroupContent`, `SidebarMenu`, `SidebarMenuItem`,
+`SidebarMenuBadge`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarInset`, `SidebarRail`,
+`SidebarSeparator`, `SidebarInput` and `SidebarTrigger` add no props of their own — each accepts
+everything its underlying element or component accepts.
 
 ## Accessibility
 
-- `Sidebar` renders a `<nav>` landmark — pass an `aria-label` to name it (e.g. "Main navigation") so
-  screen readers can distinguish it from other navigation regions.
-- `SidebarGroupLabel` renders a heading for grouped navigation content.
-- The active item sets `aria-current="page"` in addition to the visual highlight, so assistive tech
-  announces the current location.
-- `SidebarMenuButton` and `SidebarTrigger` are real `<button>` (or `<a>`) elements. On hover/press
-  they climb the surface ladder through the shared `surfaceInteractive` recipe (`hover:bg-surface-2
-active:bg-surface-3`, with `text-sidebar-accent-foreground`). The active row adds a leading rail and
-  **rests** on `data-[active=true]:bg-surface-3`, then steps back DOWN to `surface-2` on hover and
-  returns to `surface-3` while pressed — so a selected row still visibly moves under the cursor.
-  Neither element carries a per-component
-  `:focus-visible` style — keyboard focus relies on the design system's global `:focus-visible`
-  outline ring (`outline-ring`, since they never set `outline: none`). Consumers who do not load the
-  global focus rule fall back to the user-agent default outline, so verify a visible focus indicator
-  in your own shell.
-- `SidebarTrigger` carries an `aria-label="Toggle sidebar"`; the icon is `aria-hidden`. Its visible
-  box is 28px — an invisible `::before` hit-area expansion brings the effective target to ~44px
-  (WCAG 2.5.8) without changing the visible icon.
-- `SidebarRail` is a real, focusable `<button>` (not a mouse-only edge-drag handle) with the same
-  `aria-label`/`title`, so keyboard users can reach and operate it too.
-- On mobile, the rail renders inside `Sheet` — focus trapping, scroll locking, and
-  Escape-to-close all come from `Sheet`.
-- The collapse toggle is also bound to <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> by default; set
-  `keyboardShortcut={false}` or pass a custom key on `SidebarProvider` when embedding the sidebar in
-  a context with conflicting shortcuts.
-
-| Key                                           | Action                                          |
-| --------------------------------------------- | ----------------------------------------------- |
-| <kbd>Tab</kbd>                                | Move focus through the trigger and menu items.  |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>           | Activate the focused menu item or trigger.      |
-| <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>B</kbd> | Toggle the rail between expanded and collapsed. |
+- `SidebarInset` is the `main` landmark; `Sidebar` itself is a styled `div`, so give the panel a
+  landmark of your own when it is the page's navigation — an `aria-label`led `nav` inside
+  `SidebarContent`, or `aria-label` on the element you pass through `render`.
+- `SidebarMenu` and `SidebarMenuSub` are real `ul` lists of `li` rows, so the navigation is announced
+  with a length and a position. Mark the current route with `isActive`, and add `aria-current="page"`
+  to the anchor you pass through `render` — the data attribute is a styling hook, not a semantic.
+- Below the `md` breakpoint the panel mounts inside `Sheet`, which brings the focus trap, the scroll
+  lock and <kbd>Esc</kbd> with it; `SidebarTrigger` opens it and focus returns to the trigger on
+  close.
+- `SidebarRail` is `tabIndex={-1}` by design. It is the pointer affordance; `SidebarTrigger` and
+  <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd> are the keyboard ones, so ship a
+  trigger with every rail.
+- `SidebarMenuAction` and `SidebarGroupAction` are 20px glyphs that an invisible
+  `after:absolute after:-inset-2` grows to a 36px pointer target — at every width, not only on touch
+  (A11Y-2). Give each one a real name too: an icon plus an `sr-only` label, as every example here
+  does.
+- An icon-only row needs the `tooltip` prop, which is what names it once the panel collapses to
+  icons.
+- Focus is the global 2px `:focus-visible` outline from `base.css`. Nothing in this component
+  suppresses an outline or paints a ring glow.
 
 <StatesTested name="sidebar" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use render={<a />} on SidebarMenuButton for navigation links, keep one item isActive to reflect the current route, and name the <nav> with aria-label."
-  dont="Use a plain Button for nav rows (loses active semantics), or rely on color alone — the active item also sets aria-current and a leading rail."
+  do="Compose the shell — SidebarProvider, Sidebar, SidebarInset — and use render on SidebarMenuButton so a nav row is a real link, with isActive and aria-current on the current route."
+  dont="Ship a SidebarRail as the only way to collapse the panel, or rely on isActive alone to say where the user is — the rail is not tabbable and data-active is a styling hook."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — `outline-hidden` and `focus-visible:ring-2` are removed from all five controls
+  that carry them: `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarMenuButton`,
+  `SidebarMenuAction` and `SidebarMenuSubButton`. `outline-hidden` is the v3 spelling of "no
+  outline": upstream suppresses the browser's and paints its own 2px ring instead, and this system
+  does the opposite. `ring-sidebar-ring` is left in place on each — it is a colour with no ring
+  width behind it any more, it paints nothing, and removing it would take the `--sidebar-ring`
+  token's only reference with it.
+- **FRM-4** — `disabled:pointer-events-none` and `aria-disabled:pointer-events-none` are dropped
+  from `SidebarMenuButton` and `SidebarMenuSubButton`, so a disabled nav row stays hoverable and a
+  Tooltip can explain why. Both opacity halves stay.
+- **A11Y-2** — `md:after:hidden` is dropped from `SidebarMenuAction` and `SidebarGroupAction`. Both
+  are `w-5` (20px) squares, which is under the 24px floor, and upstream already solves that the way
+  A11Y-2 asks — with an invisible `after:absolute after:-inset-2` hit area — and then switches the
+  area OFF again at `md` and above. Measured with a real `document.elementFromPoint` probe over
+  compiled Tailwind: 36×36 with 0/5 obstruction misses at 390px, and 20×20 at 1280px, i.e. 4px under
+  the floor at every desktop width. The hit area is the only thing that changes: the visible 20px
+  box, its position and its hover wash are upstream's. `sidebar.test.tsx` measures both controls at
+  both widths.
+- **DOC-1** — registry layout: `@/hooks/use-mobile` becomes `@/components/ui/use-mobile`. Hooks are
+  `registry:hook` items alongside the components in this registry, which is the path the three-copy
+  model and `shadcn add @vegastack/use-mobile` both use. Plus the prettier reflow and the
+  `registry-stamp.mjs` provenance header; those carry no decision of their own.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.

@@ -28,7 +28,10 @@ import { AutoSaveInput } from "@/components/ui/auto-save-input";
 />;
 ```
 
-`AutoSaveInput` wraps [`Input`](/docs/components/input). It owns its value as
+`AutoSaveInput` composes [`InputGroup`](/docs/components/input-group) around an
+`InputGroupInput` — upstream's [`Input`](/docs/components/input) flattened into the
+box — so the trailing status indicator sits in a real addon slot rather than on top
+of a padded field. It owns its value as
 local state from `defaultValue` (or follows `value` + `onValueChange` when
 controlled), debounces keystrokes, and calls `onSave(value)` once the field
 settles. A trailing indicator reflects the outcome: a spinner while saving, a
@@ -120,10 +123,10 @@ saving).
 - The `error` status sets `aria-invalid` on the field, matching `Input`'s invalid
   styling and announcing the failure to screen readers.
 - The spinner respects `prefers-reduced-motion` (`motion-reduce:animate-none`).
-- On focus the underlying [`Input`](/docs/components/input) recolors its border
-  with the `ring` token (`focus:border-ring/(--alpha-tint-border)`) instead of removing the outline —
-  never `outline: none` with no replacement affordance. (Like the standalone
-  field, this is a border recolor, not a 2px ring.)
+- On focus the underlying [`Input`](/docs/components/input) tints its border
+  with the `ring` token (`focus:border-ring/70`) instead of removing the affordance —
+  never `outline: none` with nothing in its place. Like every text-entry control,
+  this is a border tint, not the 2px outline other controls take.
 
 | Key          | Action                                             |
 | ------------ | -------------------------------------------------- |

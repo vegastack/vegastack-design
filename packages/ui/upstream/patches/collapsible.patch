@@ -1,0 +1,40 @@
+# component: collapsible
+# decisions: DOC-1
+# hunks:
+#   NO STYLING HUNK AT ALL. Upstream's Collapsible is three unstyled pass-throughs over Base UI
+#     and imports no `cn`, so nothing in it is ours to change: the whole diff is prettier's
+#     reflow plus the provenance header the three-copy model needs (DOC-1).
+diff --git a/collapsible.tsx b/collapsible.tsx
+index 488fb33..9898be0 100644
+--- a/collapsible.tsx
++++ b/collapsible.tsx
+@@ -1,21 +1,23 @@
+-"use client"
++// @vegastack collapsible@0.9.1 sha256-HU6dTK6XZ8adYvLvsnqkazql+QkenEuaL/56fNrRSts=
+ 
+-import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible"
++"use client";
++
++import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible";
+ 
+ function Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {
+-  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />
++  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />;
+ }
+ 
+ function CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {
+   return (
+     <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" {...props} />
+-  )
++  );
+ }
+ 
+ function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
+   return (
+     <CollapsiblePrimitive.Panel data-slot="collapsible-content" {...props} />
+-  )
++  );
+ }
+ 
+-export { Collapsible, CollapsibleTrigger, CollapsibleContent }
++export { Collapsible, CollapsibleTrigger, CollapsibleContent };

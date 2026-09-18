@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.9.1 sha256-80s1vUcTUJ2uCdyhx+BnxPC4w7zS6GSeVwgNPl5IqWA=
+// @vegastack shortcut-overlay@0.9.1 sha256-rfsMiaMspyOZ71VkQfSa7QHGI1ITre5u21OcfxmKWvE=
 
 "use client";
 
@@ -11,13 +11,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  PanelSearchFrame,
-  PanelSearchInput,
-} from "@/components/ui/floating-surface";
-import { Kbd } from "@/components/ui/kbd";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePlatform } from "@/components/ui/use-platform";
+
+/**
+ * Mac modifier glyphs and their Windows/Linux words. Since the shadcn reset (Batch 2) `Kbd` is
+ * upstream's presentational `<kbd>` with no `keys`/`os` props, so the one caller that needs
+ * per-platform labels resolves them here.
+ */
+const MODIFIER_LABEL: Record<string, string> = {
+  "\u2318": "Ctrl",
+  "\u21e7": "Shift",
+  "\u2325": "Alt",
+  "\u2303": "Ctrl",
+  "\u23ce": "Enter",
+  "\u21b5": "Enter",
+  "\u232b": "Bksp",
+};
+
+/** One key token, in the label the resolved platform uses. */
+function formatShortcutKey(key: string, os: "mac" | "other"): string {
+  return os === "mac" ? key : (MODIFIER_LABEL[key] ?? key);
+}
 
 /* ---
 `ShortcutOverlay`'s value is the REGISTRY model, not the dialog. A hand-listed shortcuts
@@ -27,7 +44,7 @@ keeps the surface maintainable. The same declarations can feed tooltip hints and
 Command rows; this component just owns the `?` surface.
 
 This is also the one surface that should use the real `Kbd`: `CommandShortcut` is
-deliberately plain text and `TooltipKbd` hand-rolls its own markup, but a dialog whose
+deliberately plain text and a tooltip's shortcut hint is a `Kbd` chip, but a dialog whose
 entire content is keys wants the real component — including its `os` modifier
 rewriting, driven here by `use-platform` so ⌘ never ships to a Windows user.
 
@@ -203,8 +220,7 @@ export function ShortcutOverlay({
           (B9-11), which needs the dialog's own edges to run its hairline across. */}
       <DialogContent
         data-slot="shortcut-overlay"
-        size="lg"
-        className="gap-0 p-0"
+        className="gap-0 p-0 sm:max-w-2xl"
       >
         <DialogHeader className="p-6 pb-4">
           <DialogTitle>{title}</DialogTitle>
@@ -213,21 +229,21 @@ export function ShortcutOverlay({
           </DialogDescription>
         </DialogHeader>
         {showSearch ? (
-          <PanelSearchFrame className="border-t">
-            <PanelSearchInput
+          <PanelSearch className="border-t">
+            <PanelSearchField
               aria-label="Filter shortcuts"
               placeholder="Filter shortcuts…"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
-          </PanelSearchFrame>
+          </PanelSearch>
         ) : null}
-        <ScrollArea className="max-h-(--layout-overlay-max-height)">
+        <ScrollArea className="max-h-[calc(100dvh-16rem)]">
           <div className="flex flex-col gap-4 p-6 pt-4 pe-3">
             {categories.length === 0 ? (
               <p
                 data-slot="shortcut-overlay-empty"
-                className="py-4 text-center text-sm text-muted-foreground"
+                className="py-4 text-center text-xs text-muted-foreground"
               >
                 No shortcuts match your filter
               </p>
@@ -237,7 +253,7 @@ export function ShortcutOverlay({
                   key={category.name}
                   data-slot="shortcut-overlay-category"
                 >
-                  <h3 className="mb-2 text-label-sm text-muted-foreground">
+                  <h3 className="mb-2 text-xs font-medium text-muted-foreground">
                     {category.name}
                   </h3>
                   {/* A description list so each label/keys pair is announced
@@ -251,13 +267,19 @@ export function ShortcutOverlay({
                           "flex min-w-0 items-center justify-between gap-4 border-b border-border py-1.5 last:border-b-0",
                         )}
                       >
-                        <dt className="min-w-0 text-base">
+                        <dt className="min-w-0 text-sm">
                           <span className="block truncate">
                             {shortcut.label}
                           </span>
                         </dt>
                         <dd className="m-0 shrink-0">
-                          <Kbd keys={shortcut.keys} os={kbdOs} />
+                          <KbdGroup>
+                            {shortcut.keys.map((key) => (
+                              <Kbd key={key}>
+                                {formatShortcutKey(key, kbdOs)}
+                              </Kbd>
+                            ))}
+                          </KbdGroup>
                         </dd>
                       </div>
                     ))}

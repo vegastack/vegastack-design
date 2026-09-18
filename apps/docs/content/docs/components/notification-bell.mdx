@@ -23,8 +23,8 @@ import { NotificationBell } from "@/components/ui/notification-bell";
 
 `NotificationBell` is **presentational** — it never fetches. Your application owns the unread `count`
 (from its own query, websocket, etc.) and the `onClick` that opens the notifications surface. The
-component just renders a bell [`IconButton`](/docs/components/icon-button) with the count badge overlaid
-at the top inline-end edge.
+component just renders a bell [`Button`](/docs/components/button) at an icon size with the count
+badge overlaid at the top inline-end edge.
 
 ## Examples
 
@@ -61,11 +61,12 @@ number changes.
 
 ### Sizes & variants
 
-`NotificationBell` extends [`IconButton`](/docs/components/icon-button), so every
-[`IconButtonProps`](/docs/components/icon-button#api-reference) — `size` (`xs` / `sm` / `md` /
-`lg`), `variant`, `disabled`, `loading`, `render`, `onClick` — forwards straight through to the
-underlying button. Only `children`, `aria-label`, and `label` are managed for you (the bell icon and
-the count-folded accessible name).
+`NotificationBell` extends [`Button`](/docs/components/button), so every Button prop — `size`
+(`icon-xs` / `icon-sm` / `icon` / `icon-lg`), `variant`, `disabled`, `loading`, `render`, `onClick` —
+forwards straight through to the underlying button. Two are managed for you: `children` (the bell
+icon) and `aria-label` (the count-folded accessible name). `className` is the one exception to
+"straight through" — it lands on the wrapper `<span>` that positions the badge, not on the button,
+so reach for it to place the bell and for `render` to restyle it.
 
 <ComponentPreview
   name="notificationBellPassthrough"
@@ -81,8 +82,8 @@ Try the count values — including the 99+ overflow — and the dot mode, then c
 ## API Reference
 
 `NotificationBell` adds the three props below and inherits the rest from
-[`IconButtonProps`](/docs/components/icon-button#api-reference) (e.g. `size`, `variant`, `disabled`,
-`loading`, `render`, `onClick`), minus `children` / `aria-label` / `label`, which it manages.
+[`Button`](/docs/components/button#api-reference) (e.g. `size`, `variant`, `disabled`, `loading`,
+`render`, `onClick`), minus `children` / `aria-label`, which it manages.
 
 <ApiTable
   path="../../packages/ui/registry/ui/notification-bell.tsx"
@@ -96,11 +97,10 @@ Try the count values — including the 99+ overflow — and the dot mode, then c
   **not** append the count yourself.
 - The visual count badge is `aria-hidden` and `pointer-events-none`, so it never double-announces or
   intercepts the click.
-- Renders a native `<button type="button">` (via `IconButton` → `Button`); keyboard
+- Renders a native `<button type="button">` (upstream's `Button`, `size="icon"`); keyboard
   <kbd>Enter</kbd> / <kbd>Space</kbd> activate it, and `:focus-visible` shows
   the neutral 2px outline ring (`outline-ring`, the global focus style) — the
-  bell uses the default `IconButton` variant, which carries no per-component
-  focus ring.
+  bell adds no focus ring of its own.
 
 | Key              | Action                        |
 | ---------------- | ----------------------------- |

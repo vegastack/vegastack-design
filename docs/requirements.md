@@ -13,6 +13,15 @@
 
 > This document captures **what** we are building and **why**, with every load-bearing decision locked and justified. It has been reconciled against the Codex adversarial review (findings F1–F5) and the gap analysis. The step-by-step build plan lives in [`/docs/plans/`](plans/).
 
+> **Amendment (2026-09-18) — the component and styling decisions here are superseded.** The shadcn
+> reset ([`plans/2026-09-18-shadcn-reset/`](plans/2026-09-18-shadcn-reset/README.md)) rebuilt the
+> system on shadcn `base-nova` used as-is, so every rule this document locks about tokens, type,
+> component APIs and the component inventory was re-decided on that plan's register and upstream's
+> answer won wherever no row says **ours**. Concretely: `IconButton` (§ Actions) is retired in favour
+> of `Button size="icon"`, the `no-font-bold` typography rule is gone, and the ten marketing
+> components were deleted outright. **§ 3 (hybrid distribution) and the registry/auth topology are
+> still current**; `../AGENTS.md` and `../design.md` are the live contract.
+
 ---
 
 ## 1. Purpose & vision

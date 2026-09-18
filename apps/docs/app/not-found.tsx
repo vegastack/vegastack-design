@@ -5,11 +5,11 @@ export default function NotFound() {
   return (
     <main className="flex min-h-dvh items-center px-6 py-20">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-start gap-6">
-        <p className="font-mono text-mono-label text-muted-foreground">
+        <p className="font-mono text-xs tracking-wider text-muted-foreground">
           404 / Not found
         </p>
         <div className="flex flex-col gap-3">
-          <h1 className="text-display-md text-foreground sm:text-display-lg">
+          <h1 className="text-5xl tracking-tighter text-foreground sm:text-6xl">
             This page moved.
           </h1>
           <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">

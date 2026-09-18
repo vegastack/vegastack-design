@@ -1,0 +1,358 @@
+# component: combobox
+# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-9, A11Y-16, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# hunks:
+#   FOC-1, FOC-3, FOC-6: `ComboboxChips` loses `focus-within:ring-3 focus-within:ring-ring/50` and
+#     keeps a `focus-within:border-ring/70` tint; `ComboboxChipsInput`'s `outline-none` becomes
+#     `outline-hidden`, so the FOC-7 forced-colours block has an outline to repaint. The
+#     single-line field's own focus chrome comes from `InputGroup`.
+#   FOC-5: the chips field's invalid tint becomes
+#     `not-focus-within:has-aria-invalid:border-destructive` (and its dark counterpart), so focus
+#     outranks it; the `has-aria-invalid` halo rings go with the rest.
+#   INT-1: `cursor-default` is removed from `ComboboxItem`, so a row shows the hand cursor the one
+#     global rule gives every `[role="option"]`.
+#   FRM-4: `data-disabled:pointer-events-none` on `ComboboxItem` and `has-disabled:pointer-events-none`
+#     on `ComboboxChip` are dropped, so a disabled row or chip stays hoverable and a Tooltip can
+#     explain it.
+#   A11Y-3, A11Y-4: `ComboboxEmpty` no longer hides itself with `hidden` (`display: none`). It IS
+#     Base UI's own polite live region, and Base UI documents that hiding it that way breaks the
+#     announcement, so it stays in layout at `h-0 overflow-hidden` and expands when the list empties.
+#   A11Y-16: the toggle inside `ComboboxInput`, the chip's remove control and the field's clear
+#     control get an `aria-label`. Upstream renders all three as icon-only `<button>`s holding an
+#     `XIcon` or a `ChevronDownIcon` and no text, and Base UI supplies no name for any of them —
+#     the chip's own label is a SIBLING of its button rather than its content, so they read as
+#     "button" to a screen reader. Batch 3 recorded this hunk under A11Y-5 and FLAGGED it for MK,
+#     because A11Y-5's letter is the `sr-only ", "` separator between sibling name parts and does
+#     not authorise naming a control. MK settled it on 2026-09-18 by adding A11Y-16 — every
+#     interactive control carries an accessible name — which is the row cited here. The hunk never
+#     changed; only its citation did.
+#   A11Y-9: the toggle inside `ComboboxInput` takes `tabIndex={-1}`. While the popup is open Base
+#     UI marks the WHOLE trailing addon `aria-hidden="true"` — the addon sits outside the popup,
+#     and the input beside it is the anchor the engine keeps exposed — so the toggle was a tab stop
+#     inside an `aria-hidden` subtree, which no screen reader will name (axe: SERIOUS
+#     `aria-hidden-focus`). A11Y-9 is that invariant, stated for the modal surfaces; Batch 5
+#     applied it to the non-modal toast on the same reading, and this is the third surface. Base
+#     UI's own `Combobox.Clear` — the addon's other control — already ships `tabIndex={-1}`, and
+#     APG's editable combobox keeps its popup toggle out of the tab sequence because the
+#     `role="combobox"` input beside it already opens the list, so the attribute costs no keyboard
+#     affordance. The addon is deliberately NOT made `inert`: that would kill the mouse too, and
+#     clicking the chevron to close an open popup has to keep working. It is set at the ONE call
+#     site that puts a button inside the region Base UI hides, so the standalone `ComboboxTrigger`
+#     of the Popup composition keeps its own tab stop. `combobox.test.tsx` now audits the open
+#     state with NO axe suppression list, and pins the engine's shape beside it, so the hunk fails
+#     as stale the day Base UI stops hiding the addon. Before this, the violation was RECORDED by
+#     an `aria-hidden-focus` exemption in the test and published as known behaviour on the docs
+#     page; both are gone. Worth reporting to Base UI.
+#   A11Y-2: `ComboboxChipsInput` gains `min-h-6`. Upstream's chips input measures 20px tall inside
+#     the 32px chips field, which is under the 24px target floor; the input is transparent, so the
+#     extra 4px changes nothing visible.
+#   OVL-13: `ComboboxContent` reads `useInternalThemeScope()` and attaches it to the Positioner
+#     inside the Portal; `tooling/verify-portal-theme-scope.mjs` inventories this host.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/combobox.tsx b/combobox.tsx
+index 39e776a..3b8eda0 100644
+--- a/combobox.tsx
++++ b/combobox.tsx
+@@ -1,22 +1,25 @@
+-"use client"
++// @vegastack combobox@0.9.1 sha256-rCxTh6aI0D1b5yvQkaaKYw3T3r2oTSWxrgqMY89O0lE=
+ 
+-import * as React from "react"
+-import { Combobox as ComboboxPrimitive } from "@base-ui/react"
+-import { cn } from "cn"
++"use client";
+ 
+-import { Button } from "@/components/ui/button"
++import * as React from "react";
++import { Combobox as ComboboxPrimitive } from "@base-ui/react";
++import { cn } from "@vegastack/design";
++import { useInternalThemeScope } from "@vegastack/design/theme-scope";
++
++import { Button } from "@/components/ui/button";
+ import {
+   InputGroup,
+   InputGroupAddon,
+   InputGroupButton,
+   InputGroupInput,
+-} from "@/components/ui/input-group"
+-import { ChevronDownIcon, XIcon, CheckIcon } from "lucide-react"
++} from "@/components/ui/input-group";
++import { ChevronDownIcon, XIcon, CheckIcon } from "lucide-react";
+ 
+-const Combobox = ComboboxPrimitive.Root
++const Combobox = ComboboxPrimitive.Root;
+ 
+ function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
+-  return <ComboboxPrimitive.Value data-slot="combobox-value" {...props} />
++  return <ComboboxPrimitive.Value data-slot="combobox-value" {...props} />;
+ }
+ 
+ function ComboboxTrigger({
+@@ -33,20 +36,26 @@ function ComboboxTrigger({
+       {children}
+       <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
+     </ComboboxPrimitive.Trigger>
+-  )
++  );
+ }
+ 
+ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
+   return (
+     <ComboboxPrimitive.Clear
+       data-slot="combobox-clear"
+-      render={<InputGroupButton variant="ghost" size="icon-xs" />}
++      render={
++        <InputGroupButton
++          variant="ghost"
++          size="icon-xs"
++          aria-label="Clear selection"
++        />
++      }
+       className={cn(className)}
+       {...props}
+     >
+       <XIcon className="pointer-events-none" />
+     </ComboboxPrimitive.Clear>
+-  )
++  );
+ }
+ 
+ function ComboboxInput({
+@@ -57,8 +66,8 @@ function ComboboxInput({
+   showClear = false,
+   ...props
+ }: ComboboxPrimitive.Input.Props & {
+-  showTrigger?: boolean
+-  showClear?: boolean
++  showTrigger?: boolean;
++  showClear?: boolean;
+ }) {
+   return (
+     <InputGroup className={cn("w-auto", className)}>
+@@ -72,16 +81,31 @@ function ComboboxInput({
+             size="icon-xs"
+             variant="ghost"
+             render={<ComboboxTrigger />}
++            aria-label="Show suggestions"
+             data-slot="input-group-button"
+             className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
+             disabled={disabled}
++            /*
++             * A11Y-9: what is hidden from assistive technology must not be reachable by keyboard.
++             * While the popup is open Base UI marks this whole addon `aria-hidden="true"` (it is
++             * outside the popup, and the input beside it is the anchor it keeps exposed), so a
++             * tabbable control in here is a tab stop no screen reader will name — axe `serious
++             * aria-hidden-focus`. Base UI's own `Combobox.Clear`, the addon's other control, ships
++             * `tabIndex={-1}` for the same reason, and APG's editable combobox keeps its popup
++             * toggle out of the tab sequence because the `role="combobox"` input beside it already
++             * opens the list. Mouse and touch are untouched, which is why this is not `inert` on
++             * the addon. The STANDALONE `ComboboxTrigger` — the Popup composition, where the
++             * trigger IS the control — keeps its tab stop: the attribute is set here, at the one
++             * call site that puts a button inside the region Base UI hides.
++             */
++            tabIndex={-1}
+           />
+         )}
+         {showClear && <ComboboxClear disabled={disabled} />}
+       </InputGroupAddon>
+       {children}
+     </InputGroup>
+-  )
++  );
+ }
+ 
+ function ComboboxContent({
+@@ -97,6 +121,8 @@ function ComboboxContent({
+     ComboboxPrimitive.Positioner.Props,
+     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
+   >) {
++  const themeScope = useInternalThemeScope();
++
+   return (
+     <ComboboxPrimitive.Portal>
+       <ComboboxPrimitive.Positioner
+@@ -105,17 +131,20 @@ function ComboboxContent({
+         align={align}
+         alignOffset={alignOffset}
+         anchor={anchor}
+-        className="isolate z-50"
++        className={cn("isolate z-50", themeScope)}
+       >
+         <ComboboxPrimitive.Popup
+           data-slot="combobox-content"
+           data-chips={!!anchor}
+-          className={cn("group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
++          className={cn(
++            "group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            className,
++          )}
+           {...props}
+         />
+       </ComboboxPrimitive.Positioner>
+     </ComboboxPrimitive.Portal>
+-  )
++  );
+ }
+ 
+ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+@@ -124,11 +153,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+       data-slot="combobox-list"
+       className={cn(
+         "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1 data-empty:p-0",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ComboboxItem({
+@@ -140,8 +169,8 @@ function ComboboxItem({
+     <ComboboxPrimitive.Item
+       data-slot="combobox-item"
+       className={cn(
+-        "relative flex w-full cursor-default items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+-        className
++        "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++        className,
+       )}
+       {...props}
+     >
+@@ -154,7 +183,7 @@ function ComboboxItem({
+         <CheckIcon className="pointer-events-none" />
+       </ComboboxPrimitive.ItemIndicator>
+     </ComboboxPrimitive.Item>
+-  )
++  );
+ }
+ 
+ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
+@@ -164,7 +193,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
+       className={cn(className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ComboboxLabel({
+@@ -177,13 +206,13 @@ function ComboboxLabel({
+       className={cn("px-2 py-1.5 text-xs text-muted-foreground", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ComboboxCollection({ ...props }: ComboboxPrimitive.Collection.Props) {
+   return (
+     <ComboboxPrimitive.Collection data-slot="combobox-collection" {...props} />
+-  )
++  );
+ }
+ 
+ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+@@ -191,12 +220,12 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+     <ComboboxPrimitive.Empty
+       data-slot="combobox-empty"
+       className={cn(
+-        "hidden w-full justify-center py-2 text-center text-sm text-muted-foreground group-data-empty/combobox-content:flex",
+-        className
++        "flex h-0 w-full justify-center overflow-hidden text-center text-sm text-muted-foreground group-data-empty/combobox-content:h-auto group-data-empty/combobox-content:py-2",
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ComboboxSeparator({
+@@ -209,7 +238,7 @@ function ComboboxSeparator({
+       className={cn("-mx-1 my-1 h-px bg-border", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ComboboxChips({
+@@ -221,12 +250,12 @@ function ComboboxChips({
+     <ComboboxPrimitive.Chips
+       data-slot="combobox-chips"
+       className={cn(
+-        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40",
+-        className
++        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring/70 not-focus-within:has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:not-focus-within:has-aria-invalid:border-destructive/50",
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ComboboxChip({
+@@ -235,21 +264,21 @@ function ComboboxChip({
+   showRemove = true,
+   ...props
+ }: ComboboxPrimitive.Chip.Props & {
+-  showRemove?: boolean
++  showRemove?: boolean;
+ }) {
+   return (
+     <ComboboxPrimitive.Chip
+       data-slot="combobox-chip"
+       className={cn(
+-        "flex h-[calc(--spacing(5.25))] w-fit items-center justify-center gap-1 rounded-sm bg-muted px-1.5 text-xs font-medium whitespace-nowrap text-foreground has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50 has-data-[slot=combobox-chip-remove]:pe-0",
+-        className
++        "flex h-[calc(--spacing(5.25))] w-fit items-center justify-center gap-1 rounded-sm bg-muted px-1.5 text-xs font-medium whitespace-nowrap text-foreground has-disabled:cursor-not-allowed has-disabled:opacity-50 has-data-[slot=combobox-chip-remove]:pe-0",
++        className,
+       )}
+       {...props}
+     >
+       {children}
+       {showRemove && (
+         <ComboboxPrimitive.ChipRemove
+-          render={<Button variant="ghost" size="icon-xs" />}
++          render={<Button variant="ghost" size="icon-xs" aria-label="Remove" />}
+           className="-ms-1 opacity-50 hover:opacity-100"
+           data-slot="combobox-chip-remove"
+         >
+@@ -257,7 +286,7 @@ function ComboboxChip({
+         </ComboboxPrimitive.ChipRemove>
+       )}
+     </ComboboxPrimitive.Chip>
+-  )
++  );
+ }
+ 
+ function ComboboxChipsInput({
+@@ -267,14 +296,14 @@ function ComboboxChipsInput({
+   return (
+     <ComboboxPrimitive.Input
+       data-slot="combobox-chip-input"
+-      className={cn("min-w-16 flex-1 outline-none", className)}
++      className={cn("min-h-6 min-w-16 flex-1 outline-hidden", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function useComboboxAnchor() {
+-  return React.useRef<HTMLDivElement | null>(null)
++  return React.useRef<HTMLDivElement | null>(null);
+ }
+ 
+ export {
+@@ -294,4 +323,4 @@ export {
+   ComboboxTrigger,
+   ComboboxValue,
+   useComboboxAnchor,
+-}
++};

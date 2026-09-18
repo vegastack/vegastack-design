@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { Maximize2, Monitor, Smartphone, Tablet } from "lucide-react";
-import { Segmented, SegmentedItem } from "@/components/ui/segmented";
-import { IconButton } from "@/components/ui/icon-button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -72,9 +72,10 @@ function usePreviewControls() {
  * chrome degrades to its unconstrained layout.
  *
  * Because the frame toggle constrains a CONTAINER, not the viewport, a viewport-driven component
- * (e.g. `Sidebar`'s `useIsMobile` media query) can't see it. A demo that WANTS to follow the frame
- * — the app-shell/dashboard mobile-Sheet switch — reads this and forces the branch itself: pick
- * the `'mobile'` preset and the demo drives its `mobileBreakpoint` so the rail becomes the Sheet.
+ * (e.g. `Sidebar`'s `useIsMobile` media query) cannot see it, and since Batch 5 of the shadcn reset
+ * no component takes a breakpoint override to force the branch — upstream's `SidebarProvider` reads
+ * one fixed 768px query. So a demo that wants to show the mobile rail asks the reader to narrow the
+ * BROWSER; this hook is for chrome that can genuinely follow a container width.
  */
 export function usePreviewFrameWidth(): FrameWidth {
   return React.useContext(PreviewControlsContext)?.width ?? "full";
@@ -95,22 +96,29 @@ export function usePreviewFrameWidth(): FrameWidth {
 export function FrameWidthToggle() {
   const { width, setWidth } = usePreviewControls();
   return (
-    <Segmented
-      value={width}
-      onValueChange={(next) => setWidth(next as FrameWidth)}
-      size="md"
+    // Batch 7a of the shadcn reset retired `Segmented` in favour of a joined `ToggleGroup`
+    // (`spacing={0}`). ToggleGroup lets the active item be deselected, which Segmented never did,
+    // so the handler ignores an empty selection and keeps exactly one preset active.
+    <ToggleGroup
+      value={[width]}
+      onValueChange={(next) => {
+        const [selected] = next;
+        if (selected) setWidth(selected as FrameWidth);
+      }}
+      variant="outline"
+      spacing={0}
       aria-label="Preview frame width"
     >
-      <SegmentedItem value="mobile" aria-label="Mobile width, 375 pixels">
+      <ToggleGroupItem value="mobile" aria-label="Mobile width, 375 pixels">
         <Smartphone />
-      </SegmentedItem>
-      <SegmentedItem value="tablet" aria-label="Tablet width, 768 pixels">
+      </ToggleGroupItem>
+      <ToggleGroupItem value="tablet" aria-label="Tablet width, 768 pixels">
         <Tablet />
-      </SegmentedItem>
-      <SegmentedItem value="full" aria-label="Full width">
+      </ToggleGroupItem>
+      <ToggleGroupItem value="full" aria-label="Full width">
         <Monitor />
-      </SegmentedItem>
-    </Segmented>
+      </ToggleGroupItem>
+    </ToggleGroup>
   );
 }
 
@@ -122,15 +130,15 @@ export function FrameWidthToggle() {
 export function FullscreenToggle() {
   const { fullscreen, setFullscreen } = usePreviewControls();
   return (
-    <IconButton
+    <Button
       variant="ghost"
-      size="sm"
+      size="icon-sm"
       aria-label="Fullscreen preview"
       aria-pressed={fullscreen}
       onClick={() => setFullscreen(true)}
     >
       <Maximize2 />
-    </IconButton>
+    </Button>
   );
 }
 
@@ -144,7 +152,7 @@ export function FullscreenToggle() {
  * In fullscreen the same frame renders inside the system `Dialog` — the component being
  * dogfooded, and the one that already owns the focus trap, background isolation on the page behind
  * (`aria-hidden` + `data-base-ui-inert`; Base UI 1.6.0 does not set the `inert` attribute), scroll
- * lock, Esc, and portal ordering (`DialogContent` paints in the same `--z-overlay` band as the
+ * lock, Esc, and portal ordering (`DialogContent` paints in the same `z-50` band as the
  * demo popups, which append later to `body` and therefore above it). Deliberately NOT the native
  * `requestFullscreen()` API: a natively fullscreened element would hide every portaled Dialog/
  * Select/Tooltip demo.
@@ -181,7 +189,8 @@ export function PreviewFrameContainer({
     <Dialog open onOpenChange={setFullscreen}>
       <DialogContent
         data-preview-fullscreen=""
-        closeLabel="Exit fullscreen preview"
+        // Upstream's close button names itself "Close" through an `sr-only` span; there is no
+        // `closeLabel` prop to retune it, so the dialog is named by its own title instead.
         // The popup fills the viewport: a preview canvas, not a modal card.
         className="h-dvh max-h-dvh w-dvw max-w-none rounded-none border-0 bg-background p-0 sm:max-w-none"
       >
@@ -191,7 +200,7 @@ export function PreviewFrameContainer({
         <DialogDescription className="sr-only">
           The live demo without the docs chrome. Press Escape to return.
         </DialogDescription>
-        <div className="vs-type-product flex min-h-0 flex-1 flex-col justify-center overflow-auto p-6 pt-12">
+        <div className="flex min-h-0 flex-1 flex-col justify-center overflow-auto p-6 pt-12">
           {frame}
         </div>
       </DialogContent>

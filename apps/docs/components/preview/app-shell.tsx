@@ -3,7 +3,6 @@
 import { useState, type ReactNode } from "react";
 import { Home, Inbox, Settings, BarChart3, Bot } from "lucide-react";
 import { Wrapper } from "./wrapper";
-import { usePreviewFrameWidth } from "../preview-controls";
 // Copied INTO apps/docs via `shadcn add @vegastack/app-shell` (dogfoods the registry) → auto-scanned.
 import {
   AppShell,
@@ -110,8 +109,10 @@ export function appShellDemo(): ReactNode {
                   key={label}
                   className="rounded-lg border border-border bg-card p-4"
                 >
-                  <p className="text-label-sm text-muted-foreground">{label}</p>
-                  <p className="font-mono text-2xl text-foreground">—</p>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {label}
+                  </p>
+                  <p className="font-mono text-xl text-foreground">—</p>
                 </div>
               ))}
             </div>
@@ -150,7 +151,7 @@ export function appShellInset(): ReactNode {
         </AppShellSidebar>
         <div className="flex h-svh min-w-0 flex-1 flex-col">
           <AppShellHeader>
-            <span className="truncate text-label font-medium text-foreground">
+            <span className="truncate text-sm font-medium font-medium text-foreground">
               Dashboard
             </span>
           </AppShellHeader>
@@ -159,7 +160,7 @@ export function appShellInset(): ReactNode {
             landmark="region"
             aria-label="Page content"
           >
-            <p className="p-4 text-base text-muted-foreground">
+            <p className="p-4 text-sm text-muted-foreground">
               The content region is the rounded panel — pass the same{" "}
               <code>variant</code> to both <code>AppShellSidebar</code> and{" "}
               <code>AppShellContent</code>.
@@ -199,12 +200,12 @@ export function appShellFloating(): ReactNode {
         </AppShellSidebar>
         <div className="flex h-svh min-w-0 flex-1 flex-col">
           <AppShellHeader>
-            <span className="truncate text-label font-medium text-foreground">
+            <span className="truncate text-sm font-medium font-medium text-foreground">
               Dashboard
             </span>
           </AppShellHeader>
           <AppShellContent landmark="region" aria-label="Page content">
-            <p className="p-4 text-base text-muted-foreground">
+            <p className="p-4 text-sm text-muted-foreground">
               <code>floating</code> styles the rail itself — the content region
               needs no matching
               <code> variant</code>.
@@ -217,22 +218,18 @@ export function appShellFloating(): ReactNode {
 }
 
 /**
- * Frame-responsive navigation. The docs width toggle constrains a container (not the browser
- * viewport), which a viewport media query can't see — so this demo reads the selected frame preset
- * and, at the mobile preset, forces the rail into its modal Sheet (a huge `mobileBreakpoint` makes
- * `useIsMobile` true regardless of the real viewport). Toggle the toolbar's phone icon to watch the
- * desktop rail collapse into a Sheet you open from the header trigger; every wider preset keeps the
- * default viewport behaviour, so a real narrow viewport still switches on its own.
+ * Responsive navigation. Upstream's `SidebarProvider` reads one fixed breakpoint through
+ * `useIsMobile` (768px, the Tailwind `md` boundary) and takes no override, so — since Batch 5 of
+ * the shadcn reset put Sidebar back on upstream's file — this demo shows the real viewport
+ * behaviour rather than forcing it: narrow the BROWSER below 768px and the desktop rail becomes
+ * the modal Sheet you open from the header trigger. The docs width toggle constrains a container,
+ * not the viewport, so it does not change this demo.
  */
 export function appShellMobile(): ReactNode {
   const [active, setActive] = useState<string>("home");
-  const frameWidth = usePreviewFrameWidth();
   return (
     <Wrapper className="block h-104 overflow-hidden p-0">
-      <AppShell
-        mobileBreakpoint={frameWidth === "mobile" ? 10000 : undefined}
-        className="h-full min-h-0"
-      >
+      <AppShell className="h-full min-h-0">
         <AppShellSidebar>
           <SidebarContent>
             <SidebarGroup>
@@ -258,12 +255,12 @@ export function appShellMobile(): ReactNode {
         </AppShellSidebar>
         <div className="flex h-full min-w-0 flex-1 flex-col">
           <AppShellHeader>
-            <span className="truncate text-label font-medium text-foreground">
+            <span className="truncate text-sm font-medium font-medium text-foreground">
               Mobile dashboard
             </span>
           </AppShellHeader>
           <AppShellContent landmark="region" aria-label="Page content">
-            <p className="p-4 text-base text-muted-foreground">
+            <p className="p-4 text-sm text-muted-foreground">
               Use the menu trigger to open navigation over this content.
             </p>
           </AppShellContent>

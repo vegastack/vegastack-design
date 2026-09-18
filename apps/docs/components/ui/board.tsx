@@ -1,10 +1,10 @@
-// @vegastack board@0.9.1 sha256-HW3fl1X/4nrjzEMHdw1l4Rsvg4wEXnUAU3yV5UkKqGI=
+// @vegastack board@0.9.1 sha256-Kix8EzOcNprS2CqahDUxG0zwd8ERdoBK79N0maU3oAc=
 
 "use client";
 
 import * as React from "react";
 import { EllipsisVertical } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { dragItemClasses } from "@/lib/drag-item";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { IconButton } from "@/components/ui/icon-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/components/ui/use-mobile";
 import {
@@ -48,11 +47,12 @@ the handle's move mode are the ONLY paths on mobile and must be lossless by
 construction. Every card's menu lists every droppable column with per-target lock
 reasons; `M` on a focused card opens it directly.
 
-Elevation: a dragged card must NOT gain a shadow — only true overlays get
-`shadow-overlay` (design.md §Elevation). Lift is expressed by dimming the origin card;
-the native drag preview is the browser's snapshot of the flat card, so separation
-comes from the surface ladder + the one border. This will feel wrong to anyone coming
-from other kanbans; it is the system's position.
+Elevation: a dragged card gains no shadow. Lift is expressed by dimming the ORIGIN card,
+and the thing under the pointer is the browser's own drag preview — a flat snapshot taken
+before any drag class lands — so a shadow on the source would not appear on the moving
+image anyway. Separation comes from the card's hairline against the column ground. (The
+blanket shadow ban this used to cite is gone with Batch 1 of the shadcn reset; what
+remains is the mechanical reason, not the doctrine.)
 
 Deliberately NOT done here:
 - No card focus-roving via `use-list-nav` — its grid model assumes uniform columns and
@@ -63,7 +63,7 @@ Deliberately NOT done here:
   (`onMove` may return a promise → pending shimmer, announced snap-back on rejection).
 - No virtualization — columns are bounded by design at this component's scale.
 - No custom drag-preview portal. The native preview is the flat card snapshot; a
-  custom `z-(--z-overlay)` portal preview is a consumer option, not built-in chrome.
+  custom `z-50` portal preview is a consumer option, not built-in chrome.
 --- */
 
 /** One board column. */
@@ -130,7 +130,7 @@ export interface BoardProps<T> {
    * through the `--board-column-max-height` custom property. The default is the
    * shared overlay ceiling token — a board inside a shorter shell passes its own
    * length rather than the component assuming a viewport reservation.
-   * @default "var(--layout-overlay-max-height)"
+   * @default "calc(100dvh - 16rem)"
    */
   columnMaxHeight?: string;
   /**
@@ -169,7 +169,7 @@ export interface BoardProps<T> {
  * surface (Space lifts the focused card), the lossless per-card "Move to…"
  * menu (<kbd>M</kbd> opens it), cross-column roving focus (↑/↓ within, ←/→
  * across), pending shimmer + announced snap-back for server-refused moves,
- * collapsed terminal columns, and `Empty variant="dashed"` drop targets for empty
+ * collapsed terminal columns, and `Empty className="border"` drop targets for empty
  * columns. The host renders card content and owns the move command.
  *
  * @example
@@ -188,7 +188,7 @@ export function Board<T>({
   onMove,
   onCardActivate,
   columnWidth = "18rem",
-  columnMaxHeight = "var(--layout-overlay-max-height)",
+  columnMaxHeight = "calc(100dvh - 16rem)",
   renderColumnAction,
   dragDisabled = false,
   "aria-label": ariaLabel = "Board",
@@ -369,14 +369,12 @@ export function Board<T>({
                 // positioned ancestor it resolves against the ICB, and inside this
                 // horizontally scrolled row its static x (~900px) would extend the
                 // PAGE's scroll width (measured; the 320px reflow contract catches it).
-                className="relative h-auto min-h-48 w-(--size-lg) shrink-0 flex-col items-center gap-2 rounded-lg bg-card px-1 py-3"
+                className="relative h-auto min-h-48 w-10 shrink-0 flex-col items-center gap-2 rounded-lg bg-card px-1 py-3"
               >
-                <Badge variant="soft" size="sm">
-                  {column.items.length}
-                </Badge>
+                <Badge variant="secondary">{column.items.length}</Badge>
                 <span
                   data-slot="board-column-collapsed-title"
-                  className="min-h-0 flex-1 [writing-mode:vertical-rl] text-label-sm text-muted-foreground"
+                  className="min-h-0 flex-1 [writing-mode:vertical-rl] text-xs font-medium text-muted-foreground"
                 >
                   {column.title}
                 </span>
@@ -397,19 +395,22 @@ export function Board<T>({
                   : containerProps["data-drop-over"]
               }
               className={cn(
-                "w-(--board-column-width) shrink-0 gap-2 bg-surface-1 py-2",
-                "data-drop-over:border-primary/(--alpha-outline-border)",
+                "w-(--board-column-width) shrink-0 gap-2 bg-muted py-2",
+                // The drop-over highlight moves the CARD's hairline, and upstream's `Card` draws
+                // that hairline as a `ring-1`, not a border. This read `border-primary/50` until
+                // Batch 7c of the shadcn reset, which set a colour on a zero-width border and so
+                // painted nothing at all — the whole drop affordance was invisible from the day
+                // Batch 2 put `card.tsx` back on upstream.
+                "data-drop-over:ring-primary/50",
               )}
             >
               <CardHeader className="px-3">
                 <CardTitle
                   data-slot="board-column-title"
-                  className="flex min-w-0 items-center gap-2 text-label-sm text-muted-foreground"
+                  className="flex min-w-0 items-center gap-2 text-xs font-medium text-muted-foreground"
                 >
                   <span className="min-w-0 truncate">{column.title}</span>
-                  <Badge variant="soft" size="sm">
-                    {column.items.length}
-                  </Badge>
+                  <Badge variant="secondary">{column.items.length}</Badge>
                 </CardTitle>
                 {renderColumnAction ? (
                   <CardAction>{renderColumnAction(column)}</CardAction>
@@ -427,11 +428,7 @@ export function Board<T>({
                     className="flex min-h-16 flex-col gap-2 p-1"
                   >
                     {column.items.length === 0 ? (
-                      <Empty
-                        size="sm"
-                        variant="dashed"
-                        data-slot="board-column-empty"
-                      >
+                      <Empty className="border" data-slot="board-column-empty">
                         <EmptyHeader>
                           <EmptyTitle>No cards</EmptyTitle>
                           <EmptyDescription>
@@ -504,8 +501,8 @@ export function Board<T>({
                                 }}
                                 onClick={() => onCardActivate?.(item)}
                                 className={cn(
-                                  "flex w-full min-w-0 flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-base",
-                                  surfaceInteractive,
+                                  "flex w-full min-w-0 flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-sm",
+                                  "hover:bg-accent",
                                   // The grab cursor promises a pointer drag, so it appears
                                   // only where one can actually start: not in `readOnly`, and
                                   // not when the pointer path is off (`dragDisabled`, or below
@@ -528,9 +525,9 @@ export function Board<T>({
                                 >
                                   <DropdownMenuTrigger
                                     render={
-                                      <IconButton
+                                      <Button
                                         variant="ghost"
-                                        size="xs"
+                                        size="icon-xs"
                                         aria-label="Move card"
                                         // The roving model's promise is ONE
                                         // card-layer tab stop per board — a
@@ -542,7 +539,7 @@ export function Board<T>({
                                         className="absolute end-1 top-1"
                                       >
                                         <EllipsisVertical />
-                                      </IconButton>
+                                      </Button>
                                     }
                                   />
                                   <DropdownMenuContent align="end">
@@ -620,7 +617,7 @@ export function Board<T>({
                                                 : target.id}
                                             </span>
                                             {locked && target.lockedReason ? (
-                                              <span className="text-sm text-muted-foreground">
+                                              <span className="text-xs text-muted-foreground">
                                                 {target.lockedReason}
                                               </span>
                                             ) : null}

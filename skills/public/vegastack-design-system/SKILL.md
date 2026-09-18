@@ -5,11 +5,31 @@ description: Build product UI with the VegaStack design system — which compone
 
 # VegaStack design system
 
-Base UI + Tailwind v4 + OKLCH semantic tokens. Components are copy-in via a private shadcn registry;
-the runtime and token layer are public npm.
+Base UI + Tailwind v4 + OKLCH semantic tokens, on shadcn's `base-nova` style. Components are copy-in
+via a private shadcn registry; the runtime and token layer are public npm.
 
 Load this before writing UI code. For first-time project setup (installing packages, wiring the
 provider, configuring registry access), use the `vegastack-consume` skill instead.
+
+**The shadcn reset is a clean break, with no compatibility layer** — no aliases, no deprecation
+shims, no re-exports. It ships as an ordinary minor release, so the version number does not warn you;
+this section does. Every component shadcn ships is now upstream's own file, so its API is upstream's
+API. The complete break is in the shadcn-reset migration guide that ships with the release notes; the
+live contract for any single component is its page at
+<https://design.vegastack.com/docs/components>. The headlines, because they decide most code an agent
+writes:
+
+- **Retired, with no drop-in:** `IconButton` → `Button size="icon*"` · `OTPInput` → `InputOTP` ·
+  `PasswordInput` → an `InputGroup` composition · `CheckboxGroup` → `FieldSet` + `Checkbox` ·
+  `FieldInline` → `EditableCell` · `Segmented` → a joined `ToggleGroup` · `SplitButton` → a
+  `ButtonGroup` composition · `ProgressIndicator` → `Progress` + `Spinner` · `OnboardingChecklist` →
+  the `onboarding-01` block. The ten marketing components were deleted outright.
+- **Gone from the token layer:** the surface ladder (`surface-1/2/3`), every `--alpha-*` and
+  `--opacity-*`, `--size-*`, `--icon-*`, `--z-*`, `--shadow-overlay`, and the role type scale
+  (`text-h1`, `text-label`, `text-code`, `text-mono-label`, `text-display-*`).
+- **Gone from `@vegastack/design`:** `surfaceInteractive`, `surfaceInteractiveGroup`,
+  `fillInteractive`, `FillTone`, `fieldControl`, `fieldControlGroup`, `selectedChipVariants`.
+  `cn`, `TIMINGS`, `FLOATING`, `mergeRefs`, `prose`/`proseClassName` and the icon runtime all stay.
 
 ## Pick a component
 
@@ -25,23 +45,28 @@ pnpm dlx shadcn@latest list @vegastack
 
 Rules that decide most component questions:
 
-- **`Button` is two axes** — `variant` is the shape (`solid · soft · outline · ghost · link · cta`),
-  `tone` is the hue (`neutral · destructive · success · warning · info`). A destructive action is
-  `variant="soft" tone="destructive"`; a solid red button does not type-check. Icon-only actions are
-  **`IconButton`** (`shape="square" | "round"`) — `Button` has no icon size, and an icon in a bare
-  `<button>` is off-system. An icon-only LINK stays an `<a>`, styled with
-  `buttonVariants(...) + iconButtonGeometry(size)` — never an `IconButton`, which would put
-  `role="button"` on navigation.
-- **One size vocabulary everywhere** — `xs · sm · md · lg`, with `md` the default. No component has a
-  size called `default`.
+- **`Button` is one axis** — `variant` is `default · outline · secondary · ghost · destructive ·
+link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red fill. Icon-only
+  actions are `<Button size="icon">` (or `icon-xs` / `icon-sm` / `icon-lg`) with an `aria-label`;
+  an icon in a bare `<button>` is off-system. An icon-only LINK stays an `<a>` styled with
+  `buttonVariants({ variant, size: "icon" })` — never a `Button`, which would put `role="button"`
+  on navigation. `loading` is ours: it holds the label's box and sets `aria-busy`.
+- **Control sizes are upstream's names: `default · xs · sm · lg`**, plus
+  `icon · icon-xs · icon-sm · icon-lg` where a square tier exists. The old `md` default is gone, and
+  most of the components that are ours dropped their `size` prop entirely and take their height from
+  what they compose. Four keepers still carry a small private axis over something that is not a
+  control height — `Chip` (`sm`/`md`, the inline and control pill scales), `StatusIcon`, `Stat` and
+  `Image`'s corner — and they say so on their own pages.
 - **Compose `app-shell`** for a sidebar + header + main layout — never hand-roll the landmark trio.
 - **`select`** for a short fixed option set; **`searchable-select`** when the list is long enough to
   need a search field (it is the preset `country-select` and `region-select` are built from — reach
   for it before composing `combobox` by hand); **`combobox`** directly only for free text,
   suggestions or multi-select chips.
-- **`segmented`** for 2–5 exclusive options inline; **`tabs`** when the choice switches page regions.
-- **`alert` variant=strip** for in-content notices and plan/trial rows; **`announcement-banner`** only
-  for the full-width inverse strip at the very top of the page.
+- **`toggle-group`** with `spacing={0}` for 2–5 exclusive options inline; **`tabs`** when the
+  choice switches page regions.
+- **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
+info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for
+  the full-width inverse strip at the very top of the page.
 - **`chip` is the ONE pill** — `hue` × `size` (`sm` inline · `md` control-scale) × `active`, with
   `onRemove` giving a real 24×24 remove control. `Tag`, `FilterChip` and `ComboboxChip` are that
   primitive composed through `render`; never hand-roll a pill with its own height, radius, or a
@@ -52,49 +77,47 @@ Rules that decide most component questions:
   `role="status"` node with a `{text, seq}` counter.
 - **`code-block`** for static syntax-highlighted source; **`terminal`** for command sessions.
 - **`navigation-menu`** is top-level site navigation with panels, not a menu inside a page.
-- **Marketing components** (`marketing-surface`, `section-header`, `figure-frame`, `terminal`,
-  `logo-row`, `testimonial`, `staggered-text-reveal`, `particle-field`, `pricing-section`, and
-  Button's `cta` variant) are scoped to `.vs-marketing` and must never appear in product UI.
 
 ## Tokens
 
-Semantic CSS custom properties from `@vegastack/design-tokens/theme.css` (OKLCH, `:root` + `.dark`).
-Always use the utility, never a raw value.
+Semantic CSS custom properties from `@vegastack/design-tokens/theme.css` (OKLCH, `:root` + `.dark`),
+on shadcn's `neutral` base. Always use the utility, never a raw value.
 
-| Role     | Utilities                                                                                        |
-| -------- | ------------------------------------------------------------------------------------------------ |
-| Surface  | `bg-background` (page) · `bg-card` (every surface; `popover`/`sidebar` ARE `card`)               |
-| Ladder   | `bg-surface-1` (rest fill / well) · `bg-surface-2` (hover) · `bg-surface-3` (pressed / selected) |
-| Text     | `text-foreground` `text-muted-foreground` `text-{primary,accent,popover}-foreground`             |
-| Status   | `bg-{destructive,success,warning,info}` + `-subtle` / `-hover` / `-text` / `-foreground`         |
-| Border   | `border-border` `border-input` — there are no rings; focus is the native outline                 |
-| Radius   | `rounded-{xs,sm,md,lg}` — `lg` is the cap, `xl` does not exist                                   |
-| Type     | `text-{xs…3xl}` · `text-h1…h4` · `text-label` · `text-mono-label` · `text-display-{sm,md,lg,xl}` |
-| Font     | `font-sans` `font-mono` `font-serif`                                                             |
-| Motion   | `duration-{fast,base,slow}` paired with `ease-{standard,emphasized,exit,spring}`                 |
-| Entrance | `motion-pop-in` `motion-enter-up` `motion-shake` `motion-flash`                                  |
-| Docked   | `motion-dock-in` / `motion-dock-out` — a control parked at a viewport edge, 150ms in / 100ms out |
-| Prose    | `proseClassName` from `@vegastack/design` — the whole rendered-rich-text recipe, one class       |
+| Role     | Utilities                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Surface  | `bg-background` (page) · `bg-card` · `bg-popover` · `bg-sidebar`                                                                      |
+| Fill     | `bg-primary` (solid action, every checked control) · `bg-secondary` (soft) · `bg-muted` (well, track, skeleton) · `bg-accent` (hover) |
+| Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                               |
+| Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)     |
+| Border   | `border-border` · `border-input` — there are no rings; focus is one global outline                                                    |
+| Radius   | `rounded-{sm,md,lg,xl,2xl}` — all derived from the single `--radius`                                                                  |
+| Type     | Tailwind's own `text-{xs…7xl}`. `text-sm` is 14px, `text-base` is 16px                                                                |
+| Font     | `font-sans` `font-mono` `font-serif` `font-heading`                                                                                   |
+| Motion   | `duration-{fast,base,slow}` · `ease-{standard,emphasized,exit,spring}` — or Tailwind's own steps                                      |
+| Entrance | `motion-pop-in` `motion-enter-up` `motion-shake` `motion-flash`                                                                       |
+| Docked   | `motion-dock-in` / `motion-dock-out` — a control parked at a viewport edge, 150ms in / 100ms out                                      |
+| Prose    | `proseClassName` from `@vegastack/design` — the whole rendered-rich-text recipe, one class                                            |
 
-**Hover and pressed come from a recipe, never a literal.** Import the two class strings rather than
-writing `hover:bg-*` by hand — that is how a control gets both steps and stays on the ladder:
+**Hover and pressed are written, not imported.** A component owns its own interaction chrome, the
+way shadcn writes it:
 
 ```tsx
-import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
-
 // A transparent control on a known surface.
-<button className={cn("rounded-md px-2", surfaceInteractive)} />;
-// hover:bg-surface-2 active:bg-surface-3
+<button className="rounded-md px-2 hover:bg-accent hover:text-accent-foreground" />;
 
-// A control on an unknown backdrop, or one that hovers in its own hue.
-<button className={cn("bg-destructive-subtle", fillInteractive.destructive)} />;
-// hover:bg-destructive/(--alpha-hover) active:bg-destructive/(--alpha-pressed)
+// A solid.
+<button className="bg-primary text-primary-foreground hover:bg-primary/80" />;
+
+// A tinted status control. The ink on a tint is `-text`, never the fill.
+<button className="bg-destructive/10 text-destructive-text hover:bg-destructive/20" />;
 ```
 
-A **solid** fill uses neither — it steps through its own darker `-hover` / `-active` tokens.
+A pressed step is optional. `surfaceInteractive`, `fillInteractive`, `fieldControl`,
+`fieldControlGroup` and `selectedChipVariants` were **deleted** from `@vegastack/design` with no
+alias; if you are upgrading, replace each with the literal it expanded to.
 
-**Rendered rich text comes from a recipe too.** Anything the system did not author element by element
-— markdown, a contenteditable, CMS copy — wears one class on its root:
+**Rendered rich text comes from a recipe.** Anything the system did not author element by element —
+markdown, a contenteditable, CMS copy — wears one class on its root:
 
 ```tsx
 import { cn, proseClassName } from "@vegastack/design";
@@ -110,40 +133,15 @@ descendant rules (`[&_h1]:…`), which means an element-level class on a child *
 (specificity (0,1,0) against (0,1,1)) — restyle by composing `prose` (the per-element record), never
 by setting a class on the rendered element.
 
-**A selected chip on a muted track has a third recipe.** If you are building a view switcher, a
-segmented control or chip-shaped tabs of your own, take `selectedChipVariants` rather than inventing
-a selected look — it is the same formula `Tabs`, `Segmented` and `Toggle` use:
+`muted`, `accent` and `secondary` share one value in this base, and all three are kept: name the one
+whose ROLE you mean, so a consumer can retune one without moving the others.
 
-```tsx
-import { cn, selectedChipVariants } from "@vegastack/design";
+**Status colour has two inks.** `-foreground` is the ink on the solid fill; `-text` is the ink on the
+page and on the family's own `/10`-`/30` tint. Using the fill itself as text on a tint measures
+3.98-4.35:1, which the contrast gate rejects. `info` is links and informational UI only.
 
-<div className={cn("rounded-md p-0.5", selectedChipVariants.track)}>
-  <Toggle
-    className={cn(
-      "rounded-sm",
-      selectedChipVariants.item,
-      selectedChipVariants.pressed,
-    )}
-  />
-</div>;
-```
-
-Use `.pressed` for a control whose selected state is Base UI's `data-pressed` and `.active` for one
-using `data-active`. The selected chip keeps its own hover and pressed steps — never guard them off.
-
-`secondary`, `muted`, `accent` and the `sidebar-*` family are **aliases** of ladder rungs
-(`secondary` = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`).
-They still compile; name the rung in new code.
-
-`border` is one translucent hairline — `foreground` at `--alpha-border` — so it reads on the page, on
-a card and inside a well alike. `info` is **links and informational UI only**: promotion and
-selection take a ladder rung or `primary`.
-
-Alpha and opacity are **different roles**: colour compositing takes an `--alpha-*` token
-(`bg-foreground/(--alpha-ink-tint)`), whole-element opacity takes an `--opacity-*` token
-(`opacity-(--opacity-dim)`). A raw `/20` or `opacity-50` is wrong in both cases.
-
-`--brand` is a marker-role accent only — never a functional state colour.
+`--brand` is a marker-role accent only — never a functional state colour, and never a text ink
+(`--brand-text` is the readable half).
 
 **Overriding tokens:** redefine one runtime variable in your global CSS and every component repaints
 in both themes:
@@ -159,18 +157,19 @@ contract.
 
 ## Composition patterns
 
-- **Forms** — Base UI `Field` + react-hook-form `Controller` + Zod 4 (`z.email()`). `Field.Control`
-  emits `onValueChange`, not a DOM `onChange` event. **`Field` owns the feedback layer**: helper text
-  renders below the control, the error below that as a polite `role="status"`, and the invalid shake
-  belongs to the field — wrap a control in a `Field` to get it, and pass `shakeSignal` (a
-  submit-attempt counter) there to re-shake a field that never stopped being invalid. A bare
-  `<Input aria-invalid>` outside a `Field` tints its border and does not move.
-- **A set of related checkboxes is a `CheckboxGroup`** — pass `allValues` and mark one child
-  `parent` to get select-all with the mixed state, rather than computing checked/indeterminate in
-  your own state. Name the group with a `FieldSet`/`FieldLegend` or `aria-labelledby`.
+- **Forms are composed, not configured** — `Field` is layout and copy: `FieldLabel` bound with
+  `htmlFor`, the control, then `FieldDescription` and `FieldError` as CHILDREN. There is no `label`,
+  `description` or `error` prop, and no context that reaches into the control. State is written where
+  it belongs: `aria-invalid` on the control (for assistive tech), `data-invalid` / `data-disabled` on
+  the `Field` (for the block's styling). `FieldError` is `role="alert"`, carries a leading icon so an
+  error is never colour alone, and takes either children or an `errors` array it de-duplicates.
+  react-hook-form's `register` wires straight to the control; there is no `Controller` indirection.
+- **A set of related checkboxes is a `FieldSet` + `FieldLegend` + one `Field` per option** — that is
+  the composition upstream documents, and it is what `Checkbox`'s own docs page shows. Compute
+  `checked` / `indeterminate` for a select-all parent in your own state, as the Table example does.
 - **Click-to-edit is `useInlineEdit`** — draft, commit, cancel, focus restoration and the
-  double-commit guard, with no opinion about the editor or the display. `FieldInline` and
-  `EditableCell` are built on it.
+  double-commit guard, with no opinion about the editor or the display. `EditableCell` is built
+  on it.
 - **Overlays** — enter/exit is driven by `data-starting-style`/`data-ending-style` on the popup root,
   inside a portal + positioner. Theme, toast, tooltip, and direction providers all come from
   `<VegaStackProvider>`; your app root needs `isolation: isolate` or portaled popups can render under
@@ -192,20 +191,25 @@ contract.
   chrome.
 - Implement every applicable state: default, hover, focus, loading, empty, error, success, disabled.
 - Put `truncate` on an inner span, with `min-w-0` on the flex container.
-- Let the parent decide a form control's width — every control is `w-full` and takes its height from
-  the `--size-*` scale.
+- Let the parent decide a form control's width — every control is `w-full`.
+- Reach for a plain Tailwind utility for size, radius, shadow, z-index, alpha, weight and motion:
+  `h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
+  `font-semibold`, `transition-colors duration-100 ease-in-out` are all on-system now.
 
 **Don't**
 
 - Hardcode a hex, a px value, or a raw Tailwind palette class (`bg-neutral-900`, `text-red-500`).
-- Use `font-bold`/`font-semibold` — the weight ladder is 400/500, owned by the type roles.
-- Use `rounded-xl`, `text-4xl` or larger, a raw `z-N`, or `transition-all`/`transition-colors`.
+- Add a focus ring or glow. Focus is one global outline, and text entry tints its border instead;
+  `ring-3`, `ring-ring/50` and `focus-visible:ring-*` are rejected by lint.
 - Set `outline-none` without providing another focus affordance.
-- Pull in a second icon library or hand-write an inline `<svg>` as an icon.
-- Put `uppercase` on non-mono type, or on anything above 14px.
+- Use a status FILL as ink on its own tint — `bg-destructive/10 text-destructive` measures 3.99:1.
+  The ink on a tint is `-text`.
+- Pull in a second icon library, hand-write an inline `<svg>` as an icon, or pass
+  `size`/`width`/`height` to a lucide component.
 - Hand-roll a removable pill, or a `role="status"` live region with its own sequence counter.
 - Give a form control a fixed width (`w-56`, `w-64`) — it reads fine on the page it was tuned for
   and overflows at 320px. Constrain the parent instead.
+- Expect a compatibility shim from before the reset. There is none — see the migration guide.
 
 ## Reference
 

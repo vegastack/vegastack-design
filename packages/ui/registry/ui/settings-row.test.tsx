@@ -95,7 +95,9 @@ test("titleAs picks the heading level so a page keeps a valid outline", async ()
   );
   expect(title?.tagName).toBe("H2");
   // The visual role is unchanged — only the document structure moves.
-  expect(title?.classList.contains("text-h4")).toBe(true);
+  // One token per `classList.contains` call: the section-title role is two utilities now.
+  expect(title?.classList.contains("text-base")).toBe(true);
+  expect(title?.classList.contains("font-medium")).toBe(true);
 });
 
 test("compound parts each expose their data-slot", async () => {
@@ -160,4 +162,37 @@ test("no a11y violations", async () => {
     </SettingsSection>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("SettingsCard IS upstream's Card, flattened for a divided list", async () => {
+  // Batch 7c of the shadcn reset stopped re-deriving the card box here. What this asserts is
+  // that the surface comes from `card.tsx` — the same radius, ground and hairline every other
+  // card on the page has — and that the only thing this file adds is the flush geometry a
+  // divided row list needs.
+  const screen = await render(
+    <SettingsCard data-testid="card">
+      <SettingsRow label="A">
+        <span>1</span>
+      </SettingsRow>
+      <SettingsRow label="B">
+        <span>2</span>
+      </SettingsRow>
+    </SettingsCard>,
+  );
+  const card = screen.getByTestId("card").element() as HTMLElement;
+  // Upstream's own card contract, not a copy of its values.
+  expect(card.className).toContain("rounded-xl");
+  expect(card.className).toContain("bg-card");
+  expect(card.className).toContain("ring-1");
+  expect(card.className).toContain("overflow-hidden");
+  // …flattened: no card padding, no inter-section gap, so rows sit edge to edge.
+  expect(card.className).toContain("py-0");
+  expect(card.className).toContain("gap-0");
+  // The re-stamped slot still wins over `Card`'s own, because it is spread after it.
+  expect(card.getAttribute("data-slot")).toBe("settings-card");
+
+  // The last row's divider is collapsed so the list ends on the card edge.
+  expect(card.className).toContain(
+    "[&>[data-slot=settings-row]:last-child]:border-b-0",
+  );
 });

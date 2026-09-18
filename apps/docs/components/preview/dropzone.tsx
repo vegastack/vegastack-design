@@ -15,7 +15,7 @@ import {
   AttachmentMedia,
   AttachmentTitle,
 } from "@/components/ui/attachment";
-import { IconButton } from "@/components/ui/icon-button";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -59,7 +59,7 @@ export function dropzone(): ReactNode {
             )
           }
         >
-          <Empty size="sm" variant="dashed">
+          <Empty className="border">
             <EmptyHeader>
               <EmptyTitle>Drop images here</EmptyTitle>
               <EmptyDescription>
@@ -71,7 +71,7 @@ export function dropzone(): ReactNode {
         {files.length > 0 ? (
           <AttachmentGroup>
             {files.map((file, index) => (
-              <Attachment key={`${file.name}-${index}`} state="complete">
+              <Attachment key={`${file.name}-${index}`} state="done">
                 <AttachmentMedia />
                 <AttachmentContent>
                   <AttachmentTitle>{file.name}</AttachmentTitle>
@@ -80,21 +80,21 @@ export function dropzone(): ReactNode {
                   </AttachmentDescription>
                 </AttachmentContent>
                 <AttachmentActions>
-                  <IconButton
+                  <Button
                     aria-label={`Remove ${file.name}`}
                     variant="ghost"
-                    size="xs"
+                    size="icon-xs"
                     onClick={() => removeFile(file, index)}
                   >
                     <X />
-                  </IconButton>
+                  </Button>
                 </AttachmentActions>
               </Attachment>
             ))}
           </AttachmentGroup>
         ) : null}
         {rejections.length > 0 ? (
-          <ul className="flex flex-col gap-1 text-sm text-destructive-text">
+          <ul className="flex flex-col gap-1 text-xs text-destructive-text">
             {rejections.map((rejection, index) => (
               <li key={`${rejection}-${index}`} className="min-w-0">
                 {rejection}
@@ -139,7 +139,7 @@ export function dropzoneRejections(): ReactNode {
             ])
           }
         >
-          <Empty size="sm" variant="dashed">
+          <Empty className="border">
             <EmptyHeader>
               <EmptyTitle>Files up to 200 KB</EmptyTitle>
               <EmptyDescription>
@@ -149,7 +149,7 @@ export function dropzoneRejections(): ReactNode {
           </Empty>
         </Dropzone>
         {log.length > 0 ? (
-          <ul className="flex flex-col gap-1 text-sm">
+          <ul className="flex flex-col gap-1 text-xs">
             {log.slice(-4).map((entry, i) => (
               <li
                 key={i}
@@ -173,7 +173,7 @@ export function dropzoneRejections(): ReactNode {
  * Drag-over states — `dragState` paints them without a live `DataTransfer`, which neither a static
  * documentation example nor the behaviour-contract lane can synthesise. The STROKE is on the
  * dropzone surface itself (audit B8-07), so the feedback survives a child that is not an `Empty`:
- * the third card here holds a plain panel and still gains it. An `Empty variant="dashed"` child can tint
+ * the third card here holds a plain panel and still gains it. An `Empty className="border"` child can tint
  * its dashed border in step through `group-data-dragging/dropzone`.
  */
 export function dropzoneDragging(): ReactNode {
@@ -185,11 +185,7 @@ export function dropzoneDragging(): ReactNode {
         dragState="dragging"
         onFilesAccepted={noop}
       >
-        <Empty
-          size="sm"
-          variant="dashed"
-          className="group-data-dragging/dropzone:border-primary/(--alpha-outline-border)"
-        >
+        <Empty className="border group-data-dragging/dropzone:border-primary/50">
           <EmptyHeader>
             <EmptyTitle>Release to upload</EmptyTitle>
             <EmptyDescription>A valid payload is hovering</EmptyDescription>
@@ -202,11 +198,7 @@ export function dropzoneDragging(): ReactNode {
         accept={{ "image/*": [".png"] }}
         onFilesAccepted={noop}
       >
-        <Empty
-          size="sm"
-          variant="dashed"
-          className="group-data-drag-invalid/dropzone:border-destructive/(--alpha-outline-border)"
-        >
+        <Empty className="border group-data-drag-invalid/dropzone:border-destructive/50">
           <EmptyHeader>
             <EmptyTitle>Not accepted</EmptyTitle>
             <EmptyDescription>This file type is refused</EmptyDescription>
@@ -218,7 +210,7 @@ export function dropzoneDragging(): ReactNode {
         dragState="dragging"
         onFilesAccepted={noop}
       >
-        <div className="rounded-lg bg-surface-1 p-4 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg bg-muted p-4 text-center text-xs text-muted-foreground">
           A non-Empty child still shows the drag state — the stroke belongs to
           the surface.
         </div>

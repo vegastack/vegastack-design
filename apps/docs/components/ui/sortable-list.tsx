@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.9.1 sha256-nU2aQZLlmsLX+8V+Z+QmujkzXCPiA0x0kZxNNufzPjE=
+// @vegastack sortable-list@0.9.1 sha256-aptsY78GsBymzbUANBu9joPKf/KEqLnabdrZfuJquGM=
 
 "use client";
 
@@ -12,7 +12,7 @@ import {
   GripVertical,
 } from "lucide-react";
 import { dragItemClasses } from "@/lib/drag-item";
-import { IconButton } from "@/components/ui/icon-button";
+import { Button } from "@/components/ui/button";
 import { Item, ItemContent, ItemGroup } from "@/components/ui/item";
 import {
   DropdownMenu,
@@ -178,31 +178,31 @@ export function SortableList({
               className={dragItemClasses}
             >
               {rowDisabled ? null : (
-                <IconButton
+                <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon-sm"
                   aria-label={`Reorder ${label}`}
-                  ref={handleProps.ref as React.Ref<HTMLElement>}
+                  ref={handleProps.ref as React.Ref<HTMLButtonElement>}
                   onKeyDown={handleProps.onKeyDown}
                   onBlur={handleProps.onBlur}
                   aria-pressed={handleProps["aria-pressed"]}
                   className="cursor-grab touch-none"
                 >
                   <GripVertical />
-                </IconButton>
+                </Button>
               )}
               <ItemContent>{renderItem(item)}</ItemContent>
               {rowDisabled ? null : (
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
-                      <IconButton
+                      <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon-sm"
                         aria-label={`Move ${label}`}
                       >
                         <EllipsisVertical />
-                      </IconButton>
+                      </Button>
                     }
                   />
                   <DropdownMenuContent align="end">

@@ -1,0 +1,71 @@
+# component: radio-group
+# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-12, FOC-5, FOC-6
+# hunks:
+#   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3
+#     focus-visible:ring-ring/50` and the `aria-invalid` halo rings are removed.
+#   FOC-5: the invalid tint and its checked counterpart become
+#     `not-focus:aria-invalid:border-destructive` and
+#     `not-focus:aria-invalid:aria-checked:border-primary`, so focus outranks the error colour.
+#   FOC-12: the two `group-has-[:focus-visible]/field-label:` rules are removed with the choice
+#     card's ring they existed to cancel — this system rings the control, not the card.
+#   A11Y-2: the group's row rhythm goes from `gap-2` to `gap-3`. Each item carries a 32px-tall
+#     invisible hit area (`after:-inset-y-2` on a 16px control), and an 8px gap puts adjacent rows
+#     28px apart centre to centre — so the areas OVERLAP by 4px and the later sibling wins the
+#     shared band, which `test/geometry.browser.test.tsx` measures with a real `elementFromPoint`
+#     probe. 12px puts the centres exactly 32px apart: the areas touch and every target is
+#     unobstructed. This is the A11Y-2 audit the exception map asks for on `radio-group`.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/radio-group.tsx b/radio-group.tsx
+index ef52dfe..a68f98c 100644
+--- a/radio-group.tsx
++++ b/radio-group.tsx
+@@ -1,17 +1,19 @@
+-"use client"
++// @vegastack radio-group@0.9.1 sha256-1PnSXMYkPyLBvGeMVsLuZM6a5BYox9n2MCyn/Pmt2FI=
+ 
+-import { Radio as RadioPrimitive } from "@base-ui/react/radio"
+-import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group"
+-import { cn } from "cn"
++"use client";
++
++import { Radio as RadioPrimitive } from "@base-ui/react/radio";
++import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
++import { cn } from "@vegastack/design";
+ 
+ function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
+   return (
+     <RadioGroupPrimitive
+       data-slot="radio-group"
+-      className={cn("grid w-full gap-2", className)}
++      className={cn("grid w-full gap-3", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
+@@ -19,8 +21,8 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
+     <RadioPrimitive.Root
+       data-slot="radio-group-item"
+       className={cn(
+-        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input outline-none group-has-[:focus-visible]/field-label:ring-0 group-has-[:focus-visible]/field-label:not-data-checked:border-input after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground group-has-[:focus-visible]/field-label:data-checked:border-primary dark:data-checked:bg-primary",
+-        className
++        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive not-focus:aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:not-focus:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
++        className,
+       )}
+       {...props}
+     >
+@@ -31,7 +33,7 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
+         <span className="absolute top-1/2 start-1/2 size-2 -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground" />
+       </RadioPrimitive.Indicator>
+     </RadioPrimitive.Root>
+-  )
++  );
+ }
+ 
+-export { RadioGroup, RadioGroupItem }
++export { RadioGroup, RadioGroupItem };

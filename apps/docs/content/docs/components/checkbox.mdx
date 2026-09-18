@@ -1,11 +1,11 @@
 ---
 title: Checkbox
-description: A binary (or tri-state) toggle — checked, unchecked, indeterminate, and disabled, built on Base UI Checkbox.
+description: A binary (or indeterminate) toggle built on Base UI Checkbox, with a 24px invisible hit area.
 audience: public
 registry: checkbox
 status: stable
 since: 0.1.0
-a11y: native checkbox
+a11y: APG checkbox
 preview: checkbox
 ---
 
@@ -18,126 +18,137 @@ preview: checkbox
 ```tsx
 import { Checkbox } from "@/components/ui/checkbox";
 
-<Checkbox aria-label="Accept terms" defaultChecked />;
+<Checkbox />;
 ```
 
-Built on [Base UI Checkbox](https://base-ui.com/react/components/checkbox): it renders a styled
-`<span>` plus a hidden `<input>` and a lucide check/minus indicator. Pair it with a label for
-accessibility — either inside a [`Field`](/docs/components/field) (which auto-associates the label)
-or by rendering a native button when you need a sibling `<label htmlFor>`. For a standalone checkbox
-with no visible label, pass an `aria-label`.
+<ComponentPreview name="checkbox" file="components/preview/checkbox.tsx" />
 
 ## Examples
 
-### With a Field
+### Checked State
 
-`Field` with `orientation="horizontal"` places the checkbox before an inline label and wires the
-label association for you — no manual `htmlFor`/`id`.
-
-```tsx
-import { Checkbox } from "@/components/ui/checkbox";
-import { Field } from "@/components/ui/field";
-
-<Field label="Subscribe to product updates" orientation="horizontal">
-  <Checkbox defaultChecked />
-</Field>;
-```
-
-### Sibling label
-
-Base UI's default checkbox root is a `<span>` so enclosing-label patterns work well. When your markup
-needs a sibling `<label htmlFor>`, render the root as a native button so the `id` targets the visible
-interactive element:
+Use `defaultChecked` for an uncontrolled checkbox, or `checked` with `onCheckedChange` to control
+it. `indeterminate` draws the mixed state a "select all" parent needs.
 
 ```tsx
-<label htmlFor="terms-checkbox">Accept terms</label>
-<Checkbox id="terms-checkbox" nativeButton render={<button type="button" />} />
+const [checked, setChecked] = React.useState(false);
+
+<Checkbox checked={checked} onCheckedChange={setChecked} />;
 ```
+
+<ComponentPreview
+  name="checkboxCheckedState"
+  file="components/preview/checkbox.tsx"
+/>
+
+### Invalid State
+
+Set `aria-invalid` on the Checkbox and `data-invalid` on the `Field` wrapper. The tint is scoped to
+`not-focus:` (FOC-5), so a focused checkbox shows its focus outline rather than the error colour.
+
+<ComponentPreview
+  name="checkboxInvalidState"
+  file="components/preview/checkbox.tsx"
+/>
+
+### Basic
+
+Pair the checkbox with `Field` and `FieldLabel` for layout and labelling.
+
+<ComponentPreview name="checkboxBasic" file="components/preview/checkbox.tsx" />
+
+### Description
+
+Use `FieldContent` and `FieldDescription` for helper text below the label.
+
+<ComponentPreview
+  name="checkboxDescription"
+  file="components/preview/checkbox.tsx"
+/>
+
+### Disabled
+
+Use `disabled` to prevent interaction, and `data-disabled` on the `Field` so the label dims with it.
+
+<ComponentPreview
+  name="checkboxDisabled"
+  file="components/preview/checkbox.tsx"
+/>
+
+### Group
+
+Several `Field`s inside a `FieldSet` make a checkbox list with a legend and a description.
+
+<ComponentPreview
+  name="checkboxFieldGroup"
+  file="components/preview/checkbox.tsx"
+/>
+
+### Table
+
+A header checkbox that reports `indeterminate` while some — but not all — rows are selected.
+
+<ComponentPreview name="checkboxTable" file="components/preview/checkbox.tsx" />
+
+### RTL
+
+Layout is written in logical properties, so the checkbox and its label swap sides in a
+right-to-left document.
+
+<ComponentPreview name="checkboxRtl" file="components/preview/checkbox.tsx" />
 
 ### States
 
-`checked`/`defaultChecked` tick it; `indeterminate` renders the minus indicator and sets
-`aria-checked="mixed"` (for a "select all" parent); `disabled` removes interaction. Every state shows
-a `:focus-visible` ring on keyboard focus.
+Rest, checked, indeterminate, invalid and disabled in one frame.
 
 <ComponentPreview
   name="checkboxStates"
   file="components/preview/checkbox.tsx"
 />
 
-### Sizes
-
-`md` (size-4) and `sm` (size-3.5) — the icon scales with the box so checkboxes line up with
-sibling inputs and switches.
-
-<ComponentPreview name="checkboxSizes" file="components/preview/checkbox.tsx" />
-
-```tsx
-<Checkbox size="sm" aria-label="Compact" />
-<Checkbox size="md" aria-label="Default" />
-```
-
-### Invalid
-
-Set `aria-invalid` (or place the checkbox inside a [`Field`](/docs/components/field) with an `error`)
-to show the destructive border. A `Field` error also renders a polite `role="status"` message for
-assistive tech, and the whole field shakes once on the transition — the motion belongs to `Field`,
-not to the checkbox.
-
-<ComponentPreview
-  name="checkboxInvalid"
-  file="components/preview/checkbox.tsx"
-/>
-
-```tsx
-<Checkbox aria-invalid aria-label="Invalid checkbox" />
-
-<Field label="Accept the terms to continue" orientation="horizontal" error="This field is required.">
-  <Checkbox />
-</Field>
-```
-
-### Size × state matrix
-
-Because the indicator icon scales with the box, the `sm` and `default` sizes read distinctly across
-every state — unchecked, checked, and indeterminate.
-
-<ComponentPreview
-  name="checkboxSizeStateMatrix"
-  file="components/preview/checkbox.tsx"
-/>
-
 ## Playground
 
-Try both sizes with the disabled and indeterminate states, then copy the generated JSX.
+Try the disabled, indeterminate and invalid states, then copy the generated JSX.
 
 <CheckboxPlayground />
 
 ## API Reference
 
-<ApiTable
-  path="../../packages/ui/registry/ui/checkbox.tsx"
-  name="CheckboxProps"
-/>
+<ApiTable path="lib/api-props.ts" name="CheckboxProps" />
 
 ## Accessibility
 
-- Renders a native checkbox (`role="checkbox"`) with a hidden `<input>` for form submission; supports controlled (`checked`) and uncontrolled (`defaultChecked`) use.
-- `indeterminate` sets `aria-checked="mixed"`; checked/unchecked set `aria-checked="true"`/`"false"`.
-- Always give it an accessible name — wrap it in a `Field`, use a sibling `<label htmlFor>` with
-  `nativeButton render={<button />}`, or pass `aria-label`.
-- `:focus-visible` shows a 2px ring (`outline-ring`) — never `outline: none`. `disabled` removes it from the tab order.
-
-| Key              | Action                                   |
-| ---------------- | ---------------------------------------- |
-| <kbd>Tab</kbd>   | Move focus to / from the checkbox.       |
-| <kbd>Space</kbd> | Toggle the checkbox checked / unchecked. |
+- Renders Base UI's Checkbox, which is a native `<button role="checkbox">` carrying `aria-checked`
+  (`"mixed"` when indeterminate); <kbd>Space</kbd> toggles it.
+- The visible box is 16px, so an `::after` pseudo-element extends the pointer target to at least
+  24×24 (A11Y-2), verified by a real `elementFromPoint` probe.
+- On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1). The recipe carries no
+  ring of its own and no `outline-none` (FOC-6).
+- A bare Checkbox has no visible text — give it an `aria-label`, or a `FieldLabel` bound with
+  `htmlFor`, as every example here does.
 
 <StatesTested name="checkbox" />
 
 ## Do / Don't
 
 <DoDont
-  do="Give every checkbox a label — wrap it in a Field, or use nativeButton when pairing a sibling htmlFor label."
-  dont="Use an htmlFor sibling label against the default span root, or use indeterminate as a third user-selectable value."
+  do="Use a Checkbox for an option that is submitted with a form, and indeterminate for a partially-selected parent."
+  dont="Use a Checkbox for a setting that applies instantly — that is a Switch."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/checkbox.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the `outline-none focus-visible:border-ring focus-visible:ring-3
+focus-visible:ring-ring/50` glow is removed, along with the `aria-invalid` halo rings. `base.css`
+  owns the single `:focus-visible` outline, and `outline-none` would suppress it.
+- **FOC-5** — the invalid tint and its checked counterpart become
+  `not-focus:aria-invalid:border-destructive` and
+  `not-focus:aria-invalid:aria-checked:border-primary`, so focus outranks the error colour.
+- **FOC-12** — upstream rings the whole choice card and cancels the control's own ring with three
+  `group-has-[:focus-visible]/field-label:` rules. This system rings the control, so all three are
+  removed with the card ring they existed to serve.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

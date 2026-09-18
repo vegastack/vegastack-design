@@ -1,0 +1,130 @@
+# component: table
+# decisions: API-16, DOC-1, DOC-2
+# hunks:
+#   NO STYLING HUNK. Every row this component could have argued with resolves as **shadcn** and
+#     therefore ships verbatim: LAY-6 (cells stay `whitespace-nowrap`, the head stays `h-10`
+#     `font-medium text-foreground` with no `--table-cell-min-width` wrap), COL-6 (the row hover is
+#     upstream's own `hover:bg-muted/50`) and COL-8 (a selected row is `data-[state=selected]:bg-muted`,
+#     not a pressed rung). The container is upstream's `data-slot="table-container"` div.
+#   API-16: `"use client"` is removed. Every part in this file is a plain element with a class —
+#     no hook, no event handler, no browser API, no engine — so the directive marks a wholly
+#     presentational module as a client boundary and drags a `<table>` out of the server tree for
+#     nothing. API-16 puts the boundary at the LOWEST interactive leaf, and there is no leaf here.
+#     `design-lint`'s `presentational-client-boundary` rule reports it, which is how it was found.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/table.tsx b/table.tsx
+index b3cb1fb..a485753 100644
+--- a/table.tsx
++++ b/table.tsx
+@@ -1,7 +1,7 @@
+-"use client"
++// @vegastack table@0.9.1 sha256-KOlLnHlYduwUlxNfeP/HycfF6mxJHcG+nrYDaw9uXQo=
+ 
+-import * as React from "react"
+-import { cn } from "cn"
++import * as React from "react";
++import { cn } from "@vegastack/design";
+ 
+ function Table({ className, ...props }: React.ComponentProps<"table">) {
+   return (
+@@ -15,7 +15,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
+         {...props}
+       />
+     </div>
+-  )
++  );
+ }
+ 
+ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
+@@ -25,7 +25,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
+       className={cn("[&_tr]:border-b", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
+@@ -35,7 +35,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
+       className={cn("[&_tr:last-child]:border-0", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
+@@ -44,11 +44,11 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
+       data-slot="table-footer"
+       className={cn(
+         "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+@@ -57,11 +57,11 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+       data-slot="table-row"
+       className={cn(
+         "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+@@ -70,11 +70,11 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+       data-slot="table-head"
+       className={cn(
+         "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pe-0",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+@@ -83,11 +83,11 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+       data-slot="table-cell"
+       className={cn(
+         "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function TableCaption({
+@@ -100,7 +100,7 @@ function TableCaption({
+       className={cn("mt-4 text-sm text-muted-foreground", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ export {
+@@ -112,4 +112,4 @@ export {
+   TableRow,
+   TableCell,
+   TableCaption,
+-}
++};

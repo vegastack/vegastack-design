@@ -88,19 +88,6 @@ const PALETTES =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
 const COLOR_PROPS =
   "bg|text|border|ring|fill|stroke|decoration|divide|from|via|to|caret|accent|shadow|outline";
-const LEN_PROPS =
-  "h|w|size|min-w|max-w|min-h|max-h|p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|gap-x|gap-y|space-x|space-y|top|bottom|left|right|inset|rounded|leading|text|basis|grid-cols|grid-rows|translate-x|translate-y|scale|scale-x|scale-y|aspect|origin";
-
-// The motion vocabulary the transition-pairing rule accepts. A variant prefix (`hover:`,
-// `data-[open]:`) may precede a token; a bare Tailwind step may not stand in for one.
-const MOTION_DURATION_UTILITY =
-  /(?:^|[\s:\]])duration-(?:fast|base|slow)(?=\s|$)/;
-const MOTION_EASE_UTILITY =
-  /(?:^|[\s:\]])ease-(?:standard|emphasized|exit|spring)(?=\s|$)/;
-// Tailwind's own steps: `duration-<n>` for any n but 0 (`duration-0` is the structural collapse a
-// `data-[instant]:` variant needs and is not a duration choice) and the five named default curves.
-const RAW_MOTION_STEP =
-  /(?:^|[\s:\]])(duration-(?!0(?=\s|$))\d+|ease-(?:in-out|in|out|linear|initial))(?=\s|$)/g;
 
 // A class literal reaches more than this many levels into its own descendants and it has stopped
 // styling itself. 20 is the audit's figure (04 §7); `audio-player` held 76 in one string.
@@ -123,143 +110,142 @@ const RULES = [
     msg: "raw Tailwind palette utility (use a semantic token, e.g. bg-primary)",
   },
   { id: "important", re: /!important/g, msg: "!important is not allowed" },
-  // G18 — sanctioned icon SOURCES only. Importing any other icon library into component source is
-  // banned (it bypasses the locked lucide/thesvg + Icon/BrandIcon contract). Denylist of the common
-  // ones so there are no false positives on legitimate packages.
+  // ICO-1 — sanctioned icon SOURCES only. Importing any other icon library into component source
+  // is banned (it bypasses the locked lucide/thesvg + Icon/BrandIcon contract). Denylist of the
+  // common ones so there are no false positives on legitimate packages.
   {
     id: "icon-source",
     re: /from\s+['"](?:@heroicons\/|@tabler\/icons|react-icons|phosphor-react|@phosphor-icons\/|feather-icons|react-feather|@radix-ui\/react-icons|@fortawesome\/|ionicons|@ant-design\/icons|@mui\/icons-material|boxicons|@iconify\/)/g,
     msg: "non-sanctioned icon library (use lucide-react / lucide-animated / @vegastack/design/icons / thesvg via Icon/BrandIcon)",
   },
-  // T5 — the 5th radius step is removed: containers cap at rounded-lg; the marketing sharp
-  // gesture is rounded-(--radius-sharp). Without this ban `rounded-xl` silently falls back to
-  // Tailwind's default theme value (the exact trap radius-xs used to be — register P1-09/10).
+  // FOC-1 / FOC-6 — THE machine check that the glow never creeps back in through a later upstream
+  // pull. shadcn writes `focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50`
+  // on button, input, checkbox, switch, badge, accordion, slider, scroll-area and the field cards;
+  // this system has exactly ONE focus affordance, the global 2px `:focus-visible` outline in
+  // `base.css`. Every migrated component strips the glow, and this rule is what keeps it stripped —
+  // without it, a re-pull in Batch 2 or a hand-written component silently reintroduces the halo
+  // and nothing anywhere says so.
+  //
+  // The box-shadow half is scoped to a FOCUS variant, and Batch 5 is why. Upstream draws a
+  // resting 1px hairline with `shadow-[0_0_0_1px_var(--sidebar-border)]` on `SidebarMenuButton`'s
+  // `outline` variant — a border technique, always on, nothing to do with focus — and an
+  // unscoped `shadow-[0_0_0_` rejected it. What FOC-1/FOC-6 decide is the AFFORDANCE, so the
+  // rule now reads `focus:`/`focus-visible:`/`focus-within:shadow-[0_0_0_…]` and leaves a
+  // resting hairline alone. Everything else stays unconditional: `ring-3`, `ring-[3px]`,
+  // `ring-ring/NN` and any `focus-visible:ring-*` are the glow however they are spelled, and a
+  // component that wants a hairline has `border` and this shadow spelling, not a ring.
   {
-    id: "removed-radius-xl",
-    re: /\brounded-xl\b/g,
-    msg: "radius-xl was removed from the scale (containers cap at rounded-lg; marketing sharp = rounded-(--radius-sharp))",
-  },
-  // T5 — the 28/32/40 control scale is tokenized: no raw h-7/h-8/h-10 (or size-/min-w- mirrors).
-  // 24px (h-6/size-6) is deliberately NOT banned: it is shared by non-control scales (badge,
-  // switch track, select scroll strips) — the xs control tier uses h-(--size-xs) by convention.
-  {
-    id: "raw-control-size",
-    re: /\b(?:h|size|min-w)-(?:7|8|10)\b/g,
-    msg: "control-scale literal (use h-(--size-sm|md|lg) / size-(--size-*) — the 28/32/40 scale is tokenized)",
-  },
-  // T5 — icon sizes route through the icon tokens inside svg selectors (fractions like size-1/2
-  // and the 4px dot glyph size-1 are geometry, not icon-scale, and stay).
-  {
-    id: "raw-icon-size",
-    re: /svg[^\]]*\]:size-(?:3(?:\.5)?|4|5|6)\b(?!\/)/g,
-    msg: "raw icon size in an svg selector (use ]:size-(--icon-compact|inline|default|action|feature))",
-  },
-  {
-    id: "transition-all",
-    re: /\btransition-all\b/g,
-    msg: "transition-all is banned; enumerate only the causal opacity/transform/geometry properties",
-  },
-  {
-    id: "color-transition",
-    re: /\btransition-colors\b|\btransition-\[(?:[^\],]+,)*(?:color|background-color|border-color|fill|stroke)(?:,[^\]]+)*\]/g,
-    msg: "interaction color changes are immediate; reserve motion for opacity, transform, indicators, disclosure, overlays, progress, and causal feedback",
-  },
-  // (T4's transition-pairing rule is string-literal-scoped — see checkTransitionPairing below.)
-  // T3 — z-index is three token bands (`z-(--z-raised)` local raises, `z-(--z-overlay)` portaled
-  // surfaces, `z-(--z-toast)` the toast stack alone; DOM order resolves nesting within a band).
-  // Raw `z-N` literals are banned.
-  {
-    id: "raw-z-index",
-    re: /\bz-\d+\b/g,
-    msg: "raw z-index literal (use z-(--z-raised), z-(--z-overlay) or z-(--z-toast) — see foundations/elevation §Stacking)",
-  },
-  // T2 — zero hardcoded opacity: color-alpha modifiers must route through an `--alpha-*` token
-  // (`bg-destructive/(--alpha-surface-faint)`), never a raw `/NN` step.
-  // A solid status FILL is never a text ink. `destructive`/`success`/`warning`/`info` are tuned as
-  // button/badge fills that carry their own `-foreground` ink; the page-readable half of each
-  // family is `<family>-text`, which contrast-check gates at AA on every surface the family paints.
-  // `text-destructive` and friends sit outside every pair list the gate knows about, so a fill used
-  // as body text is invisible to it — `bubble`'s destructive variant shipped that way and measured
-  // 2.56:1 in dark (audit 2026-09-09, HIGH-1). `-text`, `-foreground`, `-border`, `-subtle*` and
-  // every other suffix are untouched; so are `text-primary` and `text-brand`, which are gated as
-  // 1.4.11 markers and whose call sites set `currentColor` for a GRAPHIC (a radial progress arc, a
-  // copied-state icon, the ParticleField canvas, the terminal prompt sigil), not for prose.
-  {
-    id: "fill-token-as-text",
-    re: /\btext-(?:destructive|success|warning|info)(?![a-z0-9-])/g,
-    msg: "solid status fill used as a text ink (use text-<family>-text, the page-readable half of the family, or -foreground on the family's own fill)",
-  },
-  {
-    id: "raw-alpha",
-    re: /\b(?:bg|text|border|ring|outline|fill|stroke|divide|from|via|to|accent|caret|decoration|shadow)-[a-z][a-z0-9-]*\/\d+(?:\.\d+)?\b/g,
-    msg: "raw color-alpha modifier (use an --alpha-* role token, e.g. bg-destructive/(--alpha-surface-faint))",
-  },
-  // T2 — element opacity must route through an `--opacity-*` token. `opacity-0`/`opacity-100`
-  // are exempt structural endpoints (fully hidden/shown in transitions), not design values.
-  {
-    id: "raw-opacity",
-    re: /\bopacity-(?!0\b|100\b)\d+\b/g,
-    msg: "raw opacity step (use an --opacity-* role token, e.g. opacity-(--opacity-dim); 0/100 are exempt)",
-  },
-  {
-    id: "alpha-opacity-role",
-    re: /\b(?:bg|text|border|ring|outline|fill|stroke|divide|from|via|to|accent|caret|decoration|shadow)-[^\s"'`]+\/\(--opacity-[^)]+\)/g,
-    msg: "color compositing must use an --alpha-* role, never an element --opacity-* role",
-  },
-  {
-    id: "opacity-alpha-role",
-    re: /\bopacity-\(--alpha-[^)]+\)/g,
-    msg: "element opacity must use an --opacity-* role, never a color --alpha-* role",
-  },
-  {
-    id: "raw-tracking",
-    re: /\btracking-(?:tighter|tight|normal|wide|wider|widest|\[[^\]]+\])\b/g,
-    msg: "letter spacing is owned by named typography roles; raw tracking utilities are banned",
-  },
-  {
-    id: "raw-heavy-weight",
-    re: /\bfont-(?:bold|semibold)\b/g,
-    msg: "bold/semibold utilities are banned; use the 400/500 ladder or an approved named role",
-  },
-  {
-    id: "raw-effect",
-    re: /\b(?:backdrop-)?blur-\[[^\]]+\]|\b(?:drop-shadow|shadow)-\[[^\]]+\]|\b(?:backdrop-)?blur-(?!glass\b|\(--)[a-z0-9-]+\b|\b(?:drop-shadow|shadow)-(?:xs|sm|md|lg|xl|2xl|inner)\b/g,
-    msg: "raw blur/shadow effect (use a named semantic effect or elevation role)",
-  },
-  // T1 — the type scale is xs…3xl (token-driven, base = 14px) plus the role utilities
-  // (text-h1…h4, text-label*, text-code*) and the display tier (text-display-sm/md/lg/xl).
-  // Anything past 3xl is off-scale; arbitrary `text-[…]` sizes are caught by the ARB rule.
-  {
-    id: "off-scale-text",
-    re: /\btext-(?:4xl|5xl|6xl|7xl|8xl|9xl)\b/g,
-    msg: "off-scale font size (scale ends at text-3xl = 24px; use text-display-sm/md/lg/xl for display sizes)",
+    id: "no-focus-ring-glow",
+    re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus-visible:ring-|\bfocus(?:-visible|-within)?:shadow-\[0_0_0_/g,
+    msg: "focus ring glow (FOC-1/FOC-6): base.css owns the one `:focus-visible` outline — no ring-3, no ring-ring/NN, no focus-visible:ring-*, no focus 0 0 0 box-shadow ring",
   },
 ];
 
 // Inline <svg> used as an icon is banned in component source — use a sanctioned lucide icon or the
 // `Icon`/`BrandIcon` wrapper. Allowlist files that legitimately draw a NON-icon graphic primitive
-// with SVG geometry (e.g. a determinate progress ring) — those aren't icons.
-// `progress-indicator` draws a non-icon graphic primitive. The mirrored lucide-animated icons used
-// to need an exemption here too — they were Motion <svg> components — but they are now data modules
-// over one factory and contain no JSX at all, which `tooling/verify-animated-icons.mjs` asserts
-// directly. An exemption that can no longer be reached is an exemption that should not exist.
-const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|progress-indicator)\.tsx$/;
+// with SVG geometry — those aren't icons. `empty` draws upstream's decorative backdrop.
+// Two entries have left this list rather than being carried: the mirrored lucide-animated icons
+// (now data modules over one factory with no JSX at all, which `tooling/verify-animated-icons.mjs`
+// asserts directly) and `progress-indicator`, whose determinate ring went with the component when
+// Batch 7a of the shadcn reset retired it for `progress` + `spinner`. An exemption that can no
+// longer be reached is an exemption that should not exist.
+const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty)\.tsx$/;
 
-// `muted-foreground-faint` is intentionally sub-AA and therefore limited to placeholder/disabled
-// copy. These two files use it on aria-hidden decorative glyphs, never meaningful text.
-const FAINT_DECORATIVE_ALLOWLIST =
-  /(?:^|\/)(?:breadcrumb|comparison-matrix)\.tsx$/;
+/**
+ * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).
+ *
+ * Upstream never puts the name on the Button. It puts the Button in a `render` prop and names the
+ * HOST — `<Dialog.Close render={<Button size="icon-sm" />}><XIcon /><span className="sr-only">
+ * Close</span></Dialog.Close>`, or `<Toast.Close aria-label="Close toast" render={render} />`.
+ * The rendered control is the host element wearing the Button's classes, so the accessible name is
+ * the host's, and a rule that only reads the Button's own attributes reports four false positives
+ * against dialog, sheet, toast and their mirror.
+ *
+ * The invariant is unchanged — an icon-only control must have an accessible name. What changes is
+ * WHERE the rule is allowed to find it: on the Button, or on the host that renders it. A Button in
+ * a `render` position with an anonymous host still fails, and
+ * `tooling/verify-design-lint-structural.mjs` observes both halves.
+ */
+function namedByHost(button, sf) {
+  const nameOn = (opening) => {
+    const attrs = opening.attributes.properties.filter(ts.isJsxAttribute);
+    if (
+      attrs.some((a) => /^aria-(label|labelledby)$/.test(a.name.getText(sf)))
+    ) {
+      return true;
+    }
+    // An `sr-only` label anywhere in the host's own children is the other upstream spelling.
+    const element = ts.isJsxOpeningElement(opening) ? opening.parent : null;
+    return element ? /\bsr-only\b/.test(element.getText(sf)) : false;
+  };
+
+  // 0. `<Button size="icon"><Icon /><span className="sr-only">Go to next page</span></Button>` —
+  //    the name is on the Button's OWN children. Batch 8 of the shadcn reset (2026-09-18) is why
+  //    this clause exists: upstream's blocks spell an icon control exactly this way, and the rule
+  //    reported four correctly-named controls in `dashboard-01` as anonymous. It is the same
+  //    evidence `nameOn` already accepts from a host, read one element closer — not a widening:
+  //    a Button with no name anywhere still fails, which the structural gate observes.
+  if (ts.isJsxOpeningElement(button) && nameOn(button)) return true;
+
+  // 1. `<Host render={<Button size="icon" />}>` — walk up to the `render` attribute's own element.
+  for (let node = button.parent; node; node = node.parent) {
+    if (ts.isJsxAttribute(node) && node.name.getText(sf) === "render") {
+      const host = node.parent.parent;
+      return nameOn(host);
+    }
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) break;
+    if (ts.isFunctionLike(node)) break;
+  }
+
+  // 2. `function Close({ render = <Button size="icon" />, … })` — the host is whichever element in
+  //    the same function forwards that binding on. Only a binding literally named `render`
+  //    qualifies, so this cannot be stretched into "some Button somewhere is named".
+  const binding = (() => {
+    for (let node = button.parent; node; node = node.parent) {
+      if (ts.isBindingElement(node) || ts.isVariableDeclaration(node)) {
+        return node.name.getText(sf) === "render" ? node : null;
+      }
+      if (ts.isFunctionLike(node)) return null;
+    }
+    return null;
+  })();
+  if (!binding) return false;
+
+  let owner = binding.parent;
+  while (owner && !ts.isFunctionLike(owner)) owner = owner.parent;
+  if (!owner) return false;
+
+  let named = false;
+  const visit = (node) => {
+    if (named) return;
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+      const forwards = node.attributes.properties.some(
+        (a) =>
+          ts.isJsxAttribute(a) &&
+          a.name.getText(sf) === "render" &&
+          /^\{\s*render\s*\}$/.test(a.initializer?.getText(sf) ?? ""),
+      );
+      if (forwards && nameOn(node)) named = true;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(owner);
+  return named;
+}
 
 // Native controls are allowed only where the component owns a semantic adapter/integration that a
 // higher-level VegaStack control cannot replace. Exact per-tag counts fail closed in BOTH directions:
 // adding a control and removing the last reviewed control require re-auditing this rationale list.
+// `/attachment.tsx` USED to be the first entry here, counting one native-button fallback. Batch 6
+// of the shadcn reset (2026-09-18) reset the file onto upstream, whose `AttachmentTrigger` reaches
+// its button through `useRender({ defaultTagName: "button" })` and writes no `<button>` JSX at all,
+// so the count went to zero. The rule fails closed in both directions precisely so that shows up:
+// the entry is DELETED rather than carried at `{}`, because an exemption that can no longer be
+// reached is an exemption that should not exist (the same call Batch 5 made on the geometry lane's
+// `resizableNested` exclusion).
 const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
-    "/attachment.tsx",
-    { counts: { button: 1 }, rationale: "useRender native-button fallback" },
-  ],
-  [
-    "/dropzone.tsx",
+    "registry/ui/dropzone.tsx",
     {
       counts: { input: 1 },
       rationale:
@@ -267,64 +253,83 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/data-grid.tsx",
+    "registry/ui/data-list.tsx",
     {
       counts: { button: 1 },
       rationale:
-        "group-toggle control preserves table semantics (the sort header now composes Button via data-table-parts)",
+        "row activation control preserves table semantics \u2014 the sort header composes Button through the shared table parts",
     },
   ],
   [
-    "/data-list.tsx",
-    {
-      counts: { button: 1 },
-      rationale:
-        "row activation control preserves table semantics (the sort header now composes Button via data-table-parts)",
-    },
-  ],
-  [
-    "/date-picker.tsx",
-    {
-      counts: { button: 1 },
-      rationale: "react-day-picker day-cell integration",
-    },
-  ],
-  [
-    "/markdown-view.tsx",
+    "registry/ui/markdown-view.tsx",
     {
       counts: { input: 1 },
       rationale: "react-markdown non-checkbox input passthrough",
     },
   ],
+  // `extras.md` dispositions `onboarding-checklist` as block-only, so `onboarding-01` carries its
+  // own copy of these two parts and inherits the same rationale at its own path. The component
+  // entry above goes when the component does; this one is the one that survives.
   [
-    "/onboarding-checklist.tsx",
+    "registry/blocks/onboarding-01/components/checklist.tsx",
     {
       counts: { button: 2 },
       rationale:
-        "the collapsed progress pill and the step rows — both carry VISIBLE text, so they are text controls, not icon buttons (the icon-only collapse toggle became an IconButton in F2)",
+        "the collapsed progress pill and the step rows \u2014 both carry VISIBLE text, so they are text controls, not icon buttons (the icon-only collapse toggle is an icon Button)",
     },
   ],
   [
-    "/sidebar.tsx",
-    {
-      counts: { button: 2 },
-      rationale:
-        "SidebarMenuButton's useRender fallback and the resize rail control — SidebarTrigger's hand-rolled button became an IconButton in N1",
-    },
-  ],
-  [
-    "/tag-group.tsx",
+    "registry/ui/sidebar.tsx",
     {
       counts: { button: 1 },
       rationale:
-        "the overflow disclosure control — a Chip rendered as a button, because a chip's root is a span and no VegaStack control is a pill-shaped text button (tag removal became Chip's IconButton in T2)",
+        "`SidebarRail`, the collapse strip along the rail's edge — upstream's own raw <button>, and the one control here no VegaStack component substitutes for: it is a 16px full-height hit strip with no label, no icon and no text, `tabIndex={-1}` by design, and a Button at any size would paint a box where the design wants an invisible seam. Batch 5 of the shadcn reset put this file on upstream's source, which dropped the count from 2 to 1: `SidebarMenuButton`'s fallback is now `useRender`'s, not a literal <button>, and `SidebarTrigger` composes Button.",
     },
   ],
   [
-    "/textarea.tsx",
+    "registry/ui/tag-group.tsx",
+    {
+      counts: { button: 1 },
+      rationale:
+        "the overflow disclosure control — a Chip rendered as a button, because a chip's root is a span and no VegaStack control is a pill-shaped text button (tag removal became Chip's icon Button in T2)",
+    },
+  ],
+  [
+    "registry/ui/native-select.tsx",
+    {
+      counts: { select: 1 },
+      rationale:
+        "NativeSelect IS the tokenized native <select> adapter — the platform picker is the whole point of the component, and no VegaStack control substitutes for it (Select is the rendered alternative, on its own page)",
+    },
+  ],
+  [
+    "registry/ui/textarea.tsx",
     {
       counts: { textarea: 1 },
       rationale: "Textarea is the tokenized native textarea adapter",
+    },
+  ],
+  // Batch 8 of the shadcn reset (2026-09-18) — upstream's two interactive chart blocks. The
+  // control is a full-bleed CARD-HEADER CELL: a border-divided column that fills the header, two
+  // stacked text lines inside it (a muted series label over a 30px figure), selected by
+  // `data-[active=true]:bg-muted/50`. No VegaStack control substitutes for it — a Button at any
+  // size paints its own box, height and horizontal padding where the design wants a seamless
+  // header segment, and `ToggleGroup` would impose the pill track the header explicitly is not.
+  // Both carry visible text, so they are named text controls, not icon buttons.
+  [
+    "registry/blocks/chart-bar-interactive/chart-bar-interactive.tsx",
+    {
+      counts: { button: 1 },
+      rationale:
+        "upstream's segmented card-header stat cell — a bordered header column with a label and a figure, not a control surface a Button can wear",
+    },
+  ],
+  [
+    "registry/blocks/chart-line-interactive/chart-line-interactive.tsx",
+    {
+      counts: { button: 1 },
+      rationale:
+        "upstream's segmented card-header stat cell — a bordered header column with a label and a figure, not a control surface a Button can wear",
     },
   ],
 ]);
@@ -334,10 +339,14 @@ const RAW_INTERACTIVE_TAGS = new Set(["button", "input", "select", "textarea"]);
 // §7.6 Base UI render contract — a wrapper over a SINGLE Base UI root MUST keep Base UI's
 // polymorphic `render` prop in its public API.
 // `Omit<..., 'render'>` (or `'value' | 'render'`, etc.) silently removes it, regressing the
-// contract. Flag any `Omit<...>` that strips `'render'` in registry component source — EXCEPT the
-// documented exemptions: multi-element composites that own no single polymorphic root (compose
-// them via their slots/children instead; see docs/ledger/component-matrix.md §7.6 note).
-const RENDER_OMIT_EXEMPT = /(?:^|\/)(?:split-button)\.tsx$/;
+// contract. Flag any `Omit<...>` that strips `'render'` in registry component source.
+//
+// There is NO exemption list any more. `split-button.tsx` was the single entry — a multi-element
+// composite with no polymorphic root — and Batch 7a of the shadcn reset retired it in favour of
+// upstream's `button-group` example. An exemption that can no longer be reached is an exemption
+// that should not exist (the call Batch 5 made on the geometry lane's `resizableNested`, and
+// Batch 6 on `/attachment.tsx`'s raw-interactive count). A composite that genuinely owns no single
+// root has no `render` prop to begin with, which is not the same thing as stripping one.
 
 function sourceFileFor(file, src) {
   return ts.createSourceFile(
@@ -394,8 +403,8 @@ function staticStringLiterals(file, src) {
 // which Tailwind never emits and the browser silently drops. The defect is invisible to every rule
 // that reads a literal on its own — `transition-pairing` finds `ease-standard` in the left literal
 // and passes while the rendered element has no ease token at all (four live instances on `main`,
-// 2026-09-09: switch.tsx ×2, otp-input.tsx, number-field.tsx). So it has to be seen STRUCTURALLY,
-// at the seam, which is a `BinaryExpression` and not a literal.
+// 2026-09-09: switch.tsx ×2, the retired OTP field, number-field.tsx). So it has to be seen
+// STRUCTURALLY, at the seam, which is a `BinaryExpression` and not a literal.
 //
 // Only literal+literal seams are inspected: `"text-" + size` is a deliberate build, not a glue.
 // The class-context guard is `LOOKS_LIKE_CLASS_STRING` on either side, so a concatenated prose
@@ -480,87 +489,24 @@ function renderOmitLines(file, src) {
   return lines;
 }
 
-// §7.1 inline-style contract — `style={…}` may ONLY (a) assign CSS custom properties (every key is a
-// `--*` variable; runtime layout/sizing routes through a var consumed by an arbitrary-value class),
-// or (b) be the documented swatch-fill exception: a dynamic `backgroundColor`/`background` on the
-// color-picker swatch. ANY direct visual property (gridTemplateColumns, width, height, minHeight,
-// padding, …) — dynamic OR literal — fails, plus any hex/px/rem literal in the style expression.
-const STYLE_FILL_EXCEPTION_FILE = /(?:^|\/)color-picker\.tsx$/;
-// Satori requires serializable inline style objects and cannot consume the app's Tailwind runtime.
-const INLINE_STYLE_FILE_ALLOWLIST =
-  /apps\/docs\/(?:lib\/og\.tsx|components\/foundations\.tsx)$/;
-// This one docs-only specimen displays the exact authored easing strings and token-driven inline
-// animation recipes. It is a visualizer, not shipped component motion.
-const RAW_MOTION_FILE_ALLOWLIST = /apps\/docs\/components\/foundations\.tsx$/;
 // Browser/PWA metadata intentionally uses the broadly supported hex serialization of generated
 // semantic theme colors; Satori likewise needs concrete paint values at image-render time.
 const HEX_COLOR_FILE_ALLOWLIST =
   /apps\/docs\/(?:lib\/og\.tsx|app\/(?:layout\.tsx|manifest\.ts))$/;
-const STYLE_LITERAL = /#[0-9a-fA-F]{3,8}\b|\b\d+(?:\.\d+)?(?:px|rem)\b/;
-// Extract the balanced `{…}` expression of a `style={…}` attribute starting at the `{` after `=`.
-function readBalancedBraces(src, openIdx) {
-  let depth = 0;
-  for (let i = openIdx; i < src.length; i++) {
-    const ch = src[i];
-    if (ch === "{") depth++;
-    else if (ch === "}") {
-      depth--;
-      if (depth === 0) return { expr: src.slice(openIdx, i + 1), end: i };
-    }
-  }
-  return null;
-}
-// Collect the property KEYS declared in an object literal inside a style expression. Recognizes bare
-// identifier keys (`backgroundColor:`), quoted/computed keys (`'--x':`, `["--x"]:`), and reports
-// spreads separately. Returns null when the expression has NO object literal (a bare variable
-// reference like `style={contentStyle}` — its keys are validated at the construction site).
-function styleObjectKeys(expr) {
-  if (!/\{/.test(expr)) return null; // no object literal — e.g. style={someVar}
-  const keys = [];
-  let hasSpread = false;
-  // bare-identifier keys:  foo:  (not `::`, not after a `.`); guard against pseudo matches via word boundary
-  for (const m of expr.matchAll(/(?:^|[{,(\s])([A-Za-z_$][\w$]*)\s*:/g))
-    keys.push(m[1]);
-  // quoted keys: '--x':  "--x":
-  for (const m of expr.matchAll(/['"]([^'"]+)['"]\s*:/g)) keys.push(m[1]);
-  // computed keys: ['--x']:  ["--x"]:
-  for (const m of expr.matchAll(/\[\s*['"]([^'"]+)['"]\s*\]\s*:/g))
-    keys.push(m[1]);
-  if (/\.\.\./.test(expr)) hasSpread = true;
-  return { keys, hasSpread };
-}
-
-// arbitrary value with a hard color/length — but allow var(--token), CSS custom props, calc, and %.
-const ARB = new RegExp(
-  `\\b(?:${COLOR_PROPS}|${LEN_PROPS})-\\[([^\\]]+)\\]`,
-  "g",
-);
-const LAYOUT_ATOM =
-  "(?:\\d+(?:\\.\\d+)?(?:fr|%)|min-content|max-content|auto|0)";
-const LAYOUT_TRACK = `(?:${LAYOUT_ATOM}|minmax\\(${LAYOUT_ATOM},${LAYOUT_ATOM}\\))`;
-const LAYOUT_COMPOSITE = new RegExp(
-  `^(?:${LAYOUT_TRACK}|repeat\\([1-9]\\d*,${LAYOUT_TRACK}\\))(?:_(?:${LAYOUT_TRACK}|repeat\\([1-9]\\d*,${LAYOUT_TRACK}\\)))*$`,
-);
-
-// Sanctioned focus affordances that legitimately replace the native outline (see the outline-none
-// file rule below): a focus-visible/focus-within ring, Base UI roving-tabindex state styling, or
-// the text-entry border-tint pattern (`focus:border-…` — design.md §Components: Input/Textarea/OTP
-// use the darkened `ring/70` border as their sole focus cue, deliberately on `focus` not
-// `focus-visible` so click and Tab read identically in a text field).
-const FOCUS_AFFORDANCE =
-  /focus-visible:|focus-within:|focus:border-|data-\[highlighted\]|data-\[selected\]|data-\[focused\]/;
-// Files exempt from the outline-none focus contract. As of the P0-02 fix, overlay POPUP surfaces
-// no longer carry `outline-none` (the centralized base.css `:focus-visible` outline is their
-// keyboard-focus indicator); the remaining `outline-none` in these files sits on the non-focusable
-// fixed VIEWPORT containers only (never keyboard-reachable — a dialog always contains tabbable
-// controls, so browsers never promote the scroll container into the tab order). Add a filename
-// suffix here WITH a one-line rationale only for this non-focusable-container pattern.
-const OUTLINE_NONE_EXEMPT = [
-  "/alert-dialog.tsx", // viewport container only
-  "/dialog.tsx", // viewport container only
-  "/sheet.tsx", // viewport container only
-];
-
+/**
+ * A hex inside an ATTRIBUTE-SELECTOR VALUE is a colour being TARGETED, not one being authored.
+ *
+ * Batch 6 of the shadcn reset (2026-09-18) is why this exists. Upstream's `chart.tsx` retargets
+ * recharts' own hard-coded defaults with `[&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50`
+ * and `[&_.recharts-dot[stroke='#fff']]:stroke-transparent` — the `#ccc` and `#fff` are recharts'
+ * values being MATCHED so a semantic token can replace them, which is COL-20 being enforced rather
+ * than broken. A file allowlist would have switched the rule off for the whole of `chart.tsx`,
+ * including its real declarations; masking by POSITION leaves every authored hex in every file
+ * rejected and reaches only the selector position. Both halves are observed in
+ * `tooling/verify-design-lint-structural.mjs` — a bare `#ccc` in the negative specimen, a
+ * `[stroke='#ccc']` selector in the positive one.
+ */
+const SELECTOR_HEX = /\[[^\][]*?=(['"])#[0-9a-fA-F]{3,8}\1\]/g;
 function walk(dir) {
   const absoluteRoot = resolve(dir).replaceAll("\\", "/");
   return walkTree(dir, {
@@ -595,67 +541,17 @@ for (const root of ROOTS) {
     const lines = src.split("\n");
     const literals = staticStringLiterals(file, src);
 
-    // T4 transition-pairing contract: any string literal that declares a `transition*` utility
-    // MUST pair it with a duration TOKEN and an ease TOKEN in the SAME literal (otherwise the
-    // element silently inherits Tailwind's untokenized default curve — audit 09 §b1). The unit is
-    // the string literal because the fix pattern co-locates the trio; `transition-none` /
-    // `transition-discrete` are structural, not animated, and are exempt.
-    //
-    // ANCHORED TO THE TOKEN NAMES, not the prefix. The rule used to accept any `duration-*` and any
-    // `ease-*`, so `transition-opacity duration-300 ease-in-out` — Tailwind's raw steps, exactly
-    // what AGENTS.md §Build rules bans — passed as "paired" (audit TG-08). `duration-0` stays
-    // legal as a structural modifier (`data-[instant]:duration-0` collapses a transition) but does
-    // not satisfy the pairing on its own.
-    for (const { text: lit, line } of literals) {
-      const tokens = [
-        ...lit.matchAll(
-          /(?:^|[\s:\]])((?:transition)(?:-\w+|-\[[^\]]+\])?)(?=\s|$)/g,
-        ),
-      ]
-        .map((t) => t[1])
-        .filter((t) => t !== "transition-none" && t !== "transition-discrete");
-      if (tokens.length === 0) continue;
-      // A literal whose ENTIRE text is the bare word `transition` is a plain identifier, not a
-      // class string. `packages/design/src/icons/create-animated-icon.tsx` lists Motion's own prop
-      // names — `"transition"` among them — and a data literal is not a motion declaration; that
-      // single false positive is what kept this root outside design-lint entirely (audit
-      // 2026-09-09, MEDIUM-4). The exemption is deliberately the exact string and nothing else:
-      // `"transition-opacity"`, `"flex transition"` and `"hover:transition"` all still fail, so
-      // every literal that names a property, a variant or a companion utility is still gated.
-      if (lit.trim() === "transition") continue;
-      const hasDuration = MOTION_DURATION_UTILITY.test(lit);
-      const hasEase = MOTION_EASE_UTILITY.test(lit);
-      const rawSteps = [...lit.matchAll(RAW_MOTION_STEP)].map((m) => m[1]);
-      if (!hasDuration || !hasEase || rawSteps.length > 0) {
-        const detail =
-          rawSteps.length > 0
-            ? `uses raw Tailwind step(s) ${rawSteps.map((s) => `"${s}"`).join(", ")}`
-            : `without a duration-fast/base/slow + ease-standard/emphasized/exit/spring token pair`;
-        console.log(
-          `${file}:${line} [transition-pairing] "${tokens[0]}" ${detail} in the same class string`,
-        );
-        violations++;
-      }
-    }
+    // The T4 transition-pairing contract is GONE (MOT-2 = shadcn). It required every
+    // `transition*` literal to name a `duration-fast/base/slow` token AND an
+    // `ease-standard/emphasized/exit/spring` token in the same string. Upstream writes
+    // `transition-all`, `transition-colors`, `duration-100` and `ease-in-out` throughout, so the
+    // rule now fails on almost every file this system is being rebuilt from.
 
-    // FIELD-GROUP PAIRING (audit 2026-09-09, LOW-14). `fieldControlGroup` paints a bordered field
-    // WRAPPER, and `base.css` hangs the forced-colours focus outline off the bare `data-field-group`
-    // attribute — because the inner input's own outline is clipped by the group's `overflow-hidden`,
-    // which is exactly how a High Contrast user lost the caret location on an addon field. The two
-    // are one contract with nothing enforcing it: all four consumers are correct today, and a fifth
-    // that imports the recipe and forgets the attribute loses the outline with no error anywhere.
-    // File-scoped on purpose — the recipe and the attribute land on the same element, so a file
-    // that names one and not the other is the defect, and a file that names both is fine.
-    if (/\bfieldControlGroup\b/.test(src) && !/data-field-group/.test(src)) {
-      const line =
-        lines.findIndex((text) => /\bfieldControlGroup\b/.test(text)) + 1;
-      console.log(
-        `${file}:${line} [field-group-pairing] imports/uses fieldControlGroup but never renders ` +
-          `data-field-group — base.css hangs the forced-colours focus outline off that attribute, ` +
-          `and the group's overflow-hidden clips the inner control's own outline`,
-      );
-      violations++;
-    }
+    // The FIELD-GROUP PAIRING rule is GONE. It keyed on a file importing `fieldControlGroup`
+    // from `@vegastack/design` — a recipe this batch deletes (FRM-1 = shadcn) — so the rule has no
+    // trigger left. The contract it protected is intact: `base.css` still hangs the forced-colours
+    // focus outline off the bare `data-field-group` attribute (FOC-7), and the geometry lane
+    // measures that outline on a real focused addon field.
 
     // ── G1-b rules (issue #49 §7) — all literal-scoped, all with a negative fixture in
     // `verify-design-lint-structural.mjs`. Each is a token-vocabulary rule that source review kept
@@ -666,20 +562,11 @@ for (const root of ROOTS) {
         violations++;
       };
 
-      // (a) restated focus ring. `@vegastack/design-tokens/base.css` owns ONE `:focus-visible`
-      // rule for the whole system (2px outline, offset 1, `--ring`). A component that writes its
-      // own re-skins it locally, so the system can never change the ring in one place again — and
-      // a component that STRIPS it on focus-visible removes the indicator outright. The sanctioned
-      // exception is the text-entry border tint, which is `focus:border-*` and never touches the
-      // outline, so it is unaffected by this rule.
-      if (/(?:^|[\s:])focus-visible:(?:outline|ring)-/.test(lit)) {
-        report(
-          "restated-focus",
-          "restates or strips the focus ring that base.css owns for every control " +
-            "(`:focus-visible { outline-2 outline-offset-1 outline-ring }`). Text entry uses " +
-            "`focus:border-ring/(--alpha-tint-border)` instead; nothing else declares a ring.",
-        );
-      }
+      // The `restated-focus` rule is GONE, replaced by the `no-focus-ring-glow` RULE above.
+      // It banned any `focus-visible:outline-*`/`focus-visible:ring-*`, which was right while every
+      // component was ours; upstream restates focus per component, so a blanket ban would reject
+      // every file this system is rebuilt from. The narrower rule bans the GLOW specifically, which
+      // is the thing FOC-1 and FOC-6 actually decide.
 
       // (b) restated reduced-motion. base.css already collapses every animation and transition
       // under `@media (prefers-reduced-motion: reduce)`, globally and with the one sanctioned
@@ -713,21 +600,8 @@ for (const root of ROOTS) {
       // a screenshot (AGENTS.md, locked decision R3) and the visual reviewer is a person opening
       // the site. Writing a rule and then quietly restricting it to the roots that already pass
       // would be the fail-open this batch exists to remove. Flagged for MK instead.
-      // (d) viewport magic. A raw viewport unit is a hardcoded literal that ignores mobile browser
-      // chrome (`100vh` is the classic one) and every container the component actually sits in.
-      // The sanctioned form is a token calc — `max-w-[calc(100vw-var(--spacing)*8)]` — where the
-      // inset is itself a token; that form is exempt below.
-      const viewport = lit.match(
-        /(?:^|\s)-?(?:min-|max-)?[hw]-screen(?=\s|$)|\b\d+(?:dvh|dvw|svh|svw|lvh|lvw|vh|vw)\b/,
-      );
-      if (viewport && !/calc\([^)]*var\(--/.test(lit)) {
-        report(
-          "viewport-magic",
-          `"${viewport[0].trim()}" — a raw viewport dimension. Size from the container or a token; ` +
-            "if a viewport bound is genuinely needed, write it as a calc whose inset is a token " +
-            "(e.g. `max-w-[calc(100vw-var(--spacing)*8)]`).",
-        );
-      }
+      // The `viewport-magic` rule is GONE (LAY-7 = shadcn). Upstream sizes its sidebar with
+      // `min-h-svh` and its drawer with `min-h-dvh`.
 
       // (e) class-string hygiene. A leading, trailing or doubled space inside a class literal is
       // invisible in review and survives every merge, so the same file accumulates them. It also
@@ -768,46 +642,10 @@ for (const root of ROOTS) {
         );
       }
 
-      // (g) hover fill without a pressed rung (Codex F1; extends the hover-fill contract in
-      // AGENTS.md § Build rules, "Every control has a pressed step"). A control that CHANGES its
-      // fill on hover and has no pressed state gives a pointer user feedback and a click no
-      // acknowledgement at all.
-      //
-      // Three things are deliberately NOT violations, because each is a real pattern rather than a
-      // missing state:
-      //   • `bg-x hover:bg-x` — restating the SAME fill is how a control opts OUT of the recipe's
-      //     hover (an active pagination page must not react). No change, so no pressed step owed.
-      //   • a pressed rung expressed as component state rather than the CSS pseudo-class —
-      //     `data-[separator=active]:`, `data-pressed:`, `aria-pressed:`, `data-[state=open]:` —
-      //     which is what a primitive that owns its own drag or open state uses.
-      //   • the recipes themselves (`surfaceInteractive`, `fillInteractive`), which carry both
-      //     steps and are not written as literals here.
-      // `hover:bg-transparent` is the fourth non-violation: it CANCELS an inherited hover rather
-      // than declaring one, which is the opposite of the defect (a nested control that must not
-      // repaint under its container's wash).
-      const hoverFill = lit.match(
-        /(?:^|\s)hover:bg-(?!transparent(?:\s|$))([^\s]+)/,
-      );
-      if (hoverFill) {
-        const restFill = lit.match(/(?:^|\s)bg-([^\s]+)/);
-        const changes = !restFill || restFill[1] !== hoverFill[1];
-        const pressed =
-          /(?:^|\s)active:(?:bg|border|text)-/.test(lit) ||
-          /data-\[[^\]]*(?:active|pressed|dragging|open|selected)[^\]]*\]:(?:bg|border)-/.test(
-            lit,
-          ) ||
-          /(?:^|\s)(?:data-pressed|data-selected|aria-pressed):(?:bg|border)-/.test(
-            lit,
-          );
-        if (changes && !pressed) {
-          report(
-            "hover-without-pressed",
-            `"hover:bg-${hoverFill[1]}" changes the fill on hover with no pressed rung in the same ` +
-              "class string. Every control has a pressed step — take it from `surfaceInteractive` / " +
-              "`fillInteractive.<tone>` in @vegastack/design, or add the `active:`/state rung.",
-          );
-        }
-      }
+      // The `hover-without-pressed` rule is GONE (INT-4 = shadcn). It failed any class string
+      // that changed the fill on hover without a pressed rung beside it. Upstream's own controls
+      // almost never carry one — the default button is `hover:bg-primary/80` and nothing else — so
+      // the rule now rejects upstream's files by construction.
     }
 
     // R flex+truncate co-location ban (audit 12 §b2): `truncate`/`line-clamp-*` on the same
@@ -827,23 +665,9 @@ for (const root of ROOTS) {
       }
     }
 
-    // M motion-lint: raw motion values are banned in class strings — animations route through the
-    // motion tokens (duration-fast/base/slow · ease-standard/emphasized/exit/spring) or the
-    // sanctioned motion-* utilities (motion-pop-in/enter-up/shake, utilities.css) — or, for
-    // stroke-draw/complex icon motion, the lucide-animated mirrors in registry/ui/icons/.
-    // `animate-spin`/`animate-pulse` stay allowed (documented platform-default loader exception,
-    // audit 09 §f); arbitrary animate-[…], raw curves, and arbitrary duration-[…]/ease-[…] do not.
-    for (const { text: lit, line } of literals) {
-      const raw = lit.match(
-        /(animate-\[[^\]]*\]|cubic-bezier\([^)]*\)|(?<![-\w])linear\([^)]*\)|duration-\[[^\]]*\]|ease-\[[^\]]*\])/,
-      );
-      if (raw && !RAW_MOTION_FILE_ALLOWLIST.test(file)) {
-        console.log(
-          `${file}:${line} [raw-motion] "${raw[1]}" — use the motion tokens or a sanctioned motion-* utility`,
-        );
-        violations++;
-      }
-    }
+    // The `raw-motion` rule is GONE (MOT-2 = shadcn). Upstream's drawer carries
+    // `ease-[cubic-bezier(0.32,0.72,0,1)]` and `duration-[calc(var(--drawer-swipe-strength)*400ms)]`
+    // in its own source.
 
     for (const { line, glued } of classConcatGlueSites(file, src)) {
       console.log(
@@ -855,93 +679,23 @@ for (const root of ROOTS) {
       violations++;
     }
 
-    if (!RENDER_OMIT_EXEMPT.test(file)) {
-      for (const line of renderOmitLines(file, src)) {
-        console.log(
-          `${file}:${line} [render-contract] Omit<…, 'render'> removes Base UI's polymorphic render prop (§7.6). Expose render on single-root wrappers; only multi-element composites (split-button) are exempt — see docs/ledger/component-matrix.md.`,
-        );
-        violations++;
-      }
-    }
-
-    // outline-none focus contract (Codex R8): a file that strips the native focus outline MUST
-    // provide an alternative focus affordance — a `focus-visible:` / `focus-within:` ring on the
-    // control, or Base UI's `data-[highlighted]` / `[selected]` / `[focused]` state styling on
-    // roving-tabindex items. Enforced FILE-scoped (not per-element) on purpose: Base UI's
-    // focus-within wrapper pattern (inner input `outline-none`, wrapper `focus-within:ring`),
-    // non-focusable positioner/panel containers, and split CVA strings make a naive same-element
-    // regex throw false positives — per-element focus is asserted at runtime by the axe browser
-    // tests. A file that kills outlines with ZERO focus affordance anywhere is the genuine a11y
-    // regression this rule catches. Extend OUTLINE_NONE_EXEMPT (with rationale) for any genuinely
-    // non-interactive file that legitimately needs `outline-none` and no focus affordance.
-    if (
-      /\boutline-none\b/.test(src) &&
-      !FOCUS_AFFORDANCE.test(src) &&
-      !OUTLINE_NONE_EXEMPT.some((suffix) => file.endsWith(suffix))
-    ) {
+    for (const line of renderOmitLines(file, src)) {
       console.log(
-        `${file} [outline-none] strips the focus outline but provides no focus affordance ` +
-          `(focus-visible:/focus-within: ring or data-[highlighted]/[selected]/[focused]) anywhere in the file`,
+        `${file}:${line} [render-contract] Omit<…, 'render'> removes Base UI's polymorphic render prop (§7.6). Expose render on single-root wrappers; a multi-element composite that owns no single root simply has no render prop to strip — see docs/ledger/component-matrix.md.`,
       );
       violations++;
     }
 
-    // §7.1 inline-style contract — source-level (multi-line-aware) so `style={ … }` objects that
-    // span lines are validated as a whole. For each `style=` attribute we read the balanced `{…}`
-    // expression and require it to EITHER set only CSS custom properties (`--*` keys), OR be the
-    // file-scoped color-picker swatch-fill exception (a dynamic backgroundColor/background). A direct
-    // visual property key (width, gridTemplateColumns, minHeight, …) — dynamic or literal — fails, as
-    // does any hex/px/rem literal inside the style expression.
-    // The mirrored lucide-animated icons used to need an exemption here — they carried inline
-    // `style={{ transformOrigin, transformBox }}` for animation transform setup. They are now data
-    // modules with no JSX, so their transform-origin data is a plain object the factory forwards,
-    // never a `style={…}` attribute, and the exemption is gone with the JSX.
-    if (!INLINE_STYLE_FILE_ALLOWLIST.test(file)) {
-      const styleAttr = /\bstyle=\{/g;
-      let sm;
-      while ((sm = styleAttr.exec(src))) {
-        const openIdx = sm.index + sm[0].length - 1; // index of the `{` after `style=`
-        const lineNo = src.slice(0, sm.index).split("\n").length;
-        const lineText = lines[lineNo - 1] ?? "";
-        const trimmedLine = lineText.trim();
-        // Skip prose/JSDoc mentions of `style={…}` (comment lines).
-        if (
-          trimmedLine.startsWith("//") ||
-          trimmedLine.startsWith("*") ||
-          trimmedLine.startsWith("/*")
-        )
-          continue;
-        const bal = readBalancedBraces(src, openIdx);
-        if (!bal) continue;
-        const expr = bal.expr;
-        // A hardcoded hex/px/rem literal in any style expression is always a violation.
-        if (STYLE_LITERAL.test(expr)) {
-          console.log(
-            `${file}:${lineNo} [inline-style] inline style with a hardcoded value (route layout/sizing through a CSS var consumed by an arbitrary-value class)\n    ${trimmedLine}`,
-          );
-          violations++;
-          continue;
-        }
-        const parsed = styleObjectKeys(expr);
-        // No object literal (bare variable reference like `style={contentStyle}`): keys are validated
-        // at the construction site, which is itself linted — allow here.
-        if (parsed === null) continue;
-        for (const key of parsed.keys) {
-          if (key.startsWith("--")) continue; // CSS custom property — the sanctioned var-only form
-          // The ONE direct-visual-property exception: the color-picker swatch fill.
-          if (
-            (key === "backgroundColor" || key === "background") &&
-            STYLE_FILL_EXCEPTION_FILE.test(file)
-          ) {
-            continue;
-          }
-          console.log(
-            `${file}:${lineNo} [inline-style] direct visual property '${key}' in inline style (allowed only: CSS custom properties, or the color-picker swatch-fill color). Route layout/sizing through a '--*' var + an arbitrary-value class (§7.1).\n    ${trimmedLine}`,
-          );
-          violations++;
-        }
-      }
-    }
+    // The `outline-none` file rule is GONE (FOC-11 = shadcn). Upstream writes `outline-none` on
+    // button, input, textarea, tabs panel and every popup, and relies on its own focus ring; here
+    // the global `:focus-visible` outline in base.css is the affordance, and the geometry lane
+    // measures it per control on a real focused element rather than inferring it from a file.
+
+    // The §7.1 inline-style contract and the arbitrary-value contract are GONE (DOC-10 = shadcn).
+    // Upstream ships `h-[18.4px]`, `rounded-[4px]`, `p-[3px]`, `bottom-[-5px]`, `text-[0.8rem]` and
+    // `rounded-[min(var(--radius-md),10px)]` in its own component source, so a contract that
+    // permits only `var()`, a token calc, a layout primitive or a CSS keyword rejects the baseline
+    // this system is rebuilt from.
 
     lines.forEach((line, i) => {
       // skip comment-only lines
@@ -954,49 +708,18 @@ for (const root of ROOTS) {
         return;
       for (const { id, re, msg } of RULES) {
         if (id === "hex-color" && HEX_COLOR_FILE_ALLOWLIST.test(file)) continue;
+        // `hex-color` reads the line with attribute-selector VALUES masked out — see SELECTOR_HEX.
+        const subject =
+          id === "hex-color" ? line.replace(SELECTOR_HEX, "[]") : line;
         re.lastIndex = 0;
-        if (re.test(line)) {
+        if (re.test(subject)) {
           console.log(`${file}:${i + 1} [${id}] ${msg}\n    ${trimmed}`);
           violations++;
         }
       }
-      if (
-        /\btext-muted-foreground-faint\b/.test(line) &&
-        !/placeholder:text-muted-foreground-faint\b/.test(line) &&
-        !FAINT_DECORATIVE_ALLOWLIST.test(file)
-      ) {
-        console.log(
-          `${file}:${i + 1} [faint-text-role] muted-foreground-faint is sub-AA and restricted to placeholder/disabled copy; use a contrast-safe semantic text role`,
-        );
-        violations++;
-      }
-      let m;
-      ARB.lastIndex = 0;
-      while ((m = ARB.exec(line))) {
-        const inner = m[1];
-        // EXPLICIT sanctioned-exception set for arbitrary values (everything else fails — Codex R6):
-        //  (1) token / runtime CSS-variable values: `*-[var(--token)]` — semantic tokens AND Base UI's
-        //      runtime positioner vars (--available-height, --anchor-width, --transform-origin, panel
-        //      heights). The value IS a token/runtime var, never a hardcoded literal.
-        if (/var\(--|^--/.test(inner)) continue;
-        //  (2) calc() ONLY when it references a design-token `var(--…)`. A viewport unit alone is
-        //      NOT enough: any fixed offset must itself be a token, e.g. `calc(100dvh-var(--spacing)*8)`
-        //      — never a literal like `calc(100dvh-2rem)` / `calc(100px-2rem)` (Codex R8 MED tightened
-        //      this; the previous viewport-unit allowance let `2rem` insets slip through).
-        if (/calc\(/.test(inner) && /var\(--/.test(inner)) continue;
-        //  (3) structural grid/layout primitives, including underscore-separated template tracks
-        //      and minmax()/finite repeat() compositions made exclusively from
-        //      fr/%/auto/content/0 atoms. Fixed lengths inside a layout template (7rem, 320px, …)
-        //      are still design literals.
-        if (LAYOUT_COMPOSITE.test(inner)) continue;
-        //  (4) CSS-wide keywords.
-        if (/^(inherit|initial|unset|revert|revert-layer)$/.test(inner))
-          continue;
-        console.log(
-          `${file}:${i + 1} [arbitrary-value] hardcoded arbitrary "${m[0]}" (use a token utility, a var(--token), or a token/viewport calc — not a hardcoded literal)\n    ${trimmed}`,
-        );
-        violations++;
-      }
+      // `faint-text-role` is GONE, and so is the token it policed. `muted-foreground-faint` was a
+      // deliberately sub-AA placeholder ink; FRM-2 is decided as **shadcn**, so a placeholder reads
+      // `text-muted-foreground` and there is no sub-AA role left to restrict.
     });
   }
 }
@@ -1249,12 +972,12 @@ for (const root of tokenCssRoots) {
               const hasSpread = node.attributes.properties.some(
                 ts.isJsxSpreadAttribute,
               );
-              if (!named && !hasSpread) {
+              if (!named && !hasSpread && !namedByHost(node, sf)) {
                 const { line } = sf.getLineAndCharacterOfPosition(
                   node.getStart(sf),
                 );
                 console.log(
-                  `${file}:${line + 1} [icon-button-name] <Button size=${sizeText}> without aria-label/aria-labelledby — icon-only controls need an accessible name (or use IconButton, which requires one at the type level)`,
+                  `${file}:${line + 1} [icon-button-name] <Button size=${sizeText}> without aria-label/aria-labelledby — icon-only controls need an accessible name (or a host that names it: \`render={<Button size="icon" />}\` on an element carrying aria-label or an sr-only label)`,
                 );
                 violations++;
               }
@@ -1271,59 +994,30 @@ for (const root of tokenCssRoots) {
             violations++;
           }
 
-          if (lucideNames.has(tag)) {
-            const className = node.attributes.properties
-              .filter(ts.isJsxAttribute)
-              .find((attribute) => attribute.name.getText(sf) === "className");
-            const classText = className?.initializer?.getText(sf) ?? "";
-            const sizeProp = node.attributes.properties
-              .filter(ts.isJsxAttribute)
-              .find((attribute) => attribute.name.getText(sf) === "size");
-            if (/\bsize-(?:3(?:\.5)?|4|5|6)\b/.test(classText) || sizeProp) {
-              const { line } = sf.getLineAndCharacterOfPosition(
-                node.getStart(sf),
-              );
-              console.log(
-                `${file}:${line + 1} [direct-lucide-size] direct lucide size bypasses --icon-* roles`,
-              );
-              violations++;
-            }
-          }
+          // The `direct-lucide-size` rule is GONE (ICO-2 = shadcn). Upstream sizes its icons
+          // with `[&_svg:not([class*='size-'])]:size-4` on the parent and a literal `size-3`/
+          // `size-3.5` at small tiers; the `--icon-*` roles it policed no longer exist.
 
           if (canonicalRegistryFile && RAW_INTERACTIVE_TAGS.has(tag)) {
             rawInteractiveCounts[tag]++;
           }
 
-          // Do not override a standard control with the cursor it already receives from the user
-          // agent, and do not restate the native pointer cursor on navigation links. Beyond being
-          // redundant, `cursor-default` on text-entry controls actively destroys their I-beam cue.
-          if (RAW_INTERACTIVE_TAGS.has(tag) || tag === "a") {
-            const className = node.attributes.properties
-              .filter(ts.isJsxAttribute)
-              .find((attribute) => attribute.name.getText(sf) === "className");
-            const classText = className?.initializer?.getText(sf) ?? "";
-            const redundant =
-              (RAW_INTERACTIVE_TAGS.has(tag) &&
-                /\bcursor-default\b/.test(classText)) ||
-              (tag === "a" && /\bcursor-pointer\b/.test(classText));
-            if (redundant) {
-              const { line } = sf.getLineAndCharacterOfPosition(
-                node.getStart(sf),
-              );
-              console.log(
-                `${file}:${line + 1} [standard-control-cursor] redundant/conflicting explicit cursor on native <${tag}>; preserve the platform cursor`,
-              );
-              violations++;
-            }
-          }
+          // The `standard-control-cursor` rule is GONE (INT-10 = shadcn). Upstream sets
+          // `cursor-default` on menu, select and command items by design; INT-1 keeps our own
+          // global hand cursor, and a migrated component simply drops upstream's local override.
         }
         ts.forEachChild(node, visit);
       };
       visit(sf);
 
       if (canonicalRegistryFile) {
-        const exemption = [...RAW_INTERACTIVE_EXEMPTIONS].find(([suffix]) =>
-          file.endsWith(suffix),
+        // Keyed by the file's REPO PATH tail, not its basename. Batch 8 of the shadcn reset
+        // (2026-09-18) is why: `/date-picker.tsx` also matched
+        // `registry/blocks/sidebar-12/components/date-picker.tsx`, so an upstream block inherited a
+        // component's exemption — a rationale silently lent to a file nobody had reviewed, and the
+        // "reviewed count changed" arm then fired on a file that had no raw control at all.
+        const exemption = [...RAW_INTERACTIVE_EXEMPTIONS].find(([path]) =>
+          file.endsWith(path),
         );
         const total = Object.values(rawInteractiveCounts).reduce(
           (sum, count) => sum + count,
@@ -1360,44 +1054,10 @@ for (const root of tokenCssRoots) {
   }
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────────────────────
- * B (D20) — uppercase is MONO-EXCLUSIVE, and the mono voice caps at 14px. Fires only when the
- * literal styles TYPE (contains a text-* utility): uppercase type must carry font-mono /
- * text-mono-label in the same literal, and must not pair with sizes past text-base (the voice
- * layer is 10–14px labels; big mono is reserved for DATA NUMERALS, which are never uppercase).
- * Content transforms without a type utility (e.g. avatar initials) are deliberately exempt —
- * that is casing user content, not setting brand voice.
- * ─────────────────────────────────────────────────────────────────────────────────────────── */
-for (const root of ROOTS) {
-  let files;
-  try {
-    files = walk(root);
-  } catch (err) {
-    // Fail loudly: an unreadable/nonexistent root silently reported '✓ clean' and made the
-    // whole gate a no-op (--docs-shell shipped that way). Never swallow.
-    console.error(`design-lint: cannot read root '${root}': ${err.message}`);
-    process.exit(2);
-  }
-  for (const file of files.filter((f) => /\.tsx?$/.test(f))) {
-    const src = readFileSync(file, "utf8");
-    for (const { text: lit, line } of staticStringLiterals(file, src)) {
-      if (!/(?:^|\s)uppercase(?:\s|$)/.test(lit)) continue;
-      const stylesType =
-        /\btext-(?:xs|sm|base|lg|xl|2xl|3xl|h\d|label|label-sm|code|code-sm|display-\w+|mono-label)\b/.test(
-          lit,
-        );
-      if (!stylesType) continue;
-      const mono = /\bfont-mono\b|\btext-mono-label\b/.test(lit);
-      const big = /\btext-(?:lg|xl|2xl|3xl|h[1-4]|display-\w+)\b/.test(lit);
-      if (!mono || big) {
-        console.log(
-          `${file}:${line} [uppercase-mono] uppercase type must be the mono voice (font-mono/text-mono-label, ≤14px) — uppercase Geist Sans and big uppercase mono are banned (D20)`,
-        );
-        violations++;
-      }
-    }
-  }
-}
+/* The `uppercase-mono` rule is GONE (TYP-7 = shadcn). It required every uppercase type literal to
+ * carry the mono voice and to stay at or below 14px. Upstream uses no uppercase at all, so the rule
+ * has nothing to police in a system rebuilt on it, and the one place it still could fire — our own
+ * extras — is a Batch 7 judgement, not a lint. */
 
 if (violations) {
   console.error(`\n✗ design-lint: ${violations} violation(s)`);

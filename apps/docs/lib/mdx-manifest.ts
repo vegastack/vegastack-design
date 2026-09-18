@@ -32,23 +32,19 @@ export const RUNTIME_PLACEHOLDERS = new Set([
 /** Browser-only surfaces, replaced by an explicit note (never dropped silently). */
 export const BROWSER_ONLY_NOTES: Record<string, string> = {
   ColorPalette:
-    "_Colour token specimen — browser only; the values are in design.md §Colours._",
-  SurfaceLadder:
-    "_Surface-ladder specimen — browser only; it renders both themes side by side. The rungs and their alpha twins are in design.md §Colours → Surfaces — the ladder._",
+    "_Colour token specimen — browser only; the token set is in design.md §Tokens we add._",
   TypeScale:
-    "_Type scale specimen — browser only; the ladder is in design.md §Typography._",
+    "_Type scale specimen — browser only; the scale is Tailwind's own, unmodified._",
   TypeScaleSizes:
-    "_Type size specimen — browser only; the ladder is in design.md §Typography._",
-  TypeCoreLadder:
-    "_Type ladder specimen — browser only; the ladder is in design.md §Typography._",
+    "_Type size specimen — browser only; the scale is Tailwind's own, unmodified._",
   RadiusScale:
-    "_Radius specimen — browser only; the scale is in design.md §Shapes._",
+    "_Radius specimen — browser only; every step derives from one `--radius`._",
   ShadowScale:
-    "_Shadow specimen — browser only; the two sanctioned shadows are in design.md §Elevation._",
+    "_Shadow specimen — browser only; the steps are Tailwind's `shadow-sm`/`-md`/`-lg`._",
   SpacingScale:
-    "_Spacing specimen — browser only; the 4px ladder is in design.md §Layout._",
+    "_Spacing specimen — browser only; the 4px ladder is Tailwind's own._",
   MotionSpecimen:
-    "_Motion specimen — browser only; the tokens are in design.md §Motion._",
+    "_Motion specimen — browser only; the duration and easing tokens are in design.md §Tokens we add._",
   FocusRingSpecimen:
     "_Focus-ring specimen — browser only; the contract is in design.md §Accessibility._",
 };
@@ -59,50 +55,29 @@ export const BROWSER_ONLY_NOTES: Record<string, string> = {
  * silent-acceptance this manifest exists to remove.
  */
 export const PLAYGROUND_COMPONENTS = new Set([
-  "AlertPlayground",
   "AnimatedNumberPlayground",
   "AttachmentPlayground",
-  "AvatarPlayground",
-  "BadgePlayground",
-  "BubblePlayground",
-  "ButtonPlayground",
-  "CardPlayground",
   "CheckboxPlayground",
   "ComboboxPlayground",
   "CopyButtonPlayground",
   "DialogPlayground",
-  "EmptyPlayground",
-  "FieldInlinePlayground",
   "FieldPlayground",
-  "IconButtonPlayground",
   "ImagePlayground",
   "InputPlayground",
-  "ItemPlayground",
-  "KbdPlayground",
   "NotificationBellPlayground",
-  "OTPInputPlayground",
   "PaginationPlayground",
   "PopoverPlayground",
-  "ProgressIndicatorPlayground",
   "ProgressPlayground",
   "RadioGroupPlayground",
   "RelativeTimePlayground",
   "ResizablePlayground",
   "ScrollAreaPlayground",
   "SelectPlayground",
-  "SeparatorPlayground",
   "SheetPlayground",
-  "SkeletonPlayground",
-  "SpinnerPlayground",
-  "SplitButtonPlayground",
   "StatusIconPlayground",
   "SwitchPlayground",
   "TabsPlayground",
   "TextareaPlayground",
-  "ToastPlayground",
-  "ToggleGroupPlayground",
-  "TogglePlayground",
-  "TooltipPlayground",
   "TruncatedTextPlayground",
 ]);
 

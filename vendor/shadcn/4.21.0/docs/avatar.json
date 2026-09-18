@@ -1,0 +1,20 @@
+{
+  "component": "avatar",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/avatar.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Badge",
+    "Badge with Icon",
+    "Avatar Group",
+    "Avatar Group Count",
+    "Avatar Group with Icon",
+    "Sizes",
+    "Dropdown",
+    "RTL",
+    "API Reference"
+  ]
+}

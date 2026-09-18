@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.9.1 sha256-16U1Eq6MVoHPyO8m/EQ0D9Vwei7fg1y6U/krx4hx0ho=
+// @vegastack status-icon@0.9.1 sha256-wA4+067S4x2om5E/jv9xVo9uOAhsuC+7tvK65gVn99Q=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -6,15 +6,18 @@ import { Circle, CircleAlert, CircleCheck, Loader } from "lucide-react";
 import { cn } from "@vegastack/design";
 
 /**
- * StatusIcon variants — `status` selects the semantic color token, `size` maps
- * to the `--icon-*` role tokens (14 / 16 / 20 / 24px), the same ladder Spinner
- * uses. Raw `size-N` steps were the previous spelling of the same four values
- * (audit B2-08); naming the role is what makes the ladder re-skinnable.
+ * StatusIcon variants — `status` selects the semantic colour token, `size` is plain Tailwind
+ * (14 / 16 / 20 / 24px).
  *
- * Color is conveyed through `currentColor`, so every status maps to a semantic
- * text token (no hardcoded hex, no raw
- * palette): `todo` → `text-muted-foreground`, `progress` → `text-info-text`,
- * `blocked` → `text-destructive-text`, `done` → `text-success-text`.
+ * Colour is conveyed through `currentColor`, so every status maps to a semantic text token (no
+ * hardcoded hex, no numbered palette): `todo` → `text-muted-foreground`, `progress` →
+ * `text-info-text`, `blocked` → `text-destructive-text`, `done` → `text-success-text`.
+ *
+ * `progress` does NOT compose upstream's `Spinner`, and the reason is semantic rather than
+ * stylistic: `Spinner` is `role="status"` named "Loading", which is a live announcement about a
+ * pending operation. This is a STATE marker on a record — `role="img"` named "In progress" — so
+ * composing `Spinner` would mean overriding both of the things it exists to assert. The two happen
+ * to share a lucide glyph and `animate-spin`; they do not share a meaning.
  */
 export const statusIconVariants = cva("inline-block shrink-0", {
   variants: {
@@ -25,10 +28,10 @@ export const statusIconVariants = cva("inline-block shrink-0", {
       done: "text-success-text",
     },
     size: {
-      xs: "size-(--icon-inline)",
-      sm: "size-(--icon-default)",
-      md: "size-(--icon-action)",
-      lg: "size-(--icon-feature)",
+      xs: "size-3.5",
+      sm: "size-4",
+      md: "size-5",
+      lg: "size-6",
     },
   },
   defaultVariants: { status: "todo", size: "md" },
@@ -68,9 +71,7 @@ export interface StatusIconProps
    */
   status?: "todo" | "progress" | "blocked" | "done";
   /**
-   * Size variant — mirrors the rest of the scale and maps to the `--icon-*` role
-   * tokens: `xs` inline (14px), `sm` default (16px), `md` action (20px), `lg`
-   * feature (24px).
+   * Size variant: `xs` (14px), `sm` (16px), `md` (20px), `lg` (24px).
    * @default 'md'
    */
   size?: "xs" | "sm" | "md" | "lg";

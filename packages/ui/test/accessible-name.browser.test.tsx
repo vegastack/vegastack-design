@@ -5,10 +5,7 @@ import { page, userEvent } from "vitest/browser";
 import { beforeAll, expect, test } from "vitest";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  OnboardingChecklist,
-  OnboardingChecklistItem,
-} from "@/components/ui/onboarding-checklist";
+import { Badge } from "@/components/ui/badge";
 import { Stepper, type StepperStep } from "@/components/ui/stepper";
 import { Board, type BoardColumn } from "@/components/ui/board";
 import { DataGrid } from "@/components/ui/data-grid";
@@ -19,7 +16,6 @@ import {
   CommandGroup,
   CommandItem,
   CommandShortcut,
-  useCommandFilteredItems,
 } from "@/components/ui/command";
 import {
   DropdownMenu,
@@ -28,7 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
-import { Kbd } from "@/components/ui/kbd";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ToolCallChip } from "@/components/ui/tool-call-chip";
 
 /**
@@ -93,8 +89,9 @@ test("separators are unnecessary BECAUSE the layout blockifies (both directions)
     <>
       <Tabs defaultValue="styled">
         <TabsList>
-          <TabsTrigger value="styled" count={12}>
+          <TabsTrigger value="styled">
             Activity
+            <Badge variant="secondary">12</Badge>
           </TabsTrigger>
         </TabsList>
         <TabsContent value="styled">Panel</TabsContent>
@@ -112,8 +109,9 @@ test("separators are unnecessary BECAUSE the layout blockifies (both directions)
         </style>
         <Tabs defaultValue="inline">
           <TabsList>
-            <TabsTrigger value="inline" count={12}>
+            <TabsTrigger value="inline">
               Activity
+              <Badge variant="secondary">12</Badge>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="inline">Panel</TabsContent>
@@ -136,13 +134,14 @@ test("separators are unnecessary BECAUSE the layout blockifies (both directions)
     .toBeInTheDocument();
 });
 
-test("tabs: a counted trigger names its label and its count as separate words", async () => {
+test("tabs: a trigger with a composed count badge names both as separate words", async () => {
   await render(
     <Tabs defaultValue="overview">
       <TabsList>
         <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="activity" count={12}>
+        <TabsTrigger value="activity">
           Activity
+          <Badge variant="secondary">12</Badge>
         </TabsTrigger>
       </TabsList>
       <TabsContent value="overview">Overview panel</TabsContent>
@@ -153,28 +152,7 @@ test("tabs: a counted trigger names its label and its count as separate words", 
     .element(page.getByRole("tab", { name: "Activity 12" }))
     .toBeInTheDocument();
   // …and no visible node carries punctuation the design never put there.
-  expect(names(document, '[data-slot="tabs-trigger-count"]')).toEqual(["12"]);
-});
-
-test("onboarding-checklist: the collapsed pill names title, progress and action", async () => {
-  await render(
-    <OnboardingChecklist title="Getting started" done={1} total={3}>
-      <OnboardingChecklistItem>Step</OnboardingChecklistItem>
-    </OnboardingChecklist>,
-  );
-  await userEvent.click(
-    page.getByRole("button", { name: "Collapse checklist" }),
-  );
-  const pill = page.getByRole("button", {
-    name: "Getting started 1/3 Expand checklist",
-  });
-  await expect.element(pill).toBeInTheDocument();
-  // WCAG 2.2 SC 2.5.3 (Label in Name): the VISIBLE strings are verbatim substrings of the
-  // name, so a speech-input user saying what they see still activates the control.
-  const el = pill.element() as HTMLElement;
-  expect(el).not.toHaveAttribute("aria-label");
-  expect(el.textContent).toContain("Getting started");
-  expect(el.textContent).toContain("1/3");
+  expect(names(document, '[data-slot="badge"]')).toEqual(["12"]);
 });
 
 test("stepper: a navigable step names its label and its state", async () => {
@@ -239,40 +217,16 @@ test("data-grid: a merged primary cell names each revealed value separately", as
 });
 
 test("command: an item names its label and its shortcut hint separately", async () => {
-  const GROUPS = [
-    {
-      heading: "Settings",
-      items: [{ value: "profile", label: "Profile", shortcut: "⌘P" }],
-    },
-  ];
-  function Groups() {
-    const groups = useCommandFilteredItems<(typeof GROUPS)[number]>();
-    return (
-      <>
-        {groups.map((group) => (
-          <CommandGroup
-            key={group.heading}
-            heading={group.heading}
-            items={group.items}
-          >
-            {(item) => (
-              <CommandItem key={item.value} value={item.value}>
-                {item.label}
-                {item.shortcut ? (
-                  <CommandShortcut>{item.shortcut}</CommandShortcut>
-                ) : null}
-              </CommandItem>
-            )}
-          </CommandGroup>
-        ))}
-      </>
-    );
-  }
   await render(
-    <Command items={GROUPS}>
+    <Command>
       <CommandInput placeholder="Search…" />
       <CommandList>
-        <Groups />
+        <CommandGroup heading="Settings">
+          <CommandItem value="profile">
+            Profile
+            <CommandShortcut>⌘P</CommandShortcut>
+          </CommandItem>
+        </CommandGroup>
       </CommandList>
     </Command>,
   );
@@ -281,7 +235,7 @@ test("command: an item names its label and its shortcut hint separately", async 
     .toBeInTheDocument();
 });
 
-test("floating-surface: a menu row names its label and its shortcut hint separately", async () => {
+test("dropdown-menu: a menu row names its label and its shortcut hint separately", async () => {
   await render(
     <DropdownMenu>
       <DropdownMenuTrigger>Open</DropdownMenuTrigger>
@@ -301,15 +255,19 @@ test("floating-surface: a menu row names its label and its shortcut hint separat
 });
 
 test("kbd: multi-key chips are separate words inside a naming control", async () => {
-  // `kbdVariants` makes every chip `inline-flex`, so the chips separate on their own —
-  // this holds whatever wraps them, and it is why `Kbd` needs no separator of its own.
+  // Since Batch 2 of the shadcn reset `Kbd` is upstream's presentational `<kbd>` and a shortcut is
+  // composed one chip per key inside `KbdGroup`. Every chip is `inline-flex`, so the chips separate
+  // into their own words on their own — which is why neither part needs a separator of its own.
   await render(
     <button type="button">
-      <Kbd keys={["⌘", "S"]} os="mac" />
+      <KbdGroup>
+        <Kbd>Ctrl</Kbd>
+        <Kbd>S</Kbd>
+      </KbdGroup>
     </button>,
   );
   await expect
-    .element(page.getByRole("button", { name: "Command S" }))
+    .element(page.getByRole("button", { name: "Ctrl S" }))
     .toBeInTheDocument();
 });
 

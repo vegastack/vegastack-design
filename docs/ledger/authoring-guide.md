@@ -1,5 +1,16 @@
 # Component Authoring Guide (for parallel authoring agents)
 
+> **SUPERSEDED 2026-09-18 — do not author from this file.** It describes the pre-reset fork: a
+> "port and refine from the platform source" workflow, the `--size-*`/`--icon-*`/`--alpha-*`/
+> `--opacity-*`/z-band/role-type token vocabulary, the `rounded-xl` ban, the transition-pairing rule
+> and the fixed docs section order. The shadcn reset
+> ([`docs/plans/2026-09-18-shadcn-reset/`](../plans/2026-09-18-shadcn-reset/README.md)) deleted all
+> of it: a component shadcn ships now starts from `vendor/shadcn/4.21.0/ui/<name>.tsx` verbatim and
+> differs only where a decision row says **ours**, and the docs page mirrors upstream's own section
+> list. The live authority is
+> [`skills/internal/component/SKILL.md`](../../skills/internal/component/SKILL.md). Kept as the
+> record of how the pre-reset components were authored.
+
 **Condensed binding spec.** For the FULL post-overhaul contract — the complete token vocabulary
 (`--size-*`/`--icon-*`/`--alpha-*`/`--opacity-*`/z-bands/type scale/motion tokens), the motion mechanism
 matrix, the naming/API canon, the responsive + a11y checklists, and test conventions (style-mirror,

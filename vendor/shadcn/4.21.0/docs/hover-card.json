@@ -1,0 +1,16 @@
+{
+  "component": "hover-card",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/hover-card.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Trigger Delays",
+    "Positioning",
+    "Basic",
+    "Sides",
+    "RTL",
+    "API Reference"
+  ]
+}

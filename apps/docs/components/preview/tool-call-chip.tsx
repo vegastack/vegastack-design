@@ -18,7 +18,7 @@ export function toolCallChip(): ReactNode {
         <Database aria-hidden />
       </ToolCallChip>
       <ToolCallChip label="Running workflow…">
-        <Spinner size="inherit" label="" />
+        <Spinner aria-hidden role={undefined} aria-label={undefined} />
       </ToolCallChip>
       {/* Interactive: render as a button to expand the call's detail. */}
       <ToolCallChip

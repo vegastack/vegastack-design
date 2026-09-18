@@ -1,0 +1,17 @@
+{
+  "component": "command",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/command.md",
+  "sections": [
+    "About",
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Shortcuts",
+    "Groups",
+    "Scrollable",
+    "RTL",
+    "API Reference"
+  ]
+}

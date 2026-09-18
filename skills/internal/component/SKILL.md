@@ -5,21 +5,38 @@ description: The authoring contract for adding a NEW component to the vegastack-
 
 # Authoring or changing a component
 
-Reference implementations — read the source, not a description of it:
-`packages/ui/registry/ui/combobox.tsx` (Base UI wrapper + CVA + full JSDoc), `empty.tsx` (compound
-presentational), `animated-number.tsx` (client hook-driven primitive with a documented mechanism
-choice). The per-file checklist is
+**First question, always: does upstream ship this component?**
+
+```bash
+ls vendor/shadcn/4.21.0/ui/<name>.tsx                              # upstream ships it?
+node -p "!!require('./packages/ui/upstream/ours.json').items['<name>']"   # or is it one of ours?
+```
+
+If it exists in `vendor/`, the file you ship is **upstream's file plus an approved patch**, and the
+per-component loop below is the whole procedure. If it does not, it is one of ours: § 1 onward is the
+authoring contract, and it must be recorded in `packages/ui/upstream/ours.json` or the parity gate
+fails it.
+
+Reference implementations — read the source, not a description of it. Upstream-backed:
+`packages/ui/registry/ui/button.tsx` with `packages/ui/upstream/patches/button.patch` beside it (six
+decision IDs, one hunk each). Ours: `date-picker.tsx` (a keeper that composes upstream's `calendar`,
+`popover` and `button`), `animated-number.tsx` (a client hook-driven primitive with a documented
+mechanism choice). The per-file checklist is
 [`docs/ledger/authoring-guide.md`](../../../docs/ledger/authoring-guide.md).
 
-**What is authoritative, in order:** existing component source and `tooling/design-lint.mjs` (they
-define what actually passes) → `design.md` (the canonical, gated design doctrine) → the official docs
-for the Base UI / Tailwind / React versions in `package.json`. Anything in `docs/plans/` is a
-point-in-time record of a past decision, not a description of the system today — use it to learn why
-something was chosen, never to confirm that it still holds.
+**What is authoritative, in order:** `vendor/shadcn/4.21.0/` and the `tooling/upstream/*` gates (they
+decide what a shared component may contain) → existing component source and `tooling/design-lint.mjs`
+(they define what passes) → `design.md` (the gated doctrine) → the official docs for the Base UI /
+Tailwind / React versions in `package.json`. Anything in `docs/plans/` is a point-in-time record of a
+past decision, not a description of the system today.
+
+**No new decisions.** A difference from upstream is legal only if
+`packages/ui/upstream/decisions.json` marks its ID **ours**. If the case is not covered, stop and ask
+MK; never invent a row, and never re-open a settled one because the code is awkward. Two subagents
+invented `A11Y-14` and `A11Y-15` during the reset; both were reverted and the numbers are permanently
+burned.
 
 **`design.md` is living, and a direction change owes it an update — in the wave PR, not this one.**
-If a component's direction changes (a new variant axis, a retired token, a different interaction
-model), record what `design.md` now has to say and carry it in the doctrine PR that closes the wave;
 `pnpm design:sync:check` gates only the derived surfaces and cannot tell you the prose went stale, so
 that judgment is yours and skipping it is how the doctrine rots.
 
@@ -29,6 +46,59 @@ Deep reference, loaded on demand:
   arbitrary-value / inline-style contracts. Read before writing any class string.
 - [references/testing.md](references/testing.md) — browser-mode conventions, the style-mirror
   technique, `elementFromPoint` probes, a11y assertions, the smoke lane.
+
+## The per-component loop (upstream-backed components)
+
+Every component shadcn ships is **upstream's file plus an approved patch**. Do exactly this, every
+time — including when you are only changing one class:
+
+```bash
+N=button
+cp vendor/shadcn/4.21.0/ui/$N.tsx packages/ui/registry/ui/$N.tsx   # 1. upstream, verbatim
+#                                                                    2. apply mapped exceptions only
+pnpm upstream:diff $N                                              # 3. regenerate the patch
+#                                                                    4. tests  5. docs  6. contract
+pnpm registry:build && pnpm check:component $N                     # 7. build and verify
+```
+
+1. **Copy upstream verbatim.** Never edit the previous VegaStack file, never merge the two by hand,
+   never "port" or improve upstream in passing. Starting from upstream every time is what makes the
+   diff readable and the gate meaningful.
+2. **Apply only the exceptions this component is assigned.**
+   `packages/ui/upstream/exception-map.json` is the assignment: its `required` map lists, per
+   decision ID, the components whose patch header must name it. In practice the recurring hunks are:
+   strip the `ring-3 ring-ring/50` focus glow (FOC-1/FOC-6), let focus outrank the invalid tint
+   (FOC-5), tint the border on text entry (FOC-3), delete upstream's `cursor-default` (INT-1), drop
+   `disabled:pointer-events-none` (FRM-4), add the theme scope inside the portal (OVL-13), move a
+   tinted status surface onto the `-text` ink (A11Y-13), and swap the `cn` import (DOC-2).
+   **If an exception seems to need a structural rewrite, stop and ask MK** rather than rewriting the
+   component. A component whose patch ends up empty is the expected outcome, not a missed step.
+3. **`pnpm upstream:diff <name>`**, then write the header. It is mandatory and the tool refuses a
+   patch without it:
+
+   ```
+   # component: sheet
+   # decisions: FOC-1, FOC-6, OVL-13, DOC-2
+   # hunks:
+   #   1: drop the focus-visible ring glow (FOC-1, FOC-6)
+   ```
+
+   A **no-hunk** decision is legitimate and is recorded in the header with its reason plus a test
+   that pins the engine's own behaviour — that is how A11Y-6 on `scroll-area` and API-5 on `tabs` are
+   recorded. A row satisfied by an engine is still a claim, and a claim needs a test.
+
+4. **Test file**, rewritten: renders, every exported part, every variant and size data attribute, one
+   behaviour test per upstream docs section, `expectNoA11yViolations` per distinct state, and **one
+   assertion per exception the patch implements** (no `ring-3` anywhere in the tree; `aria-disabled`
+   set with pointer events alive; the `-text` ink on the tint).
+5. **Docs page**, mirroring upstream's own section list — see § 6.
+6. **Contract record**, then `pnpm design:derived`.
+7. **`pnpm registry:build`**, then `pnpm check:component <name>`.
+
+Three questions before every commit: does this file equal upstream plus its patch? does every hunk
+name an ID the register marks **ours**? does the page carry every section upstream's page has?
+
+`pnpm upstream:check` answers all three mechanically, and runs inside `pnpm lint`.
 
 ## 0. Single source of truth
 
@@ -62,24 +132,29 @@ re-stamped integrity IS the change signal downstream) → affected tests → a t
 Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full vocabulary in
 [references/tokens.md](references/tokens.md). The rules that bite most often:
 
-- Semantic colors only — no hex, no raw Tailwind palette.
-- `--size-*` for control heights, `--icon-*` for icon sizes, `rounded-lg` is the cap.
-- `--alpha-*` for colour compositing, `--opacity-*` for whole-element opacity; never interchangeable.
-- Two z-bands: `z-(--z-raised)`, `z-(--z-overlay)`.
-- A `transition*` must pair a `duration-*` AND an `ease-*` in the same string literal.
-- Weight ladder is 400/500; uppercase is mono-exclusive and ≤14px.
-- Arbitrary values only for `var()`, token-bearing `calc()`, layout primitives, CSS keywords.
+- Semantic colours only — no hex, no numbered Tailwind palette. `bg-black/10` and `bg-white` are
+  upstream's own scrim vocabulary and are fine.
+- **No focus-ring glow, anywhere** — no `ring-3`, no `ring-ring/NN`, no `focus-visible:ring-*`, no
+  `shadow-[0_0_0_…]`. base.css owns the one `:focus-visible` outline; text entry tints its border at
+  `focus:border-ring/70`. This is the rule that keeps the reset from unwinding on the next pull.
+- Sizes, radii, shadows, z-index, alpha and opacity are **plain Tailwind** now: `h-8`, `size-4`,
+  `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The token families that used
+  to own them are deleted.
+- Type is Tailwind's stock scale. `font-semibold`, `tracking-tight` and `text-4xl` are ordinary
+  utilities; the role tokens (`text-h1`, `text-label`, `text-code`, `text-mono-label`) are gone.
+- Motion pairs nothing: `transition-all duration-100 ease-in-out` is upstream's own vocabulary and
+  is legal. Our `duration-fast`/`ease-standard` tokens remain for the `motion-*` utilities.
 
 ## 2. Motion mechanism matrix
 
-| Mechanism                 | Use for                                                                                                                            | How                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Base UI lifecycle**     | Overlay/disclosure enter-exit (dialog, popover, dropdown, select, tooltip, accordion, tabs)                                        | `data-starting-style`/`data-ending-style` + `transition-[…] duration-* ease-standard` on the popup root — the reference pattern, do not reinvent it. **An ANCHORED overlay does not write this itself:** it composes `FloatingSurface` (`registry/ui/floating-surface.tsx`), whose `motion` variant carries the D11 timings — `fast` (150ms) for every floating surface, `base` (200ms) only for NavigationMenu, which resizes rather than appears. Modal surfaces (dialog, alert-dialog, sheet) own their own transition at `duration-base` |
-| **Keyed presence**        | Mount-triggered one-shot arrivals (icon/text swap, badge pop, chat message arrival, skeleton→content reveal)                       | `motion-pop-in` (scale .9→1 + fade, `--ease-spring`) or `motion-enter-up` (fade + 4px rise) from `packages/design-tokens/src/utilities.css`; remount via a changing React `key` so the CSS animation replays                                                                                                                                                                                                                                                                                                                                 |
-| **Docked presence**       | A control parked at a viewport edge that stays mounted and flips `data-active` (bottom action bar, floating scroll-to-edge button) | `data-[active=true]:motion-dock-in` + `data-[active=false]:motion-dock-out` — 150ms in on `emphasized`, 100ms out on `exit`, translate + fade, **no scale** (an exit is never slower than its enter). The pair owns the timing, the fade and the parked `pointer-events: none`; state the travel DISTANCE yourself as ordinary `translate-*` utilities, because it is per-dock geometry and a `translate` in the utility would clobber a centred bar's composed transform                                                                    |
-| **Replay APIs**           | Re-triggering without remounting, when focus/caret/value must survive (shaking an already-focused invalid input)                   | `useAnimationReplay(animationClassName)` is the primitive; `useShakeOnInvalid({ shakeSignal? })` wraps it, watching `aria-invalid`/`data-invalid` via `MutationObserver` (Base UI's Field context writes those straight to the DOM, never through props). **Only `field.tsx` may call it** — validation motion belongs to `Field`, once, for every control it wraps; a control that shakes itself makes the field shake twice (audit D5).                                                                                                    |
-| **Animated-icon handles** | Stroke-draw / complex icon motion (a success check drawing in)                                                                     | The `lucide-animated` mirrors under `registry/ui/icons/**` are data modules over one factory (`@vegastack/design/create-animated-icon`); each exposes an imperative `startAnimation()`/`stopAnimation()` on a React 19 ref prop — call it from your own handler. Attaching a ref also stands the icon's own hover/focus triggers down, so your handler is the only driver                                                                                                                                                                    |
-| **`AnimatedNumber`**      | Tweening a displayed number on `value` change                                                                                      | `<AnimatedNumber value={n} format={intlOptions} />` — a `requestAnimationFrame` tween, reads `--duration-*`/`--motion-ease-standard` live via `getComputedStyle`, instant under reduced motion, `aria-hidden` ticking text plus a polite live region announcing only the settled value                                                                                                                                                                                                                                                       |
+| Mechanism                 | Use for                                                                                                                            | How                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Base UI lifecycle**     | Overlay/disclosure enter-exit (dialog, popover, dropdown, select, tooltip, accordion, tabs)                                        | `data-starting-style`/`data-ending-style` + a `transition-[…]` on the popup root — the reference pattern, do not reinvent it. **Since Batches 4 and 5 of the shadcn reset every shared overlay writes its own, because it IS upstream's file**: popover, hover-card, the two menus, menubar, select, combobox, tooltip, the four modal surfaces and navigation-menu each carry upstream's timings verbatim, and none of them composes `FloatingSurface` any more. Batch 7a retired that composer outright; its last two callers, `emoji-picker` and `shortcut-overlay`, own their popup chrome and share only the OVL-11 search row, which Batch 7c gave one owner in `panel-search.tsx` |
+| **Keyed presence**        | Mount-triggered one-shot arrivals (icon/text swap, badge pop, chat message arrival, skeleton→content reveal)                       | `motion-pop-in` (scale .9→1 + fade, `--ease-spring`) or `motion-enter-up` (fade + 4px rise) from `packages/design-tokens/src/utilities.css`; remount via a changing React `key` so the CSS animation replays                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Docked presence**       | A control parked at a viewport edge that stays mounted and flips `data-active` (bottom action bar, floating scroll-to-edge button) | `data-[active=true]:motion-dock-in` + `data-[active=false]:motion-dock-out` — 150ms in on `emphasized`, 100ms out on `exit`, translate + fade, **no scale** (an exit is never slower than its enter). The pair owns the timing, the fade and the parked `pointer-events: none`; state the travel DISTANCE yourself as ordinary `translate-*` utilities, because it is per-dock geometry and a `translate` in the utility would clobber a centred bar's composed transform                                                                                                                                                                                                                |
+| **Replay APIs**           | Re-triggering without remounting, when focus/caret/value must survive (shaking an already-focused invalid input)                   | `useAnimationReplay(animationClassName)` is the primitive; `useShakeOnInvalid({ shakeSignal? })` wraps it, watching `aria-invalid`/`data-invalid` via `MutationObserver`. **No canonical component calls it as of Batch 3 of the shadcn reset**: `field.tsx` is upstream's file now and upstream's Field has no validation motion (FRM-9 is an **ours** row that `implementation.md` § 5.2 does not assign to any component, so the reset does not reintroduce it). The hook ships as a registry item for consumers; if a component ever shakes again, the shake belongs to ONE owner in a field — two owners make the field shake twice (audit D5).                                     |
+| **Animated-icon handles** | Stroke-draw / complex icon motion (a success check drawing in)                                                                     | The `lucide-animated` mirrors under `registry/ui/icons/**` are data modules over one factory (`@vegastack/design/create-animated-icon`); each exposes an imperative `startAnimation()`/`stopAnimation()` on a React 19 ref prop — call it from your own handler. Attaching a ref also stands the icon's own hover/focus triggers down, so your handler is the only driver                                                                                                                                                                                                                                                                                                                |
+| **`AnimatedNumber`**      | Tweening a displayed number on `value` change                                                                                      | `<AnimatedNumber value={n} format={intlOptions} />` — a `requestAnimationFrame` tween, reads `--duration-*`/`--motion-ease-standard` live via `getComputedStyle`, instant under reduced motion, `aria-hidden` ticking text plus a polite live region announcing only the settled value                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 Do **not** hand-roll `pathLength` animation onto a plain `lucide-react` icon: it spreads props onto
 the SVG root only and never reaches the inner `<path>` (verified in its compiled source), and
@@ -102,23 +177,22 @@ Contract for every new animated element:
   wrapper — are in
   [`docs/ledger/ref-forwarding-spec.md`](../../../docs/ledger/ref-forwarding-spec.md). Type with
   `ComponentPropsWithRef<'div'>`, never `ComponentPropsWithoutRef`.
-- **`intent`** names a semantic color family (`'default' | 'success' | 'warning' | 'destructive' |
-'info'`). Keep it orthogonal to a genuinely separate fill axis if one exists (Badge's `variant`:
-  `'subtle' | 'solid' | 'minimal'`). Never invent a synonym (`color`, `status`) — there is no `color`
-  prop anywhere in the system. **Button is the model to copy, not an exception:** it splits the two
-  concerns into `variant` (the SHAPE — `solid · soft · outline · ghost · link · cta`) × `tone` (the
-  HUE — `neutral · destructive · success · warning · info`), writes each recipe once, and lets the
-  tone set `--btn-*` custom properties the recipe reads. When a component genuinely needs both axes,
-  do that; when it only needs the hue, it is `intent`. The one cell Button's TYPE forbids is
-  `tone="destructive"` with `variant="solid"` (D4).
-- **`data-slot`** on every part, plus `data-variant`/`data-tone`/`data-size`/`data-state` reflecting the resolved
+- **`intent`** (API-17) names a hue-only axis on a component that is **ours** — never a synonym
+  (`color`, `status`); there is no `color` prop anywhere in the system. **A component reset onto
+  upstream does not get an `intent` axis**: API-2 resolves as shadcn, so it takes upstream's flat
+  `variant` list verbatim, and our four status families surface as EXTRA `variant` values written in
+  upstream's own `destructive` shape (COL-12) — `Badge` and `Alert` are the model. A tinted status
+  surface takes the family's `-text` ink, never the fill used as ink (A11Y-13).
+- **`data-slot`** on every part, plus `data-variant`/`data-size`/`data-state` reflecting the resolved
   CVA variant so consumers can target state in CSS without new props. Base UI already supplies
-  `data-highlighted`/`data-selected`/`data-focused` — style off those, do not duplicate them.
+  `data-highlighted`/`data-selected`/`data-focused` — style off those, do not duplicate them. There
+  is no `data-tone` and no `data-shape`: both axes went with the reset, and their mirrors with them.
 - **Render-prop contract** — a component owning a SINGLE polymorphic root must expose Base UI's
   `render` prop: either a thin Base UI wrapper (props extend the Base UI component's own, never
   `Omit<…, 'render'>`), or you own the root via `useRender` with `render?: useRender.RenderProp`
-  threaded through. `Omit<…, 'render'>` is banned (`render-contract`) except for the allowlisted
-  `split-button.tsx`. Purely-presentational multi-element shells (Card, PageHeader, Empty) never had
+  threaded through. `Omit<…, 'render'>` is banned (`render-contract`) with no exemptions at all —
+  the one entry, `split-button.tsx`, went with Batch 7a of the shadcn reset.
+  Purely-presentational multi-element shells (Card, PageHeader, Empty) never had
   `render` — that is not a regression, and it is different from stripping one via `Omit`. A new
   exemption goes in the lint's allowlist with a one-line rationale, and needs review — do not add one
   to work around a type error.
@@ -144,16 +218,21 @@ Contract for every new animated element:
 - **Icons** — `lucide-react` (direct import is fine for internal chrome: chevrons, spinners) or
   `Icon`/`BrandIcon` from `@vegastack/design/icons`. No other library (`icon-source`), no inline
   `<svg>` as an icon (`inline-svg-icon`).
-- **Icon-only controls are `IconButton`, always.** `Button` has no icon size tier; `IconButton`
-  makes the missing `aria-label` a TYPE error and owns `shape="square" | "round"` (a `rounded-full`
-  override on a Button is not the way to get a circle). The legacy AST rule `icon-button-name` still
-  guards any `<Button size="icon*">` that a consumer's older copy might carry.
+- **Icon-only controls are `<Button size="icon">`** — plus `icon-xs`, `icon-sm` and `icon-lg`,
+  upstream's four square tiers, each needing an explicit `aria-label`, which `icon-button-name`
+  checks. There is no `IconButton`: Batch 7a of the shadcn reset retired it, so the accessible name
+  is a lint guarantee rather than a type-level one, and a round control is `className="rounded-full"`
+  on the same Button.
 - **Chevron policy** — `ChevronsUpDown` marks combobox-style triggers that filter/search (Combobox,
   CountrySelect, RegionSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
-  that open a fixed list (Select, DatePicker, SplitButton, Accordion — rotates 180°). Never mix the
-  two within one trigger family.
-- **One size vocabulary, system-wide** — `xs`/`sm`/`md`/`lg`, on `--size-*`, with `md` the default
-  tier. No component may name a tier `default`, and none may invent a private scale.
+  that open a fixed list (Select, DatePicker, ButtonGroup's menu trigger, Accordion — rotates
+  180°). Never mix the two within one trigger family.
+- **Size names are upstream's** — `default` is the tier name, with `xs`, `sm` and `lg` around it, plus
+  `icon`, `icon-xs`, `icon-sm` and `icon-lg` where a square tier exists. The old `xs · sm · md · lg`
+  vocabulary and the `--size-*` tokens behind it are deleted; heights are plain utilities (`h-6`,
+  `h-7`, `h-8`, `h-9`). A component that is ours and needs a size axis uses upstream's names, and most
+  of ours dropped the axis entirely rather than invent a private scale (`number-field`, `chip-input`,
+  `copy-button`).
 - **No native interactive HTML** — canonical components may not render native
   `<button>`/`<input>`/`<select>`/`<textarea>` without an exact per-tag count and rationale in
   `RAW_INTERACTIVE_EXEMPTIONS` (`raw-interactive-html`). Compose the VegaStack control instead.
@@ -207,8 +286,9 @@ Contract for every new animated element:
   `focus-visible:`/`focus-within:` ring, the sanctioned text-entry `focus:border-…` tint (Input,
   Textarea, OTP — deliberately `focus` not `focus-visible` so click and Tab read identically), or
   Base UI's `data-[highlighted]`/`data-[selected]`/`data-[focused]` styling. `outline-none` on a
-  genuinely non-focusable fixed viewport container (a dialog's outer positioner) is fine; a new
-  blanket file exemption needs a one-line rationale in `OUTLINE_NONE_EXEMPT`.
+  genuinely non-focusable fixed viewport container (a dialog's outer positioner) is fine. There is
+  no file-level exemption list any more — the shadcn reset deleted it along with the rule that
+  read it — so a file that needs one is a stop-and-ask, not an entry to add.
 - **Live regions — use `useAnnouncer`; do not hand-roll one.** Destructure `announce` and
   `Announcer` from `useAnnouncer()` (`registry/ui/use-announcer.ts`) and render ONE `Announcer`
   element per component, mounted for its whole life. The hook owns the three things a hand-rolled region gets wrong: it is mounted
@@ -220,10 +300,14 @@ Contract for every new animated element:
   **destination**, never every intermediate frame; `role="alert"` stays a separate, per-component
   decision (polite `status` by default, `alert` only for destructive/warning content rendered after
   mount). A visible status slot is never also the live region — it would announce its own icon
-  swaps. Base UI's `Combobox.Empty`/`Combobox.Status` (and `CommandEmpty`/`CommandLoading`) are
-  ALREADY live regions: they must stay mounted — toggle their CHILDREN, never wrap the component in
-  a conditional, and keep them as SIBLINGS of the listbox (nesting `role="status"` inside
-  `role="listbox"` trips `aria-required-children` — a real bug fixed in the Command rebuild).
+  swaps. Base UI's `Combobox.Empty`/`Combobox.Status` are ALREADY live regions: they must stay
+  mounted — toggle their CHILDREN, never wrap the component in a conditional, and keep them as
+  SIBLINGS of the listbox (nesting `role="status"` inside `role="listbox"` trips
+  `aria-required-children`). Since Batch 4 of the shadcn reset, `command` is upstream's **cmdk**
+  build, and cmdk ships NO live region at all: the palette mounts one `useAnnouncer` region and
+  announces the filtered result count (A11Y-3/A11Y-4, `packages/ui/upstream/patches/command.patch`).
+  Upstream's `toast` and `sonner` need no such hunk — each engine already mounts one polite region
+  for the life of the toaster.
 - **Live regions are polite by default; assertive is opt-in and rare (D23).** A region already in the
   DOM at page load announces nothing, so `role="status"` is free on a static surface — while
   `role="alert"` is ASSERTIVE and interrupts the screen reader mid-sentence. So a visible status
@@ -266,6 +350,20 @@ What does NOT belong in a component PR: `design.md`, the skills and their mirror
 component change is never blocked on doctrine prose and doctrine is never edited eight times a week
 by eight branches.
 
+**A BLOCK carries the same four, in a different shape** (Batch 8 of the shadcn reset,
+2026-09-18). A block is a copy-once PAGE with no prop surface, so: its source is
+`packages/ui/registry/blocks/<name>/page.tsx` plus `components/*.tsx`, and those parts import each
+other RELATIVELY (`./components/<x>`) — never `@/components/<x>`, which upstream uses and which
+would make fifteen blocks fight over one flat `components/app-sidebar.tsx` on install. Its test
+asserts that the composition mounts, shows its own content and is axe-clean; the behaviour of each
+part belongs to that part's suite. Its page lives under `apps/docs/content/docs/blocks/` and is NOT
+under the docs canon. Its contract record goes in `contracts.blocks`, and a block whose source is
+upstream's (it is named in `vendor/shadcn/4.21.0/manifest.json`) is exempt from
+`verify-public-api-docs` for the same reason a migrated component is — adding JSDoc to upstream's
+file would be a hunk with no decision ID behind it. A block that mounts a `Sidebar` needs the
+desktop `matchMedia` mock in its suite, or the rail mounts as a closed Sheet and nothing is in the
+DOM.
+
 For component `<name>` (PascalCase `<Name>`), in dependency order:
 
 1. **`packages/ui/registry/ui/<name>.tsx`** — or `.ts` for a pure hook (`type: registry:hook`).
@@ -295,9 +393,27 @@ For component `<name>` (PascalCase `<Name>`), in dependency order:
    part) → Examples (`<ComponentPreview …/>`) → Playground (a curated `<…Playground />`, or the
    Story explorer where none exists, or neither — never both, DD-3) → API Reference
    (`<ApiTable path="../../packages/ui/registry/ui/<name>.tsx" name="<Name>Props" />`) →
-   Accessibility (keyboard table + `<StatesTested name="<name>" />`) → Do/Don't (`<DoDont …/>`).
-   Do/Don't is final, and the generated halves are never hand-typed.
+   Accessibility (keyboard table + `<StatesTested name="<name>" />`) → Do/Don't (`<DoDont …/>`) →
+   Deviations. The generated halves are never hand-typed.
    **No `{@link}`** — MDX parses `{…}` as JS; use inline code.
+
+   **For an upstream-backed component the Examples section is not yours to shape.** Its `###`
+   headings are upstream's own docs sections, in upstream's order, taken from
+   `vendor/shadcn/4.21.0/docs/<name>.json`, and each one carries its own live
+   `<ComponentPreview name="…" />` whose fixture is built from upstream's example code (adapted only
+   for our import paths). `tooling/upstream/verify-variant-coverage.mjs` matches them occurrence by
+   occurrence in document order — so upstream's two same-titled `Custom Items` sections on `combobox`
+   need two headings and two different previews — and rejects a preview name the barrel does not
+   export. Upstream has a section we cannot support is a **stop-and-ask**, never a silent omission.
+
+   **The page then closes with `## Deviations`** (canon row 10): one bullet per decision ID the
+   component's patch implements, in the patch header's order, one line each. A component whose patch
+   is only the `cn` import says so and lists DOC-2 alone. Nothing follows it. A component that is
+   **ours** has no Deviations section and closes on Do / Don't instead.
+
+   **A component that is ours writes its own section list**, since there is no upstream page to
+   mirror, and it must be recorded in `packages/ui/upstream/ours.json`.
+
 5. **`registry.json` item** — `type`, `title`, `description`, `categories`, `dependencies`, and
    **`registryDependencies` namespaced `@vegastack/<name>`**
    for every other `@vegastack` component imported from `@/components/ui/*` (a bare `"toggle"`
@@ -307,11 +423,13 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
    `verify-registry-deps.mjs` fail-closes on phantom AND missing deps — let the gate catch drift
    rather than hand-guessing _which_ deps to list.
 
-   It does **not** check version ranges, so the range is on you: take each `dependencies` pin from
-   `packages/ui/package.json`, which is the version actually installed and tested. Do not copy the
-   range from a neighbouring registry item — items were stamped at different times and disagree
-   (`lucide-react` appears as both `^1.20.0` and `^0.525.0` in `registry.json` today, across a major
-   boundary), so copying is a coin flip that no gate will catch.
+   It also checks version ranges, against the version `pnpm-lock.yaml` actually resolves for
+   `packages/ui` — so take each `dependencies` pin from `packages/ui/package.json`, which declares
+   that version, and never from a neighbouring registry item, which was stamped at a different time.
+   A pin that does not admit the installed version fails the gate by name. (Until 2026-09-18 the
+   check compared against the FLOOR of the workspace's own range, which a range always admits, so it
+   could only notice two declarations disagreeing — that is how `lucide-react` once shipped at both
+   `^1.20.0` and `^0.525.0` across a major boundary.)
 
 6. **A changeset** — `pnpm changeset`. Its body OPENS with one of the eight CHANGELOG section
    emoji (`🧩 🔧 🗑 🛠 📦 📚 🐛 ⚠️`), which is how the release entry is assembled at version time;
@@ -343,6 +461,8 @@ geometry fixtures. `check:affected` derives the same scope from the working tree
 incremental UI typecheck.
 
 ```bash
+pnpm upstream:check                            # vendor integrity + byte parity + variant coverage
+pnpm upstream:diff <name>                      # (re)generate a patch; refuses a header with no IDs
 pnpm check:component <name>                    # explicit component + reverse dependents
 pnpm check:affected                            # derive from staged, unstaged, and untracked work
 pnpm registry:build                            # after any canonical edit: validate → hash → stamp → verify-deps

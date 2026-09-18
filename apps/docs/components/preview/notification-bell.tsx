@@ -55,11 +55,11 @@ export function notificationBellMotion(): ReactNode {
 export function notificationBellPassthrough(): ReactNode {
   return (
     <Wrapper>
-      {/* IconButtonProps (size, variant, disabled, …) forward straight through. */}
-      <NotificationBell count={3} size="xs" />
-      <NotificationBell count={3} size="sm" />
-      <NotificationBell count={3} size="md" />
-      <NotificationBell count={3} size="lg" />
+      {/* Button props (size, variant, disabled, …) forward straight through. */}
+      <NotificationBell count={3} size="icon-xs" />
+      <NotificationBell count={3} size="icon-sm" />
+      <NotificationBell count={3} size="icon" />
+      <NotificationBell count={3} size="icon-lg" />
       <NotificationBell count={3} variant="outline" />
       <NotificationBell count={3} variant="ghost" />
       <NotificationBell count={3} disabled />

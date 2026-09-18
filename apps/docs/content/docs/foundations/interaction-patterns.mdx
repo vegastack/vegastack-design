@@ -10,11 +10,12 @@ rule lives.
 
 ## Open triggers stay lit
 
-A trigger whose menu/popover is open keeps its hover treatment (`data-popup-open` →
-`bg-muted`). An open dropdown, nav trigger, or select never drops back to rest while its
-surface is showing — the lit trigger is the anchor the eye tracks. Built into
-`NavigationMenuTrigger`, `DropdownMenu`, `ContextMenu`, and `Select`. A plain `Button` used as a
-custom trigger does not carry it: set `data-popup-open` yourself from your open state.
+A trigger whose menu or popover is open keeps its hover treatment, so it never drops back to rest
+while its surface is showing — the lit trigger is the anchor the eye tracks. Two attributes carry
+it: Base UI's `data-popup-open` (`NavigationMenuTrigger`, menu sub-triggers, `Select`) and plain
+`aria-expanded`, which `Button`'s `outline`, `secondary` and `ghost` variants answer with the same
+`bg-muted` step. A `Button` used as a custom trigger therefore needs nothing extra beyond setting
+`aria-expanded` from your open state.
 
 ## Highlight-on-change
 
@@ -28,8 +29,9 @@ on every re-render.
 
 - **List/menu selection** rides `data-selected` / `data-highlighted` → the neutral `accent`
   fill (never a hue).
-- **Grid cell focus** (future `data-grid`) uses an accent **inset ring**
-  (`box-shadow 0 0 0 1px inset`), not the outer 2px outline — a cell can't afford the offset.
+- **Grid cell focus** in `DataGrid` keeps the same 2px outline but draws it **inside**
+  (`focus-visible:-outline-offset-2`), because the scroll container clips an outward one. Same
+  width, same `--ring` — it is the one outline, not a second treatment.
 - **Everything else** keyboard-focusable gets the one 2px `:focus-visible` outline; text
   fields use the border-tint instead (a raw input can't tell mouse from keyboard).
 
@@ -37,8 +39,9 @@ on every re-render.
 
 - Shortcut hints render in `Kbd`, and `Kbd` composes **inside** buttons and menu rows
   (`Cancel [ESC]`, `Save [↵]`, `Search records ↵`) — the shortcut lives next to the action.
-- Command palettes and rich pickers pin a footer hint bar: navigation hints left
-  (`↑ ↓ Navigate`), the primary action right (`CommandFooter`).
+- Command palettes and rich pickers can pin a footer hint bar: navigation hints left
+  (`↑ ↓ Navigate`), the primary action right. Upstream's `command` ships no footer part — compose
+  one under `CommandList` with `Kbd`.
 
 ## Dirty-state save model
 
@@ -48,13 +51,15 @@ everyone's. (The `data-grid` view bar is the canonical case.)
 
 ## Progressive disclosure
 
-- **Overflow collapses behind a count**: `TagGroup` `+N`, `Tabs` "+N more", record
-  "View all values" — the collapsed control expands in place, it never navigates away.
+- **Overflow collapses behind a count**: `TagGroup` `+N`, `DataList`'s "View all values" — the
+  collapsed control expands in place, it never navigates away.
 - **In-place drilldown** beats cascading flyouts for multi-step pickers (the filter builder):
   a back chevron swaps the panel content within one popover.
 
 ## Density has tiers, not one size
 
-Chrome runs tighter than content: 28px controls (`size="sm"`), 12/500 labels, alpha-muted
-secondary text. Reach for the compact tier (`Table density="compact"`, `Segmented`,
-`size="sm"` controls) on data-dense surfaces; keep the default 32px tier for primary flows.
+Chrome runs tighter than content. Button and its relatives ship four heights — `xs` 24px, `sm` 28px,
+`default` 32px, `lg` 36px — with matching `icon-xs` / `icon-sm` / `icon` / `icon-lg` squares. Reach
+for `size="sm"`, `text-xs font-medium` labels and `text-muted-foreground` secondary text on
+data-dense surfaces (a toolbar, a filter bar, a joined `ToggleGroup`); keep the default 32px tier
+for primary flows. Do not mix two tiers inside one control group.

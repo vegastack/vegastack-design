@@ -1,0 +1,21 @@
+{
+  "component": "bubble",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/bubble.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Features",
+    "Variants",
+    "Alignment",
+    "Bubble Group",
+    "Links and Buttons",
+    "Reactions",
+    "Show More / Collapsible",
+    "Tooltip",
+    "Popover",
+    "Accessibility",
+    "API Reference"
+  ]
+}

@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.9.1 sha256-/RrLXTMl77ktlVcXi67FO8Pvf6qvY7N0eYrnalax4qc=
+// @vegastack filter-bar-managed@0.9.1 sha256-lo7OXQXzdy4MxQ1gb1EjyqYa+oC7UMaVMHP5SUCo31A=
 
 "use client";
 
@@ -6,7 +6,6 @@ import * as React from "react";
 import { Plus, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { FilterChip } from "@/components/ui/filter-bar";
 import {
@@ -236,7 +235,6 @@ function TextValueEditor<V>({
   void field;
   return (
     <Input
-      size="sm"
       id={id}
       aria-label={ariaLabel}
       aria-invalid={ariaInvalid || undefined}
@@ -338,12 +336,12 @@ export function FilterBuilder<V = unknown>({
         inert={disabled || undefined}
         className={cn(
           "flex flex-wrap items-center gap-1.5",
-          disabled && "opacity-(--opacity-dim)",
+          disabled && "opacity-50",
           className,
         )}
       >
         {conditions.length === 0 ? (
-          <span className="text-sm text-muted-foreground">No filters</span>
+          <span className="text-xs text-muted-foreground">No filters</span>
         ) : (
           conditions.map(({ condition, path }) => {
             const field = fieldByKey.get(condition.field);
@@ -449,9 +447,9 @@ export function FilterBuilder<V = unknown>({
             </SelectContent>
           </Select>
           {depth > 1 ? (
-            <IconButton
+            <Button
               variant="ghost"
-              size="sm"
+              size="icon-sm"
               aria-label="Remove group"
               disabled={disabled}
               onClick={() => {
@@ -467,7 +465,7 @@ export function FilterBuilder<V = unknown>({
               }}
             >
               <X />
-            </IconButton>
+            </Button>
           ) : null}
         </div>
 
@@ -596,20 +594,20 @@ export function FilterBuilder<V = unknown>({
                 <span
                   id={errorId}
                   data-slot="filter-builder-condition-error"
-                  className="text-sm text-destructive-text"
+                  className="text-xs text-destructive-text"
                 >
                   Value required
                 </span>
               ) : null}
-              <IconButton
+              <Button
                 variant="ghost"
-                size="sm"
+                size="icon-sm"
                 aria-label={`Remove ${field.label} condition`}
                 disabled={disabled}
                 onClick={() => removeChild(index)}
               >
                 <X />
-              </IconButton>
+              </Button>
             </div>
           );
         })}
@@ -662,14 +660,14 @@ export function FilterBuilder<V = unknown>({
           {atConditionCap ? (
             <span
               data-slot="filter-builder-cap-reason"
-              className="text-sm text-muted-foreground"
+              className="text-xs text-muted-foreground"
             >
               A filter can hold {maxConditions} conditions at most
             </span>
           ) : atDepthCap && depth >= maxDepth ? (
             <span
               data-slot="filter-builder-cap-reason"
-              className="text-sm text-muted-foreground"
+              className="text-xs text-muted-foreground"
             >
               Groups can nest {maxDepth} levels deep at most
             </span>

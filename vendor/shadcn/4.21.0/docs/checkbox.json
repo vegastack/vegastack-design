@@ -1,0 +1,18 @@
+{
+  "component": "checkbox",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/checkbox.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Checked State",
+    "Invalid State",
+    "Basic",
+    "Description",
+    "Disabled",
+    "Group",
+    "Table",
+    "RTL",
+    "API Reference"
+  ]
+}

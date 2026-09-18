@@ -1,0 +1,27 @@
+{
+  "component": "questionnaire",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/questionnaire.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Server Rendering",
+    "Multiple Selection",
+    "Freeform Answer",
+    "Explicit Skip",
+    "Shortcuts",
+    "Custom Validation",
+    "Controlled",
+    "Resume",
+    "Conditional Items",
+    "Navigation State",
+    "Custom Progress",
+    "Animated Items",
+    "Card",
+    "Dialog",
+    "Accessibility",
+    "Unstyled",
+    "API Reference"
+  ]
+}

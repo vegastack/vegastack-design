@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.9.1 sha256-0naImWoH1lMiBdCo2Jq7tWBpsdpmrQdY/nZqqEUNm6Q=
+// @vegastack searchable-select@0.9.1 sha256-pC9b5cVPihYzBTwo6bCLaeM3XPkV7wM/i33usLFS7bw=
 
 "use client";
 
@@ -9,14 +9,13 @@ import { cn } from "@vegastack/design";
 import {
   Combobox,
   ComboboxValue,
-  ComboboxPopupInput,
+  ComboboxInput,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxList,
   ComboboxItem,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 
 /* ------------------------------------------------------------------------------------------------
  * SearchableSelect — the ONE "Select-shaped Combobox" preset: a full-width trigger that reads like
@@ -36,7 +35,7 @@ import { IconButton } from "@/components/ui/icon-button";
  *    silently fatal for a text label).
  * 3. **The chevron and the clear control are SIBLINGS of the trigger, absolutely positioned inside
  *    the wrapper.** An interactive control may not contain another (axe `nested-interactive`), so
- *    the clear `IconButton` can never live inside the trigger button. They share one 36px trailing
+ *    the clear `Button` can never live inside the trigger button. They share one 36px trailing
  *    reserve (`pe-9`) and swap in place, so the trigger's text box does not move when a value is
  *    set — no width jump, no second magic padding.
  * ----------------------------------------------------------------------------------------------*/
@@ -231,7 +230,7 @@ export function SearchableSelect<Item>({
             />
           }
         >
-          <ComboboxValue className="flex-1">
+          <ComboboxValue>
             {(selected: Item | null) =>
               selected ? (
                 face(selected)
@@ -244,7 +243,8 @@ export function SearchableSelect<Item>({
           </ComboboxValue>
         </BaseCombobox.Trigger>
         <ComboboxContent align="start" className="w-(--anchor-width) p-0">
-          <ComboboxPopupInput
+          <ComboboxInput
+            showTrigger={false}
             aria-label={searchLabel}
             placeholder={searchPlaceholder}
           />
@@ -263,9 +263,9 @@ export function SearchableSelect<Item>({
         </ComboboxContent>
       </Combobox>
       {showClear ? (
-        <IconButton
+        <Button
           variant="ghost"
-          size="xs"
+          size="icon-xs"
           aria-label={clearLabel}
           disabled={disabled}
           data-slot={`${slot}-clear`}
@@ -273,13 +273,13 @@ export function SearchableSelect<Item>({
           onClick={() => onValueChange?.(null)}
         >
           <X />
-        </IconButton>
+        </Button>
       ) : (
         <ChevronsUpDown
           aria-hidden
           className={cn(
-            "pointer-events-none absolute end-3 top-1/2 size-(--icon-default) -translate-y-1/2 text-muted-foreground",
-            disabled && "opacity-(--opacity-dim)",
+            "pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground",
+            disabled && "opacity-50",
           )}
         />
       )}

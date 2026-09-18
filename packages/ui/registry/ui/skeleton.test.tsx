@@ -2,198 +2,108 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Skeleton, SkeletonReveal } from "./skeleton";
+import { Skeleton } from "./skeleton";
 
-test("renders a decorative placeholder with the default line shape", async () => {
-  const screen = await render(<Skeleton data-testid="sk" />);
-  const sk = screen.getByTestId("sk");
-  await expect.element(sk).toBeInTheDocument();
-  await expect.element(sk).toHaveAttribute("data-slot", "skeleton");
-  await expect.element(sk).toHaveAttribute("data-shape", "line");
-  // Decorative — hidden from the a11y tree.
-  await expect.element(sk).toHaveAttribute("aria-hidden", "true");
-  await expect.element(sk).toHaveAttribute("role", "presentation");
+/** The one element this component renders, addressed the way every fixture addresses it. */
+function skeletonsIn(container: Element): HTMLElement[] {
+  return [...container.querySelectorAll<HTMLElement>('[data-slot="skeleton"]')];
+}
+
+/** The first skeleton in a fixture that renders exactly one. */
+function skeletonIn(container: Element): HTMLElement {
+  const [skeleton] = skeletonsIn(container);
+  expect(skeleton).toBeDefined();
+  return skeleton!;
+}
+
+test("renders a div carrying data-slot and the upstream recipe", async () => {
+  const screen = await render(<Skeleton />);
+  const skeleton = skeletonIn(screen.container);
+  expect(skeleton.tagName).toBe("DIV");
+  for (const className of ["animate-pulse", "rounded-md", "bg-muted"]) {
+    expect(skeleton.className.split(/\s+/)).toContain(className);
+  }
 });
 
-test("applies the shape data attribute", async () => {
-  const screen = await render(<Skeleton shape="circle" data-testid="sk" />);
-  await expect
-    .element(screen.getByTestId("sk"))
-    .toHaveAttribute("data-shape", "circle");
-});
-
-test("renders a stack of `count` line placeholders", async () => {
-  const screen = await render(<Skeleton count={3} data-testid="sk" />);
-  const root = screen.getByTestId("sk");
-  await expect.element(root).toHaveAttribute("data-count", "3");
-  expect(
-    root.element().querySelectorAll('[data-slot="skeleton-line"]'),
-  ).toHaveLength(3);
-});
-
-test("clamps an invalid count to a single placeholder", async () => {
-  const screen = await render(<Skeleton count={0} data-testid="sk" />);
-  const sk = screen.getByTestId("sk");
-  // Falls back to the single-element form (no stacked lines).
-  await expect.element(sk).toHaveAttribute("data-slot", "skeleton");
-  expect(sk.element().querySelector('[data-slot="skeleton-line"]')).toBeNull();
-});
-
-test("normalizes non-finite counts to a single placeholder", async () => {
-  const screen = await render(<Skeleton count={Number.NaN} data-testid="sk" />);
-  await expect
-    .element(screen.getByTestId("sk"))
-    .not.toHaveAttribute("data-count");
-  await screen.rerender(
-    <Skeleton count={Number.POSITIVE_INFINITY} data-testid="sk" />,
-  );
-  await expect
-    .element(screen.getByTestId("sk"))
-    .not.toHaveAttribute("data-count");
-});
-
-test("pulses without restating the global reduced-motion reset", async () => {
-  const screen = await render(<Skeleton data-testid="sk" />);
-  const sk = screen.getByTestId("sk");
-  await expect.element(sk).toHaveClass("animate-pulse");
-  // base.css zeroes every animation under prefers-reduced-motion with the one
-  // sanctioned !important; a per-component `motion-reduce:` copy is dead weight
-  // that drifts (audit B2-06).
-  expect(sk.element().className).not.toContain("motion-reduce:");
-});
-
-test("a line skeleton uses the text radius, not a pill", async () => {
-  const screen = await render(<Skeleton shape="line" data-testid="line" />);
-  await expect.element(screen.getByTestId("line")).toHaveClass("rounded-sm");
-});
-
-test("merges a custom className", async () => {
-  const screen = await render(<Skeleton className="w-1/2" data-testid="sk" />);
-  await expect.element(screen.getByTestId("sk")).toHaveClass("w-1/2");
-});
-
-test("forwards ref to the root element (single placeholder)", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(<Skeleton ref={ref} />);
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("skeleton");
-});
-
-test("forwards ref to the wrapping element (stacked placeholders)", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(<Skeleton ref={ref} count={3} />);
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("skeleton");
-  expect(ref.current?.dataset.count).toBe("3");
-});
-
-test("no a11y violations", async () => {
+test("the caller's className joins the recipe rather than replacing it (Usage)", async () => {
   const screen = await render(
-    <div role="status" aria-busy="true" aria-label="Loading content">
-      <Skeleton count={3} />
+    <Skeleton className="h-[20px] w-[100px] rounded-full" />,
+  );
+  const skeleton = skeletonIn(screen.container);
+  const classes = skeleton.className.split(/\s+/);
+  expect(classes).toContain("animate-pulse");
+  expect(classes).toContain("h-[20px]");
+  expect(classes).toContain("w-[100px]");
+  // `cn` resolves the radius conflict in the caller's favour — one radius survives.
+  expect(classes).toContain("rounded-full");
+  expect(classes).not.toContain("rounded-md");
+});
+
+test("arbitrary div props are forwarded (Avatar, Card)", async () => {
+  const screen = await render(
+    <Skeleton
+      id="avatar-placeholder"
+      data-testid="avatar"
+      aria-hidden="true"
+    />,
+  );
+  const skeleton = skeletonIn(screen.container);
+  expect(skeleton.id).toBe("avatar-placeholder");
+  expect(skeleton.getAttribute("data-testid")).toBe("avatar");
+  expect(skeleton.getAttribute("aria-hidden")).toBe("true");
+});
+
+test("a composed placeholder renders one element per skeleton (Text)", async () => {
+  const screen = await render(
+    <div className="flex w-full max-w-xs flex-col gap-2">
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-3/4" />
+    </div>,
+  );
+  expect(skeletonsIn(screen.container)).toHaveLength(3);
+});
+
+test("a repeated row shape keeps a fixed count (Table)", async () => {
+  const screen = await render(
+    <div>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div key={index}>
+          <Skeleton className="h-4 flex-1" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      ))}
+    </div>,
+  );
+  expect(skeletonsIn(screen.container)).toHaveLength(10);
+});
+
+test("the placeholder carries no role, name or text of its own", async () => {
+  const screen = await render(<Skeleton />);
+  const skeleton = skeletonIn(screen.container);
+  expect(skeleton.hasAttribute("role")).toBe(false);
+  expect(skeleton.hasAttribute("aria-label")).toBe(false);
+  expect(skeleton.textContent).toBe("");
+});
+
+test("no a11y violations — rest", async () => {
+  const screen = await render(
+    <div role="status" aria-busy="true" aria-label="Loading profile">
+      <Skeleton className="size-10 rounded-full" />
+      <Skeleton className="h-4 w-[150px]" />
+      <Skeleton className="h-4 w-[100px]" />
     </div>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
-/* ---------------------------------------------------------------------------------------------
- * SkeletonReveal (Phase M "skeleton reveal", audit 09 §d5) — `Skeleton` stays a static
- * placeholder; SkeletonReveal keys the loading/content swap and gives the arriving content
- * `motion-enter-up` so it fades + rises in instead of popping flatly into place.
- * ------------------------------------------------------------------------------------------- */
-
-test("renders exactly the skeleton prop while loading, with no extra wrapper", async () => {
+test("no a11y violations — inside a loading region (Form)", async () => {
   const screen = await render(
-    <SkeletonReveal loading skeleton={<Skeleton data-testid="sk" />}>
-      <p>Loaded content</p>
-    </SkeletonReveal>,
+    <section role="status" aria-busy="true" aria-label="Loading form">
+      <Skeleton className="h-4 w-20" />
+      <Skeleton className="h-8 w-full" />
+      <Skeleton className="h-8 w-24" />
+    </section>,
   );
-  await expect.element(screen.getByTestId("sk")).toBeInTheDocument();
-  expect(
-    screen.container.querySelector('[data-slot="skeleton-reveal-content"]'),
-  ).toBeNull();
-  expect(screen.container.textContent).not.toContain("Loaded content");
-});
-
-test("reveals the content wrapper with motion-enter-up once loading is false", async () => {
-  const screen = await render(
-    <SkeletonReveal loading={false} skeleton={<Skeleton data-testid="sk" />}>
-      <p>Loaded content</p>
-    </SkeletonReveal>,
-  );
-  const wrapper = screen.container.querySelector(
-    '[data-slot="skeleton-reveal-content"]',
-  );
-  expect(wrapper).not.toBeNull();
-  expect(wrapper?.className).toContain("motion-enter-up");
-  expect(screen.container.textContent).toContain("Loaded content");
-  expect(screen.container.querySelector('[data-testid="sk"]')).toBeNull();
-});
-
-test("remounts the content node (replaying the reveal) when loading flips from true to false", async () => {
-  const screen = await render(
-    <SkeletonReveal loading skeleton={<Skeleton data-testid="sk" />}>
-      <p>Loaded content</p>
-    </SkeletonReveal>,
-  );
-  expect(
-    screen.container.querySelector('[data-slot="skeleton-reveal-content"]'),
-  ).toBeNull();
-
-  await screen.rerender(
-    <SkeletonReveal loading={false} skeleton={<Skeleton data-testid="sk" />}>
-      <p>Loaded content</p>
-    </SkeletonReveal>,
-  );
-  const wrapper = screen.container.querySelector(
-    '[data-slot="skeleton-reveal-content"]',
-  );
-  expect(wrapper).not.toBeNull();
-  expect(wrapper?.textContent).toBe("Loaded content");
-});
-
-test("merges a custom className onto the content wrapper", async () => {
-  const screen = await render(
-    <SkeletonReveal
-      loading={false}
-      skeleton={<Skeleton />}
-      className="flex flex-col gap-2"
-    >
-      <p>Loaded content</p>
-    </SkeletonReveal>,
-  );
-  const wrapper = screen.container.querySelector(
-    '[data-slot="skeleton-reveal-content"]',
-  );
-  expect(wrapper?.className).toContain("flex");
-  expect(wrapper?.className).toContain("motion-enter-up");
-});
-
-test("forwards ref to the content wrapper element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
-    <SkeletonReveal ref={ref} loading={false} skeleton={<Skeleton />}>
-      Loaded
-    </SkeletonReveal>,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("skeleton-reveal-content");
-});
-
-test("SkeletonReveal: no a11y violations in either state", async () => {
-  const loadingScreen = await render(
-    <div role="status" aria-busy="true" aria-label="Loading content">
-      <SkeletonReveal loading skeleton={<Skeleton count={2} />}>
-        <p>Loaded content</p>
-      </SkeletonReveal>
-    </div>,
-  );
-  await expectNoA11yViolations(loadingScreen.container);
-
-  const loadedScreen = await render(
-    <SkeletonReveal loading={false} skeleton={<Skeleton count={2} />}>
-      <p>Loaded content</p>
-    </SkeletonReveal>,
-  );
-  await expectNoA11yViolations(loadedScreen.container);
+  await expectNoA11yViolations(screen.container);
 });

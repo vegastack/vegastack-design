@@ -105,7 +105,8 @@ Combine an aspect ratio with a corner radius, then copy the generated JSX.
 - Requires an explicit `alt` prop. Pass descriptive `alt` for meaningful images.
 - For purely decorative images or empty placeholder frames, pass `alt=""` so screen readers skip the
   image intent deliberately.
-- The skeleton and fallback layers are `aria-hidden` / decorative, so assistive tech only sees the image (or nothing for decorative ones) — no duplicate announcements.
+- The skeleton layer is `aria-hidden`; the fallback carries the image's accessible name (`role="img"` plus the `alt`) unless `alt=""`, in which case it is decorative too — so a broken or missing image still announces
+  what it was, and assistive tech never hears the same thing twice.
 - Must pass `axe` with no violations.
 
 <StatesTested name="image" />

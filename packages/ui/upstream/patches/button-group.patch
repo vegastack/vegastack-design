@@ -1,0 +1,91 @@
+# component: button-group
+# decisions: API-16, DOC-2
+# hunks:
+#   API-16: `"use client"` is added — `useRender` calls `React.useRef` internally, so the module
+#           throws on import in an RSC without the boundary (`verify-rsc-safety.mjs`).
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file; those hunks carry no decision of their own.
+diff --git a/button-group.tsx b/button-group.tsx
+index 0517b1c..f3c2360 100644
+--- a/button-group.tsx
++++ b/button-group.tsx
+@@ -1,9 +1,13 @@
+-import { mergeProps } from "@base-ui/react/merge-props"
+-import { useRender } from "@base-ui/react/use-render"
+-import { cva, type VariantProps } from "class-variance-authority"
+-import { cn } from "cn"
++// @vegastack button-group@0.9.1 sha256-2OqLRuNKcaZfInH8GkK4VbLwAq+ydQPdVeQBclPnOk4=
+ 
+-import { Separator } from "@/components/ui/separator"
++"use client";
++
++import { mergeProps } from "@base-ui/react/merge-props";
++import { useRender } from "@base-ui/react/use-render";
++import { cva, type VariantProps } from "class-variance-authority";
++import { cn } from "@vegastack/design";
++
++import { Separator } from "@/components/ui/separator";
+ 
+ const buttonGroupVariants = cva(
+   "flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-e-lg [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
+@@ -19,8 +23,8 @@ const buttonGroupVariants = cva(
+     defaultVariants: {
+       orientation: "horizontal",
+     },
+-  }
+-)
++  },
++);
+ 
+ function ButtonGroup({
+   className,
+@@ -35,7 +39,7 @@ function ButtonGroup({
+       className={cn(buttonGroupVariants({ orientation }), className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ButtonGroupText({
+@@ -49,16 +53,16 @@ function ButtonGroupText({
+       {
+         className: cn(
+           "flex items-center gap-2 rounded-lg border bg-muted px-2.5 text-sm font-medium [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
+-          className
++          className,
+         ),
+       },
+-      props
++      props,
+     ),
+     render,
+     state: {
+       slot: "button-group-text",
+     },
+-  })
++  });
+ }
+ 
+ function ButtonGroupSeparator({
+@@ -72,11 +76,11 @@ function ButtonGroupSeparator({
+       orientation={orientation}
+       className={cn(
+         "relative self-stretch bg-input data-horizontal:mx-px data-horizontal:w-auto data-vertical:my-px data-vertical:h-auto",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ export {
+@@ -84,4 +88,4 @@ export {
+   ButtonGroupSeparator,
+   ButtonGroupText,
+   buttonGroupVariants,
+-}
++};

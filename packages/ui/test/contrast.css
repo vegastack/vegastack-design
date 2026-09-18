@@ -22,7 +22,7 @@
 @import "tw-animate-css";
 
 @source '../registry/ui/**/*.tsx';
-@source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */
+@source '../../design/src/index.ts'; /* the "hover:bg-accent" / the family's own hover wash recipe literals */
 @source './contrast.browser.test.tsx';
 /* The control-paint contracts share THIS stylesheet rather than adding a fifth compiled-CSS entry.
    Measured 2026-09-09: a newly added entry, compiled concurrently with this one and geometry.css

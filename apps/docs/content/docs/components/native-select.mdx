@@ -1,0 +1,158 @@
+---
+title: Native Select
+description: The platform select, tokenized — the OS picker on mobile, option groups, and the same chrome as every other field.
+audience: public
+registry: native-select
+status: stable
+since: 0.10.0
+a11y: native select
+preview: nativeSelect
+---
+
+## Install
+
+<InstallSteps name="native-select" />
+
+## Usage
+
+```tsx
+import {
+  NativeSelect,
+  NativeSelectOptGroup,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
+
+<NativeSelect>
+  <NativeSelectOption value="">Select a fruit</NativeSelectOption>
+  <NativeSelectOption value="apple">Apple</NativeSelectOption>
+</NativeSelect>;
+```
+
+<ComponentPreview
+  name="nativeSelect"
+  file="components/preview/native-select.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="native-select" />
+
+## Examples
+
+### Composition
+
+Options sit directly under `NativeSelect`, or inside a `NativeSelectOptGroup`.
+
+```text
+NativeSelect
+├── NativeSelectOption
+└── NativeSelectOptGroup
+    ├── NativeSelectOption
+    └── NativeSelectOption
+```
+
+<ComponentPreview
+  name="nativeSelectComposition"
+  file="components/preview/native-select.tsx"
+/>
+
+### Groups
+
+`NativeSelectOptGroup` organises options into categories the platform renders itself.
+
+<ComponentPreview
+  name="nativeSelectGroups"
+  file="components/preview/native-select.tsx"
+/>
+
+### Disabled
+
+Add `disabled` to the `NativeSelect`. The wrapper dims with `has-[select:disabled]`.
+
+<ComponentPreview
+  name="nativeSelectDisabled"
+  file="components/preview/native-select.tsx"
+/>
+
+### Invalid
+
+Use `aria-invalid` on the select and `data-invalid` on the `Field`. The tint is scoped to
+`not-focus:` (FOC-5), so a focused select shows its focus cue rather than the error colour.
+
+<ComponentPreview
+  name="nativeSelectInvalid"
+  file="components/preview/native-select.tsx"
+/>
+
+### Native Select vs Select
+
+- Use **NativeSelect** for native browser behaviour, better performance, or a mobile-optimised
+  picker.
+- Use **Select** for custom item markup, icons, descriptions, animation, or a scrollable grouped
+  popup.
+
+<ComponentPreview
+  name="nativeSelectVsSelect"
+  file="components/preview/native-select.tsx"
+/>
+
+### RTL
+
+The chevron is positioned with `end-2.5` and the padding with `ps-`/`pe-`, so a right-to-left
+document mirrors the whole control.
+
+<ComponentPreview
+  name="nativeSelectRtl"
+  file="components/preview/native-select.tsx"
+/>
+
+### Sizes
+
+`size` takes `sm` (28px) and `default` (32px).
+
+<ComponentPreview
+  name="nativeSelectSizes"
+  file="components/preview/native-select.tsx"
+/>
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="NativeSelectProps" />
+
+`NativeSelectOption` and `NativeSelectOptGroup` add no props of their own — each accepts everything
+the native `<option>` and `<optgroup>` accept.
+
+## Accessibility
+
+- Renders a native `<select>`, so the platform owns the popup, type-ahead, keyboard model and the
+  mobile picker sheet. Nothing here re-implements any of it.
+- The chevron is `aria-hidden` and `pointer-events-none`; the select itself owns the whole box.
+- Focus shows the border tint on `:focus` (FOC-3) **and** the global 2px outline, because this is a
+  button-style trigger rather than a text field (FOC-4).
+- Give it a label: `FieldLabel` bound with `htmlFor`, or an `aria-label`.
+- Options set `bg-[Canvas] text-[CanvasText]` so the popup stays legible under a forced-colours
+  palette and in a dark scope, where some platforms would otherwise paint dark-on-dark.
+
+<StatesTested name="native-select" />
+
+## Do / Don't
+
+<DoDont
+  do="Reach for NativeSelect first on mobile and in dense tables — the platform picker is faster and more familiar."
+  dont="Use NativeSelect when an option needs an icon, a description or any markup — that is Select."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/native-select.patch`. Every hunk:
+
+- **FOC-1, FOC-3, FOC-4, FOC-6** — `outline-none focus-visible:border-ring focus-visible:ring-3
+focus-visible:ring-ring/50` becomes `focus:border-ring/70`: the border tint fires on `:focus` for
+  mouse and keyboard alike, and the `outline-none` is dropped so the global `:focus-visible` outline
+  still paints. A native select is a button-style trigger, so it keeps the outline — unlike Input
+  and Textarea, which suppress it.
+- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
+  counterpart), so focus outranks it; the `aria-invalid` halo rings are removed with the rest.
+- **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled select stays hoverable and a
+  Tooltip can explain it.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

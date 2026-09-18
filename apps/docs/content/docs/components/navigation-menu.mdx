@@ -1,6 +1,6 @@
 ---
 title: Navigation Menu
-description: Site-nav mega-dropdown — chip triggers, one shared sliding panel, grid links with color-carried hierarchy.
+description: A collection of links for navigating websites — triggers that open one shared panel, plain links styled to match, and any routing library's link through render.
 audience: public
 registry: navigation-menu
 status: stable
@@ -18,119 +18,164 @@ preview: navigationMenu
 ```tsx
 import {
   NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
   NavigationMenuContent,
+  NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuGridLink,
-  NavigationMenuPanel,
+  NavigationMenuList,
+  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+
+<NavigationMenu>
+  <NavigationMenuList>
+    <NavigationMenuItem>
+      <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <NavigationMenuLink>Link</NavigationMenuLink>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
+  </NavigationMenuList>
+</NavigationMenu>;
 ```
-
-Compose triggers + contents inside the list, then render `NavigationMenuPanel` ONCE after it —
-every item's content slides inside that single shared popup (Base UI viewport model).
-
-## Anatomy
-
-- Triggers follow the ghost-chip grammar and stay lit while open (`data-popup-open`).
-- `NavigationMenuGridLink` carries hierarchy by color at one size — title ink, description
-  muted — per the menu-typography rule.
-- The panel is the standard overlay surface: popover fill, one hairline, `--shadow-overlay`,
-  scale-0.97 + 1px nudge enter.
-- Keyboard/hover open behavior, focus management, and dismissal come from the Base UI
-  primitive.
-
-<Anatomy name="navigation-menu" />
-
-## Examples
-
-The example composes two disclosure triggers and one direct link. Both disclosure contents
-render through the single shared `NavigationMenuPanel`.
 
 <ComponentPreview
   name="navigationMenu"
   file="components/preview/navigation-menu.tsx"
 />
 
-### Narrow viewports
+## Anatomy
 
-Constrained to a phone-width column, the trigger row wraps and each panel becomes a single stacked
-list rather than a multi-column grid — nothing is hidden behind a breakpoint, and the popup still
-sizes itself to its content:
+<Anatomy name="navigation-menu" />
+
+## Examples
+
+### Composition
+
+`NavigationMenu` renders the portal, the positioner, the popup and the viewport itself, so the call
+site is the nav row alone: a list of items, each holding a trigger and its content, or a plain link.
+`align` on `NavigationMenu` decides which edge of the row the shared panel hangs from.
+
+```text
+NavigationMenu
+├── NavigationMenuList
+│   ├── NavigationMenuItem
+│   │   ├── NavigationMenuTrigger
+│   │   │   └── NavigationMenuIndicator
+│   │   └── NavigationMenuContent
+│   │       ├── NavigationMenuLink
+│   │       └── NavigationMenuLink
+│   └── NavigationMenuItem
+│       └── NavigationMenuLink
+└── (portal · positioner · popup · viewport — rendered by NavigationMenu)
+```
 
 <ComponentPreview
-  name="navigationMenuMobile"
+  name="navigationMenuComposition"
+  file="components/preview/navigation-menu.tsx"
+/>
+
+### Link Component
+
+`render` on `NavigationMenuLink` replaces the element it renders, which is how a routing library's
+link gets the menu's styling, its `data-slot` and its keyboard behaviour. In a Next.js app that is
+`render={<Link href="/docs" />}`. Adding `navigationMenuTriggerStyle()` makes a top-level link sit
+flush with the triggers beside it.
+
+<ComponentPreview
+  name="navigationMenuLinkComponent"
+  file="components/preview/navigation-menu.tsx"
+/>
+
+### RTL
+
+Wrap the subtree in `DirectionProvider direction="rtl"` so Base UI resolves the logical sides, set
+`align="end"` so the panel hangs from the right edge of the nav row, and put `dir` on
+`NavigationMenuContent` — the panel portals out of the `dir="rtl"` subtree, so the attribute has to
+travel with it.
+
+<ComponentPreview
+  name="navigationMenuRtl"
   file="components/preview/navigation-menu.tsx"
 />
 
 ## API Reference
 
-### Root and list
+### NavigationMenu
 
-<ApiTable
-  path="../../packages/ui/registry/ui/navigation-menu.tsx"
-  name="NavigationMenuProps"
-/>
+<ApiTable path="lib/api-props.ts" name="NavigationMenuProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/navigation-menu.tsx"
-  name="NavigationMenuListProps"
-/>
+### NavigationMenuList
 
-### Items, triggers, and links
+<ApiTable path="lib/api-props.ts" name="NavigationMenuListProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/navigation-menu.tsx"
-  name="NavigationMenuItemProps"
-/>
+### NavigationMenuItem
 
-<ApiTable
-  path="../../packages/ui/registry/ui/navigation-menu.tsx"
-  name="NavigationMenuTriggerProps"
-/>
+<ApiTable path="lib/api-props.ts" name="NavigationMenuItemProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/navigation-menu.tsx"
-  name="NavigationMenuLinkProps"
-/>
+### NavigationMenuTrigger
 
-<ApiTable
-  path="../../packages/ui/registry/ui/navigation-menu.tsx"
-  name="NavigationMenuGridLinkProps"
-/>
+<ApiTable path="lib/api-props.ts" name="NavigationMenuTriggerProps" />
 
-### Content and shared panel
+### NavigationMenuContent
 
-<ApiTable
-  path="../../packages/ui/registry/ui/navigation-menu.tsx"
-  name="NavigationMenuContentProps"
-/>
+<ApiTable path="lib/api-props.ts" name="NavigationMenuContentProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/navigation-menu.tsx"
-  name="NavigationMenuPanelProps"
-/>
+### NavigationMenuLink
+
+<ApiTable path="lib/api-props.ts" name="NavigationMenuLinkProps" />
+
+### NavigationMenuIndicator
+
+<ApiTable path="lib/api-props.ts" name="NavigationMenuIndicatorProps" />
+
+### NavigationMenuPositioner
+
+<ApiTable path="lib/api-props.ts" name="NavigationMenuPositionerProps" />
+
+`navigationMenuTriggerStyle()` is the trigger's class recipe, exported so a plain
+`NavigationMenuLink` in the nav row can wear it.
 
 ## Accessibility
 
-- Give the root a unique navigation label when more than one navigation landmark exists.
-- Base UI owns roving focus, trigger expansion state, dismissal, and focus restoration.
-- Grid-link icons are decorative; the visible title remains each link's accessible name.
-- The shared portaled panel preserves a surrounding `MarketingSurface` theme scope.
-
-| Key                                 | Action                                                       |
-| ----------------------------------- | ------------------------------------------------------------ |
-| <kbd>Tab</kbd>                      | Enter the navigation list and move to the next page control. |
-| <kbd>←</kbd> / <kbd>→</kbd>         | Move between top-level items; direction mirrors in RTL.      |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the focused trigger or follow a direct link.            |
-| <kbd>Esc</kbd>                      | Close the panel and return focus to its trigger.             |
+- Renders Base UI's Navigation Menu: the row is a `nav`, each trigger is a button with
+  `aria-expanded` and `aria-controls`, and the panel is a labelled region. <kbd>Esc</kbd> closes the
+  open panel and returns focus to its trigger.
+- Arrow keys move between the triggers in the row and into the open panel, <kbd>Home</kbd> and
+  <kbd>End</kbd> jump to the ends, and <kbd>Tab</kbd> leaves the menu entirely —
+  the row is one tab stop, not one per link.
+- A disabled trigger keeps its pointer events (FRM-4), so a tooltip can explain why it is
+  unavailable; it is still `aria-disabled` and still cannot be activated.
+- The panel portals out of the nav's subtree, so `NavigationMenuPositioner` re-applies the theme
+  scope on the positioner inside the portal (OVL-13) — a dark or scoped surface survives the portal.
+- Focus is the global 2px `:focus-visible` outline from `base.css`. Upstream suppressed the outline
+  for every link inside the panel; that suppression is removed here (FOC-1, FOC-6), because the
+  panel is where this menu's keyboard navigation actually lives.
 
 <StatesTested name="navigation-menu" />
 
 ## Do / Don't
 
 <DoDont
-  do="Render one shared NavigationMenuPanel after the list and keep link titles short, specific, and sentence case."
-  dont="Mount a separate popup per item or hide essential destinations behind hover-only interaction."
+  do="Use a Navigation Menu for site or product navigation whose sections need a panel of links, and give each panel real anchors so it works without JavaScript."
+  dont="Use it for in-app commands — that is a DropdownMenu — or for switching between views of one page, which is Tabs."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/navigation-menu.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — `outline-none focus-visible:ring-3 focus-visible:ring-ring/50
+focus-visible:outline-1` goes from `navigationMenuTriggerStyle` and from `NavigationMenuLink`, and
+  the pair
+  `**:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none`
+  goes from `NavigationMenuContent` — it suppressed the outline for every link inside the popup,
+  which is where this menu's keyboard navigation actually lives.
+- **FRM-4** — `disabled:pointer-events-none` is dropped from the trigger recipe; the opacity stays.
+- **OVL-13** — `NavigationMenuPositioner` reads `useInternalThemeScope()` and attaches it to the
+  Positioner INSIDE `NavigationMenuPrimitive.Portal` — the same host shape `popover`, `select`,
+  `combobox` and `tooltip` carry. `tooling/verify-portal-theme-scope.mjs` inventories this host.
+- **API-16** — the file gains `'use client'`. Upstream ships none because it calls no hook of its
+  own; OVL-13's `useInternalThemeScope()` is a hook, and this file is the lowest leaf that needs the
+  boundary.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

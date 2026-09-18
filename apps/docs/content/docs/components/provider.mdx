@@ -40,12 +40,12 @@ export default function RootLayout({
 
 ### What it wires — and what silently breaks without it
 
-| Wiring                                                         | Without the provider                                                                                    |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **Dark mode** (next-themes, `attribute="class"`, system-aware) | Theme toggles do nothing; the `.dark` class never reaches `<html>`                                      |
-| **Toasts** (`ToastProvider` + the `Toaster` portal)            | Every `toast(...)` call — from CopyButton, forms, anywhere — silently does nothing. No error, no toast. |
-| **Tooltip coordination** (Base UI `Tooltip.Provider`)          | Tooltips lose shared-delay: hover across a toolbar and each tooltip re-waits the full open delay        |
-| **Text direction** (Base UI `DirectionProvider`)               | RTL layouts break for direction-aware components                                                        |
+| Wiring                                                          | Without the provider                                                                                             |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Dark mode** (next-themes, `attribute="class"`, system-aware)  | Theme toggles do nothing; the `.dark` class never reaches `<html>`                                               |
+| **Toasts** (`ToastProvider` + the `Toaster` portal)             | Every `toast.add(...)` call — from a form, a save handler, anywhere — silently does nothing. No error, no toast. |
+| **Tooltip coordination** (`TooltipProvider`, the registry item) | Tooltips lose shared-delay: hover across a toolbar and each tooltip re-waits the full open delay                 |
+| **Text direction** (Base UI `DirectionProvider`)                | RTL layouts break for direction-aware components                                                                 |
 
 ## Examples
 
@@ -74,8 +74,10 @@ export function ThemeToggle() {
 
 ### Tooltip coordination
 
-Hover the first button, then move across — with the provider mounted, the rest open
-instantly instead of each re-waiting the open delay:
+The provider mounts [`TooltipProvider`](/docs/components/tooltip) — the same part you would install
+with `Tooltip` — and sets its open and close delays from one place, so every tooltip in the app
+opens on the same rhythm. Hover the first button, then move across: with the provider mounted the
+rest open instantly instead of each re-waiting the open delay.
 
 <ComponentPreview
   name="providerTooltips"

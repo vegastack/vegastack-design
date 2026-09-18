@@ -1,13 +1,20 @@
 #!/usr/bin/env node
-// Fail-closed parity gate for generated theme scopes. `.dark` and
-// `.vs-marketing` must be two selectors over one resolved dark dictionary; a
-// hand-maintained subset or one-value drift is a build failure.
+// Fail-closed shape gate for the generated theme scopes.
+//
+// It used to prove that `.dark` and `.vs-marketing` were two selectors over ONE resolved dark
+// dictionary. The shadcn reset deletes the marketing layer (mandate § 1, non-negotiable 5), so that
+// half is gone and what remains is the part that is still load-bearing:
+//   * `:root` and `.dark` each declare `color-scheme` exactly once, with the right value (COL-22) —
+//     native scrollbars, date pickers and form widgets read that, and nothing else checks it;
+//   * no theme block declares the same custom property twice (a silent last-one-wins);
+//   * every `.dark` variable has a `:root` counterpart, so a dark-only token can never ship without
+//     a light half. The build already asserts the converse from the token model.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_THEME_CSS = "packages/design-tokens/dist/theme.css";
-const SELECTORS = [":root", ".dark", ".vs-marketing"];
+const SELECTORS = [":root", ".dark"];
 
 function selectorBlocks(css, selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -51,38 +58,6 @@ function customProperties(declarations) {
   );
 }
 
-function compareDictionaries(
-  actual,
-  expected,
-  actualName,
-  expectedName,
-  source,
-) {
-  const missing = [...expected.keys()].filter((key) => !actual.has(key));
-  const extra = [...actual.keys()].filter((key) => !expected.has(key));
-  const changed = [...expected].filter(
-    ([key, value]) => actual.has(key) && actual.get(key) !== value,
-  );
-
-  if (missing.length || extra.length || changed.length) {
-    const details = [
-      missing.length ? `missing: ${missing.join(", ")}` : "",
-      extra.length ? `extra: ${extra.join(", ")}` : "",
-      changed.length
-        ? `different: ${changed
-            .map(
-              ([key, value]) =>
-                `${key} (${actualName}=${actual.get(key)}; ${expectedName}=${value})`,
-            )
-            .join(", ")}`
-        : "",
-    ].filter(Boolean);
-    throw new Error(
-      `${source}: ${actualName} does not match ${expectedName} (${details.join("; ")})`,
-    );
-  }
-}
-
 export function verifyThemeParity(css, { source = "<theme css>" } = {}) {
   const parsed = Object.fromEntries(
     SELECTORS.map((selector) => [
@@ -94,7 +69,6 @@ export function verifyThemeParity(css, { source = "<theme css>" } = {}) {
   const schemes = {
     ":root": "light",
     ".dark": "dark",
-    ".vs-marketing": "dark",
   };
   for (const [selector, expected] of Object.entries(schemes)) {
     const actual = parsed[selector].get("color-scheme");
@@ -107,12 +81,9 @@ export function verifyThemeParity(css, { source = "<theme css>" } = {}) {
 
   const light = customProperties(parsed[":root"]);
   const dark = customProperties(parsed[".dark"]);
-  const marketing = customProperties(parsed[".vs-marketing"]);
-  if (light.size === 0 || dark.size === 0 || marketing.size === 0) {
+  if (light.size === 0 || dark.size === 0) {
     throw new Error(`${source}: theme dictionaries must not be empty`);
   }
-
-  compareDictionaries(marketing, dark, ".vs-marketing", ".dark", source);
 
   const darkOnly = [...dark.keys()].filter((key) => !light.has(key));
   if (darkOnly.length) {
@@ -135,7 +106,7 @@ if (isCli) {
       source: themeCss,
     });
     console.log(
-      `✓ theme-parity: ${result.darkVariables} dark variables are identical in .dark and .vs-marketing; :root=${result.lightVariables}; color-scheme light/dark/dark`,
+      `✓ theme-parity: :root=${result.lightVariables} and .dark=${result.darkVariables} variables, every dark variable has a light counterpart, no duplicate declarations, color-scheme light/dark`,
     );
   } catch (error) {
     console.error(`✗ theme-parity: ${error.message}`);

@@ -13,7 +13,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { IconButton } from "@/components/ui/icon-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -105,16 +104,16 @@ export function pageHeaderSecondaryMenu(): ReactNode {
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <IconButton variant="ghost" aria-label="More actions">
+                <Button size="icon" variant="ghost" aria-label="More actions">
                   <MoreVertical />
-                </IconButton>
+                </Button>
               }
             />
             <DropdownMenuContent align="end">
               <DropdownMenuItem>Rename</DropdownMenuItem>
               <DropdownMenuItem>Duplicate</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem tone="destructive">Delete</DropdownMenuItem>
+              <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         }

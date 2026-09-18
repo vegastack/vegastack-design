@@ -165,7 +165,9 @@ test("the trailing icon CopyButton copies only the command lines, joined by newl
     <Terminal lines={["first", { output: "ignored" }, "second"]} />,
   );
   const copyButton = screen.getByRole("button", { name: "Copy command" });
-  await expect.element(copyButton).toHaveAttribute("data-size", "sm");
+  // Since Batch 2 of the shadcn reset `Button` mirrors no `data-size`; the square tier the
+  // icon-only CopyButton resolves to is the assertion.
+  await expect.element(copyButton).toHaveClass("size-7");
   expect(copyButton.element().className).toContain("text-foreground");
   expect(
     screen.container.querySelector('[data-slot="copy-button-label"]'),
@@ -187,9 +189,13 @@ test("the trailing icon CopyButton copies only the command lines, joined by newl
   await expect
     .element(copiedButton)
     .toHaveAttribute("aria-label", "Copied command");
-  expect(copiedButton.element().className).toContain(
-    "data-[copied]:text-primary",
-  );
+  // The copied tint is `CopyButton`'s own (`text-primary hover:text-primary`). Terminal used to
+  // restate it through `text-foreground data-[copied]:text-primary …`, which CANCELLED the
+  // component's tint with the unprefixed class and then won it back on attribute specificity —
+  // a round trip to the same paint. Batch 7c of the shadcn reset deleted the override; this
+  // asserts the component's behaviour reaches the terminal unaided.
+  expect(copiedButton.element().className).toContain("text-primary");
+  expect(copiedButton.element().className).not.toContain("data-[copied]:");
   expect(copiedButton.element().className).not.toContain("text-success-text");
 });
 
@@ -201,12 +207,24 @@ test("copyValue overrides the default joined command text", async () => {
   expect(writeText).toHaveBeenCalledWith("explicit");
 });
 
-test("is scoped to the marketing dark ground", async () => {
+// `is scoped to the marketing dark ground` USED to live here, asserting `vs-marketing` on the root.
+// Batch 1 of the shadcn reset deleted that scope's variables and Batch 7a deleted the scope itself
+// with the marketing layer, so the class had been inert for six batches. What replaces the
+// assertion is the one that was always the real claim: the block is a card surface with a hairline,
+// which is what `terminal.tsx` writes and what `contrast.browser.test.tsx` measures.
+test("the block paints on the card surface, with its own hairline", async () => {
   const screen = await render(
     <Terminal lines={["x"]} data-testid="terminal" />,
   );
   const el = screen.getByTestId("terminal").element() as HTMLElement;
-  expect(el.classList.contains("vs-marketing")).toBe(true);
+  expect(el.classList.contains("vs-marketing")).toBe(false);
+  expect(el.className).toContain("bg-card");
+  expect(el.className).toContain("border-border");
+  // …and the same corner as `CodeBlock`, the system's other code surface. `rounded-[2px]` here
+  // was the literal Batch 1 left behind when it deleted `--radius-sharp`, the marketing token
+  // this panel used to read — a 2px corner on a page where nothing else has one.
+  expect(el.className).toContain("rounded-lg");
+  expect(el.className).not.toContain("rounded-[2px]");
 });
 
 test("no a11y violations", async () => {

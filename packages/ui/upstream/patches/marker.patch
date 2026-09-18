@@ -1,0 +1,117 @@
+# component: marker
+# decisions: A11Y-2, API-16, DOC-1, DOC-2
+# hunks:
+#   A11Y-2: `markerVariants`' base string gains, scoped to `[a,button]:`, an invisible
+#     `::after` hit area (`after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']`).
+#     Upstream's own "Links and Buttons" section renders the marker ROOT as an `<a>` or a
+#     `<button>` through `render`; the row is then one line of 14px text over `min-h-4`, which
+#     the geometry lane measures at 20px — 4px under SC 2.5.8 — and a marker row is a control
+#     rather than prose, so the inline-text exception does not reach it. The area grows the
+#     BLOCK axis only, so two stacked markers never fight for a pixel, and it is scoped to the
+#     interactive spellings only, so a presentational marker is byte-identical to upstream.
+#     `::after` with no background paints nothing. `marker.test.tsx` measures both shapes.
+#   Nothing else. Upstream's marker paints no focus glow, sets no cursor, disables nothing and
+#     opens no portal; `MarkerIcon` is already `aria-hidden`.
+#   API-16: `"use client"` is ADDED. Upstream ships none, and this file calls
+#     `useRender` from `@base-ui/react/use-render`, which calls `React.useRef` internally —
+#     under the `react-server` condition that hook is `undefined`, so a server component
+#     rendering it throws on import. `tooling/verify-rsc-safety.mjs` is what found it, the
+#     same way it found `breadcrumb` in Batch 5. API-16 puts the boundary at the lowest
+#     interactive leaf, and this file is it.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/marker.tsx b/marker.tsx
+index c01fc83..94c485b 100644
+--- a/marker.tsx
++++ b/marker.tsx
+@@ -1,11 +1,25 @@
+-import * as React from "react"
+-import { mergeProps } from "@base-ui/react/merge-props"
+-import { useRender } from "@base-ui/react/use-render"
+-import { cva, type VariantProps } from "class-variance-authority"
+-import { cn } from "cn"
++// @vegastack marker@0.9.1 sha256-JRt4ynM2DNS4/+50wA46JEfLpTTxhX7KGdMGsmqJlIA=
++
++"use client";
++
++import * as React from "react";
++import { mergeProps } from "@base-ui/react/merge-props";
++import { useRender } from "@base-ui/react/use-render";
++import { cva, type VariantProps } from "class-variance-authority";
++import { cn } from "@vegastack/design";
+ 
+ const markerVariants = cva(
+-  "group/marker relative flex min-h-4 w-full items-center gap-2 text-start text-sm text-muted-foreground [&_svg:not([class*='size-'])]:size-4 [a]:underline [a]:underline-offset-3 [a]:hover:text-foreground",
++  [
++    "group/marker relative flex min-h-4 w-full items-center gap-2 text-start text-sm text-muted-foreground [&_svg:not([class*='size-'])]:size-4 [a]:underline [a]:underline-offset-3 [a]:hover:text-foreground",
++    // A11Y-2: upstream's own "Links and Buttons" example renders the ROOT as an `<a>` or a
++    // `<button>` through `render`. The visible row is then one line of 14px text over `min-h-4`
++    // — measured 20px tall, 4px under SC 2.5.8's floor — and a marker row is a control, not
++    // prose, so the inline-text exception does not reach it. An invisible `::after` grows the
++    // pointer target on the BLOCK axis only, and only when the root really is interactive, so a
++    // presentational marker is untouched and two stacked markers never fight for a pixel.
++    // Nothing moves and nothing paints. `marker.test.tsx` measures both shapes.
++    "[a,button]:after:absolute [a,button]:after:inset-x-0 [a,button]:after:-inset-y-1 [a,button]:after:content-['']",
++  ],
+   {
+     variants: {
+       variant: {
+@@ -15,8 +29,8 @@ const markerVariants = cva(
+         border: "border-b border-border pb-2",
+       },
+     },
+-  }
+-)
++  },
++);
+ 
+ function Marker({
+   className,
+@@ -30,14 +44,14 @@ function Marker({
+       {
+         className: cn(markerVariants({ variant, className })),
+       },
+-      props
++      props,
+     ),
+     render,
+     state: {
+       slot: "marker",
+       variant,
+     },
+-  })
++  });
+ }
+ 
+ function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
+@@ -47,11 +61,11 @@ function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
+       aria-hidden="true"
+       className={cn(
+         "size-4 shrink-0 [&_svg:not([class*='size-'])]:size-4",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
+@@ -60,11 +74,11 @@ function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
+       data-slot="marker-content"
+       className={cn(
+         "min-w-0 wrap-break-word group-data-[variant=separator]/marker:flex-none group-data-[variant=separator]/marker:text-center *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+-export { Marker, MarkerIcon, MarkerContent, markerVariants }
++export { Marker, MarkerIcon, MarkerContent, markerVariants };

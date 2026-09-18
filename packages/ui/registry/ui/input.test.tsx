@@ -1,207 +1,161 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Input } from "./input";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
-test("renders a textbox with the placeholder", async () => {
-  const screen = await render(<Input placeholder="Email" />);
-  await expect.element(screen.getByPlaceholder("Email")).toBeInTheDocument();
-});
+/** The chrome string the component renders, read off a mounted element. */
+async function classesOf(element: HTMLElement) {
+  return element.className;
+}
 
-test('defaults to type="text" and forwards type', async () => {
-  const screen = await render(<Input aria-label="Password" type="password" />);
-  await expect
-    .element(screen.getByLabelText("Password"))
-    .toHaveAttribute("type", "password");
-});
-
-test("typing fires onChange", async () => {
-  const onChange = vi.fn();
-  const screen = await render(<Input aria-label="Name" onChange={onChange} />);
-  await screen.getByLabelText("Name").fill("Ada");
-  expect(onChange).toHaveBeenCalled();
-});
-
-test("typing fires Base UI onValueChange", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(
-    <Input aria-label="Name" onValueChange={onValueChange} />,
-  );
-  await screen.getByLabelText("Name").fill("Ada");
-  expect(onValueChange).toHaveBeenLastCalledWith("Ada", expect.any(Object));
-});
-
-test("supports Base UI state-function className", async () => {
-  const screen = await render(
-    <Input
-      aria-label="Name"
-      disabled
-      className={({ disabled }) =>
-        disabled ? "input-disabled" : "input-ready"
-      }
-    />,
-  );
-  expect(screen.getByLabelText("Name").element().className).toContain(
-    "input-disabled",
-  );
-});
-
-test("disabled prevents interaction", async () => {
-  const screen = await render(<Input aria-label="Name" disabled />);
-  await expect.element(screen.getByLabelText("Name")).toBeDisabled();
-});
-
-test("aria-invalid is reflected on the field", async () => {
-  const screen = await render(<Input aria-label="Name" aria-invalid />);
-  await expect
-    .element(screen.getByLabelText("Name"))
-    .toHaveAttribute("aria-invalid", "true");
-});
-
-test("addon mode wraps the input in a group and renders prefix/suffix", async () => {
-  const screen = await render(
-    <Input
-      aria-label="Slug"
-      prefix="app.vegastack.com/"
-      suffix=".dev"
-      containerClassName="slug-shell"
-      className="slug-input"
-    />,
-  );
-  const input = screen.getByLabelText("Slug");
+test("renders a native input carrying data-slot", async () => {
+  const screen = await render(<Input aria-label="Email" />);
+  const input = screen.getByRole("textbox", { name: "Email" });
+  await expect.element(input).toBeInTheDocument();
   await expect.element(input).toHaveAttribute("data-slot", "input");
-  expect(input.element().className).toContain("slug-input");
-  expect(
-    screen.container.querySelector('[data-slot="input-group"]')?.className,
-  ).toContain("slug-shell");
-  await expect
-    .element(screen.getByText("app.vegastack.com/"))
-    .toBeInTheDocument();
-  await expect.element(screen.getByText(".dev")).toBeInTheDocument();
+  expect((input.element() as HTMLInputElement).tagName).toBe("INPUT");
 });
 
-/* ---------------------------------------------------------------------------------------------
- * The invalid SHAKE is not here. `Field` owns it (audit D5), so the motion — including that it
- * never steals focus or the caret from someone mid-type — is covered in field.test.tsx. What the
- * Input still owns is the resting invalid chrome, in both modes.
- * ------------------------------------------------------------------------------------------- */
-
-test("aria-invalid tints the field, and the group in addon mode, with no motion", async () => {
+test("the type prop reaches the element (Usage, File)", async () => {
   const screen = await render(
     <div>
-      <Input aria-label="Name" aria-invalid />
-      <Input aria-label="Slug" prefix="app.vegastack.com/" aria-invalid />
+      <Input aria-label="Email" type="email" />
+      <Input aria-label="Picture" type="file" />
     </div>,
   );
-  const input = screen.getByLabelText("Name");
+  await expect
+    .element(screen.getByRole("textbox", { name: "Email" }))
+    .toHaveAttribute("type", "email");
+  const file =
+    screen.container.querySelector<HTMLInputElement>('input[type="file"]');
+  expect(file).not.toBeNull();
+  expect(file?.getAttribute("data-slot")).toBe("input");
+});
+
+test("typing updates the value (Basic)", async () => {
+  const screen = await render(<Input aria-label="Username" />);
+  const input = screen.getByRole("textbox", { name: "Username" });
+  await userEvent.fill(input, "max");
+  expect((input.element() as HTMLInputElement).value).toBe("max");
+});
+
+test("Field wires the label, description and error (Field, Field Group)", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel htmlFor="email">Email</FieldLabel>
+      <Input id="email" aria-invalid />
+      <FieldDescription>We never share it.</FieldDescription>
+      <FieldError>Enter a valid email address.</FieldError>
+    </Field>,
+  );
+  const input = screen.getByRole("textbox", { name: "Email" });
   await expect.element(input).toHaveAttribute("aria-invalid", "true");
-  const group = screen.container.querySelector(
-    '[data-slot="input-group"]',
-  ) as HTMLElement;
-  expect(group.querySelector("[aria-invalid]")).not.toBeNull();
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  expect((input.element() as HTMLElement).className).not.toContain(
-    "motion-shake",
-  );
-  expect(group.className).not.toContain("motion-shake");
+  await expect
+    .element(screen.getByText("Enter a valid email address."))
+    .toBeInTheDocument();
 });
 
-test("forwards ref to the underlying input element", async () => {
-  const ref = React.createRef<HTMLInputElement>();
-  await render(<Input ref={ref} aria-label="Name" />);
-  expect(ref.current).toBeInstanceOf(HTMLInputElement);
-  expect(ref.current?.dataset.slot).toBe("input");
-});
-
-test("forwards ref to the input element in addon mode", async () => {
-  const ref = React.createRef<HTMLInputElement>();
-  await render(
-    <Input ref={ref} aria-label="Slug" prefix="app.vegastack.com/" />,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLInputElement);
-  expect(ref.current?.dataset.slot).toBe("input");
-});
-
-test("no a11y violations", async () => {
+test("required and disabled reach the element (Required, Disabled)", async () => {
   const screen = await render(
-    <label>
-      Email
-      <Input type="email" name="email" />
-    </label>,
+    <div>
+      <Input aria-label="Required" required />
+      <Input aria-label="Disabled" disabled />
+    </div>,
   );
-  await expectNoA11yViolations(screen.container);
+  await expect
+    .element(screen.getByRole("textbox", { name: "Required" }))
+    .toBeRequired();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Disabled" }))
+    .toBeDisabled();
 });
 
-test("no a11y violations — disabled", async () => {
+test("FOC-1/FOC-6: the recipe carries no focus glow", async () => {
+  const screen = await render(<Input aria-label="Email" />);
+  const classes = await classesOf(
+    screen.getByRole("textbox", { name: "Email" }).element() as HTMLElement,
+  );
+  expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+  expect(classes).not.toContain("focus-visible:ring-");
+  expect(classes).not.toContain("focus-visible:border-ring");
+  expect(classes).not.toContain("aria-invalid:ring-destructive");
+});
+
+test("FOC-3/FOC-8: focus is a border tint on :focus, with outline-hidden not outline-none", async () => {
+  const screen = await render(<Input aria-label="Email" />);
+  const classes = await classesOf(
+    screen.getByRole("textbox", { name: "Email" }).element() as HTMLElement,
+  );
+  expect(classes).toContain("focus:border-ring/70");
+  expect(classes).toContain("outline-hidden");
+  expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
+});
+
+test("FOC-5: the invalid tint stands down while the control is focused", async () => {
+  const screen = await render(<Input aria-label="Email" aria-invalid />);
+  const classes = await classesOf(
+    screen.getByRole("textbox", { name: "Email" }).element() as HTMLElement,
+  );
+  expect(classes).toContain("not-focus:aria-invalid:border-destructive");
+});
+
+test("FRM-4: the recipe never removes pointer events from a disabled input", async () => {
+  const screen = await render(<Input aria-label="Email" disabled />);
+  const classes = await classesOf(
+    screen.getByRole("textbox", { name: "Email" }).element() as HTMLElement,
+  );
+  expect(classes).not.toContain("disabled:pointer-events-none");
+  // Base UI's Input has no `focusableWhenDisabled`, so the NATIVE attribute stays: this is the
+  // pointer half of FRM-4 only, and the docs page says so.
+  expect(
+    (
+      screen
+        .getByRole("textbox", { name: "Email" })
+        .element() as HTMLInputElement
+    ).disabled,
+  ).toBe(true);
+});
+
+test("no a11y violations — rest", async () => {
   const screen = await render(
-    <label>
-      Email
-      <Input type="email" name="email" disabled />
-    </label>,
+    <Field>
+      <FieldLabel htmlFor="a11y-rest">Email</FieldLabel>
+      <Input id="a11y-rest" />
+    </Field>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — invalid", async () => {
   const screen = await render(
-    <label>
-      Email
-      <Input type="email" name="email" aria-invalid />
-    </label>,
+    <Field data-invalid>
+      <FieldLabel htmlFor="a11y-invalid">Email</FieldLabel>
+      <Input id="a11y-invalid" aria-invalid />
+      <FieldError>Enter a valid email address.</FieldError>
+    </Field>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
-/* ---------------------------------------------------------------------------------------------
- * RTL and state combinations — the gaps audit B1-17/B1-18 named. Addon padding is LOGICAL
- * (`ps`/`pe`), so a prefix stays on the reading-start side in Arabic or Hebrew rather than
- * jumping across the field; and `disabled` + `aria-invalid` must both still read.
- * ------------------------------------------------------------------------------------------- */
-
-test("addon padding is logical, so prefix and suffix survive RTL", async () => {
+test("no a11y violations — disabled", async () => {
   const screen = await render(
-    <div dir="rtl">
-      <Input aria-label="Slug" prefix="app.vegastack.com/" suffix=".dev" />
-    </div>,
+    <Field data-disabled>
+      <FieldLabel htmlFor="a11y-disabled">Email</FieldLabel>
+      <Input id="a11y-disabled" disabled />
+    </Field>,
   );
-  const input = screen.getByLabelText("Slug").element() as HTMLElement;
-  expect(input.className).toMatch(/\bps-/);
-  expect(input.className).toMatch(/\bpe-/);
-  expect(input.className).not.toMatch(/\bpl-\d/);
-  expect(input.className).not.toMatch(/\bpr-\d/);
-
-  const prefix = screen.container.querySelector(
-    '[data-slot="input-prefix"]',
-  ) as HTMLElement;
-  const suffix = screen.container.querySelector(
-    '[data-slot="input-suffix"]',
-  ) as HTMLElement;
-  expect(prefix.className).toContain("ps-3");
-  expect(suffix.className).toContain("pe-3");
+  await expectNoA11yViolations(screen.container);
 });
 
-test("the addon group reads its state from the input in RTL as in LTR", async () => {
+test("no a11y violations — filled", async () => {
   const screen = await render(
-    <div dir="rtl">
-      <Input aria-label="Slug" prefix="https://" disabled aria-invalid />
-    </div>,
+    <Field>
+      <FieldLabel htmlFor="a11y-filled">Email</FieldLabel>
+      <Input id="a11y-filled" defaultValue="name@example.com" />
+    </Field>,
   );
-  const input = screen.getByLabelText("Slug");
-  await expect.element(input).toBeDisabled();
-  await expect.element(input).toHaveAttribute("aria-invalid", "true");
-  const group = screen.container.querySelector(
-    '[data-slot="input-group"]',
-  ) as HTMLElement;
-  // The forced-colours outline is painted on the GROUP, whose overflow-hidden would
-  // otherwise clip the inner input's own outward-offset outline (audit B1-01).
-  expect(group.hasAttribute("data-field-group")).toBe(true);
-  expect(group.className).toContain("overflow-hidden");
-});
-
-test("disabled keeps pointer events so a Tooltip can explain it (audit D7)", async () => {
-  const screen = await render(<Input aria-label="Name" disabled />);
-  const input = screen.getByLabelText("Name").element() as HTMLElement;
-  expect(input.className).toContain("disabled:cursor-not-allowed");
-  expect(input.className).not.toContain("disabled:pointer-events-none");
+  await expectNoA11yViolations(screen.container);
 });

@@ -1,0 +1,14 @@
+{
+  "component": "table",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/table.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Footer",
+    "Actions",
+    "Data Table",
+    "RTL"
+  ]
+}

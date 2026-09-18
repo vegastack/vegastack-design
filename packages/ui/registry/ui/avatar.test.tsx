@@ -1,101 +1,316 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Avatar, AvatarGroup } from "./avatar";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "./avatar";
 
-// A real, decodable 1×1 transparent PNG — Base UI's Avatar.Image only commits the
-// <img> to the DOM once the image actually loads, so the test src must be loadable.
-const PNG_1X1 =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+/** Upstream's three size tiers (docs § Sizes). */
+const SIZES = ["default", "sm", "lg"] as const;
 
-// Firefox can reuse the completed Image object for an identical data URI while
-// Base UI is transitioning its preload state, so later tests may never observe
-// a fresh load event. A fragment keeps the decoded bytes identical while giving
-// every image-state test an independent URL/cache identity.
-function pngFixture(id: string): string {
-  return `${PNG_1X1}#${id}`;
-}
+/**
+ * A deterministic inline fixture — never a live third-party image service, and never a path that
+ * depends on which server root this lane happens to run under.
+ */
+const SRC =
+  "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2032%2032'%3E%3Crect%20width%3D'32'%20height%3D'32'%2F%3E%3C%2Fsvg%3E";
 
-test("renders the fallback when no src is provided", async () => {
-  const screen = await render(<Avatar fallback="AL" />);
+/** The canonical source as text, for the deviation assertions below. */
+const SOURCE =
+  Object.values(
+    import.meta.glob<string>("./avatar.tsx", {
+      query: "?raw",
+      import: "default",
+      eager: true,
+      // The repo's ambient `ImportMeta.glob` (declared in animated-icons.test.tsx) is narrower
+      // than Vite's own signature; the assertion re-widens it without loosening the call.
+    } as { eager: true }),
+  )[0] ?? "";
+
+test("renders the root carrying data-slot and its size", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarFallback>AL</AvatarFallback>
+    </Avatar>,
+  );
   const fallback = screen.getByText("AL");
   await expect.element(fallback).toBeInTheDocument();
-  await expect
-    .element(fallback)
-    .toHaveAttribute("data-slot", "avatar-fallback");
-  // No <img> is rendered when src is absent.
+  const root = fallback.element().closest("[data-slot=avatar]");
+  expect(root).not.toBeNull();
+  expect(root?.getAttribute("data-size")).toBe("default");
+});
+
+test("every exported part renders with its own data-slot", async () => {
+  const screen = await render(
+    <AvatarGroup>
+      <Avatar>
+        <AvatarImage src={SRC} alt="Ada Lovelace" />
+        <AvatarFallback>AL</AvatarFallback>
+        <AvatarBadge />
+      </Avatar>
+      <AvatarGroupCount>+3</AvatarGroupCount>
+    </AvatarGroup>,
+  );
+  const container = screen.container;
+  for (const slot of [
+    "avatar-group",
+    "avatar",
+    "avatar-fallback",
+    "avatar-badge",
+    "avatar-group-count",
+  ]) {
+    expect(container.querySelector(`[data-slot="${slot}"]`)).not.toBeNull();
+  }
+});
+
+test("Sizes: each size tier stamps its own data-size on the root", async () => {
+  const seen = new Set<string>();
+  for (const size of SIZES) {
+    const screen = await render(
+      <Avatar size={size}>
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>,
+    );
+    const root = screen.container.querySelector("[data-slot=avatar]");
+    const value = root?.getAttribute("data-size") ?? "";
+    expect(value).toBe(size);
+    seen.add(value);
+  }
+  expect(seen.size).toBe(SIZES.length);
+});
+
+test("Sizes: the root recipe carries a distinct class per tier", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarFallback>AL</AvatarFallback>
+    </Avatar>,
+  );
+  const root = screen.container.querySelector("[data-slot=avatar]");
+  const classes = root?.className ?? "";
+  // One recipe, three tiers: the default `size-8` plus the two data-size overrides.
+  expect(classes).toContain("size-8");
+  expect(classes).toContain("data-[size=sm]:size-6");
+  expect(classes).toContain("data-[size=lg]:size-10");
+});
+
+test("Basic: the image renders as a native img with its alt", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarImage src={SRC} alt="Ada Lovelace" />
+      <AvatarFallback>AL</AvatarFallback>
+    </Avatar>,
+  );
+  const image = screen.getByRole("img", { name: "Ada Lovelace" });
+  await expect.element(image).toHaveAttribute("src", SRC);
+  await expect.element(image).toHaveAttribute("data-slot", "avatar-image");
+});
+
+test("Basic: the fallback paints when there is no image", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarFallback>AL</AvatarFallback>
+    </Avatar>,
+  );
+  await expect.element(screen.getByText("AL")).toBeInTheDocument();
   expect(screen.container.querySelector("img")).toBeNull();
 });
 
-test("renders an image with alt text when the image loads", async () => {
-  const src = pngFixture("named");
+test("Badge: the badge is a span inside the avatar and takes a custom fill", async () => {
   const screen = await render(
-    <Avatar src={src} alt="Ada Lovelace" fallback="AL" />,
+    <Avatar>
+      <AvatarFallback>AL</AvatarFallback>
+      <AvatarBadge className="bg-success" />
+    </Avatar>,
   );
-  // Base UI commits the <img> only after it loads; the loadable data URI guarantees it.
-  const img = screen.getByRole("img", { name: "Ada Lovelace" });
-  await expect.element(img).toHaveAttribute("src", src);
-  await expect.element(img).toHaveAttribute("data-slot", "avatar-image");
+  const badge = screen.container.querySelector("[data-slot=avatar-badge]");
+  expect(badge?.tagName).toBe("SPAN");
+  expect(badge?.className).toContain("bg-success");
+  // Positioned at the bottom END corner, so RTL mirrors it for free.
+  expect(badge?.className).toContain("end-0");
+  expect(badge?.className).toContain("bottom-0");
 });
 
-test('allows an explicitly decorative image with alt=""', async () => {
+test("Badge with Icon: the sm tier hides the badge's icon", async () => {
   const screen = await render(
-    <Avatar src={pngFixture("decorative")} alt="" fallback="AL" />,
+    <Avatar size="sm">
+      <AvatarFallback>AL</AvatarFallback>
+      <AvatarBadge>
+        <svg aria-hidden="true" />
+      </AvatarBadge>
+    </Avatar>,
   );
-  await vi.waitFor(() => {
-    const img = screen.container.querySelector('img[data-slot="avatar-image"]');
-    expect(img).not.toBeNull();
-    expect(img?.getAttribute("alt")).toBe("");
-  });
+  const badge = screen.container.querySelector("[data-slot=avatar-badge]");
+  expect(badge?.className).toContain(
+    "group-data-[size=sm]/avatar:[&>svg]:hidden",
+  );
+  expect(badge?.querySelector("svg")).not.toBeNull();
 });
 
-test("applies the size data attribute", async () => {
-  const screen = await render(<Avatar size="lg" fallback="AL" />);
-  const root = screen.getByText("AL").element().closest('[data-slot="avatar"]');
-  expect(root).not.toBeNull();
-  expect(root).toHaveAttribute("data-size", "lg");
-});
-
-test("AvatarGroup renders its children and exposes its slot", async () => {
+test("Avatar Group: the group overlaps its children and rings each one", async () => {
   const screen = await render(
     <AvatarGroup>
-      <Avatar fallback="AL" />
-      <Avatar fallback="LT" />
-      <Avatar fallback="+3" />
+      <Avatar>
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarFallback>LT</AvatarFallback>
+      </Avatar>
     </AvatarGroup>,
   );
-  await expect.element(screen.getByText("AL")).toBeInTheDocument();
-  await expect.element(screen.getByText("+3")).toBeInTheDocument();
-  const group = screen.container.querySelector('[data-slot="avatar-group"]');
-  expect(group).not.toBeNull();
+  const group = screen.container.querySelector("[data-slot=avatar-group]");
+  expect(group?.className).toContain("-space-x-2");
+  expect(group?.className).toContain("*:data-[slot=avatar]:ring-2");
+  expect(group?.querySelectorAll("[data-slot=avatar]").length).toBe(2);
 });
 
-test("forwards ref to the underlying avatar root element", async () => {
-  const ref = React.createRef<HTMLSpanElement>();
-  await render(<Avatar ref={ref} fallback="AL" />);
-  expect(ref.current).toBeInstanceOf(HTMLSpanElement);
-  expect(ref.current?.dataset.slot).toBe("avatar");
-});
-
-test("AvatarGroup forwards ref to the underlying root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
-    <AvatarGroup ref={ref}>
-      <Avatar fallback="AL" />
-    </AvatarGroup>,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("avatar-group");
-});
-
-test("no a11y violations (image avatar with alt text)", async () => {
+test("Avatar Group Count: the count tracks the group's avatar size", async () => {
   const screen = await render(
-    <Avatar src={pngFixture("a11y")} alt="Ada Lovelace" fallback="AL" />,
+    <AvatarGroup>
+      <Avatar size="lg">
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <AvatarGroupCount>+3</AvatarGroupCount>
+    </AvatarGroup>,
   );
-  // Ensure the image has committed before auditing so axe sees the real img + alt.
-  await expect
-    .element(screen.getByRole("img", { name: "Ada Lovelace" }))
-    .toBeInTheDocument();
+  await expect.element(screen.getByText("+3")).toBeInTheDocument();
+  const count = screen.container.querySelector(
+    "[data-slot=avatar-group-count]",
+  );
+  expect(count?.className).toContain(
+    "group-has-data-[size=lg]/avatar-group:size-10",
+  );
+  expect(count?.className).toContain(
+    "group-has-data-[size=sm]/avatar-group:size-6",
+  );
+});
+
+test("Avatar Group with Icon: an icon count carries its own text, and the icon is sized by the group", async () => {
+  const screen = await render(
+    <AvatarGroup>
+      <Avatar>
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <AvatarGroupCount>
+        <svg aria-hidden="true" />
+        <span className="sr-only">Add a teammate</span>
+      </AvatarGroupCount>
+    </AvatarGroup>,
+  );
+  await expect.element(screen.getByText("Add a teammate")).toBeInTheDocument();
+  const count = screen.container.querySelector(
+    "[data-slot=avatar-group-count]",
+  );
+  expect(count?.className).toContain("[&>svg]:size-4");
+});
+
+test("Composition: the group count sits outside the avatars it counts", async () => {
+  const screen = await render(
+    <AvatarGroup>
+      <Avatar>
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <AvatarGroupCount>+3</AvatarGroupCount>
+    </AvatarGroup>,
+  );
+  const count = screen.container.querySelector(
+    "[data-slot=avatar-group-count]",
+  );
+  expect(count?.closest("[data-slot=avatar]")).toBeNull();
+  expect(count?.closest("[data-slot=avatar-group]")).not.toBeNull();
+});
+
+test("Dropdown: an avatar inside a button keeps the button as the control", async () => {
+  const screen = await render(
+    <button type="button" aria-label="Open account menu">
+      <Avatar>
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+    </button>,
+  );
+  const trigger = screen.getByRole("button", { name: "Open account menu" });
+  await expect.element(trigger).toBeInTheDocument();
+  expect(trigger.element().querySelector("[data-slot=avatar]")).not.toBeNull();
+});
+
+test("RTL: the badge's placement is logical, not left/right", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Avatar>
+        <AvatarFallback>AL</AvatarFallback>
+        <AvatarBadge />
+      </Avatar>
+    </div>,
+  );
+  const badge = screen.container.querySelector("[data-slot=avatar-badge]");
+  expect(badge?.className).toContain("end-0");
+  expect(badge?.className).not.toMatch(/(?:^|\s)right-0(?:\s|$)/);
+  expect(badge?.className).not.toMatch(/(?:^|\s)left-0(?:\s|$)/);
+});
+
+test("DOC-2: the canonical source imports cn from the published package", async () => {
+  expect(SOURCE).toContain('from "@vegastack/design"');
+  expect(SOURCE).not.toContain('from "cn"');
+});
+
+test("no a11y violations — image avatar", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarImage src={SRC} alt="Ada Lovelace" />
+      <AvatarFallback>AL</AvatarFallback>
+    </Avatar>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — fallback only", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarFallback>AL</AvatarFallback>
+    </Avatar>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — badge", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarFallback>AL</AvatarFallback>
+      <AvatarBadge className="bg-success" />
+    </Avatar>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — group with a count", async () => {
+  const screen = await render(
+    <AvatarGroup>
+      <Avatar>
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarFallback>LT</AvatarFallback>
+      </Avatar>
+      <AvatarGroupCount>+3</AvatarGroupCount>
+    </AvatarGroup>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — every size tier", async () => {
+  const screen = await render(
+    <div>
+      {SIZES.map((size) => (
+        <Avatar key={size} size={size}>
+          <AvatarFallback>{size}</AvatarFallback>
+        </Avatar>
+      ))}
+    </div>,
+  );
   await expectNoA11yViolations(screen.container);
 });

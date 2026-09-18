@@ -39,18 +39,14 @@ export function sortableList(): ReactNode {
           renderItem={(item) => (
             <span className="flex min-w-0 items-center gap-2">
               <span className="truncate">{item.label}</span>
-              {item.disabled ? (
-                <Badge variant="soft" size="sm">
-                  Locked
-                </Badge>
-              ) : null}
+              {item.disabled ? <Badge variant="secondary">Locked</Badge> : null}
             </span>
           )}
           onReorder={({ id, to }) =>
             setItems((prev) => applyMove(prev, id, to.index))
           }
         />
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-xs text-muted-foreground">
           Drag the handle, press Space on it for keyboard move mode, or use the
           row menu — every path reaches every order.
         </p>
@@ -80,7 +76,7 @@ export function sortableListGated(): ReactNode {
             setItems((prev) => applyMove(prev, id, to.index));
           }}
         />
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-xs text-muted-foreground">
           Moving “Webhooks” is refused by the host: the row shimmers while
           pending, then snaps back and announces the rejection.
         </p>
@@ -118,7 +114,7 @@ export function sortableListMenu(): ReactNode {
             setItems((prev) => applyMove(prev, id, to.index))
           }
         />
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-xs text-muted-foreground">
           Open a row’s menu to move it without dragging — the same reorder
           callback runs, so the host cannot tell the paths apart.
         </p>

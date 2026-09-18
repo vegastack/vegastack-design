@@ -1,0 +1,16 @@
+{
+  "component": "native-select",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/native-select.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Groups",
+    "Disabled",
+    "Invalid",
+    "Native Select vs Select",
+    "RTL",
+    "API Reference"
+  ]
+}

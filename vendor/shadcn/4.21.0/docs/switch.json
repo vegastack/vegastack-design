@@ -1,0 +1,16 @@
+{
+  "component": "switch",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/switch.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Description",
+    "Choice Card",
+    "Disabled",
+    "Invalid",
+    "Size",
+    "RTL",
+    "API Reference"
+  ]
+}

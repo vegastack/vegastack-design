@@ -1,150 +1,33 @@
-// @vegastack switch@0.9.1 sha256-SDFZpFcn7CLUHkKMTOeTQqsSdHxbzYIhQeNLjMMNvLY=
+// @vegastack switch@0.9.1 sha256-1Gsp2JoXe+p3gVFv0Y1T9sOCIs3caCoKVR6SUsOMCx4=
 
-import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { Switch as BaseSwitch } from "@base-ui/react/switch";
+"use client";
+
+import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
 import { cn } from "@vegastack/design";
 
-/**
- * Switch track variants — the outer rail. State is driven by Base UI's
- * `data-checked` / `data-unchecked` attributes (no JS state classes), and every
- * value is a semantic token (no hardcoded colors). `bg-surface-3` when off,
- * neutral `bg-primary` ink when on, with a `:focus-visible` ring.
- */
-export const switchVariants = cva(
-  // Invalid carries NO visual treatment on the control itself — no destructive track border and no
-  // status dot. `aria-invalid` stays on the DOM as the semantic cue, and the wrapping `Field`
-  // supplies the associated error copy, which is the only invalid affordance the switch needs.
-  // `.join(" ")`, not `+`. Two of these fragments used to be concatenated with no separator, so the
-  // track shipped `p-0.5bg-surface-3` and `data-checked:bg-primarynot-disabled:hover:border-…`:
-  // FOUR utilities vanished at once and the switch measured `background-color: rgba(0,0,0,0)` and
-  // `padding: 0px` in BOTH states — a track with no colour, on/off conveyed only by thumb position,
-  // and paint appearing only under the cursor because the hovered-checked rung survived its own
-  // seam (2026-09-09). An array removes the seam; `class-glue` in `design-lint` now rejects it.
-  [
-    "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5",
-    "bg-surface-3 data-checked:bg-primary",
-    // The switch was the one control in the batch with NO hover treatment at all (audit SP-04).
-    // Its track already sits on the ladder's top rung, so there is no rung left to climb: the
-    // hover step is the same neutral BORDER tint the checkbox and radio wear, which the
-    // transparent border + `bg-clip-padding` were already reserving space for — so nothing
-    // moves when it appears. Checked, the filled track takes the solid's own darker rungs.
-    "not-disabled:hover:border-foreground/(--alpha-border-subtle)",
-    "not-disabled:data-checked:hover:bg-primary-hover not-disabled:data-checked:active:bg-primary-active",
-    // D7: no `pointer-events-none` — a disabled control stays hoverable for its Tooltip.
-    "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
-  ].join(" "),
-  {
-    variants: {
-      size: {
-        // `sm` (16×28) and `default` (20×36) are below the WCAG 2.5.8 24px minimum
-        // in HEIGHT only — width already clears 24px at every size — so each adds a
-        // vertical-only invisible hit-area expansion (`before:absolute` + the root's
-        // own `relative` above) without changing the visible track.
-        // Their 1px transparent border makes the pseudo-element containing box 2px
-        // smaller than the visible track, so the effective insets are 6px / 4px,
-        // yielding 26px in both cases. `before:inset-x-0` (left:0/right:0, NOT negative) is
-        // required alongside `before:-inset-y-*` — an absolutely positioned
-        // pseudo-element with only top/bottom set and left/right left `auto`
-        // shrink-to-fit to 0 width (no content to size against), which would
-        // silently collapse the expanded hit area to a zero-width sliver; pinning
-        // left/right to the track's own edges keeps the width unchanged while only
-        // top/bottom grow. `lg` (24×44) already meets the minimum, so it's left
-        // unchanged.
-        sm: "h-4 w-7 before:absolute before:inset-x-0 before:-inset-y-1.5",
-        md: "h-5 w-9 before:absolute before:inset-x-0 before:-inset-y-1",
-        lg: "h-6 w-11",
-      },
-    },
-    defaultVariants: { size: "md" },
-  },
-);
-
-/**
- * Switch thumb variants — the movable knob. Sized so it sits inset from the
- * track with a uniform ~2px gap on every edge in both states: thumb = track
- * height − border − 2×gap, and the on-state travel = track width − track height
- * (so the gap is identical at rest and when checked). Slides via `data-checked`
- * and a token-driven `transition`.
- */
-export const switchThumbVariants = cva(
-  // `.join(" ")`, not `+` — see the track above. This seam compiled to
-  // `ease-standarddata-unchecked:translate-x-0`, so the thumb ran on Tailwind's default
-  // `cubic-bezier(0.4, 0, 0.2, 1)` instead of `--motion-ease-standard`, while
-  // `transition-pairing` read `ease-standard` in the literal and passed (2026-09-09).
-  [
-    "pointer-events-none block rounded-full bg-background ring-0 transition-transform duration-fast ease-standard",
-    "data-unchecked:translate-x-0",
-  ].join(" "),
-  {
-    variants: {
-      size: {
-        sm: "size-2.5 data-checked:translate-x-3 rtl:data-checked:-translate-x-3",
-        md: "size-3.5 data-checked:translate-x-4 rtl:data-checked:-translate-x-4",
-        lg: "size-4.5 data-checked:translate-x-5 rtl:data-checked:-translate-x-5",
-      },
-    },
-    defaultVariants: { size: "md" },
-  },
-);
-
-/** Props accepted by `Switch`. */
-export interface SwitchProps
-  extends
-    React.ComponentProps<typeof BaseSwitch.Root>,
-    VariantProps<typeof switchVariants> {
-  /**
-   * Track + thumb scale. `sm` (16px), `default` (20px), `lg` (24px).
-   * @default 'md'
-   */
-  size?: "sm" | "md" | "lg";
-  /**
-   * Replace the rendered track element via Base UI `render` composition. Pass a
-   * `ReactElement` or a render function — Base UI merges this
-   * wrapper's `className`, `data-slot`, and state `data-*` onto your element,
-   * forwards the ref, and keeps the `<Switch.Thumb>` child. The element must
-   * support `role="switch"` semantics.
-
-   * @default undefined
-   */
-  render?: React.ComponentProps<typeof BaseSwitch.Root>["render"];
-}
-
-/**
- * `Switch` — an on/off toggle built on Base UI's `Switch` (`Root` + `Thumb`).
- * Use it for instant, self-saving binary settings (notifications on/off, dark
- * mode) where a Checkbox's submit-on-form semantics don't apply.
- *
- * Controlled via `checked` / `onCheckedChange`, or uncontrolled via
- * `defaultChecked`. By default, Base UI renders a `<span role="switch">` plus a
- * hidden `<input>` for form submission; use `nativeButton render={<button />}`
- * when pairing a sibling `<label htmlFor>` with the switch. The root is keyboard
- * accessible (<kbd>Space</kbd> / <kbd>Enter</kbd> toggle) and pairs with `Field`
- * for a label.
- *
- * @example
- * // Uncontrolled, with a label via Field
- * <Field label="Email notifications" orientation="horizontal">
- *   <Switch defaultChecked />
- * </Field>
- *
- * @example
- * // Controlled
- * <Switch checked={enabled} onCheckedChange={setEnabled} aria-label="Enabled" />
- */
-export function Switch({ className, size = "md", ref, ...props }: SwitchProps) {
+function Switch({
+  className,
+  size = "default",
+  ...props
+}: SwitchPrimitive.Root.Props & {
+  size?: "sm" | "default";
+}) {
   return (
-    <BaseSwitch.Root
-      ref={ref}
+    <SwitchPrimitive.Root
       data-slot="switch"
       data-size={size}
-      className={cn(switchVariants({ size }), className)}
+      className={cn(
+        "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all after:absolute after:-inset-x-3 after:-inset-y-2 not-focus:aria-invalid:border-destructive data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] dark:not-focus:aria-invalid:border-destructive/50 data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80 data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        className,
+      )}
       {...props}
     >
-      <BaseSwitch.Thumb
+      <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
-        className={cn(switchThumbVariants({ size }))}
+        className="pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] rtl:group-data-[size=default]/switch:data-checked:-translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] rtl:group-data-[size=sm]/switch:data-checked:-translate-x-[calc(100%-2px)] dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0 rtl:group-data-[size=default]/switch:data-unchecked:-translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 rtl:group-data-[size=sm]/switch:data-unchecked:-translate-x-0 dark:data-unchecked:bg-foreground"
       />
-    </BaseSwitch.Root>
+    </SwitchPrimitive.Root>
   );
 }
+
+export { Switch };

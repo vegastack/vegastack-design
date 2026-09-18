@@ -27,5 +27,5 @@
 @import "tw-animate-css";
 
 @source '../registry/ui/**/*.tsx';
-@source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */
+@source '../../design/src/index.ts'; /* the "hover:bg-accent" / the family's own hover wash recipe literals */
 @source './accessible-name.browser.test.tsx';

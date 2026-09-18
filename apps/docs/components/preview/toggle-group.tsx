@@ -1,158 +1,139 @@
 "use client";
 
+import * as React from "react";
 import type { ReactNode } from "react";
+import { BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
-import {
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
-  Bold,
-  Italic,
-  Underline,
-} from "lucide-react";
-// Copied INTO apps/docs via `shadcn add @vegastack/toggle-group` (dogfoods the registry) → auto-scanned.
+// Copied INTO apps/docs via `shadcn add @vegastack/toggle-group` (dogfoods the registry).
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function toggleGroup(): ReactNode {
-  // Single-select (radio-like): exactly one item is pressed; the selected item fills an evident neutral grey (bg-foreground/(--alpha-ink-tint)).
   return (
-    <Wrapper className="flex-col items-center gap-6">
-      <ToggleGroup defaultValue={["center"]} aria-label="Text alignment">
-        <ToggleGroupItem value="left" aria-label="Align left">
-          <AlignLeft />
+    <Wrapper>
+      <ToggleGroup variant="outline" multiple>
+        <ToggleGroupItem value="bold" aria-label="Toggle bold">
+          <BoldIcon />
         </ToggleGroupItem>
-        <ToggleGroupItem value="center" aria-label="Align center">
-          <AlignCenter />
+        <ToggleGroupItem value="italic" aria-label="Toggle italic">
+          <ItalicIcon />
         </ToggleGroupItem>
-        <ToggleGroupItem value="right" aria-label="Align right">
-          <AlignRight />
-        </ToggleGroupItem>
-      </ToggleGroup>
-
-      {/* A second group showing a disabled item. */}
-      <ToggleGroup
-        defaultValue={["center"]}
-        aria-label="Text alignment, with disabled item"
-      >
-        <ToggleGroupItem value="left" aria-label="Align left">
-          <AlignLeft />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="center" aria-label="Align center">
-          <AlignCenter />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="right" aria-label="Align right" disabled>
-          <AlignRight />
+        <ToggleGroupItem value="underline" aria-label="Toggle underline">
+          <UnderlineIcon />
         </ToggleGroupItem>
       </ToggleGroup>
     </Wrapper>
   );
 }
 
-export function toggleGroupMultiple(): ReactNode {
-  // Multi-select (checkbox-like): any number of items can be pressed; each selected item fills an evident neutral grey (bg-foreground/(--alpha-ink-tint)).
+export function toggleGroupComposition(): ReactNode {
   return (
-    <Wrapper className="flex-col items-center gap-6">
-      <ToggleGroup
-        multiple
-        defaultValue={["bold", "underline"]}
-        aria-label="Text formatting"
-      >
-        <ToggleGroupItem value="bold" aria-label="Bold">
-          <Bold />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="italic" aria-label="Italic">
-          <Italic />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="underline" aria-label="Underline">
-          <Underline />
-        </ToggleGroupItem>
+    <Wrapper>
+      <ToggleGroup variant="outline" defaultValue={["a"]}>
+        <ToggleGroupItem value="a">A</ToggleGroupItem>
+        <ToggleGroupItem value="b">B</ToggleGroupItem>
+        <ToggleGroupItem value="c">C</ToggleGroupItem>
       </ToggleGroup>
+    </Wrapper>
+  );
+}
 
-      {/* Sizes — 28 / 32 / 40 (sm / default / lg). */}
-      <ToggleGroup
-        multiple
-        defaultValue={["bold"]}
-        size="sm"
-        aria-label="Formatting, small"
-      >
-        <ToggleGroupItem value="bold" aria-label="Bold">
-          <Bold />
+export function toggleGroupOutline(): ReactNode {
+  return (
+    <Wrapper>
+      <ToggleGroup variant="outline" defaultValue={["all"]}>
+        <ToggleGroupItem value="all" aria-label="Toggle all">
+          All
         </ToggleGroupItem>
-        <ToggleGroupItem value="italic" aria-label="Italic">
-          <Italic />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="underline" aria-label="Underline">
-          <Underline />
-        </ToggleGroupItem>
-      </ToggleGroup>
-      <ToggleGroup
-        multiple
-        defaultValue={["italic"]}
-        size="lg"
-        aria-label="Formatting, large"
-      >
-        <ToggleGroupItem value="bold" aria-label="Bold">
-          <Bold />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="italic" aria-label="Italic">
-          <Italic />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="underline" aria-label="Underline">
-          <Underline />
+        <ToggleGroupItem value="missed" aria-label="Toggle missed">
+          Missed
         </ToggleGroupItem>
       </ToggleGroup>
     </Wrapper>
   );
 }
 
-export function toggleGroupSizes(): ReactNode {
-  // `size` set once on the root flows to every item — sm (28) / default (32) / lg (40).
+export function toggleGroupSize(): ReactNode {
   return (
-    <Wrapper className="flex-col items-center gap-6">
+    <Wrapper className="flex-col">
+      <ToggleGroup size="sm" defaultValue={["top"]} variant="outline">
+        <ToggleGroupItem value="top" aria-label="Toggle top">
+          Top
+        </ToggleGroupItem>
+        <ToggleGroupItem value="bottom" aria-label="Toggle bottom">
+          Bottom
+        </ToggleGroupItem>
+        <ToggleGroupItem value="left" aria-label="Toggle left">
+          Left
+        </ToggleGroupItem>
+        <ToggleGroupItem value="right" aria-label="Toggle right">
+          Right
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <ToggleGroup defaultValue={["top"]} variant="outline">
+        <ToggleGroupItem value="top" aria-label="Toggle top">
+          Top
+        </ToggleGroupItem>
+        <ToggleGroupItem value="bottom" aria-label="Toggle bottom">
+          Bottom
+        </ToggleGroupItem>
+        <ToggleGroupItem value="left" aria-label="Toggle left">
+          Left
+        </ToggleGroupItem>
+        <ToggleGroupItem value="right" aria-label="Toggle right">
+          Right
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <ToggleGroup size="lg" defaultValue={["top"]} variant="outline">
+        <ToggleGroupItem value="top" aria-label="Toggle top">
+          Top
+        </ToggleGroupItem>
+        <ToggleGroupItem value="bottom" aria-label="Toggle bottom">
+          Bottom
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </Wrapper>
+  );
+}
+
+export function toggleGroupSpacing(): ReactNode {
+  return (
+    <Wrapper className="flex-col">
       <ToggleGroup
-        defaultValue={["center"]}
         size="sm"
-        aria-label="Text alignment, small"
+        defaultValue={["top"]}
+        variant="outline"
+        spacing={2}
       >
-        <ToggleGroupItem value="left" aria-label="Align left">
-          <AlignLeft />
+        <ToggleGroupItem value="top" aria-label="Toggle top">
+          Top
         </ToggleGroupItem>
-        <ToggleGroupItem value="center" aria-label="Align center">
-          <AlignCenter />
+        <ToggleGroupItem value="bottom" aria-label="Toggle bottom">
+          Bottom
         </ToggleGroupItem>
-        <ToggleGroupItem value="right" aria-label="Align right">
-          <AlignRight />
+        <ToggleGroupItem value="left" aria-label="Toggle left">
+          Left
+        </ToggleGroupItem>
+        <ToggleGroupItem value="right" aria-label="Toggle right">
+          Right
         </ToggleGroupItem>
       </ToggleGroup>
-
       <ToggleGroup
-        defaultValue={["center"]}
-        aria-label="Text alignment, default"
+        size="sm"
+        defaultValue={["top"]}
+        variant="outline"
+        spacing={0}
       >
-        <ToggleGroupItem value="left" aria-label="Align left">
-          <AlignLeft />
+        <ToggleGroupItem value="top" aria-label="Toggle top joined">
+          Top
         </ToggleGroupItem>
-        <ToggleGroupItem value="center" aria-label="Align center">
-          <AlignCenter />
+        <ToggleGroupItem value="bottom" aria-label="Toggle bottom joined">
+          Bottom
         </ToggleGroupItem>
-        <ToggleGroupItem value="right" aria-label="Align right">
-          <AlignRight />
+        <ToggleGroupItem value="left" aria-label="Toggle left joined">
+          Left
         </ToggleGroupItem>
-      </ToggleGroup>
-
-      <ToggleGroup
-        defaultValue={["center"]}
-        size="lg"
-        aria-label="Text alignment, large"
-      >
-        <ToggleGroupItem value="left" aria-label="Align left">
-          <AlignLeft />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="center" aria-label="Align center">
-          <AlignCenter />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="right" aria-label="Align right">
-          <AlignRight />
+        <ToggleGroupItem value="right" aria-label="Toggle right joined">
+          Right
         </ToggleGroupItem>
       </ToggleGroup>
     </Wrapper>
@@ -160,23 +141,22 @@ export function toggleGroupSizes(): ReactNode {
 }
 
 export function toggleGroupVertical(): ReactNode {
-  // `orientation="vertical"` stacks items into a column; the outer corners round
-  // the top of the first item and the bottom of the last.
   return (
-    <Wrapper className="flex-col items-center gap-6">
+    <Wrapper>
       <ToggleGroup
+        multiple
         orientation="vertical"
-        defaultValue={["left"]}
-        aria-label="Text alignment, vertical"
+        spacing={1}
+        defaultValue={["bold", "italic"]}
       >
-        <ToggleGroupItem value="left" aria-label="Align left">
-          <AlignLeft />
+        <ToggleGroupItem value="bold" aria-label="Toggle bold">
+          <BoldIcon />
         </ToggleGroupItem>
-        <ToggleGroupItem value="center" aria-label="Align center">
-          <AlignCenter />
+        <ToggleGroupItem value="italic" aria-label="Toggle italic">
+          <ItalicIcon />
         </ToggleGroupItem>
-        <ToggleGroupItem value="right" aria-label="Align right">
-          <AlignRight />
+        <ToggleGroupItem value="underline" aria-label="Toggle underline">
+          <UnderlineIcon />
         </ToggleGroupItem>
       </ToggleGroup>
     </Wrapper>
@@ -184,25 +164,121 @@ export function toggleGroupVertical(): ReactNode {
 }
 
 export function toggleGroupDisabled(): ReactNode {
-  // A disabled whole group — `disabled` on the root flows to every item, dimming
-  // the group and skipping it for pointer + keyboard interaction.
   return (
-    <Wrapper className="flex-col items-center gap-6">
-      <ToggleGroup
-        disabled
-        defaultValue={["center"]}
-        aria-label="Text alignment, disabled"
-      >
-        <ToggleGroupItem value="left" aria-label="Align left">
-          <AlignLeft />
+    <Wrapper>
+      <ToggleGroup disabled>
+        <ToggleGroupItem value="bold" aria-label="Toggle bold">
+          <BoldIcon />
         </ToggleGroupItem>
-        <ToggleGroupItem value="center" aria-label="Align center">
-          <AlignCenter />
+        <ToggleGroupItem value="italic" aria-label="Toggle italic">
+          <ItalicIcon />
         </ToggleGroupItem>
-        <ToggleGroupItem value="right" aria-label="Align right">
-          <AlignRight />
+        <ToggleGroupItem value="underline" aria-label="Toggle underline">
+          <UnderlineIcon />
         </ToggleGroupItem>
       </ToggleGroup>
+    </Wrapper>
+  );
+}
+
+export function toggleGroupCustom(): ReactNode {
+  return <FontWeightSelector />;
+}
+
+/**
+ * Upstream's Custom example is a `Field`-wrapped font-weight selector. The `field` component is
+ * not part of this reset batch, so the label and description are plain markup here; the toggle
+ * group — controlled `value`, `spacing`, `size` and per-item `className` — is upstream's.
+ */
+function FontWeightSelector(): ReactNode {
+  const [fontWeight, setFontWeight] = React.useState("normal");
+
+  return (
+    <Wrapper className="flex-col items-start gap-3">
+      <span className="text-sm font-medium" id="toggle-group-font-weight">
+        Font Weight
+      </span>
+      <ToggleGroup
+        aria-labelledby="toggle-group-font-weight"
+        value={[fontWeight]}
+        onValueChange={(value) => setFontWeight(value[0] ?? fontWeight)}
+        variant="outline"
+        spacing={2}
+        size="lg"
+      >
+        <ToggleGroupItem
+          value="light"
+          aria-label="Light"
+          className="flex size-16 flex-col items-center justify-center rounded-xl"
+        >
+          <span className="text-2xl leading-none font-light">Aa</span>
+          <span className="text-xs text-muted-foreground">Light</span>
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="normal"
+          aria-label="Normal"
+          className="flex size-16 flex-col items-center justify-center rounded-xl"
+        >
+          <span className="text-2xl leading-none font-normal">Aa</span>
+          <span className="text-xs text-muted-foreground">Normal</span>
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="medium"
+          aria-label="Medium"
+          className="flex size-16 flex-col items-center justify-center rounded-xl"
+        >
+          <span className="text-2xl leading-none font-medium">Aa</span>
+          <span className="text-xs text-muted-foreground">Medium</span>
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="bold"
+          aria-label="Bold"
+          className="flex size-16 flex-col items-center justify-center rounded-xl"
+        >
+          <span className="text-2xl leading-none font-bold">Aa</span>
+          <span className="text-xs text-muted-foreground">Bold</span>
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <p className="text-sm text-muted-foreground">
+        Use{" "}
+        <code className="rounded-md bg-muted px-1 py-0.5 font-mono">
+          font-{fontWeight}
+        </code>{" "}
+        to set the font weight.
+      </p>
+    </Wrapper>
+  );
+}
+
+export function toggleGroupRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div className="flex flex-wrap justify-center gap-2" dir="ltr">
+        <ToggleGroup variant="outline" defaultValue={["list"]}>
+          <ToggleGroupItem value="list" aria-label="List">
+            List
+          </ToggleGroupItem>
+          <ToggleGroupItem value="grid" aria-label="Grid">
+            Grid
+          </ToggleGroupItem>
+          <ToggleGroupItem value="cards" aria-label="Cards">
+            Cards
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      <div className="flex flex-wrap justify-center gap-2" dir="rtl">
+        <ToggleGroup variant="outline" defaultValue={["list"]}>
+          <ToggleGroupItem value="list" aria-label="قائمة">
+            قائمة
+          </ToggleGroupItem>
+          <ToggleGroupItem value="grid" aria-label="شبكة">
+            شبكة
+          </ToggleGroupItem>
+          <ToggleGroupItem value="cards" aria-label="بطاقات">
+            بطاقات
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
     </Wrapper>
   );
 }

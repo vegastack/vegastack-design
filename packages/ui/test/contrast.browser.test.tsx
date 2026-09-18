@@ -7,11 +7,18 @@ import { afterEach, expect, test } from "vitest";
 import { Badge } from "../registry/ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "../registry/ui/alert";
 import { Button } from "../registry/ui/button";
-import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
+import { Toaster, toast } from "../registry/ui/toast";
 import { TextEdit } from "../registry/ui/text-edit";
 import { ColorPicker } from "../registry/ui/color-picker";
-import { LogoRow } from "../registry/ui/logo-row";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../registry/ui/tabs";
+import { FileWarningIcon } from "lucide-react";
+import {
+  Attachment,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "../registry/ui/attachment";
 
 /**
  * Rendered color-contrast a11y gate (Codex R3 HIGH-2/HIGH-3). Unlike the per-component unit a11y
@@ -53,81 +60,31 @@ function Surfaces() {
         Muted text on the muted surface.
       </div>
 
-      {/* Badge: solid fills + subtle tints across every status */}
+      {/* Badge: the solid fills and, since Batch 2 of the shadcn reset, the four tinted status
+          variants (COL-12). The tints are exactly the pairs A11Y-13 moved onto the `-text` ink. */}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="solid" intent="default">
-          solid default
-        </Badge>
-        <Badge variant="solid" intent="info">
-          solid info
-        </Badge>
-        <Badge variant="solid" intent="success">
-          solid success
-        </Badge>
-        <Badge variant="solid" intent="warning">
-          solid warning
-        </Badge>
-        <Badge variant="solid" intent="destructive">
-          solid destructive
-        </Badge>
+        <Badge>default</Badge>
+        <Badge variant="secondary">secondary</Badge>
+        <Badge variant="outline">outline</Badge>
+        <Badge variant="ghost">ghost</Badge>
+        <Badge variant="link">link</Badge>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Badge variant="soft" intent="success">
-          subtle success
-        </Badge>
-        <Badge variant="soft" intent="warning">
-          subtle warning
-        </Badge>
-        <Badge variant="soft" intent="destructive">
-          subtle destructive
-        </Badge>
-        <Badge variant="outline" intent="default">
-          outline
-        </Badge>
+        <Badge variant="info">tinted info</Badge>
+        <Badge variant="success">tinted success</Badge>
+        <Badge variant="warning">tinted warning</Badge>
+        <Badge variant="destructive">tinted destructive</Badge>
       </div>
 
-      {/* Button: the soft tones exercise bg-X-subtle + text-X (the soft-pair contrast); the outline
-          tones exercise the faint tint + the same ink. */}
+      {/* Button: upstream's six variants verbatim. `destructive` is a TINT carrying the
+          `-text` ink (A11Y-13), which is the one contrast-critical pair in the set. */}
       <div className="flex flex-wrap gap-2">
-        <Button>Solid</Button>
-        <Button variant="soft">Soft</Button>
-        <Button variant="soft" tone="destructive">
-          Destructive
-        </Button>
-        <Button variant="soft" tone="success">
-          Success
-        </Button>
-        <Button variant="soft" tone="warning">
-          Warning
-        </Button>
-        <Button variant="soft" tone="info">
-          Info
-        </Button>
+        <Button>Default</Button>
+        <Button variant="secondary">Secondary</Button>
         <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" tone="destructive">
-          Bordered destructive action
-        </Button>
-        <Button variant="outline" tone="success">
-          Bordered success action
-        </Button>
-        <Button variant="outline" tone="warning">
-          Bordered warning action
-        </Button>
-        <Button variant="outline" tone="info">
-          Bordered info action
-        </Button>
-        <Button variant="solid" tone="success">
-          Filled success action
-        </Button>
-        <Button variant="solid" tone="warning">
-          Filled warning action
-        </Button>
-        <Button variant="solid" tone="info">
-          Filled info action
-        </Button>
+        <Button variant="destructive">Destructive</Button>
+        <Button variant="link">Link</Button>
       </div>
 
       {/* Real neutral mounting surfaces for the global focus-visible outline. The token gate proves
@@ -149,34 +106,22 @@ function Surfaces() {
         </div>
       ))}
 
-      {/* Alpha-composited outline controls mounted on the non-page neutral surfaces they support. */}
+      {/* The alpha-composited status tints, on the two non-page neutral surfaces they sit on.
+          `bg-<family>/10` over `card` and over `popover` are different composites, and both have to
+          clear AA against the family's `-text` ink. */}
       <div className="flex flex-wrap gap-2 rounded-md bg-card p-3">
-        <Button variant="soft" tone="destructive">
-          Card destructive
-        </Button>
-        <Button variant="soft" tone="success">
-          Card success
-        </Button>
-        <Button variant="soft" tone="warning">
-          Card warning
-        </Button>
-        <Button variant="soft" tone="info">
-          Card info
-        </Button>
+        <Badge variant="destructive">Card destructive</Badge>
+        <Badge variant="success">Card success</Badge>
+        <Badge variant="warning">Card warning</Badge>
+        <Badge variant="info">Card info</Badge>
+        <Button variant="destructive">Card destructive action</Button>
       </div>
       <div className="flex flex-wrap gap-2 rounded-md bg-popover p-3">
-        <Button variant="soft" tone="destructive">
-          Popover destructive
-        </Button>
-        <Button variant="soft" tone="success">
-          Popover success
-        </Button>
-        <Button variant="soft" tone="warning">
-          Popover warning
-        </Button>
-        <Button variant="soft" tone="info">
-          Popover info
-        </Button>
+        <Badge variant="destructive">Popover destructive</Badge>
+        <Badge variant="success">Popover success</Badge>
+        <Badge variant="warning">Popover warning</Badge>
+        <Badge variant="info">Popover info</Badge>
+        <Button variant="destructive">Popover destructive action</Button>
       </div>
 
       {/* Categorical integration specimens: the token gate checks the ratios; these nodes prove all
@@ -195,23 +140,42 @@ function Surfaces() {
         <span className="size-4 bg-chart-8" aria-hidden="true" />
       </div>
 
-      <LogoRow
-        label="Trusted by"
-        items={[{ name: "Northstar" }, { name: "Kepler", href: "#kepler" }]}
-      />
-
-      <Alert intent="success">
+      <Alert variant="success">
         <AlertTitle>Saved</AlertTitle>
         <AlertDescription>Your changes have been saved.</AlertDescription>
       </Alert>
-      <Alert intent="warning">
+      <Alert variant="warning">
         <AlertTitle>Heads up</AlertTitle>
         <AlertDescription>Subscription expiring soon.</AlertDescription>
       </Alert>
-      <Alert intent="info">
+      <Alert variant="info">
         <AlertTitle>FYI</AlertTitle>
         <AlertDescription>An informational note.</AlertDescription>
       </Alert>
+
+      {/* Attachment's `error` card (Batch 6 of the shadcn reset). This subject exists because it
+          did not: upstream's `AttachmentDescription` inked its failure line with the destructive
+          FILL at 80% (`text-destructive/80`), which rasterises to 4.113:1 on `card` at 12px, and
+          nothing in the repository measured it — attachment's own unit lane ran unstyled and this
+          file had no attachment subject. A11Y-13 moved the ink onto `text-destructive-text`; this
+          node is what holds it there, in BOTH themes, rather than only in the light-mode axe run
+          inside `attachment.test.tsx`. The media slot is deliberately included too: its error icon
+          ink is upstream's fill on the family's own `/10` tint, measured at 3.973:1 — over the 3:1
+          non-text floor and therefore left verbatim, which is a number worth re-measuring on every
+          token change. */}
+      <div className="rounded-md bg-card p-3">
+        <Attachment state="error" className="w-full max-w-sm">
+          <AttachmentMedia>
+            <FileWarningIcon />
+          </AttachmentMedia>
+          <AttachmentContent>
+            <AttachmentTitle>financial-model.xlsx</AttachmentTitle>
+            <AttachmentDescription>
+              Upload failed — the file is larger than 25 MB.
+            </AttachmentDescription>
+          </AttachmentContent>
+        </Attachment>
+      </div>
     </div>
   );
 }
@@ -240,6 +204,16 @@ async function integrationFailures(container: Element) {
     ) {
       await userEvent.tab();
     }
+    // Upstream's Button carries `transition-all` (MOT-2 = shadcn), so the focus outline ANIMATES
+    // in — measuring on the tick after the tab reads a half-drawn ring and reports a width and an
+    // offset the user never sees. Wait for the control's own running animations instead of
+    // sleeping: it is exact, and it is why this gate stopped being flaky when upstream's
+    // transition vocabulary came back in Batch 2.
+    await Promise.all(
+      button
+        .getAnimations()
+        .map((animation) => animation.finished.catch(() => {})),
+    );
     const style = getComputedStyle(button);
     if (!button.matches(":focus-visible")) {
       failures.push(
@@ -336,15 +310,12 @@ type ToastVariant = "default" | "success" | "error" | "warning" | "info";
  * owns the toast's lifetime instead of racing it. `auditToast` already dismisses explicitly.
  */
 function fireToast(variant: ToastVariant, message: string) {
-  const options = {
-    timeout: 0,
+  toast.add({
+    title: message,
     description: "Supporting detail line",
-  } as const;
-  if (variant === "success") toast.success(message, options);
-  else if (variant === "error") toast.error(message, options);
-  else if (variant === "warning") toast.warning(message, options);
-  else if (variant === "info") toast.info(message, options);
-  else toast(message, options);
+    timeout: 0,
+    ...(variant === "default" ? {} : { type: variant }),
+  });
 }
 
 /**
@@ -371,7 +342,7 @@ async function auditToast(variant: ToastVariant, message: string) {
     )
     .toBe(true);
   const violations = await contrastViolations(document.body);
-  toast.dismiss();
+  toast.close();
   await expect
     .poll(() => document.querySelectorAll('[data-slot="toast"]').length, {
       timeout: 2000,
@@ -385,11 +356,7 @@ async function auditAllToasts(dark: boolean) {
   if (dark) document.documentElement.classList.add("dark");
   // The `<html>.dark` toggle above is what drives the compiled tokens on the portal — the toast
   // surface reads them straight from the cascade, with no theme prop of its own.
-  await render(
-    <ToastProvider>
-      <Toaster />
-    </ToastProvider>,
-  );
+  await render(<Toaster />);
   const variants: Array<[ToastVariant, string]> = [
     ["default", "Plain notification"],
     ["success", "Saved successfully"],
@@ -409,15 +376,16 @@ async function auditAllToasts(dark: boolean) {
 test("rendered color-contrast passes WCAG 2.2 AA — light theme", async () => {
   const screen = await render(<Surfaces />);
   // give the compiled stylesheet a tick to apply
-  await expect.element(screen.getByText("solid warning")).toBeInTheDocument();
+  await expect.element(screen.getByText("tinted warning")).toBeInTheDocument();
   const violations = await contrastViolations(screen.container);
   expect(
     violations,
     `color-contrast failures (light):\n  ${violations.join("\n  ")}`,
   ).toEqual([]);
+  const lightIntegration = await integrationFailures(screen.container);
   expect(
-    await integrationFailures(screen.container),
-    "focus/categorical integration failures (light)",
+    lightIntegration,
+    `focus/categorical integration failures (light):\n  ${lightIntegration.join("\n  ")}`,
   ).toEqual([]);
 });
 
@@ -427,7 +395,7 @@ test("rendered color-contrast passes WCAG 2.2 AA — dark theme", async () => {
       <Surfaces />
     </div>,
   );
-  await expect.element(screen.getByText("solid warning")).toBeInTheDocument();
+  await expect.element(screen.getByText("tinted warning")).toBeInTheDocument();
   const violations = await contrastViolations(screen.container);
   expect(
     violations,
@@ -442,7 +410,7 @@ test("rendered color-contrast passes WCAG 2.2 AA — dark theme", async () => {
 // ── Toaster ────────────────────────────────────────────────────────────────────────────────────
 // Toasts portal to <body>, so audit the whole document. Each variant exercises a different token
 // pair: the base toast (bg-popover / text-popover-foreground), the muted description, and the
-// per-status tints (bg-success-subtle + text-success-text, etc.) plus their lucide status icons.
+// per-status tints (bg-success/10 + text-success, etc.) plus their lucide status icons.
 // Audited one fully-settled toast at a time (see `auditToast` — avoids the stacking-dim false
 // positive).
 
@@ -544,26 +512,31 @@ test("ColorPicker chrome color-contrast passes WCAG AA — dark theme", async ()
   ).toEqual([]);
 });
 
-// ── Tabs count badge ───────────────────────────────────────────────────────────────────────────
-// `[data-slot="tabs-trigger-count"]` paints a TRANSLUCENT ink wash (`bg-foreground/(--alpha-hover)`)
-// on top of whatever the trigger itself paints. On a `pill`/`chip` list the SELECTED trigger is
-// already `bg-foreground/(--alpha-ink-tint)` over the `surface-1` track, so the badge composites two
-// washes over a rung — a stack that `tooling/contrast-check.mjs` cannot see, because that gate
-// checks TOKEN pairs (and its ladder composite deliberately hosts only background/card/popover).
-// Measured dark, pre-fix: muted-foreground over that stack = 3.40:1 (needs 4.5:1) — the appearance
-// probes' axe `color-contrast` serious on `/docs/components/tabs`, 1280-dark-ltr. Rendering every
-// variant with a count, selected and unselected, is what makes the compound legible to axe.
+// ── A counted tab ──────────────────────────────────────────────────────────────────────────────
+// The pre-reset Tabs had a `count` prop that painted its own translucent ink wash
+// (`[data-slot="tabs-trigger-count"]`, `bg-foreground/7`) on top of whatever the trigger painted,
+// and on a selected trigger that composited TWO washes over a rung — a stack
+// `tooling/contrast-check.mjs` cannot see, because that gate checks TOKEN pairs. Measured dark,
+// pre-fix: muted-foreground over that stack was 3.40:1 (needs 4.5:1), which is what the appearance
+// probes reported as an axe `color-contrast` serious on `/docs/components/tabs`.
+//
+// Batch 5 of the shadcn reset put Tabs back on upstream's file, so the prop and its badge are gone
+// and a consumer composes a `Badge` inside the trigger instead. The STACK is the same shape — a
+// badge fill over a selected trigger's fill over the list track — so the guard stays, rendering
+// both of upstream's list variants with the trigger selected and unselected.
 function TabsCounts() {
   return (
     <div className="flex flex-col gap-6 bg-background p-6 text-foreground">
-      {(["line", "pill", "chip"] as const).map((variant) => (
+      {(["default", "line"] as const).map((variant) => (
         <Tabs key={variant} defaultValue="overview">
           <TabsList variant={variant}>
-            <TabsTrigger value="overview" count={12}>
+            <TabsTrigger value="overview">
               Overview
+              <Badge variant="secondary">12</Badge>
             </TabsTrigger>
-            <TabsTrigger value="activity" count={3}>
+            <TabsTrigger value="activity">
               Activity
+              <Badge variant="secondary">3</Badge>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="overview">Overview panel</TabsContent>
@@ -574,17 +547,17 @@ function TabsCounts() {
   );
 }
 
-test("Tabs count badge color-contrast passes WCAG AA — light theme", async () => {
+test("a counted tab's badge color-contrast passes WCAG AA — light theme", async () => {
   const screen = await render(<TabsCounts />);
   await expect.poll(() => screen.container.textContent).toContain("12");
   const violations = await contrastViolations(screen.container);
   expect(
     violations,
-    `tabs count color-contrast failures (light):\n  ${violations.join("\n  ")}`,
+    `counted-tab badge color-contrast failures (light):\n  ${violations.join("\n  ")}`,
   ).toEqual([]);
 });
 
-test("Tabs count badge color-contrast passes WCAG AA — dark theme", async () => {
+test("a counted tab's badge color-contrast passes WCAG AA — dark theme", async () => {
   const screen = await render(
     <div className="dark">
       <TabsCounts />
@@ -594,6 +567,6 @@ test("Tabs count badge color-contrast passes WCAG AA — dark theme", async () =
   const violations = await contrastViolations(screen.container);
   expect(
     violations,
-    `tabs count color-contrast failures (dark):\n  ${violations.join("\n  ")}`,
+    `counted-tab badge color-contrast failures (dark):\n  ${violations.join("\n  ")}`,
   ).toEqual([]);
 });

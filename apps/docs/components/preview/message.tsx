@@ -1,20 +1,34 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
-  Copy,
-  Download,
-  FileText,
-  RotateCcw,
-  ThumbsDown,
-  ThumbsUp,
+  CopyIcon,
+  DownloadIcon,
+  FileTextIcon,
+  RefreshCcwIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
-// Copied INTO apps/docs via `shadcn add @vegastack/{message,bubble,avatar,button}` → auto-scanned.
-import { Avatar } from "@/components/ui/avatar";
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
+// Copied INTO apps/docs via `shadcn add @vegastack/message` (dogfoods the registry) → auto-scanned.
+import {
+  Attachment,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "@/components/ui/attachment";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Bubble,
+  BubbleContent,
+  BubbleGroup,
+  BubbleReactions,
+} from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
 import {
   Message,
   MessageAvatar,
@@ -23,34 +37,257 @@ import {
   MessageGroup,
   MessageHeader,
 } from "@/components/ui/message";
+import { Spinner } from "@/components/ui/spinner";
+
+/*
+ * Upstream's own examples (`vendor/shadcn/4.21.0/docs/message.md`), adapted only for import paths
+ * and for the two assets that must stay local: upstream's `/avatars/NN.png` and its Unsplash
+ * attachment image become this repo's committed `public/preview/*` fixtures, because a demo and
+ * the geometry lane must never depend on a live third-party image service. Composition, Features
+ * and Accessibility carry no code fence upstream — the coverage gate requires a live preview under
+ * every section, so those three compose upstream's own prose claims verbatim.
+ *
+ * `Message` is six plain `<div>`s with a class each: no hook, no handler, nothing interactive of
+ * its own. This module is deliberately server-safe — there is no `"use client"` here.
+ */
+
+const ME = "/preview/avatar-1.svg";
+const RABBIT = "/preview/avatar-2.svg";
+const OLIVER = "/preview/avatar-3.svg";
+const LANDSCAPE = "/preview/landscape.svg";
 
 export function message(): ReactNode {
   return (
     <Wrapper className="justify-stretch">
-      <MessageGroup className="w-full max-w-md">
-        <Message>
+      <div className="flex w-full max-w-sm flex-col gap-6 py-12">
+        <Message align="end">
           <MessageAvatar>
-            <Avatar fallback="AL" />
+            <Avatar>
+              <AvatarImage src={ME} alt="@me" />
+              <AvatarFallback>ME</AvatarFallback>
+            </Avatar>
           </MessageAvatar>
           <MessageContent>
-            <MessageHeader>Ada Lovelace</MessageHeader>
+            <Bubble>
+              <BubbleContent>Deploying to prod real quick.</BubbleContent>
+            </Bubble>
+          </MessageContent>
+        </Message>
+        <Message>
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={RABBIT} alt="@rabbit" />
+              <AvatarFallback>R</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+          <MessageContent>
+            <Bubble variant="muted">
+              <BubbleContent>It&apos;s 4:55 PM. On a Friday.</BubbleContent>
+            </Bubble>
+          </MessageContent>
+        </Message>
+        <Message align="end">
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={ME} alt="@me" />
+              <AvatarFallback>ME</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+          <MessageContent>
+            <Bubble>
+              <BubbleContent>It&apos;s a one-line change.</BubbleContent>
+            </Bubble>
+            <MessageFooter>Delivered</MessageFooter>
+          </MessageContent>
+        </Message>
+        <Message>
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={RABBIT} alt="@rabbit" />
+              <AvatarFallback>R</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+          <MessageContent>
+            <BubbleGroup>
+              <Bubble variant="muted">
+                <BubbleContent>
+                  It&apos;s always a one-line change 😭.
+                </BubbleContent>
+              </Bubble>
+              <Bubble variant="muted">
+                <BubbleContent>Alright, let me take a look.</BubbleContent>
+                <BubbleReactions role="img" aria-label="Reactions: thumbs up">
+                  <span>👍</span>
+                </BubbleReactions>
+              </Bubble>
+            </BubbleGroup>
+          </MessageContent>
+        </Message>
+        <Marker role="status">
+          <MarkerContent className="shimmer">
+            <span className="font-medium">Oliver</span> is typing...
+          </MarkerContent>
+        </Marker>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function messageComposition(): ReactNode {
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="flex w-full max-w-sm flex-col gap-6 py-12">
+        {/* Message → MessageAvatar + MessageContent(MessageHeader, Bubble, MessageFooter) */}
+        <Message>
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={OLIVER} alt="@oliver" />
+              <AvatarFallback>O</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+          <MessageContent>
+            <MessageHeader>Oliver</MessageHeader>
             <Bubble variant="muted">
               <BubbleContent>
-                Morning! Did the deploy finish overnight?
+                The avatar, the header, the surface and the footer are four
+                slots around one row.
+              </BubbleContent>
+            </Bubble>
+            <MessageFooter>Delivered</MessageFooter>
+          </MessageContent>
+        </Message>
+        {/* MessageGroup → Message + Message */}
+        <MessageGroup>
+          <Message align="end">
+            <MessageAvatar />
+            <MessageContent>
+              <Bubble>
+                <BubbleContent>Two rows, one sender.</BubbleContent>
+              </Bubble>
+            </MessageContent>
+          </Message>
+          <Message align="end">
+            <MessageAvatar>
+              <Avatar>
+                <AvatarImage src={ME} alt="@me" />
+                <AvatarFallback>ME</AvatarFallback>
+              </Avatar>
+            </MessageAvatar>
+            <MessageContent>
+              <Bubble>
+                <BubbleContent>
+                  The group stacks them; the avatar sits on the last one.
+                </BubbleContent>
+              </Bubble>
+            </MessageContent>
+          </Message>
+        </MessageGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function messageFeatures(): ReactNode {
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="flex w-full max-w-sm flex-col gap-6 py-12">
+        {/* Start alignment, with a header naming the sender. */}
+        <Message>
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={RABBIT} alt="@rabbit" />
+              <AvatarFallback>R</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+          <MessageContent>
+            <MessageHeader>Rabbit</MessageHeader>
+            <Bubble variant="muted">
+              <BubbleContent>
+                The row owns the layout; the bubble owns the surface.
               </BubbleContent>
             </Bubble>
           </MessageContent>
         </Message>
-
+        {/* End alignment: the row reverses, and the footer follows the message side. */}
         <Message align="end">
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={ME} alt="@me" />
+              <AvatarFallback>ME</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
           <MessageContent>
-            <Bubble align="end">
-              <BubbleContent>Yes — green across the board. 🎉</BubbleContent>
+            <Bubble>
+              <BubbleContent>
+                On an end-aligned row the avatar moves to the end and the footer
+                follows it.
+              </BubbleContent>
             </Bubble>
-            <MessageFooter>Sent 2m ago</MessageFooter>
+            {/* The avatar lifts clear of this footer — `group-has-data-[slot=message-footer]`. */}
+            <MessageFooter>Read</MessageFooter>
           </MessageContent>
         </Message>
-      </MessageGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function messageAvatar(): ReactNode {
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="flex w-full max-w-sm flex-col gap-6 py-12">
+        <Message>
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={OLIVER} alt="@avatar" />
+              <AvatarFallback>R</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+          <MessageContent>
+            <Bubble variant="muted">
+              <BubbleContent>
+                The build failed during dependency installation.
+              </BubbleContent>
+            </Bubble>
+          </MessageContent>
+        </Message>
+        <Message align="end">
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={ME} alt="@avatar" />
+              <AvatarFallback>R</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+          <MessageContent>
+            <Bubble>
+              <BubbleContent>Can you share the exact error?</BubbleContent>
+            </Bubble>
+          </MessageContent>
+        </Message>
+        <Message>
+          <MessageAvatar>
+            <Avatar>
+              <AvatarImage src={OLIVER} alt="@avatar" />
+              <AvatarFallback>R</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+          <MessageContent>
+            <BubbleGroup>
+              <Bubble variant="muted">
+                <BubbleContent>
+                  Here&apos;s the error from the logs
+                </BubbleContent>
+              </Bubble>
+              <Bubble variant="muted">
+                <BubbleContent>
+                  Something went wrong with the build. The libraries are not
+                  installed correctly. Try running the build again.
+                </BubbleContent>
+              </Bubble>
+            </BubbleGroup>
+          </MessageContent>
+        </Message>
+      </div>
     </Wrapper>
   );
 }
@@ -58,55 +295,64 @@ export function message(): ReactNode {
 export function messageGroup(): ReactNode {
   return (
     <Wrapper className="justify-stretch">
-      <MessageGroup className="w-full max-w-md">
-        <Message>
-          <MessageAvatar>
-            <Avatar fallback="LT" />
-          </MessageAvatar>
-          <MessageContent>
-            <MessageHeader>Linus</MessageHeader>
-            <Bubble variant="muted">
-              <BubbleContent>I pushed the fix to the branch.</BubbleContent>
-            </Bubble>
-            <Bubble variant="muted">
-              <BubbleContent>Tests are green now.</BubbleContent>
-            </Bubble>
-            <Bubble variant="muted">
-              <BubbleContent>Want me to open the PR?</BubbleContent>
-            </Bubble>
-          </MessageContent>
-        </Message>
-      </MessageGroup>
+      <div className="flex w-full max-w-sm flex-col gap-6 py-12">
+        <MessageGroup>
+          <Message>
+            <MessageAvatar />
+            <MessageContent>
+              <Bubble variant="muted">
+                <BubbleContent>I checked the registry addresses.</BubbleContent>
+              </Bubble>
+            </MessageContent>
+          </Message>
+          <Message>
+            <MessageAvatar>
+              <Avatar>
+                <AvatarImage src={RABBIT} alt="@avatar" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </MessageAvatar>
+            <MessageContent>
+              <Bubble variant="muted">
+                <BubbleContent>
+                  The component and example JSON now live under the UI registry.
+                </BubbleContent>
+              </Bubble>
+            </MessageContent>
+          </Message>
+        </MessageGroup>
+      </div>
     </Wrapper>
   );
 }
 
-export function messageHeaderFooter(): ReactNode {
+export function messageHeaderAndFooter(): ReactNode {
   return (
     <Wrapper className="justify-stretch">
-      <MessageGroup className="w-full max-w-md">
+      <div className="flex w-full max-w-sm flex-col gap-8 py-12">
         <Message>
-          <MessageAvatar>
-            <Avatar fallback="AL" />
-          </MessageAvatar>
           <MessageContent>
-            <MessageHeader>Ada Lovelace</MessageHeader>
+            <MessageHeader>Olivia</MessageHeader>
             <Bubble variant="muted">
-              <BubbleContent>Can you review the latest draft?</BubbleContent>
+              <BubbleContent>I already checked the logs.</BubbleContent>
             </Bubble>
-            <MessageFooter>10:24 AM</MessageFooter>
           </MessageContent>
         </Message>
-
         <Message align="end">
           <MessageContent>
-            <Bubble align="end">
-              <BubbleContent>On it — give me five minutes.</BubbleContent>
+            <Bubble>
+              <BubbleContent>
+                Send the report to the team. Ping @shadcn if you need help.
+              </BubbleContent>
             </Bubble>
-            <MessageFooter>Read</MessageFooter>
+            <MessageFooter>
+              <div>
+                Read <span className="font-normal">Yesterday</span>
+              </div>
+            </MessageFooter>
           </MessageContent>
         </Message>
-      </MessageGroup>
+      </div>
     </Wrapper>
   );
 }
@@ -114,111 +360,65 @@ export function messageHeaderFooter(): ReactNode {
 export function messageActions(): ReactNode {
   return (
     <Wrapper className="justify-stretch">
-      <MessageGroup className="w-full max-w-md">
+      <div className="flex w-full max-w-sm flex-col gap-8 py-12">
         <Message>
-          <MessageAvatar>
-            <Avatar fallback="AI" />
-          </MessageAvatar>
           <MessageContent>
             <Bubble variant="muted">
               <BubbleContent>
-                Here's a summary of the changes in this release.
+                The install failure is coming from the workspace package.
               </BubbleContent>
             </Bubble>
-            <MessageFooter className="gap-0.5">
-              <IconButton variant="ghost" size="sm" aria-label="Copy">
-                <Copy />
-              </IconButton>
-              <IconButton variant="ghost" size="sm" aria-label="Retry">
-                <RotateCcw />
-              </IconButton>
-              <IconButton variant="ghost" size="sm" aria-label="Good response">
-                <ThumbsUp />
-              </IconButton>
-              <IconButton variant="ghost" size="sm" aria-label="Bad response">
-                <ThumbsDown />
-              </IconButton>
-            </MessageFooter>
-          </MessageContent>
-        </Message>
-
-        <Message align="end">
-          <MessageContent>
-            <Bubble variant="destructive" align="end">
-              <BubbleContent>Send the invoice to the client.</BubbleContent>
-            </Bubble>
-            <MessageFooter className="gap-2">
-              <span>Failed to send</span>
-              <Button variant="ghost" size="sm">
-                Retry
+            <MessageFooter>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Copy"
+                title="Copy"
+              >
+                <CopyIcon />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Like"
+                title="Like"
+              >
+                <ThumbsUpIcon />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Dislike"
+                title="Dislike"
+              >
+                <ThumbsDownIcon />
               </Button>
             </MessageFooter>
           </MessageContent>
         </Message>
-      </MessageGroup>
-    </Wrapper>
-  );
-}
-
-export function messageAnimateIn(): ReactNode {
-  const [replied, setReplied] = useState(false);
-  return (
-    <Wrapper className="flex-col items-stretch gap-4">
-      <MessageGroup className="w-full max-w-md">
-        <Message>
-          <MessageAvatar>
-            <Avatar fallback="AL" />
-          </MessageAvatar>
+        <Message align="end">
           <MessageContent>
-            <MessageHeader>Ada Lovelace</MessageHeader>
-            <Bubble variant="muted">
-              <BubbleContent>Ping me when the deploy is done.</BubbleContent>
-            </Bubble>
-          </MessageContent>
-        </Message>
-        {replied ? (
-          <Message key="reply" align="end" animateIn>
-            <MessageContent>
-              <Bubble align="end" animateIn>
-                <BubbleContent>Just shipped — all green. 🎉</BubbleContent>
-              </Bubble>
-            </MessageContent>
-          </Message>
-        ) : null}
-      </MessageGroup>
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={replied}
-        onClick={() => setReplied(true)}
-      >
-        Send reply
-      </Button>
-    </Wrapper>
-  );
-}
-
-export function messageGhostBubble(): ReactNode {
-  return (
-    <Wrapper className="justify-stretch">
-      <MessageGroup className="w-full max-w-md">
-        {/* Header/footer drop their inline padding under a ghost bubble, so the
-            muted lines align flush with the edge-to-edge media. */}
-        <Message>
-          <MessageAvatar>
-            <Avatar fallback="AL" />
-          </MessageAvatar>
-          <MessageContent>
-            <MessageHeader>Ada Lovelace</MessageHeader>
-            <Bubble variant="ghost">
+            <Bubble>
               <BubbleContent>
-                <div className="aspect-video w-56 rounded-lg bg-gradient-to-br from-muted to-accent" />
+                Okay drop me a link. Taking a look...
               </BubbleContent>
             </Bubble>
-            <MessageFooter>Shared a screenshot · 2m ago</MessageFooter>
+            <MessageFooter className="gap-2">
+              <span className="font-normal text-destructive-text">
+                Failed to send
+              </span>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                title="Retry"
+                aria-label="Retry"
+              >
+                <RefreshCcwIcon />
+              </Button>
+            </MessageFooter>
           </MessageContent>
         </Message>
-      </MessageGroup>
+      </div>
     </Wrapper>
   );
 }
@@ -226,44 +426,98 @@ export function messageGhostBubble(): ReactNode {
 export function messageAttachment(): ReactNode {
   return (
     <Wrapper className="justify-stretch">
-      <MessageGroup className="w-full max-w-md">
-        <Message>
-          <MessageAvatar>
-            <Avatar fallback="AL" />
-          </MessageAvatar>
+      <div className="flex w-full max-w-sm flex-col gap-8 py-12">
+        <Message align="end">
           <MessageContent>
-            {/* Image attachment — a ghost bubble removes the surface so media sits flush. */}
-            <Bubble variant="ghost">
+            <Attachment orientation="vertical">
+              <AttachmentMedia variant="image">
+                <img src={LANDSCAPE} alt="Workspace" />
+              </AttachmentMedia>
+            </Attachment>
+            <Bubble>
               <BubbleContent>
-                <div className="aspect-video w-56 rounded-lg bg-gradient-to-br from-muted to-accent" />
-              </BubbleContent>
-            </Bubble>
-            {/* File attachment — an outline bubble framing a file chip. */}
-            <Bubble variant="outline">
-              <BubbleContent>
-                <span className="flex items-center gap-3">
-                  <FileText className="size-(--icon-action) shrink-0 text-muted-foreground" />
-                  <span className="flex min-w-0 flex-col">
-                    <span className="truncate font-medium">
-                      release-notes.pdf
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      248 KB
-                    </span>
-                  </span>
-                  <IconButton
-                    variant="ghost"
-                    size="sm"
-                    aria-label="Download release-notes.pdf"
-                  >
-                    <Download />
-                  </IconButton>
-                </span>
+                Here&apos;s the image. Can you add it to the PDF? Use it for the
+                cover page.
               </BubbleContent>
             </Bubble>
           </MessageContent>
         </Message>
-      </MessageGroup>
+        <Message>
+          <MessageContent>
+            <Bubble variant="muted">
+              <BubbleContent>
+                Done. Here&apos;s the PDF with the image added as the cover
+                page.
+              </BubbleContent>
+            </Bubble>
+            <Attachment>
+              <AttachmentMedia>
+                <FileTextIcon />
+              </AttachmentMedia>
+              <AttachmentContent>
+                <AttachmentTitle>sales-dashboard.pdf</AttachmentTitle>
+                <AttachmentDescription>PDF · 2.4 MB</AttachmentDescription>
+              </AttachmentContent>
+              <AttachmentActions>
+                <AttachmentAction
+                  type="button"
+                  title="Download"
+                  aria-label="Download"
+                  size="icon-sm"
+                  variant="secondary"
+                >
+                  <DownloadIcon />
+                </AttachmentAction>
+              </AttachmentActions>
+            </Attachment>
+          </MessageContent>
+        </Message>
+        <Message align="end">
+          <MessageContent>
+            <Bubble>
+              <BubbleContent>Thanks. Looks good.</BubbleContent>
+            </Bubble>
+          </MessageContent>
+        </Message>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function messageAccessibility(): ReactNode {
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="flex w-full max-w-sm flex-col gap-8 py-12">
+        {/* Icon-only footer actions each carry an `aria-label`. */}
+        <Message>
+          <MessageContent>
+            <Bubble variant="muted">
+              <BubbleContent>
+                Every icon-only action below is named for a screen reader.
+              </BubbleContent>
+            </Bubble>
+            <MessageFooter>
+              <Button variant="ghost" size="icon" aria-label="Copy">
+                <CopyIcon />
+              </Button>
+              <Button variant="ghost" size="icon" aria-label="Retry">
+                <RefreshCcwIcon />
+              </Button>
+            </MessageFooter>
+          </MessageContent>
+        </Message>
+        {/* An in-progress message is a `role="status"` Marker, so it announces as it appears. */}
+        <Message>
+          <MessageContent>
+            <Marker role="status">
+              <MarkerIcon>
+                <Spinner />
+              </MarkerIcon>
+              <MarkerContent>Checking the logs...</MarkerContent>
+            </Marker>
+          </MessageContent>
+        </Message>
+      </div>
     </Wrapper>
   );
 }

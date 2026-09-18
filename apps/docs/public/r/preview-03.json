@@ -1,0 +1,28 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "preview-03",
+  "title": "Preview 03",
+  "description": "Upstream's empty preview placeholder — one div, no components. Shipped for parity, not as a starting point.",
+  "dependencies": [
+    "@vegastack/design-tokens@^0.4.0"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/blocks/preview-03/index.tsx",
+      "content": "// @vegastack preview-03@0.9.1 sha256-bjWBnZx9OmoQFIJRVMdvj+ZuFRjV4lM8WcphLiWe1JA=\n\nexport default function Preview03() {\n  return <div>Preview 03</div>;\n}\n",
+      "type": "registry:page",
+      "target": "app/preview-03/page.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Nothing: upstream ships it as a placeholder and it is here so the block set is complete.",
+    "whenNotToUse": "Any real page — start from a login, signup, sidebar or dashboard block instead.",
+    "version": "0.9.1",
+    "integrity": "sha256-bjWBnZx9OmoQFIJRVMdvj+ZuFRjV4lM8WcphLiWe1JA="
+  },
+  "categories": [
+    "preview"
+  ],
+  "type": "registry:block"
+}

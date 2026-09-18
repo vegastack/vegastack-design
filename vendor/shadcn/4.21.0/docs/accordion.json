@@ -1,0 +1,17 @@
+{
+  "component": "accordion",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/accordion.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Multiple",
+    "Disabled",
+    "Borders",
+    "Card",
+    "RTL",
+    "API Reference"
+  ]
+}

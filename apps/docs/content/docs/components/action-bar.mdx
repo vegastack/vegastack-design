@@ -26,7 +26,7 @@ import {
   <ActionBarButton onClick={tag}>Tag</ActionBarButton>
   <ActionBarSeparator />
   <ActionBarButton
-    render={<Button variant="soft" tone="destructive" size="sm" />}
+    render={<Button variant="destructive" size="sm" />}
     onClick={archive}
   >
     Archive
@@ -41,8 +41,8 @@ change.
 Compose the actions as `ActionBarButton`. The bar is a Base UI `Toolbar`, and a
 toolbar builds its single tab stop from the items that register with it — a bare
 `<Button>` still renders, but keeps its own tab stop and the arrow keys skip it.
-Pass `render` when an action needs a different shape (a destructive button, an
-`IconButton`, a menu trigger).
+Pass `render` when an action needs a different shape (a destructive button, an icon-only
+`Button size="icon-sm"`, a menu trigger).
 
 ## Scope
 
@@ -109,8 +109,8 @@ so a horizontal bar gets a vertical rule.
   `status` announces itself; composite status markup needs an `announcement`.
 - Actions with visible text must not carry `aria-label` (WCAG 2.5.3) — the
   visible text is the name.
-- The bar sits in the `raised` band, so a dialog opened from one of its actions
-  correctly covers it. While hidden (and while `pending`, for the actions) the
+- The bar sits at `z-10`, below the `z-50` band upstream's overlays use, so a dialog opened from
+  one of its actions correctly covers it. While hidden (and while `pending`, for the actions) the
   subtree is `inert` — nothing invisible or in-flight stays focusable or
   activatable.
 

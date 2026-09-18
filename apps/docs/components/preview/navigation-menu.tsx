@@ -1,117 +1,298 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { BarChart3, Database, Sparkles, Workflow } from "lucide-react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import {
+  CircleAlertIcon,
+  CircleCheckIcon,
+  CircleDashedIcon,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/navigation-menu` (dogfoods the registry) → auto-scanned.
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuGridLink,
+  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuPanel,
   NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { DirectionProvider } from "@/components/ui/direction";
 
+/*
+ * Upstream's own examples, adapted only for import paths and for `next/link` — which this docs app
+ * does not route through — becoming a plain `<a href="#">`. Every fixture renders CLOSED: the menu
+ * is revealed by hover or by keyboard on a trigger, and the geometry lane measures the nav row.
+ */
+
+const components: { title: string; href: string; description: string }[] = [
+  {
+    title: "Alert Dialog",
+    href: "#",
+    description:
+      "A modal dialog that interrupts the user with important content and expects a response.",
+  },
+  {
+    title: "Hover Card",
+    href: "#",
+    description:
+      "For sighted users to preview content available behind a link.",
+  },
+  {
+    title: "Progress",
+    href: "#",
+    description:
+      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+  },
+  {
+    title: "Scroll-area",
+    href: "#",
+    description: "Visually or semantically separates content.",
+  },
+  {
+    title: "Tabs",
+    href: "#",
+    description:
+      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
+  },
+  {
+    title: "Tooltip",
+    href: "#",
+    description:
+      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
+  },
+];
+
+function ListItem({
+  title,
+  children,
+  href,
+  ...props
+}: ComponentPropsWithoutRef<"li"> & { href: string }) {
+  return (
+    <li {...props}>
+      <NavigationMenuLink render={<a href={href} />}>
+        <div className="flex flex-col gap-1 text-sm">
+          <div className="leading-none font-medium">{title}</div>
+          <div className="line-clamp-2 text-muted-foreground">{children}</div>
+        </div>
+      </NavigationMenuLink>
+    </li>
+  );
+}
+
+/** Upstream's `NavigationMenuDemo`: three panels and a bare link styled as a trigger. */
 export function navigationMenu(): ReactNode {
   return (
     <Wrapper className="min-h-72 items-start justify-center pt-4">
-      <NavigationMenu aria-label="Example site navigation">
+      <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Platform</NavigationMenuTrigger>
+            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <div className="grid w-md grid-cols-2 gap-1">
-                <NavigationMenuGridLink
-                  href="#nav-ai"
-                  title="Ask AI"
-                  description="Search and create with AI"
-                  icon={<Sparkles />}
-                />
-                <NavigationMenuGridLink
-                  href="#nav-data"
-                  title="Data model"
-                  description="Sync and enrich your data"
-                  icon={<Database />}
-                />
-                <NavigationMenuGridLink
-                  href="#nav-workflows"
-                  title="Workflows"
-                  description="Orchestrate any revenue motion"
-                  icon={<Workflow />}
-                />
-                <NavigationMenuGridLink
-                  href="#nav-reporting"
-                  title="Reporting"
-                  description="Insights in real time"
-                  icon={<BarChart3 />}
-                />
-              </div>
+              <ul className="w-96">
+                <ListItem href="#" title="Introduction">
+                  Re-usable components built with Tailwind CSS.
+                </ListItem>
+                <ListItem href="#" title="Installation">
+                  How to install dependencies and structure your app.
+                </ListItem>
+                <ListItem href="#" title="Typography">
+                  Styles for headings, paragraphs, lists...etc
+                </ListItem>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem className="hidden md:flex">
+            <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                {components.map((component) => (
+                  <ListItem
+                    key={component.title}
+                    title={component.title}
+                    href={component.href}
+                  >
+                    {component.description}
+                  </ListItem>
+                ))}
+              </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+            <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <div className="flex w-56 flex-col gap-1">
-                <NavigationMenuGridLink href="#nav-blog" title="Blog" />
-                <NavigationMenuGridLink
-                  href="#nav-changelog"
-                  title="Changelog"
-                />
-                <NavigationMenuGridLink href="#nav-help" title="Help center" />
-              </div>
+              <ul className="grid w-[200px]">
+                <li>
+                  <NavigationMenuLink
+                    render={
+                      <a href="#" className="flex-row items-center gap-2" />
+                    }
+                  >
+                    <CircleAlertIcon />
+                    Backlog
+                  </NavigationMenuLink>
+                  <NavigationMenuLink
+                    render={
+                      <a href="#" className="flex-row items-center gap-2" />
+                    }
+                  >
+                    <CircleDashedIcon />
+                    To Do
+                  </NavigationMenuLink>
+                  <NavigationMenuLink
+                    render={
+                      <a href="#" className="flex-row items-center gap-2" />
+                    }
+                  >
+                    <CircleCheckIcon />
+                    Done
+                  </NavigationMenuLink>
+                </li>
+              </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuLink href="#nav-pricing">Pricing</NavigationMenuLink>
+            <NavigationMenuLink
+              render={<a href="#" />}
+              className={navigationMenuTriggerStyle()}
+            >
+              Docs
+            </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
-        <NavigationMenuPanel />
       </NavigationMenu>
     </Wrapper>
   );
 }
 
-// Constrained to a phone-ish width: the shared panel takes the positioner's
-// width below `sm`, so the mega-menu grid collapses to a single stacked column
-// instead of overflowing the viewport. One trigger keeps the narrow nav row
-// from wrapping.
-export function navigationMenuMobile(): ReactNode {
+/**
+ * Upstream's composition tree, rendered. `NavigationMenu` owns the portal, the positioner, the
+ * popup and the viewport itself, so the call site is Root → List → Item → Trigger/Content, with
+ * `NavigationMenuIndicator` marking the trigger that opens a panel.
+ */
+export function navigationMenuComposition(): ReactNode {
   return (
-    <Wrapper className="min-h-72 items-start justify-center pt-4">
-      <div className="w-full max-w-xs">
-        <NavigationMenu aria-label="Example narrow site navigation">
+    <Wrapper className="min-h-60 items-start justify-center pt-4">
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              Item One
+              <NavigationMenuIndicator />
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="w-56">
+                <li>
+                  <NavigationMenuLink render={<a href="#" />}>
+                    Link
+                  </NavigationMenuLink>
+                </li>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              render={<a href="#" />}
+              className={navigationMenuTriggerStyle()}
+            >
+              Item Two
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    </Wrapper>
+  );
+}
+
+/**
+ * Upstream's `Link Component` section. Upstream composes `next/link` through `render`; this docs
+ * app has no router, so the render target is a plain anchor. `navigationMenuTriggerStyle()` is what
+ * makes a top-level link match the triggers beside it.
+ */
+export function navigationMenuLinkComponent(): ReactNode {
+  return (
+    <Wrapper className="items-start justify-center pt-4">
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              render={<a href="#" />}
+              className={navigationMenuTriggerStyle()}
+            >
+              Documentation
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    </Wrapper>
+  );
+}
+
+const rtlComponents: { title: string; description: string }[] = [
+  {
+    title: "حوار التنبيه",
+    description: "حوار نافذة يقطع المستخدم بمحتوى مهم ويتوقع استجابة.",
+  },
+  {
+    title: "بطاقة التحويم",
+    description: "للمستخدمين المبصرين لمعاينة المحتوى المتاح خلف الرابط.",
+  },
+];
+
+/**
+ * Upstream's `NavigationMenuRtl`. Upstream drives the strings from its `language-selector` demo
+ * hook; here they are inline and the direction comes from `DirectionProvider`, which is what Base
+ * UI reads. `align` flips to `end` so the panel hangs from the right edge of the nav row, and `dir`
+ * travels onto the content because the panel portals out of the `dir="rtl"` subtree.
+ */
+export function navigationMenuRtl(): ReactNode {
+  return (
+    <DirectionProvider direction="rtl">
+      <Wrapper className="min-h-72 items-start justify-center pt-4" dir="rtl">
+        <NavigationMenu align="end">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Platform</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="flex w-full flex-col gap-1">
-                  <NavigationMenuGridLink
-                    href="#nav-mobile-ai"
-                    title="Ask AI"
-                    description="Search and create with AI"
-                    icon={<Sparkles />}
-                  />
-                  <NavigationMenuGridLink
-                    href="#nav-mobile-data"
-                    title="Data model"
-                    description="Sync and enrich your data"
-                    icon={<Database />}
-                  />
-                </div>
+              <NavigationMenuTrigger>البدء</NavigationMenuTrigger>
+              <NavigationMenuContent dir="rtl">
+                <ul className="w-80">
+                  <ListItem href="#" title="مقدمة">
+                    مكونات قابلة لإعادة الاستخدام مبنية باستخدام Tailwind CSS.
+                  </ListItem>
+                  <ListItem href="#" title="التثبيت">
+                    كيفية تثبيت التبعيات وتنظيم تطبيقك.
+                  </ListItem>
+                </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink href="#nav-mobile-pricing">
-                Pricing
+              <NavigationMenuTrigger>المكونات</NavigationMenuTrigger>
+              <NavigationMenuContent dir="rtl">
+                <ul className="grid w-80 gap-2">
+                  {rtlComponents.map((component) => (
+                    <ListItem
+                      key={component.title}
+                      title={component.title}
+                      href="#"
+                    >
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                render={<a href="#" />}
+                className={navigationMenuTriggerStyle()}
+              >
+                الوثائق
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
-          <NavigationMenuPanel />
         </NavigationMenu>
-      </div>
-    </Wrapper>
+      </Wrapper>
+    </DirectionProvider>
   );
 }

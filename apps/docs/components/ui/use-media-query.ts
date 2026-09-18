@@ -1,13 +1,13 @@
-// @vegastack use-media-query@0.9.1 sha256-S/Azma0oScYgK+Svl71FcqpgfO93ERvWDZm5dRlT3eU=
+// @vegastack use-media-query@0.9.1 sha256-jpAoP8LGDXtFymeLKt04nDmUBlx6twOd6RynOiRmXHg=
 
 "use client";
 
 import * as React from "react";
 
 /* ---
-`use-media-query.ts` is the system's ONE `matchMedia` subscription. Before it, five files
+`use-media-query.ts` is the system's ONE `matchMedia` subscription. Before it, four files
 each hand-rolled the same `useState(false)` + `useEffect` + `addEventListener('change')`
-shape (`animated-number`, `message-scroller`, `particle-field` each defined a private
+shape (`animated-number` and `message-scroller` each defined a private
 `usePrefersReducedMotion`; `use-mobile` and `use-platform` were two more copies), and every
 one of them shared the same defect: the first render is hard-coded `false`, so a phone gets
 the DESKTOP branch of every JS-driven layout until an effect runs, and a user who asked for
@@ -108,9 +108,8 @@ export function useMediaQuery(
 /**
  * `usePrefersReducedMotion` — whether the user asked the OS to reduce motion.
  *
- * The system-wide reader for `(prefers-reduced-motion: reduce)`, replacing the three private
- * copies that used to live in `animated-number.tsx`, `message-scroller.tsx` and
- * `particle-field.tsx`.
+ * The system-wide reader for `(prefers-reduced-motion: reduce)`, replacing the private
+ * copies that used to live in `animated-number.tsx` and `message-scroller.tsx`.
  *
  * `serverFallback` is `false` here on purpose and is NOT configurable: the CSS reset in
  * `packages/design-tokens/src/base.css` already collapses every `motion-*` utility under the

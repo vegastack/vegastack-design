@@ -15,7 +15,7 @@ export function copyButton(): ReactNode {
           text-primary for ~1.5s. The copied state is owned internally by the
           component — both states are exercised on this live instance, no
           doc-local state hack. */}
-      <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-base">
+      <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-sm">
         npx shadcn add @vegastack/button
       </code>
       <CopyButton value="npx shadcn add @vegastack/button" />
@@ -44,21 +44,21 @@ export function copyButtonStates(): ReactNode {
       {/* Idle — the default Copy icon. */}
       <div className="flex flex-col items-center gap-2">
         <CopyButton value="idle" />
-        <span className="text-sm text-muted-foreground">Idle</span>
+        <span className="text-xs text-muted-foreground">Idle</span>
       </div>
       {/* Copied — the primary tint + label flip are owned internally and only
           appear after a real clipboard write, so this is a labelled live cell:
           click it to see the Check icon (text-primary) + "Copied" label for ~1.5s. */}
       <div className="flex flex-col items-center gap-2">
         <CopyButton value="click me to see the copied state" />
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           Copied (click — live)
         </span>
       </div>
       {/* Disabled — forwarded straight to the underlying Button. */}
       <div className="flex flex-col items-center gap-2">
         <CopyButton value="disabled" disabled />
-        <span className="text-sm text-muted-foreground">Disabled</span>
+        <span className="text-xs text-muted-foreground">Disabled</span>
       </div>
     </Wrapper>
   );
@@ -70,8 +70,8 @@ export function copyButtonVariants(): ReactNode {
       {/* Defaults to ghost / icon-sm, but every Button presentation prop is forwarded. */}
       <CopyButton value="ghost" />
       <CopyButton value="outline" variant="outline" />
-      <CopyButton value="soft" variant="soft" />
-      <CopyButton value="destructive" variant="soft" tone="destructive" />
+      <CopyButton value="soft" variant="secondary" />
+      <CopyButton value="destructive" variant="destructive" />
     </Wrapper>
   );
 }
@@ -79,10 +79,12 @@ export function copyButtonVariants(): ReactNode {
 export function copyButtonSizes(): ReactNode {
   return (
     <Wrapper>
-      {/* `size` is forwarded too — icon sizes keep the button square. */}
-      <CopyButton value="sm" variant="outline" size="sm" />
-      <CopyButton value="md" variant="outline" size="md" />
-      <CopyButton value="lg" variant="outline" size="lg" />
+      {/* `size` is forwarded too. A label-less CopyButton takes an ICON tier — upstream's
+          `sm`/`lg` are text tiers with horizontal padding, so they would render a wide box
+          around a single glyph, and `md` is not one of upstream's sizes at all. */}
+      <CopyButton value="icon-sm" variant="outline" size="icon-sm" />
+      <CopyButton value="icon" variant="outline" size="icon" />
+      <CopyButton value="icon-lg" variant="outline" size="icon-lg" />
     </Wrapper>
   );
 }
@@ -91,13 +93,13 @@ export function copyButtonWithToast(): ReactNode {
   return (
     <Wrapper>
       {/* `onCopied` fires after a successful write — surface a toast (live). */}
-      <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-base">
+      <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-sm">
         vsk_live_3f9a…
       </code>
       <CopyButton
         value="vsk_live_3f9a8c21d40e"
         variant="outline"
-        onCopied={() => toast.success("API key copied")}
+        onCopied={() => toast.add({ type: "success", title: "API key copied" })}
       />
     </Wrapper>
   );

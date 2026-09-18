@@ -26,11 +26,13 @@ test('renders a button labelled "Copy" by default', async () => {
   await expect.element(btn).toHaveAttribute("data-slot", "copy-button");
 });
 
-test("defaults to ghost / sm", async () => {
+test("defaults to ghost / icon-sm", async () => {
+  // Since Batch 2 of the shadcn reset `Button` is upstream's and mirrors neither `data-variant`
+  // nor `data-size`; the resolved recipe is the assertion.
   const screen = await render(<CopyButton value="hello" />);
   const btn = screen.getByRole("button", { name: "Copy" });
-  await expect.element(btn).toHaveAttribute("data-variant", "ghost");
-  await expect.element(btn).toHaveAttribute("data-size", "sm");
+  await expect.element(btn).toHaveClass("hover:bg-muted");
+  await expect.element(btn).toHaveClass("size-7");
 });
 
 test("showLabel renders visible status text and defaults to the small text-button size", async () => {
@@ -40,7 +42,9 @@ test("showLabel renders visible status text and defaults to the small text-butto
     '[data-slot="copy-button-label"]',
   );
 
-  await expect.element(btn).toHaveAttribute("data-size", "sm");
+  // With a visible label the control is a text Button, so `sm` is the h-7 text tier rather than
+  // the icon Button's square `size-7`.
+  await expect.element(btn).toHaveClass("h-7");
   await expect.element(btn).toHaveAttribute("data-label-visible", "");
   expect(label?.textContent).toBe("Copy");
 

@@ -62,7 +62,15 @@ function walk(dir, ext = /\.(md|mdx)$/) {
 // explorer, and an Explorer always wrapped"). `tooling/verify-docs-export.mjs` owns it, with its
 // own self-test; duplicating it would give two rules that can disagree.
 
-/** Canon section order (rows 1–9). Row 0 is frontmatter. */
+/**
+ * Canon section order (rows 1–10). Row 0 is frontmatter.
+ *
+ * Row 10, `Deviations`, is the shadcn reset's addition (Batch 2, 2026-09-18). A page for a
+ * component that is UPSTREAM'S FILE PLUS AN APPROVED PATCH has to say, on the page, which decision
+ * IDs that patch implements — `implementation.md` § 5.5 requires it as the page's FINAL section,
+ * and the mandate's third success sentence ("every difference traces to a decision ID") is only
+ * checkable by a reader if the page carries the list. It follows Do / Don't and nothing follows it.
+ */
 export const CANON_SECTIONS = [
   "Install",
   "Usage",
@@ -73,7 +81,11 @@ export const CANON_SECTIONS = [
   "API Reference",
   "Accessibility",
   "Do / Don't",
+  "Deviations",
 ];
+
+/** The one section allowed to follow Do / Don't, and the last section on any page. */
+const FINAL_SECTION = "Deviations";
 
 /** Row -> the generated component that owns its machine-readable half. */
 const GENERATED_SECTIONS = {
@@ -213,15 +225,25 @@ export function canonProblems(relative, source, componentParts, contract) {
     }
   }
 
-  // Do / Don't closes the component page. Release history belongs to the canonical changelog.
-  const tail = titles.slice(titles.indexOf("Do / Don't") + 1);
-  if (titles.includes("Do / Don't"))
-    for (const title of tail) {
+  // Do / Don't closes the page, except for the reset's Deviations row, which closes it instead.
+  // Release history belongs to the canonical changelog either way.
+  if (titles.includes("Do / Don't")) {
+    for (const title of titles.slice(titles.indexOf("Do / Don't") + 1)) {
+      if (title === FINAL_SECTION) continue;
       say(
         "docs-canon-tail",
-        `"## ${title}" follows Do / Don't — it is the final component-page section.`,
+        `"## ${title}" follows Do / Don't — only "## ${FINAL_SECTION}" may, and it is the final component-page section.`,
       );
     }
+  }
+  if (titles.includes(FINAL_SECTION)) {
+    for (const title of titles.slice(titles.indexOf(FINAL_SECTION) + 1)) {
+      say(
+        "docs-canon-tail",
+        `"## ${title}" follows Do / Don't and "## ${FINAL_SECTION}" — nothing may.`,
+      );
+    }
+  }
 
   // The machine-readable half of a section is GENERATED, never typed.
   for (const [title, component] of Object.entries(GENERATED_SECTIONS)) {
@@ -370,6 +392,11 @@ function selfTest() {
     [
       "a section after Do / Don't",
       good + "\n## Usage\n\nstray\n",
+      "docs-canon-tail",
+    ],
+    [
+      "a section after Deviations, the final row",
+      `${good}\n## Deviations\n\n- FOC-1\n\n## Accessibility\n\nstray\n`,
       "docs-canon-tail",
     ],
     [

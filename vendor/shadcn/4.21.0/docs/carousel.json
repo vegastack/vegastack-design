@@ -1,0 +1,20 @@
+{
+  "component": "carousel",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/carousel.md",
+  "sections": [
+    "About",
+    "Installation",
+    "Usage",
+    "Composition",
+    "Sizes",
+    "Spacing",
+    "Orientation",
+    "Options",
+    "API",
+    "Events",
+    "Plugins",
+    "RTL",
+    "API Reference"
+  ]
+}

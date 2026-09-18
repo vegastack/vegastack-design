@@ -3,22 +3,25 @@ import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import * as React from "react";
 import { expectNoA11yViolations } from "../../test/a11y";
-import {
-  Calendar,
-  DatePicker,
-  DateRangePicker,
-  type DateRange,
-} from "./date-picker";
+import { DatePicker, DateRangePicker, type DateRange } from "./date-picker";
 
 // A fixed month so the grid is deterministic regardless of the run date. `DatePicker` derives the
 // visible month from `value`, so seeding `value` to a June 2026 date pins the calendar on June 2026.
 const JUNE_ANCHOR = new Date(2026, 5, 1);
 
-/** Find a portaled day button by the day-of-month number in its text content. */
+/**
+ * Find a portaled day button by the day-of-month number in its text content. `data-day` is the
+ * hook upstream's `CalendarDayButton` writes on every cell; its `data-slot` is `button`, because
+ * the day button IS upstream's `Button`.
+ */
 function dayButton(day: number): HTMLElement {
   const buttons = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-slot="calendar-day"]'),
-  ).filter((b) => b.getAttribute("aria-disabled") !== "true");
+    document.querySelectorAll<HTMLElement>("button[data-day]"),
+  ).filter(
+    (b) =>
+      b.getAttribute("aria-disabled") !== "true" &&
+      !b.hasAttribute("data-disabled"),
+  );
   const match = buttons.find((b) => b.textContent?.trim() === String(day));
   expect(match, `expected a calendar day button for "${day}"`).toBeTruthy();
   return match!;
@@ -76,13 +79,6 @@ function ControlledRangePicker({
   );
 }
 
-test("Calendar renders the given month inline", async () => {
-  const screen = await render(
-    <Calendar mode="single" defaultMonth={JUNE_ANCHOR} />,
-  );
-  await expect.element(screen.getByText("June 2026")).toBeInTheDocument();
-});
-
 test("trigger shows the placeholder when no date is selected", async () => {
   const screen = await render(<DatePicker placeholder="Pick a date" />);
   await expect
@@ -121,8 +117,8 @@ test("opening a below-the-fold picker does not scroll the page (autoFocus preven
     .not.toBeNull();
   // The day focus effect runs post-paint; poll until focus settles on a day, then check scroll.
   await expect
-    .poll(() => document.activeElement?.getAttribute("data-slot"))
-    .toBe("calendar-day");
+    .poll(() => document.activeElement?.hasAttribute("data-day"))
+    .toBe(true);
   expect(Math.abs(window.scrollY - before)).toBeLessThan(2);
 });
 
@@ -137,7 +133,7 @@ test("selecting a day fires onValueChange, closes, and shows the formatted date"
     .not.toBeNull();
 
   // Select June 21, 2026.
-  dayButton(21).click();
+  await userEvent.click(dayButton(21));
 
   await waitForClosed();
   expect(onPick).toHaveBeenCalledTimes(1);
@@ -332,7 +328,7 @@ test("DateRangePicker keeps open for a new start and closes after the new end", 
     .poll(() => document.querySelector('[data-slot="calendar"]'))
     .not.toBeNull();
 
-  dayButton(5).click();
+  await userEvent.click(dayButton(5));
   await expect.poll(() => onPick.mock.calls.length).toBe(1);
   const openRange = onPick.mock.calls[0]![0] as DateRange;
   expect(openRange.from?.getDate()).toBe(5);
@@ -341,7 +337,7 @@ test("DateRangePicker keeps open for a new start and closes after the new end", 
     document.querySelector('[data-slot="date-range-picker-content"]'),
   ).not.toBeNull();
 
-  dayButton(15).click();
+  await userEvent.click(dayButton(15));
   await expect.poll(() => onPick.mock.calls.length).toBe(2);
   const completedRange = onPick.mock.calls[1]![0] as DateRange;
   expect(completedRange.from?.getDate()).toBe(5);
@@ -387,40 +383,4 @@ test("no a11y violations when the calendar is open", async () => {
     .not.toBeNull();
   // The popover portals to <body>, so audit the whole document.
   await expectNoA11yViolations(document.body);
-});
-
-test("Calendar forwards ref to its host root element", async () => {
-  // `{...props}` (and the ref) flows onto DayPicker, whose Root renders the
-  // `data-slot="calendar"` <div>.
-  const ref = React.createRef<HTMLDivElement>();
-  await render(<Calendar mode="single" defaultMonth={JUNE_ANCHOR} ref={ref} />);
-  expect(ref.current).toBeInstanceOf(HTMLElement);
-  expect(ref.current?.dataset.slot).toBe("calendar");
-});
-
-test("dropdown caption keeps the label and chevron on one line (inline-flex on root AND the label span)", async () => {
-  const screen = await render(
-    <Calendar
-      mode="single"
-      defaultMonth={JUNE_ANCHOR}
-      captionLayout="dropdown"
-      startMonth={new Date(2020, 0, 1)}
-      endMonth={new Date(2030, 11, 1)}
-    />,
-  );
-  const roots =
-    screen.container.querySelectorAll<HTMLElement>(".rdp-dropdown_root");
-  // Month + year dropdowns.
-  expect(roots.length).toBe(2);
-  for (const root of Array.from(roots)) {
-    // Preflight makes the ChevronDown svg display:block; without inline-flex on the
-    // caption-label <span> (the chevron's actual parent) the chevron wraps UNDER the label.
-    expect(root.className).toContain("inline-flex");
-    expect(root.className).toContain("[&>span]:inline-flex");
-    expect(root.className).toContain("[&>span]:items-center");
-    // The chevron must be inside the label span for the child-selector fix to reach it.
-    const labelSpan = root.querySelector("span:not([class*='rdp-dropdown '])");
-    expect(root.querySelector("span svg")).not.toBeNull();
-    expect(labelSpan).not.toBeNull();
-  }
 });

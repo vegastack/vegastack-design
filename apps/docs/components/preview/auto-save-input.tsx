@@ -14,8 +14,8 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
  * and pause 800ms to watch it move through the trailing indicator:
  * - **Idle** — at rest, value matches the last save, no indicator.
  * - **Saving** — a deliberately slow `onSave` holds the spinner while in flight.
- * - **Saved** — a fast `onSave` resolves to the `text-success` check.
- * - **Error** — a rejecting `onSave` flags the `text-destructive` cross + `aria-invalid`.
+ * - **Saved** — a fast `onSave` resolves to the `text-success-text` check.
+ * - **Error** — a rejecting `onSave` flags the `text-destructive-text` cross + `aria-invalid`.
  */
 export function autoSaveInput(): ReactNode {
   return (
@@ -70,7 +70,7 @@ export function autoSaveInputStates(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Saving (slow onSave)
         </span>
         <AutoSaveInput
@@ -83,7 +83,7 @@ export function autoSaveInputStates(): ReactNode {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Saved (fast onSave)
         </span>
         <AutoSaveInput
@@ -96,7 +96,7 @@ export function autoSaveInputStates(): ReactNode {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Error (rejecting onSave)
         </span>
         <AutoSaveInput
@@ -110,7 +110,7 @@ export function autoSaveInputStates(): ReactNode {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Error (failed validate, never calls onSave)
         </span>
         <AutoSaveInput
@@ -155,10 +155,9 @@ function AutoSaveInputControlledDemo(): ReactNode {
           <Button
             key={record.id}
             type="button"
-            // The record selector is a toggle, not a navigation: `soft` is the selected rung and
-            // `outline` the rest one, so both climb the system's hover/pressed ladder instead of a
-            // hand-written wash.
-            variant={record.id === activeId ? "soft" : "outline"}
+            // The record selector is a toggle, not navigation: `secondary` is the selected
+            // fill and `outline` the resting one.
+            variant={record.id === activeId ? "secondary" : "outline"}
             size="sm"
             aria-pressed={record.id === activeId}
             onClick={() => {
@@ -181,7 +180,7 @@ function AutoSaveInputControlledDemo(): ReactNode {
         }}
         placeholder="Edit, or switch records above"
       />
-      <p className="text-center text-base text-muted-foreground">
+      <p className="text-center text-sm text-muted-foreground">
         Editing saves after the debounce; switching records resets the baseline.
       </p>
     </Wrapper>

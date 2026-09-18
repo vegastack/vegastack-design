@@ -1,0 +1,21 @@
+{
+  "component": "context-menu",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/context-menu.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Submenu",
+    "Shortcuts",
+    "Groups",
+    "Icons",
+    "Checkboxes",
+    "Radio",
+    "Destructive",
+    "Sides",
+    "RTL",
+    "API Reference"
+  ]
+}

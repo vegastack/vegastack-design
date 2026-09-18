@@ -1,25 +1,19 @@
-// @vegastack date-picker@0.9.1 sha256-IE1D0uXfCPJOZxZa3Fe4lH7dzkBCU/S5THfog0yH15Y=
+// @vegastack date-picker@0.9.1 sha256-rW3vaySZu9fVw//u4dN3rmYfc3cvMEBoGV+wQjEeLpQ=
 
 "use client";
 
 import * as React from "react";
 import {
-  DayPicker,
-  getDefaultClassNames,
   dateMatchModifiers,
   rangeContainsModifiers,
   type DateRange,
   type DayButton,
   type Matcher,
 } from "react-day-picker";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Calendar as CalendarIcon,
-} from "lucide-react";
-import { cn, mergeRefs, surfaceInteractive } from "@vegastack/design";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@vegastack/design";
+import { Button } from "@/components/ui/button";
+import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverTrigger,
@@ -27,17 +21,19 @@ import {
 } from "@/components/ui/popover";
 
 /* ------------------------------------------------------------------------------------------------
- * DatePicker — single-date and range date selection, built on react-day-picker v10 + our Popover.
+ * DatePicker — single-date and range date selection, composed from upstream `Calendar`, `Popover`
+ * and `Button`. The calendar itself is NOT ours: `@/components/ui/calendar` is shadcn's file plus
+ * its patch, and this module imports it rather than restating a single one of its class strings.
  *
- * Three exports:
- *  - `Calendar`        — a fully token-styled `DayPicker` (use it inline or compose it yourself).
- *  - `DatePicker`      — single date; a `Calendar` inside a `Popover` triggered by a `Button` that
- *                        shows the formatted date. Optional quick presets (Today / Tomorrow / ...).
+ * Two exports:
+ *  - `DatePicker`      — single date; upstream `Calendar` inside a `Popover` triggered by a `Button`
+ *                        that shows the formatted date. Optional quick presets (Today / Tomorrow).
  *  - `DateRangePicker` — the same, for a `{ from, to }` range across two months.
  *
  * Formatting uses the native `Intl.DateTimeFormat` (NO date-fns) so there is no extra runtime dep.
- * Token-only: the selected day is `bg-primary text-primary-foreground` (selection = primary ink), today gets a
- * neutral `ring`, and range middles use `bg-accent`. Every part carries a `data-slot` for styling + testing hooks.
+ * `react-day-picker` survives here as TYPES plus its two matcher evaluators — see the note on
+ * `isDateDisabled` for why the preset gate must read the calendar's own matcher and not a
+ * re-derived copy of it. Nothing in this file renders a day, a month or a caption.
  * ----------------------------------------------------------------------------------------------*/
 
 /* ------------------------------------------------------------------------------------------------
@@ -50,22 +46,6 @@ const DEFAULT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   month: "short",
   day: "numeric",
 };
-
-/**
- * The `data-day` hook: the cell's calendar date as a stable `YYYY-MM-DD` string, built from the
- * LOCAL date parts (never `toISOString()`, which converts to UTC and shifts the day either side of
- * midnight for most of the world). It replaced `toLocaleDateString()`, which made a machine hook
- * change shape per locale — `6/25/2026` on an `en-US` runtime, `25/06/2026` on `en-GB` — so a
- * statically exported page rendered one form and hydrated into the other. That is a text/attribute
- * hydration mismatch on every day cell, and it is what made `/docs/components/date-picker` throw
- * React #418 in every capture lane (appearance probe 2026-09-07). A `data-*` selector must be the
- * same string everywhere; formatting for humans is `formatDate`'s job.
- */
-function dayKey(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day}`;
-}
 
 /** Format a single date with `Intl.DateTimeFormat`. */
 function formatDate(
@@ -88,272 +68,68 @@ function formatRange(
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Calendar
+ * The calendar inside the popover
  * ----------------------------------------------------------------------------------------------*/
 
-// react-day-picker's DayPicker props are a discriminated UNION (single|range|multiple), so we
-// intersect (a `type`, not `interface extends`) to stay assignable across all modes.
-/** Props accepted by `Calendar`. */
-export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
-  /**
-   * Render days from the adjacent months to fill the leading/trailing week rows.
-   * @default true
-   */
-  showOutsideDays?: boolean;
-  /**
-   * Ref to the calendar root element (`data-slot="calendar"`). `DayPicker` itself doesn't forward a
-   * consumer ref, so we wire it onto the overridden `Root` host alongside react-day-picker's own
-   * animation `rootRef`.
-   */
-  ref?: React.Ref<HTMLDivElement>;
-};
+/**
+ * Props forwarded to the inner upstream `Calendar` — every `DayPicker` knob (`timeZone`, `locale`,
+ * `footer`, `captionLayout`, `startMonth`, `endMonth`, `labels`, `formatters`, …) minus the four
+ * the picker owns.
+ */
+type ForwardedCalendarProps = Omit<
+  React.ComponentProps<typeof Calendar>,
+  "mode" | "selected" | "onSelect" | "disabled"
+>;
 
 /**
- * `Calendar` — a token-styled `react-day-picker` `DayPicker`. Forwards every DayPicker prop
- * (`mode`, `selected`, `onSelect`, `defaultMonth`, `numberOfMonths`, `disabled`, …) and overrides
- * the navigation chevrons (lucide) and the day button so selection/today/range states read from
- * our semantic tokens. Use it inline, or let `DatePicker` / `DateRangePicker` host it in a popover.
+ * The day button, wrapping — never copying — upstream's `CalendarDayButton`, for one reason: the
+ * focus call.
  *
- * @example
- * <Calendar mode="single" selected={date} onSelect={setDate} />
- */
-export function Calendar({
-  className,
-  classNames,
-  showOutsideDays = true,
-  components,
-  ref,
-  ...props
-}: CalendarProps) {
-  const defaultClassNames = getDefaultClassNames();
-
-  return (
-    <DayPicker
-      showOutsideDays={showOutsideDays}
-      // `around` moves the two nav buttons INTO each month as siblings of the caption
-      // (react-day-picker v10 renders them absolutely-positioned over the month otherwise). That
-      // is what lets the month be a real `auto 1fr auto` grid: no absolute nav, and no `px-7`
-      // hand-tuned clearance under it (audit B8-03). It also puts the tab order in visual order.
-      navLayout="around"
-      className={cn("group/calendar p-3", className)}
-      classNames={{
-        root: cn("w-fit", defaultClassNames.root),
-        months: cn("flex flex-col gap-4 md:flex-row", defaultClassNames.months),
-        // The month is the grid: `[prev] [caption] [next]` on row 1, the day grid spanning all
-        // three on row 2. Every cell is placed EXPLICITLY because a two-month range renders the
-        // prev button only on the first month and the next button only on the last — auto
-        // placement would slide the second month's caption into column 1. `col-start-1` is the
-        // inline start, so RTL mirrors the trio for free.
-        month: cn(
-          "grid w-full grid-cols-[auto_1fr_auto] items-center gap-x-1 gap-y-4",
-          defaultClassNames.month,
-        ),
-        button_previous: cn(
-          "col-start-1 row-start-1 inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
-          surfaceInteractive,
-          defaultClassNames.button_previous,
-        ),
-        button_next: cn(
-          "col-start-3 row-start-1 inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
-          surfaceInteractive,
-          defaultClassNames.button_next,
-        ),
-        month_caption: cn(
-          "col-start-2 row-start-1 flex h-(--size-sm) items-center justify-center",
-          defaultClassNames.month_caption,
-        ),
-        caption_label: cn(
-          "text-base font-medium select-none",
-          defaultClassNames.caption_label,
-        ),
-        dropdowns: cn(
-          "flex h-(--size-sm) w-full items-center justify-center gap-1.5 text-base font-medium",
-          defaultClassNames.dropdowns,
-        ),
-        dropdown_root: cn(
-          // Inline-flex keeps the label + chevron on one line (Preflight makes the
-          // ChevronDown svg display:block, which would otherwise wrap it under the
-          // label). The chevron actually lives INSIDE the caption-label <span> child
-          // (react-day-picker v10 renders Dropdown as root > [select, span[label, chevron]]),
-          // so the child span gets the same inline-flex treatment via `[&>span]`.
-          // `self-stretch` is the pointer-target floor, not a layout choice: the row is
-          // `h-(--size-sm)` (32px) but an `items-center` child collapses to its 21px line box,
-          // and the real control is the `<select>` stretched over this root (`absolute inset-0`),
-          // so the effective target was 21px tall — under the 24px WCAG 2.5.8 floor. Stretching
-          // the root hands the select the row's full height. Nothing here paints, so the label
-          // and chevron stay exactly where they were (this root centres them).
-          "relative inline-flex items-center self-stretch rounded-md",
-          "[&>span]:inline-flex [&>span]:items-center [&>span]:gap-1",
-          defaultClassNames.dropdown_root,
-        ),
-        dropdown: cn(
-          "absolute inset-0 bg-popover opacity-0",
-          defaultClassNames.dropdown,
-        ),
-        month_grid: cn(
-          "col-span-3 col-start-1 row-start-2 w-full border-collapse",
-          defaultClassNames.month_grid,
-        ),
-        weekdays: cn("flex", defaultClassNames.weekdays),
-        weekday: cn(
-          "flex-1 rounded-md text-label-sm text-muted-foreground select-none",
-          defaultClassNames.weekday,
-        ),
-        week: cn("mt-2 flex w-full", defaultClassNames.week),
-        week_number_header: cn(
-          "w-7 select-none",
-          defaultClassNames.week_number_header,
-        ),
-        week_number: cn(
-          "text-sm text-muted-foreground select-none",
-          defaultClassNames.week_number,
-        ),
-        day: cn(
-          "group/day relative aspect-square h-full w-full p-0 text-center select-none",
-          defaultClassNames.day,
-        ),
-        // Range surfaces — the middle reads from the soft `accent` token; ends are handled on the
-        // day button itself so they sit on `bg-primary`.
-        range_start: cn(
-          "rounded-s-md bg-accent",
-          defaultClassNames.range_start,
-        ),
-        range_middle: cn(
-          "rounded-none bg-accent text-accent-foreground",
-          defaultClassNames.range_middle,
-        ),
-        range_end: cn("rounded-e-md bg-accent", defaultClassNames.range_end),
-        today: cn("text-foreground", defaultClassNames.today),
-        outside: cn(
-          "text-muted-foreground aria-selected:text-muted-foreground",
-          defaultClassNames.outside,
-        ),
-        disabled: cn(
-          "text-muted-foreground opacity-(--opacity-dim)",
-          defaultClassNames.disabled,
-        ),
-        hidden: cn("invisible", defaultClassNames.hidden),
-        ...classNames,
-      }}
-      components={{
-        Root: ({ className: rootClassName, rootRef, ...rootProps }) => (
-          <div
-            data-slot="calendar"
-            // Wire both refs: react-day-picker's animation `rootRef` and the consumer `ref`.
-            ref={mergeRefs(rootRef, ref)}
-            className={cn(rootClassName)}
-            {...rootProps}
-          />
-        ),
-        Chevron: ({
-          className: chevronClassName,
-          orientation,
-          ...chevronProps
-        }) => {
-          if (orientation === "left") {
-            return (
-              <ChevronLeft
-                className={cn("size-(--icon-default)", chevronClassName)}
-                {...chevronProps}
-              />
-            );
-          }
-          if (orientation === "right") {
-            return (
-              <ChevronRight
-                className={cn("size-(--icon-default)", chevronClassName)}
-                {...chevronProps}
-              />
-            );
-          }
-          return (
-            <ChevronDown
-              className={cn("size-(--icon-default)", chevronClassName)}
-              {...chevronProps}
-            />
-          );
-        },
-        DayButton: CalendarDayButton,
-        ...components,
-      }}
-      {...props}
-    />
-  );
-}
-
-/** Props accepted by `CalendarDayButton`. */
-export type CalendarDayButtonProps = React.ComponentProps<typeof DayButton>;
-
-/**
- * `CalendarDayButton` — the per-day button. Token-driven state styling via `data-*`:
- * `data-selected-single` / `data-range-start` / `data-range-end` paint `bg-primary
- * text-primary-foreground` (selection = primary ink); `data-today` adds a neutral `ring`. Auto-focuses when
- * react-day-picker marks the day focused (keyboard navigation).
+ * Upstream's own `focused` effect is a plain `.focus()`. With `autoFocus` (this picker's default)
+ * it fires on the calendar's first paint, while the portaled popup is still UNPOSITIONED at the
+ * document's top-left, so the browser scrolls the page up to that pre-position spot every time a
+ * below-the-fold trigger opens the picker. Handing upstream `focused: false` stops its effect from
+ * running at all and this one focuses with `preventScroll`, which loses nothing: the popup is
+ * fixed-positioned, and keyboard focus still lands on the day. `focused` drives no styling here —
+ * the `group-data-[focused=true]/day` selector upstream's button carries reads the attribute
+ * react-day-picker writes on the parent cell, which is untouched.
  *
- * @example
- * <CalendarDayButton day={day} modifiers={modifiers} />
+ * Inline (an internal part, not an export) because the reason is the popover's, not the calendar's:
+ * the inline `<Calendar>` upstream documents has no unpositioned first paint and needs none of it.
  */
-export function CalendarDayButton({
-  className,
-  day,
+function PopoverDayButton({
   modifiers,
   ...props
-}: CalendarDayButtonProps) {
+}: React.ComponentProps<typeof DayButton>) {
   const ref = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {
-    // `preventScroll` is load-bearing: with `autoFocus` (the DatePicker default), this effect
-    // fires on the calendar's first paint — while the portaled popup is still UNPOSITIONED at
-    // the document's top-left. A plain `.focus()` (what react-day-picker's own DayButton does)
-    // makes the browser scroll the page to that pre-position spot, yanking the viewport to the
-    // top whenever a below-the-fold trigger opens the picker. The popup is fixed-positioned, so
-    // suppressing the scroll loses nothing — keyboard focus still lands on the day.
     if (modifiers.focused) ref.current?.focus({ preventScroll: true });
   }, [modifiers.focused]);
 
-  const isSelectedSingle =
-    modifiers.selected &&
-    !modifiers.range_start &&
-    !modifiers.range_end &&
-    !modifiers.range_middle;
-
   return (
-    // Native button (not our <Button>) so react-day-picker can ref + focus it for keyboard nav.
-    <button
+    <DayButtonWithRef
       ref={ref}
-      type="button"
-      data-slot="calendar-day"
-      data-day={dayKey(day.date)}
-      data-today={modifiers.today ? "" : undefined}
-      data-selected-single={isSelectedSingle ? "" : undefined}
-      data-range-start={modifiers.range_start ? "" : undefined}
-      data-range-end={modifiers.range_end ? "" : undefined}
-      data-range-middle={modifiers.range_middle ? "" : undefined}
-      className={cn(
-        buttonVariants({ variant: "ghost", size: "md" }),
-        "flex aspect-square size-auto w-full min-w-(--size-md) flex-col gap-1 rounded-md px-0 leading-none font-normal",
-        // Neutral hover/pressed for an unselected day.
-        "hover:text-foreground",
-        surfaceInteractive,
-        // Today: a quiet neutral ring so it reads even when not selected.
-        "data-[today]:ring-2 data-[today]:ring-ring/(--alpha-outline-soft)",
-        // Selected single + range ends: the F2 `solid` recipe (selection = primary ink). A solid
-        // owns its own darker hover/pressed steps — `bg-primary hover:bg-primary-hover
-        // active:bg-primary-active`, exactly what `buttonVariants({ variant: "solid" })` compiles
-        // to through `--btn-fill*`. It deliberately does NOT use `fillInteractive.primary`: that
-        // recipe composites an alpha wash, which over a solid only thins it (see the note on
-        // `fillInteractive` in `@vegastack/design`). Before this the selected day pinned
-        // `hover:bg-primary` and had no pressed rung at all (audit fix round, Codex/F1).
-        "data-[selected-single]:bg-primary data-[selected-single]:text-primary-foreground data-[selected-single]:ring-0 data-[selected-single]:hover:bg-primary-hover data-[selected-single]:active:bg-primary-active",
-        "data-[range-start]:rounded-s-md data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:ring-0 data-[range-start]:hover:bg-primary-hover data-[range-start]:active:bg-primary-active",
-        "data-[range-end]:rounded-e-md data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:ring-0 data-[range-end]:hover:bg-primary-hover data-[range-end]:active:bg-primary-active",
-        // Range middle: the hover rung, square corners.
-        "data-[range-middle]:rounded-none data-[range-middle]:bg-surface-2 data-[range-middle]:text-foreground",
-        className,
-      )}
+      modifiers={{ ...modifiers, focused: false }}
       {...props}
     />
   );
 }
+
+/**
+ * The one widening this file performs, and it adds nothing the runtime does not already do: React
+ * 19 hands a function component its `ref` as an ordinary prop, and upstream's `CalendarDayButton`
+ * spreads its rest props onto Base UI's `Button`, so the ref reaches the DOM button. Its prop type
+ * is react-day-picker's `DayButton`, written against `ButtonHTMLAttributes`, which has no `ref`
+ * member — so the type, not the behaviour, is what is missing.
+ */
+const DayButtonWithRef = CalendarDayButton as (
+  props: React.ComponentProps<typeof CalendarDayButton> & {
+    ref?: React.Ref<HTMLButtonElement>;
+  },
+) => React.ReactNode;
+
+/** The `components` override every picker hands its calendar. */
+const POPOVER_CALENDAR_COMPONENTS = { DayButton: PopoverDayButton } as const;
 
 /* ------------------------------------------------------------------------------------------------
  * Presets
@@ -509,10 +285,7 @@ export interface DatePickerProps {
 
    * @default undefined
    */
-  calendarProps?: Omit<
-    CalendarProps,
-    "mode" | "selected" | "onSelect" | "disabled"
-  >;
+  calendarProps?: ForwardedCalendarProps;
   /** Disable the whole control.
    * @default undefined
    */
@@ -584,15 +357,15 @@ export function DatePicker({
             data-empty={value ? undefined : ""}
             aria-label={ariaLabel}
             className={cn(
-              // `w-full` like Input/Select/Combobox — the ONE width rule for form controls
-              // (design.md §Form controls). A fixed `--panel-width-*` trigger overflowed a 320px
+              // `w-full` like upstream's Input, Select trigger and Combobox trigger — a form
+              // control takes its width from its parent. A fixed-width trigger overflowed a 320px
               // content area and was the only fixed-width control in the system (audit B8-03).
               "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
               className,
             )}
           >
             <CalendarIcon
-              className="size-(--icon-default) text-muted-foreground"
+              className="size-4 text-muted-foreground"
               aria-hidden
             />
             {value ? formatDate(value, formatOptions, locale) : placeholder}
@@ -633,6 +406,7 @@ export function DatePicker({
           </PresetRail>
         ) : null}
         <Calendar
+          components={POPOVER_CALENDAR_COMPONENTS}
           {...calendarRestProps}
           mode="single"
           selected={value}
@@ -691,10 +465,7 @@ export interface DateRangePickerProps {
 
    * @default undefined
    */
-  calendarProps?: Omit<
-    CalendarProps,
-    "mode" | "selected" | "onSelect" | "disabled"
-  >;
+  calendarProps?: ForwardedCalendarProps;
   /** Disable the whole control.
    * @default undefined
    */
@@ -799,7 +570,7 @@ export function DateRangePicker({
             )}
           >
             <CalendarIcon
-              className="size-(--icon-default) text-muted-foreground"
+              className="size-4 text-muted-foreground"
               aria-hidden
             />
             {label}
@@ -843,6 +614,7 @@ export function DateRangePicker({
           </PresetRail>
         ) : null}
         <Calendar
+          components={POPOVER_CALENDAR_COMPONENTS}
           {...calendarRestProps}
           mode="range"
           selected={value}

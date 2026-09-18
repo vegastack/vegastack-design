@@ -1,4 +1,4 @@
-// @vegastack stepper@0.9.1 sha256-p14iB0IedPGi91Ll9LO0zwaddKS6kIPSWUaEe6bYPCw=
+// @vegastack stepper@0.9.1 sha256-auFWRNZMa4QhUZrvFBfl9/qzxipsvj40qlXg+spjQJg=
 
 "use client";
 
@@ -28,8 +28,10 @@ Deliberately NOT done here:
 - No Back/Next buttons and no step bodies. Gating is the host's logic and the form is
   the host's form; this component *communicates* the process. The multi-step-form
   assembly (stepper + Field + validation) is a Guides page.
-- No compact segments voice. Where a full step list is too heavy, that is
-  `ProgressIndicator segments` — a different component on purpose.
+- No compact segments voice. Where a full step list is too heavy, compose upstream's
+  `Progress` with a "Step n of N" line: `progress-indicator`, which used to own the
+  segmented dash form, was retired onto `progress` + `spinner` in Batch 7a of the
+  shadcn reset.
 - No auto-derived states. The host names each step's state explicitly; deriving
   complete/upcoming from an index would bake in "linear and always forward", which
   imports with failed steps are not.
@@ -132,8 +134,8 @@ export interface StepperProps extends Omit<
  * step's label whenever the current step changes (never on first mount).
  *
  * **Not `Tabs`** — `role="tab"` implies free navigation and misleads assistive
- * tech in a linear flow. **Not `Segmented`** — that is radio semantics for view
- * switching.
+ * tech in a linear flow. **Not a joined `ToggleGroup`** — that is a view
+ * switcher, not a sequence.
  *
  * @example
  * <Stepper
@@ -269,21 +271,18 @@ export function Stepper({
               {selectable ? (
                 <Button
                   variant="link"
-                  tone="neutral"
-                  size="md"
                   ref={(node: HTMLElement | null) => {
                     if (node) labelRefs.current.set(step.id, node);
                     else labelRefs.current.delete(step.id);
                   }}
                   data-slot="stepper-label"
                   onClick={() => onStepSelect?.(step.id)}
-                  // A navigable step label IS a link-shaped control, so it takes the `link`
-                  // variant rather than a `ghost` Button reshaped into inline text by stripping
-                  // its height and padding (B7-09). `size="md"` keeps the label at the same
-                  // `text-base` the static label uses; nothing about the control box is
-                  // overridden here, only its alignment.
                   className={cn(
-                    "min-w-0 justify-start gap-1",
+                    // `px-0`: `Button` takes its `default` size here, whose `px-2.5` would indent
+                    // the navigable label ~10px past the non-navigable `<span>` form and past the
+                    // step's own description, so a navigable stepper and a linear one did not line
+                    // up. The height stays the Button's; only the lead padding goes.
+                    "min-w-0 justify-start gap-1 px-0",
                     orientation === "horizontal" && "w-full",
                   )}
                 >
@@ -299,12 +298,12 @@ export function Stepper({
                   // Focus target when the step becomes current — not a tab stop.
                   tabIndex={isCurrent ? -1 : undefined}
                   className={cn(
-                    "inline-flex min-w-0 items-center gap-1 rounded-sm text-base",
+                    "inline-flex min-w-0 items-center gap-1 rounded-sm text-sm",
                     orientation === "horizontal" && "w-full",
                     isCurrent || step.state === "error"
                       ? "font-medium text-foreground"
                       : "text-muted-foreground",
-                    step.disabled && "opacity-(--opacity-dim)",
+                    step.disabled && "opacity-50",
                   )}
                 >
                   {labelContent}
@@ -313,7 +312,7 @@ export function Stepper({
               {step.description ? (
                 <span
                   data-slot="stepper-description"
-                  className="min-w-0 truncate text-sm text-muted-foreground"
+                  className="min-w-0 truncate text-xs text-muted-foreground"
                 >
                   {step.description}
                 </span>
@@ -328,7 +327,7 @@ export function Stepper({
                   role="status"
                   aria-live="polite"
                   className={cn(
-                    "mt-0.5 text-sm text-warning-text",
+                    "mt-0.5 text-xs text-warning-text",
                     !blockedReason && "sr-only",
                   )}
                 >

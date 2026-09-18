@@ -1,304 +1,255 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { RadioGroup, RadioGroupItem } from "./radio-group";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
+} from "./field";
+import { Label } from "./label";
 
-function Basic(props: React.ComponentProps<typeof RadioGroup>) {
+const itemClasses = (screen: { container: HTMLElement }) =>
+  (
+    screen.container.querySelector(
+      '[data-slot="radio-group-item"]',
+    ) as HTMLElement
+  ).className;
+
+function Basic({ defaultValue = "one" }: { defaultValue?: string }) {
   return (
-    <RadioGroup aria-label="Density" {...props}>
-      <RadioGroupItem value="comfortable" aria-label="Comfortable" />
-      <RadioGroupItem value="compact" aria-label="Compact" />
-      <RadioGroupItem value="spacious" aria-label="Spacious" />
+    <RadioGroup defaultValue={defaultValue} aria-label="Options">
+      <div className="flex items-center gap-3">
+        <RadioGroupItem value="one" id="one" />
+        <Label htmlFor="one">Option One</Label>
+      </div>
+      <div className="flex items-center gap-3">
+        <RadioGroupItem value="two" id="two" />
+        <Label htmlFor="two">Option Two</Label>
+      </div>
     </RadioGroup>
   );
 }
 
-test("renders a radiogroup with its options", async () => {
+test("renders a radiogroup of radios carrying data-slot (Usage, Composition)", async () => {
   const screen = await render(<Basic />);
-  const group = screen.getByRole("radiogroup", { name: "Density" });
-  await expect.element(group).toBeInTheDocument();
+  const group = screen.getByRole("radiogroup", { name: "Options" });
   await expect.element(group).toHaveAttribute("data-slot", "radio-group");
-  await expect.element(group).toHaveAttribute("data-orientation", "vertical");
-  await expect.element(group).toHaveClass("gap-3");
+  const radios = screen.container.querySelectorAll('[role="radio"]');
+  expect(radios.length).toBe(2);
+  expect(radios[0]?.getAttribute("data-slot")).toBe("radio-group-item");
+});
 
+test("the default value is the checked option (Usage)", async () => {
+  const screen = await render(<Basic />);
+  await expect
+    .element(screen.getByRole("radio", { name: "Option One" }))
+    .toHaveAttribute("aria-checked", "true");
+  await expect
+    .element(screen.getByRole("radio", { name: "Option Two" }))
+    .toHaveAttribute("aria-checked", "false");
+});
+
+/*
+ * Base UI renders this control as a `<span role="…">`, and this lane compiles no Tailwind, so the
+ * element has a zero-size box and Playwright refuses to click it ("element is not visible"). A
+ * NATIVE `.click()` exercises the same handler without a hit test — the convention this repository
+ * has used for every span-rendered control since the Base UI migration. The RENDERED pointer target
+ * is proven separately, on compiled CSS, by `test/geometry.browser.test.tsx`.
+ */
+test("clicking moves the selection (Usage)", async () => {
+  const screen = await render(<Basic />);
+  (
+    screen.getByRole("radio", { name: "Option Two" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("radio", { name: "Option Two" }))
+    .toHaveAttribute("aria-checked", "true");
+  await expect
+    .element(screen.getByRole("radio", { name: "Option One" }))
+    .toHaveAttribute("aria-checked", "false");
+});
+
+test("the indicator renders only on the selected item (Usage)", async () => {
+  const screen = await render(<Basic />);
+  expect(
+    screen.container.querySelectorAll('[data-slot="radio-group-indicator"]')
+      .length,
+  ).toBe(1);
+});
+
+test("FieldContent gives an option a description (Description)", async () => {
+  const screen = await render(
+    <RadioGroup defaultValue="comfortable" aria-label="Density">
+      <Field orientation="horizontal">
+        <RadioGroupItem value="comfortable" id="comfortable" />
+        <FieldContent>
+          <FieldLabel htmlFor="comfortable">Comfortable</FieldLabel>
+          <FieldDescription>More space between elements.</FieldDescription>
+        </FieldContent>
+      </Field>
+    </RadioGroup>,
+  );
   await expect
     .element(screen.getByRole("radio", { name: "Comfortable" }))
-    .toBeInTheDocument();
+    .toHaveAttribute("aria-checked", "true");
   await expect
-    .element(screen.getByRole("radio", { name: "Compact" }))
-    .toBeInTheDocument();
-  await expect
-    .element(screen.getByRole("radio", { name: "Spacious" }))
+    .element(screen.getByText("More space between elements."))
     .toBeInTheDocument();
 });
 
-test("selecting an option fires onValueChange and updates aria-checked", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(<Basic onValueChange={onValueChange} />);
-  const compact = screen.getByRole("radio", { name: "Compact" });
-
-  // Native click: Tailwind layout utilities aren't compiled in the vitest browser
-  // run, so the size-4 box collapses to zero and Playwright's visibility hit-test
-  // fails. The element's click handler still selects the radio.
-  (compact.element() as HTMLElement).click();
-  expect(onValueChange).toHaveBeenCalledTimes(1);
-  expect(onValueChange).toHaveBeenLastCalledWith("compact", expect.anything());
-  await expect.element(compact).toHaveAttribute("aria-checked", "true");
-  await expect.element(compact).toHaveAttribute("data-checked");
-});
-
-test("only one option can be selected at a time", async () => {
-  const screen = await render(<Basic defaultValue="comfortable" />);
-  const comfortable = screen.getByRole("radio", { name: "Comfortable" });
-  const spacious = screen.getByRole("radio", { name: "Spacious" });
-  await expect.element(comfortable).toHaveAttribute("aria-checked", "true");
-
-  (spacious.element() as HTMLElement).click();
-  await expect.element(spacious).toHaveAttribute("aria-checked", "true");
-  await expect.element(comfortable).toHaveAttribute("aria-checked", "false");
-});
-
-test("arrow-key navigation moves the selection between options", async () => {
-  const onValueChange = vi.fn();
+test("a choice card wraps the whole Field in its label (Choice Card)", async () => {
   const screen = await render(
-    <Basic defaultValue="comfortable" onValueChange={onValueChange} />,
+    <RadioGroup defaultValue="plus" aria-label="Plan">
+      <FieldLabel htmlFor="plus-plan">
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldTitle>Plus</FieldTitle>
+            <FieldDescription>For small teams.</FieldDescription>
+          </FieldContent>
+          <RadioGroupItem value="plus" id="plus-plan" />
+        </Field>
+      </FieldLabel>
+    </RadioGroup>,
   );
-  const comfortable = screen.getByRole("radio", { name: "Comfortable" });
+  const radio = screen.container.querySelector('[role="radio"]');
+  expect(radio?.getAttribute("aria-checked")).toBe("true");
+  expect(radio?.closest('[data-slot="field-label"]')).not.toBeNull();
+});
 
-  comfortable.element().focus();
-  // Arrow keys move focus AND selection in a radio group.
-  await userEvent.keyboard("{ArrowDown}");
-  expect(onValueChange).toHaveBeenLastCalledWith("compact", expect.anything());
+test("a FieldSet gives the group a legend (Fieldset)", async () => {
+  const screen = await render(
+    <FieldSet>
+      <FieldLegend variant="label">Subscription Plan</FieldLegend>
+      <RadioGroup defaultValue="monthly">
+        <Field orientation="horizontal">
+          <RadioGroupItem value="monthly" id="monthly" />
+          <FieldLabel htmlFor="monthly">Monthly</FieldLabel>
+        </Field>
+      </RadioGroup>
+    </FieldSet>,
+  );
   await expect
-    .element(screen.getByRole("radio", { name: "Compact" }))
+    .element(screen.getByRole("group", { name: "Subscription Plan" }))
+    .toBeInTheDocument();
+});
+
+test("a disabled item blocks activation (Disabled)", async () => {
+  const screen = await render(
+    <RadioGroup defaultValue="two" aria-label="Options">
+      <RadioGroupItem value="one" id="d1" disabled aria-label="One" />
+      <RadioGroupItem value="two" id="d2" aria-label="Two" />
+    </RadioGroup>,
+  );
+  const disabled = screen.getByRole("radio", { name: "One" });
+  await expect.element(disabled).toBeDisabled();
+  (disabled.element() as HTMLElement).click();
+  await expect
+    .element(screen.getByRole("radio", { name: "Two" }))
     .toHaveAttribute("aria-checked", "true");
 });
 
-test("disabled group prevents selection", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(<Basic disabled onValueChange={onValueChange} />);
-  const compact = screen.getByRole("radio", { name: "Compact" });
-  await expect.element(compact).toHaveAttribute("data-disabled");
-
-  // Native click bypasses pointer-events; the handler must still not fire.
-  compact.element().dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  expect(onValueChange).not.toHaveBeenCalled();
-});
-
-test("reflects the layout orientation on the data attribute", async () => {
-  const screen = await render(<Basic orientation="horizontal" />);
-  const group = screen.getByRole("radiogroup", { name: "Density" });
-  await expect.element(group).toHaveAttribute("data-orientation", "horizontal");
-  await expect.element(group).toHaveAttribute("aria-orientation", "horizontal");
-  await expect.element(group).toHaveClass("gap-4");
-});
-
-test("no a11y violations when options are labelled", async () => {
+test("aria-invalid reaches the items and FieldError carries the message (Invalid)", async () => {
   const screen = await render(
-    <RadioGroup aria-label="Density">
-      <label>
-        Comfortable
-        <RadioGroupItem value="comfortable" />
-      </label>
-      <label>
-        Compact
-        <RadioGroupItem value="compact" />
-      </label>
-    </RadioGroup>,
+    <FieldSet data-invalid>
+      <FieldLegend variant="label">Delivery window</FieldLegend>
+      <RadioGroup>
+        <Field orientation="horizontal" data-invalid>
+          <RadioGroupItem value="morning" id="morning" aria-invalid />
+          <FieldLabel htmlFor="morning">Morning</FieldLabel>
+        </Field>
+      </RadioGroup>
+      <FieldError>Choose a delivery window.</FieldError>
+    </FieldSet>,
   );
+  await expect
+    .element(screen.getByRole("radio", { name: "Morning" }))
+    .toHaveAttribute("aria-invalid", "true");
+  await expect
+    .element(screen.getByText("Choose a delivery window."))
+    .toBeInTheDocument();
+});
+
+test("RTL: the group inherits direction from its container (RTL)", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Basic />
+    </div>,
+  );
+  const group = screen
+    .getByRole("radiogroup", { name: "Options" })
+    .element() as HTMLElement;
+  expect(getComputedStyle(group).direction).toBe("rtl");
+});
+
+test("A11Y-2: an invisible ::after extends the pointer target past 24px", async () => {
+  const classes = itemClasses(await render(<Basic />));
+  expect(classes).toContain("after:absolute");
+  expect(classes).toContain("after:-inset-x-3");
+  expect(classes).toContain("after:-inset-y-2");
+});
+
+test("FOC-1/FOC-6: the recipe carries no focus glow and no outline suppression", async () => {
+  const classes = itemClasses(await render(<Basic />));
+  expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+  expect(classes).not.toContain("focus-visible:ring-");
+  expect(classes).not.toContain("focus-visible:border-ring");
+  expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
+  expect(classes).not.toContain("aria-invalid:ring-destructive");
+});
+
+test("FOC-5: the invalid tint stands down while the control is focused", async () => {
+  const classes = itemClasses(await render(<Basic />));
+  expect(classes).toContain("not-focus:aria-invalid:border-destructive");
+  expect(classes).toContain(
+    "not-focus:aria-invalid:aria-checked:border-primary",
+  );
+});
+
+test("FOC-12: the control never cancels its own ring for a choice card", async () => {
+  const classes = itemClasses(await render(<Basic />));
+  expect(classes).not.toContain("group-has-[:focus-visible]/field-label:");
+});
+
+test("no a11y violations — rest", async () => {
+  const screen = await render(<Basic />);
   await expectNoA11yViolations(screen.container);
 });
 
-test("no a11y violations — checked", async () => {
-  const screen = await render(<Basic defaultValue="comfortable" />);
+test("no a11y violations — invalid", async () => {
+  const screen = await render(
+    <FieldSet data-invalid>
+      <FieldLegend variant="label">Window</FieldLegend>
+      <RadioGroup>
+        <Field orientation="horizontal" data-invalid>
+          <RadioGroupItem value="morning" id="a11y-morning" aria-invalid />
+          <FieldLabel htmlFor="a11y-morning">Morning</FieldLabel>
+        </Field>
+      </RadioGroup>
+      <FieldError>Choose a window.</FieldError>
+    </FieldSet>,
+  );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — disabled", async () => {
-  const screen = await render(<Basic disabled />);
+  const screen = await render(
+    <RadioGroup defaultValue="two" aria-label="Options">
+      <Field orientation="horizontal" data-disabled>
+        <RadioGroupItem value="one" id="a11y-d1" disabled />
+        <FieldLabel htmlFor="a11y-d1">One</FieldLabel>
+      </Field>
+      <Field orientation="horizontal">
+        <RadioGroupItem value="two" id="a11y-d2" />
+        <FieldLabel htmlFor="a11y-d2">Two</FieldLabel>
+      </Field>
+    </RadioGroup>,
+  );
   await expectNoA11yViolations(screen.container);
-});
-
-test("render composes a custom item element while keeping slot + classes", async () => {
-  // Base UI's `render` replaces RadioGroupItem's root
-  // host element but merges our data-slot, className, and role="radio" onto it.
-  const screen = await render(
-    <RadioGroup aria-label="Density">
-      <RadioGroupItem
-        value="comfortable"
-        aria-label="Comfortable"
-        className="sentinel-radio"
-        render={<div data-testid="custom-radio-root" />}
-      />
-    </RadioGroup>,
-  );
-  const radio = screen.getByRole("radio", { name: "Comfortable" });
-  const el = radio.element() as HTMLElement;
-  expect(el.tagName).toBe("DIV");
-  expect(el.getAttribute("data-testid")).toBe("custom-radio-root");
-  await expect.element(radio).toHaveAttribute("data-slot", "radio-group-item");
-  expect(el.classList.contains("sentinel-radio")).toBe(true);
-});
-
-test("supports nativeButton composition for sibling htmlFor labels", async () => {
-  const screen = await render(
-    <RadioGroup aria-label="Payment method">
-      <label htmlFor="payment-card">Card</label>
-      <RadioGroupItem
-        id="payment-card"
-        value="card"
-        nativeButton
-        render={<button type="button" />}
-      />
-    </RadioGroup>,
-  );
-  const radio = screen.getByRole("radio", { name: "Card" });
-  expect((radio.element() as HTMLElement).tagName).toBe("BUTTON");
-});
-
-test("forwards ref to the underlying radiogroup root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
-    <RadioGroup ref={ref} aria-label="Density">
-      <RadioGroupItem value="comfortable" aria-label="Comfortable" />
-    </RadioGroup>,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("radio-group");
-});
-
-/* ---------------------------------------------------------------------------------------------
- * The invalid SHAKE is not here. `Field` owns it (audit D5) — a group's validity belongs to the
- * field, not to one of its items — so the motion is covered in field.test.tsx.
- * ------------------------------------------------------------------------------------------- */
-
-test("aria-invalid marks an item without any motion of its own", async () => {
-  const screen = await render(
-    <RadioGroup aria-label="Density">
-      <RadioGroupItem value="compact" aria-label="Compact" aria-invalid />
-    </RadioGroup>,
-  );
-  const item = screen.getByRole("radio", { name: "Compact" });
-  await expect.element(item).toHaveAttribute("aria-invalid", "true");
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  expect((item.element() as HTMLElement).className).not.toContain(
-    "motion-shake",
-  );
-});
-
-test("applies the size data attribute", async () => {
-  const screen = await render(
-    <RadioGroup aria-label="Density">
-      <RadioGroupItem value="compact" aria-label="Compact" size="sm" />
-    </RadioGroup>,
-  );
-  await expect
-    .element(screen.getByRole("radio", { name: "Compact" }))
-    .toHaveAttribute("data-size", "sm");
-});
-
-/* ---------------------------------------------------------------------------------------------
- * Touch-target remediation (WCAG 2.5.8) — effective hit-area measurement.
- *
- * Same rationale/technique as checkbox.test.tsx: this harness runs without compiled Tailwind, so
- * `before:-inset-1` etc. never resolve to real CSS here. Each test injects a literal <style> tag
- * that is a 1:1 mirror of what these EXACT Tailwind utility values compile to, including the
- * real 1px border that reduces the pseudo-element containing box, keyed to the item's `data-slot`/
- * `data-size` attributes (real regardless of compiled CSS), then measures the REAL,
- * browser-computed layout against it.
- * ------------------------------------------------------------------------------------------- */
-
-function injectRadioItemHitAreaMirror(): () => void {
-  const style = document.createElement("style");
-  style.textContent = `
-    body { margin: 24px; }
-    [data-slot="radio-group-item"] { position: relative; display: inline-flex; box-sizing: border-box; border: 1px solid transparent; }
-    [data-slot="radio-group-item"][data-size="md"] { width: 16px; height: 16px; }
-    [data-slot="radio-group-item"][data-size="sm"] { width: 14px; height: 14px; }
-    [data-slot="radio-group-item"][data-size="md"]::before { content: ""; position: absolute; inset: -6px; }
-    [data-slot="radio-group-item"][data-size="sm"]::before { content: ""; position: absolute; inset: -6px; }
-  `;
-  document.head.appendChild(style);
-  return () => document.head.removeChild(style);
-}
-
-test("default size (16px) resolves an effective hit area >= 24x24 via the before pseudo-element", async () => {
-  const cleanup = injectRadioItemHitAreaMirror();
-  try {
-    const screen = await render(<Basic />);
-    const el = screen
-      .getByRole("radio", { name: "Comfortable" })
-      .element() as HTMLElement;
-    el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
-  } finally {
-    cleanup();
-  }
-});
-
-test("sm size (14px) resolves an effective hit area >= 24x24 via the before pseudo-element", async () => {
-  const cleanup = injectRadioItemHitAreaMirror();
-  try {
-    const screen = await render(
-      <RadioGroup aria-label="Density">
-        <RadioGroupItem value="compact" aria-label="Compact" size="sm" />
-      </RadioGroup>,
-    );
-    const el = screen
-      .getByRole("radio", { name: "Compact" })
-      .element() as HTMLElement;
-    el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
-  } finally {
-    cleanup();
-  }
-});
-
-test("a point just outside the visual dot, inside the expanded hit area, still hits and selects the item", async () => {
-  const cleanup = injectRadioItemHitAreaMirror();
-  try {
-    const onValueChange = vi.fn();
-    const screen = await render(<Basic onValueChange={onValueChange} />);
-    const el = screen
-      .getByRole("radio", { name: "Comfortable" })
-      .element() as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    // 3px left of the visual left edge — inside the 6px expansion.
-    const x = rect.left - 3;
-    const y = rect.top + rect.height / 2;
-    const hit = document.elementFromPoint(x, y);
-    expect(hit).toBe(el);
-    (hit as HTMLElement).click();
-    expect(onValueChange).toHaveBeenCalledTimes(1);
-    expect(onValueChange).toHaveBeenLastCalledWith(
-      "comfortable",
-      expect.anything(),
-    );
-  } finally {
-    cleanup();
-  }
-});
-
-test("a point beyond the expanded hit area does not resolve to the item", async () => {
-  const cleanup = injectRadioItemHitAreaMirror();
-  try {
-    const screen = await render(<Basic />);
-    const el = screen
-      .getByRole("radio", { name: "Comfortable" })
-      .element() as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    // 8px left of the visual left edge — beyond the 6px expansion boundary.
-    const x = rect.left - 8;
-    const y = rect.top + rect.height / 2;
-    const hit = document.elementFromPoint(x, y);
-    expect(hit).not.toBe(el);
-  } finally {
-    cleanup();
-  }
 });

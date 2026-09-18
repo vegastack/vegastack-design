@@ -1,17 +1,27 @@
-// @vegastack tool-call-chip@0.9.1 sha256-OHrLN4a2xl/eLfQMRWn9GcAs20y61Kn81FOE37XMcjc=
+// @vegastack tool-call-chip@0.9.1 sha256-/TgNPRNY5b0Me76OezuuBhBTcEUjjF6vjL5fSyUAs10=
 
 "use client";
 
 import * as React from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@vegastack/design";
+import { Badge } from "@/components/ui/badge";
 
 /* ------------------------------------------------------------------------------------------------
- * ToolCallChip — the agent-activity chip (Wave 3, from the AI-chat teardown): an outline chip
- * naming a tool action ("SQL query executed") with a muted META slot for its result summary
- * ("3 rows in 495ms"). Chat-family presentational; polymorphic via Base UI `useRender`, so it
- * can render as a button (expand the call's detail) or stay a static span. Compose a leading
- * status icon as `children` before the label — a Spinner while running, a check when done.
+ * ToolCallChip — the agent-activity chip (Wave 3, from the AI-chat teardown): a chip naming a tool
+ * action ("SQL query executed") with a muted META slot for its result summary ("3 rows in 495ms").
+ *
+ * It IS upstream's `Badge` in its `outline` variant, not a private chip recipe. Before Batch 7c of
+ * the shadcn reset this file re-derived the whole box — its own height, radius, border, ground and
+ * icon rules — which meant a transcript showed two different chip shapes depending on whether the
+ * chip happened to be a tool call or a `Badge`. Everything that is still spelled here is what
+ * `Badge` does not know about: the label/meta split, the truncation posture (a tool label is long
+ * and a badge label is not), and the hover/press steps an INTERACTIVE chip needs, since upstream's
+ * `outline` badge only paints a hover for an `<a>`.
+ *
+ * Polymorphic via Base UI `render`, exactly as `Badge` is, so it can render as a button that
+ * expands the call's detail or stay a static span. Compose a leading status icon as `children`
+ * before the label — a Spinner while running, a check when done.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props accepted by `ToolCallChip`. */
@@ -51,34 +61,39 @@ export function ToolCallChip({
   ref,
   ...props
 }: ToolCallChipProps) {
-  return useRender({
-    render: render ?? <span />,
-    defaultTagName: "span",
-    ref,
-    props: {
-      "data-slot": "tool-call-chip",
-      className: cn(
-        "inline-flex h-(--size-sm) w-fit max-w-full min-w-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-label-sm text-foreground",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline) [&_svg]:text-muted-foreground",
-        // Interactive composition (render={<button/>}): hover + press follow the ghost grammar.
-        "[&:is(button)]:hover:bg-surface-2 [&:is(button)]:active:bg-surface-3",
+  return (
+    <Badge
+      variant="outline"
+      render={render}
+      ref={ref}
+      data-slot="tool-call-chip"
+      className={cn(
+        // A tool label runs long, so the chip may shrink and truncate; a plain Badge never does.
+        "max-w-full min-w-0",
+        // Interactive composition (render={<button/>}): upstream's outline badge paints a hover
+        // for anchors only, so the button form gets the same two steps explicitly.
+        "[&:is(button)]:hover:bg-muted [&:is(button)]:hover:text-muted-foreground [&:is(button)]:active:bg-muted",
         className,
-      ),
-      children: (
-        <>
-          {children}
-          <span className="min-w-0 truncate">{label}</span>
-          {meta != null ? (
-            <span
-              data-slot="tool-call-chip-meta"
-              className="min-w-0 truncate font-normal text-muted-foreground"
-            >
-              {meta}
-            </span>
-          ) : null}
-        </>
-      ),
-      ...props,
-    },
-  });
+      )}
+      {...props}
+    >
+      {children}
+      <span className="min-w-0 truncate">{label}</span>
+      {/* NO A11Y-5 separator here, deliberately, although `design.md`'s roster has listed this
+          chip as a call site since 2026-09-09. The separator exists for name parts a browser
+          would otherwise concatenate flush; these two are children of a flex container, so CSS
+          blockifies them and accname step 2F wraps each contribution in spaces of its own. The
+          interactive form is named `Search files 1.2s`, which `accessible-name.browser.test.tsx`
+          measures with the compiled token CSS loaded — the only realm where that computation is
+          honest. Adding a hidden comma on top would name it `Search files , 1.2s`. */}
+      {meta != null ? (
+        <span
+          data-slot="tool-call-chip-meta"
+          className="min-w-0 truncate font-normal text-muted-foreground"
+        >
+          {meta}
+        </span>
+      ) : null}
+    </Badge>
+  );
 }

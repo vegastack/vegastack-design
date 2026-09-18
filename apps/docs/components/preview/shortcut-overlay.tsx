@@ -27,7 +27,7 @@ export function shortcutOverlay(): ReactNode {
         <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
           View shortcuts
         </Button>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Or press <Kbd>?</Kbd> anywhere outside a text field.
         </p>
         <ShortcutOverlay

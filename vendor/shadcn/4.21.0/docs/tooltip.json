@@ -1,0 +1,15 @@
+{
+  "component": "tooltip",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/tooltip.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Side",
+    "With Keyboard Shortcut",
+    "Disabled Button",
+    "RTL",
+    "API Reference"
+  ]
+}

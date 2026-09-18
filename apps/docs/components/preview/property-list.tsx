@@ -10,7 +10,6 @@ import {
   PropertyRow,
   PropertyValue,
 } from "@/components/ui/property-list";
-import { EmptyValue } from "@/components/ui/empty";
 import { Tag, TagGroup } from "@/components/ui/tag-group";
 
 export function propertyList(): ReactNode {
@@ -22,7 +21,7 @@ export function propertyList(): ReactNode {
           <PropertyLabel icon={<Globe />}>Domains</PropertyLabel>
           <PropertyValue>
             <a
-              className="text-info-text hover:text-info-text/(--alpha-link-hover)"
+              className="text-info-text hover:text-info-text/88"
               href="#property-list"
             >
               attio.com
@@ -36,7 +35,7 @@ export function propertyList(): ReactNode {
         <PropertyRow>
           <PropertyLabel icon={<Users />}>Team</PropertyLabel>
           <PropertyValue>
-            <EmptyValue>Set a value…</EmptyValue>
+            <span className="text-sm text-muted-foreground">Set a value…</span>
           </PropertyValue>
         </PropertyRow>
         <PropertyRow>
@@ -74,7 +73,7 @@ export function propertyListNarrow(): ReactNode {
         <PropertyRow>
           <PropertyLabel icon={<Users />}>Team</PropertyLabel>
           <PropertyValue>
-            <EmptyValue>Set a value…</EmptyValue>
+            <span className="text-sm text-muted-foreground">Set a value…</span>
           </PropertyValue>
         </PropertyRow>
       </PropertyList>

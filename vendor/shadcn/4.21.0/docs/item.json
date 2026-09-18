@@ -1,0 +1,22 @@
+{
+  "component": "item",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/item.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Item vs Field",
+    "Variant",
+    "Size",
+    "Icon",
+    "Avatar",
+    "Image",
+    "Group",
+    "Header",
+    "Link",
+    "Dropdown",
+    "RTL",
+    "API Reference"
+  ]
+}

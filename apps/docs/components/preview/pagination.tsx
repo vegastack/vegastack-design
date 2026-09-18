@@ -1,12 +1,9 @@
 "use client";
 
-import * as React from "react";
-
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/pagination` (dogfoods the registry) → auto-scanned.
 import {
-  PaginationPager,
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -15,11 +12,28 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { DirectionProvider } from "@/components/ui/direction";
+import { Field, FieldLabel } from "@/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
+/*
+ * Upstream's own examples. `PaginationLink` builds its own `<a>` inside a `Button` with
+ * `nativeButton={false}`, so anchor props — `href`, `onClick` — go straight on `PaginationLink`.
+ * Every href below is `#`: these fixtures are mounted by the geometry lane and must not navigate.
+ */
+
+/** Upstream's `PaginationDemo`: previous, three numbered pages, an ellipsis, next. */
 export function pagination(): ReactNode {
   return (
     <Wrapper>
-      <Pagination aria-label="Search results pagination">
+      <Pagination>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious href="#" />
@@ -39,9 +53,6 @@ export function pagination(): ReactNode {
             <PaginationEllipsis />
           </PaginationItem>
           <PaginationItem>
-            <PaginationLink href="#">10</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
             <PaginationNext href="#" />
           </PaginationItem>
         </PaginationContent>
@@ -50,90 +61,19 @@ export function pagination(): ReactNode {
   );
 }
 
-export function paginationRouting(): ReactNode {
-  // `render` swaps the underlying element while keeping pagination styling and
-  // semantics. In an app you would pass your router's link (e.g. `<NextLink />`);
-  // here a plain `<a>` stands in to show the composition renders unchanged.
+/** The composition tree, rendered: one `PaginationItem` per control. */
+export function paginationComposition(): ReactNode {
   return (
     <Wrapper>
-      <Pagination aria-label="Routed pages pagination">
+      <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious render={<a href="#prev" />} />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink render={<a href="#1" />}>1</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink render={<a href="#2" />} isActive>
-              2
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink render={<a href="#3" />}>3</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext render={<a href="#next" />} />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    </Wrapper>
-  );
-}
-
-export function paginationSizes(): ReactNode {
-  return (
-    <Wrapper className="flex-col gap-4">
-      {(["sm", "md", "lg", "icon"] as const).map((size) => (
-        <div key={size} className="flex items-center gap-3">
-          <span className="text-muted-foreground w-14 text-right font-mono text-sm">
-            {size}
-          </span>
-          <Pagination aria-label={`${size} pages pagination`}>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationLink href="#" size={size}>
-                  1
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" size={size} isActive>
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" size={size}>
-                  3
-                </PaginationLink>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      ))}
-    </Wrapper>
-  );
-}
-
-export function paginationFirstPage(): ReactNode {
-  return (
-    <Wrapper>
-      <Pagination aria-label="First-page pagination">
-        <PaginationContent>
-          <PaginationItem>
-            {/* `aria-disabled="true"` is enough — PaginationLink enforces the tab-order
-                removal and click-swallowing itself now, no manual `tabIndex={-1}` needed. */}
-            <PaginationPrevious aria-disabled="true" />
+            <PaginationPrevious href="#" />
           </PaginationItem>
           <PaginationItem>
             <PaginationLink href="#" isActive>
               1
             </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">2</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">3</PaginationLink>
           </PaginationItem>
           <PaginationItem>
             <PaginationEllipsis />
@@ -147,47 +87,136 @@ export function paginationFirstPage(): ReactNode {
   );
 }
 
-export function paginationLastPage(): ReactNode {
+/** Upstream's `PaginationSimple`: page numbers only. */
+export function paginationSimple(): ReactNode {
   return (
     <Wrapper>
-      <Pagination aria-label="Last-page pagination">
+      <Pagination>
+        <PaginationContent>
+          {[1, 2, 3, 4, 5].map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink href="#" isActive={page === 2}>
+                {page}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+        </PaginationContent>
+      </Pagination>
+    </Wrapper>
+  );
+}
+
+/**
+ * Upstream's `PaginationIconsOnly`: the previous/next pair beside a rows-per-page select, which is
+ * the data-table footer shape. The labels collapse below `sm`, leaving the two chevrons.
+ */
+export function paginationIconsOnly(): ReactNode {
+  return (
+    <Wrapper className="min-h-40 items-start">
+      <div className="flex w-full items-center justify-between gap-4">
+        <Field orientation="horizontal" className="w-fit">
+          <FieldLabel htmlFor="select-rows-per-page">Rows per page</FieldLabel>
+          <Select defaultValue="25">
+            <SelectTrigger className="w-20" id="select-rows-per-page">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent align="start">
+              <SelectGroup>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Pagination className="mx-0 w-auto">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext href="#" />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * Upstream's `Next.js` section. `PaginationLink` renders the `<a>` itself and spreads anchor props
+ * onto it, so a Next app passes `next/link`'s props the same way — `href`, `onClick`, `scroll`,
+ * `prefetch`. This docs app has no router, so the anchor below is the plain element.
+ */
+export function paginationNextJs(): ReactNode {
+  return (
+    <Wrapper>
+      <Pagination>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious href="#" />
           </PaginationItem>
           <PaginationItem>
-            <PaginationLink href="#">8</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">9</PaginationLink>
+            <PaginationLink href="#">1</PaginationLink>
           </PaginationItem>
           <PaginationItem>
             <PaginationLink href="#" isActive>
-              10
+              2
             </PaginationLink>
           </PaginationItem>
           <PaginationItem>
-            <PaginationNext aria-disabled="true" />
+            <PaginationLink href="#">3</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="#" />
           </PaginationItem>
         </PaginationContent>
       </Pagination>
     </Wrapper>
   );
 }
-export function paginationPager(): ReactNode {
-  return <PaginationPagerExample />;
-}
 
-function PaginationPagerExample() {
-  const [index, setIndex] = React.useState(3);
+/** Eastern Arabic numerals, so the RTL fixture reads as a localised bar rather than a mirrored one. */
+const ARABIC_DIGITS = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+const toArabicNumerals = (value: number) =>
+  String(value)
+    .split("")
+    .map((digit) => ARABIC_DIGITS[Number(digit)])
+    .join("");
+
+/**
+ * Upstream's `PaginationRtl`. Upstream drives the strings from its `language-selector` demo hook;
+ * here they are inline and the direction comes from `DirectionProvider`. `text` on
+ * `PaginationPrevious`/`PaginationNext` is what makes the labels translatable, and the chevrons
+ * carry `rtl:rotate-180` so they point the way the text reads.
+ */
+export function paginationRtl(): ReactNode {
   return (
-    <Wrapper>
-      <PaginationPager
-        index={index}
-        total={10}
-        context="in All Companies"
-        onIndexChange={setIndex}
-      />
-    </Wrapper>
+    <DirectionProvider direction="rtl">
+      <Wrapper dir="rtl">
+        <Pagination dir="rtl">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" text="السابق" />
+            </PaginationItem>
+            {[1, 2, 3].map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink href="#" isActive={page === 2}>
+                  {toArabicNumerals(page)}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext href="#" text="التالي" />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </Wrapper>
+    </DirectionProvider>
   );
 }

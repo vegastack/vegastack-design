@@ -1,18 +1,22 @@
-// @vegastack notification-bell@0.9.1 sha256-4pe2bDMg/39OAPJIx5mQs8PlDYS1zWff8OZFv3zELik=
+// @vegastack notification-bell@0.9.1 sha256-izA0qnVUs9quSWkYXbInGMkP9maO0xCt7OHtuKRD4j8=
 
 "use client";
 
 import * as React from "react";
 import { Bell } from "lucide-react";
 import { cn } from "@vegastack/design";
-import type { ButtonAppearance } from "@/components/ui/button";
-import {
-  IconButton,
-  type IconButtonOwnProps,
-  type IconButtonProps,
-} from "@/components/ui/icon-button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAnimationReplay } from "@/components/ui/use-animation-replay";
+
+/**
+ * `Button`'s own props, derived from the component. Batch 2 of the shadcn reset replaced the
+ * hand-written `ButtonOwnProps` / `ButtonAppearance` pair with upstream's flat `variant` + `size`
+ * API, so these two aliases are what a wrapper reads now. Batch 7 rebuilds this component on the
+ * reset primitives and they go away with it.
+ */
+type ButtonOwnProps = React.ComponentProps<typeof Button>;
+type ButtonAppearance = Pick<ButtonOwnProps, "variant">;
 
 /** Above this count the badge caps to the `"99+"` overflow label. */
 const MAX_COUNT = 99;
@@ -36,7 +40,7 @@ function badgeKeyFor(count: number, dot: boolean): string {
  * with the `onClick` that opens the notifications surface.
  */
 export type NotificationBellProps = Omit<
-  IconButtonOwnProps,
+  ButtonOwnProps,
   "children" | "aria-label" | "label"
 > &
   ButtonAppearance & {
@@ -62,7 +66,7 @@ export type NotificationBellProps = Omit<
   };
 
 /**
- * `NotificationBell` — a bell {@link IconButton} with an unread-count badge
+ * `NotificationBell` — a bell icon `Button` with an unread-count badge
  * overlaid at the top inline-end edge. **Purely presentational:** the app provides `count` and
  * the `onClick` handler; this component owns no data-fetching or state.
  *
@@ -128,12 +132,22 @@ export function NotificationBell({
       data-unread={hasUnread ? "" : undefined}
       className={cn("relative inline-flex", className)}
     >
-      <IconButton {...(props as IconButtonProps)} aria-label={accessibleName}>
+      <Button
+        size="icon"
+        {...(props as ButtonOwnProps)}
+        aria-label={accessibleName}
+      >
         <Bell />
-      </IconButton>
+      </Button>
       {hasUnread ? (
         dot ? (
-          // Dot mode stays a bare status dot — Badge has no 8px dot-only form.
+          // Dot mode stays a bare status dot — Badge has no 8px dot-only form — and it is
+          // SOLID `bg-destructive` while the count pill below is `Badge variant="destructive"`,
+          // a tint. The two look different on purpose, and the reason is the content, not an
+          // oversight: a pill carries a NUMBER, so A11Y-13 puts `text-destructive-text` on the
+          // family's own `/10` tint (the solid fill measures under the AA floor as text), while a
+          // dot carries no text at all, so the 3:1 non-text floor applies and the saturated fill
+          // is both legal and the only thing legible at 8px. A tinted 8px dot is invisible.
           <span
             data-slot="notification-bell-badge"
             aria-hidden
@@ -144,7 +158,8 @@ export function NotificationBell({
             onAnimationEnd={badgePop.onAnimationEnd}
           />
         ) : (
-          // Count mode COMPOSES <Badge> (register P2-06) — same tokens, one badge implementation.
+          // Count mode COMPOSES <Badge> (register P2-06) — one badge implementation. It reads as
+          // the family's tint rather than the dot's solid fill; see the note on the dot above.
           // No `key` here: replaying by REMOUNT was the other half of B7-03, and a remount is
           // exactly what a class toggle must not depend on.
           // Anchored by its INLINE-START edge, so single digits stay aligned while wider counts
@@ -154,11 +169,9 @@ export function NotificationBell({
           <Badge
             data-slot="notification-bell-badge"
             aria-hidden
-            variant="solid"
-            intent="destructive"
-            size="sm"
+            variant="destructive"
             className={cn(
-              "pointer-events-none absolute -top-1 start-full h-4 min-w-4 -translate-x-3 px-1 tabular-nums rtl:translate-x-3",
+              "pointer-events-none absolute -top-1 start-full h-4 min-w-4 -translate-x-3 px-1 py-0 tabular-nums rtl:translate-x-3",
               badgePop.className,
             )}
             onAnimationEnd={badgePop.onAnimationEnd}

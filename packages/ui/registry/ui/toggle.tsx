@@ -1,72 +1,76 @@
-// @vegastack toggle@0.9.1 sha256-DZMcfZ65YUMxyfROpvaIoZXyMXTOOtNSeW8I9dVaWp0=
+// @vegastack toggle@0.9.1 sha256-wsmwc51WrE4pSxXv9QQBzeaa1gVRcAe8Vvhz1M/RSfY=
 
 "use client";
 
-import * as React from "react";
+import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Toggle as BaseToggle } from "@base-ui/react/toggle";
-import { cn, selectedChipVariants } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 
-/**
- * Toggle variants — a two-state pressed button. The pressed state is driven by
- * Base UI's `data-pressed` attribute; every value is a semantic token (no
- * hardcoded colors). Shared verbatim by `ToggleGroup` (one look, no drift).
- */
-export const toggleVariants = cva(
-  // ONE look (no variant axis): a borderless ghost at rest, and the shared SELECTED-CHIP recipe
-  // when pressed. Toggle used to spell that recipe out by hand, which is how the system ended up
-  // with four different "selected" looks across Toggle, Segmented and the two chip-shaped Tabs
-  // variants (audit B6-02); it now imports the one formula, so a pressed Toggle, a pressed
-  // ToggleGroup item, a Segmented chip and an active pill tab are the same thing by construction.
-  // Controls round at `md` (8px).
-  cn(
-    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-transparent text-label whitespace-nowrap select-none disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-    selectedChipVariants.item,
-    selectedChipVariants.pressed,
-  ),
+import { Spinner } from "@/components/ui/spinner";
+
+const toggleVariants = cva(
+  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground not-focus:aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
-      // Control heights on the shared 28 / 32 / 40 scale (h-(--size-sm) / h-(--size-md) / h-(--size-lg)).
+      variant: {
+        default: "bg-transparent",
+        outline: "border border-input bg-transparent hover:bg-muted",
+      },
       size: {
-        sm: "h-(--size-sm) min-w-(--size-sm) gap-1 px-1.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
-        md: "h-(--size-md) min-w-(--size-md) px-2",
-        lg: "h-(--size-lg) min-w-(--size-lg) px-2.5",
+        default:
+          "h-8 min-w-8 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
+        sm: "h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        lg: "h-9 min-w-9 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
       },
     },
-    defaultVariants: { size: "md" },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
   },
 );
 
-/** Props accepted by `Toggle`. */
-export interface ToggleProps
-  extends
-    Omit<React.ComponentPropsWithRef<typeof BaseToggle>, "value">,
-    VariantProps<typeof toggleVariants> {}
-
-/**
- * `Toggle` — a two-state button that can be pressed on or off (e.g. bold /
- * italic in a toolbar). Built on Base UI `Toggle`; the pressed state is exposed
- * via `data-pressed` and announced with `aria-pressed`. Compose an icon as a
- * child (`lucide-react`) and pass `aria-label` for icon-only toggles.
- *
- * @example
- * <Toggle aria-label="Bold" defaultPressed><Bold /></Toggle>
- */
-export function Toggle({ className, size = "md", ...props }: ToggleProps) {
-  const variantClassName = toggleVariants({ size });
-  const resolvedClassName: React.ComponentPropsWithRef<
-    typeof BaseToggle
-  >["className"] =
-    typeof className === "function"
-      ? (state) => cn(variantClassName, className(state))
-      : cn(variantClassName, className);
-
+function Toggle({
+  className,
+  variant = "default",
+  size = "default",
+  loading = false,
+  disabled,
+  children,
+  "aria-busy": ariaBusy,
+  ...props
+}: TogglePrimitive.Props &
+  VariantProps<typeof toggleVariants> & {
+    /**
+     * Shows a spinner over the label, blocks activation and sets `aria-busy`. The label keeps its
+     * box at `opacity: 0`, so the toggle's width does not move (API-5, A11Y-12).
+     */
+    loading?: boolean;
+  }) {
   return (
-    <BaseToggle
+    <TogglePrimitive
       data-slot="toggle"
-      data-size={size}
-      className={resolvedClassName}
+      data-loading={loading ? "" : undefined}
+      aria-busy={loading ? true : ariaBusy}
+      disabled={disabled || loading}
+      className={cn(toggleVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {loading ? (
+        <>
+          <span
+            aria-hidden
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <Spinner aria-label={undefined} />
+          </span>
+          <span className="contents opacity-0">{children}</span>
+        </>
+      ) : (
+        children
+      )}
+    </TogglePrimitive>
   );
 }
+
+export { Toggle, toggleVariants };

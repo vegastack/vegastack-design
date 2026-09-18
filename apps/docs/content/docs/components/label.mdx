@@ -1,15 +1,13 @@
 ---
 title: Label
-description: A styled native label for form controls — htmlFor association, disabled-dimming via peer/group, and a data-required styling hook.
+description: A native label for a form control — associated by htmlFor, dimmed with its control, and server-safe by default.
 audience: public
 registry: label
 status: stable
 since: 0.1.0
-a11y: native label
+a11y: native label element
 preview: label
 ---
-
-import { story } from "@/components/stories/label.story";
 
 ## Install
 
@@ -18,98 +16,62 @@ import { story } from "@/components/stories/label.story";
 ## Usage
 
 ```tsx
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Label } from "@/components/ui/label";
 
-<Label htmlFor="email">Email</Label>
-<Input id="email" type="email" />;
+<Label htmlFor="email">Your email address</Label>;
 ```
-
-`Label` is a thin wrapper over the native `<label>`, so every standard attribute
-(`htmlFor`, `id`, `onClick`, …) works as expected, and its ref forwards to the
-underlying element. Associate it with a control by matching `htmlFor` to the
-control's `id`, or by wrapping the control as a child.
 
 <ComponentPreview name="label" file="components/preview/label.tsx" />
 
 ## Examples
 
-### Required
+### Label in Field
 
-Pass `required` to set a `data-required=""` hook on the `<label>`. This renders
-**no visual asterisk** — it is a styling/automation hook only, so the rendered
-label below looks identical to a normal one (inspect it to see the attribute).
-Enforce requiredness on the control itself (`required` / `aria-required`) and
-surface it with an inline `FieldError` on submit, not with a decorative mark.
+For form fields, use the [Field](/docs/components/field) component, which composes the label, the
+description and the error message around a single control and associates them for you.
 
-<ComponentPreview name="labelRequired" file="components/preview/label.tsx" />
+<ComponentPreview
+  name="labelLabelInField"
+  file="components/preview/label.tsx"
+/>
 
-### Layout
+### RTL
 
-`Label` is `inline-flex` by default, so it composes into running text and sits beside a control
-without breaking the line around itself. Pass `layout="block"` for the stacked form row, where the
-label should own its own full-width line above the input.
+`Label` is a flex row written in logical properties, so its icon and text order mirror in a
+right-to-left document without any extra work.
 
-```tsx
-// Inline, in a sentence
-<p>
-  Type the word <Label>delete</Label> to confirm.
-</p>
-
-// Stacked above a control
-<Label layout="block" htmlFor="name">Full name</Label>
-<Input id="name" />
-```
-
-### States
-
-The label dims to 50% opacity (the `--opacity-dim` token) when the control it
-labels is disabled. Place the label after a `peer` control
-(`peer-disabled:opacity-(--opacity-dim)`) or inside a disabled group
-(`group-data-[disabled=true]:opacity-(--opacity-dim)`) and it reacts
-automatically — no extra prop needed. Both dimming paths are shown below.
-
-<ComponentPreview name="labelStates" file="components/preview/label.tsx" />
-
-## Playground
-
-Every `Label` prop, auto-generated from its TypeScript types.
-
-<StoryExplorer>
-  <story.WithControl />
-</StoryExplorer>
+<ComponentPreview name="labelRtl" file="components/preview/label.tsx" />
 
 ## API Reference
 
-<ApiTable path="../../packages/ui/registry/ui/label.tsx" name="LabelProps" />
+<ApiTable path="lib/api-props.ts" name="LabelProps" />
 
 ## Accessibility
 
-- Form labels render at 12px (`text-label-sm`): a label is dense metadata ABOUT the control
-  beneath it, not a peer of the 14px value typed into it. `text-label` (14px) stays for UI labels
-  and navigation.
-
-- Renders a native `<label>` — associate it with exactly one control via
-  `htmlFor`/`id` or by wrapping the control, so clicking the label focuses (or
-  toggles) the control and screen readers announce the accessible name.
-- `select-none` keeps double-clicking the label from selecting its text instead
-  of activating the control.
-- `required` sets a non-visual `data-required` styling hook only — it renders no
-  asterisk or other glyph. Mark the control `required` (or `aria-required`) so the
-  requirement is conveyed to assistive technology, and surface it on submit with
-  an inline `FieldError`.
-- Disabled dimming is token-driven (`peer-disabled` / `group-data-[disabled]`)
-  and never relies on color alone to signal state.
-
-| Key     | Action                                                                         |
-| ------- | ------------------------------------------------------------------------------ |
-| `Click` | Focuses (or toggles) the associated control via the label-control association. |
+- Renders a native `<label>`. Pair it with a control through `htmlFor` and the control's `id`, or
+  nest the control inside it; clicking the label then focuses or toggles the control.
+- A disabled control dims its label two ways: `peer-disabled:` for a sibling control, and
+  `group-data-[disabled=true]:` for a wrapper that marks the whole group disabled.
+- `select-none` stops a double-click on the label from selecting its text instead of hitting the
+  control.
+- A label is not a substitute for an accessible name on an icon-only control — give that control its
+  own `aria-label`.
 
 <StatesTested name="label" />
 
 ## Do / Don't
 
 <DoDont
-  do="Associate every label with exactly one control via htmlFor/id (or by wrapping it), and mark the control itself required."
-  dont="Use a Label without an associated control, or rely on the data-required styling hook alone — without required on the control — to convey that a field is mandatory."
+  do="Point htmlFor at the control's id, so clicking the label moves focus to the control."
+  dont="Use a styled span as a label — the click target and the association are both lost."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/label.patch`. Every hunk:
+
+- **API-16** — the `"use client"` directive is removed. `Label` renders a native element and touches
+  no React hook, so it is server-safe; the directive belongs at the lowest interactive leaf, not on
+  a presentational element.
+- **DOC-2** — `cn` is imported from `@vegastack/design`, and the file carries the registry
+  provenance header.

@@ -1,0 +1,965 @@
+{
+  "cli": "4.21.0",
+  "style": "base-nova",
+  "base": "base",
+  "preset": "nova",
+  "flags": [
+    "-t",
+    "next",
+    "-b",
+    "base",
+    "-p",
+    "nova",
+    "--pointer",
+    "--rtl",
+    "--no-monorepo"
+  ],
+  "registry": "https://ui.shadcn.com/r/styles/base-nova/{name}.json",
+  "pulledAt": "2026-09-18T11:49:03.826Z",
+  "components": [
+    "accordion",
+    "alert",
+    "alert-dialog",
+    "aspect-ratio",
+    "attachment",
+    "avatar",
+    "badge",
+    "breadcrumb",
+    "bubble",
+    "button",
+    "button-group",
+    "calendar",
+    "card",
+    "carousel",
+    "chart",
+    "checkbox",
+    "collapsible",
+    "combobox",
+    "command",
+    "context-menu",
+    "dialog",
+    "direction",
+    "drawer",
+    "dropdown-menu",
+    "empty",
+    "field",
+    "hover-card",
+    "input",
+    "input-group",
+    "input-otp",
+    "item",
+    "kbd",
+    "label",
+    "marker",
+    "menubar",
+    "message",
+    "message-scroller",
+    "native-select",
+    "navigation-menu",
+    "pagination",
+    "popover",
+    "progress",
+    "questionnaire",
+    "radio-group",
+    "resizable",
+    "scroll-area",
+    "select",
+    "separator",
+    "sheet",
+    "sidebar",
+    "skeleton",
+    "slider",
+    "sonner",
+    "spinner",
+    "switch",
+    "table",
+    "tabs",
+    "textarea",
+    "toast",
+    "toggle",
+    "toggle-group",
+    "tooltip"
+  ],
+  "blocks": [
+    "dashboard-01",
+    "login-01",
+    "login-02",
+    "login-03",
+    "login-04",
+    "login-05",
+    "signup-01",
+    "signup-02",
+    "signup-03",
+    "signup-04",
+    "signup-05",
+    "sidebar-01",
+    "sidebar-02",
+    "sidebar-03",
+    "sidebar-04",
+    "sidebar-05",
+    "sidebar-06",
+    "sidebar-07",
+    "sidebar-08",
+    "sidebar-09",
+    "sidebar-10",
+    "sidebar-11",
+    "sidebar-12",
+    "sidebar-13",
+    "sidebar-14",
+    "sidebar-15",
+    "sidebar-16",
+    "preview",
+    "preview-02",
+    "preview-03"
+  ],
+  "chartBlocks": [
+    "chart-area-axes",
+    "chart-area-default",
+    "chart-area-gradient",
+    "chart-area-icons",
+    "chart-area-interactive",
+    "chart-area-legend",
+    "chart-area-linear",
+    "chart-area-stacked",
+    "chart-area-stacked-expand",
+    "chart-area-step",
+    "chart-bar-active",
+    "chart-bar-default",
+    "chart-bar-horizontal",
+    "chart-bar-interactive",
+    "chart-bar-label",
+    "chart-bar-label-custom",
+    "chart-bar-mixed",
+    "chart-bar-multiple",
+    "chart-bar-negative",
+    "chart-bar-stacked",
+    "chart-line-default",
+    "chart-line-dots",
+    "chart-line-dots-colors",
+    "chart-line-dots-custom",
+    "chart-line-interactive",
+    "chart-line-label",
+    "chart-line-label-custom",
+    "chart-line-linear",
+    "chart-line-multiple",
+    "chart-line-step",
+    "chart-pie-donut",
+    "chart-pie-donut-active",
+    "chart-pie-donut-text",
+    "chart-pie-interactive",
+    "chart-pie-label",
+    "chart-pie-label-custom",
+    "chart-pie-label-list",
+    "chart-pie-legend",
+    "chart-pie-separator-none",
+    "chart-pie-simple",
+    "chart-pie-stacked",
+    "chart-radar-default",
+    "chart-radar-dots",
+    "chart-radar-grid-circle",
+    "chart-radar-grid-circle-fill",
+    "chart-radar-grid-circle-no-lines",
+    "chart-radar-grid-custom",
+    "chart-radar-grid-fill",
+    "chart-radar-grid-none",
+    "chart-radar-label-custom",
+    "chart-radar-legend",
+    "chart-radar-lines-only",
+    "chart-radar-multiple",
+    "chart-radial-grid",
+    "chart-radial-label",
+    "chart-radial-shape",
+    "chart-radial-simple",
+    "chart-radial-stacked",
+    "chart-radial-text",
+    "chart-tooltip-advanced",
+    "chart-tooltip-default",
+    "chart-tooltip-formatter",
+    "chart-tooltip-icons",
+    "chart-tooltip-indicator-line",
+    "chart-tooltip-indicator-none",
+    "chart-tooltip-label-custom",
+    "chart-tooltip-label-formatter",
+    "chart-tooltip-label-none"
+  ],
+  "ported": {
+    "blocks/chart-area-axes/chart-area-axes.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-default/chart-area-default.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-gradient/chart-area-gradient.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-icons/chart-area-icons.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-interactive/chart-area-interactive.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-legend/chart-area-legend.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-linear/chart-area-linear.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-stacked/chart-area-stacked.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-stacked-expand/chart-area-stacked-expand.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-area-step/chart-area-step.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-active/chart-bar-active.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-default/chart-bar-default.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-horizontal/chart-bar-horizontal.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-interactive/chart-bar-interactive.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-label/chart-bar-label.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-label-custom/chart-bar-label-custom.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-mixed/chart-bar-mixed.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-multiple/chart-bar-multiple.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-negative/chart-bar-negative.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-bar-stacked/chart-bar-stacked.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-default/chart-line-default.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-dots/chart-line-dots.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-dots-colors/chart-line-dots-colors.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-dots-custom/chart-line-dots-custom.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-interactive/chart-line-interactive.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-label/chart-line-label.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-label-custom/chart-line-label-custom.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-linear/chart-line-linear.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-multiple/chart-line-multiple.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-line-step/chart-line-step.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-donut/chart-pie-donut.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-donut-active/chart-pie-donut-active.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-donut-text/chart-pie-donut-text.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-interactive/chart-pie-interactive.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-label/chart-pie-label.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-label-custom/chart-pie-label-custom.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-label-list/chart-pie-label-list.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-legend/chart-pie-legend.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-separator-none/chart-pie-separator-none.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-simple/chart-pie-simple.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-pie-stacked/chart-pie-stacked.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-default/chart-radar-default.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-dots/chart-radar-dots.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-grid-circle/chart-radar-grid-circle.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-grid-circle-fill/chart-radar-grid-circle-fill.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-grid-circle-no-lines/chart-radar-grid-circle-no-lines.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-grid-custom/chart-radar-grid-custom.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-grid-fill/chart-radar-grid-fill.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-grid-none/chart-radar-grid-none.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-label-custom/chart-radar-label-custom.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-legend/chart-radar-legend.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-lines-only/chart-radar-lines-only.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radar-multiple/chart-radar-multiple.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radial-grid/chart-radial-grid.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radial-label/chart-radial-label.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radial-shape/chart-radial-shape.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radial-simple/chart-radial-simple.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radial-stacked/chart-radial-stacked.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-radial-text/chart-radial-text.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-advanced/chart-tooltip-advanced.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-default/chart-tooltip-default.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-formatter/chart-tooltip-formatter.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-icons/chart-tooltip-icons.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-indicator-line/chart-tooltip-indicator-line.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-indicator-none/chart-tooltip-indicator-none.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-label-custom/chart-tooltip-label-custom.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-label-formatter/chart-tooltip-label-formatter.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    },
+    "blocks/chart-tooltip-label-none/chart-tooltip-label-none.tsx": {
+      "from": "new-york-v4",
+      "rewrites": [
+        "@/registry/new-york-v4/ui/→@/components/ui/"
+      ]
+    }
+  },
+  "files": {
+    "blocks/chart-area-axes/chart-area-axes.tsx": "sha256-2caa6a8d559c6257aa9f262b9e6c450dcc104a4aaa8429e6419b78ff00bcd10d",
+    "blocks/chart-area-default/chart-area-default.tsx": "sha256-6c5c5958f01c7d75c1a6493417664144da926b6536b19341092a9d8dbfa3740b",
+    "blocks/chart-area-gradient/chart-area-gradient.tsx": "sha256-b5111fdc7a03e3a36bcdcdd6d5404a176c5a6d94455beb39c83534b093bbe5f6",
+    "blocks/chart-area-icons/chart-area-icons.tsx": "sha256-f73ffe345185ca540fa0c604394377b81f5eed29f26184e77be052e62c5381c8",
+    "blocks/chart-area-interactive/chart-area-interactive.tsx": "sha256-b4ab98c2d76317e6d46b6e25ec506386787ba87485e598dc6c0a498b1e582982",
+    "blocks/chart-area-legend/chart-area-legend.tsx": "sha256-43c9e650a8bad4deb50dd3f2890e981d22fb07c52e61a2317509d6b60af5aa69",
+    "blocks/chart-area-linear/chart-area-linear.tsx": "sha256-be9720474789fce43b83479c37ac9345356abcef7df7e60d893b9cf6cf6da29f",
+    "blocks/chart-area-stacked-expand/chart-area-stacked-expand.tsx": "sha256-54447c6e41e8d9682d68874f0a12e10812bd000b8d90b9ccb3328a78d9c70ccd",
+    "blocks/chart-area-stacked/chart-area-stacked.tsx": "sha256-f798183ac17fae947dcd4323248b1e9a51030c096dcd97498a5c31aef7ff0a51",
+    "blocks/chart-area-step/chart-area-step.tsx": "sha256-a541529b331c6f74684d9d729b5dda2436b512be3b2c4f6a0feb6a4d8051ff6b",
+    "blocks/chart-bar-active/chart-bar-active.tsx": "sha256-1d04d719370b406075fd878b433d98b5fd43a6881c88e5c39bf9a12d360a68c3",
+    "blocks/chart-bar-default/chart-bar-default.tsx": "sha256-275887e9a4e34995e74b1e25c24f3e407f9a9ebd740f263c630bd0babef2d977",
+    "blocks/chart-bar-horizontal/chart-bar-horizontal.tsx": "sha256-d749a77471631f505fe74c64d6d4e03d5e9f1af223c7681acc337f719c1daa29",
+    "blocks/chart-bar-interactive/chart-bar-interactive.tsx": "sha256-6f7c536bde077e6379f589b8e87e53c76821ec5ef7ee17a579e4e269eae6efaa",
+    "blocks/chart-bar-label-custom/chart-bar-label-custom.tsx": "sha256-c70ca87864f23cfaed1bcdf8e8a0e79b6cad1a200cc461e11dd0f5a1bc432f40",
+    "blocks/chart-bar-label/chart-bar-label.tsx": "sha256-6c1e8cbef272fcd1f8aa3a19d293a6af6cf7b14a8ad801fdbd6134e6bdbf41c7",
+    "blocks/chart-bar-mixed/chart-bar-mixed.tsx": "sha256-3fc15570f229f07763794f4fdf08cdca3000321a713ef5fdfd4ae890e552ce80",
+    "blocks/chart-bar-multiple/chart-bar-multiple.tsx": "sha256-25a737fba12d7db2faf0b8f06536744b8b4f78ed54d3a14845610c066bed3565",
+    "blocks/chart-bar-negative/chart-bar-negative.tsx": "sha256-92a91497742124ac0fb60b1b2690a211e909431861fffd57f1ae46b071e9d535",
+    "blocks/chart-bar-stacked/chart-bar-stacked.tsx": "sha256-2ac468d05e4b8c820f472d5b7f24339204ea1f5dd2c782fc2cb6569a1188e011",
+    "blocks/chart-line-default/chart-line-default.tsx": "sha256-83e2f463b3309d05f33b7675c47ad3aa05263ffb8128fbd398d71a3cb8981eb9",
+    "blocks/chart-line-dots-colors/chart-line-dots-colors.tsx": "sha256-18e4fe19fa81ca2a0f7d1dabf73000d03fd7fdcd11bfcea5a46ddf376c86d4ec",
+    "blocks/chart-line-dots-custom/chart-line-dots-custom.tsx": "sha256-95d548534a4b927734b795eba4734d0e5f8637408638703d97931e58ef4b281e",
+    "blocks/chart-line-dots/chart-line-dots.tsx": "sha256-26b634737e52f898523376a8a71d33aa59deec172cfe6d87c11697feb3523d82",
+    "blocks/chart-line-interactive/chart-line-interactive.tsx": "sha256-4a0aed8f46bdf873472b85eeeb21088df0b6022a4bcc031e2f595a1de67fc1e8",
+    "blocks/chart-line-label-custom/chart-line-label-custom.tsx": "sha256-d048ad3770d282819fc999048d40346c79caa26ed21443f9dcfc5a11263d7991",
+    "blocks/chart-line-label/chart-line-label.tsx": "sha256-f94c5801eb505606a3a67f1be20743f04d1db9c13ca44efae93778cebe678676",
+    "blocks/chart-line-linear/chart-line-linear.tsx": "sha256-56c128a366e7d475595ea9fe8054149b34a219e9e11f1e6ad15a9a8ab64af00c",
+    "blocks/chart-line-multiple/chart-line-multiple.tsx": "sha256-361e503932a7f81133b36ecb43696ab908b01ff626960e5e9e93415dc9701b6f",
+    "blocks/chart-line-step/chart-line-step.tsx": "sha256-39c448aa599b54f97f9cadd4a4f2a9317975f38831ffdb735c4f935575c9edb9",
+    "blocks/chart-pie-donut-active/chart-pie-donut-active.tsx": "sha256-1ac80d8d0087ea102a907fc7550506b0f5d33769da35b2fc9aef4e196265c4e2",
+    "blocks/chart-pie-donut-text/chart-pie-donut-text.tsx": "sha256-a3e23391c314e93776e3721cee19a2e85f1b6104e411594132f2ba9e5b7e092c",
+    "blocks/chart-pie-donut/chart-pie-donut.tsx": "sha256-1ae55deaafba4f7aa27f2887e08605f11af54015ded8c46569e6c8e86bf162e4",
+    "blocks/chart-pie-interactive/chart-pie-interactive.tsx": "sha256-cb8657db21b20f274bc4ddfc3fa3856e2f55a8fe4b38c0572bf3d2340ce5cec5",
+    "blocks/chart-pie-label-custom/chart-pie-label-custom.tsx": "sha256-e35174eb2a1cb4c5723d08984bd960941e97987108e13f2e3567c8526550e610",
+    "blocks/chart-pie-label-list/chart-pie-label-list.tsx": "sha256-af5fdda1455d67792ec1a94685747ce92ff660a3dc44107c85dbb0771a9dde90",
+    "blocks/chart-pie-label/chart-pie-label.tsx": "sha256-a82d9b32c0eb4d58f9c9de4f702a5a1e222d8f3b373b815a83fa5b3365eb205a",
+    "blocks/chart-pie-legend/chart-pie-legend.tsx": "sha256-e49be86376b4eb0f6d952b8da94b52cdbe170396c9c68fcf7edc8462f8c246d9",
+    "blocks/chart-pie-separator-none/chart-pie-separator-none.tsx": "sha256-c38451aa48df8a1f41db2c404c8f4122055d65d703c89c61da6596821ba5d824",
+    "blocks/chart-pie-simple/chart-pie-simple.tsx": "sha256-02e619360a4511b1938d87059c1f2681ce79fb8571c0b68376342186732aa37b",
+    "blocks/chart-pie-stacked/chart-pie-stacked.tsx": "sha256-b1b9ce0d1bdc47f58f5024f4205d43f6743c512327219888949c257b89a4a09e",
+    "blocks/chart-radar-default/chart-radar-default.tsx": "sha256-8c46085bc544551b61d5725a390011b7234b8091633cc5218975e5e14bd68adf",
+    "blocks/chart-radar-dots/chart-radar-dots.tsx": "sha256-5f07525123041983303848fe9b37de1f446d311b5381f23740fa0901c5784114",
+    "blocks/chart-radar-grid-circle-fill/chart-radar-grid-circle-fill.tsx": "sha256-664b04e20b9d4ae4e929e65a9fbe520e7c244a64d74b7a1f7d9ae7488df770b3",
+    "blocks/chart-radar-grid-circle-no-lines/chart-radar-grid-circle-no-lines.tsx": "sha256-5558e8dd6f3145d2e933a8951a921f67681d44c1fabfc4ab48d0e6e513fd1c9b",
+    "blocks/chart-radar-grid-circle/chart-radar-grid-circle.tsx": "sha256-0d91c136e6b05ddc3dd1fbb14a6d02ca47f41bc2312f6669e96c843a024cf5f3",
+    "blocks/chart-radar-grid-custom/chart-radar-grid-custom.tsx": "sha256-f29d10f49740e6a8d9795cda591d4ee1fa5ff197a0ea81c223b1179514f9ced5",
+    "blocks/chart-radar-grid-fill/chart-radar-grid-fill.tsx": "sha256-d3c547727656af999532e9f9a4087da60f0bec6133ffe988c3292e6aa652c7b5",
+    "blocks/chart-radar-grid-none/chart-radar-grid-none.tsx": "sha256-bd8f01325c43064f8db6452b7d64eea5d08273afe8ffe5371c88a10d889f7d9c",
+    "blocks/chart-radar-label-custom/chart-radar-label-custom.tsx": "sha256-8f1e85132db0aac446d82462d4a4e082f3cacd2285d0769b95f0b21877b6de45",
+    "blocks/chart-radar-legend/chart-radar-legend.tsx": "sha256-a40a4897eba1c0bb0ec6ecd05d190389a562eda149e9d8ed3cefff1ce7245d09",
+    "blocks/chart-radar-lines-only/chart-radar-lines-only.tsx": "sha256-3982a4b970afe2c8e55621ab08b9c406fcbe49370b5ab6672619803d4c6e61e8",
+    "blocks/chart-radar-multiple/chart-radar-multiple.tsx": "sha256-0d97bf1198183cf6dd05b82e282c38e06cd066d695f21a73cb699887dc647795",
+    "blocks/chart-radial-grid/chart-radial-grid.tsx": "sha256-d2c15b6edb0a42d2ccc7086921eae721ac16eba8bc1d66c0d0ddd38f9f390202",
+    "blocks/chart-radial-label/chart-radial-label.tsx": "sha256-7ef37567b5e5b3297eb3b01cd67220e2d9aab151eb9b47e2c252154c57e54390",
+    "blocks/chart-radial-shape/chart-radial-shape.tsx": "sha256-f0fd2c44ae01ceed43b5bd6865114b1ad07a465ad5d94081e6ee8a3e7065e049",
+    "blocks/chart-radial-simple/chart-radial-simple.tsx": "sha256-e1d1d900bc639581f3b818fbe857095deeca56f82dd3f11a35b5d25195551c24",
+    "blocks/chart-radial-stacked/chart-radial-stacked.tsx": "sha256-608767de4a37855caad2846235abcb5df37f639b111c74477d94e673e3a1b7c9",
+    "blocks/chart-radial-text/chart-radial-text.tsx": "sha256-06d4e74bc2b51cd8b3d292a5b7532271190efe62f0186d5e84e8177b331b1327",
+    "blocks/chart-tooltip-advanced/chart-tooltip-advanced.tsx": "sha256-e983357dcb35caf505c02ced3c0b5af3d0839c6c67d5d68ce4a6de70aae92a8a",
+    "blocks/chart-tooltip-default/chart-tooltip-default.tsx": "sha256-1fdc52366aae0a2a221b785dd0e1dfc2af8e62c0757ce8d9aa23f19cf9b385f8",
+    "blocks/chart-tooltip-formatter/chart-tooltip-formatter.tsx": "sha256-df92169b5700363022a22ac14c0f905c8f66b3c544846be3c428cd6aaef6bd14",
+    "blocks/chart-tooltip-icons/chart-tooltip-icons.tsx": "sha256-2e9c29694e42a60c9bab98e6c88bf527e57b5f8721fe1de6e06f410afe130ffc",
+    "blocks/chart-tooltip-indicator-line/chart-tooltip-indicator-line.tsx": "sha256-b697de31b01d2eb5263449b4928d5208485de0df716294cf9bfbbba6deddacd6",
+    "blocks/chart-tooltip-indicator-none/chart-tooltip-indicator-none.tsx": "sha256-aa16e0e39921221aeefb8854f8151e608397b2a9b9ef33c15239d85539d969ec",
+    "blocks/chart-tooltip-label-custom/chart-tooltip-label-custom.tsx": "sha256-9c11e224cf273c4d13db7507fa2648ec1a6d9d0b37d82f406683faa6798b54fd",
+    "blocks/chart-tooltip-label-formatter/chart-tooltip-label-formatter.tsx": "sha256-9a9cd57709081d8458fc02b6f5c2e3b7db400f2e3ae1bb7c53dc3be9fd3ba414",
+    "blocks/chart-tooltip-label-none/chart-tooltip-label-none.tsx": "sha256-e2f984b3c00d7a42e103577ebea211719ffcb99d81c7149d14d80c9d91efac1a",
+    "blocks/dashboard-01/components/app-sidebar.tsx": "sha256-41579682eca52d1873da5fa783d871c5b43fa561fda7b359e21f6119ba5abf1c",
+    "blocks/dashboard-01/components/chart-area-interactive.tsx": "sha256-84288a4cbf269800fe9a7d7dcef7cc8542cea2ea35c41291e963fad3eac80e66",
+    "blocks/dashboard-01/components/data-table.tsx": "sha256-93c55c135918f6f50b235a33d96f775aa7861409a19f66112d380fc39fc80ad6",
+    "blocks/dashboard-01/components/nav-documents.tsx": "sha256-cbee368bbc9da4784c060349cfbebc5aa421d6df73ab101c5402cd559854b2dd",
+    "blocks/dashboard-01/components/nav-main.tsx": "sha256-72857dca748e1ec5e4df47ed85ecfdaa30c8e471857f19df6ad224c6673a9ad9",
+    "blocks/dashboard-01/components/nav-secondary.tsx": "sha256-6194e3b3acdec101d096e3446863dd601f61495138965f2b7a05fe8e1c04d74b",
+    "blocks/dashboard-01/components/nav-user.tsx": "sha256-40ffa2504bd3e05f570acf28e0c810fb20634a3ef973ff153221660658cfe54f",
+    "blocks/dashboard-01/components/section-cards.tsx": "sha256-1e5d739062b8be7d2b9248a032076b4d970536d57022663c536c1a2f8b599b80",
+    "blocks/dashboard-01/components/site-header.tsx": "sha256-6bcd4fc20d911ae4191b51f1349d2f842d509597abe4d0a61cbad773b198a00a",
+    "blocks/dashboard-01/data.json": "sha256-a8dcfbe6d014ab33adb4be2ccc221313d0bbf5d1d69a06bc08527b66148e849a",
+    "blocks/dashboard-01/page.tsx": "sha256-7e61b721980c1c6a2c754dc373459b3ba007c4f0f8e04e30069a6b009d048810",
+    "blocks/login-01/components/login-form.tsx": "sha256-8695138d98232667c18f35f702a4f6b66f98043d05b2de1704c9d818123345b5",
+    "blocks/login-01/page.tsx": "sha256-618d8a5a184c223b8bffaf41ba518f560d770ea26507c3e572e457a8ba305841",
+    "blocks/login-02/components/login-form.tsx": "sha256-be5ac8c1472d5bf80e55836cdf813035aeea11aca195d629868ba79486b03152",
+    "blocks/login-02/page.tsx": "sha256-26af047fd01809d9fd1521ea8b80398de0b66e93f7a1601f02e608054ab8d583",
+    "blocks/login-03/components/login-form.tsx": "sha256-288a605f23ae6eb57071c895bedfb91b6db2051dbb37241a00c13c106341788f",
+    "blocks/login-03/page.tsx": "sha256-22eb7ba7d3f639517c1cfffa77a514c988d4cad2b4e1bea8766378ed39f90217",
+    "blocks/login-04/components/login-form.tsx": "sha256-6c7721b59c238cde2221741e2525cc457e1734cb1b0fdd22c60a5a40d2509b73",
+    "blocks/login-04/page.tsx": "sha256-11298588963f38fc49ed12a063cc5ac860581c1e3e9f6069848df6be62bccbce",
+    "blocks/login-05/components/login-form.tsx": "sha256-e1ff4173642c04d85165cad628e0c16ff65059403cc30fad7891f2f2076e90b3",
+    "blocks/login-05/page.tsx": "sha256-79fc510a5defddc6efe7facf200bafb467d16eddb283ffca7c54754c4ac0b996",
+    "blocks/preview-02/index.tsx": "sha256-152f9104a59133d42b162ad10588c94a317936f396da11668d83182f604f388a",
+    "blocks/preview-03/index.tsx": "sha256-dffe325bf0afc151aaf21d86e93f469147384e875128ef682a59b4ba305eddf9",
+    "blocks/preview/index.tsx": "sha256-aa0a7493caa0f54a6699e7f17e6cd20468d36803b2b34137746f85b409b1ea16",
+    "blocks/sidebar-01/components/app-sidebar.tsx": "sha256-8d8257c8aac38156d9af0d831e4ddf40e2134e145e6d06ca4f42071968fd168a",
+    "blocks/sidebar-01/components/search-form.tsx": "sha256-728ad4c1fb0eca83be5a8c421feca6a16608c0a3ebe2804fc952da548fd17b38",
+    "blocks/sidebar-01/components/version-switcher.tsx": "sha256-b1e1116722814f08ccd7dcefcef33e132e011152f426f33fbe547b152f192f37",
+    "blocks/sidebar-01/page.tsx": "sha256-3403eb256cccfc1384f2a8f1c84ba40a21b22b6f999f8caf5aa803cabf669327",
+    "blocks/sidebar-02/components/app-sidebar.tsx": "sha256-a112bfc4d0fbff91c795564eb96d7c4ddad8492452a0eb16fa5b7409e898db77",
+    "blocks/sidebar-02/components/search-form.tsx": "sha256-728ad4c1fb0eca83be5a8c421feca6a16608c0a3ebe2804fc952da548fd17b38",
+    "blocks/sidebar-02/components/version-switcher.tsx": "sha256-b1e1116722814f08ccd7dcefcef33e132e011152f426f33fbe547b152f192f37",
+    "blocks/sidebar-02/page.tsx": "sha256-33efca86a275095dc961060a3f6a2bed6b4372644edfd9b581eeafcb2f379d42",
+    "blocks/sidebar-03/components/app-sidebar.tsx": "sha256-faa22104625b533aad0b0eb7116c077653fe17f7184c8938eb118bc15282049d",
+    "blocks/sidebar-03/page.tsx": "sha256-84fe481498906fabb2e742f1c3d243300157ddbb3371889b15ec64a5cdf7950c",
+    "blocks/sidebar-04/components/app-sidebar.tsx": "sha256-ff1b659b609bfcdbe568e5e0b65f31315b470d3cdbfcc356ee797747a65cb89e",
+    "blocks/sidebar-04/page.tsx": "sha256-fba24312e360f4d53d1c7f0e8fbb2904be5bf09ce6b235d1e8f471e7bdf5485b",
+    "blocks/sidebar-05/components/app-sidebar.tsx": "sha256-aa2d26e12c2cd9458d97d1b33cdf8f4722bdf62f14348e63a52477382f521cfe",
+    "blocks/sidebar-05/components/search-form.tsx": "sha256-728ad4c1fb0eca83be5a8c421feca6a16608c0a3ebe2804fc952da548fd17b38",
+    "blocks/sidebar-05/page.tsx": "sha256-290f8819efc83ba3b1150905d86cb3a580199f75df8f0eda8cad977c8ca796d3",
+    "blocks/sidebar-06/components/app-sidebar.tsx": "sha256-268259ac7937439b18e4c5727254e65ed38c95eb2e58b65aba532ea7e1e03a42",
+    "blocks/sidebar-06/components/nav-main.tsx": "sha256-86ffdcdb0db9385b571b7589f77a8a571f387bcbd69bc597813321af45ee1f73",
+    "blocks/sidebar-06/components/sidebar-opt-in-form.tsx": "sha256-5cdc57f07f51b446cbab6851bf7ce5101aa790715178d750fe2ef4f24153ea37",
+    "blocks/sidebar-06/page.tsx": "sha256-290f8819efc83ba3b1150905d86cb3a580199f75df8f0eda8cad977c8ca796d3",
+    "blocks/sidebar-07/components/app-sidebar.tsx": "sha256-d581e89152360f0102968782ac52141ba947daf028144a5264b9adb83d0703e1",
+    "blocks/sidebar-07/components/nav-main.tsx": "sha256-cc06c50395aef2362328accb4c396273a1a4867f57b904ac5c1e297837977ad7",
+    "blocks/sidebar-07/components/nav-projects.tsx": "sha256-51543913ae8869ac0f051722d63031ec12c6ed22332eba7cc2ec495a414aa0c2",
+    "blocks/sidebar-07/components/nav-user.tsx": "sha256-3dfa42a6c35f4bd59f7eb0525e1e6aa01efec2f0e80bfed172ae6b97e157a95b",
+    "blocks/sidebar-07/components/team-switcher.tsx": "sha256-bea97d0007b018ad042da61e4955744a88afd76b62bd87614759b55b30acfa4c",
+    "blocks/sidebar-07/page.tsx": "sha256-0b34b986376c12e071a282027265a8f06fa01e7082d8cbd4576b66beb0c99bdb",
+    "blocks/sidebar-08/components/app-sidebar.tsx": "sha256-fd0423aac5591bd002191d47ac8c9619eade80b15a5696612355270c5c292fb5",
+    "blocks/sidebar-08/components/nav-main.tsx": "sha256-2159901aa945412573fc3e5f52aaede776b409195c4f4ec9735e38d4dfa41f8e",
+    "blocks/sidebar-08/components/nav-projects.tsx": "sha256-81a14d68455f73a57d7dde42add5f9ef010265d2f8e23ccee9119ec6d94960ce",
+    "blocks/sidebar-08/components/nav-secondary.tsx": "sha256-329c8b61453f3b825f535c27154d388119e3b0f3d4e64b05387e9b428c69c371",
+    "blocks/sidebar-08/components/nav-user.tsx": "sha256-8c27860cfdf19f411c8ea6cdcad5dedd9c222fcba45c18d9e59d6a2a6682c9cc",
+    "blocks/sidebar-08/page.tsx": "sha256-b6bcf717bf5e01fc02052451fe235b48b180e407aa365308635a0058389f69b7",
+    "blocks/sidebar-09/components/app-sidebar.tsx": "sha256-aeb5813a9fa2dfbed050b6bd99f171f512091b341cc29498952ed795a70a89e4",
+    "blocks/sidebar-09/components/nav-user.tsx": "sha256-3317ca9538888f60745153e9cf1256c66d2a24786cf0e11f8f83e473dd1b700b",
+    "blocks/sidebar-09/page.tsx": "sha256-dfc1f75df9eff2e3d734d549a9db9faca16a3d0c3737b48febb75a2abb03a106",
+    "blocks/sidebar-10/components/app-sidebar.tsx": "sha256-2dadcfcdae734efccb2144870cf63d0fcfe040987efc28b2ec17ebbea1de2810",
+    "blocks/sidebar-10/components/nav-actions.tsx": "sha256-348dfc2fbc03652b7d99558fb60537b6b7b10f13ba42cd6da8faca2862ac3768",
+    "blocks/sidebar-10/components/nav-favorites.tsx": "sha256-42add0bba2bf5cb663c9646eecaf0f5d60d695d80472f4f9b2de28f6fb92cea5",
+    "blocks/sidebar-10/components/nav-main.tsx": "sha256-a0c18b7ad745869a954f8cff867f0ee7ae570d1ee6432b21d07bbadb8bb9eda5",
+    "blocks/sidebar-10/components/nav-secondary.tsx": "sha256-a525566dbc7aa96e079dd03e6dba2c970962f60336498636b810bd4fb76d6b01",
+    "blocks/sidebar-10/components/nav-workspaces.tsx": "sha256-f197c5abf2a351f0969a5b3c2f80fc544bae69181145e0b3171f5533b43d4ab3",
+    "blocks/sidebar-10/components/team-switcher.tsx": "sha256-b943adb6df9219a564a2f28d3d205455ef863e78bb9a2b95e10d907b7b0f3aea",
+    "blocks/sidebar-10/page.tsx": "sha256-7686ab363d1b1991a1a99e1168435fc79db1dba8f8945cee3eadfb34d949ef69",
+    "blocks/sidebar-11/components/app-sidebar.tsx": "sha256-d43afc4bf33235af046f26e3c73090c8b4c9a4357fa002bde576e920c87dd920",
+    "blocks/sidebar-11/page.tsx": "sha256-006cbc17b1d83409c7963a76183e5a79e1fc3bdf5c126531f91ed590da222d80",
+    "blocks/sidebar-12/components/app-sidebar.tsx": "sha256-7c4d23e15eb6d5f81aa23d8f20d7ca4046f2e9b093ca0fceebfed2d2a02e6bab",
+    "blocks/sidebar-12/components/calendars.tsx": "sha256-4bc93e53c59d3cfa99f39f04d3580eb15d259499f93f05161b145a4042c0c4ac",
+    "blocks/sidebar-12/components/date-picker.tsx": "sha256-99a3ab0543c68a09cadb73f9d4c38887a2886ca4d918c0883b98889f3ba94180",
+    "blocks/sidebar-12/components/nav-user.tsx": "sha256-4fbb9c268fbbbbba5a9bde5601535e159ac631b0b5e7aaed80df202e6492102b",
+    "blocks/sidebar-12/page.tsx": "sha256-a03df9c140d368c55075a51fd75cf575a3392eea7a53b04b170adc448dadab89",
+    "blocks/sidebar-13/components/settings-dialog.tsx": "sha256-0e4d97d0805a6d445341223e2a4ede7a3f467eb7f6d594d09b56eead2ae1adf9",
+    "blocks/sidebar-13/page.tsx": "sha256-976e2d0b2c5701cd98f2d0a16800f790d5a240124ae966fdda1d6b31ead2c49d",
+    "blocks/sidebar-14/components/app-sidebar.tsx": "sha256-9290e62bfe45a8f1bd8264883d8cd7f853f6fbd54dbaa449baf4078fa37f948a",
+    "blocks/sidebar-14/page.tsx": "sha256-fa9857e606198301f29113dff2be034438aea39c3872adf861987dc1cdf20baf",
+    "blocks/sidebar-15/components/calendars.tsx": "sha256-df96261d8d3d94e926b46e2a4624b2357cb3ad887f5dd8888e7cc4a43f8671b0",
+    "blocks/sidebar-15/components/date-picker.tsx": "sha256-99a3ab0543c68a09cadb73f9d4c38887a2886ca4d918c0883b98889f3ba94180",
+    "blocks/sidebar-15/components/nav-favorites.tsx": "sha256-1ec5dfd189bf46f634ce03d3f4fe53986f79c503946481cce843307bcc7cfbe2",
+    "blocks/sidebar-15/components/nav-main.tsx": "sha256-a0c18b7ad745869a954f8cff867f0ee7ae570d1ee6432b21d07bbadb8bb9eda5",
+    "blocks/sidebar-15/components/nav-secondary.tsx": "sha256-a525566dbc7aa96e079dd03e6dba2c970962f60336498636b810bd4fb76d6b01",
+    "blocks/sidebar-15/components/nav-user.tsx": "sha256-d7592fd0ee1185edc7dc779863d87db8e543cb0cb873ed5607da39700b67d232",
+    "blocks/sidebar-15/components/nav-workspaces.tsx": "sha256-f197c5abf2a351f0969a5b3c2f80fc544bae69181145e0b3171f5533b43d4ab3",
+    "blocks/sidebar-15/components/sidebar-left.tsx": "sha256-227bb3457ab69da0aa1669f30a5c353bce83e949aaa8e83aed1e59d9465dc87e",
+    "blocks/sidebar-15/components/sidebar-right.tsx": "sha256-e0d7a08738701eed987583b99d158514fbe5b8a412d74f1c9d238517ed7a1367",
+    "blocks/sidebar-15/components/team-switcher.tsx": "sha256-52cc3250c695d22dd6b18661750fed4cbfcc3ccb6bc39174c9c08eb4d217377d",
+    "blocks/sidebar-15/page.tsx": "sha256-1b95f3f9b1115718ad333c78d57cb015eba225314228f72266c4bef5e9830096",
+    "blocks/sidebar-16/components/app-sidebar.tsx": "sha256-e6fb54643670867938848f4ff65bd6fad7ff18441ec6a6e13526f3675f92a87f",
+    "blocks/sidebar-16/components/nav-main.tsx": "sha256-2dfe5cd5fdc5600ba18a2d4ec3dcf51b3f6b10081d9d7a0511484738a15ecbea",
+    "blocks/sidebar-16/components/nav-projects.tsx": "sha256-81a14d68455f73a57d7dde42add5f9ef010265d2f8e23ccee9119ec6d94960ce",
+    "blocks/sidebar-16/components/nav-secondary.tsx": "sha256-329c8b61453f3b825f535c27154d388119e3b0f3d4e64b05387e9b428c69c371",
+    "blocks/sidebar-16/components/nav-user.tsx": "sha256-e61aa140bd1da1ec281166e6bd4e0040c513f8eed7ef4363b76b63819bc0f4e4",
+    "blocks/sidebar-16/components/search-form.tsx": "sha256-b0305dbe8a45e40bf80ee50c244a807af5446a4f493060a6b6ee640baeb872f2",
+    "blocks/sidebar-16/components/site-header.tsx": "sha256-0f25752229024d60379d6e58eab7770ed353e7f10a80dd3e32349fa891e2afb6",
+    "blocks/sidebar-16/page.tsx": "sha256-862403ff286d6668b62c63bd2b351bc952c1b2dbcdcf765e6d0c92df12595e31",
+    "blocks/signup-01/components/signup-form.tsx": "sha256-7db043fa56fe18527da55a8304e3b12e89ef25058608d2698150b1281189f3f0",
+    "blocks/signup-01/page.tsx": "sha256-e41a768cde14cc1828ddf0231a52d1d1de40a22d15c8063c0e0cfc3fe166b785",
+    "blocks/signup-02/components/signup-form.tsx": "sha256-c79b99ee2073f59747b21a0e2cac1c55a0c41385e412eaca11ec0a76a7629bc6",
+    "blocks/signup-02/page.tsx": "sha256-28918e2f65b5d3498e4419fd3e6cbe930d7d38737a3d133d10a1c8b12bb32bf2",
+    "blocks/signup-03/components/signup-form.tsx": "sha256-62d03cf890947ba1b6383c56b05f35f894ce155b795534e7eb267753283dc01d",
+    "blocks/signup-03/page.tsx": "sha256-a854643f10db662f6cc1dff89f61b1f97776f69e646ec36c6dfa722e99cd974c",
+    "blocks/signup-04/components/signup-form.tsx": "sha256-85bca43bac5fdc9f4b13ec937f9513b62e1258bf0020d81dc79ee82ba03367d7",
+    "blocks/signup-04/page.tsx": "sha256-08c7a8ad7cba4aa76bfe1a88083bd96b377843c63f95cb8e491a075ceb9d9c31",
+    "blocks/signup-05/components/signup-form.tsx": "sha256-de60ba7a9f8e5805f0cbb4a5b55e3c07ee6204ca07ba369bbf25b5255950c3c4",
+    "blocks/signup-05/page.tsx": "sha256-df080bc5f7bd37ada20fbc8c50067340ab899662544bef5074c9b63df2e2c0d0",
+    "colors/neutral.json": "sha256-58f847c9413f0c0e326f4796702a40c31a6d115e2b73b07edc288e7ef949af7f",
+    "components.json": "sha256-267047508de949188ad1bb71980c94fb514731f7fda18ab3e99478e6a00bafa2",
+    "css/globals.css": "sha256-ffcb25ea2a765bb3bc279b5ddb3efa4c22ff06c346a33a916b0ab535b4a1bbe8",
+    "docs/accordion.json": "sha256-ab6b4c6bce86961bb9e7ae6666e72b82d0bbe5b1d54a9900b56b074e2314b0da",
+    "docs/accordion.md": "sha256-ccd53e3cb2e6d1cd1cc72588b853fdc8aefe08aab3d5cb515d28dfe09dcf149f",
+    "docs/alert-dialog.json": "sha256-6899daac8eb6a267bc2c9c3e7f110ad9ece36fc595e38e1d728c4cb38e642b6d",
+    "docs/alert-dialog.md": "sha256-ccc9147729b395b1d80ba6c9190ffbd5b556213571f958bb10c111a38b63c2da",
+    "docs/alert.json": "sha256-e0c278722be613333a770263ea79db33b35477c10955e42349b7dcc39d267dc9",
+    "docs/alert.md": "sha256-a6d5f832b2384d4544d2d1d0aaa0fe315dd17031a0fb5395451fb09b0925dbf9",
+    "docs/aspect-ratio.json": "sha256-bbb0ad1ce6011bd3a62e1d9dc51ed8d747c2768765adeafdbff2b2f24d22b218",
+    "docs/aspect-ratio.md": "sha256-7d0ebab187a210c255515d46b286d99cf55b16879d76075e2490646dbc80cda1",
+    "docs/attachment.json": "sha256-4bd707a2d4fd2c0d6c555f402bd857cf06ee2d27483aff8076a146cbc37c178e",
+    "docs/attachment.md": "sha256-47350990437e1b9c623684cbee001101962dcd7fb9328b162ef07adb03774175",
+    "docs/avatar.json": "sha256-aade1536e887324e6be5fe08d086bc41089e648c8b54051ee9f9e60e88927490",
+    "docs/avatar.md": "sha256-921178487423ff56f4de4aa29b09541733b59359ae746fe63a8b765ae8b153d9",
+    "docs/badge.json": "sha256-0c1ac1ea388d514f3c0230af236e2392d2ce2e7a528a2483d15876b856485214",
+    "docs/badge.md": "sha256-e174d14915336a823d0926ac774ba56767fd315950ac843dbe58fc36aba507bf",
+    "docs/breadcrumb.json": "sha256-27e4357d26bba62014b92a680ff288cc5ee5b5d56c09b20a6d25f529e160c8a3",
+    "docs/breadcrumb.md": "sha256-df168dd44f709ddb768995fbab0188c1934b6e95def1ba3726adf4f9302714b7",
+    "docs/bubble.json": "sha256-25dc9c8d26cca085f0643bfb4193d7ff9ea30c023b564c097f8140b7fa8de1b5",
+    "docs/bubble.md": "sha256-6863ccd2854a6d590991fc58cb8b5ddcb82fe88d25185100b7bf111021267a82",
+    "docs/button-group.json": "sha256-3f1ef2fdb0dab3a438f39ba20d27b67b314b1f81ea9bb6f828894bccae9f528e",
+    "docs/button-group.md": "sha256-9118d89c3e715a7e77ec0454be6a276c24d114c8b3099505bb463487e9545eda",
+    "docs/button.json": "sha256-6c85b5433f1026ac42c99931099e8f8df37dbb1acb7f586d52ec63272c0fe2ca",
+    "docs/button.md": "sha256-966cf16702128d2b385b62616ee24bb3b1b3b2ed7eebfc13ce411c90421f8910",
+    "docs/calendar.json": "sha256-ce98baaf17c091fe0ab30c6230841e5b4da71ffb6abd73f4e82789540d4551df",
+    "docs/calendar.md": "sha256-9268f3aa428b4eb36bfbd957644f9d681beab0d49575f779a2cd2620f81a58b4",
+    "docs/card.json": "sha256-70ed2605c4b0955dd26fc7c2339825444ebffe6aa1a960d336d1108c0400b855",
+    "docs/card.md": "sha256-718dec761e0ad426b53d4673d206ab6dbfbbff5757f9714b883a04126f75db3e",
+    "docs/carousel.json": "sha256-e8b6d71fe50ec8d98ffa33d6298000634991f06ba8b0b3bf9d391dc2094c84fb",
+    "docs/carousel.md": "sha256-98fdaa46f982b7ebf29b3c18f5e848f478244a766a0270f9c520f5e2eaf2fd59",
+    "docs/chart.json": "sha256-bdefce8bc3cfcdf77cbe177531b5a6c607230ec05f24cfe7f41c0f5d502c93a8",
+    "docs/chart.md": "sha256-c6c51d44c211580548bbce4647965f16458e02c054cb5592aa89405d3b36885d",
+    "docs/checkbox.json": "sha256-01d2bfca81be689bd4fe16907d00c348ea6fc0698feb2d7d470fe434e90dd623",
+    "docs/checkbox.md": "sha256-7fc35f61a68fa13939af760acf7655d03441b9b44085183e033dcb80bfb25458",
+    "docs/collapsible.json": "sha256-a073be792ebb265a9ab2034ccac17cd2f11a3608342ab85b5be60be2e612092e",
+    "docs/collapsible.md": "sha256-51c94ec0874f01cd67a62616d74dabb98334f8a31c1db74207f7c86a2402ea6a",
+    "docs/combobox.json": "sha256-7a652aa24fa559879a10df3feb6d5dde707a8a760cc9e334b32efa128857474d",
+    "docs/combobox.md": "sha256-1999428362ac7386c7770217e5b48e1a44c2b414005f9721ef68b9366e9ef0f2",
+    "docs/command.json": "sha256-17a655a4c45820df83122b71469d9c27a47adbdad86949f4777701f421617a76",
+    "docs/command.md": "sha256-1a810090b9cc629efe885d8795365280c2653fdf3e0f5d20f4ac2354b876a4b6",
+    "docs/context-menu.json": "sha256-debfb485f34e6e29dd1b164d3467bfee4264e83faf4eaa879156de560f4810e9",
+    "docs/context-menu.md": "sha256-ec20bd0ef47abb75872c1294d1563f0f279d3da5861177d8f2c588d8eb5f6895",
+    "docs/dialog.json": "sha256-8ebd4752d410e69c1216e2c98f4c39fff29316725d96f329bdd0d145adfe1ee8",
+    "docs/dialog.md": "sha256-c4915883516dc53b58f8aa12a9fddc04fd2bd350c7f6ca842ce737025736bebf",
+    "docs/direction.json": "sha256-0aed03f9d51ef1bd46a227c1ddabbd51fef9d0cebadd0e2fff31d5fd1e2c43ee",
+    "docs/direction.md": "sha256-696841f1a8259dfdb07c8b9ecc82181a4b0daf36516ba1a63164542970cfb709",
+    "docs/drawer.json": "sha256-b9d6430c751530cf82fd7488bb3b59fcc130a8a7fddb20bf8892b32ee28f99b8",
+    "docs/drawer.md": "sha256-e3fca4a3433436c5eb043a1075f04d064f97add28e4d89872a9a01fe493cc63a",
+    "docs/dropdown-menu.json": "sha256-005a673e99427c5d7e1af62946bfe5e42ca996c2db0c307c1649f2db491796d1",
+    "docs/dropdown-menu.md": "sha256-3a8ab9398fa074c3cdf023e31bc9368a3b6bafb0b0f146a326eb2c76808ba7fa",
+    "docs/empty.json": "sha256-649e59537a3ef0e746879a88f1f71d644197ed23d10eee541a8aec60ca8195b3",
+    "docs/empty.md": "sha256-052a80cfb1f64c836d1aa39c739da20ab26848f94555cd13f3c6a598267c9d37",
+    "docs/field.json": "sha256-b62cf133e4e79f1aba8978342717142116dc4ed9803a5f6efd944cc0c1f95326",
+    "docs/field.md": "sha256-1afe174f74b982ec86fad520dab464a16bfe289c2d54fde88241ce3a791112ee",
+    "docs/hover-card.json": "sha256-b2e891cbc4873936141e9bf417912f8455a36f7ac70753d27b4cf7a0de3ecb54",
+    "docs/hover-card.md": "sha256-8f30193c745aaf270cdf63043ca452cdffb895e8643a86c662ca0804c6022dc8",
+    "docs/input-group.json": "sha256-9f7b6eda11373e7716f34f6656f9dec0de8d66101fec1ee70221e746bcc45d79",
+    "docs/input-group.md": "sha256-6a1c182773fd4981af63da9ca5b2cb70cd0743f658a728b8fb9f6a6bd2a71a96",
+    "docs/input-otp.json": "sha256-8175efc629d801cc2af5e513bcf701244be5629ec5b89c2ff100a7c6a977e724",
+    "docs/input-otp.md": "sha256-913027458ed577e6345687c3d42b62f28e2813e1d8b000e1b8b9e52f554b1a6e",
+    "docs/input.json": "sha256-6d342824ac9ff0ecc8ba0ded34f56439d07e833419321220b3b85b7096671dc6",
+    "docs/input.md": "sha256-1ea19da544283cee29e704fc9c7e930b55fef45018710427e7243e4be93879f4",
+    "docs/item.json": "sha256-1106726906a4b10de2cf8e20b23385255563524623460e0b7f8a87ef551a8718",
+    "docs/item.md": "sha256-c4a69c25199741ad3baea25f07a869e1aebf08cf3274f1a4f2e9da04afbbe0f0",
+    "docs/kbd.json": "sha256-76d26e52011bd59d6e08d73fab464e72139a318052b944062cd52223507600b4",
+    "docs/kbd.md": "sha256-3dd0b0dacf86f4b701ae35df3efe453ba1e9995a542e0a4a004a252f5bdd7978",
+    "docs/label.json": "sha256-c703f835ba722ba08b9f33bfa09f8c1b2333b71d366bae3133a55b853fe4f862",
+    "docs/label.md": "sha256-7263b641bac78acd5ec6cfbffefeddda484eaedb1d32b8a73a675b53da0644c2",
+    "docs/marker.json": "sha256-e2172d94fc7b28ca591f70b91e708a0fec298534f3498813d70c7667a58f8fb2",
+    "docs/marker.md": "sha256-6945086da60adc35853f120678096e8a6e6485dc7b4e9e8eb8e7dfc023a69b90",
+    "docs/menubar.json": "sha256-0b5268f7ccf419dde2b0975da4317ea1762b612dd4e930af636e388a686b706f",
+    "docs/menubar.md": "sha256-8ae4486c307453e61359a37284084facbfbc6495ed0dabdc47ad991a06f734ae",
+    "docs/message-scroller.json": "sha256-d0825d94582dcb0b09345af9421ab808f1b573b12fcbaa1b8c48c2c293373b53",
+    "docs/message-scroller.md": "sha256-fc0e1a7bdc05d81c833e001292419e85e1eb7c16be3942a7468ff2d6c1d2b165",
+    "docs/message.json": "sha256-9a4c21e29998f3e3594c62f5f3cb1f1da9c0f7d223c6440d01273517778ef87d",
+    "docs/message.md": "sha256-39047b5f5cef3654f98cd34f60dbdee75f585a03af3ddf35839e113b8e649782",
+    "docs/native-select.json": "sha256-fb344a9b507d0d8eb4f82d44f6a4241fab8b040bf18f00ced8b814a7527cf8ff",
+    "docs/native-select.md": "sha256-46ba4666fa33e33a336645f213e74416eae3729c03e38ef64e687bffa54cd1a4",
+    "docs/navigation-menu.json": "sha256-840b8d9c2447d038c36c0b1e8548420d7a886b5b1e1cd2c204af7e5104d6f310",
+    "docs/navigation-menu.md": "sha256-2f4297e419617d26545e1c71dbc5336f6878dd8ab687f71663fe0e2bc2126546",
+    "docs/pagination.json": "sha256-1a6279df829d541837820353c72eae723392dc61f620e72682be0aec393662ef",
+    "docs/pagination.md": "sha256-bc07e7b5e3df7090f895a93d49a3484e828e8560c17600ab3cbd1cb92313c3f9",
+    "docs/popover.json": "sha256-2c428aacf4981654174a7404cd44a24eab28ddfa593f10f7205c38326076bfa7",
+    "docs/popover.md": "sha256-833273ce2ef2e83164a1824c0e6151452d4fc5f7d602c4871f9705bdef163587",
+    "docs/progress.json": "sha256-0409714db345259cbfa8d5d448ecbd7155230387e5b486b58277d00db7974791",
+    "docs/progress.md": "sha256-7e0420446e2f8aef2323fc2de6695d58f4bff55762eca3192d83570b81706ef9",
+    "docs/questionnaire.json": "sha256-53f0cc856e262629ab01a3e7dbaa919eb83904643cccd30f1b58edd7bb20c044",
+    "docs/questionnaire.md": "sha256-174687e701dfa6b70a0583de3bfee8dd2885b4c8fd51a899adfaffd689a9dc7c",
+    "docs/radio-group.json": "sha256-b383984bf2a8236b1ec43365c9e0da3535e9ab0a65170bb4cf688d40a5789dc0",
+    "docs/radio-group.md": "sha256-e00939e01c108da6492bdf9a3d9ccf34bbb284e3dce26260dcf44dc4ef4219f6",
+    "docs/resizable.json": "sha256-746924881b04777b02a942ac64bfa203d5079279b86824053b3776a416a29db9",
+    "docs/resizable.md": "sha256-ddd6135362885cae60899cbcc6aa07dd9807623cf090e036c9506706d0a9bb2b",
+    "docs/scroll-area.json": "sha256-412369402611aad7adbbde00ea19764914f97f9d800b0e8dfc0b4e75a8be915f",
+    "docs/scroll-area.md": "sha256-f40c4a5ed0108ef8a84f5ffdd4ee1b4571f1cd3f2cbc26d88512ffe5c9ba041b",
+    "docs/select.json": "sha256-009e4e7bde4e2a6abe77754bfaae5ed0ce1298f5b4566c1e12823558297cb282",
+    "docs/select.md": "sha256-fc566bd829748e1caec337728e3198a951599be1c4c96f132e20d62266e2d0a9",
+    "docs/separator.json": "sha256-930ed36aefe5d1bce2739915d60016b4f0385ab58bf6ecb331d30e6d80a018e7",
+    "docs/separator.md": "sha256-b0c3b29e2b3852570144159da0ee5681074c1ddb1727d2f720a7b211f1259120",
+    "docs/sheet.json": "sha256-fe1d74fa769b46ee28ed1e400d2d7d43c952d0a30bb4650910ce5303d353485a",
+    "docs/sheet.md": "sha256-d5b0e4ef28a6fa9de830479fab61e6c8d6b8b05698dc6c109b710c4a0112d9d3",
+    "docs/sidebar.json": "sha256-933a8482f776a8cfade74b5d048138f1b48c3cc0b6814d840a05a2070f157bcc",
+    "docs/sidebar.md": "sha256-a48b885e4d6f0d8d1cb143ef436b80b90ebcf5e548347d455f6b201dcb637971",
+    "docs/skeleton.json": "sha256-1c2bbbb0d53fe7c2896fc59612513a04725db68b72cb43c03604869628d7aa21",
+    "docs/skeleton.md": "sha256-cab955b03db8fe7a9f4e5bc71be4f72054782d29476b19fb2029f569a880df16",
+    "docs/slider.json": "sha256-fe7d664297d688f876451fbbe09f9b8e4abd2643edd2f41a6aa50525bb600aad",
+    "docs/slider.md": "sha256-186c43745f60c9bf51bf6dfcbad7db83dd608afa667a30960312d48b98ae2686",
+    "docs/sonner.json": "sha256-86c7659c7a7fe105ddd36d01dd2dbd3aa1e1061086495f3b6e8ba40c04d04a5c",
+    "docs/sonner.md": "sha256-e1dd1c08ccb082e6ca90fe352e09242cbf81132e37e05db889c67c8e601e1174",
+    "docs/spinner.json": "sha256-5b2eba57801aa4c00722c0b2c8f722d183438dca57856cd84661f0dc2ce6c17c",
+    "docs/spinner.md": "sha256-9c7185da74c70d9b9bb7c3b894e14bb62e2a07c264bed76a786ab7f38325d654",
+    "docs/switch.json": "sha256-5b0028ee1a1a54d3224dcc587a245502fb1d91edabff82a6e3c69f84cd4d9dc9",
+    "docs/switch.md": "sha256-55cd0548461c68b00f0757af2f9617621542da29a000405f05878125782c450c",
+    "docs/table.json": "sha256-865e159e87b569f84f15c021cd106fad9de7dc0e6acffaa89b5d77664da7c36b",
+    "docs/table.md": "sha256-16bcb89807973003dfc36d98bffe6a83ac3183e95cc9cb017809127c12fadb1d",
+    "docs/tabs.json": "sha256-d3bfcab30fb26b3c483d273dc19a04d649dd9dd7ac14920abde496efa8cca32b",
+    "docs/tabs.md": "sha256-38d09f015f5856ced34f5af2449439611c845e952472c2382f2123d6fef2af0a",
+    "docs/textarea.json": "sha256-09ccb8980d4df3886b41138d607c05edfb9027c203190c92d7873396d925d05d",
+    "docs/textarea.md": "sha256-7f2112811eec73ffe6ddc4f250ab4daad7a9894bd274817dda6e26dec0a03759",
+    "docs/toast.json": "sha256-51fe4e2412e2d74e782a5b10bf3357ee2aee6fd238756f6b38dcc90aa6e6f55d",
+    "docs/toast.md": "sha256-e1dd1c08ccb082e6ca90fe352e09242cbf81132e37e05db889c67c8e601e1174",
+    "docs/toggle-group.json": "sha256-fea05e71599e832a7320ccf77630931fbf8d36052dc1881ae82e3763afc61783",
+    "docs/toggle-group.md": "sha256-a24be2fab3d5a4bc103d27c39f046530191c526ff6c970e19919aebcf2cd1702",
+    "docs/toggle.json": "sha256-04e8765cd985f1bcc455af4b83704c1e092dc8c29c72e47eead365a5bffc3193",
+    "docs/toggle.md": "sha256-df0f3e67987ad00fc40be86458c43a330126f3babfd31134644c7fc0284ec7cc",
+    "docs/tooltip.json": "sha256-fad2089ec97f1a5285b67165c4b5bd2ce589fe3125c7c761854b2b246dd088f9",
+    "docs/tooltip.md": "sha256-d800517217309297330af467d7521ee5fdbc407468bde79fb7945000d1db4b1b",
+    "hooks/.gitkeep": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hooks/use-mobile.ts": "sha256-ad0936f84f1df79d3697bfbff9c18f8ad58431c1cbaf2359c6a853b0fcc9f28b",
+    "lib/.gitkeep": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lib/utils.ts": "sha256-14300d758170c270c75b057f38fedb3793a5920ea872f0477e29fb131185e8a7",
+    "package.json": "sha256-a79318dbaebaa26ddb8e40e0c09688d316b431b6f22e0f24ae4572296ab5388e",
+    "ui/accordion.tsx": "sha256-0eabc3846008892c225d997785dcfe2f4e40e6cb975c556fb19996a2a86a23af",
+    "ui/alert-dialog.tsx": "sha256-b3b0df5fa793b9aa1360ad937d5da3ebde510e27957810b761423170be18c396",
+    "ui/alert.tsx": "sha256-a3521f446f0e66965a8de9ff29998d8036847286e1bb838f1a317c0709af85f8",
+    "ui/aspect-ratio.tsx": "sha256-6df19df6b983c450361081b695dbf3541a6fe4a9d2ec148766991e4eb0bf6473",
+    "ui/attachment.tsx": "sha256-d13cbb0f5cc6b23b393f0d3e124535a46afb12c28d96db0c13f2deb6fb1b49ff",
+    "ui/avatar.tsx": "sha256-4f8bfdcd34e56ab5027a6ae49a6955b72f8e705d70294bc51445525fb0491192",
+    "ui/badge.tsx": "sha256-2b62a544d4a9cfd641ed20da955b4f5a539ddd5060916ba4f462482d883957d9",
+    "ui/breadcrumb.tsx": "sha256-f6bcdce57a77055c663aeb5e25aae41e16df3983e58163cd345c599c502d17dc",
+    "ui/bubble.tsx": "sha256-79ca616fa9e4ceff4e14854e04b2ad585138d1cfb29d5fd44821d30977c47583",
+    "ui/button-group.tsx": "sha256-02a7eb5bfadad72203e8430c7cf409eb4d794bbc2bb67e02814e10b56b7485ea",
+    "ui/button.tsx": "sha256-18f350a7086b99113178525510ef1dc3ac8bfd9fae829336d8b2bbe40e0c6dfa",
+    "ui/calendar.tsx": "sha256-a883d7a0570d27b315cc4be41b826be8c605a95144ffd9d51e7e67c5d4f6e7cb",
+    "ui/card.tsx": "sha256-8ad3a18d36bda0598dc0e9aa96ea22854944d5443ee4946f1d173815e115375f",
+    "ui/carousel.tsx": "sha256-be4a58e2a10bba94be445fe87e2fda93eed231b9d75caded4cd9f518b3e9f668",
+    "ui/chart.tsx": "sha256-1869f68f2eb0108071681c78f3827280fb38212ce7b145139d7ed5d65823ec40",
+    "ui/checkbox.tsx": "sha256-d1b341a2b439da009e42388cde8a829adcf55ecb0d447449271aacad752e73ba",
+    "ui/collapsible.tsx": "sha256-ead4349ff7b01d696ef89294a81d18ee1d3f732321398896462c834ab9b9e065",
+    "ui/combobox.tsx": "sha256-d837d6989dab47695c764626a0f21b408106d136fa1d8eb00ec87ce042db31c7",
+    "ui/command.tsx": "sha256-3bd8973e3d58a020c2788a78dc221bb3e5196d5c146bb8af08792b18a1c924bc",
+    "ui/context-menu.tsx": "sha256-41a96777fa743f53aa41027e8cb29666320303d2c0801a98060e644ae6a2df4e",
+    "ui/dialog.tsx": "sha256-8205d6e604b3bce23e440ef4a6f6600f4e88247a2dff25d9f1946a5a30d2be75",
+    "ui/direction.tsx": "sha256-661ff5b9c0dc26edde1226bfedc0ab50976d84f8bae42ca83a38dc3b478fd4d4",
+    "ui/drawer.tsx": "sha256-80849ac9000e0ed42aa7445e0f8e6a093fd7b34a72c88910c226aaa3dd168e49",
+    "ui/dropdown-menu.tsx": "sha256-3830bdbac42e200b77f9948e92d8bbe2f6a94ca5c9726e1eb6e08c4c3b9ef117",
+    "ui/empty.tsx": "sha256-1280f9207787f9e7c219f7181459387b5e103606b6d91872de33a7a9752ee7a7",
+    "ui/field.tsx": "sha256-295b9fa658b0e20f2b2afa9ee043b5f8a1f6bb66a187e35968fe32040db1fac6",
+    "ui/hover-card.tsx": "sha256-ae4750347f2718e09a5fbe9b39c4a5926b314bf96c11b2c320f6b8619d795048",
+    "ui/input-group.tsx": "sha256-67dd0b49b7359c2db390c3b33a2ccfe89a689e1696be4692853d25d00cdad232",
+    "ui/input-otp.tsx": "sha256-f67860f344ff7ba691dab22057ca8e041afc8af7494ea704adfa924128f136af",
+    "ui/input.tsx": "sha256-dab990dfefa0ba78854ab6602ad074270dba9d7d1262184d9bfbb62bd990903b",
+    "ui/item.tsx": "sha256-fda8eebefc9c328da502e5d55d6f0210a209fa9c80ae76f97c18b4ca95a27e78",
+    "ui/kbd.tsx": "sha256-d17724eb15923ea4f0432cd1cf22538addb14a386f4f9326661efcce7f97e33b",
+    "ui/label.tsx": "sha256-b3b7b21d2877838fc73713df48a47248392de04a3b3fafa8961369f33ab14530",
+    "ui/marker.tsx": "sha256-a7016e43a94f0967f6c5799174aa1899f4e299a9b09e74f49e21436b857c2c48",
+    "ui/menubar.tsx": "sha256-a33e9e22ba93c71ca1fb899a8cf4b220f33deedc271cd717f08441657df7da22",
+    "ui/message-scroller.tsx": "sha256-59b80c7d849852ad23b310af8eeb4a96835b0eb006a977bc3fb4d05af327f3ff",
+    "ui/message.tsx": "sha256-64e9ae0f9d1e268b0ed7b738a53d374d273fe1e7e2dd7b35ad7417e50a9bbe6c",
+    "ui/native-select.tsx": "sha256-787c761bfa42fdef693658301a886b64eb3bb43d2a4a8e95810c9adca777a71d",
+    "ui/navigation-menu.tsx": "sha256-b20880da7ba0b7165dd265de23efc033f2bb385ebcdba8aef563ad4392c5573d",
+    "ui/pagination.tsx": "sha256-9860106c68db67271e0761a2aa33010682dd89fb6c07fa030f26658c2ac45dc8",
+    "ui/popover.tsx": "sha256-acb3638de52d971992c137a68054645eb0a932bece51236248da180f3c7ad5ec",
+    "ui/progress.tsx": "sha256-db2edd1e43234e403adbee278c3df0ed882a403bb3bcc1fefff3071f8447a5c6",
+    "ui/questionnaire.tsx": "sha256-057a73877fd0429d2f5ac18b9b6e4c8267a8d5eee3bd586ef959b47425f236f9",
+    "ui/radio-group.tsx": "sha256-68eff6a44c609fcfd858c994511a7059b8881c6b80e24517ea137981abcc7b7d",
+    "ui/resizable.tsx": "sha256-4d0b65d311d58b4680526396cf3de46fb98a723b057b0f6d093dbfaae2ee47a4",
+    "ui/scroll-area.tsx": "sha256-c4e4f5d4de6a0a48fe4301e1ce4fd0894fb5dc40867ffd4dcac8b57bb3d41242",
+    "ui/select.tsx": "sha256-af850d5b652156b10bd3d47c38b3abf9a09721e38725e3b6df52b04d905544de",
+    "ui/separator.tsx": "sha256-9a80ff8c110e0c55489509f4f82ebcc929c0174b59544047147b7134f86a54e7",
+    "ui/sheet.tsx": "sha256-9530cc7a8c731b32a878f13ee79e5ebf1872fed15f2e2bb477b7c9a21e0aadc7",
+    "ui/sidebar.tsx": "sha256-02c67c3d3b6e6b9bcd229303604244ae9ea759a6125b15fdac411c3e23de6076",
+    "ui/skeleton.tsx": "sha256-4c2af7fa9c645358a0fb188779deab6f0b981733b62befc25e18aaebea1350dc",
+    "ui/slider.tsx": "sha256-1fd32ee03ddaa382aabccce0bd88669aa8f91e4fe487622a68745d2ed1d5f5b9",
+    "ui/sonner.tsx": "sha256-2dd975ad2170ba2570b00e58713dcbda90f26a7fffdaceb1ef7255f450c2d2a6",
+    "ui/spinner.tsx": "sha256-6916679a40ad1c7624520de5eaa7b337635e81f9a76413201267f8619844646f",
+    "ui/switch.tsx": "sha256-34ffa9e02567966bbea69d636a5c33815105e5aad60b073615ef5ba6abb05181",
+    "ui/table.tsx": "sha256-fbb9216d5bad00d2a5b63f778d422b053c8a9fa9ad0ac41e4d05a6dfd934bc1e",
+    "ui/tabs.tsx": "sha256-d84cf679fe4f4caffc6d210888f83ac18f85d4d1d72d98628754bc4f596e8b67",
+    "ui/textarea.tsx": "sha256-82601c91ffc6c727d924162c78d7cb853114bcced4e2eb922a68ca12d4239c0f",
+    "ui/toast.tsx": "sha256-12c296aeb95fe04958e28f6e577838c842a623813052110edb86b85605f05855",
+    "ui/toggle-group.tsx": "sha256-60c54b59ca82257befd2e42766a15454c1253254f61ecb408389b58fbbda6edf",
+    "ui/toggle.tsx": "sha256-c912ca70fb25accfb6e2d065f08b3337ee1d6d643a7f53946fbabef8e1a0ebbb",
+    "ui/tooltip.tsx": "sha256-df3febe7a232aa5f317c86df3a46ea52fd34960d1f2cd1c4c81e376d758a6a42"
+  }
+}

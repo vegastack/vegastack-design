@@ -1,0 +1,16 @@
+{
+  "component": "kbd",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/kbd.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Group",
+    "Button",
+    "Tooltip",
+    "Input Group",
+    "RTL",
+    "API Reference"
+  ]
+}

@@ -4,215 +4,136 @@ A 1:1 mirror of `tooling/design-lint.mjs`. Every rule below is `id`-tagged in th
 array or a dedicated pass — cite the `id` when reporting a finding. **If this list and the script
 disagree, the script is ground truth and this file is stale.** Re-sync it; never trust memory.
 
-## Contents
-
-- [Component source rules](#component-source-rules) — everything `design-lint` runs against
-  `packages/ui/registry`
-- [Raw CSS rules](#raw-css-rules) — `--token-css` mode
-
 `tooling/skill-lint.mjs` gates the rule ids here against the ids `design-lint.mjs` actually reports,
 in both directions, so an added or removed rule fails the build until this file is re-synced.
 
+## The shadcn reset changed what this file can say
+
+Batch 1 of `docs/plans/2026-09-18-shadcn-reset/` rebuilt the linter around one question: **would this
+rule reject the upstream file this system is now built from?** Every rule whose decision row in
+`decisions.md` resolves to **shadcn** was deleted, because upstream writes exactly what it banned —
+`transition-all`, `transition-colors`, `duration-100`, `ease-in-out`, `rounded-xl`, `shadow-md`,
+`bg-muted/50`, `opacity-50`, `z-50`, `h-[18.4px]`, `rounded-[4px]`, `text-4xl`, `font-semibold`,
+`tracking-tight`, `cursor-default` on menu rows, and a `hover:` with no `active:` beside it. Seventeen
+rules went; one arrived, `no-focus-ring-glow`, which is the machine half of the one visual decision
+this reset keeps against upstream everywhere.
+
+**When you find something the linter no longer covers, that is usually the decision, not a gap.**
+Check `decisions.md` before reporting it. What survived is the set that is still true of a system
+built on shadcn: no off-system colour, one icon source, no inline SVG icons, React-19 ref semantics,
+the Base UI `render` contract, the client boundary, the native-control budget, and the hygiene rules
+that catch bugs nobody can see in review.
+
 ## Component source rules
 
-1. **`hex-color`** — any `#fff`/`#a1b2c3` literal. Use a semantic token.
-2. **`raw-palette`** — a color-property utility against a raw Tailwind palette (`bg-neutral-900`,
-   `text-red-500`, `border-slate-200`). Use a semantic token.
+1. **`hex-color`** — any `#fff`/`#a1b2c3` literal. Use a semantic token. (COL-20 — kept.) One
+   position is masked out, and only one: a hex inside an **attribute-selector value**
+   (`[&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50`) is a colour being
+   TARGETED so a token can replace it, not one being authored — which is COL-20 being enforced
+   rather than broken. Batch 6 of the shadcn reset added it for upstream's `chart.tsx`; a file
+   allowlist would have switched the rule off for that whole file, so the mask is by position and
+   every authored hex in every file is still rejected. Both halves are observed in
+   `verify-design-lint-structural.mjs`.
+2. **`raw-palette`** — a colour-property utility against a raw Tailwind palette (`bg-neutral-900`,
+   `text-red-500`, `border-slate-200`). Use a semantic token. Note the shape: the rule requires a
+   NUMBERED palette step, so upstream's `bg-black/10` modal scrim and `bg-white` pass, which is
+   deliberate — OVL-3 is decided as **shadcn**.
 3. **`important`** — `!important` anywhere in component source. Zero exceptions here; the two
-   sanctioned exceptions apply only to raw token/app CSS.
+   sanctioned exceptions apply only to raw token/app CSS (see below).
 4. **`icon-source`** — an import from a non-sanctioned icon library (`@heroicons/`, `@tabler/icons`,
    `react-icons`, `phosphor-react`, `@phosphor-icons/`, `feather-icons`, `react-feather`,
    `@radix-ui/react-icons`, `@fortawesome/`, `ionicons`, `@ant-design/icons`, `@mui/icons-material`,
    `boxicons`, `@iconify/`). Sanctioned: `lucide-react`, the `lucide-animated` mirrors under
-   `registry/ui/icons/**`, and `Icon`/`BrandIcon` from `@vegastack/design/icons`.
-5. **`removed-radius-xl`** — any `rounded-xl`. The 5th radius step was removed (it silently fell back
-   to Tailwind's unthemed default); containers cap at `rounded-lg`, the marketing sharp gesture is
-   `rounded-(--radius-sharp)`.
-6. **`raw-control-size`** — raw `h-7`/`h-8`/`h-10` or their `size-`/`min-w-` mirrors. The 28/32/40
-   control scale is tokenized. `h-6`/`size-6` is deliberately NOT banned — it is shared by non-control
-   scales (badge, switch track, select scroll strips); the `xs` tier uses `--size-xs`.
-7. **`raw-icon-size`** — a raw size (`3`, `3.5`, `4`, `5`, `6`) inside an `svg` descendant selector.
-   Route through `]:size-(--icon-compact|inline|default|action|feature)`. `size-1` and fractional
-   sizes are dot-glyph geometry, not icon scale, and stay allowed.
-8. **`direct-lucide-size`** — a `size`/`width`/`height` prop passed directly to a lucide component.
-   That bypasses the `--icon-*` roles.
-9. **`raw-z-index`** — any `z-N` literal. Three bands: `z-(--z-raised)` (10, local),
-   `z-(--z-overlay)` (50, portaled) and `z-(--z-toast)` (60, the toast stack alone, claimed only by
-   `toast.tsx`). No library-level exception remains; the toast-above-modal rule is asserted by test
-   in `test/stacking.browser.test.tsx`.
-10. **`raw-alpha`** — a color-alpha modifier as a raw `/NN` step (`bg-foreground/20`). Route through
-    an `--alpha-*` role token.
-11. **`raw-opacity`** — a raw `opacity-NN` other than `opacity-0`/`opacity-100` (exempt structural
-    endpoints). Route through an `--opacity-*` role token.
-12. **`alpha-opacity-role`** / **`opacity-alpha-role`** — alpha and opacity are different roles and
-    are not interchangeable. Colour compositing takes `--alpha-*`; whole-element opacity takes
-    `--opacity-*`. Crossing them fails.
-13. **`off-scale-text`** — `text-4xl` and above. The scale ends at `text-3xl` (24px); use
-    `text-display-sm/md/lg/xl` for anything larger.
-14. **`raw-heavy-weight`** — `font-bold`/`font-semibold`. The weight ladder is 400/500; use a named
-    typography role.
-15. **`raw-tracking`** — raw `tracking-*`. Letter-spacing is owned by the typography roles.
-16. **`raw-effect`** — raw `blur-*`/`shadow-*`. Use a named semantic effect or elevation role.
-17. **`faint-text-role`** — `text-muted-foreground-faint` is sub-AA and restricted to
-    placeholder/disabled copy.
-18. **`uppercase-mono`** (D20, brand voice) — `uppercase` co-located with a type-setting `text-*`
-    utility must ALSO carry `font-mono`/`text-mono-label` in the same literal, and must not pair with
-    sizes past `text-base`. Uppercase content-transforms with no type utility on the element (avatar
-    initials) are deliberately exempt — casing user content is not setting brand voice.
-19. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. Allowlisted:
-    `progress-indicator.tsx` (a non-icon graphic primitive — a determinate progress ring) and
-    `registry/ui/icons/**` (the vendored lucide-animated mirrors, which self-assert no hex/raw-palette
-    at generation time).
-20. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
-    UI's polymorphic `render` prop. The ONLY allowlisted exemption is `split-button.tsx` (a genuine
-    multi-root composite). "Purely presentational, no single root"
-    (Card/PageHeader/Empty/SettingsRow) is a valid reason to have NO `render` prop at all, which is
-    different from stripping one via `Omit` — do not accept the former as justification for the
-    latter.
-21. **`arbitrary-value`** — a `*-[…]` that is NOT one of the four sanctioned forms: (1) `var(--token)`
-    or a Base UI runtime var (`--available-height`, `--anchor-width`, `--transform-origin`), (2) a
-    `calc()` containing `var(--…)`, (3) a layout primitive (`fr`/`%`/`min-content`/`max-content`/
-    `auto`/`0`), (4) a CSS-wide keyword. `h-[13px]`, `bg-[#fff]`, `calc(100px-2rem)` all fail; a fixed
-    offset inside `calc()` must itself be a token — `calc(100dvh-2rem)` still fails despite the
-    viewport unit.
-22. **`transition-pairing`** — a string literal containing a `transition*` utility without BOTH a
-    duration token (`duration-fast`/`-base`/`-slow`) and an ease token
-    (`ease-standard`/`-emphasized`/`-exit`/`-spring`) in the SAME literal, or carrying any raw
-    Tailwind step (`duration-300`, `ease-in-out`, …) — the message names the raw step.
-    `transition-none`/`-discrete` are exempt, and `duration-0` is a legal structural modifier that
-    does not satisfy the pairing by itself. Catches the silent-inherit-default-curve bug class.
-23. **`color-transition`** / **`transition-all`** — `transition-colors`, any `transition-[…]` naming a
-    colour property, and `transition-all` are banned. Colour changes are immediate; enumerate the
-    causal opacity/transform/geometry properties instead.
-24. **`raw-motion`** — `animate-[…]`, `cubic-bezier(…)`, a bare `linear(…)`, `duration-[…]`, or
-    `ease-[…]` inside a class string. Route through the motion tokens or a sanctioned `motion-*`
-    utility. `animate-spin`/`animate-pulse` are the documented loader exception.
-25. **`flex-truncate-conflict`** — `flex`/`inline-flex` co-located with `truncate`/`line-clamp-*` in
-    one class literal on the same element. `.flex` always wins the display conflict (verified in the
-    compiled cascade), silently defeating the ellipsis. Correct pattern: `flex min-w-0` on the
-    container, `truncate` on an inner span.
-26. **`outline-none`** (file-scoped) — a file that strips the native focus outline anywhere MUST
-    provide some focus affordance ELSEWHERE in the file: a `focus-visible:`/`focus-within:` ring, the
-    sanctioned text-entry `focus:border-…` tint, or Base UI's
-    `data-[highlighted]`/`data-[selected]`/`data-[focused]` roving-tabindex styling. File-scoped on
-    purpose — flag it when the ENTIRE file has zero such affordance.
-    `alert-dialog.tsx`/`dialog.tsx`/`sheet.tsx` carry a documented exemption for their non-focusable
-    fixed viewport containers only. A new blanket exemption needs its own one-line rationale.
-    **Known blind spot — review element-level, not file-level.** Because the rule is file-scoped it
-    passes when the suppression and the affordance sit on the SAME element and cancel each other
-    out. That shipped once: `terminal.tsx` carried `focus-visible:outline-none` alongside a
-    `focus-visible:border-…` tint on one element, and under `forced-colors: active` the tint is
-    erased while `outline-none` (unlike `outline-hidden`) emits no forced-colors carve-out — so the
-    element had no indicator at all and no lint rule could see it (`docs/ledger/bugs.md`,
-    2026-07-25). **No gate covers this today.** The forced-colors focus assertion that was named
-    here lived in `contracts.spec.ts`, which was deleted with the attestation stack — and it could
-    never have caught this anyway: it ran under `forcedColors: "active"`, where Chromium paints its
-    own ≥2px ring, so it stayed green over a deleted focus rule (same ledger entry). Nothing
-    replaced it. So a reviewer must do it by hand: for any file that suppresses a focus outline,
-    open the element in a browser, turn forced colors on (Chrome DevTools → Rendering → Emulate CSS
-    media feature forced-colors: active), Tab to it, and confirm a visible indicator. Treat this
-    rule as a smell detector pointing at the elements worth that check, never as proof.
-27. **`inline-style`** (§7.1, multi-line-aware) — a `style={…}` attribute whose object literal sets any
-    key that is not a `--*` custom property, unless it is the one documented exception (a dynamic
-    `backgroundColor`/`background` on `color-picker.tsx`'s swatch fill — no Tailwind utility can
-    express a runtime user-supplied color). Any hex/px/rem literal inside a style expression fails
-    regardless. `registry/ui/icons/**`'s `style={{ transformOrigin, transformBox }}` (vendored Motion
-    setup) is exempt.
-28. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
-    `<Button size="icon*">` with no `aria-label`/`aria-labelledby` on the same element AND no spread
-    that could supply one. Since 2026-09-07 `Button` has no `icon*` size at all, so in this repo the
-    rule is a residual guard for consumer copies that predate the rename; the sanctioned path is
-    `IconButton`, which enforces the label at the type level.
-29. **`raw-interactive-html`** (AST) — canonical registry components may not render native
-    `<button>`/`<input>`/`<select>`/`<textarea>` unless the file has an exact per-tag count and a
-    concrete adapter/integration rationale in `RAW_INTERACTIVE_EXEMPTIONS`. Counts fail closed in
-    both directions: adding or removing a reviewed native control requires re-audit — the F2 sweep
-    tripped this rule in the REMOVING direction on four files, which is the point. `Textarea`'s owned
-    native adapter and Markdown's non-checkbox input passthrough are examples of narrow valid
-    exemptions.
-30. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
-    import (including aliases) are banned. React 19 components accept `ref` as a normal prop. This
-    applies to generated animated icons too — normalize at the generator, never by hand-editing a
-    generated file.
-31. **`standard-control-cursor`** (AST) — do not force `cursor-default` onto native standard controls
-    or restate `cursor-pointer` on a native navigation link. `cursor-default` on a text-entry control
-    destroys its I-beam affordance.
-32. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
+   `registry/ui/icons/**`, and `Icon`/`BrandIcon` from `@vegastack/design/icons`. (ICO-1.)
+5. **`no-focus-ring-glow`** (FOC-1 / FOC-6, **new in the reset**) — `ring-3`, `ring-[3px]`,
+   `ring-ring/NN`, any `focus-visible:ring-*`, or a `shadow-[0_0_0_…]` box-shadow ring. shadcn writes
+   `focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50` on button, input,
+   checkbox, switch, badge, accordion, slider, scroll-area and the field cards; this system has
+   exactly ONE focus affordance, the global 2px `:focus-visible` outline in
+   `@vegastack/design-tokens/base.css`, and text entry shows a `focus:border-ring` tint instead.
+   **This is the rule that makes the reset hold.** Every batch from 2 onward starts by copying an
+   upstream file that carries the glow verbatim, so without a machine check the halo returns on the
+   next pull and nothing says so. It is not scoped to focus contexts on purpose: FOC-6 bans a
+   box-shadow ring _anywhere_, which is why `bubble`'s decorative `ring-3 ring-card` cutout became
+   `outline-3 outline-card` (identical paint, no box-shadow) in Batch 1.
+6. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. The allowlist is ONE file:
+   `empty.tsx`, which draws upstream's decorative backdrop — a non-icon graphic primitive. Two
+   entries left rather than being carried: the lucide-animated mirrors, now data modules over one
+   factory with no JSX at all (`tooling/verify-animated-icons.mjs` asserts that directly), and
+   `progress-indicator`, whose determinate ring went with the component when Batch 7a of the shadcn
+   reset retired it. (ICO-3.)
+7. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
+   UI's polymorphic `render` prop. There is NO allowlisted exemption: `split-button.tsx` was the one
+   entry, and Batch 7a of the shadcn reset retired it, so the rule now fails closed for every file.
+   "Purely presentational, no single root" (Card/PageHeader/Empty/SettingsRow)
+   is a valid reason to have NO `render` prop at all, which is different from stripping one via
+   `Omit` — do not accept the former as justification for the latter. (API-15.)
+8. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
+   import (including aliases) are banned. React 19 components accept `ref` as a normal prop. This
+   applies to generated animated icons too — normalize at the generator, never by hand-editing a
+   generated file. (API-15.)
+9. **`raw-interactive-html`** (AST) — canonical registry components may not render native
+   `<button>`/`<input>`/`<select>`/`<textarea>` unless the file has an exact per-tag count and a
+   concrete adapter/integration rationale in `RAW_INTERACTIVE_EXEMPTIONS`. Counts fail closed in both
+   directions: adding or removing a reviewed native control requires re-audit. (API-15.) Batch 6 of
+   the shadcn reset is what "removing" looks like: upstream's `AttachmentTrigger` reaches its button
+   through `useRender({ defaultTagName: "button" })` and writes no `<button>` JSX, so the
+   `/attachment.tsx` entry dropped to zero and was DELETED rather than carried at `{}` — an
+   exemption that can no longer be reached is one that should not exist.
+10. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
     `'use client'` must contain a concrete client requirement: a Base UI/approved engine dependency, a
     React hook/context, an event binding, or a browser API. Pure presentational wrappers stay
-    server-safe.
-
-33. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
+    server-safe. (API-16.)
+11. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
+    `<Button size="icon*">` with no `aria-label`/`aria-labelledby` on the same element AND no spread
+    that could supply one. Upstream's Button HAS `icon`, `icon-xs`, `icon-sm` and `icon-lg` sizes
+    (API-4 is decided as **shadcn**, and Batch 7a retired `IconButton`), so this rule is now the ONE
+    accessible-name check for every icon-only button in the system — there is no longer a wrapper
+    enforcing it at the type level.
+12. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
     assigned through `x.current = …` in one file. That pair is a ref fan-out and nothing else. Under
     React 19 ref-as-prop, "I need the node and must also forward it" is the normal case, so the
     pattern reappears constantly; `mergeRefs` from `@vegastack/design` is the one implementation
-    (wrap the call in `useMemo` — it is not memoized). Mk1 swept nine hand-inlined copies and
-    `table-scroll-region.tsx` grew a tenth in T1 with nothing to notice, which is why this is a rule
-    and not a grep.
-
-34. **`restated-focus`** — `focus-visible:outline-*` or `focus-visible:ring-*` in component source.
-    `@vegastack/design-tokens/base.css` owns ONE `:focus-visible` rule for the whole system, so a
-    component that writes its own re-skins it locally and a component that strips it on
-    `focus-visible` removes the indicator outright. The sanctioned text-entry alternative is
-    `focus:border-ring/(--alpha-tint-border)`, which never touches the outline and is unaffected.
-35. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
+    (wrap the call in `useMemo` — it is not memoized).
+13. **`flex-truncate-conflict`** — `flex`/`inline-flex` co-located with `truncate`/`line-clamp-*` in
+    one class literal on the same element. `.flex` always wins the display conflict (verified in the
+    compiled cascade), silently defeating the ellipsis. Correct pattern: `flex min-w-0` on the
+    container, `truncate` on an inner span. (LAY-11.)
+14. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
     `motion-reduce:duration-0` or `motion-reduce:transition-duration-*`. base.css already collapses
     animation and transition duration to 0.01ms under `prefers-reduced-motion`. Scoped on purpose:
     `motion-reduce:transform-none` and other END-STATE suppressions are NOT restatements — they
-    remove the displacement itself, which the global reset does not — and stay legal.
-36. **`viewport-magic`** — `h-screen`/`w-screen`/`min-h-screen`/… or a raw viewport unit (`100vh`,
-    `50dvw`). Size from the container or a token. The one legal form is a calc whose inset is itself
-    a token — a `max-w` arbitrary value whose `calc()` subtracts `var(--spacing)` scaled by a
-    step, as `sheet.tsx` and `floating-surface.tsx` write it.
-37. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
+    remove the displacement itself, which the global reset does not — and stay legal. (MOT-5.)
+15. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
     review, survives every merge, and defeats grep (`"a  b"` does not match `/a b/`, which is how
     audit sweeps undercounted). Applies to plain string literals only: a template's spans are joined
     with a synthetic space by the parser, and a multi-line literal is prose, not a class string.
-38. **`hover-without-pressed`** — a `hover:bg-*` that CHANGES the fill with no pressed rung in the
-    same class literal. Every control has a pressed step (AGENTS.md § Build rules); take it from
-    `surfaceInteractive` / `fillInteractive.<tone>`. Three deliberate non-violations: restating the
-    SAME fill (`bg-primary hover:bg-primary`, how a control opts out of the recipe's hover),
-    `hover:bg-transparent` (cancelling an inherited hover), and a pressed rung expressed as component
-    state (`data-[separator=active]:`, `data-pressed:`, `aria-pressed:`).
-39. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
+16. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
     the component has stopped styling itself and started styling its children's internals from the
     outside (`audio-player` held 76). Give the child a `data-slot` and let it own the rule.
-40. **`fill-token-as-text`** — a solid status fill used as a text ink: `text-destructive`,
-    `text-success`, `text-warning`, `text-info` (bare — every suffixed form, `-text`, `-foreground`,
-    `-border`, `-subtle*`, is untouched). Each family ships `<family>-text` as its page-readable
-    half, and that is the token `contrast-check.mjs` measures; a FILL used as text sits outside
-    every pair list the gate has, so it is unmeasured by construction. `bubble`'s destructive
-    variant shipped `text-destructive` over its own fill at 5.24/4.31/4.44:1 light and
-    2.56/2.37/1.78:1 dark with every gate green (audit 2026-09-09, HIGH-1). `text-primary` and
-    `text-brand` are deliberately NOT in the rule: both are gated as 1.4.11 markers, and their call
-    sites set `currentColor` for a GRAPHIC — a radial progress arc, a copied-state icon, the
-    `ParticleField` canvas, the terminal prompt sigil — not for prose. Brand LABELS take
-    `brand-text`.
-41. **`field-group-pairing`** — a file that names `fieldControlGroup` and never renders
-    `data-field-group`. The recipe paints the bordered field WRAPPER and `base.css` hangs the
-    forced-colours focus outline off the bare attribute, because the group's `overflow-hidden`
-    clips the inner control's own outline. It is one contract in two places, and nothing enforced
-    it: all four consumers were correct, and a fifth that forgot would lose the outline in High
-    Contrast with no error (audit 2026-09-09, LOW-14). File-scoped, because the recipe and the
-    attribute land on the same element.
-42. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
+17. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
     space, so JavaScript welds them into one word and the utility on BOTH sides of the seam is
-    destroyed (`"…p-0.5" + "bg-surface-3 …"` ships `p-0.5bg-surface-3`, which Tailwind never emits
-    and the browser silently drops). **AST-only, and it has to be**: every other rule reads one
-    literal at a time, so `transition-pairing` finds `ease-standard` in the left literal and passes
-    while the rendered element has no ease token at all. Four instances shipped to consumers under a
-    clean `design-lint` — the Switch measured `background-color: rgba(0, 0, 0, 0)` in both states
-    (2026-09-09). The ONLY sanctioned fix is `[…].join(" ")`, the form `input.tsx` uses: padding the
-    seam with a space is itself a `class-whitespace` violation, so `+`-concatenated class literals
-    have no correct form. Not a violation: `"text-" + size` (a deliberate build, not two literals)
-    and a prose message split across lines (no class context on either side).
+    destroyed (`"…p-0.5" + "bg-muted …"` ships `p-0.5bg-muted`, which Tailwind never emits and the
+    browser silently drops). **AST-only, and it has to be**: every other rule reads one literal at a
+    time. Four instances shipped to consumers under a clean `design-lint` — the Switch measured
+    `background-color: rgba(0, 0, 0, 0)` in both states (2026-09-09). The ONLY sanctioned fix is
+    `[…].join(" ")`, the form `input.tsx` uses: padding the seam with a space is itself a
+    `class-whitespace` violation. Not a violation: `"text-" + size` (a deliberate build, not two
+    literals) and a prose message split across lines (no class context on either side).
 
-Two rules of issue #49 §7 are deliberately NOT in this file, and their absence is recorded rather
-than accidental: `text-xs-mono` (TD-3) has zero registry offenders but eight in the docs shell, each
-a typographic decision on a public page that no lane can review; and `no-raw-size` /
-`no-physical-direction` / `no-font-medium-on-body` wait on the component migration the issue itself
-sequences them behind (112 / 37 / 29 offenders measured 2026-09-09). See
-`docs/ledger/operator-review.md`, 2026-09-09.
+### Deleted by the reset, and why (do not report these)
+
+`removed-radius-xl` (BRD-6), `raw-control-size` (LAY-1), `raw-icon-size` and `direct-lucide-size`
+(ICO-2), `raw-z-index` (OVL-2), `raw-alpha` / `raw-opacity` / `alpha-opacity-role` /
+`opacity-alpha-role` (the alpha and opacity ladders are gone), `off-scale-text` (TYP-8),
+`raw-heavy-weight` (TYP-4), `raw-tracking` (TYP-6), `raw-effect` (BRD-4), `faint-text-role` (FRM-2 —
+the token is gone), `uppercase-mono` (TYP-7), `arbitrary-value` and `inline-style` (DOC-10),
+`transition-pairing` / `raw-motion` (MOT-2), `color-transition` / `transition-all` (MOT-3),
+`outline-none` (FOC-11), `standard-control-cursor` (INT-10), `restated-focus` (replaced by
+`no-focus-ring-glow`), `viewport-magic` (LAY-7), `hover-without-pressed` (INT-4),
+`fill-token-as-text` (COL-17), and `field-group-pairing` (its trigger, `fieldControlGroup`, was
+deleted with the shared recipes — the contract it guarded is intact, and the geometry lane measures
+the forced-colours outline on a real focused addon field).
 
 ### Adjacent gates, not design-lint rules
 
@@ -222,11 +143,11 @@ sequences them behind (112 / 37 / 29 offenders measured 2026-09-09). See
   vocabulary; only this checks existence. Contract = the built token theme plus Tailwind's own, plus
   file-locals, a closed list of Base UI runtime variables, and the chart series keys (scoped by FILE
   — a bare `/^--color-/` exemption would swallow every colour-token typo). Its roots are the
-  registry, the two docs component trees, and — since 2026-09-09 — `packages/design/src`, which
-  owns every shared class recipe (`fieldControl`, `fieldControlGroup`, `selectedChipVariants`,
-  `fillInteractive`, `surfaceInteractive`, `prose`) and was previously unscanned: appending
-  `bg-foreground/(--alpha-does-not-exist)` to `index.ts` exited 0 (MEDIUM-4). design-lint itself now
-  runs there too, via `packages/design`'s own `lint` script.
+  registry, the two docs component trees, and `packages/design/src`.
+- **`tooling/contrast-check.mjs`** — the fail-closed WCAG gate over the built token theme (A11Y-1),
+  with its own `--self-test`. It gates the TOKEN CONTRACT, not every composition: upstream's soft
+  status pattern (`bg-destructive/10 text-destructive`) composites below AA in light with shadcn's
+  own red, and ships that way because COL-13 and COL-17 are both decided as **shadcn**.
 - **`tooling/verify-test-css-layers.mjs`** — every compiled-CSS test lane must import the layer set
   `packages/design/preset.css` ships. A lane missing `utilities.css` measures fixtures stripped of
   every custom `@utility`, silently.
@@ -240,7 +161,7 @@ on legitimate `oklch()`/custom-property declarations.
 these:
 
 - **(A)** Inside a `@media (prefers-reduced-motion: reduce)` block — the WCAG reduced-motion reset in
-  `packages/design-tokens/src/base.css`.
+  `packages/design-tokens/src/base.css` (MOT-5).
 - **(B)** The scroll-lock scrollbar-compensation zero-out — ONLY `margin-right: 0(px) !important` and
   `--removed-body-scroll-bar-size: 0(px) !important`, ONLY inside the exact
   `html > body[data-scroll-locked]` selector block in `apps/docs/app/global.css`. It cancels

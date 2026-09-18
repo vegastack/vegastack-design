@@ -4,8 +4,10 @@
  * Fail-closed reconciliation for packages/ui/component-contracts.json.
  *
  * The contract inventory is tooling metadata, not a consumer API. This verifier deliberately
- * derives the authoritative item classes from registry type + source path so `icon-button` can
- * never be mistaken for one of the generated `icon-*` mirrors.
+ * derives the authoritative item classes from registry type + SOURCE PATH, never from the name, so
+ * a component whose name begins with `icon-` can never be mistaken for one of the generated
+ * `icon-*` mirrors. `icon-button` was the component that made the point; Batch 7a of the shadcn
+ * reset retired it, and the path-based classification is what still holds the line.
  *
  *   node tooling/verify-component-contracts.mjs                          # reconcile
  *   node tooling/verify-component-contracts.mjs --write-data-attributes  # resync the extraction
@@ -60,11 +62,30 @@ function sameStrings(actual, expected, label) {
   }
 }
 
-function expectedEnginePackages(dependencies = []) {
+/**
+ * The engine identities a component's dependency list implies.
+ *
+ * `@shadcn/react` is the one package with more than one sanctioned SUBPATH, so its identity is read
+ * from the SOURCE rather than assumed: Batch 6 of the shadcn reset added
+ * `@shadcn/react/questionnaire` beside `@shadcn/react/message-scroller`, and a hard-coded
+ * `message-scroller` would have quietly mislabelled the new component's engine. Everything else is
+ * one package, one identity.
+ */
+function expectedEnginePackages(dependencies = [], sourceFiles = []) {
   const packages = new Set();
   for (const dependency of dependencies) {
-    if (dependency.startsWith("@shadcn/react"))
-      packages.add("@shadcn/react/message-scroller");
+    if (dependency.startsWith("@shadcn/react")) {
+      for (const file of sourceFiles) {
+        const source = existsSync(join(root, file))
+          ? readFileSync(join(root, file), "utf8")
+          : "";
+        for (const match of source.matchAll(
+          /from\s+["']@shadcn\/react\/([a-z-]+)["']/g,
+        )) {
+          packages.add(`@shadcn/react/${match[1]}`);
+        }
+      }
+    }
     if (dependency.startsWith("react-resizable-panels"))
       packages.add("react-resizable-panels");
     if (dependency.startsWith("recharts")) packages.add("recharts");
@@ -85,6 +106,17 @@ function expectedEnginePackages(dependencies = []) {
     if (dependency.startsWith("@atlaskit/pragmatic-drag-and-drop"))
       packages.add("@atlaskit/pragmatic-drag-and-drop");
     if (dependency.startsWith("react-dropzone")) packages.add("react-dropzone");
+    // Batch 8: upstream's `dashboard-01` block drags its data-table rows with @dnd-kit. The four
+    // packages are one engine identity, exactly as `-hitbox` folds into the pragmatic one.
+    if (dependency.startsWith("@dnd-kit/")) packages.add("@dnd-kit");
+    // Pre-approved with upstream's whole dependency set (DOC-7, MK 2026-09-18) and adopted by the
+    // shadcn reset: `input-otp` in Batch 3, `cmdk` and `sonner` in Batch 4.
+    if (dependency.startsWith("input-otp")) packages.add("input-otp");
+    if (dependency.startsWith("cmdk")) packages.add("cmdk");
+    if (dependency.startsWith("sonner")) packages.add("sonner");
+    // Batch 5: `carousel` is new here, and `embla-carousel-react` is its slide engine.
+    if (dependency.startsWith("embla-carousel-react"))
+      packages.add("embla-carousel-react");
   }
   return sorted(packages);
 }
@@ -495,7 +527,7 @@ function validateRichRecord(record, item, label) {
   assert(Array.isArray(record.engines), `${label}: engines must be an array`);
   sameStrings(
     (record.engines ?? []).map((engine) => engine.package),
-    expectedEnginePackages(item.dependencies),
+    expectedEnginePackages(item.dependencies, record.sourceFiles),
     `${label} engines`,
   );
   for (const engine of record.engines ?? []) {
@@ -542,17 +574,22 @@ assert(
 );
 
 const expectedWaves = {
-  "Core controls": 24,
+  "Core controls": 23,
   "Forms/editing": 23,
-  "Navigation/layout": 14,
-  Overlays: 14,
-  "Data display": 12,
-  "Content/marketing": 23,
-  "AI/chat": 6,
+  "Navigation/layout": 16,
+  Overlays: 15,
+  "Data display": 10,
+  "Content/marketing": 13,
+  "AI/chat": 7,
+  // Not a browse group: components other components install, with no page of their own. See
+  // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
+  "Shared internals": 2,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
 // hard failure rather than a silent skip.
+// A wave with NO entry here is not a homepage group at all (`Shared internals`); a wave that is a
+// group but is unmapped is still a hard failure, because `homeWaves` below reads this map.
 const HOME_WAVE_TITLES = {
   "Core controls": "Core controls",
   "Forms/editing": "Forms & editing",
@@ -562,139 +599,136 @@ const HOME_WAVE_TITLES = {
   "Content/marketing": "Content & marketing",
   "AI/chat": "AI & chat",
 };
+/** The waves the homepage catalog groups by — every wave that has a display title. */
+const homeWaves = Object.keys(expectedWaves).filter(
+  (wave) => HOME_WAVE_TITLES[wave] !== undefined,
+);
 
 const expectedComponentWaveMembers = {
   "Core controls": [
-    "button",
-    "icon-button",
-    "copy-button",
-    "notification-bell",
-    "badge",
+    "animated-number",
     "avatar",
-    "label",
-    "input",
-    "textarea",
+    "badge",
+    "button",
+    "button-group",
     "checkbox",
-    "checkbox-group",
-    "radio-group",
-    "switch",
-    "slider",
+    "copy-button",
+    "input",
+    "kbd",
+    "label",
+    "notification-bell",
     "progress",
+    "radio-group",
+    "relative-time",
     "separator",
     "skeleton",
+    "slider",
     "spinner",
     "status-icon",
-    "kbd",
-    "relative-time",
-    "animated-number",
+    "switch",
+    "textarea",
     "toggle",
     "toggle-group",
   ],
   "Forms/editing": [
-    "field",
-    "field-inline",
-    "settings-row",
     "auto-save-input",
-    "password-input",
-    "otp-input",
+    "calendar",
+    "chip-input",
     "color-picker",
-    "select",
     "combobox",
     "country-select",
+    "date-picker",
+    "dropzone",
+    "editable-cell",
+    "field",
+    "filter-bar",
+    "filter-bar-managed",
+    "input-group",
+    "input-otp",
+    "native-select",
+    "number-field",
     "region-select",
     "searchable-select",
-    "date-picker",
-    "filter-bar",
+    "select",
+    "settings-row",
+    "sortable-list",
     "tag-group",
     "text-edit",
-    "segmented",
-    "editable-cell",
-    "number-field",
-    "chip-input",
-    "filter-bar-managed",
-    "sortable-list",
-    "dropzone",
   ],
   "Navigation/layout": [
     "accordion",
+    "app-shell",
+    "aspect-ratio",
+    "board",
     "breadcrumb",
     "collapsible",
     "command",
-    "pagination",
-    "tabs",
-    "sidebar",
+    "direction",
+    "menubar",
     "navigation-menu",
-    "app-shell",
+    "pagination",
     "resizable",
     "scroll-area",
-    "split-button",
+    "sidebar",
     "stepper",
-    "board",
+    "tabs",
   ],
   Overlays: [
-    "floating-surface",
-    "alert-dialog",
-    "dialog",
-    "sheet",
-    "popover",
-    "hover-card",
-    "tooltip",
-    "dropdown-menu",
-    "context-menu",
-    "emoji-picker",
-    "toast",
-    "provider",
     "action-bar",
+    "alert-dialog",
+    "context-menu",
+    "dialog",
+    "drawer",
+    "dropdown-menu",
+    "emoji-picker",
+    "hover-card",
+    "popover",
+    "provider",
+    "sheet",
     "shortcut-overlay",
+    "sonner",
+    "toast",
+    "tooltip",
   ],
   "Data display": [
     "card",
-    "chip",
-    "table",
-    "data-table-parts",
-    "data-list",
-    "data-grid",
+    "carousel",
     "chart",
-    "comparison-matrix",
+    "chip",
+    "data-grid",
+    "data-list",
     "property-list",
     "stat",
-    "progress-indicator",
+    "table",
     "timeline",
   ],
   "Content/marketing": [
     "alert",
-    "empty",
-    "truncated-text",
-    "image",
-    "audio-player",
-    "video-player",
-    "onboarding-checklist",
-    "markdown-view",
-    "code-block",
-    "page-header",
-    "item",
-    "marketing-surface",
-    "media-player-controls",
-    "section-header",
-    "figure-frame",
-    "terminal",
-    "logo-row",
-    "testimonial",
     "announcement-banner",
-    "ruled-band",
-    "pricing-section",
-    "staggered-text-reveal",
-    "particle-field",
+    "audio-player",
+    "code-block",
+    "empty",
+    "image",
+    "item",
+    "markdown-view",
+    "media-player-controls",
+    "page-header",
+    "terminal",
+    "truncated-text",
+    "video-player",
   ],
+  "Shared internals": ["data-table-parts", "panel-search"],
   "AI/chat": [
+    "attachment",
+    "bubble",
     "marker",
     "message",
-    "bubble",
     "message-scroller",
-    "attachment",
+    "questionnaire",
     "tool-call-chip",
   ],
 };
+
 for (const [wave, count] of Object.entries(expectedWaves)) {
   assert(
     contracts.expectedWaveCounts?.[wave] === count,
@@ -725,6 +759,21 @@ const registryHooks = registry.items.filter(
 const registryBlocks = registry.items.filter(
   (item) => item.type === "registry:block",
 );
+// Batch 8 of the shadcn reset (2026-09-18) split the block partition in two. 68 of the 100 blocks
+// are the ported chart cards: one shape over `card` + `chart` + recharts, documented as seven
+// family galleries and modeled by a shared contract plus a compact member list, exactly as the 467
+// generated icon mirrors are. The split is read off the CONTRACT's member list rather than the
+// name, so a chart block that leaves `chartBlocks.members` immediately fails the page-block arm
+// (it becomes an unmodeled `registry:block`) instead of being silently reclassified by a prefix.
+const chartBlockNames = new Set(
+  (contracts.chartBlocks?.members ?? []).map((member) => member.name),
+);
+const registryChartBlocks = registryBlocks.filter((item) =>
+  chartBlockNames.has(item.name),
+);
+const registryPageBlocks = registryBlocks.filter(
+  (item) => !chartBlockNames.has(item.name),
+);
 // `registry:lib` — a pure data/helper module with no React in it, installed under the consumer's
 // `lib` alias. It renders nothing, so it carries no docs page, preview, VRT route or wave.
 const registryLibs = registry.items.filter(
@@ -749,7 +798,8 @@ const expected = {
   components: registryComponents.length,
   animatedIcons: registryIcons.length,
   hooks: registryHooks.length,
-  blocks: registryBlocks.length,
+  blocks: registryPageBlocks.length,
+  chartBlocks: registryChartBlocks.length,
   libs: registryLibs.length,
 };
 
@@ -761,11 +811,12 @@ assert(
     expected.animatedIcons +
     expected.hooks +
     expected.blocks +
+    expected.chartBlocks +
     expected.libs ===
     expected.totalRegistryItems,
   `registry.json partition does not close: ${expected.components} components + ` +
     `${expected.animatedIcons} animated icons + ${expected.hooks} hooks + ${expected.blocks} ` +
-    `blocks + ${expected.libs} libs = ${expected.components + expected.animatedIcons + expected.hooks + expected.blocks + expected.libs}, ` +
+    `blocks + ${expected.chartBlocks} chart blocks + ${expected.libs} libs = ${expected.components + expected.animatedIcons + expected.hooks + expected.blocks + expected.chartBlocks + expected.libs}, ` +
     `but the registry holds ${expected.totalRegistryItems} items. Some item is of a kind this ` +
     `gate does not model.`,
 );
@@ -781,19 +832,48 @@ for (const [key, value] of Object.entries(expected)) {
       `itself is wrong, fix it there instead and re-run.`,
   );
 }
-assert(
-  registryComponents.some((item) => item.name === "icon-button"),
-  "icon-button must be modeled as a component",
-);
-assert(
-  !registryIcons.some((item) => item.name === "icon-button"),
-  "icon-button must not be modeled as an animated icon",
+const components = contracts.components ?? [];
+
+/**
+ * A SHARED-GUIDE-ONLY component: a real `registry:ui` item that other components install as a
+ * dependency, with no consumer-facing page of its own — the way `geo-data` and `drag-item` are
+ * handled, but for a `.tsx` that ships React parts. `data-table-parts` is the first (MK,
+ * 2026-09-18): `data-grid` and `data-list` both import it, so it cannot be retired without
+ * duplicating it, and it is not something a consumer picks off a list.
+ *
+ * The shape is asserted below rather than assumed, so the exemption cannot be half-declared: a
+ * record either carries the whole shared-guide-only shape or it is navigated like every other
+ * component. That is what keeps this from becoming a way to hide a page that should exist.
+ */
+const isSharedGuideOnly = (record) => record.coverage?.navigation === "exempt";
+for (const record of components.filter(isSharedGuideOnly)) {
+  assert(
+    record.coverage?.docs === "shared-guide-only",
+    `${record.name}: a navigation-exempt component must declare coverage.docs "shared-guide-only"`,
+  );
+  for (const key of ["preview", "vrt"]) {
+    assert(
+      record.coverage?.[key] === "exempt",
+      `${record.name}: a navigation-exempt component must declare coverage.${key} "exempt"`,
+    );
+  }
+  assert(
+    !record.docsSlug?.startsWith("/docs/components/"),
+    `${record.name}: a navigation-exempt component must point docsSlug at the shared guide`,
+  );
+  assert(
+    record.previewModule === undefined,
+    `${record.name}: a navigation-exempt component must declare no previewModule`,
+  );
+}
+const navigatedComponents = components.filter(
+  (record) => !isSharedGuideOnly(record),
 );
 
-const components = contracts.components ?? [];
 const icons = contracts.animatedIcons?.members ?? [];
 const hooks = contracts.hooks ?? [];
 const blocks = contracts.blocks ?? [];
+const chartBlocks = contracts.chartBlocks?.members ?? [];
 const libs = contracts.libs ?? [];
 assert(
   components.length === expected.components,
@@ -812,11 +892,22 @@ assert(
   `contracts.blocks must contain ${expected.blocks} record`,
 );
 assert(
+  chartBlocks.length === expected.chartBlocks,
+  `chartBlocks.members must contain ${expected.chartBlocks} records`,
+);
+assert(
   libs.length === expected.libs,
   `contracts.libs must contain ${expected.libs} record`,
 );
 
-const modeled = [...components, ...icons, ...hooks, ...blocks, ...libs];
+const modeled = [
+  ...components,
+  ...icons,
+  ...hooks,
+  ...blocks,
+  ...chartBlocks,
+  ...libs,
+];
 const modeledNames = modeled.map((record) => record.name);
 assert(
   modeledNames.length === expected.totalRegistryItems,
@@ -930,6 +1021,10 @@ for (const record of components) {
     existsSync(docsFile),
     `component ${record.name}: docs page missing for ${record.docsSlug}`,
   );
+  // A shared-guide-only component has no page and no preview of its own — its docsSlug is the
+  // guide, which the assertion above still proves exists. The shape itself is asserted once, where
+  // `isSharedGuideOnly` is defined.
+  if (isSharedGuideOnly(record)) continue;
   const previewFile = join(
     root,
     "apps/docs/components/preview",
@@ -1200,6 +1295,95 @@ for (const record of blocks) {
   );
 }
 
+// ── the chart blocks, reconciled member by member against their shared contract ─────────────────
+// The shape animatedIcons established: one contract for the family, a compact member list, and a
+// gate that still checks EVERY member against the registry and the source. What is shared is the
+// docs page, the preview module and the test file; what is not shared is membership, the file, its
+// exports, or its dependency lists.
+const chartShared = contracts.chartBlocks?.sharedContract;
+assert(
+  chartShared && typeof chartShared === "object",
+  "chartBlocks.sharedContract is missing",
+);
+assert(
+  chartShared?.ported === "new-york-v4",
+  "chartBlocks.sharedContract.ported must name the style the members were ported from",
+);
+const chartTestFile = chartShared?.testFile ?? "";
+assert(
+  existsSync(join(root, chartTestFile)),
+  `chartBlocks.sharedContract.testFile is missing on disk: ${chartTestFile}`,
+);
+const chartTestSource = existsSync(join(root, chartTestFile))
+  ? readFileSync(join(root, chartTestFile), "utf8")
+  : "";
+assert(
+  chartTestSource.includes("expectNoA11yViolations"),
+  "the chart blocks' shared browser test lacks the axe helper",
+);
+const chartFamilies = new Set();
+for (const member of chartBlocks) {
+  const label = `chart block ${member.name}`;
+  const item = registryByName.get(member.name);
+  assert(
+    item && registryChartBlocks.includes(item),
+    `${label} does not map to a registry block`,
+  );
+  if (!item) continue;
+  sameStrings(
+    [member.sourceFile],
+    registryFilePaths(item),
+    `${label} sourceFile`,
+  );
+  assert(
+    existsSync(join(root, member.sourceFile)),
+    `${label}: source file is missing: ${member.sourceFile}`,
+  );
+  sameStrings(
+    member.publicSymbols ?? [],
+    sourceExports([member.sourceFile]),
+    `${label} public symbols`,
+  );
+  sameStrings(
+    member.registryDependencies ?? [],
+    item.registryDependencies ?? [],
+    `${label} registryDependencies`,
+  );
+  sameStrings(
+    member.npmDependencies ?? [],
+    item.dependencies ?? [],
+    `${label} npmDependencies`,
+  );
+  assert(
+    typeof member.chartFamily === "string" &&
+      member.docsSlug === `/docs/blocks/charts-${member.chartFamily}` &&
+      member.previewModule === `charts-${member.chartFamily}`,
+    `${label}: docsSlug and previewModule must be the ${member.chartFamily} family's gallery`,
+  );
+  chartFamilies.add(member.chartFamily);
+  assert(
+    existsSync(join(root, "apps/docs/content", `${member.docsSlug}.mdx`)),
+    `${label}: gallery page missing for ${member.docsSlug}`,
+  );
+  // Every member is RENDERED by the shared suite and PREVIEWED by its family module — the two
+  // things the per-item exemption gives up, proven per member rather than assumed.
+  assert(
+    chartTestSource.includes(`"${member.name}":`),
+    `${label}: the shared browser test does not render it`,
+  );
+  const previewSource = readFileSync(
+    join(root, "apps/docs/components/preview", `${member.previewModule}.tsx`),
+    "utf8",
+  );
+  assert(
+    extractExports(previewSource).includes(member.previewFixture),
+    `${label}: ${member.previewModule}.tsx does not export the fixture ${member.previewFixture}`,
+  );
+}
+const chartGallerySlugs = [...chartFamilies]
+  .sort()
+  .map((family) => `/docs/blocks/charts-${family}`);
+
 // Canonical source parity: no unregistered non-test implementation may hide beside the modeled
 // files. Generated icon mirrors are reconciled separately from top-level components/hooks.
 const topLevelCanonical = readdirSync(join(root, "packages/ui/registry/ui"), {
@@ -1253,7 +1437,10 @@ const blockFiles = walk(join(root, "packages/ui/registry/blocks"), {
   include: (relative) => !/\.test\.tsx?$/.test(relative),
 }).map((absolute) => relativeToRoot(absolute));
 sameStrings(
-  blocks.flatMap((record) => record.sourceFiles),
+  [
+    ...blocks.flatMap((record) => record.sourceFiles),
+    ...chartBlocks.map((member) => member.sourceFile),
+  ],
   blockFiles,
   "block source inventory",
 );
@@ -1262,7 +1449,7 @@ sameStrings(
 const componentNav = readJson(
   "apps/docs/content/docs/components/meta.json",
 ).pages.filter((page) => !page.startsWith("---"));
-const componentDocNames = components.map((record) =>
+const componentDocNames = navigatedComponents.map((record) =>
   record.docsSlug.split("/").at(-1),
 );
 assert(
@@ -1275,7 +1462,12 @@ const blockNav = readJson(
 ).pages.filter((page) => !page.startsWith("---"));
 sameStrings(
   blockNav,
-  blocks.map((record) => record.docsSlug.split("/").at(-1)),
+  [
+    ...blocks.map((record) => record.docsSlug.split("/").at(-1)),
+    // Seven gallery pages for the 68 chart blocks, derived from the members' own families rather
+    // than listed here, so a new family cannot arrive without its page.
+    ...chartGallerySlugs.map((slug) => slug.split("/").at(-1)),
+  ],
   "block docs navigation",
 );
 
@@ -1290,7 +1482,7 @@ assert(
   new Set(previewExports).size === previewExports.length,
   "preview index contains duplicate exports",
 );
-for (const record of [...components, ...blocks]) {
+for (const record of [...navigatedComponents, ...blocks, ...chartBlocks]) {
   assert(
     previewExports.includes(record.previewModule),
     `${record.name}: preview index does not export ${record.previewModule}`,
@@ -1303,7 +1495,12 @@ const previewFiles = readdirSync(join(root, "apps/docs/components/preview"))
   .filter((name) => !allowedPreviewInfrastructure.has(name));
 sameStrings(
   previewFiles,
-  [...components, ...blocks].map((record) => record.previewModule),
+  [
+    ...[...navigatedComponents, ...blocks].map(
+      (record) => record.previewModule,
+    ),
+    ...chartGallerySlugs.map((slug) => slug.split("/").at(-1)),
+  ],
   "preview module inventory",
 );
 const allPreviewFixtureExports = new Set(
@@ -1352,14 +1549,14 @@ for (const [constant, value] of [
 }
 sameStrings(
   homeGroups.map((group) => group.title),
-  Object.keys(expectedWaves).map((wave) => HOME_WAVE_TITLES[wave]),
+  homeWaves.map((wave) => HOME_WAVE_TITLES[wave]),
   "generated home catalog wave groups",
 );
 const componentByName = new Map(
   components.map((record) => [record.name, record]),
 );
 const homeCatalogNames = [];
-for (const [wave] of Object.entries(expectedWaves)) {
+for (const wave of homeWaves) {
   const group = homeGroups.find(
     (candidate) => candidate.title === HOME_WAVE_TITLES[wave],
   );
@@ -1393,13 +1590,13 @@ for (const [wave] of Object.entries(expectedWaves)) {
   }
 }
 assert(
-  homeCatalogNames.length === expected.components &&
+  homeCatalogNames.length === navigatedComponents.length &&
     new Set(homeCatalogNames).size === homeCatalogNames.length,
-  `generated home catalog must list each of the ${expected.components} components exactly once; received ${homeCatalogNames.length} (${new Set(homeCatalogNames).size} unique)`,
+  `generated home catalog must list each of the ${navigatedComponents.length} browsable components exactly once; received ${homeCatalogNames.length} (${new Set(homeCatalogNames).size} unique)`,
 );
 sameStrings(
   homeCatalogNames,
-  components.map((record) => record.name),
+  navigatedComponents.map((record) => record.name),
   "generated home catalog component inventory",
 );
 
@@ -1515,10 +1712,13 @@ if (problems.length > 0) {
 
 console.log("✓ verify-component-contracts: complete registry reconciliation");
 console.log(
-  `  inventory: ${modeledNames.length} unique items (${components.length} components + ${icons.length} animated icons + ${hooks.length} hooks + ${blocks.length} block + ${libs.length} libs)`,
+  `  inventory: ${modeledNames.length} unique items (${components.length} components + ${icons.length} animated icons + ${hooks.length} hooks + ${blocks.length} blocks + ${chartBlocks.length} chart blocks + ${libs.length} libs)`,
 );
 console.log(
   `  component audit matrix: ${components.length}/${components.length} source + test + docs + nav + preview contracts reconciled`,
+);
+console.log(
+  `  chart blocks: ${chartBlocks.length}/${chartBlocks.length} members reconciled through the shared contract across ${chartGallerySlugs.length} family galleries`,
 );
 console.log(
   `  animated icons: ${icons.length}/${icons.length} exact generated members reconciled through the shared contract`,

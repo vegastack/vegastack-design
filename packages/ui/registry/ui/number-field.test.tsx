@@ -5,14 +5,54 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { NumberField } from "./number-field";
 
-test("renders a named numeric input inside the group chrome", async () => {
+test("renders a named numeric input inside upstream's InputGroup chrome", async () => {
   const screen = await render(
     <NumberField aria-label="Quantity" defaultValue={2} />,
   );
   const input = screen.getByRole("textbox", { name: "Quantity" });
   await expect.element(input).toBeInTheDocument();
   const root = document.querySelector('[data-slot="number-field"]')!;
-  expect(root.getAttribute("data-size")).toBe("md");
+  // The root IS upstream's InputGroup: its role and its group slot are the proof that the
+  // bordered box is imported, not restated.
+  expect(root.getAttribute("role")).toBe("group");
+  expect(root.className).toContain("group/input-group");
+  // The inner control is upstream's Input, flattened by InputGroupInput, and it KEEPS upstream's
+  // slot name: `InputGroup` selects on `[data-slot=input-group-control]` for both its focus border
+  // and its invalid hairline, so renaming it would silently unpaint the box.
+  expect((input.element() as HTMLElement).getAttribute("data-slot")).toBe(
+    "input-group-control",
+  );
+});
+
+test("FRM-13: the steppers flank the field, and each is upstream's Button", async () => {
+  await render(<NumberField aria-label="Quantity" defaultValue={2} />);
+  const root = document.querySelector(
+    '[data-slot="number-field"]',
+  ) as HTMLElement;
+  const dec = document.querySelector(
+    '[data-slot="number-field-decrement"]',
+  ) as HTMLButtonElement;
+  const inc = document.querySelector(
+    '[data-slot="number-field-increment"]',
+  ) as HTMLButtonElement;
+  // Flanking, not stacked: one inside the inline-start addon, one inside the inline-end addon.
+  expect(root.firstElementChild?.contains(dec)).toBe(true);
+  expect(root.lastElementChild?.contains(inc)).toBe(true);
+  expect(
+    (root.firstElementChild as HTMLElement).getAttribute("data-align"),
+  ).toBe("inline-start");
+  expect(
+    (root.lastElementChild as HTMLElement).getAttribute("data-align"),
+  ).toBe("inline-end");
+  // Each stepper IS upstream's Button in its ghost variant — the wash and the ink step are its
+  // own, never restated here. The PAINTED geometry is measured against real CSS in
+  // `test/control-paint.browser.test.tsx`; this lane has no stylesheet.
+  for (const stepper of [dec, inc]) {
+    expect(stepper.tagName).toBe("BUTTON");
+    // The ghost recipe is upstream Button's, reaching this element through `InputGroupButton`.
+    expect(stepper.className).toContain("hover:bg-muted");
+    expect(stepper.className).toContain("group/button");
+  }
 });
 
 test("stepper buttons increment and decrement the value", async () => {
@@ -62,12 +102,12 @@ test("currency format renders through Intl — money is a format prop", async ()
     />,
   );
   const input = document.querySelector(
-    '[data-slot="number-field-input"]',
+    '[data-slot="input-group-control"]',
   ) as HTMLInputElement;
   expect(input.value).toBe("$1,234.50");
 });
 
-test("prefix and suffix addons render in Input's addon idiom", async () => {
+test("prefix and suffix render in upstream InputGroupAddon slots", async () => {
   await render(
     <NumberField aria-label="Weight" prefix="kg" suffix="per box" />,
   );
@@ -114,7 +154,7 @@ test("disabled dims the whole group and blocks the steppers", async () => {
     />,
   );
   const input = document.querySelector(
-    '[data-slot="number-field-input"]',
+    '[data-slot="input-group-control"]',
   ) as HTMLInputElement;
   expect(input.disabled).toBe(true);
   const inc = document.querySelector(
@@ -126,7 +166,8 @@ test("disabled dims the whole group and blocks the steppers", async () => {
 test("inputRef forwards to the inner input element", async () => {
   const ref = React.createRef<HTMLInputElement>();
   await render(<NumberField aria-label="Quantity" inputRef={ref} />);
-  expect(ref.current?.dataset.slot).toBe("number-field-input");
+  expect(ref.current?.tagName).toBe("INPUT");
+  expect(ref.current?.dataset.slot).toBe("input-group-control");
 });
 
 test("focus: the input carries the text-entry focus affordance on the group border", async () => {
@@ -134,10 +175,13 @@ test("focus: the input carries the text-entry focus affordance on the group bord
   const root = document.querySelector(
     '[data-slot="number-field"]',
   ) as HTMLElement;
-  // The group chrome carries the focus-within border tint (Input's addon idiom).
-  expect(root.className).toContain("focus-within:border-ring");
+  // The focus affordance is upstream InputGroup's own: the box borders `ring/70` when the
+  // control inside it takes focus. This file adds no focus class of its own.
+  expect(root.className).toContain(
+    "has-[[data-slot=input-group-control]:focus]:border-ring/70",
+  );
   const input = document.querySelector(
-    '[data-slot="number-field-input"]',
+    '[data-slot="input-group-control"]',
   ) as HTMLInputElement;
   input.focus();
   expect(document.activeElement).toBe(input);
@@ -154,14 +198,10 @@ test("no a11y violations — default, addons, disabled", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("focus indicator: only text-entry controls strip the outline (steppers keep :focus-visible)", async () => {
+test("focus indicator: the steppers keep :focus-visible, pulled inside the clipping group", async () => {
   await render(<NumberField aria-label="Quantity" defaultValue={2} />);
-  const offenders = Array.from(document.querySelectorAll("*")).filter(
-    (el) =>
-      (el.getAttribute("class") ?? "").includes("outline-none") &&
-      !["INPUT", "TEXTAREA"].includes(el.tagName),
-  );
-  expect(offenders).toEqual([]);
+  // `outline-none` on the GROUP is upstream `InputGroup`'s own (FOC-11 resolves as shadcn); what
+  // must never happen is a stepper suppressing the one focus outline FOC-1 gives it.
   const inc = document.querySelector(
     '[data-slot="number-field-increment"]',
   ) as HTMLButtonElement;

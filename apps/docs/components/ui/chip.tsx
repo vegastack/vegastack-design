@@ -1,4 +1,4 @@
-// @vegastack chip@0.9.1 sha256-iEVyViVOSa8k3gk8f6NoAjO+9WyDjFkc3elS0B3brhg=
+// @vegastack chip@0.9.1 sha256-iMKmvX/3JJBV3YwSkXrymOGbsNLrrDjlzW0/guC1Xmc=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { X } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { IconButton } from "@/components/ui/icon-button";
+import { Button } from "@/components/ui/button";
 
 /* ------------------------------------------------------------------------------------------------
  * Chip — THE pill primitive (audit 2026-09-07, B5-03 / 04-cross-cutting §1).
@@ -40,39 +40,34 @@ export type ChipHue =
   | "magenta"
   | "purple";
 
-/** The two chip tiers, on the one `--size-*` control vocabulary. */
+/** The two chip tiers. */
 export type ChipSize = "sm" | "md";
 
 /**
  * The chromatic hue formula (both themes, AA-gated in `contrast-check.mjs`): `tag-{hue}-subtle`
- * fill + `tag-{hue}-text` ink + a hairline of the hue's ink at the outline alpha. The neutral chip
- * is the surface ladder instead: rung 1 is a filled control's rest fill (`design.md` §Surface
- * ladder), and `active` promotes it to rung 2 — the selection rung — so an applied filter reads as
- * a selection without borrowing a hue.
+ * fill + `tag-{hue}-text` ink + a hairline of the hue's ink at 50%. The neutral chip takes the
+ * neutral surfaces instead — `muted` at rest, `accent` when `active` — so an applied filter reads
+ * as a selection without borrowing a hue.
  *
  * Static class literals per hue, so the Tailwind scanner sees every string.
  */
 const HUE_CLASSES: Record<ChipHue, string> = {
-  neutral: "border-border bg-surface-1 text-foreground",
-  blue: "border-tag-blue-text/(--alpha-outline-border) bg-tag-blue-subtle text-tag-blue-text",
-  cyan: "border-tag-cyan-text/(--alpha-outline-border) bg-tag-cyan-subtle text-tag-cyan-text",
-  green:
-    "border-tag-green-text/(--alpha-outline-border) bg-tag-green-subtle text-tag-green-text",
-  lime: "border-tag-lime-text/(--alpha-outline-border) bg-tag-lime-subtle text-tag-lime-text",
-  yellow:
-    "border-tag-yellow-text/(--alpha-outline-border) bg-tag-yellow-subtle text-tag-yellow-text",
-  orange:
-    "border-tag-orange-text/(--alpha-outline-border) bg-tag-orange-subtle text-tag-orange-text",
-  red: "border-tag-red-text/(--alpha-outline-border) bg-tag-red-subtle text-tag-red-text",
-  pink: "border-tag-pink-text/(--alpha-outline-border) bg-tag-pink-subtle text-tag-pink-text",
+  neutral: "border-border bg-muted text-foreground",
+  blue: "border-tag-blue-text/50 bg-tag-blue-subtle text-tag-blue-text",
+  cyan: "border-tag-cyan-text/50 bg-tag-cyan-subtle text-tag-cyan-text",
+  green: "border-tag-green-text/50 bg-tag-green-subtle text-tag-green-text",
+  lime: "border-tag-lime-text/50 bg-tag-lime-subtle text-tag-lime-text",
+  yellow: "border-tag-yellow-text/50 bg-tag-yellow-subtle text-tag-yellow-text",
+  orange: "border-tag-orange-text/50 bg-tag-orange-subtle text-tag-orange-text",
+  red: "border-tag-red-text/50 bg-tag-red-subtle text-tag-red-text",
+  pink: "border-tag-pink-text/50 bg-tag-pink-subtle text-tag-pink-text",
   magenta:
-    "border-tag-magenta-text/(--alpha-outline-border) bg-tag-magenta-subtle text-tag-magenta-text",
-  purple:
-    "border-tag-purple-text/(--alpha-outline-border) bg-tag-purple-subtle text-tag-purple-text",
+    "border-tag-magenta-text/50 bg-tag-magenta-subtle text-tag-magenta-text",
+  purple: "border-tag-purple-text/50 bg-tag-purple-subtle text-tag-purple-text",
 };
 
-/** The neutral chip's selection rung — rung 2, the same step every selected surface takes. */
-const ACTIVE_NEUTRAL = "border-border bg-surface-2 text-foreground";
+/** The neutral chip's selected fill — `accent`, the same surface every selection takes. */
+const ACTIVE_NEUTRAL = "border-border bg-accent text-foreground";
 
 /**
  * Two tiers only. `sm` (28px) is the INLINE tag tier — Tag, ChipInput's chips, Combobox's selected
@@ -84,8 +79,8 @@ const ACTIVE_NEUTRAL = "border-border bg-surface-2 text-foreground";
  * label's own optical padding.
  */
 const SIZE_CLASSES: Record<ChipSize, string> = {
-  sm: "h-(--size-sm) gap-1 ps-2 pe-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-  md: "h-(--size-md) gap-1 ps-2.5 pe-1 text-label [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+  sm: "h-7 gap-1 ps-2 pe-0.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3",
+  md: "h-8 gap-1 ps-2.5 pe-1 text-sm font-medium [&_svg:not([class*='size-'])]:size-3.5",
 };
 
 /** Props accepted by `Chip`. */
@@ -105,15 +100,14 @@ export interface ChipProps extends Omit<
    */
   size?: ChipSize;
   /**
-   * Marks the chip as an applied selection — the neutral chip takes the selection rung
-   * (`surface-2`) instead of its rest fill. Ignored for chromatic hues, whose tint already
-   * carries the meaning.
+   * Marks the chip as an applied selection — the neutral chip takes `accent` instead of its
+   * rest fill. Ignored for chromatic hues, whose tint already carries the meaning.
    * @default false
    */
   active?: boolean;
   /**
    * Render a remove affordance and call this when it is activated. The control is a real
-   * 24×24 `IconButton`, never a pseudo-element hit area.
+   * 24×24 `Button size="icon-xs"`, never a pseudo-element hit area.
    * @default undefined
    */
   onRemove?: () => void;
@@ -146,9 +140,9 @@ export interface ChipProps extends Omit<
  * `Chip` — one labelled pill, optionally removable. The primitive behind `Tag`, `FilterChip`,
  * `ComboboxChip` and ChipInput's chips.
  *
- * The chip itself is NOT interactive: it has no hover or pressed step, because nothing happens when
- * you click it. The remove control is the interactive part and it carries the full grammar — hover
- * climbs the surface ladder, pressing climbs one more — from the `ghost` `IconButton` it composes.
+ * The chip itself is NOT interactive: it has no hover or pressed state, because nothing happens
+ * when you click it. The remove control is the interactive part, and its wash and focus outline
+ * come from the `ghost` `Button` it composes.
  *
  * @example
  * <Chip hue="blue" onRemove={() => remove("API")} removeLabel="Remove API">API</Chip>
@@ -184,7 +178,7 @@ export function Chip({
         "[&_svg]:pointer-events-none [&_svg]:shrink-0",
         SIZE_CLASSES[size],
         active && hue === "neutral" ? ACTIVE_NEUTRAL : HUE_CLASSES[hue],
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
+        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className,
       ),
       children: (
@@ -204,10 +198,13 @@ export function Chip({
 }
 
 /** Props accepted by `ChipRemove`. */
-export type ChipRemoveProps = React.ComponentProps<typeof IconButton>;
+export type ChipRemoveProps = React.ComponentProps<typeof Button> & {
+  /** Overridable slot marker, so a wrapper can rename the control it composes. */
+  "data-slot"?: string;
+};
 
 /**
- * `ChipRemove` — the trailing `×` on a {@link Chip}. A round, ghost, 24×24 `IconButton`: the real
+ * `ChipRemove` — the trailing `×` on a {@link Chip}. A round, ghost, 24×24 `Button size="icon-xs"`: the real
  * border box IS the WCAG 2.5.8 target, so no invisible `::before` expansion is involved and nothing
  * can clip it. (`Tag`'s old pseudo-element hit area silently failed to expand anything at all —
  * Preflight's `appearance: button` clips generated content to a nested `<button>`'s own border box,
@@ -228,15 +225,14 @@ export function ChipRemove({
   ...props
 }: ChipRemoveProps) {
   return (
-    <IconButton
+    <Button
       variant="ghost"
-      size="xs"
-      shape="round"
+      size="icon-xs"
       data-slot={dataSlot ?? "chip-remove"}
-      className={cn("shrink-0", className)}
+      className={cn("rounded-full shrink-0", className)}
       {...props}
     >
-      {children ?? <X className="size-(--icon-compact)" aria-hidden />}
-    </IconButton>
+      {children ?? <X className="size-3" aria-hidden />}
+    </Button>
   );
 }

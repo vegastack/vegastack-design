@@ -207,8 +207,8 @@ test(
       expect(root.classList.contains("inline-flex")).toBe(true);
       const svg = root.querySelector("svg");
       expect(svg).not.toBeNull();
-      expect(svg?.getAttribute("height")).toBe("var(--icon-default)");
-      expect(svg?.getAttribute("width")).toBe("var(--icon-default)");
+      expect(svg?.getAttribute("height")).toBe("1rem");
+      expect(svg?.getAttribute("width")).toBe("1rem");
       expect(svg?.getAttribute("stroke") ?? svg?.getAttribute("fill")).toBe(
         "currentColor",
       );
@@ -506,22 +506,18 @@ test('<MotionConfig reducedMotion="never"> cannot defeat the OS preference', asy
   expect(await didAnimate(root)).toBe(false);
 });
 
-test("size resolves through the --icon-default role token by default", async () => {
+test("size resolves through the size-4 role token by default", async () => {
   mockReducedMotion(true);
   const screen = await render(
     <>
       <ActivityIcon data-testid="default-size" />
-      <ActivityIcon data-testid="explicit-size" size="var(--icon-feature)" />
+      <ActivityIcon data-testid="explicit-size" size="1.5rem" />
     </>,
   );
   const svg = (testId: string) =>
     screen.getByTestId(testId).element().querySelector("svg");
-  expect(svg("default-size")?.getAttribute("width")).toBe(
-    "var(--icon-default)",
-  );
-  expect(svg("explicit-size")?.getAttribute("width")).toBe(
-    "var(--icon-feature)",
-  );
+  expect(svg("default-size")?.getAttribute("width")).toBe("1rem");
+  expect(svg("explicit-size")?.getAttribute("width")).toBe("1.5rem");
 });
 
 // ---------------------------------------------------------------------------

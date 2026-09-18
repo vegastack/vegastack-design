@@ -90,17 +90,31 @@ already owns the arrows — claims only the letter shortcuts.
 | <kbd>M</kbd>                        | Toggle mute                                                |
 | <kbd>F</kbd>                        | Toggle fullscreen (when `onFullscreenToggle` is supplied)  |
 | <kbd>←</kbd> / <kbd>→</kbd>         | Seek by one step while the seek rail is focused            |
-| <kbd>↑</kbd> / <kbd>↓</kbd>         | Change volume while the volume rail is focused             |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Change volume while the volume rail is focused\*           |
 | <kbd>Home</kbd> / <kbd>End</kbd>    | Seek to the beginning / end                                |
+
+\* The volume rail is a native range in `writing-mode: vertical-lr`, so which arrow walks which
+way is the platform's call rather than this component's; the suite drives it through the native
+setter for that reason.
 
 - The group is labelled from `label` and is **not** itself a tab stop — every control inside it is
   focusable, so a stop on the wrapper only added an empty one.
 - Focus is the centralized 2px `:focus-visible` outline. Over video it is pulled inside
   (`-outline-offset-2`) because the frame clips it; the width, colour and token are unchanged.
-- Icon-only controls compose `IconButton`, which makes a missing accessible name a type error.
+- Icon-only controls are `Button size="icon"`, and every one of them names itself with an explicit
+  `aria-label` — `icon-button`'s compile-time guarantee went with it in Batch 7a, so the names are
+  asserted in `media-player-controls.test.tsx` instead.
 - The seek thumb is hidden at rest only where a pointer can hover. On a touch device it stays
   visible, because there is no hover to reveal it with.
-- Tooltips name the keyboard shortcut alongside the action.
+- `qualityOptions` / `defaultQuality` / `onQualityChange` reach the settings menu, which only the
+  `overlay` variant renders; in the `default` variant they are accepted and unused.
+- Tooltips name the keyboard shortcut alongside the action, **and they appear in fullscreen**. The
+  browser paints only the subtree passed to `requestFullscreen()`, so a portal to `<body>` would be
+  invisible there; decision OVL-14 gives `TooltipContent` and `DropdownMenuContent` a `container`
+  pass-through, and the transport hands them `document.fullscreenElement` for exactly as long as it
+  contains them. There is no prop to wire: a page that fullscreens something else is untouched, and
+  outside fullscreen both popups keep upstream's `<body>` default. The volume panel is inline and
+  never depended on it.
 
 <StatesTested name="media-player-controls" />
 

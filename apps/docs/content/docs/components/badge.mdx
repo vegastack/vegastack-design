@@ -1,11 +1,11 @@
 ---
 title: Badge
-description: A compact status or label chip — 4 variants × 5 semantic colors × 3 real size tiers, with a dot, a leading icon, and loading.
+description: Displays a badge, or a component that looks like one — nine variants, including the four semantic status families.
 audience: public
 registry: badge
 status: stable
 since: 0.1.0
-a11y: non-interactive label
+a11y: labelled chip, never colour alone
 preview: badge
 ---
 
@@ -18,106 +18,101 @@ preview: badge
 ```tsx
 import { Badge } from "@/components/ui/badge";
 
-<Badge intent="success" dot>
-  Active
-</Badge>;
+<Badge variant="secondary">Badge</Badge>;
 ```
+
+<ComponentPreview name="badge" file="components/preview/badge.tsx" />
 
 ## Examples
 
 ### Variants
 
-The system's variant vocabulary, the same four words Button uses: `solid` (full-color
-background with on-color text), `soft` (a tinted fill — the default), `outline`
-(hairline border, no fill — the neutral/hued tag chip), and `minimal` (ink only, no
-container at all).
+Use the `variant` prop to change the variant of the badge. Upstream ships six; the four semantic
+status families (COL-12) add `success`, `warning` and `info` beside `destructive`, written in
+upstream's own tinted shape.
 
-<ComponentPreview name="badgeVariants" file="components/preview/badge.tsx" />
+<ComponentPreview
+  name="badgeVariantsExample"
+  file="components/preview/badge.tsx"
+/>
 
-### Colors
+### With Icon
 
-Color is a semantic token (`default`, `success`, `warning`, `destructive`,
-`info`) — never an arbitrary hex. Each color maps to design-system tokens across every
-variant: `solid` (full fill), `soft` (tint), `outline` (hairline), and `minimal`
-(ink only).
+You can render an icon inside the badge. Use `data-icon="inline-start"` to render the icon on the
+leading edge and `data-icon="inline-end"` to render it on the trailing edge.
 
-<ComponentPreview name="badgeColors" file="components/preview/badge.tsx" />
+<ComponentPreview name="badgeWithIcon" file="components/preview/badge.tsx" />
 
-### Sizes
+### With Spinner
 
-Three real height tiers: `sm` **16px**, `md` **20px**, `lg` **24px**. The dot and any
-composed icon scale with the badge. `sm` is the dense-table chip — before this it was
-`md` with 2px less horizontal padding, which is not a size.
+You can render a spinner inside the badge. Give the spinner the same `data-icon` attribute so it
+takes the icon spacing.
 
-<ComponentPreview name="badgeSizes" file="components/preview/badge.tsx" />
+<ComponentPreview name="badgeWithSpinner" file="components/preview/badge.tsx" />
 
-### States
+### Link
 
-Add a leading `dot` indicator, pass an `icon` to take the dot's place, or set `loading`
-to show a spinner and `aria-busy`. Precedence runs `loading` → `icon` → `dot`.
+Use the `render` prop to render a link as a badge. The badge is a `span` by default, so the anchor
+brought in through `render` is what carries the link role.
 
-<ComponentPreview name="badgeStates" file="components/preview/badge.tsx" />
+<ComponentPreview name="badgeLink" file="components/preview/badge.tsx" />
 
-On the `solid` variant the `dot` switches to `bg-current`, inheriting the on-color foreground so
-it stays legible against the filled background.
+### Custom Colors
 
-<ComponentPreview name="badgeSolidDot" file="components/preview/badge.tsx" />
+You can retint a badge by passing classes through `className`. Upstream's example reaches for the
+raw Tailwind palette; use semantic tokens instead, so the override follows the theme into dark mode
+and survives a retheme.
 
-### Motion
+<ComponentPreview
+  name="badgeCustomColors"
+  file="components/preview/badge.tsx"
+/>
 
-Pass `animateIn` to pop the badge in (`motion-pop-in`) when its own appearance is the signal — a
-status that just flipped, a label freshly applied. It's **off by default**: a badge rendered as
-part of a static list (a table column, a filter chip row) must not pop every time its parent
-re-renders or mounts.
+### RTL
 
-<ComponentPreview name="badgeAnimateIn" file="components/preview/badge.tsx" />
+Every variant is written in logical properties, so a right-to-left document mirrors the padding and
+the icon spacing without any extra work.
 
-### Minimal — the dense-table treatment
-
-`minimal` has no background, no border and no horizontal padding, so it sits flush in a
-table cell rather than faking a pill. Because it has no container, the **dot is on by
-default** — the shape is the second channel that keeps status off colour alone (WCAG
-1.4.1). Pass `dot={false}` to drop it, or an `icon` to take its place.
-
-<ComponentPreview name="badgeMinimal" file="components/preview/badge.tsx" />
-
-### Tag chips — bordered and outline
-
-The Attio-teardown chip formula: `bordered` draws the matching-hue hairline on the `soft`
-tint (crisper edges on white); `variant="outline"` is the fill-less neutral/hued tag.
-Compose a `+N` overflow as a neutral outline badge — or reach for `TagGroup`, which does
-it for you.
-
-<ComponentPreview name="badgeTagChips" file="components/preview/badge.tsx" />
-
-## Playground
-
-Mix variant, color, size, and the dot / loading / animate-in states, then copy the generated JSX.
-
-<BadgePlayground />
+<ComponentPreview name="badgeRtl" file="components/preview/badge.tsx" />
 
 ## API Reference
 
-<ApiTable path="../../packages/ui/registry/ui/badge.tsx" name="BadgeProps" />
+<ApiTable path="lib/api-props.ts" name="BadgeProps" />
 
 ## Accessibility
 
-- Renders a non-interactive `<span>` by default — a badge is a label, not a control.
-- The `dot` and `loading` spinner are decorative (`aria-hidden`); the badge text carries the meaning,
-  so never rely on color or the dot alone to convey status.
-- `loading` sets `aria-busy="true"` while content is updating.
-- The loading spinner uses `animate-spin`; it freezes under `prefers-reduced-motion`
-  through the global reset, which every component inherits rather than restating.
-- `variant="minimal"` turns the `dot` on by default: without a container, the dot is what
-  keeps the status from resting on colour alone.
-- Use `render` to compose with a link when a badge needs to navigate, keeping the surrounding text as
-  the accessible name.
+- Renders a `span` — a badge is a label, not a control, and it is not focusable or clickable on its
+  own. Pass `render` to make it an anchor or a button when it has to be operable.
+- The tint never carries the meaning on its own (A11Y-8): every status badge keeps its word, and an
+  icon beside it is decorative rather than load-bearing.
+- Each tinted status variant takes the family's `-text` ink over its `/10` fill (A11Y-13), which
+  clears the AA contrast floor in both themes.
+- The component carries no focus ring of its own. When `render` makes it operable, the global
+  `:focus-visible` outline in `base.css` applies (FOC-1, FOC-6).
 
 <StatesTested name="badge" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use a semantic color to signal status — success for active, destructive for errors — with text that states the meaning."
-  dont="Rely on the dot or color alone to convey state, or use a Badge as a clickable button."
+  do="Keep a word inside a status badge — Success, Failed, Pending."
+  dont="Ship a bare coloured dot or an icon-only badge and expect the colour to carry the status."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/badge.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the `focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50`
+  glow and the `aria-invalid` rings are removed; `base.css` owns focus outright.
+- **FOC-5** — the invalid border becomes `not-focus:aria-invalid:border-destructive`, so a focused
+  badge shows the focus cue rather than the red tint.
+- **COL-12** — `success`, `warning` and `info` variants, in upstream's own `destructive` shape.
+- **A11Y-13** — each tinted status variant takes the family's `-text` ink; `bg-<family>/10` under
+  `text-<family>` measures between 3.98:1 and 4.35:1, under the AA floor A11Y-1 enforces.
+- **A11Y-8** — a badge is a labelled chip: the tint never carries the meaning alone.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the
+  module throws on import in a React Server Component without the boundary.
+- **A11Y-2** — an interactive badge (rendered as a link or a button) gets an invisible `::after`
+  hit area and drops `overflow-hidden`, so its pointer target clears 24px. Upstream's is 20px tall.

@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.9.1 sha256-0vu2LGhlvyB53XvUtyi0OR6r0Hlff/EMb6lGtktQIbk=
+// @vegastack dropzone@0.9.1 sha256-lT9lJFHzMQuLnSD8XmIi2MyR0pBtDDkJatCk9mtBGu4=
 
 "use client";
 
@@ -31,8 +31,8 @@ to a native input, and no VegaStack control can substitute for the file-picker b
 Deliberately NOT done here:
 - No `attachments` prop and no internal `Attachment` rendering — the host owns the
   staged-file list and its lifecycle.
-- No dashed-border re-implementation. Consumers compose `Empty variant="dashed"` (its prop
-  doc literally reads "the classic 'drop zone' look") or any content as children.
+- No dashed-border re-implementation. Consumers compose upstream's `Empty`, whose root already
+  carries `border-dashed` (add `border` to draw it), or any content as children.
 --- */
 
 /** Props accepted by `Dropzone`. */
@@ -53,7 +53,7 @@ export interface DropzoneProps extends Omit<
    * @default "Upload files"
    */
   "aria-label"?: string;
-  /** The idle affordance — typically `Empty variant="dashed"` content. */
+  /** The idle affordance — typically an `Empty className="border"` block. */
   children: React.ReactNode;
   /**
    * Force the drag-over presentation without a real drag. A drag-over state can only be produced
@@ -83,7 +83,7 @@ export interface DropzoneProps extends Omit<
  * primary when it can be accepted, destructive when it cannot — so the feedback
  * does not depend on what is inside it. `data-dragging` and `data-drag-invalid`
  * stay on the surface for the `group-data-[…]/dropzone` idiom, so a child can
- * follow the drag state — an `Empty variant="dashed"`, say, tinting its border
+ * follow the drag state — an `Empty className="border"`, say, tinting its border
  * in step with the stroke.
  *
  * @example
@@ -92,7 +92,7 @@ export interface DropzoneProps extends Omit<
  *   onFilesAccepted={(files) => stageUploads(files)}
  *   onFilesRejected={(rejections) => flagRejections(rejections)}
  * >
- *   <Empty size="sm" variant="dashed">
+ *   <Empty className="border">
  *     <EmptyHeader>
  *       <EmptyTitle>Drop images here</EmptyTitle>
  *       <EmptyDescription>or click to browse — PNG or JPG</EmptyDescription>
@@ -149,9 +149,9 @@ export function Dropzone({
           // scrollable overflow. Moving both edges one spacing step inward keeps the paint inside
           // without clipping arbitrary children; the host's real focus outline stays independent.
           "outline-offset-0 after:pointer-events-none after:absolute after:inset-0.5 after:box-border after:rounded-[inherit] after:content-['']",
-          "data-dragging:after:border-2 data-dragging:after:border-primary/(--alpha-outline-border)",
-          "data-drag-invalid:after:border-2 data-drag-invalid:after:border-destructive/(--alpha-outline-border)",
-          options.disabled && "pointer-events-none opacity-(--opacity-dim)",
+          "data-dragging:after:border-2 data-dragging:after:border-primary/50",
+          "data-drag-invalid:after:border-2 data-drag-invalid:after:border-destructive/50",
+          options.disabled && "pointer-events-none opacity-50",
           className,
         )}
         data-dragging={dragging ?? (dragState === "dragging" ? "" : undefined)}

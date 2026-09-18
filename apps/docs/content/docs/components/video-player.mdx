@@ -110,14 +110,16 @@ Every `VideoPlayer` prop, auto-generated from its TypeScript types.
 - Pass a descriptive `label`; it names the video element and prefixes every custom control.
 - The named media progress rail composes `Slider`, so keyboard and screen-reader slider semantics
   stay intact while its video-specific hover treatment remains separate from the generic component.
-- Icon-only transport buttons are composed with `IconButton`, which requires accessible names.
+- Icon-only transport buttons are `Button size="icon"`, each carrying its own `aria-label`.
 - Tooltips expose the primary keyboard shortcuts for pointer and keyboard users.
 - The volume slider is exposed from the mute control and keeps slider keyboard semantics.
 - Playback speed and quality live in settings submenus with radio selection.
 - Rewind and forward are keyboard shortcuts rather than visible buttons.
 - The overlay controls appear on hover or focus and fade out after the pointer leaves the frame.
 - The fullscreen action changes to an exit-fullscreen icon and accessible name while the frame owns
-  document fullscreen.
+  document fullscreen. The transport's tooltips and its settings menu stay visible there: they
+  portal into the fullscreen element rather than to `<body>`, which is decision OVL-14. See
+  [`MediaPlayerControls`](/docs/components/media-player-controls) § Accessibility.
 - The native `<video>` element is the media engine and visual frame; browser-native controls are
   omitted so audio and video players share the same VegaStack transport.
 

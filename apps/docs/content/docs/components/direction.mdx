@@ -1,0 +1,80 @@
+---
+title: Direction
+description: The text-direction context every component reads for its logical-property layout — a provider and the hook that resolves it.
+audience: public
+registry: direction
+status: stable
+since: 0.10.0
+a11y: no interactive surface
+preview: direction
+---
+
+## Install
+
+<InstallSteps name="direction" />
+
+## Usage
+
+```tsx
+import { DirectionProvider } from "@/components/ui/direction";
+
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">{/* your app */}</DirectionProvider>
+  </body>
+</html>;
+```
+
+<ComponentPreview name="direction" file="components/preview/direction.tsx" />
+
+## Examples
+
+### useDirection
+
+`useDirection` returns the direction the nearest provider resolved, so a component can branch on it
+without reading the DOM.
+
+```tsx
+import { useDirection } from "@/components/ui/direction";
+
+function MyComponent() {
+  const direction = useDirection();
+  return <div>Current direction: {direction}</div>;
+}
+```
+
+<ComponentPreview
+  name="directionUseDirection"
+  file="components/preview/direction.tsx"
+/>
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="DirectionProviderProps" />
+
+## Accessibility
+
+- The provider renders no element and takes no focus; it only supplies context.
+- Set `dir` on the document (or on the subtree) as well — `DirectionProvider` tells components which
+  way to lay out, while `dir` is what the browser and assistive tech read for text rendering and
+  caret movement.
+- Every component in this system is written in logical properties (`ps-*`, `pe-*`, `start-*`,
+  `end-*`), so a right-to-left subtree mirrors without any per-component work.
+
+<StatesTested name="direction" />
+
+## Do / Don't
+
+<DoDont
+  do="Wrap the app once, at the root, and pass the same value you put on the document's dir attribute."
+  dont="Use DirectionProvider instead of dir — it does not change how the browser renders or selects text."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/direction.patch`. Every hunk:
+
+- **DOC-1, DOC-2** — the registry stamp header (`// @vegastack direction@… sha256-…`) that the
+  three-synced-copies model and `meta.integrity` require, plus the repository formatter's
+  semicolons. The file is a two-name re-export of Base UI's direction provider and nothing about
+  its behaviour changes.

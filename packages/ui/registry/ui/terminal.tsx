@@ -1,4 +1,4 @@
-// @vegastack terminal@0.9.1 sha256-xDc2je7d1eOhNMiHdm3zUKxCkgTw1R2uIreaeJJXNt8=
+// @vegastack terminal@0.9.1 sha256-LlHvbEByeD66h/UBQsDdQebQaz1kWjA6egyvM6Kh1CI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -61,17 +61,13 @@ function normalizeLine(line: string | TerminalLine): TerminalLine {
 }
 
 /**
- * `Terminal` (a.k.a. CommandBlock) — a dark mono command block: a title bar
+ * `Terminal` (a.k.a. CommandBlock) — a mono command block: a title bar
  * over command/output lines, each command prefixed with a `--brand` phosphor
  * prompt glyph, plus a composed trailing {@link CopyButton}. The command pane
  * scrolls independently, so the copy action remains visible at the inline end —
  * which makes it a keyboard focus stop **whenever it actually overflows**, named
  * from the visible `title` and exposed as a `group` (override with
  * `aria-label`/`aria-labelledby`). A pane whose commands fit adds no tab stop.
- * Self-scopes to the
- * marketing dark ground (`.vs-marketing`) so it reads correctly even embedded
- * in a light-theme docs page (e.g. an install snippet) — no `MarketingSurface`
- * wrapper required, though nesting one is harmless (values are identical).
  *
  * @example
  * <Terminal
@@ -108,7 +104,9 @@ export function Terminal({
       ref={ref}
       data-slot="terminal"
       className={cn(
-        "vs-marketing overflow-hidden rounded-(--radius-sharp) border border-border bg-card",
+        // The same shape as `CodeBlock`: these are the system's two code surfaces and they are
+        // one object.
+        "overflow-hidden rounded-lg border border-border bg-card",
         className,
       )}
       {...props}
@@ -119,7 +117,7 @@ export function Terminal({
       >
         <span
           id={titleId}
-          className="font-mono text-mono-label text-muted-foreground uppercase"
+          className="font-mono text-xs text-muted-foreground uppercase"
         >
           {title}
         </span>
@@ -166,7 +164,6 @@ export function Terminal({
             value={copyValue ?? defaultCopyValue}
             copyLabel="Copy command"
             copiedLabel="Copied command"
-            className="text-foreground data-[copied]:text-primary data-[copied]:hover:text-primary"
           />
         </div>
       </div>

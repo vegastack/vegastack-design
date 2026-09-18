@@ -4,6 +4,7 @@ import { render } from "vitest-browser-react";
 import { page } from "vitest/browser";
 import { afterEach, beforeAll, beforeEach, expect, test } from "vitest";
 import * as Preview from "@/components/preview";
+import contracts from "../component-contracts.json";
 import {
   dynamicMountCount,
   pendingDynamicImports,
@@ -131,17 +132,45 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // deliberately, because that stricter shape is what catches a control buried under an overlay
   // (`attachmentImageThumbnail`, 2026-09-09, was genuinely unclickable). The right answer to the
   // gap between the two is a named exclusion here, never a looser probe.
-  resizableNested: {
+  // `resizableNested` used to live here: an ACCEPTED overlap where the nested horizontal handle's
+  // own 24px hit area crossed the outer vertical one at a T-junction (MK 2026-09-09,
+  // `docs/ledger/bugs.md`, which keeps the reasoning). Batch 5 of the shadcn reset rebuilt that
+  // fixture from upstream's own nested example, where the inner group sits INSIDE a panel and the
+  // two handles no longer cross — so the assertion passes and guard 2 above demanded the entry be
+  // deleted rather than carried as a defect nobody owns. If two handles ever cross again, this map
+  // is where that measurement goes back.
+  //
+  // Two entries came back on 2026-09-18, Batch 6 of the shadcn reset, and they are the SAME
+  // ACCEPTED OVERLAP the paragraph above describes — two adjacent targets that both meet the SC
+  // and therefore cannot both own the pixel between them.
+  //
+  // Measured, in this lane: upstream's `AttachmentActions` sets no gap in the horizontal
+  // orientation, so two `AttachmentAction`s sit flush. In `attachmentStates` the error row's pair
+  // lays out at L=332 R=356 and L=356 R=380, both exactly 24.00×24.00; probing "Retry upload" at
+  // its own right edge (355.5, half a pixel inside) resolves to "Remove financial-model.xlsx".
+  // `attachmentTrigger` is the identical shape with "Copy link" beside "Remove".
+  //
+  // That is not an SC 2.5.8 failure: both targets ARE 24×24, which satisfies the size requirement
+  // outright, and the SC's key-terms note removes the shared area from the measurement rather than
+  // demanding an unobstructed square. The spacing clause applies only to targets UNDER 24px. This
+  // probe asks for the stricter shape on purpose (it is what catches a control buried under an
+  // overlay), so the gap between the two is recorded here rather than dissolved by loosening it.
+  // The SIZE half of the contract still runs — only the obstruction sweep is exempted — and
+  // `attachment.test.tsx` measures both actions at 24×24 directly.
+  //
+  // Making these pass would mean putting a gap on `AttachmentActions`, which is a patch hunk with
+  // no decision ID behind it, or removing the second action from upstream's own documented
+  // examples. Both are worse than the entry.
+  attachmentStates: {
     target:
-      "ACCEPTED overlap, not a defect (MK 2026-09-09, `docs/ledger/bugs.md`). Control 0 is the " +
-      "outer vertical handle, visual 1.0x254.0, hit area 24.0x254.0; the nested horizontal " +
-      "handle's own 24px hit area crosses it at the T-junction and, being deeper in the DOM, " +
-      "wins the shared band. Measured 2026-09-09: outer `after` spans x 94.6-118.6 over the full " +
-      "254px; inner `after` spans y 141.0-165.0 from x 107.1 rightwards, so the shared band is " +
-      "~11.5x24 and the outer handle keeps 12.5px of exclusive width across it and its full 24px " +
-      "over the other 230px of its length. Under §2.5.8's overlap rule both handles still measure " +
-      "far beyond 24x24. Whichever handle won, the other would lose the same square, so this is a " +
-      "property of two crossing targets and not a tunable; 3 of 5 centred points miss",
+      "two flush 24×24 AttachmentActions (Retry at L=332 R=356, Remove at L=356 R=380): the " +
+      "right-edge probe at 355.5 resolves to the neighbour. Accepted overlap — both targets meet " +
+      "SC 2.5.8 on size, and the SC excludes shared area from the measurement.",
+  },
+  attachmentTrigger: {
+    target:
+      "the same flush pair (Copy link beside Remove, 24×24 each, no gap in AttachmentActions' " +
+      "horizontal orientation). Accepted overlap, identical reasoning to attachmentStates.",
   },
 };
 
@@ -153,15 +182,8 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
  * separate map so it can never be confused with a recorded defect, and guarded against staleness
  * by the same name check.
  */
-const UNSWEPT: Record<string, string> = {
-  // Omits `now` so the component reads the real clock and its refresh timer ticks — that IS the
-  // feature being demonstrated. A self-rescheduling `setTimeout` re-renders the fixture between
-  // the assertion and the measurement: the detach race in `docs/ledger/bugs.md` (2026-09-08).
-  // Every other `relative-time` fixture pins `now` to a fixed instant and is swept normally, so
-  // the component's geometry IS covered; only this one demo's live clock is not.
-  relativeTimeLive:
-    "live clock: re-renders on its own timer, geometry is not stable",
-};
+const UNSWEPT: Record<string, string> =
+  contracts.affectedTestPolicy.geometryUnswept;
 
 /**
  * Fixtures that mount a `next/dynamic` component, and the DOM that proves the REAL component —
@@ -310,7 +332,7 @@ function effectiveTargetProbe(element: Element) {
   // fractionally positioned control (here top 394.265625, bottom 418.265625) the final fraction
   // of a pixel resolves to the PARENT: ownership was measured to flip between 0.25px and 0.5px
   // inside the bottom edge. Probing at a hair's inset therefore reported a miss for perfectly
-  // sized 24px controls (attachment, code-block, filter-bar, password-input, text-edit) — always
+  // sized 24px controls (attachment, code-block, filter-bar, text-edit) — always
   // on the right/bottom edge, never left/top, the signature of snapping
   // rather than a real defect. An earlier 0.001px inset failed for the same reason and was
   // additionally below LayoutUnit precision (1/64 px) entirely.
@@ -330,7 +352,14 @@ function effectiveTargetProbe(element: Element) {
     if (!hit) return false;
     if (hit === pointerOwner || pointerOwner.contains(hit)) return true;
     const label = hit.closest("label") as HTMLLabelElement | null;
-    return label?.control === element;
+    if (!label) return false;
+    // `HTMLLabelElement.control` resolves only for NATIVE form controls. Base UI renders a
+    // checkbox, radio and switch as `<span role="…">`, so `control` is null for exactly the
+    // controls whose 24px hit area most often reaches under their own label — and the branch below
+    // was dead for all of them. `htmlFor` is the same association, read directly. Clicking the
+    // label activates the control, so the label owning the pixel is not an obstruction.
+    if (label.control === element) return true;
+    return label.htmlFor !== "" && label.htmlFor === element.id;
   };
   return {
     rect: { width: rect.width, height: rect.height },
@@ -399,7 +428,7 @@ const AUTHORED_OUTLINE =
  * instead)". These controls carry `outline-hidden` precisely so the global ring does NOT paint on
  * them, and the border tint is their whole affordance. The generic predicate below accepted
  * whichever branch happened to be true, so a text-entry control that had LOST its `outline-hidden`
- * passed on the ring it is not supposed to have: `otp-input-slot` measured
+ * passed on the ring it is not supposed to have: the retired `otp-input`'s slot measured
  * `outline-style: solid / 2px` here and this assertion went green, because a class-glue defect had
  * destroyed `outline-hidden` and handed it branch (A). Pinning the set to branch (B) — and
  * asserting `outline-style: none` outright — is what makes that visible.
@@ -408,19 +437,30 @@ const AUTHORED_OUTLINE =
  * listed it. Measured 2026-09-09: a focused `[data-slot=select-trigger]` computes
  * `outline-style: solid`, `outline-width: 2px`. That is by design and documented on the component
  * ("button-style trigger: the centralized base.css `:focus-visible` outline also applies for
- * keyboard nav", select.tsx) — it wears `fieldControl` for its CHROME while remaining a button.
+ * keyboard nav", select.tsx) — it wears `"rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80"` for its CHROME while remaining a button.
  * Adding it here would fail a correct control.
  */
 const TEXT_ENTRY_SLOTS =
   "[data-slot=input],[data-slot=textarea],[data-slot=field-control]," +
-  "[data-slot=otp-input-slot],[data-slot=combobox-input]";
+  "[data-slot=combobox-input]," +
+  // Batch 3 of the shadcn reset added upstream's `input-otp`, whose real control is ONE hidden
+  // input behind the slots, and `input-group-control`, which is the `Input`/`Textarea` inside an
+  // `InputGroup`. Both are text entry: they suppress the global ring and signal focus with a
+  // border tint on a carrier — the active slot for the OTP, the group for the input group.
+  // `command-input` is cmdk's input inside an `InputGroup`; upstream gives it its own slot name,
+  // so it needs naming here too, and `input-group.tsx` carries the matching tint selector.
+  "[data-slot=input-otp],[data-slot=input-group-control],[data-slot=command-input]," +
+  // Batch 6 added upstream's `questionnaire`, whose freeform answer field is text entry with the
+  // same treatment `input` takes: `outline-hidden` suppresses the global ring and `focus:border-ring/70`
+  // is the whole affordance, so it must be held to branch (B) rather than an outline it should not have.
+  "[data-slot=questionnaire-input]";
 
 /**
  * The wrapper that owns a text-entry control's focus affordance, if any.
  *
  * AGENTS.md § Accessibility: "visible `:focus-visible` (text-entry fields use a border tint
  * instead)". The tint is applied by `fieldSurface` / `fieldGroupSurface` in `@vegastack/design` —
- * `focus:border-ring/(--alpha-tint-border)` on the control, `focus-within:border-…` on the group —
+ * `focus:border-ring/70` on the control, `focus-within:border-…` on the group —
  * so the element whose border changes may be an ancestor of the focused control.
  */
 function tintCarriers(control: Element): Element[] {
@@ -434,6 +474,17 @@ function tintCarriers(control: Element): Element[] {
   for (let depth = 0; depth < 3 && ancestor; depth++) {
     carriers.push(ancestor);
     ancestor = ancestor.parentElement;
+  }
+  // An OTP field's tint lands on the ACTIVE SLOT, which is a SIBLING of the hidden input rather
+  // than an ancestor of it: one input drives every slot, and the slot the caret is in carries
+  // `data-active` and with it `border-ring/70`. Walking ancestors can never see that, so the
+  // slots of the control's own container join the carrier set.
+  if (control.matches('[data-slot="input-otp"]')) {
+    const container =
+      control.closest(".cn-input-otp") ?? control.parentElement ?? control;
+    carriers.push(
+      ...container.querySelectorAll('[data-slot="input-otp-slot"]'),
+    );
   }
   return carriers;
 }
@@ -476,15 +527,22 @@ function focusIndicatorProblem(
   const textEntry = control.matches(TEXT_ENTRY_SLOTS);
 
   // Text entry takes branch (B) and ONLY branch (B) — and must first prove it is not wearing the
-  // ring it suppresses. `outline-hidden` compiles to a TRANSPARENT 2px outline (kept so
-  // `forced-colors: active` has something to repaint), which computes as `outline-style: none`;
-  // anything else means the suppression was lost.
-  if (textEntry && style.outlineStyle !== "none") {
+  // ring it suppresses. What counts as suppressed is what PAINTS NOTHING: `outline-hidden` computes
+  // as `outline-style: none`, and a control whose engine writes its own inline suppression (the
+  // `input-otp` package writes `outline: transparent solid 0px`) computes as a solid outline of
+  // zero width in a transparent colour. Both are "no ring"; anything with real width and a real
+  // colour means the suppression was lost.
+  const outlineWidth = Number.parseFloat(style.outlineWidth);
+  const outlineIsInvisible =
+    style.outlineStyle === "none" ||
+    !(outlineWidth > 0) ||
+    /,\s*0\s*\)$/.test(style.outlineColor);
+  if (textEntry && !outlineIsInvisible) {
     return (
-      `is a text-entry control presenting outline-style "${style.outlineStyle}" ` +
-      `(${style.outlineWidth}). Text entry suppresses the global :focus-visible ring with ` +
-      `\`outline-hidden\` and signals focus with the border tint instead (AGENTS.md ` +
-      `\u00a7 Accessibility) — an outline here means the suppression was lost`
+      `is a text-entry control painting outline-style "${style.outlineStyle}" ` +
+      `(${style.outlineWidth}, ${style.outlineColor}). Text entry suppresses the global ` +
+      `:focus-visible ring and signals focus with the border tint instead (AGENTS.md ` +
+      `\u00a7 Accessibility) — a painted outline here means the suppression was lost`
     );
   }
   if (!textEntry && AUTHORED_OUTLINE.test(style.outlineStyle) && width >= 2)
@@ -806,15 +864,17 @@ beforeAll(async () => {
       overflow: "hidden",
       whiteSpace: "nowrap",
     });
-    // …and the token theme itself, which the utilities above do not depend on: a missing
-    // `@vegastack/design-tokens/theme.css` leaves every `--size-*`/`--icon-*` sizing utility
-    // resolving to nothing while plain Tailwind utilities still compile.
+    // …and the token theme itself, which the utilities above do not depend on. The sentinel used
+    // to be `h-8`; the shadcn reset deleted the `--size-*` family (LAY-1 = shadcn: upstream
+    // writes `h-8`), so it is `--background` now — the one token whose absence means the theme
+    // did not load at all, while plain Tailwind utilities still compile and every measurement in
+    // this file silently reads unthemed values.
     expect(
       getComputedStyle(document.documentElement)
-        .getPropertyValue("--size-md")
+        .getPropertyValue("--background")
         .trim(),
-      "the @vegastack token theme is not on this page (--size-md is unset), so every control " +
-        "sized with `h-(--size-md)` collapses and the 24px floor is meaningless.",
+      "the @vegastack token theme is not on this page (--background is unset), so every colour " +
+        "and surface measured in this file is an unthemed default.",
     ).not.toBe("");
   } finally {
     sentinel.remove();
@@ -943,7 +1003,7 @@ for (const [name, fixture] of FIXTURES) {
     // match `:focus-visible` here (Chromium's script-focus heuristic), so the keyboard-tab path
     // `contrast.browser.test.tsx` needs for its four surface specimens is not needed for a sweep
     // of this size — and a per-control tab walk would be O(controls²) trusted keypresses.
-    await runAssertion(name, "focus", () => {
+    await runAssertion(name, "focus", async () => {
       const controls = [
         ...screen.baseElement.querySelectorAll(INTERACTIVE_SELECTOR),
       ];
@@ -960,6 +1020,14 @@ for (const [name, fixture] of FIXTURES) {
 
         const rest = restSignature(control);
         control.focus();
+        // ONE frame, and only for the OTP field. Every other control in this system signals focus
+        // in CSS (`:focus`/`:focus-visible`), which is live the instant focus moves; the OTP's cue
+        // is carried by a SIBLING slot that React marks `data-active` in a focus handler, so it
+        // lands on the next commit and a synchronous read would see the resting border. This is the
+        // one shape that needs it, so the sweep does not pay a frame per control.
+        if (control.matches('[data-slot="input-otp"]')) {
+          await new Promise(requestAnimationFrame);
+        }
         // A component may redirect focus (a wrapper hands it to its inner input). Measure whatever
         // actually holds focus, and only when it is this control or inside it — otherwise the
         // control never took focus and nothing about ITS indicator was demonstrated.

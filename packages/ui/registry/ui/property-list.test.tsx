@@ -3,7 +3,6 @@ import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { Globe, Users } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { EmptyValue } from "./empty";
 import {
   PropertyLabel,
   PropertyList,
@@ -25,7 +24,7 @@ function Example() {
       <PropertyRow>
         <PropertyLabel icon={<Users />}>Team</PropertyLabel>
         <PropertyValue>
-          <EmptyValue>Set a value…</EmptyValue>
+          <span className="text-sm text-muted-foreground">Set a value…</span>
         </PropertyValue>
       </PropertyRow>
     </PropertyList>

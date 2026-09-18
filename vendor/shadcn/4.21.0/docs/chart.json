@@ -1,0 +1,17 @@
+{
+  "component": "chart",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/chart.md",
+  "sections": [
+    "Component",
+    "Updating to Recharts v3",
+    "Installation",
+    "Your First Chart",
+    "Chart Config",
+    "Theming",
+    "Tooltip",
+    "Legend",
+    "Accessibility",
+    "RTL"
+  ]
+}

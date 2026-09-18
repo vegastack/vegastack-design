@@ -1,12 +1,11 @@
-// @vegastack page-header@0.9.1 sha256-IDvxvY9nPczNeLmuvnfaBvBnUZeFw90+Urgh/CP6SDI=
+// @vegastack page-header@0.9.1 sha256-us3qPHC/szhKULoQa4Eqr0gEenbt+AA6nooyt1X9CYo=
 
 "use client";
 
 import * as React from "react";
 import { ChevronLeft, Star } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { buttonVariants } from "@/components/ui/button";
-import { IconButton, iconButtonGeometry } from "@/components/ui/icon-button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { TruncatedText } from "@/components/ui/truncated-text";
 
 /**
@@ -98,7 +97,7 @@ export interface PageHeaderProps extends Omit<
   /**
    * Optional overflow / secondary menu slot, rendered after `actions` on the
    * right. Compose your own menu trigger (e.g. a `DropdownMenu` with an
-   * `IconButton` trigger) — kept as a slot so the header stays presentational.
+   * icon `Button` trigger) — kept as a slot so the header stays presentational.
 
    * @default undefined
    */
@@ -137,22 +136,22 @@ function FavoriteStar({
   }
 
   return (
-    <IconButton
+    <Button
       variant="ghost"
-      size="sm"
+      size="icon-sm"
       onClick={handleToggle}
       disabled={disabled}
       aria-label={label}
       aria-pressed={isActive}
       data-slot="page-header-favorite"
       data-active={isActive ? "" : undefined}
-      className="shrink-0 text-muted-foreground hover:text-foreground"
+      className="shrink-0 text-muted-foreground"
     >
       {/* Neutral ink, not warning yellow (D21). Doctrine rations the status hues to actual
           status; a favourite is a user's own mark, not a caution — Linear and Vercel both fill
           the star with the foreground ink, and the FILL alone already carries the on/off read. */}
       <Star className={cn(isActive && "fill-current text-foreground")} />
-    </IconButton>
+    </Button>
   );
 }
 
@@ -224,9 +223,9 @@ export function PageHeader({
         <div className="flex min-w-0 grow basis-48 flex-col gap-1">
           <div className="flex items-center gap-1">
             {hasBack && onBack ? (
-              <IconButton
+              <Button
                 variant="ghost"
-                size="sm"
+                size="icon-sm"
                 aria-label={backLabel}
                 data-slot="page-header-back"
                 // Logical, not physical: `-ml-2` pulled the back affordance the WRONG way in RTL
@@ -235,20 +234,19 @@ export function PageHeader({
                 onClick={onBack}
               >
                 <ChevronLeft />
-              </IconButton>
+              </Button>
             ) : null}
             {hasBack && !onBack && backHref ? (
               // The href form is NAVIGATION, so it stays a real `<a>` wearing the button's
-              // classes — routing an anchor through `IconButton` would put `role="button"` on a
-              // link. `iconButtonGeometry` is the same square the wrapper applies, so the two
-              // back affordances are pixel-identical.
+              // classes — routing an anchor through `Button` would put `role="button"` on a
+              // link. `buttonVariants({ size: "icon-sm" })` is the same square the button form
+              // renders, so the two back affordances are pixel-identical.
               <a
                 href={backHref}
                 aria-label={backLabel}
                 data-slot="page-header-back"
                 className={cn(
-                  buttonVariants({ variant: "ghost", size: "sm" }),
-                  iconButtonGeometry("sm"),
+                  buttonVariants({ variant: "ghost", size: "icon-sm" }),
                   "-ms-2 shrink-0",
                 )}
               >
@@ -261,7 +259,7 @@ export function PageHeader({
                 truncate/line-clamp class; the h1 stays the accessible heading. */}
             <h1
               data-slot="page-header-title"
-              className="min-w-0 text-h2 text-foreground"
+              className="min-w-0 text-2xl font-semibold text-foreground"
             >
               <TruncatedText>{title}</TruncatedText>
             </h1>
@@ -270,7 +268,7 @@ export function PageHeader({
           {description ? (
             <p
               data-slot="page-header-description"
-              className="text-base text-muted-foreground"
+              className="text-sm text-muted-foreground"
             >
               {description}
             </p>

@@ -1,0 +1,50 @@
+# component: input
+# decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4
+# hunks:
+#   FOC-1, FOC-3, FOC-6, FOC-8: `outline-none focus-visible:border-ring focus-visible:ring-3
+#     focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70` — the
+#     text-entry border tint, on `:focus` so it fires for mouse and keyboard alike, and no glow.
+#     `outline-hidden` rather than `outline-none`, so the FOC-7 forced-colours block has an
+#     outline to repaint.
+#   FOC-5: the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
+#     counterpart), so focus outranks it; the `aria-invalid` halo rings go with the rest.
+#   FRM-4: `disabled:pointer-events-none` is dropped, so a disabled input stays hoverable and a
+#     Tooltip can explain it. Base UI's Input has no `focusableWhenDisabled`, so the native
+#     `disabled` attribute stays — the pointer half of FRM-4 only.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/input.tsx b/input.tsx
+index 7c4ab5a..5d26a5b 100644
+--- a/input.tsx
++++ b/input.tsx
+@@ -1,6 +1,8 @@
+-import * as React from "react"
+-import { Input as InputPrimitive } from "@base-ui/react/input"
+-import { cn } from "cn"
++// @vegastack input@0.9.1 sha256-AJJb3FkK9B3oGyhb4ZOP7DIMgjY3ulkgZa2ODpyQwWA=
++
++import * as React from "react";
++import { Input as InputPrimitive } from "@base-ui/react/input";
++import { cn } from "@vegastack/design";
+ 
+ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+   return (
+@@ -8,12 +10,12 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+       type={type}
+       data-slot="input"
+       className={cn(
+-        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+-        className
++        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-hidden file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus:border-ring/70 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 not-focus:aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:not-focus:aria-invalid:border-destructive/50",
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+-export { Input }
++export { Input };

@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.9.1 sha256-dXCaSucZKmHV/Sm+B0dWb6g+PHs8vkfz+bCEuuWinpI=
+// @vegastack filter-bar@0.9.1 sha256-5ipcsSsJDbLhzacWcC8v87zmMWCxGKz2ug+BtwBeY4g=
 
 "use client";
 
@@ -12,9 +12,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  type DropdownMenuContentProps,
 } from "@/components/ui/dropdown-menu";
-import { Input, type InputProps } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 
 /* ------------------------------------------------------------------------------------------------
  * Types
@@ -44,9 +43,9 @@ export interface FilterBarFilter {
   /** Invoked when the chip's remove (`×`) control is activated. */
   onRemove: () => void;
   /**
-   * Whether the chip reads as an active selection (the `surface-2` selection
-   * rung). An applied filter is a selection, so this defaults to `true`; set
-   * `false` for a presence-only chip on the rest fill.
+   * Whether the chip reads as an active selection (the `accent` selected fill).
+   * An applied filter is a selection, so this defaults to `true`; set `false`
+   * for a presence-only chip on the rest fill.
    * @default true
    */
   active?: boolean;
@@ -127,7 +126,9 @@ export interface FilterBarProps extends Omit<
    */
   addFilterLabel?: string;
   /** Alignment of the built-in "Add filter" menu relative to its trigger. @default 'start' */
-  addFilterMenuAlign?: DropdownMenuContentProps["align"];
+  addFilterMenuAlign?: React.ComponentProps<
+    typeof DropdownMenuContent
+  >["align"];
   /**
    * Controlled search/query input config. Omit to hide the search field.
    * @default undefined
@@ -136,7 +137,10 @@ export interface FilterBarProps extends Omit<
   /** Props forwarded to the underlying search {@link Input}.
    * @default undefined
    */
-  searchInputProps?: Omit<InputProps, "value" | "onChange" | "placeholder">;
+  searchInputProps?: Omit<
+    React.ComponentProps<typeof Input>,
+    "value" | "onChange" | "placeholder"
+  >;
   /**
    * Content rendered at the trailing (right) end of the bar — e.g. a
    * "Save view" or "Clear all" {@link Button}.
@@ -175,9 +179,8 @@ export interface FilterChipProps extends Omit<
    */
   removeLabel?: string;
   /**
-   * Whether the chip reads as an active selection. An active chip takes the
-   * selection rung (`surface-2`); an inactive chip keeps a filled control's rest
-   * fill (`surface-1`).
+   * Whether the chip reads as an active selection. An active chip takes
+   * `accent`; an inactive chip keeps the rest fill (`muted`).
    * @default true
    */
   active?: boolean;
@@ -188,7 +191,7 @@ export interface FilterChipProps extends Omit<
  * after a colon, and a trailing `×` control that fires `onRemove`. The {@link Chip}
  * primitive at the standalone (`md`, 32px) tier, so it lines up with the Buttons and
  * Inputs beside it in the bar. An applied filter is a selection, so it carries the
- * selection rung by default; pass `active={false}` for a plain presence chip.
+ * selected fill by default; pass `active={false}` for a plain presence chip.
  * Purely presentational; the {@link FilterBar} renders one per active filter.
  *
  * @example
@@ -220,7 +223,7 @@ export function FilterChip({
     >
       {/* The icon + label stay muted in BOTH states so the label/value hierarchy
           (muted key, emphasized value) survives activation — the active state is
-          carried by the chip's surface rung, not by flattening the text tiers. */}
+          carried by the chip's own fill, not by flattening the text tiers. */}
       {icon != null ? (
         <span className="shrink-0 text-muted-foreground">{icon}</span>
       ) : null}
@@ -338,7 +341,7 @@ export function FilterBar({
           aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
           data-slot="filter-bar-search"
           className={cn(
-            "ml-auto h-(--size-md) w-auto min-w-0 basis-48",
+            "ml-auto h-8 w-auto min-w-0 basis-48",
             searchInputProps?.className,
           )}
         />

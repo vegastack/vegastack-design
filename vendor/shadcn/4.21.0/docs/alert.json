@@ -1,0 +1,16 @@
+{
+  "component": "alert",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/alert.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Destructive",
+    "Action",
+    "Custom Colors",
+    "RTL",
+    "API Reference"
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 title: Settings Row
-description: A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows for building account, workspace, and preference screens.
+description: A settings layout — titled sections, a flattened Card grouping label-plus-control rows, for building account, workspace, and preference screens.
 audience: public
 registry: settings-row
 status: stable
@@ -66,9 +66,11 @@ element with a forwarded ref and a `data-slot` for styling and targeting:
 - `SettingsSection` — a titled group (`data-slot="settings-section"`). Renders an optional `title`
   and `description` above its children. Use one section per logical group (Account, Notifications,
   Danger zone).
-- `SettingsCard` — a borders-only container (`data-slot="settings-card"`) that groups rows into a
-  single `rounded-lg` surface. It collapses the last row's bottom border so the rows read as a
-  divided list.
+- `SettingsCard` — **upstream's [`Card`](/docs/components/card)** (`data-slot="settings-card"`),
+  flattened for a divided list: `py-0 gap-0`, so rows sit edge to edge and each row's own `border-b`
+  is the only divider. The radius, the `bg-card` ground and the hairline come from `Card`, which is
+  why a settings card and every other card on the page are the same object; the last row's border is
+  collapsed so the list ends on the card edge rather than on a stray rule.
 - `SettingsRow` — one setting (`data-slot="settings-row"`): a `label` and optional `description` on
   the left, the control `children` on the right, with a `border-b` divider. The row is its own named
   `@container` — it stacks or goes horizontal based on **its own measured width**, not the viewport,
@@ -150,8 +152,8 @@ danger-zone intro.
 - Pass `controlId` when the row contains a form control with a matching `id`; the row label becomes a
   real `<label htmlFor={controlId}>`. For composite controls that do not expose an input id, keep an
   explicit `aria-label` or `aria-labelledby` on the control itself.
-- Borders-only by design: rows are separated by `border-border`, not shadows, so the layout stays
-  legible in high-contrast and forced-colors modes.
+- Rows are separated by `border-border` rather than by elevation, so the divided list stays legible
+  in high-contrast and forced-colors modes; the card's own hairline is `Card`'s ring.
 
 | Key                                 | Action                                                      |
 | ----------------------------------- | ----------------------------------------------------------- |

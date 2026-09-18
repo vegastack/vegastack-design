@@ -1,182 +1,138 @@
 "use client";
 
+import * as React from "react";
 import type { ReactNode } from "react";
-import { useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/slider` (dogfoods the registry) → auto-scanned.
+import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
-/** Single value — one thumb, `bg-primary` fill. */
 export function slider(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-64">
-        <Slider defaultValue={40} aria-label="Volume" />
-      </div>
+      <Slider
+        defaultValue={[33]}
+        max={100}
+        step={1}
+        aria-label="Value"
+        className="mx-auto w-full max-w-xs"
+      />
     </Wrapper>
   );
 }
 
-/** Range — two thumbs, the `bg-primary` fill spans the selected band. */
 export function sliderRange(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-64">
-        <Slider
-          defaultValue={[20, 80]}
-          thumbAriaLabels={["Minimum price", "Maximum price"]}
-        />
-      </div>
+      <Slider
+        defaultValue={[25, 50]}
+        max={100}
+        step={5}
+        aria-label="Price range"
+        className="mx-auto w-full max-w-xs"
+      />
     </Wrapper>
   );
 }
 
-/** Stepped — snaps to `step`, here 0–1000 by 50. */
-export function sliderSteps(): ReactNode {
+export function sliderMultipleThumbs(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-64">
-        <Slider
-          defaultValue={500}
-          min={0}
-          max={1000}
-          step={50}
-          aria-label="Budget"
-        />
-      </div>
+      <Slider
+        defaultValue={[10, 20, 70]}
+        max={100}
+        step={10}
+        aria-label="Breakpoints"
+        className="mx-auto w-full max-w-xs"
+      />
     </Wrapper>
   );
 }
 
-/** Disabled — dimmed, not interactive. */
-export function sliderDisabled(): ReactNode {
-  return (
-    <Wrapper>
-      <div className="w-64">
-        <Slider defaultValue={40} disabled aria-label="Disabled" />
-      </div>
-    </Wrapper>
-  );
-}
-
-/** Disabled range — both thumbs dimmed and dropped from the tab order. */
-export function sliderDisabledRange(): ReactNode {
-  return (
-    <Wrapper>
-      <div className="w-64">
-        <Slider
-          defaultValue={[20, 80]}
-          disabled
-          thumbAriaLabels={["Minimum price", "Maximum price"]}
-        />
-      </div>
-    </Wrapper>
-  );
-}
-
-/**
- * Dynamic thumb names — `getThumbAriaLabel` builds each accessible name from the
- * thumb's index and current value, the callback alternative to the static
- * `thumbAriaLabels` array. Here each thumb announces its own price.
- */
-export function sliderThumbAriaLabel(): ReactNode {
-  return (
-    <Wrapper>
-      <div className="w-64">
-        <Slider
-          defaultValue={[20, 80]}
-          min={0}
-          max={100}
-          getThumbAriaLabel={(index, value) =>
-            `${index === 0 ? "Minimum" : "Maximum"} price, $${value ?? 0}`
-          }
-        />
-      </div>
-    </Wrapper>
-  );
-}
-
-/** Controlled — value mirrored back from React state. */
-export function sliderControlled(): ReactNode {
-  return <ControlledSlider />;
-}
-
-function ControlledSlider(): ReactNode {
-  const [value, setValue] = useState<number | readonly number[]>(60);
-  const display = Array.isArray(value) ? value.join(" – ") : value;
-  return (
-    <Wrapper>
-      <div className="flex w-64 flex-col gap-2">
-        <span className="font-mono text-base text-muted-foreground">
-          {display}
-        </span>
-        <Slider
-          value={value}
-          onValueChange={setValue}
-          aria-label="Brightness"
-        />
-      </div>
-    </Wrapper>
-  );
-}
-
-/** Tick marks — `aria-hidden` decoration that makes a stepped range legible. */
-export function sliderMarks(): ReactNode {
-  return (
-    <Wrapper>
-      <div className="w-64">
-        <Slider
-          defaultValue={4}
-          min={0}
-          max={10}
-          step={1}
-          marks
-          aria-label="Rating"
-        />
-      </div>
-    </Wrapper>
-  );
-}
-
-/** Floating value readout — appears on drag and on keyboard focus only. */
-export function sliderShowValue(): ReactNode {
-  return (
-    <Wrapper>
-      <div className="w-64 pt-8">
-        <Slider defaultValue={40} showValue aria-label="Opacity" />
-      </div>
-    </Wrapper>
-  );
-}
-
-/** Vertical — the rail runs bottom-to-top and the arrow keys follow it. */
 export function sliderVertical(): ReactNode {
   return (
     <Wrapper>
-      <div className="h-40">
-        <Slider orientation="vertical" defaultValue={60} aria-label="Volume" />
+      <div className="mx-auto flex w-full max-w-xs items-center justify-center gap-6">
+        <Slider
+          defaultValue={[50]}
+          max={100}
+          step={1}
+          orientation="vertical"
+          aria-label="Left channel"
+          className="h-40"
+        />
+        <Slider
+          defaultValue={[25]}
+          max={100}
+          step={1}
+          orientation="vertical"
+          aria-label="Right channel"
+          className="h-40"
+        />
       </div>
     </Wrapper>
   );
 }
 
-/**
- * The `media` variant with `thumb="hover"` — the seek treatment the audio card uses: a fill that
- * brightens on engagement, and a thumb hidden at rest ONLY where a pointer can hover (on touch it
- * stays visible, or there is no scrub affordance at all). The rail THICKENS on engagement in
- * `overlay` only, which is the variant drawn over video.
- */
-export function sliderMedia(): ReactNode {
+export function sliderControlled(): ReactNode {
+  const [value, setValue] = React.useState([0.3, 0.7]);
+
   return (
     <Wrapper>
-      <div className="w-64">
+      <div className="mx-auto grid w-full max-w-xs gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <Label htmlFor="slider-demo-temperature">Temperature</Label>
+          <span className="text-sm text-muted-foreground">
+            {value.join(", ")}
+          </span>
+        </div>
         <Slider
-          variant="media"
-          thumb="hover"
-          defaultValue={35}
-          aria-label="Seek"
+          id="slider-demo-temperature"
+          value={value}
+          onValueChange={(next) => setValue(next as number[])}
+          min={0}
+          max={1}
+          step={0.1}
         />
       </div>
+    </Wrapper>
+  );
+}
+
+export function sliderDisabled(): ReactNode {
+  return (
+    <Wrapper>
+      <Slider
+        defaultValue={[50]}
+        max={100}
+        step={1}
+        disabled
+        aria-label="Value"
+        className="mx-auto w-full max-w-xs"
+      />
+    </Wrapper>
+  );
+}
+
+export function sliderRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-6">
+      <Slider
+        defaultValue={[75]}
+        max={100}
+        step={1}
+        dir="ltr"
+        aria-label="Left to right"
+        className="mx-auto w-full max-w-xs"
+      />
+      <Slider
+        defaultValue={[75]}
+        max={100}
+        step={1}
+        dir="rtl"
+        aria-label="من اليمين إلى اليسار"
+        className="mx-auto w-full max-w-xs"
+      />
     </Wrapper>
   );
 }

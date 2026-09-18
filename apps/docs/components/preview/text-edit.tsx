@@ -56,7 +56,7 @@ export function textEditStates(): ReactNode {
 
 /**
  * Invalid (error) state — `aria-invalid` forwards to the contenteditable textbox
- * and the container picks up `has-aria-invalid:border-destructive/(--alpha-tint-border)` (a
+ * and the container picks up `has-aria-invalid:border-destructive/70` (a
  * destructive border) plus `data-invalid`. Pair it with `aria-describedby` so the
  * error text is announced with the region.
  */
@@ -72,7 +72,7 @@ export function textEditInvalid(): ReactNode {
         />
         <p
           id="text-edit-invalid-error"
-          className="text-base text-destructive-text"
+          className="text-sm text-destructive-text"
         >
           A comment is required before you can post.
         </p>
@@ -94,7 +94,9 @@ export function textEditSubmit(): ReactNode {
       <TextEdit
         value={html}
         onValueChange={setHtml}
-        onSubmit={() => toast.success("Submitted with Cmd/Ctrl+Enter")}
+        onSubmit={() =>
+          toast.add({ type: "success", title: "Submitted with Cmd/Ctrl+Enter" })
+        }
         placeholder="Write a reply…"
         aria-label="Reply"
       />

@@ -1,11 +1,11 @@
 ---
 title: Hover Card
-description: A rich preview panel that opens on hover or focus of a trigger — interactive content, four directions, and forgiving open/close delays.
+description: A preview surface for sighted users — a link-shaped trigger, configurable open and close delays, and side/align positioning.
 audience: public
 registry: hover-card
 status: stable
 since: 0.1.0
-a11y: APG tooltip (hover and focus)
+a11y: sighted-preview only; the trigger carries the content
 preview: hoverCard
 ---
 
@@ -18,157 +18,131 @@ preview: hoverCard
 ```tsx
 import {
   HoverCard,
-  HoverCardTrigger,
   HoverCardContent,
+  HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Button } from "@/components/ui/button";
 
 <HoverCard>
-  <HoverCardTrigger render={<Button variant="ghost">@ada</Button>} />
+  <HoverCardTrigger>Hover</HoverCardTrigger>
   <HoverCardContent>
-    {/* app passes already-resolved preview content here */}
-    <UserPreview user={user} />
+    The React Framework – created and maintained by @vercel.
   </HoverCardContent>
 </HoverCard>;
 ```
 
-<Callout title="Presentational component">
-  `HoverCard` is **presentational** — it renders whatever children you give it
-  and never fetches or resolves an entity. Your app owns the data: an app-side
-  wrapper looks up the user / agent / team and passes the rendered preview (with
-  its own loading / empty / error states) as `HoverCardContent` children. Keep
-  that wrapper in the app, not in the design system.
-</Callout>
+<ComponentPreview name="hoverCard" file="components/preview/hover-card.tsx" />
 
 ## Anatomy
 
-`HoverCard` is a compound component built on Base UI's PreviewCard. Compose the parts inside the root:
-
 <Anatomy name="hover-card" />
-
-```tsx
-<HoverCard openDelay={700} closeDelay={300}>
-  <HoverCardTrigger render={<Button variant="ghost">@ada</Button>} />
-  <HoverCardContent side="bottom" align="center">
-    {/* arbitrary, app-resolved content — an avatar + name + stats, a team summary, ... */}
-    {/* <HoverCardArrow /> — or pass `arrow` to HoverCardContent */}
-  </HoverCardContent>
-</HoverCard>
-```
-
-- `HoverCard` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`) and the
-  `openDelay` / `closeDelay`. Renders no DOM of its own.
-- `HoverCardTrigger` — the element the card attaches to (`data-slot="hover-card-trigger"`). Renders
-  an `<a>` by default; pass `render` to project the card onto a `Button` or any other element.
-- `HoverCardContent` — the floating preview panel (`data-slot="hover-card-content"`). Composes Base
-  UI's Portal + Positioner + Popup, owns `side` / `sideOffset` / `align` / `collisionPadding`,
-  exposes `portalProps` / `positionerProps`, can wrap children in an optional Base UI Viewport via
-  `viewportProps`, animates enter/exit, and optionally renders an arrow.
-- `HoverCardArrow` — a triangle anchored to the trigger (`data-slot="hover-card-arrow"`). Rendered
-  automatically when `HoverCardContent` gets `arrow`, or composed directly.
 
 ## Examples
 
-### Direction
+### Composition
 
-Place the card on any of four sides with `side`. The position flips automatically when it would
-collide with the viewport edge.
+`HoverCardContent` composes the portal, the positioner and the popup, so a hover card is two parts
+at the call site.
+
+```text
+HoverCard
+├── HoverCardTrigger
+└── HoverCardContent
+```
+
+<ComponentPreview
+  name="hoverCardComposition"
+  file="components/preview/hover-card.tsx"
+/>
+
+### Trigger Delays
+
+`delay` and `closeDelay` on `HoverCardTrigger` set how long the pointer must rest before the card
+opens, and how long it lingers after the pointer leaves. Base UI's defaults are 600ms and 300ms; the
+close delay is what lets the pointer travel from the trigger into the card without dismissing it.
+
+<ComponentPreview
+  name="hoverCardTriggerDelays"
+  file="components/preview/hover-card.tsx"
+/>
+
+### Positioning
+
+`side` and `align` on `HoverCardContent` choose the edge the card opens from and where along that
+edge it sits; `sideOffset` and `alignOffset` move it from there. Collision avoidance flips the card
+when the requested side has no room, and the resolved placement is readable as `data-side` and
+`data-align`.
+
+<ComponentPreview
+  name="hoverCardPositioning"
+  file="components/preview/hover-card.tsx"
+/>
+
+### Basic
+
+A profile preview: handle, summary, and a muted footer line. The card is decoration over content the
+trigger already links to, so nothing inside it is the only route to that information.
+
+<ComponentPreview
+  name="hoverCardBasic"
+  file="components/preview/hover-card.tsx"
+/>
+
+### Sides
+
+All four physical sides, each with the same card.
 
 <ComponentPreview
   name="hoverCardSides"
   file="components/preview/hover-card.tsx"
 />
 
-### Alignment
+### RTL
 
-Use `align` (`start` / `center` / `end`) to position the card along the chosen `side`. All three
-are shown on `side="bottom"` below.
-
-<ComponentPreview
-  name="hoverCardAlign"
-  file="components/preview/hover-card.tsx"
-/>
-
-### Open & close delays
-
-`openDelay` guards against accidental opens while the pointer passes over the trigger; `closeDelay`
-keeps the interactive card open long enough for the pointer to travel into it. Both default to a
-forgiving pace (`700` / `300` ms). This example sets both to `0` so the card opens and closes
-instantly on hover.
+Wrap the subtree in `DirectionProvider direction="rtl"` so Base UI resolves the logical sides.
+`side="inline-start"` and `side="inline-end"` swap with the reading direction; `left`, `right`, `top`
+and `bottom` stay where they are named. Pass `dir` to `HoverCardContent` as well — the card portals
+out of the `dir` subtree and would otherwise render its text left-to-right.
 
 <ComponentPreview
-  name="hoverCardDelay"
-  file="components/preview/hover-card.tsx"
-/>
-
-```tsx
-<HoverCard openDelay={0} closeDelay={0}>
-  <HoverCardTrigger render={<Button variant="ghost">@grace</Button>} />
-  <HoverCardContent>{/* ... */}</HoverCardContent>
-</HoverCard>
-```
-
-### Interactive content with an arrow
-
-Unlike a tooltip, the panel is fully interactive — the close delay gives the pointer time to travel
-from the trigger into the card, so links and buttons inside stay reachable.
-
-<ComponentPreview
-  name="hoverCardArrow"
+  name="hoverCardRtl"
   file="components/preview/hover-card.tsx"
 />
 
 ## API Reference
 
-### HoverCard
+<ApiTable path="lib/api-props.ts" name="HoverCardContentProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/hover-card.tsx"
-  name="HoverCardProps"
-/>
-
-### HoverCardTrigger
-
-<ApiTable
-  path="../../packages/ui/registry/ui/hover-card.tsx"
-  name="HoverCardTriggerProps"
-/>
-
-### HoverCardContent
-
-<ApiTable
-  path="../../packages/ui/registry/ui/hover-card.tsx"
-  name="HoverCardContentProps"
-/>
-
-### HoverCardArrow
-
-<ApiTable
-  path="../../packages/ui/registry/ui/hover-card.tsx"
-  name="HoverCardArrowProps"
-/>
+`HoverCard` and `HoverCardTrigger` add no props of their own — each accepts everything the Base UI
+part accepts, including the trigger's `delay` and `closeDelay`.
 
 ## Accessibility
 
-- The card opens on pointer hover **and** keyboard focus of the trigger, and closes on blur or
-  Escape — it is reachable without a mouse.
-- The `openDelay` guards against accidental opens; the `closeDelay` keeps the (interactive) card
-  open long enough for the pointer to move into it.
-- The panel portals to the end of `<body>` and is positioned with collision detection so it never
-  clips at the viewport edge.
-- Controls inside the card show a `:focus-visible` ring (`outline-ring`) — never `outline: none`.
-
-| Key                                                | Action                                               |
-| -------------------------------------------------- | ---------------------------------------------------- |
-| <kbd>Tab</kbd>                                     | Move focus to the trigger — the card opens on focus. |
-| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls inside the open card.    |
-| <kbd>Esc</kbd>                                     | Close the card.                                      |
+- Renders Base UI's Preview Card. The trigger is a link, the card opens on hover and on keyboard
+  focus, and <kbd>Esc</kbd> closes it.
+- A hover card is an enhancement for sighted pointer users, not a delivery mechanism. Never put
+  content in one that exists nowhere else, and never put a control in one that has no equivalent
+  outside it.
+- The card portals out of the trigger's subtree, so `HoverCardContent` re-applies the theme scope on
+  the positioner inside the portal (OVL-13) — a dark or scoped surface survives the portal.
+- Focus is the global 2px `:focus-visible` outline from `base.css`; there is no ring glow on the
+  trigger or on the card.
+- Keep `closeDelay` non-zero so a pointer can cross the gap between the trigger and the card.
 
 <StatesTested name="hover-card" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use a Hover Card for a rich, optional preview of an entity behind a trigger — a user/agent/team card with an avatar, stats, and a link. Pass already-resolved content as children and keep data-loading in an app-side wrapper."
-  dont="Use a Hover Card for short plain-text labels (use a Tooltip), for content that must block the page or demand a decision (use a Dialog), or for anything essential — hover-only content isn't reliably reachable on touch."
+  do="Use a HoverCard to preview something a link already leads to — a profile, a product, a page."
+  dont="Put actions or unique content inside a HoverCard; a touch or keyboard-only user may never open it."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/hover-card.patch`. Every hunk:
+
+- **OVL-13** — `HoverCardContent` reads `useInternalThemeScope()` and attaches it to the Positioner
+  INSIDE the portal. `tooling/verify-portal-theme-scope.mjs` inventories this host.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

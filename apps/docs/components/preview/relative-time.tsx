@@ -16,7 +16,7 @@ const offset = (ms: number) => new Date(NOW + ms);
 export function relativeTime(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex items-center gap-2 text-base">
+      <div className="flex items-center gap-2 text-sm">
         <span className="text-muted-foreground">Last deployed</span>
         <RelativeTime
           date={offset(-2 * HOUR)}
@@ -30,7 +30,7 @@ export function relativeTime(): ReactNode {
 
 export function relativeTimeExamples(): ReactNode {
   return (
-    <Wrapper className="gap-4 text-base text-muted-foreground">
+    <Wrapper className="gap-4 text-sm text-muted-foreground">
       <RelativeTime date={offset(-30_000)} now={NOW} />
       <RelativeTime date={offset(-5 * MIN)} now={NOW} />
       <RelativeTime date={offset(-2 * HOUR)} now={NOW} />
@@ -43,7 +43,7 @@ export function relativeTimeExamples(): ReactNode {
 
 export function relativeTimeModes(): ReactNode {
   return (
-    <Wrapper className="gap-4 text-base text-muted-foreground">
+    <Wrapper className="gap-4 text-sm text-muted-foreground">
       {/* ago: duration-relative — a −2h instant so it reads "2 hours ago", visibly
           different from the calendar-relative "yesterday" items next to it */}
       <RelativeTime date={offset(-2 * HOUR)} now={NOW} mode="ago" />
@@ -62,7 +62,7 @@ export function relativeTimeModes(): ReactNode {
 
 export function relativeTimeStates(): ReactNode {
   return (
-    <Wrapper className="gap-4 text-base text-muted-foreground">
+    <Wrapper className="gap-4 text-sm text-muted-foreground">
       {/* Hover or focus to reveal the absolute date-time tooltip (default) */}
       <RelativeTime date={offset(-2 * HOUR)} now={NOW} />
       {/* Tooltip disabled */}
@@ -79,7 +79,7 @@ export function relativeTimeStates(): ReactNode {
 
 export function relativeTimeLocale(): ReactNode {
   return (
-    <Wrapper className="gap-6 text-base">
+    <Wrapper className="gap-6 text-sm">
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground">en-US</span>
         <RelativeTime
@@ -113,7 +113,7 @@ export function relativeTimeLocale(): ReactNode {
 
 export function relativeTimeTooltipDelay(): ReactNode {
   return (
-    <Wrapper className="gap-6 text-base">
+    <Wrapper className="gap-6 text-sm">
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground">Instant (delay 0)</span>
         <RelativeTime
@@ -142,7 +142,7 @@ export function relativeTimeTooltipDelay(): ReactNode {
 // and climbs through "1 minute ago", "2 minutes ago", … as you watch.
 export function relativeTimeLive(): ReactNode {
   return (
-    <Wrapper className="gap-2 text-base">
+    <Wrapper className="gap-2 text-sm">
       <span className="text-muted-foreground">Updated</span>
       <RelativeTime date={Date.now() - 30_000} className="text-foreground" />
     </Wrapper>

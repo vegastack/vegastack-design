@@ -143,13 +143,13 @@ export function settingsRowControlTypes(): ReactNode {
         </SettingsRow>
         {/* Read-only value */}
         <SettingsRow label="Workspace ID" description="Used in API requests.">
-          <span className="font-mono text-base text-muted-foreground">
+          <span className="font-mono text-sm text-muted-foreground">
             ws_8f3a1c
           </span>
         </SettingsRow>
         {/* Badge as status */}
         <SettingsRow label="Plan" description="Your current subscription tier.">
-          <Badge intent="info">Pro</Badge>
+          <Badge variant="info">Pro</Badge>
         </SettingsRow>
         {/* Button control */}
         <SettingsRow

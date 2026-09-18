@@ -81,7 +81,7 @@ Key it off `data-slot`/`data-size`, which are real regardless of compiled CSS. T
 `getComputedStyle` for real.
 
 Canonical example: `injectCheckboxHitAreaMirror` in `packages/ui/registry/ui/checkbox.test.tsx`.
-Also used by `radio-group`, `slider`, `sidebar`, `filter-bar`, `data-list`, `password-input`, and
+Also used by `radio-group`, `slider`, `sidebar`, `filter-bar`, `data-list`, and
 `auto-save-input` tests.
 
 ## elementFromPoint boundary probes

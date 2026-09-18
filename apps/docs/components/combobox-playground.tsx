@@ -3,55 +3,42 @@
 import type { ReactNode } from "react";
 import {
   Combobox,
-  ComboboxInputGroup,
   ComboboxInput,
-  ComboboxTrigger,
-  ComboboxClear,
   ComboboxContent,
   ComboboxList,
   ComboboxItem,
   ComboboxEmpty,
-  type ComboboxInputProps,
 } from "@/components/ui/combobox";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type ComboboxPlaygroundKey = "size" | "disabled";
-
-const SIZE_OPTIONS = [
-  { value: "sm", label: "Small" },
-  { value: "md", label: "Medium" },
-  { value: "lg", label: "Large" },
-] as const;
+type ComboboxPlaygroundKey = "showClear" | "disabled" | "invalid";
 
 const FONTS = ["Sans-serif", "Serif", "Monospace", "Cursive", "Fantasy"];
 
 const comboboxPlaygroundConfig: PlaygroundConfig<ComboboxPlaygroundKey> = {
   controls: [
     {
-      type: "select",
-      key: "size",
-      label: "Size",
-      options: SIZE_OPTIONS,
-      defaultValue: "md",
+      type: "switch",
+      key: "showClear",
+      label: "Clear button",
+      defaultValue: false,
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
+    { type: "switch", key: "invalid", label: "Invalid", defaultValue: false },
   ],
-  render: (state): ReactNode => {
-    const size = state.size as ComboboxInputProps["size"];
-    return (
-      <Combobox items={FONTS} disabled={Boolean(state.disabled)}>
-        <ComboboxInputGroup size={size} className="w-64">
-          <ComboboxInput
-            size={size}
-            aria-label="Font family"
-            placeholder="Search fonts…"
-          />
-          <ComboboxClear aria-label="Clear" />
-          <ComboboxTrigger size={size} aria-label="Toggle fonts" />
-        </ComboboxInputGroup>
+  render: (state): ReactNode => (
+    <div className="w-64">
+      <Combobox items={FONTS}>
+        <ComboboxInput
+          aria-label="Font family"
+          placeholder="Search fonts…"
+          showClear={Boolean(state.showClear)}
+          disabled={Boolean(state.disabled)}
+          aria-invalid={state.invalid ? true : undefined}
+        />
         <ComboboxContent>
           <ComboboxEmpty>No fonts found.</ComboboxEmpty>
           {/* Function child = filtered rendering; static ComboboxItem children are NOT auto-filtered. */}
@@ -64,20 +51,23 @@ const comboboxPlaygroundConfig: PlaygroundConfig<ComboboxPlaygroundKey> = {
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
-    );
-  },
+    </div>
+  ),
   toCode: (state) => {
-    const sizeProp = state.size !== "md" ? ` size="${state.size}"` : "";
-    const rootProps = state.disabled ? " disabled" : "";
+    const inputProps = [
+      'aria-label="Font family"',
+      'placeholder="Search fonts…"',
+      state.showClear ? "showClear" : "",
+      state.disabled ? "disabled" : "",
+      state.invalid ? "aria-invalid" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     return [
       'const fonts = ["Sans-serif", "Serif", "Monospace", "Cursive", "Fantasy"];',
       "",
-      `<Combobox items={fonts}${rootProps}>`,
-      `  <ComboboxInputGroup${sizeProp} className="w-64">`,
-      `    <ComboboxInput${sizeProp} aria-label="Font family" placeholder="Search fonts…" />`,
-      '    <ComboboxClear aria-label="Clear" />',
-      `    <ComboboxTrigger${sizeProp} aria-label="Toggle fonts" />`,
-      "  </ComboboxInputGroup>",
+      "<Combobox items={fonts}>",
+      `  <ComboboxInput ${inputProps} />`,
       "  <ComboboxContent>",
       "    <ComboboxEmpty>No fonts found.</ComboboxEmpty>",
       "    <ComboboxList>",
@@ -94,10 +84,12 @@ const comboboxPlaygroundConfig: PlaygroundConfig<ComboboxPlaygroundKey> = {
 };
 
 /**
- * `ComboboxPlayground` — interactive props playground for `Combobox` (size / disabled) over a
- * small filterable list, using the function-child `ComboboxList` rendering so typing actually
- * filters. Backed by the generic {@link PropsPlayground}. Registered in `mdx.tsx`, adopted in
- * `content/docs/components/combobox.mdx`.
+ * `ComboboxPlayground` — interactive props playground for `Combobox` (clear button / disabled /
+ * invalid) over a small filterable list, using the function-child `ComboboxList` rendering so
+ * typing actually filters. Upstream's `ComboboxInput` IS the input group — the toggle and the
+ * clear control live inside it, behind `showTrigger` and `showClear` — so the fork's separate
+ * wrapper parts and its size axis are gone. Backed by the generic {@link PropsPlayground}.
+ * Registered in `mdx.tsx`, adopted in `content/docs/components/combobox.mdx`.
  */
 export function ComboboxPlayground() {
   return <PropsPlayground {...comboboxPlaygroundConfig} />;

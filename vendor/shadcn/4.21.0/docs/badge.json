@@ -1,0 +1,16 @@
+{
+  "component": "badge",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/badge.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Variants",
+    "With Icon",
+    "With Spinner",
+    "Link",
+    "Custom Colors",
+    "RTL",
+    "API Reference"
+  ]
+}

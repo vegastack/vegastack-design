@@ -307,7 +307,7 @@ export interface AnimatedIconOwnProps extends Omit<
   React.HTMLAttributes<HTMLSpanElement>,
   "ref"
 > {
-  /** Any CSS length. Defaults to the `--icon-default` role token. */
+  /** Any CSS length. Defaults to the `size-4` role token. */
   size?: number | string;
   ref?: React.Ref<AnimatedIconHandle>;
 }
@@ -441,7 +441,7 @@ export function createAnimatedIcon(
 
   function AnimatedIconComponent({
     className,
-    size = "var(--icon-default)",
+    size = "1rem",
     ref,
     onPointerEnter,
     onPointerLeave,

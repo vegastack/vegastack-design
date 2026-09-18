@@ -1,0 +1,14 @@
+{
+  "component": "separator",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/separator.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Vertical",
+    "Menu",
+    "List",
+    "RTL",
+    "API Reference"
+  ]
+}

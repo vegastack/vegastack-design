@@ -11,34 +11,34 @@ illustration where a faint phrase would do is the most common mistake.
 
 ## The eight tiers
 
-| #   | Tier                | Component                                                             | Use it for                                              |
-| --- | ------------------- | --------------------------------------------------------------------- | ------------------------------------------------------- |
-| 1   | **Page**            | `Empty` + `EmptyIllustration` + CTA                                   | a whole view with no records ("No companies yet")       |
-| 2   | **Panel**           | `Empty size="sm"`                                                     | a card/pane with no content (a sidebar list, a widget)  |
-| 3   | **Inline value**    | `EmptyValue`                                                          | a single blank value slot ("No value", "Set a value…")  |
-| 4   | **Stat**            | `StatEmpty`                                                           | a metric with nothing to report ("No connection")       |
-| 5   | **Well**            | `Empty variant="dashed"`                                              | a drop target / favourites well (dashed border)         |
-| 6   | **Blocked / error** | `Empty` + `EmptyIllustration name="error"` in `text-destructive-text` | a state the user must resolve ("No mailbox configured") |
-| 7   | **Not found**       | `Empty` + `EmptyIllustration name="not-found"`                        | a thing that doesn't exist (404, deleted record)        |
-| 8   | **Loading→empty**   | `Skeleton` → tier 1/2                                                 | the settled empty after a load resolves to nothing      |
+| #   | Tier                | Component                                     | Use it for                                              |
+| --- | ------------------- | --------------------------------------------- | ------------------------------------------------------- |
+| 1   | **Page**            | `Empty` + `EmptyMedia variant="icon"` + a CTA | a whole view with no records ("No companies yet")       |
+| 2   | **Panel**           | `Empty` inside a `Card`                       | a card/pane with no content (a sidebar list, a widget)  |
+| 3   | **Inline value**    | a muted placeholder span                      | a single blank value slot ("No value", "Set a value…")  |
+| 4   | **Stat**            | `StatEmpty`                                   | a metric with nothing to report ("No connection")       |
+| 5   | **Well**            | `Empty className="border"`                    | a drop target / favourites well (dashed border)         |
+| 6   | **Blocked / error** | `Empty` + an icon in `text-destructive-text`  | a state the user must resolve ("No mailbox configured") |
+| 7   | **Not found**       | `Empty` + a `SearchX` icon                    | a thing that doesn't exist (404, deleted record)        |
+| 8   | **Loading→empty**   | `Skeleton` → tier 1/2                         | the settled empty after a load resolves to nothing      |
 
 ## One drawing language
 
-`EmptyIllustration` ships six built-in monoline drawings — `clipboard`, `bell`, `search`,
-`box`, `error`, `not-found` — on a faint grid-paper ground. They're pure `currentColor`
-strokes, so:
+`Empty` is upstream's component, and it has no illustration part: the media slot is `EmptyMedia`,
+and what goes in it is a **lucide icon**. That keeps one drawing language without shipping a second
+asset set:
 
-- **themes need no variants** — the drawing tracks `foreground`/`muted-foreground`;
-- **the error tier is just a color** — `text-destructive-text` on the `EmptyMedia`, no second
-  asset;
-- **they read as one family** across every surface, exactly the way the reference app's
-  empty states do.
+- **themes need no variants** — a lucide glyph is pure `currentColor`, so it tracks
+  `foreground`/`muted-foreground`;
+- **the error tier is just a colour** — `text-destructive-text` on the icon, no second asset;
+- **`EmptyMedia variant="icon"`** gives the glyph its rounded muted plate, which is what makes the
+  tiers read as one family across every surface.
 
 ```tsx
 <Empty>
   <EmptyHeader>
-    <EmptyMedia variant="default">
-      <EmptyIllustration name="clipboard" className="text-muted-foreground" />
+    <EmptyMedia variant="icon">
+      <ClipboardListIcon className="text-muted-foreground" />
     </EmptyMedia>
     <EmptyTitle>No tasks yet</EmptyTitle>
     <EmptyDescription>Create your first task to get started.</EmptyDescription>
@@ -51,8 +51,8 @@ strokes, so:
 
 ## Rules
 
-- **Never leave a data cell truly blank.** A blank cell reads as broken; `EmptyValue` /
-  `StatEmpty` say "empty on purpose" in the faint placeholder register.
+- **Never leave a data cell truly blank.** A blank cell reads as broken; a muted placeholder span
+  or `StatEmpty` says "empty on purpose" in the `text-muted-foreground` register.
 - **The title carries the meaning; the illustration is decorative** (`aria-hidden`).
 - **One CTA.** An empty state proposes the single next action — not a menu.
 - **Blocked ≠ empty.** If the user must do something to unblock (configure, connect,

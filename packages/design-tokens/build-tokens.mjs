@@ -1,5 +1,6 @@
-// Style Dictionary resolves LIGHT once and DARK once. The same resolved DARK dictionary emits
-// both `.dark` and `.vs-marketing`, then the generated scopes are parity-checked before write.
+// Style Dictionary resolves LIGHT once and DARK once, into `:root` and `.dark`. The third scope
+// this file used to emit, `.vs-marketing`, is gone with the marketing layer (shadcn reset,
+// mandate § 1 non-negotiable 5).
 import StyleDictionary from "style-dictionary";
 import { readFileSync, writeFileSync, rmSync, mkdirSync } from "node:fs";
 import "./sd-hooks.mjs"; // registers the transforms + format above
@@ -52,7 +53,7 @@ await new StyleDictionary(
   }),
 ).buildAllPlatforms();
 
-// 2. DARK -> .dark AND .vs-marketing. Both files are formatted from one resolved dictionary.
+// 2. DARK -> .dark
 await new StyleDictionary(
   tokenConfig(DARK_SOURCES, {
     name: "css",
@@ -62,12 +63,6 @@ await new StyleDictionary(
         format: "css/variables",
         filter: isDarkSemantic,
         options: { selector: ".dark", outputReferences: false },
-      },
-      {
-        destination: "_marketing.css",
-        format: "css/variables",
-        filter: isDarkSemantic,
-        options: { selector: ".vs-marketing", outputReferences: false },
       },
     ]),
   }),
@@ -113,7 +108,7 @@ writeFileSync(
     `export type Theme = keyof typeof tokens;\nexport type TokenName = keyof (typeof tokens)['light'];\n`,
 );
 
-// 4. Add native-control schemes, then verify exact dark/marketing parity before public output.
+// 4. Add native-control schemes (COL-22), then verify light/dark shape before public output.
 function themePart(file, selector, colorScheme) {
   const css = compactOklch(readFileSync(`dist/${file}`, "utf8"));
   const marker = `${selector} {`;
@@ -122,26 +117,30 @@ function themePart(file, selector, colorScheme) {
   return css.replace(marker, `${marker}\n  color-scheme: ${colorScheme};`);
 }
 
+// The `dark` variant is UPSTREAM'S, character for character: `@custom-variant dark (&:is(.dark *))`
+// is what `shadcn init` writes into a consumer's `globals.css`, and the `:is()` is load-bearing.
+// This file used to emit `(&:where(.dark, .dark *))`, and `:where()` contributes ZERO specificity:
+// `.dark\:bg-input\/30:where(.dark, .dark *)` is (0,1,0) where upstream's `:is(.dark *)` is (0,2,0).
+// Measured in Batch 5's review artifact on upstream's own outline Button: the rule it ties with,
+// `.aria-expanded\:bg-muted[aria-expanded="true"]`, is (0,2,0), so upstream resolves the tie on
+// source order and paints `bg-input/30`, while this system silently painted `bg-muted` — an open
+// popover trigger, an expanded collapsible, a menubar trigger, every `aria-expanded` control in
+// dark mode. The `:where()` form also matches the `.dark` ELEMENT itself, which upstream's does
+// not; nothing here puts a `dark:` utility on `<html>`, which is the only element that loses.
 const themeCss =
-  `@custom-variant dark (&:where(.dark, .dark *));\n\n` +
+  `@custom-variant dark (&:is(.dark *));\n\n` +
   [
     themePart("_root.css", ":root", "light"),
     themePart("_dark.css", ".dark", "dark"),
-    themePart("_marketing.css", ".vs-marketing", "dark"),
     compactOklch(readFileSync("dist/_inline.css", "utf8")),
   ].join("\n");
 verifyThemeParity(themeCss, { source: "generated dist/theme.css" });
 writeFileSync("dist/theme.css", themeCss);
 writeFileSync("dist/base.css", readFileSync("src/base.css", "utf8")); // Codex F3: base.css is real + exported
 writeFileSync("dist/utilities.css", readFileSync("src/utilities.css", "utf8")); // shared @utility helpers (shimmer / scroll-fade / scrollbar)
-[
-  "_root.css",
-  "_dark.css",
-  "_marketing.css",
-  "_inline.css",
-  "_light.json",
-  "_dark.json",
-].forEach((f) => rmSync(`dist/${f}`));
+["_root.css", "_dark.css", "_inline.css", "_light.json", "_dark.json"].forEach(
+  (f) => rmSync(`dist/${f}`),
+);
 
 console.log(
   "tokens built: dist/theme.css, dist/base.css, dist/tokens.json, src/tokens.ts",

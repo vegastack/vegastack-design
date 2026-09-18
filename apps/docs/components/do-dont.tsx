@@ -17,13 +17,13 @@ export function DoDont({
     <div className="not-prose my-4 grid gap-3 sm:grid-cols-2">
       <div className="rounded-lg border border-border bg-card p-4">
         <div className="mb-2 flex items-center gap-1.5 text-sm font-medium text-success-text">
-          <Check className="size-(--icon-default)" aria-hidden /> Do
+          <Check className="size-(size-4)" aria-hidden /> Do
         </div>
         <div className="text-sm text-muted-foreground">{doText}</div>
       </div>
       <div className="rounded-lg border border-border bg-card p-4">
         <div className="mb-2 flex items-center gap-1.5 text-sm font-medium text-destructive-text">
-          <X className="size-(--icon-default)" aria-hidden /> Don&apos;t
+          <X className="size-(size-4)" aria-hidden /> Don&apos;t
         </div>
         <div className="text-sm text-muted-foreground">{dont}</div>
       </div>

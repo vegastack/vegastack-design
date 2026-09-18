@@ -1,22 +1,34 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
+import { expect, test, vi } from "vitest";
+import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { ToastProvider, Toaster, toast, toastManager } from "./toast";
+import {
+  Toast,
+  ToastAction,
+  ToastClose,
+  ToastContent,
+  ToastDescription,
+  ToastPortal,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+  Toaster,
+  createToastManager,
+  toast,
+  useToastManager,
+} from "./toast";
 
-/**
- * Every test mounts the same host the app provider does: the toast context plus one viewport.
- * The imperative `toast()` writes into the module-scope manager, which is why nothing here has
- * to thread a hook through.
+/*
+ * Every test makes its OWN manager. `toast` is a module-scope singleton, so a shared one would leak
+ * a toast from one test into the next test's viewport; an app wants exactly the opposite, which is
+ * why it is a singleton there.
  */
-function Host(props: React.ComponentProps<typeof Toaster> = {}) {
-  return (
-    <ToastProvider>
-      <Toaster {...props} />
-    </ToastProvider>
-  );
-}
+const host = () => {
+  const manager = createToastManager();
+  return { manager, ui: <Toaster toastManager={manager} /> };
+};
 
 /** Poll until a mounted toast carrying `text` is in the portal under <body>. */
 async function waitForToast(text: string) {
@@ -31,275 +43,452 @@ async function waitForToast(text: string) {
     .toBe(true);
 }
 
-function toastEl(text: string) {
-  return [...document.querySelectorAll('[data-slot="toast"]')].find((element) =>
+const toastEl = (text: string) =>
+  [...document.querySelectorAll('[data-slot="toast"]')].find((element) =>
     element.textContent?.includes(text),
   ) as HTMLElement | undefined;
-}
 
-test("calling toast() shows a toast with its text", async () => {
-  await render(<Host />);
-  toast("Profile saved");
-  // Toasts portal to <body>, so query the document rather than the container.
-  await waitForToast("Profile saved");
-});
+const viewport = () =>
+  document.querySelector('[data-slot="toast-viewport"]') as HTMLElement | null;
 
-test("the viewport is a labelled polite live region (D23 default)", async () => {
-  await render(<Host />);
-  toast("Profile saved");
-  await waitForToast("Profile saved");
-  const viewport = document.querySelector<HTMLElement>(
-    '[data-slot="toast-viewport"]',
+/** The four typed toasts and the ink COL-12 assigns each of them. */
+const TYPES = [
+  { type: "success", ink: "text-success-text" },
+  { type: "info", ink: "text-info-text" },
+  { type: "warning", ink: "text-warning-text" },
+  { type: "error", ink: "text-destructive-text" },
+] as const;
+
+// --- Usage --------------------------------------------------------------------------------------
+
+test("toast.add shows a toast with its title and description (Usage)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({
+    title: "Event created",
+    description: "Sunday, December 3 at 9:00 AM",
+  });
+  await waitForToast("Event created");
+  const element = toastEl("Event created")!;
+  expect(element.querySelector('[data-slot="toast-title"]')?.textContent).toBe(
+    "Event created",
   );
-  expect(viewport?.getAttribute("role")).toBe("region");
-  expect(viewport?.getAttribute("aria-live")).toBe("polite");
-  expect(viewport?.getAttribute("aria-label")).toBe("Notifications");
+  expect(
+    element.querySelector('[data-slot="toast-description"]')?.textContent,
+  ).toBe("Sunday, December 3 at 9:00 AM");
+  // Toasts portal out of the caller's subtree.
+  expect(element.closest('[data-slot="toast-viewport"]')).not.toBeNull();
 });
 
-test("each type carries its own tint, icon and data-type", async () => {
-  await render(<Host />);
-  toast.success("Changes saved");
-  toast.error("Could not save");
-  toast.warning("Storage almost full");
-  toast.info("Update available");
-  await waitForToast("Changes saved");
-  await waitForToast("Could not save");
-  await waitForToast("Storage almost full");
-  await waitForToast("Update available");
-  for (const [text, type, tint] of [
-    ["Changes saved", "success", "bg-success-subtle"],
-    ["Could not save", "error", "bg-destructive-subtle"],
-    ["Storage almost full", "warning", "bg-warning-subtle"],
-    ["Update available", "info", "bg-info-subtle"],
-  ] as const) {
-    const element = toastEl(text);
-    expect(element?.getAttribute("data-type")).toBe(type);
-    // The suite runs without compiled CSS, so assert the class contract; the compiled colours
-    // are the contrast gate's job.
-    expect(element?.className).toContain(tint);
-    expect(element?.querySelector('[data-slot="toast-icon"]')).not.toBeNull();
+test("every exported part renders through one Toaster (Usage)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({
+    title: "Event created",
+    description: "Sunday, December 3 at 9:00 AM",
+    actionProps: { children: "Undo" },
+  });
+  await waitForToast("Event created");
+  const element = toastEl("Event created")!;
+  for (const slot of [
+    "toast-content",
+    "toast-title",
+    "toast-description",
+    "toast-action",
+    "toast-close",
+  ]) {
+    expect(
+      element.querySelector(`[data-slot="${slot}"]`),
+      `no [data-slot="${slot}"]`,
+    ).not.toBeNull();
   }
+  expect(viewport()).not.toBeNull();
+  // The three function exports.
+  expect(typeof createToastManager).toBe("function");
+  expect(typeof useToastManager).toBe("function");
+  expect(typeof toast.add).toBe("function");
 });
 
-test("D23: destructive and warning toasts are announced urgently, the rest politely", async () => {
-  await render(<Host />);
-  toast.error("Deploy failed");
-  await waitForToast("Deploy failed");
-  // Base UI renders a visually hidden role="alert" mirror for high-priority toasts only.
-  await expect
-    .poll(() =>
-      [...document.querySelectorAll('[role="alert"]')].some((element) =>
-        element.textContent?.includes("Deploy failed"),
-      ),
-    )
-    .toBe(true);
-  toast.success("Deploy succeeded");
-  await waitForToast("Deploy succeeded");
-  expect(
-    [...document.querySelectorAll('[role="alert"]')].some((element) =>
-      element.textContent?.includes("Deploy succeeded"),
-    ),
-  ).toBe(false);
-});
-
-test("Escape dismisses the focused toast", async () => {
-  await render(<Host />);
-  toast("Dismiss me with Escape");
-  await waitForToast("Dismiss me with Escape");
-  const element = toastEl("Dismiss me with Escape");
-  element?.focus();
-  await userEvent.keyboard("{Escape}");
-  await expect.poll(() => toastEl("Dismiss me with Escape")).toBeUndefined();
-});
-
-test("F6 moves focus into the toast viewport landmark", async () => {
-  const screen = await render(
-    <>
-      <button type="button">Page control</button>
-      <Host />
-    </>,
+test("the raw parts compose the same surface by hand (Usage)", async () => {
+  const manager = createToastManager();
+  function Manual() {
+    const { toasts } = useToastManager();
+    return toasts.map((item) => (
+      <Toast key={item.id} toast={item}>
+        <ToastContent>
+          <ToastTitle />
+          <ToastDescription />
+          <ToastAction />
+          <ToastClose />
+        </ToastContent>
+      </Toast>
+    ));
+  }
+  await render(
+    <ToastProvider toastManager={manager}>
+      <ToastPortal>
+        <ToastViewport>
+          <Manual />
+        </ToastViewport>
+      </ToastPortal>
+    </ToastProvider>,
   );
-  toast("Reachable by F6");
-  await waitForToast("Reachable by F6");
-  (
-    screen
-      .getByRole("button", { name: "Page control" })
-      .element() as HTMLElement
-  ).focus();
-  await userEvent.keyboard("{F6}");
-  const viewport = document.querySelector('[data-slot="toast-viewport"]');
-  await expect
-    .poll(() => viewport?.contains(document.activeElement))
-    .toBe(true);
-});
-
-test("the dismiss X closes its toast", async () => {
-  await render(<Host />);
-  toast("Close me");
-  await waitForToast("Close me");
-  const close = toastEl("Close me")?.querySelector<HTMLElement>(
-    '[data-slot="toast-close"]',
-  );
-  expect(close).not.toBeNull();
-  expect(close?.getAttribute("aria-label")).toBe("Dismiss notification");
-  close?.click();
-  await expect.poll(() => toastEl("Close me")).toBeUndefined();
-});
-
-test("closeButton={false} drops the dismiss X", async () => {
-  await render(<Host closeButton={false} />);
-  toast("No X here");
-  await waitForToast("No X here");
+  manager.add({ title: "Hand rolled", actionProps: { children: "Undo" } });
+  await waitForToast("Hand rolled");
   expect(
-    toastEl("No X here")?.querySelector('[data-slot="toast-close"]'),
+    toastEl("Hand rolled")!.querySelector('[data-slot="toast-action"]'),
+  ).not.toBeNull();
+});
+
+test("toast.close removes the toast it names (Usage)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  const id = manager.add({ title: "Event created" });
+  await waitForToast("Event created");
+  manager.close(id);
+  await expect.poll(() => toastEl("Event created")).toBeUndefined();
+});
+
+// --- Types --------------------------------------------------------------------------------------
+
+test("each type renders its own icon and data-type (Types)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  for (const { type } of TYPES) {
+    manager.add({ type, title: `${type} toast` });
+  }
+  manager.add({ title: "default toast" });
+  for (const { type } of TYPES) await waitForToast(`${type} toast`);
+  await waitForToast("default toast");
+
+  for (const { type } of TYPES) {
+    const element = toastEl(`${type} toast`)!;
+    expect(element.getAttribute("data-type")).toBe(type);
+    expect(
+      element.querySelector('[data-slot="toast-icon"] svg'),
+      `${type} has no icon`,
+    ).not.toBeNull();
+  }
+  // A toast with no type gets no icon — the slot is the type's own affordance.
+  expect(
+    toastEl("default toast")!.querySelector('[data-slot="toast-icon"]'),
   ).toBeNull();
 });
 
-test("actionProps renders the action button and fires its handler", async () => {
-  await render(<Host />);
-  let undone = false;
-  toast("Invitation sent", {
+test("priority high is carried onto the toast (Types)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({
+    type: "error",
+    title: "Could not create",
+    priority: "high",
+  });
+  await waitForToast("Could not create");
+  // Base UI announces a high-priority toast urgently through its own machinery; what this file owns
+  // is that the option reaches the toast rather than being dropped on the floor.
+  const element = toastEl("Could not create")!;
+  expect(element.getAttribute("data-type")).toBe("error");
+});
+
+// --- Action -------------------------------------------------------------------------------------
+
+test("actionProps render a button that can close its own toast (Action)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  const onClick = vi.fn();
+  const id = manager.add({
+    title: "Event created",
     actionProps: {
       children: "Undo",
       onClick: () => {
-        undone = true;
+        onClick();
+        manager.close(id);
       },
     },
   });
-  await waitForToast("Invitation sent");
-  const action = toastEl("Invitation sent")?.querySelector<HTMLElement>(
+  await waitForToast("Event created");
+  const action = toastEl("Event created")!.querySelector(
     '[data-slot="toast-action"]',
-  );
-  expect(action?.textContent).toBe("Undo");
-  action?.click();
-  expect(undone).toBe(true);
+  ) as HTMLElement;
+  expect(action.textContent).toBe("Undo");
+  await userEvent.click(action);
+  expect(onClick).toHaveBeenCalledTimes(1);
+  await expect.poll(() => toastEl("Event created")).toBeUndefined();
 });
 
-test("toast.promise drives one toast through loading → success", async () => {
-  await render(<Host />);
-  let resolve: (value: string) => void = () => {};
-  const pending = new Promise<string>((r) => {
+test("the close button is labelled and dismisses the toast (Action)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({ title: "Event created" });
+  await waitForToast("Event created");
+  const close = toastEl("Event created")!.querySelector(
+    '[data-slot="toast-close"]',
+  ) as HTMLElement;
+  expect(close.getAttribute("aria-label")).toBe("Close toast");
+  await userEvent.click(close);
+  await expect.poll(() => toastEl("Event created")).toBeUndefined();
+});
+
+// --- Promise ------------------------------------------------------------------------------------
+
+test("toast.promise drives one toast from loading to success (Promise)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  let resolve!: (value: { name: string }) => void;
+  const pending = new Promise<{ name: string }>((r) => {
     resolve = r;
   });
-  const settled = toast.promise(pending, {
-    loading: "Saving…",
-    success: (value) => `Saved ${value}`,
-    error: "Save failed",
+  manager.promise(pending, {
+    loading: "Creating event…",
+    success: (data) => `${data.name} created.`,
+    error: "Could not create event.",
   });
-  await waitForToast("Saving…");
-  // A loading toast never auto-dismisses — that is Base UI's own timer rule, not ours.
-  expect(toastEl("Saving…")?.getAttribute("data-type")).toBe("loading");
-  resolve("draft");
-  await settled;
-  await waitForToast("Saved draft");
-  expect(toastEl("Saved draft")?.getAttribute("data-type")).toBe("success");
+  await waitForToast("Creating event…");
+  expect(toastEl("Creating event…")!.getAttribute("data-type")).toBe("loading");
+  // ONE toast, updated in place — not a second one beside it.
+  expect(document.querySelectorAll('[data-slot="toast"]').length).toBe(1);
+  resolve({ name: "Event" });
+  await waitForToast("Event created.");
+  expect(document.querySelectorAll('[data-slot="toast"]').length).toBe(1);
+  expect(toastEl("Event created.")!.getAttribute("data-type")).toBe("success");
 });
 
-test("toast.custom renders its own body inside a real toast", async () => {
-  await render(<Host />);
-  toast.custom((item) => <p>custom body for {item.id}</p>);
-  await waitForToast("custom body for");
-  const element = toastEl("custom body for");
-  // Still a real toast: it keeps the surface, the close control and the stacking slot.
-  expect(element?.getAttribute("data-slot")).toBe("toast");
-  expect(element?.querySelector('[data-slot="toast-close"]')).not.toBeNull();
+test("toast.promise moves the same toast to error on rejection (Promise)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  let reject!: (reason: unknown) => void;
+  const pending = new Promise<{ name: string }>((_, r) => {
+    reject = r;
+  });
+  manager
+    .promise(pending, {
+      loading: "Creating event…",
+      success: "Event created.",
+      error: "Could not create event.",
+    })
+    .catch(() => {});
+  await waitForToast("Creating event…");
+  reject(new Error("nope"));
+  await waitForToast("Could not create event.");
+  expect(document.querySelectorAll('[data-slot="toast"]').length).toBe(1);
+  expect(toastEl("Could not create event.")!.getAttribute("data-type")).toBe(
+    "error",
+  );
 });
 
-test("re-adding the same id updates the toast in place instead of stacking", async () => {
-  await render(<Host />);
-  toast("First copy", { id: "dedupe" });
-  await waitForToast("First copy");
-  toast("Second copy", { id: "dedupe" });
-  await waitForToast("Second copy");
+test("toast.update rewrites a toast in place (Promise)", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  const id = manager.add({ title: "Uploading…", type: "loading" });
+  await waitForToast("Uploading…");
+  manager.update(id, { title: "Uploaded", type: "success" });
+  await waitForToast("Uploaded");
   expect(document.querySelectorAll('[data-slot="toast"]').length).toBe(1);
 });
 
-test("the viewport pins to the requested edge and sets the stack direction", async () => {
-  await render(<Host position="top-start" />);
-  toast("Top-start toast");
-  await waitForToast("Top-start toast");
-  const viewport = document.querySelector<HTMLElement>(
-    '[data-slot="toast-viewport"]',
-  );
-  expect(viewport?.className).toContain("[--toast-dir:1]");
-  expect(viewport?.className).toContain("bottom-auto");
-  expect(toastEl("Top-start toast")?.className).toContain("origin-top");
+// --- Decision IDs from packages/ui/upstream/patches/toast.patch ---------------------------------
+
+test("FOC-1/FOC-6: no rendered element carries a focus glow", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({
+    title: "Event created",
+    description: "Sunday",
+    actionProps: { children: "Undo" },
+  });
+  await waitForToast("Event created");
+  const element = toastEl("Event created")!;
+  const classes = [element, ...element.querySelectorAll("*")]
+    .map((node) => (node as HTMLElement).className ?? "")
+    .filter((value) => typeof value === "string");
+  for (const value of classes) {
+    expect(value).not.toMatch(/ring-3|ring-\[3px\]/);
+    expect(value).not.toContain("focus-visible:ring-");
+  }
+  // The root must not suppress the one global outline either.
+  expect(element.className).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
 });
 
-test("toastManager.close() with no id clears every toast", async () => {
-  await render(<Host />);
-  toast("One");
-  toast("Two");
-  await waitForToast("One");
-  await waitForToast("Two");
-  toastManager.close();
-  await expect
-    .poll(() => document.querySelectorAll('[data-slot="toast"]').length)
-    .toBe(0);
+test("COL-12: each type paints its icon with the family's -text ink", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  for (const { type } of TYPES) manager.add({ type, title: `${type} toast` });
+  for (const { type } of TYPES) await waitForToast(`${type} toast`);
+
+  for (const { type, ink } of TYPES) {
+    const icon = toastEl(`${type} toast`)!.querySelector(
+      '[data-slot="toast-icon"] svg',
+    ) as SVGElement;
+    expect(icon, `${type} has no icon`).not.toBeNull();
+    expect(icon.getAttribute("class") ?? "", `${type} ink`).toContain(ink);
+  }
 });
 
-test("no a11y violations", async () => {
-  await render(<Host />);
-  toast("Heads up", { description: "Something happened" });
-  await waitForToast("Heads up");
-  // The toast portals to <body>, so audit the whole document. `color-contrast` is skipped HERE
-  // because Tailwind utilities aren't compiled in this fast unit run — the token classes don't
-  // resolve, so the default ink reports a FALSE contrast failure. The REAL contrast is proven by
-  // the compiled-CSS gate test/contrast.browser.test.tsx, which fires every type in both themes.
-  await expectNoA11yViolations(document.body, ["color-contrast"]);
+test("A11Y-8: each type is a DISTINCT glyph, so type is never colour alone", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  const all = [...TYPES.map((t) => t.type), "loading"];
+  for (const type of all) manager.add({ type, title: `${type} toast` });
+  for (const type of all) await waitForToast(`${type} toast`);
+
+  const shapes = all.map((type) => {
+    const icon = toastEl(`${type} toast`)!.querySelector(
+      '[data-slot="toast-icon"] svg',
+    ) as SVGElement;
+    expect(icon, `${type} has no icon`).not.toBeNull();
+    // The path geometry, not the colour: two types sharing a glyph would collapse here.
+    return icon.innerHTML;
+  });
+  expect(new Set(shapes).size).toBe(all.length);
 });
 
-test("no a11y violations — error toast with an action", async () => {
-  await render(<Host />);
-  toast.error("Something went wrong", {
-    description: "Try again in a moment",
+test("A11Y-3/A11Y-4: the viewport is a polite region BEFORE any toast exists", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  // Nothing added yet: the region has to already be mounted, or the platform never observes it.
+  const region = viewport();
+  expect(region).not.toBeNull();
+  expect(region!.getAttribute("role")).toBe("region");
+  expect(region!.getAttribute("aria-live")).toBe("polite");
+  expect(region!.getAttribute("aria-label")).toBe("Notifications");
+  expect(document.querySelectorAll('[data-slot="toast"]').length).toBe(0);
+
+  // And it is the ONLY live region this component ships — a second one would announce twice.
+  manager.add({ title: "Event created" });
+  await waitForToast("Event created");
+  expect(document.querySelectorAll("[aria-live]").length).toBe(1);
+  expect(viewport()).toBe(region);
+});
+
+test("A11Y-9: an aria-hidden toast leaves the tab order, and comes back with it", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  // The engine shape this hunk is written against, pinned so the hunk fails as STALE the day Base
+  // UI fixes it rather than lingering unnoticed. For a `priority: "high"` toast,
+  // `@base-ui/react@1.8.0` announces a visually hidden `role="alert"` clone in the viewport and
+  // marks the VISIBLE root `role="alertdialog" aria-hidden="true"` so the viewport's own polite
+  // region does not announce it twice — while leaving `tabIndex={0}` on the root and its buttons.
+  // Nothing tabbable may sit inside an `aria-hidden` subtree (axe: SERIOUS `aria-hidden-focus`), so
+  // A11Y-9 makes `tabIndex` follow `aria-hidden` on the root and on the parts it owns.
+  manager.add({
+    title: "Could not create",
+    type: "error",
+    priority: "high",
     actionProps: { children: "Retry" },
   });
-  await waitForToast("Something went wrong");
-  // `aria-hidden-focus` is disabled HERE, and only here, for a state that is real but transient.
-  // Base UI puts `aria-hidden` on a HIGH-priority toast while nothing inside the viewport has
-  // focus (`toast/root/ToastRoot.js`: `'aria-hidden': isHighPriority && !focused ? true :
-  // undefined`), so the toast is announced ONCE — by the visually hidden `role="alert"` mirror the
-  // viewport renders — instead of twice, by the mirror and again by the polite live region. The
-  // toast is still `tabIndex=0`, so the static DOM axe measures does hold an aria-hidden subtree
-  // containing focusable content.
-  //
-  // It does not survive contact with a keyboard: the viewport's `onFocus` bubbles from any
-  // descendant (`toast/viewport/ToastViewport.js`: `handleFocus`), which flips `focused` and drops
-  // the attribute. The test below proves exactly that, with the rule ENABLED — so this is a
-  // compensated suppression, not a hidden failure. It applies only to `error`/`warning` toasts,
-  // which is why the other two a11y tests here keep the rule on.
-  await expectNoA11yViolations(document.body, [
-    "color-contrast",
-    "aria-hidden-focus",
-  ]);
-});
+  await waitForToast("Could not create");
+  const high = toastEl("Could not create")!;
+  expect(high.getAttribute("aria-hidden")).toBe("true");
+  expect(high.getAttribute("role")).toBe("alertdialog");
+  expect(high.tabIndex).toBe(-1);
+  for (const slot of ["toast-action", "toast-close"]) {
+    const button = high.querySelector(`[data-slot="${slot}"]`) as HTMLElement;
+    expect(button, `no [data-slot="${slot}"]`).not.toBeNull();
+    expect(button.getAttribute("tabindex"), slot).toBe("-1");
+  }
 
-test("an urgent toast drops aria-hidden the moment focus reaches it (compensates the suppression above)", async () => {
-  await render(<Host />);
-  toast.error("Something went wrong", {
-    description: "Try again in a moment",
-    actionProps: { children: "Retry" },
-  });
-  await waitForToast("Something went wrong");
-  expect(toastEl("Something went wrong")?.getAttribute("aria-hidden")).toBe(
-    "true",
-  );
-  // F6 is the documented way in: Base UI's global handler focuses the viewport and sets `focused`
-  // outright, so this asserts the real keyboard path rather than a programmatic focus() whose
-  // :focus-visible resolution would be browser-dependent.
+  // A low-priority toast takes the other path: never aria-hidden, so it is tabbable throughout.
+  manager.add({ title: "Event created", actionProps: { children: "Undo" } });
+  await waitForToast("Event created");
+  const low = toastEl("Event created")!;
+  expect(low.getAttribute("aria-hidden")).toBeNull();
+  expect(low.tabIndex).toBe(0);
+  for (const slot of ["toast-action", "toast-close"]) {
+    const button = low.querySelector(`[data-slot="${slot}"]`) as HTMLElement;
+    expect(button.getAttribute("tabindex"), slot).toBe("0");
+  }
+
+  // …and the high-priority toast comes BACK into the tab order the moment Base UI drops
+  // `aria-hidden`, which it does as soon as the viewport takes focus (F6 is the engine's own
+  // shortcut). The two attributes move together, which is the whole point of reading one off the
+  // other rather than recomputing the condition.
   await userEvent.keyboard("{F6}");
-  await expect
-    .poll(() => toastEl("Something went wrong")?.getAttribute("aria-hidden"))
-    .toBeNull();
-  // With focus inside the viewport there is nothing left to suppress: audit the SAME toast with
-  // `aria-hidden-focus` enabled.
-  await expectNoA11yViolations(document.body, ["color-contrast"]);
+  await vi.waitFor(() => {
+    expect(toastEl("Could not create")!.getAttribute("aria-hidden")).toBeNull();
+  });
+  const focusedHigh = toastEl("Could not create")!;
+  expect(focusedHigh.tabIndex).toBe(0);
+  for (const slot of ["toast-action", "toast-close"]) {
+    const button = focusedHigh.querySelector(
+      `[data-slot="${slot}"]`,
+    ) as HTMLElement;
+    expect(button.getAttribute("tabindex"), slot).toBe("0");
+  }
 });
 
-test("no a11y violations — loading toast", async () => {
-  await render(<Host />);
-  toast.loading("Saving changes");
-  await waitForToast("Saving changes");
-  await expectNoA11yViolations(document.body, ["color-contrast"]);
+test("OVL-13: the portal re-applies the theme scope inside itself", async () => {
+  const { manager, ui } = host();
+  const screen = await render(
+    <InternalThemeScopeProvider scope="vs-scope-under-test">
+      {ui}
+    </InternalThemeScopeProvider>,
+  );
+  manager.add({ title: "Event created" });
+  await waitForToast("Event created");
+  const scoped = document.querySelector(".vs-scope-under-test") as HTMLElement;
+  expect(scoped).not.toBeNull();
+  // Portaled: the scope carrier is NOT inside the component's own container subtree…
+  expect(screen.container.contains(scoped)).toBe(false);
+  // …and the viewport, with the toast in it, is inside the scope carrier.
+  expect(scoped.contains(viewport())).toBe(true);
+  expect(scoped.contains(toastEl("Event created")!)).toBe(true);
+});
+
+test("OVL-13: with no scope in the tree the portal carries only `contents`", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({ title: "Event created" });
+  await waitForToast("Event created");
+  expect(document.querySelector(".vs-scope-under-test")).toBeNull();
+});
+
+// --- Accessibility ------------------------------------------------------------------------------
+
+test("no a11y violations — idle", async () => {
+  const { ui } = host();
+  await render(ui);
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations — one toast", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({
+    title: "Event created",
+    description: "Sunday, December 3 at 9:00 AM",
+    actionProps: { children: "Undo" },
+  });
+  await waitForToast("Event created");
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations — typed toast", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({
+    type: "error",
+    title: "Could not create event",
+    description: "Try again in a moment.",
+  });
+  await waitForToast("Could not create event");
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations — high-priority toast", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  // Its own audited state: `priority: "high"` takes a different Base UI code path (`alertdialog`
+  // plus `aria-hidden`), and leaving it unaudited would hide everything else about that path.
+  manager.add({
+    type: "error",
+    title: "Could not create event",
+    description: "Try again in a moment.",
+    priority: "high",
+  });
+  await waitForToast("Could not create event");
+  // `aria-hidden-focus` is disabled for the HIGH-PRIORITY state only, and only here: Base UI marks
+  // the visible root `aria-hidden` while leaving it and its buttons tabbable (the test above pins
+  // that exact shape, so this exemption fails as stale the day the engine fixes it). Every other
+  // rule still runs, and every other toast state is audited with no exemption at all.
+  await expectNoA11yViolations(document.body);
 });

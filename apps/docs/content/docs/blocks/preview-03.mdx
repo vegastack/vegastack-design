@@ -1,0 +1,39 @@
+---
+title: preview-03
+description: Upstream's empty preview placeholder — one div, no components. Shipped for parity, not as a starting point. Composed from plain markup.
+audience: public
+registry: preview-03
+preview: preview03Demo
+---
+
+## What it is
+
+Upstream's empty preview placeholder — one div, no components. Shipped for parity, not as a starting point. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/preview-03
+```
+
+<RegistryInstallCallout />
+
+The block composes no registry components.
+
+## Preview
+
+<ComponentPreview name="preview03Demo" />
+
+## Files
+
+| File                   | Registry type   | Target                    |
+| ---------------------- | --------------- | ------------------------- |
+| `preview-03/index.tsx` | `registry:page` | `app/preview-03/page.tsx` |
+
+## Do / Don't
+
+<DoDont
+  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
+  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+/>

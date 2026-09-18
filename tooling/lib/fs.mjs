@@ -43,7 +43,7 @@ export function relativeToRoot(path) {
  */
 export function walk(dir, { include = () => true, prune = () => false } = {}) {
   // Explicit recursion rather than `readdirSync({ recursive: true })`: Node's recursive reader
-  // FOLLOWS a symlinked directory, which this repository's own fixture (tooling/verify-fs-lib.mjs)
+  // FOLLOWS a symlinked directory, which this repository's own fixture (tooling/test/fs-lib.test.mjs)
   // caught on the first run — `link-to-b/nested/c.md` appeared next to `b/nested/c.md`.
   const out = [];
   const visit = (current) => {

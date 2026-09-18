@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Field } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
@@ -88,7 +88,7 @@ export function PropsPlayground<Keys extends string>({
 
   return (
     <div className="not-prose my-4 overflow-hidden rounded-lg border border-border bg-secondary">
-      <div className="vs-type-product flex min-h-32 items-center justify-center border-b border-border bg-background p-6">
+      <div className="flex min-h-32 items-center justify-center border-b border-border bg-background p-6">
         {render(state)}
       </div>
       <div className="flex flex-wrap items-end gap-4 border-b border-border p-4">
@@ -126,8 +126,13 @@ function PlaygroundControlField<Keys extends string>({
 }) {
   if (control.type === "switch") {
     return (
-      <Field label={control.label} orientation="horizontal">
-        <Switch checked={Boolean(value)} onCheckedChange={onChange} />
+      <Field orientation="horizontal">
+        <Switch
+          id={control.key}
+          checked={Boolean(value)}
+          onCheckedChange={onChange}
+        />
+        <FieldLabel htmlFor={control.key}>{control.label}</FieldLabel>
       </Field>
     );
   }
@@ -138,12 +143,13 @@ function PlaygroundControlField<Keys extends string>({
   );
 
   return (
-    <Field label={control.label} className={cn("w-40")}>
+    <Field className={cn("w-40")}>
+      <FieldLabel htmlFor={control.key}>{control.label}</FieldLabel>
       <Select
         value={selected}
         onValueChange={(next) => onChange(next as string)}
       >
-        <SelectTrigger size="sm" aria-label={control.label}>
+        <SelectTrigger id={control.key} size="sm" aria-label={control.label}>
           <SelectValue>{selectedOption?.label ?? selected}</SelectValue>
         </SelectTrigger>
         <SelectContent>

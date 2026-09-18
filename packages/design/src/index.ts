@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
-import { extendTailwindMerge } from "tailwind-merge";
+import { twMerge as tailwindMerge } from "tailwind-merge";
 // TYPE-ONLY. This entry is server-safe by contract (see the @internal note below and
 // tsup.config.ts): it must not touch a React runtime value, because under the
 // `react-server` condition most React hooks are `undefined` and any Server Component
@@ -7,43 +7,13 @@ import { extendTailwindMerge } from "tailwind-merge";
 // can be typed against React's ref shapes without pulling React into the module graph.
 import type * as React from "react";
 
-/**
- * tailwind-merge extended to treat EVERY custom design-token font size as a
- * font-size utility: the role tokens (`text-h1`…`text-h4`, `text-label*`,
- * `text-code*`, `text-mono-label`) and the display tier (`text-display-*`).
- * Without this, tailwind-merge misclassifies them as `text-{color}` and
- * strips them whenever they co-occur with a real color (e.g.
- * `text-h1 text-foreground`), silently dropping the size — the T1 rollout
- * hit exactly this in MarkdownView, and Phase B hit it again with
- * `text-mono-label text-brand` on the marketing CTA button variant
- * (`text-mono-label` was getting bucketed into the SAME text-color group as
- * `text-brand` and losing the conflict, since it's the earlier class).
- */
-const twMerge = extendTailwindMerge({
-  extend: {
-    classGroups: {
-      "font-size": [
-        {
-          text: [
-            "h1",
-            "h2",
-            "h3",
-            "h4",
-            "label",
-            "label-sm",
-            "code",
-            "code-sm",
-            "mono-label",
-            "display-sm",
-            "display-md",
-            "display-lg",
-            "display-xl",
-          ],
-        },
-      ],
-    },
-  },
-});
+// Plain `twMerge`. Before the shadcn reset this was `extendTailwindMerge`, teaching tailwind-merge
+// that the deleted role tokens (the h1-h4 tier, the label tier, the code tier, the mono label and
+// the display tier) were FONT SIZES rather than text colours — without it a role plus a colour
+// silently
+// dropped the size. TYP-1 is decided as **shadcn**, so those roles no longer exist and the stock
+// classifier is correct again: there is no custom font-size utility left to teach it about.
+const twMerge = tailwindMerge;
 
 /**
  * Merges Tailwind CSS class names with intelligent conflict resolution.
@@ -56,7 +26,7 @@ const twMerge = extendTailwindMerge({
  *
  * @example
  * cn('px-2 py-1', 'px-4') // 'py-1 px-4'
- * cn('text-foreground', isError && 'text-destructive')
+ * cn('text-foreground', isError && 'text-destructive-text')
  */
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
@@ -65,225 +35,23 @@ export function cn(...inputs: ClassValue[]): string {
 export type { ClassValue };
 
 /**
- * THE hover/pressed recipe for a control that sits on a KNOWN surface (page, card, popover, well):
- * hover climbs one rung of the surface ladder, pressing climbs one more. Rows, menu items, ghost and
- * outline buttons, sidebar buttons, toggles, tabs, table rows, pagination — every transparent
- * control — spread this string instead of writing a `hover:bg-*` literal.
+ * DELETED BY THE SHADCN RESET (Batch 1, 2026-09-18), with no replacement and no alias
+ * (mandate § 1, non-negotiable 2): `"hover:bg-accent"`, `"group-hover/wash:bg-accent"`,
+ * the family's own hover wash, `FillTone`, `"rounded-lg border border-input bg-transparent transition-colors outline-none placeholder:text-muted-foreground focus:border-ring/70 not-focus:aria-invalid:border-destructive not-focus:data-invalid:border-destructive disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30 dark:disabled:bg-input/80"`, `"rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring/70 data-focused:border-ring/70 not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30"` and the selected-chip recipe.
  *
- * `hover:` compiles under `@media (hover: hover)` in Tailwind v4, so touch devices keep the rest
- * fill and still get the pressed rung through `active:`. A selected/current state is the SAME rung
- * as pressed (`data-selected:bg-surface-3`), which is why the two are never far apart.
- *
- * @example
- * <button className={cn("rounded-md px-2", surfaceInteractive)} />
+ * Every one of them was a shared class-string recipe over the surface ladder, the alpha ladder and
+ * the `<family>-subtle` tokens — the vocabulary this reset removes. COL-4/COL-5/COL-6/COL-8/COL-9
+ * and FRM-1 are all decided as **shadcn**, which means the component, not a shared constant, owns
+ * its own hover and pressed chrome, exactly as upstream writes it. The call sites were migrated to
+ * upstream's own strings in this batch; Batches 2-7 replace those components with upstream's files.
  */
-export const surfaceInteractive = "hover:bg-surface-2 active:bg-surface-3";
-
-/**
- * The GROUP-SCOPED twin of {@link surfaceInteractive}, for the one geometry where the two rungs
- * cannot live on the interactive element itself: a wash painted by an INNER chip inset from a
- * container hairline (`design.md` §Hover geometry — "a wash is inset ≥4px from a container hairline
- * and inherits its inner radius"). NumberField's steppers are the case: the button is full-height and
- * flush to the field's border, so its own background would run into that hairline; a `size-full` chip
- * inside the button's `p-1` paints the inset wash instead, and it must react to the BUTTON's hover.
- *
- * The group is named `wash` rather than left unnamed so a consumer's own `group` on an ancestor of a
- * copied-in component cannot fire it. Put `group/wash` on the interactive element, this string on the
- * chip. Everything else spreads {@link surfaceInteractive} directly — a group indirection where the
- * element can carry the rungs itself is noise.
- *
- * @example
- * <button className="group/wash p-1">
- *   <span className={cn("size-full rounded-sm", surfaceInteractiveGroup)} />
- * </button>
- */
-export const surfaceInteractiveGroup =
-  "group-hover/wash:bg-surface-2 group-active/wash:bg-surface-3";
-
-/**
- * The inks a translucent hover/pressed wash can be composited from — the neutral ink and the five
- * chromatic families the Button matrix and its outline/soft variants use.
- */
-export type FillTone =
-  | "foreground"
-  | "primary"
-  | "destructive"
-  | "success"
-  | "warning"
-  | "info"
-  | "brand";
-
-/**
- * The ALPHA twin of {@link surfaceInteractive}: the same two rungs composited from an ink at
- * `--alpha-hover` / `--alpha-pressed`, for a control whose backdrop is not a ladder surface (a kbd
- * inside a hovered row, a chip on a well, chrome over media) or one that hovers in its OWN hue (the
- * outline/soft status buttons). `foreground` is the neutral twin, and it is anchored to a DIFFERENT
- * host per theme: in light it lands within 0.003 L of `surface-2`/`surface-3` over the page
- * (measured L 0.9430 vs 0.945 and 0.9210 vs 0.922), but the dark ladder is CARD-anchored — over the
- * dark `card` it is within 0.003 (0.2665 vs 0.269, 0.2918 vs 0.290), while over the dark
- * `background` it is Δ0.028 / Δ0.023, a full rung off (measured 2026-09-09, LOW-7). Read that as
- * the constraint it is: the alpha twin substitutes for the opaque rung on the surface a control of
- * that theme actually sits on. It is AA-gated over page, card and popover in both themes.
- *
- * Solid fills do NOT use this: a solid already owns its darker `<tone>-hover` / `<tone>-active`
- * steps (`bg-primary hover:bg-primary-hover active:bg-primary-active`) — an alpha over a solid
- * would only thin it.
- *
- * Every value is a literal so Tailwind's scanner sees it in this file (and in the shipped `dist`,
- * which `preset.css` scans).
- *
- * @example
- * <button className={cn("bg-destructive-subtle text-destructive-text", fillInteractive.destructive)} />
- */
-export const fillInteractive: Record<FillTone, string> = {
-  foreground:
-    "hover:bg-foreground/(--alpha-hover) active:bg-foreground/(--alpha-pressed)",
-  primary:
-    "hover:bg-primary/(--alpha-hover) active:bg-primary/(--alpha-pressed)",
-  destructive:
-    "hover:bg-destructive/(--alpha-hover) active:bg-destructive/(--alpha-pressed)",
-  success:
-    "hover:bg-success/(--alpha-hover) active:bg-success/(--alpha-pressed)",
-  warning:
-    "hover:bg-warning/(--alpha-hover) active:bg-warning/(--alpha-pressed)",
-  info: "hover:bg-info/(--alpha-hover) active:bg-info/(--alpha-pressed)",
-  brand: "hover:bg-brand/(--alpha-hover) active:bg-brand/(--alpha-pressed)",
-};
-
-/**
- * THE field chrome — the one border/fill/hover/focus/invalid/disabled grammar every text-entry
- * control wears (audit B1-11, 2026-09-07). Input, Textarea, NumberField's input, OTP slots, the
- * Select trigger and the Combobox input all spread this string; before it existed the same nine
- * declarations were copy-pasted in four files and restated a fifth time as slot overrides, so
- * retuning the field meant finding every copy.
- *
- * It is CHROME only — no width, padding, height or type. Those differ per control (a square OTP
- * slot is not `w-full`; a Textarea sizes by min-height, not `--size-*`), so each component adds its
- * own layout and size classes after this string.
- *
- * The three border rungs, in ascending weight:
- * - rest `border-input` (the derived `foreground` alpha hairline),
- * - hover `foreground` at `--alpha-border-subtle` — neutral ink, one step darker, guarded by
- *   `not-disabled:not-data-disabled:` because D7 keeps pointer events ON a disabled control so a
- *   Tooltip can explain it, which would otherwise let a dead field light up under the cursor,
- * - focus `ring` at `--alpha-tint-border`, on plain `focus` (not `focus-visible`) — a raw text field
- *   cannot tell mouse from keyboard, so the tint is the one cue for both. Forced colours erase a
- *   border tint outright, so the outline fallback for that case is written ONCE, unlayered, in
- *   `@vegastack/design-tokens`' `base.css` — never per component.
- *
- * **FOCUS OUTRANKS INVALID, and it has to be said in the selector** (#100, 2026-09-09). The invalid
- * tint and the focus tint are the same property at the same specificity, and Tailwind v4 emits
- * `aria-invalid:`/`data-invalid:` AFTER `focus:`, so an invalid field simply kept its destructive
- * border when focused. Text entry carries `outline-hidden`, so that border IS the whole affordance:
- * a focused invalid field had NO focus indicator at all, which is a WCAG 2.2 §2.4.7 failure the
- * geometry lane's focus assertion found on its first run. `not-focus:` makes the invalid tint stand
- * down while the field is focused rather than fighting the cascade — the error is still carried by
- * `aria-invalid`, by Field's message and icon, and by the tint returning on blur, whereas focus has
- * exactly one channel. design.md § Accessibility ("focus is the neutral `ring`, never a colour")
- * settles which one owns the border when both want it.
- *
- * @example
- * <input className={cn(fieldControl, "h-(--size-md) w-full min-w-0 px-3 text-base")} />
- */
-export const fieldControl = [
-  "rounded-md border border-input bg-transparent dark:bg-input/(--alpha-input)",
-  "placeholder:text-muted-foreground-faint",
-  "not-disabled:not-data-disabled:hover:border-foreground/(--alpha-border-subtle)",
-  "focus:border-ring/(--alpha-tint-border)",
-  "not-focus:aria-invalid:border-destructive-border/(--alpha-tint-border)",
-  "not-focus:data-invalid:border-destructive-border/(--alpha-tint-border)",
-  "disabled:cursor-not-allowed disabled:bg-surface-1 disabled:opacity-(--opacity-dim)",
-  "data-disabled:cursor-not-allowed data-disabled:bg-surface-1 data-disabled:opacity-(--opacity-dim)",
-].join(" ");
-
-/**
- * The WRAPPER twin of {@link fieldControl}: the identical chrome on a bordered group whose state
- * comes from a descendant — Input's prefix/suffix group, NumberField's stepper group, ChipInput and
- * the Combobox input-group. Same three border rungs, read through `focus-within` / `has-*` /
- * Base UI's `data-focused` instead of the control's own pseudo-classes.
- *
- * Every element carrying this string must also carry `data-field-group` (a bare attribute). That is
- * the hook `base.css` uses to paint the forced-colours focus outline on the GROUP: the inner input's
- * own outline would be clipped by the group's `overflow-hidden`, which is exactly how a High
- * Contrast user lost the caret location on an addon field.
- *
- * @example
- * <div data-field-group className={cn(fieldControlGroup, "flex h-(--size-md) items-center")} />
- */
-export const fieldControlGroup = [
-  "rounded-md border border-input bg-transparent dark:bg-input/(--alpha-input)",
-  "not-has-disabled:not-data-disabled:hover:border-foreground/(--alpha-border-subtle)",
-  "focus-within:border-ring/(--alpha-tint-border)",
-  "data-focused:border-ring/(--alpha-tint-border)",
-  // Both the SELF and the DESCENDANT form of the invalid tint (2026-09-09). `has-aria-invalid:` is
-  // a `:has()` over descendants, so a group that carries `aria-invalid` on ITSELF — which is where
-  // `<NumberField aria-invalid />` lands the attribute, on the `[data-field-group]` element —
-  // matched nothing and measured the neutral `--input` border. Inside a `Field` the state arrives
-  // as `data-invalid` on the group and was always correct; this is the standalone path.
-  "not-focus-within:aria-invalid:border-destructive-border/(--alpha-tint-border)",
-  "not-focus-within:has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
-  "not-focus-within:data-invalid:border-destructive-border/(--alpha-tint-border)",
-  "has-disabled:cursor-not-allowed has-disabled:bg-surface-1 has-disabled:opacity-(--opacity-dim)",
-  "data-disabled:cursor-not-allowed data-disabled:bg-surface-1 data-disabled:opacity-(--opacity-dim)",
-].join(" ");
-
-/**
- * THE selected-chip recipe — one formula for every "raised chip on a muted track" control:
- * Tabs `pill` and `chip`, `Segmented`, `Toggle` pressed and `ToggleGroup` pressed. Before this
- * existed the four wrote four different selected looks (`bg-background`, `bg-secondary` + hairline,
- * `bg-foreground/10`); audit 2026-09-07 B6-02.
- *
- * The track is the ladder's well rung (`surface-1`) with one inset semantic boundary; the chip is
- * the ladder's alpha form of the
- * pressed/selected step (§Surfaces) — `bg-foreground/(--alpha-ink-tint)`, which doctrine reaches
- * for exactly here ("a chip on a well"). Over the `surface-1` track it composites to L 0.899 light
- * / 0.318 dark, which is Δ0.023 / Δ0.028 PAST `surface-3` — a full extra rung, since the ladder's
- * own step is 0.021–0.033 (measured 2026-09-09, LOW-6; the doc used to claim "within a hair of
- * `surface-3`", which is only true of the twin composited over the PAGE, not over the track).
- * That extra rung is deliberate and is what makes a selected chip read as raised off its own
- * track rather than level with it. Being an alpha is also what lets the SELECTED chip keep stepping: a hovered
- * selected chip strengthens to `--alpha-ink-tint-strong` and a pressed one drops back to the resting
- * tint (previewing the release), so no state ever reads as dead — an opaque `surface-3` chip would
- * have nowhere left to climb.
- *
- * Base UI spells "selected" differently per primitive, so the state rules ship as two literal
- * strings rather than a selector parameter (Tailwind v4's scanner only sees literals):
- * {@link selectedChipVariants.pressed} for Toggle/ToggleGroup/Segmented (`data-pressed`) and
- * {@link selectedChipVariants.active} for Tabs (`data-active`). The unselected steps are guarded by
- * the matching `not-*` variant so the two sets are mutually exclusive and never race on specificity.
- *
- * @example
- * <div className={cn("rounded-md p-0.5", selectedChipVariants.track)}>
- *   <Toggle className={cn("rounded-sm", selectedChipVariants.item, selectedChipVariants.pressed)} />
- * </div>
- */
-export const selectedChipVariants = {
-  /**
-   * The muted track the chips sit in — the ladder's well rung with a drawn inset boundary. The
-   * pseudo-element keeps the 28 / 32px track boxes unchanged; a real root border would add 2px and
-   * silently break the shared control scale.
-   */
-  track:
-    "relative bg-surface-1 after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:border after:border-border after:content-['']",
-  /**
-   * Chrome shared by every chip: a transparent hairline reserved at rest (so selecting adds no
-   * layout shift) and the muted→ink text step.
-   */
-  item: "border border-transparent hover:text-foreground",
-  /** Selected keyed on Base UI's `data-pressed` — Toggle, ToggleGroup, Segmented. */
-  pressed:
-    "not-data-pressed:hover:bg-foreground/(--alpha-hover) not-data-pressed:active:bg-foreground/(--alpha-pressed) data-pressed:border-border data-pressed:bg-foreground/(--alpha-ink-tint) data-pressed:text-foreground data-pressed:hover:bg-foreground/(--alpha-ink-tint-strong) data-pressed:active:bg-foreground/(--alpha-ink-tint)",
-  /** Selected keyed on Base UI's `data-active` — Tabs. */
-  active:
-    "not-data-[active]:hover:bg-foreground/(--alpha-hover) not-data-[active]:active:bg-foreground/(--alpha-pressed) data-[active]:border-border data-[active]:bg-foreground/(--alpha-ink-tint) data-[active]:text-foreground data-[active]:hover:bg-foreground/(--alpha-ink-tint-strong) data-[active]:active:bg-foreground/(--alpha-ink-tint)",
-} as const;
 
 /**
  * @internal Registry theme-scope plumbing lives at `@vegastack/design/theme-scope`, NOT here.
  * It calls `React.createContext()` at module scope, which is `undefined` under the `react-server`
  * condition — re-exporting it from this entry would make every Server Component that imports
  * `cn` crash on import. This entry stays server-safe by contract (see tsup.config.ts).
- * Product code should use `MarketingSurface` rather than either symbol.
+ * Product code never reaches for either symbol; the canonical overlays apply the scope.
  */
 
 /**

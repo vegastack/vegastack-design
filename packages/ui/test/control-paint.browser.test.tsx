@@ -3,13 +3,18 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { afterEach, beforeAll, describe, expect, test } from "vitest";
 
-import { Field } from "../registry/ui/field";
+import { Field, FieldError, FieldLabel } from "../registry/ui/field";
 import { Input } from "../registry/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "../registry/ui/input-group";
 import { NumberField } from "../registry/ui/number-field";
-import { OTPInput } from "../registry/ui/otp-input";
 import { Switch } from "../registry/ui/switch";
 import { Textarea } from "../registry/ui/textarea";
-import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
+import { Toaster, toast } from "../registry/ui/toast";
 
 /**
  * CONTROL-PAINT CONTRACTS — what the browser paints, not what the source authored.
@@ -62,14 +67,10 @@ const within = (container: Element) => ({
 });
 
 describe("toast content geometry", () => {
-  afterEach(() => toast.dismiss());
+  afterEach(() => toast.close());
 
   test("copy and controls stay centered with and without a description", async () => {
-    await render(
-      <ToastProvider>
-        <Toaster style={{ pointerEvents: "none" }} />
-      </ToastProvider>,
-    );
+    await render(<Toaster />);
 
     const measure = (title: string) => {
       const root = [
@@ -85,7 +86,9 @@ describe("toast content geometry", () => {
         '[data-slot="toast-close"]',
       );
       expect(root && row && copy && close).toBeTruthy();
-      expect(getComputedStyle(root!).paddingTop).toBe("16px");
+      // Upstream pads the CONTENT row (`p-4`), not the root — the root owns the stack
+      // transform and the measured height. Same claim, the element that actually carries it.
+      expect(getComputedStyle(row!).paddingTop).toBe("16px");
       const center = (element: Element) => {
         const rect = element.getBoundingClientRect();
         return rect.top + rect.height / 2;
@@ -95,7 +98,7 @@ describe("toast content geometry", () => {
       return { root: root!, row: row! };
     };
 
-    toast("Event created", { timeout: 0 });
+    toast.add({ title: "Event created", timeout: 0 });
     await expect
       .poll(
         () => document.querySelector('[data-slot="toast-title"]')?.textContent,
@@ -103,11 +106,12 @@ describe("toast content geometry", () => {
       .toBe("Event created");
     measure("Event created");
 
-    toast.dismiss();
+    toast.close();
     await expect
       .poll(() => document.querySelectorAll('[data-slot="toast"]').length)
       .toBe(0);
-    toast("Invitation sent", {
+    toast.add({
+      title: "Invitation sent",
       description: "sent to jane@vegastack.com",
       actionProps: { children: "Undo", onClick: () => {} },
       timeout: 0,
@@ -129,10 +133,15 @@ describe("toast content geometry", () => {
       return rect.top + rect.height / 2;
     };
     expect(Math.abs(center(action) - center(row))).toBeLessThan(1);
-    expect(getComputedStyle(action).backgroundColor).toBe(
-      getComputedStyle(close).backgroundColor,
+    // Upstream deliberately gives the two controls different weight: the action is
+    // `<Button variant="outline">` and paints a real surface, the close is `variant="ghost"` and
+    // paints none. The pre-reset toast used one variant for both, so this assertion used to read
+    // "same fill"; the claim now is the hierarchy upstream ships, measured rather than assumed.
+    expect(getComputedStyle(action).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
     );
-    expect(action.getBoundingClientRect().height).toBe(24);
+    expect(getComputedStyle(close).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(action.getBoundingClientRect().height).toBe(28);
   });
 });
 
@@ -154,7 +163,7 @@ const settle = () =>
  * mounted at the top-left of a fresh page lands under it. Measured 2026-09-09: in roughly half of
  * the runs where this file shared the suite with the other form tests, the fixtures matched
  * `:hover` — the reference `<Input aria-invalid />` painted the neutral HOVER tint
- * (`--alpha-border-subtle`, 0.2) instead of the destructive one, and the NumberField stepper
+ * (`20%`, 0.2) instead of the destructive one, and the NumberField stepper
  * painted `hover:text-foreground`. Both components were behaving correctly; the lane was measuring
  * the wrong state and blaming the component for it.
  *
@@ -217,12 +226,12 @@ beforeAll(async () => {
 
 describe("Switch — the track is painted, in both states", () => {
   /**
-   * The defect: `"…p-0.5" + "bg-surface-3 data-checked:bg-primary" + "not-disabled:hover:…"` glued
-   * into `p-0.5bg-surface-3` and `data-checked:bg-primarynot-disabled:hover:border-…`. FOUR
+   * The defect: `"…p-0.5" + "bg-accent data-checked:bg-primary" + "not-disabled:hover:…"` glued
+   * into `p-0.5bg-accent` and `data-checked:bg-primarynot-disabled:hover:border-…`. FOUR
    * utilities destroyed at one stroke, and the surviving `not-disabled:data-checked:hover:` rung
    * meant the control appeared only while the pointer was over a checked switch.
    */
-  test("the off-track is the surface-3 rung and the on-track is primary", async () => {
+  test("the off-track is painted and the on-track is primary", async () => {
     const screen = await render(
       <Stage>
         <Switch data-testid="switch-off" aria-label="off" />
@@ -234,19 +243,35 @@ describe("Switch — the track is painted, in both states", () => {
     const off = getComputedStyle(q.testId("switch-off"));
     const on = getComputedStyle(q.testId("switch-on"));
 
-    // design.md §Surfaces: "the switch off-track is the exception: `surface-3`", and
-    // §Components: "neutral `primary` ink when on". Both are load-bearing prose that measured
-    // false for a full release.
-    expect(numbers(off.backgroundColor)).toEqual(numbers(token("--surface-3")));
+    // COL-16 is decided as **shadcn**, so the off-track is no longer a named ladder rung — the
+    // claim that survives is the one the class-glue defect broke: BOTH tracks are painted, and
+    // they are painted DIFFERENTLY. The checked track is `primary`, which every checked control
+    // in the system shares.
+    expect(off.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(numbers(off.backgroundColor)).not.toEqual(
+      numbers(on.backgroundColor),
+    );
     expect(numbers(on.backgroundColor)).toEqual(numbers(token("--primary")));
 
-    // The 2px inset that gives the thumb its uniform gap. `p-0.5` was the left-hand casualty of
-    // the same seam, so a passing colour assertion alone would not have caught it.
-    expect(off.padding).toBe("2px");
-    expect(on.padding).toBe("2px");
+    // The inset that gives the thumb its uniform gap. Batch 3 of the shadcn reset put Switch back
+    // on upstream's file, which centres a `size-4` thumb in an 18.4px track with `items-center`
+    // and a translate rather than with `p-0.5`, so the surviving measurable fact is the GAP: the
+    // thumb is smaller than the track it travels in, on both axes. `p-0.5` was the left-hand
+    // casualty of the class-glue seam, and a passing colour assertion alone would still not catch
+    // a thumb that filled its track.
+    const offThumb = (
+      within(screen.container).testId("switch-off")
+        .firstElementChild as HTMLElement
+    ).getBoundingClientRect();
+    const offTrack = within(screen.container)
+      .testId("switch-off")
+      .getBoundingClientRect();
+    expect(offThumb.height).toBeLessThan(offTrack.height);
+    expect(offThumb.width).toBeLessThan(offTrack.width);
+    expect(offThumb.height).toBeGreaterThan(0);
   });
 
-  test("the thumb travels on the motion-ease-standard token, not Tailwind's default", async () => {
+  test("the thumb really transitions its transform, and only its transform", async () => {
     const screen = await render(
       <Stage>
         <Switch data-testid="switch-ease" aria-label="ease" />
@@ -255,39 +280,29 @@ describe("Switch — the track is painted, in both states", () => {
     await settle();
     const thumb = within(screen.container).testId("switch-ease")
       .firstElementChild as HTMLElement;
-    // `ease-standarddata-unchecked:translate-x-0` left the thumb on Chromium's
-    // `cubic-bezier(0.4, 0, 0.2, 1)` while `design-lint`'s transition-pairing rule read
-    // `ease-standard` in the literal and passed.
-    expect(getComputedStyle(thumb).transitionTimingFunction).toBe(
-      token("--motion-ease-standard"),
+    const style = getComputedStyle(thumb);
+    // RETARGETED IN BATCH 3, not weakened. The original claim was that the thumb travelled on
+    // `--motion-ease-standard`; MOT-1..MOT-4 are decided as **shadcn**, so upstream's own
+    // `transition-transform` (Tailwind's default curve) is the contract now and asserting our
+    // token here would assert a rule this system no longer has. What the class-glue defect
+    // destroyed and this still catches: the transition property surviving the seam at all.
+    // `ease-standarddata-unchecked:translate-x-0` left BOTH halves broken.
+    // Tailwind v4's `transition-transform` covers the whole transform family.
+    expect(style.transitionProperty).toBe(
+      "transform, translate, scale, rotate",
     );
+    expect(Number.parseFloat(style.transitionDuration)).toBeGreaterThan(0);
   });
 });
 
-describe("Text entry suppresses the global focus ring", () => {
-  /**
-   * `outline-hiddencaret-foreground` left the OTP slot as the one text-entry surface in the system
-   * wearing the 2px `:focus-visible` outline — contradicting its own JSDoc and AGENTS.md
-   * § Accessibility, and passing the geometry lane's focus assertion BECAUSE of the defect.
-   */
-  test("a focused OTP slot shows no outline; the border tint is the affordance", async () => {
-    const screen = await render(
-      <Stage>
-        <OTPInput data-testid="otp-focus" aria-label="code" length={4} />
-      </Stage>,
-    );
-    await settle();
-    const slot = within(screen.container).slot("otp-input-slot");
-    const rest = numbers(getComputedStyle(slot).borderTopColor);
-    slot.focus();
-    await settle();
-    const focused = getComputedStyle(slot);
-    // `outline-hidden` compiles to a TRANSPARENT 2px outline (kept so `forced-colors: active` has
-    // something to repaint), which computes as `outline-style: none`.
-    expect(focused.outlineStyle).toBe("none");
-    expect(numbers(focused.borderTopColor)).not.toEqual(rest);
-  });
-});
+/*
+ * "Text entry suppresses the global focus ring" USED to live here, mounting our `OTPInput` and
+ * focusing one slot. Batch 7a of the shadcn reset retired that component for upstream's
+ * `input-otp`, whose real control is ONE hidden input behind presentational slot divs — there is no
+ * slot to focus. The claim is not dropped: `geometry.browser.test.tsx`'s `TEXT_ENTRY_SLOTS` pins
+ * `[data-slot=input-otp]` to branch (B), asserting `outline-style: none` outright on a really
+ * focused element, which is the stronger form of the same measurement.
+ */
 
 describe("NumberField — the stepper is muted ink with a hover step", () => {
   test("the stepper rests on muted-foreground, not foreground", async () => {
@@ -311,22 +326,62 @@ describe("NumberField — the stepper is muted ink with a hover step", () => {
       numbers(token("--foreground")),
     );
   });
+
+  /**
+   * FRM-13 is a LAYOUT exception, and layout is only true when it is painted: the steppers flank
+   * the field at its full height, which is what makes each one a ≥24px pointer target inside a
+   * 32px control without an invisible hit area. Stacked half-height spinners — the shape this
+   * decision rejects — measure 16px and cannot be fixed by a class. Batch 7b rebuilt the chrome on
+   * upstream's `InputGroup`, whose addons are `h-auto`, so nothing but this measurement would
+   * notice the steppers quietly collapsing to their content box.
+   */
+  test("the steppers are full-height flanking targets (FRM-13, WCAG 2.5.8)", async () => {
+    const screen = await render(
+      <Stage>
+        <NumberField aria-label="quantity" defaultValue={1} />
+      </Stage>,
+    );
+    await settle();
+    const q = within(screen.container);
+    const group = q.one("[data-slot=number-field]");
+    const groupBox = group.getBoundingClientRect();
+    expect(Math.round(groupBox.height)).toBe(32);
+    // Full height means the group's CONTENT box: a 32px control with a 1px hairline each side
+    // leaves 30px, and a stepper that fills it is flush with both rules.
+    for (const slot of [
+      "number-field-decrement",
+      "number-field-increment",
+    ] as const) {
+      const box = q.one(`[data-slot=${slot}]`).getBoundingClientRect();
+      expect(Math.round(box.height)).toBe(group.clientHeight);
+      expect(box.height).toBeGreaterThanOrEqual(24);
+      expect(box.width).toBeGreaterThanOrEqual(24);
+    }
+    // Flanking, not stacked: the two sit on opposite inline edges, inside the hairline.
+    const dec = q
+      .one("[data-slot=number-field-decrement]")
+      .getBoundingClientRect();
+    const inc = q
+      .one("[data-slot=number-field-increment]")
+      .getBoundingClientRect();
+    expect(Math.abs(dec.left - groupBox.left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(inc.right - groupBox.right)).toBeLessThanOrEqual(1);
+  });
 });
 
 describe("aria-invalid reaches the element that paints the tint", () => {
   /**
-   * `aria-invalid` was accepted and inert on two controls: on `OTPInput` it landed on
+   * `aria-invalid` was accepted and inert on two controls: on the retired `OTPInput` it landed on
    * `OTPField.Root` and the slots never saw it; on `NumberField` it landed on the
-   * `[data-field-group]` element itself, and `fieldControlGroup`'s `has-aria-invalid:` is a
+   * `[data-field-group]` element itself, and `"rounded-lg border border-input bg-transparent transition-colors focus-within:border-ring data-focused:border-ring not-focus-within:aria-invalid:border-destructive not-focus-within:has-aria-invalid:border-destructive not-focus-within:data-invalid:border-destructive has-disabled:cursor-not-allowed has-disabled:bg-input/50 has-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 dark:bg-input/30"`'s `has-aria-invalid:` is a
    * `:has()` over DESCENDANTS. Both measured the neutral `--input` hairline.
    *
    * `<Input aria-invalid />` is the reference: it is the path that always worked.
    */
-  test("a standalone invalid OTPInput and NumberField tint like an invalid Input", async () => {
+  test("a standalone invalid NumberField tints like an invalid Input", async () => {
     const screen = await render(
       <Stage>
         <Input data-testid="ref-invalid" aria-label="reference" aria-invalid />
-        <OTPInput aria-label="code" length={4} aria-invalid />
         <NumberField aria-label="quantity" defaultValue={1} aria-invalid />
       </Stage>,
     );
@@ -335,54 +390,63 @@ describe("aria-invalid reaches the element that paints the tint", () => {
     const reference = numbers(
       getComputedStyle(q.testId("ref-invalid")).borderTopColor,
     );
-    const slot = q.slot("otp-input-slot");
     const group = q.one("[data-field-group]");
 
-    expect(slot.getAttribute("aria-invalid")).toBe("true");
-    expect(numbers(getComputedStyle(slot).borderTopColor)).toEqual(reference);
     expect(numbers(getComputedStyle(group).borderTopColor)).toEqual(reference);
     // Non-vacuous: the reference really is a different colour from the resting hairline.
     expect(reference).not.toEqual(numbers(token("--input")));
   });
 
-  test("borderlessInvalidRestingBorder — a flattened field still shows the tint at rest", async () => {
+  /*
+   * RETARGETED IN BATCH 3 OF THE SHADCN RESET, not weakened.
+   *
+   * This used to mount `<Field label error borderless>`, a fork-only API: Field pushed
+   * `aria-invalid` into its child through context, and `borderless` flattened the control. Both are
+   * gone — upstream's Field is layout and copy only, and the author writes `aria-invalid` on the
+   * control. The DEFECT CLASS is not gone: a bordered field GROUP can still swallow the tint,
+   * because its own border is the one that paints and the control inside it is borderless. That is
+   * exactly `InputGroup`, so the claim moves there and keeps its reference fixture.
+   */
+  test("an invalid control inside an InputGroup tints the GROUP, like an invalid Input", async () => {
     const screen = await render(
       <Stage>
-        <Input
-          data-testid="ref-borderless"
-          aria-label="reference"
-          aria-invalid
-        />
-        <Field label="Title" error="Required" borderless>
-          <Input data-testid="borderless-invalid" />
-        </Field>
+        <Input data-testid="ref-group" aria-label="reference" aria-invalid />
+        <InputGroup data-testid="invalid-group">
+          <InputGroupInput aria-label="amount" aria-invalid />
+          <InputGroupAddon>
+            <InputGroupText>$</InputGroupText>
+          </InputGroupAddon>
+        </InputGroup>
       </Stage>,
     );
     await settle();
     const q = within(screen.container);
-    // `BORDERLESS`'s `border-transparent` used to outrank the invalid tint as well as the focus
-    // tint, so an invalid inline-edit field measured `rgba(0, 0, 0, 0)` at rest: error copy and
-    // the shake fired, and the control itself carried no cue.
-    expect(
-      numbers(getComputedStyle(q.testId("borderless-invalid")).borderTopColor),
-    ).toEqual(
-      numbers(getComputedStyle(q.testId("ref-borderless")).borderTopColor),
+    const reference = numbers(
+      getComputedStyle(q.testId("ref-group")).borderTopColor,
     );
+    expect(
+      numbers(getComputedStyle(q.testId("invalid-group")).borderTopColor),
+    ).toEqual(reference);
+    // Non-vacuous: the reference really is a different colour from the resting hairline.
+    expect(reference).not.toEqual(numbers(token("--input")));
   });
 
-  test("a Field-wrapped Textarea takes the tint, because Field can reach it now", async () => {
+  test("a Field-wrapped Textarea takes the same tint as an invalid Input", async () => {
     const screen = await render(
       <Stage>
         <Input data-testid="ref-textarea" aria-label="reference" aria-invalid />
-        <Field label="Notes" error="Required">
-          <Textarea data-testid="field-textarea" />
+        <Field data-invalid>
+          <FieldLabel htmlFor="notes">Notes</FieldLabel>
+          <Textarea id="notes" data-testid="field-textarea" aria-invalid />
+          <FieldError>Required</FieldError>
         </Field>
       </Stage>,
     );
     await settle();
     const q = within(screen.container);
-    // A raw `<textarea>` never received `aria-invalid` from Field's context, so an invalid
-    // `Field > Textarea` painted the NEUTRAL hairline while its error copy said otherwise.
+    // Batch 3 moved `aria-invalid` onto the control itself (upstream's Field carries no context),
+    // so this is now a claim about Textarea's OWN tint matching Input's — the two share one chrome
+    // string, and a divergence would mean one of them lost its `not-focus:aria-invalid:` rung.
     expect(
       numbers(getComputedStyle(q.testId("field-textarea")).borderTopColor),
     ).toEqual(

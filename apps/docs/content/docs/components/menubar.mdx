@@ -1,0 +1,208 @@
+---
+title: Menubar
+description: A persistent horizontal bar of menus — application-style File / Edit / View navigation, built from the dropdown menu's parts.
+audience: public
+registry: menubar
+status: stable
+since: 0.10.0
+a11y: APG menubar
+preview: menubar
+---
+
+## Install
+
+<InstallSteps name="menubar" />
+
+## Usage
+
+```tsx
+import {
+  Menubar,
+  MenubarContent,
+  MenubarGroup,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+
+<Menubar>
+  <MenubarMenu>
+    <MenubarTrigger>File</MenubarTrigger>
+    <MenubarContent>
+      <MenubarGroup>
+        <MenubarItem>
+          New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+        </MenubarItem>
+        <MenubarItem>New Window</MenubarItem>
+      </MenubarGroup>
+      <MenubarSeparator />
+      <MenubarGroup>
+        <MenubarItem>Share</MenubarItem>
+        <MenubarItem>Print</MenubarItem>
+      </MenubarGroup>
+    </MenubarContent>
+  </MenubarMenu>
+</Menubar>;
+```
+
+<ComponentPreview name="menubar" file="components/preview/menubar.tsx" />
+
+## Anatomy
+
+<Anatomy name="menubar" />
+
+## Examples
+
+### Composition
+
+`Menubar` is the bar; each `MenubarMenu` is one trigger plus its popup. Only the bar and the two
+`Menu`-backed rows — `MenubarCheckboxItem` and `MenubarRadioItem` — are menubar's own; every other
+part is a thin wrapper over the matching `dropdown-menu` part, which is why a fix there lands here
+too.
+
+```text
+Menubar
+├── MenubarMenu
+│   ├── MenubarTrigger
+│   └── MenubarContent
+│       ├── MenubarGroup
+│       │   ├── MenubarLabel
+│       │   ├── MenubarItem
+│       │   └── MenubarItem
+│       ├── MenubarSeparator
+│       ├── MenubarGroup
+│       │   ├── MenubarLabel
+│       │   └── MenubarCheckboxItem
+│       ├── MenubarSeparator
+│       ├── MenubarGroup
+│       │   ├── MenubarLabel
+│       │   └── MenubarRadioGroup
+│       │       ├── MenubarRadioItem
+│       │       └── MenubarRadioItem
+│       └── MenubarSub
+│           ├── MenubarSubTrigger
+│           └── MenubarSubContent
+│               └── MenubarGroup
+│                   ├── MenubarLabel
+│                   └── MenubarItem
+└── MenubarMenu
+    ├── MenubarTrigger
+    └── MenubarContent
+        └── MenubarGroup
+            ├── MenubarLabel
+            └── MenubarItem
+```
+
+<ComponentPreview
+  name="menubarComposition"
+  file="components/preview/menubar.tsx"
+/>
+
+### Checkbox
+
+`MenubarCheckboxItem` renders `role="menuitemcheckbox"` with `aria-checked` and reserves the
+inline-start indicator column. Rows that sit beside it take `inset`, so their labels line up with
+the checked ones instead of with the indicator.
+
+<ComponentPreview
+  name="menubarCheckbox"
+  file="components/preview/menubar.tsx"
+/>
+
+### Radio
+
+`MenubarRadioGroup` owns the value and each `MenubarRadioItem` is a `role="menuitemradio"`;
+selecting one clears the rest of its group.
+
+<ComponentPreview name="menubarRadio" file="components/preview/menubar.tsx" />
+
+### Submenu
+
+`MenubarSub`, `MenubarSubTrigger` and `MenubarSubContent` nest a second popup, which opens on
+hover and on <kbd>→</kbd>. They wrap `dropdown-menu`'s submenu parts, so the chevron, the
+positioning and the theme scope are the same ones.
+
+<ComponentPreview name="menubarSubmenu" file="components/preview/menubar.tsx" />
+
+### With Icons
+
+A leading `lucide-react` icon is sized by the row itself, so pass a `className` rather than a
+`size` prop. `variant="destructive"` tints the row, its icon and its focus wash.
+
+<ComponentPreview
+  name="menubarWithIcons"
+  file="components/preview/menubar.tsx"
+/>
+
+### RTL
+
+The bar's own layout is `flex` with logical padding, and every row inherits `dropdown-menu`'s
+logical spacing, so a `DirectionProvider` set to `rtl` mirrors the bar, the popups and the submenu
+chevron.
+
+<ComponentPreview name="menubarRtl" file="components/preview/menubar.tsx" />
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="MenubarContentProps" />
+
+<ApiTable path="lib/api-props.ts" name="MenubarItemProps" />
+
+<ApiTable path="lib/api-props.ts" name="MenubarCheckboxItemProps" />
+
+<ApiTable path="lib/api-props.ts" name="MenubarRadioItemProps" />
+
+<ApiTable path="lib/api-props.ts" name="MenubarSubTriggerProps" />
+
+`Menubar`, `MenubarMenu`, `MenubarTrigger`, `MenubarGroup`, `MenubarLabel`, `MenubarRadioGroup`,
+`MenubarSeparator`, `MenubarShortcut`, `MenubarSub`, `MenubarSubContent` and `MenubarPortal` add
+no props of their own — each accepts everything the Base UI part, or the `dropdown-menu` part it
+wraps, accepts.
+
+## Accessibility
+
+- Renders Base UI's Menubar over Base UI's Menu: the bar is a `role="menubar"` whose triggers move
+  under <kbd>←</kbd>/<kbd>→</kbd>, and each popup is a `role="menu"` of `menuitem`,
+  `menuitemcheckbox` and `menuitemradio` rows with type-ahead, <kbd>↑</kbd>/<kbd>↓</kbd> and
+  <kbd>Esc</kbd>.
+- With one menu open, moving along the bar opens the next menu rather than merely focusing its
+  trigger — the behaviour a desktop menubar has, and what the APG pattern specifies.
+- Menubar opens no portal of its own: `MenubarContent`, `MenubarSubContent` and `MenubarPortal`
+  wrap the `dropdown-menu` parts that carry the theme scope across the portal (OVL-13), and
+  `menubar.test.tsx` asserts the rendered popup carries it, so the day that composition changes
+  the test fails rather than the scope going quiet.
+- Rows carry the hand cursor from the one global rule in `base.css` (INT-1).
+- A disabled row keeps its pointer events (FRM-4), so a Tooltip can explain why it is unavailable.
+
+<StatesTested name="menubar" />
+
+## Do / Don't
+
+<DoDont
+  do="Use a menubar for an application-shaped surface with a stable, well-known command set — an editor, a canvas, a console."
+  dont="Use it as site navigation; a persistent command bar is not a nav, and a Navigation Menu or a Sidebar is."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/menubar.patch`. Every hunk:
+
+- **FOC-1** — `outline-hidden` is dropped from `MenubarTrigger`. A trigger is a real focusable
+  control (`role="menuitem"`, in the bar's roving tab order), and upstream's class suppressed the
+  one 2px `:focus-visible` outline `base.css` owns, leaving it with no focus indicator at all. The
+  two item parts keep `outline-hidden`: they replace the outline with `focus:bg-accent`, which is
+  the sanctioned substitute affordance.
+- **INT-1** — `cursor-default` is removed from `MenubarCheckboxItem` and `MenubarRadioItem`, the
+  only two parts menubar renders from `Menu` itself. Its item, submenu trigger, label, separator
+  and shortcut compose `dropdown-menu`'s already-patched parts.
+- **FRM-4** — `data-disabled:pointer-events-none` is dropped from those same two parts.
+- **OVL-13** — **no hunk, and that is the implementation, not an omission.** Menubar opens no
+  portal of its own: `MenubarContent`, `MenubarSubContent` and `MenubarPortal` are thin wrappers
+  over `DropdownMenuContent` / `DropdownMenuSubContent` / `DropdownMenuPortal`, which carry the
+  scope. `menubar.test.tsx` asserts the rendered popup carries it, so the day that composition
+  changes the test fails rather than the scope going quiet.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of
+  their own.

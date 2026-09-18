@@ -242,12 +242,12 @@ test("active chip keeps the muted label / emphasized value hierarchy", async () 
   expect(icon.className).toContain("text-muted-foreground");
   const value = screen.getByText("In Progress").element() as HTMLElement;
   expect(value.className).not.toContain("text-muted-foreground");
-  // The 500 weight comes from the chip's `text-label` voice, not a `font-medium` on the value —
-  // `font-medium` outside a `text-label*` role is exactly what the type ladder forbids. The
-  // hierarchy is carried by ink: muted key, foreground value.
+  // The 500 weight comes from the chip's own `text-sm font-medium`, not from a second
+  // `font-medium` on the value: the hierarchy is carried by INK — muted key, foreground value —
+  // so restating the weight here would flatten exactly what the muted key is for.
   expect(value.className).not.toContain("font-medium");
   const chip = value.closest('[data-slot="filter-chip"]') as HTMLElement;
-  expect(chip.className).toContain("text-label");
+  expect(chip.className).toContain("text-sm font-medium");
 });
 
 test("chip value truncates within max-w-xs — the value span carries min-w-0 alongside its shrink-0 label sibling", async () => {
@@ -276,11 +276,11 @@ test("chip value truncates within max-w-xs — the value span carries min-w-0 al
  * content to their own border box once nested a couple of levels deep (a genuine Chromium
  * behavior, verified by hand — identical CSS on a `<span>` at the same depth is NOT clipped), so a
  * pseudo would compute correctly via getComputedStyle but never actually be hit-testable. The
- * shared `ChipRemove` is instead a real 24x24 `IconButton size="xs"`. That means this suite doesn't
+ * shared `ChipRemove` is instead a real 24x24 `Button size="icon-xs"`. That means this suite doesn't
  * need the getComputedStyle(el, '::before') trick at all — the real box IS the hit area, so a plain
  * mirror of `width`/`height` is enough for a REAL getBoundingClientRect() + elementFromPoint()
  * measurement (this harness runs without compiled Tailwind, same as every other file in this
- * remediation, so `--size-xs` still needs a literal mirror to resolve to real CSS here).
+ * remediation, so `h-6` still needs a literal mirror to resolve to real CSS here).
  * ------------------------------------------------------------------------------------------- */
 
 function injectFilterChipRemoveHitAreaMirror(): () => void {

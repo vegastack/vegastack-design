@@ -1,0 +1,15 @@
+{
+  "component": "toggle",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/toggle.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Outline",
+    "With Text",
+    "Size",
+    "Disabled",
+    "RTL",
+    "API Reference"
+  ]
+}

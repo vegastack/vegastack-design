@@ -1,156 +1,123 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { AppWindowIcon, CodeIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
-import { Activity, BarChart3, Bell, Settings, User } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/tabs` (dogfoods the registry) → auto-scanned.
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { DirectionProvider } from "@/components/ui/direction";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+/*
+ * Every fixture is upstream's own example from `vendor/shadcn/4.21.0/docs/tabs.md`, adapted only
+ * for our import paths and — for RTL — for the fact that upstream's `language-selector` helper is
+ * a docs-site fixture we do not have. Nothing here restyles the component.
+ */
 
 export function tabs(): ReactNode {
   return (
     <Wrapper>
-      <Tabs defaultValue="overview" className="w-full max-w-md">
+      <Tabs defaultValue="overview" className="w-[400px] max-w-full">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="activity" count={3}>
-            Activity
-          </TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
-        <TabsContent value="overview" className="pt-4 text-muted-foreground">
-          A high-level summary of your workspace.
+        <TabsContent value="overview">
+          <Card>
+            <CardHeader>
+              <CardTitle>Overview</CardTitle>
+              <CardDescription>
+                View your key metrics and recent project activity. Track
+                progress across all your active projects.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              You have 12 active projects and 3 pending tasks.
+            </CardContent>
+          </Card>
         </TabsContent>
-        <TabsContent value="activity" className="pt-4 text-muted-foreground">
-          3 new events since you last checked in.
+        <TabsContent value="analytics">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analytics</CardTitle>
+              <CardDescription>
+                Track performance and user engagement metrics. Monitor trends
+                and identify growth opportunities.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Page views are up 25% compared to last month.
+            </CardContent>
+          </Card>
         </TabsContent>
-        <TabsContent value="settings" className="pt-4 text-muted-foreground">
-          Manage preferences and integrations.
+        <TabsContent value="reports">
+          <Card>
+            <CardHeader>
+              <CardTitle>Reports</CardTitle>
+              <CardDescription>
+                Generate and download your detailed reports. Export data in
+                multiple formats for analysis.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              You have 5 reports ready and available to export.
+            </CardContent>
+          </Card>
         </TabsContent>
-      </Tabs>
-    </Wrapper>
-  );
-}
-
-export function tabsVariants(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch gap-8">
-      <Tabs defaultValue="overview" className="w-full max-w-md">
-        <TabsList variant="line">
-          <TabsTrigger value="overview">
-            <BarChart3 />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="activity" count={3}>
-            <Activity />
-            Activity
-          </TabsTrigger>
-          <TabsTrigger value="account">
-            <User />
-            Account
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview" className="pt-4 text-muted-foreground">
-          Line variant — a moving underline tracks the active tab.
-        </TabsContent>
-        <TabsContent value="activity" className="pt-4 text-muted-foreground">
-          Compose a leading icon as the first child and pass `count` for a
-          badge.
-        </TabsContent>
-        <TabsContent value="account" className="pt-4 text-muted-foreground">
-          Account details and security.
-        </TabsContent>
-      </Tabs>
-
-      <Tabs defaultValue="overview" className="w-full max-w-md">
-        <TabsList variant="pill">
-          <TabsTrigger value="overview">
-            <BarChart3 />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="notifications" count={12}>
-            <Bell />
-            Alerts
-          </TabsTrigger>
-          <TabsTrigger value="settings">
-            <Settings />
-            Settings
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview" className="pt-4 text-muted-foreground">
-          Pill variant — the active tab becomes a raised chip on a muted track.
-        </TabsContent>
-        <TabsContent
-          value="notifications"
-          className="pt-4 text-muted-foreground"
-        >
-          12 unread notifications.
-        </TabsContent>
-        <TabsContent value="settings" className="pt-4 text-muted-foreground">
-          Manage preferences and integrations.
+        <TabsContent value="settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>Settings</CardTitle>
+              <CardDescription>
+                Manage your account preferences and options. Customize your
+                experience to fit your needs.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Configure notifications, security, and themes.
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </Wrapper>
   );
 }
 
-export function tabsVerticalLine(): ReactNode {
+/** Upstream's Composition tree, rendered: a list of triggers above one panel per value. */
+export function tabsComposition(): ReactNode {
   return (
     <Wrapper>
-      <Tabs
-        defaultValue="profile"
-        orientation="vertical"
-        className="w-full max-w-md"
-      >
-        <TabsList variant="line">
-          <TabsTrigger value="profile">
-            <User />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="notifications" count={5}>
-            <Bell />
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger value="settings">
-            <Settings />
-            Settings
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="profile" className="text-muted-foreground">
-          Vertical + line — the moving underline indicator rides the left rail.
-        </TabsContent>
-        <TabsContent value="notifications" className="text-muted-foreground">
-          5 notification preferences to review.
-        </TabsContent>
-        <TabsContent value="settings" className="text-muted-foreground">
-          Workspace and billing settings.
-        </TabsContent>
-      </Tabs>
-    </Wrapper>
-  );
-}
-
-export function tabsDisabled(): ReactNode {
-  return (
-    <Wrapper>
-      <Tabs defaultValue="overview" className="w-full max-w-md">
+      <Tabs defaultValue="account" className="w-[400px] max-w-full">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="activity" count={3}>
-            Activity
-          </TabsTrigger>
-          <TabsTrigger value="billing" disabled>
-            Billing
-          </TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="password">Password</TabsTrigger>
         </TabsList>
-        <TabsContent value="overview" className="pt-4 text-muted-foreground">
-          A high-level summary of your workspace.
+        <TabsContent value="account">
+          Make changes to your account here.
         </TabsContent>
-        <TabsContent value="activity" className="pt-4 text-muted-foreground">
-          3 new events since you last checked in.
-        </TabsContent>
-        <TabsContent value="billing" className="pt-4 text-muted-foreground">
-          Billing is unavailable on your current plan.
-        </TabsContent>
+        <TabsContent value="password">Change your password here.</TabsContent>
+      </Tabs>
+    </Wrapper>
+  );
+}
+
+export function tabsLine(): ReactNode {
+  return (
+    <Wrapper>
+      <Tabs defaultValue="overview">
+        <TabsList variant="line">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
+        </TabsList>
       </Tabs>
     </Wrapper>
   );
@@ -159,70 +126,119 @@ export function tabsDisabled(): ReactNode {
 export function tabsVertical(): ReactNode {
   return (
     <Wrapper>
-      <Tabs
-        defaultValue="profile"
-        orientation="vertical"
-        className="w-full max-w-md"
-      >
-        <TabsList variant="pill">
-          <TabsTrigger value="profile">
-            <User />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="notifications" count={5}>
-            <Bell />
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger value="settings">
-            <Settings />
-            Settings
-          </TabsTrigger>
+      <Tabs defaultValue="account" orientation="vertical">
+        <TabsList>
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="password">Password</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
-        <TabsContent value="profile" className="text-muted-foreground">
-          Your public profile and avatar.
-        </TabsContent>
-        <TabsContent value="notifications" className="text-muted-foreground">
-          5 notification preferences to review.
-        </TabsContent>
-        <TabsContent value="settings" className="text-muted-foreground">
-          Workspace and billing settings.
-        </TabsContent>
       </Tabs>
     </Wrapper>
   );
 }
 
-export function tabsChip(): ReactNode {
-  // Wave 2 `chip` variant: free-standing tabs on the 28px scale; the active tab
-  // raises to a hairline-ringed secondary chip (the dense record-page treatment).
+export function tabsDisabled(): ReactNode {
   return (
-    <Wrapper className="flex-col items-start gap-4">
-      <Tabs defaultValue="overview">
-        <TabsList variant="chip">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="activity" count={12}>
-            Activity
-          </TabsTrigger>
-          <TabsTrigger value="files" count={4}>
-            Files
+    <Wrapper>
+      <Tabs defaultValue="home">
+        <TabsList>
+          <TabsTrigger value="home">Home</TabsTrigger>
+          <TabsTrigger value="settings" disabled>
+            Disabled
           </TabsTrigger>
         </TabsList>
-        <TabsContent
-          value="overview"
-          className="text-base text-muted-foreground"
-        >
-          Record overview panel.
-        </TabsContent>
-        <TabsContent
-          value="activity"
-          className="text-base text-muted-foreground"
-        >
-          Activity timeline panel.
-        </TabsContent>
-        <TabsContent value="files" className="text-base text-muted-foreground">
-          Files panel.
-        </TabsContent>
       </Tabs>
     </Wrapper>
+  );
+}
+
+export function tabsIcons(): ReactNode {
+  return (
+    <Wrapper>
+      <Tabs defaultValue="preview">
+        <TabsList>
+          <TabsTrigger value="preview">
+            <AppWindowIcon />
+            Preview
+          </TabsTrigger>
+          <TabsTrigger value="code">
+            <CodeIcon />
+            Code
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </Wrapper>
+  );
+}
+
+/**
+ * Upstream drives its RTL example through a `language-selector` fixture we do not ship, so the
+ * Arabic strings are inline and the subtree is wrapped in `DirectionProvider` — the same shape
+ * every other RTL fixture in this repository uses.
+ */
+const arabic = {
+  overview: "نظرة عامة",
+  analytics: "التحليلات",
+  reports: "التقارير",
+  settings: "الإعدادات",
+  overviewDesc:
+    "عرض مقاييسك الرئيسية وأنشطة المشروع الأخيرة. تتبع التقدم عبر جميع مشاريعك النشطة.",
+  overviewContent: "لديك ١٢ مشروعًا نشطًا و٣ مهام معلقة.",
+  analyticsDesc:
+    "تتبع مقاييس الأداء ومشاركة المستخدمين. راقب الاتجاهات وحدد فرص النمو.",
+  reportsDesc:
+    "إنشاء وتنزيل تقاريرك التفصيلية. تصدير البيانات بتنسيقات متعددة للتحليل.",
+  settingsDesc: "إدارة تفضيلات حسابك وخياراته. تخصيص تجربتك لتناسب احتياجاتك.",
+};
+
+export function tabsRtl(): ReactNode {
+  return (
+    <DirectionProvider direction="rtl">
+      <Wrapper dir="rtl">
+        <Tabs defaultValue="overview" className="w-full max-w-sm">
+          <TabsList>
+            <TabsTrigger value="overview">{arabic.overview}</TabsTrigger>
+            <TabsTrigger value="analytics">{arabic.analytics}</TabsTrigger>
+            <TabsTrigger value="reports">{arabic.reports}</TabsTrigger>
+            <TabsTrigger value="settings">{arabic.settings}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">
+            <Card>
+              <CardHeader>
+                <CardTitle>{arabic.overview}</CardTitle>
+                <CardDescription>{arabic.overviewDesc}</CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                {arabic.overviewContent}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="analytics">
+            <Card>
+              <CardHeader>
+                <CardTitle>{arabic.analytics}</CardTitle>
+                <CardDescription>{arabic.analyticsDesc}</CardDescription>
+              </CardHeader>
+            </Card>
+          </TabsContent>
+          <TabsContent value="reports">
+            <Card>
+              <CardHeader>
+                <CardTitle>{arabic.reports}</CardTitle>
+                <CardDescription>{arabic.reportsDesc}</CardDescription>
+              </CardHeader>
+            </Card>
+          </TabsContent>
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>{arabic.settings}</CardTitle>
+                <CardDescription>{arabic.settingsDesc}</CardDescription>
+              </CardHeader>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </Wrapper>
+    </DirectionProvider>
   );
 }

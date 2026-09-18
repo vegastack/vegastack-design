@@ -1,136 +1,121 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/scroll-area` (dogfoods the registry) → auto-scanned.
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { DirectionProvider } from "@/components/ui/direction";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
-const TAGS = Array.from({ length: 40 }, (_, i) => `v1.${i}.0`);
+/*
+ * Upstream's own examples. Two adaptations: the Horizontal figures use plain blocks rather than
+ * `next/image` (the geometry lane mounts these fixtures and must never reach the network), and the
+ * RTL fixture inlines the Arabic string upstream pulls from its `language-selector`.
+ */
+
+const TAG_COUNT = 50;
+const tags = Array.from(
+  { length: TAG_COUNT },
+  (_, index) => `v1.2.0-beta.${TAG_COUNT - index}`,
+);
 
 export function scrollArea(): ReactNode {
   return (
     <Wrapper>
-      <ScrollArea className="h-56 w-56 rounded-lg border border-border">
+      <ScrollArea className="h-72 w-48 rounded-md border">
         <div className="p-4">
-          <p className="mb-3 text-base font-medium text-foreground">
-            Release tags
-          </p>
-          {TAGS.map((tag) => (
-            <div
-              key={tag}
-              className="border-b border-border py-1.5 text-base text-muted-foreground last:border-0"
-            >
-              {tag}
-            </div>
+          <h4 className="mb-4 text-sm leading-none font-medium">Tags</h4>
+          {tags.map((tag) => (
+            <Fragment key={tag}>
+              <div className="text-sm">{tag}</div>
+              <Separator className="my-2" />
+            </Fragment>
           ))}
         </div>
       </ScrollArea>
     </Wrapper>
   );
 }
+
+export function scrollAreaComposition(): ReactNode {
+  return (
+    <Wrapper>
+      <ScrollArea className="h-[200px] w-full max-w-[350px] rounded-md border p-4 text-sm">
+        <p className="mb-2">
+          A `ScrollArea` is a viewport plus its scrollbars. The component
+          renders the vertical bar and the corner for you; the only part you
+          compose is `ScrollBar`, and only when you need the other axis.
+        </p>
+        <p className="mb-2">
+          Everything you pass as a child lands inside the viewport, so a
+          horizontal `ScrollBar` is written beside the content rather than
+          outside the component.
+        </p>
+        <p className="mb-2">
+          Give the area a bounded height or width — a scroll container that can
+          grow never scrolls.
+        </p>
+        <p>
+          The viewport is a tab stop whenever it can actually scroll, so a
+          keyboard-only reader can reach this text with arrow keys.
+        </p>
+      </ScrollArea>
+    </Wrapper>
+  );
+}
+
+const works = [
+  { artist: "Ornella Binni", tone: "bg-muted" },
+  { artist: "Tom Byrom", tone: "bg-accent" },
+  { artist: "Vladimir Malyavko", tone: "bg-secondary" },
+  { artist: "Mika Baumeister", tone: "bg-muted" },
+  { artist: "Annie Spratt", tone: "bg-accent" },
+];
 
 export function scrollAreaHorizontal(): ReactNode {
   return (
     <Wrapper>
-      <ScrollArea
-        orientation="horizontal"
-        className="w-72 rounded-lg border border-border"
-      >
-        <div className="flex gap-3 p-4">
-          {Array.from({ length: 12 }, (_, i) => (
-            <div
-              key={i}
-              className="flex size-28 shrink-0 items-center justify-center rounded-md bg-muted text-base font-medium text-muted-foreground"
-            >
-              {i + 1}
-            </div>
+      <ScrollArea className="w-full max-w-96 rounded-md border whitespace-nowrap">
+        <div className="flex w-max space-x-4 p-4">
+          {works.map((artwork) => (
+            <figure key={artwork.artist} className="shrink-0">
+              {/* A flat block stands in for upstream's `next/image` — the fixture must not
+                  reach the network when the geometry lane mounts it. */}
+              <div
+                aria-hidden="true"
+                className={`aspect-[3/4] w-[150px] overflow-hidden rounded-md ${artwork.tone}`}
+              />
+              <figcaption className="pt-2 text-xs text-muted-foreground">
+                Photo by{" "}
+                <span className="font-semibold text-foreground">
+                  {artwork.artist}
+                </span>
+              </figcaption>
+            </figure>
           ))}
         </div>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </Wrapper>
   );
 }
 
-export function scrollAreaBoth(): ReactNode {
+export function scrollAreaRtl(): ReactNode {
   return (
-    <Wrapper>
-      <ScrollArea
-        orientation="both"
-        className="h-56 w-72 rounded-lg border border-border"
-      >
-        <div className="grid w-160 grid-cols-8 gap-2 p-4">
-          {Array.from({ length: 80 }, (_, i) => (
-            <div
-              key={i}
-              className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted text-base font-medium text-muted-foreground"
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-    </Wrapper>
-  );
-}
-
-export function scrollAreaOrientations(): ReactNode {
-  return (
-    <Wrapper className="items-start gap-6">
-      <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">
-          vertical
-        </span>
-        <ScrollArea className="h-44 w-40 rounded-lg border border-border">
-          <div className="p-3">
-            {TAGS.slice(0, 24).map((tag) => (
-              <div
-                key={tag}
-                className="border-b border-border py-1.5 text-base text-muted-foreground last:border-0"
-              >
-                {tag}
-              </div>
+    <DirectionProvider direction="rtl">
+      <Wrapper dir="rtl">
+        <ScrollArea className="h-72 w-48 rounded-md border">
+          <div className="p-4">
+            <h4 className="mb-4 text-sm leading-none font-medium">العلامات</h4>
+            {tags.map((tag) => (
+              <Fragment key={tag}>
+                <div className="text-sm">{tag}</div>
+                <Separator className="my-2" />
+              </Fragment>
             ))}
           </div>
         </ScrollArea>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">
-          horizontal
-        </span>
-        <ScrollArea
-          orientation="horizontal"
-          className="w-52 rounded-lg border border-border"
-        >
-          <div className="flex gap-2 p-3">
-            {Array.from({ length: 10 }, (_, i) => (
-              <div
-                key={i}
-                className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted text-base font-medium text-muted-foreground"
-              >
-                {i + 1}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">both</span>
-        <ScrollArea
-          orientation="both"
-          className="h-44 w-52 rounded-lg border border-border"
-        >
-          <div className="grid w-112 grid-cols-6 gap-2 p-3">
-            {Array.from({ length: 42 }, (_, i) => (
-              <div
-                key={i}
-                className="flex size-14 shrink-0 items-center justify-center rounded-md bg-muted text-base font-medium text-muted-foreground"
-              >
-                {i + 1}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
-    </Wrapper>
+      </Wrapper>
+    </DirectionProvider>
   );
 }

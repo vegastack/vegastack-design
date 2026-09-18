@@ -1,0 +1,235 @@
+# component: attachment
+# decisions: A11Y-2, A11Y-13, API-16, DOC-1, DOC-2, FOC-1, FOC-6
+# hunks:
+#   FOC-1, FOC-6: `attachmentVariants` drops `focus-within:ring-1 focus-within:ring-ring/50`,
+#     and `AttachmentTrigger` drops `outline-none`. Upstream's arrangement is the CARD wearing a
+#     ring on behalf of the invisible full-bleed trigger inside it, with the trigger's own
+#     affordance silenced; this system has one focus affordance and it belongs on the element
+#     that has focus. `rounded-[inherit]` on the trigger is part of the same hunk: the trigger is
+#     `absolute inset-0` inside a `rounded-xl` (or `rounded-lg` at `size="xs"`) card, so without
+#     it `base.css`'s outline would cut a rectangle across the card's corners.
+#   A11Y-2: audited, NO HUNK. Every control in this file is a `Button` — `AttachmentAction`
+#     defaults to `size="icon-xs"`, which is `size-6` (24px) exactly on the SC 2.5.8 floor, and
+#     `AttachmentTrigger` is the full card. `attachment.test.tsx` measures both, so the day
+#     upstream shrinks the action tier below 24px it fails here rather than quietly shipping.
+#   A11Y-13: `AttachmentDescription`'s error ink becomes `text-destructive-text` in place of
+#     upstream's `text-destructive/80`. Rasterised on `card` in this repository's tokens the
+#     upstream pair measures 4.113:1 at 12px (axe agrees: 4.11) — a live WCAG 1.4.3 failure, and
+#     squarely inside the 3.98-4.35 band `--destructive-text` was added for. A11Y-13 is not a list
+#     of four components, it is the rule that a tinted status surface reads through the family's
+#     `-text` ink rather than its fill; this is the identical pair Alert, Badge, Toast and the soft
+#     Button already carry. It was never caught before because attachment's test lane ran unstyled
+#     and `contrast.browser.test.tsx` had no attachment subject - a measurement gap, not an
+#     exemption. Both are closed: `attachment.test.tsx` compiles the stylesheet and the contrast
+#     lane gained the error card. `AttachmentMedia`'s error icon ink is DELIBERATELY untouched:
+#     measured against its own composited `/10` tint it is 3.973:1, over the 3:1 non-text floor
+#     (WCAG 1.4.11), so upstream stays verbatim there.
+#   API-16: `"use client"` is ADDED. Upstream ships none, and this file calls
+#     `useRender` from `@base-ui/react/use-render`, which calls `React.useRef` internally —
+#     under the `react-server` condition that hook is `undefined`, so a server component
+#     rendering it throws on import. `tooling/verify-rsc-safety.mjs` is what found it, the
+#     same way it found `breadcrumb` in Batch 5. API-16 puts the boundary at the lowest
+#     interactive leaf, and this file is it.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/attachment.tsx b/attachment.tsx
+index f8ca4a8..305edee 100644
+--- a/attachment.tsx
++++ b/attachment.tsx
+@@ -1,13 +1,21 @@
+-import * as React from "react"
+-import { mergeProps } from "@base-ui/react/merge-props"
+-import { useRender } from "@base-ui/react/use-render"
+-import { cva, type VariantProps } from "class-variance-authority"
+-import { cn } from "cn"
++// @vegastack attachment@0.9.1 sha256-QODXl4uSwopeV5ZovGbu3wr2lZZeF0kQC42acXjznNg=
+ 
+-import { Button } from "@/components/ui/button"
++"use client";
++
++import * as React from "react";
++import { mergeProps } from "@base-ui/react/merge-props";
++import { useRender } from "@base-ui/react/use-render";
++import { cva, type VariantProps } from "class-variance-authority";
++import { cn } from "@vegastack/design";
++
++import { Button } from "@/components/ui/button";
+ 
+ const attachmentVariants = cva(
+-  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-xl border bg-card text-card-foreground transition-colors focus-within:ring-1 focus-within:ring-ring/50 has-[>a,>button]:hover:bg-muted/50 data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
++  // FOC-1 / FOC-6: upstream carries `focus-within:ring-1 focus-within:ring-ring/50` here — the
++  // card wearing a ring on behalf of the invisible `AttachmentTrigger` inside it, which upstream
++  // silences with `outline-none`. This system has one focus affordance and it belongs on the
++  // control that has focus, so the ring is gone and the trigger paints `base.css`'s outline.
++  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-xl border bg-card text-card-foreground transition-colors has-[>a,>button]:hover:bg-muted/50 data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
+   {
+     variants: {
+       size: {
+@@ -21,8 +29,8 @@ const attachmentVariants = cva(
+         vertical: "w-24 flex-col has-data-[slot=attachment-content]:w-30",
+       },
+     },
+-  }
+-)
++  },
++);
+ 
+ function Attachment({
+   className,
+@@ -32,7 +40,7 @@ function Attachment({
+   ...props
+ }: React.ComponentProps<"div"> &
+   VariantProps<typeof attachmentVariants> & {
+-    state?: "idle" | "uploading" | "processing" | "error" | "done"
++    state?: "idle" | "uploading" | "processing" | "error" | "done";
+   }) {
+   return (
+     <div
+@@ -43,7 +51,7 @@ function Attachment({
+       className={cn(attachmentVariants({ size, orientation }), className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ const attachmentMediaVariants = cva(
+@@ -59,8 +67,8 @@ const attachmentMediaVariants = cva(
+     defaultVariants: {
+       variant: "icon",
+     },
+-  }
+-)
++  },
++);
+ 
+ function AttachmentMedia({
+   className,
+@@ -74,7 +82,7 @@ function AttachmentMedia({
+       className={cn(attachmentMediaVariants({ variant }), className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function AttachmentContent({
+@@ -86,11 +94,11 @@ function AttachmentContent({
+       data-slot="attachment-content"
+       className={cn(
+         "max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function AttachmentTitle({
+@@ -102,11 +110,11 @@ function AttachmentTitle({
+       data-slot="attachment-title"
+       className={cn(
+         "block max-w-full min-w-0 truncate font-medium group-data-[state=processing]/attachment:shimmer group-data-[state=uploading]/attachment:shimmer",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function AttachmentDescription({
+@@ -117,13 +125,19 @@ function AttachmentDescription({
+     <span
+       data-slot="attachment-description"
+       className={cn(
+-        "mt-0.5 block min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive/80",
++        // A11Y-13: upstream inks the error line with `text-destructive/80` — the status FILL,
++        // alpha-composited. Rasterised on `card` in this repository's tokens it measures 4.113:1
++        // at 12px (axe agrees: 4.11), a live WCAG 1.4.3 failure and squarely inside the
++        // 3.98–4.35 band `--destructive-text` exists for. Same pair, same rule, as Alert, Badge,
++        // Toast and the soft Button: a tinted status surface reads through the family's `-text`
++        // ink, never through its fill.
++        "mt-0.5 block min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive-text",
+         "max-w-full",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function AttachmentActions({
+@@ -135,11 +149,11 @@ function AttachmentActions({
+       data-slot="attachment-actions"
+       className={cn(
+         "relative z-20 flex shrink-0 items-center group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-3 group-data-[orientation=vertical]/attachment:end-3 group-data-[orientation=vertical]/attachment:gap-1",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function AttachmentAction({
+@@ -156,7 +170,7 @@ function AttachmentAction({
+       className={cn(className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function AttachmentTrigger({
+@@ -170,15 +184,19 @@ function AttachmentTrigger({
+     props: mergeProps<"button">(
+       {
+         type: render ? type : (type ?? "button"),
+-        className: cn("absolute inset-0 z-10 outline-none", className),
++        // FOC-1: upstream writes `outline-none` here, which is what made the card's
++        // `focus-within` ring necessary. The trigger is the control, so the trigger takes the
++        // one outline; `rounded-[inherit]` makes that outline follow the card's own corner
++        // instead of cutting a rectangle across it.
++        className: cn("absolute inset-0 z-10 rounded-[inherit]", className),
+       },
+-      props
++      props,
+     ),
+     render,
+     state: {
+       slot: "attachment-trigger",
+     },
+-  })
++  });
+ }
+ 
+ function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -187,11 +205,11 @@ function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
+       data-slot="attachment-group"
+       className={cn(
+         "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ export {
+@@ -204,4 +222,4 @@ export {
+   AttachmentActions,
+   AttachmentAction,
+   AttachmentTrigger,
+-}
++};

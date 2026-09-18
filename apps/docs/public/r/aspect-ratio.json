@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "aspect-ratio",
+  "title": "Aspect Ratio",
+  "description": "Constrains its children to a given width-to-height ratio.",
+  "dependencies": [
+    "@vegastack/design@^0.4.1",
+    "@vegastack/design-tokens@^0.4.0"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/aspect-ratio.tsx",
+      "content": "// @vegastack aspect-ratio@0.9.1 sha256-SBHXDOg0JQoDX3Ox8+sgtbFApOJa64baiZrRXgOXAFU=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction AspectRatio({\n  ratio,\n  className,\n  ...props\n}: React.ComponentProps<\"div\"> & { ratio: number }) {\n  return (\n    <div\n      data-slot=\"aspect-ratio\"\n      style={\n        {\n          \"--ratio\": ratio,\n        } as React.CSSProperties\n      }\n      className={cn(\"relative aspect-(--ratio)\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { AspectRatio };\n",
+      "type": "registry:ui",
+      "target": "@ui/aspect-ratio.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Reserve a fixed ratio for media — a video embed, a cover image, a map tile — so the layout does not shift as it loads.",
+    "whenNotToUse": "Content whose height must follow its text; use ordinary flow instead.",
+    "version": "0.9.1",
+    "integrity": "sha256-SBHXDOg0JQoDX3Ox8+sgtbFApOJa64baiZrRXgOXAFU="
+  },
+  "categories": [
+    "layout"
+  ],
+  "type": "registry:ui"
+}

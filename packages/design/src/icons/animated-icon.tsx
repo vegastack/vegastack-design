@@ -1,11 +1,18 @@
 import * as React from "react";
 
-/** Runtime icon-role tokens — resolves in the consumer's active theme. */
+/**
+ * The four animated-icon sizes, as literal rem values.
+ *
+ * They were `var(size-3.5|default|action|feature)` until the shadcn reset deleted the
+ * `--icon-*` role family (ICO-2 = shadcn: upstream sizes icons with a plain `size-4` on the
+ * parent). The rendered sizes are unchanged — 14 / 16 / 20 / 24px — and they are literals here
+ * because this value is passed to `motion.svg` as a `size` prop, not compiled as a utility.
+ */
 const SIZES = {
-  xs: "var(--icon-inline)",
-  sm: "var(--icon-default)",
-  md: "var(--icon-action)",
-  lg: "var(--icon-feature)",
+  xs: "0.875rem",
+  sm: "1rem",
+  md: "1.25rem",
+  lg: "1.5rem",
 } as const;
 
 export type AnimatedIconSize = keyof typeof SIZES;
@@ -42,7 +49,7 @@ export interface AnimatedIconProps extends Omit<
   /** A mirrored lucide-animated icon component, e.g. `import { ActivityIcon } from '@/components/ui/activity'`. */
   as: AnimatedIconComponent;
   /**
-   * Size role — resolves through `--icon-inline/default/action/feature` at runtime.
+   * Size role — resolves through `size-3.5/default/action/feature` at runtime.
    * @default 'md'
    */
   size?: AnimatedIconSize;

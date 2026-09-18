@@ -1,59 +1,183 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/radio-group` (dogfoods the registry) → auto-scanned.
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
+} from "@/components/ui/field";
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Field } from "@/components/ui/field";
 
 export function radioGroup(): ReactNode {
   return (
     <Wrapper>
-      <RadioGroup defaultValue="comfortable" aria-label="Density">
-        <Field label="Comfortable" orientation="horizontal">
-          <RadioGroupItem value="comfortable" />
+      <RadioGroup defaultValue="option-one" className="w-fit">
+        <div className="flex items-center gap-3">
+          <RadioGroupItem value="option-one" id="option-one" />
+          <Label htmlFor="option-one">Option One</Label>
+        </div>
+        <div className="flex items-center gap-3">
+          <RadioGroupItem value="option-two" id="option-two" />
+          <Label htmlFor="option-two">Option Two</Label>
+        </div>
+      </RadioGroup>
+    </Wrapper>
+  );
+}
+
+export function radioGroupComposition(): ReactNode {
+  return (
+    <Wrapper>
+      <RadioGroup defaultValue="one" className="w-fit">
+        <div className="flex items-center gap-3">
+          <RadioGroupItem value="one" id="composition-one" />
+          <Label htmlFor="composition-one">RadioGroupItem</Label>
+        </div>
+        <div className="flex items-center gap-3">
+          <RadioGroupItem value="two" id="composition-two" />
+          <Label htmlFor="composition-two">RadioGroupItem</Label>
+        </div>
+      </RadioGroup>
+    </Wrapper>
+  );
+}
+
+export function radioGroupDescription(): ReactNode {
+  return (
+    <Wrapper>
+      <RadioGroup defaultValue="comfortable" className="w-fit">
+        <Field orientation="horizontal">
+          <RadioGroupItem value="default" id="desc-r1" />
+          <FieldContent>
+            <FieldLabel htmlFor="desc-r1">Default</FieldLabel>
+            <FieldDescription>
+              Standard spacing for most use cases.
+            </FieldDescription>
+          </FieldContent>
         </Field>
-        <Field label="Compact" orientation="horizontal">
-          <RadioGroupItem value="compact" />
+        <Field orientation="horizontal">
+          <RadioGroupItem value="comfortable" id="desc-r2" />
+          <FieldContent>
+            <FieldLabel htmlFor="desc-r2">Comfortable</FieldLabel>
+            <FieldDescription>More space between elements.</FieldDescription>
+          </FieldContent>
         </Field>
-        <Field label="Spacious" orientation="horizontal">
-          <RadioGroupItem value="spacious" />
+        <Field orientation="horizontal">
+          <RadioGroupItem value="compact" id="desc-r3" />
+          <FieldContent>
+            <FieldLabel htmlFor="desc-r3">Compact</FieldLabel>
+            <FieldDescription>
+              Minimal spacing for dense layouts.
+            </FieldDescription>
+          </FieldContent>
         </Field>
       </RadioGroup>
     </Wrapper>
   );
 }
 
-export function radioGroupHorizontal(): ReactNode {
+export function radioGroupChoiceCard(): ReactNode {
   return (
     <Wrapper>
-      {/* orientation="horizontal" lays the options out in a wrapping row. Field's root is
-          w-full (one option per line — defeats the row), so each wrapper gets w-auto here.
-          The last item is disabled, closing the orientation × disabled matrix. */}
-      <RadioGroup
-        orientation="horizontal"
-        defaultValue="card"
-        aria-label="Payment method"
-      >
-        <Field label="Card" orientation="horizontal" className="w-auto">
-          <RadioGroupItem value="card" />
+      <RadioGroup defaultValue="plus" className="max-w-sm">
+        <FieldLabel htmlFor="plus-plan">
+          <Field orientation="horizontal">
+            <FieldContent>
+              <FieldTitle>Plus</FieldTitle>
+              <FieldDescription>
+                For individuals and small teams.
+              </FieldDescription>
+            </FieldContent>
+            <RadioGroupItem value="plus" id="plus-plan" />
+          </Field>
+        </FieldLabel>
+        <FieldLabel htmlFor="pro-plan">
+          <Field orientation="horizontal">
+            <FieldContent>
+              <FieldTitle>Pro</FieldTitle>
+              <FieldDescription>For growing businesses.</FieldDescription>
+            </FieldContent>
+            <RadioGroupItem value="pro" id="pro-plan" />
+          </Field>
+        </FieldLabel>
+        <FieldLabel htmlFor="enterprise-plan">
+          <Field orientation="horizontal">
+            <FieldContent>
+              <FieldTitle>Enterprise</FieldTitle>
+              <FieldDescription>
+                For large teams and enterprises.
+              </FieldDescription>
+            </FieldContent>
+            <RadioGroupItem value="enterprise" id="enterprise-plan" />
+          </Field>
+        </FieldLabel>
+      </RadioGroup>
+    </Wrapper>
+  );
+}
+
+export function radioGroupFieldset(): ReactNode {
+  return (
+    <Wrapper>
+      <FieldSet className="w-full max-w-xs">
+        <FieldLegend variant="label">Subscription Plan</FieldLegend>
+        <FieldDescription>
+          Yearly and lifetime plans offer significant savings.
+        </FieldDescription>
+        <RadioGroup defaultValue="monthly">
+          <Field orientation="horizontal">
+            <RadioGroupItem value="monthly" id="plan-monthly" />
+            <FieldLabel htmlFor="plan-monthly" className="font-normal">
+              Monthly ($9.99/month)
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
+            <RadioGroupItem value="yearly" id="plan-yearly" />
+            <FieldLabel htmlFor="plan-yearly" className="font-normal">
+              Yearly ($99.99/year)
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
+            <RadioGroupItem value="lifetime" id="plan-lifetime" />
+            <FieldLabel htmlFor="plan-lifetime" className="font-normal">
+              Lifetime ($299.99)
+            </FieldLabel>
+          </Field>
+        </RadioGroup>
+      </FieldSet>
+    </Wrapper>
+  );
+}
+
+export function radioGroupDisabled(): ReactNode {
+  return (
+    <Wrapper>
+      <RadioGroup defaultValue="option2" className="w-fit">
+        <Field orientation="horizontal" data-disabled>
+          <RadioGroupItem value="option1" id="disabled-1" disabled />
+          <FieldLabel htmlFor="disabled-1" className="font-normal">
+            Disabled
+          </FieldLabel>
         </Field>
-        <Field label="PayPal" orientation="horizontal" className="w-auto">
-          <RadioGroupItem value="paypal" />
+        <Field orientation="horizontal">
+          <RadioGroupItem value="option2" id="disabled-2" />
+          <FieldLabel htmlFor="disabled-2" className="font-normal">
+            Option 2
+          </FieldLabel>
         </Field>
-        <Field
-          label="Bank transfer"
-          orientation="horizontal"
-          className="w-auto"
-        >
-          <RadioGroupItem value="bank" />
-        </Field>
-        <Field
-          label="Wire (unavailable)"
-          orientation="horizontal"
-          className="w-auto"
-        >
-          <RadioGroupItem value="wire" disabled />
+        <Field orientation="horizontal">
+          <RadioGroupItem value="option3" id="disabled-3" />
+          <FieldLabel htmlFor="disabled-3" className="font-normal">
+            Option 3
+          </FieldLabel>
         </Field>
       </RadioGroup>
     </Wrapper>
@@ -62,60 +186,94 @@ export function radioGroupHorizontal(): ReactNode {
 
 export function radioGroupInvalid(): ReactNode {
   return (
-    <Wrapper className="flex-col items-start gap-2">
-      {/* aria-invalid tints each item's border destructive — pair it with a
-          Field error message so the validation state is announced. */}
-      <RadioGroup aria-label="Plan" aria-invalid>
-        <Field label="Starter" orientation="horizontal">
-          <RadioGroupItem value="starter" aria-invalid />
-        </Field>
-        <Field label="Pro" orientation="horizontal">
-          <RadioGroupItem value="pro" aria-invalid />
-        </Field>
-      </RadioGroup>
-      <p className="text-base text-destructive-text" role="alert">
-        Select a plan to continue.
-      </p>
+    <Wrapper>
+      <FieldSet className="w-full max-w-xs" data-invalid>
+        <FieldLegend variant="label">Delivery window</FieldLegend>
+        <RadioGroup>
+          <Field orientation="horizontal" data-invalid>
+            <RadioGroupItem value="morning" id="invalid-morning" aria-invalid />
+            <FieldLabel htmlFor="invalid-morning" className="font-normal">
+              Morning
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal" data-invalid>
+            <RadioGroupItem
+              value="afternoon"
+              id="invalid-afternoon"
+              aria-invalid
+            />
+            <FieldLabel htmlFor="invalid-afternoon" className="font-normal">
+              Afternoon
+            </FieldLabel>
+          </Field>
+        </RadioGroup>
+        <FieldError>Choose a delivery window.</FieldError>
+      </FieldSet>
     </Wrapper>
   );
 }
 
-export function radioGroupStates(): ReactNode {
-  const [value, setValue] = useState("standard");
-
+export function radioGroupRtl(): ReactNode {
   return (
-    <Wrapper className="flex-col items-start gap-6">
-      {/* A full, controlled group — the selected dot renders in neutral ink */}
-      <RadioGroup
-        value={value}
-        onValueChange={setValue}
-        aria-label="Shipping speed"
-      >
-        <Field label="Standard — 5 business days" orientation="horizontal">
-          <RadioGroupItem value="standard" />
+    <Wrapper className="flex-col items-stretch gap-4">
+      <RadioGroup defaultValue="one" className="w-full max-w-xs" dir="ltr">
+        <Field orientation="horizontal">
+          <RadioGroupItem value="one" id="radio-rtl-ltr-1" />
+          <FieldLabel htmlFor="radio-rtl-ltr-1" className="font-normal">
+            Standard delivery
+          </FieldLabel>
         </Field>
-        <Field label="Express — 2 business days" orientation="horizontal">
-          <RadioGroupItem value="express" />
-        </Field>
-        <Field label="Overnight" orientation="horizontal">
-          <RadioGroupItem value="overnight" />
+        <Field orientation="horizontal">
+          <RadioGroupItem value="two" id="radio-rtl-ltr-2" />
+          <FieldLabel htmlFor="radio-rtl-ltr-2" className="font-normal">
+            Express delivery
+          </FieldLabel>
         </Field>
       </RadioGroup>
+      <RadioGroup defaultValue="one" className="w-full max-w-xs" dir="rtl">
+        <Field orientation="horizontal">
+          <RadioGroupItem value="one" id="radio-rtl-ar-1" />
+          <FieldLabel htmlFor="radio-rtl-ar-1" className="font-normal">
+            التوصيل العادي
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <RadioGroupItem value="two" id="radio-rtl-ar-2" />
+          <FieldLabel htmlFor="radio-rtl-ar-2" className="font-normal">
+            التوصيل السريع
+          </FieldLabel>
+        </Field>
+      </RadioGroup>
+    </Wrapper>
+  );
+}
 
-      {/* Disabled — empty (unselected) and pre-selected. A radio group is
-          single-select, so the disabled-selected case lives in its own group. */}
-      <div className="flex flex-wrap items-start gap-x-10 gap-y-4">
-        <RadioGroup aria-label="Disabled, unselected">
-          <Field label="Disabled" orientation="horizontal">
-            <RadioGroupItem value="disabled" disabled />
-          </Field>
-        </RadioGroup>
-        <RadioGroup defaultValue="locked" aria-label="Disabled, selected">
-          <Field label="Disabled selected" orientation="horizontal">
-            <RadioGroupItem value="locked" disabled />
-          </Field>
-        </RadioGroup>
-      </div>
+/** Ours: rest, selected, invalid and disabled in one frame. */
+export function radioGroupStates(): ReactNode {
+  return (
+    <Wrapper>
+      <RadioGroup defaultValue="selected" className="w-fit" aria-label="States">
+        <div className="flex items-center gap-3">
+          <RadioGroupItem value="rest" id="radio-state-rest" />
+          <Label htmlFor="radio-state-rest">Rest</Label>
+        </div>
+        <div className="flex items-center gap-3">
+          <RadioGroupItem value="selected" id="radio-state-selected" />
+          <Label htmlFor="radio-state-selected">Selected</Label>
+        </div>
+        <div className="flex items-center gap-3">
+          <RadioGroupItem
+            value="invalid"
+            id="radio-state-invalid"
+            aria-invalid
+          />
+          <Label htmlFor="radio-state-invalid">Invalid</Label>
+        </div>
+        <div className="flex items-center gap-3">
+          <RadioGroupItem value="disabled" id="radio-state-disabled" disabled />
+          <Label htmlFor="radio-state-disabled">Disabled</Label>
+        </div>
+      </RadioGroup>
     </Wrapper>
   );
 }

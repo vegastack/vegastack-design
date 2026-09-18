@@ -1,0 +1,12 @@
+{
+  "component": "label",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/label.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Label in Field",
+    "RTL",
+    "API Reference"
+  ]
+}

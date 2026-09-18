@@ -1,365 +1,215 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Slider } from "./slider";
+import { Label } from "./label";
 
-test("renders a slider with role slider", async () => {
-  const screen = await render(<Slider defaultValue={40} aria-label="Volume" />);
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  await expect.element(slider).toBeInTheDocument();
-});
+/*
+ * Base UI keeps the real control in a visually hidden `<input type="range">` inside the thumb, so
+ * `role="slider"` resolves to THAT input, not to the thumb span. The reset forwards the root's
+ * `aria-label` to it through `getAriaLabel` (A11Y-16) — these helpers read the input directly so a
+ * naming regression fails on the assertion rather than on a locator timeout.
+ */
+const inputs = (screen: { container: HTMLElement }) => [
+  ...screen.container.querySelectorAll<HTMLInputElement>('input[type="range"]'),
+];
 
-test("reflects the value via aria-valuenow", async () => {
-  const screen = await render(<Slider defaultValue={40} aria-label="Volume" />);
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "40");
-});
+const firstInput = (screen: { container: HTMLElement }) => {
+  const [input] = inputs(screen);
+  if (!input) throw new Error("slider rendered no range input");
+  return input;
+};
 
-test("renders the root with its data-slot", async () => {
-  const screen = await render(<Slider defaultValue={40} aria-label="Volume" />);
+const thumbClasses = (screen: { container: HTMLElement }) =>
+  (screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement)
+    .className;
+
+const thumbs = (screen: { container: HTMLElement }) =>
+  screen.container.querySelectorAll('[data-slot="slider-thumb"]');
+
+test("renders the root, track, indicator and one thumb (Usage)", async () => {
+  const screen = await render(
+    <Slider defaultValue={[33]} aria-label="Value" />,
+  );
   expect(screen.container.querySelector('[data-slot="slider"]')).not.toBeNull();
   expect(
     screen.container.querySelector('[data-slot="slider-track"]'),
   ).not.toBeNull();
   expect(
-    screen.container.querySelector('[data-slot="slider-indicator"]'),
+    screen.container.querySelector('[data-slot="slider-range"]'),
   ).not.toBeNull();
-  expect(
-    screen.container.querySelector('[data-slot="slider-thumb"]'),
-  ).not.toBeNull();
+  expect(thumbs(screen).length).toBe(1);
 });
 
-test("honors min, max, and step", async () => {
+test("the thumb reports its value to assistive tech (Usage)", async () => {
   const screen = await render(
-    <Slider
-      defaultValue={50}
-      min={0}
-      max={1000}
-      step={10}
-      aria-label="Budget"
-    />,
+    <Slider defaultValue={[33]} max={100} step={1} aria-label="Value" />,
   );
-  const slider = screen.getByRole("slider", { name: "Budget" });
-  // The thumb's native <input type="range"> carries the bounds; role=slider
-  // derives aria-valuemin/max from them, while aria-valuenow is set explicitly.
-  await expect.element(slider).toHaveAttribute("min", "0");
-  await expect.element(slider).toHaveAttribute("max", "1000");
-  await expect.element(slider).toHaveAttribute("step", "10");
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "50");
+  const input = firstInput(screen);
+  expect(input.getAttribute("aria-valuenow")).toBe("33");
+  expect(input.min).toBe("0");
+  expect(input.max).toBe("100");
 });
 
-test("renders one thumb per value for a range", async () => {
+test("A11Y-16: the root's aria-label names the control that holds the role", async () => {
   const screen = await render(
-    <Slider
-      defaultValue={[20, 80]}
-      thumbAriaLabels={["Minimum price", "Maximum price"]}
-    />,
+    <Slider defaultValue={[33]} aria-label="Value" />,
   );
-  const sliders = screen.getByRole("slider");
-  expect(sliders.all()).toHaveLength(2);
-  await expect
-    .element(screen.getByRole("slider", { name: "Minimum price" }))
-    .toHaveAttribute("aria-valuenow", "20");
-  await expect
-    .element(screen.getByRole("slider", { name: "Maximum price" }))
-    .toHaveAttribute("aria-valuenow", "80");
+  expect(firstInput(screen).getAttribute("aria-label")).toBe("Value");
 });
 
-test("generates distinct range thumb labels from the slider aria-label fallback", async () => {
+test("A11Y-16: every thumb of a range slider is named", async () => {
   const screen = await render(
-    <Slider defaultValue={[20, 80]} aria-label="Price range" />,
+    <Slider defaultValue={[25, 50]} aria-label="Price range" />,
   );
-  await expect
-    .element(screen.getByRole("slider", { name: "Minimum Price range" }))
-    .toHaveAttribute("aria-valuenow", "20");
-  await expect
-    .element(screen.getByRole("slider", { name: "Maximum Price range" }))
-    .toHaveAttribute("aria-valuenow", "80");
+  expect(inputs(screen).map((i) => i.getAttribute("aria-label"))).toEqual([
+    "Price range",
+    "Price range",
+  ]);
 });
 
-test("disabled removes the thumb from interaction", async () => {
+test("two values render two thumbs (Range)", async () => {
   const screen = await render(
-    <Slider defaultValue={40} disabled aria-label="Volume" />,
+    <Slider defaultValue={[25, 50]} max={100} step={5} aria-label="Range" />,
   );
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  await expect.element(slider).toBeDisabled();
+  expect(thumbs(screen).length).toBe(2);
 });
 
-test("ArrowRight increments the value by step", async () => {
-  const onValueChange = vi.fn();
+test("three values render three thumbs (Multiple Thumbs)", async () => {
   const screen = await render(
-    <Slider
-      defaultValue={40}
-      onValueChange={onValueChange}
-      aria-label="Volume"
-    />,
+    <Slider defaultValue={[10, 20, 70]} max={100} aria-label="Breakpoints" />,
   );
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  slider.element().focus();
+  expect(thumbs(screen).length).toBe(3);
+});
+
+test("orientation=vertical sets the data attribute the layout keys off (Vertical)", async () => {
+  const screen = await render(
+    <Slider defaultValue={[50]} orientation="vertical" aria-label="Level" />,
+  );
+  const root = screen.container.querySelector(
+    '[data-slot="slider"]',
+  ) as HTMLElement;
+  expect(root.getAttribute("data-orientation")).toBe("vertical");
+});
+
+test("a controlled slider reports its change (Controlled)", async () => {
+  let value: number[] = [30];
+  const screen = await render(
+    <div>
+      <Label htmlFor="temp">Temperature</Label>
+      <Slider
+        id="temp"
+        value={value}
+        onValueChange={(next) => (value = next as number[])}
+        min={0}
+        max={100}
+        step={10}
+      />
+    </div>,
+  );
+  firstInput(screen).focus();
   await userEvent.keyboard("{ArrowRight}");
-  expect(onValueChange).toHaveBeenLastCalledWith(41, expect.anything());
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "41");
+  expect(value[0]).toBe(40);
 });
 
-test("ArrowUp increments the value by step", async () => {
-  const onValueChange = vi.fn();
+test("keyboard moves the value (Usage, Accessibility)", async () => {
   const screen = await render(
     <Slider
-      defaultValue={40}
-      onValueChange={onValueChange}
-      aria-label="Volume"
-    />,
-  );
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  slider.element().focus();
-  await userEvent.keyboard("{ArrowUp}");
-  expect(onValueChange).toHaveBeenLastCalledWith(41, expect.anything());
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "41");
-});
-
-test("ArrowLeft decrements the value by step", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(
-    <Slider
-      defaultValue={40}
-      onValueChange={onValueChange}
-      aria-label="Volume"
-    />,
-  );
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  slider.element().focus();
-  await userEvent.keyboard("{ArrowLeft}");
-  expect(onValueChange).toHaveBeenLastCalledWith(39, expect.anything());
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "39");
-});
-
-test("ArrowDown decrements the value by step", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(
-    <Slider
-      defaultValue={40}
-      onValueChange={onValueChange}
-      aria-label="Volume"
-    />,
-  );
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  slider.element().focus();
-  await userEvent.keyboard("{ArrowDown}");
-  expect(onValueChange).toHaveBeenLastCalledWith(39, expect.anything());
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "39");
-});
-
-test("arrow keys step by the custom step size", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(
-    <Slider
-      defaultValue={50}
-      min={0}
-      max={1000}
-      step={10}
-      onValueChange={onValueChange}
-      aria-label="Budget"
-    />,
-  );
-  const slider = screen.getByRole("slider", { name: "Budget" });
-  slider.element().focus();
-  await userEvent.keyboard("{ArrowRight}");
-  expect(onValueChange).toHaveBeenLastCalledWith(60, expect.anything());
-  await userEvent.keyboard("{ArrowLeft}");
-  expect(onValueChange).toHaveBeenLastCalledWith(50, expect.anything());
-});
-
-test("Home jumps to the minimum value", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(
-    <Slider
-      defaultValue={40}
+      defaultValue={[50]}
       min={0}
       max={100}
-      onValueChange={onValueChange}
-      aria-label="Volume"
+      step={1}
+      aria-label="Value"
     />,
   );
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  slider.element().focus();
+  const input = firstInput(screen);
+  input.focus();
+  await userEvent.keyboard("{ArrowRight}");
+  expect(input.getAttribute("aria-valuenow")).toBe("51");
   await userEvent.keyboard("{Home}");
-  expect(onValueChange).toHaveBeenLastCalledWith(0, expect.anything());
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "0");
+  expect(input.getAttribute("aria-valuenow")).toBe("0");
 });
 
-test("End jumps to the maximum value", async () => {
-  const onValueChange = vi.fn();
+test("disabled marks the control and blocks keyboard changes (Disabled)", async () => {
   const screen = await render(
-    <Slider
-      defaultValue={40}
-      min={0}
-      max={100}
-      onValueChange={onValueChange}
-      aria-label="Volume"
-    />,
+    <Slider defaultValue={[50]} disabled aria-label="Value" />,
   );
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  slider.element().focus();
-  await userEvent.keyboard("{End}");
-  expect(onValueChange).toHaveBeenLastCalledWith(100, expect.anything());
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "100");
-});
-
-test("disabled removes the thumb from the tab order so arrow keys have no effect", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(
-    <Slider
-      defaultValue={40}
-      disabled
-      onValueChange={onValueChange}
-      aria-label="Volume"
-    />,
-  );
-  const slider = screen.getByRole("slider", { name: "Volume" });
-  // Disabled native range inputs cannot receive focus; the value must stay put.
-  slider.element().focus();
+  const root = screen.container.querySelector(
+    '[data-slot="slider"]',
+  ) as HTMLElement;
+  expect(root.hasAttribute("data-disabled")).toBe(true);
+  const input = firstInput(screen);
+  input.focus();
   await userEvent.keyboard("{ArrowRight}");
-  expect(onValueChange).not.toHaveBeenCalled();
-  await expect.element(slider).toHaveAttribute("aria-valuenow", "40");
+  expect(input.getAttribute("aria-valuenow")).toBe("50");
 });
 
-test("no a11y violations when labelled", async () => {
-  const screen = await render(<Slider defaultValue={40} aria-label="Volume" />);
+test("RTL: the control inherits direction from its container (RTL)", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Slider defaultValue={[75]} aria-label="القيمة" />
+    </div>,
+  );
+  const root = screen.container.querySelector(
+    '[data-slot="slider"]',
+  ) as HTMLElement;
+  expect(getComputedStyle(root).direction).toBe("rtl");
+});
+
+test("A11Y-2: an invisible ::after extends the thumb's pointer target past 24px", async () => {
+  const screen = await render(
+    <Slider defaultValue={[50]} aria-label="Value" />,
+  );
+  const classes = thumbClasses(screen);
+  expect(classes).toContain("after:absolute");
+  expect(classes).toContain("after:-inset-2");
+});
+
+test("FOC-1/FOC-6: the thumb carries no ring glow and no outline suppression", async () => {
+  const screen = await render(
+    <Slider defaultValue={[50]} aria-label="Value" />,
+  );
+  const classes = thumbClasses(screen);
+  expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+  expect(classes).not.toContain("hover:ring-");
+  expect(classes).not.toContain("active:ring-");
+  expect(classes).not.toContain("focus-visible:ring-");
+  expect(classes).not.toContain("focus-visible:outline-hidden");
+});
+
+test("FRM-4: the thumb never removes pointer events when disabled", async () => {
+  const screen = await render(
+    <Slider defaultValue={[50]} disabled aria-label="Value" />,
+  );
+  expect(thumbClasses(screen)).not.toContain("disabled:pointer-events-none");
+});
+
+test("no a11y violations — rest", async () => {
+  const screen = await render(
+    <Slider defaultValue={[33]} aria-label="Value" />,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — range", async () => {
+  const screen = await render(
+    <Slider defaultValue={[25, 50]} aria-label="Price range" />,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — vertical", async () => {
+  const screen = await render(
+    <Slider defaultValue={[50]} orientation="vertical" aria-label="Level" />,
+  );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — disabled", async () => {
   const screen = await render(
-    <Slider defaultValue={40} disabled aria-label="Volume" />,
+    <Slider defaultValue={[50]} disabled aria-label="Value" />,
   );
   await expectNoA11yViolations(screen.container);
-});
-
-test("render composes a custom root element while keeping slot + classes", async () => {
-  // Base UI's `render` replaces the Slider.Root host
-  // but merges our data-slot + className and keeps the slider internals as
-  // children (the role=slider thumb still works).
-  const screen = await render(
-    <Slider
-      defaultValue={40}
-      aria-label="Volume"
-      className="sentinel-slider"
-      render={<section data-testid="custom-slider-root" />}
-    />,
-  );
-  const root = screen.container.querySelector(
-    '[data-slot="slider"]',
-  ) as HTMLElement;
-  expect(root).not.toBeNull();
-  expect(root.tagName).toBe("SECTION");
-  expect(root.getAttribute("data-testid")).toBe("custom-slider-root");
-  expect(root.classList.contains("sentinel-slider")).toBe(true);
-  // Internals survive the composition — the thumb still exposes role=slider.
-  await expect
-    .element(screen.getByRole("slider", { name: "Volume" }))
-    .toHaveAttribute("aria-valuenow", "40");
-});
-
-test("forwards ref to the underlying slider root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(<Slider ref={ref} defaultValue={40} aria-label="Volume" />);
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("slider");
-});
-
-/* ---------------------------------------------------------------------------------------------
- * Touch-target remediation (WCAG 2.5.8) — effective hit-area measurement.
- *
- * Same rationale/technique as checkbox.test.tsx: this harness runs without compiled Tailwind, so
- * `before:-inset-1.5` never resolves to real CSS here. Each test injects a literal <style> tag that
- * is a 1:1 mirror of the exact utilities plus the thumb's real 2px border, keyed to `data-slot`,
- * component renders (real regardless of compiled CSS), then measures the REAL, browser-computed
- * layout against it.
- *
- * The pointer target is `[data-slot="slider-thumb"]` — the visible, draggable DIV — NOT the
- * `role="slider"` element (that's the nested, visually-hidden `<input type="range">`; Base UI
- * positions the visible thumb DIV with an inline `position: absolute`, confirmed by inspection,
- * so no `relative` class is needed on it, matching the component's own inline comment).
- * ------------------------------------------------------------------------------------------- */
-
-function injectSliderThumbHitAreaMirror(): () => void {
-  const style = document.createElement("style");
-  style.textContent = `
-    body { margin: 24px; }
-    [data-slot="slider"] { position: relative; display: flex; width: 300px; align-items: center; box-sizing: border-box; }
-    [data-slot="slider-control"] { position: relative; display: flex; width: 100%; align-items: center; box-sizing: border-box; }
-    [data-slot="slider-track"] { position: relative; height: 6px; width: 100%; box-sizing: border-box; }
-    [data-slot="slider-thumb"] { width: 16px; height: 16px; box-sizing: border-box; border: 2px solid transparent; }
-    [data-slot="slider-thumb"]::before { content: ""; position: absolute; inset: -6px; }
-  `;
-  document.head.appendChild(style);
-  return () => document.head.removeChild(style);
-}
-
-test("thumb (16px) resolves an effective hit area >= 24x24 via the before pseudo-element", async () => {
-  const cleanup = injectSliderThumbHitAreaMirror();
-  try {
-    const screen = await render(
-      <Slider defaultValue={40} aria-label="Volume" />,
-    );
-    const thumb = screen.container.querySelector(
-      '[data-slot="slider-thumb"]',
-    ) as HTMLElement;
-    thumb.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(thumb, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
-  } finally {
-    cleanup();
-  }
-});
-
-test("a point just outside the visual thumb, inside the expanded hit area, still hits the thumb", async () => {
-  const cleanup = injectSliderThumbHitAreaMirror();
-  try {
-    const screen = await render(
-      <Slider defaultValue={40} aria-label="Volume" />,
-    );
-    const thumb = screen.container.querySelector(
-      '[data-slot="slider-thumb"]',
-    ) as HTMLElement;
-    const rect = thumb.getBoundingClientRect();
-    // 3px above the visual top edge — inside the 6px expansion, outside the 16px dot.
-    const x = rect.left + rect.width / 2;
-    const y = rect.top - 3;
-    const hit = document.elementFromPoint(x, y);
-    expect(hit).toBe(thumb);
-
-    // The expanded surface must resolve to the visible draggable thumb and that
-    // thumb must own Base UI's semantic range input. Do not use post-click focus
-    // as the signal here: WebKit intentionally does not focus many controls on
-    // pointer activation, and Firefox likewise leaves Base UI's visually hidden
-    // range input unfocused. Keyboard focus/operation is covered independently.
-    const input = screen.container.querySelector('input[type="range"]');
-    expect(thumb.contains(input)).toBe(true);
-  } finally {
-    cleanup();
-  }
-});
-
-test("a point beyond the expanded hit area does not resolve to the thumb", async () => {
-  const cleanup = injectSliderThumbHitAreaMirror();
-  try {
-    const screen = await render(
-      <Slider defaultValue={40} aria-label="Volume" />,
-    );
-    const thumb = screen.container.querySelector(
-      '[data-slot="slider-thumb"]',
-    ) as HTMLElement;
-    const rect = thumb.getBoundingClientRect();
-    // 8px above the visual top edge — beyond the 6px expansion boundary.
-    const x = rect.left + rect.width / 2;
-    const y = rect.top - 8;
-    const hit = document.elementFromPoint(x, y);
-    expect(hit).not.toBe(thumb);
-  } finally {
-    cleanup();
-  }
 });

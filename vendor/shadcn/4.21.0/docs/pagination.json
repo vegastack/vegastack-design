@@ -1,0 +1,15 @@
+{
+  "component": "pagination",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/pagination.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Simple",
+    "Icons Only",
+    "Next.js",
+    "RTL",
+    "Changelog"
+  ]
+}

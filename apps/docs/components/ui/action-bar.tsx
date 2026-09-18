@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.9.1 sha256-0G1fMOIAMSuywmNg/gn/IScUPmhr0aXiovnPsj2PrJI=
+// @vegastack action-bar@0.9.1 sha256-7X1ifWXQMdY+MqUtrvTuLmaAkvhTHXZ11LgMo3Y3KuY=
 
 "use client";
 
@@ -27,9 +27,9 @@ instead: the bar tracks that element's box via ResizeObserver and positions off 
 unitless CSS custom property (`--action-bar-x`, consumed as `calc(var(--action-bar-x) *
 1px)`), so inline style stays custom-properties-only.
 
-Stacking: `z-(--z-raised)` — the bar floats over page content and is correctly covered
-by any dialog opened from one of its actions (`z-overlay`). It stays flat: separation is
-the surface ladder (bg-background + the one border), not a shadow.
+Stacking: `z-10` — the bar floats over page content and is correctly covered by any dialog
+opened from one of its actions, which upstream puts at `z-50`. It stays flat: separation is
+`bg-background` plus the one hairline, not a shadow.
 --- */
 
 /** Props accepted by `ActionBar`. */
@@ -104,7 +104,7 @@ export interface ActionBarProps extends React.ComponentPropsWithRef<"div"> {
  * <ActionBar open={count > 0} status={`${count} selected`}>
  *   <ActionBarButton onClick={tag}>Tag</ActionBarButton>
  *   <ActionBarSeparator />
- *   <ActionBarButton render={<Button variant="soft" tone="destructive" size="sm" />}>
+ *   <ActionBarButton render={<Button variant="destructive" size="sm" />}>
  *     Archive
  *   </ActionBarButton>
  * </ActionBar>
@@ -180,7 +180,7 @@ export function ActionBar({
         } as React.CSSProperties
       }
       className={cn(
-        "fixed z-(--z-raised) flex w-fit max-w-[calc(100%-var(--spacing)*8)] items-center gap-2 rounded-lg border border-border bg-background py-1.5 ps-4 pe-2",
+        "fixed z-10 flex w-fit max-w-[calc(100%-var(--spacing)*8)] items-center gap-2 rounded-lg border border-border bg-background py-1.5 ps-4 pe-2",
         // Pinned to the bottom viewport edge → add the safe-area inset.
         "bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))]",
         measured
@@ -198,7 +198,7 @@ export function ActionBar({
       {status != null ? (
         <div
           data-slot="action-bar-status"
-          className="flex min-w-0 items-center text-sm whitespace-nowrap text-muted-foreground"
+          className="flex min-w-0 items-center text-xs whitespace-nowrap text-muted-foreground"
         >
           {status}
         </div>
@@ -211,7 +211,7 @@ export function ActionBar({
         inert={pending || undefined}
         className={cn(
           "flex items-center gap-1",
-          pending && "opacity-(--opacity-dim) select-none",
+          pending && "opacity-50 select-none",
         )}
       >
         {children}
@@ -242,11 +242,11 @@ export type ActionBarButtonProps = React.ComponentPropsWithRef<
  * still renders, but stays its own tab stop and the arrows skip it. This is that registration, with
  * the bar's default action shape (a `ghost` `sm` button) already applied.
  *
- * Pass `render` to change the shape — a destructive action, an `IconButton`, a menu trigger:
+ * Pass `render` to change the shape — a destructive action, an icon `Button`, a menu trigger:
  *
  * @example
  * <ActionBarButton onClick={tag}>Tag</ActionBarButton>
- * <ActionBarButton render={<Button variant="soft" tone="destructive" size="sm" />}>
+ * <ActionBarButton render={<Button variant="destructive" size="sm" />}>
  *   Archive
  * </ActionBarButton>
  */

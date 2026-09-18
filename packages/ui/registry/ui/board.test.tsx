@@ -90,7 +90,7 @@ test("renders columns with counts, cards as list items, and a locked empty lane"
   await expect.element(board).toBeInTheDocument();
   expect(columnCards("lead")).toEqual(["Acme", "Globex"]);
   expect(columnCards("won")).toEqual(["Initech"]);
-  // Empty non-droppable lane names its lock reason, using Empty variant="dashed".
+  // Empty non-droppable lane names its lock reason, using an Empty block.
   const parked = document.querySelector('[data-column="parked"]')!;
   expect(parked.textContent).toContain("Closed deals only move by automation");
   expect(
@@ -391,4 +391,32 @@ test("the card layer keeps ONE tab stop for surfaces and ONE for menu triggers",
   expect(triggerStops.length).toBe(1);
   // And they belong to the SAME (roving) card.
   expect(surfaceStops[0]!.parentElement!.contains(triggerStops[0]!)).toBe(true);
+});
+
+test("the drop-over highlight moves the column Card's RING, not a zero-width border", async () => {
+  // Regression, found rebuilding this file in Batch 7c: the column is upstream's `Card`, which
+  // draws its hairline as `ring-1 ring-foreground/10` and carries no border width at all. The
+  // highlight read `data-drop-over:border-primary/50`, which set a colour on a border that does
+  // not exist — so from the day Batch 2 put `card.tsx` back on upstream, the drop affordance
+  // painted nothing. Nothing caught it: the class was present, it simply did not resolve.
+  const screen = await render(
+    <Board<Deal>
+      aria-label="Deals"
+      columns={makeColumns()}
+      getItemId={(deal) => deal.id}
+      renderCard={(deal) => <span>{deal.name}</span>}
+      onMove={() => {}}
+    />,
+  );
+  const column = screen.container.querySelector(
+    '[data-slot="board-column"]',
+  ) as HTMLElement;
+  expect(column.className).toContain("data-drop-over:ring-primary/50");
+  expect(column.className).not.toContain("data-drop-over:border-");
+  // The ring the override targets is really there, and there is really no border to target:
+  // `Card` declares no border-WIDTH utility at all, so a border-colour class resolves to nothing.
+  // (This lane loads no stylesheet, so the class contract is the honest proof here; the painted
+  // hairline itself is measured in `test/contrast.browser.test.tsx`, which does load the theme.)
+  expect(column.className).toContain("ring-1");
+  expect(column.className).not.toMatch(/(^|\s)border(-\d|\s|$)/);
 });

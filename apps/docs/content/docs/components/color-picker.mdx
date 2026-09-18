@@ -88,8 +88,6 @@ component never ships raw Tailwind palette variables:
 | `pink`   | Pink    | `var(--color-chart-5)`     |
 | `rose`   | Rose    | `var(--color-chart-6)`     |
 
-### Controlled selection
-
 ### States
 
 Default (a selection chosen), empty (no selection yet — a transparent trigger), and disabled.
@@ -131,8 +129,6 @@ template. Below: the default 12-color palette at `columns={4}`, `7`, and `14`.
 
 The shape of each entry in a `colors` palette.
 
-### ColorOption
-
 <ApiTable
   path="../../packages/ui/registry/ui/color-picker.tsx"
   name="ColorOption"
@@ -146,12 +142,15 @@ The shape of each entry in a `colors` palette.
   badge (`bg-background text-foreground`) so the check stays legible on light or custom swatches.
 - The picker opens on trigger click; focus moves into the grid and is restored to the trigger on close.
 - Dismiss is built in — clicking outside the panel or pressing <kbd>Esc</kbd> closes it.
-- Every control keeps the global 2px `:focus-visible` ring (`outline-ring`); the `outline`-variant trigger additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`), and the `ghost` swatch buttons rely on that global ring — never `outline: none`.
+- Every control keeps the global 2px `:focus-visible` outline (`outline-ring`, 1px offset) that `base.css` paints — the trigger and the `ghost` swatch buttons alike. Nothing here sets `outline: none`, and no component adds a ring of its own.
 
 | Key                                                | Action                                                          |
 | -------------------------------------------------- | --------------------------------------------------------------- |
 | <kbd>Enter</kbd> / <kbd>Space</kbd>                | Open the picker (on the trigger), or select the focused swatch. |
-| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between swatches in the open grid.                   |
+| <kbd>←</kbd> / <kbd>→</kbd>                        | Move one swatch within the grid.                                |
+| <kbd>↑</kbd> / <kbd>↓</kbd>                        | Move one row — by `columns` swatches.                           |
+| <kbd>Home</kbd> / <kbd>End</kbd>                   | Jump to the first or last swatch in the grid.                   |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Leave the grid — roving tabindex makes it one tab stop.         |
 | <kbd>Esc</kbd>                                     | Close the picker and return focus to the trigger.               |
 
 <StatesTested name="color-picker" />

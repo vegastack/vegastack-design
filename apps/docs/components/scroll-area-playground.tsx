@@ -1,15 +1,21 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ScrollArea, type ScrollAreaProps } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type ScrollAreaPlaygroundKey = "orientation";
+type ScrollAreaPlaygroundKey = "axis";
 
-const ORIENTATION_OPTIONS = [
+/*
+ * There is no `orientation` prop any more. Upstream's `ScrollArea` renders ONE vertical `ScrollBar`
+ * and a `Corner` for you; the other axis is a `ScrollBar orientation="horizontal"` written beside
+ * the content, inside the viewport. So the knob here picks which axis the CONTENT overflows on, and
+ * the generated JSX shows the one composition step that follows from it.
+ */
+const AXIS_OPTIONS = [
   { value: "vertical", label: "Vertical" },
   { value: "horizontal", label: "Horizontal" },
   { value: "both", label: "Both" },
@@ -32,15 +38,15 @@ const TAGS = [
   "vrt-baselines",
 ] as const;
 
-/** The bounding classes per orientation — the constraint is what makes the content overflow. */
-function boxClassName(orientation: string | boolean): string {
-  return orientation === "horizontal"
+/** The bounding classes per axis — the constraint is what makes the content overflow. */
+function boxClassName(axis: string | boolean): string {
+  return axis === "horizontal"
     ? "w-56 rounded-md border"
     : "h-40 w-56 rounded-md border";
 }
 
-function overflowContent(orientation: string | boolean): ReactNode {
-  if (orientation === "horizontal") {
+function overflowContent(axis: string | boolean): ReactNode {
+  if (axis === "horizontal") {
     return (
       <div className="flex w-max gap-2 p-3">
         {TAGS.map((tag) => (
@@ -54,7 +60,7 @@ function overflowContent(orientation: string | boolean): ReactNode {
       </div>
     );
   }
-  if (orientation === "both") {
+  if (axis === "both") {
     return (
       <div className="flex w-max flex-col gap-1 p-3">
         {ROWS.map((row) => (
@@ -80,38 +86,35 @@ const scrollAreaPlaygroundConfig: PlaygroundConfig<ScrollAreaPlaygroundKey> = {
   controls: [
     {
       type: "select",
-      key: "orientation",
-      label: "Orientation",
-      options: ORIENTATION_OPTIONS,
+      key: "axis",
+      label: "Overflow axis",
+      options: AXIS_OPTIONS,
       defaultValue: "vertical",
     },
   ],
   render: (state): ReactNode => (
-    <ScrollArea
-      orientation={state.orientation as ScrollAreaProps["orientation"]}
-      className={boxClassName(state.orientation)}
-      aria-label="Changesets"
-    >
-      {overflowContent(state.orientation)}
+    <ScrollArea className={boxClassName(state.axis)} aria-label="Changesets">
+      {overflowContent(state.axis)}
+      {state.axis !== "vertical" && <ScrollBar orientation="horizontal" />}
     </ScrollArea>
   ),
   toCode: (state) => {
-    const props: string[] = [];
-    if (state.orientation !== "vertical")
-      props.push(`orientation="${state.orientation}"`);
-    props.push(`className="${boxClassName(state.orientation)}"`);
-    props.push('aria-label="Changesets"');
-    return `<ScrollArea ${props.join(" ")}>
-  {/* overflowing content */}
+    const horizontal =
+      state.axis === "vertical"
+        ? ""
+        : '\n  <ScrollBar orientation="horizontal" />';
+    return `<ScrollArea className="${boxClassName(state.axis)}" aria-label="Changesets">
+  {/* overflowing content */}${horizontal}
 </ScrollArea>`;
   },
 };
 
 /**
- * `ScrollAreaPlayground` — interactive props playground for `ScrollArea` (orientation), backed by
- * the generic {@link PropsPlayground}. Each orientation renders deterministic content that
- * overflows on exactly the matching axis (or both), so the custom scrollbar(s) always engage.
- * Registered in `mdx.tsx`, adopted in `content/docs/components/scroll-area.mdx`.
+ * `ScrollAreaPlayground` — interactive playground for `ScrollArea`, backed by the generic
+ * `PropsPlayground`. The knob picks the axis the content overflows on: each setting renders
+ * deterministic content that overflows on exactly that axis, and the horizontal settings add the
+ * one `ScrollBar` upstream asks you to compose. Registered in `mdx.tsx`, adopted in
+ * `content/docs/components/scroll-area.mdx`.
  */
 export function ScrollAreaPlayground() {
   return <PropsPlayground {...scrollAreaPlaygroundConfig} />;

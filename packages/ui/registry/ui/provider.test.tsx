@@ -1,8 +1,10 @@
 import { render } from "vitest-browser-react";
+import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { VegaStackProvider, useVegaStackTheme } from "./provider";
 import { toast } from "./toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /** Poll until a mounted toast carrying `text` is in the portal under <body>. */
 async function waitForToast(text: string) {
@@ -15,7 +17,7 @@ async function waitForToast(text: string) {
 }
 
 /**
- * `toastManager` is a MODULE SINGLETON, so a toast fired by one test outlives that test's React
+ * The toast manager is a MODULE SINGLETON, so a toast fired by one test outlives that test's React
  * tree for its full auto-dismiss timeout and keeps rendering — action and close button and all —
  * into whatever the next test mounts. Draining it explicitly is the only way a later test in this
  * file can assert on "the button it rendered" without racing that timer. (Carried over from the
@@ -23,7 +25,7 @@ async function waitForToast(text: string) {
  * migration.)
  */
 async function drainToasts() {
-  toast.dismiss();
+  toast.close();
   await expect
     .poll(() => document.querySelectorAll('[data-slot="toast"]').length)
     .toBe(0);
@@ -46,7 +48,7 @@ test("mounts exactly one toast viewport by default, and toast() reaches it", asy
   );
   // The viewport mounts with the provider; fire a toast, then assert exactly ONE
   // viewport exists and the toast reached it.
-  toast("Provider toast works");
+  toast.add({ title: "Provider toast works" });
   await waitForToast("Provider toast works");
   expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
     1,
@@ -136,4 +138,30 @@ test("a11y: provider-wrapped content has no violations", async () => {
     </VegaStackProvider>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("tooltips below the provider open on the shared TIMINGS delay", async () => {
+  // The provider mounts `tooltip.tsx`'s own `TooltipProvider` — the registry item a consumer
+  // already installs — rather than reaching privately into Base UI's `Tooltip.Provider`, which
+  // is what it did before Batch 7c of the shadcn reset. `Tooltip.Provider` renders no element of
+  // its own, so the honest proof is behavioural: a `Tooltip` mounted below `VegaStackProvider`
+  // finds a delay context and opens. Without one Base UI throws on the missing provider, so this
+  // test fails loudly if the swap ever drops it.
+  const screen = await render(
+    <VegaStackProvider>
+      <Tooltip>
+        <TooltipTrigger render={<button type="button">Save</button>} />
+        <TooltipContent>Save the draft</TooltipContent>
+      </Tooltip>
+    </VegaStackProvider>,
+  );
+  const trigger = screen.getByRole("button", { name: "Save" });
+  await userEvent.hover(trigger);
+  await expect
+    .poll(() =>
+      document
+        .querySelector('[data-slot="tooltip-content"]')
+        ?.textContent?.includes("Save the draft"),
+    )
+    .toBe(true);
 });

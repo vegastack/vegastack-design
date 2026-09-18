@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.9.1 sha256-GnHlW/uNrUsK1gxXIppDi/5mUctLeHA0DwtCGWudOSE=
+// @vegastack relative-time@0.9.1 sha256-/H/Bmy/5SFagrhoJA6CcxAN/ktjoIRpDZljm5pBqT9k=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cn } from "@vegastack/design";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTruncationFocusable } from "@/components/ui/truncated-text";
@@ -300,7 +301,12 @@ export function RelativeTime({
       // a real, readable absolute date, not a placeholder.
       tabIndex={hasTooltip && isFocusable ? 0 : undefined}
       className={cn(
-        "relative inline-flex rounded-sm tabular-nums before:absolute before:inset-x-0 before:-inset-y-1",
+        // A11Y-2: when the <time> is a tooltip trigger it is a real pointer target, so it owns a
+        // real 24px box (`min-h-6`) instead of an invisible `::before` expansion. The pseudo
+        // version lost the hit test wherever a denser neighbour's box overlapped the overflow —
+        // measured in `geometry.browser.test.tsx`'s `timeline` fixture after Batch 2 tightened
+        // Item's padding. A box the browser lays out cannot be out-painted the same way.
+        "relative inline-flex min-h-6 items-center rounded-sm tabular-nums",
         className,
       )}
       {...props}
@@ -320,9 +326,11 @@ export function RelativeTime({
         }).format(target);
 
   return (
-    <Tooltip delay={tooltipDelay}>
-      <TooltipTrigger render={timeEl} />
-      <TooltipContent>{tooltipLabel}</TooltipContent>
-    </Tooltip>
+    <TooltipProvider delay={tooltipDelay}>
+      <Tooltip>
+        <TooltipTrigger render={timeEl} />
+        <TooltipContent>{tooltipLabel}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

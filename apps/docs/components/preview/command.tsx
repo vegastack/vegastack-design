@@ -2,342 +2,444 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
-import {
-  Calendar,
-  CreditCard,
-  FileText,
-  LayoutDashboard,
-  RefreshCw,
-  Search,
-  Settings,
-  Smile,
-  User,
-  type LucideIcon,
-} from "lucide-react";
 import { Wrapper } from "./wrapper";
+import {
+  BellIcon,
+  CalculatorIcon,
+  CalendarIcon,
+  ClipboardPasteIcon,
+  CodeIcon,
+  CopyIcon,
+  CreditCardIcon,
+  FileTextIcon,
+  FolderIcon,
+  FolderPlusIcon,
+  HelpCircleIcon,
+  HomeIcon,
+  ImageIcon,
+  InboxIcon,
+  LayoutGridIcon,
+  ListIcon,
+  PlusIcon,
+  ScissorsIcon,
+  SettingsIcon,
+  SmileIcon,
+  TrashIcon,
+  UserIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/command` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandInput,
-  CommandList,
+  CommandDialog,
   CommandEmpty,
-  CommandLoading,
   CommandGroup,
+  CommandInput,
   CommandItem,
+  CommandList,
   CommandSeparator,
   CommandShortcut,
-  CommandDialog,
-  useCommandFilteredItems,
 } from "@/components/ui/command";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-
-type Item = {
-  value: string;
-  label: string;
-  icon: LucideIcon;
-  shortcut?: string;
-  disabled?: boolean;
-  keywords?: string[];
-};
-
-const SUGGESTIONS: Item[] = [
-  { value: "calendar", label: "Calendar", icon: Calendar },
-  { value: "search-emoji", label: "Search Emoji", icon: Smile },
-];
-const SETTINGS: Item[] = [
-  { value: "profile", label: "Profile", icon: User, shortcut: "⌘P" },
-  {
-    value: "billing",
-    label: "Billing",
-    icon: CreditCard,
-    shortcut: "⌘B",
-    disabled: true,
-  },
-  { value: "settings", label: "Settings", icon: Settings, shortcut: "⌘S" },
-];
-const COMMAND_GROUPS = [
-  { heading: "Suggestions", items: SUGGESTIONS },
-  { heading: "Settings", items: SETTINGS },
-];
-
-/** Reads Command's query-filtered groups and renders one `CommandGroup` per group, separated. */
-function CommandGroups({ onSelect }: { onSelect?: (value: string) => void }) {
-  const groups = useCommandFilteredItems<(typeof COMMAND_GROUPS)[number]>();
-  return (
-    <>
-      {groups.map((group, i) => (
-        <React.Fragment key={group.heading}>
-          {i > 0 ? <CommandSeparator /> : null}
-          <CommandGroup heading={group.heading} items={group.items}>
-            {(item) => (
-              <CommandItem
-                key={item.value}
-                value={item.value}
-                disabled={item.disabled}
-                onSelect={() => onSelect?.(item.value)}
-              >
-                <item.icon />
-                <span>{item.label}</span>
-                {item.shortcut ? (
-                  <CommandShortcut>{item.shortcut}</CommandShortcut>
-                ) : null}
-              </CommandItem>
-            )}
-          </CommandGroup>
-        </React.Fragment>
-      ))}
-    </>
-  );
-}
+import { DirectionProvider } from "@/components/ui/direction";
 
 export function command(): ReactNode {
   return (
     <Wrapper>
-      <Command
-        items={COMMAND_GROUPS}
-        className="w-full max-w-sm border border-border shadow-overlay"
-      >
-        <CommandInput placeholder="Type a command or search…" />
-        <CommandEmpty>No results found.</CommandEmpty>
+      <Command className="max-w-sm rounded-lg border">
+        <CommandInput placeholder="Type a command or search..." />
         <CommandList>
-          <CommandGroups />
-        </CommandList>
-      </Command>
-    </Wrapper>
-  );
-}
-
-export function commandStates(): ReactNode {
-  const emptyItems: Item[] = [
-    { value: "profile", label: "Profile", icon: User },
-    { value: "settings", label: "Settings", icon: Settings },
-  ];
-  return (
-    <Wrapper className="flex-col gap-6 sm:flex-row sm:items-start">
-      <div className="flex w-full max-w-sm flex-col gap-2">
-        <span className="text-label-sm text-muted-foreground">Item states</span>
-        <Command
-          items={SETTINGS}
-          className="w-full border border-border shadow-overlay"
-        >
-          <CommandInput placeholder="Type a command or search…" />
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandList>
-            {(item: Item) => (
-              <CommandItem
-                key={item.value}
-                value={item.value}
-                disabled={item.disabled}
-              >
-                <item.icon />
-                <span>{item.label}</span>
-                {item.shortcut ? (
-                  <CommandShortcut>{item.shortcut}</CommandShortcut>
-                ) : null}
-              </CommandItem>
-            )}
-          </CommandList>
-        </Command>
-      </div>
-      <div className="flex w-full max-w-sm flex-col gap-2">
-        <span className="text-label-sm text-muted-foreground">Empty state</span>
-        <Command
-          items={emptyItems}
-          defaultInputValue="no-such-command"
-          className="w-full border border-border shadow-overlay"
-        >
-          <CommandInput placeholder="Search…" />
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandList>
-            {(item: Item) => (
-              <CommandItem key={item.value} value={item.value}>
-                <item.icon />
-                <span>{item.label}</span>
-              </CommandItem>
-            )}
-          </CommandList>
-        </Command>
-      </div>
-    </Wrapper>
-  );
-}
-
-export function commandDialog(): ReactNode {
-  return (
-    <Wrapper>
-      <CommandDialogDemo />
-    </Wrapper>
-  );
-}
-
-export function commandAsync(): ReactNode {
-  return (
-    <Wrapper className="flex-col">
-      <CommandAsyncDemo />
-    </Wrapper>
-  );
-}
-
-const ADVANCED_ITEMS: Item[] = [
-  {
-    value: "dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    keywords: ["home", "overview"],
-  },
-  {
-    value: "invoices",
-    label: "Invoices",
-    icon: CreditCard,
-    shortcut: "⌘I",
-    keywords: ["billing", "payments"],
-  },
-  {
-    value: "docs",
-    label: "Docs",
-    icon: FileText,
-    keywords: ["files", "knowledge"],
-  },
-];
-
-/**
- * Matching by label OR `keywords` — the prior library's per-item `keywords` prop has no Base UI equivalent
- * (filtering is data-driven off `items`, not per-rendered-item metadata), so it's folded into the
- * item data and matched from a custom `filter` on `Command` instead.
- */
-export function commandAdvanced(): ReactNode {
-  const [search, setSearch] = React.useState("");
-  return (
-    <Wrapper>
-      <Command
-        items={ADVANCED_ITEMS}
-        className="w-full max-w-sm border border-border shadow-overlay"
-        inputValue={search}
-        onInputValueChange={setSearch}
-        filter={(item: Item, query) => {
-          const haystack = [item.label, ...(item.keywords ?? [])]
-            .join(" ")
-            .toLowerCase();
-          return haystack.includes(query.toLowerCase());
-        }}
-        loop
-      >
-        <CommandInput placeholder="Search by label or alias…" />
-        <CommandEmpty>No commands found for "{search}".</CommandEmpty>
-        <CommandList>
-          {(item: Item) => (
-            <CommandItem key={item.value} value={item.value}>
-              <item.icon />
-              <span>{item.label}</span>
-              {item.shortcut ? (
-                <CommandShortcut>{item.shortcut}</CommandShortcut>
-              ) : null}
+          <CommandGroup heading="Suggestions">
+            <CommandItem>
+              <CalendarIcon />
+              <span>Calendar</span>
             </CommandItem>
-          )}
+            <CommandItem>
+              <SmileIcon />
+              <span>Search Emoji</span>
+            </CommandItem>
+            <CommandItem disabled>
+              <CalculatorIcon />
+              <span>Calculator</span>
+            </CommandItem>
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup heading="Settings">
+            <CommandItem>
+              <UserIcon />
+              <span>Profile</span>
+              <CommandShortcut>⌘P</CommandShortcut>
+            </CommandItem>
+            <CommandItem>
+              <CreditCardIcon />
+              <span>Billing</span>
+              <CommandShortcut>⌘B</CommandShortcut>
+            </CommandItem>
+            <CommandItem>
+              <SettingsIcon />
+              <span>Settings</span>
+              <CommandShortcut>⌘S</CommandShortcut>
+            </CommandItem>
+          </CommandGroup>
         </CommandList>
       </Command>
     </Wrapper>
   );
 }
 
-function CommandAsyncDemo() {
-  const [loaded, setLoaded] = React.useState(false);
-  const items: Item[] = loaded
-    ? [
-        {
-          value: "quarterly-report",
-          label: "Quarterly report",
-          icon: FileText,
-        },
-        {
-          value: "billing-dashboard",
-          label: "Billing dashboard",
-          icon: CreditCard,
-        },
-        { value: "team-calendar", label: "Team calendar", icon: Calendar },
-      ]
-    : [];
-
+/** The cmdk engine on its own: type into the input and the list narrows as it scores. */
+export function commandAbout(): ReactNode {
   return (
-    <div className="flex w-full max-w-sm flex-col gap-3">
-      <Button
-        type="button"
-        variant="outline"
-        className="self-start"
-        onClick={() => setLoaded((value) => !value)}
-      >
-        <RefreshCw />
-        {loaded ? "Reset results" : "Load results"}
-      </Button>
-      <Command
-        items={items}
-        className="w-full border border-border shadow-overlay"
-      >
-        <CommandInput placeholder="Search remote commands…" />
-        <CommandLoading>
-          {!loaded ? (
-            <>
-              <Spinner size="inherit" label="" />
-              Fetching commands…
-            </>
-          ) : null}
-        </CommandLoading>
+    <Wrapper>
+      <Command className="max-w-sm rounded-lg border">
+        <CommandInput placeholder="Type a command or search..." />
         <CommandList>
-          {loaded ? (
-            <CommandGroup heading="Remote results" items={items}>
-              {(item: Item) => (
-                <CommandItem key={item.value} value={item.value}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </CommandItem>
-              )}
-            </CommandGroup>
-          ) : null}
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Suggestions">
+            <CommandItem>Calendar</CommandItem>
+            <CommandItem>Search Emoji</CommandItem>
+            <CommandItem>Calculator</CommandItem>
+          </CommandGroup>
         </CommandList>
       </Command>
-    </div>
+    </Wrapper>
   );
 }
 
-function CommandDialogDemo() {
+export function commandComposition(): ReactNode {
+  return (
+    <Wrapper>
+      <Command className="max-w-sm rounded-lg border">
+        <CommandInput placeholder="Type a command or search..." />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Suggestions">
+            <CommandItem>Calendar</CommandItem>
+            <CommandItem>Search Emoji</CommandItem>
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup heading="Settings">
+            <CommandItem>Profile</CommandItem>
+            <CommandItem>Billing</CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </Wrapper>
+  );
+}
+
+export function commandBasic(): ReactNode {
   const [open, setOpen] = React.useState(false);
 
-  // The app owns this binding (the component is presentational). A consuming app uses ⌘K, and the
-  // page's code sample shows exactly that — but THIS docs site already owns ⌘K for its own search
-  // dialog, and Fumadocs' `SearchProvider` toggles on `window` without consulting
-  // `event.defaultPrevented`, so a second ⌘K handler here opened both dialogs stacked
-  // (`docs/ledger/bugs.md`, 2026-09-08). The demo therefore takes ⌘J, a chord the site does not
-  // claim; the shortcut chip and the page note both say so.
-  React.useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((prev) => !prev);
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, []);
+  return (
+    <Wrapper>
+      <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
+        Open Menu
+      </Button>
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <Command>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Suggestions">
+              <CommandItem>Calendar</CommandItem>
+              <CommandItem>Search Emoji</CommandItem>
+              <CommandItem>Calculator</CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </CommandDialog>
+    </Wrapper>
+  );
+}
+
+export function commandShortcuts(): ReactNode {
+  const [open, setOpen] = React.useState(false);
 
   return (
-    <>
-      <Button variant="outline" onClick={() => setOpen(true)}>
-        <Search />
-        Open command menu
-        <CommandShortcut>⌘J</CommandShortcut>
+    <Wrapper>
+      <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
+        Open Menu
       </Button>
-      <CommandDialog
-        open={open}
-        onOpenChange={setOpen}
-        commandProps={{ items: COMMAND_GROUPS }}
-      >
-        <CommandInput placeholder="Type a command or search…" />
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandList>
-          <CommandGroups onSelect={() => setOpen(false)} />
-        </CommandList>
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <Command>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Settings">
+              <CommandItem>
+                <UserIcon />
+                <span>Profile</span>
+                <CommandShortcut>⌘P</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <CreditCardIcon />
+                <span>Billing</span>
+                <CommandShortcut>⌘B</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <SettingsIcon />
+                <span>Settings</span>
+                <CommandShortcut>⌘S</CommandShortcut>
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
       </CommandDialog>
-    </>
+    </Wrapper>
+  );
+}
+
+export function commandGroups(): ReactNode {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Wrapper>
+      <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
+        Open Menu
+      </Button>
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <Command>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Suggestions">
+              <CommandItem>
+                <CalendarIcon />
+                <span>Calendar</span>
+              </CommandItem>
+              <CommandItem>
+                <SmileIcon />
+                <span>Search Emoji</span>
+              </CommandItem>
+              <CommandItem>
+                <CalculatorIcon />
+                <span>Calculator</span>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Settings">
+              <CommandItem>
+                <UserIcon />
+                <span>Profile</span>
+                <CommandShortcut>⌘P</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <CreditCardIcon />
+                <span>Billing</span>
+                <CommandShortcut>⌘B</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <SettingsIcon />
+                <span>Settings</span>
+                <CommandShortcut>⌘S</CommandShortcut>
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </CommandDialog>
+    </Wrapper>
+  );
+}
+
+export function commandScrollable(): ReactNode {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Wrapper>
+      <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
+        Open Menu
+      </Button>
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <Command>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Navigation">
+              <CommandItem>
+                <HomeIcon />
+                <span>Home</span>
+                <CommandShortcut>⌘H</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <InboxIcon />
+                <span>Inbox</span>
+                <CommandShortcut>⌘I</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <FileTextIcon />
+                <span>Documents</span>
+                <CommandShortcut>⌘D</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <FolderIcon />
+                <span>Folders</span>
+                <CommandShortcut>⌘F</CommandShortcut>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Actions">
+              <CommandItem>
+                <PlusIcon />
+                <span>New File</span>
+                <CommandShortcut>⌘N</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <FolderPlusIcon />
+                <span>New Folder</span>
+                <CommandShortcut>⇧⌘N</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <CopyIcon />
+                <span>Copy</span>
+                <CommandShortcut>⌘C</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <ScissorsIcon />
+                <span>Cut</span>
+                <CommandShortcut>⌘X</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <ClipboardPasteIcon />
+                <span>Paste</span>
+                <CommandShortcut>⌘V</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <TrashIcon />
+                <span>Delete</span>
+                <CommandShortcut>⌫</CommandShortcut>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="View">
+              <CommandItem>
+                <LayoutGridIcon />
+                <span>Grid View</span>
+              </CommandItem>
+              <CommandItem>
+                <ListIcon />
+                <span>List View</span>
+              </CommandItem>
+              <CommandItem>
+                <ZoomInIcon />
+                <span>Zoom In</span>
+                <CommandShortcut>⌘+</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <ZoomOutIcon />
+                <span>Zoom Out</span>
+                <CommandShortcut>⌘-</CommandShortcut>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Account">
+              <CommandItem>
+                <UserIcon />
+                <span>Profile</span>
+                <CommandShortcut>⌘P</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <CreditCardIcon />
+                <span>Billing</span>
+                <CommandShortcut>⌘B</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <SettingsIcon />
+                <span>Settings</span>
+                <CommandShortcut>⌘S</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <BellIcon />
+                <span>Notifications</span>
+              </CommandItem>
+              <CommandItem>
+                <HelpCircleIcon />
+                <span>Help &amp; Support</span>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Tools">
+              <CommandItem>
+                <CalculatorIcon />
+                <span>Calculator</span>
+              </CommandItem>
+              <CommandItem>
+                <CalendarIcon />
+                <span>Calendar</span>
+              </CommandItem>
+              <CommandItem>
+                <ImageIcon />
+                <span>Image Editor</span>
+              </CommandItem>
+              <CommandItem>
+                <CodeIcon />
+                <span>Code Editor</span>
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </CommandDialog>
+    </Wrapper>
+  );
+}
+
+export function commandRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-center gap-4">
+      <DirectionProvider direction="ltr">
+        <Command className="w-full max-w-sm rounded-lg border" dir="ltr">
+          <CommandInput placeholder="Type a command or search..." dir="ltr" />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Suggestions">
+              <CommandItem>
+                <CalendarIcon />
+                <span>Calendar</span>
+              </CommandItem>
+              <CommandItem disabled>
+                <CalculatorIcon />
+                <span>Calculator</span>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Settings">
+              <CommandItem>
+                <UserIcon />
+                <span>Profile</span>
+                <CommandShortcut>⌘P</CommandShortcut>
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </DirectionProvider>
+      <DirectionProvider direction="rtl">
+        <Command className="w-full max-w-sm rounded-lg border" dir="rtl">
+          <CommandInput placeholder="اكتب أمرًا أو ابحث..." dir="rtl" />
+          <CommandList>
+            <CommandEmpty>لم يتم العثور على نتائج.</CommandEmpty>
+            <CommandGroup heading="اقتراحات">
+              <CommandItem>
+                <CalendarIcon />
+                <span>التقويم</span>
+              </CommandItem>
+              <CommandItem disabled>
+                <CalculatorIcon />
+                <span>الآلة الحاسبة</span>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="الإعدادات">
+              <CommandItem>
+                <UserIcon />
+                <span>الملف الشخصي</span>
+                <CommandShortcut>⌘P</CommandShortcut>
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </DirectionProvider>
+    </Wrapper>
   );
 }

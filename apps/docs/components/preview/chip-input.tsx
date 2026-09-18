@@ -10,14 +10,14 @@ export function chipInput(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">Tags</span>
+        <span className="text-xs font-medium text-muted-foreground">Tags</span>
         <ChipInput
           aria-label="Tags"
           value={tags}
           onValueChange={setTags}
           placeholder="Add tags…"
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Enter or comma commits; Backspace in the empty input removes the last
           chip.
         </p>
@@ -34,7 +34,7 @@ export function chipInputValidation(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           Recipients
         </span>
         <ChipInput
@@ -44,7 +44,7 @@ export function chipInputValidation(): ReactNode {
           validate={(chip) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(chip)}
           placeholder="Add recipients…"
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Invalid entries stay visible and flagged — paste a list and fix the
           typos instead of losing them.
         </p>
@@ -60,7 +60,6 @@ export function chipInputStates(): ReactNode {
         <ChipInput aria-label="Empty" placeholder="Add domains…" />
         <ChipInput
           aria-label="Small"
-          size="sm"
           defaultValue={["events.create", "events.delete"]}
         />
         <ChipInput aria-label="Disabled" defaultValue={["locked"]} disabled />

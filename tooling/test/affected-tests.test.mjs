@@ -243,6 +243,39 @@ describe("path classification", () => {
       "packages/ui/registry/ui/code-block.test.tsx",
     );
   });
+
+  it("classifies the deletion of a registry path no contract ever owned", () => {
+    // Batch 4 of the shadcn reset deleted `command.characterization.test.tsx`, which no contract
+    // record listed — so neither the current nor the base indexes could own it, and it reached the
+    // unowned-path error on a file that is GONE. A deletion has no tests of its own left to run.
+    const result = createAffectedPlan({
+      changes: change(
+        "packages/ui/registry/ui/never-owned.characterization.test.tsx",
+        "D",
+      ),
+      contracts,
+      registry,
+      cwd: ROOT,
+    });
+    expect(result.errors).toEqual([]);
+    expect(result.classifications).toContainEqual({
+      path: "packages/ui/registry/ui/never-owned.characterization.test.tsx",
+      kind: "registry-deletion",
+    });
+    expect(result.registryCheck).toBe(true);
+  });
+
+  it("still rejects an ADDED registry path no contract owns", () => {
+    const result = createAffectedPlan({
+      changes: change("packages/ui/registry/ui/never-owned.tsx", "A"),
+      contracts,
+      registry,
+      cwd: ROOT,
+    });
+    expect(result.errors).toContain(
+      "unowned registry path: packages/ui/registry/ui/never-owned.tsx",
+    );
+  });
 });
 
 describe("affected policy integrity", () => {
@@ -269,11 +302,11 @@ describe("affected policy integrity", () => {
   it("reconciles cross-cutting owners against direct registry imports", () => {
     const changed = structuredClone(contracts);
     const suite = changed.affectedTestPolicy.crossCuttingTests.find((entry) =>
-      entry.file.endsWith("button-matrix.browser.test.tsx"),
+      entry.file.endsWith("button-states.browser.test.tsx"),
     );
     suite.owners = suite.owners.filter((owner) => owner !== "button");
     expect(validateAffectedPolicy(changed)).toContain(
-      "packages/ui/test/button-matrix.browser.test.tsx: imported registry owner button is undeclared",
+      "packages/ui/test/button-states.browser.test.tsx: imported registry owner button is undeclared",
     );
   });
 });

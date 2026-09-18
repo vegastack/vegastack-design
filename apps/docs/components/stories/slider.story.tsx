@@ -2,8 +2,10 @@ import { defineStory } from "@/lib/story";
 import { Slider } from "./slider.client";
 
 /**
- * Story explorer for `Slider` — controls auto-generated from `SliderProps` by the Story
- * build plugin. Uncontrolled via `defaultValue`; pass an array for a range.
+ * Story explorer for `Slider` — controls auto-generated from the component's props by the Story
+ * build plugin. Uncontrolled via `defaultValue`; pass an array for a range. Upstream's Slider
+ * labels its thumbs through one `aria-label` on the root — there is no per-thumb label prop — so
+ * the Range variant carries a single group label.
  */
 export const story = defineStory({
   Component: Slider,
@@ -22,7 +24,6 @@ export const story = defineStory({
       },
       fixed: {
         defaultValue: [20, 80],
-        thumbAriaLabels: ["Minimum price", "Maximum price"],
       },
     },
   ],

@@ -1,6 +1,6 @@
 ---
 title: Pagination
-description: Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
+description: Page navigation — previous and next controls, numbered page links, an ellipsis for long ranges, and the active page.
 audience: public
 registry: pagination
 status: stable
@@ -29,184 +29,181 @@ import {
 <Pagination>
   <PaginationContent>
     <PaginationItem>
-      <PaginationPrevious href="?page=1" />
+      <PaginationPrevious href="#" />
     </PaginationItem>
     <PaginationItem>
-      <PaginationLink href="?page=1">1</PaginationLink>
+      <PaginationLink href="#">1</PaginationLink>
     </PaginationItem>
     <PaginationItem>
-      <PaginationLink href="?page=2" isActive>
+      <PaginationLink href="#" isActive>
         2
       </PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#">3</PaginationLink>
     </PaginationItem>
     <PaginationItem>
       <PaginationEllipsis />
     </PaginationItem>
     <PaginationItem>
-      <PaginationNext href="?page=2" />
+      <PaginationNext href="#" />
     </PaginationItem>
   </PaginationContent>
 </Pagination>;
 ```
 
-## Anatomy
+<ComponentPreview name="pagination" file="components/preview/pagination.tsx" />
 
-`Pagination` is a compound component built from a presentational `<nav>` wrapping an unordered
-list of page controls. Compose the parts inside the root — every part exposes a `data-slot`:
+## Anatomy
 
 <Anatomy name="pagination" />
 
-```tsx
-<Pagination aria-label="Search results pagination">
-  <PaginationContent>
-    <PaginationItem>
-      <PaginationPrevious href="?page=1" />
-    </PaginationItem>
-    <PaginationItem>
-      <PaginationLink href="?page=1">1</PaginationLink>
-    </PaginationItem>
-    <PaginationItem>
-      <PaginationLink href="?page=2" isActive>
-        2 {/* current page */}
-      </PaginationLink>
-    </PaginationItem>
-    <PaginationItem>
-      <PaginationEllipsis /> {/* collapse a long range */}
-    </PaginationItem>
-    <PaginationItem>
-      <PaginationNext href="?page=2" />
-    </PaginationItem>
-  </PaginationContent>
-</Pagination>
-```
-
-- `Pagination` — the navigation landmark (`data-slot="pagination"`). Renders a plain `<nav>` — `<nav>` **is** the landmark, so no explicit `role` — labelled "Pagination" unless you pass your own `aria-label`.
-- `PaginationContent` — the list of controls (`<ul>`, `data-slot="pagination-content"`). Flex-aligned with a consistent gap.
-- `PaginationItem` — a single list slot (`<li>`, `data-slot="pagination-item"`).
-- `PaginationLink` — a navigable page link (`<a>`, `data-slot="pagination-link"`). Styled like a ghost/outline button; set `isActive` on the current page and choose a `size`. Supports the Base UI `render` prop for client-side routing.
-- `PaginationPrevious` — a labelled "previous page" control (`<a>`) with a leading chevron.
-- `PaginationNext` — a labelled "next page" control (`<a>`) with a trailing chevron.
-- `PaginationEllipsis` — a decorative collapsed-pages indicator (`data-slot="pagination-ellipsis"`, `aria-hidden`) for long ranges.
-
 ## Examples
 
-<ComponentPreview name="pagination" file="components/preview/pagination.tsx" />
+### Composition
 
-### Routing links
+`Pagination` is a `nav` labelled `pagination`; `PaginationContent` is the `ul` inside it, and every
+control sits in its own `PaginationItem`. `PaginationLink` renders a `Button` with
+`nativeButton={false}` around an anchor it builds itself, so anchor props — `href`, `onClick` — go
+straight on `PaginationLink`.
 
-Use the `render` prop on `PaginationLink` (and `PaginationPrevious`/`PaginationNext`) to compose with
-your router's link component while keeping pagination styling and semantics:
-
-```tsx
-import Link from "next/link";
-
-<PaginationLink render={<Link href="?page=2" />} isActive>
-  2
-</PaginationLink>;
+```text
+Pagination
+└── PaginationContent
+    ├── PaginationItem
+    │   └── PaginationPrevious
+    ├── PaginationItem
+    │   └── PaginationLink
+    ├── PaginationItem
+    │   └── PaginationEllipsis
+    └── PaginationItem
+        └── PaginationNext
 ```
 
 <ComponentPreview
-  name="paginationRouting"
+  name="paginationComposition"
   file="components/preview/pagination.tsx"
 />
 
-### Sizes
+### Simple
 
-`PaginationLink` takes a `size` prop — `sm` (28px), `md` (32px), `lg` (40px), and `icon` (a 32px square,
-the square default for numbered pages) — on the same 28/32/40 control scale as buttons and inputs. The
-grid below renders all four: `icon` is the squared-off default, `sm`/`md`/`lg` widen the hit target
-with horizontal padding.
+Page numbers with no previous/next pair. `isActive` marks the current page: it swaps the link to the
+`outline` button variant and sets `aria-current="page"`.
 
 <ComponentPreview
-  name="paginationSizes"
+  name="paginationSimple"
   file="components/preview/pagination.tsx"
 />
 
-### Edge states
+### Icons Only
 
-When a previous/next control is unavailable, omit `href` and set `aria-disabled="true"` — the link
-then enforces the disabled state itself (removed from the tab order, clicks and Enter blocked). A
-disabled link can never navigate.
-
-On the **first page**, disable `PaginationPrevious`:
+The previous/next pair on its own, next to a rows-per-page select — the footer a data table wants.
+`PaginationPrevious` and `PaginationNext` hide their label below the `sm` breakpoint, so on a phone
+the two controls are the chevrons alone while `aria-label` keeps their names.
 
 <ComponentPreview
-  name="paginationFirstPage"
+  name="paginationIconsOnly"
   file="components/preview/pagination.tsx"
 />
 
-On the **last page**, mirror the pattern on `PaginationNext`:
+### Next.js
+
+`PaginationLink` renders the anchor itself and spreads the props you give it onto that anchor, so a
+Next.js app passes `next/link`'s props — `href`, `prefetch`, `scroll`, `onClick` — to
+`PaginationLink` directly. No edit to `pagination.tsx` is needed. This site has no router, so the
+example below is the plain anchor the component builds by default.
 
 <ComponentPreview
-  name="paginationLastPage"
+  name="paginationNextJs"
   file="components/preview/pagination.tsx"
 />
 
-### Positional pager
+### RTL
 
-`PaginationPager` is the compact record-pager: previous/next steppers + a "n of N [context]"
-status label (bounds-disabled at the ends, tabular numerals). Use it for stepping through
-items of a known list; keep `Pagination` for numbered page navigation.
+Wrap the subtree in `DirectionProvider direction="rtl"`. The chevrons carry `rtl:rotate-180`, so
+they point the way the text reads, and `text` on `PaginationPrevious`/`PaginationNext` is what makes
+the two labels translatable — they default to `Previous` and `Next`.
 
 <ComponentPreview
-  name="paginationPager"
+  name="paginationRtl"
   file="components/preview/pagination.tsx"
 />
 
 ## Playground
 
-Try every page-link size on a live pagination bar, then copy the generated JSX.
+Move the page-link size across the shared control scale, then copy the generated JSX.
 
 <PaginationPlayground />
 
 ## API Reference
 
+### Pagination
+
+<ApiTable path="lib/api-props.ts" name="PaginationProps" />
+
+### PaginationContent
+
+<ApiTable path="lib/api-props.ts" name="PaginationContentProps" />
+
+### PaginationItem
+
+<ApiTable path="lib/api-props.ts" name="PaginationItemProps" />
+
 ### PaginationLink
 
-<ApiTable
-  path="../../packages/ui/registry/ui/pagination.tsx"
-  name="PaginationLinkProps"
-/>
+<ApiTable path="lib/api-props.ts" name="PaginationLinkProps" />
 
-### PaginationPrevious / PaginationNext
+### PaginationPrevious
 
-`PaginationPrevious` and `PaginationNext` accept exactly the same props as
-`PaginationLink` (`isActive`, `size`, `render`, plus native `<a>` props) — they
-pre-compose the directional chevron and label.
+<ApiTable path="lib/api-props.ts" name="PaginationPreviousProps" />
 
-`Pagination`, `PaginationContent`, `PaginationItem`, and `PaginationEllipsis`
-add no props of their own — each accepts everything its underlying native
-element accepts (`<nav>`, `<ul>`, `<li>`, `<span>`), plus `className` and
-`ref`.
+### PaginationNext
+
+<ApiTable path="lib/api-props.ts" name="PaginationNextProps" />
+
+### PaginationEllipsis
+
+<ApiTable path="lib/api-props.ts" name="PaginationEllipsisProps" />
 
 ## Accessibility
 
-- The root is a navigation landmark: a plain `<nav aria-label="Pagination">`. `<nav>` already carries
-  the landmark role, so the component does not restate it.
-- **Name every pager on a page that has more than one.** Two landmarks with the same accessible name
-  are an axe `landmark-unique` failure and give screen-reader users no way to tell them apart. Pass
-  `aria-label="Search results pagination"`, `aria-label="Invoices pagination"`, and so on — the
-  default "Pagination" is correct only when the page has exactly one.
-- The active page uses `aria-current="page"`, so it is announced as the current location in the set.
-- Previous/Next controls carry an explicit `aria-label` ("Go to previous page" / "Go to next page") so the
-  icon-only direction is still meaningful to screen readers.
-- `PaginationEllipsis` is decorative (`aria-hidden="true"`). Use real page links or a separate
-  labelled menu trigger when skipped pages need to be reachable.
-- Disabled Previous/Next controls omit `href` and set `aria-disabled` — the component then removes
-  them from the tab order and blocks activation itself (an `aria-disabled` anchor is otherwise not
-  inert).
-- Links use the native `<a>` and keep a visible `:focus-visible` ring — never `outline: none`.
-
-| Key              | Action                                      |
-| ---------------- | ------------------------------------------- |
-| <kbd>Tab</kbd>   | Move focus through the pagination controls. |
-| <kbd>Enter</kbd> | Follow the focused page link.               |
+- `Pagination` is a `nav` with `role="navigation"` and `aria-label="pagination"`, so assistive
+  technology can jump to the pager as a landmark and name it apart from the page's other navigation.
+- The active page carries `aria-current="page"`, which is what announces "current" rather than the
+  `outline` fill doing it with colour alone.
+- Every control is an `<a href>` rendered through `Button` with `nativeButton={false}`, so Base UI
+  gives it `role="button"` and `tabindex="0"`: it announces as a button, activates on both
+  <kbd>Enter</kbd> and <kbd>Space</kbd>, and still navigates and opens in a new
+  tab like the anchor it is. That is upstream's behaviour, shipped unchanged.
+- `PaginationPrevious` and `PaginationNext` keep `aria-label="Go to previous page"` and
+  `aria-label="Go to next page"`, so they stay named at the breakpoint where their visible label is
+  hidden.
+- `PaginationEllipsis` is `aria-hidden` decoration carrying an `sr-only` "More pages"; it is not a
+  control and is not in the tab order.
+- Every control is a `Button` — `size="icon"` (32px) for a page number, `size="default"` for the
+  previous/next pair — so the WCAG 2.2 target floor is met by the control's own box, with no
+  invisible hit area needed (A11Y-2).
+- Focus is the global 2px `:focus-visible` outline from `base.css`, inherited from `Button`; there is
+  no ring glow.
 
 <StatesTested name="pagination" />
 
 ## Do / Don't
 
 <DoDont
-  do="Mark the current page with isActive so it gets aria-current='page', give icon-only Previous/Next controls a clear label, and name each pager when a page has more than one."
-  dont="Render the active page as a plain non-link, omit Previous/Next labels, or leave two pagers sharing the default 'Pagination' name."
+  do="Use Pagination for content split into numbered pages, mark the current page with isActive, and give every control a real href so it works without JavaScript."
+  dont="Use Pagination for an infinite feed or a 'load more' list, or rely on the ellipsis as a control — it is aria-hidden decoration."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/pagination.patch`. Every hunk:
+
+- **No styling hunk.** `PaginationLink` renders through `Button`, which already carries this
+  system's focus, cursor and disabled behaviour, so pagination inherits FOC-1, FOC-5, FOC-6 and
+  FRM-4 rather than restating them. **A11Y-2 — audited, no hunk:** every control is a `Button` at
+  `size="icon"` (32px) or `size="default"`, and `PaginationEllipsis` is `aria-hidden` and not a
+  control. `pagination.test.tsx` measures both.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

@@ -44,16 +44,21 @@ const ENTRY = '@import "@vegastack/design/preset.css";\n';
 // Classes that ONLY exist because the preset's `@source` scanned our published package dist.
 // (Escaped form is how Tailwind emits the selector in the compiled stylesheet.)
 const ASSERTIONS = [
-  // The toast surface is the only thing in `@vegastack/ui/dist` that paints the status tints,
-  // so these two prove the preset scanned that dist. (They replaced the sonner-era
-  // `group-[.toaster]:*` overrides, which the Base UI Toast migration deleted.)
+  // Two classes the toast surface is the ONLY thing in `@vegastack/ui/dist` to ship, so they prove
+  // the preset scanned that dist rather than picking the class up from somewhere else in the
+  // bundle. Retargeted in Batch 4 of the shadcn reset (2026-09-18): the previous pair,
+  // `bg-success/10` and `bg-destructive/10`, described the pre-reset tinted toast. Upstream's
+  // toast paints `bg-popover` and tints nothing — and `bg-destructive/10` kept passing anyway,
+  // because Button's own destructive variant is in the same bundle, so half the probe had
+  // silently stopped testing the Toaster at all. `text-success-text` is the COL-12 icon ink and
+  // `rounded-2xl` the toast root's radius; neither is spelled anywhere else in this dist.
   {
-    label: "Toaster (@vegastack/ui dist) — bg-success-subtle",
-    test: (css) => /\.bg-success-subtle\s*\{/.test(css),
+    label: "Toaster (@vegastack/ui dist) — text-success-text",
+    test: (css) => /\.text-success-text\s*\{/.test(css),
   },
   {
-    label: "Toaster (@vegastack/ui dist) — bg-destructive-subtle",
-    test: (css) => /\.bg-destructive-subtle\s*\{/.test(css),
+    label: "Toaster (@vegastack/ui dist) — rounded-2xl",
+    test: (css) => /\.rounded-2xl\s*\{/.test(css),
   },
   {
     label: "BrandIcon (@vegastack/design/icons dist) — .shrink-0",

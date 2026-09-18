@@ -1,0 +1,230 @@
+---
+title: Drawer
+description: A swipeable panel anchored to a viewport edge — four directions, snap points, a swipe handle, nesting, and a non-modal mode.
+audience: public
+registry: drawer
+status: stable
+since: 0.10.0
+a11y: APG dialog (modal by default)
+preview: drawer
+---
+
+## Install
+
+<InstallSteps name="drawer" />
+
+## Usage
+
+```tsx
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+
+<Drawer>
+  <DrawerTrigger render={<Button variant="outline" />}>Open</DrawerTrigger>
+  <DrawerContent>
+    <DrawerHeader>
+      <DrawerTitle>Are you absolutely sure?</DrawerTitle>
+      <DrawerDescription>This action cannot be undone.</DrawerDescription>
+    </DrawerHeader>
+    <div className="p-4">{/* Content here */}</div>
+    <DrawerFooter>
+      <Button>Submit</Button>
+      <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
+    </DrawerFooter>
+  </DrawerContent>
+</Drawer>;
+```
+
+On iOS Safari the overlay is absolutely positioned and needs a positioned `body` to cover the
+viewport once the page has scrolled, so add `body { position: relative }` to your global styles.
+
+<ComponentPreview name="drawer" file="components/preview/drawer.tsx" />
+
+## Anatomy
+
+<Anatomy name="drawer" />
+
+## Examples
+
+### Composition
+
+`DrawerContent` composes the portal, the overlay, the viewport and the popup, so a drawer is a
+trigger and a content region at the call site. `DrawerPortal`, `DrawerOverlay` and
+`DrawerSwipeHandle` are exported too, for the cases that need lower-level control.
+
+```text
+Drawer
+├── DrawerTrigger
+└── DrawerContent
+    ├── DrawerHeader
+    │   ├── DrawerTitle
+    │   └── DrawerDescription
+    └── DrawerFooter
+        └── DrawerClose
+```
+
+<ComponentPreview
+  name="drawerComposition"
+  file="components/preview/drawer.tsx"
+/>
+
+### Custom Sizes
+
+A vertical drawer sizes itself to its content and caps at `calc(100dvh - 6rem)`. A side drawer spans
+`75%` of the viewport width, or `24rem` above the `sm` breakpoint. Override the height with `h-*` and
+`max-h-*` on `DrawerContent`, the width with `w-*` and `max-w-*`, and scope an override to one axis
+with the `data-[swipe-axis=*]` variants when the same component renders in both. To make a region
+scrollable, make it a flex item (`flex-1 overflow-y-auto`) — `h-full` does not resolve inside a
+content-sized drawer.
+
+<ComponentPreview
+  name="drawerCustomSizes"
+  file="components/preview/drawer.tsx"
+/>
+
+### Styling
+
+The drawer exposes CSS variables for style-level customisation. Set the sizing variables on
+`DrawerContent`; set the overlay variable on `[data-slot=drawer-overlay]` in your own CSS.
+
+| Variable                       | Default                | Description                                                             |
+| ------------------------------ | ---------------------- | ----------------------------------------------------------------------- |
+| `--drawer-inset`               | `0px`                  | Floats the drawer off the viewport edges.                               |
+| `--drawer-bleed-background`    | `var(--color-popover)` | Fills the gap behind the drawer on swipe overshoot.                     |
+| `--drawer-overlay-min-opacity` | `0`                    | Minimum overlay opacity. Defaults to `0.5` when snap points are active. |
+
+The popup also carries data attributes to target with variants such as `data-[swipe-direction=down]:`
+on `DrawerContent`, or `group-data-[swipe-axis=y]/drawer-popup:` on its descendants.
+
+| Attribute                 | Values                        | Set when                              |
+| ------------------------- | ----------------------------- | ------------------------------------- |
+| `data-swipe-direction`    | `up`, `right`, `down`, `left` | Always.                               |
+| `data-swipe-axis`         | `x`, `y`                      | Always.                               |
+| `data-snap-points`        | Present                       | The drawer has snap points.           |
+| `data-expanded`           | Present                       | The drawer is at the full snap point. |
+| `data-swiping`            | Present                       | A swipe is in progress.               |
+| `data-nested-drawer-open` | Present                       | A nested drawer is open on top.       |
+
+<ComponentPreview name="drawerStyling" file="components/preview/drawer.tsx" />
+
+### Position
+
+`swipeDirection` on `Drawer` picks the edge the panel rests against, and the gesture that dismisses
+it: `up`, `right`, `down` (the default) and `left`. It also decides the axis — `up`/`down` are the
+`y` axis, `left`/`right` the `x` axis — which is what the `data-swipe-axis` variants read.
+
+<ComponentPreview name="drawerPosition" file="components/preview/drawer.tsx" />
+
+### Swipe Handle
+
+`showSwipeHandle` on `Drawer` renders the grab handle above the content. It is `aria-hidden`
+decoration for the pointer gesture, so the drawer always keeps a real close control beside it.
+
+<ComponentPreview
+  name="drawerSwipeHandle"
+  file="components/preview/drawer.tsx"
+/>
+
+### Nested
+
+A drawer opened from inside another drawer stacks: the parent stays mounted, takes
+`data-nested-drawer-open`, and scales and dims behind the frontmost panel. Nest in the same
+direction — the stack maths assumes one axis.
+
+<ComponentPreview name="drawerNested" file="components/preview/drawer.tsx" />
+
+### Non Modal
+
+`modal={false}` leaves the rest of the page scrollable, clickable and reachable by keyboard, and
+renders no overlay. Pair it with `disablePointerDismissal` so an outside press does not close the
+panel. `modal="trap-focus"` is the middle setting: focus stays inside the drawer, but scroll and
+pointer interaction outside it are untouched.
+
+<ComponentPreview name="drawerNonModal" file="components/preview/drawer.tsx" />
+
+### Snap Points
+
+`snapPoints` on `Drawer` is the list of heights the panel settles at. A number between `0` and `1` is
+a fraction of the viewport, a number above `1` is a pixel value, and a string carries `px` or `rem`
+units. Snap points apply to vertical drawers.
+
+Read and write the active one with the controlled pair `snapPoint` and `onSnapPointChange` — that is
+how a value moves without a gesture, which is what a keyboard or a button needs. Both the popup and
+the overlay carry `data-snap-points` while the list is in effect, and the overlay's minimum opacity
+rises to `0.5` so the page behind never fully returns at the smallest snap point. At the full snap
+point (`1`) the popup gains `data-expanded`, which the `data-expanded:` variant styles.
+
+<ComponentPreview
+  name="drawerSnapPoints"
+  file="components/preview/drawer.tsx"
+/>
+
+### Responsive
+
+Pair `Drawer` with `Dialog` at a breakpoint to get a sheet on a phone and a centred dialog on a
+desktop. `useMediaQuery` is the system's one `matchMedia` subscription; give it
+`serverFallback: true` for a `max-width` query so a phone never renders the desktop branch for a
+frame before hydration corrects it.
+
+<ComponentPreview
+  name="drawerResponsive"
+  file="components/preview/drawer.tsx"
+/>
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="DrawerProps" />
+
+<ApiTable path="lib/api-props.ts" name="DrawerContentProps" />
+
+`DrawerTrigger`, `DrawerClose`, `DrawerPortal`, `DrawerOverlay`, `DrawerSwipeHandle`,
+`DrawerHeader`, `DrawerFooter`, `DrawerTitle` and `DrawerDescription` add no props of their own —
+each accepts everything the Base UI part, or the underlying `div`, accepts.
+
+## Accessibility
+
+- Renders Base UI's Drawer: the popup is a modal `role="dialog"` labelled by `DrawerTitle` and
+  described by `DrawerDescription`, focus moves into it on open and returns to the trigger on close,
+  and <kbd>Esc</kbd> dismisses it.
+- While a modal drawer is open the background is mirrored to the native `inert` property (A11Y-9), so
+  sequential keyboard focus cannot escape into it even during the frame a focus guard hands focus to
+  `<body>`. `modal={false}` and `modal="trap-focus"` deliberately do not, because both preserve
+  outside pointer interaction.
+- The swipe handle is `aria-hidden` and pointer-only. Every drawer therefore keeps a real close
+  control — a `DrawerClose`, <kbd>Esc</kbd>, or an outside press — and the snap point is reachable
+  from the keyboard through the controlled `snapPoint` prop.
+- The popup portals out of the trigger's subtree, so `DrawerPortal` re-applies the theme scope on a
+  `display: contents` host inside the portal (OVL-13) — a dark or scoped surface survives the portal.
+- Focus is the global 2px `:focus-visible` outline from `base.css`; there is no ring glow anywhere in
+  the panel.
+
+<StatesTested name="drawer" />
+
+## Do / Don't
+
+<DoDont
+  do="Use a Drawer for a panel the user pulls in from an edge — a filter sheet, a detail pane, a mobile form — and give it a title and a close control."
+  dont="Rely on the swipe handle as the only way out, or nest drawers in different directions; the stack maths assumes one axis."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/drawer.patch`. Every hunk:
+
+- **OVL-13** — `DrawerPortal` reads `useInternalThemeScope()` and wraps its children in a
+  `display: contents` element carrying that class.
+- **A11Y-9** — `DrawerContent` mirrors Base UI's `data-base-ui-inert` markers onto native `inert`
+  through `useModalInert`. No new context: upstream's own `DrawerContext` already carries `modal`
+  into `DrawerContent`, so the hook is gated on the value that is already there — which is why
+  `modal={false}` keeps its outside pointer interaction.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of its
+  own.

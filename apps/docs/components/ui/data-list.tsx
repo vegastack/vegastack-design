@@ -1,4 +1,4 @@
-// @vegastack data-list@0.9.1 sha256-VvVeDmjzqOniqERzym9BV455T0Vb29MK8/fhN8mhZso=
+// @vegastack data-list@0.9.1 sha256-CKCUgRy2jCp82yU0nUB8GzCy0QcEnkJedp575AMBKIg=
 
 "use client";
 
@@ -10,7 +10,6 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-  type TableProps,
 } from "@/components/ui/table";
 import {
   columnCellClass,
@@ -103,12 +102,18 @@ export interface DataListColumn<T> extends DataTableColumnLayout {
 }
 
 /**
- * Props accepted by `DataList`. Extends {@link TableProps} (minus `children`),
- * so the Table spreadsheet voice — `grid`, `headerTone`, `density` — and the
- * container hooks (`scrollLabel`, `containerProps`) type-check here and
- * flow straight through to the underlying `Table`.
+ * Props accepted by `DataList`. Extends upstream `Table`'s own props (minus `children`), so every
+ * `<table>` attribute type-checks here and flows straight through.
+ *
+ * Batch 5 of the shadcn reset put `Table` back on upstream's file, which is a plain `<table>` in a
+ * `data-slot="table-container"` overflow div and takes no props of its own. The pre-reset
+ * spreadsheet voice (`grid`, `headerTone`, `density`) and container hooks (`scrollLabel`,
+ * `containerProps`) are therefore gone; Batch 7 rebuilds this component on the reset primitives.
  */
-export interface DataListProps<T> extends Omit<TableProps, "children"> {
+export interface DataListProps<T> extends Omit<
+  React.ComponentProps<typeof Table>,
+  "children"
+> {
   /** Column definitions, left to right. */
   columns: DataListColumn<T>[];
   /** Row data, in display order. Sorting is the parent's responsibility (see `sort`). */
@@ -452,9 +457,9 @@ export function DataList<T>({
                     // the authoritative selection cue). Overrides the base Table row's
                     // hover-only `accent` so the tint stays through hover as well.
                     isSelected &&
-                      // A selected row still has to move under the cursor (SP-06): it rests on the pressed
-                      // rung, hovers DOWN one rung, and returns to rest while pressed.
-                      "bg-surface-3 hover:bg-surface-2 active:bg-surface-3 data-selected:bg-surface-3 data-selected:hover:bg-surface-2",
+                      // A selected row keeps its tint through hover and press (SP-06): the fill is
+                      // the same `accent` in all three states, so the selection never flickers.
+                      "bg-accent hover:bg-accent active:bg-accent data-selected:bg-accent data-selected:hover:bg-accent",
                   )}
                 >
                   {selectable && (

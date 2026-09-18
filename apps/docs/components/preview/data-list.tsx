@@ -12,6 +12,11 @@ import {
 } from "@/components/ui/data-list";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -101,11 +106,7 @@ const columns: DataListColumn<Person>[] = [
   {
     key: "status",
     header: "Status",
-    render: (p) => (
-      <Badge variant="soft" intent={STATUS[p.status].color} dot size="sm">
-        {STATUS[p.status].label}
-      </Badge>
-    ),
+    render: (p) => <Badge variant="secondary">{STATUS[p.status].label}</Badge>,
   },
   {
     key: "amount",
@@ -187,7 +188,7 @@ export function dataListClickable(): ReactNode {
         onSortChange={setSort}
         onRowClick={(person) => setLastActivated(person.name)}
         footer={
-          <p className="text-base text-muted-foreground" aria-live="polite">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
             {lastActivated
               ? `Activated: ${lastActivated}`
               : "Click a row, or Tab to its first cell and press Enter."}
@@ -255,7 +256,7 @@ export function dataListInteractiveColumn(): ReactNode {
         getRowId={(p) => p.id}
         onRowClick={(person) => setLastActivated(person.name)}
         footer={
-          <p className="text-base text-muted-foreground" aria-live="polite">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
             {lastActivated
               ? `Row activated: ${lastActivated}`
               : "Tab to the name link to activate by keyboard; click elsewhere on the row for mouse."}
@@ -307,22 +308,25 @@ export function dataListComposed(): ReactNode {
         sort={sort}
         onSortChange={setSort}
         toolbar={
-          <Input
-            type="search"
-            placeholder="Search people…"
-            value={query}
-            prefix={<Search className="size-(--icon-default)" aria-hidden />}
-            aria-label="Search people"
-            containerClassName="max-w-xs"
-            onChange={(e) => {
-              setQuery(e.currentTarget.value);
-              setPage(0);
-            }}
-          />
+          <InputGroup className="max-w-xs">
+            <InputGroupAddon>
+              <Search className="size-4" aria-hidden />
+            </InputGroupAddon>
+            <InputGroupInput
+              type="search"
+              placeholder="Search people…"
+              value={query}
+              aria-label="Search people"
+              onChange={(e) => {
+                setQuery(e.currentTarget.value);
+                setPage(0);
+              }}
+            />
+          </InputGroup>
         }
         footer={
           <div className="flex items-center justify-between">
-            <p className="text-base text-muted-foreground" aria-live="polite">
+            <p className="text-sm text-muted-foreground" aria-live="polite">
               {filtered.length} {filtered.length === 1 ? "result" : "results"}
             </p>
             <div className="flex items-center gap-2">
@@ -334,7 +338,7 @@ export function dataListComposed(): ReactNode {
               >
                 Previous
               </Button>
-              <span className="text-base tabular-nums text-muted-foreground">
+              <span className="text-sm tabular-nums text-muted-foreground">
                 Page {safePage + 1} of {pageCount}
               </span>
               <Button
@@ -361,7 +365,7 @@ export function dataListCustomEmpty(): ReactNode {
         data={[]}
         getRowId={(p) => p.id}
         emptyState={
-          <Empty size="sm" variant="card">
+          <Empty className="border bg-card">
             <EmptyHeader>
               <EmptyMedia>
                 <Search />

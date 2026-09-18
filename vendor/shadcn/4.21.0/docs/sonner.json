@@ -1,0 +1,13 @@
+{
+  "component": "sonner",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/sonner.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Types",
+    "Action",
+    "Promise",
+    "API Reference"
+  ]
+}

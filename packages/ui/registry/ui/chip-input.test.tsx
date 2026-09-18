@@ -164,7 +164,7 @@ test("ref forwards to the group root; inputRef to the inner input", async () => 
   const inputRef = React.createRef<HTMLInputElement>();
   await render(<ChipInput aria-label="Tags" ref={ref} inputRef={inputRef} />);
   expect(ref.current?.dataset.slot).toBe("chip-input");
-  expect(inputRef.current?.dataset.slot).toBe("input");
+  expect(inputRef.current?.dataset.slot).toBe("input-group-control");
 });
 
 test("focus: the group carries the focus-within border tint (text-entry affordance)", async () => {
@@ -172,7 +172,9 @@ test("focus: the group carries the focus-within border tint (text-entry affordan
   const root = document.querySelector(
     '[data-slot="chip-input"]',
   ) as HTMLElement;
-  expect(root.className).toContain("focus-within:border-ring");
+  expect(root.className).toContain(
+    "has-[[data-slot=input-group-control]:focus]:border-ring/70",
+  );
   const input = screen
     .getByRole("textbox", { name: "Tags" })
     .element() as HTMLInputElement;
@@ -209,7 +211,7 @@ test("keyboard-only: removing a chip via its button returns focus to the field's
   // Focus must not fall to <body> when the focused button unmounts.
   await expect
     .poll(() => (document.activeElement as HTMLElement)?.dataset.slot)
-    .toBe("input");
+    .toBe("input-group-control");
 });
 
 test("a second identical duplicate rejection still announces (sequence-keyed live region)", async () => {

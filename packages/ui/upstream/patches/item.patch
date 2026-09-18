@@ -1,0 +1,243 @@
+# component: item
+# decisions: A11Y-7, API-16, DOC-2, FOC-1, FOC-6, LAY-11
+# hunks:
+#   A11Y-7: `ItemGroup` licenses `role="listitem"` on the `Item`s inside it through context, and
+#           hides the separator's rule. `role="list"` admits only `listitem` children, so upstream's
+#           own composition is a CRITICAL `aria-required-children` violation as shipped.
+#   API-16: `"use client"` is added — `useRender` calls `React.useRef` internally, so the module
+#           throws on import in an RSC without the boundary (`verify-rsc-safety.mjs`).
+#   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-[3px]
+#     focus-visible:ring-ring/50` is removed from `itemVariants`. `base.css` owns the one
+#     `:focus-visible` outline and nothing restates it; `outline-none` would suppress it.
+#   LAY-11: `line-clamp-1` is removed from `ItemTitle`. It sits on the same element as `flex`,
+#     which wins the display and leaves the clamp inert — the rendered result is unchanged and
+#     the class no longer claims a behaviour it does not have.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file; those hunks carry no decision of their own.
+diff --git a/item.tsx b/item.tsx
+index edb2ea3..38de7d6 100644
+--- a/item.tsx
++++ b/item.tsx
+@@ -1,23 +1,44 @@
+-import * as React from "react"
+-import { mergeProps } from "@base-ui/react/merge-props"
+-import { useRender } from "@base-ui/react/use-render"
+-import { cva, type VariantProps } from "class-variance-authority"
+-import { cn } from "cn"
++// @vegastack item@0.9.1 sha256-amawgDXbSi4FtA/eqtHH8JhOeQ1cP6h0RnwvDStflJY=
+ 
+-import { Separator } from "@/components/ui/separator"
++"use client";
+ 
+-function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
++import * as React from "react";
++import { mergeProps } from "@base-ui/react/merge-props";
++import { useRender } from "@base-ui/react/use-render";
++import { cva, type VariantProps } from "class-variance-authority";
++import { cn } from "@vegastack/design";
++
++import { Separator } from "@/components/ui/separator";
++
++/**
++ * A11Y-7 — a context-licensed role. `ItemGroup` is `role="list"`, and `role="list"` admits only
++ * `listitem` children: a bare `Item` inside one is a CRITICAL `aria-required-children` violation
++ * (measured by axe on every `ItemGroup` composition in this repository). An `Item` outside a group
++ * is a plain row and must NOT claim `listitem`, which is why the role is granted by context rather
++ * than hard-coded on the part.
++ */
++const ItemGroupContext = React.createContext(false);
++
++function ItemGroup({
++  className,
++  children,
++  ...props
++}: React.ComponentProps<"div">) {
+   return (
+     <div
+       role="list"
+       data-slot="item-group"
+       className={cn(
+         "group/item-group flex w-full flex-col gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
+-        className
++        className,
+       )}
+       {...props}
+-    />
+-  )
++    >
++      <ItemGroupContext.Provider value={true}>
++        {children}
++      </ItemGroupContext.Provider>
++    </div>
++  );
+ }
+ 
+ function ItemSeparator({
+@@ -28,14 +49,19 @@ function ItemSeparator({
+     <Separator
+       data-slot="item-separator"
+       orientation="horizontal"
++      // A11Y-7, same rule from the other side: a `role="separator"` between two rows is not a
++      // `listitem`, so inside `ItemGroup` it is the second thing axe rejects. The rule it draws is
++      // decorative — the rows are already announced as list items — so it is hidden by default and
++      // a caller who needs a semantic boundary passes `aria-hidden={false}`.
++      aria-hidden="true"
+       className={cn("my-2", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ const itemVariants = cva(
+-  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted",
++  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 [a]:transition-colors [a]:hover:bg-muted",
+   {
+     variants: {
+       variant: {
+@@ -53,8 +79,8 @@ const itemVariants = cva(
+       variant: "default",
+       size: "default",
+     },
+-  }
+-)
++  },
++);
+ 
+ function Item({
+   className,
+@@ -63,13 +89,16 @@ function Item({
+   render,
+   ...props
+ }: useRender.ComponentProps<"div"> & VariantProps<typeof itemVariants>) {
++  const inGroup = React.useContext(ItemGroupContext);
++
+   return useRender({
+     defaultTagName: "div",
+     props: mergeProps<"div">(
+       {
++        role: inGroup ? "listitem" : undefined,
+         className: cn(itemVariants({ variant, size, className })),
+       },
+-      props
++      props,
+     ),
+     render,
+     state: {
+@@ -77,7 +106,7 @@ function Item({
+       variant,
+       size,
+     },
+-  })
++  });
+ }
+ 
+ const itemMediaVariants = cva(
+@@ -94,8 +123,8 @@ const itemMediaVariants = cva(
+     defaultVariants: {
+       variant: "default",
+     },
+-  }
+-)
++  },
++);
+ 
+ function ItemMedia({
+   className,
+@@ -109,7 +138,7 @@ function ItemMedia({
+       className={cn(itemMediaVariants({ variant, className }))}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -118,11 +147,11 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
+       data-slot="item-content"
+       className={cn(
+         "flex flex-1 flex-col gap-1 group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
+@@ -130,12 +159,12 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
+     <div
+       data-slot="item-title"
+       className={cn(
+-        "line-clamp-1 flex w-fit items-center gap-2 text-sm leading-snug font-medium underline-offset-4",
+-        className
++        "flex w-fit items-center gap-2 text-sm leading-snug font-medium underline-offset-4",
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
+@@ -144,11 +173,11 @@ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
+       data-slot="item-description"
+       className={cn(
+         "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
+@@ -158,7 +187,7 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
+       className={cn("flex items-center gap-2", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -167,11 +196,11 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
+       data-slot="item-header"
+       className={cn(
+         "flex basis-full items-center justify-between gap-2",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -180,11 +209,11 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
+       data-slot="item-footer"
+       className={cn(
+         "flex basis-full items-center justify-between gap-2",
+-        className
++        className,
+       )}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ export {
+@@ -198,4 +227,4 @@ export {
+   ItemDescription,
+   ItemHeader,
+   ItemFooter,
+-}
++};

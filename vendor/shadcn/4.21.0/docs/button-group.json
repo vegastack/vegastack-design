@@ -1,0 +1,24 @@
+{
+  "component": "button-group",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/button-group.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Accessibility",
+    "ButtonGroup vs ToggleGroup",
+    "Orientation",
+    "Size",
+    "Nested",
+    "Separator",
+    "Split",
+    "Input",
+    "Input Group",
+    "Dropdown Menu",
+    "Select",
+    "Popover",
+    "RTL",
+    "API Reference"
+  ]
+}

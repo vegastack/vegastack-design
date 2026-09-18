@@ -60,7 +60,7 @@ test("the dock recipe is the shared motion pair, and the exit is not slower than
   expect(cls).not.toContain("scale-95");
   expect(cls).not.toContain("duration-slow");
   // Raised band, never overlay — a dialog must cover the bar.
-  expect(cls).toContain("z-(--z-raised)");
+  expect(cls).toContain("z-10");
 
   // Deliberately class-level, not `getComputedStyle`: this harness compiles NO Tailwind CSS
   // (only `test/contrast.css` is built — see the component skill's testing reference), so a

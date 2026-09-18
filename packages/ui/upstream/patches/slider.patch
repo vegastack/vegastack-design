@@ -1,0 +1,77 @@
+# component: slider
+# decisions: A11Y-16, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4
+# hunks:
+#   FOC-1, FOC-6: the thumb's `ring-ring/50` colour and its three glow triggers (`hover:ring-3`,
+#     `focus-visible:ring-3`, `active:ring-3`) are removed, along with
+#     `focus-visible:outline-hidden`, which would have suppressed the global outline on a control
+#     that is not text entry.
+#   FRM-4: `disabled:pointer-events-none` is dropped, so a disabled slider stays hoverable and a
+#     Tooltip can explain it.
+#   A11Y-16: the root's `aria-label` is forwarded to each thumb through `getAriaLabel`. Base UI keeps
+#     the real control in a visually hidden `<input type="range">` inside the thumb, and an
+#     `aria-label` on the root lands on a `<div>` with no role — so upstream's file ships a NAMELESS
+#     `role="slider"` in every composition, including its own docs examples (axe: `label`,
+#     critical). `getAriaLabel` is the only prop Base UI forwards to that input. A range slider
+#     gives both thumbs the group's name — upstream has no per-thumb label API, and the fork's
+#     `thumbAriaLabels` is gone with the fork. Batch 3 recorded this hunk under A11Y-5 and FLAGGED
+#     it for MK, because A11Y-5's letter is the `sr-only ", "` separator between sibling name parts
+#     and does not authorise naming a control. MK settled it on 2026-09-18 by adding A11Y-16 —
+#     every interactive control carries an accessible name — which is the row cited here. The hunk
+#     never changed; only its citation did.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/slider.tsx b/slider.tsx
+index f517abd..3ed5194 100644
+--- a/slider.tsx
++++ b/slider.tsx
+@@ -1,5 +1,7 @@
+-import { Slider as SliderPrimitive } from "@base-ui/react/slider"
+-import { cn } from "cn"
++// @vegastack slider@0.9.1 sha256-4mskPwGRyb5Wt89AUTKOkcV8k5yZnNagRnuAGXLmu9g=
++
++import { Slider as SliderPrimitive } from "@base-ui/react/slider";
++import { cn } from "@vegastack/design";
+ 
+ function Slider({
+   className,
+@@ -9,11 +11,20 @@ function Slider({
+   max = 100,
+   ...props
+ }: SliderPrimitive.Root.Props) {
++  /*
++   * A11Y-16 — Base UI's Slider keeps the real control in a visually hidden `<input type="range">`
++   * INSIDE each thumb, and an `aria-label` on the root lands on a `<div>` with no role. Upstream's
++   * file forwards neither, so every slider it ships is a nameless `role="slider"`: axe reports
++   * `label` (critical) and a screen reader announces "slider" with no subject. `getAriaLabel` is
++   * the only prop Base UI forwards to that input, so the root's label travels through it.
++   */
++  const thumbLabel = props["aria-label"];
++
+   const _values = Array.isArray(value)
+     ? value
+     : Array.isArray(defaultValue)
+       ? defaultValue
+-      : [min, max]
++      : [min, max];
+ 
+   return (
+     <SliderPrimitive.Root
+@@ -40,12 +51,13 @@ function Slider({
+           <SliderPrimitive.Thumb
+             data-slot="slider-thumb"
+             key={index}
+-            className="relative block size-3 shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50"
++            getAriaLabel={thumbLabel ? () => thumbLabel : undefined}
++            className="relative block size-3 shrink-0 rounded-full border border-ring bg-white transition-[color,box-shadow] select-none after:absolute after:-inset-2 disabled:opacity-50"
+           />
+         ))}
+       </SliderPrimitive.Control>
+     </SliderPrimitive.Root>
+-  )
++  );
+ }
+ 
+-export { Slider }
++export { Slider };

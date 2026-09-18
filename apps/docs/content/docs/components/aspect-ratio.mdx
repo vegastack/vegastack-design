@@ -1,0 +1,92 @@
+---
+title: Aspect Ratio
+description: Constrains its children to a desired width-to-height ratio — widescreen media, square thumbnails, or portrait crops.
+audience: public
+registry: aspect-ratio
+status: stable
+since: 0.10.0
+a11y: presentational wrapper
+preview: aspectRatio
+---
+
+## Install
+
+<InstallSteps name="aspect-ratio" />
+
+## Usage
+
+```tsx
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+
+<AspectRatio ratio={16 / 9}>
+  <img
+    src="/photo.jpg"
+    alt="Photo"
+    className="absolute inset-0 size-full object-cover"
+  />
+</AspectRatio>;
+```
+
+<ComponentPreview
+  name="aspectRatio"
+  file="components/preview/aspect-ratio.tsx"
+/>
+
+## Examples
+
+### Square
+
+A square aspect ratio using `ratio={1 / 1}`. Useful for displaying images in a square format.
+
+<ComponentPreview
+  name="aspectRatioSquare"
+  file="components/preview/aspect-ratio.tsx"
+/>
+
+### Portrait
+
+A portrait aspect ratio using `ratio={9 / 16}`. Useful for displaying images in a portrait format.
+
+<ComponentPreview
+  name="aspectRatioPortrait"
+  file="components/preview/aspect-ratio.tsx"
+/>
+
+### RTL
+
+The box reserves space with `aspect-ratio` and a CSS custom property, neither of which has a
+writing direction — so a right-to-left document gets the identical geometry, and only the
+surrounding caption and content flow mirror.
+
+<ComponentPreview
+  name="aspectRatioRtl"
+  file="components/preview/aspect-ratio.tsx"
+/>
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="AspectRatioProps" />
+
+## Accessibility
+
+- `AspectRatio` renders a plain `<div>` and contributes nothing to the accessibility tree — it is
+  geometry, not semantics.
+- The accessible name belongs to the child. Give a meaningful image an `alt`, and a decorative one
+  `alt=""` so a screen reader skips it.
+- The element is `position: relative`, so a filling child is positioned with `absolute inset-0`
+  rather than being stretched by the wrapper — nothing is clipped out of the reading order.
+
+<StatesTested name="aspect-ratio" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the ratio as an expression — ratio={16 / 9} — so the intent stays readable."
+  dont="Set a fixed height on the wrapper; that is the one thing the ratio is there to compute."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/aspect-ratio.patch`. Every hunk:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

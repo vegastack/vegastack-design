@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { FileText } from "lucide-react";
 import {
   Attachment,
@@ -8,28 +8,30 @@ import {
   AttachmentDescription,
   AttachmentMedia,
   AttachmentTitle,
-  type AttachmentMediaProps,
-  type AttachmentProps,
 } from "@/components/ui/attachment";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type AttachmentPlaygroundKey =
-  "state" | "size" | "orientation" | "media" | "live";
+type AttachmentPlaygroundKey = "state" | "size" | "orientation" | "media";
 
+/**
+ * Upstream's five lifecycle states. `complete` was the pre-reset name for the settled state and is
+ * gone with the reset — `done` is upstream's, and `processing` is new.
+ */
 const STATE_OPTIONS = [
   { value: "idle", label: "Idle" },
   { value: "uploading", label: "Uploading" },
+  { value: "processing", label: "Processing" },
   { value: "error", label: "Error" },
-  { value: "complete", label: "Complete" },
-  { value: "disabled", label: "Disabled" },
+  { value: "done", label: "Done" },
 ] as const;
 
 const SIZE_OPTIONS = [
-  { value: "md", label: "Medium" },
+  { value: "default", label: "Default" },
   { value: "sm", label: "Small" },
+  { value: "xs", label: "Extra small" },
 ] as const;
 
 const ORIENTATION_OPTIONS = [
@@ -42,7 +44,10 @@ const MEDIA_OPTIONS = [
   { value: "image", label: "Image" },
 ] as const;
 
-/** Deterministic gradient stand-in for a thumbnail — no network dependency (same idiom as the Attachment preview). */
+type AttachmentOwnProps = ComponentProps<typeof Attachment>;
+type AttachmentMediaOwnProps = ComponentProps<typeof AttachmentMedia>;
+
+/** Deterministic gradient stand-in for a thumbnail — no network dependency. */
 const IMAGE_PLACEHOLDER = (
   <div
     aria-hidden="true"
@@ -56,6 +61,7 @@ const IMAGE_PLACEHOLDER_CODE =
 /** The meta line follows the lifecycle state, like a real upload would. */
 function descriptionFor(state: string | boolean): string {
   if (state === "uploading") return "Uploading — 42%";
+  if (state === "processing") return "Processing…";
   if (state === "error") return "Upload failed — file too large";
   return "248 KB";
 }
@@ -67,14 +73,14 @@ const attachmentPlaygroundConfig: PlaygroundConfig<AttachmentPlaygroundKey> = {
       key: "state",
       label: "State",
       options: STATE_OPTIONS,
-      defaultValue: "idle",
+      defaultValue: "done",
     },
     {
       type: "select",
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "md",
+      defaultValue: "default",
     },
     {
       type: "select",
@@ -90,25 +96,21 @@ const attachmentPlaygroundConfig: PlaygroundConfig<AttachmentPlaygroundKey> = {
       options: MEDIA_OPTIONS,
       defaultValue: "icon",
     },
-    {
-      type: "switch",
-      key: "live",
-      label: "Live description",
-      defaultValue: false,
-    },
   ],
   render: (state): ReactNode => (
     <Attachment
-      state={state.state as AttachmentProps["state"]}
-      size={state.size as AttachmentProps["size"]}
-      orientation={state.orientation as AttachmentProps["orientation"]}
+      state={state.state as AttachmentOwnProps["state"]}
+      size={state.size as AttachmentOwnProps["size"]}
+      orientation={state.orientation as AttachmentOwnProps["orientation"]}
     >
-      <AttachmentMedia variant={state.media as AttachmentMediaProps["variant"]}>
+      <AttachmentMedia
+        variant={state.media as AttachmentMediaOwnProps["variant"]}
+      >
         {state.media === "image" ? IMAGE_PLACEHOLDER : <FileText />}
       </AttachmentMedia>
       <AttachmentContent>
         <AttachmentTitle>release-notes.pdf</AttachmentTitle>
-        <AttachmentDescription live={Boolean(state.live)}>
+        <AttachmentDescription>
           {descriptionFor(state.state)}
         </AttachmentDescription>
       </AttachmentContent>
@@ -116,22 +118,21 @@ const attachmentPlaygroundConfig: PlaygroundConfig<AttachmentPlaygroundKey> = {
   ),
   toCode: (state) => {
     const rootProps: string[] = [];
-    if (state.state !== "idle") rootProps.push(`state="${state.state}"`);
-    if (state.size !== "md") rootProps.push(`size="${state.size}"`);
+    if (state.state !== "done") rootProps.push(`state="${state.state}"`);
+    if (state.size !== "default") rootProps.push(`size="${state.size}"`);
     if (state.orientation !== "horizontal")
       rootProps.push(`orientation="${state.orientation}"`);
     const root = rootProps.length > 0 ? ` ${rootProps.join(" ")}` : "";
     const media = state.media !== "icon" ? ` variant="${state.media}"` : "";
     const mediaChild =
       state.media === "image" ? IMAGE_PLACEHOLDER_CODE : "<FileText />";
-    const live = state.live ? " live" : "";
     return `<Attachment${root}>
   <AttachmentMedia${media}>
     ${mediaChild}
   </AttachmentMedia>
   <AttachmentContent>
     <AttachmentTitle>release-notes.pdf</AttachmentTitle>
-    <AttachmentDescription${live}>${descriptionFor(state.state)}</AttachmentDescription>
+    <AttachmentDescription>${descriptionFor(state.state)}</AttachmentDescription>
   </AttachmentContent>
 </Attachment>`;
   },
@@ -139,9 +140,8 @@ const attachmentPlaygroundConfig: PlaygroundConfig<AttachmentPlaygroundKey> = {
 
 /**
  * `AttachmentPlayground` — interactive props playground for `Attachment` (lifecycle state / size /
- * orientation / `AttachmentMedia` variant / `AttachmentDescription` `live`), backed by the generic
- * {@link PropsPlayground}. Registered in `mdx.tsx`, adopted in
- * `content/docs/components/attachment.mdx`.
+ * orientation / `AttachmentMedia` variant), backed by the generic {@link PropsPlayground}.
+ * Registered in `mdx.tsx`, adopted in `content/docs/components/attachment.mdx`.
  */
 export function AttachmentPlayground() {
   return <PropsPlayground {...attachmentPlaygroundConfig} />;

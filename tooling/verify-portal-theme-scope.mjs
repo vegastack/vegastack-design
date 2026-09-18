@@ -12,22 +12,66 @@ const ROOT = "packages/ui/registry/ui";
 // This is deliberately explicit as well as discoverable: adding/removing a portal is an audited
 // architecture change, not something that should silently change the expected coverage count.
 const EXPECTED_HOSTS = new Map([
-  // Every ANCHORED overlay (popover, hover-card, tooltip, the two menus, select, combobox,
-  // navigation-menu) hosts its portal through `floating-surface.tsx` since the 2026-09-07 audit
-  // (B3-01), so exactly one record covers all eight. Their own files are deliberately absent: if a
-  // portal ever reappears in one of them, the "unreviewed portal host" rule below fails closed on
-  // it rather than silently accepting a second, unscoped host.
-  ["packages/ui/registry/ui/floating-surface.tsx", ["Portal"]],
-  // Modal surfaces still own their own portal — they position themselves rather than an anchor,
-  // so they never went through the floating composer.
-  ["packages/ui/registry/ui/alert-dialog.tsx", ["BaseAlertDialog.Portal"]],
-  ["packages/ui/registry/ui/dialog.tsx", ["BaseDialog.Portal"]],
-  // Sheet moved from Base UI's Dialog to its Drawer (D15); the portal host moved with it.
-  ["packages/ui/registry/ui/sheet.tsx", ["Drawer.Portal"]],
-  // Toasts moved from sonner (whose own root WAS the portal host, hence the retired
-  // `SonnerToaster` special case) to Base UI Toast, so the host is now a real `Portal` part like
-  // every other one — no engine-shaped exception left in this gate.
-  ["packages/ui/registry/ui/toast.tsx", ["BaseToast.Portal"]],
+  // `floating-surface.tsx` was the single portal host for every anchored overlay from the
+  // 2026-09-07 audit (B3-01), and it is GONE. The reset emptied it one batch at a time — tooltip in
+  // Batch 2, select and combobox in Batch 3, popover, hover-card and the two menus in Batch 4,
+  // navigation-menu in Batch 5 — until its last two consumers, `emoji-picker` and
+  // `shortcut-overlay`, used it only for the panel-search row and no portal at all. Batch 7a
+  // retired it (extras.md RETIRE: "each upstream popup owns its chrome"), so it has no entry here:
+  // both of those overlays now compose `popover` and `dialog`, whose own entries below carry the
+  // scope for them.
+  // Batch 5 put `navigation-menu` on upstream's file, which hosts its own Portal around the
+  // Positioner instead of composing `floating-surface`. Same host shape as the other anchored
+  // overlays: `NavigationMenuPositioner` reads `useInternalThemeScope()` and attaches it to the
+  // Positioner INSIDE the portal. That is also why the file gains `'use client'` (API-16) — a hook
+  // call needs the boundary, and upstream ships none.
+  [
+    "packages/ui/registry/ui/navigation-menu.tsx",
+    ["NavigationMenuPrimitive.Portal"],
+  ],
+  // Modal surfaces own their own portal — they position themselves rather than an anchor, so they
+  // never went through the floating composer. Batch 4 of the shadcn reset put all four on
+  // upstream's files: each one's exported pass-through `*Portal` reads `useInternalThemeScope()`
+  // and wraps its children in a `display: contents` element carrying the class. A `contents`
+  // wrapper generates no box, so it cannot become a containing block for the fixed-positioned
+  // backdrop or popup inside it; what it does is restore inheritance after the portal jumps to
+  // `<body>`, for the exported escape hatch as well as for `*Content`.
+  ["packages/ui/registry/ui/alert-dialog.tsx", ["AlertDialogPrimitive.Portal"]],
+  ["packages/ui/registry/ui/dialog.tsx", ["DialogPrimitive.Portal"]],
+  ["packages/ui/registry/ui/sheet.tsx", ["SheetPrimitive.Portal"]],
+  // Drawer is NEW in Batch 4 — Base UI's Drawer, which upstream ships beside the Dialog-based
+  // Sheet. Same shape as the three above.
+  ["packages/ui/registry/ui/drawer.tsx", ["DrawerPrimitive.Portal"]],
+  ["packages/ui/registry/ui/toast.tsx", ["ToastPrimitive.Portal"]],
+  // The anchored overlays Batch 4 moved off `floating-surface.tsx`, the same way Tooltip left it
+  // in Batch 2 and Select/Combobox in Batch 3: each is upstream's file now and hosts its own
+  // Portal, with the scope attached to the Positioner INSIDE it.
+  ["packages/ui/registry/ui/popover.tsx", ["PopoverPrimitive.Portal"]],
+  ["packages/ui/registry/ui/hover-card.tsx", ["PreviewCardPrimitive.Portal"]],
+  // TWO hosts each, because upstream has two: the exported pass-through `*Portal` (scoped through
+  // a `contents` wrapper) and `*Content`'s own portal (scoped on its Positioner). Menubar is
+  // deliberately absent — it opens no portal of its own, composing dropdown-menu's parts instead,
+  // which is why its patch header records OVL-13 as a no-hunk decision and `menubar.test.tsx`
+  // asserts the rendered popup carries the scope.
+  [
+    "packages/ui/registry/ui/dropdown-menu.tsx",
+    ["MenuPrimitive.Portal", "MenuPrimitive.Portal"],
+  ],
+  [
+    "packages/ui/registry/ui/context-menu.tsx",
+    ["ContextMenuPrimitive.Portal", "ContextMenuPrimitive.Portal"],
+  ],
+  // Tooltip left `floating-surface.tsx` in Batch 2 of the shadcn reset: it is now upstream's file,
+  // which hosts its own `Tooltip.Portal`. OVL-13 is the patch hunk that makes that host scoped —
+  // `TooltipContent` reads `useInternalThemeScope()` and attaches it to the Positioner INSIDE the
+  // portal. Each of Batches 4 and 5 moves the remaining anchored overlays here the same way.
+  ["packages/ui/registry/ui/tooltip.tsx", ["TooltipPrimitive.Portal"]],
+  // Select and Combobox left `floating-surface.tsx` in Batch 3 of the shadcn reset, the same way
+  // Tooltip left it in Batch 2: they are upstream's files now, and each hosts its own Portal.
+  // OVL-13 is the patch hunk that makes those hosts scoped — `SelectContent` and `ComboboxContent`
+  // read `useInternalThemeScope()` and attach it to the Positioner INSIDE the portal.
+  ["packages/ui/registry/ui/select.tsx", ["SelectPrimitive.Portal"]],
+  ["packages/ui/registry/ui/combobox.tsx", ["ComboboxPrimitive.Portal"]],
 ]);
 
 function walk(dir, out = []) {

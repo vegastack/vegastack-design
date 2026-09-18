@@ -1,0 +1,21 @@
+{
+  "component": "input-otp",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/input-otp.md",
+  "sections": [
+    "About",
+    "Installation",
+    "Usage",
+    "Composition",
+    "Pattern",
+    "Separator",
+    "Disabled",
+    "Controlled",
+    "Invalid",
+    "Four Digits",
+    "Alphanumeric",
+    "Form",
+    "RTL",
+    "API Reference"
+  ]
+}

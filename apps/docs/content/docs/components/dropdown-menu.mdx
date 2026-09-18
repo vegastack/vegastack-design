@@ -1,6 +1,6 @@
 ---
 title: Dropdown Menu
-description: A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
+description: An action menu anchored to a button — grouped items, submenus, shortcuts, checkbox and radio rows, and a destructive variant.
 audience: public
 registry: dropdown-menu
 status: stable
@@ -16,271 +16,265 @@ preview: dropdownMenu
 ## Usage
 
 ```tsx
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 
 <DropdownMenu>
-  <DropdownMenuTrigger render={<Button variant="outline">Open menu</Button>} />
+  <DropdownMenuTrigger render={<Button variant="outline" />}>
+    Open
+  </DropdownMenuTrigger>
   <DropdownMenuContent>
-    <DropdownMenuItem>Profile</DropdownMenuItem>
-    <DropdownMenuItem tone="destructive">Delete account</DropdownMenuItem>
+    <DropdownMenuGroup>
+      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+      <DropdownMenuItem>Profile</DropdownMenuItem>
+      <DropdownMenuItem>Billing</DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuSeparator />
+    <DropdownMenuGroup>
+      <DropdownMenuItem>Team</DropdownMenuItem>
+      <DropdownMenuItem>Subscription</DropdownMenuItem>
+    </DropdownMenuGroup>
   </DropdownMenuContent>
 </DropdownMenu>;
 ```
 
-## Anatomy
+<ComponentPreview
+  name="dropdownMenu"
+  file="components/preview/dropdown-menu.tsx"
+/>
 
-`DropdownMenu` is a compound component built on Base UI's `Menu`. The trigger and the content
-sit inside the root; the content portals to `<body>` and positions itself against the trigger.
+## Anatomy
 
 <Anatomy name="dropdown-menu" />
 
-```tsx
-<DropdownMenu>
-  <DropdownMenuTrigger />
-  <DropdownMenuContent>
-    <DropdownMenuGroup>
-      <DropdownMenuLabel />
-      <DropdownMenuItem />
-      <DropdownMenuShortcut />
-    </DropdownMenuGroup>
-
-    <DropdownMenuSeparator />
-
-    <DropdownMenuCheckboxItem />
-
-    <DropdownMenuRadioGroup>
-      <DropdownMenuRadioItem />
-    </DropdownMenuRadioGroup>
-
-    <DropdownMenuSub>
-      <DropdownMenuSubTrigger />
-      <DropdownMenuSubContent>
-        <DropdownMenuItem />
-      </DropdownMenuSubContent>
-    </DropdownMenuSub>
-  </DropdownMenuContent>
-</DropdownMenu>
-```
-
-- `DropdownMenu` — the root that groups every part (`Menu.Root`; renders no element).
-- `DropdownMenuTrigger` — the button that opens the menu (`data-slot="dropdown-menu-trigger"`). Use `render` to compose with a `Button`.
-- `DropdownMenuContent` — the floating popup; portals to `<body>` and positions against the trigger (`data-slot="dropdown-menu-content"`). Accepts `side`, `align`, `sideOffset`, `collisionPadding`, exposes `portalProps` / `positionerProps`, and can wrap items in an optional Base UI Viewport via `viewportProps`.
-- `DropdownMenuItem` — a selectable action (`data-slot="dropdown-menu-item"`). Supports `tone="destructive"` and `inset`.
-- `DropdownMenuGroup` + `DropdownMenuLabel` — a labelled section; the label becomes the group's accessible name.
-- `DropdownMenuSeparator` — a divider between sections (`role="separator"`).
-- `DropdownMenuShortcut` — an inline-end-aligned keyboard hint inside an item.
-- `DropdownMenuCheckboxItem` — a togglable item with a check indicator (`checked` / `onCheckedChange`).
-- `DropdownMenuRadioGroup` + `DropdownMenuRadioItem` — single-select items (`value` / `onValueChange`).
-- `DropdownMenuSub` + `DropdownMenuSubTrigger` + `DropdownMenuSubContent` — a nested submenu.
-
 ## Examples
 
-A rich menu with grouped items, labels, keyboard shortcuts, checkbox + radio selections, a disabled
-item, a destructive action, and a nested submenu.
+### Composition
+
+```text
+DropdownMenu
+├── DropdownMenuTrigger
+└── DropdownMenuContent
+    ├── DropdownMenuGroup
+    │   ├── DropdownMenuLabel
+    │   ├── DropdownMenuItem
+    │   └── DropdownMenuItem
+    ├── DropdownMenuSeparator
+    ├── DropdownMenuGroup
+    │   ├── DropdownMenuLabel
+    │   └── DropdownMenuCheckboxItem
+    ├── DropdownMenuSeparator
+    ├── DropdownMenuGroup
+    │   ├── DropdownMenuLabel
+    │   └── DropdownMenuRadioGroup
+    │       ├── DropdownMenuRadioItem
+    │       └── DropdownMenuRadioItem
+    └── DropdownMenuSub
+        ├── DropdownMenuSubTrigger
+        └── DropdownMenuSubContent
+            └── DropdownMenuGroup
+                ├── DropdownMenuLabel
+                ├── DropdownMenuItem
+                └── DropdownMenuItem
+```
 
 <ComponentPreview
-  name="dropdownMenuRich"
+  name="dropdownMenuComposition"
   file="components/preview/dropdown-menu.tsx"
 />
 
-### Items
+### Basic
 
-Items take leading `lucide-react` icons as children, a trailing `DropdownMenuShortcut`, and a
-`tone="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
-icon with those that do.
-
-```tsx
-<DropdownMenuItem>
-  <Settings />
-  Settings
-  <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-</DropdownMenuItem>
-<DropdownMenuItem tone="destructive">
-  <Trash2 />
-  Delete
-</DropdownMenuItem>
-```
-
-### Inset alignment
-
-When a menu mixes items that have a leading icon (or a checkbox/radio indicator) with items
-that don't, add `inset` to the icon-less items — and to a `DropdownMenuLabel` — so their text
-lines up with the indented rows instead of jumping back to the edge.
+Labels name a group, separators divide them, and `disabled` on an item keeps the row in the menu
+but takes it out of the roving tab order.
 
 <ComponentPreview
-  name="dropdownMenuInset"
+  name="dropdownMenuBasic"
   file="components/preview/dropdown-menu.tsx"
 />
 
-```tsx
-<DropdownMenuGroup>
-  <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
-  <DropdownMenuItem>
-    <User />
-    Profile
-  </DropdownMenuItem>
-  <DropdownMenuItem inset>Compact mode</DropdownMenuItem>
-</DropdownMenuGroup>
-```
+### Submenu
 
-### Checkbox & radio items
+`DropdownMenuSub` wraps a `DropdownMenuSubTrigger` and a `DropdownMenuSubContent`; the submenu
+opens on hover, on <kbd>→</kbd> and on <kbd>Enter</kbd>, and nests as deep as the data does. Wrap
+the sub content in `DropdownMenuPortal` when the parent popup would otherwise clip it.
 
-`DropdownMenuCheckboxItem` toggles a setting and stays open on click; `DropdownMenuRadioGroup`
-wraps `DropdownMenuRadioItem`s for single-select.
+<ComponentPreview
+  name="dropdownMenuSubmenu"
+  file="components/preview/dropdown-menu.tsx"
+/>
 
-```tsx
-<DropdownMenuCheckboxItem checked={showGrid} onCheckedChange={setShowGrid}>
-  Show grid
-</DropdownMenuCheckboxItem>
+### Shortcuts
 
-<DropdownMenuRadioGroup value={role} onValueChange={setRole}>
-  <DropdownMenuRadioItem value="admin">Admin</DropdownMenuRadioItem>
-  <DropdownMenuRadioItem value="member">Member</DropdownMenuRadioItem>
-</DropdownMenuRadioGroup>
-```
+`DropdownMenuShortcut` is a `<span>` pushed to the inline end with `ms-auto`. It is a hint, not a
+binding — the key handler is yours.
 
-### Submenus
+<ComponentPreview
+  name="dropdownMenuShortcuts"
+  file="components/preview/dropdown-menu.tsx"
+/>
 
-Nest a `DropdownMenuSub` to reveal a second-level popup. The trigger shows a trailing chevron and
-opens on hover or with the <kbd>→</kbd> arrow key.
+### Icons
 
-```tsx
-<DropdownMenuSub>
-  <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
-  <DropdownMenuSubContent>
-    <DropdownMenuItem>Email</DropdownMenuItem>
-    <DropdownMenuItem>Message</DropdownMenuItem>
-  </DropdownMenuSubContent>
-</DropdownMenuSub>
-```
+A leading `lucide-react` icon is sized by the item itself
+(`[&_svg:not([class*='size-'])]:size-4`), so pass a `className` rather than a `size` prop.
+
+<ComponentPreview
+  name="dropdownMenuIcons"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+### Checkboxes
+
+`DropdownMenuCheckboxItem` renders `role="menuitemcheckbox"` with `aria-checked`, and reserves the
+inline-end indicator column whether or not it is checked.
+
+<ComponentPreview
+  name="dropdownMenuCheckboxes"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+### Checkboxes Icons
+
+A checkbox row takes a leading icon like any other item; the check indicator stays in its own
+column at the inline end, so the two never compete.
+
+<ComponentPreview
+  name="dropdownMenuCheckboxesIcons"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+### Radio Group
+
+`DropdownMenuRadioGroup` owns the value; each `DropdownMenuRadioItem` is a
+`role="menuitemradio"`, and selecting one clears the rest.
+
+<ComponentPreview
+  name="dropdownMenuRadioGroup"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+### Radio Icons
+
+The same exclusive group with leading icons — useful when the options are recognised by their mark
+before their label.
+
+<ComponentPreview
+  name="dropdownMenuRadioIcons"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+### Destructive
+
+`variant="destructive"` sets `data-variant="destructive"` on the row, which tints the label, the
+icon and the focus wash from the `destructive` token. Reserve it for the irreversible action, and
+never for more than one row in a group.
+
+<ComponentPreview
+  name="dropdownMenuDestructive"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+### Avatar
+
+The trigger composes through Base UI's `render` prop, so an icon `Button` holding an `Avatar` is
+the trigger rather than a wrapper around one. Give that button an `aria-label` — an avatar image
+is not an accessible name.
+
+<ComponentPreview
+  name="dropdownMenuAvatar"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+### Complex
+
+Groups, labels, shortcuts, checkbox and radio rows, and three levels of submenu in one menu — the
+upper bound of what belongs in a dropdown before it should become a dialog or a page.
+
+<ComponentPreview
+  name="dropdownMenuComplex"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+### RTL
+
+The item padding, the shortcut's `ms-auto`, the submenu chevron's `rtl:rotate-180` and the popup's
+alignment are all logical, so a `DirectionProvider` set to `rtl` mirrors the whole menu without a
+second stylesheet.
+
+<ComponentPreview
+  name="dropdownMenuRtl"
+  file="components/preview/dropdown-menu.tsx"
+/>
 
 ## API Reference
 
-### DropdownMenu
+<ApiTable path="lib/api-props.ts" name="DropdownMenuContentProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuProps"
-/>
+<ApiTable path="lib/api-props.ts" name="DropdownMenuSubContentProps" />
 
-### DropdownMenuTrigger
+<ApiTable path="lib/api-props.ts" name="DropdownMenuItemProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuTriggerProps"
-/>
+<ApiTable path="lib/api-props.ts" name="DropdownMenuLabelProps" />
 
-### DropdownMenuGroup
+<ApiTable path="lib/api-props.ts" name="DropdownMenuSubTriggerProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuGroupProps"
-/>
-
-### DropdownMenuSub
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuSubProps"
-/>
-
-### DropdownMenuRadioGroup
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuRadioGroupProps"
-/>
-
-### DropdownMenuContent
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuContentProps"
-/>
-
-### DropdownMenuItem
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuItemProps"
-/>
-
-### DropdownMenuCheckboxItem
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuCheckboxItemProps"
-/>
-
-### DropdownMenuRadioItem
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuRadioItemProps"
-/>
-
-### DropdownMenuLabel
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuLabelProps"
-/>
-
-### DropdownMenuSeparator
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuSeparatorProps"
-/>
-
-### DropdownMenuShortcut
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuShortcutProps"
-/>
-
-### DropdownMenuSubTrigger
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuSubTriggerProps"
-/>
-
-### DropdownMenuSubContent
-
-<ApiTable
-  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
-  name="DropdownMenuSubContentProps"
-/>
+`DropdownMenu`, `DropdownMenuTrigger`, `DropdownMenuGroup`, `DropdownMenuCheckboxItem`,
+`DropdownMenuRadioGroup`, `DropdownMenuRadioItem`, `DropdownMenuSeparator`,
+`DropdownMenuShortcut`, `DropdownMenuSub` and `DropdownMenuPortal` add no props of their own —
+each accepts everything the Base UI part accepts, and `DropdownMenuPortal` is a pass-through that
+re-applies the theme scope.
 
 ## Accessibility
 
-- The popup renders with `role="menu"`; items are `menuitem`, `menuitemcheckbox`, and `menuitemradio`. A `DropdownMenuLabel` inside a group becomes that group's accessible name.
-- Full keyboard support via Base UI's roving focus; the highlighted item uses `data-highlighted` (`bg-accent text-accent-foreground`) — there is no `outline: none` without a visible focus state.
-- The menu is modal by default: page scroll locks and focus is trapped while open, then returns to the trigger on close.
-- Icons inside items are decorative; the item's text carries the meaning.
-
-| Key                                                | Action                                                        |
-| -------------------------------------------------- | ------------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>↓</kbd> | Open the menu from the trigger.                               |
-| <kbd>↑</kbd> / <kbd>↓</kbd>                        | Move between items (wraps at the ends).                       |
-| <kbd>→</kbd>                                       | Open the focused submenu.                                     |
-| <kbd>←</kbd> / <kbd>Esc</kbd>                      | Close the current submenu (or the whole menu).                |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Activate the focused item.                                    |
-| <kbd>A</kbd>–<kbd>Z</kbd>                          | Typeahead — jump to the next item matching the typed letters. |
+- Renders Base UI's Menu: the trigger is a button with `aria-haspopup="menu"` and
+  `aria-expanded`; the popup is a `role="menu"` of `menuitem`, `menuitemcheckbox` and
+  `menuitemradio` rows with type-ahead, <kbd>↑</kbd>/<kbd>↓</kbd>, <kbd>Home</kbd>/<kbd>End</kbd>,
+  <kbd>→</kbd>/<kbd>←</kbd> for submenus and <kbd>Esc</kbd> to close.
+- Closing returns focus to the trigger, and a submenu closing returns it to its sub trigger.
+- The popup portals out of the trigger's subtree, so `DropdownMenuContent` re-applies the theme
+  scope on the positioner inside the portal and `DropdownMenuPortal` re-applies it on a
+  `display: contents` wrapper (OVL-13) — a dark or scoped surface survives the portal.
+- Rows carry the hand cursor from the one global rule in `base.css` (INT-1); upstream's local
+  `cursor-default` is removed.
+- A disabled row keeps its pointer events (FRM-4), so a Tooltip can explain why it is unavailable.
+- Give an icon-only trigger an `aria-label`.
 
 <StatesTested name="dropdown-menu" />
 
 ## Do / Don't
 
 <DoDont
-  do="Group related actions with a label and separate destructive actions with a separator."
-  dont="Use a dropdown menu for selecting a single value from a form — use a Select instead."
+  do="Use a dropdown menu for actions on the thing the trigger names — commands, navigation, and the occasional exclusive setting."
+  dont="Use it as a form control for choosing a value; that is a Select, which reports a value and participates in a form."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/dropdown-menu.patch`. Every hunk:
+
+- **OVL-13** — two hosts, because upstream has two. `DropdownMenuContent` opens its own
+  `Menu.Portal`, so it reads `useInternalThemeScope()` and attaches it to the Positioner inside
+  it; the exported pass-through `DropdownMenuPortal` wraps its children in a `display: contents`
+  element carrying the same class, so the escape hatch is scoped too.
+- **OVL-14** — `DropdownMenuContent` forwards an optional `container` to its `Menu.Portal`, and
+  `DropdownMenuSubContent` inherits it by being one. Upstream forwards none, and a portal defaults
+  to `document.body`, which the Fullscreen API paints the fullscreen element over; a fullscreen
+  player's settings menu rendered invisibly behind it. Leaving `container` unset is upstream's own
+  default, so nothing else moves.
+- **INT-1** — `cursor-default` is removed from the item, the submenu trigger, the checkbox item
+  and the radio item, so a menu row shows the hand cursor the one global rule in `base.css` gives
+  every `[role^="menuitem"]`.
+- **FRM-4** — `data-disabled:pointer-events-none` is dropped from the item, the checkbox item and
+  the radio item, so a disabled row stays hoverable and a Tooltip can explain why.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of
+  their own.

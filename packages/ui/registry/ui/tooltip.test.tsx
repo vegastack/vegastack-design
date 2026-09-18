@@ -1,177 +1,322 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
+import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
-  TooltipKbd,
   TooltipProvider,
+  TooltipTrigger,
 } from "./tooltip";
 
-// Base UI's Tooltip reads its shared delay from a Provider. The app mounts one
-// in VegaStackProvider; tests mount their own so hover/focus open without waiting.
+/**
+ * Base UI's Tooltip reads its shared delay from a Provider. The app mounts one in the VegaStack
+ * provider; tests mount their own so hover and focus open without waiting.
+ *
+ * The padding matters: the positioner flips away from a viewport edge, so a trigger rendered at the
+ * very top of the document reports `data-side="bottom"` no matter what `side` asked for.
+ */
 function Subject({
   side,
-  withKbd = false,
-  kbdOs,
+  defaultOpen,
 }: {
-  side?: "top" | "right" | "bottom" | "left";
-  withKbd?: boolean;
-  kbdOs?: "mac" | "other";
+  side?: React.ComponentProps<typeof TooltipContent>["side"];
+  defaultOpen?: boolean;
 } = {}) {
   return (
     <TooltipProvider>
-      <Tooltip delay={0}>
-        <TooltipTrigger>Open settings</TooltipTrigger>
-        <TooltipContent side={side}>
-          Settings
-          {withKbd ? <TooltipKbd keys={["⌘", "K"]} os={kbdOs} /> : null}
-        </TooltipContent>
-      </Tooltip>
+      <div style={{ padding: 150 }}>
+        <Tooltip defaultOpen={defaultOpen}>
+          <TooltipTrigger aria-label="Settings">Open settings</TooltipTrigger>
+          <TooltipContent side={side}>Settings</TooltipContent>
+        </Tooltip>
+      </div>
     </TooltipProvider>
   );
 }
 
+/** The portaled popup, wherever in the document Base UI mounted it. */
+function popupOf(container: Element): HTMLElement | null {
+  return container.ownerDocument.querySelector<HTMLElement>(
+    '[data-slot="tooltip-content"]',
+  );
+}
+
+/** Every open popup in the document. */
+function popupsIn(container: Element): HTMLElement[] {
+  return [
+    ...container.ownerDocument.querySelectorAll<HTMLElement>(
+      '[data-slot="tooltip-content"]',
+    ),
+  ];
+}
+
 test("renders the trigger with its data-slot", async () => {
   const screen = await render(<Subject />);
-  const trigger = screen.getByRole("button", { name: "Open settings" });
+  const trigger = screen.getByRole("button", { name: "Settings" });
   await expect.element(trigger).toBeInTheDocument();
   await expect.element(trigger).toHaveAttribute("data-slot", "tooltip-trigger");
 });
 
-test("a closed tooltip renders no content (closed by default → opens on interaction)", async () => {
-  // CONTROLLED open={false}: deterministic. A delay=0 uncontrolled tooltip opens instantly on focus
-  // (Base UI opens on focus-visible regardless of the hover delay), and under full-suite load the
-  // shared browser input state can transiently focus the freshly-rendered trigger → flaky open.
-  // Pinning open={false} removes that race; the open-on-interaction path is covered by the
-  // hover/focus tests below.
+test("a closed tooltip renders no popup", async () => {
+  // CONTROLLED open={false}: deterministic. A delay=0 uncontrolled tooltip opens on focus-visible
+  // regardless of the hover delay, and under full-suite load the shared browser input state can
+  // transiently focus a freshly-rendered trigger. The open path is covered below.
   const screen = await render(
     <TooltipProvider>
       <Tooltip open={false}>
-        <TooltipTrigger>Open settings</TooltipTrigger>
+        <TooltipTrigger aria-label="Settings">Open settings</TooltipTrigger>
         <TooltipContent>Settings</TooltipContent>
       </Tooltip>
     </TooltipProvider>,
   );
-  const trigger = screen.getByRole("button", { name: "Open settings" });
+  const trigger = screen.getByRole("button", { name: "Settings" });
   await expect.element(trigger).toBeInTheDocument();
   expect(trigger.element().hasAttribute("data-popup-open")).toBe(false);
-  expect(
-    screen.container.ownerDocument.querySelector(
-      '[data-slot="tooltip-content"]',
-    ),
-  ).toBeNull();
+  expect(popupOf(screen.container)).toBeNull();
 });
 
-test("popup content appears on hover", async () => {
+test("the popup appears on hover (Usage)", async () => {
   const screen = await render(<Subject />);
-  await userEvent.hover(screen.getByRole("button", { name: "Open settings" }));
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
+  await userEvent.hover(screen.getByRole("button", { name: "Settings" }));
   await expect
-    .element(screen.getByRole("tooltip"))
-    .toHaveTextContent("Settings");
+    .element(screen.getByRole("button", { name: "Settings" }))
+    .toHaveAttribute("data-popup-open", "");
+  const popup = popupOf(screen.container);
+  expect(popup).not.toBeNull();
+  expect(popup!.textContent).toContain("Settings");
 });
 
-test("popup content appears on keyboard focus", async () => {
+test("the popup appears on keyboard focus (Usage)", async () => {
   const screen = await render(<Subject />);
   await userEvent.tab();
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
+  const trigger = screen.getByRole("button", { name: "Settings" });
+  await expect.element(trigger).toHaveFocus();
+  await expect.element(trigger).toHaveAttribute("data-popup-open", "");
+  expect(popupOf(screen.container)?.textContent).toContain("Settings");
 });
 
-test("content carries the popover token slot and side data attribute", async () => {
-  const screen = await render(<Subject side="right" />);
-  await userEvent.hover(screen.getByRole("button", { name: "Open settings" }));
-  const content = screen.getByRole("tooltip");
-  await expect.element(content).toHaveAttribute("data-slot", "tooltip-content");
-  await expect.element(content).toHaveAttribute("data-side", "right");
+test("Escape closes an open tooltip", async () => {
+  const screen = await render(<Subject />);
+  await userEvent.tab();
+  const trigger = screen.getByRole("button", { name: "Settings" });
+  await expect.element(trigger).toHaveAttribute("data-popup-open", "");
+  await userEvent.keyboard("{Escape}");
+  await expect.element(trigger).not.toHaveAttribute("data-popup-open");
 });
 
-test("forwards portal, positioner, viewport props, and accepts functional offsets", async () => {
+/**
+ * Base UI's Tooltip is deliberately VISUAL-ONLY: the popup carries no `role="tooltip"` and the
+ * trigger gets no `aria-describedby`. Its own guidance
+ * (`@base-ui/react/docs/react/components/tooltip.md`) is that the trigger must carry an `aria-label`
+ * matching the popup's text — which is what every fixture and every example on the docs page does.
+ * This pins that contract, so a future Base UI release that starts wiring the association is
+ * noticed rather than assumed.
+ */
+test("the popup is visual-only and never becomes the trigger's name (Composition)", async () => {
+  const screen = await render(<Subject defaultOpen />);
+  const trigger = screen.getByRole("button", { name: "Settings" });
+  const popup = popupOf(screen.container);
+  expect(popup).not.toBeNull();
+  expect(popup!.getAttribute("role")).toBeNull();
+  expect(trigger.element().getAttribute("aria-describedby")).toBeNull();
+  await expect.element(trigger).toHaveAccessibleName("Settings");
+});
+
+test("the popup is portaled out of the trigger's subtree (Composition)", async () => {
+  const screen = await render(<Subject defaultOpen />);
+  const popup = popupOf(screen.container);
+  expect(popup).not.toBeNull();
+  expect(screen.container.contains(popup)).toBe(false);
+});
+
+test("the side prop reaches the positioner and the popup (Side)", async () => {
+  const SIDES = ["left", "top", "bottom", "right"] as const;
+  // ONE PROVIDER PER TOOLTIP, deliberately. `TooltipProvider` is Base UI's `FloatingDelayGroup`,
+  // and a delay group holds at most ONE open tooltip: as each member opens, the group calls
+  // `onOpenChange(false)` on whichever member was open before it. So four `defaultOpen` tooltips
+  // sharing one provider close each other down to one, and "four popups are in the document" is
+  // not a state Base UI ever reaches. This test used to assert exactly that and read the document
+  // synchronously, which meant it was racing the group's own layout effects — it saw four only
+  // while the closes had not landed yet, and on a loaded CI runner it saw three. Separate
+  // providers put each tooltip in its own group, which is what makes four simultaneously-open
+  // popups a real steady state and this count assertion meaningful. Grouping is not what this
+  // test is about; `side` is.
+  const screen = await render(
+    <div
+      style={{
+        padding: 140,
+        display: "flex",
+        flexDirection: "column",
+        gap: 40,
+      }}
+    >
+      {SIDES.map((side) => (
+        <TooltipProvider key={side}>
+          <Tooltip defaultOpen>
+            <TooltipTrigger aria-label={side}>{side}</TooltipTrigger>
+            <TooltipContent side={side}>{`on ${side}`}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ))}
+    </div>,
+  );
+  // Four portals, four separate commits: `render` resolves once React has flushed, but each
+  // Positioner still measures and mounts its own popup in a layout effect, so reading the
+  // document synchronously can observe two or three of them. Wait for the expected count
+  // instead — a popup that never mounts still fails, just after the retry window.
+  await expect.poll(() => popupsIn(screen.container).length).toBe(SIDES.length);
+  const popups = popupsIn(screen.container);
+  for (const side of SIDES) {
+    const popup = popups.find((p) => p.textContent?.includes(`on ${side}`));
+    expect(popup, `no popup for side "${side}"`).toBeDefined();
+    expect(popup!.getAttribute("data-side")).toBe(side);
+    expect(popup!.parentElement!.getAttribute("data-side")).toBe(side);
+  }
+});
+
+test("OVL-13: the positioner re-applies the nested theme scope across the portal", async () => {
+  const screen = await render(
+    <InternalThemeScopeProvider scope="vs-scope-under-test">
+      <TooltipProvider>
+        <Tooltip defaultOpen>
+          <TooltipTrigger aria-label="Settings">Open settings</TooltipTrigger>
+          <TooltipContent>Settings</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </InternalThemeScopeProvider>,
+  );
+  const popup = popupOf(screen.container);
+  expect(popup).not.toBeNull();
+  const positioner = popup!.parentElement;
+  expect(positioner).not.toBeNull();
+  expect(positioner!.className).toContain("vs-scope-under-test");
+  expect(positioner!.className).toContain("isolate");
+});
+
+test("OVL-14: a container sends the popup into that element instead of <body>", async () => {
+  // Upstream forwards no container, so the portal lands under `<body>` — which the Fullscreen API
+  // paints a fullscreen element OVER, hiding the popup. `container` is the one escape hatch.
+  function Host() {
+    const [host, setHost] = React.useState<HTMLElement | undefined>(undefined);
+    return (
+      <div style={{ padding: 150 }}>
+        <div ref={(node) => setHost(node ?? undefined)} data-testid="host" />
+        <TooltipProvider>
+          <Tooltip defaultOpen>
+            <TooltipTrigger aria-label="Settings">Open settings</TooltipTrigger>
+            <TooltipContent container={host}>Settings</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    );
+  }
+  const screen = await render(<Host />);
+  const host = screen.container.querySelector(
+    '[data-testid="host"]',
+  ) as HTMLElement;
+  const popup = await vi.waitFor(() => {
+    const node = host.querySelector('[data-slot="tooltip-content"]');
+    if (!node) throw new Error("not portaled into the host yet");
+    return node as HTMLElement;
+  });
+  expect(popup.textContent).toContain("Settings");
+});
+
+test("OVL-14: with no container the popup keeps upstream's <body> default", async () => {
+  const screen = await render(<Subject defaultOpen />);
+  const popup = popupOf(screen.container)!;
+  expect(screen.container.contains(popup)).toBe(false);
+  expect(document.body.contains(popup)).toBe(true);
+});
+
+test("OVL-13: with no scope in the tree the positioner keeps only its own classes", async () => {
+  const screen = await render(<Subject defaultOpen />);
+  const positioner = popupOf(screen.container)!.parentElement!;
+  expect(positioner.className).toContain("isolate");
+  expect(positioner.className).not.toContain("vs-scope-under-test");
+});
+
+test("a kbd hint rides inside the popup (With Keyboard Shortcut)", async () => {
   const screen = await render(
     <TooltipProvider>
-      <Tooltip open>
-        <TooltipTrigger>Open settings</TooltipTrigger>
-        <TooltipContent
-          sideOffset={() => 6}
-          portalProps={{ className: "tooltip-portal-prop" }}
-          positionerProps={{ className: "consumer-positioner" }}
-          viewportProps={{ className: "consumer-viewport" }}
-        >
-          Settings
-        </TooltipContent>
+      <div style={{ padding: 150 }}>
+        <Tooltip defaultOpen>
+          <TooltipTrigger aria-label="Save Changes">
+            <svg aria-hidden="true" />
+          </TooltipTrigger>
+          <TooltipContent>
+            Save Changes <kbd data-slot="kbd">S</kbd>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>,
+  );
+  const popup = popupOf(screen.container);
+  expect(popup).not.toBeNull();
+  expect(popup!.textContent).toContain("Save Changes");
+  expect(popup!.querySelector('[data-slot="kbd"]')?.textContent).toBe("S");
+});
+
+test("a span trigger carries the tooltip for a disabled control (Disabled Button)", async () => {
+  const screen = await render(
+    <TooltipProvider>
+      <div style={{ padding: 150 }}>
+        <Tooltip defaultOpen>
+          <TooltipTrigger render={<span className="inline-block w-fit" />}>
+            <button type="button" disabled>
+              Disabled
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>This feature is currently unavailable</TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>,
+  );
+  const popup = popupOf(screen.container);
+  expect(popup).not.toBeNull();
+  expect(popup!.textContent).toContain("This feature is currently unavailable");
+  const trigger = screen.container.querySelector(
+    '[data-slot="tooltip-trigger"]',
+  );
+  expect(trigger?.tagName).toBe("SPAN");
+  // The wrapper is what receives the pointer events the disabled button never fires.
+  expect(trigger?.querySelector("button")?.disabled).toBe(true);
+});
+
+test("no a11y violations — closed", async () => {
+  const screen = await render(
+    <TooltipProvider>
+      <Tooltip open={false}>
+        <TooltipTrigger aria-label="Settings">Open settings</TooltipTrigger>
+        <TooltipContent>Settings</TooltipContent>
       </Tooltip>
     </TooltipProvider>,
   );
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
-
-  const positioner = document.querySelector(
-    '[data-slot="tooltip-positioner"]',
-  )!;
-  expect(positioner.className).toContain("z-(--z-overlay)");
-  expect(positioner.className).toContain("consumer-positioner");
-  expect(document.querySelector(".tooltip-portal-prop")).not.toBeNull();
-  expect(
-    document.querySelector('[data-slot="tooltip-viewport"]')?.className,
-  ).toContain("consumer-viewport");
-});
-
-test("renders a keyboard shortcut hint through the one Kbd chip", async () => {
-  const screen = await render(<Subject withKbd kbdOs="mac" />);
-  await userEvent.hover(screen.getByRole("button", { name: "Open settings" }));
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
-  const kbd = screen.container.ownerDocument.querySelector(
-    '[data-slot="tooltip-kbd"]',
-  );
-  expect(kbd).not.toBeNull();
-  expect(kbd?.querySelectorAll("kbd")).toHaveLength(2);
-  // Routing through `Kbd` buys the mac glyph its spoken name: `⌘` alone is
-  // announced as "place of interest sign" (or skipped), so the chip pairs it
-  // with sr-only text. Visually it is still `⌘K`.
-  expect(kbd?.textContent).toBe("⌘CommandK");
-  expect(kbd?.querySelector(".sr-only")?.textContent).toBe("Command");
-});
-
-test("the shortcut hint takes its platform labels from the caller, not the DOM", async () => {
-  // `os` defaults to `"other"` — the SSR-safe fallback `usePlatform()` returns —
-  // so a hint rendered without a resolved platform reads `Ctrl`, never a mac
-  // glyph a Windows user does not have (audit B2-07).
-  const screen = await render(<Subject withKbd />);
-  await userEvent.hover(screen.getByRole("button", { name: "Open settings" }));
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
-  const kbd = screen.container.ownerDocument.querySelector(
-    '[data-slot="tooltip-kbd"]',
-  );
-  expect(kbd?.textContent).toBe("CtrlK");
-});
-
-test("no a11y violations (closed)", async () => {
-  const screen = await render(<Subject />);
   await expectNoA11yViolations(screen.container);
 });
 
-test("no a11y violations (open)", async () => {
-  const screen = await render(<Subject withKbd />);
-  await userEvent.hover(screen.getByRole("button", { name: "Open settings" }));
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
-  // axe the portaled popup, which lands outside the test container.
+test("no a11y violations — open (trigger and portaled popup)", async () => {
+  const screen = await render(<Subject defaultOpen />);
+  expect(popupOf(screen.container)).not.toBeNull();
+  // The popup lives outside the render container, so the document body is the audit root.
   await expectNoA11yViolations(screen.container.ownerDocument.body);
 });
 
-test("TooltipContent forwards ref to its host element", async () => {
-  // Render open so the portaled popup mounts; the ref lands on it.
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
+test("no a11y violations — icon-only trigger, open", async () => {
+  const screen = await render(
     <TooltipProvider>
-      <Tooltip open>
-        <TooltipTrigger>Open settings</TooltipTrigger>
-        <TooltipContent ref={ref}>Settings</TooltipContent>
-      </Tooltip>
+      <div style={{ padding: 150 }}>
+        <Tooltip defaultOpen>
+          <TooltipTrigger aria-label="Save Changes">
+            <svg aria-hidden="true" />
+          </TooltipTrigger>
+          <TooltipContent>Save Changes</TooltipContent>
+        </Tooltip>
+      </div>
     </TooltipProvider>,
   );
-  await expect.poll(() => ref.current).not.toBeNull();
-  expect(ref.current).toBeInstanceOf(HTMLElement);
-  expect(ref.current?.dataset.slot).toBe("tooltip-content");
+  await expectNoA11yViolations(screen.container.ownerDocument.body);
 });

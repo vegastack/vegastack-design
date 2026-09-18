@@ -1,0 +1,96 @@
+# component: toggle
+# decisions: A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4
+# hunks:
+#   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-[3px]
+#     focus-visible:ring-ring/50` and the `aria-invalid` rings are removed.
+#   FOC-5: the invalid border becomes `not-focus:aria-invalid:border-destructive`.
+#   FRM-4: `disabled:pointer-events-none` is dropped, so a disabled toggle stays hoverable and a
+#     Tooltip can explain why it is unavailable. Base UI's Toggle has no `focusableWhenDisabled`,
+#     so the native `disabled` attribute stays — the pointer half of FRM-4 only.
+#   API-5, A11Y-12: the `loading` prop, the out-of-flow spinner, and the label held at
+#     `opacity-0` so the control's width does not move and its accessible name survives.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file; those hunks carry no decision of their own.
+diff --git a/toggle.tsx b/toggle.tsx
+index 1651768..d83ae40 100644
+--- a/toggle.tsx
++++ b/toggle.tsx
+@@ -1,11 +1,15 @@
+-"use client"
++// @vegastack toggle@0.9.1 sha256-wsmwc51WrE4pSxXv9QQBzeaa1gVRcAe8Vvhz1M/RSfY=
+ 
+-import { Toggle as TogglePrimitive } from "@base-ui/react/toggle"
+-import { cva, type VariantProps } from "class-variance-authority"
+-import { cn } from "cn"
++"use client";
++
++import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
++import { cva, type VariantProps } from "class-variance-authority";
++import { cn } from "@vegastack/design";
++
++import { Spinner } from "@/components/ui/spinner";
+ 
+ const toggleVariants = cva(
+-  "group/toggle inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground not-focus:aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+   {
+     variants: {
+       variant: {
+@@ -23,22 +27,50 @@ const toggleVariants = cva(
+       variant: "default",
+       size: "default",
+     },
+-  }
+-)
++  },
++);
+ 
+ function Toggle({
+   className,
+   variant = "default",
+   size = "default",
++  loading = false,
++  disabled,
++  children,
++  "aria-busy": ariaBusy,
+   ...props
+-}: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
++}: TogglePrimitive.Props &
++  VariantProps<typeof toggleVariants> & {
++    /**
++     * Shows a spinner over the label, blocks activation and sets `aria-busy`. The label keeps its
++     * box at `opacity: 0`, so the toggle's width does not move (API-5, A11Y-12).
++     */
++    loading?: boolean;
++  }) {
+   return (
+     <TogglePrimitive
+       data-slot="toggle"
++      data-loading={loading ? "" : undefined}
++      aria-busy={loading ? true : ariaBusy}
++      disabled={disabled || loading}
+       className={cn(toggleVariants({ variant, size, className }))}
+       {...props}
+-    />
+-  )
++    >
++      {loading ? (
++        <>
++          <span
++            aria-hidden
++            className="absolute inset-0 flex items-center justify-center"
++          >
++            <Spinner aria-label={undefined} />
++          </span>
++          <span className="contents opacity-0">{children}</span>
++        </>
++      ) : (
++        children
++      )}
++    </TogglePrimitive>
++  );
+ }
+ 
+-export { Toggle, toggleVariants }
++export { Toggle, toggleVariants };

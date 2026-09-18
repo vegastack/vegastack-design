@@ -21,7 +21,7 @@ import {
 
 /**
  * Base UI portal contract (Codex R4 MED): overlay popups MUST portal out of their local DOM (to
- * <body>) so they escape ancestor stacking contexts and clipping, and carry the overlay band token (z-(--z-overlay)) so
+ * <body>) so they escape ancestor stacking contexts and clipping, and carry the overlay band token (z-50) so
  * they render above app chrome. These tests open each overlay inside an `isolation: isolate` app root
  * (the required root stacking context, set by @vegastack/design-tokens/base.css + the docs layout) and
  * assert the popup escaped the root and carries the overlay band. (Pixel-level stack ordering above the Fumadocs
@@ -43,8 +43,8 @@ function assertPortaled(popup: Element | null) {
   // escaped the app root (portaled to body) — not clipped/trapped by ancestor stacking contexts.
   expect(root.contains(popup!)).toBe(false);
   expect(document.body.contains(popup!)).toBe(true);
-  // carries the overlay band token so it stacks above page content (T3: z-(--z-overlay)).
-  expect(popup!.className).toContain("z-(--z-overlay)");
+  // carries the overlay band token so it stacks above page content (T3: z-50).
+  expect(popup!.className).toContain("z-50");
 }
 
 test("Dialog content portals out of the app root and carries the overlay band", async () => {

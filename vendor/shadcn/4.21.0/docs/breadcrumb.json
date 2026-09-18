@@ -1,0 +1,17 @@
+{
+  "component": "breadcrumb",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/breadcrumb.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Basic",
+    "Custom separator",
+    "Dropdown",
+    "Collapsed",
+    "Link component",
+    "RTL",
+    "API Reference"
+  ]
+}

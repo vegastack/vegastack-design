@@ -1,138 +1,301 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import * as React from "react";
+import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/checkbox` (dogfoods the registry) → auto-scanned.
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field } from "@/components/ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export function checkbox(): ReactNode {
   return (
     <Wrapper>
-      <Field label="Subscribe to product updates" orientation="horizontal">
-        <Checkbox defaultChecked />
-      </Field>
+      <Checkbox aria-label="Accept terms and conditions" />
     </Wrapper>
   );
 }
 
-export function checkboxStates(): ReactNode {
-  const [checked, setChecked] = useState<boolean | "indeterminate">(
-    "indeterminate",
-  );
-
-  return (
-    <Wrapper className="flex-col items-start gap-4">
-      {/* Bare controls — every state exactly as it renders (checked = neutral primary) */}
-      <div className="flex flex-wrap items-center gap-6">
-        <Checkbox aria-label="Unchecked" />
-        <Checkbox defaultChecked aria-label="Checked" />
-        <Checkbox
-          indeterminate={checked === "indeterminate"}
-          checked={checked === true}
-          onCheckedChange={(next) => setChecked(next)}
-          aria-label="Indeterminate"
-        />
-        <Checkbox disabled aria-label="Disabled" />
-        <Checkbox disabled defaultChecked aria-label="Disabled checked" />
-      </div>
-
-      {/* With labels via Field — the common form usage */}
-      <Field label="Unchecked" orientation="horizontal">
-        <Checkbox />
-      </Field>
-      <Field label="Checked" orientation="horizontal">
-        <Checkbox defaultChecked />
-      </Field>
-      <Field label="Disabled" orientation="horizontal">
-        <Checkbox disabled />
-      </Field>
-      <Field label="Disabled checked" orientation="horizontal">
-        <Checkbox disabled defaultChecked />
-      </Field>
-    </Wrapper>
-  );
-}
-
-export function checkboxSizes(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-start gap-4">
-      {/* The indicator icon scales with the box, so sm reads smaller end-to-end. */}
-      <div className="flex items-center gap-6">
-        <Checkbox size="sm" defaultChecked aria-label="Small" />
-        <Checkbox size="md" defaultChecked aria-label="Default" />
-      </div>
-      <Field label="Small" orientation="horizontal">
-        <Checkbox size="sm" defaultChecked />
-      </Field>
-      <Field label="Default" orientation="horizontal">
-        <Checkbox size="md" defaultChecked />
-      </Field>
-    </Wrapper>
-  );
-}
-
-export function checkboxInvalid(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-start gap-4">
-      {/* Bare invalid checkbox via aria-invalid — destructive border at rest. */}
-      <Checkbox aria-invalid aria-label="Invalid checkbox" />
-      {/* In-Field error — Field sets data-invalid and renders the role="alert" message. */}
-      <Field
-        label="Accept the terms to continue"
-        orientation="horizontal"
-        error="This field is required."
-      >
-        <Checkbox />
-      </Field>
-    </Wrapper>
-  );
-}
-
-export function checkboxSizeStateMatrix(): ReactNode {
-  const [mixedSm, setMixedSm] = useState<boolean | "indeterminate">(
-    "indeterminate",
-  );
-  const [mixedDefault, setMixedDefault] = useState<boolean | "indeterminate">(
-    "indeterminate",
-  );
-
+export function checkboxCheckedState(): ReactNode {
+  const [checked, setChecked] = React.useState(false);
   return (
     <Wrapper>
-      {/* Scroll container + tighter small-width gap so the matrix headers stay legible at 375px. */}
-      <div className="w-full max-w-full overflow-x-auto">
-        <div className="grid w-max grid-cols-[auto_repeat(3,auto)] items-center gap-x-4 gap-y-4 text-base text-muted-foreground sm:gap-x-8">
-          {/* Header row */}
-          <span />
-          <span>Unchecked</span>
-          <span>Checked</span>
-          <span>Indeterminate</span>
-
-          {/* sm row */}
-          <span className="font-mono">sm</span>
-          <Checkbox size="sm" aria-label="Small unchecked" />
-          <Checkbox size="sm" defaultChecked aria-label="Small checked" />
+      <FieldGroup className="mx-auto w-56">
+        <Field orientation="horizontal">
           <Checkbox
-            size="sm"
-            indeterminate={mixedSm === "indeterminate"}
-            checked={mixedSm === true}
-            onCheckedChange={(next) => setMixedSm(next)}
-            aria-label="Small indeterminate"
+            id="checkbox-controlled"
+            checked={checked}
+            onCheckedChange={setChecked}
           />
+          <FieldLabel htmlFor="checkbox-controlled">
+            {checked ? "Checked" : "Unchecked"}
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="checkbox-uncontrolled" defaultChecked />
+          <FieldLabel htmlFor="checkbox-uncontrolled">
+            Uncontrolled, checked by default
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="checkbox-indeterminate" indeterminate />
+          <FieldLabel htmlFor="checkbox-indeterminate">
+            Indeterminate
+          </FieldLabel>
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
 
-          {/* default row */}
-          <span className="font-mono">default</span>
-          <Checkbox size="md" aria-label="Default unchecked" />
-          <Checkbox size="md" defaultChecked aria-label="Default checked" />
+export function checkboxInvalidState(): ReactNode {
+  return (
+    <Wrapper>
+      <FieldGroup className="mx-auto w-56">
+        <Field orientation="horizontal" data-invalid>
           <Checkbox
-            size="md"
-            indeterminate={mixedDefault === "indeterminate"}
-            checked={mixedDefault === true}
-            onCheckedChange={(next) => setMixedDefault(next)}
-            aria-label="Default indeterminate"
+            id="terms-checkbox-invalid"
+            name="terms-checkbox-invalid"
+            aria-invalid
           />
-        </div>
-      </div>
+          <FieldLabel htmlFor="terms-checkbox-invalid">
+            Accept terms and conditions
+          </FieldLabel>
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
+export function checkboxBasic(): ReactNode {
+  return (
+    <Wrapper>
+      <FieldGroup className="mx-auto w-56">
+        <Field orientation="horizontal">
+          <Checkbox id="terms-checkbox-basic" name="terms-checkbox-basic" />
+          <FieldLabel htmlFor="terms-checkbox-basic">
+            Accept terms and conditions
+          </FieldLabel>
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
+export function checkboxDescription(): ReactNode {
+  return (
+    <Wrapper>
+      <FieldGroup className="mx-auto w-72">
+        <Field orientation="horizontal">
+          <Checkbox
+            id="terms-checkbox-desc"
+            name="terms-checkbox-desc"
+            defaultChecked
+          />
+          <FieldContent>
+            <FieldLabel htmlFor="terms-checkbox-desc">
+              Accept terms and conditions
+            </FieldLabel>
+            <FieldDescription>
+              By clicking this checkbox, you agree to the terms and conditions.
+            </FieldDescription>
+          </FieldContent>
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
+export function checkboxDisabled(): ReactNode {
+  return (
+    <Wrapper>
+      <FieldGroup className="mx-auto w-56">
+        <Field orientation="horizontal" data-disabled>
+          <Checkbox
+            id="toggle-checkbox-disabled"
+            name="toggle-checkbox-disabled"
+            disabled
+          />
+          <FieldLabel htmlFor="toggle-checkbox-disabled">
+            Enable notifications
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal" data-disabled>
+          <Checkbox
+            id="toggle-checkbox-disabled-checked"
+            name="toggle-checkbox-disabled-checked"
+            disabled
+            defaultChecked
+          />
+          <FieldLabel htmlFor="toggle-checkbox-disabled-checked">
+            Enable sounds
+          </FieldLabel>
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
+export function checkboxFieldGroup(): ReactNode {
+  const items = [
+    { id: "hard-disks", label: "Hard disks", checked: true },
+    { id: "external-disks", label: "External disks", checked: true },
+    { id: "cds-dvds", label: "CDs, DVDs, and iPods", checked: false },
+    { id: "connected-servers", label: "Connected servers", checked: false },
+  ];
+  return (
+    <Wrapper>
+      <FieldSet>
+        <FieldLegend variant="label">
+          Show these items on the desktop:
+        </FieldLegend>
+        <FieldDescription>
+          Select the items you want to show on the desktop.
+        </FieldDescription>
+        <FieldGroup className="gap-3">
+          {items.map((item) => (
+            <Field key={item.id} orientation="horizontal">
+              <Checkbox
+                id={`desktop-${item.id}`}
+                name={`desktop-${item.id}`}
+                defaultChecked={item.checked}
+              />
+              <FieldLabel
+                htmlFor={`desktop-${item.id}`}
+                className="font-normal"
+              >
+                {item.label}
+              </FieldLabel>
+            </Field>
+          ))}
+        </FieldGroup>
+      </FieldSet>
+    </Wrapper>
+  );
+}
+
+const tableData = [
+  { id: "1", name: "Sarah Chen", email: "sarah.chen@example.com" },
+  { id: "2", name: "Marcus Rodriguez", email: "marcus.r@example.com" },
+  { id: "3", name: "Priya Patel", email: "priya.patel@example.com" },
+];
+
+export function checkboxTable(): ReactNode {
+  const [selected, setSelected] = React.useState<Set<string>>(new Set(["1"]));
+  const allSelected = selected.size === tableData.length;
+
+  return (
+    <Wrapper className="items-stretch">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-8">
+              <Checkbox
+                aria-label="Select all rows"
+                checked={allSelected}
+                indeterminate={selected.size > 0 && !allSelected}
+                onCheckedChange={(next) =>
+                  setSelected(
+                    next ? new Set(tableData.map((row) => row.id)) : new Set(),
+                  )
+                }
+              />
+            </TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tableData.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell>
+                <Checkbox
+                  aria-label={`Select ${row.name}`}
+                  checked={selected.has(row.id)}
+                  onCheckedChange={(next) =>
+                    setSelected((current) => {
+                      const draft = new Set(current);
+                      if (next) draft.add(row.id);
+                      else draft.delete(row.id);
+                      return draft;
+                    })
+                  }
+                />
+              </TableCell>
+              <TableCell>{row.name}</TableCell>
+              <TableCell>{row.email}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Wrapper>
+  );
+}
+
+export function checkboxRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <FieldGroup className="w-full max-w-xs" dir="ltr">
+        <Field orientation="horizontal">
+          <Checkbox id="checkbox-rtl-ltr" defaultChecked />
+          <FieldContent>
+            <FieldLabel htmlFor="checkbox-rtl-ltr">
+              Accept terms and conditions
+            </FieldLabel>
+            <FieldDescription>
+              By clicking this checkbox, you agree to the terms.
+            </FieldDescription>
+          </FieldContent>
+        </Field>
+      </FieldGroup>
+      <FieldGroup className="w-full max-w-xs" dir="rtl">
+        <Field orientation="horizontal">
+          <Checkbox id="checkbox-rtl-ar" defaultChecked />
+          <FieldContent>
+            <FieldLabel htmlFor="checkbox-rtl-ar">
+              قبول الشروط والأحكام
+            </FieldLabel>
+            <FieldDescription>
+              بالنقر على هذا المربع، فإنك توافق على الشروط.
+            </FieldDescription>
+          </FieldContent>
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
+/**
+ * Ours, and a geometry canary: rest, checked, indeterminate, invalid and disabled in one frame.
+ */
+export function checkboxStates(): ReactNode {
+  return (
+    // `gap-6`, not the Wrapper's default `gap-3`: each checkbox carries a 40px-wide invisible hit
+    // area (`after:-inset-x-3`), so at a 12px gap the neighbouring areas overlap and the later
+    // sibling wins the shared band. 24px of gap puts the centres exactly 40px apart, which is what
+    // lets `test/geometry.browser.test.tsx` prove each target is unobstructed.
+    <Wrapper className="gap-6">
+      <Checkbox aria-label="Rest" />
+      <Checkbox aria-label="Checked" defaultChecked />
+      <Checkbox aria-label="Indeterminate" indeterminate />
+      <Checkbox aria-label="Invalid" aria-invalid />
+      <Checkbox aria-label="Disabled" disabled />
+      <Checkbox aria-label="Disabled and checked" disabled defaultChecked />
     </Wrapper>
   );
 }

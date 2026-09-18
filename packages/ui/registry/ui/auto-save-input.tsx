@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.9.1 sha256-zX6K+xbBNdOFmcg4Nsb2aExeIfcJcORZ2542YhTMlG8=
+// @vegastack auto-save-input@0.9.1 sha256-nur3GH+Z0+F438A2vbtFG/IUL6ijucfL9Fn3j2jjZ7A=
 
 "use client";
 
@@ -6,9 +6,13 @@ import * as React from "react";
 import { Check, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { TIMINGS } from "@vegastack/design";
-// `Input` is owned by the sibling Input component; shadcn rewrites this alias on
+// `InputGroup` is owned by the sibling Input Group component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 /**
  * Lifecycle of an auto-save: `idle` (no pending change), `saving` (debounce
@@ -19,8 +23,8 @@ export type AutoSaveStatus = "idle" | "saving" | "saved" | "error";
 
 /** Props accepted by `AutoSaveInput`. */
 export interface AutoSaveInputProps extends Omit<
-  React.ComponentProps<typeof Input>,
-  "value" | "defaultValue" | "onChange" | "suffix"
+  React.ComponentProps<typeof InputGroupInput>,
+  "value" | "defaultValue" | "onChange"
 > {
   /**
    * Controlled value of the field. Pair with `onValueChange` so user edits are
@@ -74,8 +78,7 @@ export interface AutoSaveInputProps extends Omit<
 }
 
 /** Trailing status-slot classes — fixed-width so the field doesn't shift as the icon swaps. */
-const statusSlotClasses =
-  "flex size-(--icon-default) shrink-0 items-center justify-center";
+const statusSlotClasses = "flex size-4 shrink-0 items-center justify-center";
 
 /**
  * `AutoSaveInput` — an {@link Input} that debounces edits and persists them via
@@ -202,20 +205,23 @@ export function AutoSaveInput({
   }, [value, debounceMs, updateStatus]);
 
   return (
-    <Input
-      ref={ref}
-      data-slot="auto-save-input"
-      data-state={status}
-      value={value}
-      onChange={(e) => {
-        const next = e.target.value;
-        pendingControlledEdit.current = next;
-        if (!isControlled) setUncontrolledValue(next);
-        onValueChange?.(next);
-      }}
-      disabled={disabled}
-      aria-invalid={status === "error" || undefined}
-      suffix={
+    <InputGroup className={className}>
+      <InputGroupInput
+        ref={ref}
+        data-slot="auto-save-input"
+        data-state={status}
+        value={value}
+        onChange={(e) => {
+          const next = e.target.value;
+          pendingControlledEdit.current = next;
+          if (!isControlled) setUncontrolledValue(next);
+          onValueChange?.(next);
+        }}
+        disabled={disabled}
+        aria-invalid={status === "error" || undefined}
+        {...props}
+      />
+      <InputGroupAddon align="inline-end">
         <span
           data-slot="auto-save-input-status"
           className={statusSlotClasses}
@@ -235,19 +241,21 @@ export function AutoSaveInput({
           {status === "saving" ? (
             <Spinner
               key="saving"
-              decorative
               className="text-muted-foreground"
+              aria-hidden
+              role={undefined}
+              aria-label={undefined}
             />
           ) : status === "saved" ? (
             <Check
               key="saved"
-              className="size-(--icon-default) text-success-text motion-pop-in"
+              className="size-4 text-success-text motion-pop-in"
               aria-hidden
             />
           ) : status === "error" ? (
             <X
               key="error"
-              className="size-(--icon-default) text-destructive-text motion-pop-in"
+              className="size-4 text-destructive-text motion-pop-in"
               aria-hidden
             />
           ) : null}
@@ -267,9 +275,7 @@ export function AutoSaveInput({
             </span>
           )}
         </span>
-      }
-      className={className}
-      {...props}
-    />
+      </InputGroupAddon>
+    </InputGroup>
   );
 }

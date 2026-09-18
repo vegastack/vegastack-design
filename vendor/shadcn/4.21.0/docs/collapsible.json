@@ -1,0 +1,16 @@
+{
+  "component": "collapsible",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/collapsible.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Controlled State",
+    "Basic",
+    "Settings Panel",
+    "File Tree",
+    "RTL",
+    "API Reference"
+  ]
+}

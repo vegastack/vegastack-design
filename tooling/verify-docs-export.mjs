@@ -65,7 +65,15 @@ const JSX_TAG = /<[A-Z][\w.]*(?=[\s/>])/;
 const JSX_NAMESPACED_TAG = /<[a-z][\w]*(?:\.[A-Za-z][\w]*)+(?=[\s/>])/;
 /** `<api-table />` — a hyphenated custom element name, which no standard HTML element has. */
 const JSX_CUSTOM_ELEMENT = /<[a-z][a-z0-9]*(?:-[a-z0-9]+)+(?=[\s/>])/;
-const TABLE_HEADER = /^\| Prop \|/;
+/**
+ * A table header row whose first column is `Prop`. The padding is not optional to tolerate:
+ * Prettier ALIGNS markdown tables, so every hand-written API table in `apps/docs/content` is
+ * exported as `| Prop               | Type …`. A one-space-exactly pattern matched only the
+ * compact tables `<ApiTable>` generates, which made this rule fail OPEN on precisely the pages it
+ * exists for — `chart.mdx` documents four `ChartContainer` props in a real table and was reported
+ * as documenting none. (Batch 8 of the shadcn reset found the same hole from the blocks branch.)
+ */
+const TABLE_HEADER = /^\|\s*Prop\s*\|/;
 /** `## API Reference [#api-reference]` — fumadocs appends the anchor to the built heading. */
 const API_HEADING = /^#{2,3}\s+API Reference\b/;
 const ANY_HEADING = /^#{1,6}\s/;
@@ -102,7 +110,11 @@ export function findProblems(markdown) {
     if (TABLE_HEADER.test(line)) {
       const separator = lines[index + 1] ?? "";
       const firstRow = lines[index + 2] ?? "";
-      if (!/^\|\s*-/.test(separator) || !firstRow.startsWith("|")) {
+      // `| :--- |` and `| ---: |` are separators too — Prettier writes the alignment colon on
+      // every hand-written table it touches, and a pattern that only accepted a bare `-` would
+      // report a real, populated table as EMPTY the moment the header matcher above learnt to
+      // see it. The two changes belong together.
+      if (!/^\|\s*:?-/.test(separator) || !firstRow.startsWith("|")) {
         problems.push(`line ${index + 1}: empty API table`);
       }
     }
@@ -328,6 +340,12 @@ function selfTest() {
       "## API Reference [#api-reference]\n\n`Accordion`, `AccordionItem` and `AccordionTrigger` add no\nprops of their own — each accepts everything the Base UI part accepts.\n\n## Accessibility\n",
     ],
     [
+      // Prettier aligns every markdown table it touches, so this is the shape a HAND-WRITTEN
+      // API table actually has by the time it is exported. `chart.mdx` is the live example.
+      "prettier-aligned table header",
+      "## API Reference [#api-reference]\n\n| Prop               | Type     | Default | Description |\n| :----------------- | :------- | :------ | :---------- |\n| `config`           | `string` | —       | x           |\n\n## Accessibility\n",
+    ],
+    [
       "table inside a subsection",
       "## API Reference [#api-reference]\n\nHand-maintained rows.\n\n### ResizablePanelGroup\n\n| Prop | Type | Default | Description |\n| --- | --- | --- | --- |\n| `a?` | `string` | — | x |\n\n## Accessibility\n",
     ],
@@ -418,7 +436,7 @@ function selfTest() {
     process.exit(1);
   }
   console.log(
-    "✓ verify-docs-export self-test: JSX (capitalised, namespaced, custom-element), placeholder, empty-table and inline-JSX fixtures rejected; missing/empty/prose-only API sections rejected and table, no-own-props and subsection forms accepted; both-playground-and-Explorer, unwrapped-Explorer and out-of-section playground/Explorer rejected while neither is accepted; an uncovered manifest name rejected; clean fixture (fenced, inline and indented-fence code) accepted",
+    "✓ verify-docs-export self-test: JSX (capitalised, namespaced, custom-element), placeholder, empty-table and inline-JSX fixtures rejected; missing/empty/prose-only API sections rejected and table, prettier-aligned table, no-own-props and subsection forms accepted; both-playground-and-Explorer, unwrapped-Explorer and out-of-section playground/Explorer rejected while neither is accepted; an uncovered manifest name rejected; clean fixture (fenced, inline and indented-fence code) accepted",
   );
 }
 

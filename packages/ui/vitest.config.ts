@@ -20,7 +20,7 @@ export default defineConfig({
   // checks, unaffected by this plugin.
   plugins: [tailwindcss()],
   resolve: {
-    // Single React instance — Base UI subpaths (e.g. `@base-ui/react/field`) get
+    // Single React instance — Base UI subpaths (e.g. `@base-ui/react/dialog`) get
     // pre-bundled into their own optimized chunk; without deduping, that chunk
     // can resolve a second React and crash on `useId` (null React internals).
     dedupe: ["react", "react-dom"],
@@ -51,12 +51,18 @@ export default defineConfig({
     // (otherwise a subpath's optimized chunk can resolve a second React and crash on useId).
     include: [
       "@base-ui/react/use-render",
-      // The headless message-scroller primitive (the one non-Base-UI primitive) — pre-bundle so it
-      // shares the single deduped React copy (otherwise its chunk resolves a 2nd React → useId crash).
+      // The two headless `@shadcn/react` subpaths — pre-bundle so each shares the single deduped
+      // React copy (otherwise its chunk resolves a 2nd React → useId crash), and so Vite never
+      // discovers one mid-run and reloads a live test page. Batch 6 of the shadcn reset added the
+      // questionnaire engine beside the message-scroller one.
       "@shadcn/react/message-scroller",
+      "@shadcn/react/questionnaire",
       "@base-ui/react/input",
-      "@base-ui/react/field",
-      "@base-ui/react/form",
+      // The three engines Batches 3-5 adopted. Same rationale as everything else here: discovered
+      // mid-run, Vite re-optimizes, reloads the page and splits React module identity.
+      "input-otp",
+      "cmdk",
+      "sonner",
       "@base-ui/react/dialog",
       "@base-ui/react/alert-dialog",
       // Sheet runs on Drawer (audit D15). Without pre-bundling it, Vite discovers the subpath
@@ -67,13 +73,13 @@ export default defineConfig({
       "@base-ui/react/popover",
       "@base-ui/react/tooltip",
       "@base-ui/react/menu",
+      "@base-ui/react/menubar",
       "@base-ui/react/navigation-menu",
       "@base-ui/react/context-menu",
       "@base-ui/react/select",
       "@base-ui/react/combobox",
       "@base-ui/react/tabs",
       "@base-ui/react/checkbox",
-      "@base-ui/react/checkbox-group",
       "@base-ui/react/switch",
       "@base-ui/react/radio",
       "@base-ui/react/radio-group",
@@ -91,8 +97,12 @@ export default defineConfig({
       // X2 component third-party engines — same single-React-copy rationale.
       "react-resizable-panels",
       "recharts",
-      "@base-ui/react/otp-field",
       "react-day-picker",
+      // The carousel's slide engine (Batch 5 of the shadcn reset). Without pre-bundling it, Vite
+      // discovers it mid-run, re-optimizes, reloads the page and splits React module identity —
+      // `useEmblaCarousel` then calls `useState` against a second React and throws
+      // "Invalid hook call" on every carousel test.
+      "embla-carousel-react",
       "@tiptap/react",
       "@tiptap/starter-kit",
       "@base-ui/react/direction-provider",

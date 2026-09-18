@@ -1,192 +1,890 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import * as React from "react";
+import type { ReactNode } from "react";
 import {
-  Cloud,
-  CreditCard,
-  Keyboard,
-  LogOut,
-  Mail,
-  MessageSquare,
-  Plus,
-  Settings,
-  Trash2,
-  User,
-  UserPlus,
+  BadgeCheckIcon,
+  BellIcon,
+  Building2Icon,
+  CreditCardIcon,
+  DownloadIcon,
+  EyeIcon,
+  FileCodeIcon,
+  FileIcon,
+  FileTextIcon,
+  FolderIcon,
+  FolderOpenIcon,
+  FolderSearchIcon,
+  HelpCircleIcon,
+  KeyboardIcon,
+  LanguagesIcon,
+  LayoutIcon,
+  LogOutIcon,
+  MailIcon,
+  MessageSquareIcon,
+  MonitorIcon,
+  MoonIcon,
+  MoreHorizontalIcon,
+  PaletteIcon,
+  PencilIcon,
+  SaveIcon,
+  SettingsIcon,
+  ShareIcon,
+  ShieldIcon,
+  SunIcon,
+  TrashIcon,
+  UserIcon,
+  WalletIcon,
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
+// Copied INTO apps/docs via `shadcn add @vegastack/avatar` (dogfoods the registry) → auto-scanned.
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-// Copied INTO apps/docs via `shadcn add @vegastack/dropdown-menu` (dogfoods the registry) → auto-scanned.
+import { DirectionProvider } from "@/components/ui/direction";
+// Copied INTO apps/docs via `shadcn add @vegastack/dropdown-menu` (dogfoods the registry).
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-  DropdownMenuGroup,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
   DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+/*
+ * Every fixture renders its trigger and nothing else: the menu is CLOSED at rest, which is how
+ * upstream's own docs demo it and how a reader meets the component. The geometry lane mounts each
+ * of these, so an always-open popup would put a portaled surface on screen for a measurement that
+ * is about the trigger.
+ */
 
 export function dropdownMenu(): ReactNode {
   return (
     <Wrapper>
       <DropdownMenu>
-        <DropdownMenuTrigger
-          render={<Button variant="outline">Open menu</Button>}
-        />
-        <DropdownMenuContent>
-          <DropdownMenuItem>
-            <User />
-            Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings />
-            Settings
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem tone="destructive">
-            <Trash2 />
-            Delete account
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </Wrapper>
-  );
-}
-
-export function dropdownMenuInset(): ReactNode {
-  return (
-    <Wrapper>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={<Button variant="outline">View options</Button>}
-        />
-        <DropdownMenuContent className="min-w-52">
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40" align="start">
           <DropdownMenuGroup>
-            <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuItem>
-              <User />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem inset>Compact mode</DropdownMenuItem>
-            <DropdownMenuItem inset>Full width</DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </Wrapper>
-  );
-}
-
-export function dropdownMenuRich(): ReactNode {
-  const [showStatusBar, setShowStatusBar] = useState(true);
-  const [showActivityBar, setShowActivityBar] = useState(false);
-  const [position, setPosition] = useState("bottom");
-
-  return (
-    <Wrapper>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={<Button variant="outline">My account</Button>}
-        />
-        <DropdownMenuContent className="min-w-56">
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>My account</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <User />
               Profile
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <CreditCard />
               Billing
               <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Settings />
               Settings
-              <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Keyboard />
-              Keyboard shortcuts
-              <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>
-
           <DropdownMenuSeparator />
-
           <DropdownMenuGroup>
-            <DropdownMenuLabel>View</DropdownMenuLabel>
+            <DropdownMenuItem>Team</DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem>Email</DropdownMenuItem>
+                  <DropdownMenuItem>Message</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>More...</DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuItem>
+              New Team
+              <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem>GitHub</DropdownMenuItem>
+            <DropdownMenuItem>Support</DropdownMenuItem>
+            <DropdownMenuItem disabled>API</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              Log out
+              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuComposition(): ReactNode {
+  const [showStatusBar, setShowStatusBar] = React.useState(true);
+  const [position, setPosition] = React.useState("bottom");
+
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Billing</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Appearance</DropdownMenuLabel>
             <DropdownMenuCheckboxItem
               checked={showStatusBar}
               onCheckedChange={setShowStatusBar}
             >
-              Status bar
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showActivityBar}
-              onCheckedChange={setShowActivityBar}
-            >
-              Activity bar
+              Status Bar
             </DropdownMenuCheckboxItem>
           </DropdownMenuGroup>
-
           <DropdownMenuSeparator />
-
-          <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
-            <DropdownMenuLabel>Panel position</DropdownMenuLabel>
-            <DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="bottom">Bottom</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="right">Right</DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-
-          <DropdownMenuSeparator />
-
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={position}
+              onValueChange={setPosition}
+            >
+              <DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="bottom">
+                Bottom
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <UserPlus />
-              Invite users
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuItem>
-                <Mail />
-                Email
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <MessageSquare />
-                Message
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Plus />
-                More…
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
+            <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Channels</DropdownMenuLabel>
+                  <DropdownMenuItem>Email</DropdownMenuItem>
+                  <DropdownMenuItem>Message</DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
           </DropdownMenuSub>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
 
-          <DropdownMenuItem disabled>
-            <Cloud />
-            API (coming soon)
-          </DropdownMenuItem>
-
+export function dropdownMenuBasic(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Billing</DropdownMenuItem>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
+          <DropdownMenuItem>GitHub</DropdownMenuItem>
+          <DropdownMenuItem>Support</DropdownMenuItem>
+          <DropdownMenuItem disabled>API</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
 
-          <DropdownMenuItem tone="destructive">
-            <LogOut />
+export function dropdownMenuSubmenu(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuItem>Team</DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem>Email</DropdownMenuItem>
+                  <DropdownMenuItem>Message</DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      More options
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem>Calendly</DropdownMenuItem>
+                        <DropdownMenuItem>Slack</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Webhook</DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Advanced...</DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuItem>
+              New Team
+              <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuShortcuts(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuItem>
+              Profile
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              Billing
+              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              Settings
+              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuIcons(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>
+            <UserIcon />
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <CreditCardIcon />
+            Billing
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <SettingsIcon />
+            Settings
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">
+            <LogOutIcon />
+            Log out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuCheckboxes(): ReactNode {
+  const [showStatusBar, setShowStatusBar] = React.useState(true);
+  const [showActivityBar, setShowActivityBar] = React.useState(false);
+  const [showPanel, setShowPanel] = React.useState(false);
+
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+            <DropdownMenuCheckboxItem
+              checked={showStatusBar ?? false}
+              onCheckedChange={setShowStatusBar}
+            >
+              Status Bar
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={showActivityBar}
+              onCheckedChange={setShowActivityBar}
+              disabled
+            >
+              Activity Bar
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={showPanel}
+              onCheckedChange={setShowPanel}
+            >
+              Panel
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuCheckboxesIcons(): ReactNode {
+  const [notifications, setNotifications] = React.useState({
+    email: true,
+    sms: false,
+    push: true,
+  });
+
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Notifications
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-48">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Notification Preferences</DropdownMenuLabel>
+            <DropdownMenuCheckboxItem
+              checked={notifications.email}
+              onCheckedChange={(checked) =>
+                setNotifications({ ...notifications, email: checked === true })
+              }
+            >
+              <MailIcon />
+              Email notifications
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={notifications.sms}
+              onCheckedChange={(checked) =>
+                setNotifications({ ...notifications, sms: checked === true })
+              }
+            >
+              <MessageSquareIcon />
+              SMS notifications
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={notifications.push}
+              onCheckedChange={(checked) =>
+                setNotifications({ ...notifications, push: checked === true })
+              }
+            >
+              <BellIcon />
+              Push notifications
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuRadioGroup(): ReactNode {
+  const [position, setPosition] = React.useState("bottom");
+
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-32">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={position}
+              onValueChange={setPosition}
+            >
+              <DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="bottom">
+                Bottom
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="right">Right</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuRadioIcons(): ReactNode {
+  const [paymentMethod, setPaymentMethod] = React.useState("card");
+
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Payment Method
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="min-w-56">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Select Payment Method</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={paymentMethod}
+              onValueChange={setPaymentMethod}
+            >
+              <DropdownMenuRadioItem value="card">
+                <CreditCardIcon />
+                Credit Card
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="paypal">
+                <WalletIcon />
+                PayPal
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="bank">
+                <Building2Icon />
+                Bank Transfer
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuDestructive(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Actions
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <PencilIcon />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <ShareIcon />
+              Share
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem variant="destructive">
+              <TrashIcon />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuAvatar(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              aria-label="Account"
+            />
+          }
+        >
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
+            <AvatarFallback>LR</AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <BadgeCheckIcon />
+              Account
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <CreditCardIcon />
+              Billing
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <BellIcon />
+              Notifications
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <LogOutIcon />
+            Sign Out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuComplex(): ReactNode {
+  const [notifications, setNotifications] = React.useState({
+    email: true,
+    sms: false,
+    push: true,
+  });
+  const [theme, setTheme] = React.useState("light");
+
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Complex Menu
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-44">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>File</DropdownMenuLabel>
+            <DropdownMenuItem>
+              <FileIcon />
+              New File
+              <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <FolderIcon />
+              New Folder
+              <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <FolderOpenIcon />
+                Open Recent
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
+                    <DropdownMenuItem>
+                      <FileCodeIcon />
+                      Project Alpha
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <FileCodeIcon />
+                      Project Beta
+                    </DropdownMenuItem>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <MoreHorizontalIcon />
+                        More Projects
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem>
+                            <FileCodeIcon />
+                            Project Gamma
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <FileCodeIcon />
+                            Project Delta
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <FolderSearchIcon />
+                      Browse...
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <SaveIcon />
+              Save
+              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <DownloadIcon />
+              Export
+              <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>View</DropdownMenuLabel>
+            <DropdownMenuCheckboxItem
+              checked={notifications.email}
+              onCheckedChange={(checked) =>
+                setNotifications({ ...notifications, email: checked === true })
+              }
+            >
+              <EyeIcon />
+              Show Sidebar
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={notifications.sms}
+              onCheckedChange={(checked) =>
+                setNotifications({ ...notifications, sms: checked === true })
+              }
+            >
+              <LayoutIcon />
+              Show Status Bar
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <PaletteIcon />
+                Theme
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+                    <DropdownMenuRadioGroup
+                      value={theme}
+                      onValueChange={setTheme}
+                    >
+                      <DropdownMenuRadioItem value="light">
+                        <SunIcon />
+                        Light
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="dark">
+                        <MoonIcon />
+                        Dark
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="system">
+                        <MonitorIcon />
+                        System
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Account</DropdownMenuLabel>
+            <DropdownMenuItem>
+              <UserIcon />
+              Profile
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <CreditCardIcon />
+              Billing
+            </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <SettingsIcon />
+                Settings
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Preferences</DropdownMenuLabel>
+                    <DropdownMenuItem>
+                      <KeyboardIcon />
+                      Keyboard Shortcuts
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <LanguagesIcon />
+                      Language
+                    </DropdownMenuItem>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <BellIcon />
+                        Notifications
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>
+                              Notification Types
+                            </DropdownMenuLabel>
+                            <DropdownMenuCheckboxItem
+                              checked={notifications.push}
+                              onCheckedChange={(checked) =>
+                                setNotifications({
+                                  ...notifications,
+                                  push: checked === true,
+                                })
+                              }
+                            >
+                              <BellIcon />
+                              Push Notifications
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                              checked={notifications.email}
+                              onCheckedChange={(checked) =>
+                                setNotifications({
+                                  ...notifications,
+                                  email: checked === true,
+                                })
+                              }
+                            >
+                              <MailIcon />
+                              Email Notifications
+                            </DropdownMenuCheckboxItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <ShieldIcon />
+                      Privacy &amp; Security
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <HelpCircleIcon />
+              Help &amp; Support
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <FileTextIcon />
+              Documentation
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem variant="destructive">
+              <LogOutIcon />
+              Sign Out
+              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function dropdownMenuRtl(): ReactNode {
+  const [showStatusBar, setShowStatusBar] = React.useState(true);
+  const [position, setPosition] = React.useState("bottom");
+
+  return (
+    <Wrapper className="gap-6">
+      <DirectionProvider direction="ltr">
+        <div dir="ltr">
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="outline" />}>
+              Open
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-36" align="start" dir="ltr">
+              <DropdownMenuGroup>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Account</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent dir="ltr">
+                      <DropdownMenuItem>
+                        <UserIcon />
+                        Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <CreditCardIcon />
+                        Billing
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>View</DropdownMenuLabel>
+                <DropdownMenuCheckboxItem
+                  checked={showStatusBar}
+                  onCheckedChange={setShowStatusBar}
+                >
+                  Status Bar
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </DirectionProvider>
+      <DirectionProvider direction="rtl">
+        <div dir="rtl">
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="outline" />}>
+              افتح القائمة
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-36" align="end" dir="rtl">
+              <DropdownMenuGroup>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>الحساب</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent dir="rtl">
+                      <DropdownMenuItem>
+                        <UserIcon />
+                        الملف الشخصي
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <CreditCardIcon />
+                        الفوترة
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>الموضع</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={position}
+                  onValueChange={setPosition}
+                >
+                  <DropdownMenuRadioItem value="top">
+                    أعلى
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="bottom">
+                    أسفل
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem variant="destructive">
+                  تسجيل الخروج
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </DirectionProvider>
     </Wrapper>
   );
 }

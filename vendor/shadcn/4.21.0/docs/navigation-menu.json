@@ -1,0 +1,13 @@
+{
+  "component": "navigation-menu",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/navigation-menu.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Link Component",
+    "RTL",
+    "API Reference"
+  ]
+}

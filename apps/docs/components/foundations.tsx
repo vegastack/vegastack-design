@@ -9,9 +9,9 @@ import { Kbd } from "@/components/ui/kbd";
  */
 const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
   {
-    // The ladder itself is shown rung-by-rung, in both themes, by <SurfaceLadder /> above this
-    // grid; here are the surfaces and the text ramp as flat swatches. `secondary`/`muted`/`accent`
-    // are deliberately absent — they are ALIASES of the rungs, not roles of their own.
+    // The four neutral surface roles and the text ramp. `muted`, `accent` and `secondary` share
+    // one value today and are kept as three roles on purpose, so a consumer can retune a hover
+    // without moving every well.
     label: "Surfaces & text",
     tokens: [
       "background",
@@ -20,70 +20,48 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
       "card-foreground",
       "popover",
       "popover-foreground",
-      "surface-1",
-      "surface-2",
-      "surface-3",
+      "secondary",
+      "secondary-foreground",
+      "muted",
       "muted-foreground",
-      "muted-foreground-faint",
-      "border",
+      "accent",
+      "accent-foreground",
     ],
   },
   {
     label: "Action — neutral ink",
-    tokens: [
-      "primary",
-      "primary-foreground",
-      "primary-hover",
-      "primary-active",
-    ],
+    tokens: ["primary", "primary-foreground"],
   },
   {
+    // Each status family is written in upstream's own `destructive` shape — a fill, an on-fill
+    // ink — plus the `-text` ink ours adds for the page and for the family's own tint.
     label: "Info — links & informational (the one chromatic accent)",
-    tokens: [
-      "info",
-      "info-foreground",
-      "info-hover",
-      "info-active",
-      "info-subtle",
-      "info-text",
-    ],
+    tokens: ["info", "info-foreground", "info-text"],
   },
   {
     label: "Destructive",
-    tokens: [
-      "destructive",
-      "destructive-foreground",
-      "destructive-hover",
-      "destructive-active",
-      "destructive-subtle",
-      "destructive-text",
-    ],
+    tokens: ["destructive", "destructive-foreground", "destructive-text"],
   },
   {
     label: "Success",
-    tokens: [
-      "success",
-      "success-foreground",
-      "success-hover",
-      "success-active",
-      "success-subtle",
-      "success-text",
-    ],
+    tokens: ["success", "success-foreground", "success-text"],
   },
   {
     label: "Warning",
-    tokens: [
-      "warning",
-      "warning-foreground",
-      "warning-hover",
-      "warning-active",
-      "warning-subtle",
-      "warning-text",
-    ],
+    tokens: ["warning", "warning-foreground", "warning-text"],
   },
   {
-    label: "Lines & utility",
-    tokens: ["border", "input", "ring", "track", "overlay"],
+    label: "Lines & focus",
+    tokens: ["border", "input", "ring"],
+  },
+  {
+    label: "Brand",
+    tokens: ["brand", "brand-text"],
+  },
+  {
+    // Theme-invariant on purpose: chrome over video is a dark scrim with light ink in both themes.
+    label: "Media chrome",
+    tokens: ["media-scrim", "media-scrim-strong", "media-foreground"],
   },
   {
     label: "Charts — categorical series",
@@ -96,6 +74,7 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
       "chart-6",
       "chart-7",
       "chart-8",
+      "chart-single",
     ],
   },
   {
@@ -147,7 +126,7 @@ export function ColorPalette() {
                   className="h-12"
                   style={{ backgroundColor: `var(--${name})` }}
                 />
-                <div className="bg-card px-2 py-1.5 text-mono-label text-muted-foreground">
+                <div className="bg-card px-2 py-1.5 font-mono text-xs text-muted-foreground">
                   --{name}
                 </div>
               </div>
@@ -159,223 +138,15 @@ export function ColorPalette() {
   );
 }
 
-/** The four rungs of the surface ladder, with the role each one carries. */
-const LADDER: { token: string; role: string }[] = [
-  { token: "background", role: "page" },
-  { token: "card", role: "surface · popover · sidebar" },
-  { token: "surface-1", role: "rest fill · sunken well" },
-  { token: "surface-2", role: "hover" },
-  { token: "surface-3", role: "pressed · selected" },
-];
-
-/** One theme's column of the ladder. `forceDark` paints a dark island inside a light page. */
-function LadderColumn({ forceDark }: { forceDark: boolean }) {
-  return (
-    <div
-      className={forceDark ? "dark" : undefined}
-      style={{ background: "var(--background)", color: "var(--foreground)" }}
-    >
-      <div
-        className="space-y-px p-4"
-        style={{ borderRadius: "var(--radius-lg)" }}
-      >
-        <p
-          className="mb-3 text-mono-label"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          {forceDark ? "DARK" : "LIGHT"}
-        </p>
-        {LADDER.map(({ token, role }) => (
-          <div
-            key={token}
-            className="flex items-center justify-between gap-3 px-3 py-2.5"
-            style={{
-              background: `var(--${token})`,
-              // Every rung carries the ONE alpha hairline — the point of the derived border.
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-md)",
-            }}
-          >
-            <span className="text-mono-label">--{token}</span>
-            <span
-              className="text-sm"
-              style={{ color: "var(--muted-foreground)" }}
-            >
-              {role}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * The three backdrops the alpha twins are actually painted over. The alpha form exists precisely
- * because a control's host is often NOT a ladder rung — a chip on a well, a kbd inside a hovered
- * row — so a one-host specimen cannot demonstrate the claim.
- */
-const ALPHA_HOSTS: { token: string; label: string }[] = [
-  { token: "background", label: "on --background (page)" },
-  { token: "card", label: "on --card (surface)" },
-  { token: "surface-1", label: "on --surface-1 (well)" },
-];
-
-/**
- * The alpha twins, painted as the REAL composites the recipes emit.
- *
- * `bg-foreground/(--alpha-hover)` compiles to a `color-mix` of the ink into transparency, which is
- * then composited by the browser over whatever host it lands on — so this specimen mixes the same
- * way rather than substituting the opaque rung. Substituting the rung is what this panel used to
- * do, and it made the twins unfalsifiable: the swatch could not drift from its label.
- */
-const alphaWash = (alphaToken: string) =>
-  `color-mix(in oklab, var(--foreground) var(${alphaToken}), transparent)`;
-
-const ALPHA_STEPS: {
-  label: string;
-  wash: string | undefined;
-  rung?: string;
-}[] = [
-  { label: "rest", wash: undefined },
-  {
-    label: "hover · foreground/(--alpha-hover)",
-    wash: alphaWash("--alpha-hover"),
-    rung: "surface-2",
-  },
-  {
-    label: "pressed · foreground/(--alpha-pressed)",
-    wash: alphaWash("--alpha-pressed"),
-    rung: "surface-3",
-  },
-];
-
-/** One host backdrop with the two alpha washes painted over it, each beside its opaque rung. */
-function AlphaHostBlock({ token, label }: { token: string; label: string }) {
-  return (
-    <div
-      style={{
-        background: `var(--${token})`,
-        border: "1px solid var(--border)",
-        borderRadius: "var(--radius-md)",
-      }}
-    >
-      <div className="space-y-1 p-3">
-        <p
-          className="text-mono-label"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          {label}
-        </p>
-        {ALPHA_STEPS.map(({ label: stepLabel, wash, rung }) => (
-          <div key={stepLabel} className="flex items-stretch gap-1">
-            <div
-              className="flex-1 px-3 py-2 text-sm"
-              style={{
-                background: wash,
-                borderRadius: "var(--radius-sm)",
-                color: "var(--foreground)",
-              }}
-            >
-              {stepLabel}
-            </div>
-            {rung ? (
-              <div
-                className="flex w-32 shrink-0 items-center px-2 text-code-sm"
-                style={{
-                  background: `var(--${rung})`,
-                  borderRadius: "var(--radius-sm)",
-                  color: "var(--muted-foreground)",
-                }}
-              >
-                --{rung}
-              </div>
-            ) : null}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * The surface ladder in both themes at once, plus the alpha twins.
- *
- * Rendered as two forced islands (`.dark` is a plain class selector on the token sheet), so a
- * reader in either theme sees both halves — the ladder's whole claim is that light and dark step
- * the same way, and a single-theme specimen cannot show that.
- */
-export function SurfaceLadder() {
-  return (
-    <div className="not-prose my-6 space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <LadderColumn forceDark={false} />
-        <LadderColumn forceDark />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {[false, true].map((forceDark) => (
-          <div
-            key={String(forceDark)}
-            className={forceDark ? "dark" : undefined}
-            style={{
-              background: "var(--background)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-lg)",
-            }}
-          >
-            <div className="space-y-3 p-4">
-              <p
-                className="text-mono-label"
-                style={{ color: "var(--muted-foreground)" }}
-              >
-                ALPHA TWINS — {forceDark ? "DARK" : "LIGHT"}
-              </p>
-              {ALPHA_HOSTS.map((host) => (
-                <AlphaHostBlock key={host.token} {...host} />
-              ))}
-              <p
-                className="text-sm"
-                style={{ color: "var(--muted-foreground)" }}
-              >
-                Each wash is the real <code>foreground</code> composite the
-                recipes emit, painted over the host beside its opaque rung. On
-                the page they land within 0.003 L of the rung; over the well and
-                the dark card they keep stepping, which the opaque rung cannot
-                do.
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/** Live type-scale specimen — Geist display/heading/body plus the mono voice layer. */
+/** Live type-scale specimen — Geist across the stock Tailwind ladder plus the mono voice. */
 export function TypeScale() {
   return (
     <div className="not-prose my-6 space-y-4 rounded-lg border border-border bg-card p-6">
-      <p
-        className="font-sans text-foreground"
-        style={{
-          fontSize: "var(--text-display-sm)",
-          lineHeight: "var(--text-display-sm--line-height)",
-          fontWeight: "var(--text-display-sm--font-weight)",
-          letterSpacing: "var(--text-display-sm--letter-spacing)",
-        }}
-      >
+      <p className="font-sans text-5xl font-semibold tracking-tight text-foreground">
         Geist display — hero heading
       </p>
-      <p
-        className="font-sans text-foreground"
-        style={{
-          fontSize: "var(--text-h2)",
-          lineHeight: "var(--text-h2--line-height)",
-          fontWeight: "var(--text-h2--font-weight)",
-          letterSpacing: "var(--text-h2--letter-spacing)",
-        }}
-      >
-        Geist — section heading at 400
+      <p className="font-sans text-2xl font-semibold text-foreground">
+        Geist — section heading
       </p>
       <p className="font-sans text-base text-foreground">
         Geist sans — body copy.
@@ -391,14 +162,14 @@ export function TypeScale() {
 }
 
 /**
- * Corner-radius ramp. Each swatch reads the real `--radius-*` CSS variable.
- * The product scale is capped at 12px; full is reserved for pills and circles.
+ * Corner-radius ramp. Each swatch reads the real `--radius-*` CSS variable, every one of which is
+ * derived from the single `--radius` token exactly as upstream derives it.
  */
 const RADIUS_STEPS: { token: string; value: string }[] = [
-  { token: "--radius-xs", value: "0.125rem · 2px" },
-  { token: "--radius-sm", value: "0.375rem" },
-  { token: "--radius-md", value: "0.5rem" },
-  { token: "--radius-lg", value: "0.75rem" },
+  { token: "--radius-sm", value: "0.6 × --radius · 6px" },
+  { token: "--radius-md", value: "0.8 × --radius · 8px" },
+  { token: "--radius-lg", value: "1 × --radius · 10px" },
+  { token: "--radius-xl", value: "1.4 × --radius · 14px" },
 ];
 
 /** Live radius specimen — each tile is rounded using its `--radius-*` token. */
@@ -412,8 +183,8 @@ export function RadiusScale() {
             style={{ borderRadius: `var(${token})` }}
           />
           <div className="text-center">
-            <p className="text-mono-label text-foreground">{token}</p>
-            <p className="text-code-sm text-muted-foreground">{value}</p>
+            <p className="font-mono text-xs text-foreground">{token}</p>
+            <p className="font-mono text-xs text-muted-foreground">{value}</p>
           </div>
         </div>
       ))}
@@ -422,25 +193,35 @@ export function RadiusScale() {
 }
 
 /**
- * Elevation specimen. The system ships exactly ONE sanctioned role, `--shadow-overlay`, for
- * floating overlays. The `--shadow-lit` action finish was retired on 2026-09-07 (audit B1-04).
+ * Elevation specimen. There is no single named overlay role any more: a floating surface takes
+ * Tailwind's own `shadow-sm`/`shadow-md`/`shadow-lg`, at the weight upstream gives that component.
  */
+const SHADOW_STEPS: { utility: string; role: string }[] = [
+  {
+    utility: "shadow-sm",
+    role: "active tab chip · floating sidebar · inset main",
+  },
+  { utility: "shadow-md", role: "popover · menu · select" },
+  { utility: "shadow-lg", role: "sheet · submenu" },
+];
+
 export function ShadowScale() {
   return (
     <div className="not-prose my-6">
-      <div className="flex flex-wrap items-start gap-6 rounded-lg bg-background p-8">
-        <div
-          className="rounded-lg border border-border bg-card px-5 py-4"
-          style={{ boxShadow: "var(--shadow-overlay)" }}
-        >
-          <p className="text-sm font-medium text-foreground">Overlay surface</p>
-          <p className="text-xs text-muted-foreground">
-            Floating panel — popover, dialog, menu.
-          </p>
-        </div>
-        <p className="text-mono-label text-muted-foreground">
-          --shadow-overlay
-        </p>
+      <div className="flex flex-wrap items-start gap-6 rounded-xl bg-background p-8">
+        {SHADOW_STEPS.map(({ utility, role }) => (
+          <div key={utility} className="flex flex-col items-start gap-2">
+            <div
+              className={`rounded-xl border border-border bg-card px-5 py-4 ${utility}`}
+            >
+              <p className="text-sm font-medium text-foreground">
+                Floating surface
+              </p>
+              <p className="text-xs text-muted-foreground">{role}</p>
+            </div>
+            <p className="font-mono text-xs text-muted-foreground">{utility}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -463,7 +244,7 @@ export function SpacingScale() {
             className="h-4 rounded-sm bg-primary"
             style={{ width: `calc(var(--spacing) * ${step})` }}
           />
-          <span className="text-mono-label text-muted-foreground">
+          <span className="font-mono text-xs text-muted-foreground">
             {step} · calc(var(--spacing) * {step}) · {step * 4}px
           </span>
         </div>
@@ -507,8 +288,8 @@ function MotionTrack({
           style={style}
         />
       </div>
-      <p className="text-mono-label text-foreground">{label}</p>
-      <p className="text-code-sm text-muted-foreground">{value}</p>
+      <p className="font-mono text-xs text-foreground">{label}</p>
+      <p className="font-mono text-xs text-muted-foreground">{value}</p>
     </div>
   );
 }
@@ -562,118 +343,38 @@ export function MotionSpecimen() {
 }
 
 /**
- * Numeric type ramp from the real `--text-*` tokens bridged in `@theme inline`.
- * Three tiers (plan v5 T1): the CORE ladder (token-driven text-xs…3xl, base = 14px),
- * the ROLE tokens (h1…h4, label*, code*), and the DISPLAY tier (32/40/56/72 with the
- * tokenized negative tracking ramp). Each row reads its size + line-height var live.
- * The container carries `vs-type-product` so the specimen shows the PRODUCT ladder —
- * the docs shell itself is bound to the doc ladder (see global.css boundary).
+ * The type ramp. One scale now — Tailwind's own — so a row simply wears the utility it names and
+ * the specimen cannot drift from what a consumer gets.
  */
-const TYPE_STEPS: {
-  token: string;
-  size: string;
-  leading: string;
-  note?: string;
-}[] = [
-  {
-    token: "--text-display-xl",
-    size: "4.5rem",
-    leading: "4.75rem",
-    note: "−0.06em",
-  },
-  {
-    token: "--text-display-lg",
-    size: "3.5rem",
-    leading: "3.75rem",
-    note: "−0.05em",
-  },
-  {
-    token: "--text-display-md",
-    size: "2.5rem",
-    leading: "2.75rem",
-    note: "−0.045em",
-  },
-  {
-    token: "--text-display-sm",
-    size: "2rem",
-    leading: "2.25rem",
-    note: "−0.04em",
-  },
-  { token: "--text-h1", size: "1.5rem", leading: "2rem", note: "−0.02em" },
-  { token: "--text-h2", size: "1.25rem", leading: "1.75rem", note: "−0.015em" },
-  { token: "--text-h3", size: "1.125rem", leading: "1.5rem", note: "−0.01em" },
-  { token: "--text-h4", size: "1rem", leading: "1.375rem" },
-  { token: "--text-label", size: "0.875rem", leading: "1.25rem" },
-  { token: "--text-label-sm", size: "0.75rem", leading: "1rem" },
-  { token: "--text-code", size: "0.8125rem", leading: "1.25rem" },
-  { token: "--text-code-sm", size: "0.75rem", leading: "1rem" },
+const TYPE_STEPS: { token: string; px: string; note?: string }[] = [
+  { token: "text-7xl", px: "72 / 72", note: "display" },
+  { token: "text-6xl", px: "60 / 60", note: "display" },
+  { token: "text-5xl", px: "48 / 48", note: "display" },
+  { token: "text-4xl", px: "36 / 40" },
+  { token: "text-3xl", px: "30 / 36" },
+  { token: "text-2xl", px: "24 / 32" },
+  { token: "text-xl", px: "20 / 28" },
+  { token: "text-lg", px: "18 / 28" },
+  { token: "text-base", px: "16 / 24 · default body" },
+  { token: "text-sm", px: "14 / 20 · the control voice" },
+  { token: "text-xs", px: "12 / 16" },
 ];
 
-/** The core product ladder — what `text-xs…text-3xl` resolve to on product surfaces. */
-const CORE_STEPS: { token: string; px: string }[] = [
-  { token: "--text-3xl", px: "24 / 32" },
-  { token: "--text-2xl", px: "20 / 28" },
-  { token: "--text-xl", px: "18 / 26" },
-  { token: "--text-lg", px: "16 / 24" },
-  { token: "--text-base", px: "14 / 21 · default body" },
-  { token: "--text-sm", px: "12 / 16" },
-  { token: "--text-xs", px: "11 / 16" },
-];
-
-/** Live numeric type-ramp specimen reading the `--text-*` size/leading tokens. */
+/** Live type-ramp specimen. Every row wears the utility it names, so it reads the real value. */
 export function TypeScaleSizes() {
   return (
-    <div className="vs-type-product not-prose my-6 divide-y divide-border rounded-lg border border-border">
-      {TYPE_STEPS.map(({ token, size, leading, note }) => (
+    <div className="not-prose my-6 divide-y divide-border rounded-lg border border-border">
+      {TYPE_STEPS.map(({ token, px, note }) => (
         <div
           key={token}
           className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3"
         >
-          <span
-            className={
-              /code/.test(token)
-                ? "font-mono text-foreground"
-                : "font-sans text-foreground"
-            }
-            style={{
-              fontSize: `var(${token})`,
-              lineHeight: `var(${token}--line-height)`,
-              fontWeight: `var(${token}--font-weight, 400)`,
-              letterSpacing: `var(${token}--letter-spacing, 0em)`,
-            }}
-          >
+          <span className={`font-sans text-foreground ${token}`}>
             Geist — the quick brown fox
           </span>
-          <span className="text-mono-label text-muted-foreground">
-            {token} · {size} / {leading}
+          <span className="font-mono text-xs text-muted-foreground">
+            {token} · {px}
             {note ? ` · ${note}` : ""}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/** Live core-ladder specimen — the token-driven values behind `text-xs…text-3xl`. */
-export function TypeCoreLadder() {
-  return (
-    <div className="vs-type-product not-prose my-6 divide-y divide-border rounded-lg border border-border">
-      {CORE_STEPS.map(({ token, px }) => (
-        <div
-          key={token}
-          className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3"
-        >
-          <span
-            className="font-sans text-foreground"
-            style={{
-              fontSize: `var(${token})`,
-              lineHeight: `var(${token}--line-height)`,
-            }}
-          >
-            Geist — the quick brown fox
-          </span>
-          <span className="text-mono-label text-muted-foreground">
-            {token} · {px}px
           </span>
         </div>
       ))}
@@ -690,13 +391,13 @@ export function FocusRingSpecimen() {
   return (
     <div className="not-prose my-6 space-y-3 rounded-lg border border-border bg-card p-6">
       <p className="text-xs text-muted-foreground">
-        Press <Kbd size="sm">Tab</Kbd> to move focus onto these controls and
-        reveal the <span className="font-mono">--ring</span> outline.
+        Press <Kbd>Tab</Kbd> to move focus onto these controls and reveal the{" "}
+        <span className="font-mono">--ring</span> outline.
       </p>
       {/* The real components (DC-09): the specimen demonstrates the ring `Button` gets from the
           global `:focus-visible` rule and the border tint `Input` uses instead — not a copy of
-          either. Product type scale so the controls render at their shipped size. */}
-      <div className="vs-type-product flex flex-wrap items-center gap-3">
+          either. */}
+      <div className="flex flex-wrap items-center gap-3">
         <Button>Focusable button</Button>
         <Input
           type="text"

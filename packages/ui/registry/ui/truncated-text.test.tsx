@@ -6,6 +6,19 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
 import { IconText, TableCellText, TruncatedText } from "./truncated-text";
 
+/**
+ * The open tooltip popup, by slot.
+ *
+ * Base UI's Tooltip popup carries NO `role="tooltip"` and its trigger gets no `aria-describedby` —
+ * deliberate upstream behaviour ("tooltips are visual-only"), inherited when Batch 2 of the shadcn
+ * reset put Tooltip back on upstream's file.
+ */
+async function openTooltip(container: Element) {
+  return vi.waitUntil(() =>
+    container.ownerDocument.querySelector('[data-slot="tooltip-content"]'),
+  );
+}
+
 // TruncatedText wraps its content in a Tooltip when the text overflows, and
 // Base UI's Tooltip reads its shared delay from a Provider. Even though the
 // tooltip only mounts on overflow, we wrap every subject in TooltipProvider so
@@ -30,7 +43,7 @@ test("defaults to single-line truncate with data-slot + data-lines", async () =>
   await expect.element(el).toHaveAttribute("data-slot", "truncated-text");
   await expect.element(el).toHaveAttribute("data-lines", "1");
   await expect.element(el).toHaveClass("truncate");
-  await expect.element(el).toHaveClass("min-h-(--size-xs)");
+  await expect.element(el).toHaveClass("min-h-6");
 });
 
 test("applies line-clamp-N for multi-line", async () => {
@@ -75,7 +88,9 @@ test("IconText renders icon, label, and trailing slot in one row", async () => {
   await expect.element(screen.getByTestId("icon")).toBeInTheDocument();
   await expect.element(screen.getByTestId("trailing")).toBeInTheDocument();
   const label = screen.getByText("Project Alpha");
-  await expect.element(label).toHaveAttribute("data-slot", "icon-text-label");
+  await expect
+    .element(label)
+    .toHaveAttribute("data-slot", "icon-text-sm font-medium");
   await expect.element(label).toHaveClass("truncate");
 });
 
@@ -124,7 +139,7 @@ test("TableCellText mono applies the monospace utilities", async () => {
   );
   const el = screen.getByText("ws_01HXYZ");
   await expect.element(el).toHaveClass("font-mono");
-  await expect.element(el).toHaveClass("text-sm");
+  await expect.element(el).toHaveClass("text-xs");
 });
 
 test("TableCellText clamps to multiple lines when requested", async () => {
@@ -169,8 +184,14 @@ const ROOMY: React.CSSProperties = {
 test("overflowing text is keyboard-focusable so the tooltip is reachable (tabIndex 0)", async () => {
   const long =
     "A very long piece of text that will certainly overflow its tiny container";
-  const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-  const el = screen.getByText(long);
+  const screen = await render(
+    <Subject data-testid="subject" style={CLIP}>
+      {long}
+    </Subject>,
+  );
+  // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
+  // two elements and Playwright's strict mode throws.
+  const el = screen.getByTestId("subject");
   // Overflow measurement is async (ResizeObserver) — poll until the trigger upgrade lands (register P0-04).
   await expect.element(el).toHaveAttribute("tabindex", "0");
 });
@@ -178,12 +199,18 @@ test("overflowing text is keyboard-focusable so the tooltip is reachable (tabInd
 test("no a11y violations (tooltip open on overflow)", async () => {
   const long =
     "A very long piece of text that will certainly overflow its tiny container";
-  const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-  const el = screen.getByText(long);
+  const screen = await render(
+    <Subject data-testid="subject" style={CLIP}>
+      {long}
+    </Subject>,
+  );
+  // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
+  // two elements and Playwright's strict mode throws.
+  const el = screen.getByTestId("subject");
   // Overflow measurement is async (ResizeObserver) — poll until the trigger upgrade lands.
   await expect.element(el).toHaveAttribute("tabindex", "0");
   await userEvent.hover(el);
-  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
+  await openTooltip(screen.container);
   // axe the portaled popup, which lands outside the test container.
   await expectNoA11yViolations(screen.container.ownerDocument.body);
 });
@@ -200,7 +227,7 @@ test("overflowing IconText row is keyboard-focusable (tabIndex 0)", async () => 
   const screen = await render(
     <TooltipProvider>
       {/* The measured node is the internal label span — style it via a real stylesheet. */}
-      <style>{`[data-slot="icon-text-label"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
+      <style>{`[data-slot="icon-text-sm font-medium"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
       <IconText icon={<span>•</span>} text={long} />
     </TooltipProvider>,
   );
@@ -216,7 +243,7 @@ test("overflowing IconText row is keyboard-focusable (tabIndex 0)", async () => 
 });
 
 test("the IconText hit area appears exactly when the row becomes a control", async () => {
-  // The row is a 21px `text-base` line box; the moment overflow turns it into a Tooltip
+  // The row is a 21px `text-sm` line box; the moment overflow turns it into a Tooltip
   // trigger it is also a pointer target, and WCAG 2.2 §2.5.8 wants 24px. The invisible
   // `::before` expansion supplies that — and it must be COUPLED to the tab stop, because a
   // hit area on a non-control is dead weight and a control without one is the defect the
@@ -225,7 +252,7 @@ test("the IconText hit area appears exactly when the row becomes a control", asy
     "An extremely long label that will overflow the constrained row width";
   const screen = await render(
     <TooltipProvider>
-      <style>{`[data-slot="icon-text-label"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
+      <style>{`[data-slot="icon-text-sm font-medium"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
       <IconText icon={<span>•</span>} text={long} />
       <IconText icon={<span>•</span>} text="short" />
     </TooltipProvider>,
@@ -278,8 +305,15 @@ test("on a no-hover device, overflowing text becomes a tap-to-toggle disclosure 
   await withNoHoverDevice(async () => {
     const long =
       "A very long piece of text that will certainly overflow its tiny container";
-    const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-    const el = screen.getByText(long);
+    const screen = await render(
+      <Subject data-testid="subject" style={CLIP}>
+        {long}
+      </Subject>,
+    );
+    // By slot, NOT by text: the trigger's own tooltip popup repeats the string, so a text locator
+    // matches two elements the moment a leftover pointer leaves the tooltip open — which is what
+    // made this test flake once Batch 2 put Tooltip back on upstream's portal.
+    const el = screen.getByTestId("subject");
 
     // Truncated + no-hover device → the element becomes an ARIA disclosure.
     await expect.element(el).toHaveAttribute("tabindex", "0");
@@ -304,8 +338,13 @@ test("on a no-hover device, Escape re-clamps an expanded disclosure", async () =
   await withNoHoverDevice(async () => {
     const long =
       "A very long piece of text that will certainly overflow its tiny container";
-    const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-    const el = screen.getByText(long);
+    const screen = await render(
+      <Subject data-testid="subject" style={CLIP}>
+        {long}
+      </Subject>,
+    );
+    // By slot, NOT by text: the open tooltip repeats the same string.
+    const el = screen.getByTestId("subject");
     await expect.element(el).toHaveAttribute("role", "button");
 
     await el.click();
@@ -323,11 +362,14 @@ test("on a no-hover device, blur re-clamps an expanded disclosure", async () => 
       "A very long piece of text that will certainly overflow its tiny container";
     const screen = await render(
       <>
-        <Subject style={CLIP}>{long}</Subject>
+        <Subject data-testid="subject" style={CLIP}>
+          {long}
+        </Subject>
         <button type="button">elsewhere</button>
       </>,
     );
-    const el = screen.getByText(long);
+    // By slot, NOT by text: the open tooltip repeats the same string.
+    const el = screen.getByTestId("subject");
     await expect.element(el).toHaveAttribute("role", "button");
 
     await el.click();
@@ -343,8 +385,14 @@ test("on a hover-capable device, overflowing text keeps the Tooltip-only behavio
   // browser this suite runs in (Playwright desktop Chromium), so no mock is needed here.
   const long =
     "A very long piece of text that will certainly overflow its tiny container";
-  const screen = await render(<Subject style={CLIP}>{long}</Subject>);
-  const el = screen.getByText(long);
+  const screen = await render(
+    <Subject data-testid="subject" style={CLIP}>
+      {long}
+    </Subject>,
+  );
+  // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
+  // two elements and Playwright's strict mode throws.
+  const el = screen.getByTestId("subject");
   await expect.element(el).toHaveAttribute("tabindex", "0");
   await expect.element(el).not.toHaveAttribute("role");
   await expect.element(el).not.toHaveAttribute("aria-expanded");
@@ -356,7 +404,7 @@ test("on a no-hover device, overflowing IconText row becomes a tap-to-toggle dis
       "An extremely long label that will overflow the constrained row width";
     const screen = await render(
       <TooltipProvider>
-        <style>{`[data-slot="icon-text-label"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
+        <style>{`[data-slot="icon-text-sm font-medium"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
         <IconText icon={<span>•</span>} text={long} />
       </TooltipProvider>,
     );
@@ -368,7 +416,7 @@ test("on a no-hover device, overflowing IconText row becomes a tap-to-toggle dis
     row().dispatchEvent(new MouseEvent("click", { bubbles: true }));
     await expect.poll(() => row().getAttribute("aria-expanded")).toBe("true");
     const label = () =>
-      screen.container.querySelector('[data-slot="icon-text-label"]')!;
+      screen.container.querySelector('[data-slot="icon-text-sm font-medium"]')!;
     await expect.poll(() => label().className).not.toContain("truncate");
   });
 });

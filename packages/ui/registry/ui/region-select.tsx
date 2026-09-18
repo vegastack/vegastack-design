@@ -1,13 +1,16 @@
-// @vegastack region-select@0.9.1 sha256-7EKSEiNgfl+1hFVXojMdHob3+1jkNmfr0O1UhKcURQM=
+// @vegastack region-select@0.9.1 sha256-z8/BITsoinJGqbkJiKr5D/iI1lOB4h9zc1kcDH7d2gE=
 
 "use client";
 
 import * as React from "react";
 import { MapPin } from "lucide-react";
-import { cn } from "@vegastack/design";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { getRegions, type Region } from "@/lib/geo-data";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 /* ------------------------------------------------------------------------------------------------
  * RegionSelect — the subdivision dataset for one country fed into `SearchableSelect`. Countries
@@ -111,26 +114,29 @@ export function RegionSelect({
   // captured (e.g. Singapore, Hong Kong, monolithic territories).
   if (states.length === 0) {
     return (
-      <div
+      <InputGroup
         ref={ref}
         data-slot="region-select"
         data-fallback=""
-        className={cn("relative", containerClassName)}
+        className={containerClassName}
       >
-        <Input
+        {/* Upstream's leading-addon idiom, not an absolutely positioned icon over a padded
+            input: the addon owns the inline-start slot and `InputGroup` pays the input's
+            padding for it, so the icon cannot drift out of an RTL layout the way a
+            hand-tuned `pl-8` did. */}
+        <InputGroupAddon align="inline-start">
+          <MapPin aria-hidden />
+        </InputGroupAddon>
+        <InputGroupInput
           id={id}
           value={value}
           onChange={(event) => onValueChange?.(event.target.value)}
           placeholder={placeholder}
           disabled={disabled}
           aria-label={ariaLabel ?? placeholder}
-          className={cn("pl-8", className)}
+          className={className}
         />
-        <MapPin
-          aria-hidden
-          className="pointer-events-none absolute top-1/2 start-3 size-(--icon-default) -translate-y-1/2 text-muted-foreground"
-        />
-      </div>
+      </InputGroup>
     );
   }
 
@@ -149,7 +155,7 @@ export function RegionSelect({
         <>
           <MapPin
             aria-hidden
-            className="size-(--icon-default) shrink-0 text-muted-foreground"
+            className="size-4 shrink-0 text-muted-foreground"
           />
           <span className="truncate">{state.name}</span>
         </>

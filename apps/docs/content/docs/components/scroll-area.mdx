@@ -1,6 +1,6 @@
 ---
 title: Scroll Area
-description: A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, replacing the native browser scrollbar.
+description: Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.
 audience: public
 registry: scroll-area
 status: stable
@@ -16,129 +16,112 @@ preview: scrollArea
 ## Usage
 
 ```tsx
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
-<ScrollArea className="h-72 w-full">
-  <div>Long, overflowing content…</div>
+<ScrollArea className="h-[200px] w-[350px] rounded-md border p-4">
+  Your scrollable content here.
 </ScrollArea>;
 ```
 
-Constrain the viewport with `className` (e.g. `h-72`). Without a bounded height (or width, for
-horizontal) the content cannot overflow and no scrollbar appears.
-
-## Anatomy
-
-`ScrollArea` is a thin wrapper over Base UI's compound `ScrollArea` (Root → Viewport → Scrollbar →
-Thumb, plus a Corner for dual-axis). The flat `ScrollArea` composes those parts for you and renders
-the scrollbar(s) for the chosen `orientation`; `ScrollBar` is exported separately for custom layouts.
-
-<Anatomy name="scroll-area" />
-
-```tsx
-<ScrollArea orientation="both" className="h-72 w-full">
-  {/* viewport content */}
-</ScrollArea>
-```
-
-- `ScrollArea` — the root scroll container (`data-slot="scroll-area"`). The `className` sizes the
-  scrollable **viewport** (`data-slot="scroll-area-viewport"`); `orientation` picks which scrollbars
-  to render.
-- `ScrollBar` — one custom scrollbar track for a single axis (`data-slot="scroll-area-scrollbar"`,
-  `data-orientation`). Auto-hides when idle, fading in on hover/scroll via Base UI's `data-hovering`
-  / `data-scrolling` state attributes. Rendered automatically; use it directly only for custom
-  compositions.
-- `scrollbarProps` — optional props passed to the automatically rendered scrollbar(s), such as
-  `keepMounted` for deterministic tests or a custom visibility policy.
-- The **thumb** (`data-slot="scroll-area-thumb"`) is the draggable bar — `bg-border rounded-full`.
-- The **corner** (`data-slot="scroll-area-corner"`) fills the intersection when `orientation="both"`.
-
-## Examples
-
-### Vertical (default)
-
-A bounded-height list. The scrollbar sits on the right edge and fades in while you hover or scroll.
+`ScrollArea` renders the viewport, one vertical `ScrollBar` and the corner itself, so a vertical
+scroll area is a single element. Give it a bounded height — a container that can grow never scrolls.
 
 <ComponentPreview name="scrollArea" file="components/preview/scroll-area.tsx" />
 
+## Anatomy
+
+<Anatomy name="scroll-area" />
+
+## Examples
+
+### Composition
+
+`ScrollBar` is the one part you compose, and only for the horizontal axis. Everything you pass as a
+child lands inside the viewport, so the horizontal bar is written beside the content rather than
+outside the component.
+
+```text
+ScrollArea
+└── ScrollBar
+```
+
+<ComponentPreview
+  name="scrollAreaComposition"
+  file="components/preview/scroll-area.tsx"
+/>
+
 ### Horizontal
 
-Set `orientation="horizontal"` for a row that overflows sideways; constrain the width instead of the
-height.
+Add `ScrollBar orientation="horizontal"` for horizontal scrolling, and make the content wider than
+the area — `w-max` on an inner flex row, with `whitespace-nowrap` on the area itself.
 
 <ComponentPreview
   name="scrollAreaHorizontal"
   file="components/preview/scroll-area.tsx"
 />
 
-### Both axes
+### RTL
 
-Set `orientation="both"` for content that overflows on both axes. Two scrollbars render plus a
-corner (`data-slot="scroll-area-corner"`) filling their intersection.
-
-<ComponentPreview
-  name="scrollAreaBoth"
-  file="components/preview/scroll-area.tsx"
-/>
-
-### Orientations
-
-`vertical` (default), `horizontal`, and `both` side by side — `both` is the one case that adds the
-intersection corner and a second scrollbar.
+Wrap the subtree in `DirectionProvider direction="rtl"`. The vertical bar sits on the inline start —
+`border-s` on the scrollbar is logical — and the viewport scrolls from the right.
 
 <ComponentPreview
-  name="scrollAreaOrientations"
+  name="scrollAreaRtl"
   file="components/preview/scroll-area.tsx"
 />
 
 ## Playground
 
-Switch the scrollbar orientation over content that overflows on the matching axis, then copy the generated JSX.
+Pick the axis the content overflows on and read off the one composition step that follows: a
+vertical area is `ScrollArea` alone, and either horizontal setting adds the `ScrollBar`.
 
 <ScrollAreaPlayground />
 
 ## API Reference
 
-### ScrollArea
-
-<ApiTable
-  path="../../packages/ui/registry/ui/scroll-area.tsx"
-  name="ScrollAreaProps"
-/>
-
-### ScrollBar
-
-<ApiTable
-  path="../../packages/ui/registry/ui/scroll-area.tsx"
-  name="ScrollBarProps"
-/>
+`ScrollArea` and `ScrollBar` add no props of their own — each accepts everything the corresponding
+[Base UI Scroll Area](https://base-ui.com/react/components/scroll-area) part accepts (`Root`,
+`Scrollbar`). `ScrollBar`'s `orientation` is `"vertical"` by default and takes `"horizontal"` for the
+other axis; the root also takes Base UI's `Root` props, plus `className`, `ref` and `render`.
 
 ## Accessibility
 
-- The viewport is keyboard-focusable **only while it can actually scroll** — overflow is measured on
-  mount and on resize, and the viewport carries `data-scrollable` while it is a tab stop. Keyboard
-  users need somewhere for the arrow keys to land, but a region whose content fits would otherwise
-  add a stop that announces nothing and does nothing. Pass `aria-label` or `aria-labelledby` to
-  `ScrollArea`; the component applies it to that viewport.
-- Its focus ring is drawn **inside** the viewport (`focus-visible:-outline-offset-2`). The root
-  clips its overflow, so an outward-offset outline would be cut in half.
-- The focused viewport uses the global `:focus-visible` ring (`outline-ring`) — never `outline: none`.
-- Scrollbars are pointer affordances only and stay out of the tab order; the native scroll keys remain
-  fully functional, so the custom scrollbar never blocks keyboard access.
-- `overscroll-contain` keeps scroll momentum inside the area instead of chaining to the page.
-
-| Key                                       | Action                                           |
-| ----------------------------------------- | ------------------------------------------------ |
-| <kbd>Tab</kbd>                            | Move focus to the viewport (when it can scroll). |
-| <kbd>↑</kbd> / <kbd>↓</kbd>               | Scroll vertically by a line.                     |
-| <kbd>←</kbd> / <kbd>→</kbd>               | Scroll horizontally by a line.                   |
-| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Scroll by a page.                                |
-| <kbd>Home</kbd> / <kbd>End</kbd>          | Scroll to the start / end.                       |
+- The viewport is a tab stop exactly when it can scroll (A11Y-6). Base UI sets
+  `tabIndex: hidden.x && hidden.y ? -1 : 0`, so a keyboard-only reader can reach overflowing content
+  with arrow keys, and an area whose content fits adds no empty stop to the tab order.
+- Give a scroll area an accessible name — `aria-label`, or `aria-labelledby` pointing at the heading
+  above it — so a screen-reader user hears what the region holds before entering it.
+- Focus is the global 2px `:focus-visible` outline from `base.css`. Upstream's ring glow and its
+  `outline-none` are removed (FOC-1, FOC-6): the viewport is the one focusable part of this
+  component, so suppressing the outline would leave it with no affordance at all.
+- The scrollbar and its thumb are pointer affordances; every scroll they perform is reachable from
+  the keyboard through the viewport itself.
+- Native scrolling is preserved throughout — wheel, trackpad, touch and the platform's own
+  scroll-into-view all behave as they do on an ordinary overflow container.
 
 <StatesTested name="scroll-area" />
 
 ## Do / Don't
 
 <DoDont
-  do="Give the viewport a bounded size via className (e.g. h-72) so its content can overflow and the scrollbar appears."
-  dont="Wrap whole-page content in a ScrollArea — let the document scroll natively and reserve this for bounded panels."
+  do="Use a ScrollArea for a bounded region with its own overflow — a list, a log, a code block — and give it an accessible name."
+  dont="Wrap the page or a document in one; the browser's own scrollbar is what readers and assistive tech expect at that level."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/scroll-area.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the viewport's focus glow and outline suppression go: `outline-none`,
+  `focus-visible:ring-[3px]`, `focus-visible:ring-ring/50` and `focus-visible:outline-1`. The
+  viewport IS a tab stop (see A11Y-6), so `outline-none` would leave the one focusable part of this
+  component with no affordance.
+- **A11Y-6** — NO HUNK: the engine already implements it. Base UI's `ScrollArea.Viewport` sets
+  `tabIndex: hiddenState.x && hiddenState.y ? -1 : 0`, which is exactly "a scroll viewport is a tab
+  stop only when it can actually scroll". The pre-reset component computed the same thing itself with
+  `useOverflow`; that code is gone because the engine beat it to it. `scroll-area.test.tsx` asserts
+  both directions, so the day Base UI makes the viewport unconditionally tabbable this row stops
+  being satisfied and the test says so.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

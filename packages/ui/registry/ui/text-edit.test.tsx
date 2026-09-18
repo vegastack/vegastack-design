@@ -92,7 +92,7 @@ test("the editor surface and MarkdownView wear the same prose recipe", async () 
     .element() as HTMLElement;
   // The shared recipe is the single source of the typography — if TextEdit ever grows its own
   // `[&_…]` rules again, this is what notices (audit B4-09).
-  expect(editable.className).toContain("[&_h1]:text-h1");
+  expect(editable.className).toContain("[&_h1]:text-3xl [&_h1]:font-semibold");
   expect(editable.className).toContain("[&_p]:leading-relaxed");
   expect(editable.className).toContain("[&_code]:font-mono");
 });

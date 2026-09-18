@@ -1,15 +1,16 @@
-// @vegastack use-inline-edit@0.9.1 sha256-Ye9gDfeqCUKqoU1UcmzzX4NE/408HZ0wfybxu1JPtuo=
+// @vegastack use-inline-edit@0.9.1 sha256-8jqSaC36+DwTW9QG5tLCQOuFE1aLDelFji19fYyC/8E=
 
 "use client";
 
 import * as React from "react";
 
 /* ---
-`useInlineEdit` exists because the click-to-edit state machine was written twice, in
-`field-inline.tsx` and `editable-cell.tsx`, and the two copies had already drifted: only one
-of them re-armed its double-commit guard when a controlled host flipped `editing` on, and
-only one returned focus to the display element after a KEYBOARD commit. Both bugs are the
-kind that never surface in a demo and always surface in a grid.
+`useInlineEdit` exists because the click-to-edit state machine had been written twice, and the
+two copies had already drifted: only one of them re-armed its double-commit guard when a
+controlled host flipped `editing` on, and only one returned focus to the display element after a
+KEYBOARD commit. Both bugs are the kind that never surface in a demo and always surface in a grid.
+`EditableCell` is the in-repo consumer — it runs this hook twice, once for its own edit mode and
+once inside its text leaf — and the hook is published on its own so an app editor can too.
 
 What it owns, and why each piece is not optional:
 - the controlled/uncontrolled `editing` pair, so a grid host can drive edit mode with
@@ -104,7 +105,7 @@ export interface UseInlineEditResult {
 }
 
 /**
- * `useInlineEdit` — the click-to-edit machine shared by `FieldInline` and `EditableCell`:
+ * `useInlineEdit` — the click-to-edit machine behind `EditableCell` and any editor like it:
  * draft, commit, cancel, focus restoration and the double-commit guard, with no opinion about
  * what the editor or the display look like.
  *

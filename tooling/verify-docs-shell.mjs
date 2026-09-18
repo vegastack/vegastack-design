@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// The docs-shell contracts (`05-docs-chrome.md` DC-01/02/03/06/12, decisions DD-1/4/5), asserted in
+// The docs-shell contracts (`05-docs-chrome.md` DC-03/06/12, decisions DD-1/4/5), asserted in
 // a real browser against the STATIC PUBLIC EXPORT — the artefact production serves.
 //
 // WHY A SCRIPT AND NOT A TEST FILE
-//   These five assertions used to live in `apps/docs/vrt/docs-shell.spec.ts`, which meant the repo
+//   These assertions used to live in `apps/docs/vrt/docs-shell.spec.ts`, which meant the repo
 //   carried a second test runner (`@playwright/test` + `playwright.config.ts` + a `webServer` that
 //   rebuilt the site on every invocation) for one file. WP3 deleted that runner. The assertions are
 //   not deletable: `design.md` and `apps/docs/app/global.css` both cite them as the proof that the
@@ -189,29 +189,6 @@ const addStyle = (page, css) =>
   }, css);
 
 /** Resolve a CSS length declared as a custom property, in the document, to used pixels. */
-const resolveVar = (page, name, property = "fontSize") =>
-  page.evaluate(
-    ([variable, prop]) => {
-      const declared = getComputedStyle(document.documentElement)
-        .getPropertyValue(variable)
-        .trim();
-      const probe = document.createElement("div");
-      probe.style.setProperty(
-        prop === "fontSize" ? "font-size" : "line-height",
-        declared,
-      );
-      if (prop === "lineHeight")
-        probe.style.fontSize = getComputedStyle(document.documentElement)
-          .getPropertyValue("--type-product-base")
-          .trim();
-      document.body.append(probe);
-      const used = getComputedStyle(probe)[prop];
-      probe.remove();
-      return { declared, used };
-    },
-    [name, property],
-  );
-
 async function openFullscreen(page) {
   await page
     .getByRole("button", { name: "Fullscreen preview" })
@@ -228,156 +205,18 @@ async function openFullscreen(page) {
 // because a defect in a modal cannot be injected before the modal exists.
 
 const ASSERTIONS = [
-  {
-    id: "DC-01",
-    title:
-      "the product type scope sets the inherited base, and portals carry it",
-    routes: [COMPONENT],
-    async check(page, ctx) {
-      const scope = page.locator(".vs-type-product").first();
-      await scope.waitFor({ state: "attached", timeout: 15_000 });
-
-      const base = await resolveVar(page, "--type-product-base");
-      assert.notEqual(base.declared, "", "--type-product-base is not declared");
-
-      const measured = await scope.evaluate((element) => ({
-        fontSize: getComputedStyle(element).fontSize,
-        lineHeight: getComputedStyle(element).lineHeight,
-        prose: getComputedStyle(
-          document.querySelector(".prose") ?? document.body,
-        ).fontSize,
-      }));
-      assert.equal(
-        measured.fontSize,
-        base.used,
-        ".vs-type-product does not render at the product base — it re-binds the vars but not the inherited font-size",
-      );
-      // The defect DC-01 measured: the scope inheriting the Fumadocs prose base instead.
-      assert.notEqual(
-        measured.fontSize,
-        measured.prose,
-        ".vs-type-product renders at the docs prose base",
-      );
-      assert.notEqual(measured.lineHeight, "normal");
-
-      // The half a source read cannot reach: a Base UI popup is PORTALED to <body>, outside
-      // `.vs-type-product`, so it inherits the prose base unless the portal itself is scoped.
-      await openFullscreen(page);
-      await ctx.inject("afterOpen");
-      const portal = page.locator("[data-base-ui-portal]").first();
-      await portal.waitFor({ state: "attached", timeout: 15_000 });
-      const lineHeight = await resolveVar(
-        page,
-        "--type-product-base--line-height",
-        "lineHeight",
-      );
-      const inPortal = await portal.evaluate((element) => ({
-        fontSize: getComputedStyle(element).fontSize,
-        lineHeight: getComputedStyle(element).lineHeight,
-      }));
-      assert.equal(
-        inPortal.fontSize,
-        base.used,
-        "a portaled Base UI surface does not render at the product type scale",
-      );
-      assert.equal(inPortal.lineHeight, lineHeight.used);
-      assert.notEqual(inPortal.lineHeight, "normal");
-    },
-    defects: [
-      {
-        name: "the scope stops setting the inherited base",
-        phase: "before",
-        apply: (page) =>
-          addStyle(page, ".vs-type-product { font-size: 33px !important; }"),
-      },
-      {
-        name: "a portaled surface falls off the product type scale",
-        phase: "afterOpen",
-        apply: (page) =>
-          addStyle(
-            page,
-            "[data-base-ui-portal] { font-size: 33px !important; }",
-          ),
-      },
-    ],
-  },
-
-  {
-    id: "DC-02",
-    title: "no rendered text exceeds the 400/500 weight ladder",
-    routes: [HOME, COMPONENT, FOUNDATIONS, GALLERY],
-    async check(page, ctx, route) {
-      await page.evaluate(() => document.fonts.ready);
-
-      const heavy = await page.evaluate(() => {
-        const offenders = [];
-        for (const element of document.querySelectorAll("body *")) {
-          if (!element.textContent?.trim()) continue;
-          // Syntax highlighting is a code theme, not UI chrome (design-lint-emitted-css.mjs).
-          if (element.closest(".shiki, .twoslash")) continue;
-          // Content INSIDE an <svg> is glyph geometry, not the type ladder: an icon's
-          // `<text font-weight="bold">` is a presentation attribute on a drawn shape, and it can
-          // carry no semantic weight token. One specimen exists — a lucide-animated mirror on
-          // /docs/foundations/icons paints a `<text>` at 700 with `opacity: 0`. Excluded on
-          // purpose, and narrowly: everything outside an <svg> is still measured.
-          if (element.closest("svg")) continue;
-          const weight = Number(getComputedStyle(element).fontWeight);
-          if (weight > 500)
-            offenders.push(
-              `<${element.tagName.toLowerCase()} @${weight}> ${element.textContent.trim().slice(0, 40)}`,
-            );
-        }
-        return offenders;
-      });
-      assert.deepEqual(
-        heavy,
-        [],
-        `${route}: rendered text above the 400/500 ladder`,
-      );
-
-      // The page title and every section heading land on the medium step, not the stock 600/800 —
-      // an ARTICLE assertion. Chrome headings outside the article may legitimately sit at 400 (the
-      // TOC's "On this page" measures 400), and so may an entire non-article page: the marketing
-      // home page renders all 25 of its headings at 400 by design. So the ladder is asserted
-      // everywhere and the medium step only where a document article exists, which is where the
-      // audit measured 600/800.
-      const all = await page
-        .locator("h1, h2, h3, h4")
-        .evaluateAll((nodes) =>
-          nodes.map((node) => getComputedStyle(node).fontWeight),
-        );
-      assert.ok(all.length > 0, `${route}: expected headings to measure`);
-      assert.ok(
-        all.every((weight) => weight === "400" || weight === "500"),
-        `${route}: heading weights off the ladder: ${[...new Set(all)].join(", ")}`,
-      );
-
-      // The medium step is a DOCUMENTATION assertion. The marketing home page carries an <article>
-      // too, and renders all of its headings at 400 by design, so "has an article" is the wrong
-      // discriminator — the route is.
-      if (route.startsWith("/docs/")) {
-        const article = await page
-          .locator("article h1, article h2, article h3")
-          .evaluateAll((nodes) =>
-            nodes.map((node) => getComputedStyle(node).fontWeight),
-          );
-        assert.ok(article.length > 0, `${route}: expected article headings`);
-        assert.deepEqual(
-          [...new Set(article)],
-          ["500"],
-          `${route}: article headings are not all on the medium step`,
-        );
-      }
-    },
-    defects: [
-      {
-        name: "the typography plugin's stock heading weight comes back",
-        phase: "before",
-        apply: (page) =>
-          addStyle(page, "h1, h2 { font-weight: 700 !important }"),
-      },
-    ],
-  },
+  // DC-01 ("the product type scope sets the inherited base, and portals carry it") and DC-02 ("no
+  // rendered text exceeds the 400/500 weight ladder") USED TO STAND HERE. Batch 1 of the shadcn
+  // reset deleted what both measured — the product/doc two-layer type ladder with its
+  // `--type-product-base` and `.vs-type-product` scope, and the 400/500 weight ladder — and said so
+  // in `apps/docs/app/global.css`: "the bans are gone and the shell's own values are now on-system
+  // by definition ... `text-base` is 16px again for everybody, which is what the docs shell wanted
+  // all along and what `.vs-type-product` existed to opt back out of." The two assertions were left
+  // behind, failing against a shell that is correct, and nothing noticed because this suite runs
+  // only inside `verify:distribution`. Batch 8 removed them (2026-09-18) rather than leave a gate
+  // asserting doctrine the system no longer holds. The three that remain — the fullscreen preview's
+  // focus contract, the skip link, and the tab-stop roster — are unchanged and untouched by the
+  // reset.
 
   {
     id: "DC-03",

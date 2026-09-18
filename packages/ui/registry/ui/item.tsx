@@ -1,239 +1,152 @@
-// @vegastack item@0.9.1 sha256-2WU+gKnHHeBh5aMPecC+FEIH1vh76BWx5LrnIeupcF0=
+// @vegastack item@0.9.1 sha256-amawgDXbSi4FtA/eqtHH8JhOeQ1cP6h0RnwvDStflJY=
 
 "use client";
 
 import * as React from "react";
+import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
+
 import { Separator } from "@/components/ui/separator";
 
-/* ------------------------------------------------------------------------------------------------
- * Item — a compact row for list/feed content (a person, a file, a notification, a settings row).
- * Built on Base UI `useRender` so the whole row can become an `<a>` or `<button>` for an
- * interactive item; a plain `div` otherwise. `role="listitem"` is applied ONLY inside an
- * `ItemGroup` (which provides `role="list"` and the context that licenses it) — a standalone row
- * carries no ARIA role, so it can never raise `aria-required-parent`.
- * Every value is a semantic Tailwind token (no hardcoded colors, no raw palettes).
- * ----------------------------------------------------------------------------------------------*/
-
 /**
- * Is this row inside an `ItemGroup`? `ItemGroup` is the only `role="list"` container in this
- * anatomy, so it is the only thing that can license a child's `role="listitem"` (ARIA
- * `aria-required-parent`). Default `false` — a standalone `Item` renders with no role.
+ * A11Y-7 — a context-licensed role. `ItemGroup` is `role="list"`, and `role="list"` admits only
+ * `listitem` children: a bare `Item` inside one is a CRITICAL `aria-required-children` violation
+ * (measured by axe on every `ItemGroup` composition in this repository). An `Item` outside a group
+ * is a plain row and must NOT claim `listitem`, which is why the role is granted by context rather
+ * than hard-coded on the part.
  */
 const ItemGroupContext = React.createContext(false);
 
-export const itemVariants = cva(
-  "group/item relative flex w-full flex-wrap items-center rounded-md border border-transparent text-base [&_svg]:pointer-events-none [&_svg]:shrink-0 [&:is(a,button)]:hover:bg-surface-2 [&:is(a,button)]:active:bg-surface-3",
+function ItemGroup({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      role="list"
+      data-slot="item-group"
+      className={cn(
+        "group/item-group flex w-full flex-col gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
+        className,
+      )}
+      {...props}
+    >
+      <ItemGroupContext.Provider value={true}>
+        {children}
+      </ItemGroupContext.Provider>
+    </div>
+  );
+}
+
+function ItemSeparator({
+  className,
+  ...props
+}: React.ComponentProps<typeof Separator>) {
+  return (
+    <Separator
+      data-slot="item-separator"
+      orientation="horizontal"
+      // A11Y-7, same rule from the other side: a `role="separator"` between two rows is not a
+      // `listitem`, so inside `ItemGroup` it is the second thing axe rejects. The rule it draws is
+      // decorative — the rows are already announced as list items — so it is hidden by default and
+      // a caller who needs a semantic boundary passes `aria-hidden={false}`.
+      aria-hidden="true"
+      className={cn("my-2", className)}
+      {...props}
+    />
+  );
+}
+
+const itemVariants = cva(
+  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 [a]:transition-colors [a]:hover:bg-muted",
   {
     variants: {
       variant: {
-        /** No surface — blends into the parent background (default). */
-        default: "bg-transparent",
-        /** A hairline border around the row. */
+        default: "border-transparent",
         outline: "border-border",
-        /** A filled neutral wash — reads as a self-contained block. */
-        muted: "bg-surface-1",
+        muted: "border-transparent bg-muted/50",
       },
       size: {
-        /** Roomy padding — the standard row density. */
-        md: "gap-4 p-4",
-        /** Compact padding — dense lists, sidebars. */
-        sm: "gap-2.5 px-4 py-3",
+        default: "gap-2.5 px-3 py-2.5",
+        sm: "gap-2.5 px-3 py-2.5",
+        xs: "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0",
       },
     },
-    defaultVariants: { variant: "default", size: "md" },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
   },
 );
 
-/** Surface treatment an `Item` row can take. */
-export type ItemVariant = NonNullable<
-  VariantProps<typeof itemVariants>["variant"]
->;
-/** Padding density an `Item` row can take. */
-export type ItemSize = NonNullable<VariantProps<typeof itemVariants>["size"]>;
-
-/** Props accepted by `Item`. */
-export interface ItemProps
-  extends
-    React.ComponentPropsWithRef<"div">,
-    VariantProps<typeof itemVariants> {
-  /**
-   * Surface treatment.
-   * - `default`: no surface, blends into the parent background.
-   * - `outline`: a hairline border around the row.
-   * - `muted`: a filled neutral wash.
-   * @default 'default'
-   */
-  variant?: ItemVariant;
-  /**
-   * Padding density.
-   * - `md`: roomy (standard row).
-   * - `sm`: compact (dense lists).
-   * @default 'md'
-   */
-  size?: ItemSize;
-  /**
-   * Render the row as a different element (e.g. `<a href="…" />` or `<button />`) via Base UI
-   * `render` composition, making the whole row a single interactive/focusable control. Pass a
-   * `ReactElement` or a render function. When set, the row keeps the composed element's native
-   * `link`/`button` role instead of the default `listitem` role (see the `role` note below).
-
-   * @default undefined
-   */
-  render?: useRender.RenderProp;
-}
-
-/**
- * `Item` — a compound-anatomy row: compose `ItemMedia`, `ItemContent` (with `ItemTitle` /
- * `ItemDescription`), and `ItemActions` inside it, optionally wrapped by `ItemHeader` /
- * `ItemFooter` for multi-row layouts. Group multiple rows in an `ItemGroup` (`role="list"`)
- * separated by `ItemSeparator`. `role="listitem"` is applied only when the row is inside an
- * `ItemGroup` — a `listitem` with no `list` ancestor is an axe `aria-required-parent` critical, so
- * a standalone row gets no role at all. It is also dropped when `render` composes an interactive
- * element (`<a>`/`<button>`), so its native `link`/`button` role is never clobbered. Pass an
- * explicit `role` to override either decision (it always wins).
- *
- * @example
- * <Item variant="outline">
- *   <ItemMedia variant="icon"><Mail /></ItemMedia>
- *   <ItemContent>
- *     <ItemTitle>New message</ItemTitle>
- *     <ItemDescription>Ada Lovelace sent you a message.</ItemDescription>
- *   </ItemContent>
- *   <ItemActions><Button size="sm">View</Button></ItemActions>
- * </Item>
- *
- * @example
- * // the whole row as a link
- * <Item render={<a href="/settings/billing" />}>
- *   <ItemContent><ItemTitle>Billing</ItemTitle></ItemContent>
- * </Item>
- */
-export function Item({
+function Item({
   className,
   variant = "default",
-  size = "md",
+  size = "default",
   render,
-  ref,
   ...props
-}: ItemProps) {
+}: useRender.ComponentProps<"div"> & VariantProps<typeof itemVariants>) {
   const inGroup = React.useContext(ItemGroupContext);
 
   return useRender({
-    render: render ?? <div />,
     defaultTagName: "div",
-    ref, // forward the consumer ref onto the rendered (or composed) element
-    props: {
-      // `role="listitem"` is licensed by TWO conditions, both required.
-      // 1. The row is inside an `ItemGroup`, which is the only thing in this file that renders
-      //    `role="list"`. ARIA requires a `listitem` to have a `list` parent; a standalone Item
-      //    claiming the role is an axe `aria-required-parent` CRITICAL, which is why Timeline
-      //    previously had to document a `role="none"` workaround.
-      // 2. The row is not `render`-composed. ARIA has no dual-role concept: forcing `listitem`
-      //    onto a composed `<a>`/`<button>` would replace — not augment — that element's native
-      //    `link`/`button` role, silently hiding the interactive affordance from assistive tech.
-      //    Group membership is still conveyed by the surrounding `ItemGroup`.
-      // An explicit `role` in `props` overrides both, because `...props` is spread last.
-      ...(inGroup && !render ? { role: "listitem" } : {}),
-      "data-slot": "item",
-      "data-variant": variant,
-      "data-size": size,
-      className: cn(itemVariants({ variant, size }), className),
-      ...props,
+    props: mergeProps<"div">(
+      {
+        role: inGroup ? "listitem" : undefined,
+        className: cn(itemVariants({ variant, size, className })),
+      },
+      props,
+    ),
+    render,
+    state: {
+      slot: "item",
+      variant,
+      size,
     },
   });
 }
 
-/* ------------------------------------------------------------------------------------------------
- * ItemMedia — the leading visual slot: bare content, a bordered icon chip, or a clipped image tile.
- * ----------------------------------------------------------------------------------------------*/
-
-export const itemMediaVariants = cva(
-  "flex shrink-0 items-center justify-center gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 group-has-[[data-slot=item-description]]/item:translate-y-0.5 group-has-[[data-slot=item-description]]/item:self-start",
+const itemMediaVariants = cva(
+  "flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none",
   {
     variants: {
       variant: {
-        /** Bare — renders children as-is (e.g. an `Avatar`, a custom glyph). */
         default: "bg-transparent",
-        /** A bordered, muted square chip around a `lucide-react` icon. */
-        icon: "size-(--size-md) rounded-sm border border-border bg-muted [&_svg:not([class*='size-'])]:size-(--icon-default)",
-        /** A clipped square tile for a thumbnail `<img>`. */
+        icon: "[&_svg:not([class*='size-'])]:size-4",
         image:
-          "size-(--size-lg) overflow-hidden rounded-sm [&_img]:size-full [&_img]:object-cover",
+          "size-10 overflow-hidden rounded-sm group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover",
       },
     },
-    defaultVariants: { variant: "default" },
+    defaultVariants: {
+      variant: "default",
+    },
   },
 );
 
-/** Visual treatment an `ItemMedia` slot can take. */
-export type ItemMediaVariant = NonNullable<
-  VariantProps<typeof itemMediaVariants>["variant"]
->;
-
-/** Props accepted by `ItemMedia`. */
-export interface ItemMediaProps
-  extends
-    React.ComponentPropsWithRef<"div">,
-    VariantProps<typeof itemMediaVariants> {
-  /**
-   * Visual treatment.
-   * - `default`: bare children (default) — an `Avatar`, a custom glyph.
-   * - `icon`: a bordered muted chip sized for a single `lucide-react` icon.
-   * - `image`: a clipped square tile for a thumbnail `<img>`.
-   * @default 'default'
-   */
-  variant?: ItemMediaVariant;
-}
-
-/**
- * `ItemMedia` — the leading visual slot of an `Item`. When the sibling `ItemContent` holds an
- * `ItemDescription`, the media nudges down and top-aligns so it sits level with the title instead
- * of the vertical center of the whole row.
-
- *
- * @example
- * <ItemMedia />
- */
-export function ItemMedia({
+function ItemMedia({
   className,
   variant = "default",
-  ref,
   ...props
-}: ItemMediaProps) {
+}: React.ComponentProps<"div"> & VariantProps<typeof itemMediaVariants>) {
   return (
     <div
-      ref={ref}
       data-slot="item-media"
       data-variant={variant}
-      className={cn(itemMediaVariants({ variant }), className)}
+      className={cn(itemMediaVariants({ variant, className }))}
       {...props}
     />
   );
 }
 
-/* ------------------------------------------------------------------------------------------------
- * ItemContent / ItemTitle / ItemDescription — the text stack. A second ItemContent (e.g. a
- * trailing timestamp column) automatically shrinks instead of sharing the flex-grow.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `ItemContent`. */
-export type ItemContentProps = React.ComponentPropsWithRef<"div">;
-
-/** `ItemContent` — the flexible text column of an `Item` (title + description).
- *
- * @example
- * <ItemContent />
- */
-export function ItemContent({ className, ref, ...props }: ItemContentProps) {
+function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="item-content"
       className={cn(
-        "flex min-w-0 flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none",
+        "flex flex-1 flex-col gap-1 group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none",
         className,
       )}
       {...props}
@@ -241,25 +154,12 @@ export function ItemContent({ className, ref, ...props }: ItemContentProps) {
   );
 }
 
-/** Props accepted by `ItemTitle`. */
-export type ItemTitleProps = React.ComponentPropsWithRef<"div">;
-
-/** `ItemTitle` — the primary label of an `Item` row.
- *
- * @example
- * <ItemTitle />
- */
-export function ItemTitle({ className, ref, ...props }: ItemTitleProps) {
+function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="item-title"
       className={cn(
-        // D24: the row title is the system's list-row type — `text-label` (14/500), matching
-        // Sidebar menu rows, DataList cells, menu items and Message rows. The denser `size="sm"`
-        // tier drops to `text-label-sm` (12/500) so a compact list keeps its 12/12 rhythm.
-        "flex w-fit items-center gap-2 leading-snug text-label text-foreground",
-        "group-data-[size=sm]/item:text-label-sm",
+        "flex w-fit items-center gap-2 text-sm leading-snug font-medium underline-offset-4",
         className,
       )}
       {...props}
@@ -267,25 +167,12 @@ export function ItemTitle({ className, ref, ...props }: ItemTitleProps) {
   );
 }
 
-/** Props accepted by `ItemDescription`. */
-export type ItemDescriptionProps = React.ComponentPropsWithRef<"p">;
-
-/** `ItemDescription` — supporting body text under the `ItemTitle`. Clamps to two lines.
- *
- * @example
- * <ItemDescription />
- */
-export function ItemDescription({
-  className,
-  ref,
-  ...props
-}: ItemDescriptionProps) {
+function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
-      ref={ref}
       data-slot="item-description"
       className={cn(
-        "line-clamp-2 text-sm leading-normal font-normal text-pretty text-muted-foreground [&>a]:underline [&>a]:underline-offset-3 [&>a:hover]:text-foreground",
+        "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
         className,
       )}
       {...props}
@@ -293,22 +180,9 @@ export function ItemDescription({
   );
 }
 
-/* ------------------------------------------------------------------------------------------------
- * ItemActions / ItemHeader / ItemFooter — layout slots for controls and multi-row compositions.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `ItemActions`. */
-export type ItemActionsProps = React.ComponentPropsWithRef<"div">;
-
-/** `ItemActions` — the trailing row of controls (buttons, icon-buttons, a badge) on an `Item`.
- *
- * @example
- * <ItemActions />
- */
-export function ItemActions({ className, ref, ...props }: ItemActionsProps) {
+function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="item-actions"
       className={cn("flex items-center gap-2", className)}
       {...props}
@@ -316,18 +190,9 @@ export function ItemActions({ className, ref, ...props }: ItemActionsProps) {
   );
 }
 
-/** Props accepted by `ItemHeader`. */
-export type ItemHeaderProps = React.ComponentPropsWithRef<"div">;
-
-/** `ItemHeader` — a full-width top row inside a multi-row `Item` (e.g. title + trailing meta).
- *
- * @example
- * <ItemHeader />
- */
-export function ItemHeader({ className, ref, ...props }: ItemHeaderProps) {
+function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="item-header"
       className={cn(
         "flex basis-full items-center justify-between gap-2",
@@ -338,18 +203,9 @@ export function ItemHeader({ className, ref, ...props }: ItemHeaderProps) {
   );
 }
 
-/** Props accepted by `ItemFooter`. */
-export type ItemFooterProps = React.ComponentPropsWithRef<"div">;
-
-/** `ItemFooter` — a full-width bottom row inside a multi-row `Item` (e.g. secondary actions).
- *
- * @example
- * <ItemFooter />
- */
-export function ItemFooter({ className, ref, ...props }: ItemFooterProps) {
+function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="item-footer"
       className={cn(
         "flex basis-full items-center justify-between gap-2",
@@ -360,50 +216,15 @@ export function ItemFooter({ className, ref, ...props }: ItemFooterProps) {
   );
 }
 
-/* ------------------------------------------------------------------------------------------------
- * ItemGroup / ItemSeparator — a `role="list"` container of Items with a decorative divider between
- * consecutive rows. ItemSeparator wraps `Separator` decorative (the default), so it renders
- * `role="presentation"` + `aria-hidden` and never breaks the list's ARIA owned-elements contract.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `ItemGroup`. */
-export type ItemGroupProps = React.ComponentPropsWithRef<"div">;
-
-/** `ItemGroup` — groups `Item` rows as a semantic list (`role="list"`). It is also what licenses
- * each child `Item`'s `role="listitem"`: outside a group, an `Item` renders with no role at all.
- *
- * @example
- * <ItemGroup />
- */
-export function ItemGroup({ className, ref, ...props }: ItemGroupProps) {
-  return (
-    <ItemGroupContext.Provider value>
-      <div
-        ref={ref}
-        role="list"
-        data-slot="item-group"
-        className={cn("group/item-group flex flex-col", className)}
-        {...props}
-      />
-    </ItemGroupContext.Provider>
-  );
-}
-
-/** Props accepted by `ItemSeparator`. */
-export type ItemSeparatorProps = React.ComponentPropsWithRef<typeof Separator>;
-
-/** `ItemSeparator` — a hairline divider between rows inside an `ItemGroup`. Decorative.
- *
- * @example
- * <ItemSeparator />
- */
-export function ItemSeparator({ className, ...props }: ItemSeparatorProps) {
-  return (
-    <Separator
-      data-slot="item-separator"
-      orientation="horizontal"
-      className={cn("my-0", className)}
-      {...props}
-    />
-  );
-}
+export {
+  Item,
+  ItemMedia,
+  ItemContent,
+  ItemActions,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+  ItemDescription,
+  ItemHeader,
+  ItemFooter,
+};

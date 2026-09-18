@@ -1,0 +1,95 @@
+# component: tooltip
+# decisions: DOC-2, OVL-13, OVL-14
+# hunks:
+#   OVL-13: `TooltipContent` reads `useInternalThemeScope()` and attaches it to the Positioner
+#     inside the Portal. A portaled popup leaves its theme subtree, so a nested scope
+#     (`.dark`, a scoped surface) is lost by inheritance unless the host re-applies it.
+#     `tooling/verify-portal-theme-scope.mjs` inventories this host.
+#   OVL-14: `TooltipContent` forwards a `container` to its Portal. Upstream forwards none, and a
+#     portal defaults to `document.body` — which the Fullscreen API paints the fullscreen element
+#     OVER, so a fullscreen player's control tooltips render invisibly behind it. The prop is
+#     optional and `undefined` is upstream's own default, so no existing caller moves.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file; those hunks carry no decision of their own.
+diff --git a/tooltip.tsx b/tooltip.tsx
+index d980105..ef899d7 100644
+--- a/tooltip.tsx
++++ b/tooltip.tsx
+@@ -1,7 +1,10 @@
+-"use client"
++// @vegastack tooltip@0.9.1 sha256-jp8SrYJMbit4UJsc9672/Pn0xu32V2TjjMBsqekyP74=
+ 
+-import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
+-import { cn } from "cn"
++"use client";
++
++import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
++import { cn } from "@vegastack/design";
++import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+ 
+ function TooltipProvider({
+   delay = 0,
+@@ -13,19 +16,20 @@ function TooltipProvider({
+       delay={delay}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
+-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
++  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
+ }
+ 
+ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
+-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
++  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
+ }
+ 
+ function TooltipContent({
+   className,
++  container,
+   side = "top",
+   sideOffset = 4,
+   align = "center",
+@@ -36,21 +40,24 @@ function TooltipContent({
+   Pick<
+     TooltipPrimitive.Positioner.Props,
+     "align" | "alignOffset" | "side" | "sideOffset"
+-  >) {
++  > &
++  Pick<TooltipPrimitive.Portal.Props, "container">) {
++  const themeScope = useInternalThemeScope();
++
+   return (
+-    <TooltipPrimitive.Portal>
++    <TooltipPrimitive.Portal container={container}>
+       <TooltipPrimitive.Positioner
+         align={align}
+         alignOffset={alignOffset}
+         side={side}
+         sideOffset={sideOffset}
+-        className="isolate z-50"
++        className={cn("isolate z-50", themeScope)}
+       >
+         <TooltipPrimitive.Popup
+           data-slot="tooltip-content"
+           className={cn(
+             "z-50 inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pe-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+-            className
++            className,
+           )}
+           {...props}
+         >
+@@ -59,7 +66,7 @@ function TooltipContent({
+         </TooltipPrimitive.Popup>
+       </TooltipPrimitive.Positioner>
+     </TooltipPrimitive.Portal>
+-  )
++  );
+ }
+ 
+-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
++export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

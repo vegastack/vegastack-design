@@ -1,0 +1,14 @@
+{
+  "component": "textarea",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/textarea.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Field",
+    "Disabled",
+    "Invalid",
+    "Button",
+    "RTL"
+  ]
+}

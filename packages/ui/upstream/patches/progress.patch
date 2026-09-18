@@ -1,0 +1,91 @@
+# component: progress
+# decisions: DOC-1, DOC-2
+# hunks:
+#   NO STYLING HUNK. Progress has no interactive element at all — no focus, no cursor, no
+#     disabled state — so no exception in the map reaches it. `transition-all` on the indicator
+#     is upstream's (MOT rows resolve as **shadcn**), and the global reduced-motion reset (MOT-5)
+#     neutralises it.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/progress.tsx b/progress.tsx
+index c3ff9ed..1642131 100644
+--- a/progress.tsx
++++ b/progress.tsx
+@@ -1,7 +1,9 @@
+-"use client"
++// @vegastack progress@0.9.1 sha256-Zp+TjSKUueoF8noZp5sl5pewOj2DZ87OOMfJ5ij2ylY=
+ 
+-import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
+-import { cn } from "cn"
++"use client";
++
++import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
++import { cn } from "@vegastack/design";
+ 
+ function Progress({
+   className,
+@@ -21,7 +23,7 @@ function Progress({
+         <ProgressIndicator />
+       </ProgressTrack>
+     </ProgressPrimitive.Root>
+-  )
++  );
+ }
+ 
+ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
+@@ -29,12 +31,12 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
+     <ProgressPrimitive.Track
+       className={cn(
+         "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
+-        className
++        className,
+       )}
+       data-slot="progress-track"
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ProgressIndicator({
+@@ -47,7 +49,7 @@ function ProgressIndicator({
+       className={cn("h-full bg-primary transition-all", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
+@@ -57,7 +59,7 @@ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
+       data-slot="progress-label"
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
+@@ -65,12 +67,12 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
+     <ProgressPrimitive.Value
+       className={cn(
+         "ms-auto text-sm text-muted-foreground tabular-nums",
+-        className
++        className,
+       )}
+       data-slot="progress-value"
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ export {
+@@ -79,4 +81,4 @@ export {
+   ProgressIndicator,
+   ProgressLabel,
+   ProgressValue,
+-}
++};

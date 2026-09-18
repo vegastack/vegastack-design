@@ -32,9 +32,9 @@ export function truncatedText(): ReactNode {
   return (
     <Wrapper>
       <div className="w-56 space-y-1 rounded-md border border-border p-3">
-        <p className="text-sm text-muted-foreground">Report name</p>
+        <p className="text-xs text-muted-foreground">Report name</p>
         {/* Single line: hover or focus to reveal the full title in a tooltip. */}
-        <TruncatedText className="text-base text-foreground">
+        <TruncatedText className="text-sm text-foreground">
           {LONG_TITLE}
         </TruncatedText>
       </div>
@@ -46,12 +46,12 @@ export function truncatedTextMultiline(): ReactNode {
   return (
     <Wrapper>
       <div className="w-56 space-y-1 rounded-md border border-border p-3">
-        <p className="text-sm text-muted-foreground">Description</p>
+        <p className="text-xs text-muted-foreground">Description</p>
         {/* Clamp to two lines; the overflow tooltip carries the rest. */}
         <TruncatedText
           as="p"
           lines={2}
-          className="text-base text-muted-foreground"
+          className="text-sm text-muted-foreground"
         >
           {LONG_DESCRIPTION}
         </TruncatedText>
@@ -71,8 +71,8 @@ export function truncatedTextLines(): ReactNode {
           key={n}
           className="w-56 space-y-1 rounded-md border border-border p-3"
         >
-          <p className="text-sm text-muted-foreground">lines={n}</p>
-          <TruncatedText as="p" lines={n} className="text-base text-foreground">
+          <p className="text-xs text-muted-foreground">lines={n}</p>
+          <TruncatedText as="p" lines={n} className="text-sm text-foreground">
             {LONG_DESCRIPTION}
           </TruncatedText>
         </div>
@@ -90,10 +90,10 @@ export function iconText(): ReactNode {
         {/* Icon and trailing Badge stay pinned (shrink-0); only the label
             truncates and reveals the full name in a tooltip on hover/focus. */}
         <IconText
-          icon={<FileText className="size-(--icon-default)" />}
+          icon={<FileText className="size-4" />}
           text={FILE_NAME}
           trailing={<Badge>New</Badge>}
-          className="text-base text-foreground"
+          className="text-sm text-foreground"
         />
       </div>
     </Wrapper>
@@ -108,10 +108,10 @@ export function iconTextSides(): ReactNode {
       {(["top", "right", "bottom", "left"] as const).map((side) => (
         <div key={side} className="w-56 rounded-md border border-border p-2">
           <IconText
-            icon={<FileText className="size-(--icon-default)" />}
+            icon={<FileText className="size-4" />}
             text={`tooltipSide="${side}" — ${FILE_NAME}`}
             tooltipSide={side}
-            className="text-base text-foreground"
+            className="text-sm text-foreground"
           />
         </div>
       ))}

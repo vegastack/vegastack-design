@@ -685,7 +685,7 @@ test("no a11y violations — loading", async () => {
  * Same rationale/technique as checkbox.test.tsx: this harness runs without compiled Tailwind, so
  * neither the checkbox's own `before:-inset-1.5` nor table.tsx's padding/`:has()` collapse resolve
  * to real CSS here. This mirror reproduces BOTH — the checkbox's real fix (from checkbox.tsx,
- * unmodified by this file) AND the surrounding cell's real padding (`h-(--size-md)`/`py-2` +
+ * unmodified by this file) AND the surrounding cell's real padding (`h-8`/`py-2` +
  * `px-3` collapsed to `pr-0` on the checkbox side, per table.tsx) — so the measurement proves the
  * fix survives in the actual table layout, not just in isolation.
  *
@@ -695,13 +695,20 @@ test("no a11y violations — loading", async () => {
  * data-list.tsx was needed.
  * ------------------------------------------------------------------------------------------- */
 
+/*
+ * A CSS MIRROR of the shipped Checkbox's own geometry, because this lane compiles no Tailwind.
+ *
+ * Batch 3 of the shadcn reset put Checkbox back on upstream's file: one size (16px, no `data-size`)
+ * and an `::after` hit area at `-inset-x-3 -inset-y-2` (40x32) rather than the fork's 14px `sm`
+ * tier with a `::before` at `-inset-1.5`. The mirror below tracks that; if the two ever disagree,
+ * `test/geometry.browser.test.tsx` measures the REAL compiled control and fails there.
+ */
 function injectDataListCheckboxHitAreaMirror(): () => void {
   const style = document.createElement("style");
   style.textContent = `
     body { margin: 24px; }
-    [data-slot="checkbox"] { position: relative; display: inline-flex; box-sizing: border-box; }
-    [data-slot="checkbox"][data-size="sm"] { width: 14px; height: 14px; }
-    [data-slot="checkbox"][data-size="sm"]::before { content: ""; position: absolute; inset: -6px; }
+    [data-slot="checkbox"] { position: relative; display: inline-flex; box-sizing: border-box; width: 16px; height: 16px; }
+    [data-slot="checkbox"]::after { content: ""; position: absolute; inset: -8px -12px; }
     [data-slot="table-head"] { box-sizing: border-box; height: 32px; padding: 0 0 0 12px; }
     [data-slot="table-cell"] { box-sizing: border-box; padding: 8px 0 8px 12px; }
   `;
@@ -724,9 +731,9 @@ test("the header select-all checkbox (sm, 14px) resolves an effective hit area >
       .getByRole("checkbox", { name: "Select all rows" })
       .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
+    const hitArea = getComputedStyle(el, "::after");
+    expect(parseFloat(hitArea.width)).toBeGreaterThanOrEqual(24);
+    expect(parseFloat(hitArea.height)).toBeGreaterThanOrEqual(24);
   } finally {
     cleanup();
   }
@@ -747,9 +754,9 @@ test("a row select checkbox (sm, 14px) resolves an effective hit area >= 24x24 i
       .getByRole("checkbox", { name: "Select row 1" })
       .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
+    const hitArea = getComputedStyle(el, "::after");
+    expect(parseFloat(hitArea.width)).toBeGreaterThanOrEqual(24);
+    expect(parseFloat(hitArea.height)).toBeGreaterThanOrEqual(24);
   } finally {
     cleanup();
   }
@@ -772,7 +779,8 @@ test("a point just outside the row checkbox's visual box, inside the expanded hi
       .getByRole("checkbox", { name: "Select row 1" })
       .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
-    // 4px above the visual top edge — inside the 6px `before:-inset-1.5` expansion, outside the 14px box.
+    // 4px above the visual top edge — inside the 8px `after:-inset-y-2` expansion, outside the
+    // 16px box.
     const x = rect.left + rect.width / 2;
     const y = rect.top - 4;
     const hit = document.elementFromPoint(x, y);
@@ -833,28 +841,33 @@ test("render receives the per-cell context (rowId, columnKey, selected) as a thi
   expect(seen[2]).toEqual({ rowId: "c", columnKey: "name", selected: false });
 });
 
-test("Table spreadsheet-voice props (grid, density, headerTone) type-check and flow through", async () => {
+test("every remaining `<table>` prop type-checks and flows through to the table element", async () => {
+  // Was "Table spreadsheet-voice props (grid, density, headerTone)". Batch 5 of the shadcn reset
+  // put `Table` back on upstream's file, which takes no props of its own — no `grid`, no
+  // `headerTone`, no `density`, no `scrollLabel`, no `containerProps`. What survives, and what this
+  // test now pins, is that `DataListProps` really is upstream `Table`'s prop set: an ordinary
+  // `<table>` attribute passed to `DataList` reaches the table element, and upstream's own
+  // container is still there around it.
   await render(
     <DataList
       columns={columns}
       data={data}
       getRowId={(r) => r.id}
-      grid
-      headerTone="ink"
-      density="compact"
-      containerProps={{ className: "test-viewport-cap" }}
+      className="test-viewport-cap"
+      summary="Releases"
     />,
   );
   const table = document.querySelector(
     '[data-slot="data-list"]',
   ) as HTMLElement;
-  expect(table.dataset.grid).toBe("");
-  expect(table.dataset.headerTone).toBe("ink");
-  expect(table.dataset.density).toBe("compact");
+  expect(table.tagName).toBe("TABLE");
+  expect(table.className).toContain("test-viewport-cap");
+  expect(table.getAttribute("summary")).toBe("Releases");
   const container = document.querySelector(
     '[data-slot="table-container"]',
   ) as HTMLElement;
-  expect(container.className).toContain("test-viewport-cap");
+  expect(container).not.toBeNull();
+  expect(container.contains(table)).toBe(true);
 });
 
 /* ---------------------------------------------------------------------------------------------
@@ -918,7 +931,17 @@ test("the sortable header composes the system Button", async () => {
   expect(sort.tagName).toBe("BUTTON");
 });
 
-test("a wide DataList is keyboard-scrollable through the shared region", async () => {
+test("a wide DataList overflows in upstream's container, which is NOT yet a tab stop", async () => {
+  // FLAGGED FOR MK. Was "a wide DataList is keyboard-scrollable through the shared region".
+  // Until Batch 5 of the shadcn reset, `Table` wrapped itself in `TableScrollRegion`, which
+  // implemented A11Y-6 — a scroll viewport is a tab stop only when it can actually scroll, and a
+  // named viewport is a `role="region"`. Upstream's `Table` wraps itself in a plain
+  // `data-slot="table-container"` div instead: it scrolls, but no keyboard user can reach the
+  // scroll. A11Y-6 is not one of the exceptions `implementation.md` § 5.2 assigns to `table`, and
+  // § 5.2 says to apply an exception ONLY where it is assigned, so `table` ships upstream's
+  // container verbatim and this test pins the gap rather than hiding it. `data-list` is an
+  // extras.md KEEP that Batch 7 rebuilds on the reset primitives; that is where the tab stop
+  // belongs now.
   await render(
     <div style={{ width: "280px" }}>
       <DataList
@@ -935,6 +958,11 @@ test("a wide DataList is keyboard-scrollable through the shared region", async (
   const container = document.querySelector(
     '[data-slot="table-container"]',
   ) as HTMLElement;
-  await expect.poll(() => container.getAttribute("tabindex")).toBe("0");
-  expect(container.getAttribute("aria-label")).toBe("People");
+  // It really does overflow…
+  await expect
+    .poll(() => container.scrollWidth > container.clientWidth)
+    .toBe(true);
+  // …and it really is unreachable, which is the thing to fix in Batch 7.
+  expect(container.getAttribute("tabindex")).toBeNull();
+  expect(container.getAttribute("role")).toBeNull();
 });

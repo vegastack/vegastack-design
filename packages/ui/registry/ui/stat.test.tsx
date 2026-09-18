@@ -13,7 +13,7 @@ test("renders label over value at the default scale", async () => {
   );
   await expect.element(screen.getByText("Estimated ARR")).toBeInTheDocument();
   const value = screen.getByText("$1M–$10M");
-  expect((value.element() as HTMLElement).className).toContain("text-base");
+  expect((value.element() as HTMLElement).className).toContain("text-sm");
 });
 
 test('size="lg" scales the value via context (dashboard tile voice)', async () => {
@@ -25,7 +25,7 @@ test('size="lg" scales the value via context (dashboard tile voice)', async () =
     </Stat>,
   );
   const value = screen.getByText("1,284");
-  expect((value.element() as HTMLElement).className).toContain("text-3xl");
+  expect((value.element() as HTMLElement).className).toContain("text-2xl");
   const delta = screen.getByText("+12% this month");
   expect((delta.element() as HTMLElement).className).toContain(
     "text-success-text",

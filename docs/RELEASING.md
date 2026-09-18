@@ -54,7 +54,9 @@ after the `PR quality` workflow exists on `main`.
 ## Release sequence
 
 1. A change PR carries the canonical source, generated registry surfaces where applicable, tests,
-   docs, and a changeset. CI runs the one authoritative affected proof.
+   docs, and a changeset — plus, where the component is one shadcn ships, its
+   `packages/ui/upstream/patches/<name>.patch`. CI runs the one authoritative affected proof, and
+   `pnpm lint` runs `pnpm upstream:check` inside it.
 2. The shipping agent squash-merges the exact green head SHA.
 3. The resulting `main` push runs `release.yml`. If pending changesets exist, Changesets creates or
    updates `changeset-release/main` and opens the Version Packages PR.

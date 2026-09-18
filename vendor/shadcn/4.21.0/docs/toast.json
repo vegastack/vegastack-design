@@ -1,0 +1,13 @@
+{
+  "component": "toast",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/toast.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Types",
+    "Action",
+    "Promise",
+    "API Reference"
+  ]
+}

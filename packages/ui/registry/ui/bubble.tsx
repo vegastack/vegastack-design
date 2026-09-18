@@ -1,28 +1,16 @@
-// @vegastack bubble@0.9.1 sha256-WTEjkhVMhLw1WzfCpK6rhUOYOAdj6qvQrJmEOeZ8ZVA=
+// @vegastack bubble@0.9.1 sha256-ELhV6dmIU+nZGrDKU1gMV/+Bh0dFn1GEeOOKP9FwLtE=
 
 "use client";
 
 import * as React from "react";
+import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
-/* ------------------------------------------------------------------------------------------------
- * BubbleGroup — stacks consecutive bubbles from one sender with tight spacing.
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `BubbleGroup`. */
-export type BubbleGroupProps = React.ComponentPropsWithRef<"div">;
-
-/**
- * `BubbleGroup` — wraps consecutive `Bubble`s from the same sender so they stack
- * with consistent spacing.
- * @example <BubbleGroup><Bubble /><Bubble /></BubbleGroup>
- */
-export function BubbleGroup({ className, ref, ...props }: BubbleGroupProps) {
+function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      ref={ref}
       data-slot="bubble-group"
       className={cn("flex min-w-0 flex-col gap-2", className)}
       {...props}
@@ -30,53 +18,29 @@ export function BubbleGroup({ className, ref, ...props }: BubbleGroupProps) {
   );
 }
 
-/* ------------------------------------------------------------------------------------------------
- * Bubble variants — the surface skin of a chat bubble. Every value is a semantic token (no
- * hardcoded colours): `default` is the dark neutral "sent" bubble; `secondary` / `muted` are
- * neutral "received" surfaces; `tinted` is a neutral `accent`-tinted received bubble (kept as a
- * distinct variant name; visually a touch stronger than `muted`); `outline` / `ghost` are quiet;
- * `destructive` flags errors and is the status family's soft recipe — the PRECOMPOSED
- * `destructive-subtle` ramp with `destructive-text` ink, exactly what the soft Buttons paint.
- * (It used to be `bg-destructive/(--alpha-soft-surface)` with `text-destructive`, the one place in
- * the registry that used a solid FILL token as body text: 5.24/4.31/4.44:1 in light and
- * 2.56/2.37/1.78:1 in dark, and its light ladder inverted because the pressed step jumped to a
- * precomposed token on a different ground. Audit 2026-09-09, HIGH-1.) Interactive bubbles
- * (a `button`/`a` as the content) lighten on hover. The variant skins the child
- * `[data-slot=bubble-content]` so the bubble tail/padding stay on the content element.
- *
- * Every tone's rest → hover → pressed steps are monotone: the neutral tones climb the surface
- * ladder (rung 1 → 2 → 3), `tinted` rests ON rung 2 (`accent`) so its pressed step is the ladder's
- * next alpha tint (`--alpha-ink-tint-strong`, L 0.884 light / 0.333 dark over card — a full rung
- * past `surface-3`) rather than `--alpha-pressed`, which composites to L 0.921 and was
- * indistinguishable from the `surface-3` hover it followed.
- * ----------------------------------------------------------------------------------------------*/
-
-export const bubbleVariants = cva(
+const bubbleVariants = cva(
   "group/bubble relative flex w-fit max-w-[80%] min-w-0 flex-col gap-1 group-data-[align=end]/message:self-end data-[align=end]:self-end data-[variant=ghost]:max-w-full",
   {
     variants: {
       variant: {
-        /** Dark neutral surface — the current user's own ("sent") messages. */
         default:
-          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary-hover [&>[data-slot=bubble-content]:is(button,a):active]:bg-primary-active",
-        /** Neutral "received" surface. */
+          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/80",
         secondary:
-          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
-        /** Quieter neutral "received" surface. */
+          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]",
         muted:
-          "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
-        /** Neutral accent-tinted "received" surface, readable in light + dark. */
+          "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)]",
         tinted:
-          "*:data-[slot=bubble-content]:bg-accent *:data-[slot=bubble-content]:text-accent-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-3 [&>[data-slot=bubble-content]:is(button,a):active]:bg-foreground/(--alpha-ink-tint-strong)",
-        /** Outlined surface on the page background. */
+          "*:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.93_calc(c*0.4)_h)] *:data-[slot=bubble-content]:text-foreground dark:*:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.3_calc(c*0.4)_h)] [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.88_calc(c*0.5)_h)] dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.35_calc(c*0.5)_h)]",
         outline:
-          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
-        /** No surface — plain text, no padding (e.g. for rich/markdown content). */
+          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-input/30",
         ghost:
-          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
-        /** Error / failed-message surface. */
+          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50",
+        // A11Y-13: upstream writes `text-destructive` here, which on its own `/10` tint measures
+        // 3.987:1 in light — under the AA floor A11Y-1 enforces as a fail-closed gate. The family's
+        // `-text` ink is the one A11Y-13 adds for exactly this pair, and it reads 6.966:1 on the
+        // same composite. Nothing else in the variant moves.
         destructive:
-          "*:data-[slot=bubble-content]:bg-destructive-subtle *:data-[slot=bubble-content]:text-destructive-text [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive-subtle-hover [&>[data-slot=bubble-content]:is(button,a):active]:bg-destructive-subtle-active",
+          "*:data-[slot=bubble-content]:bg-destructive/10 *:data-[slot=bubble-content]:text-destructive-text dark:*:data-[slot=bubble-content]:bg-destructive/20 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/20 dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/30",
       },
     },
     defaultVariants: {
@@ -85,127 +49,62 @@ export const bubbleVariants = cva(
   },
 );
 
-/** Surface skin a `Bubble` can take. */
-export type BubbleVariant = NonNullable<
-  VariantProps<typeof bubbleVariants>["variant"]
->;
-
-/** Props accepted by `Bubble`. */
-export interface BubbleProps
-  extends
-    React.ComponentPropsWithRef<"div">,
-    VariantProps<typeof bubbleVariants> {
-  /**
-   * Surface skin.
-   * - `default`: dark neutral, for sent messages.
-   * - `secondary` / `muted`: neutral received surfaces.
-   * - `tinted`: brand-tinted received surface.
-   * - `outline` / `ghost`: quiet surfaces.
-   * - `destructive`: error / failed message.
-   * @default 'default'
-   */
-  variant?: BubbleVariant;
-  /**
-   * Which side the bubble hugs.
-   * - `start`: received (default).
-   * - `end`: sent — self-aligns to the end edge.
-   * @default 'start'
-   */
-  align?: "start" | "end";
-  /**
-   * Opt-in entry animation (`motion-enter-up`, a fade + slight rise) for a
-   * bubble that is newly appended to a live thread. **Default off**: an
-   * existing transcript rendered on page load must not animate every bubble.
-   * Enable it only on bubble(s) you append after mount — e.g. a streamed reply
-   * or a message the user just sent (mirrors `Message`'s `animateIn`; set
-   * either or both).
-   * @default false
-   */
-  animateIn?: boolean;
-}
-
-/**
- * `Bubble` — the speech-bubble container inside a `Message`. Pick a `variant`
- * for the surface and `align` for the side; it skins its `BubbleContent`
- * child(ren). Inside a `Message`, the row's `align` is inherited automatically.
- * Pass `animateIn` on a newly-appended bubble (streaming/new message) to fade +
- * rise it in — off by default so existing transcripts render still.
- *
- * @example
- * <Bubble><BubbleContent>Hey there!</BubbleContent></Bubble>
- *
- * @example
- * <Bubble variant="tinted" align="end"><BubbleContent>On my way.</BubbleContent></Bubble>
- */
-export function Bubble({
+function Bubble({
   variant = "default",
   align = "start",
-  animateIn = false,
   className,
-  ref,
   ...props
-}: BubbleProps) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof bubbleVariants> & {
+    align?: "start" | "end";
+  }) {
   return (
     <div
-      ref={ref}
       data-slot="bubble"
       data-variant={variant}
       data-align={align}
-      className={cn(
-        bubbleVariants({ variant }),
-        animateIn && "motion-enter-up",
-        className,
-      )}
+      className={cn(bubbleVariants({ variant }), className)}
       {...props}
     />
   );
 }
 
-/** Props accepted by `BubbleContent`. */
-export interface BubbleContentProps extends React.ComponentPropsWithRef<"div"> {
-  /**
-   * Render the content surface as a different element (e.g. a `button` for an
-   * interactive bubble, or an `a` for a link bubble) via Base UI `render`.
-
-   * @default undefined
-   */
-  render?: useRender.RenderProp;
-}
-
-/**
- * `BubbleContent` — the actual rounded surface that carries the message text.
- * The parent `Bubble`'s `variant` colours it via `data-slot=bubble-content`.
- * Render it as a `button`/`a` for an interactive bubble — it gets a hover
- * surface and the global focus-visible ring.
- * @example <BubbleContent>Hello!</BubbleContent>
- */
-export function BubbleContent({
+function BubbleContent({
   className,
   render,
-  ref,
   ...props
-}: BubbleContentProps) {
+}: useRender.ComponentProps<"div">) {
   return useRender({
-    render: render ?? <div />,
     defaultTagName: "div",
-    ref, // forward the consumer ref onto the rendered (or composed) element
-    props: {
-      "data-slot": "bubble-content",
-      className: cn(
-        "w-fit max-w-full min-w-0 overflow-hidden rounded-lg border border-transparent px-3 py-2.5 text-base leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left [button,a]:focus-visible:border-ring/(--alpha-tint-border)",
-        className,
-      ),
-      ...props,
+    props: mergeProps<"div">(
+      {
+        className: cn(
+          // FOC-1 / FOC-6: upstream ends this string with
+          // `[button,a]:outline-none [button,a]:focus-visible:border-ring
+          //  [button,a]:focus-visible:ring-3 [button,a]:focus-visible:ring-ring/50`
+          // — the 3px halo, plus an `outline-none` that would suppress the one affordance this
+          // system has. Both are gone: an interactive bubble takes `base.css`'s single 2px
+          // `:focus-visible` outline like every other control. FOC-6 names Bubble by name.
+          "w-fit max-w-full min-w-0 overflow-hidden rounded-xl border border-transparent px-3 py-2 text-sm leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-start [button,a]:transition-colors",
+          className,
+        ),
+      },
+      props,
+    ),
+    render,
+    state: {
+      slot: "bubble-content",
     },
   });
 }
 
-/* ------------------------------------------------------------------------------------------------
- * BubbleReactions — a small floating chip of reaction emoji/counts pinned to a bubble's corner.
- * ----------------------------------------------------------------------------------------------*/
-
-export const bubbleReactionsVariants = cva(
-  "absolute z-(--z-raised) flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-base ring-3 ring-card has-[button]:p-0",
+const bubbleReactionsVariants = cva(
+  // FOC-6: upstream punches this chip out of the bubble edge with `ring-3 ring-card` — a 3px
+  // box-shadow ring. FOC-6 is "never a box-shadow ring or glow anywhere", and it names Bubble.
+  // `outline-3 outline-card` paints the identical 3px band in the identical colour, outside the
+  // border box and following the radius, with no box-shadow — and the chip is a `<div>` that
+  // never takes focus, so it cannot collide with `base.css`'s `:focus-visible` outline.
+  "absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-sm outline-3 outline-card has-[button]:p-0",
   {
     variants: {
       side: {
@@ -213,8 +112,8 @@ export const bubbleReactionsVariants = cva(
         bottom: "bottom-0 translate-y-3/4",
       },
       align: {
-        start: "left-3",
-        end: "right-3",
+        start: "start-3",
+        end: "end-3",
       },
     },
     defaultVariants: {
@@ -224,44 +123,17 @@ export const bubbleReactionsVariants = cva(
   },
 );
 
-/** Props accepted by `BubbleReactions`. */
-export interface BubbleReactionsProps
-  extends
-    React.ComponentPropsWithRef<"div">,
-    VariantProps<typeof bubbleReactionsVariants> {
-  /**
-   * Vertical anchor relative to the bubble.
-   * @default 'bottom'
-   */
-  side?: "top" | "bottom";
-  /**
-   * Horizontal anchor relative to the bubble.
-   * @default 'end'
-   */
-  align?: "start" | "end";
-}
-
-/**
- * `BubbleReactions` — a floating reactions chip pinned to a bubble corner. Place
- * it inside a `Bubble` (which is `relative`); choose `side`/`align` for the
- * corner. A `ring-card` cuts a clean gap so it reads as separate from the bubble.
- *
- * @example
- * <Bubble>
- *   <BubbleContent>Nice work!</BubbleContent>
- *   <BubbleReactions>👍 3</BubbleReactions>
- * </Bubble>
- */
-export function BubbleReactions({
+function BubbleReactions({
   side = "bottom",
   align = "end",
   className,
-  ref,
   ...props
-}: BubbleReactionsProps) {
+}: React.ComponentProps<"div"> & {
+  align?: "start" | "end";
+  side?: "top" | "bottom";
+}) {
   return (
     <div
-      ref={ref}
       data-slot="bubble-reactions"
       data-align={align}
       data-side={side}
@@ -270,3 +142,5 @@ export function BubbleReactions({
     />
   );
 }
+
+export { BubbleGroup, Bubble, BubbleContent, BubbleReactions };

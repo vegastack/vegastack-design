@@ -1,0 +1,17 @@
+{
+  "component": "empty",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/empty.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Outline",
+    "Background",
+    "Avatar",
+    "Avatar Group",
+    "InputGroup",
+    "RTL",
+    "API Reference"
+  ]
+}

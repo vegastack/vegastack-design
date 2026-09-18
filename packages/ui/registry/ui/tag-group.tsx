@@ -1,9 +1,9 @@
-// @vegastack tag-group@0.9.1 sha256-VF428rCAEERMD/xJ6liBIcfmZcBjuk09bLwSEzGxw+0=
+// @vegastack tag-group@0.9.1 sha256-sdL8urw/FaTtYE204elGJO6903DNtyx9M+fqhgwC5jA=
 
 "use client";
 
 import * as React from "react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { Chip, type ChipHue } from "@/components/ui/chip";
 
 /* ------------------------------------------------------------------------------------------------
@@ -160,10 +160,10 @@ export function TagGroup({
         <span role="listitem" className="inline-flex">
           {/* The overflow control IS a chip — one geometry, and the whole pill is the pointer
               target, so the 24px floor is met by the real box with nothing to clip. It is the
-              one interactive chip in the system, so it is also the one that carries the
-              hover/pressed recipe; a plain Tag has neither, because clicking one does nothing.
+              one interactive chip in the system, so it is also the only one that paints a hover
+              wash; a plain Tag has none, because clicking one does nothing.
 
-              `min-w-(--size-sm)` is load-bearing, not decoration: a chip is `w-fit`, and "+2"
+              `min-w-7` is load-bearing, not decoration: a chip is `w-fit`, and "+2"
               at the sm tier measures 23.8px wide — under the 24px floor, which the contract
               lane caught. Flooring the width at the tier's own height makes the short cases a
               circle and lets longer counts ("+12") grow past it. */}
@@ -177,8 +177,8 @@ export function TagGroup({
               setExpanded(true);
             }}
             className={cn(
-              "min-w-(--size-sm) justify-center text-muted-foreground select-none hover:text-foreground",
-              surfaceInteractive,
+              "min-w-7 justify-center text-muted-foreground select-none hover:text-foreground",
+              "hover:bg-accent",
             )}
           >
             +{hiddenCount}

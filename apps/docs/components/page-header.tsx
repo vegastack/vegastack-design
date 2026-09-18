@@ -52,9 +52,7 @@ export function PageFacts({
         <div className="flex items-center gap-1.5">
           <dt className="sr-only">Status</dt>
           <dd>
-            <Badge intent={STATUS_INTENT[status]} data-page-status={status}>
-              {status}
-            </Badge>
+            <Badge data-page-status={status}>{status}</Badge>
           </dd>
         </div>
       ) : null}

@@ -1,7 +1,8 @@
-// @vegastack settings-row@0.9.1 sha256-6leoCAs+Kgz9MU2ZmaY2DMBsIamg2v7eO4eyPdMQOcU=
+// @vegastack settings-row@0.9.1 sha256-493CjuEc4MjGRgpcEGaQHcz1dt3Mw1GzBIwcWItcaQ0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+import { Card } from "@/components/ui/card";
 
 /**
  * Heading levels `SettingsSection` will render its `title` as. A settings page nests
@@ -25,7 +26,7 @@ export interface SettingsSectionProps extends Omit<
   /**
    * Heading element the `title` renders as. Pick the level that continues the page's
    * outline — `h2` directly under the page `h1`, `h3` inside an `h2` group, and so on.
-   * The visual size never changes (it is the `text-h4` role either way); only the
+   * The visual size never changes (it is the `text-base font-medium` role either way); only the
    * document structure does.
    *
    * `as` rather than Base UI `render` on purpose: `useRender` calls `React.useRef`
@@ -82,7 +83,7 @@ export function SettingsSection({
           {title != null && (
             <TitleTag
               data-slot="settings-section-title"
-              className="text-h4 text-foreground"
+              className="text-base font-medium text-foreground"
             >
               {title}
             </TitleTag>
@@ -90,7 +91,7 @@ export function SettingsSection({
           {description != null && (
             <p
               data-slot="settings-section-description"
-              className="text-sm leading-normal text-muted-foreground"
+              className="text-xs leading-normal text-muted-foreground"
             >
               {description}
             </p>
@@ -103,14 +104,20 @@ export function SettingsSection({
 }
 
 /** Props accepted by `SettingsCard`. */
-export type SettingsCardProps = React.ComponentProps<"div">;
+export type SettingsCardProps = React.ComponentProps<typeof Card>;
 
 /**
- * `SettingsCard` — a borders-only container that groups `SettingsRow`s. Each
- * child row draws its own `border-b`; the last row's border is hidden so the
- * card reads as a single bordered surface (no shadow, per the design system).
+ * `SettingsCard` — the container that groups `SettingsRow`s into one surface.
  *
- * Pure presentational and server-safe — no hooks, no `'use client'`.
+ * **It IS upstream's `Card`**, not a second card recipe: the radius, the `bg-card` ground and the
+ * `ring-1 ring-foreground/10` hairline all come from `card.tsx`, so a settings card and every
+ * other card on the page are the same object. This file only removes the two things a
+ * flush divided list cannot use — the card's own vertical padding and its inter-section gap
+ * (`py-0 gap-0`) — so each `SettingsRow` sits edge to edge and its own `border-b` is the only
+ * divider. The last row's border is collapsed, so the list ends on the card edge rather than on a
+ * stray rule.
+ *
+ * Pure presentational and server-safe — no hooks, no `'use client'` (`Card` has none either).
  *
  * @example
  * <SettingsCard>
@@ -119,11 +126,11 @@ export type SettingsCardProps = React.ComponentProps<"div">;
  */
 export function SettingsCard({ className, ref, ...props }: SettingsCardProps) {
   return (
-    <div
+    <Card
       ref={ref}
       data-slot="settings-card"
       className={cn(
-        "overflow-hidden rounded-lg border border-border bg-card text-card-foreground",
+        "gap-0 py-0",
         // Collapse the trailing row divider so only inter-row borders show.
         "[&>[data-slot=settings-row]:last-child]:border-b-0",
         className,
@@ -216,14 +223,17 @@ export function SettingsRow({
           <LabelTag
             {...(controlId ? { htmlFor: controlId } : {})}
             {...(controlId ? labelProps : undefined)}
-            className={cn("text-label text-foreground", labelProps?.className)}
+            className={cn(
+              "text-sm font-medium text-foreground",
+              labelProps?.className,
+            )}
           >
             {label}
           </LabelTag>
           {description != null && (
             <span
               data-slot="settings-row-description"
-              className="text-sm leading-normal text-muted-foreground"
+              className="text-xs leading-normal text-muted-foreground"
             >
               {description}
             </span>

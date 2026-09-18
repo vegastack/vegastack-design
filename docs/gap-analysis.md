@@ -1,5 +1,12 @@
 # Gap Analysis — what the requirement doc still misses
 
+> **Amendment (2026-09-18):** the shadcn reset
+> ([`plans/2026-09-18-shadcn-reset/`](plans/2026-09-18-shadcn-reset/README.md)) rebuilt the system on
+> shadcn `base-nova` used as-is. Any foundation decided here that this document treats as settled —
+> the serif-heading/`no-font-bold` typography rule of G3 among them — was re-decided on that
+> register, and upstream's own answer won wherever no row says **ours**. Read this file for the
+> gaps it found in June 2026, never as the current contract; `../design.md` is that.
+>
 > **Amendment (2026-07-18):** the public npm layer was consolidated to `@vegastack/design` +
 > zero-dep `@vegastack/design-tokens` (MK-approved — `docs/plans/package-consolidation.md`). Where this
 > document names `@vegastack/tailwind-preset` / `@vegastack/utils` / `@vegastack/icons`, read

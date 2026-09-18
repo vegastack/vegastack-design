@@ -52,7 +52,8 @@ test('supports explicitly decorative images with alt=""', async () => {
 
 test("forwards ref to the underlying img element", async () => {
   const ref = React.createRef<HTMLImageElement>();
-  // The forwardRef target is the inner <img> (rendered while src is set and not errored).
+  // The ref target is the inner <img> (rendered while src is set and not errored). Ref-as-prop,
+  // not `React.forwardRef`, which is banned repo-wide (API-15).
   const screen = await render(<Image ref={ref} src={PIXEL} alt="Ref" />);
   await expect
     .element(screen.getByRole("img", { name: "Ref" }))

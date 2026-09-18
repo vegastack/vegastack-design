@@ -1,48 +1,39 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Combobox,
-  ComboboxInputGroup,
-  ComboboxInput,
-  ComboboxTrigger,
-  ComboboxClear,
-  ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxEmpty,
-  ComboboxChips,
   ComboboxChip,
-  ComboboxChipRemove,
-  ComboboxValue,
-  ComboboxGroup,
-  ComboboxGroupLabel,
+  ComboboxChips,
+  ComboboxChipsInput,
   ComboboxCollection,
-  useComboboxFilteredItems,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxLabel,
+  ComboboxList,
+  ComboboxTrigger,
+  ComboboxValue,
 } from "./combobox";
+import { Button } from "./button";
+import { Field, FieldError, FieldLabel } from "./field";
 
-const FONTS = ["Sans-serif", "Serif", "Monospace"];
+const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 
-// The recommended (and only reliably filterable) rendering: a function child on
-// ComboboxList, implicitly wrapped in Combobox.Collection — see combobox.tsx's own
-// JSDoc. Static ComboboxItem children do NOT get filtered against `items`.
-function Fixture({
-  onValueChange,
-  value,
-}: {
-  onValueChange?: (value: string | null) => void;
-  value?: string | null;
-}) {
+function Basic(props: Partial<React.ComponentProps<typeof ComboboxInput>>) {
   return (
-    <Combobox items={FONTS} value={value} onValueChange={onValueChange}>
-      <ComboboxInputGroup>
-        <ComboboxInput aria-label="Font" placeholder="Search fonts…" />
-        <ComboboxTrigger aria-label="Toggle fonts" />
-      </ComboboxInputGroup>
+    <Combobox items={frameworks}>
+      <ComboboxInput
+        aria-label="Framework"
+        placeholder="Select a framework"
+        {...props}
+      />
       <ComboboxContent>
-        <ComboboxEmpty>No fonts found.</ComboboxEmpty>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(item: string) => (
             <ComboboxItem key={item} value={item}>
@@ -55,39 +46,101 @@ function Fixture({
   );
 }
 
-const LABELS = ["Bug", "Feature", "Docs"];
+/** The one real `<input>` a Combobox renders, whatever it is labelled. */
+const input = (screen: { container: HTMLElement }) =>
+  screen.container.querySelector(
+    '[data-slot="input-group-control"]',
+  ) as HTMLInputElement;
 
-function MultipleFixture({
-  onValueChange,
-}: {
-  onValueChange?: (value: string[]) => void;
-}) {
-  return (
+test("renders a combobox input inside an input group (Usage, Composition)", async () => {
+  const screen = await render(<Basic />);
+  const control = screen.getByRole("combobox", { name: "Framework" });
+  await expect
+    .element(control)
+    .toHaveAttribute("data-slot", "input-group-control");
+  expect(
+    screen.container.querySelector('[data-slot="input-group"]'),
+  ).not.toBeNull();
+});
+
+test("the trigger opens the list (Usage, Basic)", async () => {
+  const screen = await render(<Basic />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  expect(
+    document.querySelector('[data-slot="combobox-content"]'),
+  ).not.toBeNull();
+  expect(document.querySelectorAll('[role="option"]').length).toBe(
+    frameworks.length,
+  );
+});
+
+test("typing filters the list (Basic, Custom Items)", async () => {
+  const screen = await render(<Basic />);
+  const control = input(screen);
+  await userEvent.click(control);
+  await userEvent.fill(control, "Rem");
+  const labels = [...document.querySelectorAll('[role="option"]')].map(
+    (option) => option.textContent,
+  );
+  expect(labels).toEqual(["Remix"]);
+});
+
+test("choosing an option writes it back into the input (Basic)", async () => {
+  const screen = await render(<Basic />);
+  const control = input(screen);
+  await userEvent.click(control);
+  await userEvent.click([...document.querySelectorAll('[role="option"]')][0]!);
+  expect(control.value).toBe("Next.js");
+});
+
+test("an object list filters through itemToStringValue (Custom Items)", async () => {
+  const objects = [
+    { label: "Next.js", value: "next" },
+    { label: "Remix", value: "remix" },
+  ];
+  const screen = await render(
     <Combobox
-      multiple
-      items={LABELS}
-      defaultValue={["Bug"]}
-      onValueChange={onValueChange}
+      items={objects}
+      itemToStringValue={(item: (typeof objects)[number]) => item.label}
     >
-      <ComboboxInputGroup>
-        <ComboboxChips>
-          <ComboboxValue>
-            {(value: string[]) =>
-              value.map((v) => (
-                <ComboboxChip key={v}>
-                  {v}
-                  <ComboboxChipRemove aria-label={`Remove ${v}`} />
-                </ComboboxChip>
-              ))
-            }
-          </ComboboxValue>
-          <ComboboxInput aria-label="Labels" placeholder="Add labels…" />
-        </ComboboxChips>
-        <ComboboxClear aria-label="Clear all" />
-        <ComboboxTrigger aria-label="Toggle labels" />
-      </ComboboxInputGroup>
+      <ComboboxInput aria-label="Framework" />
       <ComboboxContent>
-        <ComboboxEmpty>No labels found.</ComboboxEmpty>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: (typeof objects)[number]) => (
+            <ComboboxItem key={item.value} value={item}>
+              {item.label}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  );
+  const control = input(screen);
+  await userEvent.click(control);
+  await userEvent.fill(control, "Rem");
+  expect(
+    [...document.querySelectorAll('[role="option"]')].map((o) => o.textContent),
+  ).toEqual(["Remix"]);
+});
+
+test("multiple renders one chip per value (Multiple Selection, Multiple)", async () => {
+  const screen = await render(
+    <Combobox multiple items={frameworks} defaultValue={["Next.js", "Astro"]}>
+      <ComboboxChips>
+        <ComboboxValue>
+          {(values: string[]) => (
+            <React.Fragment>
+              {values.map((value) => (
+                <ComboboxChip key={value}>{value}</ComboboxChip>
+              ))}
+              <ComboboxChipsInput aria-label="Add framework" />
+            </React.Fragment>
+          )}
+        </ComboboxValue>
+      </ComboboxChips>
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(item: string) => (
             <ComboboxItem key={item} value={item}>
@@ -96,191 +149,225 @@ function MultipleFixture({
           )}
         </ComboboxList>
       </ComboboxContent>
-    </Combobox>
+    </Combobox>,
   );
-}
-
-test("renders the input with the placeholder and combobox role", async () => {
-  const screen = await render(<Fixture />);
-  const input = screen.getByRole("combobox", { name: "Font" });
-  await expect.element(input).toBeInTheDocument();
-  await expect.element(input).toHaveAttribute("data-slot", "combobox-input");
-  await expect.element(input).toHaveAttribute("placeholder", "Search fonts…");
+  expect(
+    screen.container.querySelectorAll('[data-slot="combobox-chip"]').length,
+  ).toBe(2);
+  expect(
+    screen.container.querySelectorAll('[data-slot="combobox-chip-remove"]')
+      .length,
+  ).toBe(2);
 });
 
-test("opens the popup on trigger click and lists the items", async () => {
-  const screen = await render(<Fixture />);
-  await screen.getByRole("button", { name: "Toggle fonts" }).click();
-  await expect
-    .element(screen.getByRole("option", { name: "Sans-serif" }))
-    .toBeInTheDocument();
-  await expect
-    .element(screen.getByRole("option", { name: "Serif", exact: true }))
-    .toBeInTheDocument();
-  await expect
-    .element(screen.getByRole("option", { name: "Monospace" }))
-    .toBeInTheDocument();
+test("showClear renders a clear control (Clear Button)", async () => {
+  const screen = await render(
+    <Combobox items={frameworks} defaultValue={frameworks[0]}>
+      <ComboboxInput aria-label="Framework" showClear />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="combobox-clear"]'),
+  ).not.toBeNull();
 });
 
-test("typing narrows the list to matching items", async () => {
-  const screen = await render(<Fixture />);
-  const input = screen.getByRole("combobox", { name: "Font" });
-  await input.click();
-  await userEvent.type(input.element() as HTMLInputElement, "Mono");
-  const doc = screen.container.ownerDocument;
-  await expect
-    .poll(() => doc.querySelectorAll('[role="option"]').length)
-    .toBe(1);
-  expect(doc.querySelector('[role="option"]')?.textContent).toBe("Monospace");
+test("groups and labels render inside the popup (Groups)", async () => {
+  const groups = [
+    { value: "Americas", items: ["New York", "Chicago"] },
+    { value: "Europe", items: ["London", "Paris"] },
+  ];
+  const screen = await render(
+    <Combobox items={groups}>
+      <ComboboxInput aria-label="Timezone" />
+      <ComboboxContent>
+        <ComboboxEmpty>No timezones found.</ComboboxEmpty>
+        <ComboboxList>
+          {(group: (typeof groups)[number]) => (
+            <ComboboxGroup key={group.value} items={group.items}>
+              <ComboboxLabel>{group.value}</ComboboxLabel>
+              <ComboboxCollection>
+                {(item: string) => (
+                  <ComboboxItem key={item} value={item}>
+                    {item}
+                  </ComboboxItem>
+                )}
+              </ComboboxCollection>
+            </ComboboxGroup>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  );
+  await userEvent.click(screen.getByRole("combobox", { name: "Timezone" }));
+  expect(document.querySelectorAll('[data-slot="combobox-label"]').length).toBe(
+    2,
+  );
 });
 
-test("ComboboxEmpty shows when no item matches the query", async () => {
-  const screen = await render(<Fixture />);
-  const input = screen.getByRole("combobox", { name: "Font" });
-  await input.click();
-  await userEvent.type(input.element() as HTMLInputElement, "zzz");
-  await expect.element(screen.getByText("No fonts found.")).toBeInTheDocument();
-  const doc = screen.container.ownerDocument;
-  await expect
-    .poll(() => doc.querySelectorAll('[role="option"]').length)
-    .toBe(0);
+test("autoHighlight marks the first match as active (Auto Highlight)", async () => {
+  const screen = await render(
+    <Combobox items={frameworks} autoHighlight>
+      <ComboboxInput aria-label="Framework" />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  );
+  const control = input(screen);
+  await userEvent.click(control);
+  await userEvent.fill(control, "Rem");
+  expect(
+    document.querySelector('[role="option"][data-highlighted]'),
+  ).not.toBeNull();
 });
 
-const TIMEZONE_GROUPS = [
-  { label: "North America", items: ["Eastern", "Central", "Pacific"] },
-  { label: "Europe", items: ["Greenwich", "Central European"] },
-];
+test("a Button trigger opens the popup with the search inside it (Popup)", async () => {
+  const screen = await render(
+    <Combobox items={frameworks}>
+      <ComboboxTrigger render={<Button variant="outline" />}>
+        <ComboboxValue>Select framework</ComboboxValue>
+      </ComboboxTrigger>
+      <ComboboxContent>
+        <ComboboxInput showTrigger={false} aria-label="Search frameworks" />
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  );
+  await userEvent.click(
+    screen.container.querySelector(
+      '[data-slot="combobox-trigger"]',
+    ) as HTMLElement,
+  );
+  expect(
+    document.querySelector('[data-slot="combobox-content"]'),
+  ).not.toBeNull();
+  expect(
+    document.querySelector('[data-slot="input-group-control"]'),
+  ).not.toBeNull();
+});
 
-function GroupedItems() {
-  // See useComboboxFilteredItems's JSDoc — required so grouped items narrow with the query too.
-  const groups = useComboboxFilteredItems<(typeof TIMEZONE_GROUPS)[number]>();
-  return (
-    <>
-      {groups.map((group) => (
-        <ComboboxGroup key={group.label} items={group.items}>
-          <ComboboxGroupLabel>{group.label}</ComboboxGroupLabel>
-          <ComboboxCollection>
+test("disabled disables the control and its trigger (Disabled)", async () => {
+  const screen = await render(<Basic disabled />);
+  await expect
+    .element(screen.getByRole("combobox", { name: "Framework" }))
+    .toBeDisabled();
+});
+
+test("aria-invalid on the control and FieldError carry the error (Invalid)", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel htmlFor="cb-invalid">Framework</FieldLabel>
+      <Combobox items={frameworks}>
+        <ComboboxInput id="cb-invalid" aria-invalid="true" />
+        <ComboboxContent>
+          <ComboboxEmpty>No items found.</ComboboxEmpty>
+          <ComboboxList>
             {(item: string) => (
               <ComboboxItem key={item} value={item}>
                 {item}
               </ComboboxItem>
             )}
-          </ComboboxCollection>
-        </ComboboxGroup>
-      ))}
-    </>
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+      <FieldError>Choose a framework to continue.</FieldError>
+    </Field>,
   );
-}
-
-function GroupedFixture() {
-  return (
-    <Combobox items={TIMEZONE_GROUPS}>
-      <ComboboxInputGroup>
-        <ComboboxInput aria-label="Timezone" placeholder="Search timezones…" />
-        <ComboboxTrigger aria-label="Toggle timezones" />
-      </ComboboxInputGroup>
-      <ComboboxContent>
-        <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-        <ComboboxList>
-          <GroupedItems />
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
-  );
-}
-
-test("grouped rendering: useComboboxFilteredItems narrows groups with the query", async () => {
-  const screen = await render(<GroupedFixture />);
-  const doc = screen.container.ownerDocument;
-  const input = screen.getByRole("combobox", { name: "Timezone" });
-  await input.click();
   await expect
-    .poll(() => doc.querySelectorAll('[role="option"]').length)
-    .toBe(5);
+    .element(screen.getByRole("combobox", { name: "Framework" }))
+    .toHaveAttribute("aria-invalid", "true");
   await expect
-    .element(screen.getByRole("group", { name: "North America" }))
+    .element(screen.getByText("Choose a framework to continue."))
     .toBeInTheDocument();
-
-  await userEvent.type(input.element() as HTMLInputElement, "Cent");
-  await expect
-    .poll(() =>
-      Array.from(doc.querySelectorAll('[role="option"]')).map(
-        (o) => o.textContent,
-      ),
-    )
-    .toEqual(["Central", "Central European"]);
 });
 
-test("ArrowDown/ArrowUp move the highlight", async () => {
-  const screen = await render(<Fixture />);
-  const input = screen.getByRole("combobox", { name: "Font" });
-  await input.click();
-  const doc = screen.container.ownerDocument;
-
-  await userEvent.keyboard("{ArrowDown}");
-  await expect
-    .poll(() => doc.querySelector("[data-highlighted]")?.textContent)
-    .toBe("Sans-serif");
-
-  await userEvent.keyboard("{ArrowDown}");
-  await expect
-    .poll(() => doc.querySelector("[data-highlighted]")?.textContent)
-    .toBe("Serif");
-
-  await userEvent.keyboard("{ArrowUp}");
-  await expect
-    .poll(() => doc.querySelector("[data-highlighted]")?.textContent)
-    .toBe("Sans-serif");
-});
-
-test("Enter selects the highlighted item and closes the popup", async () => {
-  const onValueChange = vi.fn();
-  const screen = await render(<Fixture onValueChange={onValueChange} />);
-  const input = screen.getByRole("combobox", { name: "Font" });
-  await input.click();
-  const doc = screen.container.ownerDocument;
-
-  await userEvent.keyboard("{ArrowDown}");
-  await expect
-    .poll(() => doc.querySelector("[data-highlighted]")?.textContent)
-    .toBe("Sans-serif");
-
-  await userEvent.keyboard("{Enter}");
-  await expect
-    .poll(() => onValueChange.mock.calls.at(-1)?.[0])
-    .toBe("Sans-serif");
-  await expect.poll(() => doc.querySelector('[role="listbox"]')).toBeNull();
-});
-
-test("Escape closes the popup and returns focus to the input", async () => {
-  const screen = await render(<Fixture />);
-  const input = screen.getByRole("combobox", { name: "Font" });
-  await input.click();
-  const doc = screen.container.ownerDocument;
-  await expect.poll(() => doc.querySelector('[role="listbox"]')).not.toBeNull();
-
-  await userEvent.keyboard("{Escape}");
-  await expect.poll(() => doc.querySelector('[role="listbox"]')).toBeNull();
-  expect(doc.activeElement?.getAttribute("data-slot")).toBe("combobox-input");
-});
-
-test("a controlled value is reflected as the selected option", async () => {
-  const screen = await render(<Fixture value="Serif" />);
-  await screen.getByRole("button", { name: "Toggle fonts" }).click();
-  const serif = screen.getByRole("option", { name: "Serif", exact: true });
-  await expect.element(serif).toHaveAttribute("aria-selected", "true");
-  const sans = screen.getByRole("option", { name: "Sans-serif" });
-  await expect.element(sans).toHaveAttribute("aria-selected", "false");
-});
-
-test("a disabled trigger does not open the popup", async () => {
+test("RTL: the field inherits direction from its container (RTL)", async () => {
   const screen = await render(
-    <Combobox items={FONTS} disabled>
-      <ComboboxInputGroup>
-        <ComboboxInput aria-label="Disabled font" />
-        <ComboboxTrigger aria-label="Toggle" />
-      </ComboboxInputGroup>
+    <div dir="rtl">
+      <Basic />
+    </div>,
+  );
+  const group = screen.container.querySelector(
+    '[data-slot="input-group"]',
+  ) as HTMLElement;
+  expect(getComputedStyle(group).direction).toBe("rtl");
+});
+
+test("A11Y-3/A11Y-4: the empty region stays mounted and is never display:none", async () => {
+  const screen = await render(<Basic />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  const empty = document.querySelector(
+    '[data-slot="combobox-empty"]',
+  ) as HTMLElement;
+  expect(empty).not.toBeNull();
+  expect(empty.className).not.toMatch(/(?:^|\s)hidden(?:\s|$)/);
+  // It is in the layout with zero height while the list has results, so the platform has been
+  // observing it by the time the filter empties.
+  expect(getComputedStyle(empty).display).not.toBe("none");
+});
+
+test("A11Y-3/A11Y-4: the empty region expands when the filter matches nothing", async () => {
+  const screen = await render(<Basic />);
+  const control = input(screen);
+  await userEvent.click(control);
+  await userEvent.fill(control, "zzzz");
+  const empty = document.querySelector(
+    '[data-slot="combobox-empty"]',
+  ) as HTMLElement;
+  expect(empty.getBoundingClientRect().height).toBeGreaterThan(0);
+});
+
+test("INT-1/FRM-4: an item forces neither the default cursor nor pointer-events-none", async () => {
+  const screen = await render(<Basic />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  const item = document.querySelector(
+    '[data-slot="combobox-item"]',
+  ) as HTMLElement;
+  expect(item.className).not.toContain("cursor-default");
+  expect(item.className).not.toContain("data-disabled:pointer-events-none");
+});
+
+test("FOC-1/FOC-3/FOC-6: the chips field takes a border tint and no glow", async () => {
+  const screen = await render(
+    <Combobox multiple items={frameworks} defaultValue={["Astro"]}>
+      <ComboboxChips>
+        <ComboboxValue>
+          {(values: string[]) => (
+            <React.Fragment>
+              {values.map((value) => (
+                <ComboboxChip key={value}>{value}</ComboboxChip>
+              ))}
+              <ComboboxChipsInput aria-label="Add framework" />
+            </React.Fragment>
+          )}
+        </ComboboxValue>
+      </ComboboxChips>
       <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(item: string) => (
             <ComboboxItem key={item} value={item}>
@@ -291,124 +378,138 @@ test("a disabled trigger does not open the popup", async () => {
       </ComboboxContent>
     </Combobox>,
   );
-  const input = screen.getByRole("combobox", { name: "Disabled font" });
-  await expect.element(input).toBeDisabled();
-  const doc = screen.container.ownerDocument;
-  expect(doc.querySelector('[role="listbox"]')).toBeNull();
+  const chips = screen.container.querySelector(
+    '[data-slot="combobox-chips"]',
+  ) as HTMLElement;
+  expect(chips.className).toContain("focus-within:border-ring/70");
+  expect(chips.className).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+  const chipInput = screen.container.querySelector(
+    '[data-slot="combobox-chip-input"]',
+  ) as HTMLElement;
+  expect(chipInput.className).toContain("outline-hidden");
+  expect(chipInput.className).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
 });
 
-test("multiple mode: selecting an item adds a chip and fires onValueChange", async () => {
-  const onValueChange = vi.fn();
+test("FOC-5: the chips field's invalid tint stands down while it holds focus", async () => {
   const screen = await render(
-    <MultipleFixture onValueChange={onValueChange} />,
+    <Combobox multiple items={frameworks}>
+      <ComboboxChips>
+        <ComboboxChipsInput aria-label="Add framework" />
+      </ComboboxChips>
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
   );
-  const doc = screen.container.ownerDocument;
-  expect(
-    Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map(
-      (c) => c.textContent,
-    ),
-  ).toEqual(["Bug"]);
-
-  await screen.getByRole("combobox", { name: "Labels" }).click();
-  await screen.getByRole("option", { name: "Feature" }).click();
-  await expect
-    .poll(() =>
-      Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map(
-        (c) => c.textContent,
-      ),
-    )
-    .toEqual(["Bug", "Feature"]);
-  expect(onValueChange).toHaveBeenCalledWith(
-    ["Bug", "Feature"],
-    expect.anything(),
+  const chips = screen.container.querySelector(
+    '[data-slot="combobox-chips"]',
+  ) as HTMLElement;
+  expect(chips.className).toContain(
+    "not-focus-within:has-aria-invalid:border-destructive",
   );
 });
 
-test("multiple mode: ComboboxChipRemove removes one chip, ComboboxClear removes the rest", async () => {
-  const onValueChange = vi.fn();
+test("OVL-13: the popup is portaled out of the component's own subtree", async () => {
+  const screen = await render(<Basic />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  const popup = document.querySelector('[data-slot="combobox-content"]');
+  expect(popup).not.toBeNull();
+  expect(screen.container.contains(popup)).toBe(false);
+});
+
+test("no a11y violations — closed", async () => {
   const screen = await render(
-    <MultipleFixture onValueChange={onValueChange} />,
+    <Field>
+      <FieldLabel htmlFor="cb-a11y">Framework</FieldLabel>
+      <Combobox items={frameworks}>
+        <ComboboxInput id="cb-a11y" />
+        <ComboboxContent>
+          <ComboboxEmpty>No items found.</ComboboxEmpty>
+          <ComboboxList>
+            {(item: string) => (
+              <ComboboxItem key={item} value={item}>
+                {item}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    </Field>,
   );
-  const doc = screen.container.ownerDocument;
-  const chipText = () =>
-    Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map(
-      (c) => c.textContent,
-    );
-
-  // Add a second chip so removal (below) leaves one behind — Clear removing the LAST chip is
-  // covered by the a11y test's fixture instead, since ComboboxClear unmounts once there's
-  // nothing to clear (`keepMounted` defaults to `false`).
-  await screen.getByRole("combobox", { name: "Labels" }).click();
-  await screen.getByRole("option", { name: "Feature" }).click();
-  await expect.poll(chipText).toEqual(["Bug", "Feature"]);
-
-  // The chip row is marked `aria-hidden` by Base UI while the popup is open (so a screen
-  // reader mid-selection isn't pulled away from the listbox) — close it first, matching how
-  // an assistive-tech user would actually reach the remove control.
-  await userEvent.keyboard("{Escape}");
-  await expect.poll(() => doc.querySelector('[role="listbox"]')).toBeNull();
-
-  await screen.getByRole("button", { name: "Remove Bug" }).click();
-  await expect.poll(chipText).toEqual(["Feature"]);
-  expect(onValueChange).toHaveBeenCalledWith(["Feature"], expect.anything());
-
-  await screen.getByRole("button", { name: "Clear all" }).click();
-  await expect.poll(chipText).toEqual([]);
-  expect(onValueChange).toHaveBeenCalledWith([], expect.anything());
-});
-
-test("ComboboxContent's positioner carries the z-(--z-overlay) token class", async () => {
-  const screen = await render(<Fixture />);
-  await screen.getByRole("button", { name: "Toggle fonts" }).click();
-  const doc = screen.container.ownerDocument;
-
-  // Positioning is committed asynchronously after the popup opens. Chromium often mounts the
-  // portal before click() resolves, while WebKit/Firefox legitimately commit it on a later task.
-  await expect
-    .poll(() =>
-      doc
-        .querySelector('[data-slot="combobox-positioner"]')
-        ?.classList.contains("z-(--z-overlay)"),
-    )
-    .toBe(true);
-  await expect
-    .poll(() =>
-      doc
-        .querySelector('[data-slot="combobox-content"]')
-        ?.classList.contains("z-(--z-overlay)"),
-    )
-    .toBe(true);
-});
-
-test("no a11y violations — default (closed)", async () => {
-  const screen = await render(<Fixture />);
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — open", async () => {
-  const screen = await render(<Fixture />);
-  await screen.getByRole("button", { name: "Toggle fonts" }).click();
-  await expect
-    .element(screen.getByRole("option", { name: "Sans-serif" }))
-    .toBeInTheDocument();
-  // Audit the whole document so the portalled popup is included.
-  await expectNoA11yViolations(screen.container.ownerDocument.body);
+  const screen = await render(<Basic />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  // No disable list: the open state is audited whole. Its one violation — a tabbable control
+  // inside the addon Base UI marks `aria-hidden` — is fixed in the source under A11Y-9.
+  await expectNoA11yViolations(document.body);
 });
 
-test("no a11y violations — multiple mode with chips", async () => {
-  const screen = await render(<MultipleFixture />);
-  await expectNoA11yViolations(screen.container.ownerDocument.body);
+test("A11Y-9: nothing inside the open popup's aria-hidden addon is tabbable", async () => {
+  const screen = await render(<Basic />);
+  const addon = screen.container.querySelector(
+    '[data-slot="input-group-addon"]',
+  ) as HTMLElement;
+  const toggle = addon.querySelector("button") as HTMLButtonElement;
+  // Closed, the addon is exposed to assistive technology; the toggle is still out of the tab
+  // sequence, exactly as Base UI's own `Combobox.Clear` is and as APG's editable combobox asks.
+  expect(addon.getAttribute("aria-hidden")).toBe(null);
+  expect(toggle.tabIndex).toBe(-1);
+
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  // Open, Base UI hides the whole addon from assistive technology. Pin that shape: the day Base UI
+  // stops hiding it, this fails as stale rather than lingering as a silent exemption.
+  expect(addon.getAttribute("aria-hidden")).toBe("true");
+  expect(
+    [
+      ...addon.querySelectorAll<HTMLElement>("button,input,a,[tabindex]"),
+    ].filter((element) => element.tabIndex >= 0),
+  ).toEqual([]);
 });
 
-test("ComboboxInputGroup forwards ref to its host element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
-  await render(
-    <Combobox items={FONTS}>
-      <ComboboxInputGroup ref={ref}>
-        <ComboboxInput aria-label="Font" />
-        <ComboboxTrigger aria-label="Toggle" />
-      </ComboboxInputGroup>
+test("A11Y-9: the toggle still works with a mouse, so it is not inert (Usage)", async () => {
+  const screen = await render(<Basic />);
+  const addon = screen.container.querySelector(
+    '[data-slot="input-group-addon"]',
+  ) as HTMLElement;
+  expect(addon.hasAttribute("inert")).toBe(false);
+  await userEvent.click(addon.querySelector("button") as HTMLElement);
+  expect(
+    document.querySelector('[data-slot="combobox-content"]'),
+  ).not.toBeNull();
+});
+
+test("no a11y violations — disabled", async () => {
+  const screen = await render(<Basic disabled />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — multiple", async () => {
+  const screen = await render(
+    <Combobox multiple items={frameworks} defaultValue={["Astro"]}>
+      <ComboboxChips>
+        <ComboboxValue>
+          {(values: string[]) => (
+            <React.Fragment>
+              {values.map((value) => (
+                <ComboboxChip key={value}>{value}</ComboboxChip>
+              ))}
+              <ComboboxChipsInput aria-label="Add framework" />
+            </React.Fragment>
+          )}
+        </ComboboxValue>
+      </ComboboxChips>
       <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(item: string) => (
             <ComboboxItem key={item} value={item}>
@@ -419,6 +520,5 @@ test("ComboboxInputGroup forwards ref to its host element", async () => {
       </ComboboxContent>
     </Combobox>,
   );
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe("combobox-input-group");
+  await expectNoA11yViolations(screen.container);
 });

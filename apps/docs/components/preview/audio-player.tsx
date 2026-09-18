@@ -64,7 +64,7 @@ function AudioPlayerMobileDemo(): ReactNode {
         onTranscriptClick={() => setShowTranscript((open) => !open)}
       />
       {showTranscript ? (
-        <div className="rounded-lg border border-border bg-muted p-3 text-sm text-muted-foreground">
+        <div className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
           “Thanks for joining. Today we are walking through the new release and
           what changed for teams shipping on the platform…”
         </div>

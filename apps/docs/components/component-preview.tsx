@@ -74,10 +74,7 @@ export async function ComponentPreview({
           {/* Product type-scale scope (T1/CX-6, DC-01): demos render on the product ladder —
               font-size included — while the surrounding docs shell stays on the doc ladder.
               Portaled popups re-enter via [data-base-ui-portal] in global.css. */}
-          <div
-            className="vs-type-product"
-            data-vrt-preview={hero ? undefined : name}
-          >
+          <div data-vrt-preview={hero ? undefined : name}>
             <PreviewFrameContainer>
               <Comp />
             </PreviewFrameContainer>

@@ -42,6 +42,8 @@ finding available.
 node tooling/design-lint.mjs packages/ui/registry                    # component source, all rules
 node tooling/design-lint.mjs --token-css packages/design-tokens/src  # token CSS (!important only)
 node tooling/design-lint.mjs --token-css apps/docs/app               # docs app CSS (!important only)
+pnpm upstream:check                              # vendor integrity + byte parity + variant coverage
+pnpm upstream:selftest                           # prove all four upstream gates can still fail
 pnpm verify                                      # full static + working-tree affected Chromium tests
 pnpm registry:build && git status --porcelain    # must be idempotent — clean tree after
 pnpm design:derived && git status --porcelain    # contract-derived surfaces must be current
@@ -60,7 +62,44 @@ HTML, cursor cues, client boundaries) — these need real TypeScript parsing, no
 `--token-css` roots run ONLY the `!important` check; the Tailwind-utility rules would false-positive
 on legitimate `oklch()`/custom-property CSS.
 
-`pnpm lint` includes three integrity gates worth knowing by name:
+### The four `upstream:*` gates — the anti-drift set
+
+Since the shadcn reset (2026-09-18) every component shadcn ships is **upstream's file plus an
+approved patch**, and four scripts under `tooling/upstream/` are what make that enforceable rather
+than aspirational. Three of them run in `pnpm upstream:check`, inside `pnpm lint`, and all four carry
+a `--self-test` that observes them failing (`pnpm upstream:selftest`). **All of them read
+`vendor/shadcn/<cli>/` directly, so none can be switched off by editing a list** — that was a real
+finding: parity, coverage and the JSDoc exemption all used to read one hand-maintained array in
+`migrated.json`, and deleting a name from it silently disabled all three.
+
+1. **`pull.mjs --verify-integrity`** (`upstream:integrity`) — re-hashes every committed file under
+   `vendor/shadcn/4.21.0/` against its own `manifest.json`. Fails on a content mismatch, a recorded
+   file that is gone, and a file no pull produced. It is the first stage, because every later claim is
+   about that tree. `--check` is the separate, ONLINE proof used when moving a version; it needs the
+   CLI and is not a gate.
+2. **`verify-parity.mjs`** (`upstream:parity`) — applies `patches/<name>.patch` to the vendor file in
+   memory and compares byte for byte. Also: a component with no patch must equal upstream exactly; a
+   patch may only name an ID `decisions.json` marks **ours**; a patch must name every ID
+   `exception-map.json` assigns to that component; a name in `retired.json` must stay absent from the
+   registry; a canonical file that is neither upstream-backed nor recorded in `ours.json` fails; and
+   an `exempt` name must be fileless on **both** sides.
+3. **`verify-variant-coverage.mjs`** (`upstream:variants`) — every section on upstream's own docs page
+   exists on ours, matched **occurrence by occurrence in document order**, each carrying a
+   `<ComponentPreview>` whose `name` the preview barrel exports, and no two required occurrences may
+   answer with the same preview. Both of those are recent corrections: keying by normalised title in a
+   `Map` had made a real gap on `combobox` read as `required 15 · present 15`, and "has a preview"
+   used to mean the body contained the text `<ComponentPreview`.
+4. **`diff.mjs`** (`pnpm upstream:diff <name>`) — the authoring tool, not a gate, but it fails closed
+   too: it refuses to write a patch whose header carries no `# decisions:` line.
+
+**What to attack here.** A patch header naming an ID the register marks **shadcn**. A hunk that
+implements nothing on its own header. A `no hunk` claim with no test pinning the engine behaviour it
+leans on. An exception assigned in `exception-map.json` that a component's patch silently does not
+carry. A `ring-3` or `focus-visible:ring-*` reintroduced by a careless upstream copy — `design-lint`'s
+`no-focus-ring-glow` is the specific guard, and its structural self-test observes both halves (a glow
+rejected, a resting `0 0 0 1px` hairline accepted).
+
+`pnpm lint` includes three further integrity gates worth knowing by name:
 
 - **`verify-portal-theme-scope`** — discovers every direct Base UI `Portal`
   host, compares them to the reviewed inventory, and requires the owning component to call
@@ -85,9 +124,15 @@ mismatch means the reference needs re-syncing, not that the script is wrong.
   `meta.version`.
 - **Docs completeness** — a component missing a Fumadocs page, an `ApiTable`, or JSDoc on a
   public prop (which breaks the API Reference table). The page canon is `design.md` § Docs canon,
-  enforced by `tooling/content-lint.mjs`; the authoring shape is in the `component` skill §6.
+  enforced by `tooling/content-lint.mjs`; the authoring shape is in the `component` skill §6. **JSDoc
+  is required only for a component that is ours**: an upstream-backed one is exempt, because upstream
+  ships none and adding it would be a patch hunk with no decision ID. That boundary is DERIVED from
+  `vendor/shadcn/<cli>/ui/*.tsx`, never listed — a claimed exemption for a component upstream does not
+  ship is a high finding.
 - **Naming-canon drift** — a new synonym prop for an existing semantic axis (a `color` or `status`
-  prop where `intent` is established), or a dotted sub-component export (`Foo.Bar` not `FooBar`).
+  prop where `intent` is established), or a dotted sub-component export (`Foo.Bar` not `FooBar`). On
+  an upstream-backed component the canon is upstream's: a VegaStack-flavoured prop name added to a
+  shared component is drift, and needs a decision ID or it is a finding.
 - **Coverage honesty** — a matrix cell or contract record claiming coverage the source lacks.
 
 ## 5. Adversarial attack surfaces
@@ -107,7 +152,9 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
    JSDoc feeding `ApiTable`.
 5. **Fail-closed gates.** Prove each one fails on a negative case. A gate never observed failing is
    an assumption, not a gate. These gates carry their own proof and are the models to hold a new gate
-   against: `verify-affected-tests --self-test` (selection and geometry wiring),
+   against: the four `upstream:*` self-tests above (`pull` tampers with a copy of the real vendor tree
+   four ways and watches the failure clear again; `parity` matches failure TEXT rather than "something
+   failed"), `verify-affected-tests --self-test` (selection and geometry wiring),
    `verify-docs-shell --self-test` (mutates the built export and requires
    its own contracts to fail), `verify-workflow-security-negative.mjs` (proves a move back onto a
    hosted runner, or a dropped container, is rejected in both directions),
@@ -125,8 +172,11 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
 7. **Edge cases and unhandled failure modes.** Empty, loading, error, partial build, hash mismatch,
    missing token, offline, credential-less.
 8. **Contradictions** — between built code and the locked decisions in `AGENTS.md` /
-   `docs/requirements.md` §3, or between any two documents. Decide which side is wrong; do not just
-   note the mismatch.
+   `docs/requirements.md` §3 / `packages/ui/upstream/decisions.json`, or between any two documents.
+   Decide which side is wrong; do not just note the mismatch. **A new decision row invented to
+   legitimise a hunk is a high finding**, however good the hunk: the register is MK's, and a fix that
+   genuinely has no row stops and asks instead. Two IDs (`A11Y-14`, `A11Y-15`) are permanently unused
+   for exactly this reason.
 9. **Regression pressure.** For each fix landed this round, ask what it could plausibly have broken,
    and check that specifically.
 
@@ -193,7 +243,8 @@ Reviewing the contract gate:
 - A selected geometry run that executes zero fixtures is red. The barrel, exclusions, dynamic
   declarations, requested names, and CSS/token sentinels remain global guards on every invocation.
 - **Scope risk is explicit.** `component-contracts.json` owns the graph and cross-cutting tests;
-  `verify-registry-deps` proves registry edges against imports; `affected-tests` fails unknown paths.
+  `verify-registry-deps` proves registry edges against imports and every npm pin against the version
+  `pnpm-lock.yaml` resolves for `packages/ui`; `affected-tests` fails unknown paths.
   A missing owner or dependency edge is a high finding about the selector.
 
 ## 9. Fix at the root

@@ -1,0 +1,16 @@
+{
+  "component": "resizable",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/resizable.md",
+  "sections": [
+    "About",
+    "Installation",
+    "Usage",
+    "Composition",
+    "Vertical",
+    "Handle",
+    "RTL",
+    "API Reference",
+    "Changelog"
+  ]
+}

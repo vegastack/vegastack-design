@@ -23,7 +23,7 @@ export function regionSelect(): ReactNode {
   const [value, setValue] = React.useState("");
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <RegionSelect country="US" value={value} onValueChange={setValue} />
       </div>
     </Wrapper>
@@ -49,7 +49,7 @@ export function regionSelectStates(): ReactNode {
   const [fallback, setFallback] = React.useState("");
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <RegionSelect
           country="SG"
           value={fallback}
@@ -57,7 +57,7 @@ export function regionSelectStates(): ReactNode {
           placeholder="Enter region"
         />
       </div>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <RegionSelect country="US" value="CA" disabled />
       </div>
     </Wrapper>
@@ -74,14 +74,14 @@ export function regionSelectClearable(): ReactNode {
   const [value, setValue] = React.useState("CA");
   return (
     <Wrapper>
-      <div className="flex w-full max-w-(--panel-width-sm) flex-col gap-2">
+      <div className="flex w-full max-w-56 flex-col gap-2">
         <RegionSelect
           country="US"
           value={value}
           onValueChange={setValue}
           aria-label="US state"
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           value:{" "}
           <code className="font-mono text-foreground">
             {value === "" ? '"" (cleared)' : `"${value}"`}
@@ -101,7 +101,7 @@ export function regionSelectEmptyResults(): ReactNode {
   const [value, setValue] = React.useState("");
   return (
     <Wrapper>
-      <div className="w-full max-w-(--panel-width-sm)">
+      <div className="w-full max-w-56">
         <RegionSelect
           country="US"
           value={value}
@@ -124,7 +124,7 @@ export function regionSelectDataApi(): ReactNode {
   const states = getRegions(country);
   return (
     <Wrapper>
-      <div className="flex w-full max-w-(--panel-width-sm) flex-col gap-2">
+      <div className="flex w-full max-w-56 flex-col gap-2">
         <RegionSelect
           country={country}
           value={value}
@@ -132,7 +132,7 @@ export function regionSelectDataApi(): ReactNode {
           aria-label="Canadian province"
           placeholder="Canadian province"
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {country in REGIONS
             ? `getRegions("${country}") → ${states.length} subdivisions`
             : `getRegions("${country}") → [] (free-text fallback)`}
@@ -153,7 +153,7 @@ function CountryDemo({
 }): ReactNode {
   const [value, setValue] = React.useState(initial);
   return (
-    <div className="w-full max-w-(--panel-width-sm)">
+    <div className="w-full max-w-56">
       <RegionSelect
         country={country}
         value={value}

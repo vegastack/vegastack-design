@@ -1,0 +1,40 @@
+---
+title: login-03
+description: A login page with a muted background color. Composed from button, card, field, input.
+audience: public
+registry: login-03
+preview: login03Demo
+---
+
+## What it is
+
+A login page with a muted background color. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/login-03
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `button`, `card`, `field`, `input`.
+
+## Preview
+
+<ComponentPreview name="login03Demo" />
+
+## Files
+
+| File                                 | Registry type        | Target                                   |
+| ------------------------------------ | -------------------- | ---------------------------------------- |
+| `login-03/components/login-form.tsx` | `registry:component` | `app/login-03/components/login-form.tsx` |
+| `login-03/page.tsx`                  | `registry:page`      | `app/login-03/page.tsx`                  |
+
+## Do / Don't
+
+<DoDont
+  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
+  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+/>

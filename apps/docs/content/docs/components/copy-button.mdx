@@ -25,7 +25,7 @@ import { CopyButton } from "@/components/ui/copy-button";
 
 ### Copy feedback
 
-A `ghost` / `sm` icon button that writes `value` to the clipboard and swaps the
+A `ghost` / `icon-sm` button that writes `value` to the clipboard and swaps the
 `Copy` icon for a `Check` for ~1.5s. Pair it with the value it copies — an API
 key, an invite link, a code snippet — and use `onCopied` to surface a toast.
 
@@ -34,8 +34,8 @@ key, an invite link, a code snippet — and use `onCopied` to surface a toast.
 ### Visible label
 
 Set `showLabel` when the action needs stronger discoverability. The current
-`copyLabel` or `copiedLabel` appears beside the icon, and the control switches from an
-`IconButton` (square, `sm`) to a text-bearing `Button` at the same size.
+`copyLabel` or `copiedLabel` appears beside the icon, and the one `Button` switches from the
+square `size="icon-sm"` to the text-bearing `size="sm"`.
 
 <ComponentPreview
   name="copyButtonLabels"
@@ -54,7 +54,10 @@ internally, so `onCopied` is purely for your side effects.
 />
 
 ```tsx
-<CopyButton value={apiKey} onCopied={() => toast.success("API key copied")} />
+<CopyButton
+  value={apiKey}
+  onCopied={() => toast.add({ type: "success", title: "API key copied" })}
+/>
 ```
 
 ### States
@@ -72,8 +75,9 @@ and only appears after a real write, so the middle cell below is live — click 
 
 ### Variants
 
-`CopyButton` defaults to `variant="ghost"` but forwards the whole
-[`Button`](/docs/components/button) `variant × tone` matrix unchanged.
+`CopyButton` defaults to `variant="ghost"` and forwards every
+[`Button`](/docs/components/button) variant unchanged — `default`, `outline`, `secondary`,
+`ghost`, `destructive` and `link` — upstream's set, and the whole set.
 
 <ComponentPreview
   name="copyButtonVariants"
@@ -82,8 +86,10 @@ and only appears after a real write, so the middle cell below is live — click 
 
 ### Sizes
 
-`size` is forwarded too, from the one `xs · sm · md · lg` vocabulary. It defaults to `sm`.
-An explicit `size` always wins.
+`size` is forwarded too. Without a visible label the control is icon-only, so it takes an ICON
+tier — `icon-xs · icon-sm · icon · icon-lg` — and defaults to `icon-sm`; with `showLabel` it
+defaults to the text tier `sm`. An explicit `size` always wins. Upstream's `xs` / `sm` / `lg` are
+text tiers with horizontal padding, so they would render a wide box around a lone glyph.
 
 <ComponentPreview
   name="copyButtonSizes"
@@ -92,7 +98,7 @@ An explicit `size` always wins.
 
 ## Playground
 
-Try the forwarded `variant × tone` and size axes, the label toggle, and the disabled state — the
+Try the forwarded variant and size axes, the label toggle, and the disabled state — the
 copy action is live — then copy the generated JSX.
 
 <CopyButtonPlayground />
@@ -112,7 +118,7 @@ type, accessible labels, and icon children.
 
 - Renders a native `<button type="button">`; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
 - The accessible name switches from `Copy` to `Copied` on success so screen readers announce the result; the icon is decorative (`aria-hidden`).
-- Inherits the underlying `Button`'s focus treatment: the default `ghost` variant shows the design system's global 2px focus ring (`outline-ring`) on `:focus-visible` and never sets `outline: none`. The bordered `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`).
+- Inherits the underlying `Button`'s focus treatment: the global 2px `:focus-visible` outline in the `ring` ink (FOC-1), never `outline: none`. No variant adds a ring of its own — `design-lint`'s `no-focus-ring-glow` rejects one.
 - A failed clipboard write (denied permission or insecure context) leaves the button in its default state instead of showing a false success.
 
 | Key                                 | Action                         |

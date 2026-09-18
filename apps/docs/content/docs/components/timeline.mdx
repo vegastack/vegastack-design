@@ -128,10 +128,9 @@ hides via `:last-child`).
   alone. Superseded entries need a text signal, never strike-through alone.
 - Give each entry a `<time dateTime>` — `RelativeTime` renders one, with its
   deliberate no-`aria-live` policy (a feed that re-announces every minute is
-  noise). Leave the timestamp column at the row's own type size: `RelativeTime`
-  is a focusable tooltip trigger, and its invisible hit area is sized against a
-  14px line box, so shrinking it to `text-sm` drops the effective target under
-  the 24px floor.
+  noise). `RelativeTime` is a focusable tooltip trigger and carries a real
+  `min-h-6` box, so it holds the 24px floor at any type size — set the timestamp
+  column's size to whatever the row needs.
 
 <StatesTested name="timeline" />
 

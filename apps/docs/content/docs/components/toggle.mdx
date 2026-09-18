@@ -1,11 +1,11 @@
 ---
 title: Toggle
-description: A two-state button that can be pressed on or off — bold/italic, mute, pin.
+description: A two-state button that can be either on or off — two variants, three sizes, and a loading state that keeps its width.
 audience: public
 registry: toggle
 status: stable
 since: 0.1.0
-a11y: toggle button (aria-pressed)
+a11y: native button with aria-pressed
 preview: toggle
 ---
 
@@ -18,64 +18,93 @@ preview: toggle
 ```tsx
 import { Toggle } from "@/components/ui/toggle";
 
-<Toggle aria-label="Toggle bold">
-  <Bold />
-</Toggle>;
+<Toggle>Toggle</Toggle>;
 ```
 
-`Toggle` is uncontrolled by default — pass `defaultPressed` for an initial value, or control it with
-`pressed` + `onPressedChange`.
-
-```tsx
-const [bold, setBold] = useState(false);
-
-<Toggle pressed={bold} onPressedChange={setBold} aria-label="Toggle bold">
-  <Bold />
-</Toggle>;
-```
+<ComponentPreview name="toggle" file="components/preview/toggle.tsx" />
 
 ## Examples
 
-### Sizes & States
+### Outline
 
-One look (**no variant prop**) in three sizes (`sm`, `md`, `lg`). Icons compose as children via
-`lucide-react`. The toggle is a ghost at rest; when pressed it takes the system's one selected-chip
-look — an evident neutral ink tint with a hairline, never a brand colour — so the "on" state reads
-clearly. That look is the shared `selectedChipVariants` recipe, so a pressed `Toggle`, a pressed
-`ToggleGroup` item, a `Segmented` chip and an active pill tab are the same thing by construction; a
-pressed toggle also still hovers (the tint strengthens) and still presses (it drops back, previewing
-the release). The states row shows off, on (`defaultPressed`), disabled, and disabled+on. A genuine
-selection (single/multi) belongs in `ToggleGroup`, whose pressed items take the exact same fill.
+Use `variant="outline"` for an outline style.
 
-<ComponentPreview
-  name="toggleSizesAndStates"
-  file="components/preview/toggle.tsx"
-/>
+<ComponentPreview name="toggleOutline" file="components/preview/toggle.tsx" />
 
-## Playground
+### With Text
 
-Try the three sizes and the disabled and default-pressed states, then copy the generated JSX.
+A toggle takes an icon, a label, or both. The icon reacts to the pressed state through the
+`group/toggle` class the recipe puts on the root — `group-aria-pressed/toggle:fill-foreground`
+fills a bookmark once it is on.
 
-<TogglePlayground />
+<ComponentPreview name="toggleWithText" file="components/preview/toggle.tsx" />
+
+### Size
+
+Use the `size` prop to change the size of the toggle.
+
+<ComponentPreview name="toggleSize" file="components/preview/toggle.tsx" />
+
+### Disabled
+
+A disabled toggle keeps its pointer events (FRM-4), so a Tooltip can explain why it is unavailable.
+Base UI's Toggle has no `focusableWhenDisabled`, so the native `disabled` attribute stays and the
+control leaves the tab order — this is the pointer half of FRM-4 only.
+
+<ComponentPreview name="toggleDisabled" file="components/preview/toggle.tsx" />
+
+### RTL
+
+Every size is written in logical properties, so a right-to-left document mirrors padding and icon
+spacing without any extra work.
+
+<ComponentPreview name="toggleRtl" file="components/preview/toggle.tsx" />
+
+### Loading
+
+`loading` is ours (API-5). It shows a spinner over the label, sets `aria-busy`, blocks activation,
+and keeps the label's box at `opacity: 0` — so the toggle's width does not move and its accessible
+name survives (A11Y-12).
+
+<ComponentPreview name="toggleLoading" file="components/preview/toggle.tsx" />
 
 ## API Reference
 
-<ApiTable path="../../packages/ui/registry/ui/toggle.tsx" name="ToggleProps" />
+<ApiTable path="lib/api-props.ts" name="ToggleProps" />
 
 ## Accessibility
 
-- Renders a native `<button>` with `aria-pressed` reflecting the on/off state — keyboard
-  <kbd>Enter</kbd> / <kbd>Space</kbd> toggle it.
-- The pressed state is also exposed as `data-pressed` for styling; never style state with `outline: none`.
-- The component adds no custom ring class of its own and never sets `outline: none`, so keyboard focus shows the design system's global 2px `:focus-visible` ring (`outline-ring`) — keep it visible; never remove it with `outline: none`.
-- Icon-only toggles **must** have an `aria-label` (or visible text) so the action is announced.
-- `disabled` removes the toggle from the tab order and blocks interaction.
+- Renders a native `<button>` through Base UI's Toggle, carrying `aria-pressed` for the on/off
+  state; <kbd>Enter</kbd> and <kbd>Space</kbd> flip it.
+- On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1). The recipe carries no
+  focus ring, no `ring-3` glow and no `outline-none` of its own (FOC-6).
+- An icon-only toggle has no visible text — give it an `aria-label`, as every example here does.
+- `loading` sets `aria-busy="true"` and keeps the label in the accessibility tree (A11Y-12).
+- The pressed state is never carried by colour alone: the fill changes and `aria-pressed` changes
+  with it.
 
 <StatesTested name="toggle" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use a Toggle for a binary on/off control that stays in the UI, like a bold or mute button — and give icon-only toggles an aria-label."
-  dont="Use a Toggle for a one-shot action (use a Button) or for mutually-exclusive options (use a ToggleGroup or Radio Group)."
+  do="Give every toggle an aria-label that names the thing being toggled, not the current state."
+  dont="Use a Toggle for a form value that must submit — that is a Checkbox or a Switch."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/toggle.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the `focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50`
+  glow and the `outline-none` that suppressed the global outline are removed, along with the
+  `aria-invalid:ring-destructive/20` and `dark:aria-invalid:ring-destructive/40` halos.
+- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive`, so focus
+  outranks it.
+- **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled toggle stays hoverable and a
+  Tooltip can explain it. Base UI's Toggle has no `focusableWhenDisabled`, so the native `disabled`
+  attribute stays: this is the pointer half of FRM-4 only.
+- **API-5, A11Y-12** — the `loading` prop, the out-of-flow spinner and the `opacity-0` label; the
+  dim is scoped to `disabled:not-data-loading:opacity-50` so a loading toggle is not dimmed twice.
+  This is why `toggle` depends on the `spinner` registry item.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

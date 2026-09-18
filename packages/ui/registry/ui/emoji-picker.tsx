@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.9.1 sha256-/XFurOfqTVMFdPFazSrcwF5mcK6e1JC43Wzx6sy/wGA=
+// @vegastack emoji-picker@0.9.1 sha256-0fRZXnAAcd29b6LcxUcP8zC0jb5ttmW9e69Cmd9gGSY=
 
 "use client";
 
@@ -10,12 +10,9 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { IconButton } from "@/components/ui/icon-button";
-import {
-  PanelSearchFrame,
-  PanelSearchInput,
-} from "@/components/ui/floating-surface";
+import { Button } from "@/components/ui/button";
 import { useListNav } from "@/components/ui/use-list-nav";
+import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 
 /* ------------------------------------------------------------------------------------------------
  * EmojiPicker — a Popover-housed, searchable grid of emoji, grouped by category, that returns the
@@ -595,14 +592,14 @@ export function EmojiPicker({
         ref={ref}
         render={
           trigger ?? (
-            <IconButton
+            <Button
               variant="ghost"
-              size="sm"
+              size="icon-sm"
               className="text-muted-foreground"
               aria-label={triggerLabel}
             >
               <SmilePlus />
-            </IconButton>
+            </Button>
           )
         }
       />
@@ -612,22 +609,22 @@ export function EmojiPicker({
         align={align}
         sideOffset={FLOATING.sideOffsetAttached}
         className={cn(
-          "w-(--panel-width-md) max-w-[calc(100vw-var(--spacing)*8)] p-0",
+          "w-72 max-w-[calc(100vw-var(--spacing)*8)] p-0",
           className,
         )}
       >
         <div className="flex flex-col">
           {/* Search — the shared in-panel recipe: leading glyph, no box of its own, hairline
               below. A bordered `Input` inside a bordered popup nests two borders (B8-04). */}
-          <PanelSearchFrame>
-            <PanelSearchInput
+          <PanelSearch>
+            <PanelSearchField
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
               data-slot="emoji-picker-search"
             />
-          </PanelSearchFrame>
+          </PanelSearch>
           <div
             data-slot="emoji-picker-status"
             role="status"
@@ -650,7 +647,7 @@ export function EmojiPicker({
                 let flatIndex = -1;
                 return filtered.map(({ category, entries }) => (
                   <div key={category} className="mb-2 last:mb-0">
-                    <div className="px-1 py-1 text-label-sm text-muted-foreground">
+                    <div className="px-1 py-1 text-xs font-medium text-muted-foreground">
                       {category}
                     </div>
                     <div
@@ -666,11 +663,11 @@ export function EmojiPicker({
                         flatIndex += 1;
                         const index = flatIndex;
                         return (
-                          <IconButton
+                          <Button
                             key={entry.char}
                             type="button"
                             variant="ghost"
-                            size="md"
+                            size="icon"
                             data-slot="emoji-picker-item"
                             aria-label={entry.name}
                             title={entry.name}
@@ -680,10 +677,10 @@ export function EmojiPicker({
                               setActiveIndex(index);
                               handleSelect(entry.char);
                             }}
-                            className="text-xl leading-none"
+                            className="text-lg leading-none"
                           >
                             <span aria-hidden>{entry.char}</span>
-                          </IconButton>
+                          </Button>
                         );
                       })}
                     </div>
@@ -694,7 +691,7 @@ export function EmojiPicker({
               <div
                 data-slot="emoji-picker-empty"
                 aria-hidden="true"
-                className="py-6 text-center text-base text-muted-foreground"
+                className="py-6 text-center text-sm text-muted-foreground"
               >
                 No emoji found.
               </div>

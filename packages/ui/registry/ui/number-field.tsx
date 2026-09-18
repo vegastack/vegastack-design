@@ -1,24 +1,33 @@
-// @vegastack number-field@0.9.1 sha256-gNwEG6AkZQTi6uktdg9y/4G5pmgpDPo1B+Lq3JI3qJA=
+// @vegastack number-field@0.9.1 sha256-Xz2lv4DPDzznPxOd1QUxy23KITahktgb9IHWgypInV0=
 
 "use client";
 
 import * as React from "react";
 import { Minus, Plus } from "lucide-react";
 import { NumberField as BaseNumberField } from "@base-ui/react/number-field";
+import { cn } from "@vegastack/design";
 import {
-  cn,
-  fieldControlGroup,
-  surfaceInteractiveGroup,
-} from "@vegastack/design";
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 /* ---
-`NumberField` exists because the roster had no numeric input at all: quantities, limits,
-percentages and money were all being typed into a text `Input` with hand-rolled parsing.
+`NumberField` exists because the roster has no numeric input otherwise: quantities, limits,
+percentages and money would all be typed into a text `Input` with hand-rolled parsing.
 Base UI's NumberField supplies the hard parts — locale-aware parsing/formatting
 (`format: Intl.NumberFormatOptions` + `locale`), min/max/step with snap, keyboard
-stepping, wheel scrub — so this wrapper's job is chrome: Input's exact addon-group
-visual (border, focus tint, invalid, disabled, dark input wash, the 28/32/40 size
-scale) with full-height stepper buttons.
+stepping, wheel scrub — and everything this file renders is upstream's:
+`InputGroup` is the bordered box (border, focus border, invalid, disabled, dark wash),
+`InputGroupInput` is upstream `Input` flattened into it, and each stepper is an
+`InputGroupButton`, which is upstream `Button`. Nothing here restates a class string
+one of those already owns.
+
+FRM-13 is the one exception and it is a LAYOUT, not a recipe: the steppers FLANK the
+field at full height instead of stacking as half-height spinners, so each pointer target
+is ≥24×32 without a hit-area expansion — which stacked spinners cannot manage inside a
+32px control. The wash and the ink step are the ghost Button's own.
 
 Money is a format prop, not a component: pass
 `format={{ style: "currency", currency: "INR" }}`. A CRM-specific `money-input` in a
@@ -30,10 +39,12 @@ Deliberately NOT done here:
 - No `ScrubArea`. Pointer-scrubbing on a label is a power affordance with no keyboard
   or touch equivalent; consumers who want it compose `BaseNumberField.ScrubArea`
   directly inside a custom `prefix`.
-- No native `size` attribute. Like `Input`, the `size` prop is the control-height
-  variant (`--size-sm/md/lg`) and deliberately replaces the numeric HTML attribute.
-- No re-exposed `Group` part. The root IS the bordered group here; splitting parts
-  would only invite layouts the chrome cannot honour.
+- No control-height scale. Upstream deleted the 28/32/40 `size` prop from `Input`,
+  `Textarea`, `Select` and the rest in Batch 3 of the shadcn reset, and this control
+  does not get to be the one that keeps it. The box is `InputGroup`'s; a caller who
+  needs another height passes a height class in `className`.
+- No re-exposed `Group` part. The root IS the `InputGroup` here; splitting parts would
+  only invite layouts the chrome cannot honour.
 --- */
 
 /** Props accepted by `NumberField`. */
@@ -41,13 +52,6 @@ export interface NumberFieldProps extends Omit<
   React.ComponentProps<typeof BaseNumberField.Root>,
   "className" | "prefix"
 > {
-  /**
-   * Control height on the shared 28/32/40 scale (`--size-sm/md/lg`), matching
-   * `Input`/Button/Select. (The native numeric `size` attribute is intentionally
-   * replaced by this variant prop, exactly as on `Input`.)
-   * @default 'md'
-   */
-  size?: "sm" | "md" | "lg";
   /**
    * Accessible name for the numeric input. Required in practice unless a
    * wrapping `Field`/`aria-labelledby` supplies one — the input must never be
@@ -57,14 +61,22 @@ export interface NumberFieldProps extends Omit<
    */
   "aria-label"?: string;
   /**
+   * Marks the value invalid. It lands on the inner `<input>` as well as the group, because
+   * upstream's `InputGroup` paints its invalid hairline from a descendant selector.
+
+   * @default undefined
+   */
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+  /**
    * Placeholder for the empty input.
 
    * @default undefined
    */
   placeholder?: string;
   /**
-   * Non-editable addon before the input (a unit, an icon, a currency code) —
-   * `Input`'s addon idiom. Plain strings render as muted, non-selectable text.
+   * Non-editable addon before the input (a unit, an icon, a currency code),
+   * rendered in an upstream `InputGroupAddon`. Plain strings read as muted,
+   * non-selectable text.
 
    * @default undefined
    */
@@ -82,7 +94,7 @@ export interface NumberFieldProps extends Omit<
    * @default false
    */
   hideControls?: boolean;
-  /** Extra classes for the bordered group root.
+  /** Extra classes for the `InputGroup` root.
    * @default undefined
    */
   className?: string;
@@ -102,96 +114,29 @@ export interface NumberFieldProps extends Omit<
 }
 
 /**
- * Group layout only. The border, focus tint, invalid tint, disabled wash and dark input tint
- * are `fieldControlGroup` — the one wrapper recipe `Input`'s addon mode, ChipInput and the
- * Combobox input-group also wear (audit B1-11), so the four can no longer drift apart.
- * `data-field-group` on the root is what lets `base.css` paint the forced-colours focus outline
- * on the GROUP instead of on the inner input, whose own outline this `overflow-hidden` clips.
+ * FRM-13's stepper geometry, and the whole of what this file adds to upstream's button: the
+ * control is the field's full height and ≥24px wide, square on the inside edge so it meets the
+ * group's hairline cleanly, and it carries the negative outline offset the group's `overflow`
+ * would otherwise clip (FOC-9).
  */
-const groupClasses =
-  "flex w-full min-w-0 items-center overflow-hidden text-base";
-
-const sizeClasses = {
-  sm: "h-(--size-sm) text-sm",
-  md: "h-(--size-md)",
-  lg: "h-(--size-lg)",
-} as const;
+const stepperClasses =
+  "h-auto w-7 shrink-0 self-stretch rounded-none p-0 focus-visible:-outline-offset-2 has-[>svg]:p-0";
 
 /**
- * Addon-slot classes — `Input`'s, plus the rules an INTERACTIVE addon needs. The suffix slot is
- * the documented seat for the money recipe's currency `Select` (see `suffix`), and a pressable
- * control dropped in there inherited two defects the steppers had already been fixed for
- * (appearance probe 2026-09-07, SP-02/SP-03 residue):
- *
- *   - its hover wash ran flush into the field's top and bottom hairlines — a `sm` trigger is 28px
- *     inside a 30px inner box, so the wash sat 1px off the rule and read as a rendering bug;
- *   - its `:focus-visible` outline is drawn OUTSIDE its box, and the root is `overflow-hidden`,
- *     so the ring was clipped away on both edges.
- *
- * Both are fixed here rather than at each call site, because the slot is what knows it lives
- * inside a clipping, hairlined group: the span stretches to the full inner height, insets its
- * content by 4px (design.md's hover-geometry floor), and hands a button child the inner radius
- * and the sanctioned negative outline offset. A text or icon addon is untouched — the rules are
- * scoped to a `button` child.
+ * The addon that HOLDS a stepper, rather than a unit or an icon: it gives up its own padding and
+ * the −0.3rem inset upstream applies to a button addon (that inset exists to pull a small ghost
+ * control back off the box's inner edge; here the control IS the edge), and stretches so the
+ * button's full height has something definite to stretch against.
  */
-// `join(" ")`, not `+`: a trailing space inside a concatenated string literal is invisible to the
-// reader and removable by a formatter, and when one goes the two class names weld into a token
-// Tailwind never compiles and nothing errors on (commit b2c2e964 did exactly that to four sites in
-// this repo). An array cannot be broken that way.
-const addonClasses = [
-  "flex shrink-0 self-stretch items-center py-1 text-muted-foreground select-none whitespace-nowrap",
-  "[&>button]:relative [&>button]:h-full [&>button]:rounded-sm [&>button]:focus-visible:-outline-offset-2",
-  // The 4px inset leaves a 22px control in an `md` field, under the 24px pointer floor — the two
-  // rules cannot both be paid for out of 32px of height. So the PAINT is inset and the TARGET is
-  // not: the standard invisible hit area gives the control back the 4px it just gave up, exactly
-  // as `RelativeTime`, `Marker` and `Switch` do. It reaches into this slot's own padding, so the
-  // root's `overflow-hidden` never clips it (a clipped area stops being hit-testable — see the
-  // `timeline` entry in the bugs ledger).
-  "[&>button]:before:absolute [&>button]:before:inset-x-0 [&>button]:before:-inset-y-1 [&>button]:before:content-['']",
-].join(" ");
+const stepperSlotClasses =
+  "self-stretch p-0 has-[>button]:ms-0 has-[>button]:me-0";
 
 /**
- * Full-height stepper buttons flanking the field ([−] input [+]): each is the
- * control's full height and ≥ 24px wide, so the pointer targets meet WCAG 2.5.8
- * without a hit-area expansion — unlike the traditional half-height stacked
- * spinners, which cannot. They keep the centralized `:focus-visible` outline
- * (never `outline-none` — P0-02) with the sanctioned negative offset so the
- * root's `overflow-hidden` cannot clip it.
- */
-const stepperClasses = [
-  "group/wash flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground",
-  "hover:text-foreground",
-  "focus-visible:-outline-offset-2",
-  "disabled:opacity-(--opacity-dim)",
-  "data-disabled:opacity-(--opacity-dim)",
-].join(" ");
-
-/**
- * The stepper's wash is an INSET CHIP inside the button, never the button's own background
- * (audit SP-02). Full-bleed `hover:bg-surface-2` ran the fill flush into the field's hairline on
- * three sides and met the rounded outer corner with a square one; `design.md`'s hover-geometry
- * rule ("a wash is inset ≥4px from a container hairline and inherits its inner radius") exists
- * because of exactly this defect. `p-1` on the button insets the chip by 4px and `rounded-sm`
- * gives it a corner of its own, so a 28×32 stepper hovers as a 20×24 chip. The button keeps the
- * full pointer target and the ink step; only the paint moved inward.
- *
- * The two rungs themselves are NOT written here: `surfaceInteractiveGroup` is the group-scoped
- * twin of `@vegastack/design`'s `surfaceInteractive`, so this chip climbs the same ladder as every
- * other transparent control and retuning the ladder is still one edit.
- */
-const stepperFillClasses = cn(
-  "flex size-full items-center justify-center rounded-sm",
-  surfaceInteractiveGroup,
-  "group-disabled/wash:bg-transparent group-data-disabled/wash:bg-transparent",
-);
-
-/**
- * `NumberField` — a locale-aware numeric input on Base UI's NumberField, in
- * `Input`'s exact field chrome. Formatting is `Intl`: pass
- * `format={{ style: "percent" }}`, `{ style: "currency", currency: "EUR" }`,
- * or unit options, plus `locale` to pin one. `min`/`max`/`step` (with
- * `snapOnStep`), keyboard stepping (arrows; <kbd>Shift</kbd> for `largeStep`,
- * <kbd>Alt</kbd> for `smallStep`), and wheel scrubbing all come from Base UI.
+ * `NumberField` — a locale-aware numeric input on Base UI's NumberField, wearing upstream's
+ * `InputGroup` chrome. Formatting is `Intl`: pass `format={{ style: "percent" }}`,
+ * `{ style: "currency", currency: "EUR" }`, or unit options, plus `locale` to pin one.
+ * `min`/`max`/`step` (with `snapOnStep`), keyboard stepping (arrows; <kbd>Shift</kbd> for
+ * `largeStep`, <kbd>Alt</kbd> for `smallStep`), and wheel scrubbing all come from Base UI.
  *
  * Money is a recipe, not a separate component: currency `format` here, and the
  * app's field layer converts integer minor units (cents) to display units.
@@ -209,8 +154,8 @@ const stepperFillClasses = cn(
  * />
  */
 export function NumberField({
-  size = "md",
   "aria-label": ariaLabel,
+  "aria-invalid": ariaInvalid,
   placeholder,
   prefix,
   suffix,
@@ -223,67 +168,71 @@ export function NumberField({
   return (
     <BaseNumberField.Root
       data-slot="number-field"
-      data-size={size}
+      // `data-field-group` is what lets `base.css` paint the forced-colours focus outline (FOC-7)
+      // on the GROUP rather than on the inner input, whose own outline the group would clip.
       data-field-group=""
-      className={cn(
-        fieldControlGroup,
-        groupClasses,
-        sizeClasses[size],
-        className,
-      )}
+      // `aria-invalid` is mirrored onto the INPUT below as well as kept here, because upstream's
+      // InputGroup paints its invalid hairline through `:has([data-slot][aria-invalid=true])` — a
+      // DESCENDANT selector, which the root can never satisfy for itself. The 2026-09-09 defect
+      // this repeats was the same shape against the old hand-rolled chrome, and
+      // `control-paint.browser.test.tsx` measures it against a plain invalid `Input`.
+      aria-invalid={ariaInvalid}
+      render={<InputGroup />}
+      className={cn("overflow-hidden", className)}
       {...rootProps}
     >
       {hideControls ? null : (
-        <BaseNumberField.Decrement
-          data-slot="number-field-decrement"
-          aria-label="Decrease"
-          className={cn(stepperClasses, "border-e border-input")}
-        >
-          <span className={stepperFillClasses}>
-            <Minus className="size-(--icon-compact)" aria-hidden />
-          </span>
-        </BaseNumberField.Decrement>
+        <InputGroupAddon align="inline-start" className={stepperSlotClasses}>
+          <InputGroupButton
+            render={<BaseNumberField.Decrement />}
+            data-slot="number-field-decrement"
+            aria-label="Decrease"
+            className={cn(stepperClasses, "border-e border-input")}
+          >
+            <Minus />
+          </InputGroupButton>
+        </InputGroupAddon>
       )}
-      {prefix != null ? (
-        <span
+      {prefix == null ? null : (
+        <InputGroupAddon
+          align="inline-start"
           data-slot="number-field-prefix"
-          className={cn(addonClasses, "ps-3")}
+          className={hideControls ? undefined : "ps-2"}
         >
           {prefix}
-        </span>
-      ) : null}
+        </InputGroupAddon>
+      )}
       <BaseNumberField.Input
+        // No `data-slot` of its own: the inner control keeps upstream's
+        // `data-slot="input-group-control"`, which is the hook `InputGroup` selects on for BOTH
+        // its focus border and its invalid hairline. Renaming it would silently unpaint the box.
+        render={<InputGroupInput />}
         ref={inputRef}
-        data-slot="number-field-input"
         aria-label={ariaLabel}
+        aria-invalid={ariaInvalid}
         placeholder={placeholder}
-        className={cn(
-          "h-full w-full min-w-0 flex-1 bg-transparent py-1 text-inherit outline-hidden",
-          "placeholder:text-muted-foreground-faint",
-          "disabled:cursor-not-allowed",
-          prefix != null ? "ps-1.5" : "ps-3",
-          suffix != null ? "pe-1.5" : "pe-3",
-          inputClassName,
-        )}
+        className={inputClassName}
       />
-      {suffix != null ? (
-        <span
+      {suffix == null ? null : (
+        <InputGroupAddon
+          align="inline-end"
           data-slot="number-field-suffix"
-          className={cn(addonClasses, "pe-3")}
+          className={hideControls ? undefined : "pe-2"}
         >
           {suffix}
-        </span>
-      ) : null}
+        </InputGroupAddon>
+      )}
       {hideControls ? null : (
-        <BaseNumberField.Increment
-          data-slot="number-field-increment"
-          aria-label="Increase"
-          className={cn(stepperClasses, "border-s border-input")}
-        >
-          <span className={stepperFillClasses}>
-            <Plus className="size-(--icon-compact)" aria-hidden />
-          </span>
-        </BaseNumberField.Increment>
+        <InputGroupAddon align="inline-end" className={stepperSlotClasses}>
+          <InputGroupButton
+            render={<BaseNumberField.Increment />}
+            data-slot="number-field-increment"
+            aria-label="Increase"
+            className={cn(stepperClasses, "border-s border-input")}
+          >
+            <Plus />
+          </InputGroupButton>
+        </InputGroupAddon>
       )}
     </BaseNumberField.Root>
   );

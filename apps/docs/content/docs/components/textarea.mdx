@@ -1,6 +1,6 @@
 ---
 title: Textarea
-description: A styled native textarea for multi-line text — error and disabled states, a focus border tint, and an optional auto-grow mode.
+description: A styled native textarea for multi-line text — it grows with its content, and signals focus with a border tint rather than a ring.
 audience: public
 registry: textarea
 status: stable
@@ -18,96 +18,102 @@ preview: textarea
 ```tsx
 import { Textarea } from "@/components/ui/textarea";
 
-<Textarea placeholder="Tell us about your project…" />;
+<Textarea placeholder="Type your message here." />;
 ```
 
-`Textarea` is a thin wrapper over the native `<textarea>`, so every standard
-attribute (`value`/`defaultValue`, `onChange`, `name`, `rows`, `required`,
-`readOnly`, `maxLength`, …) works as expected, and its ref forwards to the
-underlying element. It shares its border and token styling with
-[`Input`](/docs/components/input) so the two fields look identical.
+<ComponentPreview name="textarea" file="components/preview/textarea.tsx" />
 
 ## Examples
 
+### Field
+
+Use `Field`, `FieldLabel` and `FieldDescription` to give the textarea a label and helper text.
+
+<ComponentPreview name="textareaField" file="components/preview/textarea.tsx" />
+
+### Disabled
+
+Use `disabled`, and add `data-disabled` to the `Field` so the label dims with it.
+
+<ComponentPreview
+  name="textareaDisabled"
+  file="components/preview/textarea.tsx"
+/>
+
+### Invalid
+
+Use `aria-invalid`, and add `data-invalid` to the `Field`. The tint is scoped to `not-focus:`
+(FOC-5), so a focused textarea shows its focus cue rather than the error colour.
+
+<ComponentPreview
+  name="textareaInvalid"
+  file="components/preview/textarea.tsx"
+/>
+
+### Button
+
+Pair with a `Button` to make a submit composition.
+
+<ComponentPreview
+  name="textareaButton"
+  file="components/preview/textarea.tsx"
+/>
+
+### RTL
+
+The padding is written in logical properties, so a right-to-left document mirrors it without any
+extra work.
+
+<ComponentPreview name="textareaRtl" file="components/preview/textarea.tsx" />
+
 ### States
 
-The field reflects `disabled`, `readOnly`, and `aria-invalid`. The invalid state
-re-colors the border with the `destructive` token — pair it with a
-visible error message for non-color-dependent feedback. It resizes vertically by
-default; the last example below uses `autoGrow` to size to its content instead.
+Rest, filled, invalid and disabled in one frame.
 
 <ComponentPreview
   name="textareaStates"
   file="components/preview/textarea.tsx"
 />
 
-### Sizes
-
-`sm` / `md` / `lg`. A multiline field sizes by **minimum height** and padding rather than the fixed
-control heights a single-line [`Input`](/docs/components/input) uses — a textarea grows with its
-content, so a fixed height would be the wrong contract — and `sm` steps the type down a tier with it.
-
-<ComponentPreview name="textareaSizes" file="components/preview/textarea.tsx" />
-
-```tsx
-<Textarea size="sm" aria-label="Compact" />
-<Textarea size="md" aria-label="Default" />
-<Textarea size="lg" aria-label="Roomy" />
-```
-
-### Auto-grow
-
-Pass `autoGrow` to grow the field to fit its content instead of scrolling, using
-native CSS `field-sizing: content`. Set a starting height with `rows` and cap the
-growth with a `max-h-*` utility via `className`. The first field below is a normal
-fixed-height textarea (it scrolls); the second is the live `autoGrow` field — type
-into it (or edit the text) and it grows line by line until it hits the `max-h-40`
-cap, then scrolls.
-
-<ComponentPreview
-  name="textareaAutoGrow"
-  file="components/preview/textarea.tsx"
-/>
-
-```tsx
-<Textarea autoGrow rows={2} className="max-h-40" placeholder="Auto-grows…" />
-```
-
 ## Playground
 
-Try every size with the auto-grow, disabled, and invalid states, then copy the generated JSX.
+Try the starting height with the disabled and invalid states, then copy the generated JSX.
 
 <TextareaPlayground />
 
 ## API Reference
 
-<ApiTable
-  path="../../packages/ui/registry/ui/textarea.tsx"
-  name="TextareaProps"
-/>
+<ApiTable path="lib/api-props.ts" name="TextareaProps" />
 
 ## Accessibility
 
-- Renders a native `<textarea>` — always associate a visible `<label>` (wrap it or
-  use `htmlFor`/`id`); use `aria-label` only when a visible label is impossible.
-- The surface uses `outline-hidden` — a **transparent** 2px outline, not a removed one — and
-  replaces it with the text-field focus treatment: on focus the border re-colors with the `ring`
-  token (`focus:border-ring/(--alpha-tint-border)`). The darkened border is the sole focus cue in
-  normal colours, matching [`Input`](/docs/components/input). Under `forced-colors: active` the
-  border tint is erased by the forced palette, and the transparent outline is what that palette
-  repaints — which is why the outline is hidden rather than removed.
-- Set `aria-invalid` (and `aria-describedby` pointing at the error text) to mark a
-  field invalid; the styling is token-driven and never relies on color alone. **Focus outranks
-  invalid**: while the textarea is focused the border carries the `ring` tint, and the destructive
-  tint returns on blur — the border is the field's only focus cue, so nothing else may hold it.
-- The resize handle and `autoGrow` are visual conveniences only — keyboard and
-  screen-reader interaction is the standard native `<textarea>` behavior.
+- Renders a native `<textarea>`, so the platform owns selection, IME composition and spellcheck.
+- Focus is a **border tint on `:focus`**, not a ring, and the global outline is suppressed with
+  `outline-hidden` (FOC-3, FOC-8). The tint fires for mouse and keyboard alike, because a text field
+  cannot tell them apart and both need the caret located.
+- Under `forced-colors: active` the tint disappears with every authored colour, so `base.css` paints
+  a 2px `Highlight` outline on `textarea:focus` instead (FOC-7).
+- `field-sizing: content` grows the box with the text, so nothing is hidden behind a scrollbar at
+  small sizes.
+- Give it a label: `FieldLabel` bound with `htmlFor`, or an `aria-label`.
 
 <StatesTested name="textarea" />
 
 ## Do / Don't
 
 <DoDont
-  do="Pair every textarea with a label and, when invalid, an aria-describedby error message."
-  dont="Use aria-invalid styling as the only error signal, or rely on placeholder text as a label."
+  do="Use a Textarea for free-form multi-line text — a description, a comment, a note."
+  dont="Use a Textarea for rich text — that is the editor."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/textarea.patch`. Every hunk:
+
+- **FOC-1, FOC-3, FOC-6, FOC-8** — `outline-none focus-visible:border-ring focus-visible:ring-3
+focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70`: a border tint on
+  `:focus` and no glow. `outline-hidden` rather than `outline-none`, so the forced-colours
+  fallback has something to repaint.
+- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
+  counterpart), so focus outranks it; the `aria-invalid` halo rings are removed with the rest.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

@@ -1,4 +1,4 @@
-// @vegastack use-animation-replay@0.9.1 sha256-e/SB4qpRAyCbNX35x//MGKcHbObaqlfmJhT4Cmo0Z10=
+// @vegastack use-animation-replay@0.9.1 sha256-btLX/O1lAAEhx2Sn7gPg1SppKuEUAIrE5YSs6GqJtoA=
 
 "use client";
 
@@ -74,7 +74,7 @@ export interface UseAnimationReplayResult {
  *   return (
  *     <button onClick={replay.replay}>
  *       <Check
- *         className={cn('size-(--icon-default)', replay.className)}
+ *         className={cn('size-4', replay.className)}
  *         onAnimationEnd={replay.onAnimationEnd}
  *       />
  *     </button>

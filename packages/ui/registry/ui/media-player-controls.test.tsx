@@ -118,7 +118,7 @@ function injectVolumeRailStyleMirror(): () => void {
       padding: 8px;
       width: 40px;
     }
-    [data-slot="media-player-volume-surface"] [data-slot="slider-control"] {
+    [data-slot="media-player-volume-surface"] [data-slot="slider"] > * {
       box-sizing: border-box;
       height: 80px;
       width: 24px;
@@ -231,7 +231,8 @@ test("reveals the volume rail on focus and sets media volume", async () => {
       volume.querySelector('[data-slot="media-player-volume-panel"]'),
     ).toBeNull();
 
-    within(volume, "button").focus();
+    const mute = within(volume, "button");
+    mute.focus();
     const rail = await vi.waitFor(() =>
       within(
         volume,
@@ -243,11 +244,35 @@ test("reveals the volume rail on focus and sets media volume", async () => {
     expect(rail.getAttribute("aria-orientation")).toBe("vertical");
     expect(rail.getAttribute("aria-label")).toBe("Demo media volume");
 
-    // The rail is the next tab stop after mute, and driving it drives the media
-    // element's volume — the whole point of B4-04 for audio.
-    await userEvent.keyboard("{Tab}");
-    expect(document.activeElement).toBe(rail);
-    await userEvent.keyboard("{ArrowDown}");
+    // The rail is the next tab stop after mute, and driving it drives the media element's volume —
+    // the whole point of B4-04 for audio. Asserted on DOCUMENT ORDER rather than by pressing Tab:
+    // since Batch 3 of the shadcn reset the real control is Base UI's hidden `<input type="range">`
+    // inside the thumb, and it takes focus as the panel opens, so a literal Tab from mute now lands
+    // one stop FURTHER on. Document order is the fact the claim was always about.
+    const focusables = [
+      ...compact.querySelectorAll<HTMLElement>("button, input"),
+    ];
+    expect(focusables[focusables.indexOf(mute) + 1]).toBe(rail);
+
+    rail.focus();
+    // `Home`, not an arrow: a vertical slider's real control is a native range input in
+    // `writing-mode: vertical-lr`, where the platform decides which arrow walks which way — and the
+    // rail starts at max, so half the mappings are a no-op. `Home` is min in every mapping, which
+    // is what makes this assert the WIRING rather than a key map.
+    // Drive the rail the way its own control is driven. Since Batch 3 of the shadcn reset the
+    // control is Base UI's visually hidden `<input type="range">`: it is clipped to a 1px box, so
+    // neither a hit test nor `userEvent.keyboard` reaches it in this CSS-free lane, and the
+    // vertical rail additionally runs in `writing-mode: vertical-lr`, where the platform decides
+    // which arrow walks which way. Setting the value through the native setter and dispatching
+    // `input`/`change` is exactly the event pair a keypress produces, so the WIRING is what is
+    // asserted rather than a key map.
+    const setRangeValue = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )!.set!;
+    setRangeValue.call(rail, "40");
+    rail.dispatchEvent(new Event("input", { bubbles: true }));
+    rail.dispatchEvent(new Event("change", { bubbles: true }));
     await vi.waitFor(() => {
       expect(mediaRef.current!.volume).toBeLessThan(1);
     });
@@ -372,10 +397,22 @@ test("the seek slider asks for a touch-visible thumb (B4-04)", async () => {
     screen.container,
     '[data-slot="media-player-progress"] [data-slot="slider"]',
   );
-  // `thumb="hover"` is the Slider API; the component — not the player — owns
-  // the "visible at rest under (hover: none)" rule.
-  expect(seek.getAttribute("data-thumb")).toBe("hover");
-  expect(seek.getAttribute("data-variant")).toBe("media");
+  // Batch 3 of the shadcn reset put Slider back on upstream's file, which has ONE look and no
+  // `variant`/`thumb` axis, so the three media looks are call-site class strings on the Slider
+  // root (`MEDIA_SLIDER` / `OVERLAY_SLIDER` / `HOVER_THUMB` in media-player-controls.tsx). The
+  // rule this test exists for is unchanged and still asserted: the thumb is hidden at rest ONLY
+  // where a pointer can hover, so a touch device keeps its scrub handle.
+  const classes = seek.className;
+  expect(classes).toContain(
+    "[@media(hover:hover)]:[&_[data-slot=slider-thumb]]:opacity-0",
+  );
+  expect(classes).toContain("hover:[&_[data-slot=slider-thumb]]:opacity-100");
+  expect(classes).toContain(
+    "focus-within:[&_[data-slot=slider-thumb]]:opacity-100",
+  );
+  // The in-page player wears the muted media ink, not the overlay's.
+  expect(classes).toContain("[&_[data-slot=slider-range]]:bg-muted-foreground");
+  expect(classes).not.toContain("bg-media-foreground");
 });
 
 test("has no accessibility violations", async () => {
@@ -517,4 +554,132 @@ test("a re-render with a fresh callback identity does not reset the playback rat
   await userEvent.click(screen.getByRole("button", { name: "re-render" }));
 
   expect(media.playbackRate).toBe(2);
+});
+
+/**
+ * A frame that really enters document fullscreen, the way `video-player` does: the element passed
+ * to `requestFullscreen()` is the one wrapping the media AND its transport. `requestFullscreen`
+ * needs transient user activation, so the entry point is a real click.
+ */
+function FullscreenHost(
+  props: Partial<React.ComponentProps<typeof MediaPlayerControls>>,
+) {
+  const frameRef = React.useRef<HTMLDivElement>(null);
+  return (
+    <div ref={frameRef} data-testid="frame">
+      <button
+        type="button"
+        onClick={() => frameRef.current?.requestFullscreen()}
+      >
+        enter fullscreen
+      </button>
+      <Host variant="overlay" onFullscreenToggle={() => {}} {...props} />
+    </div>
+  );
+}
+
+test("control chrome portals into the fullscreen element (OVL-14)", async () => {
+  // The Fullscreen API paints the fullscreen subtree ONLY, so a portal to `<body>` is invisible:
+  // before decision OVL-14 a fullscreen player showed no control labels and no settings menu.
+  // OVL-14 gives upstream's `TooltipContent` and `DropdownMenuContent` a `container`
+  // pass-through, and this component hands them `document.fullscreenElement` while it contains
+  // the transport. What is asserted is the DOM position of the real chrome under real fullscreen.
+  const screen = await render(<FullscreenHost qualityOptions={["1080p"]} />);
+  const frame = screen.container.querySelector(
+    '[data-testid="frame"]',
+  ) as HTMLElement;
+
+  await userEvent.click(
+    screen.getByRole("button", { name: "enter fullscreen" }),
+  );
+  await vi.waitFor(() => {
+    if (document.fullscreenElement !== frame) {
+      throw new Error("not fullscreen yet");
+    }
+  });
+
+  try {
+    // A tooltip: hover the fullscreen control and find its popup inside the frame.
+    const fullscreen = frame.querySelector(
+      'button[aria-label="Fullscreen Demo media"]',
+    ) as HTMLElement;
+    await userEvent.hover(fullscreen);
+    const tip = await vi.waitFor(() => {
+      const node = document.querySelector('[data-slot="tooltip-content"]');
+      if (!node) throw new Error("no tooltip yet");
+      return node as HTMLElement;
+    });
+    expect(tip.textContent).toContain("Fullscreen (F)");
+    expect(frame.contains(tip)).toBe(true);
+
+    // The settings menu, which is the other portaled surface the gap swallowed.
+    await userEvent.click(
+      frame.querySelector(
+        'button[aria-label="Demo media settings"]',
+      ) as HTMLElement,
+    );
+    const menu = await vi.waitFor(() => {
+      const node = document.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      );
+      if (!node) throw new Error("no menu yet");
+      return node as HTMLElement;
+    });
+    expect(menu.textContent).toContain("Playback speed");
+    expect(frame.contains(menu)).toBe(true);
+  } finally {
+    // An open Base UI menu keeps a backdrop over the document, which would swallow the next
+    // test's pointer. Close it before leaving.
+    await userEvent.keyboard("{Escape}");
+    await document.exitFullscreen();
+    await vi.waitFor(() => {
+      if (document.fullscreenElement) throw new Error("still fullscreen");
+    });
+  }
+});
+
+test("control chrome portals to <body> when nothing is fullscreen (OVL-14)", async () => {
+  // The other half of OVL-14: the container is `null` unless the browser is painting a fullscreen
+  // element that CONTAINS this transport, so an ordinary in-page player keeps upstream's default
+  // and a page that fullscreens something else never captures these portals.
+  const screen = await render(
+    <Host variant="overlay" onFullscreenToggle={() => {}} />,
+  );
+  const frame = screen.container.firstElementChild as HTMLElement;
+  const fullscreen = screen.container.querySelector(
+    'button[aria-label="Fullscreen Demo media"]',
+  ) as HTMLElement;
+  await userEvent.hover(fullscreen);
+  const tip = await vi.waitFor(() => {
+    const node = document.querySelector('[data-slot="tooltip-content"]');
+    if (!node) throw new Error("no tooltip yet");
+    return node as HTMLElement;
+  });
+  expect(tip.textContent).toContain("Fullscreen (F)");
+  expect(frame.contains(tip)).toBe(false);
+  expect(document.body.contains(tip)).toBe(true);
+});
+
+test("the vertical volume rail releases upstream's 160px floor", async () => {
+  // Upstream's `Slider` floors its vertical Control at `min-h-40` (160px), which is 48px taller
+  // than this pill in the card variant and 80px taller in the overlay — and the pill does not
+  // clip, so before Batch 7c of the shadcn reset the rail hung out of the bottom of its own
+  // surface. Measured in the browser at the time: the control ran to 21338 inside a pill that
+  // ended at 21277.
+  //
+  // What is asserted HERE is the class contract, because this lane injects its own stylesheet
+  // (top of file) and would measure the mirror rather than the cascade. The PAINTED box is
+  // measured in `test/media-chrome.browser.test.tsx`, which compiles the real theme.
+  const screen = await render(<Host />);
+  const group = compactLayout(screen.container);
+  within(group, 'button[aria-label="Mute Demo media"]').focus();
+  const surface = await vi.waitFor(() =>
+    within(group, '[data-slot="media-player-volume-surface"]'),
+  );
+  const root = surface.querySelector('[data-slot="slider"]') as HTMLElement;
+  expect(root.className).toContain("*:min-h-0!");
+  // …and the two dead height classes that used to sit beside it are gone: upstream's root already
+  // carries `data-vertical:h-full` at a higher specificity, so the pill is what sizes the rail.
+  expect(root.className).not.toMatch(/(^|\s)h-20(\s|$)/);
+  expect(root.className).not.toContain("h-[calc(2.5rem");
 });

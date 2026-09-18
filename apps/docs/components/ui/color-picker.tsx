@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.9.1 sha256-EhqLSpgYz4cJ12xuyDdi7AjesuseHmSj7SaeQobUwyA=
+// @vegastack color-picker@0.9.1 sha256-87+875RZwuU9qv6xKH1cNU7j8a3d+96/aOKaaUlbEQg=
 
 "use client";
 
@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { IconButton } from "@/components/ui/icon-button";
+import { Button } from "@/components/ui/button";
 import { useListNav } from "@/components/ui/use-list-nav";
 
 /* ------------------------------------------------------------------------------------------------
@@ -193,11 +193,11 @@ export function ColorPicker({
         ref={ref}
         disabled={disabled}
         render={
-          <IconButton
+          <Button
             variant="outline"
-            size="sm"
+            size="icon-sm"
             aria-label={ariaLabel}
-            // Trigger is a control → `shape="square"` (the default); a swatch grid cell is round.
+            // The trigger is a control, so it keeps Button's own corner; a swatch grid cell is round.
             className={className}
           >
             <span
@@ -208,7 +208,7 @@ export function ColorPicker({
               // Dynamic swatch color, not a design token.
               style={selected ? { backgroundColor: selected.color } : undefined}
             />
-          </IconButton>
+          </Button>
         }
       />
       <PopoverContent
@@ -222,7 +222,8 @@ export function ColorPicker({
           onKeyDown={handleGridKeyDown}
           // Grid column count is dynamic (driven by `columns`). The inline style sets ONLY a CSS
           // custom property (`--swatch-cols`); the arbitrary-value class consumes it as the grid
-          // template — so no direct visual property is set inline (contract-clean per §7.1).
+          // template — so no direct visual property is set inline, which is what keeps this
+          // clear of the inline-style ban.
           className="grid gap-1.5 grid-cols-[repeat(var(--swatch-cols),minmax(0,1fr))]"
           style={
             { ["--swatch-cols"]: String(columnCount) } as React.CSSProperties
@@ -231,12 +232,11 @@ export function ColorPicker({
           {colors.map((color, index) => {
             const isSelected = color.name === value;
             return (
-              <IconButton
+              <Button
                 key={color.name}
                 type="button"
                 variant="ghost"
-                shape="round"
-                size="sm"
+                size="icon-sm"
                 disabled={disabled}
                 aria-label={color.label}
                 aria-pressed={isSelected}
@@ -247,7 +247,7 @@ export function ColorPicker({
                   setActiveIndex(index);
                   onValueChange?.(color.name);
                 }}
-                className="hover:bg-transparent"
+                className="rounded-full hover:bg-transparent"
               >
                 <span
                   data-slot="color-picker-swatch"
@@ -264,11 +264,11 @@ export function ColorPicker({
                       data-slot="color-picker-check"
                       className="flex size-3.5 items-center justify-center rounded-full bg-background text-foreground"
                     >
-                      <Check className="size-(--icon-compact)" aria-hidden />
+                      <Check className="size-3" aria-hidden />
                     </span>
                   ) : null}
                 </span>
-              </IconButton>
+              </Button>
             );
           })}
         </div>

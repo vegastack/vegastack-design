@@ -1,138 +1,117 @@
 "use client";
 
+import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/progress` (dogfoods the registry) → auto-scanned.
-import { Progress } from "@/components/ui/progress";
+import { DirectionProvider } from "@/components/ui/direction";
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress";
+import { Slider } from "@/components/ui/slider";
 
-// Single determinate bar — primary fill on a muted track.
+/*
+ * Fixtures come from upstream's own examples in `vendor/shadcn/4.21.0/docs/progress.md`. Upstream's
+ * hero animates 13 → 66 through a `setTimeout`; the geometry lane mounts these fixtures, so the
+ * value is pinned at 66 instead — the bar upstream's demo settles on, with no timer.
+ */
+
 export function progress(): ReactNode {
   return (
     <Wrapper>
-      <Progress value={60} aria-label="Upload progress" className="max-w-xs" />
+      <Progress value={66} className="w-[60%]" aria-label="Task progress" />
     </Wrapper>
   );
 }
 
-// The fill across the range — 0 / 33 / 66 / 100.
-export function progressValues(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch gap-4">
-      <Progress value={0} aria-label="0 percent" />
-      <Progress value={33} aria-label="33 percent" />
-      <Progress value={66} aria-label="66 percent" />
-      <Progress value={100} aria-label="100 percent" />
-    </Wrapper>
-  );
-}
-
-// The height scale — sm (6px) / default (8px) / lg (12px).
-export function progressSizes(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch gap-4">
-      <Progress value={50} size="sm" aria-label="Small" />
-      <Progress value={50} size="md" aria-label="Default" />
-      <Progress value={50} size="lg" aria-label="Large" />
-    </Wrapper>
-  );
-}
-
-// Custom scale via `max` — step 3 of 5 reports as 60% to assistive tech.
-export function progressCustomScale(): ReactNode {
+/**
+ * Upstream's Composition example: `ProgressLabel` and `ProgressValue` are the children, and
+ * `Progress` renders the `ProgressTrack`/`ProgressIndicator` pair itself underneath them.
+ */
+export function progressComposition(): ReactNode {
   return (
     <Wrapper>
-      <Progress
-        value={3}
-        max={5}
-        size="lg"
-        aria-label="Step 3 of 5"
-        className="max-w-xs"
-      />
+      <Progress value={56} className="w-full max-w-sm">
+        <ProgressLabel>Upload progress</ProgressLabel>
+        <ProgressValue />
+      </Progress>
     </Wrapper>
   );
 }
 
-// Indeterminate — value={null}. Base UI drops aria-valuenow and animates the fill.
-export function progressIndeterminate(): ReactNode {
+export function progressLabel(): ReactNode {
   return (
     <Wrapper>
-      <Progress value={null} aria-label="Loading" className="max-w-xs" />
+      <Progress value={56} className="w-full max-w-sm">
+        <ProgressLabel>Upload progress</ProgressLabel>
+        <ProgressValue />
+      </Progress>
     </Wrapper>
   );
 }
 
-// Status-colored fill via `indicatorClassName` — override the default primary.
-export function progressColors(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch gap-4">
-      <Progress
-        value={66}
-        indicatorClassName="bg-success"
-        aria-label="Success fill"
-      />
-      <Progress
-        value={45}
-        indicatorClassName="bg-warning"
-        aria-label="Warning fill"
-      />
-      <Progress
-        value={20}
-        indicatorClassName="bg-destructive"
-        aria-label="Destructive fill"
-      />
-    </Wrapper>
-  );
-}
-
-// Custom track styling via `trackClassName` — recolor the rail behind the fill.
-export function progressTrack(): ReactNode {
+export function progressControlled(): ReactNode {
   return (
     <Wrapper>
-      <Progress
-        value={50}
-        trackClassName="bg-info-subtle"
-        indicatorClassName="bg-info"
-        aria-label="Custom track"
-        className="max-w-xs"
-      />
+      <ProgressControlledDemo />
     </Wrapper>
   );
 }
 
-// Size × value matrix — the two axes are independent.
-export function progressMatrix(): ReactNode {
-  const sizes = ["sm", "md", "lg"] as const;
-  const values = [25, 60, 100];
+function ProgressControlledDemo() {
+  const [value, setValue] = React.useState(50);
+
   return (
-    <Wrapper className="flex-col items-stretch gap-4">
-      {sizes.map((size) => (
-        <div key={size} className="flex flex-col gap-2">
-          <span className="text-sm text-muted-foreground">{size}</span>
-          {values.map((value) => (
-            <Progress
-              key={value}
-              size={size}
-              value={value}
-              aria-label={`${size} ${value} percent`}
-            />
-          ))}
-        </div>
-      ))}
-    </Wrapper>
+    <div className="flex w-full max-w-sm flex-col gap-4">
+      <Progress value={value} className="w-full" aria-label="Task progress" />
+      {/* The value is an ARRAY even for a single thumb: upstream's `Slider` derives its thumb
+          count from `Array.isArray(value) ? value : … : [min, max]`, so a scalar falls through to
+          the two-thumb range default and renders two overlapping thumbs. */}
+      <Slider
+        value={[value]}
+        onValueChange={(next) => setValue((next as number[])[0] ?? 0)}
+        min={0}
+        max={100}
+        step={1}
+        aria-label="Task progress"
+      />
+    </div>
   );
 }
 
-// `render` composition — swap the progressbar root element while keeping
-// Base UI's accessible semantics, slots, and the Track/Indicator children.
-export function progressRender(): ReactNode {
+/**
+ * Upstream drives its RTL example through a `language-selector` fixture we do not ship, so the
+ * Arabic string and the numeral mapping are inline and the subtree is wrapped in
+ * `DirectionProvider`. `ProgressValue` takes a render function, which is how the formatted value
+ * is replaced without touching the component.
+ */
+const ARABIC_NUMERALS = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+
+function toArabicNumerals(num: number): string {
+  return num
+    .toString()
+    .split("")
+    .map((digit) => ARABIC_NUMERALS[parseInt(digit, 10)])
+    .join("");
+}
+
+export function progressRtl(): ReactNode {
   return (
-    <Wrapper>
-      <Progress
-        value={60}
-        aria-label="Upload progress"
-        className="max-w-xs"
-        render={<output />}
-      />
-    </Wrapper>
+    <DirectionProvider direction="rtl">
+      <Wrapper dir="rtl">
+        <Progress value={56} className="w-full max-w-sm">
+          <ProgressLabel>تقدم الرفع</ProgressLabel>
+          <ProgressValue>
+            {(value) => (
+              <span className="ms-auto">
+                {toArabicNumerals(parseFloat(value ?? "0"))}%
+              </span>
+            )}
+          </ProgressValue>
+        </Progress>
+      </Wrapper>
+    </DirectionProvider>
   );
 }

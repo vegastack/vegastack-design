@@ -1,0 +1,209 @@
+# component: select
+# decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# hunks:
+#   FOC-1, FOC-3, FOC-4, FOC-6: the trigger's `outline-none focus-visible:border-ring
+#     focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70` — the border
+#     tint on `:focus`, for mouse and keyboard alike — and the dropped `outline-none` lets the
+#     global `:focus-visible` outline through. A select trigger is a BUTTON, so it keeps the
+#     outline (FOC-4); Input and Textarea suppress theirs (FOC-3).
+#   FOC-5: the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
+#     counterpart), so focus outranks it; the `aria-invalid` halo rings go with the rest.
+#   INT-1: `cursor-default` is removed from `SelectItem`, so a row shows the hand cursor the one
+#     global rule gives every `[role="option"]`. The two scroll arrows KEEP theirs — `base.css`
+#     names them as a sanctioned non-pointer cursor.
+#   FRM-4: `data-disabled:pointer-events-none` is dropped from `SelectItem`, so a disabled row
+#     stays hoverable and a Tooltip can explain it.
+#   OVL-13: `SelectContent` reads `useInternalThemeScope()` and attaches it to the Positioner
+#     inside the Portal, so a nested theme scope survives the portal boundary.
+#     `tooling/verify-portal-theme-scope.mjs` inventories this host.
+#   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
+#               reflows the file, and `registry-stamp.mjs` writes the provenance header the
+#               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+diff --git a/select.tsx b/select.tsx
+index e8a22e1..4f0451e 100644
+--- a/select.tsx
++++ b/select.tsx
+@@ -1,11 +1,14 @@
+-"use client"
++// @vegastack select@0.9.1 sha256-P9GiUFvn3BzDZ7ixk7BOSgczwBgdh0gS6eIhA73mhoY=
+ 
+-import * as React from "react"
+-import { Select as SelectPrimitive } from "@base-ui/react/select"
+-import { cn } from "cn"
+-import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
++"use client";
+ 
+-const Select = SelectPrimitive.Root
++import * as React from "react";
++import { Select as SelectPrimitive } from "@base-ui/react/select";
++import { cn } from "@vegastack/design";
++import { useInternalThemeScope } from "@vegastack/design/theme-scope";
++import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
++
++const Select = SelectPrimitive.Root;
+ 
+ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
+   return (
+@@ -14,7 +17,7 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
+       className={cn("scroll-my-1 p-1", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
+@@ -24,7 +27,7 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
+       className={cn("flex flex-1 text-start", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function SelectTrigger({
+@@ -33,15 +36,15 @@ function SelectTrigger({
+   children,
+   ...props
+ }: SelectPrimitive.Trigger.Props & {
+-  size?: "sm" | "default"
++  size?: "sm" | "default";
+ }) {
+   return (
+     <SelectPrimitive.Trigger
+       data-slot="select-trigger"
+       data-size={size}
+       className={cn(
+-        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+-        className
++        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++        className,
+       )}
+       {...props}
+     >
+@@ -52,7 +55,7 @@ function SelectTrigger({
+         }
+       />
+     </SelectPrimitive.Trigger>
+-  )
++  );
+ }
+ 
+ function SelectContent({
+@@ -69,6 +72,8 @@ function SelectContent({
+     SelectPrimitive.Positioner.Props,
+     "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
+   >) {
++  const themeScope = useInternalThemeScope();
++
+   return (
+     <SelectPrimitive.Portal>
+       <SelectPrimitive.Positioner
+@@ -77,12 +82,15 @@ function SelectContent({
+         align={align}
+         alignOffset={alignOffset}
+         alignItemWithTrigger={alignItemWithTrigger}
+-        className="isolate z-50"
++        className={cn("isolate z-50", themeScope)}
+       >
+         <SelectPrimitive.Popup
+           data-slot="select-content"
+           data-align-trigger={alignItemWithTrigger}
+-          className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
++          className={cn(
++            "relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            className,
++          )}
+           {...props}
+         >
+           <SelectScrollUpButton />
+@@ -91,7 +99,7 @@ function SelectContent({
+         </SelectPrimitive.Popup>
+       </SelectPrimitive.Positioner>
+     </SelectPrimitive.Portal>
+-  )
++  );
+ }
+ 
+ function SelectLabel({
+@@ -104,7 +112,7 @@ function SelectLabel({
+       className={cn("px-1.5 py-1 text-xs text-muted-foreground", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function SelectItem({
+@@ -116,8 +124,8 @@ function SelectItem({
+     <SelectPrimitive.Item
+       data-slot="select-item"
+       className={cn(
+-        "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+-        className
++        "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
++        className,
+       )}
+       {...props}
+     >
+@@ -132,7 +140,7 @@ function SelectItem({
+         <CheckIcon className="pointer-events-none" />
+       </SelectPrimitive.ItemIndicator>
+     </SelectPrimitive.Item>
+-  )
++  );
+ }
+ 
+ function SelectSeparator({
+@@ -145,7 +153,7 @@ function SelectSeparator({
+       className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+ function SelectScrollUpButton({
+@@ -157,14 +165,13 @@ function SelectScrollUpButton({
+       data-slot="select-scroll-up-button"
+       className={cn(
+         "top-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
+-        className
++        className,
+       )}
+       {...props}
+     >
+-      <ChevronUpIcon
+-      />
++      <ChevronUpIcon />
+     </SelectPrimitive.ScrollUpArrow>
+-  )
++  );
+ }
+ 
+ function SelectScrollDownButton({
+@@ -176,14 +183,13 @@ function SelectScrollDownButton({
+       data-slot="select-scroll-down-button"
+       className={cn(
+         "bottom-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
+-        className
++        className,
+       )}
+       {...props}
+     >
+-      <ChevronDownIcon
+-      />
++      <ChevronDownIcon />
+     </SelectPrimitive.ScrollDownArrow>
+-  )
++  );
+ }
+ 
+ export {
+@@ -197,4 +203,4 @@ export {
+   SelectSeparator,
+   SelectTrigger,
+   SelectValue,
+-}
++};

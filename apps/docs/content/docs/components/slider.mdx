@@ -1,6 +1,6 @@
 ---
 title: Slider
-description: Pick a number or a range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.
+description: Pick a number or a range from a continuous track — horizontal or vertical, any number of thumbs, each with a 24px hit area.
 audience: public
 registry: slider
 status: stable
@@ -20,160 +20,64 @@ import { story } from "@/components/stories/slider.story";
 ```tsx
 import { Slider } from "@/components/ui/slider";
 
-<Slider defaultValue={40} aria-label="Volume" />;
-```
-
-Pass an array for a range (one thumb per value):
-
-```tsx
-<Slider
-  defaultValue={[20, 80]}
-  thumbAriaLabels={["Minimum price", "Maximum price"]}
-/>
+<Slider defaultValue={[33]} max={100} step={1} />;
 ```
 
 <ComponentPreview name="slider" file="components/preview/slider.tsx" />
 
+## Anatomy
+
+<Anatomy name="slider" />
+
 ## Examples
-
-### Anatomy
-
-`Slider` composes Base UI's `Slider` parts internally — you use the single `Slider`
-export and it renders the structure for you:
-
-```tsx
-<Slider.Root>
-  {/* the clickable hit area */}
-  <Slider.Control>
-    {/* the rail (surface-1 by default; per-variant) */}
-    <Slider.Track>
-      {/* the filled portion (primary by default; per-variant) */}
-      <Slider.Indicator />
-      {/* one draggable handle per value; each owns a hidden <input type="range"> */}
-      <Slider.Thumb />
-    </Slider.Track>
-  </Slider.Control>
-</Slider.Root>
-```
-
-- **Root** — owns the value, `min`/`max`/`step`, and `disabled` state. Exposes
-  `data-slot="slider"`.
-- **Control** — the interactive hit area; pressing it jumps the nearest thumb.
-- **Track** — the rail spanning the full `min`→`max` range (`surface-1` on the `default`
-  variant; see [Variants](#variants)).
-- **Indicator** — the filled portion from `min` (or the lower thumb) up to the value
-  (`primary` on the `default` variant; see [Variants](#variants)).
-- **Thumb** — the draggable handle. One is rendered per value, so a single number gets
-  one thumb and an array gets a range. Each thumb wraps a hidden `<input type="range">`
-  for keyboard control and form submission.
 
 ### Range
 
-Provide an array to render a range. The component renders one thumb per entry and keeps
-the thumbs from crossing.
+Pass an array with two values for a range slider.
 
 <ComponentPreview name="sliderRange" file="components/preview/slider.tsx" />
 
-### Steps
+### Multiple Thumbs
 
-Set `min`, `max`, and `step` to snap the value to a coarser scale — here, multiples of
-50 between 0 and 1000.
+Pass an array with any number of values — the component renders one thumb per entry.
 
-<ComponentPreview name="sliderSteps" file="components/preview/slider.tsx" />
+<ComponentPreview
+  name="sliderMultipleThumbs"
+  file="components/preview/slider.tsx"
+/>
+
+### Vertical
+
+Use `orientation="vertical"` and give the slider a height.
+
+<ComponentPreview name="sliderVertical" file="components/preview/slider.tsx" />
 
 ### Controlled
 
-Pass `value` + `onValueChange` to drive the slider from your own state (mirror it back as
-text, sync it to a query param, etc.).
+Hold the value yourself with `value` and `onValueChange`.
 
 <ComponentPreview
   name="sliderControlled"
   file="components/preview/slider.tsx"
 />
 
-### Thumb labels
-
-A range needs a distinct accessible name per thumb. Pass a static `thumbAriaLabels`
-array (see [Range](#range)), or compute names dynamically with `getThumbAriaLabel` — a
-callback that receives the thumb's `index` and current `value` and returns its name.
-`getThumbAriaLabel` takes precedence over the slider-level `aria-label` fallback, so it's
-the right tool when the name should reflect live state (for example announcing the value).
-
-```tsx
-<Slider
-  defaultValue={[20, 80]}
-  getThumbAriaLabel={(index, value) =>
-    `${index === 0 ? "Minimum" : "Maximum"} price, $${value ?? 0}`
-  }
-/>
-```
-
-<ComponentPreview
-  name="sliderThumbAriaLabel"
-  file="components/preview/slider.tsx"
-/>
-
-### Orientation
-
-`orientation="vertical"` runs the rail bottom-to-top; every part keys off `data-orientation`,
-so the track, fill, thumb and tick marks all follow. Give the wrapper a height — a vertical
-rail fills its container the way a horizontal one fills its width. The media players' volume
-control is the canonical use.
-
-<ComponentPreview name="sliderVertical" file="components/preview/slider.tsx" />
-
-### Marks
-
-`marks` draws decorative tick marks on the rail: `true` derives one per `step`, or pass an array
-to place them at exact values. They are `aria-hidden` — the thumb's native range input already
-carries `min`/`max`/`step` for assistive tech, so ticks would only duplicate it.
-
-<ComponentPreview name="sliderMarks" file="components/preview/slider.tsx" />
-
-### Value readout
-
-`showValue` floats the formatted value above the active thumb, on drag and on keyboard focus
-only — a range gets one label per thumb. It is not a replacement for a visible label; it is the
-during-the-gesture feedback that tells you where you landed.
-
-<ComponentPreview name="sliderShowValue" file="components/preview/slider.tsx" />
-
-### Variants
-
-`variant` picks the rail, fill and thumb recipe, and `thumb` decides when the thumb is drawn.
-
-| `variant` | Where                                                                                     |
-| --------- | ----------------------------------------------------------------------------------------- |
-| `default` | The form rail — `surface-1` track, `primary` fill, hollow ringed thumb.                   |
-| `media`   | A transport seek on a normal surface: muted fill that brightens on engagement.            |
-| `overlay` | Chrome drawn over video, on the theme-invariant `--media-*` ink.                          |
-| `bare`    | A transparent hit layer over custom-drawn media (the audio waveform), with no drawn rail. |
-
-`thumb="always"` (the default) draws the thumb at rest. `thumb="hover"` hides it at rest **only
-where a pointer can hover** and reveals it on hover, focus and drag; on a touch device it stays
-visible, because there is no hover to reveal it with. `thumb="none"` draws no thumb at all — for
-a rail where the fill itself is the position cue.
-
-<ComponentPreview name="sliderMedia" file="components/preview/slider.tsx" />
-
 ### Disabled
 
-`disabled` drops the thumb(s) from the tab order, blocks interaction, and dims the control.
-It applies to both single-value and range sliders — every thumb is dimmed and removed from
-the tab order.
+Use the `disabled` prop. The control keeps its pointer events (FRM-4), so a Tooltip can explain why
+it is unavailable.
 
 <ComponentPreview name="sliderDisabled" file="components/preview/slider.tsx" />
 
-A disabled range dims both thumbs:
+### RTL
 
-<ComponentPreview
-  name="sliderDisabledRange"
-  file="components/preview/slider.tsx"
-/>
+The track and the indicator are written with logical properties, so a right-to-left document fills
+from the other end.
+
+<ComponentPreview name="sliderRtl" file="components/preview/slider.tsx" />
 
 ## Playground
 
-Every `Slider` prop, auto-generated from its TypeScript types.
+Every `Slider` prop, auto-generated from the component's own types.
 
 <StoryExplorer>
   <story.WithControl />
@@ -181,36 +85,43 @@ Every `Slider` prop, auto-generated from its TypeScript types.
 
 ## API Reference
 
-<ApiTable path="../../packages/ui/registry/ui/slider.tsx" name="SliderProps" />
+<ApiTable path="lib/api-props.ts" name="SliderProps" />
 
 ## Accessibility
 
-- Each thumb renders a native `<input type="range">` with `role="slider"` and
-  `aria-valuenow` / `aria-valuemin` / `aria-valuemax`, so screen readers announce the
-  current value and bounds.
-- Fully keyboard operable — focus a thumb and use the arrow keys (see the table below).
-  Range thumbs are independently focusable.
-- Always give the slider an accessible name via `aria-label` (or wire it to a `<label>` /
-  `Field`). A range needs a distinct name for each thumb; pass `thumbAriaLabels`
-  (for example `['Minimum price', 'Maximum price']`) or `getThumbAriaLabel`.
-- `:focus-visible` shows a 2px ring (`outline-ring`) on the focused thumb — never
-  `outline: none`.
-- `disabled` removes the thumb(s) from the tab order and blocks all interaction.
-
-| Key                                       | Action                                |
-| ----------------------------------------- | ------------------------------------- |
-| <kbd>Tab</kbd>                            | Move focus to the next thumb          |
-| <kbd>←</kbd> / <kbd>↓</kbd>               | Decrease the value by one step        |
-| <kbd>→</kbd> / <kbd>↑</kbd>               | Increase the value by one step        |
-| <kbd>Page Down</kbd> / <kbd>Page Up</kbd> | Decrease / increase by the large step |
-| <kbd>Home</kbd>                           | Jump to the minimum                   |
-| <kbd>End</kbd>                            | Jump to the maximum                   |
+- Renders Base UI's Slider, which gives every thumb `role="slider"` with `aria-valuenow`,
+  `aria-valuemin` and `aria-valuemax`; <kbd>←</kbd>/<kbd>→</kbd>, <kbd>Home</kbd>, <kbd>End</kbd> and
+  <kbd>PageUp</kbd>/<kbd>PageDown</kbd> all move it.
+- The thumb is 12px, so an `::after` pseudo-element extends its pointer target to 28×28 (A11Y-2),
+  verified by a real `elementFromPoint` probe.
+- On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1) — upstream's
+  `hover:ring-3 focus-visible:ring-3 active:ring-3` glow is gone (FOC-6).
+- A slider has no visible text of its own — give it an `aria-label`. That label reaches the hidden
+  `<input type="range">` that actually holds the role, which is what a screen reader announces. A
+  `Label htmlFor` pointed at the Slider's `id` does **not** name it: the `id` lands on the root
+  `<div>`, and the input keeps a generated one.
 
 <StatesTested name="slider" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use a Slider for an imprecise value over a known range — volume, brightness, a price filter — and give it an aria-label."
-  dont="Use a Slider when the exact value matters or the range is large and open-ended — use a number input instead."
+  do="Use a Slider for an approximate value over a bounded range — volume, a price filter, a temperature."
+  dont="Use a Slider where the user knows the exact number — that is a number input."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/slider.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the thumb's `ring-ring/50` colour and its three glow triggers
+  (`hover:ring-3`, `focus-visible:ring-3`, `active:ring-3`) are removed, along with
+  `focus-visible:outline-hidden`, which would have suppressed the global outline.
+- **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled slider stays hoverable and a
+  Tooltip can explain it.
+- **A11Y-16** — the root's `aria-label` is forwarded to every thumb through `getAriaLabel`. Base UI
+  keeps the real control in a visually hidden `<input type="range">` inside the thumb, and a label
+  on the root lands on a `<div>` with no role, so upstream's file ships a nameless `role="slider"`
+  in every composition. A range slider gives both thumbs the group's name: upstream has no
+  per-thumb label API.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

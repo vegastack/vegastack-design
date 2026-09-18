@@ -1,126 +1,285 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { UserRound } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/avatar` (dogfoods the registry) → auto-scanned.
-import { Avatar, AvatarGroup } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-// Local fixtures (abstract portrait marks) — demos and VRT must never depend on a live
-// third-party image service (same determinism rule as preview/image.tsx's fixture).
+// Local fixtures (abstract portrait marks). Upstream's examples point at github.com avatars; a
+// demo and the geometry lane must never depend on a live third-party image service.
 const ADA = "/preview/avatar-1.svg";
 const LINUS = "/preview/avatar-2.svg";
 const GRACE = "/preview/avatar-3.svg";
 
-// Image avatar alongside the neutral initials fallback (no src → bg-accent + initials).
 export function avatar(): ReactNode {
   return (
     <Wrapper>
-      <Avatar src={ADA} alt="Ada Lovelace" fallback="AL" />
-      <Avatar fallback="LT" />
-    </Wrapper>
-  );
-}
-
-// The full size scale — 24 / 28 / 32 (default) / 40 / 48.
-export function avatarSizes(): ReactNode {
-  return (
-    <Wrapper>
-      <Avatar size="xs" src={ADA} alt="Ada Lovelace" fallback="AL" />
-      <Avatar size="sm" src={ADA} alt="Ada Lovelace" fallback="AL" />
-      <Avatar size="md" src={ADA} alt="Ada Lovelace" fallback="AL" />
-      <Avatar size="lg" src={ADA} alt="Ada Lovelace" fallback="AL" />
-      <Avatar size="xl" src={ADA} alt="Ada Lovelace" fallback="AL" />
-    </Wrapper>
-  );
-}
-
-// Overlapping stack with a trailing +N overflow fallback.
-export function avatarGroup(): ReactNode {
-  return (
-    <Wrapper>
+      <Avatar>
+        <AvatarImage src={ADA} alt="Ada Lovelace" />
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarImage src={LINUS} alt="Linus Torvalds" />
+        <AvatarFallback>LT</AvatarFallback>
+        <AvatarBadge className="bg-success" />
+      </Avatar>
       <AvatarGroup>
-        <Avatar src={ADA} alt="Ada Lovelace" fallback="AL" />
-        <Avatar src={LINUS} alt="Linus Torvalds" fallback="LT" />
-        <Avatar src={GRACE} alt="Grace Hopper" fallback="GH" />
-        <Avatar fallback="+5" />
+        <Avatar>
+          <AvatarImage src={ADA} alt="Ada Lovelace" />
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={LINUS} alt="Linus Torvalds" />
+          <AvatarFallback>LT</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={GRACE} alt="Grace Hopper" />
+          <AvatarFallback>GH</AvatarFallback>
+        </Avatar>
+        <AvatarGroupCount>+3</AvatarGroupCount>
       </AvatarGroup>
     </Wrapper>
   );
 }
 
-// The `spacing` axis side by side — overlap density tightens from loose → tight.
-export function avatarGroupSpacing(): ReactNode {
+export function avatarComposition(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex flex-col items-center gap-2">
-        <AvatarGroup spacing="tight">
-          <Avatar src={ADA} alt="Ada Lovelace" fallback="AL" />
-          <Avatar src={LINUS} alt="Linus Torvalds" fallback="LT" />
-          <Avatar src={GRACE} alt="Grace Hopper" fallback="GH" />
-          <Avatar fallback="+5" />
-        </AvatarGroup>
-        <span className="text-sm text-muted-foreground">tight</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <AvatarGroup spacing="default">
-          <Avatar src={ADA} alt="Ada Lovelace" fallback="AL" />
-          <Avatar src={LINUS} alt="Linus Torvalds" fallback="LT" />
-          <Avatar src={GRACE} alt="Grace Hopper" fallback="GH" />
-          <Avatar fallback="+5" />
-        </AvatarGroup>
-        <span className="text-sm text-muted-foreground">default</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <AvatarGroup spacing="loose">
-          <Avatar src={ADA} alt="Ada Lovelace" fallback="AL" />
-          <Avatar src={LINUS} alt="Linus Torvalds" fallback="LT" />
-          <Avatar src={GRACE} alt="Grace Hopper" fallback="GH" />
-          <Avatar fallback="+5" />
-        </AvatarGroup>
-        <span className="text-sm text-muted-foreground">loose</span>
-      </div>
+      <Avatar>
+        <AvatarImage src={GRACE} alt="Grace Hopper" />
+        <AvatarFallback>GH</AvatarFallback>
+        <AvatarBadge className="bg-success" />
+      </Avatar>
+      <AvatarGroup>
+        <Avatar>
+          <AvatarImage src={ADA} alt="Ada Lovelace" />
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={LINUS} alt="Linus Torvalds" />
+          <AvatarFallback>LT</AvatarFallback>
+        </Avatar>
+        <AvatarGroupCount>+8</AvatarGroupCount>
+      </AvatarGroup>
     </Wrapper>
   );
 }
 
-// Image-error path: a broken `src` decodes to nothing, so the `fallback` initials
-// paint instead — never a broken-image icon. Contrast with the no-src initials.
-export function avatarFallback(): ReactNode {
+export function avatarBasic(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex flex-col items-center gap-2">
-        <Avatar fallback="AL" />
-        <span className="text-sm text-muted-foreground">no src</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Avatar
-          src="https://broken.example.com/missing.png"
-          alt="Ada Lovelace"
-          fallback="AL"
-        />
-        <span className="text-sm text-muted-foreground">broken src</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Avatar fallback={<UserRound aria-hidden />} />
-        <span className="text-sm text-muted-foreground">icon fallback</span>
-      </div>
+      <Avatar>
+        <AvatarImage src={ADA} alt="Ada Lovelace" />
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
     </Wrapper>
   );
 }
 
-// `fallbackDelay` waits before swapping in the fallback to avoid a flash for
-// fast-loading images. Here a broken src + a 600ms delay shows the bare
-// `bg-accent` circle briefly before the "AL" initials appear.
-export function avatarFallbackDelay(): ReactNode {
+export function avatarBadge(): ReactNode {
   return (
     <Wrapper>
-      <Avatar
-        src="https://broken.example.com/missing.png"
-        alt="Ada Lovelace"
-        fallback="AL"
-        fallbackDelay={600}
-      />
+      <Avatar>
+        <AvatarImage src={ADA} alt="Ada Lovelace" />
+        <AvatarFallback>AL</AvatarFallback>
+        <AvatarBadge className="bg-success" />
+      </Avatar>
+    </Wrapper>
+  );
+}
+
+export function avatarBadgeWithIcon(): ReactNode {
+  return (
+    <Wrapper>
+      <Avatar>
+        <AvatarImage src={GRACE} alt="Grace Hopper" />
+        <AvatarFallback>GH</AvatarFallback>
+        <AvatarBadge>
+          <PlusIcon />
+        </AvatarBadge>
+      </Avatar>
+    </Wrapper>
+  );
+}
+
+export function avatarAvatarGroup(): ReactNode {
+  return (
+    <Wrapper>
+      <AvatarGroup>
+        <Avatar>
+          <AvatarImage src={ADA} alt="Ada Lovelace" />
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={LINUS} alt="Linus Torvalds" />
+          <AvatarFallback>LT</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={GRACE} alt="Grace Hopper" />
+          <AvatarFallback>GH</AvatarFallback>
+        </Avatar>
+      </AvatarGroup>
+    </Wrapper>
+  );
+}
+
+export function avatarAvatarGroupCount(): ReactNode {
+  return (
+    <Wrapper>
+      <AvatarGroup>
+        <Avatar>
+          <AvatarImage src={ADA} alt="Ada Lovelace" />
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={LINUS} alt="Linus Torvalds" />
+          <AvatarFallback>LT</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={GRACE} alt="Grace Hopper" />
+          <AvatarFallback>GH</AvatarFallback>
+        </Avatar>
+        <AvatarGroupCount>+3</AvatarGroupCount>
+      </AvatarGroup>
+    </Wrapper>
+  );
+}
+
+export function avatarAvatarGroupWithIcon(): ReactNode {
+  return (
+    <Wrapper>
+      <AvatarGroup>
+        <Avatar>
+          <AvatarImage src={ADA} alt="Ada Lovelace" />
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={LINUS} alt="Linus Torvalds" />
+          <AvatarFallback>LT</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src={GRACE} alt="Grace Hopper" />
+          <AvatarFallback>GH</AvatarFallback>
+        </Avatar>
+        <AvatarGroupCount>
+          <PlusIcon />
+          <span className="sr-only">Add a teammate</span>
+        </AvatarGroupCount>
+      </AvatarGroup>
+    </Wrapper>
+  );
+}
+
+export function avatarSizes(): ReactNode {
+  return (
+    <Wrapper>
+      <Avatar size="sm">
+        <AvatarImage src={ADA} alt="Ada Lovelace" />
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarImage src={ADA} alt="Ada Lovelace" />
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <Avatar size="lg">
+        <AvatarImage src={ADA} alt="Ada Lovelace" />
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+    </Wrapper>
+  );
+}
+
+export function avatarDropdown(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              aria-label="Open account menu"
+            />
+          }
+        >
+          <Avatar>
+            <AvatarImage src={ADA} alt="Ada Lovelace" />
+            <AvatarFallback>AL</AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-32">
+          <DropdownMenuGroup>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Billing</DropdownMenuItem>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem>Log out</DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Wrapper>
+  );
+}
+
+export function avatarRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div className="flex flex-wrap items-center gap-6" dir="ltr">
+        <Avatar>
+          <AvatarImage src={ADA} alt="Ada Lovelace" />
+          <AvatarFallback>AL</AvatarFallback>
+          <AvatarBadge className="bg-success" />
+        </Avatar>
+        <AvatarGroup>
+          <Avatar>
+            <AvatarImage src={LINUS} alt="Linus Torvalds" />
+            <AvatarFallback>LT</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarImage src={GRACE} alt="Grace Hopper" />
+            <AvatarFallback>GH</AvatarFallback>
+          </Avatar>
+          <AvatarGroupCount>+3</AvatarGroupCount>
+        </AvatarGroup>
+      </div>
+      <div className="flex flex-wrap items-center gap-6" dir="rtl">
+        <Avatar>
+          <AvatarImage src={ADA} alt="آدا لوفلايس" />
+          <AvatarFallback>AL</AvatarFallback>
+          <AvatarBadge className="bg-success" />
+        </Avatar>
+        <AvatarGroup>
+          <Avatar>
+            <AvatarImage src={LINUS} alt="لينوس تورفالدس" />
+            <AvatarFallback>LT</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarImage src={GRACE} alt="غريس هوبر" />
+            <AvatarFallback>GH</AvatarFallback>
+          </Avatar>
+          <AvatarGroupCount>+٣</AvatarGroupCount>
+        </AvatarGroup>
+      </div>
     </Wrapper>
   );
 }

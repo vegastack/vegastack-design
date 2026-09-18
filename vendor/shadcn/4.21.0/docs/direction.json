@@ -1,0 +1,10 @@
+{
+  "component": "direction",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/direction.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "useDirection"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "component": "radio-group",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/radio-group.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Description",
+    "Choice Card",
+    "Fieldset",
+    "Disabled",
+    "Invalid",
+    "RTL",
+    "API Reference"
+  ]
+}

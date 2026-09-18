@@ -72,8 +72,11 @@ checkboxes are rendered read-only (display only).
 
 ### Code blocks
 
-Inline code renders as a muted `font-mono` chip; fenced code blocks render inside
-a bordered, scrollable `<pre>`.
+Inline code renders as a muted `font-mono` chip; fenced code blocks delegate to
+[`CodeBlock`](/docs/components/code-block) — a `<figure>` with a language caption and a copy
+action — rather than a bare `<pre>`. The language comes from the fence's `language-*` class and the
+copy source from the code text, so a transcript, a docs page and a hand-composed example all share
+one code surface.
 
 <ComponentPreview
   name="markdownViewCode"

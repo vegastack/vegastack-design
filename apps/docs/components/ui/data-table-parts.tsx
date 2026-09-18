@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.9.1 sha256-wG4CRqxB5FKy5kWLPnnc4dr/5RnL+Syy9e3A6i7+OFA=
+// @vegastack data-table-parts@0.9.1 sha256-1zC9ymX//tUalTYk1nLluRMkHOkZC/xaQkuRXdT2/Xc=
 
 "use client";
 
@@ -49,7 +49,7 @@ export interface DataTableColumnLayout {
    */
   align?: "start" | "center" | "end";
   /**
-   * Render this column's values in the mono numeral face (`text-code` +
+   * Render this column's values in the mono numeral face (`font-mono text-sm` +
    * `tabular-nums`), so figures line up down the column.
    * @default false
    */
@@ -92,8 +92,12 @@ export function isNowrapColumn(column: DataTableColumnLayout): boolean {
 export function columnCellClass(column: DataTableColumnLayout): string {
   return cn(
     alignClass(column.align),
-    isNowrapColumn(column) && "whitespace-nowrap",
-    column.mono && "font-mono text-code tabular-nums",
+    // Both directions are spelled out, not just the nowrap one. Batch 5 of the shadcn reset put
+    // `Table` back on upstream's file, whose `TableCell` is `whitespace-nowrap` by default
+    // (LAY-6 resolves as **shadcn**), so a column that wants to wrap has to say so or `cn`'s
+    // merge leaves upstream's class standing.
+    isNowrapColumn(column) ? "whitespace-nowrap" : "whitespace-normal",
+    column.mono && "font-mono text-sm tabular-nums",
   );
 }
 
@@ -124,8 +128,8 @@ export interface SortHeaderButtonProps {
 
 /**
  * `SortHeaderButton` — the control inside a sortable header cell. A ghost
- * `Button` sized to sit inside the 32px header row, so it inherits the system's
- * hover and pressed steps and its focus outline instead of restating them.
+ * `Button` sized to sit inside the 32px header row, so its hover wash and its
+ * focus outline are upstream's rather than restated here.
  *
  * The direction glyph TRAILS the label in every alignment (the cell's own
  * `text-end` right-aligns the shrink-wrapped button). No `flex-row-reverse` for
@@ -160,7 +164,7 @@ export function SortHeaderButton({
       data-slot="data-table-sort"
       onClick={onSort}
       className={cn(
-        "group/sort h-(--size-sm) gap-1 px-2 text-label-sm text-muted-foreground select-none hover:text-foreground",
+        "group/sort h-7 gap-1 px-2 text-xs font-medium text-muted-foreground select-none hover:text-foreground",
         className,
       )}
     >
@@ -169,14 +173,14 @@ export function SortHeaderButton({
         {direction ? (
           <>
             {direction === "asc" ? (
-              <ArrowUp className="size-(--icon-inline)" />
+              <ArrowUp className="size-3.5" />
             ) : (
-              <ArrowDown className="size-(--icon-inline)" />
+              <ArrowDown className="size-3.5" />
             )}
-            {order != null ? <span className="text-sm">{order}</span> : null}
+            {order != null ? <span className="text-xs">{order}</span> : null}
           </>
         ) : (
-          <ChevronsUpDown className="size-(--icon-inline) opacity-0 transition-opacity duration-fast ease-standard group-hover/sort:opacity-(--opacity-hint-soft)" />
+          <ChevronsUpDown className="size-3.5 opacity-0 transition-opacity duration-fast ease-standard group-hover/sort:opacity-60" />
         )}
       </span>
     </Button>
@@ -324,11 +328,16 @@ export function SelectAllHead({
   return (
     <TableHead
       data-slot="data-table-select-all"
-      className={cn("w-0", className)}
+      // `pe-2!` reinstates the trailing padding upstream's `TableHead` removes with
+      // `[&:has([role=checkbox])]:pe-0`. Since Batch 5 put `Table` back on upstream's file the head
+      // is `h-10 px-2`, which is tighter than the pre-reset cell, and with no trailing padding the
+      // checkbox's centred 24px pointer target crossed into the next column and was taken by the
+      // sort-header Button (A11Y-2, measured by the geometry lane). Eight pixels of inline-end
+      // padding keep the square inside this cell without moving the checkbox.
+      className={cn("w-0 pe-2!", className)}
       {...props}
     >
       <Checkbox
-        size="sm"
         checked={checked}
         indeterminate={indeterminate}
         onCheckedChange={onToggle}
@@ -373,7 +382,9 @@ export function SelectionCell({
   return (
     <TableCell
       data-slot="data-table-selection-cell"
-      className={cn("w-0", className)}
+      // Same as `SelectAllHead`: upstream's `[&:has([role=checkbox])]:pe-0` would let the
+      // checkbox's 24px pointer target spill into the next column (A11Y-2).
+      className={cn("w-0 pe-2!", className)}
       onClick={(event) => {
         event.stopPropagation();
         onClick?.(event);
@@ -381,7 +392,6 @@ export function SelectionCell({
       {...props}
     >
       <Checkbox
-        size="sm"
         checked={checked}
         onCheckedChange={onToggle}
         aria-label={label}
@@ -435,7 +445,7 @@ export function SkeletonRows({
         >
           {selectable ? (
             <TableCell className="w-0">
-              <Skeleton className="size-(--icon-inline) rounded-sm" />
+              <Skeleton className="size-3.5 rounded-sm" />
             </TableCell>
           ) : null}
           {columns.map((column, columnIndex) => (
@@ -483,7 +493,7 @@ export function EmptyRow({
     <TableRow data-slot={slot} className="hover:bg-transparent">
       <TableCell colSpan={colSpan} className="min-w-0 p-0">
         {children ?? (
-          <Empty size="sm">
+          <Empty>
             <EmptyHeader>
               <EmptyMedia>
                 <Inbox />

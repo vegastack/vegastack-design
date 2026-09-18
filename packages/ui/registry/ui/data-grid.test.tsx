@@ -216,9 +216,21 @@ test("selection: header tri-state and per-row toggling", async () => {
       onSelectionChange={onSelectionChange}
     />,
   );
-  await screen.getByRole("checkbox", { name: "Select row 1" }).click();
+  // Native `.click()`: Base UI renders a checkbox as a `<span role="checkbox">`, and this lane
+  // compiles no Tailwind, so the element has no box for Playwright's visibility check. The handler
+  // is the same one a real pointer reaches, and the RENDERED target is proven on compiled CSS by
+  // `test/geometry.browser.test.tsx`.
+  (
+    screen
+      .getByRole("checkbox", { name: "Select row 1" })
+      .element() as HTMLElement
+  ).click();
   expect([...onSelectionChange.mock.calls.at(-1)![0]]).toEqual(["d1"]);
-  await screen.getByRole("checkbox", { name: "Select all rows" }).click();
+  (
+    screen
+      .getByRole("checkbox", { name: "Select all rows" })
+      .element() as HTMLElement
+  ).click();
   expect([...onSelectionChange.mock.calls.at(-1)![0]].sort()).toEqual([
     "d1",
     "d2",
@@ -756,7 +768,7 @@ test("columnOrder applies a host-owned order coherently: headers, cells, picker;
  * ------------------------------------------------------------------------------------------- */
 
 test("a dropped column is COUNTED and reported in the toolbar", async () => {
-  // `design.md` § DataGrid: data is never silently lost. `mobile: "hidden"` is
+  // Data is never silently lost when a viewport narrows. `mobile: "hidden"` is
   // the only posture that actually removes a value, so it has to say so.
   await render(
     <div style={{ width: "300px" }}>

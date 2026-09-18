@@ -1,12 +1,12 @@
 ---
 title: Empty
-description: A zero-data placeholder — icon, title, description, and actions, with intent tints and a plain, card, or dashed container.
+description: A zero-data placeholder — media, title, description and actions — for an empty list, a cleared inbox, or a missing page.
 audience: public
 registry: empty
 status: stable
 since: 0.1.0
 a11y: heading + supporting content
-preview: emptyDemo
+preview: empty
 ---
 
 ## Install
@@ -20,167 +20,124 @@ import {
   Empty,
   EmptyContent,
   EmptyDescription,
+  EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Inbox } from "lucide-react";
 
-<Empty variant="dashed">
+<Empty>
   <EmptyHeader>
-    <EmptyMedia>
-      <Inbox />
+    <EmptyMedia variant="icon">
+      <Icon />
     </EmptyMedia>
-    <EmptyTitle>No messages</EmptyTitle>
-    <EmptyDescription>Your inbox is empty.</EmptyDescription>
+    <EmptyTitle>No data</EmptyTitle>
+    <EmptyDescription>No data found</EmptyDescription>
   </EmptyHeader>
+  <EmptyContent>
+    <Button>Add data</Button>
+  </EmptyContent>
 </Empty>;
 ```
 
-## Anatomy
+<ComponentPreview name="empty" file="components/preview/empty.tsx" />
 
-`Empty` is a compound component. Compose the parts inside the root:
+## Anatomy
 
 <Anatomy name="empty" />
 
-```tsx
-<Empty variant="dashed" size="md">
-  <EmptyHeader>
-    <EmptyMedia intent="default">{/* lucide icon */}</EmptyMedia>
-    <EmptyTitle>Title</EmptyTitle>
-    <EmptyDescription>Supporting description text.</EmptyDescription>
-  </EmptyHeader>
-  <EmptyContent>{/* action buttons */}</EmptyContent>
-</Empty>
-```
-
-- `Empty` — the centered container (`data-slot="empty"`). Owns `size` and `variant`.
-- `EmptyMedia` — a tinted circular chip around a `lucide-react` icon (`data-slot="empty-media"`, decorative `aria-hidden`). Owns the `intent` tint.
-- `EmptyTitle` — the primary heading (`<h3>` by default, `data-slot="empty-title"`). Owns `as`, so the page picks the heading level.
-- `EmptyDescription` — supporting body text (`<p>`, `data-slot="empty-description"`).
-- `EmptyContent` — a centered row of call-to-action controls (`data-slot="empty-content"`).
-
 ## Examples
 
-### Sizes
+### Composition
 
-`size` controls vertical density only — `sm` (`py-8`) for empties inside cards, `md` (`py-12`)
-standalone, and `lg` (`py-16`) for full-page zero-data screens.
+Use the following composition to build an `Empty` state:
 
-<ComponentPreview name="emptyDemoSizes" file="components/preview/empty.tsx" />
+```text
+Empty
+├── EmptyHeader
+│   ├── EmptyMedia
+│   ├── EmptyTitle
+│   └── EmptyDescription
+└── EmptyContent
+```
 
-### Variants
+<ComponentPreview name="emptyComposition" file="components/preview/empty.tsx" />
 
-`variant` is the one container axis. `plain` (the default) has no border and no fill, so the block
-blends into the surrounding layout; `dashed` draws the classic drop-zone outline; `card` paints a
-filled `bg-card` panel with the one hairline, which reads as a self-contained block on any
-background. There is no way to ask for a dashed card — that combination had no defined outcome.
+### Outline
 
-<ComponentPreview
-  name="emptyDemoSurfaces"
-  file="components/preview/empty.tsx"
-/>
+Use the `border` utility class to create an outline empty state — the root already carries
+`border-dashed`, so `border` alone turns the dashed outline on.
 
-<ComponentPreview
-  name="emptyDemoBorderless"
-  file="components/preview/empty.tsx"
-/>
+<ComponentPreview name="emptyOutline" file="components/preview/empty.tsx" />
 
-### Without an icon
+### Background
 
-`EmptyMedia` and `EmptyContent` are both optional. A title-and-description-only empty is
-a common compact form — for example, a "no filters applied" hint.
+Use the `bg-*` and `bg-gradient-*` utilities to add a background to the empty state.
 
-<ComponentPreview
-  name="emptyDemoIconless"
-  file="components/preview/empty.tsx"
-/>
+<ComponentPreview name="emptyBackground" file="components/preview/empty.tsx" />
 
-### Variant × size matrix
+### Avatar
 
-The two root axes combine freely. This grid crosses `variant` (dashed vs. card) with `size`
-(sm vs. lg) to show how padding, panel fill, and the dashed outline interact.
+Use the `EmptyMedia` component to display an avatar in the empty state.
 
-<ComponentPreview name="emptyDemoMatrix" file="components/preview/empty.tsx" />
+<ComponentPreview name="emptyAvatar" file="components/preview/empty.tsx" />
 
-### Intents
+### Avatar Group
 
-`EmptyMedia` takes an `intent` that tints the chip — neutral `default`, `info`, or
-`destructive` — each mapping to semantic status tokens (`bg-X-subtle text-X-text`). Use
-`destructive` for error/failure empties, `info` for search/filter empties, and `default` for plain
-zero-data states.
+Use the `EmptyMedia` component to display an avatar group in the empty state.
 
-<ComponentPreview name="emptyDemoIntents" file="components/preview/empty.tsx" />
+<ComponentPreview name="emptyAvatarGroup" file="components/preview/empty.tsx" />
 
-### Illustration & value tiers
+### InputGroup
 
-The empty-state system spans eight tiers; two are Wave-2 additions. `EmptyIllustration`
-renders one of six built-in monoline drawings (`clipboard`, `bell`, `search`, `box`, `error`,
-`not-found`) on a faint grid-paper ground — all `currentColor`, so the error tier is just
-`text-destructive-text` on the media slot, no extra asset. `EmptyValue` is the inline tier: a
-single faint phrase for a value slot ("No value", "Set a value…").
+`EmptyContent` takes an [`InputGroup`](/docs/components/input-group), which keeps the leading icon
+and the trailing `Kbd` hint in their own addons, outside the editable box.
 
-<ComponentPreview
-  name="emptyIllustrations"
-  file="components/preview/empty.tsx"
-/>
+<ComponentPreview name="emptyInputGroup" file="components/preview/empty.tsx" />
 
-## Playground
+### RTL
 
-Combine the container variant and size with the media chip's variant and intent, then copy the generated JSX.
+Every part is written in logical properties, so a right-to-left document mirrors the media chip,
+the action row and the description without any extra work.
 
-<EmptyPlayground />
+<ComponentPreview name="emptyRtl" file="components/preview/empty.tsx" />
 
 ## API Reference
 
-### Empty
+<ApiTable path="lib/api-props.ts" name="EmptyProps" />
 
-<ApiTable path="../../packages/ui/registry/ui/empty.tsx" name="EmptyProps" />
+<ApiTable path="lib/api-props.ts" name="EmptyHeaderProps" />
 
-### EmptyMedia
+<ApiTable path="lib/api-props.ts" name="EmptyMediaProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/empty.tsx"
-  name="EmptyMediaProps"
-/>
+<ApiTable path="lib/api-props.ts" name="EmptyTitleProps" />
 
-### EmptyTitle
+<ApiTable path="lib/api-props.ts" name="EmptyDescriptionProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/empty.tsx"
-  name="EmptyTitleProps"
-/>
-
-### EmptyDescription
-
-<ApiTable
-  path="../../packages/ui/registry/ui/empty.tsx"
-  name="EmptyDescriptionProps"
-/>
-
-### EmptyContent
-
-<ApiTable
-  path="../../packages/ui/registry/ui/empty.tsx"
-  name="EmptyContentProps"
-/>
+<ApiTable path="lib/api-props.ts" name="EmptyContentProps" />
 
 ## Accessibility
 
-- The title renders as a real heading (`<h3>` by default) so assistive technology can navigate to it. Set `as` to match the page's outline — `h2` when the empty state replaces a whole page body, `p` when the surrounding card already carries the heading.
-- The icon chip is decorative (`aria-hidden`) — meaning is carried by the title and description text, never by the icon or color alone.
-- Action controls inside `EmptyContent` are real buttons/links with their own accessible names and `:focus-visible` rings.
-- The container is non-interactive; keyboard focus order flows through the action controls only.
-
-| Key                                 | Action                                                             |
-| ----------------------------------- | ------------------------------------------------------------------ |
-| <kbd>Tab</kbd>                      | Move focus to the first action control (when actions are present). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action control.                               |
+- Every part renders a plain `<div>`, so the empty state adds no landmark and no implicit heading.
+  Where the placeholder replaces a named region, give the surrounding container the heading.
+- `EmptyTitle` is styled text, not a heading element, and the part takes no `render` prop. When the
+  empty state stands in for a section that already had a heading level, put the real heading in the
+  surrounding container rather than relying on the title.
+- `EmptyMedia` is decorative: the icon inside it carries no accessible name, and the title plus
+  the description are what a screen reader announces.
+- `EmptyContent` holds real controls — a `Button`, an `Input`, a link — and each keeps its own
+  focus outline from `base.css`; the placeholder never suppresses one.
 
 <StatesTested name="empty" />
 
 ## Do / Don't
 
 <DoDont
-  do="Pair a clear title with a description and a single primary action that resolves the empty state — e.g. Create your first project."
-  dont="Leave a blank area or show only a spinner — distinguish empty (no data) from loading and explain what the user can do next."
+  do="Say what is missing and give one obvious next action in EmptyContent."
+  dont="Ship a bare illustration with no title, description, or way forward."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/empty.patch`. Every hunk:
+
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

@@ -1,402 +1,483 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
+import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Spinner } from "./spinner";
 import {
   Command,
-  CommandInput,
-  CommandList,
+  CommandDialog,
   CommandEmpty,
-  CommandLoading,
   CommandGroup,
+  CommandInput,
   CommandItem,
+  CommandList,
   CommandSeparator,
   CommandShortcut,
-  CommandDialog,
-  useCommandFilteredItems,
-  CommandFooter,
 } from "./command";
 
-type ExampleItem = {
-  value: string;
-  label: string;
-  disabled?: boolean;
-  shortcut?: string;
-};
+/*
+ * The eleven SPEC behaviours that used to live in `command.characterization.test.tsx` are ported
+ * into this file, each marked `SPEC:`. That file pinned the RETIRED Base UI Combobox build; the
+ * reset put `command` back on upstream's cmdk, which is the engine the spec was originally captured
+ * against, so every one of the eleven is expressible again — including the two the Combobox build
+ * could not honour (disabled-skip in navigation, and `value` controlling the highlight).
+ */
 
-const SUGGESTIONS: ExampleItem[] = [
-  { value: "calendar", label: "Calendar" },
-  { value: "search-emoji", label: "Search Emoji" },
-];
-const SETTINGS: ExampleItem[] = [
-  { value: "profile", label: "Profile", shortcut: "⌘P" },
-  { value: "billing", label: "Billing", disabled: true },
-];
-const EXAMPLE_GROUPS = [
-  { heading: "Suggestions", items: SUGGESTIONS },
-  { heading: "Settings", items: SETTINGS },
-];
-
-// The anatomy is data-driven (see command.tsx's DATA-DRIVEN note): `Command` takes `items`
-// (here, groups), and grouped rendering reads the FILTERED result from `useCommandFilteredItems`
-// (not the original static array) into each `CommandGroup`.
-function ExampleGroups({ onSelect }: { onSelect?: (value: string) => void }) {
-  const groups = useCommandFilteredItems<(typeof EXAMPLE_GROUPS)[number]>();
+/** The palette every test drives, as static children — cmdk registers items from the DOM. */
+function Palette({
+  items = ["Calendar", "Calculator", "Settings"].map((label) => ({ label })),
+  onSelect,
+  ...rootProps
+}: {
+  items?: { label: string; disabled?: boolean }[];
+  onSelect?: (value: string) => void;
+} & React.ComponentProps<typeof Command>) {
   return (
-    <>
-      {groups.map((group, i) => (
-        <React.Fragment key={group.heading}>
-          {i > 0 ? <CommandSeparator /> : null}
-          <CommandGroup heading={group.heading} items={group.items}>
-            {(item) => (
-              <CommandItem
-                key={item.value}
-                value={item.value}
-                disabled={item.disabled}
-                onSelect={() => onSelect?.(item.value)}
-              >
-                {item.label}
-                {item.shortcut ? (
-                  <CommandShortcut>{item.shortcut}</CommandShortcut>
-                ) : null}
-              </CommandItem>
-            )}
-          </CommandGroup>
-        </React.Fragment>
-      ))}
-    </>
-  );
-}
-
-function Example({ onSelect }: { onSelect?: (value: string) => void } = {}) {
-  return (
-    <Command items={EXAMPLE_GROUPS}>
-      <CommandInput placeholder="Search…" />
-      <CommandEmpty>No results found.</CommandEmpty>
+    <Command {...rootProps}>
+      <CommandInput
+        placeholder="Type a command…"
+        aria-label="Command palette"
+      />
       <CommandList>
-        <ExampleGroups onSelect={onSelect} />
+        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandGroup heading="Tools">
+          {items.map((item) => (
+            <CommandItem
+              key={item.label}
+              disabled={item.disabled}
+              onSelect={(value) => onSelect?.(value)}
+            >
+              {item.label}
+            </CommandItem>
+          ))}
+        </CommandGroup>
       </CommandList>
     </Command>
   );
 }
 
-test("renders the search input and all items", async () => {
-  const screen = await render(<Example />);
-  await expect.element(screen.getByPlaceholder("Search…")).toBeInTheDocument();
-  await expect.element(screen.getByText("Calendar")).toBeInTheDocument();
-  await expect.element(screen.getByText("Search Emoji")).toBeInTheDocument();
-  // The item renders its shortcut inside the option, so the hint joins the option's
-  // accessible name. Matched by the label alone — whether the two join as "Profile ⌘P" or
-  // "Profile⌘P" is decided by the hint's computed `display`, which this realm loads no CSS
-  // to settle. The whole name lives in `test/accessible-name.browser.test.tsx`.
-  await expect
-    .element(screen.getByRole("option", { name: /^Profile/ }))
-    .toBeInTheDocument();
+/**
+ * The rows cmdk currently renders, in DOM order. cmdk UNMOUNTS a row that scores zero rather than
+ * hiding it, so "in the DOM" and "visible to the user" are the same set. Scoped to the render's own
+ * container: several `render()` calls accumulate in the page across a file.
+ */
+const rows = (root: ParentNode): string[] =>
+  [...root.querySelectorAll('[data-slot="command-item"]')].map(
+    (el) => el.textContent?.trim() ?? "",
+  );
+
+/**
+ * The row cmdk has under the keyboard cursor. `="true"` is load-bearing: cmdk writes
+ * `data-selected="false"` on every OTHER row, so a bare `[data-selected]` matches all of them and
+ * would silently report the first row as active forever.
+ */
+const activeRow = (root: ParentNode): string | null => {
+  const el = root.querySelector(
+    '[data-slot="command-item"][data-selected="true"]',
+  );
+  return el ? (el.textContent?.trim() ?? "") : null;
+};
+
+const announcer = (root: ParentNode) =>
+  root.querySelector('[data-slot="announcer"]') as HTMLElement | null;
+
+// --- Usage / Composition ----------------------------------------------------------------------
+
+test("every exported part renders inside one palette (Usage, Composition)", async () => {
+  const screen = await render(
+    <Command>
+      <CommandInput placeholder="Type…" aria-label="Command palette" />
+      <CommandList>
+        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandGroup heading="Suggestions">
+          <CommandItem>Calendar</CommandItem>
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="Settings">
+          <CommandItem>
+            Profile
+            <CommandShortcut>⌘P</CommandShortcut>
+          </CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </Command>,
+  );
+  const root = screen.container;
+  expect(root.querySelector('[data-slot="command"]')).not.toBeNull();
+  expect(root.querySelector('[data-slot="command-input"]')).not.toBeNull();
+  expect(root.querySelector('[data-slot="command-list"]')).not.toBeNull();
+  expect(root.querySelectorAll('[data-slot="command-group"]').length).toBe(2);
+  expect(root.querySelector('[data-slot="command-separator"]')).not.toBeNull();
+  expect(root.querySelector('[data-slot="command-shortcut"]')).not.toBeNull();
+  expect(rows(root)).toEqual(["Calendar", "Profile⌘P"]);
+  // The input is the combobox; the list is the listbox it controls.
+  const input = root.querySelector('[data-slot="command-input"]')!;
+  expect(input.getAttribute("role")).toBe("combobox");
+  expect(
+    root.querySelector('[data-slot="command-list"]')!.getAttribute("role"),
+  ).toBe("listbox");
+  expect(input.getAttribute("aria-controls")).toBe(
+    root.querySelector('[data-slot="command-list"]')!.id,
+  );
 });
 
-test("renders group headings", async () => {
-  const screen = await render(<Example />);
-  await expect.element(screen.getByText("Suggestions")).toBeInTheDocument();
-  await expect.element(screen.getByText("Settings")).toBeInTheDocument();
+test("CommandDialog puts the palette inside a dialog (Basic)", async () => {
+  await render(
+    <CommandDialog open title="Command Palette" description="Run a command.">
+      <Palette />
+    </CommandDialog>,
+  );
+  const content = document.querySelector(
+    '[data-slot="dialog-content"]',
+  ) as HTMLElement;
+  expect(content).not.toBeNull();
+  expect(content.querySelector('[data-slot="command"]')).not.toBeNull();
+  expect(rows(content)).toEqual(["Calendar", "Calculator", "Settings"]);
 });
 
-test("typing filters items down to matches", async () => {
-  const screen = await render(<Example />);
-  await screen.getByPlaceholder("Search…").fill("Cal");
+// --- About: the cmdk engine -------------------------------------------------------------------
 
-  await expect.element(screen.getByText("Calendar")).toBeInTheDocument();
-  // Non-matching items are removed from the DOM (Base UI only renders the query-filtered `items`).
-  await expect.poll(() => document.body.textContent).not.toContain("Profile");
+test("the engine unmounts a row that scores zero rather than hiding it (About)", async () => {
+  const screen = await render(<Palette />);
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("calc");
+  expect(rows(screen.container)).toEqual(["Calculator"]);
+  // Not merely `hidden`/`aria-hidden`: the element is gone.
+  expect(
+    screen.container.querySelectorAll('[data-slot="command-item"]').length,
+  ).toBe(1);
 });
 
-test("shows the empty state when nothing matches", async () => {
-  const screen = await render(<Example />);
-  await screen.getByPlaceholder("Search…").fill("zzzznope");
+// --- SPEC (ported from command.characterization.test.tsx) --------------------------------------
+
+test("SPEC filtering: typing narrows to matches; clearing restores all", async () => {
+  const screen = await render(<Palette />);
+  const input = screen.getByRole("combobox", { name: "Command palette" });
+  await input.fill("calc");
+  expect(rows(screen.container)).toEqual(["Calculator"]);
+  await input.fill("");
+  // Membership, not order: cmdk RE-ORDERS the list by score while a query is live and does not put
+  // the source order back when the query clears, so the restored set is what "restores all" means.
+  expect([...rows(screen.container)].sort()).toEqual([
+    "Calculator",
+    "Calendar",
+    "Settings",
+  ]);
+});
+
+test("SPEC filtering: the better match ranks first", async () => {
+  const screen = await render(
+    <Palette items={[{ label: "Profile" }, { label: "Preferences" }]} />,
+  );
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("pre");
+  // Both match, so this is ranking rather than filtering: "Preferences" is a prefix hit and
+  // "Profile" only a scattered one, and cmdk sorts the DOM by score.
+  expect(rows(screen.container)).toEqual(["Preferences", "Profile"]);
+});
+
+test("SPEC filtering: no match shows the Empty slot", async () => {
+  const screen = await render(<Palette />);
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("zzz");
   await expect
     .element(screen.getByText("No results found."))
     .toBeInTheDocument();
+  expect(rows(screen.container)).toEqual([]);
 });
 
-test("selecting an item fires onSelect", async () => {
-  const onSelect = vi.fn();
-  const screen = await render(<Example onSelect={onSelect} />);
-  await screen.getByText("Calendar").click();
-  expect(onSelect).toHaveBeenCalledTimes(1);
+test("SPEC arrows: ArrowDown/ArrowUp move the active row", async () => {
+  const screen = await render(<Palette />);
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  expect(activeRow(screen.container)).toBe("Calendar");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(activeRow(screen.container)).toBe("Calculator");
+  await userEvent.keyboard("{ArrowUp}");
+  expect(activeRow(screen.container)).toBe("Calendar");
 });
 
-test("a disabled item carries data-disabled and does not fire onSelect", async () => {
-  const onSelect = vi.fn();
-  await render(<Example onSelect={onSelect} />);
-  const billing = document.querySelector<HTMLElement>(
-    '[data-slot="command-item"][data-disabled]',
+test("SPEC Home/End: jump to the first and last row", async () => {
+  const screen = await render(<Palette />);
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  await userEvent.keyboard("{End}");
+  expect(activeRow(screen.container)).toBe("Settings");
+  await userEvent.keyboard("{Home}");
+  expect(activeRow(screen.container)).toBe("Calendar");
+});
+
+test("SPEC loop: with loop, ArrowUp from the first row wraps to the last", async () => {
+  const screen = await render(<Palette loop />);
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  await userEvent.keyboard("{ArrowUp}");
+  expect(activeRow(screen.container)).toBe("Settings");
+});
+
+test("SPEC no-loop: ArrowUp from the first row stays on the first", async () => {
+  const screen = await render(<Palette />);
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  await userEvent.keyboard("{ArrowUp}");
+  expect(activeRow(screen.container)).toBe("Calendar");
+});
+
+test("SPEC disabled-skip: arrow navigation steps over a disabled row", async () => {
+  const screen = await render(
+    <Palette
+      items={[
+        { label: "Alpha" },
+        { label: "Beta", disabled: true },
+        { label: "Gamma" },
+      ]}
+    />,
   );
-  expect(billing?.textContent).toContain("Billing");
-  billing?.click();
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  expect(activeRow(screen.container)).toBe("Alpha");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(activeRow(screen.container)).toBe("Gamma");
+});
+
+test("SPEC Enter activates the active row (onSelect fires with its value)", async () => {
+  const onSelect = vi.fn();
+  const screen = await render(<Palette onSelect={onSelect} />);
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{Enter}");
+  expect(activeRow(screen.container)).toBe("Calculator");
+  expect(onSelect).toHaveBeenCalledTimes(1);
+  expect(onSelect).toHaveBeenCalledWith("Calculator");
+});
+
+test("SPEC disabled: a disabled row never fires onSelect", async () => {
+  const onSelect = vi.fn();
+  const screen = await render(
+    <Palette items={[{ label: "Beta", disabled: true }]} onSelect={onSelect} />,
+  );
+  const row = screen.container.querySelector(
+    '[data-slot="command-item"]',
+  ) as HTMLElement;
+  expect(row.getAttribute("aria-disabled")).toBe("true");
+  // `force`: Playwright refuses to click a control it considers unavailable, and forcing is what
+  // proves the row is inert rather than merely unreachable.
+  await userEvent.click(row, { force: true });
   expect(onSelect).not.toHaveBeenCalled();
 });
 
-test("a custom filter can match against keywords beyond the visible label", async () => {
-  // DEVIATION: the prior implementation's per-item `keywords` prop has no Base UI equivalent (filtering is data-driven
-  // off `items`, not per-rendered-item metadata). Ported by folding `keywords` into the item data
-  // and matching them from a custom `filter` on `Command` — same observable behavior.
-  const items = [
-    { value: "invoices", label: "Invoices", keywords: ["money", "payments"] },
-    { value: "calendar", label: "Calendar", keywords: [] as string[] },
-  ];
-  const screen = await render(
-    <Command
-      items={items}
-      filter={(item: (typeof items)[number], query) => {
-        const q = query.toLowerCase();
-        return (
-          item.label.toLowerCase().includes(q) ||
-          item.keywords.some((k) => k.toLowerCase().includes(q))
-        );
-      }}
-    >
-      <CommandInput placeholder="Search…" />
-      <CommandEmpty>No results found.</CommandEmpty>
-      <CommandList>
-        {(item: (typeof items)[number]) => (
-          <CommandItem key={item.value} value={item.value}>
-            {item.label}
-          </CommandItem>
-        )}
-      </CommandList>
-    </Command>,
-  );
-
-  await screen.getByPlaceholder("Search…").fill("payments");
-  await expect.element(screen.getByText("Invoices")).toBeInTheDocument();
-  await expect.poll(() => document.body.textContent).not.toContain("Calendar");
-});
-
-test("a statically-composed item stays mounted while filtering (no forceMount equivalent)", async () => {
-  // DEVIATION: the prior implementation's per-item `forceMount` prop has no Base UI equivalent — items only ever come
-  // from the query-filtered `items` array. The same effect (an item that's immune to the query) is
-  // achieved by composing it OUTSIDE the filtered `CommandGroup`/`useCommandFilteredItems` result,
-  // as an ordinary static sibling.
-  function AlwaysAndFiltered() {
-    const filtered = useCommandFilteredItems<{
-      value: string;
-      label: string;
-    }>();
-    return (
-      <>
-        <CommandItem value="always">Always visible</CommandItem>
-        <CommandGroup items={filtered}>
-          {(item) => (
-            <CommandItem key={item.value} value={item.value}>
-              {item.label}
-            </CommandItem>
-          )}
-        </CommandGroup>
-      </>
-    );
+test("SPEC controlled value: the controlled value is the active row", async () => {
+  function Controlled() {
+    const [value, setValue] = React.useState("Settings");
+    return <Palette value={value} onValueChange={setValue} />;
   }
-  const screen = await render(
-    <Command items={[{ value: "calendar", label: "Calendar" }]}>
-      <CommandInput placeholder="Search…" />
-      <CommandEmpty>No results found.</CommandEmpty>
-      <CommandList>
-        <AlwaysAndFiltered />
-      </CommandList>
-    </Command>,
-  );
-
-  await screen.getByPlaceholder("Search…").fill("zzzznope");
-  await expect.element(screen.getByText("Always visible")).toBeInTheDocument();
-  await expect.poll(() => document.body.textContent).not.toContain("Calendar");
+  const screen = await render(<Controlled />);
+  expect(activeRow(screen.container)).toBe("Settings");
 });
 
-test("renders an announced loading state for async results", async () => {
-  await render(
-    <Command items={[]}>
-      <CommandInput placeholder="Search…" />
-      <CommandLoading>
-        <Spinner size="inherit" label="" />
-        Loading commands…
-      </CommandLoading>
-      <CommandList />
-    </Command>,
-  );
-
-  const loading = document.querySelector('[data-slot="command-loading"]');
-  expect(loading).not.toBeNull();
-  expect(loading).toHaveAttribute("role", "status");
-  expect(loading).toHaveAttribute("aria-live", "polite");
-  expect(loading?.textContent).toContain("Loading commands…");
+test("SPEC async: rows that appear later become filterable and navigable", async () => {
+  function AsyncPalette() {
+    const [items, setItems] = React.useState<{ label: string }[]>([]);
+    React.useEffect(() => {
+      const timer = setTimeout(() => setItems([{ label: "Late item" }]), 50);
+      return () => clearTimeout(timer);
+    }, []);
+    return <Palette items={items} />;
+  }
+  const screen = await render(<AsyncPalette />);
+  await expect.element(screen.getByText("Late item")).toBeInTheDocument();
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("late");
+  expect(rows(screen.container)).toEqual(["Late item"]);
+  expect(activeRow(screen.container)).toBe("Late item");
 });
 
-test("Enter activates the highlighted item", async () => {
+test("SPEC IME: an Enter mid-composition does not activate a row", async () => {
   const onSelect = vi.fn();
-  const screen = await render(<Example onSelect={onSelect} />);
-  const input = screen.getByPlaceholder("Search…");
+  const screen = await render(<Palette onSelect={onSelect} />);
+  const input = screen.getByRole("combobox", { name: "Command palette" });
   await input.click();
-  await userEvent.keyboard("{Enter}");
-  expect(onSelect).toHaveBeenCalled();
-});
-
-test("CommandDialog opens and renders its items", async () => {
-  const screen = await render(
-    <CommandDialog
-      defaultOpen
-      commandProps={{
-        items: [
-          {
-            heading: "Navigation",
-            items: [{ value: "dashboard", label: "Go to dashboard" }],
-          },
-        ],
-      }}
-    >
-      <CommandInput placeholder="Type a command…" />
-      <CommandEmpty>No results found.</CommandEmpty>
-      <CommandList>
-        <ExampleGroups />
-      </CommandList>
-    </CommandDialog>,
+  const el = input.element() as HTMLInputElement;
+  el.dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true }));
+  el.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "Enter",
+      keyCode: 229,
+      isComposing: true,
+      bubbles: true,
+    }),
   );
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-  await expect.element(screen.getByText("Go to dashboard")).toBeInTheDocument();
+  expect(onSelect).not.toHaveBeenCalled();
+  el.dispatchEvent(new CompositionEvent("compositionend", { bubbles: true }));
 });
 
-test("CommandDialog forwards commandProps to the inner Command root", async () => {
-  // DEVIATION: the prior implementation's `shouldFilter: false` (disable filtering entirely) is Base UI's `filter:
-  // null` — its own documented escape hatch (see AriaCombobox's `filter` prop).
-  const items = [
-    { value: "calendar", label: "Calendar" },
-    { value: "profile", label: "Profile" },
-  ];
+// --- Shortcuts / Groups / Scrollable / RTL -----------------------------------------------------
+
+test("a shortcut hint rides at the end of its row (Shortcuts)", async () => {
   const screen = await render(
-    <CommandDialog
-      defaultOpen
-      commandProps={{ items, filter: null, loop: true }}
-    >
-      <CommandInput placeholder="Type a command…" />
-      <CommandEmpty>No results found.</CommandEmpty>
+    <Command>
+      <CommandInput placeholder="Type…" aria-label="Command palette" />
       <CommandList>
-        {(item: (typeof items)[number]) => (
-          <CommandItem key={item.value} value={item.value}>
-            {item.label}
+        <CommandGroup heading="Settings">
+          <CommandItem>
+            Profile
+            <CommandShortcut>⌘P</CommandShortcut>
           </CommandItem>
-        )}
-      </CommandList>
-    </CommandDialog>,
-  );
-  await screen.getByPlaceholder("Type a command…").fill("zzzznope");
-  // `filter: null` keeps consumer-managed items mounted even when they do not match the query.
-  await expect.element(screen.getByText("Calendar")).toBeInTheDocument();
-  await expect.element(screen.getByText("Profile")).toBeInTheDocument();
-});
-
-test("no a11y violations — loading", async () => {
-  // `CommandLoading` (Base UI `Combobox.Status`, role="status") now renders as a SIBLING of
-  // `CommandList` (role="listbox"), not its child — see command.tsx's anatomy note. `listbox` only
-  // permits `option`/`group` owned children, so nesting `status` inside it (the old build's
-  // structure) tripped `aria-required-children`; moving it out fixes this for real, no suppression.
-  await render(
-    <Command items={[{ value: "calendar", label: "Calendar" }]}>
-      <CommandInput placeholder="Search…" />
-      <CommandLoading>
-        <Spinner size="inherit" label="" />
-        Loading commands…
-      </CommandLoading>
-      <CommandList>
-        {(item: { value: string; label: string }) => (
-          <CommandItem key={item.value} value={item.value}>
-            {item.label}
-          </CommandItem>
-        )}
+        </CommandGroup>
       </CommandList>
     </Command>,
   );
-  await expectNoA11yViolations(document.body);
+  const shortcut = screen.container.querySelector(
+    '[data-slot="command-shortcut"]',
+  ) as HTMLElement;
+  expect(shortcut.textContent).toBe("⌘P");
+  expect(shortcut.closest('[data-slot="command-item"]')).not.toBeNull();
+  // A row that carries a shortcut hides the trailing check, so the two never share the slot.
+  expect(shortcut.className).toContain("ms-auto");
 });
 
-test("no a11y violations — open", async () => {
+test("groups carry headings and a separator divides them (Groups)", async () => {
   const screen = await render(
-    <CommandDialog
-      defaultOpen
-      commandProps={{
-        items: [
-          {
-            heading: "Navigation",
-            items: [{ value: "dashboard", label: "Go to dashboard" }],
-          },
-        ],
-      }}
-    >
-      <CommandInput placeholder="Type a command…" />
-      <CommandEmpty>No results found.</CommandEmpty>
+    <Command>
+      <CommandInput placeholder="Type…" aria-label="Command palette" />
       <CommandList>
-        <ExampleGroups />
+        <CommandGroup heading="Suggestions">
+          <CommandItem>Calendar</CommandItem>
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="Settings">
+          <CommandItem>Profile</CommandItem>
+        </CommandGroup>
       </CommandList>
-    </CommandDialog>,
+    </Command>,
   );
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-  // The dialog portals to <body>, so audit the whole document.
-  await expectNoA11yViolations(document.body);
+  const root = screen.container;
+  expect(
+    [...root.querySelectorAll("[cmdk-group-heading]")].map((el) =>
+      el.textContent?.trim(),
+    ),
+  ).toEqual(["Suggestions", "Settings"]);
+  expect(root.querySelector('[data-slot="command-separator"]')).not.toBeNull();
 });
 
-test("no a11y violations", async () => {
-  await render(<Example />);
-  // No suppression: `CommandSeparator` marks itself `aria-hidden` (removing the decorative divider
-  // from the a11y tree — a `role="separator"` is not a permitted owned child of `role="listbox"`),
-  // and `CommandEmpty` lives outside `CommandList` entirely, so the listbox owns only valid
-  // `group`/`option` children.
-  await expectNoA11yViolations(document.body);
+test("the list is bounded and scrolls (Scrollable)", async () => {
+  const many = Array.from({ length: 40 }, (_, index) => ({
+    label: `Command ${index}`,
+  }));
+  const screen = await render(<Palette items={many} />);
+  const list = screen.container.querySelector(
+    '[data-slot="command-list"]',
+  ) as HTMLElement;
+  expect(rows(screen.container).length).toBe(40);
+  // The bound and the scroll are the list's own contract; `test/geometry.browser.test.tsx` measures
+  // the rendered result, because this lane compiles no CSS.
+  expect(list.className).toContain("max-h-72");
+  expect(list.className).toContain("overflow-y-auto");
+  expect(list.className).toContain("scroll-py-1");
 });
 
-test("CommandSeparator is aria-hidden so the listbox owns only group/option children", async () => {
-  await render(<Example />);
-  const sep = document.querySelector('[data-slot="command-separator"]');
-  expect(sep).not.toBeNull();
-  expect(sep).toHaveAttribute("aria-hidden", "true");
-  // Direct, non-hidden children of the listbox must each be a group or option (axe's rule).
-  const listbox = document.querySelector('[role="listbox"]')!;
-  const exposed = Array.from(listbox.querySelectorAll("[role]")).filter(
-    (el) => el.closest('[aria-hidden="true"]') === null,
+test("RTL: the palette inherits direction from its container (RTL)", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Palette />
+    </div>,
   );
-  for (const el of exposed) {
-    const role = el.getAttribute("role");
-    expect(["group", "option", "presentation", "none"]).toContain(role);
+  const root = screen.container.querySelector(
+    '[data-slot="command"]',
+  ) as HTMLElement;
+  expect(getComputedStyle(root).direction).toBe("rtl");
+});
+
+// --- Decision IDs from packages/ui/upstream/patches/command.patch -------------------------------
+
+test("INT-1: no rendered row forces the default cursor", async () => {
+  const screen = await render(<Palette />);
+  const items = [
+    ...screen.container.querySelectorAll('[data-slot="command-item"]'),
+  ];
+  expect(items.length).toBeGreaterThan(0);
+  for (const item of items) {
+    expect(item.className).not.toContain("cursor-default");
   }
 });
 
-test("CommandInput forwards ref to its host input element", async () => {
-  const ref = React.createRef<HTMLInputElement>();
-  await render(
-    <Command items={[]}>
-      <CommandInput ref={ref} placeholder="Search…" />
-    </Command>,
-  );
-  expect(ref.current).toBeInstanceOf(HTMLInputElement);
-  expect(ref.current?.dataset.slot).toBe("command-input");
+test("A11Y-4: one polite region is mounted, and empty, from the first render", async () => {
+  const screen = await render(<Palette />);
+  const regions = [
+    ...screen.container.querySelectorAll('[data-slot="announcer"]'),
+  ];
+  expect(regions.length).toBe(1);
+  const region = regions[0] as HTMLElement;
+  expect(region.getAttribute("role")).toBe("status");
+  expect(region.getAttribute("aria-live")).toBe("polite");
+  // Mounted EMPTY: a live region inserted at the moment it has content is frequently not spoken.
+  expect(region.textContent).toBe("");
 });
 
-test("CommandFooter renders the hairline-topped action bar inside the palette", async () => {
-  const screen = await render(
-    <Command items={["Alpha", "Beta"]}>
-      <CommandInput placeholder="Search…" aria-label="Search commands" />
-      <CommandList>
-        {(item: string) => (
-          <CommandItem key={item} value={item}>
-            {item}
-          </CommandItem>
-        )}
-      </CommandList>
-      <CommandFooter>
-        <span className="text-sm text-muted-foreground">Navigate</span>
-      </CommandFooter>
-    </Command>,
-  );
-  const footer = document.querySelector(
-    '[data-slot="command-footer"]',
+test("A11Y-3: narrowing the list announces the result count politely", async () => {
+  const screen = await render(<Palette />);
+  const input = screen.getByRole("combobox", { name: "Command palette" });
+  await input.fill("cal");
+  await expect
+    .poll(() => announcer(screen.container)?.textContent)
+    .toBe("2 results");
+  await input.fill("calc");
+  await expect
+    .poll(() => announcer(screen.container)?.textContent)
+    .toBe("1 result");
+  await input.fill("zzz");
+  await expect
+    .poll(() => announcer(screen.container)?.textContent)
+    .toBe("0 results");
+  // Polite, never assertive: the region is a `status`, and nothing here is a `role="alert"`.
+  expect(
+    screen.container.querySelector('[role="alert"], [aria-live="assertive"]'),
+  ).toBeNull();
+});
+
+test("A11Y-7: the list is a listbox with results and roleless without them", async () => {
+  const screen = await render(<Palette />);
+  const list = screen.container.querySelector(
+    '[data-slot="command-list"]',
   ) as HTMLElement;
-  expect(footer).not.toBeNull();
-  expect(footer.className).toContain("border-t");
-  await expect.element(screen.getByText("Navigate")).toBeInTheDocument();
+  expect(list.getAttribute("role")).toBe("listbox");
+  const input = screen.getByRole("combobox", { name: "Command palette" });
+  await input.fill("zzz");
+  // Zero options, so it is not a listbox — which is what keeps the empty message from being an
+  // invalid listbox child (axe `aria-required-children`, critical).
+  await expect.poll(() => list.getAttribute("role")).toBe(null);
+  await input.fill("cal");
+  await expect.poll(() => list.getAttribute("role")).toBe("listbox");
+});
+
+test("A11Y-3: the empty message carries role=status, never inside a listbox", async () => {
+  const screen = await render(<Palette />);
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("zzz");
+  const empty = screen.container.querySelector(
+    '[data-slot="command-empty"]',
+  ) as HTMLElement;
+  const status = empty.querySelector('[role="status"]') as HTMLElement;
+  expect(status).not.toBeNull();
+  expect(status.textContent).toBe("No results found.");
+  expect(status.closest('[role="listbox"]')).toBeNull();
+});
+
+// --- Accessibility ------------------------------------------------------------------------------
+
+test("no a11y violations — rest", async () => {
+  const screen = await render(<Palette />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — filtered", async () => {
+  const screen = await render(<Palette />);
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("cal");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — empty", async () => {
+  const screen = await render(<Palette />);
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("zzz");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — inside the dialog", async () => {
+  await render(
+    <CommandDialog open title="Command Palette" description="Run a command.">
+      <Palette />
+    </CommandDialog>,
+  );
+  // Portaled: audit the document rather than the render container.
+  await expectNoA11yViolations(document.body);
 });

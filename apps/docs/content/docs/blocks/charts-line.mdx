@@ -1,0 +1,92 @@
+---
+title: charts-line
+description: The 10 line chart blocks — copy-once Card compositions over the chart component and recharts, with their sample data inline.
+audience: public
+registry: chart-line-default
+preview: chartLineDefault
+---
+
+## What it is
+
+10 chart **blocks** in the `line` family. Each is one `Card` wrapping a
+`ChartContainer`, with its sample data inline — pull one, then point it at your own series.
+They depend on `card` and `chart` and nothing else.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/chart-line-default
+```
+
+<RegistryInstallCallout />
+
+Every block on this page installs the same way; swap the name.
+
+## Examples
+
+### chart-line-default
+
+A line chart.
+
+<ComponentPreview name="chartLineDefault" />
+
+### chart-line-dots
+
+A line chart with dots.
+
+<ComponentPreview name="chartLineDots" />
+
+### chart-line-dots-colors
+
+A line chart with dots and colors.
+
+<ComponentPreview name="chartLineDotsColors" />
+
+### chart-line-dots-custom
+
+A line chart with custom dots.
+
+<ComponentPreview name="chartLineDotsCustom" />
+
+### chart-line-interactive
+
+An interactive line chart.
+
+<ComponentPreview name="chartLineInteractive" />
+
+### chart-line-label
+
+A line chart with a label.
+
+<ComponentPreview name="chartLineLabel" />
+
+### chart-line-label-custom
+
+A line chart with a custom label.
+
+<ComponentPreview name="chartLineLabelCustom" />
+
+### chart-line-linear
+
+A linear line chart.
+
+<ComponentPreview name="chartLineLinear" />
+
+### chart-line-multiple
+
+A multiple line chart.
+
+<ComponentPreview name="chartLineMultiple" />
+
+### chart-line-step
+
+A line chart with step.
+
+<ComponentPreview name="chartLineStep" />
+
+## Do / Don't
+
+<DoDont
+  do="Copy the one whose shape matches your data, then replace chartData and chartConfig."
+  dont="Import a chart block from the registry as a shared component — it is a starting point, not an API."
+/>

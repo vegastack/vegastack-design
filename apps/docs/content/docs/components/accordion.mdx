@@ -1,6 +1,6 @@
 ---
 title: Accordion
-description: A stack of collapsible sections — single or multiple open, animated height expand/collapse, and a rotating chevron, with full keyboard support.
+description: A vertically stacked set of interactive headings that each reveal a section of content — one open at a time, or several.
 audience: public
 registry: accordion
 status: stable
@@ -18,126 +18,150 @@ preview: accordion
 ```tsx
 import {
   Accordion,
+  AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  AccordionContent,
 } from "@/components/ui/accordion";
 
-<Accordion defaultValue={["shipping"]}>
-  <AccordionItem value="shipping">
-    <AccordionTrigger>Shipping</AccordionTrigger>
-    <AccordionContent>Ships in 2–3 business days.</AccordionContent>
-  </AccordionItem>
-  <AccordionItem value="returns">
-    <AccordionTrigger>Returns</AccordionTrigger>
-    <AccordionContent>30-day return window.</AccordionContent>
+<Accordion defaultValue={["item-1"]}>
+  <AccordionItem value="item-1">
+    <AccordionTrigger>Is it accessible?</AccordionTrigger>
+    <AccordionContent>
+      Yes. It adheres to the WAI-ARIA design pattern.
+    </AccordionContent>
   </AccordionItem>
 </Accordion>;
 ```
 
-## Anatomy
-
-`Accordion` is a compound component built on Base UI Accordion. Compose the parts inside the root,
-pairing each `AccordionTrigger` with its `AccordionContent` inside a single `AccordionItem`:
-
-<Anatomy name="accordion" />
-
-```tsx
-<Accordion multiple defaultValue={["shipping"]}>
-  <AccordionItem value="shipping">
-    <AccordionTrigger>Shipping</AccordionTrigger>
-    <AccordionContent>…</AccordionContent>
-  </AccordionItem>
-  <AccordionItem value="returns" disabled>
-    <AccordionTrigger>Returns</AccordionTrigger>
-    <AccordionContent>…</AccordionContent>
-  </AccordionItem>
-</Accordion>
-```
-
-- `Accordion` — the root that groups the items and owns single/multiple open behavior
-  (`data-slot="accordion"`). Single-open by default; pass `multiple` when several items may stay
-  open. Controlled via `value`/`onValueChange` (an array), or uncontrolled via `defaultValue`.
-- `AccordionItem` — a single collapsible section identified by `value` (`data-slot="accordion-item"`).
-  Pass `disabled` to lock it. Renders a bottom rule between stacked items.
-- `AccordionTrigger` — the header button that toggles the panel (`data-slot="accordion-trigger"`).
-  Open state is exposed as `data-panel-open`, which rotates the trailing chevron. Wrapped in an
-  `AccordionHeader` heading for accessible structure.
-- `AccordionContent` — the collapsible panel shown when its trigger is open
-  (`data-slot="accordion-content"`). Animates its height between `0` and the measured content height.
-
-## Examples
-
-Single-open is the default: opening one section collapses the previously open section.
+`value` and `defaultValue` are arrays, even when only one section can be open — the single-open rule
+is the default, and `multiple` lifts it.
 
 <ComponentPreview name="accordion" file="components/preview/accordion.tsx" />
 
-Multiple-open via `multiple` — several sections can stay expanded at once, and a section can be
-`disabled`:
+## Anatomy
+
+<Anatomy name="accordion" />
+
+## Examples
+
+### Composition
+
+An `AccordionItem` pairs a trigger with the panel it reveals, and the `value` on the item is what
+`defaultValue` and `value` on the root name.
+
+```text
+Accordion
+├── AccordionItem
+│   ├── AccordionTrigger
+│   └── AccordionContent
+└── AccordionItem
+    ├── AccordionTrigger
+    └── AccordionContent
+```
+
+<ComponentPreview
+  name="accordionComposition"
+  file="components/preview/accordion.tsx"
+/>
+
+### Basic
+
+One section at a time, with the first open. Closing the open section by clicking its own trigger is
+allowed — the accordion can rest with nothing expanded.
+
+<ComponentPreview
+  name="accordionBasic"
+  file="components/preview/accordion.tsx"
+/>
+
+### Multiple
+
+`multiple` on the root lets several sections stay open at once. Everything else is unchanged: the
+value is still the array of open items.
 
 <ComponentPreview
   name="accordionMultiple"
   file="components/preview/accordion.tsx"
 />
 
-### Controlled
+### Disabled
 
-Drive the open state yourself with `value` (an array of open item ids) and `onValueChange`. Use this
-when the open section needs to stay in sync with other state — deep-linking, a wizard step, or
-mutually exclusive panels you coordinate externally. Pass `defaultValue` instead for the uncontrolled
-case.
-
-```tsx
-const [value, setValue] = useState<string[]>(["account"]);
-
-<Accordion value={value} onValueChange={(next) => setValue(next)}>
-  <AccordionItem value="account">
-    <AccordionTrigger>Account</AccordionTrigger>
-    <AccordionContent>…</AccordionContent>
-  </AccordionItem>
-  <AccordionItem value="billing">
-    <AccordionTrigger>Billing</AccordionTrigger>
-    <AccordionContent>…</AccordionContent>
-  </AccordionItem>
-</Accordion>;
-```
+`disabled` on an `AccordionItem` takes that section out of play. The trigger keeps its pointer
+events (FRM-4), so a tooltip or a hover explanation can still say why it is unavailable.
 
 <ComponentPreview
-  name="accordionControlled"
+  name="accordionDisabled"
   file="components/preview/accordion.tsx"
 />
 
+### Borders
+
+The accordion ships with a hairline between items and nothing around them. Add `border` to the root
+and `border-b last:border-b-0` to each item to box the whole stack and keep the rules even.
+
+<ComponentPreview
+  name="accordionBorders"
+  file="components/preview/accordion.tsx"
+/>
+
+### Card
+
+Dropped into `CardContent`, the accordion inherits the card's padding, so the triggers line up with
+the card title above them.
+
+<ComponentPreview
+  name="accordionCard"
+  file="components/preview/accordion.tsx"
+/>
+
+### RTL
+
+Wrap the subtree in `DirectionProvider direction="rtl"`. The trigger's text alignment and the
+chevron's position are logical (`text-start`, `ms-auto`), so they follow the reading direction
+without a per-component override.
+
+<ComponentPreview name="accordionRtl" file="components/preview/accordion.tsx" />
+
 ## API Reference
 
-`Accordion`, `AccordionItem`, `AccordionTrigger`, and `AccordionContent` add no
-props of their own — each accepts everything the corresponding [Base UI
-Accordion](https://base-ui.com/react/components/accordion) part accepts
-(`Root`, `Item`, `Trigger`, `Panel`): `value` / `defaultValue` /
-`onValueChange` and `multiple` on the root, `value` and `disabled` on an item,
-plus `className`, `ref`, and `render` everywhere.
+`Accordion`, `AccordionItem`, `AccordionTrigger` and `AccordionContent` add no props of their own —
+each accepts everything the corresponding [Base UI Accordion](https://base-ui.com/react/components/accordion)
+part accepts (`Root`, `Item`, `Trigger`, `Panel`): `value` / `defaultValue` / `onValueChange`,
+`multiple`, `disabled`, `keepMounted` and `hiddenUntilFound` on the root, `value` and `disabled` on
+an item, plus `className`, `ref` and `render` everywhere.
 
 ## Accessibility
 
-- Built on Base UI Accordion: each `AccordionTrigger` is a `<button>` wrapped in a heading, wired to
-  its panel with `aria-controls`/`aria-expanded`; each panel is labelled by its trigger.
-- The panel animates height with the `--accordion-panel-height` CSS variable on Base UI's
-  `data-starting-style`/`data-ending-style` transition hooks — no layout-thrashing measurement loops.
-- Each trigger is keyboard-focusable and relies on the browser's default focus indicator — the
-  component never sets `outline: none`, so the platform focus ring stays visible.
-- Disabled items carry `data-disabled`, are not focusable for activation, and cannot be expanded.
-
-| Key                                 | Action                                                                |
-| ----------------------------------- | --------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move focus to the next accordion trigger (and out to the open panel). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the focused section open or closed.                            |
-| <kbd>↓</kbd> / <kbd>↑</kbd>         | Move focus between triggers.                                          |
-| <kbd>Home</kbd> / <kbd>End</kbd>    | Move focus to the first / last trigger.                               |
+- Renders Base UI's Accordion: each trigger is a button inside a heading, carrying `aria-expanded`
+  and `aria-controls`, and the panel it names is a labelled region.
+- <kbd>Tab</kbd> moves between triggers, <kbd>Enter</kbd> and <kbd>Space</kbd>
+  toggle the focused section. Base UI follows the 2024 APG update that removed
+  roving focus from the pattern, so every trigger is its own tab stop.
+- A disabled item's trigger is `aria-disabled`, not natively `disabled`, and keeps its pointer
+  events (FRM-4) — it stays reachable and hoverable so the reason can be explained in place.
+- Focus is the global 2px `:focus-visible` outline from `base.css`; there is no ring glow on a
+  trigger, and nothing suppresses the outline.
+- The chevrons are decoration: they are swapped by an `aria-expanded` variant and never carry the
+  state on their own.
 
 <StatesTested name="accordion" />
 
 ## Do / Don't
 
 <DoDont
-  do="Keep trigger labels short and scannable, group genuinely related content, and use the default single-open mode when sections are mutually exclusive."
-  dont="Nest accordions deeply or hide critical content (primary actions, required form fields) behind a collapsed panel."
+  do="Use an Accordion for a list of independent sections a reader skims and opens one at a time — FAQs, settings groups, long policy text."
+  dont="Hide the primary content of a page behind one, or nest an accordion inside an accordion panel."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/accordion.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — `outline-none focus-visible:border-ring focus-visible:ring-3
+focus-visible:ring-ring/50 focus-visible:after:border-ring` goes from `AccordionTrigger`.
+  `base.css` owns the one 2px `:focus-visible` outline and `outline-none` would suppress it.
+- **FRM-4** — `aria-disabled:pointer-events-none` is dropped, so a disabled section header stays
+  hoverable and a Tooltip can explain why it is unavailable. The opacity half stays.
+- **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
+  needs; no decision of its own.

@@ -1,0 +1,18 @@
+{
+  "component": "attachment",
+  "base": "base",
+  "url": "https://ui.shadcn.com/docs/components/base/attachment.md",
+  "sections": [
+    "Installation",
+    "Usage",
+    "Composition",
+    "Features",
+    "Image",
+    "States",
+    "Sizes",
+    "Group",
+    "Trigger",
+    "Accessibility",
+    "API Reference"
+  ]
+}
