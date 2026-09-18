@@ -37,12 +37,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/questionnaire.tsx b/questionnaire.tsx
-index 701ac1c..71d7c9a 100644
+index 701ac1c..2dfaccb 100644
 --- a/questionnaire.tsx
 +++ b/questionnaire.tsx
 @@ -1,11 +1,13 @@
 -"use client"
-+// @vegastack questionnaire@0.9.1 sha256-sr6Z3Y8DKObJVcq2vAhymMWpN42u6HyqPahrR7iPS2g=
++// @vegastack questionnaire@0.9.1 sha256-64xdZclSK2Ig5WGUJD19cfpKQNlTcH4CYYY9XS+m6+0=
  
 -import * as React from "react"
 -import { Questionnaire as QuestionnairePrimitive } from "@shadcn/react/questionnaire"

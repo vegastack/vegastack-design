@@ -31,12 +31,12 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..cf35c96 100644
+index 5cb64c9..90c9a88 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,10 @@
 -"use client"
-+// @vegastack command@0.9.1 sha256-KPxQn5+OeVrMzZ+xH56ycOKaLmtlx3CG73l06FUP+wU=
++// @vegastack command@0.9.1 sha256-BK2ELfKnxnP5kz73LIpLAj0pOGLG2Dso3jbDFLc2TTI=
  
 -import * as React from "react"
 -import { Command as CommandPrimitive } from "cmdk"

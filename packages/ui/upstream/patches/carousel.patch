@@ -10,12 +10,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/carousel.tsx b/carousel.tsx
-index 53ff9d0..5dfeb8e 100644
+index 53ff9d0..dc5b95f 100644
 --- a/carousel.tsx
 +++ b/carousel.tsx
 @@ -1,45 +1,47 @@
 -"use client"
-+// @vegastack carousel@0.9.1 sha256-tGkq7wS7MhEJe2F913Pi+p6AdWQT6zuM0nOzhrpxWSA=
++// @vegastack carousel@0.9.1 sha256-d5LRwhtR1s1Mfon2lSezi+lMSYBWqRDYSRVrZULWKsY=
  
 -import * as React from "react"
 -import { cn } from "cn"

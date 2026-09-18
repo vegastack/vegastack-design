@@ -33,12 +33,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/message-scroller.tsx b/message-scroller.tsx
-index 0e44435..bac04f4 100644
+index 0e44435..e63f39d 100644
 --- a/message-scroller.tsx
 +++ b/message-scroller.tsx
 @@ -1,21 +1,24 @@
 -"use client"
-+// @vegastack message-scroller@0.9.1 sha256-hXrUQ/HUqzp994SYXWsf909oCt3fPsAwvv/IserZ4Mk=
++// @vegastack message-scroller@0.9.1 sha256-A6mCLQBeZu0sWjTJdini1f7ECbh0JXjfWISrowXEvkI=
  
 -import * as React from "react"
 +"use client";

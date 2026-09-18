@@ -22,7 +22,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/breadcrumb.tsx b/breadcrumb.tsx
-index 506a758..a8d4f3c 100644
+index 506a758..8a80f35 100644
 --- a/breadcrumb.tsx
 +++ b/breadcrumb.tsx
 @@ -1,8 +1,12 @@
@@ -31,7 +31,7 @@ index 506a758..a8d4f3c 100644
 -import { useRender } from "@base-ui/react/use-render"
 -import { cn } from "cn"
 -import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
-+// @vegastack breadcrumb@0.9.1 sha256-UFKGwEkHuAFrrErNdCoaP30nD7EWbnVzI0sVOHVfUIQ=
++// @vegastack breadcrumb@0.9.1 sha256-atkV/PE8tLy2xvASKry8vsa3GbJWfhro3TDnQ8QmKUA=
 +
 +"use client";
 +

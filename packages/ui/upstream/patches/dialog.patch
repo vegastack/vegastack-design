@@ -15,12 +15,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..21f5d8a 100644
+index 0b42f3f..0491aa4 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,43 @@
 -"use client"
-+// @vegastack dialog@0.9.1 sha256-x6m5ppOVzYYlJrb9GfVnFJ3sV9m0f6oZyGDnioa2yyw=
++// @vegastack dialog@0.9.1 sha256-PP4bhmOk2C53hOMmD9djJEdAVGaS/QQ+hmHTQ1YvVy0=
  
 -import * as React from "react"
 -import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"

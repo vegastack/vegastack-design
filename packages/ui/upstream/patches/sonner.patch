@@ -10,12 +10,12 @@
 #               (DOC-1) and prettier reflows the file; neither carries a decision of its own.
 #               There is no `cn` hunk here: upstream's sonner imports no `cn`.
 diff --git a/sonner.tsx b/sonner.tsx
-index 9280ee5..98ea3a8 100644
+index 9280ee5..724beac 100644
 --- a/sonner.tsx
 +++ b/sonner.tsx
 @@ -1,32 +1,30 @@
 -"use client"
-+// @vegastack sonner@0.9.1 sha256-dGGQmrXLBMMkey4/FNC1J64Y7VmuWaK2q9BpjASmJOU=
++// @vegastack sonner@0.9.1 sha256-HsRbZDKeoQGKgcRviMmKcfJp5VzBhR+eBTk2x4Kko1I=
  
 -import { useTheme } from "next-themes"
 -import { Toaster as Sonner, type ToasterProps } from "sonner"

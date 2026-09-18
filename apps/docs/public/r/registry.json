@@ -13,7 +13,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -29,7 +29,7 @@
         "whenToUse": "Group related content into collapsible sections — FAQs, settings groups.",
         "whenNotToUse": "Hiding critical content, or sequential steps (stepper).",
         "version": "0.9.1",
-        "integrity": "sha256-7L7YK0yrUBYAfIakJ4htTdk8jJqKM8VX2JrG99KSMjk="
+        "integrity": "sha256-kEZcG7lcb2WVfpDFBF/4bMpqWTK53Ai5JY1bmbo2ioo="
       }
     },
     {
@@ -159,7 +159,7 @@
         "marketing"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -177,7 +177,7 @@
         "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
         "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
         "version": "0.9.1",
-        "integrity": "sha256-e3A4LolBNBvXbevEeuTXyu6gXZDH7UwqYCqbxaoNTLw="
+        "integrity": "sha256-chlu8MauG69TEuiqULT9buPBFegsvEyUKjyCBl4Bd7o="
       }
     },
     {
@@ -306,7 +306,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -325,7 +325,7 @@
         "whenToUse": "Settings-style fields that save on pause without a Save button — names, slugs, inline fields.",
         "whenNotToUse": "Form submission with a Save button, secrets, or one-time codes.",
         "version": "0.9.1",
-        "integrity": "sha256-0wLK15MnYLtgmNlJW4Aqzqm6xGHMq6760gREubiMg64="
+        "integrity": "sha256-nur3GH+Z0+F438A2vbtFG/IUL6ijucfL9Fn3j2jjZ7A="
       }
     },
     {
@@ -394,7 +394,7 @@
         "layout"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -420,7 +420,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.9.1",
-        "integrity": "sha256-XGNzkxlzVgncSohdwK7ncHsb5YyDkgFc74tZoJKAjCg="
+        "integrity": "sha256-hKWLoALYko+txIIkgPC0qhNxVI+FuZVxKOcpLT5pyn4="
       }
     },
     {
@@ -433,7 +433,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -449,7 +449,7 @@
         "whenToUse": "Show location in a hierarchy and navigate back up — nested pages, file trees.",
         "whenNotToUse": "Primary navigation or a menu — a breadcrumb reflects location only.",
         "version": "0.9.1",
-        "integrity": "sha256-UFKGwEkHuAFrrErNdCoaP30nD7EWbnVzI0sVOHVfUIQ="
+        "integrity": "sha256-atkV/PE8tLy2xvASKry8vsa3GbJWfhro3TDnQ8QmKUA="
       }
     },
     {
@@ -553,7 +553,7 @@
       ],
       "dependencies": [
         "react-day-picker@^10.0.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -571,7 +571,7 @@
         "whenToUse": "Choosing one or more dates from a month grid — a booking range, a report period, a due date inside a Popover.",
         "whenNotToUse": "A free-text date a user already knows (an input with a mask) or a time-only value.",
         "version": "0.9.1",
-        "integrity": "sha256-ri5gfiXzaLAkeYdtcqj/1BnckUIt0kaehG9U7WI1oY4="
+        "integrity": "sha256-286bupUvggGHzDX3rO1yJIKz+qlEv8i+gApNjQ/2iZE="
       }
     },
     {
@@ -611,7 +611,7 @@
       ],
       "dependencies": [
         "embla-carousel-react@^8.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -629,7 +629,7 @@
         "whenToUse": "A horizontal or vertical run of peer items the reader scrolls through one or a few at a time — a gallery, a set of feature cards, a testimonial run.",
         "whenNotToUse": "Content the reader must not miss, or a list they need to scan and compare — put that in the page, not behind a control.",
         "version": "0.9.1",
-        "integrity": "sha256-tGkq7wS7MhEJe2F913Pi+p6AdWQT6zuM0nOzhrpxWSA="
+        "integrity": "sha256-d5LRwhtR1s1Mfon2lSezi+lMSYBWqRDYSRVrZULWKsY="
       }
     },
     {
@@ -670,7 +670,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -686,7 +686,7 @@
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
         "version": "0.9.1",
-        "integrity": "sha256-BclnPQM5yUFc7Yg41GVLNWkUuyKbvksOkjDYPM1TIjc="
+        "integrity": "sha256-w/bUkYIzwj5sOg3Sj51QReqBBxB9toW7rmjNGs6f3YI="
       }
     },
     {
@@ -699,7 +699,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -717,7 +717,7 @@
         "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
         "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
         "version": "0.9.1",
-        "integrity": "sha256-MTCHol52CVJfyh5816PEiusFnGVsmjAvkI6RNMCFI/k="
+        "integrity": "sha256-iMKmvX/3JJBV3YwSkXrymOGbsNLrrDjlzW0/guC1Xmc="
       }
     },
     {
@@ -816,7 +816,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -836,7 +836,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.9.1",
-        "integrity": "sha256-qjYgNV3d2A1bDzj9aoke15TYpxd7QKr6EfaM8w8vWhM="
+        "integrity": "sha256-87+875RZwuU9qv6xKH1cNU7j8a3d+96/aOKaaUlbEQg="
       }
     },
     {
@@ -849,7 +849,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -868,7 +868,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.9.1",
-        "integrity": "sha256-NhltoVZHyCqBYkMCzn7IZ+CB2RIW8BB/K5x7guvcmGY="
+        "integrity": "sha256-rCxTh6aI0D1b5yvQkaaKYw3T3r2oTSWxrgqMY89O0lE="
       }
     },
     {
@@ -881,7 +881,7 @@
       ],
       "dependencies": [
         "cmdk@^1.1.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -901,7 +901,7 @@
         "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
         "whenNotToUse": "A simple form select (Select), or a small static action menu (DropdownMenu).",
         "version": "0.9.1",
-        "integrity": "sha256-KPxQn5+OeVrMzZ+xH56ycOKaLmtlx3CG73l06FUP+wU="
+        "integrity": "sha256-BK2ELfKnxnP5kz73LIpLAj0pOGLG2Dso3jbDFLc2TTI="
       }
     },
     {
@@ -914,7 +914,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -930,7 +930,7 @@
         "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.9.1",
-        "integrity": "sha256-NgHUmO0yfx8s1ypAA63kdaMLbLKzgtfGYE3FyxseALA="
+        "integrity": "sha256-9CdS4cBnXe/rKXzcT7whH2npokPThD904Z5O9ud+fVY="
       }
     },
     {
@@ -942,7 +942,7 @@
         "actions"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -961,7 +961,7 @@
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.9.1",
-        "integrity": "sha256-gThGQqdEBoLtzikywrbUsPibVtKurKZiXjULXLYEH2Y="
+        "integrity": "sha256-5E0odmP/Y7Qat0lDxn/xzCc7yydYKYgCmZ6ebKh0brc="
       }
     },
     {
@@ -1005,7 +1005,7 @@
       "dependencies": [
         "@tanstack/react-table@^9.2.4",
         "@tanstack/react-virtual@^3.14.8",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1029,7 +1029,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.9.1",
-        "integrity": "sha256-zD70J6TPk22KSfkWHyAPCtwzeiZgv4xZFgv0m9lFQUY="
+        "integrity": "sha256-muwAvcx/dymh66FPemyKm6O0pPviLVSb6apqazmGmSM="
       }
     },
     {
@@ -1071,7 +1071,7 @@
         "data"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1093,7 +1093,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.9.1",
-        "integrity": "sha256-hnqL5H4BE5qXsuDb0t7/xtGy+cyj/RXl0x3EaPpMpUk="
+        "integrity": "sha256-1zC9ymX//tUalTYk1nLluRMkHOkZC/xaQkuRXdT2/Xc="
       }
     },
     {
@@ -1106,7 +1106,7 @@
       ],
       "dependencies": [
         "react-day-picker@^10",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1126,7 +1126,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.9.1",
-        "integrity": "sha256-qnbtwNFvE0ntyHkNTANZ4C5iw0g+OMi0xhQeftZ/oCA="
+        "integrity": "sha256-rW3vaySZu9fVw//u4dN3rmYfc3cvMEBoGV+wQjEeLpQ="
       }
     },
     {
@@ -1139,7 +1139,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1158,7 +1158,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.9.1",
-        "integrity": "sha256-x6m5ppOVzYYlJrb9GfVnFJ3sV9m0f6oZyGDnioa2yyw="
+        "integrity": "sha256-PP4bhmOk2C53hOMmD9djJEdAVGaS/QQ+hmHTQ1YvVy0="
       }
     },
     {
@@ -1251,7 +1251,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1267,7 +1267,7 @@
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.9.1",
-        "integrity": "sha256-/jM/TakWDX+q1954SKEg6qhuaT0khXdRtirWumXom80="
+        "integrity": "sha256-x+we1PuX+5UwzEY9INTcBc+vStvLL5QCLejMA2Xntfk="
       }
     },
     {
@@ -1308,7 +1308,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1331,7 +1331,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.9.1",
-        "integrity": "sha256-u+1y2BE0sYN3iT32XbEK1CENZ96K+HqH/7DjIKlVIHE="
+        "integrity": "sha256-dxhji/tfGIjq/Bu9rRzJTFB+mF0hr42V04GSjIaWsJg="
       }
     },
     {
@@ -1343,7 +1343,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1364,7 +1364,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.9.1",
-        "integrity": "sha256-Z3O4HMlmXv9JZ4+dj+hqgqbLOzBcqu4k+V6JpK64hIU="
+        "integrity": "sha256-0fRZXnAAcd29b6LcxUcP8zC0jb5ttmW9e69Cmd9gGSY="
       }
     },
     {
@@ -1376,7 +1376,7 @@
         "overlay"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -1393,7 +1393,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.9.1",
-        "integrity": "sha256-4M7ZwsQSdxo73zawAyM/IlFo0ZVkP1V8MBUEKUIFrJg="
+        "integrity": "sha256-r05qDftg6oLkXtKl8ElNzEPaXJ9+jFjO/DtmlbCwl0M="
       }
     },
     {
@@ -1434,7 +1434,7 @@
       ],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1453,7 +1453,7 @@
         "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.9.1",
-        "integrity": "sha256-2Qz/mGDS3gvvPlCdoVRSSQqHED92jra8oTvqFJOkRTg="
+        "integrity": "sha256-KA9GJlmUs3UflVJZZIzi12wiYU+E+dcERM46og7TyEA="
       }
     },
     {
@@ -1465,7 +1465,7 @@
         "data"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1486,7 +1486,7 @@
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.9.1",
-        "integrity": "sha256-Itr9ZJYk24KJSkJ8qhPt4T3iCjHL8q6oJ861udxGH9M="
+        "integrity": "sha256-5ipcsSsJDbLhzacWcC8v87zmMWCxGKz2ug+BtwBeY4g="
       }
     },
     {
@@ -1498,7 +1498,7 @@
         "data"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1519,7 +1519,7 @@
         "whenToUse": "Structured, saveable filters with nesting — build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.9.1",
-        "integrity": "sha256-helZFFRO4C0XSfgWGrNP4+gc4FSQHv6v0ZkDbs8qecY="
+        "integrity": "sha256-lo7OXQXzdy4MxQ1gb1EjyqYa+oC7UMaVMHP5SUCo31A="
       }
     },
     {
@@ -14748,7 +14748,7 @@
       ],
       "dependencies": [
         "input-otp@^1.5.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14764,7 +14764,7 @@
         "whenToUse": "Entering a short verification code — 2FA, email confirmation, a device-pairing PIN.",
         "whenNotToUse": "Any value longer than a handful of characters, or one the user may not know the length of — use an Input.",
         "version": "0.9.1",
-        "integrity": "sha256-7sdKZoPcrwo/0doTKoDxnawqLoeNu3N/sl7n4M21UHM="
+        "integrity": "sha256-vagqiILihzRhxJN94O4DrBiaobPclnjXLx1OLRTegnw="
       }
     },
     {
@@ -14922,7 +14922,7 @@
         "media"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14943,7 +14943,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.9.1",
-        "integrity": "sha256-3+WlqcZhNzo9rlIrhkSGYhRs/dmRccRj2GuBWrg/0es="
+        "integrity": "sha256-/pUgcpLlls0C2u95tndiRNN601t+H8FjZd6ENKR2JJg="
       }
     },
     {
@@ -14956,7 +14956,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14974,7 +14974,7 @@
         "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other.",
         "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
         "version": "0.9.1",
-        "integrity": "sha256-vJIxHbeNDfo6ZDO0Hjz9Wnsrl9FD8JPCXBeuUfr7UEQ="
+        "integrity": "sha256-KY43UYcPsRgu+x1WMr+4BT+/2a9bXT8Y540rSWGCtkA="
       }
     },
     {
@@ -15014,7 +15014,7 @@
       ],
       "dependencies": [
         "@shadcn/react@^0.3.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15033,7 +15033,7 @@
         "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.9.1",
-        "integrity": "sha256-hXrUQ/HUqzp994SYXWsf909oCt3fPsAwvv/IserZ4Mk="
+        "integrity": "sha256-A6mCLQBeZu0sWjTJdini1f7ECbh0JXjfWISrowXEvkI="
       }
     },
     {
@@ -15045,7 +15045,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15061,7 +15061,7 @@
         "whenToUse": "A short list of plain options where the platform picker is the better experience — mobile forms, dense tables, settings rows.",
         "whenNotToUse": "Options that need icons, descriptions or custom markup, or a list long enough to want search — use Select or Combobox.",
         "version": "0.9.1",
-        "integrity": "sha256-rheSoWO1nRE3ZMvWPnoUuec7yjrDEVb7a0jXuFaVv2g="
+        "integrity": "sha256-USYWwX3x6ESrmmKCO8D/uJBNIvUaDnZOHsZfJyIQvj0="
       }
     },
     {
@@ -15075,7 +15075,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15090,7 +15090,7 @@
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.9.1",
-        "integrity": "sha256-L+1UwsfX+fZ2M/fVUP5GPgua/4VcTF+U8KZViAM31Zc="
+        "integrity": "sha256-E7zuvgfn5VwVjhQLJB838WeEg0EMRTNtSpsE+UxdBbc="
       },
       "registryDependencies": []
     },
@@ -15103,7 +15103,7 @@
         "media"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15123,7 +15123,7 @@
         "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
         "version": "0.9.1",
-        "integrity": "sha256-9lctzLMx1SvCkKghen8upbBkxywg1HJabxWeEY34ssU="
+        "integrity": "sha256-izA0qnVUs9quSWkYXbInGMkP9maO0xCt7OHtuKRD4j8="
       }
     },
     {
@@ -15136,7 +15136,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15154,7 +15154,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.9.1",
-        "integrity": "sha256-srNO1vpSCJUX0g0aAn1dniOBrZrEqQ5N6Vat+HwyJig="
+        "integrity": "sha256-Xz2lv4DPDzznPxOd1QUxy23KITahktgb9IHWgypInV0="
       }
     },
     {
@@ -15166,7 +15166,7 @@
         "navigation"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15185,7 +15185,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.9.1",
-        "integrity": "sha256-FItYc7FSERVdDKZ0wykFQ6o1ACKCAtxlk0j1TEbfus4="
+        "integrity": "sha256-us3qPHC/szhKULoQa4Eqr0gEenbt+AA6nooyt1X9CYo="
       }
     },
     {
@@ -15197,7 +15197,7 @@
         "navigation"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15215,7 +15215,7 @@
         "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
         "version": "0.9.1",
-        "integrity": "sha256-PuSwF3soScrI69SkavA8mfJFiQ6qxIfxbz5jL5YjgIA="
+        "integrity": "sha256-171z9Vng6RpU14posSSpDE2ySEglZa/vyzBqqxyK4JM="
       }
     },
     {
@@ -15284,7 +15284,7 @@
       ],
       "dependencies": [
         "@shadcn/react@^0.3.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15302,7 +15302,7 @@
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.9.1",
-        "integrity": "sha256-sr6Z3Y8DKObJVcq2vAhymMWpN42u6HyqPahrR7iPS2g="
+        "integrity": "sha256-64xdZclSK2Ig5WGUJD19cfpKQNlTcH4CYYY9XS+m6+0="
       }
     },
     {
@@ -15399,7 +15399,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15419,7 +15419,7 @@
         "whenToUse": "A state/province as part of an address form, dependent on the selected country.",
         "whenNotToUse": "A small country-independent option set (Select) or multi-select.",
         "version": "0.9.1",
-        "integrity": "sha256-Yv4eY6CO6TdDx/socitmCF5lLFojdUaI8TUyF0E8nZg="
+        "integrity": "sha256-z8/BITsoinJGqbkJiKr5D/iI1lOB4h9zc1kcDH7d2gE="
       }
     },
     {
@@ -15518,7 +15518,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15537,7 +15537,7 @@
         "whenToUse": "A single-select field whose option list is long enough to need a search — countries, regions, projects, repositories, currencies.",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.9.1",
-        "integrity": "sha256-uxj9UN+gFNQUkIekD2IsClJgsLlK6hqstrATjGTp/Ho="
+        "integrity": "sha256-pC9b5cVPihYzBTwo6bCLaeM3XPkV7wM/i33usLFS7bw="
       }
     },
     {
@@ -15550,7 +15550,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15566,7 +15566,7 @@
         "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
         "version": "0.9.1",
-        "integrity": "sha256-sQJrpLwNTTyzxSoqa8LHILQ7yklIwoyBRdO+eXhmLx4="
+        "integrity": "sha256-P9GiUFvn3BzDZ7ixk7BOSgczwBgdh0gS6eIhA73mhoY="
       }
     },
     {
@@ -15636,7 +15636,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15655,7 +15655,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel — that should not take the centre of the screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.9.1",
-        "integrity": "sha256-VZpBnJHVOmnJez0VrdhhMJTVLXBEz3Ca0X4+KQ/Ed9M="
+        "integrity": "sha256-excnHPBt4tnVsgRz3RIXYoQ248+ud/xIAuAbNXsHl2U="
       }
     },
     {
@@ -15702,7 +15702,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15726,7 +15726,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.9.1",
-        "integrity": "sha256-AhaH1LhaIiCQ/3G4yte26XI3QDgtKrnUr4gUwFGGEhg="
+        "integrity": "sha256-gYRfKGKjVG4xRovS6cpSvUb5fKkmCVyikcR55Uxjnok="
       }
     },
     {
@@ -15795,7 +15795,7 @@
       "dependencies": [
         "sonner@^2.0.8",
         "next-themes@^0.4.6",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15811,7 +15811,7 @@
         "whenToUse": "The same brief notifications as Toast, when a project already speaks sonner's `toast()` API or wants its stacking model.",
         "whenNotToUse": "Alongside Toast in the same app — pick one notification engine, or two stacks will fight for the same corner.",
         "version": "0.9.1",
-        "integrity": "sha256-dGGQmrXLBMMkey4/FNC1J64Y7VmuWaK2q9BpjASmJOU="
+        "integrity": "sha256-HsRbZDKeoQGKgcRviMmKcfJp5VzBhR+eBTk2x4Kko1I="
       }
     },
     {
@@ -15823,7 +15823,7 @@
         "data"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15845,7 +15845,7 @@
         "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.9.1",
-        "integrity": "sha256-U5bYOGOQlbXXeEpVt/yOMA19m19a9LStVemoveKXOdI="
+        "integrity": "sha256-aptsY78GsBymzbUANBu9joPKf/KEqLnabdrZfuJquGM="
       }
     },
     {
@@ -15857,7 +15857,7 @@
         "feedback"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15873,7 +15873,7 @@
         "whenToUse": "Signal an indeterminate, in-progress load — inside a button or a loading region.",
         "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
         "version": "0.9.1",
-        "integrity": "sha256-Ilr8q7orMbt7GuQCj/o0LFefuhIHtlLOTuy80NATdEM="
+        "integrity": "sha256-jcFLnM7uq1mxvwb2FuZlrfL9H2tubBLPgyBts84BJp4="
       }
     },
     {
@@ -15913,7 +15913,7 @@
       ],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15929,7 +15929,7 @@
         "whenToUse": "Indicate the state of a task or item — todo, in progress, blocked, or done — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress) or generic loading (Spinner).",
         "version": "0.9.1",
-        "integrity": "sha256-8200cvDME74JGxxlwpGC63UHlYjjeZO1vBbi52H1hrM="
+        "integrity": "sha256-wA4+067S4x2om5E/jv9xVo9uOAhsuC+7tvK65gVn99Q="
       }
     },
     {
@@ -16062,7 +16062,7 @@
         "display"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16080,7 +16080,7 @@
         "whenToUse": "Decorative record labels/categories in rows that may overflow — the label voice.",
         "whenNotToUse": "Status signals (Badge) or interactive filters (Combobox chips).",
         "version": "0.9.1",
-        "integrity": "sha256-oy9xLzUbwrUd7gWa4LvKXNIxwLKpd5i0aAcwLeGU76E="
+        "integrity": "sha256-sdL8urw/FaTtYE204elGJO6903DNtyx9M+fqhgwC5jA="
       }
     },
     {
@@ -16094,7 +16094,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16118,7 +16118,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.9.1",
-        "integrity": "sha256-FlExIcHaxyvUGg2CjBvlLJqJ7YdA38iL6My/NXWFwt0="
+        "integrity": "sha256-LlHvbEByeD66h/UBQsDdQebQaz1kWjA6egyvM6Kh1CI="
       }
     },
     {
@@ -16134,7 +16134,7 @@
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16152,7 +16152,7 @@
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.9.1",
-        "integrity": "sha256-gW7G9nxlSDAeOMEQ+kutROVtvSxeUORq4v7XjWt6QLc="
+        "integrity": "sha256-rpbRHvuLoh02Vrnl6gqo+eUbZLEYz7IJi8l5XAzbraI="
       }
     },
     {
@@ -16221,7 +16221,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16239,7 +16239,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.9.1",
-        "integrity": "sha256-CsBEAo+YHymwB7LpWsznzxVjxonHwX1IzZ6Dp1n8NII="
+        "integrity": "sha256-K5zKBTwRd7nm2d4RGDKlgiIPT7CjoiXKQ3fHUm70vW0="
       }
     },
     {
@@ -16714,7 +16714,7 @@
         "layout"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -16740,7 +16740,7 @@
         "whenToUse": "Starting an application whose every route sits inside one shell — copy it once, then hoist AppShell into a layout.",
         "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
         "version": "0.9.1",
-        "integrity": "sha256-HgT+FvID1zI82NIqgQeMAJG9zW7DqAiKTsd37k/UMZE="
+        "integrity": "sha256-EqWphsNsv9C9uU4jbnUpUJwG2LmbyF3gI1aFVVGMj8g="
       }
     },
     {
@@ -16753,7 +16753,7 @@
         "data"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -16780,7 +16780,7 @@
         "whenToUse": "Starting a task, pipeline or triage board — copy it once and replace the sample columns with your own data.",
         "whenNotToUse": "A single sortable list (sortable-list) or a tabular view of the same records (data-grid).",
         "version": "0.9.1",
-        "integrity": "sha256-t+gzY8VsfAxW35c1T+c2tshKxProvlMwWJRJk3Stpg8="
+        "integrity": "sha256-xTeH00H38A0FDc/cnI/cyxHvn5atk0mHxQslB52E4yE="
       }
     },
     {
@@ -16793,7 +16793,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16812,7 +16812,7 @@
         "whenToUse": "Starting from upstream's Chart Area Axes composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-Cogvk+7KMjmpNebbUydc6foaErRyPx1wY/BG3FX/BOM="
+        "integrity": "sha256-Zmyf6F92JObxZjqqPG34d+5/8brN8UfvFZnGZPQHa2k="
       }
     },
     {
@@ -16825,7 +16825,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16844,7 +16844,7 @@
         "whenToUse": "Starting from upstream's Chart Area Default composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-XTw59/7GebD+uyUAF/tx27i8UNyRTIKazbfQT0b3Ecw="
+        "integrity": "sha256-nk0Zw2DHcsdVsupr049RDeIw+RuZIQpPHk+QVn2TSLo="
       }
     },
     {
@@ -16857,7 +16857,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16876,7 +16876,7 @@
         "whenToUse": "Starting from upstream's Chart Area Gradient composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-V/KWSMJ0HjDFW0JRBdXOzXaUpuuTkyuF/dCGQtGIv5k="
+        "integrity": "sha256-6ALIxfewrusNXg1bRAKzIxlWSd5gLsuTOL2GkFvfAQc="
       }
     },
     {
@@ -16889,7 +16889,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16908,7 +16908,7 @@
         "whenToUse": "Starting from upstream's Chart Area Icons composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-5LKDY0ctWxRVFZ314WiLr8luwyn/KtTQEtJXeyHx8yM="
+        "integrity": "sha256-t1dHh6kPN2dzyjtDN0PNqSl6bPV6hRLnl26Ijw58YG0="
       }
     },
     {
@@ -16953,7 +16953,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16972,7 +16972,7 @@
         "whenToUse": "Starting from upstream's Chart Area Legend composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-rXpA5XA5wvCzXxT1eniYsyILRFiFuPZ1syqzKHj8VOY="
+        "integrity": "sha256-oe/AjFjDo7GsyAfUBy0BqTU3ghJ9IaP2z/H8GbaXCaw="
       }
     },
     {
@@ -16985,7 +16985,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17004,7 +17004,7 @@
         "whenToUse": "Starting from upstream's Chart Area Linear composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-C4t9vfcYSLuA7itJNJJUGREHhW2IHk+2UWsNgyF4nkE="
+        "integrity": "sha256-ZYBwf8FEdfSDaTCmlxWw2uIBicuhWNECAzthA2aHd0s="
       }
     },
     {
@@ -17017,7 +17017,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17036,7 +17036,7 @@
         "whenToUse": "Starting from upstream's Chart Area Stacked composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-zD50U01NHeFpvtloBvt5Y7+3bC6ZcgoVjg3n6gk1LAA="
+        "integrity": "sha256-Uaqw0xK7Uod6yeQ4s1F8RWKSTV4Wy1C34WwK3Osh2UQ="
       }
     },
     {
@@ -17049,7 +17049,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17068,7 +17068,7 @@
         "whenToUse": "Starting from upstream's Chart Area Stacked Expand composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-k/E/MPN8D0ltnVJnZxM26Ufz4bVORumyK3uzlUzXHFQ="
+        "integrity": "sha256-dXgX1WJ3TFn/S76Vv9W31DbwtgClSYoklc8LhrTNx0s="
       }
     },
     {
@@ -17081,7 +17081,7 @@
         "charts-area"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17100,7 +17100,7 @@
         "whenToUse": "Starting from upstream's Chart Area Step composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-nhd5PtliX0X5cup5Fi9sIxzdporT+RXg7JsIIYf5u3I="
+        "integrity": "sha256-ggbP0Qj2oViUio+ELltXOe6l3O4cPR9/Hqbs4Bc2hxM="
       }
     },
     {
@@ -17113,7 +17113,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17132,7 +17132,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Active composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-lEm5TRIjnfLOd87UNlQ4KE2tt5Q4ARUplWH+7Y6H9as="
+        "integrity": "sha256-64YADJXlzparmg6D7jxoEHvGgPPV9oIGOe29ome40qA="
       }
     },
     {
@@ -17145,7 +17145,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17164,7 +17164,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Default composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-rx9NXfdCBrwjmA6hPlgfson3+DIPukWZ6rRodcfEMV4="
+        "integrity": "sha256-Q0N/EMt0wexUxYjXS++/HsIerCEcedhGTU6RrXENlrs="
       }
     },
     {
@@ -17177,7 +17177,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17196,7 +17196,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Horizontal composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-d/NaKWaejann+5kmGltsuARLkOH7X2cD9jxZh+y2E60="
+        "integrity": "sha256-ARRoVpeuKmnIZ54HOEHkM0lHcTMfGoiFgKK0qvnQ33Q="
       }
     },
     {
@@ -17240,7 +17240,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17259,7 +17259,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Label composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-njUV4WmD8DkeM3UnDmqC32Mn5kjjd2egtYUc3ATpa5s="
+        "integrity": "sha256-BcBxBQ/+okHxmA7H9ql+Qyx0wANpFYhUwLWDIC5OG20="
       }
     },
     {
@@ -17272,7 +17272,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17291,7 +17291,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Label Custom composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-NImuFQoVbRycDpiWuBkNWNLupMGkfEG+xwJ7tIN3XlU="
+        "integrity": "sha256-QFXVaEPaoLBHblHDLWIyEdnPOoG9wItmTQRxIItzY2Q="
       }
     },
     {
@@ -17304,7 +17304,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17323,7 +17323,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Mixed composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-touFQFQ+79eEIrXJ0BnQt5zjRFAcNdpf+hVSRpKGPYI="
+        "integrity": "sha256-h2rLlihAV/UhRa4sNNlPLyeuCqHHSiHy2xjX+CFN8mI="
       }
     },
     {
@@ -17336,7 +17336,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17355,7 +17355,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Multiple composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-2iGpAhBbWc9L00dmUNfpi1yvwGb/Cf85MjTEt039lPg="
+        "integrity": "sha256-oKFLhH3ZbPHwY1TeiNIrR5HbCLIrazuMMW6I7ErTGHA="
       }
     },
     {
@@ -17368,7 +17368,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17387,7 +17387,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Negative composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-D9qsZpJviTuzZZ8TzbVDltjZh75Vm23JLjxmEVOsCOA="
+        "integrity": "sha256-VexLzLsY8ZJMipboiiko/cScfyj6c05Sa2fUWLKogNY="
       }
     },
     {
@@ -17400,7 +17400,7 @@
         "charts-bar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17419,7 +17419,7 @@
         "whenToUse": "Starting from upstream's Chart Bar Stacked composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-ZASfHoSespsS6xQTctt+mqOv24dxWaQVvkICTK7cDlI="
+        "integrity": "sha256-QKpAAX3C2sWsEuHATlqisMK9ucV3PtQpwaW3arNtjzo="
       }
     },
     {
@@ -17432,7 +17432,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17451,7 +17451,7 @@
         "whenToUse": "Starting from upstream's Chart Line Default composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-//o+51qlOlpbSDTC26F4ejJl6Ju+DzeLm+uRWgLvrvQ="
+        "integrity": "sha256-E1wzlOLaytt/ssi6Kt1bSU6NWHkZ15w/JDZ0Fj8RC20="
       }
     },
     {
@@ -17464,7 +17464,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17483,7 +17483,7 @@
         "whenToUse": "Starting from upstream's Chart Line Dots composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-5LeP6ag/HmgQWQDj9fMMGYcHbOqXFn1o2uR2Q8cdgYA="
+        "integrity": "sha256-M/vZczm+nKN6HniQi9LoZ4MTwBFnPCiCWKUirKX9BUI="
       }
     },
     {
@@ -17496,7 +17496,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17515,7 +17515,7 @@
         "whenToUse": "Starting from upstream's Chart Line Dots Colors composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-kJ9E8i3Q0ZfN44svafTSu2VVrcmp2xCmZLPut+j2YZE="
+        "integrity": "sha256-DliLtgcNg9+gI41DKlHmWgyKFaDhC551r7mXscL/efY="
       }
     },
     {
@@ -17528,7 +17528,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17547,7 +17547,7 @@
         "whenToUse": "Starting from upstream's Chart Line Dots Custom composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-+iDmY2bBaKosh77vDKo29tSkA1qyqNncIUn0DPDcQpU="
+        "integrity": "sha256-g3P+GfN2QcrSGoAFeLGWcts8s41b20MnlLjfd/6u87g="
       }
     },
     {
@@ -17591,7 +17591,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17610,7 +17610,7 @@
         "whenToUse": "Starting from upstream's Chart Line Label composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-J7EWFs0N8OGBpP2SDZdsryyX0K0XI4JhyN2d6JC1JDw="
+        "integrity": "sha256-KnDtSvPteXd3TW30RIFENpVXUQ/tnyl/QXR2RNbb6oo="
       }
     },
     {
@@ -17623,7 +17623,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17642,7 +17642,7 @@
         "whenToUse": "Starting from upstream's Chart Line Label Custom composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-9S0kAwKEwQO5IJ9e59DZWC81IDjsKtCIBFCiWafoTKg="
+        "integrity": "sha256-K+ZpzlWCQKxCff/uQm7Xd82Wm7XLnkKc1kWG0RBdQvQ="
       }
     },
     {
@@ -17655,7 +17655,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17674,7 +17674,7 @@
         "whenToUse": "Starting from upstream's Chart Line Linear composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-2pKesR1Nn+pzuStUtV0ngnO0W23NHk6I6Hm8yxiV/rc="
+        "integrity": "sha256-r7Xs4+ltzYrX2DeI0nH9IivKse1605v8jqZFRw2gzws="
       }
     },
     {
@@ -17687,7 +17687,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17706,7 +17706,7 @@
         "whenToUse": "Starting from upstream's Chart Line Multiple composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-2fDvjGEcb40ZqY0Y6WJslBwXLctWML2lNwsjostQTt0="
+        "integrity": "sha256-pM40uk1dbl9TTm5H5vhaZ6shbl/WvzuA734Y9QySHDg="
       }
     },
     {
@@ -17719,7 +17719,7 @@
         "charts-line"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17738,7 +17738,7 @@
         "whenToUse": "Starting from upstream's Chart Line Step composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-xfnvikeK8m2W07+ijPeHptmKiE1bB3eWyqhSJCphU64="
+        "integrity": "sha256-8YINxEp6re2vrxn3IwkH0RVsidGTautF82CKroLm3YE="
       }
     },
     {
@@ -17751,7 +17751,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17770,7 +17770,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Donut composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-fF50A96cNRXHuzZ+dq8WIcriDjIOHPCRwRBjFwcYhgU="
+        "integrity": "sha256-z/cyrOSTK58eY2CJ+TJ7d5IcBQQUUn3QK89YP6K6VzA="
       }
     },
     {
@@ -17783,7 +17783,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17802,7 +17802,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Donut Active composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-/cR7V3S9L1Us7QGIU38x1iIwjyv/syyHjA+QKNT6+G4="
+        "integrity": "sha256-XHOSQ49GTNqqY5N4IvzOVpFSYPsOho3djrLcdDH0BPM="
       }
     },
     {
@@ -17815,7 +17815,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17834,7 +17834,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Donut Text composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-ytH4VvmcoaJfRVV+npYNEqba4/LcMfSacji+6+o5QNA="
+        "integrity": "sha256-8vw7aqel/IWQ/ui9AX5Kt84cQZxNbGDaN76fpZdq2xU="
       }
     },
     {
@@ -17879,7 +17879,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17898,7 +17898,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Label composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-DGH5EAHwwajJ/hmeLHYiYIMms22j23p8TSecB5aYaIA="
+        "integrity": "sha256-xGL2nHq8yq8VyB50S1tpFZtgZOiykIsNdBpC+8hoUiM="
       }
     },
     {
@@ -17911,7 +17911,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17930,7 +17930,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Label Custom composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-/stYyHDBmNjvUq67l6dH1FRZp1zE29Ox+ComRUu4+o0="
+        "integrity": "sha256-1gMkzGIxvrG6l3n/+96r5kIlr+oMTAFvCgHRSjbKLXU="
       }
     },
     {
@@ -17943,7 +17943,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17962,7 +17962,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Label List composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-5LeqesHCRdixKx2sS8Sy49qBbFJu7o/H+K2TN3ORfpc="
+        "integrity": "sha256-XxrEuRYgq2jT9GgbqoePEb59sZlgkfQMjWFehmJfgAE="
       }
     },
     {
@@ -18006,7 +18006,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18025,7 +18025,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Separator None composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-T5y/QnmDYKPYclbe3KYMwGxrJby//Z4F+PgAz+1WYhM="
+        "integrity": "sha256-DKReeQMFwecp1MGiZBfedsB+wGjHOlxljWVSg3LV3ec="
       }
     },
     {
@@ -18038,7 +18038,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18057,7 +18057,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Simple composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-MWJtCesFW62PvZNW7qIb5KAdlDO0RL2u8mh+6VLButQ="
+        "integrity": "sha256-WXO9ECrjGd6W4PHgp16++m/FRpaDmJpvE3uj3nKy1ug="
       }
     },
     {
@@ -18070,7 +18070,7 @@
         "charts-pie"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18089,7 +18089,7 @@
         "whenToUse": "Starting from upstream's Chart Pie Stacked composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-2KGSo48c+Ks3p5WSqYnwrUrv5zuDbx/0rDIUcL3DfnM="
+        "integrity": "sha256-v4jgHIN8AtgTxtmQGu2qv0ppsu6+m3rnmrXtVmNfhjM="
       }
     },
     {
@@ -18102,7 +18102,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18121,7 +18121,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Default composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-knHlavxE99BQYfM1Wzv6MyDi+aOauhuHXj8x7vTAOQQ="
+        "integrity": "sha256-bC9QHA/0o3CadqVbcUwrhVHvZqjVPcJRcu6EeAiZ02g="
       }
     },
     {
@@ -18134,7 +18134,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18153,7 +18153,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Dots composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-TbZXNY5Eq8ddfgGQn03lYUX8PYteCkY+EM4PuGTXTa0="
+        "integrity": "sha256-dKHTXMxCzesh7KpzS5TU049cdd/pN85r6EzzypW5+M8="
       }
     },
     {
@@ -18166,7 +18166,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18185,7 +18185,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Grid Circle composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-8loc6FUL6TCgII8D7N332Wq/KQQ+26tkdf2zMt/76eo="
+        "integrity": "sha256-WKOVm+JNoKlHiM0Qo74KO9DUhLLrzBeg0uAbfR2eRHA="
       }
     },
     {
@@ -18198,7 +18198,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18217,7 +18217,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Grid Circle Fill composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-EvyBY7lnEcLqOtGbWhKnWXleUJwDnmANPDdalwMJ3ZI="
+        "integrity": "sha256-ypVQyyALSWOpffWqiJ/QqP23XhovSRtsaASOV0Qv6Ww="
       }
     },
     {
@@ -18230,7 +18230,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18249,7 +18249,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Grid Circle No Lines composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-InRwRild4yAQzWN8TXr1doaG1LhGyAiqXXtRIpL+BPU="
+        "integrity": "sha256-kpdnu2VcrvcyE31GPA+30+ZSXO9x4QgvGu43titcZKc="
       }
     },
     {
@@ -18262,7 +18262,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18281,7 +18281,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Grid Custom composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-YlYXr3lNXD3B/6UvxQafLFYoP5bWFZC38IHDmzO5KRM="
+        "integrity": "sha256-KNKZXMVt2hmbuoZx/Z36UuX+2hulEI8k4MgNAcRwNaI="
       }
     },
     {
@@ -18294,7 +18294,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18313,7 +18313,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Grid Fill composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-LdZNB0ZlXoZFqwY7kPx0jy0z6ISFNZrHBNaucWmua6o="
+        "integrity": "sha256-Ugyw4iB3A8nIw5oTl8Xx6YTcq+EmllW/9dHzs+ASkxc="
       }
     },
     {
@@ -18326,7 +18326,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18345,7 +18345,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Grid None composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-m5UJfgoQylIZKgGnBRgQMI3LvgTudRdhstfDe6EVzxk="
+        "integrity": "sha256-Ydg8sdJJVQFQJgU1l7gtl9QYLtmj0p9ygQyVXRo2UP0="
       }
     },
     {
@@ -18358,7 +18358,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18377,7 +18377,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Label Custom composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-MZExIhWXD5ovoIzrTzegEIkE5puX2Q0lgXvK+m8fMxo="
+        "integrity": "sha256-5TUEMuAnwE2T8AZi+igK/64SvtnPq8KFChSOSPDIYlc="
       }
     },
     {
@@ -18390,7 +18390,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18409,7 +18409,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Legend composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-SrEIkwTKuy+QgtmXiZQkiDvXRIgKjM6Trwx+fYj/tIo="
+        "integrity": "sha256-xHPVLjyUA0QfSCzG8XxBVc31kISUYU7N7OqZr4IhMzw="
       }
     },
     {
@@ -18422,7 +18422,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18441,7 +18441,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Lines Only composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-sXMX6Mm9Vf786/G8oRK614vP4oX6u/9beNS1hKmhiPI="
+        "integrity": "sha256-AkjgdiyQUS1MVvpb5Aux9t62lrKru+iDOr8DNkpg/xQ="
       }
     },
     {
@@ -18454,7 +18454,7 @@
         "charts-radar"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18473,7 +18473,7 @@
         "whenToUse": "Starting from upstream's Chart Radar Multiple composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-pY5For67cJ1jAXTF62czVIRmZn0uGuxpis5DK9BUFW4="
+        "integrity": "sha256-DuHQTlzw+Hlob2PeOJaoA9HVZKRbwFp4qWxoMtprjrI="
       }
     },
     {
@@ -18486,7 +18486,7 @@
         "charts-radial"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18505,7 +18505,7 @@
         "whenToUse": "Starting from upstream's Chart Radial Grid composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-7DyGDLspHmQfki9lALWVzvSpCnGmJvSEZ7dTeC9abvQ="
+        "integrity": "sha256-vKY2VwGtaO9TnqQWt+dk6KkSWpQrN2SenNgr3kAgfg0="
       }
     },
     {
@@ -18518,7 +18518,7 @@
         "charts-radial"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18537,7 +18537,7 @@
         "whenToUse": "Starting from upstream's Chart Radial Label composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-EcX5PqSE4yHdhcN/TsThuSDdGsJ/OkJ0T/gxUiz8WgE="
+        "integrity": "sha256-0noKzajyyZUSI8KyK02CI6/ZzLmb1U1JNOmLh3M5h+I="
       }
     },
     {
@@ -18550,7 +18550,7 @@
         "charts-radial"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18569,7 +18569,7 @@
         "whenToUse": "Starting from upstream's Chart Radial Shape composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-k/bFO2lprFDCrU78CTr5vDzf1081waHCo0QE95UzE2U="
+        "integrity": "sha256-Jfs1C3kyKeHwDCT/gjrTnbQLscZLjWQBud1T7kzCWWY="
       }
     },
     {
@@ -18582,7 +18582,7 @@
         "charts-radial"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18601,7 +18601,7 @@
         "whenToUse": "Starting from upstream's Chart Radial Simple composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-RvHuQy+YxjjIDfVS7r7F+iKnA858pbxhvpqzyEExDqE="
+        "integrity": "sha256-yAnk1pCwz0s4T30Nu9f7nGvCdogW4rzuB3eGNoSLpRY="
       }
     },
     {
@@ -18614,7 +18614,7 @@
         "charts-radial"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18633,7 +18633,7 @@
         "whenToUse": "Starting from upstream's Chart Radial Stacked composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-/bcGS5ayJaNpm2nLooeVquaRolg7Y/gpzAXig1ymmfo="
+        "integrity": "sha256-m/8gQNu+jKNoJpdbEbvWA3u/7cim7et6wQaqX83uNM8="
       }
     },
     {
@@ -18646,7 +18646,7 @@
         "charts-radial"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18665,7 +18665,7 @@
         "whenToUse": "Starting from upstream's Chart Radial Text composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-0oU9VnWliWX9XoAunCviD/al6QW1pXmpEHqycus0mrE="
+        "integrity": "sha256-tQchtBGaQcFCnSCCtDKKWxhoV1d0ym48rP1KLDImXh0="
       }
     },
     {
@@ -18771,7 +18771,7 @@
         "charts-tooltip"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18790,7 +18790,7 @@
         "whenToUse": "Starting from upstream's Chart Tooltip Icons composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-zPcxgaxPpcI1y7Qc4kjQZOw7oWW41tfC13dV9vEYZHs="
+        "integrity": "sha256-npDSv7+D6LUwxc+FGQKdB2oflxdBZdqh3EDUSisABvQ="
       }
     },
     {
@@ -18962,7 +18962,7 @@
         "@dnd-kit/sortable@^10.0.0",
         "@dnd-kit/utilities@^3.2.2",
         "@tanstack/react-table@^9.2.4",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "sonner@^2.0.8",
         "zod@^4.5.4",
@@ -19048,7 +19048,7 @@
         "whenToUse": "Starting from upstream's Dashboard 01 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-LZLMS1Hm9uVLpEpspzGpQJZi7mi2NZJXZvkZGrd1+kU="
+        "integrity": "sha256-+Vo8ZcKxugpiF8MLF4UBuWcVLcNcJSZ1qkzNCEhQNag="
       }
     },
     {
@@ -19099,7 +19099,7 @@
         "login"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -19125,7 +19125,7 @@
         "whenToUse": "Starting from upstream's Login 02 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-wKC6VDECMGEeEPnLXE0mucIn4bnU25DXt8auY38/3DI="
+        "integrity": "sha256-csm0OTGyJXvSBWHytC71H8TpzwOV5oNGHqIDe8Mgzis="
       }
     },
     {
@@ -19138,7 +19138,7 @@
         "login"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -19165,7 +19165,7 @@
         "whenToUse": "Starting from upstream's Login 03 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-Ps46cN9AKF8kKBErEmUrNmQPZ4cyQ2f7T2SOulplUTA="
+        "integrity": "sha256-lsSTKXnmqc83hO1QehDzxDjdg/nkLCpLrkRPQBL91Qc="
       }
     },
     {
@@ -19217,7 +19217,7 @@
         "login"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -19243,7 +19243,7 @@
         "whenToUse": "Starting from upstream's Login 05 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-OwnpdgxITnKCo+UANlG/ZnKFoCLT5umegCtazK6Qt3g="
+        "integrity": "sha256-WT3Tc33Di6GpdtHP6tDlIjPxYzGKsQoUcsdaJF69r0c="
       }
     },
     {
@@ -19255,7 +19255,7 @@
         "onboarding"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -19285,7 +19285,7 @@
         "whenToUse": "A first-run or empty-workspace page that has to show the remaining setup steps.",
         "whenNotToUse": "A multi-step form the user walks through in order — that is stepper.",
         "version": "0.9.1",
-        "integrity": "sha256-+AbR7MiTf0wEzenLzbVLVKj65seflSqErfoIlIkKe0w="
+        "integrity": "sha256-WgyKGFh1Bx/5+sSDt216wUVMTaRl1wpIf4UjeYhvmQA="
       }
     },
     {
@@ -19359,7 +19359,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19395,7 +19395,7 @@
         "whenToUse": "Starting from upstream's Sidebar 01 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-fXIXtd1lZkSN3PQmhRK1zSA0STwwesDT88hh9YErTfQ="
+        "integrity": "sha256-RQJVzzXedQeX5VvsHDrWhHbYC3pe2wa9OihZ+ZhHicw="
       }
     },
     {
@@ -19408,7 +19408,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19445,7 +19445,7 @@
         "whenToUse": "Starting from upstream's Sidebar 02 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-Y4Jl5l+41W9xhBGWdvhdisGjqPgQyxxuSCd1Gsz1r6M="
+        "integrity": "sha256-0yjR5ciVLO9amuqbLjJJM33jg5YSNeOxOWhfvrb0BrA="
       }
     },
     {
@@ -19458,7 +19458,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19482,7 +19482,7 @@
         "whenToUse": "Starting from upstream's Sidebar 03 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-S6mi2aNf0uJKmRmPt06MgHfMwAYXXuu2E2/zE2e3Y68="
+        "integrity": "sha256-0/CZNaVldAIElJ4b9Xhwi2AGz8CSmyYD+uwyc3yNcMg="
       }
     },
     {
@@ -19495,7 +19495,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19519,7 +19519,7 @@
         "whenToUse": "Starting from upstream's Sidebar 04 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-l13S9Q6QrkqNpfx1CjoTD5DPuDZ9hNkKRMdyqKzSiqw="
+        "integrity": "sha256-v4oaO3MYbX9sRHDkqFpGv1xVVu2n+hMyIGeM3ZVeE40="
       }
     },
     {
@@ -19532,7 +19532,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19563,7 +19563,7 @@
         "whenToUse": "Starting from upstream's Sidebar 05 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-Dl1GHFgZrTxxIqgIucHUShcQAkqJqv7Gjzwj6naFVKE="
+        "integrity": "sha256-8RgRjmNYRvqBSAfilm0vP8f30yXkMTnOxctOzKKa3Cs="
       }
     },
     {
@@ -19576,7 +19576,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19613,7 +19613,7 @@
         "whenToUse": "Starting from upstream's Sidebar 06 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-hv4rsVQhRH+QnMEauhBbRY5rqmOZ/vURDJI0QlCoFRA="
+        "integrity": "sha256-TCvL+h3/q08QMT7rw83Wh/fjsG0fPKdZS4+/dc0EFQU="
       }
     },
     {
@@ -19626,7 +19626,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19673,7 +19673,7 @@
         "whenToUse": "Starting from upstream's Sidebar 07 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-8j40x9BdgS2/LjRIsG65psVLr+B8m3xvaXK9mnNfaOY="
+        "integrity": "sha256-8KVCxPJ2AT2D7PVroYh/jkSYoBT/kRQsYvzxPX25gqA="
       }
     },
     {
@@ -19686,7 +19686,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19733,7 +19733,7 @@
         "whenToUse": "Starting from upstream's Sidebar 08 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-AKElwpP9UDBkOfSPuK6JaWWf9ztmdabTpCd6KiTlUto="
+        "integrity": "sha256-cFZPTfOVYtVri4r7UgljwZV8Jfb0FmT2y6hLit353AM="
       }
     },
     {
@@ -19746,7 +19746,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19779,7 +19779,7 @@
         "whenToUse": "Starting from upstream's Sidebar 09 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-OjTIpfQLZTZy7fV6biQlSB/8b6EidLg1TotNdvUk/RQ="
+        "integrity": "sha256-kERQTWy7h65f+1NXrzQzblSMllgb9+9rgQBzMRhkBVY="
       }
     },
     {
@@ -19792,7 +19792,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19850,7 +19850,7 @@
         "whenToUse": "Starting from upstream's Sidebar 10 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-nbmwCpcDY9OlgeprWYRaKEPZTUBzG/ZiRLcPM/hPN0k="
+        "integrity": "sha256-gHbeG5/czE48NkpmBsVe9rbavFIQw8CJqdB0IMaTI9g="
       }
     },
     {
@@ -19863,7 +19863,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19888,7 +19888,7 @@
         "whenToUse": "Starting from upstream's Sidebar 11 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-WLQ96dDVFJrVYT1NjWlQF+zae8LpREvNmT+0HV5Gp4s="
+        "integrity": "sha256-EJbgrkEN/DFXMRV3CA1KdMv5LEVE8PiyF70LaCJPVW4="
       }
     },
     {
@@ -19901,7 +19901,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19944,7 +19944,7 @@
         "whenToUse": "Starting from upstream's Sidebar 12 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-g8ZlGOD2r9io91RHDpil62Hq0YvcPSJdpCNOo6W0Un8="
+        "integrity": "sha256-lhUnUEg5H3YdkWZsQbfpzs5luL9cgVZ7ROgwWjNuJRc="
       }
     },
     {
@@ -19957,7 +19957,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -19982,7 +19982,7 @@
         "whenToUse": "Starting from upstream's Sidebar 13 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-uihfd69EhJNWfY1n7PA2HY6pi4lfuggVntaj2uLKfCM="
+        "integrity": "sha256-nOXrSxClYQyvGtmax3uqpug6d0Olgx3/Bp/aaMjhIng="
       }
     },
     {
@@ -20030,7 +20030,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -20103,7 +20103,7 @@
         "whenToUse": "Starting from upstream's Sidebar 15 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-+PcZ08TPV6V20m2T6e588CSr2rzWgoS7MIVAPH1zlAE="
+        "integrity": "sha256-gxiD0PyDL+At5mHwg58XBXro0EMTtLcJmIv31tT1RDc="
       }
     },
     {
@@ -20116,7 +20116,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -20175,7 +20175,7 @@
         "whenToUse": "Starting from upstream's Sidebar 16 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-tJFbTXvogE/dvo4wYDf0wIUZ+LC/ZkBmHj+ofEe01VU="
+        "integrity": "sha256-In29Ptsvg6/MI35gm08qZ2u6SQ5fO6/so/Pnic6KH4c="
       }
     },
     {
@@ -20225,7 +20225,7 @@
         "signup"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -20251,7 +20251,7 @@
         "whenToUse": "Starting from upstream's Signup 02 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-P9sB7ObInGaHy8PMxTegx+axydjojstU96+m30Q3HwA="
+        "integrity": "sha256-/BC2wGYINaOWcUtYgRRgGWBOWlo3a90O7V+IUzQulOM="
       }
     },
     {
@@ -20264,7 +20264,7 @@
         "signup"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -20290,7 +20290,7 @@
         "whenToUse": "Starting from upstream's Signup 03 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-0lC2hCG2ePmtI5IxXn+rPBncYGwPEDSxfUWAcpxqK2M="
+        "integrity": "sha256-QYln9U5y4Ibkt5zMqUex+vNyEZYlJe67hRcgDcl9vzg="
       }
     },
     {
@@ -20342,7 +20342,7 @@
         "signup"
       ],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -20368,7 +20368,7 @@
         "whenToUse": "Starting from upstream's Signup 05 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.9.1",
-        "integrity": "sha256-OCsqfykGNbQyCyX6w98N1WsHU15UWMHPtwwKrbtrRp4="
+        "integrity": "sha256-dIoBIVBB4GwW1HzV2O6tjvoT8jweyKZQKin9mf+Ph7c="
       }
     }
   ]

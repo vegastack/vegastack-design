@@ -30,7 +30,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..d679d87 100644
+index cbcc413..ad08dde 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,56 +1,58 @@
@@ -46,7 +46,7 @@ index cbcc413..d679d87 100644
 -import { Button } from "@/components/ui/button"
 -import { Input } from "@/components/ui/input"
 -import { Separator } from "@/components/ui/separator"
-+// @vegastack sidebar@0.9.1 sha256-AhaH1LhaIiCQ/3G4yte26XI3QDgtKrnUr4gUwFGGEhg=
++// @vegastack sidebar@0.9.1 sha256-gYRfKGKjVG4xRovS6cpSvUb5fKkmCVyikcR55Uxjnok=
 +
 +"use client";
 +

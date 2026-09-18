@@ -15,7 +15,7 @@
     "--no-monorepo"
   ],
   "registry": "https://ui.shadcn.com/r/styles/base-nova/{name}.json",
-  "pulledAt": "2026-09-17T19:40:47.022Z",
+  "pulledAt": "2026-09-18T11:49:03.826Z",
   "components": [
     "accordion",
     "alert",
@@ -898,7 +898,7 @@
     "hooks/use-mobile.ts": "sha256-ad0936f84f1df79d3697bfbff9c18f8ad58431c1cbaf2359c6a853b0fcc9f28b",
     "lib/.gitkeep": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "lib/utils.ts": "sha256-14300d758170c270c75b057f38fedb3793a5920ea872f0477e29fb131185e8a7",
-    "package.json": "sha256-a348a5ef305116609fe421c210765cd7a3db88de35a3b80cde8c240d3393d361",
+    "package.json": "sha256-a79318dbaebaa26ddb8e40e0c09688d316b431b6f22e0f24ae4572296ab5388e",
     "ui/accordion.tsx": "sha256-0eabc3846008892c225d997785dcfe2f4e40e6cb975c556fb19996a2a86a23af",
     "ui/alert-dialog.tsx": "sha256-b3b0df5fa793b9aa1360ad937d5da3ebde510e27957810b761423170be18c396",
     "ui/alert.tsx": "sha256-a3521f446f0e66965a8de9ff29998d8036847286e1bb838f1a317c0709af85f8",

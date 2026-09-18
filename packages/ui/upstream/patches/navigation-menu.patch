@@ -20,7 +20,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/navigation-menu.tsx b/navigation-menu.tsx
-index cef1d5f..5283be1 100644
+index cef1d5f..0b6d699 100644
 --- a/navigation-menu.tsx
 +++ b/navigation-menu.tsx
 @@ -1,7 +1,12 @@
@@ -28,7 +28,7 @@ index cef1d5f..5283be1 100644
 -import { cva } from "class-variance-authority"
 -import { cn } from "cn"
 -import { ChevronDownIcon } from "lucide-react"
-+// @vegastack navigation-menu@0.9.1 sha256-L+1UwsfX+fZ2M/fVUP5GPgua/4VcTF+U8KZViAM31Zc=
++// @vegastack navigation-menu@0.9.1 sha256-E7zuvgfn5VwVjhQLJB838WeEg0EMRTNtSpsE+UxdBbc=
 +
 +"use client";
 +

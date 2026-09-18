@@ -52,12 +52,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..375d956 100644
+index 39e776a..3b8eda0 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,25 @@
 -"use client"
-+// @vegastack combobox@0.9.1 sha256-NhltoVZHyCqBYkMCzn7IZ+CB2RIW8BB/K5x7guvcmGY=
++// @vegastack combobox@0.9.1 sha256-rCxTh6aI0D1b5yvQkaaKYw3T3r2oTSWxrgqMY89O0lE=
  
 -import * as React from "react"
 -import { Combobox as ComboboxPrimitive } from "@base-ui/react"

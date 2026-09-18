@@ -14,12 +14,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/calendar.tsx b/calendar.tsx
-index ebd9871..602e157 100644
+index ebd9871..0630c1c 100644
 --- a/calendar.tsx
 +++ b/calendar.tsx
 @@ -1,16 +1,22 @@
 -"use client"
-+// @vegastack calendar@0.9.1 sha256-ri5gfiXzaLAkeYdtcqj/1BnckUIt0kaehG9U7WI1oY4=
++// @vegastack calendar@0.9.1 sha256-286bupUvggGHzDX3rO1yJIKz+qlEv8i+gApNjQ/2iZE=
  
 -import * as React from "react"
 -import { cn } from "cn"

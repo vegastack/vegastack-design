@@ -11,7 +11,7 @@
       "categories": ["data-display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -138,7 +138,7 @@
       "description": "A dismissible one-line announcement — full-width inverse band or inline hairline card.",
       "categories": ["marketing"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -261,7 +261,7 @@
       "description": "An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -337,7 +337,7 @@
       "description": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
       "categories": ["layout"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -373,7 +373,7 @@
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -477,7 +477,7 @@
       "categories": ["form"],
       "dependencies": [
         "react-day-picker@^10.0.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -527,7 +527,7 @@
       "categories": ["data-display"],
       "dependencies": [
         "embla-carousel-react@^8.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -578,7 +578,7 @@
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -604,7 +604,7 @@
       "categories": ["display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -705,7 +705,7 @@
       "description": "A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -735,7 +735,7 @@
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -761,7 +761,7 @@
       "categories": ["navigation"],
       "dependencies": [
         "cmdk@^1.1.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -791,7 +791,7 @@
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -816,7 +816,7 @@
       "description": "Copy a value to the clipboard with transient check feedback — icon-only by default, with an optional visible status label.",
       "categories": ["actions"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -870,7 +870,7 @@
       "dependencies": [
         "@tanstack/react-table@^9.2.4",
         "@tanstack/react-virtual@^3.14.8",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -930,7 +930,7 @@
       "description": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
       "categories": ["data"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -962,7 +962,7 @@
       "categories": ["form"],
       "dependencies": [
         "react-day-picker@^10",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -992,7 +992,7 @@
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1088,7 +1088,7 @@
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1137,7 +1137,7 @@
       "description": "Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1169,7 +1169,7 @@
       "description": "A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1199,7 +1199,7 @@
       "description": "The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) \u2014 shared by EmojiPicker and ShortcutOverlay.",
       "categories": ["overlay"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -1251,7 +1251,7 @@
       "categories": ["form"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1276,7 +1276,7 @@
       "description": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input — for list and table filter toolbars.",
       "categories": ["data"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1306,7 +1306,7 @@
       "description": "The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
       "categories": ["data"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -11736,7 +11736,7 @@
       "categories": ["form"],
       "dependencies": [
         "input-otp@^1.5.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -11887,7 +11887,7 @@
       "description": "The shared media transport — play/pause, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map — composed by Audio Player and Video Player.",
       "categories": ["media"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -11918,7 +11918,7 @@
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -11968,7 +11968,7 @@
       "categories": ["communication"],
       "dependencies": [
         "@shadcn/react@^0.3.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -11996,7 +11996,7 @@
       "description": "The platform <select>, tokenized — the OS picker on mobile, option groups, and the same chrome as every other field.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12023,7 +12023,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12048,7 +12048,7 @@
       "description": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
       "categories": ["media"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12078,7 +12078,7 @@
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12103,7 +12103,7 @@
       "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
       "categories": ["navigation"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12131,7 +12131,7 @@
       "description": "Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.",
       "categories": ["navigation"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12207,7 +12207,7 @@
       "categories": ["communication"],
       "dependencies": [
         "@shadcn/react@^0.3.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12305,7 +12305,7 @@
       "description": "A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12412,7 +12412,7 @@
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12438,7 +12438,7 @@
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12513,7 +12513,7 @@
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12573,7 +12573,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12657,7 +12657,7 @@
       "dependencies": [
         "sonner@^2.0.8",
         "next-themes@^0.4.6",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12682,7 +12682,7 @@
       "description": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
       "categories": ["data"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12713,7 +12713,7 @@
       "description": "An indeterminate loading indicator that inherits its host's ink.",
       "categories": ["feedback"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12763,7 +12763,7 @@
       "categories": ["data-display"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12892,7 +12892,7 @@
       "description": "Hue-tinted label chips on the 10-hue tag palette, with +N overflow collapsing and removable tags.",
       "categories": ["display"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12919,7 +12919,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12956,7 +12956,7 @@
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13030,7 +13030,7 @@
       "categories": ["feedback"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13439,7 +13439,7 @@
       "description": "A full application shell page — AppShell's landmark trio and skip link, a collapsible sidebar, a breadcrumb header and a content area with sample cards.",
       "categories": ["dashboard", "layout"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -13474,7 +13474,7 @@
       "description": "A kanban board page — Board's drag-and-drop columns under a toolbar with a search field, an assignee filter and a view switch.",
       "categories": ["board", "data"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -13510,7 +13510,7 @@
       "description": "An area chart with axes.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13535,7 +13535,7 @@
       "description": "A simple area chart.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13560,7 +13560,7 @@
       "description": "An area chart with gradient fill.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13585,7 +13585,7 @@
       "description": "An area chart with icons.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13635,7 +13635,7 @@
       "description": "An area chart with a legend.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13660,7 +13660,7 @@
       "description": "A linear area chart.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13685,7 +13685,7 @@
       "description": "A stacked area chart.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13710,7 +13710,7 @@
       "description": "A stacked area chart with expand stacking.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13735,7 +13735,7 @@
       "description": "A step area chart.",
       "categories": ["charts", "charts-area"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13760,7 +13760,7 @@
       "description": "A bar chart with an active bar.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13785,7 +13785,7 @@
       "description": "A bar chart.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13810,7 +13810,7 @@
       "description": "A horizontal bar chart.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13856,7 +13856,7 @@
       "description": "A bar chart with a label.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13881,7 +13881,7 @@
       "description": "A bar chart with a custom label.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13906,7 +13906,7 @@
       "description": "A mixed bar chart.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13931,7 +13931,7 @@
       "description": "A multiple bar chart.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13956,7 +13956,7 @@
       "description": "A bar chart with negative values.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13981,7 +13981,7 @@
       "description": "A stacked bar chart with a legend.",
       "categories": ["charts", "charts-bar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14006,7 +14006,7 @@
       "description": "A line chart.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14031,7 +14031,7 @@
       "description": "A line chart with dots.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14056,7 +14056,7 @@
       "description": "A line chart with dots and colors.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14081,7 +14081,7 @@
       "description": "A line chart with custom dots.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14127,7 +14127,7 @@
       "description": "A line chart with a label.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14152,7 +14152,7 @@
       "description": "A line chart with a custom label.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14177,7 +14177,7 @@
       "description": "A linear line chart.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14202,7 +14202,7 @@
       "description": "A multiple line chart.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14227,7 +14227,7 @@
       "description": "A line chart with step.",
       "categories": ["charts", "charts-line"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14252,7 +14252,7 @@
       "description": "A donut chart.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14277,7 +14277,7 @@
       "description": "A donut chart with an active sector.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14302,7 +14302,7 @@
       "description": "A donut chart with text.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14352,7 +14352,7 @@
       "description": "A pie chart with a label.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14377,7 +14377,7 @@
       "description": "A pie chart with a custom label.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14402,7 +14402,7 @@
       "description": "A pie chart with a label list.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14448,7 +14448,7 @@
       "description": "A pie chart with no separator.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14473,7 +14473,7 @@
       "description": "A simple pie chart.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14498,7 +14498,7 @@
       "description": "A pie chart with stacked sections.",
       "categories": ["charts", "charts-pie"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14523,7 +14523,7 @@
       "description": "A radar chart.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14548,7 +14548,7 @@
       "description": "A radar chart with dots.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14573,7 +14573,7 @@
       "description": "A radar chart with a grid and circle.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14598,7 +14598,7 @@
       "description": "A radar chart with a grid and circle fill.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14623,7 +14623,7 @@
       "description": "A radar chart with a grid and circle fill.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14648,7 +14648,7 @@
       "description": "A radar chart with a custom grid.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14673,7 +14673,7 @@
       "description": "A radar chart with a grid filled.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14698,7 +14698,7 @@
       "description": "A radar chart with no grid.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14723,7 +14723,7 @@
       "description": "A radar chart with a custom label.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14748,7 +14748,7 @@
       "description": "A radar chart with a legend.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14773,7 +14773,7 @@
       "description": "A radar chart with lines only.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14798,7 +14798,7 @@
       "description": "A radar chart with multiple data.",
       "categories": ["charts", "charts-radar"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14823,7 +14823,7 @@
       "description": "A radial chart with a grid.",
       "categories": ["charts", "charts-radial"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14848,7 +14848,7 @@
       "description": "A radial chart with a label.",
       "categories": ["charts", "charts-radial"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14873,7 +14873,7 @@
       "description": "A radial chart with a custom shape.",
       "categories": ["charts", "charts-radial"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14898,7 +14898,7 @@
       "description": "A radial chart.",
       "categories": ["charts", "charts-radial"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14923,7 +14923,7 @@
       "description": "A radial chart with stacked sections.",
       "categories": ["charts", "charts-radial"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14948,7 +14948,7 @@
       "description": "A radial chart with text.",
       "categories": ["charts", "charts-radial"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15036,7 +15036,7 @@
       "description": "A stacked bar chart with a legend.",
       "categories": ["charts", "charts-tooltip"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15171,7 +15171,7 @@
         "@dnd-kit/sortable@^10.0.0",
         "@dnd-kit/utilities@^3.2.2",
         "@tanstack/react-table@^9.2.4",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "sonner@^2.0.8",
         "zod@^4.5.4",
@@ -15300,7 +15300,7 @@
       "description": "A two column login page with a cover image.",
       "categories": ["authentication", "login"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -15335,7 +15335,7 @@
       "description": "A login page with a muted background color.",
       "categories": ["authentication", "login"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -15406,7 +15406,7 @@
       "description": "A simple email-only login page.",
       "categories": ["authentication", "login"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -15441,7 +15441,7 @@
       "description": "An onboarding page section — the checklist with its progress, beside a what-is-next card.",
       "categories": ["onboarding"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15530,7 +15530,7 @@
       "description": "A simple sidebar with navigation grouped by section.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15575,7 +15575,7 @@
       "description": "A sidebar with collapsible sections.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15621,7 +15621,7 @@
       "description": "A sidebar with submenus.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15654,7 +15654,7 @@
       "description": "A floating sidebar with submenus.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15687,7 +15687,7 @@
       "description": "A sidebar with collapsible submenus.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15727,7 +15727,7 @@
       "description": "A sidebar with submenus as dropdowns.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15773,7 +15773,7 @@
       "description": "A sidebar that collapses to icons.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15829,7 +15829,7 @@
       "description": "An inset sidebar with secondary navigation.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15885,7 +15885,7 @@
       "description": "Collapsible nested sidebars.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15927,7 +15927,7 @@
       "description": "A sidebar in a popover.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -15994,7 +15994,7 @@
       "description": "A sidebar with a collapsible file tree.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -16028,7 +16028,7 @@
       "description": "A sidebar with a calendar.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -16080,7 +16080,7 @@
       "description": "A sidebar in a dialog.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -16140,7 +16140,7 @@
       "description": "A left and right sidebar.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -16222,7 +16222,7 @@
       "description": "A sidebar with a sticky site header.",
       "categories": ["sidebar", "dashboard"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
@@ -16321,7 +16321,7 @@
       "description": "A two column signup page with a cover image.",
       "categories": ["authentication", "signup"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -16356,7 +16356,7 @@
       "description": "A signup page with a muted background color.",
       "categories": ["authentication", "signup"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16426,7 +16426,7 @@
       "description": "A simple signup form with social providers.",
       "categories": ["authentication", "signup"],
       "dependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"

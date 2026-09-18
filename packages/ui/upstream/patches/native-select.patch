@@ -14,14 +14,14 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/native-select.tsx b/native-select.tsx
-index 09535b2..059ede4 100644
+index 09535b2..7433c0e 100644
 --- a/native-select.tsx
 +++ b/native-select.tsx
 @@ -1,10 +1,12 @@
 -import * as React from "react"
 -import { cn } from "cn"
 -import { ChevronDownIcon } from "lucide-react"
-+// @vegastack native-select@0.9.1 sha256-rheSoWO1nRE3ZMvWPnoUuec7yjrDEVb7a0jXuFaVv2g=
++// @vegastack native-select@0.9.1 sha256-USYWwX3x6ESrmmKCO8D/uJBNIvUaDnZOHsZfJyIQvj0=
 +
 +import * as React from "react";
 +import { cn } from "@vegastack/design";

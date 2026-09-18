@@ -20,12 +20,12 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/menubar.tsx b/menubar.tsx
-index de8698e..e0a0584 100644
+index de8698e..f634840 100644
 --- a/menubar.tsx
 +++ b/menubar.tsx
 @@ -1,9 +1,11 @@
 -"use client"
-+// @vegastack menubar@0.9.1 sha256-vJIxHbeNDfo6ZDO0Hjz9Wnsrl9FD8JPCXBeuUfr7UEQ=
++// @vegastack menubar@0.9.1 sha256-KY43UYcPsRgu+x1WMr+4BT+/2a9bXT8Y540rSWGCtkA=
  
 -import * as React from "react"
 -import { Menu as MenuPrimitive } from "@base-ui/react/menu"

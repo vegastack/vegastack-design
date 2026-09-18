@@ -11,13 +11,13 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/pagination.tsx b/pagination.tsx
-index 6fec19a..bf1c3c1 100644
+index 6fec19a..6aa1778 100644
 --- a/pagination.tsx
 +++ b/pagination.tsx
 @@ -1,8 +1,14 @@
 -import * as React from "react"
 -import { cn } from "cn"
-+// @vegastack pagination@0.9.1 sha256-PuSwF3soScrI69SkavA8mfJFiQ6qxIfxbz5jL5YjgIA=
++// @vegastack pagination@0.9.1 sha256-171z9Vng6RpU14posSSpDE2ySEglZa/vyzBqqxyK4JM=
  
 -import { Button } from "@/components/ui/button"
 -import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"

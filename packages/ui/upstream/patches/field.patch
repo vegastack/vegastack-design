@@ -17,12 +17,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/field.tsx b/field.tsx
-index 8bb6199..f1d3ffe 100644
+index 8bb6199..6e64b1c 100644
 --- a/field.tsx
 +++ b/field.tsx
 @@ -1,11 +1,14 @@
 -"use client"
-+// @vegastack field@0.9.1 sha256-2Qz/mGDS3gvvPlCdoVRSSQqHED92jra8oTvqFJOkRTg=
++// @vegastack field@0.9.1 sha256-KA9GJlmUs3UflVJZZIzi12wiYU+E+dcERM46og7TyEA=
  
 -import { useMemo } from "react"
 -import { cva, type VariantProps } from "class-variance-authority"

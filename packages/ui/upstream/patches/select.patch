@@ -21,12 +21,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..c56bd7a 100644
+index e8a22e1..4f0451e 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,11 +1,14 @@
 -"use client"
-+// @vegastack select@0.9.1 sha256-sQJrpLwNTTyzxSoqa8LHILQ7yklIwoyBRdO+eXhmLx4=
++// @vegastack select@0.9.1 sha256-P9GiUFvn3BzDZ7ixk7BOSgczwBgdh0gS6eIhA73mhoY=
  
 -import * as React from "react"
 -import { Select as SelectPrimitive } from "@base-ui/react/select"

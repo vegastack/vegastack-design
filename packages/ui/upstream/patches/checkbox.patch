@@ -15,12 +15,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/checkbox.tsx b/checkbox.tsx
-index e1a3574..adb891f 100644
+index e1a3574..d09d282 100644
 --- a/checkbox.tsx
 +++ b/checkbox.tsx
 @@ -1,16 +1,18 @@
 -"use client"
-+// @vegastack checkbox@0.9.1 sha256-BclnPQM5yUFc7Yg41GVLNWkUuyKbvksOkjDYPM1TIjc=
++// @vegastack checkbox@0.9.1 sha256-w/bUkYIzwj5sOg3Sj51QReqBBxB9toW7rmjNGs6f3YI=
  
 -import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
 -import { cn } from "cn"

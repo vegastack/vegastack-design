@@ -42,12 +42,12 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..c9099d6 100644
+index 325d01b..f8d1877 100644
 --- a/toast.tsx
 +++ b/toast.tsx
 @@ -1,20 +1,45 @@
 -"use client"
-+// @vegastack toast@0.9.1 sha256-CsBEAo+YHymwB7LpWsznzxVjxonHwX1IzZ6Dp1n8NII=
++// @vegastack toast@0.9.1 sha256-K5zKBTwRd7nm2d4RGDKlgiIPT7CjoiXKQ3fHUm70vW0=
  
 -import * as React from "react"
 -import { Toast as ToastPrimitive } from "@base-ui/react/toast"

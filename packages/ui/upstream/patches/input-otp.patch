@@ -13,12 +13,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input-otp.tsx b/input-otp.tsx
-index 401d035..fe6b9c8 100644
+index 401d035..1218382 100644
 --- a/input-otp.tsx
 +++ b/input-otp.tsx
 @@ -1,29 +1,31 @@
 -"use client"
-+// @vegastack input-otp@0.9.1 sha256-7sdKZoPcrwo/0doTKoDxnawqLoeNu3N/sl7n4M21UHM=
++// @vegastack input-otp@0.9.1 sha256-vagqiILihzRhxJN94O4DrBiaobPclnjXLx1OLRTegnw=
  
 -import * as React from "react"
 -import { cn } from "cn"

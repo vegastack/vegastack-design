@@ -14,12 +14,12 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/dropdown-menu.tsx b/dropdown-menu.tsx
-index 13d14a6..def0bbe 100644
+index 13d14a6..187dce1 100644
 --- a/dropdown-menu.tsx
 +++ b/dropdown-menu.tsx
 @@ -1,20 +1,32 @@
 -"use client"
-+// @vegastack dropdown-menu@0.9.1 sha256-/jM/TakWDX+q1954SKEg6qhuaT0khXdRtirWumXom80=
++// @vegastack dropdown-menu@0.9.1 sha256-x+we1PuX+5UwzEY9INTcBc+vStvLL5QCLejMA2Xntfk=
  
 -import * as React from "react"
 -import { Menu as MenuPrimitive } from "@base-ui/react/menu"

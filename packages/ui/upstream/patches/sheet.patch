@@ -10,12 +10,12 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/sheet.tsx b/sheet.tsx
-index 1972cc1..4947add 100644
+index 1972cc1..1407fea 100644
 --- a/sheet.tsx
 +++ b/sheet.tsx
 @@ -1,26 +1,43 @@
 -"use client"
-+// @vegastack sheet@0.9.1 sha256-VZpBnJHVOmnJez0VrdhhMJTVLXBEz3Ca0X4+KQ/Ed9M=
++// @vegastack sheet@0.9.1 sha256-excnHPBt4tnVsgRz3RIXYoQ248+ud/xIAuAbNXsHl2U=
  
 -import * as React from "react"
 -import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"

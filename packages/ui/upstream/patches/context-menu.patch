@@ -11,12 +11,12 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/context-menu.tsx b/context-menu.tsx
-index 38eb2fb..d746386 100644
+index 38eb2fb..9b24123 100644
 --- a/context-menu.tsx
 +++ b/context-menu.tsx
 @@ -1,18 +1,28 @@
 -"use client"
-+// @vegastack context-menu@0.9.1 sha256-NgHUmO0yfx8s1ypAA63kdaMLbLKzgtfGYE3FyxseALA=
++// @vegastack context-menu@0.9.1 sha256-9CdS4cBnXe/rKXzcT7whH2npokPThD904Z5O9ud+fVY=
  
 -import * as React from "react"
 -import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu"
