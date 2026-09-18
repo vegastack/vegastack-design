@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.9.1 sha256-fY1jMwkEfklTwb+19cfRJp5p+A2IZqac8tV1z7RTEi0=
+// @vegastack data-grid@0.9.1 sha256-zD70J6TPk22KSfkWHyAPCtwzeiZgv4xZFgv0m9lFQUY=
 
 "use client";
 
@@ -1186,7 +1186,18 @@ export function DataGrid<T>({
                                 : "collapsed",
                             })
                           }
-                          className="-mx-2 min-w-0 justify-start font-normal text-muted-foreground [&_svg:not([class*='size-'])]:size-3"
+                          // `aria-expanded` on upstream's ghost Button means "this control's
+                          // POPUP is open", and it paints `bg-muted text-foreground` to say so.
+                          // Here it means "this SECTION is expanded", which is the resting state
+                          // of every group — so the two neutralisers below keep the resting
+                          // header quiet and leave hover and press to the variant. Measured:
+                          // without them an expanded group header wears a permanent 245/245/245
+                          // chip and full-strength ink.
+                          className={cn(
+                            "-mx-2 min-w-0 justify-start font-normal text-muted-foreground",
+                            "aria-expanded:bg-transparent aria-expanded:text-muted-foreground",
+                            "[&_svg:not([class*='size-'])]:size-3",
+                          )}
                         >
                           {collapsed ? (
                             <ChevronRight className="rtl:rotate-180" />

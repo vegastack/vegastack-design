@@ -1105,7 +1105,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.9.1",
-        "integrity": "sha256-fY1jMwkEfklTwb+19cfRJp5p+A2IZqac8tV1z7RTEi0="
+        "integrity": "sha256-zD70J6TPk22KSfkWHyAPCtwzeiZgv4xZFgv0m9lFQUY="
       }
     },
     {
