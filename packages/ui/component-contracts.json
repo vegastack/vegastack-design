@@ -24635,6 +24635,7 @@
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
+        "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx",
         "packages/ui/registry/blocks/onboarding-01/components/getting-started.tsx",
         "packages/ui/registry/blocks/onboarding-01/page.tsx"
       ],
@@ -24646,6 +24647,42 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A block part is a composition, not an API: GettingStarted forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "OnboardingChecklist",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: OnboardingChecklist forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "OnboardingChecklistItem",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: OnboardingChecklistItem forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "OnboardingChecklistItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "OnboardingChecklistProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24677,7 +24714,7 @@
         "accessibility": {
           "status": "covered",
           "values": ["semantic-html", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/blocks/onboarding-01/components/getting-started.tsx + packages/ui/registry/blocks/onboarding-01/onboarding-01.test.tsx"
+          "evidence": "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx + packages/ui/registry/blocks/onboarding-01/onboarding-01.test.tsx"
         },
         "visual": {
           "status": "observed",
@@ -24703,10 +24740,11 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
-        "@vegastack/onboarding-checklist"
+        "@vegastack/progress"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [

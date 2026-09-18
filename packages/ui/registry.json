@@ -15438,14 +15438,20 @@
       "categories": ["onboarding"],
       "dependencies": [
         "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
-        "@vegastack/onboarding-checklist"
+        "@vegastack/progress"
       ],
       "files": [
+        {
+          "path": "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx",
+          "type": "registry:component",
+          "target": "app/onboarding-01/components/checklist.tsx"
+        },
         {
           "path": "packages/ui/registry/blocks/onboarding-01/components/getting-started.tsx",
           "type": "registry:component",

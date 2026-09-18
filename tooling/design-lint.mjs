@@ -284,6 +284,17 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
       rationale: "react-markdown non-checkbox input passthrough",
     },
   ],
+  // `extras.md` dispositions `onboarding-checklist` as block-only, so `onboarding-01` carries its
+  // own copy of these two parts and inherits the same rationale at its own path. The component
+  // entry above goes when the component does; this one is the one that survives.
+  [
+    "registry/blocks/onboarding-01/components/checklist.tsx",
+    {
+      counts: { button: 2 },
+      rationale:
+        "the collapsed progress pill and the step rows \u2014 both carry VISIBLE text, so they are text controls, not icon buttons (the icon-only collapse toggle is an icon Button)",
+    },
+  ],
   [
     "registry/ui/onboarding-checklist.tsx",
     {

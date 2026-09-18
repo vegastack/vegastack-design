@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "32b558dd536cc1fa87df7862e7b25ed135f8f65c631c9071e6bb4ca1f930eb37",
+  "contractSha256": "b3058b575b8a875952af52fa009c80549c1beefcee51285a5f05fd0724e8949c",
   "expectedCounts": {
     "totalRegistryItems": 689,
     "components": 109,
@@ -6583,6 +6583,7 @@
       "wave": "Block",
       "family": "starter-block",
       "sourceFiles": [
+        "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx",
         "packages/ui/registry/blocks/onboarding-01/components/getting-started.tsx",
         "packages/ui/registry/blocks/onboarding-01/page.tsx"
       ],

@@ -1,14 +1,11 @@
-// @vegastack onboarding-01@0.9.1 sha256-SAEz9JYq6qc3+4yxo4T89xVqfgh9lBXkUuuSD1CjG0s=
+// @vegastack onboarding-01@0.9.1 sha256-+AbR7MiTf0wEzenLzbVLVKj65seflSqErfoIlIkKe0w=
 
 "use client";
 
 import * as React from "react";
 import { Bot, CreditCard, Mail, Plug, Users } from "lucide-react";
 
-import {
-  OnboardingChecklist,
-  OnboardingChecklistItem,
-} from "@/components/ui/onboarding-checklist";
+import { OnboardingChecklist, OnboardingChecklistItem } from "./checklist";
 
 interface Step {
   id: string;

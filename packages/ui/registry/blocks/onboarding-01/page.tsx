@@ -1,4 +1,4 @@
-// @vegastack onboarding-01@0.9.1 sha256-SAEz9JYq6qc3+4yxo4T89xVqfgh9lBXkUuuSD1CjG0s=
+// @vegastack onboarding-01@0.9.1 sha256-+AbR7MiTf0wEzenLzbVLVKj65seflSqErfoIlIkKe0w=
 
 import { ArrowRight, BookOpen, MessagesSquare } from "lucide-react";
 

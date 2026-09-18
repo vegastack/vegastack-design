@@ -1029,7 +1029,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.9.1",
-        "integrity": "sha256-fY1jMwkEfklTwb+19cfRJp5p+A2IZqac8tV1z7RTEi0="
+        "integrity": "sha256-zD70J6TPk22KSfkWHyAPCtwzeiZgv4xZFgv0m9lFQUY="
       }
     },
     {
@@ -19250,14 +19250,20 @@
       ],
       "dependencies": [
         "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
-        "@vegastack/onboarding-checklist"
+        "@vegastack/progress"
       ],
       "files": [
+        {
+          "path": "packages/ui/registry/blocks/onboarding-01/components/checklist.tsx",
+          "type": "registry:component",
+          "target": "app/onboarding-01/components/checklist.tsx"
+        },
         {
           "path": "packages/ui/registry/blocks/onboarding-01/components/getting-started.tsx",
           "type": "registry:component",
@@ -19273,7 +19279,7 @@
         "whenToUse": "A first-run or empty-workspace page that has to show the remaining setup steps.",
         "whenNotToUse": "A multi-step form the user walks through in order — that is stepper.",
         "version": "0.9.1",
-        "integrity": "sha256-SAEz9JYq6qc3+4yxo4T89xVqfgh9lBXkUuuSD1CjG0s="
+        "integrity": "sha256-+AbR7MiTf0wEzenLzbVLVKj65seflSqErfoIlIkKe0w="
       }
     },
     {
