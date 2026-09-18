@@ -220,10 +220,14 @@ four status families surface as EXTRA`variant`values written in upstream's own`d
   **destination**, never every intermediate frame; `role="alert"` stays a separate, per-component
   decision (polite `status` by default, `alert` only for destructive/warning content rendered after
   mount). A visible status slot is never also the live region — it would announce its own icon
-  swaps. Base UI's `Combobox.Empty`/`Combobox.Status` (and `CommandEmpty`/`CommandLoading`) are
-  ALREADY live regions: they must stay mounted — toggle their CHILDREN, never wrap the component in
-  a conditional, and keep them as SIBLINGS of the listbox (nesting `role="status"` inside
-  `role="listbox"` trips `aria-required-children` — a real bug fixed in the Command rebuild).
+  swaps. Base UI's `Combobox.Empty`/`Combobox.Status` are ALREADY live regions: they must stay
+  mounted — toggle their CHILDREN, never wrap the component in a conditional, and keep them as
+  SIBLINGS of the listbox (nesting `role="status"` inside `role="listbox"` trips
+  `aria-required-children`). Since Batch 4 of the shadcn reset, `command` is upstream's **cmdk**
+  build, and cmdk ships NO live region at all: the palette mounts one `useAnnouncer` region and
+  announces the filtered result count (A11Y-3/A11Y-4, `packages/ui/upstream/patches/command.patch`).
+  Upstream's `toast` and `sonner` need no such hunk — each engine already mounts one polite region
+  for the life of the toaster.
 - **Live regions are polite by default; assertive is opt-in and rare (D23).** A region already in the
   DOM at page load announces nothing, so `role="status"` is free on a static surface — while
   `role="alert"` is ASSERTIVE and interrupts the screen reader mid-sentence. So a visible status

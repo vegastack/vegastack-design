@@ -700,12 +700,21 @@ recipes:
 > **The component prose is stale in the same way, component by component, as the reset reaches it.**
 > Batch 2 put the 17 action and primitive components back on upstream; Batch 3 did the same for the
 > 15 form components — input, input-group, input-otp, textarea, checkbox, radio-group, switch,
-> slider, select, native-select, combobox, field, form, calendar and direction. Everything this file
-> says about their props, their sizes, their variants and their chrome describes the pre-reset fork:
-> there is no `fieldControl` recipe, no `size` axis on Input, Textarea, Checkbox or the radio item,
-> no `variant`/`thumb` axis on Slider, and `Field` carries its label, description and error as
-> CHILDREN rather than props. The live contract for each of them is its own docs page, which ends in
-> a `## Deviations` section naming every decision ID its patch implements.
+> slider, select, native-select, combobox, field, form, calendar and direction; Batch 4 for the 12
+> overlays — dialog, alert-dialog, sheet, drawer, popover, hover-card, dropdown-menu, context-menu,
+> menubar, command, toast and sonner. Everything this file says about their props, their sizes,
+> their variants and their chrome describes the pre-reset fork: there is no `fieldControl` recipe,
+> no `size` axis on Input, Textarea, Checkbox or the radio item, no `variant`/`thumb` axis on
+> Slider, and `Field` carries its label, description and error as CHILDREN rather than props.
+> Among the overlays: Dialog has no `size` axis (a `max-width` utility retunes it) and its footer is
+> a `bg-muted/50` band; Sheet is Base UI's **Dialog** again, with `side` on `SheetContent`, and the
+> swipe-and-snap behaviour it used to carry now lives in **Drawer**, a separate component that is
+> new here; `command` is cmdk rather than a Base UI Combobox; Toast's imperative surface is
+> `toast.add` / `toast.close` / `toast.promise` rather than `toast()` and its `.success`-style
+> helpers; and **`sonner` ships beside `toast` as a second sanctioned engine**, which is why
+> `next-themes` is read in two registry items again rather than one. The live contract for each of
+> them is its own docs page, which ends in a `## Deviations` section naming every decision ID its
+> patch implements.
 >
 > The parts of this file that ARE current are the generated ones: the token tables, the recipe set
 > and the resolved values, all of which `pnpm design:sync:check` re-derives from the live DTCG
