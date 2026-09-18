@@ -380,7 +380,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -1267,7 +1267,7 @@
       "docsSlug": "/docs/components/announcement-banner",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -2152,7 +2152,7 @@
       "docsSlug": "/docs/components/auto-save-input",
       "registryDependencies": ["@vegastack/input-group", "@vegastack/spinner"],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -2606,7 +2606,7 @@
         "@vegastack/use-mobile"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -2803,7 +2803,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -3455,7 +3455,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "react-day-picker@^10.0.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -3861,7 +3861,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "embla-carousel-react@^8.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -4178,7 +4178,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -4339,7 +4339,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -4838,7 +4838,7 @@
         "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -5106,7 +5106,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/input-group"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -5422,7 +5422,7 @@
       ],
       "npmDependencies": [
         "cmdk@^1.1.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -5742,7 +5742,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -5994,7 +5994,7 @@
       "docsSlug": "/docs/components/copy-button",
       "registryDependencies": ["@vegastack/button", "@vegastack/use-announcer"],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -6275,7 +6275,7 @@
       "npmDependencies": [
         "@tanstack/react-table@^9.2.4",
         "@tanstack/react-virtual@^3.14.8",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -6816,7 +6816,7 @@
         "@vegastack/table"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -7059,7 +7059,7 @@
       ],
       "npmDependencies": [
         "react-day-picker@^10",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -7271,7 +7271,7 @@
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -8015,7 +8015,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -8442,7 +8442,7 @@
         "@vegastack/use-inline-edit"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -8602,7 +8602,7 @@
         "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -9007,7 +9007,7 @@
       "registryDependencies": ["@vegastack/label", "@vegastack/separator"],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -9258,7 +9258,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -9427,7 +9427,7 @@
         "@vegastack/select"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -10168,7 +10168,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "input-otp@^1.5.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -11137,7 +11137,7 @@
         "@vegastack/tooltip"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -11426,7 +11426,7 @@
       "registryDependencies": ["@vegastack/dropdown-menu"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -11962,7 +11962,7 @@
       ],
       "npmDependencies": [
         "@shadcn/react@^0.3.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12132,7 +12132,7 @@
       "docsSlug": "/docs/components/native-select",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12346,7 +12346,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12505,7 +12505,7 @@
         "@vegastack/use-animation-replay"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12618,7 +12618,7 @@
       "registryDependencies": ["@vegastack/input-group"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12750,7 +12750,7 @@
         "@vegastack/button"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -12928,7 +12928,7 @@
       "docsSlug": "/docs/components/pagination",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -13618,7 +13618,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "@shadcn/react@^0.3.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14314,7 +14314,7 @@
         "@vegastack/searchable-select"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -14801,7 +14801,7 @@
       "registryDependencies": ["@vegastack/combobox", "@vegastack/button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15006,7 +15006,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15537,7 +15537,7 @@
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16112,7 +16112,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16681,7 +16681,7 @@
       "npmDependencies": [
         "sonner@^2.0.8",
         "next-themes@^0.4.6",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16800,7 +16800,7 @@
         "@vegastack/use-drag-reorder"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -16916,7 +16916,7 @@
       "docsSlug": "/docs/components/spinner",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -17283,7 +17283,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18114,7 +18114,7 @@
       "docsSlug": "/docs/components/tag-group",
       "registryDependencies": ["@vegastack/chip"],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18269,7 +18269,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18419,7 +18419,7 @@
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -18933,7 +18933,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -19966,7 +19966,7 @@
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -23777,7 +23777,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -23875,7 +23875,7 @@
         "@vegastack/toggle-group"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": ["packages/ui/registry/blocks/board-01/board-01.test.tsx"],
@@ -24103,7 +24103,7 @@
         "@dnd-kit/sortable@^10.0.0",
         "@dnd-kit/utilities@^3.2.2",
         "@tanstack/react-table@^9.2.4",
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "recharts@^3.10.1",
         "sonner@^2.0.8",
         "zod@^4.5.4",
@@ -24295,7 +24295,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -24391,7 +24391,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -24581,7 +24581,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -24713,7 +24713,7 @@
         "@vegastack/progress"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -24991,7 +24991,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -25109,7 +25109,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -25204,7 +25204,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -25299,7 +25299,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -25406,7 +25406,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -25524,7 +25524,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -25662,7 +25662,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -25800,7 +25800,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -25909,7 +25909,7 @@
         "@vegastack/switch"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -26068,7 +26068,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -26164,7 +26164,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -26293,7 +26293,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -26389,7 +26389,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -26666,7 +26666,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -26844,7 +26844,7 @@
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.4.0"
       ],
       "testFiles": [
@@ -27030,7 +27030,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -27126,7 +27126,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -27315,7 +27315,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
+        "lucide-react@^1.47.0",
         "thesvg@^3.3.3",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -27642,7 +27642,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-axes/chart-area-axes.tsx",
         "publicSymbols": ["ChartAreaAxes", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27658,7 +27658,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-default/chart-area-default.tsx",
         "publicSymbols": ["ChartAreaDefault", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27674,7 +27674,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-gradient/chart-area-gradient.tsx",
         "publicSymbols": ["ChartAreaGradient", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27690,7 +27690,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-icons/chart-area-icons.tsx",
         "publicSymbols": ["ChartAreaIcons", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27725,7 +27725,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-legend/chart-area-legend.tsx",
         "publicSymbols": ["ChartAreaLegend", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27741,7 +27741,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-linear/chart-area-linear.tsx",
         "publicSymbols": ["ChartAreaLinear", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27757,7 +27757,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-stacked/chart-area-stacked.tsx",
         "publicSymbols": ["ChartAreaStacked", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27773,7 +27773,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-stacked-expand/chart-area-stacked-expand.tsx",
         "publicSymbols": ["ChartAreaStackedExpand", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27789,7 +27789,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-area-step/chart-area-step.tsx",
         "publicSymbols": ["ChartAreaStep", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27805,7 +27805,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-active/chart-bar-active.tsx",
         "publicSymbols": ["ChartBarActive", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27821,7 +27821,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-default/chart-bar-default.tsx",
         "publicSymbols": ["ChartBarDefault", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27837,7 +27837,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-horizontal/chart-bar-horizontal.tsx",
         "publicSymbols": ["ChartBarHorizontal", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27868,7 +27868,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-label/chart-bar-label.tsx",
         "publicSymbols": ["ChartBarLabel", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27884,7 +27884,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-label-custom/chart-bar-label-custom.tsx",
         "publicSymbols": ["ChartBarLabelCustom", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27900,7 +27900,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-mixed/chart-bar-mixed.tsx",
         "publicSymbols": ["ChartBarMixed", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27916,7 +27916,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-multiple/chart-bar-multiple.tsx",
         "publicSymbols": ["ChartBarMultiple", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27932,7 +27932,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-negative/chart-bar-negative.tsx",
         "publicSymbols": ["ChartBarNegative", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27948,7 +27948,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-bar-stacked/chart-bar-stacked.tsx",
         "publicSymbols": ["ChartBarStacked", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27964,7 +27964,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-default/chart-line-default.tsx",
         "publicSymbols": ["ChartLineDefault", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27980,7 +27980,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-dots/chart-line-dots.tsx",
         "publicSymbols": ["ChartLineDots", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -27996,7 +27996,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-dots-colors/chart-line-dots-colors.tsx",
         "publicSymbols": ["ChartLineDotsColors", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28012,7 +28012,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-dots-custom/chart-line-dots-custom.tsx",
         "publicSymbols": ["ChartLineDotsCustom", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28043,7 +28043,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-label/chart-line-label.tsx",
         "publicSymbols": ["ChartLineLabel", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28059,7 +28059,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-label-custom/chart-line-label-custom.tsx",
         "publicSymbols": ["ChartLineLabelCustom", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28075,7 +28075,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-linear/chart-line-linear.tsx",
         "publicSymbols": ["ChartLineLinear", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28091,7 +28091,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-multiple/chart-line-multiple.tsx",
         "publicSymbols": ["ChartLineMultiple", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28107,7 +28107,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-line-step/chart-line-step.tsx",
         "publicSymbols": ["ChartLineStep", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28123,7 +28123,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-donut/chart-pie-donut.tsx",
         "publicSymbols": ["ChartPieDonut", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28139,7 +28139,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-donut-active/chart-pie-donut-active.tsx",
         "publicSymbols": ["ChartPieDonutActive", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28155,7 +28155,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-donut-text/chart-pie-donut-text.tsx",
         "publicSymbols": ["ChartPieDonutText", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28190,7 +28190,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-label/chart-pie-label.tsx",
         "publicSymbols": ["ChartPieLabel", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28206,7 +28206,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-label-custom/chart-pie-label-custom.tsx",
         "publicSymbols": ["ChartPieLabelCustom", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28222,7 +28222,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-label-list/chart-pie-label-list.tsx",
         "publicSymbols": ["ChartPieLabelList", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28253,7 +28253,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-separator-none/chart-pie-separator-none.tsx",
         "publicSymbols": ["ChartPieSeparatorNone", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28269,7 +28269,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-simple/chart-pie-simple.tsx",
         "publicSymbols": ["ChartPieSimple", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28285,7 +28285,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-pie-stacked/chart-pie-stacked.tsx",
         "publicSymbols": ["ChartPieStacked", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28301,7 +28301,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-default/chart-radar-default.tsx",
         "publicSymbols": ["ChartRadarDefault", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28317,7 +28317,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-dots/chart-radar-dots.tsx",
         "publicSymbols": ["ChartRadarDots", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28333,7 +28333,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-grid-circle/chart-radar-grid-circle.tsx",
         "publicSymbols": ["ChartRadarGridCircle", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28349,7 +28349,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-grid-circle-fill/chart-radar-grid-circle-fill.tsx",
         "publicSymbols": ["ChartRadarGridCircleFill", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28365,7 +28365,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-grid-circle-no-lines/chart-radar-grid-circle-no-lines.tsx",
         "publicSymbols": ["ChartRadarGridCircleNoLines", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28381,7 +28381,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-grid-custom/chart-radar-grid-custom.tsx",
         "publicSymbols": ["ChartRadarGridCustom", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28397,7 +28397,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-grid-fill/chart-radar-grid-fill.tsx",
         "publicSymbols": ["ChartRadarGridFill", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28413,7 +28413,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-grid-none/chart-radar-grid-none.tsx",
         "publicSymbols": ["ChartRadarGridNone", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28429,7 +28429,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-label-custom/chart-radar-label-custom.tsx",
         "publicSymbols": ["ChartRadarLabelCustom", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28445,7 +28445,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-legend/chart-radar-legend.tsx",
         "publicSymbols": ["ChartRadarLegend", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28461,7 +28461,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-lines-only/chart-radar-lines-only.tsx",
         "publicSymbols": ["ChartRadarLinesOnly", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28477,7 +28477,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radar-multiple/chart-radar-multiple.tsx",
         "publicSymbols": ["ChartRadarMultiple", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28493,7 +28493,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radial-grid/chart-radial-grid.tsx",
         "publicSymbols": ["ChartRadialGrid", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28509,7 +28509,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radial-label/chart-radial-label.tsx",
         "publicSymbols": ["ChartRadialLabel", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28525,7 +28525,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radial-shape/chart-radial-shape.tsx",
         "publicSymbols": ["ChartRadialShape", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28541,7 +28541,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radial-simple/chart-radial-simple.tsx",
         "publicSymbols": ["ChartRadialSimple", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28557,7 +28557,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radial-stacked/chart-radial-stacked.tsx",
         "publicSymbols": ["ChartRadialStacked", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28573,7 +28573,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-radial-text/chart-radial-text.tsx",
         "publicSymbols": ["ChartRadialText", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
@@ -28639,7 +28639,7 @@
         "sourceFile": "packages/ui/registry/blocks/chart-tooltip-icons/chart-tooltip-icons.tsx",
         "publicSymbols": ["ChartTooltipIcons", "description"],
         "npmDependencies": [
-          "lucide-react@^1.24.0",
+          "lucide-react@^1.47.0",
           "recharts@^3.10.1",
           "@vegastack/design-tokens@^0.4.0"
         ],
