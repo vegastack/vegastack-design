@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.9.1 sha256-OU1/o1ExnzFVJdtZWfEYBXBG7z3ocFP+Ln6Jyvi2W14=
+// @vegastack app-shell@0.9.1 sha256-fF7U+Tcr/4DrNYs9kKB8UgxLsUi/epVL4zWiQthTQWY=
 
 "use client";
 
@@ -208,12 +208,12 @@ export interface AppShellHeaderProps extends React.ComponentProps<"header"> {
  * sibling of `AppShellContent`'s `<main>`, never nested inside it; see the placement note on
  * `AppShell`). Composes `SidebarTrigger` (ALWAYS visible — on mobile it's the only way to open the
  * sidebar, not just a desktop collapse control) + a `min-w-0` middle slot for `children` (a
- * `Breadcrumb`, `BreadcrumbTrail`, or `PageHeader`) + a `shrink-0` `actions` end slot.
+ * `Breadcrumb` or a `PageHeader`) + a `shrink-0` `actions` end slot.
  *
  * **Mobile discipline.** The middle slot is `min-w-0 flex-1` so a long breadcrumb trail or title
- * shrinks/truncates instead of pushing `actions` off-screen. Pair it with `BreadcrumbTrail`'s
- * `maxItems` (collapses the middle of a long trail) or `PageHeader`'s `TruncatedText`-backed
- * title — don't let raw, unbounded text wrap the header onto a second line.
+ * shrinks/truncates instead of pushing `actions` off-screen. Collapse the middle of a long trail
+ * yourself with `BreadcrumbEllipsis`, or use `PageHeader`'s `TruncatedText`-backed title — don't
+ * let raw, unbounded text wrap the header onto a second line.
  *
  * @example
  * <AppShellHeader actions={<Button size="sm">New agent</Button>}>
