@@ -33,7 +33,6 @@ import { CheckboxPlayground } from "@/components/checkbox-playground";
 import { ComboboxPlayground } from "@/components/combobox-playground";
 import { CopyButtonPlayground } from "@/components/copy-button-playground";
 import { DialogPlayground } from "@/components/dialog-playground";
-import { FieldInlinePlayground } from "@/components/field-inline-playground";
 import { FieldPlayground } from "@/components/field-playground";
 import { ImagePlayground } from "@/components/image-playground";
 import { InputPlayground } from "@/components/input-playground";
@@ -102,7 +101,6 @@ export function getMDXComponents(components?: MDXComponents) {
     ComboboxPlayground,
     CopyButtonPlayground,
     DialogPlayground,
-    FieldInlinePlayground,
     FieldPlayground,
     ImagePlayground,
     InputPlayground,

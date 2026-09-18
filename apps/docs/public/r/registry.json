@@ -1188,6 +1188,7 @@
         "@vegastack/design-tokens@^0.4.0"
       ],
       "registryDependencies": [
+        "@vegastack/calendar",
         "@vegastack/popover",
         "@vegastack/button"
       ],
@@ -1202,7 +1203,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.9.1",
-        "integrity": "sha256-IZJBELYsAYTpZUeDka+ZciW4P0hhd7kYQI5eQoUC5H0="
+        "integrity": "sha256-qnbtwNFvE0ntyHkNTANZ4C5iw0g+OMi0xhQeftZ/oCA="
       }
     },
     {
@@ -1390,7 +1391,7 @@
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
-        "@vegastack/field-inline",
+        "@vegastack/input",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
@@ -1405,9 +1406,9 @@
       ],
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
-        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
+        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.9.1",
-        "integrity": "sha256-b5V3yq1b0nfDKxnyFSpKCA52px+AmqSch/+iN1DX1f8="
+        "integrity": "sha256-u+1y2BE0sYN3iT32XbEK1CENZ96K+HqH/7DjIKlVIHE="
       }
     },
     {
@@ -1500,36 +1501,6 @@
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.9.1",
         "integrity": "sha256-2Qz/mGDS3gvvPlCdoVRSSQqHED92jra8oTvqFJOkRTg="
-      }
-    },
-    {
-      "name": "field-inline",
-      "type": "registry:ui",
-      "title": "Field Inline",
-      "description": "Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/input",
-        "@vegastack/use-inline-edit"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/field-inline.tsx",
-          "type": "registry:ui",
-          "target": "@ui/field-inline.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Inline-edit a single text value in place — table cells, titles, detail rows.",
-        "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation — use Field.",
-        "version": "0.9.1",
-        "integrity": "sha256-YcCLfaEsMDPXD/Hpy8qQXH73JY2+8kWqZtrxUp1IIus="
       }
     },
     {
@@ -16619,7 +16590,7 @@
         "whenToUse": "Any click-to-edit surface: an inline field, a grid cell, a rename affordance - anywhere Enter commits, Escape cancels, and blur must not commit twice.",
         "whenNotToUse": "A field that is always in edit mode (Input inside a Field); persistence, async status or optimistic revert, which belong to the component composing this hook.",
         "version": "0.9.1",
-        "integrity": "sha256-Ye9gDfeqCUKqoU1UcmzzX4NE/408HZ0wfybxu1JPtuo="
+        "integrity": "sha256-8jqSaC36+DwTW9QG5tLCQOuFE1aLDelFji19fYyC/8E="
       }
     },
     {

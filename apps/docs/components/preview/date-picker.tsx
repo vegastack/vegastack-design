@@ -5,7 +5,6 @@ import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/date-picker` (dogfoods the registry) → auto-scanned.
 import {
-  Calendar,
   DatePicker,
   DateRangePicker,
   defaultDatePresets,
@@ -23,8 +22,6 @@ import {
  */
 const DOCS_LOCALE = "en-US";
 
-/** A fixed reference month so the preview is stable: June 2026. */
-const REF = new Date(2026, 5, 12);
 /** Selected day within the reference month (the primary-filled cell). */
 const SELECTED = new Date(2026, 5, 18);
 
@@ -43,13 +40,6 @@ export function datePicker(): ReactNode {
           aria-label="Pick a date"
         />
       </div>
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={setDate}
-        defaultMonth={REF}
-        className="rounded-lg border border-border bg-popover shadow-lg"
-      />
     </Wrapper>
   );
 }
@@ -93,22 +83,6 @@ export function datePickerRange(): ReactNode {
   );
 }
 
-/** The bare `Calendar`, rendered inline (no popover) with a selected day — for cards or sidebars. */
-export function calendarInline(): ReactNode {
-  const [date, setDate] = useState<Date | undefined>(SELECTED);
-  return (
-    <Wrapper>
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={setDate}
-        defaultMonth={REF}
-        className="rounded-lg border border-border bg-popover shadow-lg"
-      />
-    </Wrapper>
-  );
-}
-
 /**
  * `disabledDates` gating — the inline calendar blocks an entire week (Jun 14–20) and a preset whose
  * date falls inside it (Tomorrow → Jun 13 stays live, but a custom "Mid-June" preset on Jun 17 is
@@ -138,14 +112,6 @@ export function datePickerDisabledDates(): ReactNode {
           aria-label="Pick a date"
         />
       </div>
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={setDate}
-        defaultMonth={REF}
-        disabled={blocked}
-        className="rounded-lg border border-border bg-popover shadow-lg"
-      />
     </Wrapper>
   );
 }
@@ -174,16 +140,19 @@ export function datePickerDropdownCaption(): ReactNode {
   const [date, setDate] = useState<Date | undefined>(SELECTED);
   return (
     <Wrapper>
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={setDate}
-        defaultMonth={REF}
-        captionLayout="dropdown"
-        startMonth={new Date(2024, 0)}
-        endMonth={new Date(2027, 11)}
-        className="rounded-lg border border-border bg-popover shadow-lg"
-      />
+      <div className="w-full max-w-56">
+        <DatePicker
+          value={date}
+          onValueChange={setDate}
+          locale={DOCS_LOCALE}
+          aria-label="Pick a date"
+          calendarProps={{
+            captionLayout: "dropdown",
+            startMonth: new Date(2024, 0),
+            endMonth: new Date(2027, 11),
+          }}
+        />
+      </div>
     </Wrapper>
   );
 }

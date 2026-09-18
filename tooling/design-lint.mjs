@@ -278,13 +278,6 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/date-picker.tsx",
-    {
-      counts: { button: 1 },
-      rationale: "react-day-picker day-cell integration",
-    },
-  ],
-  [
     "/markdown-view.tsx",
     {
       counts: { input: 1 },

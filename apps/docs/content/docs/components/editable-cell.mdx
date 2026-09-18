@@ -25,8 +25,9 @@ import { EditableCell } from "@/components/ui/editable-cell";
 />;
 ```
 
-`EditableCell` composes [`FieldInline`](/docs/components/field-inline) as its
-text leaf and layers on what every optimistic inline edit needs beyond the edit
+`EditableCell` owns the click-to-edit text leaf — display text, a focused
+[`Input`](/docs/components/input) on activation, Enter or blur to commit, Escape
+to cancel — and layers on what every optimistic inline edit needs beyond the edit
 interaction itself: an `idle → saving → saved | error` status indicator (the
 same `AutoSaveStatus` vocabulary [`AutoSaveInput`](/docs/components/auto-save-input)
 uses), conflict revert, and a typed per-type editor.
@@ -112,7 +113,7 @@ The `custom` editor receives `EditableCellEditorProps`:
 
 ## Accessibility
 
-- The display element is a `role="button"` (via `FieldInline`) — <kbd>Enter</kbd>
+- The display element is a `role="button"` — <kbd>Enter</kbd>
   or <kbd>Space</kbd> opens the editor, mirroring a mouse click; the editor is
   never unnamed (`label` → `placeholder` → generic fallback).
 - Status changes are announced through a visually hidden polite live region —

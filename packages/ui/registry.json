@@ -1040,7 +1040,11 @@
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "registryDependencies": ["@vegastack/popover", "@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/calendar",
+        "@vegastack/popover",
+        "@vegastack/button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/date-picker.tsx",
@@ -1213,7 +1217,7 @@
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
-        "@vegastack/field-inline",
+        "@vegastack/input",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
@@ -1228,7 +1232,7 @@
       ],
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value \u2014 grid cells (focusMode=managed), record-page property lists, settings rows \u2014 where the write is async and can fail.",
-        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
+        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.9.1"
       }
     },
@@ -1309,33 +1313,6 @@
       "meta": {
         "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
         "whenNotToUse": "A bare control with its own label already wired \u2014 Field is for the label+message+a11y scaffold.",
-        "version": "0.9.1"
-      }
-    },
-    {
-      "name": "field-inline",
-      "type": "registry:ui",
-      "title": "Field Inline",
-      "description": "Click-to-edit text \u2014 displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
-      "categories": ["form"],
-      "dependencies": [
-        "@vegastack/design@^0.4.1",
-        "@vegastack/design-tokens@^0.4.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/input",
-        "@vegastack/use-inline-edit"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/field-inline.tsx",
-          "type": "registry:ui",
-          "target": "@ui/field-inline.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Inline-edit a single text value in place \u2014 table cells, titles, detail rows.",
-        "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation \u2014 use Field.",
         "version": "0.9.1"
       }
     },

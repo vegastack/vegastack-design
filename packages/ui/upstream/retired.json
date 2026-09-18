@@ -2,6 +2,7 @@
   "_note": "Names deleted in favour of an upstream replacement (Batch 7a of docs/plans/2026-09-18-shadcn-reset/, extras.md 'RETIRE'). A retired name must be absent from packages/ui/registry/ui/ AND must not be resurrected by an upstream pull. Each name's replacement and prop map is in docs/MIGRATING-1.0.md (assembled in Batch 9).",
   "components": [
     "checkbox-group",
+    "field-inline",
     "floating-surface",
     "icon-button",
     "otp-input",

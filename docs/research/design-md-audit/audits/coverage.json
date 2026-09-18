@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "f2ecd9c76f7c173a0229ec692da8d7717d0be8d3ae7d450d2190d43402049749",
+  "contractSha256": "bb4aacb9906332d60b3823a8c961f2b008ee575d982ec76ec84f16429270e010",
   "inventory": {
-    "expected": 591,
-    "actual": 591,
-    "unique": 591
+    "expected": 590,
+    "actual": 590,
+    "unique": 590
   },
   "classes": {
-    "components": 110,
+    "components": 109,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -45,8 +45,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 24,
-      "actual": 24,
+      "expected": 23,
+      "actual": 23,
       "members": [
         "auto-save-input",
         "calendar",
@@ -58,7 +58,6 @@
         "dropzone",
         "editable-cell",
         "field",
-        "field-inline",
         "filter-bar",
         "filter-bar-managed",
         "input-group",
@@ -118,8 +117,8 @@
       ]
     },
     "Data display": {
-      "expected": 11,
-      "actual": 11,
+      "expected": 10,
+      "actual": 10,
       "members": [
         "card",
         "carousel",
@@ -127,7 +126,6 @@
         "chip",
         "data-grid",
         "data-list",
-        "data-table-parts",
         "property-list",
         "stat",
         "table",
@@ -152,6 +150,13 @@
         "terminal",
         "truncated-text",
         "video-player"
+      ]
+    },
+    "Shared internals": {
+      "expected": 1,
+      "actual": 1,
+      "members": [
+        "data-table-parts"
       ]
     },
     "AI/chat": {
@@ -665,7 +670,7 @@
       ]
     }
   },
-  "componentRoutes": 110,
+  "componentRoutes": 108,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }
