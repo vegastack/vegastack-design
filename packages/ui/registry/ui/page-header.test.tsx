@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
+import type { Locator } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
@@ -18,6 +19,21 @@ async function openTooltip(container: Element) {
     container.ownerDocument.querySelector('[data-slot="tooltip-content"]'),
   );
 }
+
+/**
+ * The truncating title element, located INSIDE this render's container.
+ *
+ * Not `screen.getByText(title)`: `vitest-browser-react` builds `screen.getByRole`/`getByText`
+ * from `baseElement`, which is `document.body` — and the overflow Tooltip's popup is portaled to
+ * that same body carrying the title string VERBATIM. So the moment the tooltip is open, a text
+ * locator matches two elements and Playwright fails on strict mode instead of on the component.
+ * That is not hypothetical here: the Playwright pointer stays where the previous test left it, so
+ * a freshly-mounted title can render straight under the cursor and open its own tooltip (the
+ * provider's delay is 0) before the next line runs. `screen.locator` is scoped to the render
+ * container, which the portal is outside of, so it can only ever match the trigger.
+ */
+const titleIn = (screen: { locator: Locator }, text: string) =>
+  screen.locator.getByText(text, { exact: true });
 
 test("renders the title as an h1", async () => {
   const screen = await render(<PageHeader title="Settings" />);
@@ -238,7 +254,7 @@ test("an overlong title truncates via TruncatedText and is keyboard-focusable", 
       <PageHeader title={long} />
     </TooltipProvider>,
   );
-  const title = screen.getByText(long);
+  const title = titleIn(screen, long);
   await expect.element(title).toHaveAttribute("data-slot", "truncated-text");
   await expect.element(title).toHaveClass("truncate");
   // Overflow measurement is async (ResizeObserver) — poll until the trigger upgrade lands.
@@ -258,7 +274,7 @@ test("hovering an overlong title reveals the full text via a Tooltip", async () 
       <PageHeader title={long} />
     </TooltipProvider>,
   );
-  const title = screen.getByText(long);
+  const title = titleIn(screen, long);
   await expect.element(title).toHaveAttribute("tabindex", "0");
   await userEvent.hover(title);
   await openTooltip(screen.container);
@@ -273,7 +289,7 @@ test("no a11y violations — truncated title with the tooltip open", async () =>
       <PageHeader title={long} />
     </TooltipProvider>,
   );
-  const title = screen.getByText(long);
+  const title = titleIn(screen, long);
   await expect.element(title).toHaveAttribute("tabindex", "0");
   await userEvent.hover(title);
   await openTooltip(screen.container);
