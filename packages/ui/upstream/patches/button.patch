@@ -16,15 +16,13 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/button.tsx b/button.tsx
-index 1efb940..c293407 100644
+index 1efb940..88d54cd 100644
 --- a/button.tsx
 +++ b/button.tsx
-@@ -1,9 +1,13 @@
+@@ -1,9 +1,11 @@
 -import { Button as ButtonPrimitive } from "@base-ui/react/button"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+// @vegastack button@0.9.1 sha256-gbbrr+QBcUXRddiT1u5Q1Quf2l+mMZFjcORiKrSy/q4=
-+
 +import { Button as ButtonPrimitive } from "@base-ui/react/button";
 +import { cva, type VariantProps } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
@@ -37,7 +35,7 @@ index 1efb940..c293407 100644
    {
      variants: {
        variant: {
-@@ -15,7 +19,7 @@ const buttonVariants = cva(
+@@ -15,7 +17,7 @@ const buttonVariants = cva(
          ghost:
            "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
          destructive:
@@ -46,7 +44,7 @@ index 1efb940..c293407 100644
          link: "text-primary underline-offset-4 hover:underline",
        },
        size: {
-@@ -36,22 +40,53 @@ const buttonVariants = cva(
+@@ -36,22 +38,53 @@ const buttonVariants = cva(
        variant: "default",
        size: "default",
      },

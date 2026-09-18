@@ -17,23 +17,21 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/resizable.tsx b/resizable.tsx
-index c5065e6..631af11 100644
+index c5065e6..dd61b8a 100644
 --- a/resizable.tsx
 +++ b/resizable.tsx
-@@ -1,7 +1,9 @@
+@@ -1,7 +1,7 @@
 -"use client"
-+// @vegastack resizable@0.9.1 sha256-gSZG+PoksXuaukVs5IaJBZ+cwa8s+54RuzPW0QQKee4=
++"use client";
  
 -import { cn } from "cn"
 -import * as ResizablePrimitive from "react-resizable-panels"
-+"use client";
-+
 +import { cn } from "@vegastack/design";
 +import * as ResizablePrimitive from "react-resizable-panels";
  
  function ResizablePanelGroup({
    className,
-@@ -12,15 +14,15 @@ function ResizablePanelGroup({
+@@ -12,15 +12,15 @@ function ResizablePanelGroup({
        data-slot="resizable-panel-group"
        className={cn(
          "flex h-full w-full aria-[orientation=vertical]:flex-col",
@@ -52,7 +50,7 @@ index c5065e6..631af11 100644
  }
  
  function ResizableHandle({
-@@ -28,14 +30,14 @@ function ResizableHandle({
+@@ -28,14 +28,14 @@ function ResizableHandle({
    className,
    ...props
  }: ResizablePrimitive.SeparatorProps & {
@@ -70,7 +68,7 @@ index c5065e6..631af11 100644
        )}
        {...props}
      >
-@@ -43,7 +45,7 @@ function ResizableHandle({
+@@ -43,7 +43,7 @@ function ResizableHandle({
          <div className="z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border" />
        )}
      </ResizablePrimitive.Separator>

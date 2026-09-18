@@ -5,14 +5,12 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/spinner.tsx b/spinner.tsx
-index 4b753d2..5acd746 100644
+index 4b753d2..e1a7566 100644
 --- a/spinner.tsx
 +++ b/spinner.tsx
-@@ -1,10 +1,18 @@
+@@ -1,10 +1,16 @@
 -import { cn } from "cn"
 -import { Loader2Icon } from "lucide-react"
-+// @vegastack spinner@0.9.1 sha256-jcFLnM7uq1mxvwb2FuZlrfL9H2tubBLPgyBts84BJp4=
-+
 +import { cn } from "@vegastack/design";
 +import { Loader2Icon } from "lucide-react";
  

@@ -12,17 +12,15 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/switch.tsx b/switch.tsx
-index 0e7482c..e263613 100644
+index 0e7482c..44a6d8c 100644
 --- a/switch.tsx
 +++ b/switch.tsx
-@@ -1,22 +1,24 @@
+@@ -1,22 +1,22 @@
 -"use client"
-+// @vegastack switch@0.9.1 sha256-1Gsp2JoXe+p3gVFv0Y1T9sOCIs3caCoKVR6SUsOMCx4=
++"use client";
  
 -import { Switch as SwitchPrimitive } from "@base-ui/react/switch"
 -import { cn } from "cn"
-+"use client";
-+
 +import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
 +import { cn } from "@vegastack/design";
  
@@ -46,7 +44,7 @@ index 0e7482c..e263613 100644
        )}
        {...props}
      >
-@@ -25,7 +27,7 @@ function Switch({
+@@ -25,7 +25,7 @@ function Switch({
          className="pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] rtl:group-data-[size=default]/switch:data-checked:-translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] rtl:group-data-[size=sm]/switch:data-checked:-translate-x-[calc(100%-2px)] dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0 rtl:group-data-[size=default]/switch:data-unchecked:-translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 rtl:group-data-[size=sm]/switch:data-unchecked:-translate-x-0 dark:data-unchecked:bg-foreground"
        />
      </SwitchPrimitive.Root>

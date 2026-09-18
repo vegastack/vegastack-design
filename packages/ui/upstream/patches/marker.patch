@@ -23,17 +23,15 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/marker.tsx b/marker.tsx
-index c01fc83..94c485b 100644
+index c01fc83..f24b090 100644
 --- a/marker.tsx
 +++ b/marker.tsx
-@@ -1,11 +1,25 @@
+@@ -1,11 +1,23 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+// @vegastack marker@0.9.1 sha256-JRt4ynM2DNS4/+50wA46JEfLpTTxhX7KGdMGsmqJlIA=
-+
 +"use client";
 +
 +import * as React from "react";
@@ -58,7 +56,7 @@ index c01fc83..94c485b 100644
    {
      variants: {
        variant: {
-@@ -15,8 +29,8 @@ const markerVariants = cva(
+@@ -15,8 +27,8 @@ const markerVariants = cva(
          border: "border-b border-border pb-2",
        },
      },
@@ -69,7 +67,7 @@ index c01fc83..94c485b 100644
  
  function Marker({
    className,
-@@ -30,14 +44,14 @@ function Marker({
+@@ -30,14 +42,14 @@ function Marker({
        {
          className: cn(markerVariants({ variant, className })),
        },
@@ -86,7 +84,7 @@ index c01fc83..94c485b 100644
  }
  
  function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
-@@ -47,11 +61,11 @@ function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
+@@ -47,11 +59,11 @@ function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
        aria-hidden="true"
        className={cn(
          "size-4 shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -100,7 +98,7 @@ index c01fc83..94c485b 100644
  }
  
  function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
-@@ -60,11 +74,11 @@ function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
+@@ -60,11 +72,11 @@ function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
        data-slot="marker-content"
        className={cn(
          "min-w-0 wrap-break-word group-data-[variant=separator]/marker:flex-none group-data-[variant=separator]/marker:text-center *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",

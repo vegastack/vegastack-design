@@ -19,18 +19,16 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/radio-group.tsx b/radio-group.tsx
-index ef52dfe..a68f98c 100644
+index ef52dfe..da08032 100644
 --- a/radio-group.tsx
 +++ b/radio-group.tsx
-@@ -1,17 +1,19 @@
+@@ -1,17 +1,17 @@
 -"use client"
-+// @vegastack radio-group@0.9.1 sha256-1PnSXMYkPyLBvGeMVsLuZM6a5BYox9n2MCyn/Pmt2FI=
++"use client";
  
 -import { Radio as RadioPrimitive } from "@base-ui/react/radio"
 -import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group"
 -import { cn } from "cn"
-+"use client";
-+
 +import { Radio as RadioPrimitive } from "@base-ui/react/radio";
 +import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 +import { cn } from "@vegastack/design";
@@ -48,7 +46,7 @@ index ef52dfe..a68f98c 100644
  }
  
  function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
-@@ -19,8 +21,8 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
+@@ -19,8 +19,8 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
      <RadioPrimitive.Root
        data-slot="radio-group-item"
        className={cn(
@@ -59,7 +57,7 @@ index ef52dfe..a68f98c 100644
        )}
        {...props}
      >
-@@ -31,7 +33,7 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
+@@ -31,7 +31,7 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
          <span className="absolute top-1/2 start-1/2 size-2 -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground" />
        </RadioPrimitive.Indicator>
      </RadioPrimitive.Root>

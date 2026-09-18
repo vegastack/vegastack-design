@@ -28,19 +28,17 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/chart.tsx b/chart.tsx
-index 09c6329..a000580 100644
+index 09c6329..1101161 100644
 --- a/chart.tsx
 +++ b/chart.tsx
-@@ -1,41 +1,43 @@
+@@ -1,41 +1,41 @@
 -"use client"
-+// @vegastack chart@0.9.1 sha256-tzEpTqd8P4d28Q0e187LfMNHSMHQKPvp2KEZqTPPSp8=
++"use client";
  
 -import * as React from "react"
 -import { cn } from "cn"
 -import * as RechartsPrimitive from "recharts"
 -import type { TooltipValueType } from "recharts"
-+"use client";
-+
 +import * as React from "react";
 +import { cn } from "@vegastack/design";
 +import * as RechartsPrimitive from "recharts";
@@ -92,7 +90,7 @@ index 09c6329..a000580 100644
  }
  
  function ChartContainer({
-@@ -46,17 +48,17 @@ function ChartContainer({
+@@ -46,17 +46,17 @@ function ChartContainer({
    initialDimension = INITIAL_DIMENSION,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -117,7 +115,7 @@ index 09c6329..a000580 100644
  
    return (
      <ChartContext.Provider value={{ config }}>
-@@ -64,8 +66,22 @@ function ChartContainer({
+@@ -64,8 +64,22 @@ function ChartContainer({
          data-slot="chart"
          data-chart={chartId}
          className={cn(
@@ -142,7 +140,7 @@ index 09c6329..a000580 100644
          )}
          {...props}
        >
-@@ -77,16 +93,16 @@ function ChartContainer({
+@@ -77,16 +91,16 @@ function ChartContainer({
          </RechartsPrimitive.ResponsiveContainer>
        </div>
      </ChartContext.Provider>
@@ -163,7 +161,7 @@ index 09c6329..a000580 100644
    }
  
    return (
-@@ -100,20 +116,20 @@ ${colorConfig
+@@ -100,20 +114,20 @@ ${colorConfig
    .map(([key, itemConfig]) => {
      const color =
        itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
@@ -190,7 +188,7 @@ index 09c6329..a000580 100644
  
  function ChartTooltipContent({
    active,
-@@ -131,11 +147,11 @@ function ChartTooltipContent({
+@@ -131,11 +145,11 @@ function ChartTooltipContent({
    labelKey,
  }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
    React.ComponentProps<"div"> & {
@@ -207,7 +205,7 @@ index 09c6329..a000580 100644
    } & Omit<
      RechartsPrimitive.DefaultTooltipContentProps<
        TooltipValueType,
-@@ -143,34 +159,34 @@ function ChartTooltipContent({
+@@ -143,34 +157,34 @@ function ChartTooltipContent({
      >,
      "accessibilityLayer"
    >) {
@@ -251,7 +249,7 @@ index 09c6329..a000580 100644
    }, [
      label,
      labelFormatter,
-@@ -179,19 +195,19 @@ function ChartTooltipContent({
+@@ -179,19 +193,19 @@ function ChartTooltipContent({
      labelClassName,
      config,
      labelKey,
@@ -275,7 +273,7 @@ index 09c6329..a000580 100644
        )}
      >
        {!nestLabel ? tooltipLabel : null}
-@@ -199,16 +215,16 @@ function ChartTooltipContent({
+@@ -199,16 +213,16 @@ function ChartTooltipContent({
          {payload
            .filter((item) => item.type !== "none")
            .map((item, index) => {
@@ -296,7 +294,7 @@ index 09c6329..a000580 100644
                  )}
                >
                  {formatter && item?.value !== undefined && item.name ? (
-@@ -228,7 +244,7 @@ function ChartTooltipContent({
+@@ -228,7 +242,7 @@ function ChartTooltipContent({
                                "w-0 border-[1.5px] border-dashed bg-transparent":
                                  indicator === "dashed",
                                "my-0.5": nestLabel && indicator === "dashed",
@@ -305,7 +303,7 @@ index 09c6329..a000580 100644
                            )}
                            style={
                              {
-@@ -242,7 +258,7 @@ function ChartTooltipContent({
+@@ -242,7 +256,7 @@ function ChartTooltipContent({
                      <div
                        className={cn(
                          "flex flex-1 justify-between leading-none",
@@ -314,7 +312,7 @@ index 09c6329..a000580 100644
                        )}
                      >
                        <div className="grid gap-1.5">
-@@ -262,14 +278,14 @@ function ChartTooltipContent({
+@@ -262,14 +276,14 @@ function ChartTooltipContent({
                    </>
                  )}
                </div>
@@ -332,7 +330,7 @@ index 09c6329..a000580 100644
  
  function ChartLegendContent({
    className,
-@@ -278,13 +294,13 @@ function ChartLegendContent({
+@@ -278,13 +292,13 @@ function ChartLegendContent({
    verticalAlign = "bottom",
    nameKey,
  }: React.ComponentProps<"div"> & {
@@ -350,7 +348,7 @@ index 09c6329..a000580 100644
    }
  
    return (
-@@ -292,20 +308,20 @@ function ChartLegendContent({
+@@ -292,20 +306,20 @@ function ChartLegendContent({
        className={cn(
          "flex items-center justify-center gap-4",
          verticalAlign === "top" ? "pb-3" : "pt-3",
@@ -375,7 +373,7 @@ index 09c6329..a000580 100644
                )}
              >
                {itemConfig?.icon && !hideIcon ? (
-@@ -320,19 +336,19 @@ function ChartLegendContent({
+@@ -320,19 +334,19 @@ function ChartLegendContent({
                )}
                {itemConfig?.label}
              </div>
@@ -399,7 +397,7 @@ index 09c6329..a000580 100644
    }
  
    const payloadPayload =
-@@ -340,15 +356,15 @@ function getPayloadConfigFromPayload(
+@@ -340,15 +354,15 @@ function getPayloadConfigFromPayload(
      typeof payload.payload === "object" &&
      payload.payload !== null
        ? payload.payload
@@ -418,7 +416,7 @@ index 09c6329..a000580 100644
    } else if (
      payloadPayload &&
      key in payloadPayload &&
-@@ -356,10 +372,10 @@ function getPayloadConfigFromPayload(
+@@ -356,10 +370,10 @@ function getPayloadConfigFromPayload(
    ) {
      configLabelKey = payloadPayload[
        key as keyof typeof payloadPayload
@@ -431,7 +429,7 @@ index 09c6329..a000580 100644
  }
  
  export {
-@@ -369,4 +385,4 @@ export {
+@@ -369,4 +383,4 @@ export {
    ChartLegend,
    ChartLegendContent,
    ChartStyle,

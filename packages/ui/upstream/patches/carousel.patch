@@ -10,17 +10,15 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/carousel.tsx b/carousel.tsx
-index 53ff9d0..dc5b95f 100644
+index 53ff9d0..f4305d1 100644
 --- a/carousel.tsx
 +++ b/carousel.tsx
-@@ -1,45 +1,47 @@
+@@ -1,45 +1,45 @@
 -"use client"
-+// @vegastack carousel@0.9.1 sha256-d5LRwhtR1s1Mfon2lSezi+lMSYBWqRDYSRVrZULWKsY=
++"use client";
  
 -import * as React from "react"
 -import { cn } from "cn"
-+"use client";
-+
 +import * as React from "react";
 +import { cn } from "@vegastack/design";
  import useEmblaCarousel, {
@@ -87,7 +85,7 @@ index 53ff9d0..dc5b95f 100644
  }
  
  function Carousel({
-@@ -56,53 +58,53 @@ function Carousel({
+@@ -56,53 +56,53 @@ function Carousel({
        ...opts,
        axis: orientation === "horizontal" ? "x" : "y",
      },
@@ -169,7 +167,7 @@ index 53ff9d0..dc5b95f 100644
  
    return (
      <CarouselContext.Provider
-@@ -129,11 +131,11 @@ function Carousel({
+@@ -129,11 +129,11 @@ function Carousel({
          {children}
        </div>
      </CarouselContext.Provider>
@@ -183,7 +181,7 @@ index 53ff9d0..dc5b95f 100644
  
    return (
      <div
-@@ -145,16 +147,16 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -145,16 +145,16 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
          className={cn(
            "flex",
            orientation === "horizontal" ? "-ms-4" : "-mt-4 flex-col",
@@ -203,7 +201,7 @@ index 53ff9d0..dc5b95f 100644
  
    return (
      <div
-@@ -164,11 +166,11 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
+@@ -164,11 +164,11 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
        className={cn(
          "min-w-0 shrink-0 grow-0 basis-full",
          orientation === "horizontal" ? "ps-4" : "pt-4",
@@ -217,7 +215,7 @@ index 53ff9d0..dc5b95f 100644
  }
  
  function CarouselPrevious({
-@@ -177,7 +179,7 @@ function CarouselPrevious({
+@@ -177,7 +177,7 @@ function CarouselPrevious({
    size = "icon-sm",
    ...props
  }: React.ComponentProps<typeof Button>) {
@@ -226,7 +224,7 @@ index 53ff9d0..dc5b95f 100644
  
    return (
      <Button
-@@ -189,7 +191,7 @@ function CarouselPrevious({
+@@ -189,7 +189,7 @@ function CarouselPrevious({
          orientation === "horizontal"
            ? "inset-y-0 -start-12 my-auto"
            : "-top-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90",
@@ -235,7 +233,7 @@ index 53ff9d0..dc5b95f 100644
        )}
        disabled={!canScrollPrev}
        onClick={scrollPrev}
-@@ -198,7 +200,7 @@ function CarouselPrevious({
+@@ -198,7 +198,7 @@ function CarouselPrevious({
        <ChevronLeftIcon className="rtl:rotate-180" />
        <span className="sr-only">Previous slide</span>
      </Button>
@@ -244,7 +242,7 @@ index 53ff9d0..dc5b95f 100644
  }
  
  function CarouselNext({
-@@ -207,7 +209,7 @@ function CarouselNext({
+@@ -207,7 +207,7 @@ function CarouselNext({
    size = "icon-sm",
    ...props
  }: React.ComponentProps<typeof Button>) {
@@ -253,7 +251,7 @@ index 53ff9d0..dc5b95f 100644
  
    return (
      <Button
-@@ -219,7 +221,7 @@ function CarouselNext({
+@@ -219,7 +219,7 @@ function CarouselNext({
          orientation === "horizontal"
            ? "inset-y-0 -end-12 my-auto"
            : "-bottom-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90",
@@ -262,7 +260,7 @@ index 53ff9d0..dc5b95f 100644
        )}
        disabled={!canScrollNext}
        onClick={scrollNext}
-@@ -228,7 +230,7 @@ function CarouselNext({
+@@ -228,7 +228,7 @@ function CarouselNext({
        <ChevronRightIcon className="rtl:rotate-180" />
        <span className="sr-only">Next slide</span>
      </Button>
@@ -271,7 +269,7 @@ index 53ff9d0..dc5b95f 100644
  }
  
  export {
-@@ -239,4 +241,4 @@ export {
+@@ -239,4 +239,4 @@ export {
    CarouselPrevious,
    CarouselNext,
    useCarousel,

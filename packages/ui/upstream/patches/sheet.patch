@@ -10,31 +10,29 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/sheet.tsx b/sheet.tsx
-index 1972cc1..1407fea 100644
+index 1972cc1..a02efb6 100644
 --- a/sheet.tsx
 +++ b/sheet.tsx
-@@ -1,26 +1,43 @@
+@@ -1,26 +1,41 @@
 -"use client"
-+// @vegastack sheet@0.9.1 sha256-excnHPBt4tnVsgRz3RIXYoQ248+ud/xIAuAbNXsHl2U=
++"use client";
  
 -import * as React from "react"
 -import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 -import { cn } from "cn"
-+"use client";
- 
--import { Button } from "@/components/ui/button"
--import { XIcon } from "lucide-react"
 +import * as React from "react";
 +import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 +import { cn } from "@vegastack/design";
 +import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 +import { useModalInert } from "@/components/ui/use-modal-inert";
  
--function Sheet({ ...props }: SheetPrimitive.Root.Props) {
--  return <SheetPrimitive.Root data-slot="sheet" {...props} />
+-import { Button } from "@/components/ui/button"
+-import { XIcon } from "lucide-react"
 +import { Button } from "@/components/ui/button";
 +import { XIcon } from "lucide-react";
-+
+ 
+-function Sheet({ ...props }: SheetPrimitive.Root.Props) {
+-  return <SheetPrimitive.Root data-slot="sheet" {...props} />
 +const SheetModalContext =
 +  React.createContext<SheetPrimitive.Root.Props["modal"]>(true);
 +
@@ -69,7 +67,7 @@ index 1972cc1..1407fea 100644
  }
  
  function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
-@@ -29,32 +46,40 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
+@@ -29,32 +44,40 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
        data-slot="sheet-overlay"
        className={cn(
          "fixed inset-0 z-50 bg-black/10 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs",
@@ -115,7 +113,7 @@ index 1972cc1..1407fea 100644
          )}
          {...props}
        >
-@@ -70,14 +95,13 @@ function SheetContent({
+@@ -70,14 +93,13 @@ function SheetContent({
                />
              }
            >
@@ -132,7 +130,7 @@ index 1972cc1..1407fea 100644
  }
  
  function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -87,7 +111,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -87,7 +109,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-0.5 p-4", className)}
        {...props}
      />
@@ -141,7 +139,7 @@ index 1972cc1..1407fea 100644
  }
  
  function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -97,7 +121,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -97,7 +119,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("mt-auto flex flex-col gap-2 p-4", className)}
        {...props}
      />
@@ -150,7 +148,7 @@ index 1972cc1..1407fea 100644
  }
  
  function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
-@@ -106,11 +130,11 @@ function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
+@@ -106,11 +128,11 @@ function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
        data-slot="sheet-title"
        className={cn(
          "font-heading text-base font-medium text-foreground",
@@ -164,7 +162,7 @@ index 1972cc1..1407fea 100644
  }
  
  function SheetDescription({
-@@ -123,7 +147,7 @@ function SheetDescription({
+@@ -123,7 +145,7 @@ function SheetDescription({
        className={cn("text-sm text-muted-foreground", className)}
        {...props}
      />
@@ -173,7 +171,7 @@ index 1972cc1..1407fea 100644
  }
  
  export {
-@@ -135,4 +159,4 @@ export {
+@@ -135,4 +157,4 @@ export {
    SheetFooter,
    SheetTitle,
    SheetDescription,

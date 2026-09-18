@@ -8,13 +8,12 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/label.tsx b/label.tsx
-index ddfd2e1..4e6d7ee 100644
+index ddfd2e1..6ceabe6 100644
 --- a/label.tsx
 +++ b/label.tsx
-@@ -1,7 +1,7 @@
+@@ -1,7 +1,5 @@
 -"use client"
-+// @vegastack label@0.9.1 sha256-jeWVVHZaRCvDoY3sJW/Xl/Q9UayE0GTEvsIKyCWGok4=
- 
+-
 -import * as React from "react"
 -import { cn } from "cn"
 +import * as React from "react";
@@ -22,7 +21,7 @@ index ddfd2e1..4e6d7ee 100644
  
  function Label({ className, ...props }: React.ComponentProps<"label">) {
    return (
-@@ -9,11 +9,11 @@ function Label({ className, ...props }: React.ComponentProps<"label">) {
+@@ -9,11 +7,11 @@ function Label({ className, ...props }: React.ComponentProps<"label">) {
        data-slot="label"
        className={cn(
          "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",

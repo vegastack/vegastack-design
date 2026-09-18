@@ -14,12 +14,27 @@
 //   1. A migrated component exists at packages/ui/registry/ui/<name>.tsx.
 //   2. With a patch: applying it to vendor/<cli>/ui/<name>.tsx reproduces the canonical file BYTE
 //      FOR BYTE. Without one: the canonical file EQUALS the vendor file byte for byte.
+//      Both sides are compared HEADERLESS — see below.
 //   3. Every ID in a patch header is a row in the decision register whose decision is **ours**.
 //   4. Every required ID the exception map assigns to that component appears in its header.
 //   5. A registry name with no upstream counterpart is listed in upstream/ours.json.
 //   6. A retired name is absent from the registry, and carries no patch.
 //   7. A name recorded as a FILELESS upstream item (upstream/migrated.json `exempt`) really has no
 //      file on either side — upstream ships none, and neither do we.
+//
+// WHY THE PROVENANCE HEADER IS EXCLUDED FROM CHECK 2
+//   `// @vegastack <name>@<version> sha256-<hash>` is GENERATED metadata, written onto every
+//   shipped copy by `tooling/registry-header.mjs` and re-written on every release, because
+//   `pnpm version-packages` runs `version-sync`, which re-stamps the new version onto all of them.
+//   It is not "upstream's source plus our recorded exceptions", and it already has its own
+//   authority: `tooling/verify-headers.mjs` asserts that every shipped copy carries exactly one
+//   header, on line 1, naming the current @vegastack/ui version and the item's own meta.integrity.
+//   While the header was encoded INSIDE the patches, a version bump moved all 62 canonical files
+//   and no patch, so byte parity failed for every patched component on every Version Packages PR —
+//   the gate could not survive the one event it is guaranteed to meet (PR #152, 2026-09-19).
+//   Both sides are therefore compared through `stripProvenanceHeader`, the same function `itemHash`
+//   uses to keep the embedded sha self-consistent. Everything else stays byte-exact, and
+//   `--self-test` observes both directions: a re-stamp passes, real drift beside it still fails.
 //
 // WHY THE EXCEPTIONS CHECK LIVES HERE AND NOT IN ITS OWN FILE
 //   The mandate (§ 5) sketches `verify-exceptions.mjs` as a fifth script. Checks 3 and 4 need the
@@ -45,6 +60,7 @@ import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 
 import { ROOT, walk, readJson, relativeToRoot } from "../lib/fs.mjs";
+import { provenanceHeader, stripProvenanceHeader } from "../registry-hash.mjs";
 import {
   VENDOR,
   CANONICAL,
@@ -168,11 +184,14 @@ export function checkTree({
       continue;
     }
     const vendor = readFileSync(join(vendorDir, "ui", `${name}.tsx`), "utf8");
-    const mine = readFileSync(canonical, "utf8");
+    // Headerless on BOTH sides: the generated provenance header is not part of the claim (see the
+    // note at the top of this file). Upstream never carries one, so stripping it there is a no-op
+    // that keeps the two sides spelled the same way.
+    const mine = stripProvenanceHeader(readFileSync(canonical, "utf8"));
     const patchFile = join(patchDir, `${name}.patch`);
 
     if (!existsSync(patchFile)) {
-      if (mine !== vendor) {
+      if (mine !== stripProvenanceHeader(vendor)) {
         failures.push(
           `${name}: no patch, so it must equal upstream byte for byte — it does not. ` +
             `Run \`pnpm upstream:diff ${name}\` and record the decision IDs.`,
@@ -219,7 +238,7 @@ export function checkTree({
       );
       continue;
     }
-    if (patched !== mine) {
+    if (stripProvenanceHeader(patched) !== mine) {
       failures.push(
         `${name}: upstream + patch does not reproduce ${relativeToRoot(canonical)} byte for byte. ` +
           `Regenerate with \`pnpm upstream:diff ${name}\`.`,
@@ -277,6 +296,12 @@ function selfTest() {
   const UPSTREAM = 'export const Demo = () => <button className="ring-3" />\n';
   const PATCHED =
     'export const Demo = () => <button className="outline-2" />\n';
+  // A canonical file as it is actually shipped: with the generated provenance header on line 1,
+  // written through the very function `registry-header.mjs` uses, so the fixture cannot drift from
+  // the real format. `version` is the knob a release turns.
+  const stamped = (name, body, version) =>
+    `${provenanceHeader(name, version, `sha256-${"d".repeat(43)}=`)}\n\n${body}`;
+  const STAMPED = stamped("demo", PATCHED, "0.9.1");
   writeFileSync(join(vendorDir, "ui", "demo.tsx"), UPSTREAM);
 
   const register = { "FOC-1": "ours", "INT-2": "shadcn" };
@@ -294,8 +319,9 @@ function selfTest() {
     run(overrides).some((failure) => failure.includes(text));
   const clean = (overrides = {}) => run(overrides).length === 0;
 
-  // A real patch, produced the way `upstream:diff` produces one.
-  writeFileSync(join(canonicalDir, "demo.tsx"), PATCHED);
+  // A real patch, produced the way `upstream:diff` produces one: upstream against the HEADERLESS
+  // canonical file, because the header is generated metadata and no longer belongs in a patch.
+  writeFileSync(join(canonicalDir, "demo.tsx"), STAMPED);
   const body = unifiedDiff("demo", UPSTREAM, PATCHED);
   const header =
     "# component: demo\n# decisions: FOC-1\n# hunks:\n#   1: drop the focus ring glow (FOC-1)\n";
@@ -305,10 +331,49 @@ function selfTest() {
 
   writeFileSync(
     join(canonicalDir, "demo.tsx"),
-    PATCHED.replace("outline-2", "outline-4"),
+    stamped("demo", PATCHED.replace("outline-2", "outline-4"), "0.9.1"),
   );
   claim("a mutated canonical file is rejected", says("does not reproduce"));
-  writeFileSync(join(canonicalDir, "demo.tsx"), PATCHED);
+  writeFileSync(join(canonicalDir, "demo.tsx"), STAMPED);
+
+  // ---- a release must be survivable (regression: Version Packages PR #152, 2026-09-19) ----
+  //
+  // `pnpm version-packages` runs `version-sync`, which re-stamps EVERY canonical file with the new
+  // version. No patch moves with it, and none can. While the header lived inside the patches this
+  // made byte parity unsatisfiable on every Version PR — 62 of 62 patched components failed at
+  // once. The two claims below are the scenario and its guard rail: the bump alone must pass, and
+  // a real edge carried in beside the bump must still be caught, or the exclusion would be a hole.
+  writeFileSync(
+    join(canonicalDir, "demo.tsx"),
+    stamped("demo", PATCHED, "0.10.0"),
+  );
+  claim(
+    "a canonical file RE-STAMPED to a new version still PASSES — a version bump cannot break parity",
+    clean(),
+  );
+
+  writeFileSync(
+    join(canonicalDir, "demo.tsx"),
+    stamped("demo", PATCHED.replace("outline-2", "outline-4"), "0.10.0"),
+  );
+  claim(
+    "…and real drift smuggled in beside the bump is STILL rejected",
+    says("does not reproduce"),
+  );
+  writeFileSync(join(canonicalDir, "demo.tsx"), STAMPED);
+
+  // The PATCHED side is stripped as well, so a patch authored before the header moved out of
+  // patches — which is every patch that has ever existed here — still verifies, rather than failing
+  // against whichever version it happened to record. Both sides speak the same headerless language.
+  writeFileSync(
+    join(patchDir, "demo.patch"),
+    header + unifiedDiff("demo", UPSTREAM, stamped("demo", PATCHED, "0.4.0")),
+  );
+  claim(
+    "an OLD-STYLE patch that still encodes a header hunk verifies against a differently stamped canonical file",
+    clean(),
+  );
+  writeFileSync(join(patchDir, "demo.patch"), header + body);
 
   writeFileSync(
     join(patchDir, "demo.patch"),
@@ -358,9 +423,12 @@ function selfTest() {
     says("second.tsx, but"),
   );
   claim(
-    "…and passes once this repository ships it verbatim",
+    "…and passes once this repository ships it verbatim (stamped, like every shipped copy)",
     (() => {
-      writeFileSync(join(canonicalDir, "second.tsx"), UPSTREAM);
+      writeFileSync(
+        join(canonicalDir, "second.tsx"),
+        stamped("second", UPSTREAM, "0.9.1"),
+      );
       return clean();
     })(),
   );
@@ -416,7 +484,7 @@ function selfTest() {
     );
     return 1;
   }
-  console.log(`${PREFIX}:selftest OK — 14 claims observed`);
+  console.log(`${PREFIX}:selftest OK — 17 claims observed`);
   return 0;
 }
 

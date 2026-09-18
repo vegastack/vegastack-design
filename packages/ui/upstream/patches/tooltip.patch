@@ -13,24 +13,22 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/tooltip.tsx b/tooltip.tsx
-index d980105..ef899d7 100644
+index d980105..ef092e7 100644
 --- a/tooltip.tsx
 +++ b/tooltip.tsx
-@@ -1,7 +1,10 @@
+@@ -1,7 +1,8 @@
 -"use client"
-+// @vegastack tooltip@0.9.1 sha256-jp8SrYJMbit4UJsc9672/Pn0xu32V2TjjMBsqekyP74=
++"use client";
  
 -import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 -import { cn } from "cn"
-+"use client";
-+
 +import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 +import { cn } from "@vegastack/design";
 +import { useInternalThemeScope } from "@vegastack/design/theme-scope";
  
  function TooltipProvider({
    delay = 0,
-@@ -13,19 +16,20 @@ function TooltipProvider({
+@@ -13,19 +14,20 @@ function TooltipProvider({
        delay={delay}
        {...props}
      />
@@ -54,7 +52,7 @@ index d980105..ef899d7 100644
    side = "top",
    sideOffset = 4,
    align = "center",
-@@ -36,21 +40,24 @@ function TooltipContent({
+@@ -36,21 +38,24 @@ function TooltipContent({
    Pick<
      TooltipPrimitive.Positioner.Props,
      "align" | "alignOffset" | "side" | "sideOffset"
@@ -83,7 +81,7 @@ index d980105..ef899d7 100644
            )}
            {...props}
          >
-@@ -59,7 +66,7 @@ function TooltipContent({
+@@ -59,7 +64,7 @@ function TooltipContent({
          </TooltipPrimitive.Popup>
        </TooltipPrimitive.Positioner>
      </TooltipPrimitive.Portal>

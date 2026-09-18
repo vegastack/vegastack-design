@@ -13,18 +13,16 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle.tsx b/toggle.tsx
-index 1651768..d83ae40 100644
+index 1651768..9bfd0ad 100644
 --- a/toggle.tsx
 +++ b/toggle.tsx
-@@ -1,11 +1,15 @@
+@@ -1,11 +1,13 @@
 -"use client"
-+// @vegastack toggle@0.9.1 sha256-wsmwc51WrE4pSxXv9QQBzeaa1gVRcAe8Vvhz1M/RSfY=
++"use client";
  
 -import { Toggle as TogglePrimitive } from "@base-ui/react/toggle"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+"use client";
-+
 +import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
 +import { cva, type VariantProps } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
@@ -37,7 +35,7 @@ index 1651768..d83ae40 100644
    {
      variants: {
        variant: {
-@@ -23,22 +27,50 @@ const toggleVariants = cva(
+@@ -23,22 +25,50 @@ const toggleVariants = cva(
        variant: "default",
        size: "default",
      },

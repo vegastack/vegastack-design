@@ -35,20 +35,18 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..305edee 100644
+index f8ca4a8..5b20336 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
-@@ -1,13 +1,21 @@
+@@ -1,13 +1,19 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+// @vegastack attachment@0.9.1 sha256-QODXl4uSwopeV5ZovGbu3wr2lZZeF0kQC42acXjznNg=
++"use client";
  
 -import { Button } from "@/components/ui/button"
-+"use client";
-+
 +import * as React from "react";
 +import { mergeProps } from "@base-ui/react/merge-props";
 +import { useRender } from "@base-ui/react/use-render";
@@ -67,7 +65,7 @@ index f8ca4a8..305edee 100644
    {
      variants: {
        size: {
-@@ -21,8 +29,8 @@ const attachmentVariants = cva(
+@@ -21,8 +27,8 @@ const attachmentVariants = cva(
          vertical: "w-24 flex-col has-data-[slot=attachment-content]:w-30",
        },
      },
@@ -78,7 +76,7 @@ index f8ca4a8..305edee 100644
  
  function Attachment({
    className,
-@@ -32,7 +40,7 @@ function Attachment({
+@@ -32,7 +38,7 @@ function Attachment({
    ...props
  }: React.ComponentProps<"div"> &
    VariantProps<typeof attachmentVariants> & {
@@ -87,7 +85,7 @@ index f8ca4a8..305edee 100644
    }) {
    return (
      <div
-@@ -43,7 +51,7 @@ function Attachment({
+@@ -43,7 +49,7 @@ function Attachment({
        className={cn(attachmentVariants({ size, orientation }), className)}
        {...props}
      />
@@ -96,7 +94,7 @@ index f8ca4a8..305edee 100644
  }
  
  const attachmentMediaVariants = cva(
-@@ -59,8 +67,8 @@ const attachmentMediaVariants = cva(
+@@ -59,8 +65,8 @@ const attachmentMediaVariants = cva(
      defaultVariants: {
        variant: "icon",
      },
@@ -107,7 +105,7 @@ index f8ca4a8..305edee 100644
  
  function AttachmentMedia({
    className,
-@@ -74,7 +82,7 @@ function AttachmentMedia({
+@@ -74,7 +80,7 @@ function AttachmentMedia({
        className={cn(attachmentMediaVariants({ variant }), className)}
        {...props}
      />
@@ -116,7 +114,7 @@ index f8ca4a8..305edee 100644
  }
  
  function AttachmentContent({
-@@ -86,11 +94,11 @@ function AttachmentContent({
+@@ -86,11 +92,11 @@ function AttachmentContent({
        data-slot="attachment-content"
        className={cn(
          "max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1",
@@ -130,7 +128,7 @@ index f8ca4a8..305edee 100644
  }
  
  function AttachmentTitle({
-@@ -102,11 +110,11 @@ function AttachmentTitle({
+@@ -102,11 +108,11 @@ function AttachmentTitle({
        data-slot="attachment-title"
        className={cn(
          "block max-w-full min-w-0 truncate font-medium group-data-[state=processing]/attachment:shimmer group-data-[state=uploading]/attachment:shimmer",
@@ -144,7 +142,7 @@ index f8ca4a8..305edee 100644
  }
  
  function AttachmentDescription({
-@@ -117,13 +125,19 @@ function AttachmentDescription({
+@@ -117,13 +123,19 @@ function AttachmentDescription({
      <span
        data-slot="attachment-description"
        className={cn(
@@ -167,7 +165,7 @@ index f8ca4a8..305edee 100644
  }
  
  function AttachmentActions({
-@@ -135,11 +149,11 @@ function AttachmentActions({
+@@ -135,11 +147,11 @@ function AttachmentActions({
        data-slot="attachment-actions"
        className={cn(
          "relative z-20 flex shrink-0 items-center group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-3 group-data-[orientation=vertical]/attachment:end-3 group-data-[orientation=vertical]/attachment:gap-1",
@@ -181,7 +179,7 @@ index f8ca4a8..305edee 100644
  }
  
  function AttachmentAction({
-@@ -156,7 +170,7 @@ function AttachmentAction({
+@@ -156,7 +168,7 @@ function AttachmentAction({
        className={cn(className)}
        {...props}
      />
@@ -190,7 +188,7 @@ index f8ca4a8..305edee 100644
  }
  
  function AttachmentTrigger({
-@@ -170,15 +184,19 @@ function AttachmentTrigger({
+@@ -170,15 +182,19 @@ function AttachmentTrigger({
      props: mergeProps<"button">(
        {
          type: render ? type : (type ?? "button"),
@@ -213,7 +211,7 @@ index f8ca4a8..305edee 100644
  }
  
  function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
-@@ -187,11 +205,11 @@ function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -187,11 +203,11 @@ function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="attachment-group"
        className={cn(
          "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
@@ -227,7 +225,7 @@ index f8ca4a8..305edee 100644
  }
  
  export {
-@@ -204,4 +222,4 @@ export {
+@@ -204,4 +220,4 @@ export {
    AttachmentActions,
    AttachmentAction,
    AttachmentTrigger,

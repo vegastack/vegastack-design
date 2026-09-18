@@ -31,25 +31,23 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..90c9a88 100644
+index 5cb64c9..73ca30f 100644
 --- a/command.tsx
 +++ b/command.tsx
-@@ -1,8 +1,10 @@
+@@ -1,8 +1,8 @@
 -"use client"
-+// @vegastack command@0.9.1 sha256-BK2ELfKnxnP5kz73LIpLAj0pOGLG2Dso3jbDFLc2TTI=
++"use client";
  
 -import * as React from "react"
 -import { Command as CommandPrimitive } from "cmdk"
 -import { cn } from "cn"
-+"use client";
-+
 +import * as React from "react";
 +import { Command as CommandPrimitive, useCommandState } from "cmdk";
 +import { cn, mergeRefs } from "@vegastack/design";
  
  import {
    Dialog,
-@@ -10,15 +12,28 @@ import {
+@@ -10,15 +10,28 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
@@ -84,7 +82,7 @@ index 5cb64c9..90c9a88 100644
    ...props
  }: React.ComponentProps<typeof CommandPrimitive>) {
    return (
-@@ -26,11 +41,14 @@ function Command({
+@@ -26,11 +39,14 @@ function Command({
        data-slot="command"
        className={cn(
          "flex size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
@@ -102,7 +100,7 @@ index 5cb64c9..90c9a88 100644
  }
  
  function CommandDialog({
-@@ -41,11 +59,11 @@ function CommandDialog({
+@@ -41,11 +57,11 @@ function CommandDialog({
    showCloseButton = false,
    ...props
  }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
@@ -119,7 +117,7 @@ index 5cb64c9..90c9a88 100644
  }) {
    return (
      <Dialog {...props}>
-@@ -56,14 +74,14 @@ function CommandDialog({
+@@ -56,14 +72,14 @@ function CommandDialog({
        <DialogContent
          className={cn(
            "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
@@ -136,7 +134,7 @@ index 5cb64c9..90c9a88 100644
  }
  
  function CommandInput({
-@@ -76,8 +94,12 @@ function CommandInput({
+@@ -76,8 +92,12 @@ function CommandInput({
          <CommandPrimitive.Input
            data-slot="command-input"
            className={cn(
@@ -151,7 +149,7 @@ index 5cb64c9..90c9a88 100644
            )}
            {...props}
          />
-@@ -86,27 +108,50 @@ function CommandInput({
+@@ -86,27 +106,50 @@ function CommandInput({
          </InputGroupAddon>
        </InputGroup>
      </div>
@@ -205,7 +203,7 @@ index 5cb64c9..90c9a88 100644
    ...props
  }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
    return (
-@@ -114,8 +159,13 @@ function CommandEmpty({
+@@ -114,8 +157,13 @@ function CommandEmpty({
        data-slot="command-empty"
        className={cn("py-6 text-center text-sm", className)}
        {...props}
@@ -221,7 +219,7 @@ index 5cb64c9..90c9a88 100644
  }
  
  function CommandGroup({
-@@ -127,11 +177,11 @@ function CommandGroup({
+@@ -127,11 +175,11 @@ function CommandGroup({
        data-slot="command-group"
        className={cn(
          "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
@@ -235,7 +233,7 @@ index 5cb64c9..90c9a88 100644
  }
  
  function CommandSeparator({
-@@ -144,7 +194,7 @@ function CommandSeparator({
+@@ -144,7 +192,7 @@ function CommandSeparator({
        className={cn("-mx-1 h-px bg-border", className)}
        {...props}
      />
@@ -244,7 +242,7 @@ index 5cb64c9..90c9a88 100644
  }
  
  function CommandItem({
-@@ -156,15 +206,15 @@ function CommandItem({
+@@ -156,15 +204,15 @@ function CommandItem({
      <CommandPrimitive.Item
        data-slot="command-item"
        className={cn(
@@ -263,7 +261,7 @@ index 5cb64c9..90c9a88 100644
  }
  
  function CommandShortcut({
-@@ -176,11 +226,11 @@ function CommandShortcut({
+@@ -176,11 +224,11 @@ function CommandShortcut({
        data-slot="command-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",
@@ -277,7 +275,7 @@ index 5cb64c9..90c9a88 100644
  }
  
  export {
-@@ -193,4 +243,4 @@ export {
+@@ -193,4 +241,4 @@ export {
    CommandItem,
    CommandShortcut,
    CommandSeparator,

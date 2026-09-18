@@ -11,20 +11,18 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/message.tsx b/message.tsx
-index 765bb9b..273b30c 100644
+index 765bb9b..5f59e4e 100644
 --- a/message.tsx
 +++ b/message.tsx
-@@ -1,5 +1,7 @@
+@@ -1,5 +1,5 @@
 -import * as React from "react"
 -import { cn } from "cn"
-+// @vegastack message@0.9.1 sha256-5nwvOf/HCQgBfa+SElgpzdNgtQWe7i/ZpjxaPTpFpV4=
-+
 +import * as React from "react";
 +import { cn } from "@vegastack/design";
  
  function MessageGroup({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -8,7 +10,7 @@ function MessageGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -8,7 +8,7 @@ function MessageGroup({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex min-w-0 flex-col gap-2", className)}
        {...props}
      />
@@ -33,7 +31,7 @@ index 765bb9b..273b30c 100644
  }
  
  function Message({
-@@ -22,11 +24,11 @@ function Message({
+@@ -22,11 +22,11 @@ function Message({
        data-align={align}
        className={cn(
          "group/message relative flex w-full min-w-0 gap-2 text-sm data-[align=end]:flex-row-reverse",
@@ -47,7 +45,7 @@ index 765bb9b..273b30c 100644
  }
  
  function MessageAvatar({ className, ...props }: React.ComponentProps<"div">) {
-@@ -35,11 +37,11 @@ function MessageAvatar({ className, ...props }: React.ComponentProps<"div">) {
+@@ -35,11 +35,11 @@ function MessageAvatar({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="message-avatar"
        className={cn(
          "flex w-fit min-w-8 shrink-0 items-center justify-center self-end overflow-hidden rounded-full bg-muted group-has-data-[slot=message-footer]/message:-translate-y-8",
@@ -61,7 +59,7 @@ index 765bb9b..273b30c 100644
  }
  
  function MessageContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -48,11 +50,11 @@ function MessageContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -48,11 +48,11 @@ function MessageContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="message-content"
        className={cn(
          "flex w-full min-w-0 flex-col gap-2.5 wrap-break-word group-data-[align=end]/message:*:data-slot:self-end",
@@ -75,7 +73,7 @@ index 765bb9b..273b30c 100644
  }
  
  function MessageHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -61,11 +63,11 @@ function MessageHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -61,11 +61,11 @@ function MessageHeader({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="message-header"
        className={cn(
          "flex max-w-full min-w-0 items-center px-3 text-xs font-medium text-muted-foreground group-has-data-[variant=ghost]/message:px-0",
@@ -89,7 +87,7 @@ index 765bb9b..273b30c 100644
  }
  
  function MessageFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -74,11 +76,11 @@ function MessageFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -74,11 +74,11 @@ function MessageFooter({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="message-footer"
        className={cn(
          "flex max-w-full min-w-0 items-center px-3 text-xs font-medium text-muted-foreground group-has-data-[variant=ghost]/message:px-0 group-data-[align=end]/message:justify-end",
@@ -103,7 +101,7 @@ index 765bb9b..273b30c 100644
  }
  
  export {
-@@ -88,4 +90,4 @@ export {
+@@ -88,4 +88,4 @@ export {
    MessageContent,
    MessageFooter,
    MessageHeader,

@@ -5,18 +5,16 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/skeleton.tsx b/skeleton.tsx
-index b7f61b3..901f706 100644
+index b7f61b3..d4fefef 100644
 --- a/skeleton.tsx
 +++ b/skeleton.tsx
-@@ -1,4 +1,6 @@
+@@ -1,4 +1,4 @@
 -import { cn } from "cn"
-+// @vegastack skeleton@0.9.1 sha256-Vyog6iRjGEPNJ99oiysHAE7+2r/8YsXcm4y0JGxqOOg=
-+
 +import { cn } from "@vegastack/design";
  
  function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -7,7 +9,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+@@ -7,7 +7,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("animate-pulse rounded-md bg-muted", className)}
        {...props}
      />

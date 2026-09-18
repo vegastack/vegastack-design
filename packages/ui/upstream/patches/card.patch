@@ -5,20 +5,18 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/card.tsx b/card.tsx
-index cf02f48..6dfc1e8 100644
+index cf02f48..0187c66 100644
 --- a/card.tsx
 +++ b/card.tsx
-@@ -1,5 +1,7 @@
+@@ -1,5 +1,5 @@
 -import * as React from "react"
 -import { cn } from "cn"
-+// @vegastack card@0.9.1 sha256-Y2txQXTNKUbWhHCRrvRxEkkDYUQc5le1+Ca/jILH8vA=
-+
 +import * as React from "react";
 +import { cn } from "@vegastack/design";
  
  function Card({
    className,
-@@ -12,11 +14,11 @@ function Card({
+@@ -12,11 +12,11 @@ function Card({
        data-size={size}
        className={cn(
          "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
@@ -32,7 +30,7 @@ index cf02f48..6dfc1e8 100644
  }
  
  function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -25,11 +27,11 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -25,11 +25,11 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="card-header"
        className={cn(
          "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
@@ -46,7 +44,7 @@ index cf02f48..6dfc1e8 100644
  }
  
  function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-@@ -38,11 +40,11 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+@@ -38,11 +38,11 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="card-title"
        className={cn(
          "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
@@ -60,7 +58,7 @@ index cf02f48..6dfc1e8 100644
  }
  
  function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
-@@ -52,7 +54,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
+@@ -52,7 +52,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("text-sm text-muted-foreground", className)}
        {...props}
      />
@@ -69,7 +67,7 @@ index cf02f48..6dfc1e8 100644
  }
  
  function CardAction({ className, ...props }: React.ComponentProps<"div">) {
-@@ -61,11 +63,11 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
+@@ -61,11 +61,11 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="card-action"
        className={cn(
          "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
@@ -83,7 +81,7 @@ index cf02f48..6dfc1e8 100644
  }
  
  function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -75,7 +77,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -75,7 +75,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("px-(--card-spacing)", className)}
        {...props}
      />
@@ -92,7 +90,7 @@ index cf02f48..6dfc1e8 100644
  }
  
  function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -84,11 +86,11 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -84,11 +84,11 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="card-footer"
        className={cn(
          "flex items-center rounded-b-xl border-t bg-muted/50 p-(--card-spacing)",
@@ -106,7 +104,7 @@ index cf02f48..6dfc1e8 100644
  }
  
  export {
-@@ -99,4 +101,4 @@ export {
+@@ -99,4 +99,4 @@ export {
    CardAction,
    CardDescription,
    CardContent,

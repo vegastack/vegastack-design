@@ -11,14 +11,12 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/textarea.tsx b/textarea.tsx
-index 5141de7..54465c5 100644
+index 5141de7..c4e6619 100644
 --- a/textarea.tsx
 +++ b/textarea.tsx
-@@ -1,17 +1,19 @@
+@@ -1,17 +1,17 @@
 -import * as React from "react"
 -import { cn } from "cn"
-+// @vegastack textarea@0.9.1 sha256-4RSR4jJMo917flXhBEX3yljRqWvm99/vhkVRJGxBfS0=
-+
 +import * as React from "react";
 +import { cn } from "@vegastack/design";
  

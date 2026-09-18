@@ -14,17 +14,15 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/calendar.tsx b/calendar.tsx
-index ebd9871..0630c1c 100644
+index ebd9871..136c44b 100644
 --- a/calendar.tsx
 +++ b/calendar.tsx
-@@ -1,16 +1,22 @@
+@@ -1,16 +1,20 @@
 -"use client"
-+// @vegastack calendar@0.9.1 sha256-286bupUvggGHzDX3rO1yJIKz+qlEv8i+gApNjQ/2iZE=
++"use client";
  
 -import * as React from "react"
 -import { cn } from "cn"
-+"use client";
-+
 +import * as React from "react";
 +import { cn } from "@vegastack/design";
  import {
@@ -46,7 +44,7 @@ index ebd9871..0630c1c 100644
  
  function Calendar({
    className,
-@@ -23,9 +29,9 @@ function Calendar({
+@@ -23,9 +27,9 @@ function Calendar({
    components,
    ...props
  }: React.ComponentProps<typeof DayPicker> & {
@@ -58,7 +56,7 @@ index ebd9871..0630c1c 100644
  
    return (
      <DayPicker
-@@ -34,7 +40,7 @@ function Calendar({
+@@ -34,7 +38,7 @@ function Calendar({
          "group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
          String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
          String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
@@ -67,7 +65,7 @@ index ebd9871..0630c1c 100644
        )}
        captionLayout={captionLayout}
        locale={locale}
-@@ -47,88 +53,88 @@ function Calendar({
+@@ -47,88 +51,88 @@ function Calendar({
          root: cn("w-fit", defaultClassNames.root),
          months: cn(
            "relative flex flex-col gap-4 md:flex-row",
@@ -175,7 +173,7 @@ index ebd9871..0630c1c 100644
          ),
          hidden: cn("invisible", defaultClassNames.hidden),
          ...classNames,
-@@ -142,24 +148,30 @@ function Calendar({
+@@ -142,24 +146,30 @@ function Calendar({
                className={cn(className)}
                {...props}
              />
@@ -212,7 +210,7 @@ index ebd9871..0630c1c 100644
          },
          DayButton: ({ ...props }) => (
            <CalendarDayButton locale={locale} {...props} />
-@@ -171,13 +183,13 @@ function Calendar({
+@@ -171,13 +181,13 @@ function Calendar({
                  {children}
                </div>
              </td>
@@ -228,7 +226,7 @@ index ebd9871..0630c1c 100644
  }
  
  function CalendarDayButton({
-@@ -187,12 +199,12 @@ function CalendarDayButton({
+@@ -187,12 +197,12 @@ function CalendarDayButton({
    locale,
    ...props
  }: React.ComponentProps<typeof DayButton> & { locale?: Partial<Locale> }) {
@@ -245,7 +243,7 @@ index ebd9871..0630c1c 100644
  
    return (
      <Button
-@@ -209,13 +221,13 @@ function CalendarDayButton({
+@@ -209,13 +219,13 @@ function CalendarDayButton({
        data-range-end={modifiers.range_end}
        data-range-middle={modifiers.range_middle}
        className={cn(

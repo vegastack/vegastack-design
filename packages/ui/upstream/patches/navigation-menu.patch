@@ -20,16 +20,14 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/navigation-menu.tsx b/navigation-menu.tsx
-index cef1d5f..0b6d699 100644
+index cef1d5f..8a26ca8 100644
 --- a/navigation-menu.tsx
 +++ b/navigation-menu.tsx
-@@ -1,7 +1,12 @@
+@@ -1,7 +1,10 @@
 -import { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/navigation-menu"
 -import { cva } from "class-variance-authority"
 -import { cn } from "cn"
 -import { ChevronDownIcon } from "lucide-react"
-+// @vegastack navigation-menu@0.9.1 sha256-E7zuvgfn5VwVjhQLJB838WeEg0EMRTNtSpsE+UxdBbc=
-+
 +"use client";
 +
 +import { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/navigation-menu";
@@ -40,7 +38,7 @@ index cef1d5f..0b6d699 100644
  
  function NavigationMenu({
    align = "start",
-@@ -15,14 +20,14 @@ function NavigationMenu({
+@@ -15,14 +18,14 @@ function NavigationMenu({
        data-slot="navigation-menu"
        className={cn(
          "group/navigation-menu relative flex max-w-max flex-1 items-center justify-center",
@@ -57,7 +55,7 @@ index cef1d5f..0b6d699 100644
  }
  
  function NavigationMenuList({
-@@ -34,11 +39,11 @@ function NavigationMenuList({
+@@ -34,11 +37,11 @@ function NavigationMenuList({
        data-slot="navigation-menu-list"
        className={cn(
          "group flex flex-1 list-none items-center justify-center gap-0",
@@ -71,7 +69,7 @@ index cef1d5f..0b6d699 100644
  }
  
  function NavigationMenuItem({
-@@ -51,12 +56,12 @@ function NavigationMenuItem({
+@@ -51,12 +54,12 @@ function NavigationMenuItem({
        className={cn("relative", className)}
        {...props}
      />
@@ -87,7 +85,7 @@ index cef1d5f..0b6d699 100644
  
  function NavigationMenuTrigger({
    className,
-@@ -70,9 +75,12 @@ function NavigationMenuTrigger({
+@@ -70,9 +73,12 @@ function NavigationMenuTrigger({
        {...props}
      >
        {children}{" "}
@@ -102,7 +100,7 @@ index cef1d5f..0b6d699 100644
  }
  
  function NavigationMenuContent({
-@@ -83,12 +91,12 @@ function NavigationMenuContent({
+@@ -83,12 +89,12 @@ function NavigationMenuContent({
      <NavigationMenuPrimitive.Content
        data-slot="navigation-menu-content"
        className={cn(
@@ -118,7 +116,7 @@ index cef1d5f..0b6d699 100644
  }
  
  function NavigationMenuPositioner({
-@@ -99,6 +107,8 @@ function NavigationMenuPositioner({
+@@ -99,6 +105,8 @@ function NavigationMenuPositioner({
    alignOffset = 0,
    ...props
  }: NavigationMenuPrimitive.Positioner.Props) {
@@ -127,7 +125,7 @@ index cef1d5f..0b6d699 100644
    return (
      <NavigationMenuPrimitive.Portal>
        <NavigationMenuPrimitive.Positioner
-@@ -108,7 +118,8 @@ function NavigationMenuPositioner({
+@@ -108,7 +116,8 @@ function NavigationMenuPositioner({
          alignOffset={alignOffset}
          className={cn(
            "isolate z-50 h-(--positioner-height) w-(--positioner-width) max-w-(--available-width) transition-[top,left,right,bottom] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-instant:transition-none data-[side=bottom]:before:top-[-10px] data-[side=bottom]:before:end-0 data-[side=bottom]:before:start-0",
@@ -137,7 +135,7 @@ index cef1d5f..0b6d699 100644
          )}
          {...props}
        >
-@@ -117,7 +128,7 @@ function NavigationMenuPositioner({
+@@ -117,7 +126,7 @@ function NavigationMenuPositioner({
          </NavigationMenuPrimitive.Popup>
        </NavigationMenuPrimitive.Positioner>
      </NavigationMenuPrimitive.Portal>
@@ -146,7 +144,7 @@ index cef1d5f..0b6d699 100644
  }
  
  function NavigationMenuLink({
-@@ -128,12 +139,12 @@ function NavigationMenuLink({
+@@ -128,12 +137,12 @@ function NavigationMenuLink({
      <NavigationMenuPrimitive.Link
        data-slot="navigation-menu-link"
        className={cn(
@@ -162,7 +160,7 @@ index cef1d5f..0b6d699 100644
  }
  
  function NavigationMenuIndicator({
-@@ -145,13 +156,13 @@ function NavigationMenuIndicator({
+@@ -145,13 +154,13 @@ function NavigationMenuIndicator({
        data-slot="navigation-menu-indicator"
        className={cn(
          "top-full z-1 flex h-1.5 items-end justify-center overflow-hidden data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:animate-in data-[state=visible]:fade-in",
@@ -178,7 +176,7 @@ index cef1d5f..0b6d699 100644
  }
  
  export {
-@@ -164,4 +175,4 @@ export {
+@@ -164,4 +173,4 @@ export {
    NavigationMenuTrigger,
    navigationMenuTriggerStyle,
    NavigationMenuPositioner,

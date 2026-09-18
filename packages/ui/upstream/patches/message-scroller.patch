@@ -33,16 +33,14 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/message-scroller.tsx b/message-scroller.tsx
-index 0e44435..e63f39d 100644
+index 0e44435..724a9f1 100644
 --- a/message-scroller.tsx
 +++ b/message-scroller.tsx
-@@ -1,21 +1,24 @@
+@@ -1,21 +1,22 @@
 -"use client"
-+// @vegastack message-scroller@0.9.1 sha256-A6mCLQBeZu0sWjTJdini1f7ECbh0JXjfWISrowXEvkI=
++"use client";
  
 -import * as React from "react"
-+"use client";
-+
 +import * as React from "react";
  import {
    MessageScroller as MessageScrollerPrimitive,
@@ -69,7 +67,7 @@ index 0e44435..e63f39d 100644
  }
  
  function MessageScroller({
-@@ -27,11 +30,11 @@ function MessageScroller({
+@@ -27,11 +28,11 @@ function MessageScroller({
        data-slot="message-scroller"
        className={cn(
          "group/message-scroller relative flex size-full min-h-0 flex-col overflow-hidden",
@@ -83,7 +81,7 @@ index 0e44435..e63f39d 100644
  }
  
  function MessageScrollerViewport({
-@@ -42,12 +45,17 @@ function MessageScrollerViewport({
+@@ -42,12 +43,17 @@ function MessageScrollerViewport({
      <MessageScrollerPrimitive.Viewport
        data-slot="message-scroller-viewport"
        className={cn(
@@ -104,7 +102,7 @@ index 0e44435..e63f39d 100644
  }
  
  function MessageScrollerContent({
-@@ -60,7 +68,7 @@ function MessageScrollerContent({
+@@ -60,7 +66,7 @@ function MessageScrollerContent({
        className={cn("flex h-max min-h-full flex-col gap-6", className)}
        {...props}
      />
@@ -113,7 +111,7 @@ index 0e44435..e63f39d 100644
  }
  
  function MessageScrollerItem({
-@@ -74,11 +82,11 @@ function MessageScrollerItem({
+@@ -74,11 +80,11 @@ function MessageScrollerItem({
        scrollAnchor={scrollAnchor}
        className={cn(
          "min-w-0 shrink-0 [contain-intrinsic-size:auto_10rem] [content-visibility:auto]",
@@ -127,7 +125,7 @@ index 0e44435..e63f39d 100644
  }
  
  function MessageScrollerButton({
-@@ -88,9 +96,15 @@ function MessageScrollerButton({
+@@ -88,9 +94,15 @@ function MessageScrollerButton({
    render,
    variant = "secondary",
    size = "icon-sm",
@@ -143,7 +141,7 @@ index 0e44435..e63f39d 100644
    return (
      <MessageScrollerPrimitive.Button
        data-slot="message-scroller-button"
-@@ -98,24 +112,24 @@ function MessageScrollerButton({
+@@ -98,24 +110,24 @@ function MessageScrollerButton({
        data-variant={variant}
        data-size={size}
        direction={direction}
@@ -172,7 +170,7 @@ index 0e44435..e63f39d 100644
  }
  
  export {
-@@ -128,4 +142,4 @@ export {
+@@ -128,4 +140,4 @@ export {
    useMessageScroller,
    useMessageScrollerScrollable,
    useMessageScrollerVisibility,
