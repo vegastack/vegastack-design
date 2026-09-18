@@ -401,8 +401,8 @@ function staticStringLiterals(file, src) {
 // which Tailwind never emits and the browser silently drops. The defect is invisible to every rule
 // that reads a literal on its own — `transition-pairing` finds `ease-standard` in the left literal
 // and passes while the rendered element has no ease token at all (four live instances on `main`,
-// 2026-09-09: switch.tsx ×2, otp-input.tsx, number-field.tsx). So it has to be seen STRUCTURALLY,
-// at the seam, which is a `BinaryExpression` and not a literal.
+// 2026-09-09: switch.tsx ×2, the retired OTP field, number-field.tsx). So it has to be seen
+// STRUCTURALLY, at the seam, which is a `BinaryExpression` and not a literal.
 //
 // Only literal+literal seams are inspected: `"text-" + size` is a deliberate build, not a glue.
 // The class-context guard is `LOOKS_LIKE_CLASS_STRING` on either side, so a concatenated prose

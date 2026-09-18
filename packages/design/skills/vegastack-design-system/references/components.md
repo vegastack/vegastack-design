@@ -50,7 +50,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`chip`** — The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.
 - **`code-block`** — A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.
-- **`onboarding-checklist`** — A getting-started card — segmented progress + step rows, collapsible to a progress pill.
+- **`onboarding-checklist`** — A getting-started card — a progress bar + step rows, collapsible to a progress pill.
 - **`stat`** — A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.
 - **`tag-group`** — Hue-tinted label chips on the 10-hue tag palette, with +N overflow collapsing and removable tags.
 

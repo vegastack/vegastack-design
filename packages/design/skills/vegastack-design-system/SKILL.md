@@ -39,7 +39,8 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   need a search field (it is the preset `country-select` and `region-select` are built from — reach
   for it before composing `combobox` by hand); **`combobox`** directly only for free text,
   suggestions or multi-select chips.
-- **`segmented`** for 2–5 exclusive options inline; **`tabs`** when the choice switches page regions.
+- **`toggle-group`** with `spacing={0}` for 2–5 exclusive options inline; **`tabs`** when the
+  choice switches page regions.
 - **`alert` variant=strip** for in-content notices and plan/trial rows; **`announcement-banner`** only
   for the full-width inverse strip at the very top of the page.
 - **`chip` is the ONE pill** — `hue` × `size` (`sm` inline · `md` control-scale) × `active`, with
