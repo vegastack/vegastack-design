@@ -238,13 +238,19 @@ test("a radio group selects exactly one value (Radio Group)", async () => {
   await expect.element(top).toHaveAttribute("aria-checked", "false");
 
   await userEvent.click(top);
-  await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  // Base UI does NOT close the menu when a radio (or checkbox) item is activated — `closeOnClick`
+  // is false for those parts, so several can be set in one visit. Pin that, then read the group
+  // in place.
+  //
+  // This test used to click the trigger again "to reopen". The menu was never closed, so that
+  // click CLOSED it; the two assertions below then passed only while the popup was still on
+  // screen playing its exit animation, and once it unmounted they retried for the full locator
+  // timeout — a 15s failure on a loaded CI runner, and a false pass everywhere else.
   await expect
-    .element(screen.getByRole("menuitemradio", { name: "Top" }))
-    .toHaveAttribute("aria-checked", "true");
-  await expect
-    .element(screen.getByRole("menuitemradio", { name: "Bottom" }))
-    .toHaveAttribute("aria-checked", "false");
+    .element(screen.getByRole("button", { name: "Open" }))
+    .toHaveAttribute("aria-expanded", "true");
+  await expect.element(top).toHaveAttribute("aria-checked", "true");
+  await expect.element(bottom).toHaveAttribute("aria-checked", "false");
 });
 
 test("a radio item renders its leading icon and its indicator (Radio Icons)", async () => {
