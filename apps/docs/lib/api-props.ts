@@ -35,6 +35,28 @@ import type {
   AvatarGroupCount,
   AvatarImage,
 } from "@/components/ui/avatar";
+import type { Calendar } from "@/components/ui/calendar";
+import type { Checkbox } from "@/components/ui/checkbox";
+import type {
+  ComboboxChip,
+  ComboboxContent,
+  ComboboxInput,
+} from "@/components/ui/combobox";
+import type { DirectionProvider } from "@/components/ui/direction";
+import type { Field, FieldError, FieldLegend } from "@/components/ui/field";
+import type { Input } from "@/components/ui/input";
+import type {
+  InputGroupAddon,
+  InputGroupButton,
+} from "@/components/ui/input-group";
+import type { InputOTP, InputOTPSlot } from "@/components/ui/input-otp";
+import type { NativeSelect } from "@/components/ui/native-select";
+import type { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { SelectContent, SelectTrigger } from "@/components/ui/select";
+import type { Slider } from "@/components/ui/slider";
+import type { Switch } from "@/components/ui/switch";
+import type { Textarea } from "@/components/ui/textarea";
+
 import type { Badge } from "@/components/ui/badge";
 import type { Button } from "@/components/ui/button";
 import type {
@@ -164,3 +186,45 @@ export type TooltipProps = React.ComponentProps<typeof Tooltip>;
 export type TooltipProviderProps = React.ComponentProps<typeof TooltipProvider>;
 export type TooltipTriggerProps = React.ComponentProps<typeof TooltipTrigger>;
 export type TooltipContentProps = React.ComponentProps<typeof TooltipContent>;
+
+/* ── Batch 3 of the shadcn reset: forms ──────────────────────────────────────────────────────── */
+
+export type CalendarProps = React.ComponentProps<typeof Calendar>;
+
+export type CheckboxProps = React.ComponentProps<typeof Checkbox>;
+
+export type ComboboxInputProps = React.ComponentProps<typeof ComboboxInput>;
+export type ComboboxContentProps = React.ComponentProps<typeof ComboboxContent>;
+export type ComboboxChipProps = React.ComponentProps<typeof ComboboxChip>;
+
+export type DirectionProviderProps = React.ComponentProps<
+  typeof DirectionProvider
+>;
+
+export type FieldProps = React.ComponentProps<typeof Field>;
+export type FieldLegendProps = React.ComponentProps<typeof FieldLegend>;
+export type FieldErrorProps = React.ComponentProps<typeof FieldError>;
+
+export type InputProps = React.ComponentProps<typeof Input>;
+
+export type InputGroupAddonProps = React.ComponentProps<typeof InputGroupAddon>;
+export type InputGroupButtonProps = React.ComponentProps<
+  typeof InputGroupButton
+>;
+
+export type InputOTPProps = React.ComponentProps<typeof InputOTP>;
+export type InputOTPSlotProps = React.ComponentProps<typeof InputOTPSlot>;
+
+export type NativeSelectProps = React.ComponentProps<typeof NativeSelect>;
+
+export type RadioGroupProps = React.ComponentProps<typeof RadioGroup>;
+export type RadioGroupItemProps = React.ComponentProps<typeof RadioGroupItem>;
+
+export type SelectTriggerProps = React.ComponentProps<typeof SelectTrigger>;
+export type SelectContentProps = React.ComponentProps<typeof SelectContent>;
+
+export type SliderProps = React.ComponentProps<typeof Slider>;
+
+export type SwitchProps = React.ComponentProps<typeof Switch>;
+
+export type TextareaProps = React.ComponentProps<typeof Textarea>;

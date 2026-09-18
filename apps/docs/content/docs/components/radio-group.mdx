@@ -1,6 +1,6 @@
 ---
 title: Radio Group
-description: A set of mutually-exclusive options — single selection, arrow-key navigation, and disabled, built on Base UI Radio Group.
+description: A set of mutually-exclusive options — single selection, arrow-key navigation, and a 24px invisible hit area.
 audience: public
 registry: radio-group
 status: stable
@@ -16,191 +16,147 @@ preview: radioGroup
 ## Usage
 
 ```tsx
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-<RadioGroup defaultValue="comfortable" aria-label="Density">
-  <RadioGroupItem value="comfortable" aria-label="Comfortable" />
-  <RadioGroupItem value="compact" aria-label="Compact" />
+<RadioGroup defaultValue="option-one">
+  <div className="flex items-center gap-3">
+    <RadioGroupItem value="option-one" id="option-one" />
+    <Label htmlFor="option-one">Option One</Label>
+  </div>
 </RadioGroup>;
 ```
 
-Built on [Base UI Radio Group](https://base-ui.com/react/components/radio): the group renders a
-`<div role="radiogroup">` and each item a styled `<span role="radio">` plus a hidden `<input>`.
-Selecting an item fires `onValueChange` with its `value`. Give every item an accessible name — wrap
-it in a [`Field`](/docs/components/field) (which auto-associates the label), use
-`nativeButton render={<button />}` when pairing a sibling `<label htmlFor>`, or pass an
-`aria-label`.
+<ComponentPreview name="radioGroup" file="components/preview/radio-group.tsx" />
 
 ## Anatomy
-
-`Radio Group` is a compound component. Every exported part, with the
-`data-slot` it renders (generated from the canonical source):
 
 <Anatomy name="radio-group" />
 
 ## Examples
 
-### Anatomy
+### Composition
 
-`RadioGroup` is a compound component. Compose `RadioGroupItem`s inside the root; the root owns the
-selection and shares it across the items by `value`:
-
-```tsx
-<RadioGroup defaultValue="comfortable" orientation="vertical">
-  <Field label="Comfortable" orientation="horizontal">
-    <RadioGroupItem value="comfortable" />
-  </Field>
-  <Field label="Compact" orientation="horizontal">
-    <RadioGroupItem value="compact" />
-  </Field>
-</RadioGroup>
+```text
+RadioGroup
+├── RadioGroupItem
+└── RadioGroupItem
 ```
-
-- `RadioGroup` — the root that groups the items and owns selection + layout `orientation`
-  (`data-slot="radio-group"`, `data-orientation`). Controlled via `value`/`onValueChange`, or
-  uncontrolled via `defaultValue`. Pass `disabled` to disable every item at once.
-- `RadioGroupItem` — an individual selectable option (`data-slot="radio-group-item"`). Selected
-  state is exposed as `data-checked`; the primary dot indicator scales in when checked. Each item
-  needs a unique `value` and an accessible name (via `Field`, `<label>`, or `aria-label`).
-
-### With a Field
-
-`Field` with `orientation="horizontal"` places each radio before an inline label and wires the label
-association for you — no manual `htmlFor`/`id`.
-
-```tsx
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Field } from "@/components/ui/field";
-
-<RadioGroup defaultValue="comfortable" aria-label="Density">
-  <Field label="Comfortable" orientation="horizontal">
-    <RadioGroupItem value="comfortable" />
-  </Field>
-  <Field label="Compact" orientation="horizontal">
-    <RadioGroupItem value="compact" />
-  </Field>
-</RadioGroup>;
-```
-
-### Sibling labels
-
-Base UI's default radio root is a `<span>` so enclosing-label and `Field` patterns work well. When
-your markup needs a sibling `<label htmlFor>`, render the item as a native button so the `id` targets
-the visible interactive element:
-
-```tsx
-<RadioGroup aria-label="Payment method">
-  <label htmlFor="payment-card">Card</label>
-  <RadioGroupItem
-    id="payment-card"
-    value="card"
-    nativeButton
-    render={<button type="button" />}
-  />
-</RadioGroup>
-```
-
-### States
-
-Use `value` + `onValueChange` for controlled selection, or `defaultValue` for uncontrolled. A single
-item can be `disabled`, or set `disabled` on the `RadioGroup` to disable the whole set. Every item
-shows a `:focus-visible` ring on keyboard focus.
 
 <ComponentPreview
-  name="radioGroupStates"
+  name="radioGroupComposition"
   file="components/preview/radio-group.tsx"
 />
 
-### Orientation
+### Description
 
-Set `orientation="horizontal"` on the root to lay the options out in a wrapping row instead of a
-column. The value is mirrored to `aria-orientation`; selection still moves with any arrow key. The
-last option below is `disabled`, so the same preview covers the `orientation × disabled` matrix.
+Give each option helper text with `FieldContent` and `FieldDescription`.
 
 <ComponentPreview
-  name="radioGroupHorizontal"
+  name="radioGroupDescription"
   file="components/preview/radio-group.tsx"
 />
 
-```tsx
-<RadioGroup
-  orientation="horizontal"
-  defaultValue="card"
-  aria-label="Payment method"
->
-  <RadioGroupItem value="card" aria-label="Card" />
-  <RadioGroupItem value="paypal" aria-label="PayPal" />
-  <RadioGroupItem value="bank" aria-label="Bank transfer" />
-  <RadioGroupItem value="wire" aria-label="Wire" disabled />
-</RadioGroup>
-```
+### Choice Card
+
+Wrap the whole `Field` in a `FieldLabel` for a clickable card, which tints when it is selected.
+
+<ComponentPreview
+  name="radioGroupChoiceCard"
+  file="components/preview/radio-group.tsx"
+/>
+
+### Fieldset
+
+`FieldSet` and `FieldLegend` give the group a label and a description of its own.
+
+<ComponentPreview
+  name="radioGroupFieldset"
+  file="components/preview/radio-group.tsx"
+/>
+
+### Disabled
+
+`disabled` on an item disables that option; on the `RadioGroup` it disables all of them. Add
+`data-disabled` to the `Field` so the label dims with it.
+
+<ComponentPreview
+  name="radioGroupDisabled"
+  file="components/preview/radio-group.tsx"
+/>
 
 ### Invalid
 
-When the group fails validation, set `aria-invalid` (often via a [`Field`](/docs/components/field)
-`error`) — each item's border tints destructive (`aria-invalid:border-destructive/70`). Pair it with
-a visible, announced error message.
+Use `aria-invalid` on the items and `data-invalid` on the `Field`. `FieldError` carries the message
+with a leading icon, so the error is never signalled by colour alone (A11Y-8).
 
 <ComponentPreview
   name="radioGroupInvalid"
   file="components/preview/radio-group.tsx"
 />
 
-```tsx
-<RadioGroup aria-label="Plan" aria-invalid>
-  <RadioGroupItem value="starter" aria-invalid aria-label="Starter" />
-  <RadioGroupItem value="pro" aria-invalid aria-label="Pro" />
-</RadioGroup>
-```
+### RTL
+
+The indicator dot is centred with logical translation, so a right-to-left group mirrors without any
+extra work.
+
+<ComponentPreview
+  name="radioGroupRtl"
+  file="components/preview/radio-group.tsx"
+/>
+
+### States
+
+Rest, selected, invalid and disabled in one frame.
+
+<ComponentPreview
+  name="radioGroupStates"
+  file="components/preview/radio-group.tsx"
+/>
 
 ## Playground
 
-Try both orientations, both item sizes, and the disabled state, then copy the generated JSX.
+Try both layouts with the disabled and invalid states, then copy the generated JSX.
 
 <RadioGroupPlayground />
 
 ## API Reference
 
-### RadioGroup
+<ApiTable path="lib/api-props.ts" name="RadioGroupProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/radio-group.tsx"
-  name="RadioGroupProps"
-/>
-
-### RadioGroupItem
-
-<ApiTable
-  path="../../packages/ui/registry/ui/radio-group.tsx"
-  name="RadioGroupItemProps"
-/>
+<ApiTable path="lib/api-props.ts" name="RadioGroupItemProps" />
 
 ## Accessibility
 
-- Built on Base UI Radio Group: the root renders with `role="radiogroup"` and each item with
-  `role="radio"`, backed by a hidden `<input>` for form submission.
-- Roving tabindex — only the selected item (or the first, when none is selected) is in the tab order;
-  arrow keys move both focus and selection between items.
-- Selected items set `aria-checked="true"`; the rest set `aria-checked="false"`.
-- Always give each item an accessible name — wrap it in a `Field`, use
-  `nativeButton render={<button />}` for sibling `<label htmlFor>` patterns, or pass
-  `aria-label`. Label the group itself with `aria-label`/`aria-labelledby`.
-- Keyboard focus is visible — Base UI Radio Group renders its default `:focus-visible` ring on the
-  focused item (the component never sets `outline: none`), and hover deepens the border
-  (`hover:border-ring/(70%)`). `disabled` items are skipped by keyboard navigation.
-
-| Key                         | Action                                                            |
-| --------------------------- | ----------------------------------------------------------------- |
-| <kbd>Tab</kbd>              | Move focus into the group (lands on the selected item), then out. |
-| <kbd>↑</kbd> / <kbd>←</kbd> | Move selection to the previous item.                              |
-| <kbd>↓</kbd> / <kbd>→</kbd> | Move selection to the next item.                                  |
-| <kbd>Space</kbd>            | Select the focused item.                                          |
+- Renders Base UI's Radio Group, which gives the group `role="radiogroup"` and each item
+  `role="radio"` with `aria-checked`; <kbd>↑</kbd>/<kbd>↓</kbd> and <kbd>←</kbd>/<kbd>→</kbd> move
+  the selection, and the group is one tab stop.
+- The visible dot is 16px, so an `::after` pseudo-element extends the pointer target to at least
+  24×24 (A11Y-2), verified by a real `elementFromPoint` probe.
+- On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1). The recipe carries no
+  ring of its own and no `outline-none` (FOC-6).
+- Bind every item to a `Label` or `FieldLabel` with `htmlFor`; a radio has no text of its own.
 
 <StatesTested name="radio-group" />
 
 ## Do / Don't
 
 <DoDont
-  do="Give every item a label and a unique value, and label the group itself; use it for 2–5 mutually-exclusive choices."
-  dont="Use htmlFor sibling labels against the default span root, a radio group for many options (use a Select), or radios for non-exclusive choices."
+  do="Use a Radio Group when every option should be visible at once and exactly one applies."
+  dont="Use a Radio Group for more than a handful of options — that is a Select or a Combobox."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/radio-group.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the `outline-none focus-visible:border-ring focus-visible:ring-3
+focus-visible:ring-ring/50` glow is removed, along with the `aria-invalid` halo rings. `base.css`
+  owns the single `:focus-visible` outline, and `outline-none` would suppress it.
+- **FOC-5** — the invalid tint and its checked counterpart become
+  `not-focus:aria-invalid:border-destructive` and
+  `not-focus:aria-invalid:aria-checked:border-primary`, so focus outranks the error colour.
+- **FOC-12** — upstream rings the whole choice card and cancels the control's own ring with two
+  `group-has-[:focus-visible]/field-label:` rules. This system rings the control, so both are
+  removed with the card ring they existed to serve.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

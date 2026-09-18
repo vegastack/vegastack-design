@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/item";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -142,11 +142,12 @@ export function itemItemVsField(): ReactNode {
             </ItemDescription>
           </ItemContent>
         </Item>
-        <Field
-          label="Field — input"
-          description="Reach for Field whenever a control has to be labelled and validated."
-        >
-          <Input placeholder="ada@vegastack.com" />
+        <Field>
+          <FieldLabel htmlFor="item-vs-field">Field — input</FieldLabel>
+          <Input id="item-vs-field" placeholder="ada@vegastack.com" />
+          <FieldDescription>
+            Reach for Field whenever a control has to be labelled and validated.
+          </FieldDescription>
         </Field>
       </div>
     </Wrapper>

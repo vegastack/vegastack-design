@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "cd0c8ff1271bb9f81a5378bc4a1537ef8991b9b2ac01d7db83b8c47c67a1fea5",
+  "contractSha256": "5d61f64f7f16be2b0d44c5494cb1723b095b2657e5e62ccabf6e5ab90d46efdc",
   "inventory": {
-    "expected": 599,
-    "actual": 599,
-    "unique": 599
+    "expected": 604,
+    "actual": 604,
+    "unique": 604
   },
   "classes": {
-    "components": 118,
+    "components": 123,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -47,10 +47,11 @@
       ]
     },
     "Forms/editing": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 27,
+      "actual": 27,
       "members": [
         "auto-save-input",
+        "calendar",
         "chip-input",
         "color-picker",
         "combobox",
@@ -62,6 +63,9 @@
         "field-inline",
         "filter-bar",
         "filter-bar-managed",
+        "input-group",
+        "input-otp",
+        "native-select",
         "number-field",
         "otp-input",
         "password-input",
@@ -76,8 +80,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 15,
-      "actual": 15,
+      "expected": 16,
+      "actual": 16,
       "members": [
         "accordion",
         "app-shell",
@@ -86,6 +90,7 @@
         "breadcrumb",
         "collapsible",
         "command",
+        "direction",
         "navigation-menu",
         "pagination",
         "resizable",
@@ -200,7 +205,7 @@
       ]
     },
     "Animated icons": {
-      "expected": 467,
+      "expected": 38,
       "actual": 467,
       "members": [
         "icon-a-arrow-down",
@@ -673,7 +678,7 @@
       ]
     }
   },
-  "componentRoutes": 118,
+  "componentRoutes": 123,
   "blockRoutes": 1,
   "modeledExemptions": 2
 }

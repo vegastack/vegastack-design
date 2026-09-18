@@ -1,6 +1,6 @@
 ---
 title: Combobox
-description: A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.
+description: A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, an announced empty state, and a multi-select chips mode.
 audience: public
 registry: combobox
 status: stable
@@ -18,26 +18,19 @@ preview: combobox
 ```tsx
 import {
   Combobox,
-  ComboboxInputGroup,
-  ComboboxInput,
-  ComboboxTrigger,
   ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
   ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
 } from "@/components/ui/combobox";
 
-const fonts = ["Sans-serif", "Serif", "Monospace"];
-
-<Combobox items={fonts}>
-  <ComboboxInputGroup className="w-64">
-    <ComboboxInput aria-label="Font family" placeholder="Search fonts…" />
-    <ComboboxTrigger aria-label="Toggle fonts" />
-  </ComboboxInputGroup>
+<Combobox items={frameworks}>
+  <ComboboxInput placeholder="Select a framework" />
   <ComboboxContent>
-    <ComboboxEmpty>No fonts found.</ComboboxEmpty>
+    <ComboboxEmpty>No items found.</ComboboxEmpty>
     <ComboboxList>
-      {(item: string) => (
+      {(item) => (
         <ComboboxItem key={item} value={item}>
           {item}
         </ComboboxItem>
@@ -47,408 +40,214 @@ const fonts = ["Sans-serif", "Serif", "Monospace"];
 </Combobox>;
 ```
 
-Pass `items` so the built-in `Intl.Collator` filter narrows the list as the user types, and so
-`ComboboxEmpty` knows when nothing matches. **Render `ComboboxList`'s children as a function**
-(`{(item) => …}`) — Base UI implicitly wraps it in `Combobox.Collection` and filters it live. Static
-`ComboboxItem` children (like `Select`'s) are **not** re-filtered against a typed query. Control the
-selection with `value` + `onValueChange`, or leave it uncontrolled with `defaultValue`. Add `multiple`
-to collect several values into an array and unlock the chip parts (see
-[Multiple selection](#multiple-selection)).
+<ComponentPreview name="combobox" file="components/preview/combobox.tsx" />
 
 ## Anatomy
-
-`Combobox` is a compound component. Every exported part, with the
-`data-slot` it renders (generated from the canonical source):
 
 <Anatomy name="combobox" />
 
 ## Examples
 
-### Anatomy
+### Composition
 
-`Combobox` is a compound component built on
-[Base UI Combobox](https://base-ui.com/react/components/combobox). Compose the parts inside the root:
-
-```tsx
-<Combobox items={items}>
-  <ComboboxInputGroup>
-    <ComboboxInput />
-    <ComboboxClear aria-label="Clear" />
-    <ComboboxTrigger aria-label="Toggle" />
-  </ComboboxInputGroup>
-  <ComboboxContent>
-    <ComboboxEmpty>No results.</ComboboxEmpty>
-    <ComboboxList>
-      {(item) => (
-        <ComboboxItem key={item} value={item}>
-          {item}
-        </ComboboxItem>
-      )}
-    </ComboboxList>
-  </ComboboxContent>
-</Combobox>
-```
-
-- `Combobox` — the root; owns the selected value (`value`/`defaultValue`/`onValueChange`), the input
-  text (`inputValue`/`defaultInputValue`/`onInputValueChange`), and the open state. Doesn't render an
-  element. Non-modal by default (deliberately unlike `Select`/`DropdownMenu`) — see
-  [Modal usage](#modal-usage).
-- `ComboboxInputGroup` — the bordered field wrapper for the input and its adornments
-  (`data-slot="combobox-input-group"`, `<div>`). Reacts to focus/invalid/disabled directly via Base
-  UI's own `data-*` attributes.
-- `ComboboxInput` — the text field that filters the list as the user types (`data-slot="combobox-input"`,
-  `<input>`). Styled like `Input`, on the same `sm`/`md`/`lg` scale.
-- `ComboboxClear` — an `×` button that clears the text (single mode) or the whole selection (multiple
-  mode). Unmounts itself when there's nothing to clear.
-- `ComboboxTrigger` — a chevron button that opens/closes the popup without moving focus off the input
-  (`data-slot="combobox-trigger"`, `<button>`). Default styling is a compact icon-only square, for the
-  common case of sitting inside a `ComboboxInputGroup`; override `className` for a full-width,
-  `Select`-style button trigger paired with `ComboboxValue` instead of a visible input.
-- `ComboboxContent` — the dropdown surface (`data-slot="combobox-content"`). Composes Base UI's Portal
-  - Positioner + Popup and animates enter/exit — but, unlike `SelectContent`, does **not** auto-wrap its
-    children in a list (see below).
-- `ComboboxList` — the Base UI list wrapper required for keyboard navigation
-  (`data-slot="combobox-list"`, `role="listbox"`). Compose it explicitly as a **sibling** of
-  `ComboboxEmpty`/`ComboboxStatus` inside `ComboboxContent`, not their parent — `role="listbox"` only
-  permits option/group children per ARIA, and nesting `ComboboxEmpty` (`role="status"`) inside it fails
-  the `aria-required-children` a11y rule (verified in `combobox.test.tsx`).
-- `ComboboxItem` — a single option (`data-slot="combobox-item"`, `role="option"`). Shows a trailing
-  check when selected; tints on keyboard/hover highlight, dims when `disabled`.
-- `ComboboxEmpty` — announced text shown when the query matches nothing (`data-slot="combobox-empty"`,
-  `role="status"`). Must stay mounted — Base UI toggles its children internally.
-- `ComboboxGroup` / `ComboboxGroupLabel` / `ComboboxCollection` — grouped rendering; see
-  [Grouped items](#grouped-items).
-- `ComboboxStatus` — an announced status row for async state, e.g. a loading indicator
-  (`data-slot="combobox-status"`, `role="status"`). Must stay mounted like `ComboboxEmpty`.
-- `ComboboxValue` — renders the selected value's label as read-only text; mainly for a button-style
-  `ComboboxTrigger`, or (with a function child) to render chips in multiple mode.
-- `ComboboxChips` / `ComboboxChip` / `ComboboxChipRemove` — the `multiple`-mode tag row; see
-  [Multiple selection](#multiple-selection).
-
-### Sizes
-
-`ComboboxInput` takes a `size` prop: `sm` (h-7), `md` (h-8), and `lg` (h-10) — the same scale as
-`Input`/`Select`, so a combobox lines up with sibling form controls.
-
-### Grouped items
-
-Pass `items` as an array of groups (`{ items, ...groupMeta }`, e.g. `{ items, label }`) and render one
-`ComboboxGroup` per group with a `ComboboxCollection` function child. **`ComboboxGroup`'s own `items`
-prop is used verbatim by its nested `ComboboxCollection` — it is not automatically re-filtered against
-the typed query.** Read each group's already-filtered items from the `useComboboxFilteredItems()` hook
-instead of your original static array, or typing won't narrow the groups (verified —
-`combobox.test.tsx`'s "grouped rendering" test covers exactly this):
-
-```tsx
-import { useComboboxFilteredItems } from "@/components/ui/combobox";
-
-function GroupedItems() {
-  const groups = useComboboxFilteredItems<{ label: string; items: string[] }>();
-  return groups.map((group) => (
-    <ComboboxGroup key={group.label} items={group.items}>
-      <ComboboxGroupLabel>{group.label}</ComboboxGroupLabel>
-      <ComboboxCollection>
-        {(item: string) => (
-          <ComboboxItem key={item} value={item}>
-            {item}
-          </ComboboxItem>
-        )}
-      </ComboboxCollection>
-    </ComboboxGroup>
-  ));
-}
-
-<ComboboxContent>
-  <ComboboxEmpty>No results.</ComboboxEmpty>
-  <ComboboxList>
-    <GroupedItems />
-  </ComboboxList>
-</ComboboxContent>;
+```text
+Combobox
+├── ComboboxInput
+└── ComboboxContent
+    ├── ComboboxEmpty
+    └── ComboboxList
+        └── ComboboxItem
 ```
 
 <ComponentPreview
-  name="comboboxGroups"
+  name="comboboxComposition"
   file="components/preview/combobox.tsx"
 />
 
-### Async / loading state
+### Custom Items
 
-For server-driven search, control `inputValue` (via `onInputValueChange`) and pass the resolved
-results as `filteredItems` — Base UI's escape hatch that bypasses its own built-in filter, so what's
-rendered always matches what the "server" returned. Render `ComboboxStatus` with a `Spinner` while a
-request is in flight:
+`itemToStringValue` tells the filter how to read an object item, and `ComboboxItem` renders whatever
+markup you want inside the row.
 
 <ComponentPreview
-  name="comboboxLoading"
+  name="comboboxCustomItems"
   file="components/preview/combobox.tsx"
 />
 
-```tsx
-<Combobox
-  items={fruits}
-  filteredItems={results}
-  inputValue={inputValue}
-  onInputValueChange={(value) => {
-    setInputValue(value);
-    search(value); // debounced; sets `results` + `loading`
-  }}
->
-  <ComboboxInputGroup>
-    <ComboboxInput aria-label="Search fruit" />
-    <ComboboxTrigger aria-label="Toggle" />
-  </ComboboxInputGroup>
-  <ComboboxContent>
-    <ComboboxStatus>
-      {loading ? (
-        <>
-          <Spinner size="inherit" label="" />
-          Searching…
-        </>
-      ) : null}
-    </ComboboxStatus>
-    <ComboboxEmpty>{loading ? null : "No fruit found."}</ComboboxEmpty>
-    <ComboboxList>
-      {loading
-        ? null
-        : results.map((item) => (
-            <ComboboxItem key={item} value={item}>
-              {item}
-            </ComboboxItem>
-          ))}
-    </ComboboxList>
-  </ComboboxContent>
-</Combobox>
-```
+### Multiple Selection
 
-### Multiple selection
+`multiple` plus `ComboboxChips` turns the field into a chip editor.
 
-Set `multiple` on the root to collect several values into an array. Compose `ComboboxChips` (wraps the
-chip row **and** the input together — put the input last so it keeps filtering) with `ComboboxValue`'s
-function child rendering one `ComboboxChip` + `ComboboxChipRemove` per selected value:
+<ComponentPreview
+  name="comboboxMultipleSelection"
+  file="components/preview/combobox.tsx"
+/>
+
+### Basic
+
+A flat list of strings.
+
+<ComponentPreview name="comboboxBasic" file="components/preview/combobox.tsx" />
+
+### Multiple
+
+`useComboboxAnchor` anchors the popup to the chips container rather than the inner input, so the
+list stays put as chips wrap onto a second row.
 
 <ComponentPreview
   name="comboboxMultiple"
   file="components/preview/combobox.tsx"
 />
 
-```tsx
-<Combobox multiple items={labelKeys} defaultValue={["bug", "docs"]}>
-  <ComboboxInputGroup>
-    <ComboboxChips>
-      <ComboboxValue>
-        {(value: string[]) =>
-          value.map((key) => (
-            <ComboboxChip key={key}>
-              {labelFor(key)}
-              <ComboboxChipRemove aria-label={`Remove ${labelFor(key)}`} />
-            </ComboboxChip>
-          ))
-        }
-      </ComboboxValue>
-      <ComboboxInput aria-label="Labels" placeholder="Add labels…" />
-    </ComboboxChips>
-    <ComboboxClear aria-label="Clear all labels" />
-    <ComboboxTrigger aria-label="Toggle labels" />
-  </ComboboxInputGroup>
-  <ComboboxContent>{/* ComboboxList / ComboboxItem */}</ComboboxContent>
-</Combobox>
-```
+### Clear Button
 
-> While the popup is open, Base UI marks the chip row `aria-hidden` (so a screen reader mid-selection
-> stays on the listbox, not pulled back to the value summary) — close the popup before reaching a
-> `ComboboxChipRemove` via assistive tech or an accessibility-tree-based test query. Sighted pointer
-> users can still click it either way.
+`showClear` on `ComboboxInput` swaps the trigger for a clear control once something is selected.
 
-`ComboboxChip` and `ComboboxChipRemove` are the [`Chip`](/docs/components/chip) primitive and its
-remove control, composed onto Base UI's own `Combobox.Chip` / `Combobox.ChipRemove` through `render`
-— so a selected value here is geometrically the same object as a `Tag` or a filter chip, and its
-remove control is a real 24×24 target. (It previously shipped as a bare 16px box with no hit-area
-expansion at all: a WCAG 2.5.8 failure, now covered by the contract lane.)
+<ComponentPreview
+  name="comboboxClearButton"
+  file="components/preview/combobox.tsx"
+/>
 
-### States
+### Groups
+
+`ComboboxGroup`, `ComboboxLabel`, `ComboboxCollection` and `ComboboxSeparator` organise the popup.
+
+<ComponentPreview
+  name="comboboxGroups"
+  file="components/preview/combobox.tsx"
+/>
+
+### Invalid
+
+Put `aria-invalid` on the `ComboboxInput` and `data-invalid` on the `Field`. The tint is scoped to
+`not-focus-within:` (FOC-5), so a focused field shows its focus cue rather than the error colour.
+
+<ComponentPreview
+  name="comboboxInvalid"
+  file="components/preview/combobox.tsx"
+/>
+
+### Disabled
+
+`disabled` on `ComboboxInput` disables the control, its trigger and its clear button together.
 
 <ComponentPreview
   name="comboboxDisabled"
   file="components/preview/combobox.tsx"
 />
 
-A `disabled` root makes the whole field (input + trigger + clear) inert.
+### Auto Highlight
 
-### Invalid
+`autoHighlight` highlights the first match as the filter narrows, so <kbd>Enter</kbd> picks it
+without an arrow press.
 
-Pass `aria-invalid` to `ComboboxInput` — or wrap the `Combobox` in a `<Field error>`, which wires it
-for you — to tint the field border destructive. Pair it with a `FieldError` so the failure is
-announced, not just color-coded.
+<ComponentPreview
+  name="comboboxAutoHighlight"
+  file="components/preview/combobox.tsx"
+/>
 
-### Modal usage
+### Popup
 
-`Combobox` defaults `modal` to `false` (Base UI's own default), unlike `Select`/`DropdownMenu`. This is
-deliberate: a combobox stays interactive alongside its open popup — typing keeps filtering, and in
-`multiple` mode the `ComboboxChipRemove` controls next to the input must stay clickable. Setting
-`modal` locks the rest of the page as inert behind a backdrop that only carves out the anchor's
-_original_ bounding box; once `ComboboxChips` grows the input group (wrapped chips), controls outside
-that stale clip fall behind the inert backdrop and become unclickable — verified while building this
-component. Reach for `modal` only for a single-select, button-trigger-style usage that should behave
-like `Select`.
+Trigger the list from a button with `ComboboxTrigger` and `render`, and move `ComboboxInput` inside
+`ComboboxContent` with `showTrigger={false}` so the search sits in the popup.
+
+<ComponentPreview name="comboboxPopup" file="components/preview/combobox.tsx" />
+
+### Input Group
+
+`ComboboxInput` **is** an `InputGroup`, so an `InputGroupAddon` child lands on the same surface.
+
+<ComponentPreview
+  name="comboboxInputGroup"
+  file="components/preview/combobox.tsx"
+/>
+
+### RTL
+
+The trigger, the clear control and the item check indicator are all placed with logical properties,
+so a right-to-left document mirrors the whole control.
+
+<ComponentPreview name="comboboxRtl" file="components/preview/combobox.tsx" />
+
+### States
+
+The closed input's rest, invalid and disabled chrome.
+
+<ComponentPreview
+  name="comboboxStates"
+  file="components/preview/combobox.tsx"
+/>
 
 ## Playground
 
-Try every size and the disabled state on a filterable list, then copy the generated JSX.
+Try the clear button with the disabled and invalid states on a filterable list, then copy the generated JSX.
 
 <ComboboxPlayground />
 
 ## API Reference
 
-### Combobox
+<ApiTable path="lib/api-props.ts" name="ComboboxInputProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxProps"
-/>
+<ApiTable path="lib/api-props.ts" name="ComboboxContentProps" />
 
-### ComboboxInputGroup
+<ApiTable path="lib/api-props.ts" name="ComboboxChipProps" />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxInputGroupProps"
-/>
-
-### ComboboxInput
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxInputProps"
-/>
-
-### ComboboxPopupInput
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxPopupInputProps"
-/>
-
-Use `ComboboxPopupInput` when the searchable input belongs inside `ComboboxContent`, as in the
-country and region selectors. It deliberately omits the outer trigger-input sizing contract.
-
-### ComboboxTrigger
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxTriggerProps"
-/>
-
-### ComboboxClear
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxClearProps"
-/>
-
-### ComboboxContent
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxContentProps"
-/>
-
-### ComboboxList
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxListProps"
-/>
-
-### ComboboxItem
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxItemProps"
-/>
-
-### ComboboxEmpty
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxEmptyProps"
-/>
-
-### ComboboxStatus
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxStatusProps"
-/>
-
-### ComboboxGroup
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxGroupProps"
-/>
-
-### ComboboxGroupLabel
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxGroupLabelProps"
-/>
-
-### ComboboxValue
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxValueProps"
-/>
-
-### ComboboxChips
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxChipsProps"
-/>
-
-### ComboboxChip
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxChipProps"
-/>
-
-### ComboboxChipRemove
-
-<ApiTable
-  path="../../packages/ui/registry/ui/combobox.tsx"
-  name="ComboboxChipRemoveProps"
-/>
+`Combobox`, `ComboboxList`, `ComboboxItem`, `ComboboxGroup`, `ComboboxLabel`,
+`ComboboxCollection`, `ComboboxEmpty`, `ComboboxSeparator`, `ComboboxChips`, `ComboboxChipsInput`,
+`ComboboxTrigger` and `ComboboxValue` add no props of their own — each accepts everything the Base
+UI part accepts.
 
 ## Accessibility
 
-- `ComboboxInput` exposes `role="combobox"` with `aria-expanded`/`aria-haspopup="listbox"`/
-  `aria-autocomplete="list"`; the popup is a `role="listbox"` of `role="option"` items — no manual ARIA
-  wiring needed.
-- Selection is announced via `aria-selected`; the selected item shows a check indicator. Disabled items
-  carry `aria-disabled` and are skipped by keyboard navigation.
-- `ComboboxEmpty`/`ComboboxStatus` are `role="status"` with `aria-live="polite"` — query-miss and
-  async-loading feedback is announced without moving focus.
-- Full keyboard support: open/close, arrow navigation between items (looping back to the input), and
-  `Esc` to dismiss and return focus to the input. In `multiple` mode, `Backspace` on an empty query
-  removes the last chip.
-- On `:focus` the field re-colors its border with the `ring` token, matching `Input`/`Select`.
-  `aria-invalid` tints it destructive for use inside a `Field`.
-
-| Key                         | Action                                                                      |
-| --------------------------- | --------------------------------------------------------------------------- |
-| <kbd>↓</kbd> / <kbd>↑</kbd> | Open the popup (if closed) and move the highlight between items.            |
-| <kbd>Enter</kbd>            | Select the highlighted item and close the popup.                            |
-| <kbd>Esc</kbd>              | Close the popup without changing the selection; focus returns to the input. |
-| <kbd>Backspace</kbd>        | (Multiple, empty query) Highlight, then remove, the last chip.              |
-| <kbd>←</kbd> / <kbd>→</kbd> | (Multiple) Move between chips when the query is empty at either edge.       |
+- Renders Base UI's Combobox: the input is `role="combobox"` with `aria-expanded`,
+  `aria-controls` and `aria-activedescendant`, and the popup is a `role="listbox"` with type-ahead,
+  <kbd>↑</kbd>/<kbd>↓</kbd>, <kbd>Home</kbd>/<kbd>End</kbd> and <kbd>Esc</kbd>.
+- `ComboboxEmpty` is the engine's own polite live region, so the filtered result is announced. It
+  stays mounted with zero height rather than `display: none` (A11Y-3, A11Y-4) — a region the
+  platform never observed is a region it never announces.
+- Focus shows on the **group**: a border tint while the control has focus (FOC-3), and no ring.
+- The popup portals out of the input's subtree, so `ComboboxContent` re-applies the theme scope on
+  the positioner inside the portal (OVL-13).
+- Rows carry the hand cursor from the one global rule in `base.css` (INT-1).
+- **Known Base UI behaviour:** while the popup is open the engine marks the trailing addon
+  `aria-hidden="true"` without also making it `inert`, so the toggle button inside it stays
+  focusable. `combobox.test.tsx` asserts that shape directly, so the day Base UI fixes it the test
+  says so.
 
 <StatesTested name="combobox" />
 
 ## Do / Don't
 
 <DoDont
-  do="Pass items and render ComboboxList's children as a function so typing actually filters, and keep ComboboxEmpty/ComboboxStatus as siblings of ComboboxList, not its parent."
-  dont="Render static ComboboxItem children when you need type-to-filter, or reach for a Combobox when Select's fixed, unsearched list is enough."
+  do="Give the field a label and always render a ComboboxEmpty — it is what tells a screen-reader user the filter found nothing."
+  dont="Hide ComboboxEmpty with display:none or conditional rendering; toggle its children instead."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
+
+- **FOC-1, FOC-3, FOC-6** — `ComboboxChips`' `focus-within:border-ring` plus `ring-3 ring-ring/50`
+  becomes `focus-within:border-ring/70`, and `ComboboxChipsInput`'s `outline-none` becomes
+  `outline-hidden` so the forced-colours fallback has something to repaint. The single-line field's
+  own focus chrome comes from `InputGroup`.
+- **FOC-5** — the chips field's invalid tint becomes
+  `not-focus-within:has-aria-invalid:border-destructive` (and its dark counterpart), so focus
+  outranks it; the `has-aria-invalid` halo rings are removed.
+- **INT-1** — `cursor-default` is removed from `ComboboxItem`, so a row shows the hand cursor the
+  one global rule gives every `[role="option"]`.
+- **FRM-4** — `data-disabled:pointer-events-none` is dropped from `ComboboxItem`, and
+  `has-disabled:pointer-events-none` from `ComboboxChip`, so a disabled row or chip stays hoverable
+  and a Tooltip can explain it.
+- **A11Y-3, A11Y-4** — `ComboboxEmpty` no longer uses `hidden` (`display: none`) to hide itself
+  while the list has results. Base UI drives that element as a polite live region and documents
+  that hiding it breaks the announcement, so it stays in the layout at `h-0 overflow-hidden` and
+  expands when the list is empty.
+- **A11Y-2** — `ComboboxChipsInput` gains `min-h-6`. Upstream's chips input measures 20px inside the
+  32px chips field, under the 24px target floor; the input is transparent, so nothing visible moves.
+- **A11Y-5** — the toggle inside `ComboboxInput`, the clear control and the chip's remove control
+  each gain an `aria-label`. All three are icon-only `<button>`s upstream ships with no text, and
+  Base UI names none of them.
+- **OVL-13** — `ComboboxContent` reads `useInternalThemeScope()` and attaches it to the positioner
+  inside the portal; `tooling/verify-portal-theme-scope.mjs` inventories this host.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

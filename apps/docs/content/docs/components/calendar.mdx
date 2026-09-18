@@ -1,0 +1,213 @@
+---
+title: Calendar
+description: A date-field calendar built on React DayPicker — single, multiple and range selection, month and year dropdowns, week numbers and custom cell sizes.
+audience: public
+registry: calendar
+status: stable
+since: 0.9.1
+a11y: APG date grid via React DayPicker
+preview: calendar
+---
+
+## Install
+
+<InstallSteps name="calendar" />
+
+## Usage
+
+```tsx
+import { Calendar } from "@/components/ui/calendar";
+
+const [date, setDate] = React.useState<Date | undefined>(new Date());
+
+<Calendar
+  mode="single"
+  selected={date}
+  onSelect={setDate}
+  className="rounded-lg border"
+/>;
+```
+
+<ComponentPreview name="calendar" file="components/preview/calendar.tsx" />
+
+## Anatomy
+
+<Anatomy name="calendar" />
+
+## Examples
+
+### About
+
+`Calendar` is React DayPicker with our chrome on top: the day grid, the range logic and the month
+navigation are the library's; the tokens, the `CalendarDayButton` and the nav buttons are ours.
+Every prop DayPicker takes passes straight through.
+
+<ComponentPreview name="calendarAbout" file="components/preview/calendar.tsx" />
+
+### Date Picker
+
+Put a `Calendar` inside a `Popover` behind a `Button` and you have a date picker; see
+[Date Picker](/docs/components/date-picker) for the composed component.
+
+<ComponentPreview
+  name="calendarDatePicker"
+  file="components/preview/calendar.tsx"
+/>
+
+### Persian / Hijri / Jalali Calendar
+
+The chrome mirrors for a right-to-left document on its own. To change the calendar **system**, edit
+`components/ui/calendar.tsx` and swap the import:
+
+```diff
+- import { DayPicker } from "react-day-picker"
++ import { DayPicker } from "react-day-picker/persian"
+```
+
+<ComponentPreview
+  name="calendarPersianHijriJalali"
+  file="components/preview/calendar.tsx"
+/>
+
+### Selected Date (With TimeZone)
+
+Pass `timeZone` so a selected day is the day the user sees. Detect it in an effect, not during
+render — the server and the client are not in the same zone, and reading it during render is a
+hydration mismatch.
+
+<ComponentPreview
+  name="calendarSelectedDateWithTimeZone"
+  file="components/preview/calendar.tsx"
+/>
+
+### Basic
+
+`className="rounded-lg border"` is all the surface a bare calendar needs.
+
+<ComponentPreview name="calendarBasic" file="components/preview/calendar.tsx" />
+
+### Range Calendar
+
+`mode="range"` selects a span; `numberOfMonths` shows more than one month at a time.
+
+<ComponentPreview
+  name="calendarRangeCalendar"
+  file="components/preview/calendar.tsx"
+/>
+
+### Month and Year Selector
+
+`captionLayout="dropdown"` replaces the caption with month and year dropdowns.
+
+<ComponentPreview
+  name="calendarMonthAndYearSelector"
+  file="components/preview/calendar.tsx"
+/>
+
+### Presets
+
+Drive `month` and `selected` from outside to offer shortcuts.
+
+<ComponentPreview
+  name="calendarPresets"
+  file="components/preview/calendar.tsx"
+/>
+
+### Date and Time Picker
+
+A `Card` with the calendar in its content and two time fields in its footer.
+
+<ComponentPreview
+  name="calendarDateAndTimePicker"
+  file="components/preview/calendar.tsx"
+/>
+
+### Booked dates
+
+`disabled` blocks the days; `modifiers` and `modifiersClassNames` mark them, so unavailability is
+carried by the strike-through as well as by the dimming.
+
+<ComponentPreview
+  name="calendarBookedDates"
+  file="components/preview/calendar.tsx"
+/>
+
+### Custom Cell Size
+
+`--cell-size` sets the grid's cell, and it takes breakpoint-specific values. A custom `DayButton`
+renders anything you like inside a day.
+
+<ComponentPreview
+  name="calendarCustomCellSize"
+  file="components/preview/calendar.tsx"
+/>
+
+### Week Numbers
+
+`showWeekNumber` adds the ISO week column.
+
+<ComponentPreview
+  name="calendarWeekNumbers"
+  file="components/preview/calendar.tsx"
+/>
+
+### RTL
+
+The two nav chevrons rotate and the range caps swap ends, so a right-to-left document reads
+correctly without any extra work.
+
+<ComponentPreview name="calendarRtl" file="components/preview/calendar.tsx" />
+
+### States
+
+Selected, today, disabled and outside days in one frame.
+
+<ComponentPreview
+  name="calendarStates"
+  file="components/preview/calendar.tsx"
+/>
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="CalendarProps" />
+
+Everything else is React DayPicker's own API — see its
+[documentation](https://daypicker.dev). `CalendarDayButton` accepts DayPicker's `DayButton` props
+plus an optional `locale`.
+
+## Accessibility
+
+- React DayPicker renders the month as a real `<table>` with column headers, and the day buttons
+  carry `aria-selected`, `aria-disabled` and `data-day`; <kbd>←</kbd>/<kbd>→</kbd>, <kbd>↑</kbd>/
+  <kbd>↓</kbd>, <kbd>Home</kbd>/<kbd>End</kbd> and <kbd>PageUp</kbd>/
+  <kbd>PageDown</kbd> all move the focused day.
+- The day button is a `Button size="icon"` at `--cell-size` (28px by default), so it clears the
+  24px target floor (A11Y-2) without a hit-area pseudo-element.
+- Focus is the global 2px `:focus-visible` outline (FOC-1); upstream's `ring-[3px]` glow on the
+  focused day is removed (FOC-6).
+- Booked or unavailable days should carry a non-colour marker as well as the dim — the Booked dates
+  example uses a strike-through (A11Y-8).
+- `Calendar` is a client component: it holds the focused day and reacts to selection.
+
+<StatesTested name="calendar" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass timeZone when the selected date is stored or sent anywhere — otherwise a late-evening pick lands on the wrong day."
+  dont="Reach into the day grid with element selectors to restyle it — pass classNames, modifiers or a DayButton."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/calendar.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the focused day's `group-data-[focused=true]/day:border-ring`,
+  `:ring-[3px]` and `:ring-ring/50` glow is removed. The day button is a real `<button>`, so the
+  global `:focus-visible` outline in `base.css` marks it; the `relative z-10` that lifted the
+  focused cell above its neighbours stays.
+- **A11Y-2** — `dropdown_root` gains `h-full min-h-6`. With `captionLayout="dropdown"` the real
+  `<select>` is `absolute inset-0` of that root, which upstream sizes from the caption's 20px line
+  box — a 20px-tall pointer target. The dropdowns row is already `h-(--cell-size)`, so filling it
+  costs no layout.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

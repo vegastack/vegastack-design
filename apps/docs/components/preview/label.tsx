@@ -5,7 +5,7 @@ import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/label` (dogfoods the registry) → auto-scanned.
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field } from "@/components/ui/field";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 export function label(): ReactNode {
@@ -23,11 +23,14 @@ export function labelLabelInField(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
       <div className="mx-auto w-full max-w-sm">
-        <Field
-          label="Your email address"
-          description="We only use it to send you receipts."
-        >
+        <Field>
+          <FieldLabel htmlFor="label-field-email">
+            Your email address
+          </FieldLabel>
           <Input id="label-field-email" placeholder="ada@vegastack.com" />
+          <FieldDescription>
+            We only use it to send you receipts.
+          </FieldDescription>
         </Field>
       </div>
     </Wrapper>

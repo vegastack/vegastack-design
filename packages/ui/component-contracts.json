@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 599,
-    "components": 118,
+    "totalRegistryItems": 604,
+    "components": 123,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -21,15 +21,15 @@
   },
   "expectedWaveCounts": {
     "Core controls": 25,
-    "Forms/editing": 23,
-    "Navigation/layout": 15,
+    "Forms/editing": 27,
+    "Navigation/layout": 16,
     "Overlays": 14,
     "Data display": 12,
     "Content/marketing": 23,
     "AI/chat": 6,
     "Hooks": 11,
     "Block": 1,
-    "Animated icons": 467
+    "Animated icons": 38
   },
   "expectedWaveMembers": {
     "Core controls": [
@@ -82,7 +82,11 @@
       "chip-input",
       "filter-bar-managed",
       "sortable-list",
-      "dropzone"
+      "dropzone",
+      "input-group",
+      "input-otp",
+      "native-select",
+      "calendar"
     ],
     "Navigation/layout": [
       "accordion",
@@ -99,7 +103,8 @@
       "split-button",
       "stepper",
       "board",
-      "aspect-ratio"
+      "aspect-ratio",
+      "direction"
     ],
     "Overlays": [
       "floating-surface",
@@ -241,6 +246,7 @@
         "owners": [
           "field",
           "input",
+          "input-group",
           "number-field",
           "otp-input",
           "switch",
@@ -3751,6 +3757,124 @@
       }
     },
     {
+      "name": "calendar",
+      "registryType": "registry:ui",
+      "title": "Calendar",
+      "summary": "A date-field calendar on React DayPicker — single, multiple and range selection.",
+      "status": "stable",
+      "since": "0.9.1",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/calendar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Calendar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/calendar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "CalendarDayButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/calendar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "captionLayout",
+            "values": ["label", "dropdown"],
+            "evidence": "packages/ui/registry/ui/calendar.tsx: captionLayout prop"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "selected",
+            "range",
+            "disabled",
+            "outside",
+            "today"
+          ],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "selected",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/calendar.tsx + packages/ui/registry/ui/calendar.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "selected",
+            "range",
+            "disabled",
+            "today"
+          ],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "`--cell-size` and `numberOfMonths` are both breakpoint-tunable."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": ["react-day-picker"],
+      "docsSlug": "/docs/components/calendar",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "react-day-picker@^10.0.1",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/calendar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "calendar",
+      "dataAttributes": {}
+    },
+    {
       "name": "card",
       "registryType": "registry:ui",
       "title": "Card",
@@ -4197,7 +4321,7 @@
       "name": "checkbox",
       "registryType": "registry:ui",
       "title": "Checkbox",
-      "summary": "A binary (or tri-state) toggle — checked, unchecked, indeterminate, disabled, built on Base UI Checkbox.",
+      "summary": "A binary (or indeterminate) toggle on Base UI Checkbox, with a 24px invisible hit area (A11Y-2).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -4210,43 +4334,20 @@
           "source": "packages/ui/registry/ui/checkbox.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCheckbox.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "CheckboxProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/checkbox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "checkboxVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/checkbox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["default", "sm"],
-            "evidence": "packages/ui/registry/ui/checkbox.tsx: CVA"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
@@ -4254,51 +4355,46 @@
           "values": [
             "default",
             "checked",
-            "disabled",
-            "dragging",
-            "error",
             "indeterminate",
+            "disabled",
             "invalid"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
+          "status": "covered",
           "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
             "checked",
-            "focus-visible",
             "invalid",
-            "labeled",
-            "semantic-html"
+            "disabled"
           ],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "evidence": "packages/ui/registry/ui/checkbox.tsx + packages/ui/registry/ui/checkbox.test.tsx"
         },
         "visual": {
           "status": "observed",
           "values": [
             "default",
-            "hover",
-            "disabled",
-            "invalid",
             "checked",
-            "error",
-            "dark"
+            "indeterminate",
+            "invalid",
+            "disabled"
           ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["replay hook"],
+        "status": "not-applicable",
+        "mechanisms": [],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
         }
       },
       "engines": [],
@@ -4306,7 +4402,6 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -4321,21 +4416,7 @@
         "vrt": "required"
       },
       "previewModule": "checkbox",
-      "dataAttributes": {
-        "Checkbox": {
-          "attributes": [
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["checkbox", "checkbox-indicator"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "checkbox-group",
@@ -5150,7 +5231,7 @@
       "name": "combobox",
       "registryType": "registry:ui",
       "title": "Combobox",
-      "summary": "A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.",
+      "summary": "A filterable listbox behind a text input — grouped items, an announced empty state and a chips mode.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -5163,179 +5244,8 @@
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxChip",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Chip",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxChipProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxChipRemove",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.ChipRemove",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxChipRemoveProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxChips",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Chips",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxChipsProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxClear",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Clear",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxClearProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxCollection",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Collection",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxCollectionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Portal",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxEmpty",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Empty",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxEmptyProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Group",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxGroupLabel",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.GroupLabel",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxGroupLabelProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -5344,73 +5254,18 @@
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.Input",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ComboboxInputGroup",
+          "name": "ComboboxContent",
           "kind": "component",
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.InputGroup",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxInputGroupProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "comboboxInputGroupVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "ComboboxInputProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "comboboxInputVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "ComboboxItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseCombobox.Item",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -5419,63 +5274,98 @@
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.List",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ComboboxListProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxPopupInput",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by ComboboxPopupInput in packages/ui/registry/ui/combobox.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "ComboboxPopupInputProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ComboboxStatus",
+          "name": "ComboboxItem",
           "kind": "component",
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.Status",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ComboboxStatusProps",
-          "kind": "type",
+          "name": "ComboboxGroup",
+          "kind": "component",
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ComboboxLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/combobox.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ComboboxCollection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/combobox.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ComboboxEmpty",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/combobox.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ComboboxSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/combobox.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ComboboxChips",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/combobox.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ComboboxChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/combobox.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ComboboxChipsInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/combobox.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -5484,26 +5374,8 @@
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseCombobox.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/combobox.tsx."
-          }
-        },
-        {
-          "name": "ComboboxTriggerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "comboboxTriggerVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -5511,113 +5383,88 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by ComboboxValue in packages/ui/registry/ui/combobox.tsx; incidental internal nodes are not part of its API."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "ComboboxValueProps",
-          "kind": "type",
+          "name": "useComboboxAnchor",
+          "kind": "hook",
           "source": "packages/ui/registry/ui/combobox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "useComboboxFilteredItems",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/combobox.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "rationale": "Not a rendering component; accepts no runtime ref."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["default", "lg", "sm"],
-            "evidence": "packages/ui/registry/ui/combobox.tsx: CVA"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
           "values": [
             "default",
-            "disabled",
-            "empty",
-            "error",
-            "filtering",
-            "invalid",
-            "loading",
             "open",
-            "read-only",
-            "selected"
+            "filtering",
+            "empty",
+            "multiple",
+            "disabled",
+            "invalid"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["labeled", "status-announcement", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "live-region",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/combobox.tsx + packages/ui/registry/ui/combobox.test.tsx"
         },
         "visual": {
           "status": "observed",
           "values": [
             "default",
-            "hover",
             "focus",
-            "disabled",
+            "open",
+            "highlighted",
             "invalid",
-            "loading",
-            "error",
-            "empty",
-            "dark"
+            "disabled"
           ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "text-truncation-and-flex-shrink",
-          "overflow-and-scroll",
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
-        ],
+        "status": "observed",
+        "mechanisms": ["tw-animate-css keyed presence on the popup"],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/combobox",
-      "registryDependencies": [
-        "@vegastack/chip",
-        "@vegastack/floating-surface"
-      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/input-group"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -5632,168 +5479,7 @@
         "vrt": "required"
       },
       "previewModule": "combobox",
-      "dataAttributes": {
-        "Combobox": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxValue": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-value"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxInput": {
-          "attributes": [
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["combobox-input"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxPopupInput": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-popup-input", "combobox-popup-input-wrapper"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxInputGroup": {
-          "attributes": [
-            {
-              "name": "data-field-group",
-              "values": [""]
-            },
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["combobox-input-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxTrigger": {
-          "attributes": [
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["combobox-icon", "combobox-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxList": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-list"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-item", "combobox-item-indicator"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxGroupLabel": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-group-label"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxEmpty": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-empty"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxStatus": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-status"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxClear": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-clear"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxChips": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-chips"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxChip": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-chip"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxChipRemove": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-chip-remove"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "command",
@@ -8378,6 +8064,93 @@
       }
     },
     {
+      "name": "direction",
+      "registryType": "registry:ui",
+      "title": "Direction",
+      "summary": "Base UI's DirectionProvider and useDirection — the text-direction context components read.",
+      "status": "stable",
+      "since": "0.9.1",
+      "family": "layout",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/direction.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DirectionProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/direction.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "useDirection",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/direction.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Not a rendering component; accepts no runtime ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no variant dimension for this component."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["native-or-base-ui-semantics"],
+          "evidence": "packages/ui/registry/ui/direction.tsx + packages/ui/registry/ui/direction.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [],
+        "rationale": "Renders no element of its own."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/direction",
+      "registryDependencies": [],
+      "npmDependencies": ["@base-ui/react@^1.6.0"],
+      "testFiles": ["packages/ui/registry/ui/direction.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "direction",
+      "dataAttributes": {}
+    },
+    {
       "name": "dropdown-menu",
       "registryType": "registry:ui",
       "title": "Dropdown Menu",
@@ -9391,7 +9164,7 @@
       "name": "field",
       "registryType": "registry:ui",
       "title": "Field",
-      "summary": "A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.",
+      "summary": "The form-field scaffold — label, description, error, legend, separator and choice-card layouts.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -9404,103 +9177,8 @@
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
             "status": "observed",
-            "target": "FieldRoot",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/field.tsx."
-          }
-        },
-        {
-          "name": "FieldContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/field.tsx."
-          }
-        },
-        {
-          "name": "FieldContentProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldControl",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseField.Control",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "FieldControlProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldDescription",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseField.Description",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "FieldDescriptionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldError",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseField.Error",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "FieldErrorProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/field.tsx."
-          }
-        },
-        {
-          "name": "FieldGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -9509,17 +9187,38 @@
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseField.Label",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "FieldLabelProps",
-          "kind": "type",
+          "name": "FieldDescription",
+          "kind": "component",
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "FieldError",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "FieldGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -9528,45 +9227,18 @@
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
             "status": "observed",
-            "target": "legend",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/field.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "FieldLegendProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldRoot",
+          "name": "FieldSeparator",
           "kind": "component",
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseField.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "FieldRootProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -9575,45 +9247,28 @@
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
             "status": "observed",
-            "target": "fieldset",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/field.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "FieldSetProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldSuccess",
+          "name": "FieldContent",
           "kind": "component",
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
             "status": "observed",
-            "target": "p",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "FieldSuccessProps",
-          "kind": "type",
+          "name": "FieldTitle",
+          "kind": "component",
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "fieldVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/field.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
@@ -9622,70 +9277,65 @@
         "dimensions": [
           {
             "name": "orientation",
-            "values": ["horizontal", "responsive", "vertical"],
-            "evidence": "packages/ui/registry/ui/field.tsx: CVA"
+            "values": ["vertical", "horizontal", "responsive"],
+            "evidence": "packages/ui/registry/ui/field.tsx: orientation prop"
           }
         ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "disabled", "error", "invalid", "success"],
+          "values": ["default", "invalid", "disabled", "checked"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
+          "status": "covered",
           "values": [
-            "described",
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "grouped",
             "invalid",
-            "labeled",
-            "alert-announcement",
-            "semantic-html"
+            "disabled"
           ],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "evidence": "packages/ui/registry/ui/field.tsx + packages/ui/registry/ui/field.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "disabled", "invalid", "error", "success"],
+          "values": ["default", "invalid", "disabled", "checked"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "`orientation=\"responsive\"` switches layout on the @md/field-group container query."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "CSS utility motion-enter-up",
-          "tokenized CSS transition",
-          "replay hook"
-        ],
+        "status": "not-applicable",
+        "mechanisms": [],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/field",
-      "registryDependencies": [
-        "@vegastack/input",
-        "@vegastack/use-animation-replay"
-      ],
+      "registryDependencies": ["@vegastack/label", "@vegastack/separator"],
       "npmDependencies": [
-        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/field.test.tsx"],
+      "testFiles": [
+        "packages/ui/registry/ui/field.test.tsx",
+        "packages/ui/registry/ui/field-form.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -9695,111 +9345,7 @@
         "vrt": "required"
       },
       "previewModule": "field",
-      "dataAttributes": {
-        "FieldRoot": {
-          "attributes": [
-            {
-              "name": "data-orientation",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["field"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldLabel": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-label"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldControl": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-control"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldDescription": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-description"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldError": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-error"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldSuccess": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-success"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldSet": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-set"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldLegend": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-legend"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FieldContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-content"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "Field": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["field-header", "field-label-action"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "field-inline",
@@ -11284,7 +10830,7 @@
       "name": "input",
       "registryType": "registry:ui",
       "title": "Input",
-      "summary": "A styled Base UI input — all input types, Field state data attributes, error and disabled states, a focus border tint, and optional prefix/suffix addons.",
+      "summary": "A styled Base UI input for every text-entry type, with the text-entry focus border tint (FOC-3).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -11297,70 +10843,54 @@
           "source": "packages/ui/registry/ui/input.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseInput",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "InputProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/input.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "disabled", "dragging", "error", "invalid"],
+          "values": ["default", "disabled", "invalid", "readonly"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["invalid", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/input.tsx + packages/ui/registry/ui/input.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": [
-            "default",
-            "focus",
-            "disabled",
-            "invalid",
-            "error",
-            "dark"
-          ],
+          "values": ["default", "focus", "invalid", "disabled"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "text-truncation-and-flex-shrink",
-          "overflow-and-scroll",
-          "responsive-or-container-layout"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["replay hook", "canvas animation"],
+        "status": "not-applicable",
+        "mechanisms": [],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
         }
       },
       "engines": [],
@@ -11381,25 +10911,282 @@
         "vrt": "required"
       },
       "previewModule": "input",
-      "dataAttributes": {
-        "Input": {
-          "attributes": [
-            {
-              "name": "data-field-group",
-              "values": [""]
-            },
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["input", "input-group", "input-prefix", "input-suffix"]
-            }
-          ],
-          "cssVariables": []
+      "dataAttributes": {}
+    },
+    {
+      "name": "input-group",
+      "registryType": "registry:ui",
+      "title": "Input Group",
+      "summary": "An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.",
+      "status": "stable",
+      "since": "0.9.1",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/input-group.tsx"],
+      "publicSymbols": [
+        {
+          "name": "InputGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-group.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "InputGroupAddon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-group.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "InputGroupButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-group.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "InputGroupText",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-group.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "InputGroupInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-group.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "InputGroupTextarea",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-group.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
         }
-      }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "align",
+            "values": [
+              "inline-start",
+              "inline-end",
+              "block-start",
+              "block-end"
+            ],
+            "evidence": "packages/ui/registry/ui/input-group.tsx: align prop"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["xs", "sm", "icon-xs", "icon-sm"],
+            "evidence": "packages/ui/registry/ui/input-group.tsx: size prop"
+          }
+        ]
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "disabled", "invalid"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "grouped",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/input-group.tsx + packages/ui/registry/ui/input-group.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus", "invalid", "disabled"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Block-aligned addons turn the group into a column."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/input-group",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/input",
+        "@vegastack/textarea"
+      ],
+      "npmDependencies": [
+        "class-variance-authority@^0.7.1",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/input-group.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "input-group",
+      "dataAttributes": {}
+    },
+    {
+      "name": "input-otp",
+      "registryType": "registry:ui",
+      "title": "Input OTP",
+      "summary": "A one-time-password field with per-character slots, driven by one hidden input.",
+      "status": "stable",
+      "since": "0.9.1",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/input-otp.tsx"],
+      "publicSymbols": [
+        {
+          "name": "InputOTP",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-otp.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "InputOTPGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-otp.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "InputOTPSlot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-otp.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "InputOTPSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/input-otp.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no variant dimension for this component."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no size dimension for this component."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "active", "filled", "disabled", "invalid"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/input-otp.tsx + packages/ui/registry/ui/input-otp.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "active", "invalid", "disabled"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["animate-caret-blink on the fake caret"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
+        }
+      },
+      "engines": ["input-otp"],
+      "docsSlug": "/docs/components/input-otp",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "input-otp@^1.5.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/input-otp.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "input-otp",
+      "dataAttributes": {}
     },
     {
       "name": "item",
@@ -13144,6 +12931,118 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "native-select",
+      "registryType": "registry:ui",
+      "title": "Native Select",
+      "summary": "The platform <select>, tokenized — the OS picker on mobile, with option groups.",
+      "status": "stable",
+      "since": "0.9.1",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/native-select.tsx"],
+      "publicSymbols": [
+        {
+          "name": "NativeSelect",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/native-select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "NativeSelectOption",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/native-select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "NativeSelectOptGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/native-select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no variant dimension for this component."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default"],
+            "evidence": "packages/ui/registry/ui/native-select.tsx: size prop"
+          }
+        ]
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "disabled", "invalid"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/native-select.tsx + packages/ui/registry/ui/native-select.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus", "invalid", "disabled"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/native-select",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.4.1",
+        "@vegastack/design-tokens@^0.4.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/native-select.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "native-select",
+      "dataAttributes": {}
     },
     {
       "name": "navigation-menu",
@@ -15620,7 +15519,7 @@
       "name": "radio-group",
       "registryType": "registry:ui",
       "title": "Radio Group",
-      "summary": "A set of mutually-exclusive options — single selection, arrow-key navigation, disabled, built on Base UI Radio Group.",
+      "summary": "Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -15633,8 +15532,8 @@
           "source": "packages/ui/registry/ui/radio-group.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseRadioGroup",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -15643,98 +15542,55 @@
           "source": "packages/ui/registry/ui/radio-group.tsx",
           "ref": {
             "status": "observed",
-            "target": "Radio.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "RadioGroupItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/radio-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RadioGroupProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/radio-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "radioGroupVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/radio-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "orientation",
-            "values": ["horizontal", "vertical"],
-            "evidence": "packages/ui/registry/ui/radio-group.tsx: CVA"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": [
-            "default",
-            "checked",
-            "disabled",
-            "dragging",
-            "error",
-            "invalid",
-            "selected"
-          ],
+          "values": ["default", "checked", "disabled", "invalid"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["focus-visible", "invalid", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "checked",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/radio-group.tsx + packages/ui/registry/ui/radio-group.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": [
-            "default",
-            "hover",
-            "disabled",
-            "invalid",
-            "checked",
-            "error",
-            "dark"
-          ],
+          "values": ["default", "checked", "invalid", "disabled"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["responsive-or-container-layout"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition", "replay hook"],
+        "status": "not-applicable",
+        "mechanisms": [],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
         }
       },
       "engines": [],
@@ -15742,7 +15598,6 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -15756,34 +15611,7 @@
         "vrt": "required"
       },
       "previewModule": "radio-group",
-      "dataAttributes": {
-        "RadioGroup": {
-          "attributes": [
-            {
-              "name": "data-orientation",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["radio-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "RadioGroupItem": {
-          "attributes": [
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["radio-group-indicator", "radio-group-item"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "region-select",
@@ -16865,7 +16693,7 @@
       "name": "select",
       "registryType": "registry:ui",
       "title": "Select",
-      "summary": "A dropdown for choosing one option — trigger with value and chevron, grouped scrollable popup, full keyboard navigation, animated enter/exit.",
+      "summary": "A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -16878,130 +16706,8 @@
           "source": "packages/ui/registry/ui/select.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseSelect.Root",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/select.tsx."
-          }
-        },
-        {
-          "name": "SelectContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by SelectContent in packages/ui/registry/ui/select.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "SelectContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SelectGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseSelect.Group",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/select.tsx."
-          }
-        },
-        {
-          "name": "SelectGroupProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SelectItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseSelect.Item",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/select.tsx."
-          }
-        },
-        {
-          "name": "SelectItemProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SelectLabel",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseSelect.GroupLabel",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/select.tsx."
-          }
-        },
-        {
-          "name": "SelectLabelProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SelectList",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseSelect.List",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/select.tsx."
-          }
-        },
-        {
-          "name": "SelectListProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SelectProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SelectSeparator",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "BaseSelect.Separator",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/select.tsx."
-          }
-        },
-        {
-          "name": "SelectSeparatorProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -17010,26 +16716,8 @@
           "source": "packages/ui/registry/ui/select.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseSelect.Trigger",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/select.tsx."
-          }
-        },
-        {
-          "name": "SelectTriggerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "selectTriggerVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
@@ -17038,52 +16726,112 @@
           "source": "packages/ui/registry/ui/select.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseSelect.Value",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/select.tsx."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         },
         {
-          "name": "SelectValueProps",
-          "kind": "type",
+          "name": "SelectContent",
+          "kind": "component",
           "source": "packages/ui/registry/ui/select.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SelectGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SelectLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SelectItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SelectSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SelectScrollUpButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SelectScrollDownButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/select.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "observed",
         "dimensions": [
           {
             "name": "size",
-            "values": ["default", "lg", "sm"],
-            "evidence": "packages/ui/registry/ui/select.tsx: CVA"
+            "values": ["sm", "default"],
+            "evidence": "packages/ui/registry/ui/select.tsx: size prop"
           }
         ]
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": [
-            "default",
-            "disabled",
-            "error",
-            "invalid",
-            "open",
-            "selected"
-          ],
+          "values": ["default", "open", "disabled", "invalid", "selected"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["focus-visible", "invalid", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/select.tsx + packages/ui/registry/ui/select.test.tsx"
         },
         "visual": {
           "status": "observed",
@@ -17091,42 +16839,31 @@
             "default",
             "hover",
             "focus",
-            "disabled",
+            "open",
             "invalid",
-            "error",
-            "dark"
+            "disabled"
           ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "text-truncation-and-flex-shrink",
-          "overflow-and-scroll",
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "tokenized CSS transition",
-          "Base UI lifecycle transition"
-        ],
+        "status": "observed",
+        "mechanisms": ["tw-animate-css keyed presence on the popup"],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/select",
-      "registryDependencies": ["@vegastack/floating-surface"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
@@ -17141,97 +16878,7 @@
         "vrt": "required"
       },
       "previewModule": "select",
-      "dataAttributes": {
-        "Select": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["select"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SelectValue": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["select-value"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SelectGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["select-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SelectTrigger": {
-          "attributes": [
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["select-icon", "select-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SelectList": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["select-list"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SelectContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["select-scroll-down", "select-scroll-up"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SelectItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "select-item",
-                "select-item-indicator",
-                "select-item-text"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SelectLabel": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["select-label"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SelectSeparator": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["select-separator"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "separator",
@@ -18716,7 +18363,7 @@
       "name": "slider",
       "registryType": "registry:ui",
       "title": "Slider",
-      "summary": "Pick a number or a [from, to] range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.",
+      "summary": "A number or range over a continuous track — horizontal or vertical, any number of thumbs.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -18729,91 +18376,54 @@
           "source": "packages/ui/registry/ui/slider.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseSlider.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SliderProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/slider.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SliderThumbVisibility",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/slider.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SliderVariant",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/slider.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "variant",
-            "values": ["bare", "default", "media", "overlay"],
-            "evidence": "packages/ui/registry/ui/slider.tsx: SliderVariant union + trackByVariant/indicatorByVariant/thumbByVariant recipes"
-          },
-          {
-            "name": "thumb",
-            "values": ["always", "hover", "none"],
-            "evidence": "packages/ui/registry/ui/slider.tsx: SliderThumbVisibility union"
-          },
-          {
-            "name": "orientation",
-            "values": ["horizontal", "vertical"],
-            "evidence": "packages/ui/registry/ui/slider.tsx: orientation prop, with data-orientation-keyed layout on every part"
-          }
-        ]
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "disabled", "dragging", "range", "vertical"],
+          "values": ["default", "range", "vertical", "disabled", "dragging"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["disabled", "focus-visible", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/slider.tsx + packages/ui/registry/ui/slider.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "disabled", "marks", "value-readout"],
-          "evidence": "Observed from token classes, the per-variant rail/fill/thumb recipes, the aria-hidden mark ticks, the showValue floating readout, and state selectors."
+          "values": ["default", "hover", "focus", "disabled"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll", "mobile-or-touch-mode"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "The track fills its container in both orientations."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["CSS utility motion-reduce", "tokenized CSS transition"],
+        "status": "not-applicable",
+        "mechanisms": [],
         "reducedMotion": {
-          "status": "observed-or-documented",
-          "rationale": "Source explicitly implements or documents reduced motion."
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
         }
       },
       "engines": [],
@@ -18834,34 +18444,7 @@
         "vrt": "required"
       },
       "previewModule": "slider",
-      "dataAttributes": {
-        "Slider": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "slider",
-                "slider-control",
-                "slider-indicator",
-                "slider-mark",
-                "slider-marks",
-                "slider-thumb",
-                "slider-track",
-                "slider-value"
-              ]
-            },
-            {
-              "name": "data-thumb",
-              "values": []
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": ["--slider-mark"]
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "sortable-list",
@@ -19878,7 +19461,7 @@
       "name": "switch",
       "registryType": "registry:ui",
       "title": "Switch",
-      "summary": "An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.",
+      "summary": "An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -19891,90 +19474,60 @@
           "source": "packages/ui/registry/ui/switch.tsx",
           "ref": {
             "status": "observed",
-            "target": "BaseSwitch.Root",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SwitchProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/switch.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "switchThumbVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/switch.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "switchVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/switch.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "observed",
         "dimensions": [
           {
             "name": "size",
-            "values": ["default", "lg", "sm"],
-            "evidence": "packages/ui/registry/ui/switch.tsx: CVA; packages/ui/registry/ui/switch.tsx: prop union"
+            "values": ["sm", "default"],
+            "evidence": "packages/ui/registry/ui/switch.tsx: size prop"
           }
         ]
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": [
-            "default",
-            "checked",
-            "disabled",
-            "error",
-            "expanded",
-            "invalid",
-            "saving"
-          ],
+          "values": ["default", "checked", "disabled", "invalid"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["focus-visible", "invalid", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "checked",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/switch.tsx + packages/ui/registry/ui/switch.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "disabled", "invalid", "checked", "error"],
+          "values": ["default", "checked", "invalid", "disabled"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["responsive-or-container-layout"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
+        "status": "not-applicable",
+        "mechanisms": [],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
         }
       },
       "engines": [],
@@ -19982,7 +19535,6 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.4.1",
         "@vegastack/design-tokens@^0.4.0"
       ],
@@ -19996,21 +19548,7 @@
         "vrt": "required"
       },
       "previewModule": "switch",
-      "dataAttributes": {
-        "Switch": {
-          "attributes": [
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["switch", "switch-thumb"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "table",
@@ -21112,7 +20650,7 @@
       "name": "textarea",
       "registryType": "registry:ui",
       "title": "Textarea",
-      "summary": "A styled native textarea for multi-line text — error/disabled states, a focus border tint, and an optional auto-grow mode.",
+      "summary": "A styled native textarea that grows with its content, with the text-entry focus border tint (FOC-3).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -21125,63 +20663,47 @@
           "source": "packages/ui/registry/ui/textarea.tsx",
           "ref": {
             "status": "observed",
-            "target": "textarea",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TextareaProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/textarea.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
           }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "rationale": "Upstream ships no size dimension for this component."
       },
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "disabled", "error", "invalid"],
+          "values": ["default", "disabled", "invalid"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["invalid", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "invalid",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/textarea.tsx + packages/ui/registry/ui/textarea.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": [
-            "default",
-            "focus",
-            "disabled",
-            "invalid",
-            "error",
-            "dark"
-          ],
+          "values": ["default", "focus", "invalid", "disabled"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "text-truncation-and-flex-shrink",
-          "overflow-and-scroll",
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": [],
+        "rationale": "Upstream's own layout; no component-owned responsive branch."
       },
       "motion": {
         "status": "not-applicable",
@@ -21208,21 +20730,7 @@
         "vrt": "required"
       },
       "previewModule": "textarea",
-      "dataAttributes": {
-        "Textarea": {
-          "attributes": [
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["textarea"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "timeline",

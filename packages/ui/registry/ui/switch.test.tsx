@@ -1,249 +1,207 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Switch } from "./switch";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+} from "./field";
 
-test("renders a switch with the slot and default size attributes", async () => {
-  const screen = await render(<Switch aria-label="Notifications" />);
-  const sw = screen.getByRole("switch", { name: "Notifications" });
-  await expect.element(sw).toBeInTheDocument();
-  await expect.element(sw).toHaveAttribute("data-slot", "switch");
-  await expect.element(sw).toHaveAttribute("data-size", "md");
-  // Starts unchecked.
-  await expect.element(sw).toHaveAttribute("aria-checked", "false");
+/** Upstream's two size tiers. */
+const SIZES = ["sm", "default"] as const;
+
+const rootClasses = (screen: { container: HTMLElement }) =>
+  (screen.container.querySelector('[data-slot="switch"]') as HTMLElement)
+    .className;
+
+test("renders a switch carrying data-slot, data-size and aria-checked (Usage)", async () => {
+  const screen = await render(<Switch aria-label="Airplane mode" />);
+  const control = screen.getByRole("switch", { name: "Airplane mode" });
+  await expect.element(control).toHaveAttribute("data-slot", "switch");
+  await expect.element(control).toHaveAttribute("data-size", "default");
+  await expect.element(control).toHaveAttribute("aria-checked", "false");
 });
 
-test("toggles on click and fires onCheckedChange", async () => {
-  const onCheckedChange = vi.fn();
+test("the thumb renders inside the track (Usage)", async () => {
+  const screen = await render(<Switch aria-label="Airplane mode" />);
+  expect(
+    screen.container.querySelector('[data-slot="switch-thumb"]'),
+  ).not.toBeNull();
+});
+
+/*
+ * Base UI renders this control as a `<span role="…">`, and this lane compiles no Tailwind, so the
+ * element has a zero-size box and Playwright refuses to click it ("element is not visible"). A
+ * NATIVE `.click()` exercises the same handler without a hit test — the convention this repository
+ * has used for every span-rendered control since the Base UI migration. The RENDERED pointer target
+ * is proven separately, on compiled CSS, by `test/geometry.browser.test.tsx`.
+ */
+test("clicking flips the checked state (Usage)", async () => {
+  const screen = await render(<Switch aria-label="Airplane mode" />);
+  const control = screen.getByRole("switch", { name: "Airplane mode" });
+  (control.element() as HTMLElement).click();
+  await expect.element(control).toHaveAttribute("aria-checked", "true");
+  await expect.element(control).toHaveAttribute("data-checked", "");
+  (control.element() as HTMLElement).click();
+  await expect.element(control).toHaveAttribute("data-unchecked", "");
+});
+
+/*
+ * One render, every size. Repeated `render()` calls inside ONE test accumulate in the page, and
+ * `screen.getByRole` is page-scoped, so a loop that re-renders leaves several matches behind and
+ * Playwright fails on strict mode rather than on the component.
+ */
+test("every upstream size sets its own data-size (Size)", async () => {
   const screen = await render(
-    <Switch aria-label="Notifications" onCheckedChange={onCheckedChange} />,
+    <div>
+      {SIZES.map((size) => (
+        <Switch key={size} aria-label={size} size={size} />
+      ))}
+    </div>,
   );
-  const sw = screen.getByRole("switch", { name: "Notifications" });
-
-  // The thumb is empty, so the track has no intrinsic size without compiled
-  // Tailwind (CSS isn't loaded in unit tests) — dispatch a native click so the
-  // handler runs without Playwright's visibility/actionability checks.
-  sw.element().dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  expect(onCheckedChange).toHaveBeenCalledTimes(1);
-  expect(onCheckedChange).toHaveBeenLastCalledWith(true, expect.anything());
-  await expect.element(sw).toHaveAttribute("aria-checked", "true");
-  await expect.element(sw).toHaveAttribute("data-checked");
-
-  sw.element().dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  expect(onCheckedChange).toHaveBeenCalledTimes(2);
-  expect(onCheckedChange).toHaveBeenLastCalledWith(false, expect.anything());
-  await expect.element(sw).toHaveAttribute("aria-checked", "false");
-  await expect.element(sw).toHaveAttribute("data-unchecked");
+  const controls = [
+    ...screen.container.querySelectorAll('[data-slot="switch"]'),
+  ];
+  expect(controls.map((c) => c.getAttribute("data-size"))).toEqual([...SIZES]);
 });
 
-test("renders an initial on state from defaultChecked", async () => {
-  const screen = await render(<Switch aria-label="Dark mode" defaultChecked />);
-  await expect
-    .element(screen.getByRole("switch", { name: "Dark mode" }))
-    .toHaveAttribute("aria-checked", "true");
-});
-
-test("a disabled switch does not toggle or fire onCheckedChange", async () => {
-  const onCheckedChange = vi.fn();
+test("a horizontal Field pairs the switch with a label and description (Description)", async () => {
   const screen = await render(
-    <Switch aria-label="Locked" disabled onCheckedChange={onCheckedChange} />,
+    <Field orientation="horizontal">
+      <FieldContent>
+        <FieldLabel htmlFor="focus-mode">Share across devices</FieldLabel>
+        <FieldDescription>Focus is shared across devices.</FieldDescription>
+      </FieldContent>
+      <Switch id="focus-mode" />
+    </Field>,
   );
-  const sw = screen.getByRole("switch", { name: "Locked" });
-  await expect.element(sw).toBeDisabled();
-  await expect.element(sw).toHaveAttribute("data-disabled");
-
-  // Native click bypasses pointer-events; the handler must still not fire.
-  sw.element().dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  expect(onCheckedChange).not.toHaveBeenCalled();
-  await expect.element(sw).toHaveAttribute("aria-checked", "false");
-});
-
-test("reflects the size variant on the data-size attribute", async () => {
-  const screen = await render(<Switch aria-label="Compact" size="sm" />);
   await expect
-    .element(screen.getByRole("switch", { name: "Compact" }))
-    .toHaveAttribute("data-size", "sm");
+    .element(screen.getByRole("switch", { name: "Share across devices" }))
+    .toBeInTheDocument();
 });
 
-test("no a11y violations with an accessible name", async () => {
-  const screen = await render(<Switch aria-label="Wireless" />);
+test("a choice card wraps the whole Field in its label (Choice Card)", async () => {
+  const screen = await render(
+    <FieldGroup>
+      <FieldLabel htmlFor="share">
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldTitle>Share across devices</FieldTitle>
+            <FieldDescription>Off when you leave the app.</FieldDescription>
+          </FieldContent>
+          <Switch id="share" />
+        </Field>
+      </FieldLabel>
+    </FieldGroup>,
+  );
+  const control = screen.container.querySelector('[role="switch"]');
+  expect(control?.closest('[data-slot="field-label"]')).not.toBeNull();
+});
+
+test("disabled blocks activation (Disabled)", async () => {
+  let changes = 0;
+  const screen = await render(
+    <Switch
+      aria-label="Airplane mode"
+      disabled
+      onCheckedChange={() => (changes += 1)}
+    />,
+  );
+  const control = screen.getByRole("switch", { name: "Airplane mode" });
+  await expect.element(control).toHaveAttribute("data-disabled", "");
+  (control.element() as HTMLElement).click();
+  expect(changes).toBe(0);
+});
+
+test("aria-invalid reaches the element (Invalid)", async () => {
+  const screen = await render(
+    <Switch aria-label="Accept terms" aria-invalid />,
+  );
+  await expect
+    .element(screen.getByRole("switch", { name: "Accept terms" }))
+    .toHaveAttribute("aria-invalid", "true");
+});
+
+test("RTL: the thumb translation has a logical counterpart (RTL)", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Switch aria-label="المشاركة" defaultChecked />
+    </div>,
+  );
+  const thumb = screen.container.querySelector(
+    '[data-slot="switch-thumb"]',
+  ) as HTMLElement;
+  expect(thumb.className).toContain("rtl:group-data-[size=default]/switch:");
+  expect(getComputedStyle(thumb).direction).toBe("rtl");
+});
+
+test("A11Y-2: an invisible ::after extends the pointer target past 24px", async () => {
+  const classes = rootClasses(await render(<Switch aria-label="Switch" />));
+  expect(classes).toContain("after:absolute");
+  expect(classes).toContain("after:-inset-x-3");
+  expect(classes).toContain("after:-inset-y-2");
+});
+
+test("FOC-1/FOC-6: the recipe carries no focus glow and no outline suppression", async () => {
+  const classes = rootClasses(await render(<Switch aria-label="Switch" />));
+  expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+  expect(classes).not.toContain("focus-visible:ring-");
+  expect(classes).not.toContain("focus-visible:border-ring");
+  expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
+  expect(classes).not.toContain("aria-invalid:ring-destructive");
+});
+
+test("FOC-5: the invalid tint stands down while the control is focused", async () => {
+  const classes = rootClasses(await render(<Switch aria-label="Switch" />));
+  expect(classes).toContain("not-focus:aria-invalid:border-destructive");
+});
+
+test("FOC-12: the control never cancels its own ring for a choice card", async () => {
+  const classes = rootClasses(await render(<Switch aria-label="Switch" />));
+  expect(classes).not.toContain("group-has-[:focus-visible]/field-label:");
+});
+
+test("no a11y violations — rest", async () => {
+  const screen = await render(
+    <Field orientation="horizontal">
+      <Switch id="a11y-rest" />
+      <FieldLabel htmlFor="a11y-rest">Airplane mode</FieldLabel>
+    </Field>,
+  );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — checked", async () => {
-  const screen = await render(<Switch aria-label="Wireless" defaultChecked />);
+  const screen = await render(
+    <Field orientation="horizontal">
+      <Switch id="a11y-checked" defaultChecked />
+      <FieldLabel htmlFor="a11y-checked">Airplane mode</FieldLabel>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — invalid", async () => {
+  const screen = await render(
+    <Field orientation="horizontal" data-invalid>
+      <Switch id="a11y-invalid" aria-invalid />
+      <FieldLabel htmlFor="a11y-invalid">Accept terms</FieldLabel>
+    </Field>,
+  );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — disabled", async () => {
-  const screen = await render(<Switch aria-label="Locked" disabled />);
-  await expectNoA11yViolations(screen.container);
-});
-
-test("invalid carries no visual treatment on the control — only aria-invalid", async () => {
-  const screen = await render(<Switch aria-label="Terms" aria-invalid />);
-  const sw = screen.getByRole("switch", { name: "Terms" });
-  await expect.element(sw).toHaveAttribute("aria-invalid", "true");
-  const root = sw.element();
-  // No destructive track border …
-  expect(root.classList.contains("aria-invalid:border-destructive/70")).toBe(
-    false,
-  );
-  // … and no status-dot pseudo-element either. The Field's error copy is the only invalid cue.
-  const hasInvalidDot = Array.from(root.classList).some((c) =>
-    c.startsWith("aria-invalid:after:"),
-  );
-  expect(hasInvalidDot).toBe(false);
-  await expectNoA11yViolations(screen.container);
-});
-
-test("render composes a custom root element while keeping slot + classes", async () => {
-  // Base UI's `render` replaces the root host element
-  // but merges our wrapper's data-slot, className, and role onto it.
   const screen = await render(
-    <Switch
-      aria-label="Notifications"
-      className="sentinel-switch"
-      render={<div data-testid="custom-switch-root" />}
-    />,
+    <Field orientation="horizontal" data-disabled>
+      <Switch id="a11y-disabled" disabled />
+      <FieldLabel htmlFor="a11y-disabled">Airplane mode</FieldLabel>
+    </Field>,
   );
-  const sw = screen.getByRole("switch", { name: "Notifications" });
-  const el = sw.element() as HTMLElement;
-  expect(el.tagName).toBe("DIV");
-  expect(el.getAttribute("data-testid")).toBe("custom-switch-root");
-  await expect.element(sw).toHaveAttribute("data-slot", "switch");
-  expect(el.classList.contains("sentinel-switch")).toBe(true);
-});
-
-test("supports nativeButton composition for sibling htmlFor labels", async () => {
-  const screen = await render(
-    <div>
-      <label htmlFor="notifications-switch">Notifications</label>
-      <Switch
-        id="notifications-switch"
-        nativeButton
-        render={<button type="button" />}
-      />
-    </div>,
-  );
-  const sw = screen.getByRole("switch", { name: "Notifications" });
-  expect((sw.element() as HTMLElement).tagName).toBe("BUTTON");
-});
-
-test("forwards ref to the underlying switch root element", async () => {
-  // Base UI's Switch.Root renders a `<span role="switch">` (not a native
-  // <button>) plus a hidden <input> — so the forwarded ref lands on that span.
-  const ref = React.createRef<HTMLSpanElement>();
-  await render(<Switch ref={ref} aria-label="Notifications" />);
-  expect(ref.current).toBeInstanceOf(HTMLSpanElement);
-  expect(ref.current?.getAttribute("role")).toBe("switch");
-  expect(ref.current?.dataset.slot).toBe("switch");
-});
-
-/* ---------------------------------------------------------------------------------------------
- * Touch-target remediation (WCAG 2.5.8) — effective hit-area measurement.
- *
- * Same rationale/technique as checkbox.test.tsx: this harness runs without compiled Tailwind, so
- * `before:-inset-y-*` never resolves to real CSS here. Each test injects a literal <style> tag
- * that is a 1:1 mirror of the exact utilities plus the real 1px transparent border, keyed to the switch's own `data-slot`/
- * `data-size` attributes (real regardless of compiled CSS), then measures the REAL,
- * browser-computed layout against it.
- *
- * `sm`/`default` are fixed VERTICALLY only (`before:inset-x-0 before:-inset-y-*`) — width already
- * clears 24px at every size, so only height needs help. `lg` is intentionally left unmirrored /
- * untested here: it already renders at 24×44, so the component adds no `before` pseudo for it.
- * ------------------------------------------------------------------------------------------- */
-
-function injectSwitchHitAreaMirror(): () => void {
-  const style = document.createElement("style");
-  style.textContent = `
-    body { margin: 24px; }
-    [data-slot="switch"] { position: relative; display: inline-flex; box-sizing: border-box; border: 1px solid transparent; }
-    [data-slot="switch"][data-size="sm"] { width: 28px; height: 16px; }
-    [data-slot="switch"][data-size="md"] { width: 36px; height: 20px; }
-    [data-slot="switch"][data-size="sm"]::before { content: ""; position: absolute; left: 0; right: 0; top: -6px; bottom: -6px; }
-    [data-slot="switch"][data-size="md"]::before { content: ""; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
-  `;
-  document.head.appendChild(style);
-  return () => document.head.removeChild(style);
-}
-
-test("sm size (16px tall) resolves an effective hit area >= 24x24 via the before pseudo-element", async () => {
-  const cleanup = injectSwitchHitAreaMirror();
-  try {
-    const screen = await render(<Switch aria-label="Compact" size="sm" />);
-    const el = screen
-      .getByRole("switch", { name: "Compact" })
-      .element() as HTMLElement;
-    el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    // Width remains above 24px; only height needs expansion.
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
-  } finally {
-    cleanup();
-  }
-});
-
-test("default size (20px tall) resolves an effective hit area >= 24x24 via the before pseudo-element", async () => {
-  const cleanup = injectSwitchHitAreaMirror();
-  try {
-    const screen = await render(<Switch aria-label="Notifications" />);
-    const el = screen
-      .getByRole("switch", { name: "Notifications" })
-      .element() as HTMLElement;
-    el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    // Width remains above 24px; only height needs expansion.
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
-  } finally {
-    cleanup();
-  }
-});
-
-test("a point just above the visual track, inside the expanded hit area, still hits and toggles the switch", async () => {
-  const cleanup = injectSwitchHitAreaMirror();
-  try {
-    const onCheckedChange = vi.fn();
-    const screen = await render(
-      <Switch
-        aria-label="Compact"
-        size="sm"
-        onCheckedChange={onCheckedChange}
-      />,
-    );
-    const el = screen
-      .getByRole("switch", { name: "Compact" })
-      .element() as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    // 3px above the visual top edge — inside the 6px expansion, outside the 16px track.
-    const x = rect.left + rect.width / 2;
-    const y = rect.top - 3;
-    const hit = document.elementFromPoint(x, y);
-    expect(hit).toBe(el);
-    (hit as HTMLElement).click();
-    expect(onCheckedChange).toHaveBeenCalledTimes(1);
-  } finally {
-    cleanup();
-  }
-});
-
-test("a point beyond the expanded hit area does not resolve to the switch", async () => {
-  const cleanup = injectSwitchHitAreaMirror();
-  try {
-    const screen = await render(<Switch aria-label="Compact" size="sm" />);
-    const el = screen
-      .getByRole("switch", { name: "Compact" })
-      .element() as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    // 8px above the visual top edge — beyond the 6px expansion boundary.
-    const x = rect.left + rect.width / 2;
-    const y = rect.top - 8;
-    const hit = document.elementFromPoint(x, y);
-    expect(hit).not.toBe(el);
-  } finally {
-    cleanup();
-  }
+  await expectNoA11yViolations(screen.container);
 });

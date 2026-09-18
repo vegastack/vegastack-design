@@ -12,6 +12,11 @@ import {
 } from "@/components/ui/data-list";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -303,18 +308,21 @@ export function dataListComposed(): ReactNode {
         sort={sort}
         onSortChange={setSort}
         toolbar={
-          <Input
-            type="search"
-            placeholder="Search people…"
-            value={query}
-            prefix={<Search className="size-4" aria-hidden />}
-            aria-label="Search people"
-            containerClassName="max-w-xs"
-            onChange={(e) => {
-              setQuery(e.currentTarget.value);
-              setPage(0);
-            }}
-          />
+          <InputGroup className="max-w-xs">
+            <InputGroupAddon>
+              <Search className="size-4" aria-hidden />
+            </InputGroupAddon>
+            <InputGroupInput
+              type="search"
+              placeholder="Search people…"
+              value={query}
+              aria-label="Search people"
+              onChange={(e) => {
+                setQuery(e.currentTarget.value);
+                setPage(0);
+              }}
+            />
+          </InputGroup>
         }
         footer={
           <div className="flex items-center justify-between">

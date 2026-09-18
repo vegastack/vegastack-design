@@ -29,7 +29,6 @@ export function actionBar(): ReactNode {
         {ROWS.map((row) => (
           <label key={row} className="flex items-center gap-2 text-sm">
             <Checkbox
-              size="sm"
               checked={selected.has(row)}
               onCheckedChange={() => toggle(row)}
               aria-label={`Select ${row}`}

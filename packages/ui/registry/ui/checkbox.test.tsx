@@ -1,284 +1,225 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Checkbox } from "./checkbox";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "./field";
 
-test("renders an unchecked checkbox by default", async () => {
-  const screen = await render(<Checkbox aria-label="Accept terms" />);
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
+const classesOf = (screen: { container: HTMLElement }) =>
+  (screen.container.querySelector('[data-slot="checkbox"]') as HTMLElement)
+    .className;
+
+test("renders a checkbox carrying data-slot and aria-checked (Usage)", async () => {
+  const screen = await render(<Checkbox aria-label="Accept" />);
+  const checkbox = screen.getByRole("checkbox", { name: "Accept" });
   await expect.element(checkbox).toBeInTheDocument();
   await expect.element(checkbox).toHaveAttribute("data-slot", "checkbox");
   await expect.element(checkbox).toHaveAttribute("aria-checked", "false");
 });
 
-test("toggles on click and fires onCheckedChange", async () => {
-  const onCheckedChange = vi.fn();
-  const screen = await render(
-    <Checkbox aria-label="Accept terms" onCheckedChange={onCheckedChange} />,
-  );
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-
-  // Native click: Tailwind layout utilities aren't compiled in the vitest browser
-  // run, so the size-4 box collapses to zero and Playwright's visibility hit-test
-  // fails. The element's click handler still toggles the checkbox.
+/*
+ * Base UI renders this control as a `<span role="…">`, and this lane compiles no Tailwind, so the
+ * element has a zero-size box and Playwright refuses to click it ("element is not visible"). A
+ * NATIVE `.click()` exercises the same handler without a hit test — the convention this repository
+ * has used for every span-rendered control since the Base UI migration. The RENDERED pointer target
+ * is proven separately, on compiled CSS, by `test/geometry.browser.test.tsx`.
+ */
+test("clicking toggles the checked state (Checked State)", async () => {
+  const screen = await render(<Checkbox aria-label="Accept" />);
+  const checkbox = screen.getByRole("checkbox", { name: "Accept" });
   (checkbox.element() as HTMLElement).click();
-  expect(onCheckedChange).toHaveBeenCalledTimes(1);
-  expect(onCheckedChange).toHaveBeenLastCalledWith(true, expect.anything());
   await expect.element(checkbox).toHaveAttribute("aria-checked", "true");
-  await expect.element(checkbox).toHaveAttribute("data-checked");
-
+  await expect.element(checkbox).toHaveAttribute("data-checked", "");
   (checkbox.element() as HTMLElement).click();
-  expect(onCheckedChange).toHaveBeenCalledTimes(2);
-  expect(onCheckedChange).toHaveBeenLastCalledWith(false, expect.anything());
   await expect.element(checkbox).toHaveAttribute("aria-checked", "false");
 });
 
-test("renders checked when defaultChecked is set", async () => {
-  const screen = await render(
-    <Checkbox aria-label="Subscribe" defaultChecked />,
-  );
-  const checkbox = screen.getByRole("checkbox", { name: "Subscribe" });
-  await expect.element(checkbox).toHaveAttribute("aria-checked", "true");
-  await expect.element(checkbox).toHaveAttribute("data-checked");
-});
-
-test("disabled prevents toggling", async () => {
-  const onCheckedChange = vi.fn();
+test("a controlled checkbox follows its prop (Checked State)", async () => {
+  let checked = false;
   const screen = await render(
     <Checkbox
-      aria-label="Accept terms"
-      disabled
-      onCheckedChange={onCheckedChange}
+      aria-label="Accept"
+      checked={checked}
+      onCheckedChange={(next) => (checked = next)}
     />,
   );
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-  await expect.element(checkbox).toBeDisabled();
-  await expect.element(checkbox).toHaveAttribute("data-disabled");
-
-  // Native click bypasses pointer-events; the handler must still not fire.
-  checkbox.element().dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  expect(onCheckedChange).not.toHaveBeenCalled();
+  (
+    screen.getByRole("checkbox", { name: "Accept" }).element() as HTMLElement
+  ).click();
+  expect(checked).toBe(true);
 });
 
-test("indeterminate reflects the mixed state", async () => {
+test("indeterminate reports the mixed state (Checked State, Table)", async () => {
   const screen = await render(
     <Checkbox aria-label="Select all" indeterminate />,
   );
-  const checkbox = screen.getByRole("checkbox", { name: "Select all" });
-  await expect.element(checkbox).toHaveAttribute("aria-checked", "mixed");
-  await expect.element(checkbox).toHaveAttribute("data-indeterminate");
-});
-
-test("applies the size data attribute", async () => {
-  const screen = await render(<Checkbox aria-label="Compact" size="sm" />);
   await expect
-    .element(screen.getByRole("checkbox", { name: "Compact" }))
-    .toHaveAttribute("data-size", "sm");
+    .element(screen.getByRole("checkbox", { name: "Select all" }))
+    .toHaveAttribute("aria-checked", "mixed");
 });
 
-test("forwards ref to the underlying checkbox root element", async () => {
-  // Base UI's Checkbox.Root renders a <span role="checkbox"> (not a native button);
-  // the forwarded ref lands on that root element (carrying data-slot="checkbox").
-  const ref = React.createRef<HTMLElement>();
-  await render(<Checkbox ref={ref} aria-label="Accept terms" />);
-  expect(ref.current).toBeInstanceOf(HTMLSpanElement);
-  expect(ref.current?.dataset.slot).toBe("checkbox");
+test("the indicator renders inside the control (Usage)", async () => {
+  const screen = await render(<Checkbox aria-label="Accept" defaultChecked />);
+  const indicator = screen.container.querySelector(
+    '[data-slot="checkbox-indicator"]',
+  );
+  expect(indicator).not.toBeNull();
 });
 
-test("render composes a custom root element while keeping slot + classes", async () => {
-  // Base UI's `render` replaces the root host element
-  // but merges our wrapper's data-slot, className, and role onto it.
+test("aria-invalid reaches the element (Invalid State)", async () => {
+  const screen = await render(<Checkbox aria-label="Accept" aria-invalid />);
+  await expect
+    .element(screen.getByRole("checkbox", { name: "Accept" }))
+    .toHaveAttribute("aria-invalid", "true");
+});
+
+test("a FieldLabel bound with htmlFor names the control (Basic, Description)", async () => {
+  const screen = await render(
+    <Field orientation="horizontal">
+      <Checkbox id="terms" />
+      <FieldLabel htmlFor="terms">Accept terms and conditions</FieldLabel>
+    </Field>,
+  );
+  await expect
+    .element(
+      screen.getByRole("checkbox", { name: "Accept terms and conditions" }),
+    )
+    .toBeInTheDocument();
+});
+
+test("disabled blocks activation (Disabled)", async () => {
+  let changes = 0;
   const screen = await render(
     <Checkbox
-      aria-label="Accept terms"
-      className="sentinel-checkbox"
-      render={<div data-testid="custom-checkbox-root" />}
+      aria-label="Accept"
+      disabled
+      onCheckedChange={() => (changes += 1)}
     />,
   );
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-  const el = checkbox.element() as HTMLElement;
-  // The custom <div> is the root (not the default <span>).
-  expect(el.tagName).toBe("DIV");
-  expect(el.getAttribute("data-testid")).toBe("custom-checkbox-root");
-  // Our wrapper's slot + class still apply through the composition.
-  await expect.element(checkbox).toHaveAttribute("data-slot", "checkbox");
-  expect(el.classList.contains("sentinel-checkbox")).toBe(true);
+  const checkbox = screen.getByRole("checkbox", { name: "Accept" });
+  await expect.element(checkbox).toBeDisabled();
+  (checkbox.element() as HTMLElement).click();
+  expect(changes).toBe(0);
 });
 
-test("supports nativeButton composition for sibling htmlFor labels", async () => {
+test("a FieldSet groups a checkbox list under one legend (Group)", async () => {
   const screen = await render(
-    <div>
-      <label htmlFor="terms-checkbox">Accept terms</label>
-      <Checkbox
-        id="terms-checkbox"
-        nativeButton
-        render={<button type="button" />}
-      />
+    <FieldSet>
+      <FieldLegend variant="label">Show on the desktop</FieldLegend>
+      <FieldDescription>Pick the items to show.</FieldDescription>
+      <FieldGroup>
+        <Field orientation="horizontal">
+          <Checkbox id="disks" defaultChecked />
+          <FieldLabel htmlFor="disks">Hard disks</FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="servers" />
+          <FieldLabel htmlFor="servers">Connected servers</FieldLabel>
+        </Field>
+      </FieldGroup>
+    </FieldSet>,
+  );
+  expect(screen.container.querySelectorAll('[role="checkbox"]').length).toBe(2);
+  await expect
+    .element(screen.getByRole("checkbox", { name: "Hard disks" }))
+    .toHaveAttribute("aria-checked", "true");
+});
+
+test("RTL: the control inherits direction from its container (RTL)", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <Checkbox aria-label="قبول" />
     </div>,
   );
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-  expect((checkbox.element() as HTMLElement).tagName).toBe("BUTTON");
+  const checkbox = screen
+    .getByRole("checkbox", { name: "قبول" })
+    .element() as HTMLElement;
+  expect(getComputedStyle(checkbox).direction).toBe("rtl");
 });
 
-test("no a11y violations when labelled", async () => {
+test("A11Y-2: an invisible ::after extends the pointer target past 24px", async () => {
+  const screen = await render(<Checkbox aria-label="Accept" />);
+  const classes = classesOf(screen);
+  expect(classes).toContain("after:absolute");
+  expect(classes).toContain("after:-inset-x-3");
+  expect(classes).toContain("after:-inset-y-2");
+});
+
+test("FOC-1/FOC-6: the recipe carries no focus glow and no outline suppression", async () => {
+  const classes = classesOf(await render(<Checkbox aria-label="Accept" />));
+  expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+  expect(classes).not.toContain("focus-visible:ring-");
+  expect(classes).not.toContain("focus-visible:border-ring");
+  expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
+  expect(classes).not.toContain("aria-invalid:ring-destructive");
+});
+
+test("FOC-5: the invalid tint stands down while the control is focused", async () => {
+  const classes = classesOf(await render(<Checkbox aria-label="Accept" />));
+  expect(classes).toContain("not-focus:aria-invalid:border-destructive");
+  expect(classes).toContain(
+    "not-focus:aria-invalid:aria-checked:border-primary",
+  );
+});
+
+test("FOC-12: the control never cancels its own ring for a choice card", async () => {
+  const classes = classesOf(await render(<Checkbox aria-label="Accept" />));
+  expect(classes).not.toContain("group-has-[:focus-visible]/field-label:");
+});
+
+test("no a11y violations — rest", async () => {
   const screen = await render(
-    <label>
-      Accept terms
-      <Checkbox name="terms" />
-    </label>,
+    <Field orientation="horizontal">
+      <Checkbox id="a11y-rest" />
+      <FieldLabel htmlFor="a11y-rest">Accept</FieldLabel>
+    </Field>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — checked", async () => {
   const screen = await render(
-    <label>
-      Accept terms
-      <Checkbox name="terms" defaultChecked />
-    </label>,
+    <Field orientation="horizontal">
+      <Checkbox id="a11y-checked" defaultChecked />
+      <FieldLabel htmlFor="a11y-checked">Accept</FieldLabel>
+    </Field>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — indeterminate", async () => {
   const screen = await render(
-    <Checkbox aria-label="Select all" indeterminate />,
+    <Field orientation="horizontal">
+      <Checkbox id="a11y-mixed" indeterminate />
+      <FieldLabel htmlFor="a11y-mixed">Select all</FieldLabel>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — invalid", async () => {
+  const screen = await render(
+    <Field orientation="horizontal" data-invalid>
+      <Checkbox id="a11y-invalid" aria-invalid />
+      <FieldLabel htmlFor="a11y-invalid">Accept</FieldLabel>
+    </Field>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — disabled", async () => {
-  const screen = await render(<Checkbox aria-label="Accept terms" disabled />);
+  const screen = await render(
+    <Field orientation="horizontal" data-disabled>
+      <Checkbox id="a11y-disabled" disabled />
+      <FieldLabel htmlFor="a11y-disabled">Accept</FieldLabel>
+    </Field>,
+  );
   await expectNoA11yViolations(screen.container);
-});
-
-/* ---------------------------------------------------------------------------------------------
- * Touch-target remediation (WCAG 2.5.8) — effective hit-area measurement.
- *
- * This suite runs WITHOUT compiled Tailwind (see the note on "toggles on click" above — the
- * size-4 box itself collapses to zero in this harness), so `before:-inset-1` etc. never resolve
- * to real CSS here either. To still get a REAL, browser-computed measurement of the effective hit
- * area (not a hand-rolled arithmetic assertion), each test injects a small literal <style> tag
- * that is a 1:1, mechanical mirror of what these EXACT Tailwind utility values compile to
- * (including the real 1px border, which makes the pseudo-element containing box 2px smaller),
- * keyed to the checkbox's own `data-slot`/`data-size` attributes (real regardless of
- * compiled CSS). Chromium then does real layout + hit-testing against it — this measures the
- * actual rendered geometry those exact class values produce, not our assumption about them.
- * ------------------------------------------------------------------------------------------- */
-
-function injectCheckboxHitAreaMirror(): () => void {
-  const style = document.createElement("style");
-  style.textContent = `
-    /* Body margin so the checkbox isn't flush against the viewport edge — the boundary probes
-       below need room to sample points OUTSIDE the visual box on every side. */
-    body { margin: 24px; }
-    [data-slot="checkbox"] { position: relative; display: inline-flex; box-sizing: border-box; border: 1px solid transparent; }
-    [data-slot="checkbox"][data-size="md"] { width: 16px; height: 16px; }
-    [data-slot="checkbox"][data-size="sm"] { width: 14px; height: 14px; }
-    [data-slot="checkbox"][data-size="md"]::before { content: ""; position: absolute; inset: -6px; }
-    [data-slot="checkbox"][data-size="sm"]::before { content: ""; position: absolute; inset: -6px; }
-  `;
-  document.head.appendChild(style);
-  return () => document.head.removeChild(style);
-}
-
-test("default size (16px) resolves an effective hit area >= 24x24 via the before pseudo-element", async () => {
-  const cleanup = injectCheckboxHitAreaMirror();
-  try {
-    const screen = await render(<Checkbox aria-label="Accept terms" />);
-    const el = screen
-      .getByRole("checkbox", { name: "Accept terms" })
-      .element() as HTMLElement;
-    el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
-  } finally {
-    cleanup();
-  }
-});
-
-test("sm size (14px) resolves an effective hit area >= 24x24 via the before pseudo-element", async () => {
-  const cleanup = injectCheckboxHitAreaMirror();
-  try {
-    const screen = await render(<Checkbox aria-label="Compact" size="sm" />);
-    const el = screen
-      .getByRole("checkbox", { name: "Compact" })
-      .element() as HTMLElement;
-    el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, "::before");
-    expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
-    expect(parseFloat(before.height)).toBeGreaterThanOrEqual(24);
-  } finally {
-    cleanup();
-  }
-});
-
-test("a point just outside the visual box, inside the expanded hit area, still hits and toggles the checkbox", async () => {
-  const cleanup = injectCheckboxHitAreaMirror();
-  try {
-    const onCheckedChange = vi.fn();
-    const screen = await render(
-      <Checkbox aria-label="Accept terms" onCheckedChange={onCheckedChange} />,
-    );
-    const el = screen
-      .getByRole("checkbox", { name: "Accept terms" })
-      .element() as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    // 3px above the visual top edge — inside the 6px expansion, outside the 16px box.
-    const x = rect.left + rect.width / 2;
-    const y = rect.top - 3;
-    const hit = document.elementFromPoint(x, y);
-    expect(hit).toBe(el);
-    (hit as HTMLElement).click();
-    expect(onCheckedChange).toHaveBeenCalledTimes(1);
-  } finally {
-    cleanup();
-  }
-});
-
-/* ---------------------------------------------------------------------------------------------
- * The invalid SHAKE is not here. `Field` owns it (audit D5) — one observer per field instead of
- * the same wiring in five controls — so its coverage lives in field.test.tsx. What stays here is
- * the resting invalid CHROME, which is the checkbox's own.
- * ------------------------------------------------------------------------------------------- */
-
-test("aria-invalid tints the border without any motion of its own", async () => {
-  const screen = await render(
-    <Checkbox aria-label="Accept terms" aria-invalid />,
-  );
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-  await expect.element(checkbox).toHaveAttribute("aria-invalid", "true");
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  expect((checkbox.element() as HTMLElement).className).not.toContain(
-    "motion-shake",
-  );
-});
-
-test("forwards ref to the root element", async () => {
-  const ref = React.createRef<HTMLElement>();
-  const screen = await render(
-    <Checkbox ref={ref} aria-label="Accept terms" aria-invalid />,
-  );
-  const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-  expect(ref.current).toBe(checkbox.element());
-});
-
-test("a point beyond the expanded hit area does not resolve to the checkbox", async () => {
-  const cleanup = injectCheckboxHitAreaMirror();
-  try {
-    const screen = await render(<Checkbox aria-label="Accept terms" />);
-    const el = screen
-      .getByRole("checkbox", { name: "Accept terms" })
-      .element() as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    // 8px above the visual top edge — beyond the 6px expansion boundary.
-    const x = rect.left + rect.width / 2;
-    const y = rect.top - 8;
-    const hit = document.elementFromPoint(x, y);
-    expect(hit).not.toBe(el);
-  } finally {
-    cleanup();
-  }
 });

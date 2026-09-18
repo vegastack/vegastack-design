@@ -2,292 +2,526 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
-import { RefreshCw } from "lucide-react";
+import { GlobeIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/combobox` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
 import {
   Combobox,
-  ComboboxInputGroup,
-  ComboboxInput,
-  ComboboxTrigger,
-  ComboboxClear,
-  ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxEmpty,
-  ComboboxStatus,
-  ComboboxGroup,
-  ComboboxGroupLabel,
-  ComboboxCollection,
-  ComboboxChips,
   ComboboxChip,
-  ComboboxChipRemove,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxCollection,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxLabel,
+  ComboboxList,
+  ComboboxSeparator,
+  ComboboxTrigger,
   ComboboxValue,
-  useComboboxFilteredItems,
+  useComboboxAnchor,
 } from "@/components/ui/combobox";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { InputGroupAddon } from "@/components/ui/input-group";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@/components/ui/item";
 
-const FONTS = ["Sans-serif", "Serif", "Monospace", "Cursive", "Fantasy"];
+const frameworks = [
+  "Next.js",
+  "SvelteKit",
+  "Nuxt.js",
+  "Remix",
+  "Astro",
+] as const;
 
-/**
- * Basic — a flat, filterable list. Type to narrow; `ComboboxEmpty` announces a miss. Uses the
- * recommended function-child rendering on `ComboboxList` (Base UI implicitly wraps it in a
- * `Collection`) so typing actually filters — static `ComboboxItem` children are NOT auto-filtered.
- */
+function FrameworkList(): ReactNode {
+  return (
+    <ComboboxList>
+      {(item: string) => (
+        <ComboboxItem key={item} value={item}>
+          {item}
+        </ComboboxItem>
+      )}
+    </ComboboxList>
+  );
+}
+
 export function combobox(): ReactNode {
   return (
-    <Wrapper>
-      <Combobox items={FONTS}>
-        <ComboboxInputGroup className="w-64">
-          <ComboboxInput aria-label="Font family" placeholder="Search fonts…" />
-          <ComboboxClear aria-label="Clear" />
-          <ComboboxTrigger aria-label="Toggle fonts" />
-        </ComboboxInputGroup>
-        <ComboboxContent>
-          <ComboboxEmpty>No fonts found.</ComboboxEmpty>
-          <ComboboxList>
-            {(item: string) => (
-              <ComboboxItem key={item} value={item}>
-                {item}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox items={frameworks}>
+          <ComboboxInput
+            placeholder="Select a framework"
+            aria-label="Framework"
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
     </Wrapper>
   );
 }
 
-const TIMEZONE_GROUPS = [
-  {
-    label: "North America",
-    items: ["Eastern (EST)", "Central (CST)", "Pacific (PST)"],
-  },
-  { label: "Europe", items: ["Greenwich (GMT)", "Central European (CET)"] },
-  { label: "Asia", items: ["Japan (JST)", "India (IST)"] },
-];
-
-/**
- * Grouped items via `useComboboxFilteredItems` — each group's items come from the FILTERED hook
- * result (not the original static array), so typing narrows within and across groups. See the
- * hook's JSDoc in combobox.tsx for why `ComboboxGroup`'s own `items` prop can't do this alone.
- */
-function GroupedTimezoneItems() {
-  const groups = useComboboxFilteredItems<(typeof TIMEZONE_GROUPS)[number]>();
+export function comboboxComposition(): ReactNode {
   return (
-    <>
-      {groups.map((group) => (
-        <ComboboxGroup key={group.label} items={group.items}>
-          <ComboboxGroupLabel>{group.label}</ComboboxGroupLabel>
-          <ComboboxCollection>
-            {(item: string) => (
-              <ComboboxItem key={item} value={item}>
-                {item}
-              </ComboboxItem>
-            )}
-          </ComboboxCollection>
-        </ComboboxGroup>
-      ))}
-    </>
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox items={frameworks}>
+          <ComboboxInput
+            placeholder="ComboboxInput"
+            aria-label="Composition demo"
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
   );
 }
+
+type Framework = { label: string; value: string };
+
+const frameworkObjects: Framework[] = [
+  { label: "Next.js", value: "next" },
+  { label: "SvelteKit", value: "sveltekit" },
+  { label: "Nuxt", value: "nuxt" },
+];
+
+const countries = [
+  {
+    code: "ar",
+    value: "argentina",
+    label: "Argentina",
+    continent: "South America",
+  },
+  { code: "au", value: "australia", label: "Australia", continent: "Oceania" },
+  { code: "br", value: "brazil", label: "Brazil", continent: "South America" },
+  { code: "ca", value: "canada", label: "Canada", continent: "North America" },
+  { code: "jp", value: "japan", label: "Japan", continent: "Asia" },
+  { code: "ke", value: "kenya", label: "Kenya", continent: "Africa" },
+  {
+    code: "gb",
+    value: "united-kingdom",
+    label: "United Kingdom",
+    continent: "Europe",
+  },
+];
+
+export function comboboxCustomItems(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox
+          items={countries}
+          itemToStringValue={(country: (typeof countries)[number]) =>
+            country.label
+          }
+        >
+          <ComboboxInput
+            placeholder="Search countries..."
+            aria-label="Country"
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No countries found.</ComboboxEmpty>
+            <ComboboxList>
+              {(country: (typeof countries)[number]) => (
+                <ComboboxItem key={country.code} value={country}>
+                  <Item size="xs" className="p-0">
+                    <ItemContent>
+                      <ItemTitle className="whitespace-nowrap">
+                        {country.label}
+                      </ItemTitle>
+                      <ItemDescription>
+                        {country.continent} ({country.code})
+                      </ItemDescription>
+                    </ItemContent>
+                  </Item>
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function comboboxMultipleSelection(): ReactNode {
+  const [value, setValue] = React.useState<Framework[]>([]);
+
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox
+          items={frameworkObjects}
+          itemToStringValue={(item: Framework) => item.label}
+          multiple
+          value={value}
+          onValueChange={setValue}
+        >
+          <ComboboxChips>
+            <ComboboxValue>
+              {value.map((item) => (
+                <ComboboxChip key={item.value}>{item.label}</ComboboxChip>
+              ))}
+            </ComboboxValue>
+            <ComboboxChipsInput
+              placeholder="Add framework"
+              aria-label="Add framework"
+            />
+          </ComboboxChips>
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+              {(item: Framework) => (
+                <ComboboxItem key={item.value} value={item}>
+                  {item.label}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function comboboxBasic(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox items={frameworks}>
+          <ComboboxInput
+            placeholder="Select a framework"
+            aria-label="Framework"
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function comboboxMultiple(): ReactNode {
+  const anchor = useComboboxAnchor();
+
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox
+          multiple
+          autoHighlight
+          items={frameworks}
+          defaultValue={[frameworks[0]]}
+        >
+          <ComboboxChips ref={anchor}>
+            <ComboboxValue>
+              {(values: string[]) => (
+                <React.Fragment>
+                  {values.map((value) => (
+                    <ComboboxChip key={value}>{value}</ComboboxChip>
+                  ))}
+                  <ComboboxChipsInput aria-label="Add framework" />
+                </React.Fragment>
+              )}
+            </ComboboxValue>
+          </ComboboxChips>
+          <ComboboxContent anchor={anchor}>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function comboboxClearButton(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox items={frameworks} defaultValue={frameworks[0]}>
+          <ComboboxInput
+            placeholder="Select a framework"
+            aria-label="Framework"
+            showClear
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+const timezones = [
+  {
+    value: "Americas",
+    items: ["(GMT-5) New York", "(GMT-8) Los Angeles", "(GMT-3) São Paulo"],
+  },
+  {
+    value: "Europe",
+    items: ["(GMT+0) London", "(GMT+1) Paris", "(GMT+1) Berlin"],
+  },
+  {
+    value: "Asia/Pacific",
+    items: ["(GMT+9) Tokyo", "(GMT+8) Singapore", "(GMT+11) Sydney"],
+  },
+] as const;
+
+type TimezoneGroup = (typeof timezones)[number];
 
 export function comboboxGroups(): ReactNode {
   return (
-    <Wrapper>
-      <Combobox items={TIMEZONE_GROUPS} defaultValue="Eastern (EST)">
-        <ComboboxInputGroup className="w-64">
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox items={timezones}>
           <ComboboxInput
+            placeholder="Select a timezone"
             aria-label="Timezone"
-            placeholder="Search timezones…"
           />
-          <ComboboxTrigger aria-label="Toggle timezones" />
-        </ComboboxInputGroup>
-        <ComboboxContent>
-          <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-          <ComboboxList>
-            <GroupedTimezoneItems />
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
+          <ComboboxContent>
+            <ComboboxEmpty>No timezones found.</ComboboxEmpty>
+            <ComboboxList>
+              {(group: TimezoneGroup, index: number) => (
+                <ComboboxGroup key={group.value} items={group.items}>
+                  <ComboboxLabel>{group.value}</ComboboxLabel>
+                  <ComboboxCollection>
+                    {(item: string) => (
+                      <ComboboxItem key={item} value={item}>
+                        {item}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxCollection>
+                  {index < timezones.length - 1 && <ComboboxSeparator />}
+                </ComboboxGroup>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </div>
     </Wrapper>
   );
 }
 
-const FRUITS = [
-  "Apple",
-  "Apricot",
-  "Banana",
-  "Blueberry",
-  "Cherry",
-  "Cranberry",
-  "Date",
-  "Fig",
-];
-
-/**
- * Simulated async search — a controlled `inputValue` drives a fake network request
- * (`setTimeout`); `filteredItems` is Base UI's escape hatch for externally-controlled filtering
- * (bypasses the built-in `Intl.Collator` match), so the results shown always match what the
- * "server" returned. `ComboboxStatus` announces the in-flight state with our `Spinner`; the
- * "Reset" button clears the query and simulated results back to the initial list.
- */
-function ComboboxAsyncDemo() {
-  const [inputValue, setInputValue] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [results, setResults] = React.useState<string[]>(FRUITS);
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  function search(query: string) {
-    setLoading(true);
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      const normalized = query.trim().toLowerCase();
-      setResults(
-        normalized === ""
-          ? FRUITS
-          : FRUITS.filter((fruit) => fruit.toLowerCase().includes(normalized)),
-      );
-      setLoading(false);
-    }, 600);
-  }
-
+export function comboboxInvalid(): ReactNode {
   return (
-    <div className="flex w-64 flex-col gap-3">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="self-start"
-        onClick={() => {
-          setInputValue("");
-          search("");
-        }}
-      >
-        <RefreshCw />
-        Reset
-      </Button>
-      <Combobox
-        items={FRUITS}
-        filteredItems={results}
-        inputValue={inputValue}
-        onInputValueChange={(value) => {
-          setInputValue(value);
-          search(value);
-        }}
-      >
-        <ComboboxInputGroup>
+    <Wrapper className="items-stretch">
+      <Field data-invalid className="mx-auto w-full max-w-xs">
+        <FieldLabel htmlFor="combobox-invalid">Framework</FieldLabel>
+        <Combobox items={frameworks}>
           <ComboboxInput
-            aria-label="Search fruit"
-            placeholder="Search fruit…"
+            id="combobox-invalid"
+            placeholder="Select a framework"
+            aria-invalid="true"
           />
-          <ComboboxClear aria-label="Clear" />
-          <ComboboxTrigger aria-label="Toggle fruit" />
-        </ComboboxInputGroup>
-        <ComboboxContent>
-          <ComboboxStatus>
-            {loading ? (
-              <>
-                <Spinner aria-hidden role={undefined} aria-label={undefined} />
-                Searching…
-              </>
-            ) : null}
-          </ComboboxStatus>
-          <ComboboxEmpty>{loading ? null : "No fruit found."}</ComboboxEmpty>
-          <ComboboxList>
-            {loading
-              ? null
-              : results.map((item) => (
-                  <ComboboxItem key={item} value={item}>
-                    {item}
-                  </ComboboxItem>
-                ))}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-    </div>
-  );
-}
-
-export function comboboxLoading(): ReactNode {
-  return (
-    <Wrapper>
-      <ComboboxAsyncDemo />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+        <FieldError>Choose a framework to continue.</FieldError>
+      </Field>
     </Wrapper>
   );
 }
 
-const LABELS: Record<string, string> = {
-  bug: "Bug",
-  feature: "Feature",
-  docs: "Documentation",
-  design: "Design",
-  urgent: "Urgent",
-};
-const LABEL_KEYS = Object.keys(LABELS);
-
-/**
- * Multiple selection with chips — `multiple` collects several values into an array.
- * `ComboboxChips` wraps the selected-value chips AND the input together; `ComboboxValue`'s
- * function-child renders one `ComboboxChip` per selected value, each with a `ComboboxChipRemove`.
- * `ComboboxClear` clears the whole selection.
- */
-export function comboboxMultiple(): ReactNode {
-  return (
-    <Wrapper>
-      <Combobox multiple items={LABEL_KEYS} defaultValue={["bug", "docs"]}>
-        <ComboboxInputGroup className="w-72">
-          <ComboboxChips>
-            <ComboboxValue>
-              {(value: string[]) =>
-                value.map((key) => (
-                  <ComboboxChip key={key}>
-                    {LABELS[key]}
-                    <ComboboxChipRemove aria-label={`Remove ${LABELS[key]}`} />
-                  </ComboboxChip>
-                ))
-              }
-            </ComboboxValue>
-            <ComboboxInput aria-label="Labels" placeholder="Add labels…" />
-          </ComboboxChips>
-          <ComboboxClear aria-label="Clear all labels" />
-          <ComboboxTrigger aria-label="Toggle labels" />
-        </ComboboxInputGroup>
-        <ComboboxContent>
-          <ComboboxEmpty>No labels found.</ComboboxEmpty>
-          <ComboboxList>
-            {(key: string) => (
-              <ComboboxItem key={key} value={key}>
-                {LABELS[key]}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-    </Wrapper>
-  );
-}
-
-/** A disabled root makes the whole field (input + trigger) inert. */
 export function comboboxDisabled(): ReactNode {
   return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox items={frameworks}>
+          <ComboboxInput
+            placeholder="Select a framework"
+            aria-label="Framework"
+            disabled
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function comboboxAutoHighlight(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox items={frameworks} autoHighlight>
+          <ComboboxInput
+            placeholder="Select a framework"
+            aria-label="Framework"
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function comboboxPopup(): ReactNode {
+  return (
     <Wrapper>
-      <Combobox items={FONTS} disabled defaultValue="Serif">
-        <ComboboxInputGroup className="w-64">
-          <ComboboxInput aria-label="Font (disabled)" />
-          <ComboboxTrigger aria-label="Toggle" />
-        </ComboboxInputGroup>
+      <Combobox
+        items={countries}
+        itemToStringValue={(country: (typeof countries)[number]) =>
+          country.label
+        }
+      >
+        <ComboboxTrigger
+          render={
+            <Button
+              variant="outline"
+              className="w-64 justify-between font-normal"
+            />
+          }
+        >
+          <ComboboxValue>Select country</ComboboxValue>
+        </ComboboxTrigger>
         <ComboboxContent>
+          <ComboboxInput
+            showTrigger={false}
+            placeholder="Search"
+            aria-label="Search countries"
+          />
+          <ComboboxEmpty>No countries found.</ComboboxEmpty>
           <ComboboxList>
-            {(item: string) => (
-              <ComboboxItem key={item} value={item}>
-                {item}
+            {(country: (typeof countries)[number]) => (
+              <ComboboxItem key={country.code} value={country}>
+                {country.label}
               </ComboboxItem>
             )}
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
+    </Wrapper>
+  );
+}
+
+export function comboboxInputGroup(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox items={timezones}>
+          <ComboboxInput placeholder="Select a timezone" aria-label="Timezone">
+            <InputGroupAddon>
+              <GlobeIcon />
+            </InputGroupAddon>
+          </ComboboxInput>
+          <ComboboxContent alignOffset={-28} className="w-60">
+            <ComboboxEmpty>No timezones found.</ComboboxEmpty>
+            <ComboboxList>
+              {(group: TimezoneGroup) => (
+                <ComboboxGroup key={group.value} items={group.items}>
+                  <ComboboxLabel>{group.value}</ComboboxLabel>
+                  <ComboboxCollection>
+                    {(item: string) => (
+                      <ComboboxItem key={item} value={item}>
+                        {item}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxCollection>
+                </ComboboxGroup>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function comboboxRtl(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div className="mx-auto w-full max-w-xs" dir="ltr">
+        <Combobox items={frameworks}>
+          <ComboboxInput
+            placeholder="Select a framework"
+            aria-label="Framework"
+            showClear
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+      <div className="mx-auto w-full max-w-xs" dir="rtl">
+        <Combobox items={frameworks}>
+          <ComboboxInput
+            placeholder="اختر إطار عمل"
+            aria-label="إطار العمل"
+            showClear
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>لا توجد عناصر.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+/** Ours: the closed input's rest, invalid and disabled chrome. */
+export function comboboxStates(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto grid w-full max-w-xs gap-4">
+        <Combobox items={frameworks}>
+          <ComboboxInput placeholder="Rest" aria-label="Rest" />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+        <Combobox items={frameworks}>
+          <ComboboxInput
+            placeholder="Invalid"
+            aria-label="Invalid"
+            aria-invalid="true"
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+        <Combobox items={frameworks}>
+          <ComboboxInput
+            placeholder="Disabled"
+            aria-label="Disabled"
+            disabled
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
     </Wrapper>
   );
 }

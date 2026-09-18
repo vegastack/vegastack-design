@@ -15,6 +15,11 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -111,12 +116,16 @@ export function spinnerInputGroup(): ReactNode {
   return (
     <Wrapper>
       <div className="flex w-full max-w-md flex-col gap-4">
-        <Input
-          placeholder="Send a message..."
-          disabled
-          aria-label="Send a message"
-          suffix={<Spinner />}
-        />
+        <InputGroup>
+          <InputGroupInput
+            placeholder="Send a message..."
+            disabled
+            aria-label="Send a message"
+          />
+          <InputGroupAddon align="inline-end">
+            <Spinner />
+          </InputGroupAddon>
+        </InputGroup>
         <div className="flex flex-col gap-2">
           <Textarea
             placeholder="Send a message..."

@@ -40,6 +40,11 @@ import {
 } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -322,11 +327,15 @@ export function buttonGroupNested(): ReactNode {
           </Button>
         </ButtonGroup>
         <ButtonGroup className="flex-1">
-          <Input
-            aria-label="Message"
-            placeholder="Send a message..."
-            suffix={<AudioLinesIcon className="size-4" />}
-          />
+          <InputGroup>
+            <InputGroupInput
+              aria-label="Message"
+              placeholder="Send a message..."
+            />
+            <InputGroupAddon align="inline-end">
+              <AudioLinesIcon className="size-4" />
+            </InputGroupAddon>
+          </InputGroup>
         </ButtonGroup>
       </ButtonGroup>
     </Wrapper>
@@ -392,13 +401,15 @@ export function buttonGroupInputGroup(): ReactNode {
           </Button>
         </ButtonGroup>
         <ButtonGroup className="flex-1">
-          <Input
-            aria-label="Message"
-            placeholder={
-              voiceEnabled ? "Record and send audio..." : "Send a message..."
-            }
-            disabled={voiceEnabled}
-            suffix={
+          <InputGroup>
+            <InputGroupInput
+              aria-label="Message"
+              placeholder={
+                voiceEnabled ? "Record and send audio..." : "Send a message..."
+              }
+              disabled={voiceEnabled}
+            />
+            <InputGroupAddon align="inline-end">
               <Button
                 variant="ghost"
                 size="icon-xs"
@@ -408,8 +419,8 @@ export function buttonGroupInputGroup(): ReactNode {
               >
                 <AudioLinesIcon />
               </Button>
-            }
-          />
+            </InputGroupAddon>
+          </InputGroup>
         </ButtonGroup>
       </ButtonGroup>
     </Wrapper>

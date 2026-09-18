@@ -1,11 +1,11 @@
 ---
 title: Select
-description: A dropdown for choosing one option — trigger with value and chevron, grouped and scrollable popup, full keyboard navigation, and animated enter/exit.
+description: A dropdown for choosing one option — a trigger with the value and a chevron, a grouped scrollable popup, and item-aligned positioning.
 audience: public
 registry: select
 status: stable
 since: 0.1.0
-a11y: APG select-only combobox
+a11y: APG listbox
 preview: select
 ---
 
@@ -18,253 +18,162 @@ preview: select
 ```tsx
 import {
   Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectContent,
-  SelectItem,
 } from "@/components/ui/select";
 
-const fonts = { sans: "Sans-serif", serif: "Serif", mono: "Monospace" };
-
-<Select items={fonts}>
-  <SelectTrigger className="w-56" aria-label="Font family">
-    <SelectValue placeholder="Select a font" />
+<Select items={items}>
+  <SelectTrigger className="w-[180px]">
+    <SelectValue placeholder="Theme" />
   </SelectTrigger>
   <SelectContent>
-    <SelectItem value="sans">Sans-serif</SelectItem>
-    <SelectItem value="serif">Serif</SelectItem>
-    <SelectItem value="mono">Monospace</SelectItem>
+    <SelectGroup>
+      <SelectItem value="light">Light</SelectItem>
+    </SelectGroup>
   </SelectContent>
 </Select>;
 ```
 
-Pass an `items` map (or array) to `Select` so `SelectValue` can render the **label** of the selected
-option in the trigger instead of its raw `value`. Control the selection with `value` +
-`onValueChange`, or leave it uncontrolled with `defaultValue`. Add the `multiple` prop to collect
-several values at once (see [Multiple selection](#multiple-selection)).
+<ComponentPreview name="select" file="components/preview/select.tsx" />
 
 ## Anatomy
-
-`Select` is a compound component. Every exported part, with the
-`data-slot` it renders (generated from the canonical source):
 
 <Anatomy name="select" />
 
 ## Examples
 
-### Anatomy
+### Composition
 
-`Select` is a compound component built on [Base UI Select](https://base-ui.com/react/components/select).
-Compose the parts inside the root:
-
-```tsx
-<Select>
-  <SelectTrigger>
-    <SelectValue placeholder="Select an option" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectGroup>
-      <SelectLabel>Group heading</SelectLabel>
-      <SelectItem value="a">Option A</SelectItem>
-      <SelectItem value="b">Option B</SelectItem>
-    </SelectGroup>
-    <SelectSeparator />
-    <SelectItem value="c">Option C</SelectItem>
-  </SelectContent>
-</Select>
+```text
+Select
+├── SelectTrigger
+│   └── SelectValue
+└── SelectContent
+    ├── SelectGroup
+    │   ├── SelectLabel
+    │   └── SelectItem
+    ├── SelectSeparator
+    └── SelectGroup
 ```
 
-- `Select` — the root; owns the value (`value` / `defaultValue` / `onValueChange`) and open state. Doesn't render an element of its own. Pass `items` so the trigger shows the selected option's label. Modal by default in VegaStack so the trigger cannot scroll out from under an open listbox; pass `modal={false}` for a listbox that leaves the page scrollable.
-- `SelectTrigger` — the button that opens the popup (`data-slot="select-trigger"`, `<button>`). Owns the `size` variant, renders the trailing chevron, and flips it open. Token border that re-colors with the `ring` token on focus.
-- `SelectValue` — renders the selected option's label, or the `placeholder` when empty (`data-slot="select-value"`, `<span>`).
-- `SelectContent` — the dropdown surface (`data-slot="select-content"`). Composes Base UI's Portal + Positioner + Popup + List, adds hover scroll arrows for long lists, sizes to at least the trigger width, caps to the viewport height, and animates enter/exit. Pass `alignItemWithTrigger={false}` when the popup edge should align to the trigger edge instead of aligning the selected item text over the trigger value.
-- `SelectList` — the Base UI list wrapper around items (`data-slot="select-list"`). Most consumers customize it through `SelectContent`'s `listProps`.
-- `SelectItem` — a single option (`data-slot="select-item"`, `role="option"`). Shows a trailing check when selected; tints on keyboard/hover highlight and dims when `disabled`.
-- `SelectGroup` — groups related items with a label (`data-slot="select-group"`, `role="group"`).
-- `SelectLabel` — a heading for a `SelectGroup`, auto-associated with it (`data-slot="select-label"`).
-- `SelectSeparator` — a divider between items or groups (`data-slot="select-separator"`, `role="separator"`).
+<ComponentPreview
+  name="selectComposition"
+  file="components/preview/select.tsx"
+/>
 
-### Groups & separators
+### Align Item With Trigger
 
-Wrap related options in a `SelectGroup` with a `SelectLabel`, and divide sections with a
-`SelectSeparator`. Long lists scroll, with hover scroll arrows at the edges; individual options can be
-`disabled`.
+`alignItemWithTrigger` on `SelectContent` decides whether the popup positions so the selected item
+sits over the trigger (`true`, the default) or aligns to the trigger's edge (`false`).
+
+<ComponentPreview
+  name="selectAlignItemWithTrigger"
+  file="components/preview/select.tsx"
+/>
+
+### Groups
+
+`SelectGroup`, `SelectLabel` and `SelectSeparator` organise the popup.
 
 <ComponentPreview name="selectGroups" file="components/preview/select.tsx" />
 
+### Scrollable
+
+With more items than fit, the popup scrolls and the scroll arrows appear at its edges.
+
+<ComponentPreview
+  name="selectScrollable"
+  file="components/preview/select.tsx"
+/>
+
+### Disabled
+
+`disabled` on the `Select` disables the whole control; on a `SelectItem` it disables one row. A
+disabled item keeps its pointer events (FRM-4), so a Tooltip can explain why it is unavailable.
+
+<ComponentPreview name="selectDisabled" file="components/preview/select.tsx" />
+
+### Invalid
+
+Add `aria-invalid` to the `SelectTrigger` and `data-invalid` to the `Field`. `FieldError` carries
+the message with a leading icon, so the error is never signalled by colour alone (A11Y-8).
+
+<ComponentPreview name="selectInvalid" file="components/preview/select.tsx" />
+
+### RTL
+
+The trigger's padding, the item's check indicator and the popup's origin are all written in logical
+properties, so a right-to-left document mirrors the whole control.
+
+<ComponentPreview name="selectRtl" file="components/preview/select.tsx" />
+
 ### Sizes
 
-`SelectTrigger` takes a `size` prop: `sm` (h-7), `default` (h-8), and `lg` (h-10) — matching the
-input/button scale so selects line up with sibling form controls.
+`size` on the trigger takes `sm` (28px) and `default` (32px).
 
 <ComponentPreview name="selectSizes" file="components/preview/select.tsx" />
 
 ### States
 
-A `disabled` root makes the trigger inert; a list taller than the available viewport height becomes
-scrollable with edge arrows.
+The trigger's rest, invalid and disabled chrome, closed.
 
 <ComponentPreview name="selectStates" file="components/preview/select.tsx" />
 
-### Invalid
-
-Pass `aria-invalid` to the `SelectTrigger` — or wrap the `Select` in a `<Field error>`, which wires it
-for you — to tint the trigger border destructive (`aria-invalid:border-destructive/70` /
-`data-invalid:border-destructive/70`). Pair it with a `FieldError` so the failure is announced, not
-just color-coded.
-
-<ComponentPreview name="selectInvalid" file="components/preview/select.tsx" />
-
-### Multiple selection
-
-Set `multiple` on the root to let a Select collect several values. `value` / `defaultValue` /
-`onValueChange` then work with **arrays**, and the popup stays open after each pick. Because the trigger
-can no longer show a single label, pass a render-function child to `SelectValue` to summarise the
-selection (for example, a comma-joined list with a placeholder when the array is empty).
-
-<ComponentPreview name="selectMultiple" file="components/preview/select.tsx" />
-
-```tsx
-<Select multiple defaultValue={["bug", "docs"]}>
-  <SelectTrigger>
-    <SelectValue>
-      {(value: string[]) =>
-        value.length === 0 ? "Select labels" : value.map(labelFor).join(", ")
-      }
-    </SelectValue>
-  </SelectTrigger>
-  <SelectContent>{/* SelectItems */}</SelectContent>
-</Select>
-```
-
-> Prefer a few always-visible **Checkboxes** when there are only a handful of options that should stay
-> on screen; reach for a `multiple` Select to pick several values compactly from a longer list.
-
-### Popup alignment
-
-By default Base UI aligns the **selected item's text** over the trigger value, so an open popup can
-overlap the trigger. Set `alignItemWithTrigger={false}` on `SelectContent` to align the popup edge to
-the trigger edge instead — the popup opens below and `side` / `align` apply immediately, the more
-familiar dropdown behaviour.
-
-<ComponentPreview name="selectAlignItem" file="components/preview/select.tsx" />
-
-### Form integration
-
-Pair `Select` with a `Field` for a label, description, and error message — Base UI wires the ARIA. Set
-`name` on the root to submit the value with a form:
-
-```tsx
-import { Field } from "@/components/ui/field";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-
-<Field label="Timezone" description="Used for scheduling.">
-  <Select name="timezone" items={{ est: "Eastern", pst: "Pacific" }}>
-    <SelectTrigger>
-      <SelectValue placeholder="Select a timezone" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="est">Eastern</SelectItem>
-      <SelectItem value="pst">Pacific</SelectItem>
-    </SelectContent>
-  </Select>
-</Field>;
-```
-
 ## Playground
 
-Try every trigger size and the disabled state on a small option list, then copy the generated JSX.
+Try both trigger sizes with the disabled and invalid states, then copy the generated JSX.
 
 <SelectPlayground />
 
 ## API Reference
 
-### Select
+<ApiTable path="lib/api-props.ts" name="SelectTriggerProps" />
 
-<ApiTable path="../../packages/ui/registry/ui/select.tsx" name="SelectProps" />
+<ApiTable path="lib/api-props.ts" name="SelectContentProps" />
 
-### SelectTrigger
-
-<ApiTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectTriggerProps"
-/>
-
-### SelectValue
-
-<ApiTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectValueProps"
-/>
-
-### SelectContent
-
-<ApiTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectContentProps"
-/>
-
-### SelectList
-
-<ApiTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectListProps"
-/>
-
-### SelectItem
-
-<ApiTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectItemProps"
-/>
-
-### SelectGroup
-
-<ApiTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectGroupProps"
-/>
-
-### SelectLabel
-
-<ApiTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectLabelProps"
-/>
-
-### SelectSeparator
-
-<ApiTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectSeparatorProps"
-/>
+`Select`, `SelectValue`, `SelectGroup`, `SelectLabel`, `SelectItem` and `SelectSeparator` add no
+props of their own — each accepts everything the Base UI part accepts.
 
 ## Accessibility
 
-- The trigger exposes `role="combobox"` with `aria-haspopup="listbox"`; the popup is a `role="listbox"` of `role="option"` items — no manual ARIA wiring needed.
-- Selection is announced via `aria-selected`; the selected option shows a check indicator. Disabled options carry `aria-disabled` and are skipped by keyboard navigation.
-- Full keyboard support: open/close, arrow navigation, type-ahead, and `Esc` to dismiss. Focus returns to the trigger on close.
-- On `:focus` the trigger re-colors its border with the `ring` token (`focus:border-ring/(70%)`) rather than removing the outline; highlighted options use the `accent` token. `aria-invalid` (or `data-invalid`) tints the trigger border destructive for use inside a `Field`.
-
-| Key                                 | Action                                                              |
-| ----------------------------------- | ------------------------------------------------------------------- |
-| <kbd>Space</kbd> / <kbd>Enter</kbd> | Open the popup, or select the highlighted option and close.         |
-| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move the highlight between options (opens the popup if closed).     |
-| <kbd>Home</kbd> / <kbd>End</kbd>    | Jump to the first / last option.                                    |
-| <kbd>A</kbd>–<kbd>Z</kbd>           | Type-ahead — jump to the option starting with the typed characters. |
-| <kbd>Esc</kbd>                      | Close the popup without changing the selection.                     |
+- Renders Base UI's Select: the trigger is a `<button role="combobox">` with `aria-expanded` and
+  `aria-controls`, and the popup is a `role="listbox"` of `role="option"` rows with type-ahead,
+  <kbd>↑</kbd>/<kbd>↓</kbd>, <kbd>Home</kbd>/<kbd>End</kbd> and <kbd>Esc</kbd>.
+- Focus on the trigger shows the border tint on `:focus` (FOC-3) **and** the global 2px outline,
+  because the trigger is a button rather than a text field (FOC-4).
+- The popup portals out of the trigger's subtree, so `SelectContent` re-applies the theme scope on
+  the positioner inside the portal (OVL-13) — a dark or scoped surface survives the portal.
+- Items carry the hand cursor from the one global rule in `base.css` (INT-1); upstream's local
+  `cursor-default` is removed.
+- Give the trigger an accessible name — an `aria-label`, or a `FieldLabel`.
 
 <StatesTested name="select" />
 
 ## Do / Don't
 
 <DoDont
-  do="Pass an items map so the trigger shows the selected option's label, and group long lists with SelectLabel and SelectSeparator."
-  dont="Use a Select for boolean on/off (use a Switch), or omit the SelectValue placeholder."
+  do="Use a Select for one value out of a known, groupable set that benefits from custom item markup."
+  dont="Use a Select where the user needs to search or the list is unbounded — that is a Combobox."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/select.patch`. Every hunk:
+
+- **FOC-1, FOC-3, FOC-4, FOC-6** — the trigger's `outline-none focus-visible:border-ring
+focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70`: a border tint on
+  `:focus` for mouse and keyboard alike, plus the global outline, which the dropped `outline-none`
+  lets through.
+- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
+  counterpart), so focus outranks it; the `aria-invalid` halo rings are removed with the rest.
+- **INT-1** — `cursor-default` is removed from `SelectItem`, so a row shows the hand cursor the one
+  global rule gives every `[role="option"]`. The two scroll arrows keep theirs: `base.css` names
+  them as a sanctioned non-pointer cursor.
+- **FRM-4** — `data-disabled:pointer-events-none` is dropped from `SelectItem`, so a disabled row
+  stays hoverable and a Tooltip can explain it.
+- **OVL-13** — `SelectContent` reads `useInternalThemeScope()` and attaches it to the positioner
+  inside the portal; `tooling/verify-portal-theme-scope.mjs` inventories this host.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

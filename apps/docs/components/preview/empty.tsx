@@ -23,6 +23,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Kbd } from "@/components/ui/kbd";
 
 /** Deterministic local fixtures (apps/docs/public/preview) — no network dependency. */
@@ -217,12 +222,18 @@ export function emptyInputGroup(): ReactNode {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Input
-            aria-label="Search pages"
-            placeholder="Try searching for pages..."
-            prefix={<SearchIcon className="size-4" />}
-            suffix={<Kbd>/</Kbd>}
-          />
+          <InputGroup>
+            <InputGroupInput
+              aria-label="Search pages"
+              placeholder="Try searching for pages..."
+            />
+            <InputGroupAddon>
+              <SearchIcon className="size-4" />
+            </InputGroupAddon>
+            <InputGroupAddon align="inline-end">
+              <Kbd>/</Kbd>
+            </InputGroupAddon>
+          </InputGroup>
           <EmptyDescription>
             Need help? <a href="#empty-support">Contact support</a>
           </EmptyDescription>

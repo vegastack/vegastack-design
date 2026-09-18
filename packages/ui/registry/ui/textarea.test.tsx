@@ -1,132 +1,149 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Textarea } from "./textarea";
+import { Button } from "./button";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
-test("renders a textbox with the placeholder", async () => {
-  const screen = await render(<Textarea placeholder="Description" />);
+const classesOf = (screen: { container: HTMLElement }) =>
+  (screen.container.querySelector('[data-slot="textarea"]') as HTMLElement)
+    .className;
+
+test("renders a native textarea carrying data-slot (Usage)", async () => {
+  const screen = await render(<Textarea aria-label="Message" />);
+  const textarea = screen.getByRole("textbox", { name: "Message" });
+  await expect.element(textarea).toBeInTheDocument();
+  await expect.element(textarea).toHaveAttribute("data-slot", "textarea");
+  expect((textarea.element() as HTMLElement).tagName).toBe("TEXTAREA");
+});
+
+test("typing updates the value", async () => {
+  const screen = await render(<Textarea aria-label="Message" />);
+  const textarea = screen.getByRole("textbox", { name: "Message" });
+  await userEvent.fill(textarea, "hello");
+  expect((textarea.element() as HTMLTextAreaElement).value).toBe("hello");
+});
+
+test("it sizes to its content rather than to a rows attribute (Usage)", async () => {
+  const screen = await render(<Textarea aria-label="Message" />);
+  expect(classesOf(screen)).toContain("field-sizing-content");
+  expect(classesOf(screen)).toContain("min-h-16");
+});
+
+test("Field wires the label and description (Field)", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel htmlFor="message">Message</FieldLabel>
+      <FieldDescription>Enter your message below.</FieldDescription>
+      <Textarea id="message" />
+    </Field>,
+  );
   await expect
-    .element(screen.getByPlaceholder("Description"))
+    .element(screen.getByRole("textbox", { name: "Message" }))
     .toBeInTheDocument();
 });
 
-test("carries the textarea data-slot", async () => {
-  const screen = await render(<Textarea aria-label="Bio" />);
+test("disabled reaches the element (Disabled)", async () => {
+  const screen = await render(<Textarea aria-label="Message" disabled />);
   await expect
-    .element(screen.getByLabelText("Bio"))
-    .toHaveAttribute("data-slot", "textarea");
+    .element(screen.getByRole("textbox", { name: "Message" }))
+    .toBeDisabled();
 });
 
-test("typing fires onChange", async () => {
-  const onChange = vi.fn();
-  const screen = await render(
-    <Textarea aria-label="Notes" onChange={onChange} />,
-  );
-  await screen.getByLabelText("Notes").fill("Hello\nWorld");
-  expect(onChange).toHaveBeenCalled();
-});
-
-test("disabled prevents interaction", async () => {
-  const screen = await render(<Textarea aria-label="Notes" disabled />);
-  await expect.element(screen.getByLabelText("Notes")).toBeDisabled();
-});
-
-test("aria-invalid is reflected on the field", async () => {
-  const screen = await render(<Textarea aria-label="Notes" aria-invalid />);
+test("aria-invalid reaches the element (Invalid)", async () => {
+  const screen = await render(<Textarea aria-label="Message" aria-invalid />);
   await expect
-    .element(screen.getByLabelText("Notes"))
+    .element(screen.getByRole("textbox", { name: "Message" }))
     .toHaveAttribute("aria-invalid", "true");
 });
 
-test("darkens its border as the sole focus cue (no ring), matching Input", async () => {
-  const screen = await render(<Textarea aria-label="Notes" />);
-  const el = screen.getByLabelText("Notes");
-  await expect.element(el).toHaveClass("focus:border-ring/70");
-  await expect.element(el).not.toHaveClass("focus-visible:ring-2");
-});
-
-test("autoGrow opts into field-sizing instead of vertical resize", async () => {
-  const screen = await render(<Textarea aria-label="Notes" autoGrow />);
-  const el = screen.getByLabelText("Notes");
-  await expect.element(el).toHaveClass("field-sizing-content");
-  await expect.element(el).not.toHaveClass("resize-y");
-});
-
-test("no a11y violations", async () => {
+test("it composes with a submit Button (Button)", async () => {
+  let submits = 0;
   const screen = await render(
-    <label>
-      Description
-      <Textarea name="description" />
-    </label>,
+    <div className="grid gap-2">
+      <Textarea aria-label="Message" />
+      <Button onClick={() => (submits += 1)}>Send message</Button>
+    </div>,
   );
-  await expectNoA11yViolations(screen.container);
+  await userEvent.click(screen.getByRole("button", { name: "Send message" }));
+  expect(submits).toBe(1);
 });
 
-test("no a11y violations — disabled", async () => {
+test("RTL: the control inherits direction from its container (RTL)", async () => {
   const screen = await render(
-    <label>
-      Description
-      <Textarea name="description" disabled />
-    </label>,
+    <div dir="rtl">
+      <Textarea aria-label="التعليقات" />
+    </div>,
+  );
+  const textarea = screen
+    .getByRole("textbox", { name: "التعليقات" })
+    .element() as HTMLElement;
+  expect(getComputedStyle(textarea).direction).toBe("rtl");
+});
+
+test("FOC-1/FOC-6: the recipe carries no focus glow", async () => {
+  const screen = await render(<Textarea aria-label="Message" />);
+  const classes = classesOf(screen);
+  expect(classes).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
+  expect(classes).not.toContain("focus-visible:ring-");
+  expect(classes).not.toContain("focus-visible:border-ring");
+  expect(classes).not.toContain("aria-invalid:ring-destructive");
+});
+
+test("FOC-3/FOC-8: focus is a border tint on :focus, with outline-hidden not outline-none", async () => {
+  const screen = await render(<Textarea aria-label="Message" />);
+  const classes = classesOf(screen);
+  expect(classes).toContain("focus:border-ring/70");
+  expect(classes).toContain("outline-hidden");
+  expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
+});
+
+test("FOC-5: the invalid tint stands down while the control is focused", async () => {
+  const screen = await render(<Textarea aria-label="Message" aria-invalid />);
+  expect(classesOf(screen)).toContain(
+    "not-focus:aria-invalid:border-destructive",
+  );
+});
+
+test("no a11y violations — rest", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel htmlFor="ta-rest">Message</FieldLabel>
+      <Textarea id="ta-rest" />
+    </Field>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — invalid", async () => {
   const screen = await render(
-    <label>
-      Description
-      <Textarea name="description" aria-invalid />
-    </label>,
+    <Field data-invalid>
+      <FieldLabel htmlFor="ta-invalid">Message</FieldLabel>
+      <Textarea id="ta-invalid" aria-invalid />
+      <FieldError>Please enter a message.</FieldError>
+    </Field>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
-test("forwards ref to the underlying textarea element", async () => {
-  const ref = React.createRef<HTMLTextAreaElement>();
-  await render(<Textarea ref={ref} aria-label="Bio" />);
-  expect(ref.current).toBeInstanceOf(HTMLTextAreaElement);
-  expect(ref.current?.dataset.slot).toBe("textarea");
-});
-
-/* ---------------------------------------------------------------------------------------------
- * Size — the gap audit B1-18 named: `Textarea` had a size scale and no assertion on it.
- * Multiline fields size by MINIMUM height and padding rather than the fixed control heights,
- * and `sm` steps the type down a tier with them.
- * ------------------------------------------------------------------------------------------- */
-
-test("each size reflects on data-size and carries its own min-height tier", async () => {
-  for (const [size, minHeight] of [
-    ["sm", "min-h-12"],
-    ["md", "min-h-16"],
-    ["lg", "min-h-24"],
-  ] as const) {
-    const screen = await render(
-      <Textarea aria-label={`Notes ${size}`} size={size} />,
-    );
-    const textarea = screen.getByLabelText(`Notes ${size}`);
-    await expect.element(textarea).toHaveAttribute("data-size", size);
-    expect((textarea.element() as HTMLElement).className).toContain(minHeight);
-  }
-});
-
-test("md is the default tier", async () => {
-  const screen = await render(<Textarea aria-label="Notes" />);
-  await expect
-    .element(screen.getByLabelText("Notes"))
-    .toHaveAttribute("data-size", "md");
-});
-
-test("disabled and invalid compose without either cue cancelling the other", async () => {
+test("no a11y violations — disabled", async () => {
   const screen = await render(
-    <Textarea aria-label="Notes" disabled aria-invalid />,
+    <Field data-disabled>
+      <FieldLabel htmlFor="ta-disabled">Message</FieldLabel>
+      <Textarea id="ta-disabled" disabled />
+    </Field>,
   );
-  const textarea = screen.getByLabelText("Notes");
-  await expect.element(textarea).toBeDisabled();
-  await expect.element(textarea).toHaveAttribute("aria-invalid", "true");
-  // D7: a disabled control keeps its pointer events so a Tooltip can explain it.
-  expect((textarea.element() as HTMLElement).className).not.toContain(
-    "disabled:pointer-events-none",
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — filled", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel htmlFor="ta-filled">Message</FieldLabel>
+      <Textarea id="ta-filled" defaultValue="Filled" />
+    </Field>,
   );
+  await expectNoA11yViolations(screen.container);
 });

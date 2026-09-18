@@ -1,0 +1,201 @@
+---
+title: Input Group
+description: An input or textarea with addons — icons, text, buttons, kbd hints, spinners and dropdowns, aligned inline or block on one bordered surface.
+audience: public
+registry: input-group
+status: stable
+since: 0.9.1
+a11y: native input with labelled addons
+preview: inputGroup
+---
+
+## Install
+
+<InstallSteps name="input-group" />
+
+## Usage
+
+```tsx
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+
+<InputGroup>
+  <InputGroupInput placeholder="Search..." />
+  <InputGroupAddon>
+    <SearchIcon />
+  </InputGroupAddon>
+</InputGroup>;
+```
+
+<ComponentPreview name="inputGroup" file="components/preview/input-group.tsx" />
+
+## Anatomy
+
+<Anatomy name="input-group" />
+
+## Examples
+
+### Composition
+
+```text
+InputGroup
+├── InputGroupInput or InputGroupTextarea
+├── InputGroupAddon
+├── InputGroupButton
+└── InputGroupText
+```
+
+<ComponentPreview
+  name="inputGroupComposition"
+  file="components/preview/input-group.tsx"
+/>
+
+### Align
+
+`align` on `InputGroupAddon` takes `inline-start` (the default), `inline-end`, `block-start` and
+`block-end`. Put the addon **after** the control in the DOM whatever the alignment — the focus
+handling reads document order, and `align` only moves it visually.
+
+<ComponentPreview
+  name="inputGroupAlign"
+  file="components/preview/input-group.tsx"
+/>
+
+### Icon
+
+An icon addon sits on either edge, or on both.
+
+<ComponentPreview
+  name="inputGroupIcon"
+  file="components/preview/input-group.tsx"
+/>
+
+### Text
+
+`InputGroupText` carries a prefix, a suffix or a counter.
+
+<ComponentPreview
+  name="inputGroupText"
+  file="components/preview/input-group.tsx"
+/>
+
+### Button
+
+`InputGroupButton` is a `Button` sized for the field's interior. Give an icon-only one an
+`aria-label`.
+
+<ComponentPreview
+  name="inputGroupButton"
+  file="components/preview/input-group.tsx"
+/>
+
+### Kbd
+
+A `Kbd` addon advertises the shortcut that focuses the field.
+
+<ComponentPreview
+  name="inputGroupKbd"
+  file="components/preview/input-group.tsx"
+/>
+
+### Dropdown
+
+A `DropdownMenu` trigger rendered as an `InputGroupButton`.
+
+<ComponentPreview
+  name="inputGroupDropdown"
+  file="components/preview/input-group.tsx"
+/>
+
+### Spinner
+
+A `Spinner` addon reports work in flight without moving the control.
+
+<ComponentPreview
+  name="inputGroupSpinner"
+  file="components/preview/input-group.tsx"
+/>
+
+### Textarea
+
+`InputGroupTextarea` takes a header and a footer at once.
+
+<ComponentPreview
+  name="inputGroupTextarea"
+  file="components/preview/input-group.tsx"
+/>
+
+### Custom Input
+
+Put `data-slot="input-group-control"` on any control and the group picks up its focus and invalid
+state.
+
+<ComponentPreview
+  name="inputGroupCustomInput"
+  file="components/preview/input-group.tsx"
+/>
+
+### RTL
+
+Addon order is `order-first`/`order-last` over logical padding, so a right-to-left document mirrors
+the whole group.
+
+<ComponentPreview
+  name="inputGroupRtl"
+  file="components/preview/input-group.tsx"
+/>
+
+### States
+
+The group's rest, invalid and disabled chrome.
+
+<ComponentPreview
+  name="inputGroupStates"
+  file="components/preview/input-group.tsx"
+/>
+
+## API Reference
+
+<ApiTable path="lib/api-props.ts" name="InputGroupAddonProps" />
+
+<ApiTable path="lib/api-props.ts" name="InputGroupButtonProps" />
+
+`InputGroup`, `InputGroupInput`, `InputGroupTextarea` and `InputGroupText` add no props of their
+own — each accepts everything the underlying element accepts.
+
+## Accessibility
+
+- The group is a `role="group"`; the control inside it keeps every native semantic, so labelling is
+  the control's job, exactly as for a bare `Input`.
+- Clicking an addon focuses the control, unless the click landed on a button inside it.
+- The **group** carries the focus affordance: a border tint while the control has focus (FOC-3), and
+  no ring anywhere. The control itself is borderless, so nothing paints twice.
+- Give every icon-only `InputGroupButton` an `aria-label` or an `sr-only` label; the design lint
+  fails a nameless one.
+
+<StatesTested name="input-group" />
+
+## Do / Don't
+
+<DoDont
+  do="Put the addon after the control in the DOM and use align to place it — that is what keeps click-to-focus correct."
+  dont="Nest an Input inside an InputGroup — InputGroupInput is the control that wires the group's state."
+/>
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/input-group.patch`. Every hunk:
+
+- **FOC-1, FOC-3, FOC-6** — the group's
+  `has-[[data-slot=input-group-control]:focus-visible]:border-ring` plus `ring-3 ring-ring/50`
+  becomes `has-[[data-slot=input-group-control]:focus]:border-ring/70`: a border tint on `:focus`,
+  for mouse and keyboard alike, and no glow.
+- **FOC-5** — the invalid tint becomes
+  `not-focus-within:has-[[data-slot][aria-invalid=true]]:border-destructive`, so a focused group
+  shows its focus cue rather than the error colour; the `has-aria-invalid` halo rings go with it.
+- **FOC-6** — `InputGroupInput` and `InputGroupTextarea` drop `ring-0 focus-visible:ring-0
+aria-invalid:ring-0`, which existed only to cancel the ring `Input` and `Textarea` no longer have.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

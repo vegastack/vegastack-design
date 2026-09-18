@@ -1,6 +1,6 @@
 ---
 title: Input
-description: A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus border recolor, and optional prefix/suffix addons.
+description: A styled Base UI input for every text-entry type — Field-aware state, invalid and disabled chrome, and a border tint instead of a focus ring.
 audience: public
 registry: input
 status: stable
@@ -18,118 +18,149 @@ preview: input
 ```tsx
 import { Input } from "@/components/ui/input";
 
-<Input type="email" placeholder="you@vegastack.com" />;
+<Input />;
 ```
 
-`Input` is built on Base UI Input, so standard input attributes work alongside
-Base UI `render`, `onValueChange`, Field state data attributes, and
-state-function `className`. Its ref forwards to the underlying input element.
+<ComponentPreview name="input" file="components/preview/input.tsx" />
 
 ## Examples
 
+### Basic
+
+A bare input with a placeholder.
+
+<ComponentPreview name="inputBasic" file="components/preview/input.tsx" />
+
+### Field
+
+`Field`, `FieldLabel` and `FieldDescription` give the input a label and helper text.
+
+<ComponentPreview name="inputField" file="components/preview/input.tsx" />
+
+### Field Group
+
+`FieldGroup` stacks several `Field` blocks and is how a form is built.
+
+<ComponentPreview name="inputFieldGroup" file="components/preview/input.tsx" />
+
+### Disabled
+
+Use `disabled`, and add `data-disabled` to the `Field` so the label dims with it. The input keeps
+`disabled:cursor-not-allowed`.
+
+<ComponentPreview name="inputDisabled" file="components/preview/input.tsx" />
+
+### Invalid
+
+Use `aria-invalid`, and add `data-invalid` to the `Field`. The tint is scoped to `not-focus:`
+(FOC-5), so a focused input shows its focus cue rather than the error colour.
+
+<ComponentPreview name="inputInvalid" file="components/preview/input.tsx" />
+
+### File
+
+`type="file"` styles the native file button with the `file:` variants.
+
+<ComponentPreview name="inputFile" file="components/preview/input.tsx" />
+
+### Inline
+
+`Field` with `orientation="horizontal"` puts the input and a `Button` on one row.
+
+<ComponentPreview name="inputInline" file="components/preview/input.tsx" />
+
+### Grid
+
+A `FieldGroup` with a grid layout places two inputs side by side.
+
+<ComponentPreview name="inputGrid" file="components/preview/input.tsx" />
+
+### Required
+
+`required` marks the field for the platform's own validation.
+
+<ComponentPreview name="inputRequired" file="components/preview/input.tsx" />
+
+### Badge
+
+A `Badge` inside the label highlights a beta or recommended field.
+
+<ComponentPreview name="inputBadge" file="components/preview/input.tsx" />
+
+### Input Group
+
+For an icon, a text prefix or a button on the same surface, use
+[Input Group](/docs/components/input-group).
+
+<ComponentPreview name="inputInputGroup" file="components/preview/input.tsx" />
+
+### Button Group
+
+For a button joined to the field's edge, use
+[Button Group](/docs/components/button-group).
+
+<ComponentPreview name="inputButtonGroup" file="components/preview/input.tsx" />
+
+### Form
+
+Several inputs, a select and a submit row.
+
+<ComponentPreview name="inputForm" file="components/preview/input.tsx" />
+
+### RTL
+
+Padding is written in logical properties, so a right-to-left document mirrors the control without
+any extra work.
+
+<ComponentPreview name="inputRtl" file="components/preview/input.tsx" />
+
 ### States
 
-The field reflects `disabled`, `readOnly`, and `aria-invalid`. The invalid state
-re-colors the border with the `destructive` token
-(`aria-invalid:border-destructive/(70%)`) — pair it with a visible error
-message for non-color-dependent feedback. **While the field is focused the focus tint wins the
-border** and the invalid tint returns on blur: a text field has no outline, so the border is its only
-focus cue and nothing else may hold it.
+Rest, filled, invalid and disabled in one frame.
 
 <ComponentPreview name="inputStates" file="components/preview/input.tsx" />
 
-### Input types
-
-`Input` forwards any HTML `type` to the underlying `<input>` — `number`, `tel`,
-`url`, `email`, `password`, and the rest all work alongside the shared field
-styling. `type` defaults to `'text'`.
-
-<ComponentPreview name="inputTypes" file="components/preview/input.tsx" />
-
-<Callout type="warn">
-  **Don't use `type="date"`, `"time"`, or `"datetime-local"`.** They summon the
-  browser's native picker, which ignores every design token — its own surface,
-  radius, type ramp and focus ring, rendered differently on each browser and OS.
-  Reach for [`DatePicker`](/docs/components/date-picker) instead: it's built
-  from `Popover` + `Calendar`, themed like the rest of the system, and displays
-  dates in the readable `Jun 24, 2026` format (any `Intl.DateTimeFormat` options
-  via `formatOptions`).
-</Callout>
-
-### Addons
-
-Pass a `prefix` and/or `suffix` to render non-editable content inside the field —
-a domain like `app.vegastack.com/`, a unit, or an icon. In addon mode the
-`<input>` is wrapped in a bordered group, and focus/invalid/disabled styling
-moves to the wrapper so the whole field reacts as one unit. Use `className` for
-the Base UI input and `containerClassName` for the addon wrapper.
-
-<ComponentPreview name="inputWithAddon" file="components/preview/input.tsx" />
-
-In addon mode the wrapper reads the inner input's state through `has-*`
-selectors, so `disabled` and `aria-invalid` recolor the whole group rather than
-just the `<input>` — `has-disabled:*` dims the group and
-`has-aria-invalid:border-destructive/(70%)` marks it invalid. As on a bare
-field, the group's focus tint outranks the invalid one while anything inside it holds focus.
-
-<ComponentPreview name="inputAddonStates" file="components/preview/input.tsx" />
-
-### Controlled value (`onValueChange`)
-
-Base UI exposes `onValueChange`, which receives the next string value directly
-(no event unwrapping) — convenient for controlled fields and derived UI. It fires
-alongside the native `onChange`.
-
-```tsx
-const [value, setValue] = useState("");
-
-<Input
-  value={value}
-  onValueChange={setValue}
-  placeholder="Type a workspace name"
-/>;
-```
-
-<ComponentPreview name="inputValueChange" file="components/preview/input.tsx" />
-
-### Polymorphism (`render`)
-
-Use Base UI's `render` prop to swap the underlying element while keeping the
-field styling and behavior — pass an element to merge props into, or a function
-for full control.
-
-```tsx
-<Input render={<input data-testid="rendered-input" />} type="email" />
-```
-
-<ComponentPreview name="inputRender" file="components/preview/input.tsx" />
-
 ## Playground
 
-Try every type, size, and state — flipping Invalid on replays the built-in shake — then copy the generated JSX.
+Try every type with the disabled and invalid states, then copy the generated JSX.
 
 <InputPlayground />
 
 ## API Reference
 
-<ApiTable path="../../packages/ui/registry/ui/input.tsx" name="InputProps" />
+<ApiTable path="lib/api-props.ts" name="InputProps" />
 
 ## Accessibility
 
-- Renders Base UI Input as a native `<input>` by default — always associate a
-  visible `<label>` (wrap it or use `htmlFor`/`id`); use `aria-label` only when a
-  visible label is impossible.
-- On focus the field recolors its border with the `ring` token (`focus:border-ring/(70%)`) instead of removing the outline — never `outline: none` with no replacement affordance. `Textarea` and `OTPInput` use the identical border tint, so text-entry focus reads the same across all three.
-- Set `aria-invalid` (and `aria-describedby` pointing at the error text) to mark a
-  field invalid; the styling is token-driven and never relies on color alone.
-- `prefix`/`suffix` addons are decorative label text; keep the meaningful value in
-  the input itself so assistive tech reads the field, not the chrome.
+- Renders Base UI's Input, which is a native `<input>` wired to the surrounding `Field`, so the
+  platform owns selection, IME composition and autofill.
+- Focus is a **border tint on `:focus`**, not a ring, and the global outline is suppressed with
+  `outline-hidden` (FOC-3, FOC-8). The tint fires for mouse and keyboard alike, because a text field
+  cannot tell them apart and both need the caret located.
+- Under `forced-colors: active` the tint disappears with every authored colour, so `base.css` paints
+  a 2px `Highlight` outline on `input:focus` instead (FOC-7).
+- Give it a label: `FieldLabel` bound with `htmlFor`, or an `aria-label`.
 
 <StatesTested name="input" />
 
 ## Do / Don't
 
 <DoDont
-  do="Pair every input with a label and, when invalid, an aria-describedby error message."
-  dont="Use aria-invalid styling as the only error signal, or rely on placeholder text as a label."
+  do="Use an Input for single-line text and pair it with a Field so the label, description and error are wired for you."
+  dont="Put an icon or a button inside an Input by hand — that is Input Group."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/input.patch`. Every hunk:
+
+- **FOC-1, FOC-3, FOC-6, FOC-8** — `outline-none focus-visible:border-ring focus-visible:ring-3
+focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70`: a border tint on
+  `:focus` and no glow. `outline-hidden` rather than `outline-none`, so the forced-colours fallback
+  has something to repaint.
+- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
+  counterpart), so focus outranks it; the `aria-invalid` halo rings are removed with the rest.
+- **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled input stays hoverable and a
+  Tooltip can explain it. Base UI's Input has no `focusableWhenDisabled`, so the native `disabled`
+  attribute stays: this is the pointer half of FRM-4 only.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.

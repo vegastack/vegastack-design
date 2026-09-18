@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "cd0c8ff1271bb9f81a5378bc4a1537ef8991b9b2ac01d7db83b8c47c67a1fea5",
+  "contractSha256": "5d61f64f7f16be2b0d44c5494cb1723b095b2657e5e62ccabf6e5ab90d46efdc",
   "expectedCounts": {
-    "totalRegistryItems": 599,
-    "components": 118,
+    "totalRegistryItems": 604,
+    "components": 123,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 1,
@@ -208,6 +208,17 @@
         "packages/ui/registry/ui/button-group.tsx"
       ],
       "docsSlug": "/docs/components/button-group",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "calendar",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/calendar.tsx"
+      ],
+      "docsSlug": "/docs/components/calendar",
       "contractStatus": "reconciled"
     },
     {
@@ -431,6 +442,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "direction",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/direction.tsx"
+      ],
+      "docsSlug": "/docs/components/direction",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "dropdown-menu",
       "inventoryClass": "component",
       "wave": "Overlays",
@@ -596,6 +618,28 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "input-group",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/input-group.tsx"
+      ],
+      "docsSlug": "/docs/components/input-group",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "input-otp",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/input-otp.tsx"
+      ],
+      "docsSlug": "/docs/components/input-otp",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "item",
       "inventoryClass": "component",
       "wave": "Content/marketing",
@@ -703,6 +747,17 @@
         "packages/ui/registry/ui/message-scroller.tsx"
       ],
       "docsSlug": "/docs/components/message-scroller",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "native-select",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/native-select.tsx"
+      ],
+      "docsSlug": "/docs/components/native-select",
       "contractStatus": "reconciled"
     },
     {

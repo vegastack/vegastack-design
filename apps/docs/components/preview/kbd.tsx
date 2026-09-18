@@ -9,6 +9,11 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -113,17 +118,18 @@ export function kbdInputGroup(): ReactNode {
   return (
     <Wrapper>
       <div className="flex w-full max-w-xs flex-col gap-6">
-        <Input
-          aria-label="Search"
-          placeholder="Search..."
-          prefix={<SearchIcon className="size-4" />}
-          suffix={
+        <InputGroup>
+          <InputGroupInput aria-label="Search" placeholder="Search..." />
+          <InputGroupAddon>
+            <SearchIcon className="size-4" />
+          </InputGroupAddon>
+          <InputGroupAddon align="inline-end">
             <KbdGroup>
               <Kbd>⌘</Kbd>
               <Kbd>K</Kbd>
             </KbdGroup>
-          }
-        />
+          </InputGroupAddon>
+        </InputGroup>
       </div>
     </Wrapper>
   );

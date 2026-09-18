@@ -2,7 +2,12 @@
 
 import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
-import { Field } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 // Copied INTO apps/docs via `shadcn add @vegastack/otp-input` (dogfoods the registry) → auto-scanned.
 import { OTPInput } from "@/components/ui/otp-input";
 
@@ -90,15 +95,21 @@ export function otpInputLength(): ReactNode {
 export function otpInputField(): ReactNode {
   return (
     <Wrapper className="flex-col items-start gap-6">
-      <Field
-        label="Verification code"
-        description="Enter the 6-digit code we sent you."
-      >
-        <OTPInput groups={[3, 3]} />
+      <Field>
+        <FieldLabel htmlFor="otp-field-code">Verification code</FieldLabel>
+        <OTPInput id="otp-field-code" groups={[3, 3]} />
+        <FieldDescription>Enter the 6-digit code we sent you.</FieldDescription>
       </Field>
-      {/* Invalid Field — `error` tints the slots destructive and shows a message. */}
-      <Field label="Verification code" error="That code is incorrect.">
-        <OTPInput groups={[3, 3]} defaultValue="123456" />
+      {/* Invalid Field — `data-invalid` tints the block and FieldError carries the message. */}
+      <Field data-invalid>
+        <FieldLabel htmlFor="otp-field-invalid">Verification code</FieldLabel>
+        <OTPInput
+          id="otp-field-invalid"
+          groups={[3, 3]}
+          defaultValue="123456"
+          aria-invalid
+        />
+        <FieldError>That code is incorrect.</FieldError>
       </Field>
     </Wrapper>
   );

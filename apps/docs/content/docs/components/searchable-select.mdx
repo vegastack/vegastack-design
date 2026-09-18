@@ -57,7 +57,7 @@ Three parts, and one rule that shapes the layout:
     <ComboboxValue />               // the selected face, or the muted placeholder
   </Combobox.Trigger>
   <ComboboxContent className="w-(--anchor-width) p-0">
-    <ComboboxPopupInput />          // the panel-search row: leading icon, hairline below
+    <ComboboxInput showTrigger={false} /> // the panel-search row, inside the popup
     <ComboboxEmpty />
     <ComboboxList>{…ComboboxItem per item, check on the selected one…}</ComboboxList>
   </ComboboxContent>

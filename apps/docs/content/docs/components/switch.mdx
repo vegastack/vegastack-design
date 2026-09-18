@@ -1,6 +1,6 @@
 ---
 title: Switch
-description: An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.
+description: An on/off toggle for instant, self-saving binary settings — two sizes, a choice-card layout, and a 24px hit area.
 audience: public
 registry: switch
 status: stable
@@ -18,113 +18,104 @@ preview: switchExample
 ```tsx
 import { Switch } from "@/components/ui/switch";
 
-<Switch defaultChecked aria-label="Email notifications" />;
-```
-
-Pair it with `Field` (horizontal orientation) for an associated, clickable label:
-
-```tsx
-import { Field } from "@/components/ui/field";
-import { Switch } from "@/components/ui/switch";
-
-<Field label="Email notifications" orientation="horizontal">
-  <Switch defaultChecked />
-</Field>;
-```
-
-Base UI renders the default switch root as a `<span role="switch">` plus a hidden
-`<input>`. When your markup needs a sibling `<label htmlFor>`, render the root as
-a native button so the `id` targets the visible interactive element:
-
-```tsx
-<label htmlFor="notifications-switch">Notifications</label>
-<Switch
-  id="notifications-switch"
-  nativeButton
-  render={<button type="button" />}
-/>
+<Switch />;
 ```
 
 <ComponentPreview name="switchExample" file="components/preview/switch.tsx" />
 
 ## Examples
 
-### Sizes
+### Description
 
-`sm` (16px), `default` (20px), and `lg` (24px) — the track and thumb scale together.
-The grid shows every size in both the off and on positions, since the thumb-travel
-geometry (the inset gap at rest vs. when checked) differs per size.
-
-<ComponentPreview name="switchSizes" file="components/preview/switch.tsx" />
-
-### States
-
-On, off, and disabled (in both positions). State is driven by Base UI's `data-checked` /
-`data-unchecked` attributes, so it works controlled (`checked` + `onCheckedChange`) or uncontrolled
-(`defaultChecked`).
-
-<ComponentPreview name="switchStates" file="components/preview/switch.tsx" />
-
-### Controlled
-
-Drive the switch from state with `checked` + `onCheckedChange`. Use this when the value
-must stay in sync with other UI or be persisted on change.
-
-```tsx
-const [enabled, setEnabled] = useState(true);
-
-<Switch
-  checked={enabled}
-  onCheckedChange={setEnabled}
-  aria-label="Email notifications"
-/>;
-```
+Pair a Switch with `FieldLabel` and `FieldDescription` inside a horizontal `Field` when the setting
+needs a sentence of explanation.
 
 <ComponentPreview
-  name="switchControlled"
+  name="switchDescription"
   file="components/preview/switch.tsx"
 />
 
+### Choice Card
+
+Card-style selection, where `FieldLabel` wraps the whole `Field` so the entire card is clickable.
+
+<ComponentPreview
+  name="switchChoiceCard"
+  file="components/preview/switch.tsx"
+/>
+
+### Disabled
+
+Add `disabled` to the Switch, and `data-disabled` to the `Field` so the label dims with it.
+
+<ComponentPreview name="switchDisabled" file="components/preview/switch.tsx" />
+
 ### Invalid
 
-The switch itself shows no visual invalid treatment — no destructive border and no status dot. It
-keeps its normal appearance while `aria-invalid` is set (either directly on a standalone `Switch`, or
-automatically when a wrapping `<Field error=…>` marks the control invalid), and the Field's error
-copy is the affordance that explains what must be corrected.
+Add `aria-invalid` to the Switch, and `data-invalid` to the `Field`. The invalid tint is scoped to
+`not-focus:` (FOC-5), so a focused switch shows its focus outline rather than the error colour.
 
 <ComponentPreview name="switchInvalid" file="components/preview/switch.tsx" />
 
+### Size
+
+`size` takes `sm` (24×14) and `default` (32×18.4). Both carry the same invisible 24px hit area.
+
+<ComponentPreview name="switchSizes" file="components/preview/switch.tsx" />
+
+### RTL
+
+The thumb translation is written with `rtl:` counterparts, so a right-to-left document moves the
+thumb the other way without any extra work.
+
+<ComponentPreview name="switchRtl" file="components/preview/switch.tsx" />
+
+### States
+
+Off, on and disabled, side by side.
+
+<ComponentPreview name="switchStates" file="components/preview/switch.tsx" />
+
 ## Playground
 
-Try every size and the disabled state, then copy the generated JSX.
+Try both sizes with the disabled and invalid states, then copy the generated JSX.
 
 <SwitchPlayground />
 
 ## API Reference
 
-<ApiTable path="../../packages/ui/registry/ui/switch.tsx" name="SwitchProps" />
+<ApiTable path="lib/api-props.ts" name="SwitchProps" />
 
 ## Accessibility
 
-- Renders a `<span role="switch">` with a hidden `<input>` for form submission by default — exposes
-  `aria-checked` to assistive tech. Use `nativeButton render={<button />}` for sibling
-  `<label htmlFor>` patterns.
-- Keyboard: <kbd>Tab</kbd> to focus, <kbd>Space</kbd> / <kbd>Enter</kbd> to toggle.
-- `:focus-visible` shows a 2px ring (`outline-ring`) — never `outline: none`.
-- `disabled` removes it from the tab order and blocks toggling.
-- Always give the switch an accessible name — a `<Field>` label, or `aria-label` when standalone.
-
-| Key              | Action                     |
-| ---------------- | -------------------------- |
-| <kbd>Tab</kbd>   | Move focus to the switch   |
-| <kbd>Space</kbd> | Toggle the switch on / off |
-| <kbd>Enter</kbd> | Toggle the switch on / off |
+- Renders Base UI's Switch, which is a native `<button role="switch">` carrying `aria-checked`;
+  <kbd>Enter</kbd> and <kbd>Space</kbd> flip it.
+- The visible track is 14–18px tall, so an `::after` pseudo-element extends the pointer target to
+  at least 24×24 (A11Y-2), verified by a real `elementFromPoint` probe.
+- On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1). The recipe carries no
+  ring of its own and no `outline-none` (FOC-6).
+- A Switch has no visible text of its own — give it an `aria-label`, or a `FieldLabel` bound with
+  `htmlFor`, as every example here does.
 
 <StatesTested name="switch" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use a Switch for instant settings, and use Field or nativeButton when pairing it with a label."
-  dont="Use an htmlFor sibling label against the default span root, or use a Switch inside a form that needs a Submit step."
+  do="Use a Switch for a setting that applies the moment it is flipped."
+  dont="Use a Switch inside a form that needs a Submit step — that is a Checkbox."
 />
+
+## Deviations
+
+Upstream's file plus `packages/ui/upstream/patches/switch.patch`. Every hunk:
+
+- **FOC-1, FOC-6** — the `outline-none focus-visible:border-ring focus-visible:ring-3
+focus-visible:ring-ring/50` glow is removed, along with the `aria-invalid` halo rings. `base.css`
+  owns the single `:focus-visible` outline, and `outline-none` would suppress it.
+- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive`, so focus
+  outranks it.
+- **FOC-12** — upstream rings the whole choice card and cancels the control's own ring with
+  `group-has-[:focus-visible]/field-label:border-transparent` and `:ring-0`. This system rings the
+  control, so both counter-rules are removed with the card ring they existed to serve.
+- **DOC-2** — `cn` is imported from `@vegastack/design`.
