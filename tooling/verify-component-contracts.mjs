@@ -1181,9 +1181,18 @@ sameStrings(
   [],
   "animated icon shared registryDependencies",
 );
+// Every generated icon item declares the same two npm dependencies, and `version-sync` stamps the
+// published range onto the items AND onto this shared record. Derive the expectation from the items
+// rather than pinning a literal: the literal still read `@vegastack/design@^0.1.0` while the items
+// had moved to ^0.4.1, so it was proving the record matched a constant, not the registry.
+assert(
+  new Set(registryIcons.map((item) => JSON.stringify(item.dependencies ?? [])))
+    .size === 1,
+  "every animated icon item must declare the same npm dependencies",
+);
 sameStrings(
   sharedIcon?.npmDependencies ?? [],
-  ["motion@^13.2.0", "@vegastack/design@^0.1.0"],
+  registryIcons[0]?.dependencies ?? [],
   "animated icon shared npmDependencies",
 );
 
