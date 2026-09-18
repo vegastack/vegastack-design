@@ -145,10 +145,17 @@ test("focus indicator: nothing in the open overlay strips the outline (text entr
       (el.getAttribute("class") ?? "").includes("outline-none") &&
       !["INPUT", "TEXTAREA"].includes(el.tagName),
   );
-  // Base UI's dialog positioner legitimately carries outline-none (it is not
-  // focusable); everything focusable must keep the centralized outline.
-  const focusableOffenders = offenders.filter((el) =>
-    el.matches("button, a, [tabindex]"),
+  // Everything a keyboard can REACH must keep the centralized outline. Two things legitimately
+  // carry `outline-none` and neither is reachable: Base UI's dialog positioner, which is not
+  // focusable at all, and — since Batch 4 put Dialog back on upstream's file — the popup itself,
+  // which Base UI focuses programmatically at `tabindex="-1"` when the dialog opens. Painting the
+  // focus outline around the whole modal on open is exactly what upstream's `outline-none` avoids,
+  // and a `-1` stop is not a tab stop. The probe therefore excludes `tabindex="-1"` and nothing
+  // else: any real tab stop that strips the outline still fails.
+  const focusableOffenders = offenders.filter(
+    (el) =>
+      el.matches("button, a, [tabindex]") &&
+      el.getAttribute("tabindex") !== "-1",
   );
   expect(focusableOffenders).toEqual([]);
 });

@@ -93,7 +93,7 @@ test("marks a destructive action with the destructive variant", async () => {
   await screen.getByRole("button", { name: "More options" }).click();
   await expect
     .element(page.getByRole("menuitem", { name: "Delete" }))
-    .toHaveAttribute("data-tone", "destructive");
+    .toHaveAttribute("data-variant", "destructive");
 });
 
 test("composes DropdownMenuItem children via the `menu` slot", async () => {

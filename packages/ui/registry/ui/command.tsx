@@ -1,4 +1,4 @@
-// @vegastack command@0.9.1 sha256-oSC011wtPXD5/RFusXJEplHZzFOCC15Scz+0rFZAGjk=
+// @vegastack command@0.9.1 sha256-KPxQn5+OeVrMzZ+xH56ycOKaLmtlx3CG73l06FUP+wU=
 
 "use client";
 
@@ -94,7 +94,11 @@ function CommandInput({
         <CommandPrimitive.Input
           data-slot="command-input"
           className={cn(
-            "w-full text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+            // A11Y-2: cmdk's input carries no height of its own, so it measures its line box —
+            // 20px inside the 32px InputGroup, under the 24px target floor the geometry lane
+            // probes with a real `elementFromPoint`. `min-h-6` is the same correction Batch 3
+            // applied to `ComboboxChipsInput` and the calendar's month/year dropdown.
+            "min-h-6 w-full text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
             className,
           )}
           {...props}

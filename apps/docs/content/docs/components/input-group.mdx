@@ -192,7 +192,9 @@ Upstream's file plus `packages/ui/upstream/patches/input-group.patch`. Every hun
 - **FOC-1, FOC-3, FOC-6** — the group's
   `has-[[data-slot=input-group-control]:focus-visible]:border-ring` plus `ring-3 ring-ring/50`
   becomes `has-[[data-slot=input-group-control]:focus]:border-ring/70`: a border tint on `:focus`,
-  for mouse and keyboard alike, and no glow.
+  for mouse and keyboard alike, and no glow. Batch 4 added the same tint for
+  `[data-slot=command-input]` — upstream's `CommandInput` puts cmdk's input inside an `InputGroup`
+  under its own slot name, so the group never saw it focus.
 - **FOC-5** — the invalid tint becomes
   `not-focus-within:has-[[data-slot][aria-invalid=true]]:border-destructive`, so a focused group
   shows its focus cue rather than the error colour; the `has-aria-invalid` halo rings go with it.

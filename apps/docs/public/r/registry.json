@@ -904,7 +904,7 @@
         "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
         "whenNotToUse": "A simple form select (Select), or a small static action menu (DropdownMenu).",
         "version": "0.9.1",
-        "integrity": "sha256-oSC011wtPXD5/RFusXJEplHZzFOCC15Scz+0rFZAGjk="
+        "integrity": "sha256-KPxQn5+OeVrMzZ+xH56ycOKaLmtlx3CG73l06FUP+wU="
       }
     },
     {
@@ -14931,7 +14931,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.9.1",
-        "integrity": "sha256-tLdVrqZ6fDe76sdu4hWT2lADO6eX9jrLuKdCVM9CNzE="
+        "integrity": "sha256-wxDpIH3GEgsOGNC/8S+HW+BnOs0cwDIf2/addPQO/XY="
       }
     },
     {

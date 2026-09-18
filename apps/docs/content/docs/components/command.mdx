@@ -176,3 +176,7 @@ Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
 - **DOC-2** — `cn` is imported from `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.
+- **A11Y-2** — `CommandInput` gains `min-h-6`. cmdk's input carries no height of its own, so it
+  measures its line box — 20px inside the 32px `InputGroup`, under the 24px target floor. Its focus
+  affordance needed the matching half in `input-group`: upstream names this slot `command-input`,
+  so the group's text-entry border tint never saw it focus (FOC-3, in `input-group.patch`).

@@ -87,7 +87,9 @@ describe("toast content geometry", () => {
         '[data-slot="toast-close"]',
       );
       expect(root && row && copy && close).toBeTruthy();
-      expect(getComputedStyle(root!).paddingTop).toBe("16px");
+      // Upstream pads the CONTENT row (`p-4`), not the root — the root owns the stack
+      // transform and the measured height. Same claim, the element that actually carries it.
+      expect(getComputedStyle(row!).paddingTop).toBe("16px");
       const center = (element: Element) => {
         const rect = element.getBoundingClientRect();
         return rect.top + rect.height / 2;
@@ -132,9 +134,14 @@ describe("toast content geometry", () => {
       return rect.top + rect.height / 2;
     };
     expect(Math.abs(center(action) - center(row))).toBeLessThan(1);
-    expect(getComputedStyle(action).backgroundColor).toBe(
-      getComputedStyle(close).backgroundColor,
+    // Upstream deliberately gives the two controls different weight: the action is
+    // `<Button variant="outline">` and paints a real surface, the close is `variant="ghost"` and
+    // paints none. The pre-reset toast used one variant for both, so this assertion used to read
+    // "same fill"; the claim now is the hierarchy upstream ships, measured rather than assumed.
+    expect(getComputedStyle(action).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
     );
+    expect(getComputedStyle(close).backgroundColor).toBe("rgba(0, 0, 0, 0)");
     expect(action.getBoundingClientRect().height).toBe(28);
   });
 });

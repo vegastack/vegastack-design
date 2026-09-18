@@ -165,10 +165,21 @@ test("nested Dialog paints above its parent Dialog", async () => {
   await expect.poll(() => hitTestInside(inner)).toBe(true);
 });
 
-// Upstream gives the dialog `z-50` and each toast `z-[calc(1000-var(--toast-index))]`, so the
-// notification band sits above the modal band by value rather than by our retired `--z-toast`
-// token. `Toaster` brings its own `ToastProvider`, so it is mounted alone.
-test("a toast fired while a Dialog is open stays visible above it", async () => {
+// THE TOAST BAND IS GONE, AND THAT IS UPSTREAM'S OWN BEHAVIOUR — FLAGGED FOR MK.
+//
+// This system used to give the toast viewport its own `--z-toast` band (60) so a toast fired while
+// a modal was open stayed readable above it. OVL-2 resolves as **shadcn**: there is one `z-50` band
+// and nesting is decided by DOM order. Upstream's `Toast.Viewport` is `fixed z-50` and the dialog's
+// backdrop and popup are `fixed z-50` too, so whichever portal `<body>` holds LAST wins — and a
+// `<Toaster/>` mounted at the app root is always FIRST, because the dialog's portal is appended
+// when it opens.
+//
+// Measured, not assumed: the toast root computes `z-index: 1000` but inside a `z-50` fixed
+// viewport, so `elementFromPoint` over the toast returns `dialog-overlay`. The consequence is
+// user-visible — a toast fired from inside a modal is behind the scrim — and it is what shadcn
+// ships. This test pins the MECHANISM so the day the band changes it fails, rather than pinning a
+// guarantee the reset retired.
+test("a toast and a modal dialog share the one z-50 band, and DOM order decides", async () => {
   const screen = await render(
     <>
       <Toaster />
@@ -190,5 +201,19 @@ test("a toast fired while a Dialog is open stays visible above it", async () => 
   await screen.getByRole("button", { name: "Open dialog" }).click();
   await screen.getByRole("button", { name: "Fire toast" }).click();
   const toastEl = await screen.getByText("Saved to workspace").element();
-  await expect.poll(() => hitTestInside(toastEl)).toBe(true);
+
+  const viewport = document.querySelector<HTMLElement>(
+    '[data-slot="toast-viewport"]',
+  )!;
+  const overlay = document.querySelector<HTMLElement>(
+    '[data-slot="dialog-overlay"]',
+  )!;
+  expect(getComputedStyle(viewport).zIndex).toBe("50");
+  expect(getComputedStyle(overlay).zIndex).toBe("50");
+
+  // Same band, so the later body child paints on top — and the toaster mounted first.
+  const bodyIndex = (el: Element) =>
+    [...document.body.children].findIndex((child) => child.contains(el));
+  expect(bodyIndex(viewport)).toBeLessThan(bodyIndex(overlay));
+  await expect.poll(() => hitTestInside(toastEl)).toBe(false);
 });

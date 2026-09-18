@@ -419,7 +419,9 @@ const TEXT_ENTRY_SLOTS =
   // input behind the slots, and `input-group-control`, which is the `Input`/`Textarea` inside an
   // `InputGroup`. Both are text entry: they suppress the global ring and signal focus with a
   // border tint on a carrier — the active slot for the OTP, the group for the input group.
-  "[data-slot=input-otp],[data-slot=input-group-control]";
+  // `command-input` is cmdk's input inside an `InputGroup`; upstream gives it its own slot name,
+  // so it needs naming here too, and `input-group.tsx` carries the matching tint selector.
+  "[data-slot=input-otp],[data-slot=input-group-control],[data-slot=command-input]";
 
 /**
  * The wrapper that owns a text-entry control's focus affordance, if any.
