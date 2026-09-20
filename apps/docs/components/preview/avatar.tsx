@@ -191,15 +191,12 @@ export function avatarSizes(): ReactNode {
   return (
     <Wrapper>
       <Avatar size="sm">
-        <AvatarImage src={ADA} alt="Ada Lovelace" />
         <AvatarFallback>AL</AvatarFallback>
       </Avatar>
       <Avatar>
-        <AvatarImage src={ADA} alt="Ada Lovelace" />
         <AvatarFallback>AL</AvatarFallback>
       </Avatar>
       <Avatar size="lg">
-        <AvatarImage src={ADA} alt="Ada Lovelace" />
         <AvatarFallback>AL</AvatarFallback>
       </Avatar>
     </Wrapper>
