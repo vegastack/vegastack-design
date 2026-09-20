@@ -1,5 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
+import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button, buttonVariants } from "./button";
@@ -108,6 +109,39 @@ test("API-5: loading announces busy, marks the control, and blocks activation", 
   await expect.element(button).toHaveAttribute("data-loading", "");
   (button.element() as HTMLButtonElement).click();
   expect(clicks).toBe(0);
+});
+
+test("a composed loading root keeps its name and blocks pointer and keyboard activation", async () => {
+  let clicks = 0;
+  const screen = await render(
+    <Button
+      loading
+      render={<div />}
+      nativeButton={false}
+      onClick={() => (clicks += 1)}
+    >
+      <span>Regenerate</span>
+    </Button>,
+  );
+  const button = screen.getByRole("button", { name: "Regenerate" });
+  await expect.element(button).toHaveAttribute("aria-busy", "true");
+  await expect.element(button).toHaveAttribute("aria-disabled", "true");
+  const element = button.element() as HTMLElement;
+  element.click();
+  element.focus();
+  await userEvent.keyboard("{Enter}{Space}");
+  expect(clicks).toBe(0);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("loading respects an explicit non-focusable disabled policy", async () => {
+  const screen = await render(
+    <Button loading focusableWhenDisabled={false}>
+      Save changes
+    </Button>,
+  );
+  const button = screen.getByRole("button", { name: "Save changes" });
+  await expect.element(button).toHaveAttribute("disabled");
 });
 
 test("A11Y-12: the loading label keeps its box rather than being removed", async () => {

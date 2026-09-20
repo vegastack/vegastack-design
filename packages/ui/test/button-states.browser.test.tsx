@@ -1,4 +1,5 @@
 import "./contrast.css"; // compiled Tailwind + @vegastack token theme (Vite via @tailwindcss/vite)
+import { RefreshCw } from "lucide-react";
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
@@ -65,7 +66,7 @@ test("loading does not move the button's width (API-5 / A11Y-12)", async () => {
   expect(Math.abs(busy.width - idle.width)).toBeLessThan(1);
 });
 
-test("the loading label is hidden by opacity, never by visibility", async () => {
+test("the loading label is hidden through a real box and the spinner is centered", async () => {
   const screen = await render(
     <Button loading>
       <span data-testid="label">Save changes</span>
@@ -73,8 +74,103 @@ test("the loading label is hidden by opacity, never by visibility", async () => 
   );
   const wrapper = screen.getByTestId("label").element().parentElement!;
   const style = getComputedStyle(wrapper);
+  expect(style.display).not.toBe("contents");
+  expect(wrapper.getClientRects().length).toBeGreaterThan(0);
+  expect(wrapper.getBoundingClientRect().width).toBeGreaterThan(0);
   expect(style.opacity).toBe("0");
   expect(style.visibility).not.toBe("hidden");
+
+  const button = screen.getByRole("button", { name: "Save changes" }).element();
+  const spinner = button.querySelector('[data-slot="spinner"]')!;
+  expect(getComputedStyle(spinner.parentElement!).opacity).toBe("1");
+  expect(getComputedStyle(spinner.parentElement!).visibility).toBe("visible");
+
+  const buttonBox = button.getBoundingClientRect();
+  const spinnerBox = spinner.getBoundingClientRect();
+  expect(spinnerBox.width).toBeGreaterThan(0);
+  expect(spinnerBox.height).toBeGreaterThan(0);
+  expect(
+    Math.abs(
+      spinnerBox.x + spinnerBox.width / 2 - buttonBox.x - buttonBox.width / 2,
+    ),
+  ).toBeLessThan(1);
+  expect(
+    Math.abs(
+      spinnerBox.y + spinnerBox.height / 2 - buttonBox.y - buttonBox.height / 2,
+    ),
+  ).toBeLessThan(1);
+});
+
+test("loading preserves icon-label dimensions and gap for every text size", async () => {
+  for (const theme of ["", "dark"] as const) {
+    for (const size of ["xs", "sm", "default", "lg"] as const) {
+      const children = (
+        <>
+          <RefreshCw aria-hidden="true" data-testid={`icon-${theme}-${size}`} />
+          <span data-testid={`text-${theme}-${size}`}>Regenerate</span>
+        </>
+      );
+      const screen = await render(
+        <div className={theme}>
+          <Button size={size} data-testid={`idle-${theme}-${size}`}>
+            {children}
+          </Button>
+          <Button loading size={size} data-testid={`busy-${theme}-${size}`}>
+            {children}
+          </Button>
+        </div>,
+      );
+      const idle = screen.getByTestId(`idle-${theme}-${size}`).element();
+      const busy = screen.getByTestId(`busy-${theme}-${size}`).element();
+      const idleBox = idle.getBoundingClientRect();
+      const busyBox = busy.getBoundingClientRect();
+      expect(Math.abs(idleBox.width - busyBox.width)).toBeLessThan(1);
+      expect(Math.abs(idleBox.height - busyBox.height)).toBeLessThan(1);
+
+      const gap = (root: Element) => {
+        const icon = root
+          .querySelector('[data-testid^="icon-"]')!
+          .getBoundingClientRect();
+        const text = root
+          .querySelector('[data-testid^="text-"]')!
+          .getBoundingClientRect();
+        return text.left - icon.right;
+      };
+      expect(Math.abs(gap(idle) - gap(busy))).toBeLessThan(1);
+      expect(gap(busy)).toBeGreaterThan(0);
+    }
+  }
+});
+
+test("loading toggles without moving a nested label or changing its name", async () => {
+  const content = (
+    <span>
+      <span>Regenerate</span>
+    </span>
+  );
+  const screen = await render(<Button>{content}</Button>);
+  const idleButton = screen
+    .getByRole("button", { name: "Regenerate" })
+    .element();
+  const idleBox = idleButton.getBoundingClientRect();
+
+  await screen.rerender(<Button loading>{content}</Button>);
+  const busyButton = screen
+    .getByRole("button", { name: "Regenerate" })
+    .element();
+  const busyBox = busyButton.getBoundingClientRect();
+  expect(Math.abs(idleBox.width - busyBox.width)).toBeLessThan(1);
+  expect(Math.abs(idleBox.height - busyBox.height)).toBeLessThan(1);
+  expect(busyButton.querySelector(".opacity-0")).not.toBeNull();
+
+  await screen.rerender(<Button>{content}</Button>);
+  const restoredButton = screen
+    .getByRole("button", { name: "Regenerate" })
+    .element();
+  const restoredBox = restoredButton.getBoundingClientRect();
+  expect(Math.abs(idleBox.width - restoredBox.width)).toBeLessThan(1);
+  expect(Math.abs(idleBox.height - restoredBox.height)).toBeLessThan(1);
+  expect(restoredButton.querySelector(".opacity-0")).toBeNull();
 });
 
 test("disabled dims, loading does not, and neither removes pointer events (FRM-4)", async () => {
@@ -170,4 +266,32 @@ test("each icon size is a true square, and rounded-full is round", async () => {
   expect(
     Number.parseFloat(getComputedStyle(element).borderTopLeftRadius),
   ).toBeGreaterThanOrEqual(width / 2 - 1);
+});
+
+test("loading keeps every icon size square and paints its spinner", async () => {
+  for (const [size, px] of [
+    ["icon-xs", 24],
+    ["icon-sm", 28],
+    ["icon", 32],
+    ["icon-lg", 36],
+  ] as const) {
+    const screen = await render(
+      <Button
+        loading
+        aria-label={`Loading ${size}`}
+        size={size}
+        data-testid={`loading-${size}`}
+      >
+        <RefreshCw aria-hidden="true" />
+      </Button>,
+    );
+    const button = screen.getByTestId(`loading-${size}`).element();
+    const box = button.getBoundingClientRect();
+    const spinner = button.querySelector('[data-slot="spinner"]')!;
+    const spinnerBox = spinner.getBoundingClientRect();
+    expect(box.width).toBeCloseTo(px, 0);
+    expect(box.height).toBeCloseTo(px, 0);
+    expect(spinnerBox.width).toBeGreaterThan(0);
+    expect(spinnerBox.height).toBeGreaterThan(0);
+  }
 });
