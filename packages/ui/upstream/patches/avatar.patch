@@ -1,11 +1,13 @@
 # component: avatar
-# decisions: DOC-2
+# decisions: DOC-2, TYP-14
 # hunks:
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   fallback typography: all three Avatar sizes use `text-xs`; the public size API and diameter
+#                        classes remain upstream's (TYP-14, approved for issue #148).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/avatar.tsx b/avatar.tsx
-index 1eda9f0..6f5ef0e 100644
+index 1eda9f0..d5aca9d 100644
 --- a/avatar.tsx
 +++ b/avatar.tsx
 @@ -1,15 +1,15 @@
@@ -57,11 +59,13 @@ index 1eda9f0..6f5ef0e 100644
  }
  
  function AvatarFallback({
-@@ -46,11 +46,11 @@ function AvatarFallback({
+@@ -45,12 +45,12 @@ function AvatarFallback({
+     <AvatarPrimitive.Fallback
        data-slot="avatar-fallback"
        className={cn(
-         "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
+-        "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
 -        className
++        "flex size-full items-center justify-center rounded-full bg-muted text-xs text-muted-foreground",
 +        className,
        )}
        {...props}

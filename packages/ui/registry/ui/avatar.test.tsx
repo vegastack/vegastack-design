@@ -1,7 +1,9 @@
 import * as React from "react";
+import { UserIcon } from "lucide-react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import "../../test/contrast.css";
 import {
   Avatar,
   AvatarBadge,
@@ -99,6 +101,95 @@ test("Sizes: the root recipe carries a distinct class per tier", async () => {
   expect(classes).toContain("data-[size=lg]:size-10");
 });
 
+test.each([
+  ["sm", 6],
+  ["default", 8],
+  ["lg", 10],
+] as const)(
+  "approved fallback typography and diameter: %s",
+  async (size, units) => {
+    const screen = await render(
+      <div>
+        <span data-testid="text-floor" className="text-xs">
+          Reference
+        </span>
+        <span
+          data-testid="spacing-unit"
+          className="inline-block size-1"
+          aria-hidden="true"
+        />
+        <Avatar size={size}>
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+      </div>,
+    );
+    const fallback = screen.getByText("AL");
+    await expect.element(fallback).toBeVisible();
+    const root = fallback.element().closest<HTMLElement>("[data-slot=avatar]");
+    const reference = screen.getByTestId("text-floor").element();
+    const spacing = screen
+      .getByTestId("spacing-unit")
+      .element()
+      .getBoundingClientRect().width;
+    expect(root).not.toBeNull();
+    expect(spacing).toBeGreaterThan(0);
+    expect(parseFloat(getComputedStyle(reference).fontSize)).toBeLessThan(
+      parseFloat(getComputedStyle(document.documentElement).fontSize),
+    );
+    expect(getComputedStyle(fallback.element()).fontSize).toBe(
+      getComputedStyle(reference).fontSize,
+    );
+    expect(root!.getBoundingClientRect().width).toBeCloseTo(spacing * units, 1);
+    expect(root!.getBoundingClientRect().height).toBeCloseTo(
+      spacing * units,
+      1,
+    );
+  },
+);
+
+test("consumer fallback typography overrides remain effective", async () => {
+  const screen = await render(
+    <div>
+      <span className="text-base" data-testid="override">
+        Reference
+      </span>
+      <Avatar>
+        <AvatarFallback className="text-base">AL</AvatarFallback>
+      </Avatar>
+    </div>,
+  );
+  expect(getComputedStyle(screen.getByText("AL").element()).fontSize).toBe(
+    getComputedStyle(screen.getByTestId("override").element()).fontSize,
+  );
+});
+
+test("fallback children inherit typography unless they explicitly override it", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarFallback>
+        <span data-testid="inherited">AL</span>
+        <span data-testid="explicit" className="text-base">
+          +3
+        </span>
+        <UserIcon className="size-4" aria-label="User" />
+      </AvatarFallback>
+    </Avatar>,
+  );
+  const fallback = screen.container.querySelector<HTMLElement>(
+    "[data-slot=avatar-fallback]",
+  );
+  expect(fallback).not.toBeNull();
+  expect(
+    getComputedStyle(screen.getByTestId("inherited").element()).fontSize,
+  ).toBe(getComputedStyle(fallback!).fontSize);
+  expect(
+    getComputedStyle(screen.getByTestId("explicit").element()).fontSize,
+  ).toBe("16px");
+  await expect
+    .element(screen.getByRole("img", { name: "User" }))
+    .toHaveClass("size-4");
+});
+
 test("Basic: the image renders as a native img with its alt", async () => {
   const screen = await render(
     <Avatar>
@@ -119,6 +210,46 @@ test("Basic: the fallback paints when there is no image", async () => {
   );
   await expect.element(screen.getByText("AL")).toBeInTheDocument();
   expect(screen.container.querySelector("img")).toBeNull();
+});
+
+test("failed image retains the text fallback", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarImage src="data:image/png;base64,AA==" alt="Ada" />
+      <AvatarFallback>AL</AvatarFallback>
+    </Avatar>,
+  );
+  await expect.element(screen.getByText("AL")).toBeVisible();
+});
+
+test("loaded image hides the fallback without changing the default diameter", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarImage src={SRC} alt="Ada" />
+      <AvatarFallback>AL</AvatarFallback>
+    </Avatar>,
+  );
+  const image = screen.getByRole("img", { name: "Ada" });
+  await expect
+    .poll(() => (image.element() as HTMLImageElement).naturalWidth)
+    .toBeGreaterThan(0);
+  await expect.element(screen.getByText("AL")).not.toBeInTheDocument();
+  expect(
+    image
+      .element()
+      .closest<HTMLElement>("[data-slot=avatar]")
+      ?.getBoundingClientRect().width,
+  ).toBe(32);
+});
+
+test("fallback delay is forwarded to Base UI", async () => {
+  const screen = await render(
+    <Avatar>
+      <AvatarFallback delay={50}>AL</AvatarFallback>
+    </Avatar>,
+  );
+  await expect.element(screen.getByText("AL")).not.toBeInTheDocument();
+  await expect.element(screen.getByText("AL")).toBeVisible();
 });
 
 test("Badge: the badge is a span inside the avatar and takes a custom fill", async () => {
