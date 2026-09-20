@@ -509,7 +509,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
         "version": "0.10.0",
-        "integrity": "sha256-iRR5HWW2gKEW50WrcB5jNdiOEPiuNGwYkuH7K6Vy49k="
+        "integrity": "sha256-fcAUucOMbN2PJXb6XjhAgOj7XJIfamBeOVob4utvAs0="
       }
     },
     {
