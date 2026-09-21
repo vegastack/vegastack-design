@@ -1486,7 +1486,7 @@
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.10.0",
-        "integrity": "sha256-D9nQGDepWg5uaV7NunR8p6v3LF8cBBBhRsXY1QveSrE="
+        "integrity": "sha256-hkxjfZzc3+9huucNa//KnganaxAgJ/8xwoa4eSwS7Qw="
       }
     },
     {

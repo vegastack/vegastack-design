@@ -2688,3 +2688,17 @@ changed for any of these test repairs.
   generated Version PRs run static plus `verify-release-output-scope`. The latter semantically limits
   every path, version, package field and provenance-only source change, so weakening the ordinary
   planner would provide less assurance than using the release-specific authority.
+
+## 2026-09-21 — CLOSED: browser-owned search clear control escaped the token system
+
+- **Symptom.** WebKit/Blink search fields could paint their native cancel glyph in a browser accent
+  colour, including FilterBar's search field, with no semantic-token control.
+- **Root cause.** Generic `Input` correctly preserved native `type="search"` behavior, while the
+  browser-owned `::-webkit-search-cancel-button` remained an engine-specific painted control.
+- **Systemic fix.** `SearchInput` now composes `InputGroup` with one named, token-safe clear button,
+  hides the native WebKit cancel control, preserves native input/form/ref semantics, and handles
+  controlled, uncontrolled, Escape, pointer, keyboard and reset paths. FilterBar composes that
+  boundary while retaining `FilterBarSearch.onValueChange` as the sole value-event owner.
+- **Verification limit.** Chromium and Firefox executed the focused 43-test suite successfully.
+  WebKit launch timed out on this macOS host, so issue #156 remains operator-blocked rather than
+  recording an unexecuted engine as passing.

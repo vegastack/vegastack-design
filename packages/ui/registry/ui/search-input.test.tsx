@@ -30,11 +30,13 @@ test.each(["Enter", " "])("keyboard clear via %s reports once", async (key) => {
       aria-label="Search"
     />,
   );
+  const input = screen.getByRole("searchbox", { name: "Search" });
   const clear = screen.getByRole("button", { name: "Clear search" });
   (clear.element() as HTMLElement).focus();
   await userEvent.keyboard(key === "Enter" ? "{Enter}" : " ");
   expect(onValueChange).toHaveBeenCalledOnce();
   expect(onValueChange).toHaveBeenCalledWith("");
+  expect(document.activeElement).toBe(input.element());
 });
 
 test("controlled typing and external updates follow the owner", async () => {
@@ -60,7 +62,8 @@ test("controlled typing and external updates follow the owner", async () => {
   const screen = await render(<Fixture />);
   const input = screen.getByRole("searchbox", { name: "Search" });
   await input.fill("design");
-  expect(onValueChange).toHaveBeenLastCalledWith("design");
+  expect(onValueChange).toHaveBeenCalledOnce();
+  expect(onValueChange).toHaveBeenCalledWith("design");
   await screen.getByRole("button", { name: "Set" }).click();
   await expect.element(input).toHaveValue("external");
 });
@@ -222,11 +225,20 @@ test("clear target is 24px and remains unobstructed", async () => {
     const rect = button.getBoundingClientRect();
     expect(rect.width).toBe(24);
     expect(rect.height).toBe(24);
-    const hit = document.elementFromPoint(
-      rect.left + rect.width / 2,
-      rect.top + rect.height / 2,
-    );
-    expect(hit === button || button.contains(hit)).toBe(true);
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const half = 12 - 0.5;
+    const samples = [
+      [centerX - half, centerY],
+      [centerX + half, centerY],
+      [centerX, centerY - half],
+      [centerX, centerY + half],
+      [centerX, centerY],
+    ] as const;
+    for (const [x, y] of samples) {
+      const hit = document.elementFromPoint(x, y);
+      expect(hit === button || button.contains(hit)).toBe(true);
+    }
   } finally {
     style.remove();
   }

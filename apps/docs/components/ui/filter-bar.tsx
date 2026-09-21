@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.10.0 sha256-D9nQGDepWg5uaV7NunR8p6v3LF8cBBBhRsXY1QveSrE=
+// @vegastack filter-bar@0.10.0 sha256-hkxjfZzc3+9huucNa//KnganaxAgJ/8xwoa4eSwS7Qw=
 
 "use client";
 
@@ -142,7 +142,7 @@ export interface FilterBarProps extends Omit<
    */
   searchInputProps?: Omit<
     SearchInputProps,
-    "defaultValue" | "onValueChange" | "placeholder" | "value"
+    "defaultValue" | "onChange" | "onValueChange" | "placeholder" | "value"
   >;
   /**
    * Content rendered at the trailing (right) end of the bar — e.g. a

@@ -4,7 +4,16 @@ import { expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { Flag } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { FilterBar, FilterChip } from "./filter-bar";
+import { FilterBar, FilterChip, type FilterBarProps } from "./filter-bar";
+
+test("searchInputProps cannot take ownership of the search value event", () => {
+  const acceptSearchInputProps = (
+    _props: NonNullable<FilterBarProps["searchInputProps"]>,
+  ) => {};
+
+  // @ts-expect-error FilterBarSearch.onValueChange is the sole value-event owner.
+  acceptSearchInputProps({ onChange: () => {} });
+});
 
 test("renders a chip per active filter", async () => {
   const screen = await render(
@@ -116,7 +125,8 @@ test("search field is controlled — typing fires onValueChange", async () => {
   const input = screen.getByPlaceholder("Search tasks…");
   await expect.element(input).toBeInTheDocument();
   await input.fill("bug");
-  expect(onValueChange).toHaveBeenCalled();
+  expect(onValueChange).toHaveBeenCalledOnce();
+  expect(onValueChange).toHaveBeenCalledWith("bug");
 });
 
 test("search clear reports one empty value and keeps input focus", async () => {

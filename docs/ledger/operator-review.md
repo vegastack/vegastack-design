@@ -2939,3 +2939,23 @@ version rewrite is a component source change. PR #144 proved why filename pairin
 abstraction: two registry item names are secondary exports of differently named canonical files.
 The generated PR instead runs the complete static boundary followed by the stricter positive release
 delta validator. Runtime browser evidence remains owned by the originating source PRs.
+
+## 2026-09-21 — SearchInput owns clearable search; generic Input remains native
+
+Issue #156 adds a dedicated `SearchInput` instead of changing generic `Input`. The dedicated
+boundary was chosen because CSS recolouring did not control the browser-painted glyph and because a
+generic text-entry primitive should not acquire search-specific state or actions. `SearchInput`
+composes the established InputGroup parts, so its border, invalid, disabled, focus and theme behavior
+continue to come from shared controls.
+
+FilterBar keeps its existing controlled `FilterBarSearch` API. Independent review caught that the
+first implementation had omitted `onValueChange` but accidentally re-exposed native `onChange`
+through `searchInputProps`; that secondary event owner is now excluded and guarded by a compile-time
+test.
+
+The current repository has no `tooling/vrt-review.mjs`, despite the approved plan naming it. Six
+local exported-doc captures were therefore rendered and inspected directly for SearchInput and
+FilterBar in light, dark and 320px views; no visual defect was found. This substitutes inspection
+evidence only, not the missing before/after report. WebKit also cannot launch on this host, and the
+skill-scan analyzers degraded while inspecting existing repository skills. Those unavailable gates
+are surfaced to the operator rather than waived locally.
