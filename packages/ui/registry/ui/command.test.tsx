@@ -135,6 +135,29 @@ test("CommandDialog puts the palette inside a dialog (Basic)", async () => {
   expect(rows(content)).toEqual(["Calendar", "Calculator", "Settings"]);
 });
 
+test("CommandDialog owns a centered, viewport-capped scrolling region", async () => {
+  await render(
+    <CommandDialog open title="Command Palette" description="Run a command.">
+      <Palette
+        items={Array.from({ length: 60 }, (_, index) => ({
+          label: `Result ${index}`,
+        }))}
+      />
+      <div data-testid="footer">Footer</div>
+    </CommandDialog>,
+  );
+  const content = document.querySelector(
+    '[data-slot="dialog-content"]',
+  ) as HTMLElement;
+  expect(content.className).toContain("top-1/2");
+  expect(content.className).toContain("-translate-y-1/2");
+  expect(content.className).toContain("max-h-[calc(100dvh-var(--spacing)*8)]");
+  expect(content.className).toContain("grid-rows-[minmax(0,1fr)_auto]");
+  expect(content.querySelector('[data-slot="command"]')?.className).toContain(
+    "min-h-0",
+  );
+});
+
 // --- About: the cmdk engine -------------------------------------------------------------------
 
 test("the engine unmounts a row that scores zero rather than hiding it (About)", async () => {

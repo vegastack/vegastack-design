@@ -1,5 +1,5 @@
 # component: command
-# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-7, DOC-1, DOC-2, INT-1
+# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-7, DOC-1, DOC-2, INT-1, LAY-10
 # hunks:
 #   INT-1: `cursor-default` is removed from `CommandItem`, so a row shows the hand cursor the one
 #     global rule gives every `[role="option"]`.
@@ -27,11 +27,15 @@
 #     relationship — and `CommandEmpty` puts `role="status"` on the message itself (A11Y-3) so the
 #     empty state is still announced. Upstream's public composition is untouched: `<CommandEmpty>`
 #     still goes inside `<CommandList>`.
+#   LAY-10: `CommandDialog` restores `DialogContent`'s centered transform, caps its block size
+#     against `100dvh`, and uses a shrinkable command row above an optional footer. The prior
+#     `top-1/3` override put the selected result below 480px-tall viewports even though the list
+#     itself scrolled correctly.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..73ca30f 100644
+index 5cb64c9..c15a0ef 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -47,7 +51,7 @@ index 5cb64c9..73ca30f 100644
  
  import {
    Dialog,
-@@ -10,15 +10,28 @@ import {
+@@ -10,27 +10,43 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
@@ -82,11 +86,12 @@ index 5cb64c9..73ca30f 100644
    ...props
  }: React.ComponentProps<typeof CommandPrimitive>) {
    return (
-@@ -26,11 +39,14 @@ function Command({
+     <CommandPrimitive
        data-slot="command"
        className={cn(
-         "flex size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
+-        "flex size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
 -        className
++        "flex min-h-0 size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
 +        className,
        )}
        {...props}
@@ -117,11 +122,13 @@ index 5cb64c9..73ca30f 100644
  }) {
    return (
      <Dialog {...props}>
-@@ -56,14 +72,14 @@ function CommandDialog({
+@@ -55,15 +71,15 @@ function CommandDialog({
+       </DialogHeader>
        <DialogContent
          className={cn(
-           "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
+-          "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
 -          className
++          "max-h-[calc(100dvh-var(--spacing)*8)] grid-rows-[minmax(0,1fr)_auto] overflow-hidden rounded-xl! p-0",
 +          className,
          )}
          showCloseButton={showCloseButton}
