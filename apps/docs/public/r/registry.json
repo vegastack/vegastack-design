@@ -353,7 +353,7 @@
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
         "version": "0.10.0",
-        "integrity": "sha256-Gijouh/7R0wmg9yzpEnnzk/L3QwZmHMoMX1gjlTxCAg="
+        "integrity": "sha256-5OQcgK7qbPAAZFmwagJuIkPrKyQRovA3gYrxaQv19GU="
       }
     },
     {

@@ -2260,9 +2260,14 @@
         "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no size dimension for this component."
+        "status": "covered",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["default", "sm", "lg"],
+            "evidence": "packages/ui/registry/ui/avatar.test.tsx: rendered fallback typography and diameter test"
+          }
+        ]
       },
       "states": {
         "behavior": {
