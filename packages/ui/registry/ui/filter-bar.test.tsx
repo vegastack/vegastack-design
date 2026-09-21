@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { Flag } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { FilterBar, FilterChip } from "./filter-bar";
@@ -117,6 +117,79 @@ test("search field is controlled — typing fires onValueChange", async () => {
   await expect.element(input).toBeInTheDocument();
   await input.fill("bug");
   expect(onValueChange).toHaveBeenCalled();
+});
+
+test("search clear reports one empty value and keeps input focus", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <FilterBar
+      filters={[]}
+      search={{
+        value: "regent",
+        onValueChange,
+        placeholder: "Search tasks…",
+      }}
+    />,
+  );
+  const input = screen.getByRole("searchbox", { name: "Search tasks…" });
+  await screen.getByRole("button", { name: "Clear search" }).click();
+  expect(onValueChange).toHaveBeenCalledTimes(1);
+  expect(onValueChange).toHaveBeenLastCalledWith("");
+  expect(document.activeElement).toBe(input.element());
+});
+
+test("Escape clears FilterBar search exactly once", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <FilterBar
+      filters={[]}
+      search={{ value: "regent", onValueChange, "aria-label": "Query" }}
+    />,
+  );
+  await screen.getByRole("searchbox", { name: "Query" }).click();
+  await userEvent.keyboard("{Escape}");
+  expect(onValueChange).toHaveBeenCalledOnce();
+  expect(onValueChange).toHaveBeenCalledWith("");
+});
+
+test.each(["empty", "disabled", "readOnly"])(
+  "search exposes no clear action when %s",
+  async (state) => {
+    const value = state === "empty" ? "" : "regent";
+    await render(
+      <FilterBar
+        filters={[]}
+        search={{ value, onValueChange: () => {} }}
+        searchInputProps={
+          state === "disabled"
+            ? { disabled: true }
+            : state === "readOnly"
+              ? { readOnly: true }
+              : {}
+        }
+      />,
+    );
+    expect(
+      document.querySelector('[data-slot="search-input-clear"]'),
+    ).toBeNull();
+  },
+);
+
+test("forwards searchInputProps to SearchInput and preserves placement", async () => {
+  const screen = await render(
+    <FilterBar
+      filters={[]}
+      search={{ value: "regent", onValueChange: () => {} }}
+      searchInputProps={{ className: "max-w-sm", name: "query" }}
+    />,
+  );
+  const group = document.querySelector(
+    '[data-slot="filter-bar-search"]',
+  ) as HTMLElement;
+  expect(group.className).toContain("max-w-sm");
+  await expect
+    .element(screen.getByRole("searchbox", { name: "Search" }))
+    .toHaveAttribute("name", "query");
 });
 
 test("omits the search field when search is not provided", async () => {

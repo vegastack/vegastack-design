@@ -13,7 +13,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import {
+  SearchInput,
+  type SearchInputProps,
+} from "@/components/ui/search-input";
 
 /* ------------------------------------------------------------------------------------------------
  * Types
@@ -134,12 +137,12 @@ export interface FilterBarProps extends Omit<
    * @default undefined
    */
   search?: FilterBarSearch;
-  /** Props forwarded to the underlying search {@link Input}.
+  /** Props forwarded to the underlying {@link SearchInput}.
    * @default undefined
    */
   searchInputProps?: Omit<
-    React.ComponentProps<typeof Input>,
-    "value" | "onChange" | "placeholder"
+    SearchInputProps,
+    "defaultValue" | "onValueChange" | "placeholder" | "value"
   >;
   /**
    * Content rendered at the trailing (right) end of the bar — e.g. a
@@ -332,11 +335,10 @@ export function FilterBar({
 
       {/* Optional controlled search/query input — pushed to the trailing edge. */}
       {search != null ? (
-        <Input
+        <SearchInput
           {...searchInputProps}
-          type="search"
           value={search.value}
-          onChange={(event) => search.onValueChange(event.target.value)}
+          onValueChange={search.onValueChange}
           placeholder={search.placeholder ?? "Search…"}
           aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
           data-slot="filter-bar-search"
