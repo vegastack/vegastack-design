@@ -106,7 +106,9 @@ score zero is hidden by the engine, and the separator beside it disappears with 
 ### Scrollable
 
 `CommandList` caps at `max-h-72` and scrolls, with `scroll-py-1` so the arrow-key cursor never lands
-flush against the edge.
+flush against the edge. Inside `CommandDialog`, the palette is vertically centered and capped to the
+dynamic viewport with a standard spacing gap. The command region shrinks before an optional footer,
+so the search row and footer stay visible while long results keep scrolling inside `CommandList`.
 
 <ComponentPreview
   name="commandScrollable"
@@ -180,3 +182,6 @@ Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
   measures its line box — 20px inside the 32px `InputGroup`, under the 24px target floor. Its focus
   affordance needed the matching half in `input-group`: upstream names this slot `command-input`,
   so the group's text-entry border tint never saw it focus (FOC-3, in `input-group.patch`).
+- **LAY-10** — `CommandDialog` restores `DialogContent`'s centered transform, caps its block size
+  against `100dvh`, and gives the command region a shrinkable grid row. Short viewports keep the
+  search row, scrolling results and an optional footer inside the visible browser area.

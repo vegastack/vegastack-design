@@ -4,6 +4,21 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-21 — CLOSED: CommandDialog escaped short viewports despite a scrolling list
+
+- **Symptom.** With 60 results, `CommandDialog` extended below 480px-tall viewports. Pressing End
+  selected and scrolled the final row inside `CommandList`, but the row still sat below the browser
+  viewport; a composed footer was clipped too.
+- **Root cause.** `CommandDialog` overrode the shared dialog's centered transform with
+  `top-1/3 translate-y-0` and had no dynamic-viewport cap. `CommandList`'s `overflow-y-auto` worked,
+  but its outer popup was allowed to start one third down the viewport and grow past the bottom.
+- **Fix.** The popup now uses the shared centered transform, caps itself to `100dvh` minus standard
+  spacing, and gives the command region a shrinkable grid row above an optional footer. A compiled
+  CSS matrix passed 96/96 dialog variants across Chromium and Firefox, light/dark, LTR/RTL,
+  1280px/320px widths, 800px/480px/320px heights, and plain/footer compositions. Trusted wheel,
+  keyboard reveal, selection, Escape and focus-return checks also passed. WebKit remained unavailable
+  on the current macOS host and is not claimed.
+
 ## 2026-09-09 — Class glue: five seams, four broken controls, and a switch with no track
 
 Five places in the registry concatenated two adjacent class string literals with `+` and **no
