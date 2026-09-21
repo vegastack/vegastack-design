@@ -1,9 +1,9 @@
 {
-  "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (171 rows: 168 decided by MK 2026-09-17/18, plus A11Y-13 added by MK 2026-09-18 during Batch 2, A11Y-16 added by MK 2026-09-18 after the Codex review of main..HEAD, and OVL-14 added by MK 2026-09-18 for the closing pass, restoring the fullscreen portal container Batch 4 lost. IDs A11Y-14 and A11Y-15 are permanently unused: two subagents invented them during Batch 4 and Batch 5 reverted them.)",
+  "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (172 rows: 168 decided by MK 2026-09-17/18, plus A11Y-13 added by MK 2026-09-18 during Batch 2, A11Y-16 added by MK 2026-09-18 after the Codex review of main..HEAD, OVL-14 added by MK 2026-09-18 for the closing pass, and TYP-14 explicitly ratified by MK 2026-09-21 for issue #148. IDs A11Y-14 and A11Y-15 are permanently unused: two subagents invented them during Batch 4 and Batch 5 reverted them.)",
   "_note": "GENERATED from the prose register, which is an untracked planning document. Regenerate with: node tooling/upstream/verify-parity.mjs --sync-decisions. A gate may only accept an ID whose value here is \"ours\".",
   "counts": {
-    "total": 171,
-    "ours": 61,
+    "total": 172,
+    "ours": 62,
     "shadcn": 110
   },
   "decisions": {
@@ -177,6 +177,7 @@
     "DOC-11": "shadcn",
     "DOC-12": "shadcn",
     "A11Y-16": "ours",
-    "OVL-14": "ours"
+    "OVL-14": "ours",
+    "TYP-14": "ours"
   }
 }

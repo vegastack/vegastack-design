@@ -96,7 +96,9 @@ Give it an accessible name, since an icon alone has no text.
 
 ### Sizes
 
-Use the `size` prop to change the size of the avatar: `sm`, `default` or `lg`.
+Use the `size` prop to change the avatar diameter: `sm` is 24px, `default` is 32px and `lg` is
+40px. Fallback initials use `text-xs` at every size so they remain visually secondary to the person
+or entity the avatar represents.
 
 <ComponentPreview name="avatarSizes" file="components/preview/avatar.tsx" />
 
@@ -152,4 +154,7 @@ mirrors the group's overlap without any extra work.
 Upstream's file plus `packages/ui/upstream/patches/avatar.patch`. Every hunk:
 
 - **DOC-2** — `cn` is imported from `@vegastack/design`, and the file carries the registry
-  provenance header. Nothing else differs from `vendor/shadcn/4.21.0/ui/avatar.tsx`.
+  provenance header.
+- **TYP-14** — `AvatarFallback` uses `text-xs` at all three sizes while preserving upstream's
+  public size API and diameters. The decision and approval provenance are recorded in
+  `docs/plans/2026-09-18-regent-avatar-148.md`.
