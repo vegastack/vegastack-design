@@ -901,7 +901,7 @@
         "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
         "whenNotToUse": "A simple form select (Select), or a small static action menu (DropdownMenu).",
         "version": "0.10.0",
-        "integrity": "sha256-WkwirlR6VDKAxgjV5ASodHpbsD+TRGpEVOus7+DDSWQ="
+        "integrity": "sha256-U1PKxXnclX8M4PuBIm2+vRLrk6dBkGQLuUOfQgJBoxM="
       }
     },
     {

@@ -5395,14 +5395,25 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "selected", "empty", "disabled"],
+          "values": [
+            "default",
+            "selected",
+            "empty",
+            "disabled",
+            "short-viewport",
+            "with-footer"
+          ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [],
-        "rationale": "Upstream's own layout; no component-owned responsive branch."
+        "risks": [
+          "overflow-and-scroll",
+          "viewport-positioning-and-collision",
+          "responsive-or-container-layout"
+        ],
+        "rationale": "CommandDialog is centered and capped to the dynamic viewport; its minmax(0,1fr) command track shrinks so CommandList scrolls while an optional footer remains visible."
       },
       "motion": {
         "status": "observed",
