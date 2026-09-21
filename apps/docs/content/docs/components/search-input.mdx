@@ -1,0 +1,83 @@
+---
+title: Search Input
+description: A token-safe search field with a consistent clear action across browsers.
+audience: public
+registry: search-input
+status: stable
+since: 0.11.0
+a11y: native search input with labelled clear button
+preview: searchInput
+---
+
+## Install
+
+<InstallSteps name="search-input" />
+
+## Usage
+
+```tsx
+import { SearchInput } from "@/components/ui/search-input";
+
+<SearchInput
+  value={query}
+  onValueChange={setQuery}
+  aria-label="Search projects"
+  placeholder="Search projects…"
+/>;
+```
+
+`SearchInput` composes [`InputGroup`](/docs/components/input-group) and replaces the browser-owned
+search cancel glyph with one semantic, token-colored clear button. `className` styles the group
+root; the forwarded ref and native input attributes target the inner `HTMLInputElement`.
+
+## Examples
+
+### States
+
+The clear button appears only while a mutable field has a value. Empty, disabled, and read-only
+fields expose no clear action; invalid styling comes from the shared InputGroup contract.
+
+<ComponentPreview
+  name="searchInputStates"
+  file="components/preview/search-input.tsx"
+/>
+
+### Native form semantics
+
+Names, labels, descriptions, submission, and reset stay on the inner native search input. In
+uncontrolled mode, reset restores `defaultValue` and updates the clear action.
+
+<ComponentPreview
+  name="searchInputForm"
+  file="components/preview/search-input.tsx"
+/>
+
+## API Reference
+
+### SearchInput
+
+<ApiTable
+  path="../../packages/ui/registry/ui/search-input.tsx"
+  name="SearchInputProps"
+/>
+
+## Accessibility
+
+- Give the search field an accessible name with a visible `Label`, `aria-label`, or
+  `aria-labelledby`.
+- The clear action is a native button named `Clear search` by default. Use `clearLabel` when the
+  page contains several search fields.
+- <kbd>Tab</kbd> moves from the input to the clear button. <kbd>Enter</kbd>,
+  <kbd>Space</kbd>, or
+  <kbd>Escape</kbd> clears a filled mutable field and returns focus to the
+  input.
+- The clear button has a real 24×24px border box and mirrors to the logical end in RTL.
+
+<StatesTested name="search-input" />
+
+## Do / Don't
+
+<DoDont
+  do="Use SearchInput when a query field needs a consistent clear action across supported browsers."
+  dont="Add a custom clear button to a generic Input or rely on the browser's native search cancel glyph."
+/>

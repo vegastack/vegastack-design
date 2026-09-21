@@ -10,6 +10,7 @@
     "---Inputs & Controls---",
     "input",
     "input-group",
+    "search-input",
     "input-otp",
     "textarea",
     "number-field",

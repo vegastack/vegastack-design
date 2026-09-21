@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 60,
+    "total": 61,
     "fromExtras": 46
   },
   "items": {
@@ -171,6 +171,12 @@
       "disposition": "keep",
       "family": "data-display",
       "source": "extras.md"
+    },
+    "search-input": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "issue #156 — approved 2026-09-21",
+      "rationale": "Dedicated InputGroup composition owns the cross-browser clear affordance while generic Input keeps its single-input DOM and behavior contract."
     },
     "searchable-select": {
       "disposition": "keep",

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "295691935d193953b48b2c6ca703909965e8585d9134b9defeb798ebccfdc8b4",
+  "contractSha256": "2d7837e17649758b0b7213f679fca5c86fff6839b119645c20d9e2dc6eb804be",
   "inventory": {
-    "expected": 689,
-    "actual": 689,
-    "unique": 689
+    "expected": 690,
+    "actual": 690,
+    "unique": 690
   },
   "classes": {
-    "components": 109,
+    "components": 110,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -46,8 +46,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 24,
+      "actual": 24,
       "members": [
         "auto-save-input",
         "calendar",
@@ -66,6 +66,7 @@
         "native-select",
         "number-field",
         "region-select",
+        "search-input",
         "searchable-select",
         "select",
         "settings-row",
@@ -770,7 +771,7 @@
       ]
     }
   },
-  "componentRoutes": 107,
+  "componentRoutes": 108,
   "blockRoutes": 39,
   "modeledExemptions": 3
 }
