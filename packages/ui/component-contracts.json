@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 689,
-    "components": 109,
+    "totalRegistryItems": 690,
+    "components": 110,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 23,
+    "Forms/editing": 24,
     "Navigation/layout": 16,
     "Overlays": 15,
     "Data display": 10,
@@ -67,6 +67,7 @@
       "select",
       "combobox",
       "searchable-select",
+      "search-input",
       "country-select",
       "region-select",
       "date-picker",
@@ -9271,7 +9272,7 @@
         "@vegastack/button",
         "@vegastack/chip",
         "@vegastack/dropdown-menu",
-        "@vegastack/input"
+        "@vegastack/search-input"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -14841,6 +14842,124 @@
             {
               "name": "data-slot",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "search-input",
+      "registryType": "registry:ui",
+      "title": "Search Input",
+      "summary": "A token-safe search field with a consistent clear action and controlled or uncontrolled native input semantics.",
+      "status": "stable",
+      "since": "0.11.0",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/search-input.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SearchInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/search-input.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "input",
+            "rationale": "The React 19 ref prop is merged onto the inner native search input."
+          }
+        },
+        {
+          "name": "SearchInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/search-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "SearchInput composes existing InputGroup variants without adding a public visual variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "SearchInput inherits the InputGroup control and icon-xs clear-control sizes."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "controlled",
+            "uncontrolled",
+            "empty",
+            "disabled",
+            "readonly",
+            "invalid"
+          ],
+          "evidence": "packages/ui/registry/ui/search-input.tsx + packages/ui/registry/ui/search-input.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-search-semantics",
+            "browser-accessibility-test",
+            "labeled",
+            "disabled",
+            "invalid"
+          ],
+          "evidence": "packages/ui/registry/ui/search-input.tsx + packages/ui/registry/ui/search-input.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "disabled", "invalid"],
+          "evidence": "Composed InputGroup and InputGroupButton state selectors plus the conditional clear action."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The compound field must shrink without horizontal overflow while retaining its 24px clear target."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/search-input",
+      "registryDependencies": ["@vegastack/input-group"],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.5.0",
+        "@vegastack/design-tokens@^0.5.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/search-input.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "selected"
+      },
+      "previewModule": "search-input",
+      "dataAttributes": {
+        "SearchInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["search-input-clear"]
             }
           ],
           "cssVariables": []

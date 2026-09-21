@@ -99,7 +99,7 @@ export function filterBar(): ReactNode {
 }
 
 export function filterBarSearch(): ReactNode {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("Regent");
   const [filters, setFilters] = useState<FilterBarFilter[]>([
     {
       id: "label",

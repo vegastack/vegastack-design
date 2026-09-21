@@ -56,7 +56,7 @@ The bar lays out three regions left-to-right, all built from VegaStack primitive
   filters={[/* … */]} // → one removable <FilterChip> per active filter
   addFilters={[/* … */]} // → an "Add filter" <DropdownMenu> (Button trigger)
   onAddFilter={(id) => {}}
-  search={{ value, onValueChange }} // → a trailing search <Input type="search">
+  search={{ value, onValueChange }} // → a trailing clearable <SearchInput>
   trailing={/* e.g. a "Clear all" Button */}
 />
 ```
@@ -70,8 +70,9 @@ The bar lays out three regions left-to-right, all built from VegaStack primitive
 - **Add filter** — a `DropdownMenu` whose trigger is a dashed-outline `Button`
   (`data-slot="filter-bar-add"`). Built from the declarative `addFilters` array, or replaced wholesale
   with the `addFilterMenu` slot for submenus / multi-select.
-- **Search** — a controlled `Input` of `type="search"` (`data-slot="filter-bar-search"`),
-  pushed to the trailing edge. Omit `search` to hide it.
+- **Search** — a controlled [`SearchInput`](/docs/components/search-input)
+  (`data-slot="filter-bar-search"`), pushed to the trailing edge. Its clear button reports `""`
+  through the existing `onValueChange` callback and keeps input focus. Omit `search` to hide it.
 
 ### Filter compositions
 
@@ -212,6 +213,9 @@ The controlled `search` config passed to `FilterBar`.
   `DropdownMenu`; arrow keys move between options and <kbd>Esc</kbd> closes it.
 - The search field always has an accessible name — it falls back to the `placeholder`, then `Search`.
   Provide `aria-label` on `search` for a name distinct from the placeholder.
+- A filled mutable search shows a 24×24px clear button. Activating it with pointer,
+  <kbd>Enter</kbd>, <kbd>Space</kbd>, or <kbd>Escape</kbd> reports one empty
+  value and keeps focus in the search input.
 - Every interactive part keeps a visible `:focus-visible` ring — never `outline: none`.
 
 | Key                                 | Action                                                                                        |

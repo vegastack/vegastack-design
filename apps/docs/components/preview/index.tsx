@@ -71,6 +71,7 @@ export * from "./sidebar";
 export * from "./filter-bar";
 export * from "./auto-save-input";
 export * from "./searchable-select";
+export * from "./search-input";
 export * from "./country-select";
 export * from "./region-select";
 export * from "./date-picker";

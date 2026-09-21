@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "33102e04328201d87c96b2cc83561970cf212cfd9312dfaaf90c636328b1e54a",
+  "contractSha256": "f5f91ad96001bccb114cabd2ccf97e9f21552826d77dd93a77b2deafa2dbabd7",
   "expectedCounts": {
-    "totalRegistryItems": 689,
-    "components": 109,
+    "totalRegistryItems": 690,
+    "components": 110,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -880,6 +880,17 @@
         "packages/ui/registry/ui/searchable-select.tsx"
       ],
       "docsSlug": "/docs/components/searchable-select",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "search-input",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/search-input.tsx"
+      ],
+      "docsSlug": "/docs/components/search-input",
       "contractStatus": "reconciled"
     },
     {

@@ -905,7 +905,9 @@ FRM-12 · FRM-13 · OVL-11 · OVL-13 · API-5 · API-9 · API-17`
   trigger, never a child (FRM-10). One async-write vocabulary, `idle | saving | saved | error`, shared
   by every field that persists; a rejected commit reverts and announces (FRM-12). NumberField's
   steppers are full-height flanking buttons, measured against real CSS at ≥24px inside a 32px group
-  (FRM-13).
+  (FRM-13). Reusable clearable search fields compose `InputGroup` through `SearchInput`: the native
+  search-cancel paint is suppressed, a token-colored 24px clear button owns the action, and generic
+  `Input` keeps its single-input DOM and behavior contract.
 - **Overlays** (OVL-11, OVL-13) — a panel's search is a sticky header row with no nested bordered
   input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). Every portal
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope

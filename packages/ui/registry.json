@@ -1284,7 +1284,7 @@
         "@vegastack/button",
         "@vegastack/chip",
         "@vegastack/dropdown-menu",
-        "@vegastack/input"
+        "@vegastack/search-input"
       ],
       "files": [
         {
@@ -12427,6 +12427,31 @@
       "meta": {
         "whenToUse": "A single-select field whose option list is long enough to need a search — countries, regions, projects, repositories, currencies.",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
+        "version": "0.10.0"
+      }
+    },
+    {
+      "name": "search-input",
+      "type": "registry:ui",
+      "title": "Search Input",
+      "description": "A token-safe search field with a consistent clear action, controlled and uncontrolled value handling, and native form semantics.",
+      "categories": ["form"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.5.0",
+        "@vegastack/design-tokens@^0.5.0"
+      ],
+      "registryDependencies": ["@vegastack/input-group"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/search-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/search-input.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A reusable search field that needs a consistent token-colored clear action across browsers.",
+        "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.10.0"
       }
     },

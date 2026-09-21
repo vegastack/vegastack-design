@@ -1473,7 +1473,7 @@
         "@vegastack/button",
         "@vegastack/chip",
         "@vegastack/dropdown-menu",
-        "@vegastack/input"
+        "@vegastack/search-input"
       ],
       "files": [
         {
@@ -1486,7 +1486,7 @@
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.10.0",
-        "integrity": "sha256-qTZLrW9AFd8EK3euRodkjqLSQr4JiKYknXXT3/x9670="
+        "integrity": "sha256-hkxjfZzc3+9huucNa//KnganaxAgJ/8xwoa4eSwS7Qw="
       }
     },
     {
@@ -15538,6 +15538,36 @@
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.10.0",
         "integrity": "sha256-gHiDctuACsrhBNUlw/y1gAngc3Y8h5puWKqbs/wf4O4="
+      }
+    },
+    {
+      "name": "search-input",
+      "type": "registry:ui",
+      "title": "Search Input",
+      "description": "A token-safe search field with a consistent clear action, controlled and uncontrolled value handling, and native form semantics.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.5.0",
+        "@vegastack/design-tokens@^0.5.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/input-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/search-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/search-input.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A reusable search field that needs a consistent token-colored clear action across browsers.",
+        "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
+        "version": "0.10.0",
+        "integrity": "sha256-fRMYE0+lTEOOu8dJsC/dCGXwhaG5Gza2oCprtEj0pcY="
       }
     },
     {

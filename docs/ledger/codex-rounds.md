@@ -685,3 +685,25 @@ needs-attention (1 high), root-fixed.
 - CI is `pull_request`-only, the duplicate dispatch job and `actions: write` permission are removed,
   and the ship procedure approves GitHub's exact `action_required` bot run. The resulting check is
   attached to the PR and therefore eligible to satisfy the no-bypass ruleset.
+
+## 2026-09-21 — issue #156 SearchInput review — verdict: needs-operator
+
+**Round 1:** one implementation defect and three evidence gaps.
+
+- **High — FilterBar exposed a second value-event handler.** `searchInputProps` excluded value,
+  defaultValue and `onValueChange` but admitted native `onChange`, contradicting the preserved API.
+  Fixed by excluding `onChange` and adding a compile-time regression test.
+- **Medium — acceptance assertions were weaker than Plan v1.** Keyboard clear now proves input focus
+  restoration; controlled SearchInput and FilterBar typing prove exact callback count and payload;
+  the real 24px target is hit-tested at four edges plus centre.
+- **Gate — WebKit did not execute.** The launch probe timed out and the runner explicitly reported
+  `WEBKIT-LANE-SKIPPED`; Chromium and Firefox focused suites passed.
+- **Gate — named VRT tool absent.** `tooling/vrt-review.mjs` is not present on this branch or base.
+  Six exported-doc captures were inspected directly across both affected routes, light/dark desktop
+  and 320px, with no visual finding.
+- **Gate — skill scan degraded.** The mandatory guard could not fully inspect three existing skills
+  because its analyzers returned degraded/failed completeness; no suppression was added.
+
+The standards axis found no other defect. Static/type/registry/contract/distribution verification
+passed; the full Chromium audit passed 3,116 tests, while the full Firefox audit encountered one
+unrelated questionnaire failure before the focused SearchInput/FilterBar Firefox suite passed.
