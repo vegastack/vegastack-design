@@ -1,6 +1,7 @@
 # Regent Avatar fallback typography — issue #148
 
-**Status:** approved by MK on 2026-09-19; implementation authorised on 2026-09-20.
+**Status:** approved by MK on 2026-09-19; implementation authorised on 2026-09-20; exact TYP-14
+identifier and wording ratified by MK on 2026-09-21.
 
 ## Decision
 
@@ -9,15 +10,16 @@ uses `text-xs` at all three supported Avatar sizes: `sm`, `default`, and `lg`. T
 and its `size-6`, `size-8`, and `size-10` geometry remain unchanged. `AvatarGroupCount` remains at
 upstream's `text-sm`; consumer `className` overrides remain authoritative.
 
-This is **TYP-14**, the mechanically next identifier in the existing typography namespace. The
-operator approved the underlying deviation in the issue's Plan v1 approval with these exact words:
+This is **TYP-14**. After independent review identified that the unavailable, untracked prose
+register could not prove the mechanically selected identifier, the operator explicitly ratified the
+identifier and behavior in the 2026-09-21 implementation handoff:
 
-> I have checked the plans and its good to go, proceed and approve the plans and make them ready for integration
+> Implementation reduces fallback initials to text-xs
 
-The approval comment clarifies that it includes `default` and `lg` moving to `text-xs`, `sm`
-remaining at `text-xs`, preservation of the current three-size API and diameters, and recording the
-upstream typography deviation through the existing decision authority. Issue #148's 2026-09-20
-integration instruction authorises implementation of that approved plan.
+The ratified decision is: **`AvatarFallback` uses `text-xs` for `default`, `sm`, and `lg`, while the
+public size API and 24/32/40px geometry remain upstream.** `AvatarGroupCount` stays `text-sm`, and
+explicit consumer typography overrides remain authoritative. The ratification is also recorded in
+issue #148's decision comment.
 
 ## Scope
 

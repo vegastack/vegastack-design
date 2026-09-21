@@ -511,7 +511,6 @@ if (argv.includes("--self-test")) {
     `${JSON.stringify(
       {
         ...current,
-        _source: relativeToRoot(source),
         counts: {
           total: ids.length,
           ours: oursCount,
