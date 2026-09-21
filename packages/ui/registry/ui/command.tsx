@@ -40,7 +40,7 @@ function Command({
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "flex size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
+        "flex min-h-0 size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
         className,
       )}
       {...props}
@@ -73,7 +73,7 @@ function CommandDialog({
       </DialogHeader>
       <DialogContent
         className={cn(
-          "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
+          "max-h-[calc(100dvh-var(--spacing)*8)] grid-rows-[minmax(0,1fr)_auto] overflow-hidden rounded-xl! p-0",
           className,
         )}
         showCloseButton={showCloseButton}
