@@ -1,4 +1,4 @@
-// @vegastack button@0.10.0 sha256-iRR5HWW2gKEW50WrcB5jNdiOEPiuNGwYkuH7K6Vy49k=
+// @vegastack button@0.10.0 sha256-fcAUucOMbN2PJXb6XjhAgOj7XJIfamBeOVob4utvAs0=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -80,7 +80,9 @@ function Button({
           >
             <Spinner aria-label={undefined} />
           </span>
-          <span className="contents opacity-0">{children}</span>
+          <span className="inline-flex items-center justify-center gap-[inherit] opacity-0">
+            {children}
+          </span>
         </>
       ) : (
         children
