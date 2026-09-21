@@ -8,15 +8,15 @@
 #   FRM-4: `disabled:pointer-events-none` is dropped and `focusableWhenDisabled` defaults to
 #     true, so a disabled button keeps its pointer events and stays focusable; the dim moves to
 #     `data-disabled:` because Base UI renders `aria-disabled` rather than the native attribute.
-#   API-5, A11Y-12: the `loading` prop, the out-of-flow spinner, and the label held at
-#     `opacity-0` so the button's width does not move and its accessible name survives.
+#   API-5, A11Y-12: the `loading` prop, the out-of-flow spinner, and the label held in a
+#     real inline-flex box at `opacity-0` so width and accessible name both survive.
 #   A11Y-13: the `destructive` variant's tint takes `text-destructive-text`; upstream's
 #     `text-destructive` on its own `/10` measures 3.98:1 in light (MK, 2026-09-18).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/button.tsx b/button.tsx
-index 1efb940..88d54cd 100644
+index 1efb940..2312541 100644
 --- a/button.tsx
 +++ b/button.tsx
 @@ -1,9 +1,11 @@
@@ -44,7 +44,7 @@ index 1efb940..88d54cd 100644
          link: "text-primary underline-offset-4 hover:underline",
        },
        size: {
-@@ -36,22 +38,53 @@ const buttonVariants = cva(
+@@ -36,22 +38,55 @@ const buttonVariants = cva(
        variant: "default",
        size: "default",
      },
@@ -93,7 +93,9 @@ index 1efb940..88d54cd 100644
 +          >
 +            <Spinner aria-label={undefined} />
 +          </span>
-+          <span className="contents opacity-0">{children}</span>
++          <span className="inline-flex items-center justify-center gap-[inherit] opacity-0">
++            {children}
++          </span>
 +        </>
 +      ) : (
 +        children
