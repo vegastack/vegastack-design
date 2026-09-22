@@ -9,6 +9,71 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.12.1] — September 23, 2026
+
+<!-- assembled from 3 changesets: 5a6686c5d672 -->
+
+### 🛠 CLI & tooling
+
+- A release whose changesets all bump nothing no longer fails the coordinator.
+
+  `release-detect.mjs` decided the Version PR path by counting files in `.changeset/`. The
+  empty-frontmatter changeset is the documented form for a change that bumps no published package, and
+  `changeset version` consumes it without writing a version — so Changesets opens no PR, while the
+  workflow had been told to expect one. It retried, hard-errored, and skipped the deploy; and because
+  the changeset stays pending, every later push to `main` failed identically.
+
+  The output is now `has_version_bump` and means what the workflow actually asks: at least one pending
+  changeset declares a bump for a package Changesets will version. Frontmatter is read at the same ref
+  as the file list, and packages in the Changesets `ignore` list are excluded, since naming one bumps
+  nothing and would dead-end the same way.
+
+  This removes the failure. It does not change deploy policy: a docs-only push still does not deploy
+  on its own — it never has — and now simply succeeds and waits for the next release.
+  [`dd9b308`](https://github.com/VegaStack/vegastack-design/commit/dd9b308)
+
+- Browser assertions test whether something is painted, not how Chromium spells "nothing".
+
+  Chromium serialises a fully transparent colour as `rgba(0, 0, 0, 0)` or as `oklab(0 0 0 / 0)`
+  depending on the colour space the value came through, and this token system's colours routinely come
+  through OKLCH. Fourteen sites compared against the first spelling as a literal string.
+
+  Two of them asserted equality and broke loudly when the spelling changed — one of them flipped red
+  and then green again across three CI runs on identical source. **The other ten asserted
+  `not.toBe("rgba(0, 0, 0, 0)")` to mean "something is painted here", which passes on an element that
+  lost its fill entirely whenever Chromium spells the nothing differently.** A Badge, Button, Switch
+  track, Toast action or Bubble surface could have gone completely unpainted with its test green.
+
+  `packages/ui/test/color.ts` now answers the question by meaning rather than by spelling, and its own
+  contract is pinned in `color.browser.test.tsx` — including the original defect as an executable
+  claim, and a real element read in the engine without naming which spelling it produced. No call site
+  changed meaning: every file was green before and after, so this removes the possibility rather than
+  uncovering an instance.
+  [`229add9`](https://github.com/VegaStack/vegastack-design/commit/229add9)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.12.0 → 0.12.1.
+
+### 📚 Docs
+
+- The registry-auth banner no longer paints over the site header on a phone.
+
+  Fumadocs' `Banner` is a fixed-height sticky box — it writes the same `height` into its own inline
+  style and into `--fd-banner-height`, which every sticky offset below it is measured from. The notice
+  was long enough to need six lines at 320px inside that 48px box, so 72px of it overflowed and, at
+  `z-40` over the header's `z-30`, rendered on top of the VegaStack logo row. The layout boxes never
+  overlapped and there was no horizontal scroll, which is why nothing caught it: the defect was
+  content overflowing its own container, not a broken grid.
+
+  The trailing enumeration — the Base UI shadcn project, the `@vegastack` namespace, the Cloudflare
+  Access service token — is now shown from `lg` up, which is measured rather than guessed: the full
+  sentence occupies six lines at 320px, three at 480px, two at 768px and one from 1024px. Below that
+  the lead sentence and its link to [the registry setup](/docs/install) are unconditional, so the
+  notice itself is intact at every width and the detail is deferred to the page that performs it,
+  one tap away. The banner stays one line and 48px everywhere, and the wide layout is unchanged.
+  [`823b3bc`](https://github.com/VegaStack/vegastack-design/commit/823b3bc)
+
 ## [0.12.0] — September 22, 2026
 
 <!-- assembled from 7 changesets: 6ed8ffbe763c -->

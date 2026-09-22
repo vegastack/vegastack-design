@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.12.0 sha256-SftUHDg81qhC5gxup7INLeh5VGwDIG9BULQ3znnMNEs=
+// @vegastack searchable-select@0.12.1 sha256-KbjJOCAAMgUjrN98S/IZi4KjeWBgctiZnPw9qEnddgo=
 
 "use client";
 
