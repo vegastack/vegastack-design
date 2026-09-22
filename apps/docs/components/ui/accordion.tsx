@@ -1,4 +1,4 @@
-// @vegastack accordion@0.11.3 sha256-GgpSIXT2VA/OHlK3++GX3uaWHRpqD4DcVIJkbVvKwRk=
+// @vegastack accordion@0.12.0 sha256-Gu/8E6OEXfjUeEqPAsAQJMHHNQCai6kzVrhfg0syt/s=
 
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
 import { cn } from "@vegastack/design";

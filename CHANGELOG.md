@@ -9,6 +9,184 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.12.0] — September 22, 2026
+
+<!-- assembled from 7 changesets: 6ed8ffbe763c -->
+
+### 🧩 New components
+
+- [MultiStepForm](/docs/components/multi-step-form) — a guarded, branching flow around [Stepper](/docs/components/stepper), with no opinion about your fields.
+
+  - **It owns the flow and refuses to own your form.** `steps` declares labels, branches and guards; each `MultiStepFormStep` declares one body, and only the current one renders. A body is whatever you put in it — a [Field](/docs/components/field) form, a review table, an upload surface, nothing. That boundary is what keeps it at **zero new dependencies**: a guard is an ordinary function returning a promise, so React Hook Form, Zod or a hand-written check all plug in from the app side, and none of them becomes a dependency of the design system.
+  - **Guards, forwards and backwards.** `beforeNext` and `beforeBack` return `true` to pass or a sentence to refuse, and may be async — while one runs the step is `loading` in the rail and the action is a loading [Button](/docs/components/button). The flow never advances optimistically. `canGoNext` is the cheap synchronous gate for the case with no reason worth showing.
+  - **A refusal sits beside the control it blocks, and its weight follows its cause.** A check that ran and failed renders an assertive [Alert](/docs/components/alert) and marks the step; a gate not yet satisfied renders a quiet polite line and leaves the rail alone. Either is tied to the forward button through `aria-describedby`, so it reads out with the control and persists — which a toast cannot do (WCAG 3.3.1). The one failure a toast belongs to is the check that could not run at all, and that arrives as `onTransportError`.
+  - **Conditional steps.** A step whose `when` is `false` leaves the rail, the count and the sequence, so "step 3 of 4" stays true when a branch drops one — and a branch closing under the current step rewinds rather than stranding it.
+  - **One predicate decides four behaviours.** Mark a step `satisfied` when its data already exists, and reachability follows: which steps a `#step=…` deep link may open, whether the rail starts complete, whether jumping is offered, and which layout a phone gets. There is no `mode="create" | "edit"` to keep in sync.
+  - **`lock` seals what has been committed.** Once a locking step is passed, Back is disabled for good and neither a jump nor a forged hash can reopen what came before it.
+  - **Optional steps, resume and deep links.** `optional` adds the affix and a Skip that records `skipped` rather than complete. `urlSync` writes a namespaced `#step=<id>` so the browser's Back moves a step, and no router adapter is needed. `persistKey` restores the position and the steps passed for the life of the tab — opt-in, `sessionStorage`, and never for payment data.
+  - **`layout="panel"` is the shape for a dialog.** Inside a [Dialog](/docs/components/dialog), [Sheet](/docs/components/sheet) or [Drawer](/docs/components/drawer) the nav and the action row hold their place while the step body becomes the one scrolling region, so the frame cannot grow past the viewport and take its own footer with it.
+  - **`MultiStepFormExit` guards unsaved work.** `dirty` is yours to define; while it is true, leaving raises an [AlertDialog](/docs/components/alert-dialog) first and the browser warns on a refresh or a closed tab — the half no component can fake. With nothing dirty it simply calls `onExit`, because a confirmation nobody needs is the fastest way to teach people to dismiss confirmations unread.
+  - **Phones get the layout their flow can honour.** Reachable steps become a tappable section list that drills into a step; a strictly linear flow keeps the rail, which collapses itself to a line and a bar, because rows would promise navigation the flow does not offer.
+  - The multi-step form guide is rewritten from a recipe you assemble into a map of which component to reach for, and [Stepper](/docs/components/stepper)'s page now leads with the case that needs no buttons at all.
+    [`76fa8d3`](https://github.com/VegaStack/vegastack-design/commit/76fa8d3)
+
+### 🔧 Changed components
+
+- Typography: a global Geist-spec ramp replaces per-component type decisions
+
+  The system had no typography contract at all — the shadcn reset resolved TYP-1…TYP-9 and TYP-11 as
+  **shadcn**, which left every size, weight, line-height and letter-spacing to Tailwind's stock values
+  plus 229 local decisions across 112 component files. Nothing was globally declared, and nothing
+  carried letter-spacing at any size.
+
+  Four new decisions (MK, 2026-09-22), all declared once and inherited everywhere:
+
+  - **TYP-15 — heading-tier optical metrics.** At `text-lg` and above, line-height and letter-spacing
+    follow Geist's heading spec, declared as per-size `--text-*--line-height` and
+    `--text-*--letter-spacing` in the `@theme inline` bridge. Tracking runs −0.012em at 18px to
+    −0.06em at 72px. Geist's copy tier carries zero letter-spacing, and this system's body sizes are
+    its copy tier, so `text-xs`/`text-sm`/`text-base` are untouched and render byte-identically.
+    SIZES do not move, so TYP-1 stays **shadcn** and a pasted shadcn snippet still renders at
+    upstream's size.
+  - **TYP-16 — Geist rendering.** `-webkit-font-smoothing: antialiased` on `body`. Geist is drawn for
+    it; without it the same weight renders heavier and softer than the identical weight elsewhere.
+  - **TYP-17 — a declared 14px default body size**, on `body` and never on `html`. `rem` resolves
+    against the root, so an `html` size would rescale every token and override the reader's browser
+    font-size preference. Previously unclassed text fell back to 16px while components were 14px.
+    The docs shell keeps its 16px reading size.
+  - **TYP-18 — no arbitrary font size.** Upstream's `text-[0.8rem]` (`button` sm, `toggle` sm,
+    `calendar`) and `text-[0.625rem]` (`questionnaire`) now sit on the ramp. Upstream's ladder does
+    scale type with control size and is KEPT — the `sm` half-step resolves down to `text-xs` rather
+    than flattening up to 14px.
+
+  Also enforced: **TYP-10** ("tabular figures on code and data") had been **ours** since the reset
+  with no gate at all, and `number-field` shipped proportional digits whose value jittered on every
+  stepper press. It now carries `tabular-nums`, and three new `design-lint` rules — `raw-tracking`,
+  `arbitrary-text-size` and `tabular-figures` — hold all of the above, each with negative-specimen
+  coverage in `verify-design-lint-structural`.
+
+  Block heading weight is normalised to `font-semibold`; chart figure labels keep `font-bold`.
+
+  **Markdown surfaces.** `prose.root` never declared a font family, and neither of its two consumers
+  (`MarkdownView`, `TextEdit`) sets one — so prose inherited whatever surrounded it, and inside any
+  mono container the whole tree rendered in Geist Mono: headings, paragraphs, table cells, and the
+  `1.` / `2.` markers of an ordered list, since `::marker` inherits font properties from its element.
+  The recipe now declares `font-sans`, making mono the exception it names explicitly (`code`, `pre`,
+  `pre code`) rather than something prose falls into by accident.
+
+  **No uppercase, anywhere.** `design.md` § Voice & content has always said sentence case for
+  everything and TYP-7 resolves as **shadcn** ("No uppercase"), but twelve `font-mono text-xs
+uppercase tracking-wide` eyebrows had survived across the docs shell, plus the `terminal` and
+  `code-block` header labels and the OG card. Two were a correctness bug rather than a style one: the
+  home page rendered real CSS custom-property names through the transform, so `--text-lg` displayed
+  as `--TEXT-LG`. All of it is removed and gated by a new `uppercase-transform` rule, which bans the
+  CSS transform rather than uppercase text — if a string is uppercase, write it that way. That also
+  removed the only justification for positive `tracking-*`, which existed to make uppercase legible,
+  so `raw-tracking` now allows `tracking-widest` alone (the menu shortcut hint). `code-block` now
+  shows `tsx` as given instead of `TSX`, and `terminal` shows `Terminal`.
+
+  The principle applied throughout: **mono is for code, uppercase is for nothing** — content that is
+  code keeps `font-mono`, content that is language is `font-sans` in sentence case.
+
+  **The docs site.** Fumadocs' `.prose` writes `font-size` directly rather than through a utility, so
+  its headings tracked the ramp's sizes but never its letter-spacing, `h1` rendered at weight 800
+  (`h1 strong` at 900) and `h3` at 1.6 leading. All four now reference the ramp variables at weight 600. Two arbitrary sizes baked into Fumadocs' own class strings — 15px on the sidebar, tabs and
+  accordion, 13px on code blocks — are pulled onto `--text-sm`, putting every piece of docs chrome at
+  the same 14px as the product layer. Prose body stays 16px; it is a reading surface.
+  [`76fa8d3`](https://github.com/VegaStack/vegastack-design/commit/76fa8d3)
+
+### 🛠 CLI & tooling
+
+- The package-exports gate resolves its sibling from the tarball under test, not from npm.
+
+  `verify-package-exports` packs both public packages and installs them into a throwaway consumer
+  under npm and again under pnpm. `@vegastack/design` depends on `@vegastack/design-tokens` by semver
+  range, and `version-sync` rewrites that range on the Version Packages PR — so on a release that
+  moves `design-tokens`, the range names a version npm does not have yet, because that release is what
+  publishes it. npm hoisted the local tarball and passed; pnpm resolved independently, went to the
+  registry and failed the whole gate.
+
+  The consumer now overrides that dependency to the tarball just built — the top-level `overrides` key
+  for npm, `pnpm-workspace.yaml` for pnpm, which in pnpm 11 no longer reads `pnpm.overrides` from
+  package.json. Because an override could equally hide a range pointing at the wrong sibling, it is
+  paired with an assertion that the declared range equals `^<the design-tokens version being shipped
+beside it>`, which is the form `version-sync` writes. The gate keeps failing on a genuinely wrong
+  range; it stops failing on a version that does not exist yet.
+  [`dbc1190`](https://github.com/VegaStack/vegastack-design/commit/dbc1190)
+
+- The Version Packages PR refreshes `pnpm-lock.yaml` after rewriting internal dependency ranges.
+
+  `version-sync` rewrites the semver range `@vegastack/design` declares on `@vegastack/design-tokens`
+  whenever a bump moves that package out of the pinned range, but nothing regenerated the lockfile
+  afterwards — and `pnpm-lock.yaml` records the range as a specifier. The generated branch therefore
+  carried a manifest and a lockfile that disagreed, and its own `PR quality` run died at
+  `pnpm install --frozen-lockfile` before reaching a single gate.
+
+  `version-packages` now runs `pnpm install --lockfile-only --ignore-scripts` between `version-sync`
+  and `sync-changelog`. `linkWorkspacePackages` is on, so the pair resolves locally: the refresh needs
+  no network and does not need the new `design-tokens` to exist on npm, which it does not at the
+  moment this runs.
+
+  The failure was latent from the moment the two packages' versions diverged and only fires when a
+  bump leaves the `^` range — which is why every previous release passed. No new gate: the check that
+  should have caught this is the Version PR's own required run, and it did.
+  [`a71cd3a`](https://github.com/VegaStack/vegastack-design/commit/a71cd3a)
+
+- The release scope guard knows about the lockfile, and is specific about it.
+
+  `verify-release-output-scope` is an allowlist, and `pnpm-lock.yaml` was not on it — because until
+  this release `version-packages` never produced a lockfile change. It does now, so the guard rejected
+  a legitimate release output.
+
+  The lockfile gets its own class with its own predicate rather than being waved through beside the
+  changelogs: it is the one release output where a new third-party dependency could hide, which is the
+  threat the allowlist exists for. The `specifier:`/`version:` lines under a `@vegastack/*` key are
+  neutralised — the same move already made for the package manifests — and everything else must be
+  byte-identical. Verified against this release's real lockfile diff (exactly one line) and against a
+  synthetic third-party addition and re-resolve, both rejected.
+  [`2ef219d`](https://github.com/VegaStack/vegastack-design/commit/2ef219d)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.0`** (was `0.6.1`).
+- **`@vegastack/design-tokens`** → **`0.7.0`** (was `0.5.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.11.3 → 0.12.0.
+
+### ⚠️ Breaking
+
+- [Stepper](/docs/components/stepper) is rebuilt: the rail now carries the progress, and the refusal message moves out of it.
+
+  - **Removed: `blockedReason` and `blockedReasonId`.** They rendered under the current step's label — a one-column-wide ribbon in a horizontal rail, and nothing at all once the rail collapses — so the single placement they had was the one layout they did not fit. A reason the flow cannot advance now belongs beside the control it blocks: an [Alert](/docs/components/alert) for a check that failed, a quiet line for a gate not yet satisfied, wired to your own Next button's `aria-describedby`.
+  - **Removed: the root is a `<div>`, not the `<ol>`.** The list is now nested inside it as `data-slot="stepper-list"`, so a ref or a selector aimed at the old root resolves to the wrapper. Every other `data-slot` survives.
+  - **Changed: the navigable step is a plain row, not a link-styled `Button`.** `data-slot="stepper-trigger"` is the target and `data-slot="stepper-label"` stays on the label itself; anything selecting the old inner `Button` classes will not match.
+  - **New states.** `loading` is what an async advance gate occupies while it runs — the state the previous four could not express without a checking step pretending to be idle. `warning` is a step that is passable but carries something to know, and `skipped` is one passed over rather than failed. `optional` on a step renders an affix beside its label.
+  - **New: numbered nodes and a rail that fills in.** Connectors behind the flow take `bg-primary` and those ahead `bg-border` — read from each step's own state, never from its index — so the component is its own progress bar. A completed step's ordinal gives way to a check; colour appears only for `warning` and `error`, whose labels take the family's `-text` ink per A11Y-13 while the node fill carries its `-foreground`.
+  - **New: `orientation="auto"` (the default)** flips to vertical at `verticalFrom` steps (6), because a rail long enough to crush its own labels reads better down the page. **`collapse="auto"` (the default)** replaces the rail with the current step's name, its position and a [Progress](/docs/components/progress) bar below a width derived from the step count — a container query, so a rail inside a narrow dialog collapses on a wide screen too. Focus follows the process into whichever of the two is laid out.
+  - **New: `size` (`default`, `sm`), `labelPosition` (`below`, `inline`) and `showCount`.** `inline` sets each label beside its node with the connector running on from it, from the same DOM and reading order as the default.
+    [`76fa8d3`](https://github.com/VegaStack/vegastack-design/commit/76fa8d3)
+
+- **[Toast](/docs/components/toast) is the one notification engine — `Sonner` is retired**, and Toast gains position, anchored toasts, custom bodies and a band of its own above the modal scrim (OVL-10, OVL-15, COL-23).
+
+  - **Removed: the `sonner` registry item, its docs page and the `sonner` dependency.** Upstream ships both `toast` (Base UI) and `sonner`, and the shadcn reset shipped both; two engines for one job meant two live regions and two fixed viewports competing for the same corner. Toast was already the default — `provider` has always mounted it — so the migration is the import and the call shape:
+
+    ```diff
+    - import { Toaster } from "@/components/ui/sonner";
+    - import { toast } from "sonner";
+    + import { Toaster, toast } from "@/components/ui/toast";
+
+    - toast.success("Event created", { description: "Sunday at 9:00 AM" });
+    + toast.add({ type: "success", title: "Event created", description: "Sunday at 9:00 AM" });
+    ```
+
+    `toast()` / `toast.success()` / `toast.error()` / `toast.info()` / `toast.warning()` become `toast.add({ type, title, description })`; `duration` becomes `timeout` (and `0`, not `Infinity`, disables auto-dismiss); `action: { label, onClick }` becomes `actionProps: { children, onClick }`; `toast.dismiss(id)` becomes `toast.close(id)` — **with one real difference: `close()` with no id closes the FRONTMOST toast, where sonner's `dismiss()` closed every one.** `toast.promise` keeps its `{ loading, success, error }` shape. A copy you already installed keeps working; it just stops receiving updates. Upstream's `dashboard-01` block now fires our manager.
+
+  - **New: `position` on `Toaster`** — six logical corners (`top`/`bottom` × `start`/`center`/`end`, default `bottom-end`). Inline names are logical, so `bottom-end` is bottom-right in an LTR document and bottom-left in an RTL one. The stack's growth direction and its swipe direction follow the corner, so a toast always enters and leaves through the edge it is pinned to.
+  - **New: anchored toasts.** `ToastPositioner` and `ToastArrow` wrap the two Base UI parts upstream wraps neither of, so a confirmation can position against the control that caused it instead of stacking in the corner.
+  - **New: custom bodies.** A toast carrying `data.render` draws its own content and keeps the surface, the stack, swipe-to-dismiss, `Escape` and the viewport's live region — an avatar or a thumbnail no longer means opting out of the toast contract.
+  - **Fixed: a toast fired while a modal is open is no longer hidden behind the scrim.** The viewport moves to a `z-60` band, one above the single `z-50` overlay band every other surface shares. It has to be a band rather than DOM order, because the viewport mounts with the provider before any dialog exists. Nothing else leaves `z-50`.
+  - **Fixed: a toast with only a description read in the secondary ink.** Base UI renders `Toast.Title` as `null` when there is no title, so `toast.add({ description })` — the shape upstream's own examples use — painted the toast's only line, its primary message, in muted grey. The description now takes the default ink exactly when it leads, and stays muted under a title.
+    [`76fa8d3`](https://github.com/VegaStack/vegastack-design/commit/76fa8d3)
+
 ## [0.11.3] — September 22, 2026
 
 <!-- assembled from 1 changeset: 32545189a1d4 -->
