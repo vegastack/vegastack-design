@@ -168,6 +168,11 @@ focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outlin
   this policy asks for — `role="region"`, `aria-live="polite"`, rendered by `Toaster` whether or not
   a toast exists — and per-toast urgency is the manager's `priority: "high"`. Adding a second region
   would announce every toast twice. `toast.test.tsx` asserts the region's shape.
+- **ICO-8** — `ToastIcon`'s loading mark is `LoaderIcon` (lucide `loader`) in place of upstream's
+  `Loader2Icon`, which is an alias of `LoaderCircle`. One loader shape across the system:
+  [`Spinner`](/docs/components/spinner), this icon, [Sonner](/docs/components/sonner)'s and
+  [`StatusIcon`](/docs/components/status-icon)'s `progress` are the same object spinning.
+  `animate-spin` and `aria-hidden` are upstream's.
 - **DOC-2** — `cn` is imported from `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.

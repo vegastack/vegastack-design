@@ -2717,3 +2717,27 @@ changed for any of these test repairs.
 - **Verification limit.** Chromium and Firefox executed the focused 43-test suite successfully.
   WebKit launch timed out on this macOS host, so issue #156 remains operator-blocked rather than
   recording an unexecuted engine as passing.
+
+## 2026-09-22 — CLOSED: a loading Toggle painted its label under the spinner
+
+- **Symptom.** `<Toggle loading>` showed the spinner drawn on top of a fully visible label, exactly
+  the defect fixed on Button one day earlier (#155). Reported by MK.
+- **Root cause.** Two of them, and the second is the one worth keeping. (1) The label wrapper was
+  `className="contents opacity-0"`, and `display: contents` generates **no box**, so `opacity` has
+  nothing to apply to — measured in Chromium: the wrapper computed `display: contents`,
+  `opacity: 0`, and a `0 × 0` bounding rect, while the label painted at full strength. (2) The
+  A11Y-12 unit assertion was `expect(label).toHaveClass("opacity-0")`. The class was present the
+  whole time. **An assertion on a class is not an assertion on what the browser paints**, and it is
+  fail-open by construction for any property the element cannot receive. Button carried the same
+  wrapper until #155 and has a compiled-CSS lane that already asserted
+  `display).not.toBe("contents")`; Toggle implements the same two rows (API-5, A11Y-12) and simply
+  never had one, so the #155 sweep stopped at the file it was reported against.
+- **Systemic fix.** The wrapper is a real `inline-flex` box inheriting the root's `gap`, matching
+  Button. `test/control-paint.browser.test.tsx` — the lane whose whole premise is "what the browser
+  paints, not what the source authored" — gained three Toggle measurements (computed display,
+  opacity and rect; width parity against an idle Toggle; the spinner's centring; the inherited gap),
+  and `toggle` was added to that file's `crossCuttingTests` owners so the affected planner selects
+  it. The unit assertion now also rejects `contents` and says in a comment why the class alone was
+  never the claim. Mutation-checked: reverting the wrapper turns two of the three new tests red.
+- **Sweep.** `contents` + an opacity/visibility utility appears nowhere else in registry source;
+  Button and Toggle were the only two components with a label-under-spinner overlay.

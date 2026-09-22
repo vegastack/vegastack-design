@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.11.1 sha256-bHZxkKUa4wiIKkz5/JkR6Lr5xpAE8Gz2kYjBN1gdYhI=
+// @vegastack status-icon@0.11.1 sha256-50RariOgTx2OOUl8Gr1+34exXn0cGXscDFItLc8csSc=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -16,8 +16,9 @@ import { cn } from "@vegastack/design";
  * `progress` does NOT compose upstream's `Spinner`, and the reason is semantic rather than
  * stylistic: `Spinner` is `role="status"` named "Loading", which is a live announcement about a
  * pending operation. This is a STATE marker on a record — `role="img"` named "In progress" — so
- * composing `Spinner` would mean overriding both of the things it exists to assert. The two happen
- * to share a lucide glyph and `animate-spin`; they do not share a meaning.
+ * composing `Spinner` would mean overriding both of the things it exists to assert. Since ICO-8 the
+ * two share the same lucide glyph (`Loader`) and `animate-spin` deliberately — one loader shape
+ * across the system — but they still do not share a meaning.
  */
 export const statusIconVariants = cva("inline-block shrink-0", {
   variants: {

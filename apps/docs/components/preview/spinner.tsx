@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { LoaderIcon } from "lucide-react";
+import { LoaderCircleIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/spinner` (dogfoods the registry).
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +50,7 @@ export function spinnerCustomization(): ReactNode {
   return (
     <Wrapper className="gap-6">
       <Spinner />
-      <LoaderIcon
+      <LoaderCircleIcon
         role="status"
         aria-label="Loading"
         className="size-4 animate-spin"

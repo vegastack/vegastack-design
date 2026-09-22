@@ -30,6 +30,7 @@ const vocabularyDir = groupDir("vocabulary");
 const glowDir = groupDir("glow");
 const classGlueDir = groupDir("class-glue");
 const iconNameDir = groupDir("icon-name");
+const loaderMarkDir = groupDir("loader-mark");
 const validDir = groupDir("valid");
 for (const dir of [
   invalidDir,
@@ -37,6 +38,7 @@ for (const dir of [
   glowDir,
   classGlueDir,
   iconNameDir,
+  loaderMarkDir,
   validDir,
 ]) {
   mkdirSync(dir, { recursive: true });
@@ -184,6 +186,70 @@ export function LiteralRules(_props: RenderlessProps) {
       "design-lint rejected a RESTING box-shadow hairline — FOC-1/FOC-6 decide the focus " +
         "affordance, not every 0 0 0 shadow; upstream draws borders this way",
       hairline.output,
+    );
+  }
+
+  // ── loader-mark (ICO-8) ─────────────────────────────────────────────────────────────────────
+  // The same failure mode as the glow: every future batch starts from an upstream file, and
+  // upstream writes `Loader2Icon` for a spinner in three different components. `Loader2`,
+  // `Loader2Icon`, `LoaderCircle` and `LoaderCircleIcon` are FOUR NAMES for one glyph — lucide
+  // re-exports the first two straight off `LoaderCircle` — so all four are specimen lines, plus an
+  // aliased import, which is the spelling a regex over the local binding would miss.
+  writeFileSync(
+    join(loaderMarkDir, "loader-mark.tsx"),
+    `import { Loader2, Loader2Icon, LoaderCircle, LoaderCircleIcon, LoaderCircle as Spin } from 'lucide-react';
+
+export function Marks() {
+  return <>
+    <Loader2 className="animate-spin" />
+    <Loader2Icon className="animate-spin" />
+    <LoaderCircle className="animate-spin" />
+    <LoaderCircleIcon className="animate-spin" />
+    <Spin className="animate-spin" />
+  </>;
+}
+`,
+  );
+  const loaderMark = run(loaderMarkDir);
+  const loaderMarkLines = loaderMark.output
+    .split("\n")
+    .filter((line) => line.includes("[loader-mark]")).length;
+  if (loaderMark.status === 0 || loaderMarkLines < 5) {
+    console.error(
+      `  observed ${loaderMarkLines} of 5 loader-circle spellings rejected`,
+    );
+    fail(
+      "design-lint accepted lucide's loader-circle in registry source — ICO-8 gives this system " +
+        "ONE indeterminate loading mark, lucide `Loader`",
+      loaderMark.output,
+    );
+  }
+
+  // …and the other half: `LoaderIcon` IS the sanctioned mark, and a name that merely CONTAINS one
+  // of the banned ones is not one of them. A rule that fired on either would be unusable, and the
+  // animated-icon mirror `icons/loader-circle.tsx` exports a `LoaderCircleIcon` of its own — from
+  // a catalogue, importing nothing from lucide — which is why this rule reads import provenance
+  // rather than identifiers.
+  writeFileSync(
+    join(loaderMarkDir, "loader-mark.tsx"),
+    `import { LoaderIcon, LoaderPinwheelIcon } from 'lucide-react';
+import { LoaderCircleIcon } from '@/components/ui/icons/loader-circle';
+
+export function Sanctioned() {
+  return <>
+    <LoaderIcon className="animate-spin" />
+    <LoaderPinwheelIcon />
+    <LoaderCircleIcon />
+  </>;
+}
+`,
+  );
+  const loaderOk = run(loaderMarkDir);
+  if (loaderOk.output.includes("[loader-mark]")) {
+    fail(
+      "design-lint rejected the SANCTIONED loader mark — ICO-8 bans loader-circle, not every " +
+        "identifier with 'Loader' in it, and the animated-icon catalogue is not a loading affordance",
+      loaderOk.output,
     );
   }
 
@@ -348,7 +414,8 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
 
   console.log(
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
-      `token-vocabulary rules fail closed, all 5 focus-ring-glow forms are rejected, a class seam ` +
+      `token-vocabulary rules fail closed, all 5 focus-ring-glow forms and all 5 loader-circle ` +
+      `spellings are rejected while \`LoaderIcon\` and the animated-icon catalogue pass, a class seam ` +
       `with no separating space is rejected, an icon-only Button with an anonymous host is ` +
       `rejected while one carrying its own sr-only label is accepted; the reviewed Textarea ` +
       `adapter passes, and with it 16 deliberate non-violations ` +

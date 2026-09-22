@@ -1,4 +1,4 @@
-// @vegastack toggle@0.11.1 sha256-Ql/lcDUQIk9JSfXM+6Pg4N4IMHJiidQodKWebJbTxng=
+// @vegastack toggle@0.11.1 sha256-cFODrdnwqh6SjHH1ju1kqm7J0h2044QNDl8Q+NoLrHA=
 
 "use client";
 
@@ -43,7 +43,10 @@ function Toggle({
   VariantProps<typeof toggleVariants> & {
     /**
      * Shows a spinner over the label, blocks activation and sets `aria-busy`. The label keeps its
-     * box at `opacity: 0`, so the toggle's width does not move (API-5, A11Y-12).
+     * box at `opacity: 0`, so the toggle's width does not move and its accessible name survives
+     * (API-5, A11Y-12). The wrapper is a real `inline-flex` box inheriting the root's `gap`, never
+     * `display: contents`: a box-less element accepts no `opacity`, so the label would paint at
+     * full strength under the spinner.
      */
     loading?: boolean;
   }) {
@@ -64,7 +67,9 @@ function Toggle({
           >
             <Spinner aria-label={undefined} />
           </span>
-          <span className="contents opacity-0">{children}</span>
+          <span className="inline-flex items-center justify-center gap-[inherit] opacity-0">
+            {children}
+          </span>
         </>
       ) : (
         children

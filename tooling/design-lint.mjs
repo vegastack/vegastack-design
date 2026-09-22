@@ -884,6 +884,48 @@ for (const root of tokenCssRoots) {
           }
         }
       }
+      // ── loader-mark (ICO-8) ───────────────────────────────────────────────────────────────────
+      //
+      // ONE indeterminate loading shape across the system: lucide `Loader`, the radiating-dash
+      // glyph. `Loader2`, `LoaderCircle` and their `*Icon` aliases are the SAME upstream mark under
+      // four names — `Loader2Icon` is literally re-exported from `LoaderCircle` — which is why this
+      // reads the imported name rather than the local binding, and why an aliased
+      // `import { LoaderCircle as Spin }` is caught too.
+      //
+      // Byte parity already holds `spinner`, `toast` and `sonner` to the ICO-8 hunks in their
+      // patches: a re-pull that restored `Loader2Icon` there would fail `upstream:check` because
+      // the patch would stop applying. What parity CANNOT see is a NEW component — one of ours,
+      // with no upstream counterpart and so no patch — reaching for `LoaderCircleIcon` because
+      // that is what upstream writes everywhere. This is that gate, and it is the same shape as
+      // `no-focus-ring-glow`: the rule that keeps an upstream habit from creeping back in one file
+      // at a time.
+      //
+      // Scoped to canonical registry source, which excludes `registry/ui/icons/` — the 467
+      // animated mirrors are a lucide CATALOGUE, and `icons/loader-circle.tsx` is the mirror of
+      // that catalogue entry, not a loading affordance. It imports nothing from `lucide-react`, so
+      // the provenance check would skip it regardless; the scope makes the intent explicit. The
+      // docs' own `spinnerCustomization` preview mounts `LoaderCircleIcon` deliberately, to show
+      // what swapping the mark looks like, and previews are not registry source.
+      if (canonicalRegistryFile) {
+        const BANNED_LOADER = /^(?:Loader2|LoaderCircle)(?:Icon)?$/;
+        for (const statement of sf.statements) {
+          if (!ts.isImportDeclaration(statement)) continue;
+          if (statement.moduleSpecifier.text !== "lucide-react") continue;
+          const bindings = statement.importClause?.namedBindings;
+          if (!bindings || !ts.isNamedImports(bindings)) continue;
+          for (const element of bindings.elements) {
+            const imported = element.propertyName?.text ?? element.name.text;
+            if (!BANNED_LOADER.test(imported)) continue;
+            const line =
+              sf.getLineAndCharacterOfPosition(element.getStart(sf)).line + 1;
+            console.log(
+              `${file}:${line} [loader-mark] '${imported}' is lucide's loader-circle under one of its four names (ICO-8): the one indeterminate loading mark is \`LoaderIcon\` — compose the Spinner registry item where a loading affordance is what you mean`,
+            );
+            violations++;
+          }
+        }
+      }
+
       // (i) hand-rolled ref merge. `mergeRefs` (`@vegastack/design`) is the ONE implementation of
       // "feed this node to my own ref AND to the consumer's". Under React 19 ref-as-prop, a
       // component that needs the node and must also forward it is the NORMAL case, so the pattern
