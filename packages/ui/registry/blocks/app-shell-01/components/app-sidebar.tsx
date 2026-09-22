@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.11.3 sha256-9LSXc10tq+3z4qUczB1gPdRBjDymkl4ntpLyJrq1TIU=
+// @vegastack app-shell-01@0.12.0 sha256-ANmFFK9kPkmPrZcuZRvnFYY/wVTfzoTZLDROHij01bM=
 
 import {
   BarChart3,

@@ -5,14 +5,14 @@
   "description": "An on/off toggle for instant, self-saving binary settings — two sizes and a 24px invisible hit area (A11Y-2). Built on Base UI Switch.",
   "dependencies": [
     "@base-ui/react@^1.6.0",
-    "@vegastack/design@^0.6.1",
-    "@vegastack/design-tokens@^0.5.0"
+    "@vegastack/design@^0.7.0",
+    "@vegastack/design-tokens@^0.7.0"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/switch.tsx",
-      "content": "// @vegastack switch@0.11.3 sha256-hpuPewmtZUjFw8lzvdGSiZ1DDza1cfbubzx5Y+7owj8=\n\n\"use client\";\n\nimport { Switch as SwitchPrimitive } from \"@base-ui/react/switch\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Switch({\n  className,\n  size = \"default\",\n  ...props\n}: SwitchPrimitive.Root.Props & {\n  size?: \"sm\" | \"default\";\n}) {\n  return (\n    <SwitchPrimitive.Root\n      data-slot=\"switch\"\n      data-size={size}\n      className={cn(\n        \"peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all after:absolute after:-inset-x-3 after:-inset-y-2 not-focus:aria-invalid:border-destructive data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] dark:not-focus:aria-invalid:border-destructive/50 data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80 data-disabled:cursor-not-allowed data-disabled:opacity-50\",\n        className,\n      )}\n      {...props}\n    >\n      <SwitchPrimitive.Thumb\n        data-slot=\"switch-thumb\"\n        className=\"pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] rtl:group-data-[size=default]/switch:data-checked:-translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] rtl:group-data-[size=sm]/switch:data-checked:-translate-x-[calc(100%-2px)] dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0 rtl:group-data-[size=default]/switch:data-unchecked:-translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 rtl:group-data-[size=sm]/switch:data-unchecked:-translate-x-0 dark:data-unchecked:bg-foreground\"\n      />\n    </SwitchPrimitive.Root>\n  );\n}\n\nexport { Switch };\n",
+      "content": "// @vegastack switch@0.12.0 sha256-SdNSt4fmNiXiyc6hm8bxbwaw+NOFkY3+lFhzkq3QQRE=\n\n\"use client\";\n\nimport { Switch as SwitchPrimitive } from \"@base-ui/react/switch\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Switch({\n  className,\n  size = \"default\",\n  ...props\n}: SwitchPrimitive.Root.Props & {\n  size?: \"sm\" | \"default\";\n}) {\n  return (\n    <SwitchPrimitive.Root\n      data-slot=\"switch\"\n      data-size={size}\n      className={cn(\n        \"peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all after:absolute after:-inset-x-3 after:-inset-y-2 not-focus:aria-invalid:border-destructive data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] dark:not-focus:aria-invalid:border-destructive/50 data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80 data-disabled:cursor-not-allowed data-disabled:opacity-50\",\n        className,\n      )}\n      {...props}\n    >\n      <SwitchPrimitive.Thumb\n        data-slot=\"switch-thumb\"\n        className=\"pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] rtl:group-data-[size=default]/switch:data-checked:-translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] rtl:group-data-[size=sm]/switch:data-checked:-translate-x-[calc(100%-2px)] dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0 rtl:group-data-[size=default]/switch:data-unchecked:-translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 rtl:group-data-[size=sm]/switch:data-unchecked:-translate-x-0 dark:data-unchecked:bg-foreground\"\n      />\n    </SwitchPrimitive.Root>\n  );\n}\n\nexport { Switch };\n",
       "type": "registry:ui",
       "target": "@ui/switch.tsx"
     }
@@ -20,8 +20,8 @@
   "meta": {
     "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
     "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
-    "version": "0.11.3",
-    "integrity": "sha256-hpuPewmtZUjFw8lzvdGSiZ1DDza1cfbubzx5Y+7owj8="
+    "version": "0.12.0",
+    "integrity": "sha256-SdNSt4fmNiXiyc6hm8bxbwaw+NOFkY3+lFhzkq3QQRE="
   },
   "categories": [
     "form"

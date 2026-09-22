@@ -1,4 +1,4 @@
-// @vegastack sidebar-13@0.11.3 sha256-Wevn7E2zIt1hbSAf8MmYWLtHDzBRoPWafl+ws+SWCZA=
+// @vegastack sidebar-13@0.12.0 sha256-/6K1uk58pE7NwS6HEVx46tnNp+cR5paz9C3mMywtjDs=
 
 import { SettingsDialog } from "./components/settings-dialog";
 

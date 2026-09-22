@@ -4,13 +4,13 @@
   "title": "Preview 03",
   "description": "Upstream's empty preview placeholder — one div, no components. Shipped for parity, not as a starting point.",
   "dependencies": [
-    "@vegastack/design-tokens@^0.5.0"
+    "@vegastack/design-tokens@^0.7.0"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/blocks/preview-03/index.tsx",
-      "content": "// @vegastack preview-03@0.11.3 sha256-YcNBfHkXjwPRJbMjxoWxOsVlxCZF/tjKVGRhXMU8pn0=\n\nexport default function Preview03() {\n  return <div>Preview 03</div>;\n}\n",
+      "content": "// @vegastack preview-03@0.12.0 sha256-2PszrzeBCRKdat+c/sflAKjZdBI28Oa3+SphuVAK3QE=\n\nexport default function Preview03() {\n  return <div>Preview 03</div>;\n}\n",
       "type": "registry:page",
       "target": "app/preview-03/page.tsx"
     }
@@ -18,8 +18,8 @@
   "meta": {
     "whenToUse": "Nothing: upstream ships it as a placeholder and it is here so the block set is complete.",
     "whenNotToUse": "Any real page — start from a login, signup, sidebar or dashboard block instead.",
-    "version": "0.11.3",
-    "integrity": "sha256-YcNBfHkXjwPRJbMjxoWxOsVlxCZF/tjKVGRhXMU8pn0="
+    "version": "0.12.0",
+    "integrity": "sha256-2PszrzeBCRKdat+c/sflAKjZdBI28Oa3+SphuVAK3QE="
   },
   "categories": [
     "preview"
