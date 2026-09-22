@@ -2935,3 +2935,39 @@ changed for any of these test repairs.
   `@vegastack/design-tokens` out of the range `@vegastack/design` pins, and every piece of the
   pipeline downstream of that had never run against it. Dormant paths are not proven paths, and a
   release is the worst time to discover the difference.
+
+## 2026-09-22 — a fixed-height sticky banner whose copy outgrew it
+
+- **Symptom.** On any docs page at phone width, the registry-auth notice's text rendered on top of
+  the VegaStack logo row. Only visible by eye, and only narrow: the site looked correct at every
+  width anyone routinely develops at.
+- **Root cause.** Fumadocs' `Banner` takes ONE `height` prop (default `3rem`) and writes it into two
+  places: its own inline `style={{ height }}`, and a `<style>` rule setting `--fd-banner-height`,
+  which is what `--fd-docs-row-1` and every sticky offset below the banner are measured from. That
+  coupling is deliberate and correct — the box and the layout offsets can never disagree — but it
+  also means **the box cannot grow to fit its content**. The notice needed six lines at 320px
+  (measured: 120px of content in a 48px box), so 72px of text escaped the box, and at `z-40` over
+  the header's `z-30` it painted over the header.
+- **Why no gate saw it.** Every structural check was satisfied: the layout boxes did not overlap
+  (banner 0–48, header 48–104), `scrollWidth` equalled `clientWidth`, so there was no horizontal
+  overflow either. The defect was content escaping its own container while the container stayed
+  exactly where it belonged — a state that looks healthy to anything measuring boxes rather than
+  what is painted inside them.
+- **Systemic fix.** The trailing enumeration is `hidden lg:inline`, at a breakpoint derived from
+  measurement rather than taste: the full sentence needs 6 lines at 320px, 3 at 480px, 2 at 768px
+  and 1 from 1024px. The lead sentence and its link are unconditional, so the notice itself holds at
+  every width and the detail is deferred to the page that performs the setup. Coverage: a new
+  `BANNER-FIT` assertion in `tooling/verify-docs-shell.mjs`, the one gate that measures computed
+  style on the built export, asserting at 320px that the banner's painted content — element boxes
+  and bare text nodes both — fits the box it declares. Its `--self-test` defect turns the old copy
+  back on and observes the assertion fail.
+- **The generalisable rule.** **When a component's height is a prop rather than its content, the
+  content is a constraint, not an input** — and the assertion worth writing is about FIT, not about
+  which words are shown. `BANNER-FIT` deliberately says "content must fit the declared box" rather
+  than "the clause is hidden below lg", so it still holds if the copy, the breakpoint or the height
+  change, and fails again the moment the copy outgrows the box. More generally: a box whose overflow
+  is neither clipped nor scrollable is invisible to every structural check, because nothing is out
+  of place — it is only painted somewhere it does not belong.
+- **Sweep.** `Banner` is the only fixed-height sticky element in the docs shell taking prose as
+  children; the header and TOC popover size from their own `--fd-*-height` tokens and carry no
+  free text.
