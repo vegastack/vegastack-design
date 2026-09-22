@@ -17,6 +17,7 @@ const GENERATED_PATH =
 const CHANGELOG_PATH =
   /^(?:CHANGELOG\.md$|apps\/docs\/content\/docs\/changelog\.mdx$|packages\/(?:design|design-tokens|ui)\/CHANGELOG\.md$)/;
 const PACKAGE_PATH = /^packages\/(?:design|design-tokens|ui)\/package\.json$/;
+const LOCKFILE_PATH = /^pnpm-lock\.yaml$/;
 
 function git(args, { cwd = ROOT } = {}) {
   const result = spawnSync("git", args, {
@@ -87,6 +88,35 @@ function normalizedPackage(text) {
   return JSON.stringify(value);
 }
 
+// The lockfile is the one release output where a NEW THIRD-PARTY DEPENDENCY could hide, so it is
+// not allowed wholesale the way the changelogs are. `version-packages` regenerates it because
+// `version-sync` rewrites the internal `@vegastack/*` ranges and the lockfile records each of those
+// as a `specifier:` under the dependency's own key; the legitimate diff is exactly those lines.
+//
+// So: neutralise the `specifier:`/`version:` lines that sit under a `@vegastack/*` key — the same
+// move `normalizedPackage` makes for the manifests — and require everything else to be byte
+// identical. A release that pulled in, bumped or re-resolved any other package changes a line
+// outside that set and is rejected.
+function normalizedLockfile(text) {
+  let internal = false;
+  return text
+    .split("\n")
+    .map((line) => {
+      if (/^\s*'?@vegastack\/[^']*'?:\s*$/.test(line)) {
+        internal = true;
+        return line;
+      }
+      const field = /^(\s*)(specifier|version):\s.*$/.exec(line);
+      if (field) {
+        return internal ? `${field[1]}${field[2]}: <internal>` : line;
+      }
+      // Any other line ends the entry the key opened.
+      if (line.trim() !== "") internal = false;
+      return line;
+    })
+    .join("\n");
+}
+
 function versionTuple(value) {
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(value ?? "");
   return match ? match.slice(1).map(Number) : null;
@@ -140,6 +170,7 @@ export function validateReleaseOutput({ base, cwd = ROOT }) {
         (path) =>
           HEADER_PATH.test(path) ||
           PACKAGE_PATH.test(path) ||
+          LOCKFILE_PATH.test(path) ||
           path === "AGENTS.md",
       ),
     cwd,
@@ -158,6 +189,7 @@ export function validateReleaseOutput({ base, cwd = ROOT }) {
       const allowed =
         HEADER_PATH.test(path) ||
         PACKAGE_PATH.test(path) ||
+        LOCKFILE_PATH.test(path) ||
         path === "AGENTS.md" ||
         GENERATED_PATH.test(path) ||
         CHANGELOG_PATH.test(path);
@@ -202,6 +234,18 @@ export function validateReleaseOutput({ base, cwd = ROOT }) {
         )
           errors.push(
             `${path}: release changed package metadata beyond versions/internal ranges`,
+          );
+        continue;
+      }
+      if (LOCKFILE_PATH.test(path)) {
+        const before = baseContent.get(path) ?? null;
+        const after = readFileSync(resolve(cwd, path), "utf8");
+        if (
+          before === null ||
+          normalizedLockfile(before) !== normalizedLockfile(after)
+        )
+          errors.push(
+            `${path}: release changed the lockfile beyond the internal @vegastack/* ranges`,
           );
         continue;
       }
