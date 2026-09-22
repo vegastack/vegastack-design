@@ -23,6 +23,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { isTransparent } from "../../test/color";
 import {
   ChartContainer,
   ChartLegend,
@@ -576,7 +577,7 @@ test("FOC-1: the KEYBOARD-FOCUSED plot surface actually PAINTS the global outlin
       return {
         outlineStyle: style.outlineStyle,
         width: Number.parseFloat(style.outlineWidth),
-        transparent: style.outlineColor === "rgba(0, 0, 0, 0)",
+        transparent: isTransparent(style.outlineColor),
       };
     })
     // An AUTHORED outline: the user agent's own ring (`auto`) is not an affordance this system

@@ -216,6 +216,11 @@
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
       {
+        "file": "packages/ui/test/color.browser.test.tsx",
+        "owners": [],
+        "globalInputGroups": ["tokens"]
+      },
+      {
         "file": "packages/ui/test/contrast.browser.test.tsx",
         "owners": [
           "badge",

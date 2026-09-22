@@ -12,6 +12,7 @@ import { TextEdit } from "../registry/ui/text-edit";
 import { ColorPicker } from "../registry/ui/color-picker";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../registry/ui/tabs";
 import { FileWarningIcon } from "lucide-react";
+import { isTransparent } from "./color";
 import {
   Attachment,
   AttachmentContent,
@@ -244,7 +245,7 @@ async function integrationFailures(container: Element) {
     );
   for (const [index, specimen] of [...categorical].entries()) {
     const color = getComputedStyle(specimen).backgroundColor;
-    if (!color || color === "rgba(0, 0, 0, 0)" || color === "transparent") {
+    if (isTransparent(color)) {
       failures.push(
         `chart-${index + 1}: compiled background token did not resolve`,
       );

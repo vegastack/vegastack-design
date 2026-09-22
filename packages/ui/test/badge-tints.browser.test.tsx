@@ -3,6 +3,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { Badge } from "../registry/ui/badge";
+import { isTransparent } from "./color";
 
 /**
  * Badge tint gate. The unit suite runs WITHOUT compiled CSS, so a claim about a resolved colour can
@@ -51,7 +52,7 @@ test("every status variant paints a tint, not the solid family fill", async () =
     const style = getComputedStyle(
       screen.getByTestId(`t-${variant}`).element(),
     );
-    expect(style.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(isTransparent(style.backgroundColor)).toBe(false);
     expect(style.backgroundColor).not.toBe(resolved(token(`--${variant}`)));
   }
 });
@@ -78,8 +79,10 @@ test("ghost carries no fill at rest", async () => {
     </Badge>,
   );
   expect(
-    getComputedStyle(screen.getByTestId("g").element()).backgroundColor,
-  ).toBe("rgba(0, 0, 0, 0)");
+    isTransparent(
+      getComputedStyle(screen.getByTestId("g").element()).backgroundColor,
+    ),
+  ).toBe(true);
 });
 
 test("Badge is one height across every variant (upstream ships no size ladder)", async () => {
