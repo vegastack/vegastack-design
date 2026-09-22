@@ -124,9 +124,9 @@ const cases = [
     replace: "          node -e 'process.exit(0)' \\\n",
   },
   {
-    name: "Version PR creation ignores pending changesets",
+    name: "Version PR creation ignores whether anything bumps",
     file: "release.yml",
-    find: "    if: needs.changes.outputs.has_changesets == 'true'",
+    find: "    if: needs.changes.outputs.has_version_bump == 'true'",
     replace: "    if: always()",
   },
   {
@@ -151,7 +151,7 @@ const cases = [
   {
     name: "publish can run while changesets remain",
     file: "release.yml",
-    find: "      needs.changes.outputs.publish == 'true' &&\n      needs.changes.outputs.has_changesets == 'false'",
+    find: "      needs.changes.outputs.publish == 'true' &&\n      needs.changes.outputs.has_version_bump == 'false'",
     replace: "      needs.changes.outputs.publish == 'true'",
   },
   {
