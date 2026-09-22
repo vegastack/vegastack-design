@@ -66,9 +66,9 @@ Each of these fails without an error message. Check them explicitly:
     CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 ```
 
-Add a smoke suite that exercises the copied components _in your app_ (the
-reference starter ships one to copy: render + dialog focus trap + toast fires +
-dark-mode persists). Your app owns these files now — your CI is what proves them.
+Add a smoke suite that exercises the copied components _in your app_ — render +
+dialog focus trap + toast fires + dark-mode persists is a good minimum. Your app
+owns these files now, so your CI is what proves them.
 
 ## Secrets
 

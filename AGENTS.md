@@ -221,7 +221,7 @@ docs/                    requirements · gap analysis · plans · ledgers · res
 .github/workflows/       ci · release · deploy
 ```
 
-`.husky/` carries pre-commit and commit-msg only — CI runs the same command a developer does. `registry/ui/` holds components and hooks, `registry/blocks/` holds copy-once starter compositions; item types beyond `registry:ui` are `registry:hook` (a pure hook, plain `.ts`) and `registry:block` (a starter the consumer owns after install rather than tracking for updates). **Reference repos**, to read rather than re-derive: `~/code/references/fumadocs`, `~/code/engg-vegastack-platform`, `~/code/references/resend-design-skills`. The **reference consumer**, and the executable ground truth for every guide claim, is `~/code/vegastack-design-starter`.
+`.husky/` carries pre-commit and commit-msg only — CI runs the same command a developer does. `registry/ui/` holds components and hooks, `registry/blocks/` holds copy-once starter compositions; item types beyond `registry:ui` are `registry:hook` (a pure hook, plain `.ts`) and `registry:block` (a starter the consumer owns after install rather than tracking for updates). **Reference repos**, to read rather than re-derive: `~/code/references/fumadocs`, `~/code/engg-vegastack-platform`, `~/code/references/resend-design-skills`.
 
 ## Numbers
 

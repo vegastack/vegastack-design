@@ -17,7 +17,7 @@ const REPOS: Repo[] = [
   { id: "design", name: "vegastack-design", owner: "vegastack" },
   { id: "platform", name: "engg-vegastack-platform", owner: "vegastack" },
   { id: "factory", name: "vegafactory", owner: "vegastack" },
-  { id: "starter", name: "vegastack-design-starter", owner: "vegastack" },
+  { id: "tokens", name: "vegastack-design-tokens", owner: "vegastack" },
   { id: "docs", name: "vegastack-docs", owner: "vegastack" },
 ];
 
