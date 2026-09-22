@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// The docs-shell contracts (`05-docs-chrome.md` DC-03/06/12, decisions DD-1/4/5), asserted in
-// a real browser against the STATIC PUBLIC EXPORT — the artefact production serves.
+// The docs-shell contracts (`05-docs-chrome.md` DC-03/06/12, decisions DD-1/4/5, plus BANNER-FIT
+// from `docs/ledger/bugs.md` 2026-09-22), asserted in a real browser against the STATIC PUBLIC
+// EXPORT — the artefact production serves.
 //
 // WHY A SCRIPT AND NOT A TEST FILE
 //   These assertions used to live in `apps/docs/vrt/docs-shell.spec.ts`, which meant the repo
@@ -422,6 +423,89 @@ const ASSERTIONS = [
               .querySelector("a[href='#content']")
               ?.setAttribute("href", "#nowhere");
           }),
+      },
+    ],
+  },
+
+  {
+    // NOT a `DC-` id. That register is `docs/audits/2026-09-07-system-audit/05-docs-chrome.md`, a
+    // closed point-in-time audit whose rows run DC-01…DC-17; a new row there would be invented
+    // history. This assertion's provenance is `docs/ledger/bugs.md`, 2026-09-22.
+    id: "BANNER-FIT",
+    title:
+      "the sticky banner's content fits the fixed-height box it declares, at 320px",
+    routes: [COMPONENT],
+    async check(page, ctx) {
+      // Fumadocs' `Banner` writes ONE `height` into both its own inline style and
+      // `--fd-banner-height`, which every sticky offset below it is measured from. So the box
+      // cannot grow to fit its text: text that needs more lines simply overflows, and at `z-40`
+      // over the header's `z-30` it paints on top of the site header. The layout boxes still do
+      // not overlap and there is no horizontal scroll, which is exactly why nothing else catches
+      // this — it is content escaping its container, not a broken grid.
+      //
+      // Measured at 320px because that is where the copy is under the most pressure, and stated as
+      // an invariant about FIT rather than about which clause is hidden: the point is that the
+      // banner's content must fit whatever box it declares, so this stays true if the copy, the
+      // breakpoint or the height ever change, and fails the moment the copy outgrows the box again.
+      await page.setViewportSize({ width: 320, height: 720 });
+      await ctx.inject("narrow");
+
+      // The union of everything the banner actually paints — element boxes AND the bare text
+      // nodes, which have no element of their own and are most of this banner.
+      const measure = () =>
+        page.evaluate(() => {
+          const banner = document.querySelector("#registry-auth");
+          if (!banner) return null;
+          const box = banner.getBoundingClientRect();
+          if (box.height === 0) return null;
+          const range = document.createRange();
+          range.selectNodeContents(banner);
+          const text = range.getBoundingClientRect();
+          let bottom = text.bottom;
+          let top = text.top;
+          for (const element of banner.querySelectorAll("*")) {
+            if (element.tagName === "STYLE" || element.tagName === "SCRIPT")
+              continue;
+            const rect = element.getBoundingClientRect();
+            if (rect.width === 0 && rect.height === 0) continue;
+            bottom = Math.max(bottom, rect.bottom);
+            top = Math.min(top, rect.top);
+          }
+          return {
+            boxTop: Math.round(box.top),
+            boxBottom: Math.round(box.bottom),
+            contentTop: Math.round(top),
+            contentBottom: Math.round(bottom),
+          };
+        });
+
+      // `assertEventually` waits; it does not hand back what it read. So wait for the banner to
+      // be laid out at the new viewport, then take the measurement the assertions below use.
+      await assertEventually(
+        measure,
+        "the registry-auth banner never rendered with a measurable height at 320px",
+      );
+      const measured = await measure();
+
+      // 1px of slack for sub-pixel line-box rounding; the real defect was 72px.
+      assert.ok(
+        measured.contentBottom <= measured.boxBottom + 1,
+        `the banner's content ends at ${measured.contentBottom}px but its box ends at ${measured.boxBottom}px — ` +
+          `${measured.contentBottom - measured.boxBottom}px overflows the sticky box and paints over the header below it`,
+      );
+      assert.ok(
+        measured.contentTop >= measured.boxTop - 1,
+        `the banner's content starts at ${measured.contentTop}px, above its box at ${measured.boxTop}px`,
+      );
+    },
+    defects: [
+      {
+        // The exact regression: the trailing enumeration back on at 320px, which is what the
+        // banner shipped before 2026-09-22 and what a future copy edit would reintroduce.
+        name: "the full notice is shown at 320px, so it overflows its fixed-height box",
+        phase: "narrow",
+        apply: (page) =>
+          addStyle(page, "#registry-auth span { display: inline !important; }"),
       },
     ],
   },

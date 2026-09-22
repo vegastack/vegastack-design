@@ -17,7 +17,13 @@ export default function Layout({ children }: LayoutProps<"/docs">) {
         >
           registry setup
         </Link>
-        <span className="ms-1">
+        {/* The enumeration is detail, and it only fits on the banner's one line from `lg` up
+            (measured: the full sentence needs 6 lines at 320px, 2 at 768px, 1 at 1024px). Below
+            that it is hidden rather than wrapped, because `Banner` is a FIXED-height sticky box —
+            wrapped text overflows it and paints over the site header — and because the link
+            beside it goes to the page that performs this setup, so nothing is lost, only deferred.
+            The lead sentence and the link are unconditional: the notice itself is canon. */}
+        <span className="ms-1 hidden lg:inline">
           — the Base UI shadcn project, the <code>@vegastack</code> namespace
           and the Cloudflare Access service token.
         </span>
