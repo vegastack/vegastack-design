@@ -113,9 +113,22 @@ jobs:
             }
             sleep $((attempt * 2))
           done
-          HEAD_SHA=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)
-          test -n "$HEAD_SHA"
-          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$VERSION_BRANCH" --jq .object.sha)" = "$HEAD_SHA"
+          # REST, not `gh pr view`. Its GraphQL path served a stale headRefOid for minutes on run
+          # 35763347504 — the branch ref was already at 49486dab0 while the PR still reported
+          # 6a359a602 — and the comparison below had no retry, so a correct Version PR was left
+          # behind a red run. The retry covers the same lag; the comparison itself is unchanged and
+          # still fails if the two genuinely disagree, which is the exact-SHA protection boundary.
+          for attempt in 1 2 3; do
+            HEAD_SHA=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq .head.sha)
+            BRANCH_SHA=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$VERSION_BRANCH" --jq .object.sha)
+            test -n "$HEAD_SHA"
+            [ "$HEAD_SHA" = "$BRANCH_SHA" ] && break
+            test "$attempt" -lt 3 || {
+              echo "::error::Version PR head $HEAD_SHA never matched $VERSION_BRANCH at $BRANCH_SHA"
+              exit 1
+            }
+            sleep $((attempt * 2))
+          done
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
           echo "Version Packages PR #$PR_NUMBER: $TARGET_SHA..$HEAD_SHA"
