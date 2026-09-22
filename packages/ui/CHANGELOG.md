@@ -1,5 +1,28 @@
 # @vegastack/ui
 
+## 0.11.0
+
+### Minor Changes
+
+- [#161](https://github.com/vegastack/vegastack-design/pull/161) [`6ed3e37`](https://github.com/vegastack/vegastack-design/commit/6ed3e373d277fa725d4ab28b696f9dadc6e866b2) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🧩 SearchInput now provides a token-safe clear action with controlled, uncontrolled, keyboard, and native form behavior across supported browsers.
+
+  - Use the new reusable SearchInput for consistent search semantics and styling.
+  - FilterBar now composes SearchInput while preserving its existing controlled search API.
+
+### Patch Changes
+
+- [#155](https://github.com/vegastack/vegastack-design/pull/155) [`e7097d9`](https://github.com/vegastack/vegastack-design/commit/e7097d9c88a99f1c0b1421276b1ad652fa645f98) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 Loading Buttons now hide their label through a real layout box, preventing the centered spinner from overlapping visible text while preserving the button’s size and accessible name.
+
+- [#158](https://github.com/vegastack/vegastack-design/pull/158) [`cfe049d`](https://github.com/vegastack/vegastack-design/commit/cfe049d1ca30a8c777da0636bef51a2484b50756) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🔧 Avatar fallback initials now use the smaller `text-xs` size across all three avatar diameters.
+
+  - Preserve the existing `sm`, `default`, and `lg` diameters and public API.
+  - Keep explicit consumer typography overrides and standalone group-count typography unchanged.
+
+- [#160](https://github.com/vegastack/vegastack-design/pull/160) [`1689201`](https://github.com/vegastack/vegastack-design/commit/1689201717ea406677234d9dbe1585af486fd8a5) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 Command dialogs now stay centered inside short viewports while their results scroll and composed footers remain visible.
+
+- Updated dependencies [[`14c88ce`](https://github.com/vegastack/vegastack-design/commit/14c88ce14a3849f7f12af2720373fd78f88e388c)]:
+  - @vegastack/design@0.6.0
+
 ## 0.10.0
 
 ### Minor Changes
