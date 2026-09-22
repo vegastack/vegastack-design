@@ -4,14 +4,14 @@
   "title": "Label",
   "description": "A styled native label for form controls.",
   "dependencies": [
-    "@vegastack/design@^0.6.0",
+    "@vegastack/design@^0.6.1",
     "@vegastack/design-tokens@^0.5.0"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/label.tsx",
-      "content": "// @vegastack label@0.11.0 sha256-3Cf4/34eDMdrQGHfVO7VwA1OmZOzYVaS2gzYOaJGy60=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Label({ className, ...props }: React.ComponentProps<\"label\">) {\n  return (\n    <label\n      data-slot=\"label\"\n      className={cn(\n        \"flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Label };\n",
+      "content": "// @vegastack label@0.11.1 sha256-1/b9aGGyd4fR09Gm7Hxc13p2RhinJ1KMhpI6pTivw6g=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Label({ className, ...props }: React.ComponentProps<\"label\">) {\n  return (\n    <label\n      data-slot=\"label\"\n      className={cn(\n        \"flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Label };\n",
       "type": "registry:ui",
       "target": "@ui/label.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Label any form control — pair via htmlFor/id or by wrapping. Use required for mandatory fields.",
     "whenNotToUse": "As a heading, or when you need a full field layout — use Field.",
-    "version": "0.11.0",
-    "integrity": "sha256-3Cf4/34eDMdrQGHfVO7VwA1OmZOzYVaS2gzYOaJGy60="
+    "version": "0.11.1",
+    "integrity": "sha256-1/b9aGGyd4fR09Gm7Hxc13p2RhinJ1KMhpI6pTivw6g="
   },
   "categories": [
     "form"
