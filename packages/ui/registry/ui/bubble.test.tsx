@@ -33,6 +33,7 @@ import { beforeAll, expect, test } from "vitest";
 import { CheckIcon, InfoIcon } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from "./bubble";
+import { isTransparent } from "../../test/color";
 import { Button } from "./button";
 import { Collapsible, CollapsibleTrigger } from "./collapsible";
 import {
@@ -278,7 +279,7 @@ test("Variants: the default is `default`, and ghost strips the surface off the c
   expect(fallback.dataset.variant).toBe("default");
   const surface = getComputedStyle(nth(screen.container, "bubble-content", 1));
   // `*:data-[slot=bubble-content]:bg-transparent` + `:p-0` — the ghost content paints nothing.
-  expect(surface.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  expect(isTransparent(surface.backgroundColor)).toBe(true);
   expect(surface.paddingTop).toBe("0px");
   expect(ghost.dataset.variant).toBe("ghost");
 });
@@ -645,7 +646,7 @@ test("FOC-6: the resting reactions chip paints a 3px OUTLINE band, not a ring", 
   // surface it sits on. Compared against a probe wearing `bg-card`, so the assertion is the
   // rendered colour rather than the class name.
   const cardColor = probeColor("bg-card", "backgroundColor");
-  expect(cardColor).not.toBe("rgba(0, 0, 0, 0)");
+  expect(isTransparent(cardColor)).toBe(false);
   expect(style.outlineColor).toBe(cardColor);
 });
 
@@ -664,18 +665,17 @@ test("A11Y-13: the destructive bubble's ink is the family's -text role, not the 
   // rule is live, so the ratio itself is gated and not merely the token name.
   const inkText = probeColor("text-destructive-text", "color");
   const inkFill = probeColor("text-destructive", "color");
-  expect(inkText, "the token theme resolves no --destructive-text").not.toBe(
-    "rgba(0, 0, 0, 0)",
-  );
+  expect(
+    isTransparent(inkText),
+    "the token theme resolves no --destructive-text",
+  ).toBe(false);
   expect(
     inkFill,
     "the two destructive inks resolve to the same colour, so this test cannot tell them apart",
   ).not.toBe(inkText);
   expect(getComputedStyle(content).color).toBe(inkText);
   // The fill itself is untouched — A11Y-13 moves the ink and nothing else in the variant.
-  expect(getComputedStyle(content).backgroundColor).not.toBe(
-    "rgba(0, 0, 0, 0)",
-  );
+  expect(isTransparent(getComputedStyle(content).backgroundColor)).toBe(false);
 });
 
 test("FOC-1/FOC-6: no ring glow and no outline suppression anywhere in the tree", async () => {

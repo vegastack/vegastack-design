@@ -2971,3 +2971,49 @@ changed for any of these test repairs.
 - **Sweep.** `Banner` is the only fixed-height sticky element in the docs shell taking prose as
   children; the header and TOC popover size from their own `--fd-*-height` tokens and carry no
   free text.
+
+## 2026-09-23 — ten assertions that passed over a blank element
+
+- **Symptom.** `packages/ui/test/badge-tints.browser.test.tsx` ("ghost carries no fill at rest")
+  passed on CI run 35755814112, failed on 35762537268 against **identical source**
+  (`expected 'oklab(0 0 0 / 0)' to be 'rgba(0, 0, 0, 0)'`), then passed again on re-run. Runner-to-
+  runner Chromium variance inside the pinned Playwright image, so a coin flip on every run.
+- **Root cause.** Chromium serialises a fully transparent colour as `rgba(0, 0, 0, 0)` or as
+  `oklab(0 0 0 / 0)`, depending on the colour space the value came through — and this token system's
+  colours routinely come through OKLCH. Fourteen sites compared against the first spelling as a
+  literal string.
+- **The flaky one was the harmless half.** Two sites asserted `toBe("rgba(0, 0, 0, 0)")` — those
+  break loudly when the spelling changes, which is how this was found. **Ten asserted
+  `not.toBe("rgba(0, 0, 0, 0)")` to mean "something is painted here", and those are fail-open**: an
+  element that had lost its fill entirely still satisfies "not `rgba(0, 0, 0, 0)`" whenever Chromium
+  spells the nothing as `oklab`. A Badge, Button, Switch track, Toast action or Bubble surface could
+  have gone completely unpainted with its test green.
+- **The lesson existed and had not been generalised.** `media-chrome.browser.test.tsx` has carried
+  the note since it was written: "Chromium serialises the SAME token three ways ... Matching only
+  some of them is how a colour gate silently reads the WRONG stop and passes on the very defect it
+  exists to catch." It was learned once, for reading a colour out of a gradient, and never applied
+  to the far commoner question of whether anything is painted at all.
+- **Systemic fix.** `packages/ui/test/color.ts` exports `alphaOf` and `isTransparent`, handling the
+  `transparent` keyword, the legacy `rgba(r, g, b, a)` comma form and the modern `fn(a b c / alpha)`
+  slash form (`oklab`/`oklch`/`color(srgb …)`), with percentage alphas. All twelve assertion sites
+  now test transparency rather than one browser's spelling of it. **No call site changed meaning**:
+  all six files were green before and after, so no hidden unpainted element was found — the fix
+  removes the possibility, it did not uncover an instance.
+- **The helper is itself load-bearing, so it is pinned.** A predicate that always returned `false`
+  would turn all ten "is painted" assertions green over a blank page — the same fail-open defect one
+  level down. `color.browser.test.tsx` asserts both directions over every spelling, proves the
+  predicate separates the two sets rather than being constant, states the original defect as an
+  executable claim, and reads a real element's transparency in the engine without naming which
+  spelling it produced (naming it would re-create the flake).
+- **An unreadable alpha throws.** There is no safe default: returning 1 silently satisfies every
+  "is painted" assertion, returning 0 silently satisfies every "is empty" one. Both are the shape
+  being removed, so `alphaOf` fails loudly instead.
+- **The generalisable rule.** **Assert the meaning, not the serialisation.** Any assertion comparing
+  a computed style against a literal string is pinned to one engine's spelling of a value, and the
+  negated form of such an assertion is fail-open by construction — it passes on everything the
+  engine spells differently, including the defect. When the question is semantic ("is this
+  painted?"), the assertion must be a predicate over the meaning.
+- **Sweep.** `grep -rn 'rgba(0, 0, 0, 0)' packages/ui/test packages/ui/registry` now returns only
+  prose. The remaining computed-style literal comparisons in the browser lanes are dimensions
+  (`"0px"`, `"28px"`) and enumerated keywords (`outlineStyle`, `display`), which CSS serialises
+  canonically and which have no second spelling.

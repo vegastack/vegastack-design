@@ -5,6 +5,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { Button } from "../registry/ui/button";
+import { isTransparent } from "./color";
 
 /**
  * Button state gate. The unit suite runs WITHOUT compiled CSS, so a claim about geometry, opacity
@@ -203,7 +204,7 @@ test("A11Y-13: the destructive variant is a tint inked with --destructive-text",
     </Button>,
   );
   const style = getComputedStyle(screen.getByTestId("d").element());
-  expect(style.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+  expect(isTransparent(style.backgroundColor)).toBe(false);
   expect(style.backgroundColor).not.toBe(resolved(token("--destructive")));
   expect(style.color).toBe(resolved(token("--destructive-text")));
 });

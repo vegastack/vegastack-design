@@ -16,6 +16,7 @@ import { Switch } from "../registry/ui/switch";
 import { Textarea } from "../registry/ui/textarea";
 import { Toaster, toast } from "../registry/ui/toast";
 import { Toggle } from "../registry/ui/toggle";
+import { isTransparent } from "./color";
 
 /**
  * CONTROL-PAINT CONTRACTS — what the browser paints, not what the source authored.
@@ -138,10 +139,8 @@ describe("toast content geometry", () => {
     // `<Button variant="outline">` and paints a real surface, the close is `variant="ghost"` and
     // paints none. The pre-reset toast used one variant for both, so this assertion used to read
     // "same fill"; the claim now is the hierarchy upstream ships, measured rather than assumed.
-    expect(getComputedStyle(action).backgroundColor).not.toBe(
-      "rgba(0, 0, 0, 0)",
-    );
-    expect(getComputedStyle(close).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(isTransparent(getComputedStyle(action).backgroundColor)).toBe(false);
+    expect(isTransparent(getComputedStyle(close).backgroundColor)).toBe(true);
     expect(action.getBoundingClientRect().height).toBe(28);
   });
 });
@@ -248,7 +247,7 @@ describe("Switch — the track is painted, in both states", () => {
     // claim that survives is the one the class-glue defect broke: BOTH tracks are painted, and
     // they are painted DIFFERENTLY. The checked track is `primary`, which every checked control
     // in the system shares.
-    expect(off.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(isTransparent(off.backgroundColor)).toBe(false);
     expect(numbers(off.backgroundColor)).not.toEqual(
       numbers(on.backgroundColor),
     );
