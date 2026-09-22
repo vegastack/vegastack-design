@@ -1,4 +1,4 @@
-// @vegastack sidebar-14@0.11.0 sha256-/thDcmGuWrAUbyY7M+LFIjzPLO0j5xo+VqaDBWwPmtU=
+// @vegastack sidebar-14@0.11.1 sha256-7pklOs97Y+ZjTCTpqYedKuik2oESHh6EVdW/q5dLzRM=
 
 import { AppSidebar } from "./components/app-sidebar";
 import {

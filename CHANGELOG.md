@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.11.1] — September 22, 2026
+
+<!-- assembled from 1 changeset: 668c860494c6 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.6.1`** (was `0.6.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.11.0 → 0.11.1.
+
+### 🐛 Fixed
+
+- Publish concrete dependency ranges so fresh npm and pnpm consumers can install the package outside the VegaStack workspace.
+  [`997dfb8`](https://github.com/VegaStack/vegastack-design/commit/997dfb8)
+
 ## [0.11.0] — September 22, 2026
 
 <!-- assembled from 5 changesets: b69592f46acb -->

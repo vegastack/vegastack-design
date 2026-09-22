@@ -5,14 +5,14 @@
   "description": "An indeterminate loading indicator that inherits its host's ink.",
   "dependencies": [
     "lucide-react@^1.47.0",
-    "@vegastack/design@^0.6.0",
+    "@vegastack/design@^0.6.1",
     "@vegastack/design-tokens@^0.5.0"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/spinner.tsx",
-      "content": "// @vegastack spinner@0.11.0 sha256-nos5u6/aMq/UX1uXnN20fs88LBUQytcWBpSahn7PMWE=\n\nimport { cn } from \"@vegastack/design\";\nimport { Loader2Icon } from \"lucide-react\";\n\nfunction Spinner({ className, ...props }: React.ComponentProps<\"svg\">) {\n  return (\n    <Loader2Icon\n      data-slot=\"spinner\"\n      role=\"status\"\n      aria-label=\"Loading\"\n      className={cn(\"size-4 animate-spin\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Spinner };\n",
+      "content": "// @vegastack spinner@0.11.1 sha256-/+77YAzCOIyyfR9cvxcPZ4swdavTsCJNiDv+Zvqg6Ik=\n\nimport { cn } from \"@vegastack/design\";\nimport { Loader2Icon } from \"lucide-react\";\n\nfunction Spinner({ className, ...props }: React.ComponentProps<\"svg\">) {\n  return (\n    <Loader2Icon\n      data-slot=\"spinner\"\n      role=\"status\"\n      aria-label=\"Loading\"\n      className={cn(\"size-4 animate-spin\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Spinner };\n",
       "type": "registry:ui",
       "target": "@ui/spinner.tsx"
     }
@@ -20,8 +20,8 @@
   "meta": {
     "whenToUse": "Signal an indeterminate, in-progress load — inside a button or a loading region.",
     "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
-    "version": "0.11.0",
-    "integrity": "sha256-nos5u6/aMq/UX1uXnN20fs88LBUQytcWBpSahn7PMWE="
+    "version": "0.11.1",
+    "integrity": "sha256-/+77YAzCOIyyfR9cvxcPZ4swdavTsCJNiDv+Zvqg6Ik="
   },
   "categories": [
     "feedback"

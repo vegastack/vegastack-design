@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.6.1
+
+### Patch Changes
+
+- [#163](https://github.com/vegastack/vegastack-design/pull/163) [`997dfb8`](https://github.com/vegastack/vegastack-design/commit/997dfb89dfacff822a43bc468bb4d7b248fc2ad8) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 Publish concrete dependency ranges so fresh npm and pnpm consumers can install the package outside the VegaStack workspace.
+
 ## 0.6.0
 
 ### Minor Changes
