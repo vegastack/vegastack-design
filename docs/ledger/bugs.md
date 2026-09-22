@@ -2867,3 +2867,42 @@ changed for any of these test repairs.
   and `@vegastack/design` → `@vegastack/design-tokens` is the only internal dependency expressed as
   a semver range rather than `workspace:*`; every other workspace edge is `workspace:*`, which
   `changeset version` rewrites at publish time and which no lockfile specifier tracks by version.
+
+## 2026-09-22 — the package-exports gate required the sibling to be published already
+
+- **Symptom.** With the lockfile fixed, the regenerated Version Packages PR failed again, now at
+  `verify:static: FAILED at design invariants`:
+  `ERR_PNPM_NO_MATCHING_VERSION ... No matching version found for @vegastack/design-tokens@^0.7.0`,
+  `help: The latest release of @vegastack/design-tokens is "0.5.0"`.
+- **Root cause.** `verify-package-exports.mjs` packs both public packages and installs them into a
+  throwaway consumer under npm and again under pnpm, to prove the published manifests resolve. The
+  consumer lists both tarballs as `file:` dependencies — but `@vegastack/design`'s OWN manifest
+  depends on `@vegastack/design-tokens` by semver range, which `version-sync` has just rewritten to
+  `^0.7.0`. **npm hoists** and is satisfied by the top-level tarball; **pnpm resolves each package's
+  dependencies independently**, goes to the public registry for `^0.7.0`, and finds nothing —
+  because this release is what publishes it. The gate was accidentally asserting "the sibling is
+  already on npm", which on a release PR is never true.
+- **Same family as the lockfile bug, different mechanism.** Both were dormant for exactly the same
+  reason: every previous release left `@vegastack/design`'s range pointing at an already-published
+  `design-tokens`. 0.12.0 is the first to move it, so both fired at once, one after the other.
+  `version-sync.mjs`'s own header already records `registry:verify-consume` hitting this wall on run
+  30172679327 and solving it with a local sidecar registry — **the lesson was learned in one gate
+  and never carried to the other.**
+- **Systemic fix.** The consumer now overrides `@vegastack/design-tokens` to the tarball just built,
+  for both package managers — the top-level `overrides` key for npm, and `pnpm-workspace.yaml` for
+  pnpm, which in pnpm 11 no longer reads `pnpm.overrides` from package.json. That is exactly the
+  relationship that holds once both packages publish.
+- **The override would have been a weakening on its own**, because it also hides a range pointing at
+  the wrong sibling entirely. So it is paired with `assertSiblingRangeMatches()`, which asserts
+  directly what the registry lookup was standing in for: the range `@vegastack/design` declares must
+  equal `^<the design-tokens version being shipped beside it>`, the form `version-sync` writes.
+  Proven both ways — exit 0 on the real release state, exit 1 naming both versions when the range is
+  `^9.9.9`.
+- **The generalisable rule.** **A release gate must not depend on the release having already
+  happened.** Any check that resolves a first-party package from the public registry is asserting a
+  postcondition of publishing while running as its precondition. Resolve first-party packages from
+  the artifacts under test, and assert the version relationship explicitly instead of letting a
+  registry lookup imply it.
+- **Sweep.** `verify-shadcn-consume` already resolves `@vegastack/*` from local packs through its own
+  sidecar registry, so it was never exposed. `verify-package-exports` was the only other gate that
+  installs a first-party package from a manifest, and it is now aligned with it.
