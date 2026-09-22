@@ -3017,3 +3017,49 @@ changed for any of these test repairs.
   prose. The remaining computed-style literal comparisons in the browser lanes are dimensions
   (`"0px"`, `"28px"`) and enumerated keywords (`outlineStyle`, `display`), which CSS serialises
   canonically and which have no second spelling.
+
+## 2026-09-23 — the release coordinator waited for a PR that was never going to exist
+
+- **Symptom.** Merging PR #170 (docs-only, one no-bump changeset) as `cbc3c9a89` failed Release run
+  35767909025 at **Create or update Version Packages PR** —
+  `##[error]Changesets did not leave an open Version Packages PR` — with `Publish public packages`
+  and `Dispatch public distribution deploy` both `skipped`. Worse than a one-off: the changeset
+  stays pending, so **every subsequent push to `main` failed the same way**, and a genuinely broken
+  release would have been indistinguishable from the expected red.
+- **Root cause.** `release-detect.mjs` computed `has_changesets` by COUNTING FILES in `.changeset/`.
+  But the empty-frontmatter changeset (`---\n---`) is the documented form for a change that bumps no
+  published package (`changeset-lint.mjs`: "it is how a change with no package bump ... still gets a
+  CHANGELOG line"). `changeset version` consumes such a file and writes no version, so
+  `changesets/action` commits nothing and opens no PR — while the workflow, told `has_changesets` was
+  true, retried three times looking for one and then hard-errored.
+- **The name was the bug.** The workflow does not want to know whether changeset FILES exist; it
+  wants to know whether Changesets will produce a VERSION. Those coincided until a release carried
+  only no-bump changesets.
+- **Systemic fix.** The output is now `has_version_bump`, and it means what the workflow asks: at
+  least one pending changeset declares a bump for a package Changesets will actually version. The
+  frontmatter is parsed at the SAME ref the file list comes from — the bodies had to become
+  ref-accurate too, or the Version PR commit (whose tree has no changesets) would be classified from
+  whatever the runner's working tree held. Packages in the Changesets `ignore` list are excluded,
+  because naming one bumps nothing and would dead-end identically.
+- **Fixed in the authority, not in the workflow.** `release-detect.mjs`'s own header records why it
+  exists: this logic "used to be shell inside `release.yml`'s `changes` job, which meant it could not
+  be exercised until it had already run on `main`, and it was wrong there in both directions". The
+  change is four lines of YAML (a rename) and a tested predicate. Three of the four new cases in
+  `release-detect.test.mjs` fail against the old semantics; the fourth — one bumping changeset among
+  no-bump ones — passes both ways on purpose, as a guard against over-correcting into a detector too
+  strict to open a real release.
+- **WHAT THIS DOES NOT FIX, stated so nobody assumes it.** A docs-only push still does not deploy.
+  Verified on the real commit: `cbc3c9a89` now reports `has_version_bump false, publish false`, so
+  `publish` and `dispatch-deploy` are both skipped and the run SUCCEEDS without deploying. That is
+  the standing model — `publish` requires a `packages/` change, an unpublished version, or a pending
+  bump, so a docs-only change has NEVER auto-deployed, changeset or not, and waits for the next
+  release. The banner fix needing a manual `expected_sha` dispatch was that model, not this bug;
+  this bug only painted it red. Whether production should deploy on every main push is a policy
+  question with real cost (sign, upload, probe) and belongs to MK, not to a bug fix.
+- **The generalisable rule.** **A boolean consumed as a decision must be named for the decision, not
+  for the evidence.** `has_changesets` described what was counted; every consumer used it to mean
+  "a Version PR will exist". The two agreed until they did not, and the gap became an outage in the
+  one workflow nobody can test before it runs on `main`.
+- **Sweep.** `has_changesets` has no other consumer — two `if:` conditions and one `outputs:` line in
+  `release.yml`, all renamed, with `verify-workflow-security.mjs` and its negative harness updated to
+  pin the new expressions (35/35 mutations still rejected).

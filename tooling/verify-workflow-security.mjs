@@ -417,8 +417,9 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   const versionPr = release.jobs["version-pr"];
   assert.equal(
     String(versionPr.if).replace(/^\$\{\{\s*|\s*\}\}$/g, ""),
-    "needs.changes.outputs.has_changesets == 'true'",
-    "release.yml: Version PR creation must require pending changesets",
+    "needs.changes.outputs.has_version_bump == 'true'",
+    "release.yml: Version PR creation must require a pending VERSION BUMP — not merely a\n" +
+      "changeset file, which may be the no-bump form Changesets opens no PR for",
   );
   assert.ok(
     steps(versionPr).some(
@@ -452,7 +453,7 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
   );
   assert.match(
     String(publish.if),
-    /publish == 'true'[\s\S]*has_changesets == 'false'/,
+    /publish == 'true'[\s\S]*has_version_bump == 'false'/,
     "release.yml: publication requires an unpublished, changeset-free Version PR merge",
   );
   assert.ok(

@@ -155,7 +155,7 @@ describe("release-detect", () => {
     const repo = fixture();
     const { status, outputs } = runIn(repo);
     expect(status).toBe(0);
-    expect(outputs).toEqual({ has_changesets: "false", publish: "false" });
+    expect(outputs).toEqual({ has_version_bump: "false", publish: "false" });
   });
 
   it("a pending changeset opens the Version PR path AND reaches the release path", () => {
@@ -163,13 +163,82 @@ describe("release-detect", () => {
       changesets: ['---\n"@vegastack/design": patch\n---\n\nfix\n'],
     });
     const { outputs } = runIn(repo);
-    expect(outputs).toEqual({ has_changesets: "true", publish: "true" });
+    expect(outputs).toEqual({ has_version_bump: "true", publish: "true" });
   });
 
   it("README.md in .changeset is not a changeset", () => {
     const repo = fixture();
     const { outputs } = runIn(repo);
-    expect(outputs.has_changesets).toBe("false");
+    expect(outputs.has_version_bump).toBe("false");
+  });
+
+  it("a no-bump changeset does NOT open the Version PR path", () => {
+    // The empty-frontmatter form is the documented way to give a change with no package bump a
+    // CHANGELOG line. `changeset version` consumes it and writes no version, so Changesets opens
+    // no PR — and `release.yml` used to wait for one, fail, and skip the deploy for an already
+    // merged change (docs/ledger/bugs.md, 2026-09-23).
+    const repo = fixture({ changesets: ["---\n---\n\n\u{1F4DA} docs only\n"] });
+    const { outputs } = runIn(repo);
+    expect(outputs.has_version_bump).toBe("false");
+  });
+
+  it("one bumping changeset among no-bump ones still opens the Version PR path", () => {
+    const repo = fixture({
+      changesets: [
+        "---\n---\n\n\u{1F4DA} docs only\n",
+        '---\n"@vegastack/design": patch\n---\n\nfix\n',
+        "---\n---\n\n\u{1F6E0} tooling only\n",
+      ],
+    });
+    const { outputs } = runIn(repo);
+    expect(outputs.has_version_bump).toBe("true");
+  });
+
+  it("a changeset naming only an IGNORED package bumps nothing", () => {
+    // Changesets versions nothing for an ignored package, so waiting for a PR would dead-end the
+    // same way. The ignore list is read from `.changeset/config.json`, the same authority
+    // Changesets itself reads.
+    const repo = fixture({
+      changesets: ['---\n"@vegastack/docs": patch\n---\n\ndocs app\n'],
+    });
+    writeFileSync(
+      join(repo, ".changeset/config.json"),
+      JSON.stringify({ ignore: ["@vegastack/docs"] }),
+    );
+    expect(runIn(repo).outputs.has_version_bump).toBe("false");
+  });
+
+  it("reads changeset BODIES from --after, not from the working tree", () => {
+    // The file list has always been ref-accurate; the bodies must be too, or the Version PR commit
+    // (whose tree has no changesets) would be classified from whatever the runner's tree holds.
+    const repo = fixture({
+      commits: [
+        {
+          ".changeset/pending.md":
+            '---\n"@vegastack/design": patch\n---\n\nfix\n',
+        },
+        {
+          ".changeset/pending.md":
+            "---\n---\n\n\u{1F4DA} rewritten to bump nothing\n",
+        },
+      ],
+    });
+    const head = spawnSync("git", ["rev-parse", "HEAD"], {
+      cwd: repo,
+      encoding: "utf8",
+    }).stdout.trim();
+    const previous = spawnSync("git", ["rev-parse", "HEAD~1"], {
+      cwd: repo,
+      encoding: "utf8",
+    }).stdout.trim();
+    expect(
+      runIn(repo, ["--after", previous]).outputs.has_version_bump,
+      "the earlier commit's changeset DID bump",
+    ).toBe("true");
+    expect(
+      runIn(repo, ["--after", head]).outputs.has_version_bump,
+      "the later commit rewrote it to bump nothing",
+    ).toBe("false");
   });
 
   it("a packages/ change in the range reaches the release path with no changeset", () => {
@@ -180,7 +249,7 @@ describe("release-detect", () => {
       ],
     });
     const { outputs } = runIn(repo, ["--before", "HEAD~1", "--after", "HEAD"]);
-    expect(outputs).toEqual({ has_changesets: "false", publish: "true" });
+    expect(outputs).toEqual({ has_version_bump: "false", publish: "true" });
   });
 
   it("a docs-only range does NOT reach the release path", () => {
@@ -188,7 +257,7 @@ describe("release-detect", () => {
       commits: [{ "docs/a.md": "one\n" }, { "docs/b.md": "two\n" }],
     });
     const { outputs } = runIn(repo, ["--before", "HEAD~1", "--after", "HEAD"]);
-    expect(outputs).toEqual({ has_changesets: "false", publish: "false" });
+    expect(outputs).toEqual({ has_version_bump: "false", publish: "false" });
   });
 
   // AN UNANSWERABLE RANGE IS NOT AN EMPTY ONE.
@@ -220,7 +289,7 @@ describe("release-detect", () => {
    * THE VERSION-PR CASE, and the reason `--after` governs the changeset read at all. `changeset
    * version` consumes `.changeset/*.md`, so the commit under test carries none while the runner's
    * working tree may still hold them. Reading the tree answers a different question and flips
-   * `has_changesets` — which is exactly the wrong answer for the push that should PUBLISH.
+   * `has_version_bump` — which is exactly the wrong answer for the push that should PUBLISH.
    */
   const CHANGESET = '---\n"@vegastack/design": patch\n---\n\nfix\n';
 
@@ -238,7 +307,7 @@ describe("release-detect", () => {
     writeFileSync(join(repo, ".changeset/pending-0.md"), CHANGESET);
 
     const { outputs } = runIn(repo, ["--before", "HEAD~1", "--after", "HEAD"]);
-    expect(outputs.has_changesets).toBe("false");
+    expect(outputs.has_version_bump).toBe("false");
     // …and the range still reaches the release path, because `packages/` changed.
     expect(outputs.publish).toBe("true");
   });
@@ -253,7 +322,7 @@ describe("release-detect", () => {
     rmSync(join(repo, ".changeset/pending-0.md"), { force: true });
 
     const { outputs } = runIn(repo, ["--before", "HEAD~1", "--after", "HEAD"]);
-    expect(outputs).toEqual({ has_changesets: "true", publish: "true" });
+    expect(outputs).toEqual({ has_version_bump: "true", publish: "true" });
   });
 
   it("falls back to the working tree when no ref is given", () => {
@@ -265,7 +334,7 @@ describe("release-detect", () => {
     });
     writeFileSync(join(repo, ".changeset/pending-0.md"), CHANGESET);
 
-    expect(runIn(repo).outputs.has_changesets).toBe("true");
+    expect(runIn(repo).outputs.has_version_bump).toBe("true");
   });
 
   /**
@@ -298,7 +367,7 @@ exit 1`;
     const repo = withNpm(fixture(), `echo '"1.0.0"'`);
     const { status, outputs } = runIn(repo, ["--check-npm"]);
     expect(status).toBe(0);
-    expect(outputs).toEqual({ has_changesets: "false", publish: "false" });
+    expect(outputs).toEqual({ has_version_bump: "false", publish: "false" });
   });
 
   it("a package published BEHIND the manifest resumes the interrupted release", () => {
@@ -355,7 +424,7 @@ exit 1`,
     );
     const { status, stderr, outputs } = runIn(repo, ["--check-npm"]);
     // A pending changeset already reaches the release path, so the registry was never decisive.
-    expect(outputs).toEqual({ has_changesets: "true", publish: "true" });
+    expect(outputs).toEqual({ has_version_bump: "true", publish: "true" });
     expect(stderr).toMatch(/run continues/);
     expect(status).toBe(0);
   });

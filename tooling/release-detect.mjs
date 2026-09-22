@@ -11,9 +11,12 @@
 // what survives here is only the release-path decision.
 //
 // OUTPUTS (printed, and written as key=value to $GITHUB_OUTPUT when it is set)
-//   has_changesets   pending changesets exist AT `--after` (working tree when no ref is given), so
-//                    the run opens a Version PR rather than publishing
-//   publish          the release path is reachable for this push
+//   has_version_bump  a pending changeset AT `--after` (working tree when no ref is given) will
+//                     actually produce a version, so the run opens a Version PR rather than
+//                     publishing. NOT "a changeset file exists": the empty-frontmatter form bumps
+//                     nothing, Changesets opens no PR for it, and a run that waited for one failed
+//                     and skipped the deploy (docs/ledger/bugs.md, 2026-09-23).
+//   publish           the release path is reachable for this push
 //
 // `--check-npm` FAILS CLOSED, AND SAYS SO. It used to fail OPEN: `npm view` was spawned with cwd =
 // the repo root, where `package.json` declares `devEngines.runtime` node 24.20.0. npm does not
@@ -46,6 +49,7 @@ import {
   copyFileSync,
   existsSync,
   mkdtempSync,
+  readFileSync,
   readdirSync,
   rmSync,
 } from "node:fs";
@@ -84,6 +88,8 @@ for (let index = 0; index < argv.length; index += 1) {
  * With no `--after` (a developer asking about the tree in front of them) the working tree IS the
  * right answer, and stays the fallback — as it is when the ref does not resolve.
  */
+/** Whether the file list below came from the ref, so the bodies must be read from it too. */
+let changesetsFromRef = false;
 const changesetFiles = (() => {
   const isChangeset = (name) => name.endsWith(".md") && name !== "README.md";
   if (options.after) {
@@ -93,11 +99,13 @@ const changesetFiles = (() => {
       { cwd: ROOT, encoding: "utf8" },
     );
     // status !== 0 covers both "the ref does not resolve" and "that commit has no .changeset/".
-    if (listed.status === 0)
+    if (listed.status === 0) {
+      changesetsFromRef = true;
       return (listed.stdout ?? "")
         .split("\n")
         .map((name) => name.trim())
         .filter((name) => name && isChangeset(name));
+    }
     if (
       spawnSync(
         "git",
@@ -116,7 +124,69 @@ const changesetFiles = (() => {
     return [];
   }
 })();
-const hasChangesets = changesetFiles.length > 0;
+
+/**
+ * NOT every pending changeset opens a Version PR. The EMPTY-frontmatter form (`---\n---`) is the
+ * documented way to give a change with no package bump a CHANGELOG line (`changeset-lint.mjs`), and
+ * `changeset version` consumes it without writing a version — so Changesets commits nothing and
+ * opens no PR. `release.yml` then looked for a PR that was never going to exist and hard-failed the
+ * whole run, skipping the deploy for a change that was already merged (`docs/ledger/bugs.md`,
+ * 2026-09-23).
+ *
+ * So the question the workflow actually needs answered is not "are there changeset FILES" but
+ * "will Changesets produce a version". A file that bumps nothing is, for the release path,
+ * indistinguishable from no file at all — it simply waits in `.changeset/` for the next release
+ * that does bump something, and is assembled into THAT entry, which is where a docs or tooling note
+ * belongs anyway.
+ *
+ * Packages in the Changesets `ignore` list are excluded for the same reason: naming one bumps
+ * nothing, so a changeset naming only ignored packages would reproduce the identical dead end.
+ */
+const ignoredPackages = (() => {
+  try {
+    const config = JSON.parse(
+      readFileSync(join(ROOT, ".changeset/config.json"), "utf8"),
+    );
+    return new Set(Array.isArray(config.ignore) ? config.ignore : []);
+  } catch {
+    return new Set();
+  }
+})();
+
+function changesetBody(name) {
+  if (changesetsFromRef) {
+    const shown = spawnSync(
+      "git",
+      ["show", `${options.after}:.changeset/${name}`],
+      { cwd: ROOT, encoding: "utf8" },
+    );
+    return shown.status === 0 ? (shown.stdout ?? "") : "";
+  }
+  try {
+    return readFileSync(join(ROOT, ".changeset", name), "utf8");
+  } catch {
+    return "";
+  }
+}
+
+/** Does this changeset declare a bump for at least one package Changesets will actually version? */
+function declaresVersionBump(body) {
+  const frontmatter = /^---\r?\n([\s\S]*?)\r?\n?---/.exec(body);
+  if (!frontmatter) return false;
+  for (const line of (frontmatter[1] ?? "").split("\n")) {
+    // `"@scope/name": patch` — Changesets' own frontmatter shape.
+    const entry = /^\s*["']?([^"':]+)["']?\s*:\s*(major|minor|patch)\s*$/.exec(
+      line,
+    );
+    if (entry && !ignoredPackages.has((entry[1] ?? "").trim())) return true;
+  }
+  return false;
+}
+
+const bumpingChangesets = changesetFiles.filter((name) =>
+  declaresVersionBump(changesetBody(name)),
+);
+const hasChangesets = bumpingChangesets.length > 0;
 
 /**
  * Files changed in the range, when one was given — and, separately, whether git could ANSWER.
@@ -282,10 +352,10 @@ const publish =
  */
 const decisiveUnknown = unknown.length > 0 && !publish;
 
-const outputs = { has_changesets: hasChangesets, publish };
+const outputs = { has_version_bump: hasChangesets, publish };
 console.log(`release-detect:`);
 console.log(
-  `  has_changesets  ${hasChangesets} (${changesetFiles.length} pending)`,
+  `  has_version_bump  ${hasChangesets} (${bumpingChangesets.length} of ${changesetFiles.length} pending changeset(s) bump a package)`,
 );
 console.log(
   `  publish         ${publish}${unpublished.length ? ` — unpublished: ${unpublished.join(", ")}` : ""}`,
