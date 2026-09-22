@@ -1,4 +1,4 @@
-// @vegastack preview-03@0.11.1 sha256-iH7ehJWGqE6prYB2hxq/SepJc750CrvmOwGK5rUH3Rw=
+// @vegastack preview-03@0.11.2 sha256-6UERJ7RjS8FaxHRtgaNtP3XMyI2GqfhSFRACyvrOuKs=
 
 export default function Preview03() {
   return <div>Preview 03</div>;
