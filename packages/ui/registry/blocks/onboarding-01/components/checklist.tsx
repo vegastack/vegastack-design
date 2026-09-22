@@ -1,4 +1,4 @@
-// @vegastack onboarding-01@0.11.2 sha256-/5s4JV/oaXk9k6CseJM7u67urjCOac0EVF22G3+Xx8g=
+// @vegastack onboarding-01@0.11.3 sha256-aZkYKuBSNrSsTlmEF17UZL2KCQj8OoC+OY2dtipxtRw=
 
 "use client";
 

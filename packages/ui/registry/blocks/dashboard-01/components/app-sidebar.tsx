@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.11.2 sha256-RZCoOt2o3ITC5OjUW11CKma3S5NYIUDZ9f87MxBGfiI=
+// @vegastack dashboard-01@0.11.3 sha256-AdQJ1idh1GBuf1ziz8HlSX1gsSlGw2u3h7jqh8HOoio=
 
 import * as React from "react";
 

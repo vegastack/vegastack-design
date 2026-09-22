@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.11.3] — September 22, 2026
+
+<!-- assembled from 1 changeset: 32545189a1d4 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.11.2 → 0.11.3.
+
+### 📚 Docs
+
+- The reference-consumer starter is no longer part of the project workflow. The `ship` skill's post-release step, the [Quickstart](/docs/guides/quickstart), [Troubleshooting](/docs/guides/troubleshooting) and [Production checklist](/docs/guides/production-checklist) guides, the repo map and the internal operations guide no longer reference it, and the guides state what is actually true of themselves rather than deriving their authority from a repo nobody can run. Release verification is now the npm versions plus the production-boundary probe. Historical records in `docs/ledger/` and `docs/plans/` are untouched: they record what was decided at the time.
+  [`80e127a`](https://github.com/VegaStack/vegastack-design/commit/80e127a)
+
 ## [0.11.2] — September 22, 2026
 
 <!-- assembled from 2 changesets: 198efb48ea3d -->
