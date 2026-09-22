@@ -1,4 +1,4 @@
-// @vegastack sidebar-06@0.11.2 sha256-XSSH7elpOOvW1w+xd4ksWCUriUEUKHLC3r0sgB0ene8=
+// @vegastack sidebar-06@0.11.3 sha256-pR1svU4PrD9J6Utl+gEcMefM5Alekl5Ah0Fl06kYk+g=
 
 import { Button } from "@/components/ui/button";
 import {

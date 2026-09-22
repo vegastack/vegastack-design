@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/textarea.tsx",
-      "content": "// @vegastack textarea@0.11.2 sha256-lB7sIrvR4XQ8vtEo2eebqQzJSPMzSrNKUAAESGsiUVE=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return (\n    <textarea\n      data-slot=\"textarea\"\n      className={cn(\n        \"flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-hidden placeholder:text-muted-foreground focus:border-ring/70 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 not-focus:aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:not-focus:aria-invalid:border-destructive/50\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Textarea };\n",
+      "content": "// @vegastack textarea@0.11.3 sha256-nmIUuOfhRICSovl95eEno/5m4q233ZYSRgLiljKsMtk=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return (\n    <textarea\n      data-slot=\"textarea\"\n      className={cn(\n        \"flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-hidden placeholder:text-muted-foreground focus:border-ring/70 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 not-focus:aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:not-focus:aria-invalid:border-destructive/50\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Textarea };\n",
       "type": "registry:ui",
       "target": "@ui/textarea.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
     "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
-    "version": "0.11.2",
-    "integrity": "sha256-lB7sIrvR4XQ8vtEo2eebqQzJSPMzSrNKUAAESGsiUVE="
+    "version": "0.11.3",
+    "integrity": "sha256-nmIUuOfhRICSovl95eEno/5m4q233ZYSRgLiljKsMtk="
   },
   "categories": [
     "form"

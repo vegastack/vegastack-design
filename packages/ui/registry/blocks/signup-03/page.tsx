@@ -1,4 +1,4 @@
-// @vegastack signup-03@0.11.2 sha256-1+UlGKTvfaRTundYhzrDtrGVxUpJ4Us+oaM4jRP3xhE=
+// @vegastack signup-03@0.11.3 sha256-vIIesytcy9leaniIV8p27qWssKFocUp4ayRTktIQnWc=
 
 import { SignupForm } from "./components/signup-form";
 import { GalleryVerticalEndIcon } from "lucide-react";
