@@ -89,12 +89,23 @@ Every consumer-visible change has a changeset whose body opens with exactly one 
 At release time:
 
 ```text
-.changeset/*.md → changelog-assemble → changeset version → version-sync → sync-changelog
+.changeset/*.md → changelog-assemble → changeset version → version-sync → install --lockfile-only → sync-changelog
 ```
 
 All pending changesets ship together. The Version Packages PR contains package versions, package
 changelogs, the assembled root changelog, synchronized docs, registry versions, and regenerated
 registry output.
+
+**`install --lockfile-only` is load-bearing, not tidiness.** `version-sync` rewrites the internal
+dependency ranges between the public packages — `@vegastack/design` depends on
+`@vegastack/design-tokens` by semver range, not `workspace:*` — and `pnpm-lock.yaml` records that
+range as a specifier. Without the refresh the lockfile still names the old range, and the Version
+PR's own `PR quality` run fails at `pnpm install --frozen-lockfile` before it reaches a single gate.
+It only bites when a bump moves a version OUT of the pinned range, so it stayed invisible through
+every release where the two packages moved alone or within `^`; it fired on 0.12.0, the first to
+move `design-tokens` from 0.5.0 to 0.7.0 (`docs/ledger/bugs.md`, 2026-09-22). `linkWorkspacePackages`
+is on, so the refresh resolves the pair locally and needs no network and no published version — the
+new `design-tokens` does not exist on npm at the moment this runs.
 
 `meta.version` is the private `@vegastack/ui` version, while consumer update status is determined by
 the item integrity hash. A global version bump therefore does not mark unchanged components stale.
