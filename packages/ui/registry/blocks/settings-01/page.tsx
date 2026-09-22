@@ -1,4 +1,4 @@
-// @vegastack settings-01@0.11.1 sha256-HYQOLsRfslrfUbhE5TFzzG5Isxo0yFhj6/tITahGiMo=
+// @vegastack settings-01@0.11.2 sha256-875NeT5JDixuJ+r5RlS5haedY6MGhZ6QBTMTr5BjBOQ=
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";

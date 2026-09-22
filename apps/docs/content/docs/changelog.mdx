@@ -10,6 +10,29 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.11.2] — September 22, 2026
+
+### 🔧 Changed components
+
+- The indeterminate loading mark is now lucide `Loader` everywhere, in place of `LoaderCircle`.
+
+  - [Spinner](/docs/components/spinner), [Toast](/docs/components/toast)'s loading icon and [Sonner](/docs/components/sonner)'s loading icon move from `Loader2Icon` — an alias of lucide's `LoaderCircle` — to `LoaderIcon`, so they match [StatusIcon](/docs/components/status-icon)'s `progress` and upstream's own `dashboard-01` block. One loader shape across the system.
+  - Every component that composes `Spinner` inherits the new mark, including [Button](/docs/components/button) and [Toggle](/docs/components/toggle) in their `loading` state.
+  - Recorded as decision ICO-8 and enforced by design-lint's new `loader-mark` rule, so the upstream mark cannot return one file at a time.
+    [`38ad929`](https://github.com/VegaStack/vegastack-design/commit/38ad929)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.11.1 → 0.11.2.
+
+### 🐛 Fixed
+
+- A loading [Toggle](/docs/components/toggle) no longer paints its label underneath the spinner.
+
+  - The label wrapper was `display: contents`, which generates no box and therefore accepts no `opacity`, so `opacity-0` had nothing to apply to and the label stayed fully visible. It is now a real `inline-flex` box inheriting the control's own `gap`, matching Button.
+  - This is the same defect that was fixed on Button; Toggle was the only other component carrying the pattern.
+    [`38ad929`](https://github.com/VegaStack/vegastack-design/commit/38ad929)
+
 ## [0.11.1] — September 22, 2026
 
 ### 📦 npm

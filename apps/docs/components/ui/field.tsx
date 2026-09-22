@@ -1,4 +1,4 @@
-// @vegastack field@0.11.1 sha256-4S5YIAvJb9uoeu4s7gcAikv5deF+TEaQI5z+9e+y8DA=
+// @vegastack field@0.11.2 sha256-1l0gcD2gFYJozxcuIlpT2nTC/nOjRmBmLMIWWz+ikhY=
 
 "use client";
 
