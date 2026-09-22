@@ -130,8 +130,12 @@ const cases = [
     // through REST. The realistic weakening is not deleting the check but making it vacuous.
     name: "Version PR head is trusted without binding it to the branch ref",
     file: "release.yml",
-    find: '            BRANCH_SHA=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$VERSION_BRANCH" --jq .object.sha)',
-    replace: '            BRANCH_SHA="$HEAD_SHA"',
+    // Matched on the API call alone, not the whole line: the first version of this mutation pinned
+    // the leading whitespace and the exact command, and adding `|| true` to that line made it stop
+    // applying. The harness caught that itself — `mutation did not apply` is an assertion, not a
+    // skip — but a mutation needing an edit whenever its line moves is one nobody keeps current.
+    find: '$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$VERSION_BRANCH" --jq .object.sha || true)',
+    replace: '"$HEAD_SHA"',
   },
   {
     name: "Version PR creation ignores whether anything bumps",

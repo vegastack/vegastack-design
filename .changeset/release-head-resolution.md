@@ -1,4 +1,5 @@
 ---
+"@vegastack/ui": patch
 ---
 
 🛠 The Version PR head is read from REST and the exact-SHA comparison retries.
@@ -15,3 +16,7 @@ protection boundary.
 
 The negative harness gained the mutation that boundary never had — replacing the branch-ref lookup
 with the PR's own head, making the comparison vacuous. 36/36 rejected.
+
+Both reads now tolerate a failing call, because under `set -e` a transient `gh api` error aborted
+the step at the command substitution before the retry could do anything, with no message at all.
+An empty read never compares equal, so it falls through to the same bounded retry.

@@ -46,8 +46,11 @@ branch against the packages, not the other way round — a changeset can describ
 still not bump the package that carries it:
 
 ```bash
-git diff --name-only main...HEAD -- packages/design packages/design-tokens | sed 's|/.*||' | sort -u
-grep -h '^"@vegastack' .changeset/*.md | sort -u
+# packages with changed source                      # packages the changesets bump
+git diff --name-only main...HEAD -- \
+  packages/design packages/design-tokens \
+  | cut -d/ -f2 | sort -u | sed 's|^|@vegastack/|'
+grep -h '^"@vegastack' .changeset/*.md | cut -d'"' -f2 | sort -u
 ```
 
 Every public package with changed source must appear on the second list. On 2026-09-22 it did not:
