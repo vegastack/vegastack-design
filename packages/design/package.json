@@ -70,7 +70,7 @@
     "test": "node test/compare.test.mjs && node test/check-updates.test.mjs && node test/skills-install.test.mjs"
   },
   "dependencies": {
-    "@vegastack/design-tokens": "workspace:^",
+    "@vegastack/design-tokens": "^0.5.0",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.6.0",
     "tsconfig-paths": "^4.2.0",
@@ -82,7 +82,7 @@
     "lucide-react": "^1.47.0",
     "motion": "^13.2.0",
     "thesvg": "^3.2.6",
-    "tailwindcss": "catalog:"
+    "tailwindcss": "^4.3.3"
   },
   "peerDependenciesMeta": {
     "tailwindcss": {
