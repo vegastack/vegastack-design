@@ -1,4 +1,4 @@
-// @vegastack sidebar-07@0.12.1 sha256-57MQp0lD7lEzeLuR+8FMCfUYZnFerjJUOUvP8sjAaV0=
+// @vegastack sidebar-07@0.12.2 sha256-EDLYRkLlngV2xpQG8FDcW+lluptkGATEwo7/PP90SP4=
 
 import {
   Collapsible,
