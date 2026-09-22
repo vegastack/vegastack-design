@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/collapsible.tsx",
-      "content": "// @vegastack collapsible@0.10.0 sha256-gqFQaqxv3XvyVxIW1KB2aO9ylwk0ye70ipoUgcEFc4E=\n\n\"use client\";\n\nimport { Collapsible as CollapsiblePrimitive } from \"@base-ui/react/collapsible\";\n\nfunction Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {\n  return (\n    <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />\n  );\n}\n\nfunction CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {\n  return (\n    <CollapsiblePrimitive.Panel data-slot=\"collapsible-content\" {...props} />\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
+      "content": "// @vegastack collapsible@0.11.0 sha256-wfcSpyBdvalszIzECzM09iY+/5He0K0fyr6LP7fU0eE=\n\n\"use client\";\n\nimport { Collapsible as CollapsiblePrimitive } from \"@base-ui/react/collapsible\";\n\nfunction Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {\n  return (\n    <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />\n  );\n}\n\nfunction CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {\n  return (\n    <CollapsiblePrimitive.Panel data-slot=\"collapsible-content\" {...props} />\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
       "type": "registry:ui",
       "target": "@ui/collapsible.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
     "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
-    "version": "0.10.0",
-    "integrity": "sha256-gqFQaqxv3XvyVxIW1KB2aO9ylwk0ye70ipoUgcEFc4E="
+    "version": "0.11.0",
+    "integrity": "sha256-wfcSpyBdvalszIzECzM09iY+/5He0K0fyr6LP7fU0eE="
   },
   "categories": [
     "data-display"

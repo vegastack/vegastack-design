@@ -9,6 +9,43 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.11.0] — September 22, 2026
+
+<!-- assembled from 5 changesets: b69592f46acb -->
+
+### 🧩 New components
+
+- SearchInput now provides a token-safe clear action with controlled, uncontrolled, keyboard, and native form behavior across supported browsers.
+
+  - Use the new reusable SearchInput for consistent search semantics and styling.
+  - FilterBar now composes SearchInput while preserving its existing controlled search API.
+    [`6ed3e37`](https://github.com/VegaStack/vegastack-design/commit/6ed3e37)
+
+### 🔧 Changed components
+
+- Avatar fallback initials now use the smaller `text-xs` size across all three avatar diameters.
+
+  - Preserve the existing `sm`, `default`, and `lg` diameters and public API.
+  - Keep explicit consumer typography overrides and standalone group-count typography unchanged.
+    [`cfe049d`](https://github.com/VegaStack/vegastack-design/commit/cfe049d)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.6.0`** (was `0.5.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.10.0 → 0.11.0.
+
+### 📚 Docs
+
+- Teach consumers to use SearchInput for token-safe, cross-browser search clearing and FilterBar-compatible search behavior.
+  [`14c88ce`](https://github.com/VegaStack/vegastack-design/commit/14c88ce)
+
+### 🐛 Fixed
+
+- Loading Buttons now hide their label through a real layout box, preventing the centered spinner from overlapping visible text while preserving the button’s size and accessible name.
+  [`e7097d9`](https://github.com/VegaStack/vegastack-design/commit/e7097d9)
+- Command dialogs now stay centered inside short viewports while their results scroll and composed footers remain visible.
+  [`1689201`](https://github.com/VegaStack/vegastack-design/commit/1689201)
+
 ## [0.10.0] — September 19, 2026
 
 <!-- assembled from 5 changesets: c515253afa71 -->

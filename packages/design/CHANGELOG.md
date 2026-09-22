@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.6.0
+
+### Minor Changes
+
+- [#162](https://github.com/vegastack/vegastack-design/pull/162) [`14c88ce`](https://github.com/vegastack/vegastack-design/commit/14c88ce14a3849f7f12af2720373fd78f88e388c) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 📚 Teach consumers to use SearchInput for token-safe, cross-browser search clearing and FilterBar-compatible search behavior.
+
 ## 0.5.0
 
 ### Minor Changes
