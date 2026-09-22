@@ -1,13 +1,12 @@
 ---
 title: Quickstart
-description: Zero to a working VegaStack dashboard in one sitting — every command, every file, no surprises. Mirrors the reference starter step for step.
+description: Zero to a working VegaStack dashboard in one sitting — every command, every file, no surprises.
 audience: public
 ---
 
 This is the **complete** path from an empty directory to a themed, toast-firing,
-dark-mode dashboard built from copy-in components. Every command below was executed
-verbatim to build the reference starter (`vegastack-design-starter`); if a step here
-disagrees with reality, that's a bug — report it.
+dark-mode dashboard built from copy-in components. If a step here disagrees with
+reality, that's a bug — report it.
 
 **You need:** Node ≥ 20 (≥ 24 recommended), pnpm, the registry **service token**
 (see [Registry access & auth](/docs/guides/registry-auth)), and ~10 minutes.
@@ -223,8 +222,8 @@ This is a `registry:block`: it copies a complete dashboard
 plus its full component dependency graph — expect **~30 files** (AppShell, Sidebar,
 Card, Chart, Badge, hooks, …) in one shot. Unlike components, a block is a
 **starter you own from day one** — edit the page freely; it is not update-tracked.
-(The reference starter's first adaptation was moving the shell into a shared
-`app/dashboard/layout.tsx` so child routes keep the sidebar — copy that pattern.)
+(A common first adaptation is moving the shell into a shared
+`app/dashboard/layout.tsx` so child routes keep the sidebar.)
 
 ```bash
 pnpm dev

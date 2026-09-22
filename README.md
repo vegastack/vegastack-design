@@ -102,9 +102,7 @@ affected browser-mode unit tests +
 axe · targeted geometry contracts (320px reflow, RTL containment, 24px pointer targets) with global
 CSS/token and metadata sentinels ·
 real-CLI consume verification (contract-driven across every registry item and both layouts) ·
-registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints. The **reference
-consumer** (`vegastack-design-starter`, local repo) is the executable ground truth for every guide
-claim.
+registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints.
 
 **Every proof has one owner.** Pull requests run static checks once and affected Chromium tests in the
 pinned Linux container. Publish builds and verifies public npm artifacts only. Deploy proves the

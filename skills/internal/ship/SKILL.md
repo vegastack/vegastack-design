@@ -98,12 +98,11 @@ Read back the npm versions and production state:
 ```bash
 npm view @vegastack/design version
 npm view @vegastack/design-tokens version
-cd ../vegastack-design-starter && pnpm check-updates
 ```
 
 Report the merged change SHA, Version PR number and merge SHA, package versions, deployed registry
-version, production-boundary result, and whether the reference consumer sees the expected changed
-items.
+version, and the production-boundary result. A registry-only release publishes no npm package — both
+public versions read back unchanged, which is the expected outcome, not a failure.
 
 ## 5. Bounded recovery
 
