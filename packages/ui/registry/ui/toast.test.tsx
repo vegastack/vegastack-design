@@ -10,7 +10,9 @@ import {
   ToastClose,
   ToastContent,
   ToastDescription,
+  ToastArrow,
   ToastPortal,
+  ToastPositioner,
   ToastProvider,
   ToastTitle,
   ToastViewport,
@@ -440,6 +442,177 @@ test("OVL-13: with no scope in the tree the portal carries only `contents`", asy
   manager.add({ title: "Event created" });
   await waitForToast("Event created");
   expect(document.querySelector(".vs-scope-under-test")).toBeNull();
+});
+
+// --- OVL-15: position, anchored parts, custom body --------------------------------------------
+//
+// This lane runs WITHOUT compiled CSS — semantic utilities resolve to nothing here — so these
+// assert the classes the variants emit. The computed halves are measured where real CSS exists:
+// the `z-60` band in `test/stacking.browser.test.tsx`, the COL-23 inks in
+// `test/contrast.browser.test.tsx`.
+
+/** The six logical corners, with the growth sign and block edge each one must emit. */
+const POSITIONS = [
+  { position: "top-start", dir: "[--toast-dir:1]", edge: "top-4" },
+  { position: "top-center", dir: "[--toast-dir:1]", edge: "top-4" },
+  { position: "top-end", dir: "[--toast-dir:1]", edge: "top-4" },
+  { position: "bottom-start", dir: "[--toast-dir:-1]", edge: "bottom-4" },
+  { position: "bottom-center", dir: "[--toast-dir:-1]", edge: "bottom-4" },
+  { position: "bottom-end", dir: "[--toast-dir:-1]", edge: "bottom-4" },
+] as const;
+
+test.for(POSITIONS)(
+  "OVL-15: position $position pins $edge and emits $dir",
+  async ({ position, dir, edge }) => {
+    const manager = createToastManager();
+    await render(<Toaster toastManager={manager} position={position} />);
+    manager.add({ title: "Event created" });
+    await waitForToast("Event created");
+
+    const classes = viewport()!.className;
+    // The growth sign every vertical term in `toastVariants` is multiplied by.
+    expect(classes).toContain(dir);
+    expect(classes).toContain(edge);
+    // OVL-15: one band above the single z-50 overlay band.
+    expect(classes).toContain("z-60");
+    // The position is published for a consumer styling the viewport from outside.
+    expect(viewport()!.dataset.position).toBe(position);
+  },
+);
+
+test("OVL-15: the default position is bottom-end", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({ title: "Event created" });
+  await waitForToast("Event created");
+  expect(viewport()!.className).toContain("[--toast-dir:-1]");
+  expect(viewport()!.className).toContain("bottom-4");
+  expect(viewport()!.dataset.position).toBe("bottom-end");
+});
+
+test("OVL-15: a top position anchors the stack to the top edge", async () => {
+  const manager = createToastManager();
+  await render(<Toaster toastManager={manager} position="top-start" />);
+  manager.add({ title: "Event created" });
+  await waitForToast("Event created");
+  // `origin` and the pointer-bridging `::after` edge are the half of the anchor variant that is
+  // not arithmetic, so asserting them proves `Toaster` derived the anchor from `position`.
+  const classes = toastEl("Event created")!.className;
+  expect(classes).toContain("origin-top");
+  expect(classes).toContain("after:bottom-full");
+  expect(classes).not.toContain("origin-bottom");
+});
+
+test("OVL-15: a bottom position anchors the stack to the bottom edge", async () => {
+  const manager = createToastManager();
+  await render(<Toaster toastManager={manager} position="bottom-start" />);
+  manager.add({ title: "Saved" });
+  await waitForToast("Saved");
+  const classes = toastEl("Saved")!.className;
+  expect(classes).toContain("origin-bottom");
+  expect(classes).toContain("after:top-full");
+  expect(classes).not.toContain("origin-top");
+});
+
+test("OVL-15: a toast carrying data.render owns its body but stays a real toast", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({
+    title: "ignored when a renderer is present",
+    data: {
+      render: () => <div data-testid="custom-body">Deploy finished</div>,
+    },
+  });
+  await waitForToast("Deploy finished");
+
+  const element = toastEl("Deploy finished")!;
+  // The custom body replaced the default row…
+  expect(element.querySelector('[data-testid="custom-body"]')).not.toBeNull();
+  expect(element.querySelector('[data-slot="toast-title"]')).toBeNull();
+  // …but it is still a real toast inside the live region, with the surface and the stack on it.
+  expect(element.dataset.slot).toBe("toast");
+  expect(element.closest('[data-slot="toast-viewport"]')).not.toBeNull();
+  expect(element.querySelector('[data-slot="toast-content"]')).not.toBeNull();
+});
+
+test("OVL-15: ToastPositioner and ToastArrow compose an anchored toast", async () => {
+  const manager = createToastManager();
+
+  function AnchoredList() {
+    const { toasts } = useToastManager();
+    return toasts.map((item) => (
+      <ToastPositioner key={item.id} toast={item}>
+        <Toast toast={item}>
+          <ToastContent>
+            <ToastTitle />
+            <ToastArrow />
+          </ToastContent>
+        </Toast>
+      </ToastPositioner>
+    ));
+  }
+
+  await render(
+    <ToastProvider toastManager={manager}>
+      <ToastPortal>
+        <ToastViewport>
+          <AnchoredList />
+        </ToastViewport>
+      </ToastPortal>
+    </ToastProvider>,
+  );
+  manager.add({ title: "Copied to clipboard" });
+  await waitForToast("Copied to clipboard");
+
+  const positioner = document.querySelector(
+    '[data-slot="toast-positioner"]',
+  ) as HTMLElement;
+  expect(positioner).not.toBeNull();
+  // The positioner shares the viewport's band, so an anchored toast clears a modal too.
+  expect(positioner.className).toContain("z-60");
+  expect(document.querySelector('[data-slot="toast-arrow"]')).not.toBeNull();
+  expect(positioner.contains(toastEl("Copied to clipboard")!)).toBe(true);
+});
+
+// --- COL-23: the first text line carries the default ink ---------------------------------------
+
+test("COL-23: a description-only toast has no title, so its description leads", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  // Base UI renders `Toast.Title` as null when there is no title, so this description is the
+  // toast's only line — its primary message. The rendered inks are measured in the contrast lane.
+  manager.add({ description: "Event has been created." });
+  await waitForToast("Event has been created.");
+
+  const element = toastEl("Event has been created.")!;
+  expect(element.querySelector('[data-slot="toast-title"]')).toBeNull();
+  const description = element.querySelector(
+    '[data-slot="toast-description"]',
+  ) as HTMLElement;
+  // `first:` is the condition — and it only means anything if the description really is first.
+  expect(description.className).toContain("first:text-popover-foreground");
+  expect(description.previousElementSibling).toBeNull();
+});
+
+test("COL-23: a description BELOW a title is not first, so it stays muted", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  manager.add({
+    title: "Event created",
+    description: "Sunday, December 3 at 9:00 AM",
+  });
+  await waitForToast("Sunday, December 3 at 9:00 AM");
+
+  const element = toastEl("Sunday, December 3 at 9:00 AM")!;
+  const description = element.querySelector(
+    '[data-slot="toast-description"]',
+  ) as HTMLElement;
+  expect(element.querySelector('[data-slot="toast-title"]')).not.toBeNull();
+  expect(description.className).toContain("text-muted-foreground");
+  // The title rendered before it, so `first:` cannot fire.
+  expect(
+    (description.previousElementSibling as HTMLElement | null)?.dataset.slot,
+  ).toBe("toast-title");
 });
 
 // --- Accessibility ------------------------------------------------------------------------------

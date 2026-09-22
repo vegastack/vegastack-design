@@ -161,7 +161,11 @@ test("stepper: a navigable step names its label and its state", async () => {
     { id: "map", label: "Map columns", state: "current" },
     { id: "review", label: "Review", state: "upcoming" },
   ];
-  await render(<Stepper aria-label="Import" steps={steps} navigable />);
+  // `collapse={false}` pins the full rail open: this asserts the navigable step's
+  // accessible name, and the compact summary renders no step buttons at all.
+  await render(
+    <Stepper aria-label="Import" steps={steps} navigable collapse={false} />,
+  );
   await expect
     .element(page.getByRole("button", { name: "Upload file Completed" }))
     .toBeInTheDocument();

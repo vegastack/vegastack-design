@@ -1,0 +1,13 @@
+---
+"@vegastack/ui": minor
+---
+
+⚠ [Stepper](/docs/components/stepper) is rebuilt: the rail now carries the progress, and the refusal message moves out of it.
+
+- **Removed: `blockedReason` and `blockedReasonId`.** They rendered under the current step's label — a one-column-wide ribbon in a horizontal rail, and nothing at all once the rail collapses — so the single placement they had was the one layout they did not fit. A reason the flow cannot advance now belongs beside the control it blocks: an [Alert](/docs/components/alert) for a check that failed, a quiet line for a gate not yet satisfied, wired to your own Next button's `aria-describedby`.
+- **Removed: the root is a `<div>`, not the `<ol>`.** The list is now nested inside it as `data-slot="stepper-list"`, so a ref or a selector aimed at the old root resolves to the wrapper. Every other `data-slot` survives.
+- **Changed: the navigable step is a plain row, not a link-styled `Button`.** `data-slot="stepper-trigger"` is the target and `data-slot="stepper-label"` stays on the label itself; anything selecting the old inner `Button` classes will not match.
+- **New states.** `loading` is what an async advance gate occupies while it runs — the state the previous four could not express without a checking step pretending to be idle. `warning` is a step that is passable but carries something to know, and `skipped` is one passed over rather than failed. `optional` on a step renders an affix beside its label.
+- **New: numbered nodes and a rail that fills in.** Connectors behind the flow take `bg-primary` and those ahead `bg-border` — read from each step's own state, never from its index — so the component is its own progress bar. A completed step's ordinal gives way to a check; colour appears only for `warning` and `error`, whose labels take the family's `-text` ink per A11Y-13 while the node fill carries its `-foreground`.
+- **New: `orientation="auto"` (the default)** flips to vertical at `verticalFrom` steps (6), because a rail long enough to crush its own labels reads better down the page. **`collapse="auto"` (the default)** replaces the rail with the current step's name, its position and a [Progress](/docs/components/progress) bar below a width derived from the step count — a container query, so a rail inside a narrow dialog collapses on a wide screen too. Focus follows the process into whichever of the two is laid out.
+- **New: `size` (`default`, `sm`), `labelPosition` (`below`, `inline`) and `showCount`.** `inline` sets each label beside its node with the connector running on from it, from the same DOM and reading order as the default.

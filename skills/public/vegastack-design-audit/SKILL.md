@@ -79,10 +79,22 @@ rg -n 'ring-3\b|ring-\[3px\]|ring-ring/[0-9]+|focus-visible:ring-|shadow-\[0_0_0
 - `React.forwardRef` — React 19 takes `ref` as a normal prop. **error**
 
 **Things that are NOT findings any more**, and reporting them is noise: `rounded-xl`, `shadow-md`,
-`text-4xl`, `font-semibold`, `tracking-tight`, `transition-all`, `transition-colors`,
-`duration-100`, `ease-in-out`, `z-50`, `opacity-50`, a raw `/NN` alpha, `h-8`/`size-4`,
-`cursor-default` on a menu row, an arbitrary `h-[18.4px]`, and a `hover:` with no `active:` beside
-it. Every one of those is upstream's own vocabulary, which this system now adopts.
+`text-4xl`, `font-semibold`, `transition-all`, `transition-colors`, `duration-100`, `ease-in-out`,
+`z-50`, `opacity-50`, a raw `/NN` alpha, `h-8`/`size-4`, `cursor-default` on a menu row, an
+arbitrary `h-[18.4px]`, and a `hover:` with no `active:` beside it. Every one of those is upstream's
+own vocabulary, which this system now adopts.
+
+**`tracking-tight` left that list on 2026-09-22 and IS a finding again.** The `@theme` bridge now
+declares the heading tier's letter-spacing per size, and Tailwind compiles it as
+`letter-spacing: var(--tw-tracking, …)` — so a local `tracking-*` silently beats the ramp and that
+element stops matching the system. Only `tracking-widest` (a keyboard-shortcut hint) is allowed.
+Two more in the same family:
+
+- an arbitrary font size (`text-[13px]`, `text-[0.8rem]`) — it bypasses the `--text-*` namespace and
+  receives neither the ramp's line-height nor its letter-spacing. **error**
+- the `uppercase` utility or a `textTransform: "uppercase"` — this system is sentence case
+  everywhere, and the transform rewrites whatever it is handed (it once turned the token name
+  `--text-lg` into `--TEXT-LG`). If a string is uppercase, write it uppercase. **error**
 
 ## 3b. Names and tokens the shadcn reset removed
 

@@ -38,7 +38,10 @@ marker role. Product controls stay neutral unless color carries one of those exp
 
 Headings, body, and prose are all **Geist**; code and data are **Geist Mono**. Hierarchy comes
 from **size, weight and color**, on Tailwind's stock scale — `text-sm` is 14px, `text-base` is 16px,
-and there are no named role utilities layered over them.
+and there are no named role utilities layered over them. What _is_ layered on is optical: every step
+above `text-base` carries Geist's own line-height and negative letter-spacing, declared once in the
+theme, so a heading is correctly spaced without anyone reaching for `tracking-*`. See
+[Typography](/docs/foundations/typography).
 
 <TypeScaleSizes />
 

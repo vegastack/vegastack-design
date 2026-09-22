@@ -2741,3 +2741,90 @@ changed for any of these test repairs.
   never the claim. Mutation-checked: reverting the wrapper turns two of the three new tests red.
 - **Sweep.** `contents` + an opacity/visibility utility appears nowhere else in registry source;
   Button and Toggle were the only two components with a label-under-spinner overlay.
+
+## 2026-09-22 — an anchored toast needed a magic className to sit where it was placed
+
+- **Symptom.** The Anchored example on the Toast page rendered a toast roughly 27px below the
+  element `ToastPositioner` had positioned it against, with its arrow pointing at nothing — unless
+  the caller also passed `className="relative inset-auto"` to the `Toast` root. The docs preview
+  did pass it, so the page looked right and the defect was invisible from the outside.
+- **Root cause.** `toastVariants`' BASE carried the corner-stack recipe — `absolute end-0`,
+  `z-[calc(1000-var(--toast-index))]`, the stacking custom properties and the collapsed/expanded
+  transform. Those exist to place a toast inside a fixed corner viewport. An anchored toast is
+  placed by a positioner instead, so every one of them is a second, competing placement. **A recipe
+  in a cva BASE is a claim that it holds for every variant**, and here a whole class of composition —
+  the one the same change had just introduced — was the exception. The escape hatch was a className
+  the consumer had to know about, which is a footgun no gate can see: byte parity, design-lint and
+  the unit lane all pass on a correct-looking file, and the unit lane has no compiled CSS, so it
+  cannot measure placement at all.
+- **Systemic fix.** The stack recipe moved into the `anchor` variant as `TOAST_STACK`, and that
+  variant gained a third value, `none`, which emits nothing. `ToastPositioner` provides
+  `ToastAnchoredContext`, and `Toast` resolves `anchor` from it when the caller passes none — so an
+  anchored composition cannot be built wrong and needs no className, while an explicit `anchor`
+  still wins for a caller who means it. `test/stacking.browser.test.tsx` measures the placement
+  against the anchor with compiled CSS; reverting the context resolution turns it red at 27px.
+- **The generalisable rule.** When a component gains a second placement mode, whatever the first
+  mode wrote into the cva base is now a variant. And a fix whose only proof is "the docs page looks
+  right" is unproven: the docs page was carrying the workaround.
+- **Sweep.** `toast` is the only component in the registry that exposes both a stacked and an
+  anchored placement; no other cva base mixes placement with surface chrome.
+
+## 2026-09-22 — a negative harness that asserted against HEAD instead of against itself
+
+- **Symptom.** `pnpm verify` failed at `lint` on the release branch with
+  `Error: Command failed: git diff --quiet -- apps/docs/public/r/button.json`, from
+  `tooling/test/registry-integrity.test.mjs`. The registry was not corrupt, the tamper probe had
+  passed, and the file on disk was byte-perfect — the run was red anyway, and red in a place that
+  reads as "the release artifacts are broken".
+- **Root cause.** The test tampers `button.json`, requires the verifier to reject it, restores the
+  original bytes in a `finally`, and then **proves the restoration** — correctly refusing to assume
+  it. But it proved it with `git diff --quiet -- apps/docs/public/r/button.json`, which asks whether
+  the file matches `HEAD`. That is a different question. The two answers coincide only while
+  `button.json` is unmodified in the working tree, and the test tampers the artifact of a component
+  that any Button change necessarily regenerates — here TYP-18, pulling Button `sm` off
+  `text-[0.8rem]`. **So the harness was guaranteed to fail on exactly the branches whose registry
+  output it exists to protect**, and passed reliably only where there was nothing new to check.
+- **Systemic fix.** Compare against the bytes the test itself captured before tampering:
+  `expect(readFileSync(ITEM).equals(original)).toBe(true)`. This is strictly the stronger claim — it
+  proves the restore, where the git form proved co-incidence with a commit — and it holds on a clean
+  tree, a dirty tree and a detached HEAD alike. The tamper proof, which is the test's actual subject,
+  is untouched; `pnpm test:tooling` is 112/112.
+- **The generalisable rule.** **A test's self-cleanup must be verified against the state the test
+  captured, never against version control.** Reaching for `git` to answer "did I put it back?"
+  silently imports an assumption the test never declared — that the file was pristine when it
+  started — and version control cannot distinguish the test's own damage from the branch's
+  legitimate work. The same shape is worth watching for wherever a fixture restores something: any
+  assertion mentioning `HEAD`, `git diff`, or `git status` inside a test that mutates a tracked file.
+- **Sweep.** `tooling/test/` has one other tracked-file mutator, and the repository's other
+  clean-tree assertions (`tooling/assert-clean-tree.mjs`) are correct by contrast: they snapshot the
+  tree first and diff against the snapshot, explicitly ignoring pre-existing dirty paths — the same
+  principle, already applied. This test was the one place that reached past its own snapshot.
+
+## 2026-09-22 — a public package changed and no changeset bumped it
+
+- **Symptom.** None, until release. The branch modified `packages/design/src/prose.ts` and three
+  files under `packages/design/skills/`; the four pending changesets bumped `@vegastack/ui` and
+  `@vegastack/design-tokens` and named `@vegastack/design` nowhere. `changeset version` would have
+  produced a Version Packages PR that published two of the three public packages and left the third
+  at 0.6.1 with its source change sitting in the repository.
+- **Root cause.** `prose` is a public export of `@vegastack/design`, and `skills/` is in that
+  package's `files` array — so both reach consumers — but nothing connects "this package's files
+  changed" to "this package needs a changeset". The typography changeset even _described_ the prose
+  fix in its body, under **Markdown surfaces**; the description was there and the bump was not, which
+  is precisely the failure a reader of the changeset cannot catch. The consequence was worse than a
+  delayed fix: those shipped skills are what tell a consuming agent that `tracking-tight` is a
+  finding again and that `sonner` no longer exists, so every consumer's agent would have kept
+  auditing against the superseded rules the same release had just replaced.
+- **Systemic fix.** `"@vegastack/design": patch` added to `.changeset/geist-typography-ramp.md` — the
+  changeset that already carried the prose paragraph, rather than a fifth record for one line.
+  `pnpm changeset status` now lists all three packages (`design` resolves to minor: it is `linked`
+  with `design-tokens`, which the repo configures so the token contract and its consumer never
+  disagree about a version).
+- **The generalisable rule.** **The changeset set is a claim about which packages changed, and
+  nothing verifies it.** Before shipping, diff the changed paths against the packages the pending
+  changesets name, and treat a workspace package with modified `src/` or packaged `files/` and no
+  changeset as a release defect. A derived or mirrored surface counts: `packages/design/skills/` is
+  generated from `skills/public/`, and `sync-package-skills --check` proves the mirror is current
+  while saying nothing about whether it will ever be published.
+- **Sweep.** The other two public packages were named by pending changesets; `@vegastack/docs` is in
+  the changesets `ignore` list and is not published. No other workspace package had source changes.

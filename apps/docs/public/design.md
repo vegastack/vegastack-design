@@ -735,8 +735,9 @@ never hand-edited. Everything the system shares with shadcn is derived from it.
 must equal `vendor/shadcn/4.21.0/ui/<name>.tsx` with `packages/ui/upstream/patches/<name>.patch`
 applied, byte for byte. A patch header names the decision IDs its hunks implement; a hunk that
 implements nothing on that list has no right to exist. Components we have that shadcn does not are
-recorded in `packages/ui/upstream/ours.json`; names we deleted in favour of an upstream replacement
-are in `packages/ui/upstream/retired.json`. **There is no third category** — a file that is neither
+recorded in `packages/ui/upstream/ours.json`; names that DO NOT SHIP here whatever upstream does —
+both the ones we deleted in favour of an upstream replacement and the ones upstream ships that this
+system does not want — are in `packages/ui/upstream/excluded.json`. **There is no third category** — a file that is neither
 upstream-backed nor a recorded extra fails the gate.
 
 Three offline gates carry that, in `pnpm upstream:check`, inside `pnpm lint`:
@@ -976,11 +977,38 @@ build-inlined Tailwind bridge, not the runtime contract.
 
 ## Size, radius, shadow, z-index, alpha, type, motion — upstream's vocabulary
 
-There is no doctrine in this section, and that is the point. These are plain Tailwind utilities now:
-`h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
-`font-semibold`, `tracking-tight`, `text-4xl`, `transition-all duration-100 ease-in-out`. Radius
-derives from one `--radius` (0.625rem) exactly as upstream derives it. Type is Tailwind's stock
-scale — `text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell.
+There is almost no doctrine in this section, and that is the point. These are plain Tailwind
+utilities: `h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
+`font-semibold`, `text-4xl`, `transition-all duration-100 ease-in-out`. Radius derives from one
+`--radius` (0.625rem) exactly as upstream derives it. Type SIZES are Tailwind's stock scale —
+`text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell.
+
+**Type metrics are the one exception, and they are global** (TYP-15/16/17/18, MK 2026-09-22).
+Geist's own spec splits a COPY tier from a HEADING tier, and so does this system:
+
+- **The copy tier — `text-xs` / `text-sm` / `text-base` — is untouched stock**, with zero
+  letter-spacing, exactly as Geist's `copy-*` scale specifies. Nothing in the `@theme` bridge
+  declares it.
+- **The heading tier — `text-lg` and above — carries optical metrics**, declared once in the
+  `@theme inline` bridge as per-size `--text-*--line-height` and `--text-*--letter-spacing`.
+  Tracking runs -0.012em at 18px to -0.06em at 72px, and leading is a designed ramp rather than
+  Tailwind's stock ratios (which are non-monotonic — stock `text-lg` is looser than `text-base` —
+  and collapse toward 1.0 at display sizes, clipping Geist's descenders under negative tracking).
+  Sizes do not move, so TYP-1 stays **shadcn** and a pasted shadcn snippet still renders at
+  upstream's size.
+- **A component never writes its own `tracking-*`.** `design-lint`'s `raw-tracking` rejects it,
+  because Tailwind compiles the ramp as `letter-spacing: var(--tw-tracking, …)` and a local class
+  silently wins. `tracking-widest` is the one allowance — the keyboard-shortcut hint idiom, a role
+  the ramp does not cover.
+- **No arbitrary font size.** `arbitrary-text-size` rejects `text-[13px]` and friends: an arbitrary
+  value bypasses the `--text-*` namespace and receives neither half of the ramp. Upstream's
+  ladder — which genuinely does scale type with control size — is kept, with its half-steps
+  resolved onto the ramp rather than flattened.
+- **Rendering and default size are global too.** `body` carries
+  `-webkit-font-smoothing: antialiased` (Geist is drawn for it) and a declared 14px default, set on
+  `body` and never on `html` — `rem` resolves against the root, so an `html` size would rescale
+  every token and override the reader's own browser preference (WCAG 1.4.4). The docs shell keeps
+  its 16px reading size and is the deliberate exception.
 
 Deleted with their rules, and with the lint rules that enforced them: `--surface-1/2/3`,
 `--surface-raised`, the alpha ladder and its "alpha twin" doctrine, the opacity ladder, `--size-*`,
@@ -1055,7 +1083,11 @@ Rules that survive the reset, because they are ours and not upstream's:
 
 Copy is part of the design — precise, no filler.
 
-- **Case:** sentence case for everything (buttons, headings, labels, body, toasts).
+- **Case:** sentence case for everything (buttons, headings, labels, body, toasts). Enforced
+  by `design-lint`'s `uppercase-transform` since 2026-09-22 — the rule bans the CSS
+  transform, not uppercase text. A transform rewrites whatever it is handed, which is how
+  the docs home page came to render the token name `--text-lg` as `--TEXT-LG`. If a string
+  is uppercase, write it uppercase in the string.
 - **Actions** name a verb + noun (`Deploy project`, `Delete member`) — never `Confirm`, `OK`, or a
   bare verb.
 - **Errors** state what happened plus what to do: `Bundle exceeds the 50 MB limit. Remove unused

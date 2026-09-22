@@ -1,4 +1,4 @@
-// @vegastack code-block@0.11.3 sha256-r9/NSmktUph8gf1vDJmkYmJQ/qZPlUUgFtLT3fe//xE=
+// @vegastack code-block@0.11.3 sha256-FpzEdXvpfHS/kpKEFFPx4zGR2rn8FMpWP/X91xOaQb0=
 
 import * as React from "react";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -6,7 +6,7 @@ import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * CodeBlock — a code panel with an optional header (Wave 3, from the AI-chat teardown): a
- * sunken mono surface topped by a hairline bar carrying the language label (small uppercase mono)
+ * sunken mono surface topped by a hairline bar carrying the language label (small mono)
  * and a copy affordance. Server-safe root — `CopyButton` is the one client leaf and only
  * mounts when `copyValue` is provided. `MarkdownView` delegates fenced code here, so chat
  * transcripts, docs prose, and hand-composed examples all share one code surface.
@@ -15,7 +15,7 @@ import { cn } from "@vegastack/design";
 /** Props accepted by `CodeBlock`. */
 export interface CodeBlockProps extends React.ComponentPropsWithRef<"figure"> {
   /**
-   * Language label shown in the header, as small uppercase mono. Omit both this
+   * Language label shown in the header, as small mono, rendered as given. Omit both this
    * and `copyValue` to render a bare, headerless block.
    * @default undefined
    */
@@ -61,7 +61,7 @@ export function CodeBlock({
           data-slot="code-block-header"
           className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5"
         >
-          <span className="font-mono text-xs text-muted-foreground uppercase">
+          <span className="font-mono text-xs text-muted-foreground">
             {language ?? "code"}
           </span>
           {copyValue != null ? (

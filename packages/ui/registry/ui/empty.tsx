@@ -1,4 +1,4 @@
-// @vegastack empty@0.11.3 sha256-LlM6f1wGciQL1xko5bgtGTJAsHHh6ugC3AaKJQO8kiw=
+// @vegastack empty@0.11.3 sha256-Fq5QAIgi0xP8bT7azym3CqGChAtCqNPEDBsbuxNUsjw=
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
@@ -60,10 +60,7 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="empty-title"
-      className={cn(
-        "font-heading text-sm font-medium tracking-tight",
-        className,
-      )}
+      className={cn("font-heading text-sm font-medium", className)}
       {...props}
     />
   );

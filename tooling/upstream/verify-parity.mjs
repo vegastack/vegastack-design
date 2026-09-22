@@ -18,7 +18,7 @@
 //   3. Every ID in a patch header is a row in the decision register whose decision is **ours**.
 //   4. Every required ID the exception map assigns to that component appears in its header.
 //   5. A registry name with no upstream counterpart is listed in upstream/ours.json.
-//   6. A retired name is absent from the registry, and carries no patch.
+//   6. An excluded name is absent from the registry, and carries no patch.
 //   7. A name recorded as a FILELESS upstream item (upstream/migrated.json `exempt`) really has no
 //      file on either side — upstream ships none, and neither do we.
 //
@@ -72,7 +72,7 @@ import {
   decisions,
   exemptUpstreamItems,
   ours,
-  retired,
+  excluded,
   report,
   unifiedDiff,
 } from "./lib.mjs";
@@ -104,7 +104,7 @@ export function checkTree({
   register,
   map,
   oursMap,
-  retiredSet,
+  excludedSet,
   exemptMap = {},
 }) {
   const failures = [];
@@ -114,9 +114,12 @@ export function checkTree({
         .sort()
     : [];
   const upstreamSet = new Set(upstreamNames);
-  // Check 0: the enforced set, derived. Nothing in this repository can remove a name from it.
+  // Check 0: the enforced set, derived. The only way out is `excluded.json` (rule 6 below), which
+  // costs the component, its patch, its registry item, its docs page and a contract count to use.
   const migratedSet = new Set(
-    upstreamNames.filter((name) => !(name in exemptMap)),
+    upstreamNames.filter(
+      (name) => !(name in exemptMap) && !excludedSet.has(name),
+    ),
   );
 
   // Top level only. `registry/ui/icons/` holds the 467 animated-icon mirrors, which are generated
@@ -130,15 +133,15 @@ export function checkTree({
         .sort()
     : [];
 
-  // 6. Retired names must be gone.
-  for (const name of retiredSet) {
+  // 6. Excluded names must be gone.
+  for (const name of excludedSet) {
     if (registryNames.includes(name)) {
       failures.push(
-        `${name}: retired, but packages/ui/registry/ui still has it`,
+        `${name}: excluded, but packages/ui/registry/ui still has it`,
       );
     }
     if (existsSync(join(patchDir, `${name}.patch`))) {
-      failures.push(`${name}: retired, but still carries a patch`);
+      failures.push(`${name}: excluded, but still carries a patch`);
     }
   }
 
@@ -252,7 +255,7 @@ export function checkTree({
       `${migratedSet.size}/${upstreamNames.length} upstream components migrated ` +
       `(${withPatch} patched, ${migratedSet.size - withPatch} verbatim) · ` +
       `${registryNames.length} registry names · ${Object.keys(oursMap).length} recorded extras · ` +
-      `${Object.keys(exemptMap).length} fileless upstream items · ${retiredSet.size} retired`,
+      `${Object.keys(exemptMap).length} fileless upstream items · ${excludedSet.size} excluded`,
   };
 }
 
@@ -264,7 +267,7 @@ function live() {
     register: decisions(),
     map: readJson(join(UPSTREAM_DIR, "exception-map.json")),
     oursMap: ours(),
-    retiredSet: retired(),
+    excludedSet: excluded(),
     exemptMap: exemptUpstreamItems(),
   });
 }
@@ -312,7 +315,7 @@ function selfTest() {
     register,
     map: { required: { "FOC-1": ["demo"] } },
     oursMap: {},
-    retiredSet: new Set(),
+    excludedSet: new Set(),
   };
   const run = (overrides) => checkTree({ ...base, ...overrides }).failures;
   const says = (text, overrides = {}) =>
@@ -461,10 +464,10 @@ function selfTest() {
   );
 
   claim(
-    "a retired name still present in the registry is rejected",
-    says("retired, but packages/ui/registry/ui still has it", {
+    "an excluded name still present in the registry is rejected",
+    says("excluded, but packages/ui/registry/ui still has it", {
       oursMap: { extra: {} },
-      retiredSet: new Set(["demo"]),
+      excludedSet: new Set(["demo"]),
     }),
   );
 

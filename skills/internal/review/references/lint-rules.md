@@ -62,31 +62,74 @@ that catch bugs nobody can see in review.
    NAMES for ONE glyph — lucide re-exports the first two straight off `LoaderCircle` — and ICO-8
    gives the system one indeterminate loading mark, lucide `Loader` (`LoaderIcon`). The rule reads
    the IMPORTED name, not the local binding, so `import { LoaderCircle as Spin }` is caught. Same
-   role as `no-focus-ring-glow`: byte parity already holds `spinner`, `toast` and `sonner` to their
-   ICO-8 hunks, but nothing stopped a NEW component of ours — which has no patch — from reaching
+   role as `no-focus-ring-glow`: byte parity already holds `spinner` and `toast` to their
+   ICO-8 hunks (`sonner` carried one too, until it was retired on 2026-09-22), but nothing stopped a NEW component of ours — which has no patch — from reaching
    for the mark upstream writes everywhere. Scoped to `registry/{ui,blocks}/` and excluding
    `registry/ui/icons/`: the 467 animated mirrors are a lucide CATALOGUE, and the docs'
    `spinnerCustomization` preview mounts `LoaderCircleIcon` on purpose to show what swapping the
    mark looks like. Where a loading affordance is what you mean, compose the `spinner` registry
    item rather than importing any mark directly.
 
-7. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. The allowlist is ONE file:
-   `empty.tsx`, which draws upstream's decorative backdrop — a non-icon graphic primitive. Two
-   entries left rather than being carried: the lucide-animated mirrors, now data modules over one
-   factory with no JSX at all (`tooling/verify-animated-icons.mjs` asserts that directly), and
-   `progress-indicator`, whose determinate ring went with the component when Batch 7a of the shadcn
-   reset retired it. (ICO-3.)
-8. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
-   UI's polymorphic `render` prop. There is NO allowlisted exemption: `split-button.tsx` was the one
-   entry, and Batch 7a of the shadcn reset retired it, so the rule now fails closed for every file.
-   "Purely presentational, no single root" (Card/PageHeader/Empty/SettingsRow)
-   is a valid reason to have NO `render` prop at all, which is different from stripping one via
-   `Omit` — do not accept the former as justification for the latter. (API-15.)
-9. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
-   import (including aliases) are banned. React 19 components accept `ref` as a normal prop. This
-   applies to generated animated icons too — normalize at the generator, never by hand-editing a
-   generated file. (API-15.)
-10. **`raw-interactive-html`** (AST) — canonical registry components may not render native
+7. **`raw-tracking`** (TYP-15, **new 2026-09-22**) — any `tracking-*` except `tracking-widest`.
+   The `@theme inline` bridge carries per-size `--text-*--letter-spacing` for the HEADING tier
+   (`text-lg` and up, running −0.012em at 18px to −0.06em at 72px) and deliberately holds the COPY
+   tier (`text-xs`/`sm`/`base`) at zero, which is Geist's own copy/heading split. The failure mode
+   this catches is quiet: Tailwind compiles the ramp as
+   `letter-spacing: var(--tw-tracking, <ramp value>)`, so a local `tracking-*` SILENTLY WINS and one
+   component stops obeying the global authority while everything still looks fine. `tracking-widest`
+   is the one allowance — the keyboard-shortcut hint idiom (`⌘K`) in Command, Menubar, DropdownMenu
+   and ContextMenu, a role the ramp does not cover. Allowing the CLASS rather than pinning those
+   four paths is deliberate: a fifth menu surface gets the idiom for free and every other spelling
+   still fails. The registry had exactly one copy-tier offender, `empty`'s `tracking-tight` at 14px,
+   removed under TYP-15.
+8. **`arbitrary-text-size`** (TYP-18, **new 2026-09-22**) — `text-[13px]`, `text-[0.8rem]` and any
+   other arbitrary LENGTH font size. An arbitrary value bypasses the `--text-*` namespace entirely,
+   so it can receive neither the ramp's line-height nor its letter-spacing and it sits on no tier
+   anyone can name. Matches a length only, so `text-[var(--x)]` and arbitrary colours are not this
+   rule's business (`hex-color` owns those). Note what the rule does NOT say: upstream's ladder
+   genuinely scales type with control size (`xs` h-6 → 12px, `default` h-8 → 14px), and that ladder
+   is KEPT — its `sm` half-step resolved DOWN to `text-xs` rather than being flattened up to 14px.
+   Inventing a 13px step instead would re-open TYP-5's deleted type vocabulary.
+9. **`uppercase-transform`** (TYP-7, **new 2026-09-22**) — the `uppercase` utility or a
+   `textTransform: "uppercase"` inline style. `design.md` § Voice & content is sentence case for
+   EVERYTHING, and TYP-7 resolves as **shadcn**, whose column reads simply "No uppercase" — the old
+   `uppercase-mono` rule was deleted because upstream has none, not because the transform became
+   free. Twelve `font-mono text-xs uppercase` eyebrows had survived across the docs shell anyway.
+   The decisive argument is not taste: two of them rendered real CSS custom-property names through
+   the transform, so `--text-lg` displayed as `--TEXT-LG`, a false identifier on a design-system
+   docs site. A CSS transform silently rewrites whatever it is handed. **If a string is uppercase,
+   write it uppercase in the string.** Removing these also removed the last justification for
+   positive `tracking-*`, which existed only to make uppercase legible — see `raw-tracking`.
+10. **`tabular-figures`** (TYP-10, **new 2026-09-22**) — a registry file that formats a number
+    through `Intl.NumberFormat` or `.toFixed(` and carries no `tabular-nums` anywhere. TYP-10 has
+    been **ours** since the reset ("tabular figures on code and data") and had NO gate for four
+    days, which is how `number-field` shipped proportional digits: holding its stepper made the
+    value visibly jitter as digit widths changed. The signal is deliberately narrow —
+    `.toLocaleString(` is EXCLUDED because `calendar` calls it with `{ month: "short" }` to produce a
+    month NAME, and a rule that fires on a string is a rule that gets switched off. Components that
+    render digits in a fixed-width box (`pagination`'s `size="icon"` links) or render no figure text
+    at all (`slider` renders thumbs, `kbd` renders key glyphs) are out of scope: there is no jitter
+    to prevent. A per-column opt-in satisfies it — `data-grid` inherits `tabular-nums` from
+    `columnCellClass` when a column declares `mono`, which is correct, since not every column holds
+    figures.
+
+11. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. The allowlist is ONE file:
+    `empty.tsx`, which draws upstream's decorative backdrop — a non-icon graphic primitive. Two
+    entries left rather than being carried: the lucide-animated mirrors, now data modules over one
+    factory with no JSX at all (`tooling/verify-animated-icons.mjs` asserts that directly), and
+    `progress-indicator`, whose determinate ring went with the component when Batch 7a of the shadcn
+    reset retired it. (ICO-3.)
+12. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
+    UI's polymorphic `render` prop. There is NO allowlisted exemption: `split-button.tsx` was the one
+    entry, and Batch 7a of the shadcn reset retired it, so the rule now fails closed for every file.
+    "Purely presentational, no single root" (Card/PageHeader/Empty/SettingsRow)
+    is a valid reason to have NO `render` prop at all, which is different from stripping one via
+    `Omit` — do not accept the former as justification for the latter. (API-15.)
+13. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
+    import (including aliases) are banned. React 19 components accept `ref` as a normal prop. This
+    applies to generated animated icons too — normalize at the generator, never by hand-editing a
+    generated file. (API-15.)
+14. **`raw-interactive-html`** (AST) — canonical registry components may not render native
     `<button>`/`<input>`/`<select>`/`<textarea>` unless the file has an exact per-tag count and a
     concrete adapter/integration rationale in `RAW_INTERACTIVE_EXEMPTIONS`. Counts fail closed in both
     directions: adding or removing a reviewed native control requires re-audit. (API-15.) Batch 6 of
@@ -94,38 +137,38 @@ that catch bugs nobody can see in review.
     through `useRender({ defaultTagName: "button" })` and writes no `<button>` JSX, so the
     `/attachment.tsx` entry dropped to zero and was DELETED rather than carried at `{}` — an
     exemption that can no longer be reached is one that should not exist.
-11. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
+15. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
     `'use client'` must contain a concrete client requirement: a Base UI/approved engine dependency, a
     React hook/context, an event binding, or a browser API. Pure presentational wrappers stay
     server-safe. (API-16.)
-12. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
+16. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
     `<Button size="icon*">` with no `aria-label`/`aria-labelledby` on the same element AND no spread
     that could supply one. Upstream's Button HAS `icon`, `icon-xs`, `icon-sm` and `icon-lg` sizes
     (API-4 is decided as **shadcn**, and Batch 7a retired `IconButton`), so this rule is now the ONE
     accessible-name check for every icon-only button in the system — there is no longer a wrapper
     enforcing it at the type level.
-13. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
+17. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
     assigned through `x.current = …` in one file. That pair is a ref fan-out and nothing else. Under
     React 19 ref-as-prop, "I need the node and must also forward it" is the normal case, so the
     pattern reappears constantly; `mergeRefs` from `@vegastack/design` is the one implementation
     (wrap the call in `useMemo` — it is not memoized).
-14. **`flex-truncate-conflict`** — `flex`/`inline-flex` co-located with `truncate`/`line-clamp-*` in
+18. **`flex-truncate-conflict`** — `flex`/`inline-flex` co-located with `truncate`/`line-clamp-*` in
     one class literal on the same element. `.flex` always wins the display conflict (verified in the
     compiled cascade), silently defeating the ellipsis. Correct pattern: `flex min-w-0` on the
     container, `truncate` on an inner span. (LAY-11.)
-15. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
+19. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
     `motion-reduce:duration-0` or `motion-reduce:transition-duration-*`. base.css already collapses
     animation and transition duration to 0.01ms under `prefers-reduced-motion`. Scoped on purpose:
     `motion-reduce:transform-none` and other END-STATE suppressions are NOT restatements — they
     remove the displacement itself, which the global reset does not — and stay legal. (MOT-5.)
-16. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
+20. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
     review, survives every merge, and defeats grep (`"a  b"` does not match `/a b/`, which is how
     audit sweeps undercounted). Applies to plain string literals only: a template's spans are joined
     with a synthetic space by the parser, and a multi-line literal is prose, not a class string.
-17. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
+21. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
     the component has stopped styling itself and started styling its children's internals from the
     outside (`audio-player` held 76). Give the child a `data-slot` and let it own the rule.
-18. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
+22. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
     space, so JavaScript welds them into one word and the utility on BOTH sides of the seam is
     destroyed (`"…p-0.5" + "bg-muted …"` ships `p-0.5bg-muted`, which Tailwind never emits and the
     browser silently drops). **AST-only, and it has to be**: every other rule reads one literal at a

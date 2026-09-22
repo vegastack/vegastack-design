@@ -1,6 +1,10 @@
 # component: questionnaire
-# decisions: A11Y-2, A11Y-3, A11Y-4, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4
+# decisions: A11Y-2, A11Y-3, A11Y-4, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, TYP-18
 # hunks:
+#   TYP-18: the shortcut badge's `text-[0.625rem]` (10px) becomes `text-xs` (12px). An
+#     arbitrary value receives neither half of the type ramp, and 10px is below every tier
+#     the system names. The box does not move: `kbd` already pairs `text-xs` with the same
+#     `h-5`/`min-w-5` geometry, so 12px in a `size-5` badge is proven here (MK, 2026-09-22).
 #   FOC-1, FOC-6 (choice): `QuestionnaireChoice` drops `has-[>input:focus-visible]:ring-3` and
 #     `has-[>input:focus-visible]:ring-ring/50` and KEEPS `has-[>input:focus-visible]:border-ring`.
 #     The real control here is an `opacity-0` input stretched over the whole card, so
@@ -37,7 +41,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/questionnaire.tsx b/questionnaire.tsx
-index 701ac1c..f557146 100644
+index 701ac1c..70cfc9b 100644
 --- a/questionnaire.tsx
 +++ b/questionnaire.tsx
 @@ -1,11 +1,11 @@
@@ -168,8 +172,12 @@ index 701ac1c..f557146 100644
        </span>
        <QuestionnairePrimitive.ChoiceLabel
          data-slot="questionnaire-choice-label"
-@@ -138,7 +152,7 @@ function QuestionnaireChoice({
-         className="pointer-events-none ms-auto hidden size-5 shrink-0 translate-y-[--spacing(0.45)] items-center justify-center rounded-md border border-input bg-background font-mono text-[0.625rem] leading-none font-medium text-muted-foreground group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[shortcut]/questionnaire-choice:inline-flex"
+@@ -135,10 +149,10 @@ function QuestionnaireChoice({
+       </QuestionnairePrimitive.ChoiceLabel>
+       <QuestionnairePrimitive.ChoiceShortcut
+         data-slot="questionnaire-choice-shortcut"
+-        className="pointer-events-none ms-auto hidden size-5 shrink-0 translate-y-[--spacing(0.45)] items-center justify-center rounded-md border border-input bg-background font-mono text-[0.625rem] leading-none font-medium text-muted-foreground group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[shortcut]/questionnaire-choice:inline-flex"
++        className="pointer-events-none ms-auto hidden size-5 shrink-0 translate-y-[--spacing(0.45)] items-center justify-center rounded-md border border-input bg-background font-mono text-xs leading-none font-medium text-muted-foreground group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[shortcut]/questionnaire-choice:inline-flex"
        />
      </QuestionnairePrimitive.Choice>
 -  )

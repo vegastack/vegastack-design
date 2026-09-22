@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e477d1322bae90f8c90a5beaf93aa4ce73aa420db907bad777a7bc961a76aa09",
+  "contractSha256": "54c26f81449cd33d424be2996fdd477ea41982ec55ee1389e4b5adf1ddfc903d",
   "expectedCounts": {
     "totalRegistryItems": 690,
     "components": 110,
@@ -982,17 +982,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "sonner",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "feedback",
-      "sourceFiles": [
-        "packages/ui/registry/ui/sonner.tsx"
-      ],
-      "docsSlug": "/docs/components/sonner",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "sortable-list",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -1045,6 +1034,17 @@
         "packages/ui/registry/ui/stepper.tsx"
       ],
       "docsSlug": "/docs/components/stepper",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "multi-step-form",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/multi-step-form.tsx"
+      ],
+      "docsSlug": "/docs/components/multi-step-form",
       "contractStatus": "reconciled"
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack login-02@0.11.3 sha256-SFVKlCoDiQr2my5zQG1moT2yQeZZvO6Smc2Lb1IbAvo=
+// @vegastack login-02@0.11.3 sha256-jyyXXLOJS4tPxoC9AZlLDnx9so0sHUJLbWKPubdFiR8=
 
 import { cn } from "@vegastack/design";
 
@@ -22,7 +22,7 @@ export function LoginForm({
     <form className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Login to your account</h1>
+          <h1 className="text-2xl font-semibold">Login to your account</h1>
           <p className="text-sm text-balance text-muted-foreground">
             Enter your email below to login to your account
           </p>

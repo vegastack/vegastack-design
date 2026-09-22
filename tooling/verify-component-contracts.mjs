@@ -110,10 +110,11 @@ function expectedEnginePackages(dependencies = [], sourceFiles = []) {
     // packages are one engine identity, exactly as `-hitbox` folds into the pragmatic one.
     if (dependency.startsWith("@dnd-kit/")) packages.add("@dnd-kit");
     // Pre-approved with upstream's whole dependency set (DOC-7, MK 2026-09-18) and adopted by the
-    // shadcn reset: `input-otp` in Batch 3, `cmdk` and `sonner` in Batch 4.
+    // shadcn reset: `input-otp` in Batch 3 and `cmdk` in Batch 4. `sonner` was adopted with them
+    // and retired on 2026-09-22 (OVL-10): Toast is the one notification engine, so the package is
+    // gone from the tree and needs no engine identity here.
     if (dependency.startsWith("input-otp")) packages.add("input-otp");
     if (dependency.startsWith("cmdk")) packages.add("cmdk");
-    if (dependency.startsWith("sonner")) packages.add("sonner");
     // Batch 5: `carousel` is new here, and `embla-carousel-react` is its slide engine.
     if (dependency.startsWith("embla-carousel-react"))
       packages.add("embla-carousel-react");
@@ -576,8 +577,8 @@ assert(
 const expectedWaves = {
   "Core controls": 23,
   "Forms/editing": 24,
-  "Navigation/layout": 16,
-  Overlays: 15,
+  "Navigation/layout": 17,
+  Overlays: 14,
   "Data display": 10,
   "Content/marketing": 13,
   "AI/chat": 7,
@@ -666,6 +667,7 @@ const expectedComponentWaveMembers = {
     "command",
     "direction",
     "menubar",
+    "multi-step-form",
     "navigation-menu",
     "pagination",
     "resizable",
@@ -687,7 +689,6 @@ const expectedComponentWaveMembers = {
     "provider",
     "sheet",
     "shortcut-overlay",
-    "sonner",
     "toast",
     "tooltip",
   ],

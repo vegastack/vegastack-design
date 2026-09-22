@@ -31,7 +31,7 @@
 // relative to the repository root and accepts no path argument, and adding one purely for this test
 // would widen a fail-closed verifier's surface to make a test tidier. Rejected deliberately.
 
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -77,15 +77,13 @@ describe("registry item integrity", () => {
       writeFileSync(ITEM, original);
     }
 
-    // The restoration is proven, not assumed: `git diff --quiet` exits non-zero on any difference.
-    expect(() =>
-      execFileSync(
-        "git",
-        ["diff", "--quiet", "--", "apps/docs/public/r/button.json"],
-        {
-          cwd: ROOT,
-        },
-      ),
-    ).not.toThrow();
+    // The restoration is proven, not assumed: re-read the file from disk and require it to equal
+    // the bytes this test captured before tampering. Deliberately NOT `git diff --quiet` — that
+    // asserts the file matches HEAD, which is a different and wrong claim. A branch that
+    // legitimately changes `button.json` (TYP-18 pulling Button `sm` off `text-[0.8rem]` was one)
+    // has an uncommitted difference from HEAD before this test starts, so the git form failed a
+    // perfectly successful restoration and made `pnpm verify` unrunnable on exactly the branches
+    // that edit the item it tampers.
+    expect(readFileSync(ITEM).equals(original)).toBe(true);
   });
 });

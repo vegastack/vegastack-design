@@ -1,0 +1,220 @@
+---
+title: Multi-Step Form
+description: A guarded, branching flow around a Stepper — conditional steps, async guards, locking, deep links and resume, with no opinion about your fields.
+audience: public
+registry: multi-step-form
+status: stable
+since: 0.12.0
+a11y: one focus move per transition
+preview: multiStepForm
+---
+
+## Install
+
+<InstallSteps name="multi-step-form" />
+
+## Usage
+
+```tsx
+import {
+  MultiStepForm,
+  MultiStepFormNav,
+  MultiStepFormStep,
+  MultiStepFormActions,
+} from "@/components/ui/multi-step-form";
+
+<MultiStepForm
+  steps={[
+    { id: "account", label: "Account" },
+    { id: "billing", label: "Billing" },
+    { id: "review", label: "Review" },
+  ]}
+>
+  <MultiStepFormNav aria-label="Signup" />
+  <MultiStepFormStep id="account">…</MultiStepFormStep>
+  <MultiStepFormStep id="billing">…</MultiStepFormStep>
+  <MultiStepFormStep id="review">…</MultiStepFormStep>
+  <MultiStepFormActions />
+</MultiStepForm>;
+```
+
+The `steps` array declares the **flow** — labels, branches, guards. Each
+`MultiStepFormStep` declares one step's **body**, and only the current one
+renders. The body is whatever you put in it: a
+[`Field`](/docs/components/field) form, a review table, an upload surface, a
+chart, nothing.
+
+## Scope
+
+It owns the flow and refuses to own your form, which is what keeps it at zero
+new dependencies.
+
+| Behaviour                                   | Where it lives                                                        |
+| ------------------------------------------- | --------------------------------------------------------------------- |
+| Sequencing, branching, guards, locking      | This component                                                        |
+| Progress display                            | [`Stepper`](/docs/components/stepper), composed by `MultiStepFormNav` |
+| Fields, schemas, validation                 | Yours — the guard is a function, so any validator plugs in            |
+| The answers themselves                      | Yours — `when` and `satisfied` are booleans you compute               |
+| "The check couldn't run" (network, 500)     | Yours, via `onTransportError` — normally a toast                      |
+| What "unsaved" means, and what leaving does | Yours, via `dirty` and `onExit`                                       |
+
+Adding React Hook Form or Zod here would each be a new sanctioned dependency
+exception. Because a guard is just a function returning a promise, neither is
+needed.
+
+## Anatomy
+
+<Anatomy name="multi-step-form" />
+
+## Examples
+
+### Branching
+
+A step whose `when` is `false` leaves the rail, the count and the sequence — so
+"step 3 of 4" stays true when a branch drops one. Switch the account type below
+and watch a step appear and disappear.
+
+<ComponentPreview
+  name="multiStepForm"
+  file="components/preview/multi-step-form.tsx"
+/>
+
+### Guards that run, and fail
+
+`beforeNext` returns `true` to pass or a sentence to refuse, and may be async —
+the step goes `loading`, the action shows a spinner, and **the flow never
+advances optimistically**. A refusal that came from a check that ran and failed
+is an assertive [`Alert`](/docs/components/alert) directly above the action row,
+tied to the button through `aria-describedby`. This step also carries `lock`, so
+passing it seals everything behind it.
+
+<ComponentPreview
+  name="multiStepFormGuards"
+  file="components/preview/multi-step-form.tsx"
+/>
+
+### A gate that isn't an error
+
+A step that simply is not finished yet is `tone: "soft"` — a quiet polite line,
+and the rail is left alone, because "not yet" is not "broken". Press Continue
+with the field empty.
+
+<ComponentPreview
+  name="multiStepFormSoftGate"
+  file="components/preview/multi-step-form.tsx"
+/>
+
+### Editing an existing record
+
+Mark a step `satisfied` when its data is already there. That one predicate
+decides four things at once: the rail starts complete, jumping is offered, a
+deep link opens exactly where it points instead of rewinding, and a phone gets
+the tappable section list instead of a progress line. There is no
+`mode="create" | "edit"` to keep in sync.
+
+<ComponentPreview
+  name="multiStepFormEditing"
+  file="components/preview/multi-step-form.tsx"
+/>
+
+### Optional steps
+
+An `optional` step carries the affix and offers Skip, which advances without
+running `beforeNext` and records the step as `skipped` rather than complete.
+
+<ComponentPreview
+  name="multiStepFormOptional"
+  file="components/preview/multi-step-form.tsx"
+/>
+
+### Inside a dialog
+
+`layout="panel"` is the shape a wizard takes in a `Dialog`, `Sheet` or `Drawer`: the nav
+and the action row hold their place while the step body becomes the one scrolling region,
+so the frame cannot grow past the viewport and carry its own footer off screen. This
+example also carries `dirty` — type into the first field, then press Cancel.
+
+<ComponentPreview
+  name="multiStepFormDialog"
+  file="components/preview/multi-step-form.tsx"
+/>
+
+### Leaving with unsaved work
+
+`MultiStepFormExit` leaves the flow, asking first when `dirty` says the current step holds
+work that would be lost. With nothing dirty it simply calls `onExit` — a confirmation
+nobody needs is the fastest way to teach people to dismiss confirmations unread. While
+`dirty` is true the browser also warns on a refresh or a closed tab, which is the half no
+component can fake.
+
+```tsx
+<MultiStepForm steps={steps} dirty={form.isDirty} onExit={() => setOpen(false)}>
+  …
+  <MultiStepFormActions>
+    <MultiStepFormExit>Cancel</MultiStepFormExit>
+    <div className="flex items-center gap-2">
+      <MultiStepFormBack />
+      <MultiStepFormNext />
+    </div>
+  </MultiStepFormActions>
+</MultiStepForm>
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/multi-step-form.tsx"
+  name="MultiStepFormProps"
+/>
+
+### Step
+
+<ApiTable
+  path="../../packages/ui/registry/ui/multi-step-form.tsx"
+  name="MultiStepFormStepSpec"
+/>
+
+### Refusal
+
+<ApiTable
+  path="../../packages/ui/registry/ui/multi-step-form.tsx"
+  name="MultiStepFormRefusal"
+/>
+
+### Nav
+
+<ApiTable
+  path="../../packages/ui/registry/ui/multi-step-form.tsx"
+  name="MultiStepFormNavProps"
+/>
+
+## Accessibility
+
+- **Exactly one focus move per transition.** `Stepper` moves focus to the new
+  step's label; this component deliberately does not also focus the first field,
+  and mounts no live region for step changes — the focused label and
+  `aria-current="step"` are the announcement.
+- A refusal that follows a failed check is `role="alert"`, which is assertive —
+  correct here and only here, because it appears after mount in response to
+  something the user did. A soft gate is a polite `role="status"`.
+- The refusal is referenced by the forward action's `aria-describedby`, so the
+  reason reads out with the control it blocks (WCAG 3.3.1), and it persists
+  rather than disappearing like a toast.
+- Sealed and unreachable steps are not focus targets; the phone section rows are
+  `Button`s, so they clear the 24px touch floor.
+- A hash naming a step the guards forbid is ignored and the bar corrected, so a
+  pasted link cannot bypass a gate or leave the URL disagreeing with the screen.
+
+| Key                                 | Action                                       |
+| ----------------------------------- | -------------------------------------------- |
+| <kbd>Tab</kbd>                      | Reach the rail's jump targets, then the row. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control.                |
+
+<StatesTested name="multi-step-form" />
+
+## Do / Don't
+
+<DoDont
+  do="Return a sentence from beforeNext and let the component place it — the reason belongs beside the button it blocks, and it has to still be there when the user comes back to try again."
+  dont="Announce a refusal with a toast. It leaves before a slow reader gets to it and it is not tied to the control, which is exactly what WCAG 3.3.1 is about; a toast is for the check that could not run at all."
+/>

@@ -43,7 +43,7 @@ Higher wins, because most wrong answers come from trusting a document that stopp
 
 One line each; the rationale is in the cited plan or ledger, which are historical records — read them for _why_, never for _what is true now_. Re-opening one is an MK decision.
 
-- **The system is shadcn `base-nova`, used as-is, plus sixty-three recorded exceptions** (the shadcn reset, approved by MK 2026-09-17/18, `docs/plans/2026-09-18-shadcn-reset/`). **The register is the authority, not this list**: 173 rows in `decisions.md` there, machine copy at `packages/ui/upstream/decisions.json` — 110 resolved as **shadcn** (upstream ships unchanged) and 63 as **ours** (upstream is patched, and the patch header names the ID). `exception-map.json` assigns each exception to the components that must carry it; `ours.json` records the components upstream has no counterpart for; `retired.json` records the names we deleted in favour of an upstream replacement. There is no third category, and `pnpm upstream:check` proves it. Everything the pre-reset system decided **against** upstream and this register resolves as shadcn — the warm neutral ramp, the surface ladder, the alpha and opacity ladders, the radius cap, the shadow ban, the 14px role type scale, the 400/500 weight ladder, the banned colour transitions, the mandatory pressed step, the Button `variant × tone` API, `IconButton`, the z-band names, the modal scrim, tooltip delays, menu chrome — **is gone**, with no compatibility layer (`docs/MIGRATING-SHADCN-RESET.md`). The reset ships as a MINOR bump, not a 1.0: `@vegastack/design` and `@vegastack/design-tokens` go to 0.5.0 and `@vegastack/ui` to 0.10.0. The marketing layer and its ten components were deleted outright, not ported. A new deviation from upstream is a new MK decision on that register; never invent a row (`A11Y-14` and `A11Y-15` are permanently burned because two subagents did).
+- **The system is shadcn `base-nova`, used as-is, plus seventy recorded exceptions** (the shadcn reset, approved by MK 2026-09-17/18, `docs/plans/2026-09-18-shadcn-reset/`). **The register is the authority, not this list**: 179 rows in `decisions.md` there, machine copy at `packages/ui/upstream/decisions.json` — 109 resolved as **shadcn** (upstream ships unchanged) and 70 as **ours** (upstream is patched, and the patch header names the ID). `exception-map.json` assigns each exception to the components that must carry it; `ours.json` records the components upstream has no counterpart for; `excluded.json` records the names that DO NOT SHIP here whatever upstream does — both the ones we deleted in favour of an upstream replacement and the ones upstream ships that this system does not want (`sonner`, 2026-09-22). An excluded name leaves the enforced `migrated()` set, which is the only way out of it, and it never leaves quietly: the component, its patch, its registry item and its docs page go with it, and `component-contracts.json`'s expectedCounts fails until the counts move too. There is no third category, and `pnpm upstream:check` proves it. Everything the pre-reset system decided **against** upstream and this register resolves as shadcn — the warm neutral ramp, the surface ladder, the alpha and opacity ladders, the radius cap, the shadow ban, the 14px role type scale, the 400/500 weight ladder, the banned colour transitions, the mandatory pressed step, the Button `variant × tone` API, `IconButton`, the z-band names, the modal scrim, tooltip delays, menu chrome — **is gone**, with no compatibility layer (`docs/MIGRATING-SHADCN-RESET.md`). The reset ships as a MINOR bump, not a 1.0: `@vegastack/design` and `@vegastack/design-tokens` go to 0.5.0 and `@vegastack/ui` to 0.10.0. The marketing layer and its ten components were deleted outright, not ported. A new deviation from upstream is a new MK decision on that register; never invent a row (`A11Y-14` and `A11Y-15` are permanently burned because two subagents did).
 - **Stack** — shadcn CLI 4.21.0, style `base-nova` (`-b base` + `-p nova`), pulled with `--pointer` and `--rtl`, colour base `neutral`; `@base-ui/react`; Tailwind v4; Next 16; React 19; Node pinned to 24.20.0 by pnpm (`devEngines.runtime`), not by any runner; pnpm 11; Turborepo 2. A version move is MK's decision: `vendor/shadcn/<cli>/` is committed and hashed, so work continues offline, and the parity gate makes the next bump a reviewable diff.
 - **Distribution is hybrid** — public npm (`@vegastack/design` + zero-dep `@vegastack/design-tokens`) plus a private shadcn registry for components (copy-in); `docs/requirements.md` § 3. **Component model A (own it), no `Vega*` prefix** — export `Button`, and let `shadcn add --diff` surface upstream changes for deliberate cherry-pick; there is no pristine-shadcn tier. **The provider ships as a registry item** (`shadcn add @vegastack/provider`), and the `@vegastack/ui` provider is a documented mirror of that canonical source.
 - **Tokens and docs** — DTCG → Style Dictionary (`color/oklch` transform, separate light/dark builds, `@theme inline` bridge), with runtime vars `--font-family-*`/`--motion-ease-*` that are never self-referential; docs are Fumadocs, statically exported to Cloudflare Workers Static Assets, and Storybook is deferred.
@@ -76,8 +76,8 @@ Adding to either list needs MK sign-off, tracked the same way.
 
   Nothing else — a tenth entry is a new MK decision, not a pattern to follow.
 
-- **Theme engine** — `next-themes` (0.4.6): the class/attribute theme switcher, the storage and system-preference listener, and the anti-FOUC inline script. Approved by MK 2026-09-07 (audit `2026-09-07-system-audit`, decision **D30**). It is **mounted** in `provider`, the sanctioned single app-root wrapper, and read in exactly two registry items: `provider` (`useVegaStackTheme` is a thin wrapper over its `useTheme()`) and, since Batch 4 of the shadcn reset, `sonner` — upstream's sonner toaster reads the resolved theme to pick the engine's own colour scheme, which is the one thing sonner cannot take from the CSS cascade. `toast`, the Base UI surface, still reads nothing: it inherits from the cascade. So a swap changes those two files.
-- **Notification engine** — `sonner` (^2.0.8): the toast stack, its imperative `toast()` API and its own portal and live region, behind the `sonner` registry item. Upstream ships **both** `toast` (Base UI) and `sonner`, and decision **OVL-10** resolves as **shadcn**, so both ship here (Batch 4, 2026-09-18); an app mounts one of them, not both. Imported in exactly one file, `packages/ui/registry/ui/sonner.tsx`; the token bridge (`--normal-bg`, `--normal-text`, `--normal-border`, `--border-radius`) and the icon set are ours. Pre-approved with upstream's dependency set (DOC-7).
+- **Theme engine** — `next-themes` (0.4.6): the class/attribute theme switcher, the storage and system-preference listener, and the anti-FOUC inline script. Approved by MK 2026-09-07 (audit `2026-09-07-system-audit`, decision **D30**). It is **mounted** in `provider`, the sanctioned single app-root wrapper, and read in exactly ONE registry item: `provider` itself, where `useVegaStackTheme` is a thin wrapper over its `useTheme()`. Batch 4 of the shadcn reset briefly added a second reader, `sonner`, which needed the resolved theme to pick its own engine colour scheme; that component was retired on 2026-09-22 (OVL-10). `toast`, the Base UI surface, reads nothing — it inherits from the cascade — so a swap changes one file.
+- **Notification engine — none; Toast IS the engine** (OVL-10, MK 2026-09-22). Upstream ships both `toast` (Base UI) and `sonner`, and Batch 4 of the shadcn reset shipped both. `sonner` is now retired: the registry item, the docs page and the `sonner` dependency are gone, upstream's `dashboard-01` block fires our own manager, and the name is recorded in `packages/ui/upstream/excluded.json`. One toaster, one live region, one imperative API. A second notification engine is a new MK decision, not a reinstatement.
 - **Measurement engine** — `@tanstack/react-virtual` (same D1/D2 sign-off): windowing maths for `data-grid`'s `virtualize` flag. It measures; it owns no interaction.
 - **Renderer / behavior engines** — `react-resizable-panels`, `recharts` (^3.10.1 — upstream pins `3.8.0` exactly; Batch 6 of the shadcn reset reconciled rather than downgraded, because 3.10.1 is the same major, is what `chart.tsx`'s focus behaviour was measured against, and satisfies upstream's range), `motion`, `tiptap`, and `react-markdown` (^10.1.0) with `remark-gfm` (^4.0.1) — the markdown parser behind `markdown-view`, which turns a markdown string into a React tree through a components map we own, and touches neither interaction semantics nor focus (imported by exactly one file, `packages/ui/registry/ui/markdown-view.tsx`; `rehype-raw` is deliberately absent, so no raw HTML is executed). Approved by MK 2026-09-09. Each is named per-component in `packages/ui/registry.json`. These render or animate; they do not own interaction semantics, which is why they are a narrower class than the primitive exception above. Nothing else joins this list by pointing at one of these as a precedent — a new entry is a new MK decision.
 
@@ -116,11 +116,28 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
 - **Size, radius, shadow, z-index, alpha, opacity are plain Tailwind** — `h-8`, `size-4`,
   `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. Radius derives from one
   `--radius` (0.625rem) exactly as upstream derives it. The `--size-*`, `--icon-*`, `--panel-width-*`,
-  `--z-*`, `--alpha-*`, `--opacity-*` and `--shadow-overlay` families are deleted.
-- **Type is Tailwind's stock scale** — `text-sm` is 14px, `text-base` is 16px, everywhere, including
-  the docs shell. The role utilities (`text-h1`…`h4`, `text-label*`, `text-code*`,
-  `text-mono-label`, `text-display-*`) and the 400/500 weight ladder are gone: `font-semibold`,
-  `tracking-tight` and `text-4xl` are ordinary utilities. Fonts stay Geist (TYP-10).
+  `--z-*`, `--alpha-*`, `--opacity-*` and `--shadow-overlay` families are deleted. **`z-50` is the
+  single overlay band and DOM order decides within it, with exactly ONE sanctioned exception**
+  (OVL-15, MK 2026-09-22): the Toast viewport and `ToastPositioner` sit at `z-60`, because the
+  viewport mounts with the provider before any dialog exists, so DOM order cannot put a toast above
+  a scrim it predates. `packages/ui/test/stacking.browser.test.tsx` pins both bands and the hit test
+  that proves the ordering; a second `z-60` anywhere is a new MK decision, not a precedent to copy.
+- **Type SIZES are Tailwind's stock scale; the METRICS on top of them are ours and global** — a
+  `text-sm` is 14px and `text-base` 16px everywhere, including the docs shell, and the role
+  utilities (`text-h1`…`h4`, `text-label*`, `text-code*`, `text-mono-label`, `text-display-*`) and
+  the 400/500 weight ladder are gone, so `font-semibold` and `text-4xl` are ordinary utilities.
+  **`tracking-tight` is NOT** (TYP-15, MK 2026-09-22): the `@theme` bridge declares per-size
+  `--text-*--line-height` and `--text-*--letter-spacing` for the heading tier (`text-lg` and up,
+  −0.012em at 18px to −0.06em at 72px) and holds the copy tier at zero, which is Geist's own
+  copy/heading split. A local `tracking-*` beats the ramp through `var(--tw-tracking, …)`, so
+  `design-lint`'s `raw-tracking` rejects every spelling but `tracking-widest` (the keyboard-shortcut
+  hint), and `arbitrary-text-size` rejects `text-[13px]`, which can receive neither half of the
+  ramp. **No uppercase** (TYP-7 = shadcn, `uppercase-transform`): sentence case everywhere, and a
+  CSS transform is banned outright because it rewrites what it is handed — it once rendered the
+  token name `--text-lg` as `--TEXT-LG`. `body` carries a declared 14px default (never on `html`,
+  which would rescale every rem and override the reader's preference) and
+  `-webkit-font-smoothing: antialiased`; the docs shell keeps 16px prose. Fonts stay Geist (TYP-10),
+  and mono is for code — a label or a sentence is `font-sans`.
 - **Motion pairs nothing** — `transition-all`, `transition-colors`, `duration-100` and `ease-in-out`
   are upstream's vocabulary and are legal. Our `duration-fast|base|slow` and
   `ease-standard|emphasized|exit|spring` tokens remain for the keyed-presence and docked utilities
@@ -213,7 +230,7 @@ packages/design-tokens/  zero-dep DTCG token contract (theme/base/utilities CSS 
 packages/design/         cn() · icon runtime · Tailwind preset · vegastack-design CLI · shipped public skills
 vendor/shadcn/4.21.0/    PRISTINE pinned upstream — never hand-edited, hashed in its own manifest.json
 packages/ui/             PRIVATE registry workspace — canonical sources, tests, contracts, registry.json
-packages/ui/upstream/    patches/<name>.patch · decisions.json · exception-map.json · ours.json · retired.json
+packages/ui/upstream/    patches/<name>.patch · decisions.json · exception-map.json · ours.json · excluded.json
 apps/docs/               Fumadocs showcase, guides, and the registry host (public/r)
 tooling/                 verify.mjs (the one command) · upstream/ (pull · diff · parity · variant coverage) · workspace-clean.mjs · registry hashing · design-lint · test/ (the `tooling` vitest project) · runner/ (enrol a Debian box)
 skills/                  internal/ maintainer skills (never published) · public/ mirrored into @vegastack/design
@@ -230,7 +247,7 @@ docs/                    requirements · gap analysis · plans · ledgers · res
 <!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
 
 - **Registry items: 690** — 110 components · 467 animated icons · 11 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`) · 32 blocks · 68 chart blocks · 2 libs (`geo-data`, `drag-item`)
-- Contract SHA-256: `e477d1322bae90f8c90a5beaf93aa4ce73aa420db907bad777a7bc961a76aa09`
+- Contract SHA-256: `54c26f81449cd33d424be2996fdd477ea41982ec55ee1389e4b5adf1ddfc903d`
 
 <!-- NUMBERS:END -->
 

@@ -1,4 +1,4 @@
-// @vegastack number-field@0.11.3 sha256-phO6WZ/YSiUZO3Zp9pKefueK/eChN6PzK2a/fldf0ic=
+// @vegastack number-field@0.11.3 sha256-zExBUsfUXUobrGZzJ0AxVxCcDXOjDxb7i/6RDo43TCg=
 
 "use client";
 
@@ -211,7 +211,11 @@ export function NumberField({
         aria-label={ariaLabel}
         aria-invalid={ariaInvalid}
         placeholder={placeholder}
-        className={inputClassName}
+        // TYP-10 (ours) — tabular figures. This control formats its value through
+        // `Intl.NumberFormat`, so without fixed-width digits the text reflows on every step,
+        // every keystroke and every blur-reformat: hold the increment stepper and the number
+        // visibly jitters. `cn` keeps `inputClassName` able to override it.
+        className={cn("tabular-nums", inputClassName)}
       />
       {suffix == null ? null : (
         <InputGroupAddon

@@ -60,7 +60,6 @@
     "react-resizable-panels": "^4.12.3",
     "recharts": "^3.10.1",
     "remark-gfm": "^4.0.1",
-    "sonner": "^2.0.8",
     "thesvg": "^3.3.3"
   },
   "peerDependencies": {

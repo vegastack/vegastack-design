@@ -95,6 +95,9 @@ export function LiteralRules(_props: RenderlessProps) {
   return <>
     <div className="flex truncate">Truncation</div>
     <div className="bg-[#ff0000] text-red-500">Off-system colour</div>
+    <div className="text-4xl tracking-tight">TYP-15: the ramp owns heading tracking; a local utility silently wins through var(--tw-tracking)</div>
+    <div className="text-[13px]">TYP-18: an arbitrary size receives neither half of the ramp</div>
+    <div className="uppercase">TYP-7: no uppercase transform; it also rewrites token names</div>
     <svg viewBox="0 0 16 16"><path d="M0 0" /></svg>
   </>;
 }
@@ -110,6 +113,7 @@ export function LiteralRules(_props: RenderlessProps) {
     <div className="rounded-md motion-reduce:transition-none">Restated reduced motion</div>
     <div className="flex  items-center ">Whitespace</div>
     <div className="${Array.from({ length: 11 }, (_, i) => `[&_p${i}]:hidden [&_[data-slot=part-${i}]]:hidden`).join(" ")}">Reaching in</div>
+    <div>{new Intl.NumberFormat("en-US").format(1234)}</div>
   </>;
 }
 `,
@@ -120,6 +124,11 @@ export function LiteralRules(_props: RenderlessProps) {
     "restated-motion-reduce",
     "class-whitespace",
     "descendant-override-density",
+    // TYP-10 (MK 2026-09-22). The decision has been **ours** since the reset and had no gate at
+    // all for four days, which is how `number-field` shipped an `Intl.NumberFormat` value with
+    // proportional digits that visibly jittered on every stepper press. Its trigger is a numeric
+    // FORMATTER rather than a class, so it specimen-tests here rather than with the class rules.
+    "tabular-figures",
   ];
   const missingVocabulary = vocabularyIds.filter(
     (id) => !vocabulary.output.includes(`[${id}]`),
@@ -348,6 +357,14 @@ export function NamedByItsOwnChildren() {
     "inline-svg-icon",
     "hex-color",
     "raw-palette",
+    // TYP-15 / TYP-18 (MK 2026-09-22). Both rules exist to stop a component opting out of the
+    // global type ramp one utility at a time, and both are exactly the shape that rots silently:
+    // the ramp keeps working, so nothing LOOKS broken while a file quietly stops obeying it.
+    // `tabular-figures` is not listed here — its trigger is a numeric FORMATTER rather than a
+    // class, so it is specimen-tested in the token-vocabulary group instead.
+    "raw-tracking",
+    "arbitrary-text-size",
+    "uppercase-transform",
   ];
   const missing = requiredIds.filter(
     (id) => !invalid.output.includes(`[${id}]`),
@@ -384,11 +401,12 @@ export function Textarea(props: ComponentProps<'textarea'>) {
   return <><textarea {...props} />
     <div className="transition-all duration-100 ease-in-out" />{/* upstream's own motion vocabulary (MOT-2/MOT-3 = shadcn) */}
     <div className="rounded-xl shadow-md bg-muted/50 opacity-50" />{/* radius, shadow, raw alpha and raw opacity are upstream's (BRD-3/BRD-4/BRD-6, COL-20's ladder half) */}
-    <div className="h-[18.4px] rounded-[4px] p-[3px] text-[0.8rem]" />{/* upstream's own arbitrary values (DOC-10 = shadcn) */}
+    <div className="h-[18.4px] rounded-[4px] p-[3px]" />{/* upstream's own arbitrary values (DOC-10 = shadcn) — but NOT an arbitrary FONT SIZE, which TYP-18 rejects: it bypasses the --text-* namespace and so receives neither half of the ramp */}
     <div className="rounded-[min(var(--radius-md),10px)]" />{/* upstream's size-tier radius clamp */}
     <div className="bg-black/10 supports-backdrop-filter:backdrop-blur-xs" />{/* upstream's modal scrim (OVL-3 = shadcn) */}
     <div className="[&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-dot[stroke='#fff']]:stroke-transparent" />{/* a hex in an ATTRIBUTE-SELECTOR VALUE targets recharts' own default so a token can replace it — COL-20 enforced, not broken (Batch 6) */}
-    <div className="text-4xl font-semibold tracking-tight" />{/* off-scale size, heavy weight and raw tracking are upstream's (TYP-4/TYP-6/TYP-8) */}
+    <div className="text-4xl font-semibold" />{/* an upstream size step and a heavy weight are still upstream's (TYP-4/TYP-8 = shadcn). text-4xl now carries the ramp's own leading and -0.05em tracking, which is exactly why a LOCAL tracking utility beside it is rejected (TYP-15) */}
+    <div className="tracking-widest" />{/* the ONE sanctioned tracking: the keyboard-shortcut hint idiom, a role the ramp does not cover */}
     <div className="z-50 cursor-default" />{/* upstream's z band and its menu-item cursor (OVL-2/INT-10) */}
     <div className="bg-card hover:bg-muted" />{/* a hover with no pressed rung is upstream's norm (INT-4 = shadcn) */}
     <div className="outline-2 outline-offset-1 outline-ring focus:border-ring" />{/* the KEPT focus affordance: an outline and a text-entry border tint, never a ring */}

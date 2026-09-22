@@ -142,7 +142,7 @@ export function ColorPalette() {
 export function TypeScale() {
   return (
     <div className="not-prose my-6 space-y-4 rounded-lg border border-border bg-card p-6">
-      <p className="font-sans text-5xl font-semibold tracking-tight text-foreground">
+      <p className="font-sans text-5xl font-semibold text-foreground">
         Geist display — hero heading
       </p>
       <p className="font-sans text-2xl font-semibold text-foreground">
@@ -346,25 +346,34 @@ export function MotionSpecimen() {
  * The type ramp. One scale now — Tailwind's own — so a row simply wears the utility it names and
  * the specimen cannot drift from what a consumer gets.
  */
-const TYPE_STEPS: { token: string; px: string; note?: string }[] = [
-  { token: "text-7xl", px: "72 / 72", note: "display" },
-  { token: "text-6xl", px: "60 / 60", note: "display" },
-  { token: "text-5xl", px: "48 / 48", note: "display" },
-  { token: "text-4xl", px: "36 / 40" },
-  { token: "text-3xl", px: "30 / 36" },
-  { token: "text-2xl", px: "24 / 32" },
-  { token: "text-xl", px: "20 / 28" },
-  { token: "text-lg", px: "18 / 28" },
-  { token: "text-base", px: "16 / 24 · default body" },
-  { token: "text-sm", px: "14 / 20 · the control voice" },
-  { token: "text-xs", px: "12 / 16" },
-];
+// size / line-height / letter-spacing, as declared in the `@theme` bridge. The copy tier
+// (`text-base` and below) carries NO letter-spacing on purpose — that is Geist's own copy/heading
+// split, so those rows show a dash rather than a zero. Keep in sync with the ramp; the rows below
+// render live, so a wrong number here is visible next to the thing it describes.
+const TYPE_STEPS: { token: string; px: string; ls?: string; note?: string }[] =
+  [
+    { token: "text-7xl", px: "72 / 72", ls: "−0.06em", note: "display" },
+    { token: "text-6xl", px: "60 / 64", ls: "−0.06em", note: "display" },
+    { token: "text-5xl", px: "48 / 56", ls: "−0.06em", note: "display" },
+    { token: "text-4xl", px: "36 / 44", ls: "−0.05em" },
+    { token: "text-3xl", px: "30 / 38", ls: "−0.04em" },
+    { token: "text-2xl", px: "24 / 32", ls: "−0.04em" },
+    { token: "text-xl", px: "20 / 26", ls: "−0.02em" },
+    { token: "text-lg", px: "18 / 26", ls: "−0.012em" },
+    { token: "text-base", px: "16 / 24", note: "prose body" },
+    {
+      token: "text-sm",
+      px: "14 / 20",
+      note: "default body · the control voice",
+    },
+    { token: "text-xs", px: "12 / 16" },
+  ];
 
 /** Live type-ramp specimen. Every row wears the utility it names, so it reads the real value. */
 export function TypeScaleSizes() {
   return (
     <div className="not-prose my-6 divide-y divide-border rounded-lg border border-border">
-      {TYPE_STEPS.map(({ token, px, note }) => (
+      {TYPE_STEPS.map(({ token, px, ls, note }) => (
         <div
           key={token}
           className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3"
@@ -374,6 +383,7 @@ export function TypeScaleSizes() {
           </span>
           <span className="font-mono text-xs text-muted-foreground">
             {token} · {px}
+            {ls ? ` · ${ls}` : ""}
             {note ? ` · ${note}` : ""}
           </span>
         </div>

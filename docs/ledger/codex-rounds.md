@@ -707,3 +707,133 @@ needs-attention (1 high), root-fixed.
 The standards axis found no other defect. Static/type/registry/contract/distribution verification
 passed; the full Chromium audit passed 3,116 tests, while the full Firefox audit encountered one
 unrelated questionnaire failure before the focused SearchInput/FilterBar Firefox suite passed.
+
+## 2026-09-22 — adversarial review: typography ramp (TYP-15/16/17/18)
+
+**Scope:** the typography change across `packages/design-tokens`, `packages/design`, `packages/ui/registry`,
+`apps/docs`, `tooling/`, `skills/`. Excludes the concurrent `stepper` rebuild and toast/sonner
+consolidation living in the same working tree.
+
+**Verdict:** needs-attention at review time (3 high · 4 medium) — all resolved in the same round.
+
+The round's value was entirely in **stale prose that no gate reads**. Every deterministic gate was
+already green when the review started, so the green told us nothing about the findings below. Worth
+remembering: `skill-lint` passes on design-lint **rule-ID parity** only, so it is structurally
+incapable of catching a skill that describes a rule's SUBJECT wrongly.
+
+| #   | Finding                                                                                                                                                                                                                                                                             | Severity | Resolution                                                                                                                     |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | `AGENTS.md:120` — the rulebook stated "Type is Tailwind's stock scale … `tracking-tight` … are ordinary utilities", contradicting `design-lint`'s `raw-tracking`. AGENTS.md § Escalation says the enforcing script wins and the prose is fixed.                                     | high     | Bullet rewritten: sizes stock, metrics global, plus the three new rules and the `body` contract.                               |
+| 2   | `skills/public/vegastack-design-audit/SKILL.md:82` — **ships to consumers** inside `@vegastack/design` and listed `tracking-tight` under "Things that are NOT findings any more". A consuming agent auditing an app would have skipped a real violation.                            | high     | Removed from the list, with an explicit note that it left the list on 2026-09-22, plus the arbitrary-size and uppercase rules. |
+| 3   | `skills/internal/component/SKILL.md:143` — told the authoring agent `tracking-tight` is an ordinary utility, so a newly authored component would have failed lint.                                                                                                                  | high     | Rewritten: the metrics are not the component's to set.                                                                         |
+| 4   | `skills/public/vegastack-design-system/SKILL.md:94` — type row silent on the ramp and on case.                                                                                                                                                                                      | medium   | Row extended.                                                                                                                  |
+| 5   | `apps/docs/content/docs/foundations/typography.mdx` — the PUBLIC doctrine page still described the pre-reset system; its own frontmatter said "two-layer scale".                                                                                                                    | medium   | Rewritten with the ramp table, the `body` contract, and the case / mono-is-for-code rules.                                     |
+| 6   | `apps/docs/components/foundations.tsx` `TYPE_STEPS` — the live specimen rendered real text beside hardcoded labels stating the OLD line-heights (`text-5xl` labelled 48/48, shipping 48/56) and called `text-base` the "default body". A specimen lying about the thing it renders. | medium   | Corrected to the shipped ramp; now shows letter-spacing per step.                                                              |
+| 7   | `apps/docs/content/docs/components/code-block.mdx:34` and `guides/migrating-shadcn-reset.mdx:267`, `foundations/design-principles.mdx:40` — stale anatomy and doctrine prose.                                                                                                       | medium   | Corrected / annotated.                                                                                                         |
+
+**Also fixed, pre-existing and unrelated:** `apps/docs/components/home-system-trace.tsx` carried
+`font-mono font-mono` at three sites (present on HEAD). No rule catches a duplicated utility;
+`class-whitespace` only sees doubled SPACES.
+
+**Regression pressure checked (§5.9).** TYP-17 sets the default size on `body`; the browser lane
+imports `base.css`, so every fixture inherits it. `avatar.test.tsx` is the only test asserting a
+computed `fontSize`, and it compares against `document.documentElement` — untouched at 16px, because
+the rule is deliberately not on `html`. Rem-derived spacing (`--spacing`) resolves against the root
+and is likewise unaffected. No test asserts `lineHeight` or `letterSpacing`.
+
+**Verified, not assumed:** `registry:build` is idempotent across two consecutive runs; the ramp
+declares 8 steps in the bridge source and emits 8 in `dist/theme.css`; it reaches consumers through
+`@vegastack/design/theme.css` → `@vegastack/design-tokens/theme.css` and `preset.css` → `base.css`;
+and an exhaustive grep over 791 component files returns zero `tracking-tight|tighter|[…]`, zero
+arbitrary length font sizes, and zero `uppercase`.
+
+## 2026-09-22 — adversarial review of the toast consolidation (retire sonner)
+
+**Scope.** The working-tree changes of the toast/sonner round only — `packages/ui/registry/ui/toast.tsx`
+and its patch, `packages/ui/upstream/*`, `tooling/upstream/{lib,verify-parity}.mjs`, the toast tests,
+`apps/docs` toast page and previews, `AGENTS.md`, `design.md`, `README.md`, `skills/`. The concurrent
+stepper/multi-step-form/typography work in the same tree was explicitly out of scope.
+
+**Verdict:** `needs-attention (1 medium · 5 low)` at the start of the round; **0 high · 0 medium** at
+the end, all fixed at the root.
+
+| #   | Finding                                                                                                                                                                                                                                                                                | Severity | Resolution                                                                                                                                                                                                                                                                |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `apps/docs/components/preview/toast.tsx` — the Anchored fixture only rendered correctly because it passed `className="relative inset-auto"` to neutralise the corner-stack recipe. Undocumented, un-gated; any anchored composition built from the docs would be ~27px off its anchor. | medium   | Root fix: the stack recipe moved out of `toastVariants`' base into its `anchor` variant (`TOAST_STACK`) with a third value `none`, and `Toast` resolves it from `ToastAnchoredContext` that `ToastPositioner` provides. The preview needs no className. Mutation-checked. |
+| 2   | `design.md:739` — the canonical doctrine (truth hierarchy #4) still named `packages/ui/upstream/retired.json`, renamed to `excluded.json` this round. `design:sync:check` passes on tokens and recipes, so it could not see a stale filename in prose.                                 | low      | Rewritten to name `excluded.json` and to state both cases it now covers; `pnpm design:sync` regenerated `apps/docs/public/design.md`.                                                                                                                                     |
+| 3   | `skills/internal/review/SKILL.md:83` — the review skill itself told a reviewing agent that parity checks "a name in `retired.json`". The document an agent loads to learn the gate named a file that no longer exists.                                                                 | low      | Renamed.                                                                                                                                                                                                                                                                  |
+| 4   | `README.md:32` — repo map named `retired.json`.                                                                                                                                                                                                                                        | low      | Renamed.                                                                                                                                                                                                                                                                  |
+| 5   | `packages/ui/upstream/exception-map.json` `_note` — asserted in the present tense that "`spinner`, `toast` and `sonner` each carry a one-import hunk under [ICO-8]". A correction had been APPENDED later in the same note, so the file contradicted itself.                           | low      | The sentence itself corrected in place, not only appended to.                                                                                                                                                                                                             |
+| 6   | `tooling/design-lint.mjs:952` — same class: a gate's own comment claimed byte parity "already holds `spinner`, `toast` and `sonner` to the ICO-8 hunks in their patches". Sonner has no patch and no file.                                                                             | low      | Corrected to past tense with the retirement date and ID.                                                                                                                                                                                                                  |
+
+**One finding raised and then withdrawn (§7).** The anchored preview measured as unanchored —
+positioner at `0,0` with an identity transform while its trigger sat at `left:167`. It was a
+measurement artifact: `ToastPositioner` runs floating-ui, which computes asynchronously, and the
+probe measured the frame it appeared. After settling, the positioner centres on the anchor to within
+2px. The finding was dropped — but it is why finding #1 was found, and why the new test polls for a
+non-`none` transform before measuring.
+
+**Fail-closed proofs run this round, not assumed.**
+
+- Removing the `excludedSet` subtraction from `verify-parity.mjs`'s local enforced set → `upstream:parity`
+  goes red (`sonner: upstream ships ui/sonner.tsx, but … is missing`). Removing it from `migrated()`
+  in `lib.mjs` → `upstream:variants` goes red (`sonner: no docs page`). The one-line gate change is
+  observably load-bearing in both of its two derivations, so it is not fail-open.
+- Making `Toast` ignore `ToastAnchoredContext` → the new anchoring test fails at 27px. With the fix
+  it is under 2px.
+- `registry:build` byte-identical across two consecutive runs.
+
+**Regression pressure checked (§5.9).** Moving the stack recipe from the cva base into the `anchor`
+variant means a `Toast` with no `anchor` prop and no positioner above it must still be stacked:
+`defaultVariants: { anchor: "bottom" }` keeps that, and the "raw parts compose the same surface by
+hand" test plus the two `--toast-dir` geometry tests cover both edges. `will-change-transform` and
+the `z-[calc(1000-…)]` band left the base with the rest of the stack, which is correct — an anchored
+toast takes the positioner's `z-60` instead.
+
+**Coverage added.** `test/stacking.browser.test.tsx` gained three measured tests the class-name
+assertions in the unit lane structurally cannot make: the two `--toast-dir` peek-direction proofs,
+and the anchored placement proof.
+
+## 2026-09-22 — pre-release round: the three concurrent work streams as one release
+
+**Scope:** the whole uncommitted working tree on `main` — the typography ramp (TYP-15/16/17/18), the
+Stepper rebuild plus new `multi-step-form`, and the toast consolidation that retires `sonner`
+(OVL-10/OVL-15/COL-23) — reviewed together as the release they will ship as, by a session that wrote
+none of them. Each stream had already self-reviewed; this round deliberately looked only at what a
+single-stream review structurally cannot see: the seams between them, and whether the release is
+complete.
+
+**Verdict:** needs-attention at review time (2 high · 1 medium · 1 low) — all four fixed in this
+round, `pnpm verify` green afterwards.
+
+| #   | Finding                                                                                                                                                                                                                                                                                                                                         | Severity | Resolution                                                                                                                       |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `tooling/test/registry-integrity.test.mjs:80` — the negative harness proved its restoration with `git diff --quiet -- apps/docs/public/r/button.json`, which asserts the file matches **HEAD**, not that the restore worked. TYP-18 legitimately changes `button.json`, so `pnpm verify` failed at `lint` on the release branch. See `bugs.md`. | high     | Assert against the bytes the test itself captured: `readFileSync(ITEM).equals(original)`. The tamper proof is untouched.         |
+| 2   | No changeset bumped `@vegastack/design`, yet the branch changes `packages/design/src/prose.ts` — a **public export** — and the `skills/` tree that ships inside that package. `changeset version` would have published `ui` and `design-tokens` and left `design` at 0.6.1. See `bugs.md`.                                                      | high     | `"@vegastack/design": patch` added to `.changeset/geist-typography-ramp.md`, the changeset that already describes the prose fix. |
+| 3   | `AGENTS.md:117` — § Build rules still read "z-index … are plain Tailwind — `z-50`" with no exception, while OVL-15 had just put the Toast viewport and `ToastPositioner` at `z-60`. An agent working from the rulebook would read the shipped code as a violation and "fix" it back, reintroducing the toast-behind-the-scrim bug.              | medium   | Bullet extended to name the one sanctioned exception, why DOM order cannot substitute for it, and the test that pins it.         |
+| 4   | `packages/ui/upstream/decisions.json` `_source` — said "173 rows" beside `counts.total: 179`, and named none of the six rows added on 2026-09-22 nor the OVL-10 flip. `--sync-decisions` spreads `...current`, so the field is hand-maintained prose inside a generated file and no gate reads it.                                              | low      | Rewritten to 179 rows, naming TYP-15/16/17/18, OVL-15, COL-23 and the flip — the only row whose resolution has ever changed.     |
+
+**What the green told us, and what it did not.** Findings 2, 3 and 4 are invisible to every gate in
+the repository, and that is structural rather than an oversight: no gate reads the changeset set
+against the diff, no gate reads AGENTS.md prose against the code, and `--sync-decisions` preserves
+`_source` by construction. Finding 1 is the opposite case and the more interesting one — a gate that
+was **red for a reason unrelated to its subject**, and whose red would have been read as "the
+release is broken".
+
+**Verified by execution, not by reading.** `pnpm verify` green (96 files · 1613 tests, the affected
+selection including `multi-step-form`, `stepper`, `toast`, `toast-manager-binding`, all 31 blocks and
+the geometry, contrast, accessible-name and stacking lanes). `design-lint` clean on all three roots.
+`upstream:check` (61 migrated components, full variant coverage) and `upstream:selftest` (17 + 10
+claims observed) green. `registry:build` and `design:derived` both idempotent against a dirty tree.
+`--sync-decisions` reproduces `decisions.json` byte-for-byte from MK's prose register.
+
+**Cross-stream seams checked specifically.** `sonner` survives only in prose that explains its
+retirement plus the pinned `vendor/` tree; it is gone from every workspace `package.json`, the
+lockfile, the docs nav and `dashboard-01`, which now fires our own manager. `z-60` appears in exactly
+two places in `toast.tsx` and nowhere else in the registry. `blockedReason` survives only in the
+header that records its removal. `multi-step-form` enters the contract at `since: 0.12.0`, which is
+what the four pending minors produce from `@vegastack/ui@0.11.3`; component count holds at 110
+(−`sonner`, +`multi-step-form`) and registry items at 690, both reconciled live.
+
+**No prior-round finding was re-raised.** The typography round's seven and the toast round's set all
+remain fixed.

@@ -58,11 +58,11 @@ export default defineConfig({
       "@shadcn/react/message-scroller",
       "@shadcn/react/questionnaire",
       "@base-ui/react/input",
-      // The three engines Batches 3-5 adopted. Same rationale as everything else here: discovered
+      // The engines Batches 3-5 adopted. Same rationale as everything else here: discovered
       // mid-run, Vite re-optimizes, reloads the page and splits React module identity.
+      // `sonner` was the third; it left with the component on 2026-09-22 (OVL-10).
       "input-otp",
       "cmdk",
-      "sonner",
       "@base-ui/react/dialog",
       "@base-ui/react/alert-dialog",
       // Sheet runs on Drawer (audit D15). Without pre-bundling it, Vite discovers the subpath

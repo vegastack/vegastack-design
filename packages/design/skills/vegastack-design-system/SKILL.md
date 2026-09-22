@@ -83,20 +83,20 @@ info`, each an ink on the `card` surface with a required icon; **`announcement-b
 Semantic CSS custom properties from `@vegastack/design-tokens/theme.css` (OKLCH, `:root` + `.dark`),
 on shadcn's `neutral` base. Always use the utility, never a raw value.
 
-| Role     | Utilities                                                                                                                             |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Surface  | `bg-background` (page) · `bg-card` · `bg-popover` · `bg-sidebar`                                                                      |
-| Fill     | `bg-primary` (solid action, every checked control) · `bg-secondary` (soft) · `bg-muted` (well, track, skeleton) · `bg-accent` (hover) |
-| Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                               |
-| Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)     |
-| Border   | `border-border` · `border-input` — there are no rings; focus is one global outline                                                    |
-| Radius   | `rounded-{sm,md,lg,xl,2xl}` — all derived from the single `--radius`                                                                  |
-| Type     | Tailwind's own `text-{xs…7xl}`. `text-sm` is 14px, `text-base` is 16px                                                                |
-| Font     | `font-sans` `font-mono` `font-serif` `font-heading`                                                                                   |
-| Motion   | `duration-{fast,base,slow}` · `ease-{standard,emphasized,exit,spring}` — or Tailwind's own steps                                      |
-| Entrance | `motion-pop-in` `motion-enter-up` `motion-shake` `motion-flash`                                                                       |
-| Docked   | `motion-dock-in` / `motion-dock-out` — a control parked at a viewport edge, 150ms in / 100ms out                                      |
-| Prose    | `proseClassName` from `@vegastack/design` — the whole rendered-rich-text recipe, one class                                            |
+| Role     | Utilities                                                                                                                                                                                                           |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Surface  | `bg-background` (page) · `bg-card` · `bg-popover` · `bg-sidebar`                                                                                                                                                    |
+| Fill     | `bg-primary` (solid action, every checked control) · `bg-secondary` (soft) · `bg-muted` (well, track, skeleton) · `bg-accent` (hover)                                                                               |
+| Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                                                                                                             |
+| Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)                                                                                   |
+| Border   | `border-border` · `border-input` — there are no rings; focus is one global outline                                                                                                                                  |
+| Radius   | `rounded-{sm,md,lg,xl,2xl}` — all derived from the single `--radius`                                                                                                                                                |
+| Type     | Tailwind's own `text-{xs…7xl}`. `text-sm` is 14px, `text-base` is 16px. Line-height and letter-spacing above `text-base` come from the theme — never write `tracking-*`, an arbitrary `text-[13px]`, or `uppercase` |
+| Font     | `font-sans` `font-mono` `font-serif` `font-heading`                                                                                                                                                                 |
+| Motion   | `duration-{fast,base,slow}` · `ease-{standard,emphasized,exit,spring}` — or Tailwind's own steps                                                                                                                    |
+| Entrance | `motion-pop-in` `motion-enter-up` `motion-shake` `motion-flash`                                                                                                                                                     |
+| Docked   | `motion-dock-in` / `motion-dock-out` — a control parked at a viewport edge, 150ms in / 100ms out                                                                                                                    |
+| Prose    | `proseClassName` from `@vegastack/design` — the whole rendered-rich-text recipe, one class                                                                                                                          |
 
 **Hover and pressed are written, not imported.** A component owns its own interaction chrome, the
 way shadcn writes it:

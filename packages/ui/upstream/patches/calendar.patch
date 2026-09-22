@@ -1,5 +1,5 @@
 # component: calendar
-# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-6
+# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-6, TYP-18
 # hunks:
 #   FOC-1, FOC-6: the focused day's `group-data-[focused=true]/day:border-ring`, `:ring-[3px]` and
 #     `:ring-ring/50` glow is removed. The day button is a real `<button>`, so the global
@@ -9,12 +9,15 @@
 #     `<select>` is `absolute inset-0` of that root, which upstream sizes from the caption's 20px
 #     line box — a 20px-tall pointer target. The dropdowns row is already `h-(--cell-size)`, so
 #     filling it costs no layout. This is the A11Y-2 audit the exception map asks for on `calendar`.
+#   TYP-18: the weekday and week-number labels' `text-[0.8rem]` becomes `text-xs` (12px). These
+#     are dense grid labels, not a control tier, so they go DOWN to the ramp's small step rather
+#     than up to `text-sm` as Button's and Toggle's `sm` tier does (MK, 2026-09-22).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/calendar.tsx b/calendar.tsx
-index ebd9871..136c44b 100644
+index ebd9871..6ecc19f 100644
 --- a/calendar.tsx
 +++ b/calendar.tsx
 @@ -1,16 +1,20 @@
@@ -122,8 +125,9 @@ index ebd9871..136c44b 100644
          month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
          weekdays: cn("flex", defaultClassNames.weekdays),
          weekday: cn(
-           "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none",
+-          "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none",
 -          defaultClassNames.weekday
++          "flex-1 rounded-(--cell-radius) text-xs font-normal text-muted-foreground select-none",
 +          defaultClassNames.weekday,
          ),
          week: cn("mt-2 flex w-full", defaultClassNames.week),
@@ -133,8 +137,9 @@ index ebd9871..136c44b 100644
 +          defaultClassNames.week_number_header,
          ),
          week_number: cn(
-           "text-[0.8rem] text-muted-foreground select-none",
+-          "text-[0.8rem] text-muted-foreground select-none",
 -          defaultClassNames.week_number
++          "text-xs text-muted-foreground select-none",
 +          defaultClassNames.week_number,
          ),
          day: cn(

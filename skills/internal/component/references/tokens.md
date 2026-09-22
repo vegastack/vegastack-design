@@ -102,8 +102,30 @@ derives it: `sm` 0.6x, `md` 0.8x, `lg` 1x, `xl` 1.4x, `2xl` 1.8x, `3xl` 2.2x, `4
 
 ## Type
 
-**Tailwind's stock scale, unremapped.** `text-sm` is 14px here, in a preview, in the docs shell and
-in a pasted shadcn snippet. `text-base` is 16px.
+**Stock SIZES; the metrics above the copy tier are ours.** `text-sm` is 14px here, in a preview, in
+the docs shell and in a pasted shadcn snippet. `text-base` is 16px. Sizes never move, so TYP-1 stays
+shadcn.
+
+What does move is line-height and letter-spacing, declared once in the `@theme inline` bridge and
+never in a component (TYP-15, MK 2026-09-22). Geist splits a COPY tier from a HEADING tier and so
+does this:
+
+- **`text-xs` / `text-sm` / `text-base` — untouched stock, zero letter-spacing.** Geist's `copy-*`
+  scale specifies exactly that, and nothing in the bridge declares them.
+- **`text-lg` and above — optical metrics.** Tracking runs −0.012em at 18px to −0.06em at 72px, and
+  leading is a designed ramp rather than Tailwind's stock ratios.
+
+**Never write your own `tracking-*`.** Tailwind compiles the ramp as
+`letter-spacing: var(--tw-tracking, <ramp value>)`, so a local utility silently wins and your
+component quietly stops obeying the global ramp; `design-lint`'s `raw-tracking` rejects it.
+`tracking-widest` is the single allowance, for the keyboard-shortcut hint idiom. **And never write
+an arbitrary size** (`text-[13px]`) — it bypasses the `--text-*` namespace and receives neither half
+of the ramp (`arbitrary-text-size`). Upstream's control ladder — `xs` (h-6) at 12px, `default` (h-8)
+at 14px — is real and is kept; its `sm` half-step resolves down onto the ramp.
+
+`body` carries a declared 14px default and `-webkit-font-smoothing: antialiased` (TYP-16/TYP-17), on
+`body` and never on `html`: `rem` resolves against the root, so an `html` size would rescale every
+token and override the reader's browser preference.
 
 There are no role utilities. Write the two or three stock utilities each one stood for:
 
@@ -120,9 +142,12 @@ There are no role utilities. Write the two or three stock utilities each one sto
 | `text-mono-label` | `font-mono text-xs`      |
 | `text-display-*`  | `text-4xl` … `text-7xl`  |
 
-`font-semibold`, `font-bold`, `tracking-*` and `text-4xl`+ are ordinary utilities: TYP-4, TYP-6 and
-TYP-8 are all decided as shadcn. Fonts are still Geist (TYP-10) through `font-sans`, `font-mono`,
-`font-serif` and `font-heading`.
+`font-semibold`, `font-bold` and `text-4xl`+ are ordinary utilities: TYP-4 and TYP-8 are decided as
+shadcn. `tracking-*` is NOT — TYP-6's "tracking is owned by roles" is gone, but TYP-15 puts tracking
+on the ramp instead, so it is owned globally rather than per component. Fonts are still Geist
+(TYP-10) through `font-sans`, `font-mono`, `font-serif` and `font-heading`, and TYP-10's other half
+is enforced now too: a component that formats a number through `Intl.NumberFormat` or `.toFixed(`
+must carry `tabular-nums` (`tabular-figures`).
 
 ## Size, spacing, z-index, shadow
 

@@ -36,8 +36,22 @@
  * <div className={cn(prose.root, prose.p, prose.code)} />
  */
 export const prose = {
-  /** The root's own ink and size — every rule below is relative to this. */
-  root: "text-sm text-foreground",
+  /**
+   * The root's own FAMILY, ink and size — every rule below is relative to this.
+   *
+   * `font-sans` is load-bearing and was missing. A prose root has to be self-describing, because
+   * neither of its two consumers sets a family of its own: `MarkdownView` and `TextEdit` both wear
+   * nothing but `proseClassName`. With no family declared here, prose inherited whatever surrounded
+   * it — drop either surface inside a mono container (`terminal-body` is one in this very
+   * registry, and a chat or log panel is the obvious consumer case) and the WHOLE tree went mono:
+   * headings, paragraphs, table cells, and the `1.` / `2.` markers of an ordered list, because
+   * `::marker` inherits font properties from its originating element.
+   *
+   * Geist Mono is now the exception the recipe names explicitly — `code`, `pre` and `pre code` —
+   * rather than something prose falls into by accident. A consumer who genuinely wants mono prose
+   * still says so on the root, where it reads as a decision.
+   */
+  root: "font-sans text-sm text-foreground",
 
   // Headings. `scroll-m-20` keeps an anchored heading clear of a sticky header; the weight is
   // `font-semibold`, the ordinary Tailwind weight upstream uses — Batch 1 of the shadcn reset

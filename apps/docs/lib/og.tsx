@@ -128,8 +128,6 @@ export function OGImage({
             padding: "10px 16px",
             fontSize: "22px",
             fontWeight: 600,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
             color: OG_MUTED,
           }}
         >

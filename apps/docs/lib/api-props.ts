@@ -61,7 +61,6 @@ import type {
 } from "@/components/ui/menubar";
 import type { PopoverContent } from "@/components/ui/popover";
 import type { Sheet, SheetContent } from "@/components/ui/sheet";
-import type { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import type { Toast, ToastAction, ToastViewport } from "@/components/ui/toast";
 import type {
   Avatar,
@@ -390,8 +389,6 @@ export type CommandDialogProps = React.ComponentProps<typeof CommandDialog>;
 export type ToastProps = React.ComponentProps<typeof Toast>;
 export type ToastViewportProps = React.ComponentProps<typeof ToastViewport>;
 export type ToastActionProps = React.ComponentProps<typeof ToastAction>;
-
-export type SonnerToasterProps = React.ComponentProps<typeof SonnerToaster>;
 
 export type TabsListProps = React.ComponentProps<typeof TabsList>;
 

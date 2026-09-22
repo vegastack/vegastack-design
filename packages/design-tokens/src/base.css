@@ -32,6 +32,28 @@
        UI's Quick Start ("Set up portals"). Consumers importing base.css get this for free; if you
        don't import base.css, add `isolation: isolate` to your app root yourself. */
     @apply bg-background text-foreground isolate;
+
+    /* TYP-17 (ours) — THE DECLARED DEFAULT BODY SIZE, 14px.
+       The component layer is 14px (`text-sm`, the dominant size by a wide margin), but nothing
+       used to declare a page default, so any text WITHOUT an explicit `text-*` class fell back to
+       the browser's 16px and a page mixed two sizes. 14px is the product-UI default Vercel's own
+       Geist copy scale is built around.
+
+       THIS IS DELIBERATELY ON `body`, NEVER ON `html`. `rem` resolves against the ROOT element, so
+       `html { font-size: 14px }` would silently rescale the entire system — `text-sm` (0.875rem)
+       would become 12.25px and every rem-based spacing token would shrink with it — and it would
+       override the reader's own browser font-size preference, which is a WCAG 1.4.4 failure. On
+       `body` the root stays 16px, every explicit `text-*` class is untouched, and only unclassed
+       text moves. */
+    font-size: var(--text-sm, 0.875rem);
+
+    /* TYP-16 (ours) — Geist is drawn for smoothed rendering. Without this the same weight renders
+       heavier and softer on macOS than the identical weight on Vercel's own site, which is a large
+       part of why the weight ladder read as "off" before the ramp existed. Upstream sets neither
+       property; Tailwind's preflight already handles `-webkit-text-size-adjust` and `tab-size`, so
+       those are not restated here. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;

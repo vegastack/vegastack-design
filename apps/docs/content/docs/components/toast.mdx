@@ -79,6 +79,50 @@ resolved value or the rejection.
 
 <ComponentPreview name="toastPromise" file="components/preview/toast.tsx" />
 
+### Position
+
+`Toaster` pins the stack to any of six logical corners (OVL-15). Inline names are logical, so
+`bottom-end` is bottom-right in an LTR document and bottom-left in an RTL one — one vocabulary, both
+directions. The stack's growth direction and its swipe direction follow the corner, so a toast
+always enters and leaves through the edge it is pinned to.
+
+```tsx
+<Toaster position="top-end" />
+```
+
+<ComponentPreview name="toastPosition" file="components/preview/toast.tsx" />
+
+### Anchored
+
+A toast does not have to live in the corner stack. `ToastPositioner` positions one against an
+element and `ToastArrow` points back at it, so a confirmation can appear beside the control that
+caused it (OVL-15). Compose the parts yourself and pass the anchor through `positionerProps` on
+`add()`, or — as here — straight to the positioner.
+
+<ComponentPreview name="toastAnchored" file="components/preview/toast.tsx" />
+
+### Custom
+
+A toast carrying `data.render` draws its own body and keeps everything around it: the surface, the
+stack, swipe-to-dismiss, `Escape` and the viewport's live region (OVL-15). Reach for it when a
+notification needs an avatar, a thumbnail or a second action — not to escape the toast contract.
+
+```tsx
+toast.add({
+  data: { render: () => <YourNotification /> },
+});
+```
+
+<ComponentPreview name="toastCustom" file="components/preview/toast.tsx" />
+
+### Update
+
+`toast.update(id, …)` rewrites a live toast in place and refreshes its auto-dismiss timer, so a
+long-running job can report progress through ONE toast instead of stacking three. Start it with
+`timeout: 0` so it waits for the result rather than expiring mid-flight.
+
+<ComponentPreview name="toastUpdate" file="components/preview/toast.tsx" />
+
 ## API Reference
 
 The manager is a function, not a component, so it has no prop table. `toast` is the module-scope
@@ -103,8 +147,14 @@ id. `close()` with no id closes the frontmost toast.
 <ApiTable path="lib/api-props.ts" name="ToastActionProps" />
 
 `Toaster` accepts everything Base UI's `Toast.Provider` accepts — `toastManager`, `limit`, `timeout`
-and `children`. `ToastProvider`, `ToastPortal`, `ToastContent`, `ToastTitle`, `ToastDescription` and
+and `children` — plus `position` (the six logical corners above, default `bottom-end`) and
+`swipeDirection`, which defaults to the stack's own block direction plus both inline directions. `ToastProvider`, `ToastPortal`, `ToastContent`, `ToastTitle`, `ToastDescription` and
 `ToastClose` add no props of their own; each accepts everything the Base UI part accepts.
+
+`useToastManager()` returns the live `toasts` array plus the same `add` / `close` / `update` /
+`promise` methods, for building your own list — that is how the Anchored example above composes
+`ToastPositioner` around each toast. To fire a toast you need no hook: the module-scope `toast`
+works anywhere, including outside React.
 
 ## Accessibility
 
@@ -119,10 +169,12 @@ and `children`. `ToastProvider`, `ToastPortal`, `ToastContent`, `ToastTitle`, `T
   its touch target clears the minimum without growing the visible control.
 - The toast surface portals out of its subtree, so the portal re-applies the theme scope (OVL-13) and
   a scoped or dark surface survives the move.
-- **A toast fired while a modal is open renders behind the scrim.** There is one `z-50` portal band
-  (OVL-2 resolves as shadcn), so DOM order decides, and the viewport mounts with the provider —
-  before any dialog. Raise the toast after the dialog closes, or mount your `<Toaster />` after it.
-  `test/stacking.browser.test.tsx` measures the behaviour rather than assuming it.
+- **A toast fired while a modal is open renders ABOVE the scrim.** The viewport sits in a `z-60`
+  band, one above the single `z-50` overlay band every other surface shares (OVL-15). It has to be a
+  band rather than DOM order: the viewport mounts with the provider, before any dialog exists, so
+  under one shared band the later portal — the dialog — would always cover it.
+  `test/stacking.browser.test.tsx` measures both halves, the computed bands and a real
+  `elementFromPoint` hit test, rather than assuming either.
 - The toast root takes the single global 2px `:focus-visible` outline — no ring, no halo (FOC-1,
   FOC-6).
 - **A `priority: "high"` toast leaves the tab order while it is hidden from assistive technology
@@ -140,8 +192,8 @@ and `children`. `ToastProvider`, `ToastPortal`, `ToastContent`, `ToastTitle`, `T
 ## Do / Don't
 
 <DoDont
-  do="Pick ONE notification engine for the app and mount only its toaster: Toast when you want the Base UI stack, its swipe-to-dismiss and the imperative manager on our own surface."
-  dont="Mount both Toast and Sonner. They are two engines for the same job, each with its own live region and its own fixed viewport, so together they announce twice and overlap on screen."
+  do="Mount exactly one `Toaster` at the app root — VegaStackProvider already does — and fire into the module-scope toast manager from anywhere, including outside React."
+  dont="Mount a second `Toaster`. Each one renders its own live region and its own fixed viewport, so two of them announce every toast twice and overlap in the same corner."
 />
 
 ## Deviations
@@ -168,9 +220,24 @@ focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outlin
   this policy asks for — `role="region"`, `aria-live="polite"`, rendered by `Toaster` whether or not
   a toast exists — and per-toast urgency is the manager's `priority: "high"`. Adding a second region
   would announce every toast twice. `toast.test.tsx` asserts the region's shape.
+- **OVL-15** — three additive extensions. `Toaster`/`ToastViewport` take a `position` prop (six
+  logical corners; `--toast-dir` carries the growth sign into every vertical term, so one set of
+  transforms serves a top- and a bottom-pinned stack, and the root's `anchor` variant flips the
+  parts that are not arithmetic). `ToastPositioner` and `ToastArrow` wrap the two Base UI parts
+  upstream wraps neither of; the corner-stack recipe moves into the `anchor` variant so a root
+  inside a positioner emits none of it, which `Toast` resolves from context rather than from a
+  prop — an anchored composition needs no className of its own. A toast carrying `data.render` owns its body. The viewport and the
+  positioner take a `z-60` band, one above the shared `z-50` overlay band — OVL-2 is untouched, and
+  `z-60` is plain Tailwind, so no `--z-*` token returns.
+- **COL-23** — `ToastDescription` gains `first:text-popover-foreground`. Base UI renders
+  `Toast.Title` as `null` when a toast has no title, so upstream's flat `text-muted-foreground`
+  painted a description-only toast's only line — its primary message — in the secondary ink. The
+  description leads only when no title rendered before it, which is exactly what `first:` tests; a
+  description under a title stays muted. Hierarchy, not contrast: `muted-foreground` on `popover`
+  passes AA on its own.
 - **ICO-8** — `ToastIcon`'s loading mark is `LoaderIcon` (lucide `loader`) in place of upstream's
   `Loader2Icon`, which is an alias of `LoaderCircle`. One loader shape across the system:
-  [`Spinner`](/docs/components/spinner), this icon, [Sonner](/docs/components/sonner)'s and
+  [`Spinner`](/docs/components/spinner), this icon and
   [`StatusIcon`](/docs/components/status-icon)'s `progress` are the same object spinning.
   `animate-spin` and `aria-hidden` are upstream's.
 - **DOC-2** — `cn` is imported from `@vegastack/design`; our npm layer owns `cn`.

@@ -430,6 +430,65 @@ test("Toaster color-contrast passes WCAG AA — dark theme", async () => {
   ).toEqual([]);
 });
 
+// ── COL-23: the first text line carries the default ink ────────────────────────────────────────
+// Base UI renders `Toast.Title` as `null` when a toast has no title, so upstream's flat
+// `text-muted-foreground` on the description paints a description-only toast's ONLY line — its
+// primary message — in the SECONDARY ink. `first:text-popover-foreground` restores the default ink
+// exactly when the description leads. This is the lane with compiled tokens, so it is the one that
+// can measure the inks rather than the class names (the unit lane asserts those).
+
+/** Mount the Toaster, fire one toast, and hand back its settled root. */
+async function settledToast(
+  options: Parameters<typeof toast.add>[0],
+  message: string,
+) {
+  await render(<Toaster />);
+  toast.add({ timeout: 0, ...options });
+  await expect
+    .poll(
+      () => {
+        const element = document.querySelector(
+          '[data-slot="toast"]',
+        ) as HTMLElement | null;
+        if (!element || !element.textContent?.includes(message)) return false;
+        return Number(getComputedStyle(element).opacity) >= 0.99;
+      },
+      { timeout: 3000 },
+    )
+    .toBe(true);
+  return document.querySelector('[data-slot="toast"]') as HTMLElement;
+}
+
+const inkOf = (root: HTMLElement, slot: string) =>
+  getComputedStyle(root.querySelector(`[data-slot="${slot}"]`) as HTMLElement)
+    .color;
+
+test("COL-23: a description-only toast renders in the DEFAULT ink", async () => {
+  const element = await settledToast(
+    { description: "Event has been created." },
+    "Event has been created.",
+  );
+  expect(element.querySelector('[data-slot="toast-title"]')).toBeNull();
+  // Compared against the surface's own ink rather than a literal colour, so it survives a retune.
+  expect(inkOf(element, "toast-description")).toBe(
+    getComputedStyle(element).color,
+  );
+  toast.close();
+});
+
+test("COL-23: a description BELOW a title renders in the muted ink", async () => {
+  const element = await settledToast(
+    { title: "Event created", description: "Sunday, December 3 at 9:00 AM" },
+    "Sunday, December 3 at 9:00 AM",
+  );
+  const title = inkOf(element, "toast-title");
+  const description = inkOf(element, "toast-description");
+  // The hierarchy the row is about: two lines, two inks, the title at full strength.
+  expect(title).toBe(getComputedStyle(element).color);
+  expect(description).not.toBe(title);
+  toast.close();
+});
+
 // ── TextEdit ───────────────────────────────────────────────────────────────────────────────────
 // The editor surface styles prose entirely with semantic tokens (text-foreground, the
 // text-muted-foreground blockquote/placeholder, bg-muted code). Render mixed content so the

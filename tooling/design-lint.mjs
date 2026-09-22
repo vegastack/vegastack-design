@@ -139,6 +139,63 @@ const RULES = [
     re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus-visible:ring-|\bfocus(?:-visible|-within)?:shadow-\[0_0_0_/g,
     msg: "focus ring glow (FOC-1/FOC-6): base.css owns the one `:focus-visible` outline — no ring-3, no ring-ring/NN, no focus-visible:ring-*, no focus 0 0 0 box-shadow ring",
   },
+  // TYP-15 — the ramp owns tracking; a component never restates it.
+  //
+  // NEGATIVE tracking is an optical correction that scales with size, and the `@theme inline`
+  // bridge owns it: per-size `--text-*--letter-spacing` for the heading tier (`text-lg` and up,
+  // −0.012em at 18px to −0.06em at 72px), with the COPY tier held at zero, which is Geist's own
+  // copy/heading split. A local `tracking-tight` either restates that or contradicts it, and
+  // because Tailwind compiles the ramp as `letter-spacing: var(--tw-tracking, <ramp value>)`, the
+  // local class SILENTLY WINS — one component quietly stops obeying the global ramp while
+  // everything still looks fine.
+  //
+  // POSITIVE tracking is banned too, and the reason is worth keeping. The first version of this
+  // rule allowed `tracking-wide`/`wider` after it flagged twelve uppercase mono eyebrows across
+  // the docs shell — a rationalisation of the pattern rather than a judgement about it. Those
+  // labels should not have been uppercase at all: `design.md` § Voice & content says sentence case
+  // for everything, and TYP-7 resolves as **shadcn**, whose answer to "uppercase is mono-only" is
+  // simply "no uppercase". Positive tracking exists to make uppercase legible; delete the
+  // uppercase and it has no remaining job. Both went (2026-09-22, MK).
+  //
+  // `tracking-widest` is the ONE allowance and it is not the same thing: the keyboard-shortcut
+  // hint (`⌘K`) in Command, Menubar, DropdownMenu and ContextMenu, where the spacing separates
+  // glyph keys rather than compensating for a case transform. It is upstream's own idiom in
+  // upstream's own four files.
+  {
+    id: "raw-tracking",
+    re: /\btracking-(?!widest\b)[a-z0-9[\]().-]+/g,
+    msg: "raw letter-spacing (TYP-15): the ramp in the @theme bridge owns tracking and a local `tracking-*` silently overrides it through `var(--tw-tracking, …)`. Only `tracking-widest` (the keyboard-shortcut hint idiom) is allowed — positive tracking existed to serve uppercase, and uppercase is gone",
+  },
+  // No uppercase. `design.md` § Voice & content: sentence case for EVERYTHING — buttons, headings,
+  // labels, body, toasts. TYP-7 resolves as **shadcn**, and upstream's column reads "No uppercase";
+  // the old `uppercase-mono` rule was deleted because upstream has none, not because the transform
+  // became free. Twelve `font-mono text-xs uppercase` eyebrows had survived across the docs shell
+  // regardless.
+  //
+  // Two of them were not a matter of taste at all: the home page rendered real CSS custom-property
+  // names through the transform, so `--text-lg` displayed as `--TEXT-LG` — a false identifier on a
+  // design-system docs site. That is the strongest argument against the utility. Where a string
+  // genuinely IS uppercase, write it uppercase; do not transform it in CSS, where it silently
+  // rewrites whatever it is handed.
+  {
+    id: "uppercase-transform",
+    re: /(?:^|[\s:"'])uppercase\b/g,
+    msg: "`uppercase` text transform (TYP-7 = shadcn; design.md § Voice & content is sentence case for everything). It also REWRITES its content, which turned token names like `--text-lg` into `--TEXT-LG`. If a string is uppercase, write it that way in the string",
+  },
+  // TYP-18 — no arbitrary font size.
+  //
+  // An arbitrary value bypasses the `--text-*` namespace entirely, so it can never receive the
+  // ramp's line-height or letter-spacing and it sits on no tier anyone can name. Upstream's three
+  // `text-[0.8rem]` sites are now on the ramp (`button`/`toggle` sm at `text-sm`, `calendar`'s
+  // dense grid labels at `text-xs`).
+  //
+  // Matches a LENGTH only, so `text-[var(--x)]`, `text-[#fff]` (the `hex-color` rule's job) and
+  // arbitrary colour values are not this rule's business.
+  {
+    id: "arbitrary-text-size",
+    re: /\btext-\[[0-9.]+(?:px|r?em|ch|ex|pt)\]/g,
+    msg: "arbitrary font size (TYP-18): an arbitrary value bypasses the --text-* namespace, so it receives neither the ramp's line-height nor its letter-spacing — use a ramp step",
+  },
 ];
 
 // Inline <svg> used as an icon is banned in component source — use a sanctioned lucide icon or the
@@ -892,8 +949,8 @@ for (const root of tokenCssRoots) {
       // reads the imported name rather than the local binding, and why an aliased
       // `import { LoaderCircle as Spin }` is caught too.
       //
-      // Byte parity already holds `spinner`, `toast` and `sonner` to the ICO-8 hunks in their
-      // patches: a re-pull that restored `Loader2Icon` there would fail `upstream:check` because
+      // Byte parity already holds `spinner` and `toast` to the ICO-8 hunks in their
+      // patches (`sonner` carried one too, until it was retired on 2026-09-22, OVL-10): a re-pull that restored `Loader2Icon` there would fail `upstream:check` because
       // the patch would stop applying. What parity CANNOT see is a NEW component — one of ours,
       // with no upstream counterpart and so no patch — reaching for `LoaderCircleIcon` because
       // that is what upstream writes everywhere. This is that gate, and it is the same shape as
@@ -906,6 +963,38 @@ for (const root of tokenCssRoots) {
       // the provenance check would skip it regardless; the scope makes the intent explicit. The
       // docs' own `spinnerCustomization` preview mounts `LoaderCircleIcon` deliberately, to show
       // what swapping the mark looks like, and previews are not registry source.
+      // TYP-10 — tabular figures on data.
+      //
+      // TYP-10 has been **ours** since the reset ("Geist Sans and Geist Mono; tabular figures on
+      // code and data") and had NO gate at all: `number-field` formatted through
+      // `Intl.NumberFormat` and shipped with proportional digits, so holding its stepper made the
+      // value visibly jitter as digit widths changed. A locked decision nothing observes is
+      // indistinguishable from one that cannot fail.
+      //
+      // THE SIGNAL IS DELIBERATELY NARROW. `Intl.NumberFormat` and `.toFixed(` format a NUMBER and
+      // nothing else. `.toLocaleString(` is excluded on purpose: `calendar` calls it with
+      // `{ month: "short" }` to produce a month NAME, so including it would have made the rule
+      // fire on a string — the kind of false positive that gets a gate switched off. Components
+      // that render digits through a fixed-width box (`pagination`'s `size="icon"` links) or that
+      // render no figure text at all (`slider`, which renders thumbs; `kbd`, which renders key
+      // glyphs) are not in scope, because there is no jitter to prevent.
+      //
+      // Per-column opt-in satisfies this: `data-grid` inherits `tabular-nums` from
+      // `columnCellClass` when a column declares `mono`, which is correct — not every column
+      // holds figures.
+      if (canonicalRegistryFile && /Intl\.NumberFormat|\.toFixed\(/.test(src)) {
+        if (!/\btabular-nums\b/.test(src)) {
+          const line =
+            src
+              .split("\n")
+              .findIndex((l) => /Intl\.NumberFormat|\.toFixed\(/.test(l)) + 1;
+          console.log(
+            `${file}:${line} [tabular-figures] formats a number (Intl.NumberFormat / toFixed) but nothing in this file carries \`tabular-nums\` (TYP-10): proportional digits change width as the value changes, so the figure jitters on every step, keystroke and reformat`,
+          );
+          violations++;
+        }
+      }
+
       if (canonicalRegistryFile) {
         const BANNED_LOADER = /^(?:Loader2|LoaderCircle)(?:Icon)?$/;
         for (const statement of sf.statements) {

@@ -1,5 +1,5 @@
 # component: button
-# decisions: A11Y-12, A11Y-13, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4
+# decisions: A11Y-12, A11Y-13, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18
 # hunks:
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50` is removed, along with the `aria-invalid` glow rings.
@@ -12,11 +12,17 @@
 #     real inline-flex box at `opacity-0` so width and accessible name both survive.
 #   A11Y-13: the `destructive` variant's tint takes `text-destructive-text`; upstream's
 #     `text-destructive` on its own `/10` measures 3.98:1 in light (MK, 2026-09-18).
+#   TYP-18: the `sm` tier's `text-[0.8rem]` (12.8px) becomes `text-xs` (12px). Upstream's ladder
+#     already scales type with control size — `xs` (h-6) is 12px, `default` (h-8) inherits 14px —
+#     and the `sm` tier reached for an arbitrary 12.8px only because Tailwind's ramp has no step
+#     between them. The LADDER IS KEPT (flattening `sm` up to 14px would delete a real signal and
+#     crowd an h-7 box); the half-step resolves down onto the ramp. Inventing a 13px step instead
+#     would re-open TYP-5's deleted type vocabulary (MK, 2026-09-22).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/button.tsx b/button.tsx
-index 1efb940..2312541 100644
+index 1efb940..2e6771d 100644
 --- a/button.tsx
 +++ b/button.tsx
 @@ -1,9 +1,11 @@
@@ -35,7 +41,7 @@ index 1efb940..2312541 100644
    {
      variants: {
        variant: {
-@@ -15,7 +17,7 @@ const buttonVariants = cva(
+@@ -15,14 +17,14 @@ const buttonVariants = cva(
          ghost:
            "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
          destructive:
@@ -44,6 +50,14 @@ index 1efb940..2312541 100644
          link: "text-primary underline-offset-4 hover:underline",
        },
        size: {
+         default:
+           "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
+         xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3",
+-        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
++        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
+         icon: "size-8",
+         "icon-xs":
 @@ -36,22 +38,55 @@ const buttonVariants = cva(
        variant: "default",
        size: "default",
