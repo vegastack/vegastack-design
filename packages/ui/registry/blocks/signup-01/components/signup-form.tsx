@@ -1,4 +1,4 @@
-// @vegastack signup-01@0.12.0 sha256-xuYYs7yKFwZPh6LF3FbwJBXA72fdb3F8P2v/Hw764rA=
+// @vegastack signup-01@0.12.1 sha256-yegUjb3Xx5a9+iYToQqd1u0WYp9fzShhbe/yqRkOzec=
 
 import { Button } from "@/components/ui/button";
 import {
