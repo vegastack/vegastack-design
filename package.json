@@ -26,7 +26,7 @@
     "upstream:check": "node tooling/upstream/pull.mjs --verify-integrity && node tooling/upstream/verify-parity.mjs && node tooling/upstream/verify-variant-coverage.mjs",
     "upstream:selftest": "node tooling/upstream/pull.mjs --self-test && node tooling/upstream/diff.mjs --self-test && node tooling/upstream/verify-parity.mjs --self-test && node tooling/upstream/verify-variant-coverage.mjs --self-test",
     "version-sync": "node tooling/version-sync.mjs",
-    "version-packages": "node tooling/changelog-assemble.mjs && changeset version && node tooling/version-sync.mjs && node tooling/sync-changelog.mjs",
+    "version-packages": "node tooling/changelog-assemble.mjs && changeset version && node tooling/version-sync.mjs && pnpm install --lockfile-only --ignore-scripts && node tooling/sync-changelog.mjs",
     "registry:verify-parity": "node tooling/verify-bin-parity.mjs",
     "registry:verify-headers": "node tooling/verify-headers.mjs",
     "registry:verify-consume": "node tooling/verify-shadcn-consume.mjs",
