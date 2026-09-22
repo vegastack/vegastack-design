@@ -1,4 +1,5 @@
 ---
+"@vegastack/ui": patch
 ---
 
 📚 The registry-auth banner no longer paints over the site header on a phone.
