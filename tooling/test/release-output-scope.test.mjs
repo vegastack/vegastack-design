@@ -43,6 +43,21 @@ function fixture() {
     "before\n<!-- NUMBERS:START -->\nold\n<!-- NUMBERS:END -->\nafter\n",
   );
   write("CHANGELOG.md", "old\n");
+  write(
+    "pnpm-lock.yaml",
+    [
+      "importers:",
+      "  packages/design:",
+      "    dependencies:",
+      "      '@vegastack/design-tokens':",
+      "        specifier: ^1.0.0",
+      "        version: link:../design-tokens",
+      "      lodash:",
+      "        specifier: ^4.17.0",
+      "        version: 4.17.21",
+      "",
+    ].join("\n"),
+  );
   git("add", ".");
   git("commit", "-qm", "base");
   return { cwd, write, git, base: String(git("rev-parse", "HEAD")).trim() };
@@ -117,5 +132,56 @@ it("rejects file-mode changes even when content is unchanged", () => {
   chmodSync(join(cwd, "packages/ui/registry/ui/button.tsx"), 0o755);
   expect(validateReleaseOutput({ base, cwd })).toEqual([
     "release may not change file modes: mode change 100644 => 100755 packages/ui/registry/ui/button.tsx",
+  ]);
+});
+
+it("accepts a lockfile refreshed only in its internal @vegastack ranges", () => {
+  // `version-sync` rewrites `@vegastack/design`'s range on the Version PR, and
+  // `version-packages` regenerates the lockfile so `--frozen-lockfile` still installs. That diff
+  // is legitimate release output (docs/ledger/bugs.md, 2026-09-22).
+  const { cwd, write, git, base } = fixture();
+  git("rm", "-q", ".changeset/a.md");
+  write(
+    "pnpm-lock.yaml",
+    [
+      "importers:",
+      "  packages/design:",
+      "    dependencies:",
+      "      '@vegastack/design-tokens':",
+      "        specifier: ^2.0.0",
+      "        version: link:../design-tokens",
+      "      lodash:",
+      "        specifier: ^4.17.0",
+      "        version: 4.17.21",
+      "",
+    ].join("\n"),
+  );
+  git("add", ".");
+  expect(validateReleaseOutput({ base, cwd })).toEqual([]);
+});
+
+it("rejects a lockfile that moved anything but its internal @vegastack ranges", () => {
+  // The lockfile is where a new runtime path could hide, so allowing it wholesale would have been
+  // the weakening. A third-party version that moves during a release is rejected.
+  const { cwd, write, git, base } = fixture();
+  git("rm", "-q", ".changeset/a.md");
+  write(
+    "pnpm-lock.yaml",
+    [
+      "importers:",
+      "  packages/design:",
+      "    dependencies:",
+      "      '@vegastack/design-tokens':",
+      "        specifier: ^2.0.0",
+      "        version: link:../design-tokens",
+      "      lodash:",
+      "        specifier: ^4.17.0",
+      "        version: 4.99.99",
+      "",
+    ].join("\n"),
+  );
+  git("add", ".");
+  expect(validateReleaseOutput({ base, cwd })).toEqual([
+    "pnpm-lock.yaml: release changed the lockfile beyond the internal @vegastack/* ranges",
   ]);
 });

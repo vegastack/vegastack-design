@@ -2906,3 +2906,32 @@ changed for any of these test repairs.
 - **Sweep.** `verify-shadcn-consume` already resolves `@vegastack/*` from local packs through its own
   sidecar registry, so it was never exposed. `verify-package-exports` was the only other gate that
   installs a first-party package from a manifest, and it is now aligned with it.
+
+## 2026-09-22 — the release scope guard had no opinion about the lockfile
+
+- **Symptom.** Third failure on the same Version Packages PR, immediately after the previous two
+  were fixed: `✗ pnpm-lock.yaml: not an allowed generated release output`.
+- **Root cause.** `verify-release-output-scope.mjs` is an allowlist — deliberately, because "a deny
+  list would let a new runtime path slip in" — and `pnpm-lock.yaml` was not on it, because until the
+  fix two entries above this one, `version-packages` never produced a lockfile change. The guard was
+  not wrong; it had simply never been told about an output that had just started existing.
+- **Systemic fix.** A `LOCKFILE_PATH` class with its own validation, in the shape every other class
+  in that file already has. It is **not** allowed wholesale the way the changelogs are: the lockfile
+  is the one release output where a new third-party dependency could hide, which is precisely the
+  threat the allowlist exists for. `normalizedLockfile()` neutralises the `specifier:`/`version:`
+  lines sitting under a `@vegastack/*` key — the same move `normalizedPackage()` already makes for
+  the manifests — and requires everything else to be byte-identical.
+- **Verified against the real artefact, not a fixture.** The actual before/after lockfiles of this
+  release differ by exactly one line (`specifier: ^0.5.0` → `^0.7.0`) and normalise equal; a
+  synthetic new third-party entry and a silently re-resolved third-party version both normalise
+  unequal. Two cases added to `tooling/test/release-output-scope.test.mjs`, the negative asserting
+  the exact error string.
+- **The generalisable rule.** **Widening an allowlist is a security decision, so the widening must
+  carry its own narrowing.** The lazy fix — adding `pnpm-lock.yaml` beside the changelogs — would
+  have passed this release and permanently blinded the guard to the one file best suited to hiding a
+  dependency swap. When a new output must be allowed, add the class AND the predicate that says what
+  about it is allowed to change.
+- **On the sequence.** Three failures, three fixes, one cause: 0.12.0 is the first release to move
+  `@vegastack/design-tokens` out of the range `@vegastack/design` pins, and every piece of the
+  pipeline downstream of that had never run against it. Dormant paths are not proven paths, and a
+  release is the worst time to discover the difference.
