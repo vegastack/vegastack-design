@@ -1,11 +1,15 @@
 # component: empty
-# decisions: DOC-2
+# decisions: DOC-2, TYP-15
 # hunks:
+#   TYP-15: the title's `tracking-tight` is dropped. TYP-15 puts the heading tier's optical
+#     tracking in the theme and holds the COPY tier at zero, which is Geist's own copy/heading
+#     split; this title is `text-sm` (14px), squarely in the copy tier, where negative tracking
+#     costs legibility and buys nothing. It was the only copy-tier tracking in the registry.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/empty.tsx b/empty.tsx
-index e11ce34..c95b851 100644
+index e11ce34..8652da7 100644
 --- a/empty.tsx
 +++ b/empty.tsx
 @@ -1,5 +1,5 @@
@@ -50,7 +54,7 @@ index e11ce34..c95b851 100644
  
  function EmptyMedia({
    className,
-@@ -51,7 +51,7 @@ function EmptyMedia({
+@@ -51,20 +51,17 @@ function EmptyMedia({
        className={cn(emptyMediaVariants({ variant, className }))}
        {...props}
      />
@@ -59,13 +63,14 @@ index e11ce34..c95b851 100644
  }
  
  function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
-@@ -60,11 +60,11 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
+   return (
+     <div
        data-slot="empty-title"
-       className={cn(
-         "font-heading text-sm font-medium tracking-tight",
+-      className={cn(
+-        "font-heading text-sm font-medium tracking-tight",
 -        className
-+        className,
-       )}
+-      )}
++      className={cn("font-heading text-sm font-medium", className)}
        {...props}
      />
 -  )
@@ -73,7 +78,7 @@ index e11ce34..c95b851 100644
  }
  
  function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
-@@ -73,11 +73,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
+@@ -73,11 +70,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
        data-slot="empty-description"
        className={cn(
          "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
@@ -87,7 +92,7 @@ index e11ce34..c95b851 100644
  }
  
  function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -86,11 +86,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -86,11 +83,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="empty-content"
        className={cn(
          "flex w-full max-w-sm min-w-0 flex-col items-center gap-2.5 text-sm text-balance",
@@ -101,7 +106,7 @@ index e11ce34..c95b851 100644
  }
  
  export {
-@@ -100,4 +100,4 @@ export {
+@@ -100,4 +97,4 @@ export {
    EmptyDescription,
    EmptyContent,
    EmptyMedia,

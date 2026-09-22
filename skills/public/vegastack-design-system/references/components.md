@@ -102,11 +102,12 @@ starts with `icon-` is a component and never an icon.
 - **`breadcrumb`** — A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.
 - **`command`** — A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
 - **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
+- **`multi-step-form`** — A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.
 - **`navigation-menu`** — A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.
 - **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
 - **`sidebar`** — A composable, themeable and customizable sidebar — a provider, a collapsible panel with header, content and footer, labelled groups, menu rows with actions, badges and submenus, a rail and a trigger.
-- **`stepper`** — A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.
+- **`stepper`** — A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.
 - **`tabs`** — A set of layered sections of content — known as tab panels — that are displayed one at a time.
 
 ## Feedback
@@ -116,7 +117,6 @@ starts with `icon-` is a component and never an icon.
 - **`progress`** — Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.
 - **`skeleton`** — A pulsing placeholder that reserves layout space while content loads.
-- **`sonner`** — The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.
 - **`spinner`** — An indeterminate loading indicator that inherits its host's ink.
 - **`toast`** — Brief, non-blocking notifications — a stacking Base UI Toast surface with typed icons, actions and promise toasts.
 

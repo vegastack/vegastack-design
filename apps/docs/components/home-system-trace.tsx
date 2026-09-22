@@ -78,15 +78,11 @@ function LayerHeader({
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-border pb-4">
       <div>
-        <p className="font-mono font-mono text-xs text-muted-foreground">
-          {index}
-        </p>
+        <p className="font-mono text-xs text-muted-foreground">{index}</p>
         <h3 className="mt-2 text-xl font-semibold text-foreground">{title}</h3>
       </div>
       {meta ? (
-        <span className="font-mono font-mono text-xs text-muted-foreground">
-          {meta}
-        </span>
+        <span className="font-mono text-xs text-muted-foreground">{meta}</span>
       ) : null}
     </div>
   );
@@ -119,7 +115,7 @@ function FoundationLayer({ trace }: { trace: Trace }) {
             <code className="min-w-0 truncate font-mono text-sm text-foreground">
               {token}
             </code>
-            <span className="shrink-0 font-mono font-mono text-xs text-muted-foreground">
+            <span className="shrink-0 font-mono text-xs text-muted-foreground">
               {value}
             </span>
           </div>

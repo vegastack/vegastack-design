@@ -23,8 +23,8 @@
   "expectedWaveCounts": {
     "Core controls": 23,
     "Forms/editing": 24,
-    "Navigation/layout": 16,
-    "Overlays": 15,
+    "Navigation/layout": 17,
+    "Overlays": 14,
     "Data display": 10,
     "Content/marketing": 13,
     "Shared internals": 2,
@@ -98,6 +98,7 @@
       "resizable",
       "scroll-area",
       "stepper",
+      "multi-step-form",
       "board",
       "aspect-ratio",
       "direction",
@@ -117,8 +118,7 @@
       "provider",
       "action-bar",
       "shortcut-overlay",
-      "drawer",
-      "sonner"
+      "drawer"
     ],
     "Data display": [
       "card",
@@ -16718,122 +16718,6 @@
       }
     },
     {
-      "name": "sonner",
-      "registryType": "registry:ui",
-      "title": "Sonner",
-      "summary": "The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.",
-      "status": "stable",
-      "since": "0.10.0",
-      "family": "feedback",
-      "wave": "Overlays",
-      "sourceFiles": ["packages/ui/registry/ui/sonner.tsx"],
-      "publicSymbols": [
-        {
-          "name": "Toaster",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sonner.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "type",
-            "values": [
-              "default",
-              "success",
-              "info",
-              "warning",
-              "error",
-              "loading"
-            ],
-            "evidence": "packages/ui/registry/ui/sonner.tsx: type prop"
-          }
-        ]
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no size dimension for this component."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "open", "closed", "expanded", "promise"],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "native-or-base-ui-semantics",
-            "browser-accessibility-test",
-            "keyboard-navigation"
-          ],
-          "evidence": "packages/ui/registry/ui/sonner.tsx + packages/ui/registry/ui/sonner.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": [
-            "default",
-            "success",
-            "info",
-            "warning",
-            "error",
-            "loading"
-          ],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [],
-        "rationale": "Upstream's own layout; no component-owned responsive branch."
-      },
-      "motion": {
-        "status": "observed",
-        "mechanisms": ["the sonner engine's own stack transitions"],
-        "reducedMotion": {
-          "status": "covered",
-          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
-        }
-      },
-      "engines": [
-        {
-          "package": "sonner",
-          "role": "toast stack and imperative notification engine"
-        },
-        {
-          "package": "next-themes",
-          "role": "resolved-theme source for the engine colour scheme"
-        }
-      ],
-      "docsSlug": "/docs/components/sonner",
-      "registryDependencies": [],
-      "npmDependencies": [
-        "sonner@^2.0.8",
-        "next-themes@^0.4.6",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.6.1",
-        "@vegastack/design-tokens@^0.5.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/sonner.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "sonner",
-      "dataAttributes": {}
-    },
-    {
       "name": "sortable-list",
       "registryType": "registry:ui",
       "title": "Sortable List",
@@ -17457,7 +17341,7 @@
       "name": "stepper",
       "registryType": "registry:ui",
       "title": "Stepper",
-      "summary": "A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
+      "summary": "A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.",
       "status": "stable",
       "since": "0.4.0",
       "family": "navigation",
@@ -17470,8 +17354,36 @@
           "source": "packages/ui/registry/ui/stepper.tsx",
           "ref": {
             "status": "observed",
-            "target": "ol",
+            "target": "div",
             "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "StepperCollapse",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StepperNode",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "StepperNodeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -17500,17 +17412,26 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "stepperNodeVariants",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
         "status": "observed",
-        "dimensions": ["orientation"],
-        "rationale": "horizontal | vertical — identical DOM and reading order, layout only."
+        "dimensions": ["orientation", "labelPosition", "state"],
+        "rationale": "orientation horizontal | vertical | auto (auto reads the step count against verticalFrom); labelPosition below | inline, horizontal only, one DOM via display:contents plus order-*; stepperNodeVariants keys the node on the step's own state."
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "status": "observed",
+        "dimensions": ["default", "sm"],
+        "rationale": "Upstream's size vocabulary — node and glyph scale; labels stay text-sm."
       },
       "states": {
         "behavior": {
@@ -17518,47 +17439,64 @@
           "values": [
             "complete",
             "current",
-            "upcoming",
+            "loading",
+            "warning",
             "error",
+            "skipped",
+            "upcoming",
             "disabled",
-            "gated",
-            "navigable"
+            "navigable",
+            "collapsed"
           ],
-          "evidence": "Per-step state prop; blockedReason renders and announces the gate; navigable turns completed steps into Buttons; focus moves to the new current label on change (never mount)."
+          "evidence": "Per-step state prop drives node, label ink and connector fill; navigable turns complete, skipped and error steps into Buttons; focus moves to the new current label on change (never mount), falling through to the summary when the rail is not laid out; a container query swaps the rail for a Progress summary."
         },
         "accessibility": {
           "status": "observed",
           "values": [
             "keyboard",
             "labeled",
-            "status-announcement",
-            "semantic-html"
+            "semantic-html",
+            "focus-management"
           ],
-          "evidence": "Labelled ol/li with aria-current=step (never role=tab); state carried by icon shape + sr-only text; polite live region for the blocked reason wireable via blockedReasonId."
+          "evidence": "Labelled ol/li with aria-current=step on the current or loading step (never role=tab); state carried by glyph plus sr-only text; the compact summary is a named progressbar; navigable steps are Buttons clearing the 24px touch floor."
         },
         "visual": {
           "status": "observed",
-          "values": ["complete", "current", "upcoming", "error", "disabled"],
-          "evidence": "StatusIcon tokens per state (current's glyph pinned to animate-none — position, not activity); ink vs muted labels; warning-text blocked reason; connector hairlines."
+          "values": [
+            "complete",
+            "current",
+            "loading",
+            "warning",
+            "error",
+            "skipped",
+            "upcoming",
+            "disabled",
+            "hover"
+          ],
+          "evidence": "Numbered node filled with primary for complete/current, warning and destructive fills for the two coloured states with their -text ink on the label (A11Y-13), dashed ring for skipped; connectors take bg-primary behind the flow and bg-border ahead of it."
         }
       },
       "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink", "grid-wrapping"],
-        "rationale": "Horizontal steps flex-1 with min-w-0 truncating labels; vertical keeps a fixed rail column."
+        "status": "observed",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "responsive-or-container-layout"
+        ],
+        "rationale": "Named @container/stepper: below `collapse` the rail is display:none and a Progress summary renders instead, so the behaviour follows the component's own box rather than the viewport. Horizontal steps flex-1 with min-w-0 and an inner truncating span."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "observed",
+        "mechanisms": ["transition-colors"],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed (the current glyph explicitly does not spin)."
+          "status": "inherited",
+          "rationale": "Node and connector colour transitions plus the loading glyph's animate-spin are collapsed by the global reduced-motion reset in base.css; the component restates nothing."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/stepper",
-      "registryDependencies": ["@vegastack/button", "@vegastack/status-icon"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
       "npmDependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.6.1",
         "@vegastack/design-tokens@^0.5.0"
       ],
@@ -17573,6 +17511,15 @@
       },
       "previewModule": "stepper",
       "dataAttributes": {
+        "StepperNode": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["stepper-node"]
+            }
+          ],
+          "cssVariables": []
+        },
         "Stepper": {
           "attributes": [
             {
@@ -17580,25 +17527,420 @@
               "values": [""]
             },
             {
+              "name": "data-label-position",
+              "values": []
+            },
+            {
               "name": "data-orientation",
+              "values": []
+            },
+            {
+              "name": "data-passed",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
               "values": []
             },
             {
               "name": "data-slot",
               "values": [
                 "stepper",
-                "stepper-blocked-reason",
                 "stepper-connector",
                 "stepper-content",
+                "stepper-count",
                 "stepper-description",
                 "stepper-label",
-                "stepper-node",
-                "stepper-step"
+                "stepper-list",
+                "stepper-node-rail",
+                "stepper-optional",
+                "stepper-step",
+                "stepper-summary",
+                "stepper-trigger"
               ]
             },
             {
               "name": "data-state",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "multi-step-form",
+      "registryType": "registry:ui",
+      "title": "Multi-Step Form",
+      "summary": "A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.",
+      "status": "stable",
+      "since": "0.12.0",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/multi-step-form.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MultiStepForm",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "MultiStepFormActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "MultiStepFormBack",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props, including ref, are spread onto the composed Button, which owns the rendered control."
+          }
+        },
+        {
+          "name": "MultiStepFormExit",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props, including ref, are spread onto the composed Button, which owns the rendered control."
+          }
+        },
+        {
+          "name": "MultiStepFormGuard",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MultiStepFormGuardContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MultiStepFormGuardResult",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MultiStepFormNav",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "MultiStepFormNavProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MultiStepFormNext",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props, including ref, are spread onto the composed Button, which owns the rendered control."
+          }
+        },
+        {
+          "name": "MultiStepFormProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MultiStepFormRefusal",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MultiStepFormSkip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props, including ref, are spread onto the composed Button, which owns the rendered control."
+          }
+        },
+        {
+          "name": "MultiStepFormStep",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "MultiStepFormStepProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MultiStepFormStepSpec",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": ["navVariant", "layout"],
+        "rationale": "MultiStepFormNav resolves to `stepper`, `section-list` or `drill-in` from one predicate — whether steps other than the current one are reachable — rather than from a prop; `layout` is flow | panel, where panel holds the nav and action row and makes the step body the one scrolling region for a dialog, sheet or drawer."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is inherited from the composed Stepper and Button."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "pending",
+            "refused",
+            "sealed",
+            "skipped",
+            "branching",
+            "restored",
+            "complete",
+            "dirty"
+          ],
+          "evidence": "Guards run before every move and may be async, holding the step in `loading` with a busy action and never advancing optimistically; a refusal keeps the flow in place; `lock` seals prior steps against Back, jumps and a forged hash; `when` removes a step from the rail, count and sequence; `persistKey` restores position and passed steps; the last step submits. `dirty` raises a confirmation before MultiStepFormExit leaves and attaches the browser's own beforeunload warning, both removed the moment it clears."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "focus-management"
+          ],
+          "evidence": "Exactly one focus move per transition, owned by Stepper and deliberately not duplicated; a failed check renders role=alert (assertive, post-mount, user-initiated) while a soft gate renders role=status; the forward action is described by whichever refusal is showing."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "loading",
+            "error",
+            "warning",
+            "skipped",
+            "disabled"
+          ],
+          "evidence": "Step states are projected onto Stepper's vocabulary; the hard refusal is an Alert on the destructive variant, the soft gate a warning-text line."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "A phone whose steps are reachable mounts a different tree — a section list and a drill-in header rather than the rail — which is the sanctioned use of useIsMobile; a phone whose steps are not reachable keeps the Stepper, which collapses itself through its own container query."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["keyed-presence"],
+        "reducedMotion": {
+          "status": "inherited",
+          "rationale": "Each step body mounts with `motion-enter-up`; the global reduced-motion reset in base.css collapses it and the component restates nothing."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/multi-step-form",
+      "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/alert-dialog",
+        "@vegastack/button",
+        "@vegastack/stepper",
+        "@vegastack/use-mobile"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.6.1",
+        "@vegastack/design-tokens@^0.5.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/multi-step-form.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "multi-step-form",
+      "dataAttributes": {
+        "MultiStepForm": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "multi-step-form",
+                "multi-step-form-exit-confirm",
+                "multi-step-form-exit-prompt"
+              ]
+            },
+            {
+              "name": "data-step",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MultiStepFormNav": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "multi-step-form-heading",
+                "multi-step-form-nav",
+                "multi-step-form-overview-trigger",
+                "multi-step-form-section",
+                "multi-step-form-section-trigger"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": ["drill-in", "section-list", "stepper"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MultiStepFormStep": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["multi-step-form-step"]
+            },
+            {
+              "name": "data-step",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MultiStepFormBack": {
+          "attributes": [
+            {
+              "name": "data-sealed",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["multi-step-form-back"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MultiStepFormNext": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["multi-step-form-next"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MultiStepFormSkip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["multi-step-form-skip"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MultiStepFormExit": {
+          "attributes": [
+            {
+              "name": "data-dirty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["multi-step-form-exit"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MultiStepFormActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "multi-step-form-action-row",
+                "multi-step-form-actions",
+                "multi-step-form-finish",
+                "multi-step-form-refusal"
+              ]
+            },
+            {
+              "name": "data-tone",
+              "values": ["error", "soft"]
+            },
+            {
+              "name": "data-variant",
+              "values": ["overview"]
             }
           ],
           "cssVariables": []
@@ -18889,6 +19231,16 @@
           }
         },
         {
+          "name": "ToastArrow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
           "name": "ToastClose",
           "kind": "component",
           "source": "packages/ui/registry/ui/toast.tsx",
@@ -18929,6 +19281,16 @@
           }
         },
         {
+          "name": "ToastPositioner",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
           "name": "ToastProvider",
           "kind": "component",
           "source": "packages/ui/registry/ui/toast.tsx",
@@ -18956,6 +19318,15 @@
             "status": "observed",
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ToastPosition",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -19096,8 +19467,30 @@
         "ToastViewport": {
           "attributes": [
             {
+              "name": "data-position",
+              "values": ["bottom-end"]
+            },
+            {
               "name": "data-slot",
               "values": ["toast-viewport"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastPositioner": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-positioner"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastArrow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-arrow"]
             }
           ],
           "cssVariables": []
@@ -24207,10 +24600,6 @@
         {
           "package": "recharts",
           "role": "chart renderer engine"
-        },
-        {
-          "package": "sonner",
-          "role": "toast stack the block calls imperatively"
         }
       ],
       "docsSlug": "/docs/blocks/dashboard-01",
@@ -24230,6 +24619,7 @@
         "@vegastack/sidebar",
         "@vegastack/table",
         "@vegastack/tabs",
+        "@vegastack/toast",
         "@vegastack/toggle-group",
         "@vegastack/use-mobile"
       ],
@@ -24241,7 +24631,6 @@
         "@tanstack/react-table@^9.2.4",
         "lucide-react@^1.47.0",
         "recharts@^3.10.1",
-        "sonner@^2.0.8",
         "zod@^4.5.4",
         "@vegastack/design-tokens@^0.5.0"
       ],

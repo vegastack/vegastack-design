@@ -1,4 +1,4 @@
-// @vegastack login-04@0.11.3 sha256-H4JzjNrGtqsaSCEDzbcdwU6XMbMb1Zr2e5Lzd/wEKJQ=
+// @vegastack login-04@0.11.3 sha256-aFvk3d9gdnsCggRk4W0cYUSMxW3BKbg0v44gVqRxpmk=
 
 import { cn } from "@vegastack/design";
 
@@ -28,7 +28,7 @@ export function LoginForm({
           <form className="p-6 md:p-8">
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <h1 className="text-2xl font-semibold">Welcome back</h1>
                 <p className="text-balance text-muted-foreground">
                   Login to your Acme Inc account
                 </p>

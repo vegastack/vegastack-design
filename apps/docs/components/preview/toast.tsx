@@ -1,10 +1,23 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/toast` (dogfoods the registry) → auto-scanned.
 import { Button } from "@/components/ui/button";
-import { Toaster, createToastManager } from "@/components/ui/toast";
+import {
+  Toast,
+  ToastArrow,
+  ToastContent,
+  ToastPortal,
+  ToastPositioner,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+  Toaster,
+  createToastManager,
+  useToastManager,
+  type ToastPosition,
+} from "@/components/ui/toast";
 
 /*
  * An app mounts ONE `<Toaster />` at its root and fires into the module-scope `toast` manager. A
@@ -16,6 +29,10 @@ const demoToast = createToastManager();
 const typesToast = createToastManager();
 const actionToast = createToastManager();
 const promiseToast = createToastManager();
+const positionToast = createToastManager();
+const anchoredToast = createToastManager();
+const customToast = createToastManager();
+const updateToast = createToastManager();
 
 export function toast(): ReactNode {
   function showToast() {
@@ -148,6 +165,168 @@ export function toastPromise(): ReactNode {
       <Toaster toastManager={promiseToast}>
         <Button variant="outline" onClick={showToast}>
           Create Event
+        </Button>
+      </Toaster>
+    </Wrapper>
+  );
+}
+
+const POSITIONS = [
+  "top-start",
+  "top-center",
+  "top-end",
+  "bottom-start",
+  "bottom-center",
+  "bottom-end",
+] as const satisfies readonly ToastPosition[];
+
+export function toastPosition(): ReactNode {
+  function Demo() {
+    const [position, setPosition] = useState<ToastPosition>("bottom-end");
+
+    return (
+      <Toaster toastManager={positionToast} position={position}>
+        {POSITIONS.map((corner) => (
+          <Button
+            key={corner}
+            variant={corner === position ? "default" : "outline"}
+            onClick={() => {
+              setPosition(corner);
+              positionToast.add({
+                title: "Event created",
+                description: `Pinned to ${corner}.`,
+              });
+            }}
+          >
+            {corner}
+          </Button>
+        ))}
+      </Toaster>
+    );
+  }
+
+  return (
+    <Wrapper>
+      <Demo />
+    </Wrapper>
+  );
+}
+
+export function toastAnchored(): ReactNode {
+  function AnchoredList({ anchor }: { anchor: Element | null }) {
+    const { toasts } = useToastManager();
+
+    return toasts.map((item) => (
+      // An anchored toast is not in the corner stack, so it sizes itself rather than filling a
+      // viewport — the width lives on the positioner. The root needs nothing: `Toast` reads the
+      // positioner from context and drops the stack recipe itself (OVL-15).
+      <ToastPositioner
+        key={item.id}
+        toast={item}
+        anchor={anchor}
+        side="top"
+        sideOffset={8}
+        className="w-56"
+      >
+        <Toast toast={item}>
+          <ToastContent>
+            <ToastTitle />
+          </ToastContent>
+          <ToastArrow />
+        </Toast>
+      </ToastPositioner>
+    ));
+  }
+
+  function Demo() {
+    const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
+
+    return (
+      <ToastProvider toastManager={anchoredToast}>
+        <Button
+          ref={setAnchor}
+          variant="outline"
+          onClick={() => anchoredToast.add({ title: "Copied to clipboard" })}
+        >
+          Copy link
+        </Button>
+        <ToastPortal>
+          <ToastViewport>
+            <AnchoredList anchor={anchor} />
+          </ToastViewport>
+        </ToastPortal>
+      </ToastProvider>
+    );
+  }
+
+  return (
+    <Wrapper>
+      <Demo />
+    </Wrapper>
+  );
+}
+
+export function toastCustom(): ReactNode {
+  function showToast() {
+    const id = customToast.add({
+      data: {
+        render: () => (
+          <div className="flex w-full items-center gap-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+              VS
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-sm font-medium">Ada Lovelace</span>
+              <span className="truncate text-sm text-muted-foreground">
+                Mentioned you in Analytics
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => customToast.close(id)}
+            >
+              Reply
+            </Button>
+          </div>
+        ),
+      },
+    });
+  }
+
+  return (
+    <Wrapper>
+      <Toaster toastManager={customToast}>
+        <Button variant="outline" onClick={showToast}>
+          Show notification
+        </Button>
+      </Toaster>
+    </Wrapper>
+  );
+}
+
+export function toastUpdate(): ReactNode {
+  function showToast() {
+    const id = updateToast.add({
+      type: "loading",
+      title: "Uploading report.pdf",
+      timeout: 0,
+    });
+    window.setTimeout(() => {
+      updateToast.update(id, {
+        type: "success",
+        title: "report.pdf uploaded",
+        description: "2.4 MB · Analytics",
+        timeout: 5000,
+      });
+    }, 1600);
+  }
+
+  return (
+    <Wrapper>
+      <Toaster toastManager={updateToast}>
+        <Button variant="outline" onClick={showToast}>
+          Upload file
         </Button>
       </Toaster>
     </Wrapper>

@@ -264,8 +264,17 @@ rewritten in upstream's own `destructive` shape.
 This is the change most likely to be invisible and wrong at the same time.
 
 **Before**, the token layer rebound Tailwind's `--text-*` scale onto a 14px product ladder. `text-sm`
-was 12px and `text-base` was 14px. **Now** Tailwind's stock scale is the scale, unmodified. Every
-`text-*` utility in your code got one step larger without you touching it.
+was 12px and `text-base` was 14px. **Now** Tailwind's stock scale is the scale: every `text-*`
+utility in your code got one step larger without you touching it.
+
+<Callout type="info">
+  The stock **sizes** are unmodified, but since 2026-09-22 the steps above
+  `text-base` also carry Geist's optical line-height and negative letter-spacing
+  from the theme (TYP-15). Sizes did not move again — only the metrics on top of
+  them — so nothing in this section changes. It does mean you should delete any
+  `tracking-*` you were using to compensate, and that `uppercase` is no longer
+  used anywhere in the system. See [Typography](/docs/foundations/typography).
+</Callout>
 
 | The class you wrote | Rendered before | Renders now | To keep the old size, write |
 | ------------------- | --------------- | ----------- | --------------------------- |
@@ -979,7 +988,11 @@ toast.add({
 });
 ```
 
-`Sonner` ships alongside `Toast` — upstream has both. Mount one, not both.
+Upstream ships both `Toast` and `Sonner`, and 0.10.0 shipped both. **`Sonner` has since been
+retired** (0.12.0): `Toast` is the one notification engine, so mount one `<Toaster />` from
+`@/components/ui/toast` and fire `toast.add()`. If you installed `@vegastack/sonner` your copy
+keeps working, but it no longer receives updates — the changelog entry for that release carries
+the call-shape map.
 
 ### 10.7 Overlays
 
@@ -1075,7 +1088,8 @@ Thirteen items arrive with this release and are worth knowing before you hand-ro
 
 `aspect-ratio` · `button-group` · `calendar` · `carousel` · `direction` · `drawer` · `input-group` ·
 `input-otp` · `menubar` · `native-select` · `questionnaire` · `sonner`, plus `panel-search`, an
-internal shared row installed as a dependency rather than picked from a list.
+internal shared row installed as a dependency rather than picked from a list. One of the thirteen,
+`sonner`, was retired again in 0.12.0 — do not reach for it; `toast` is the notification engine.
 
 **Blocks.** The registry now serves a hundred of them — upstream's Base UI blocks, 68 chart blocks,
 and four of ours (`app-shell-01`, `board-01`, `settings-01`, `onboarding-01`). A block is copy-once:

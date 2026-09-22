@@ -140,8 +140,12 @@ Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full voc
 - Sizes, radii, shadows, z-index, alpha and opacity are **plain Tailwind** now: `h-8`, `size-4`,
   `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The token families that used
   to own them are deleted.
-- Type is Tailwind's stock scale. `font-semibold`, `tracking-tight` and `text-4xl` are ordinary
-  utilities; the role tokens (`text-h1`, `text-label`, `text-code`, `text-mono-label`) are gone.
+- Type SIZES are Tailwind's stock scale and `font-semibold`/`text-4xl` are ordinary utilities; the
+  role tokens (`text-h1`, `text-label`, `text-code`, `text-mono-label`) are gone. **The metrics are
+  not yours to set**: the `@theme` bridge owns line-height and letter-spacing for `text-lg` and up
+  and holds the copy tier at zero, so never write `tracking-tight` (it beats the ramp through
+  `var(--tw-tracking, …)`), never write an arbitrary `text-[13px]`, and never use `uppercase` —
+  sentence case, always. Mono is for code; a label or a sentence is `font-sans`.
 - Motion pairs nothing: `transition-all duration-100 ease-in-out` is upstream's own vocabulary and
   is legal. Our `duration-fast`/`ease-standard` tokens remain for the `motion-*` utilities.
 
@@ -306,8 +310,9 @@ Contract for every new animated element:
   `aria-required-children`). Since Batch 4 of the shadcn reset, `command` is upstream's **cmdk**
   build, and cmdk ships NO live region at all: the palette mounts one `useAnnouncer` region and
   announces the filtered result count (A11Y-3/A11Y-4, `packages/ui/upstream/patches/command.patch`).
-  Upstream's `toast` and `sonner` need no such hunk — each engine already mounts one polite region
-  for the life of the toaster.
+  Upstream's `toast` needs no such hunk — Base UI's `Toast.Viewport` already IS one polite region,
+  mounted for the life of the toaster. (`sonner` carried the same exemption until it was retired
+  on 2026-09-22; Toast is now the only notification engine.)
 - **Live regions are polite by default; assertive is opt-in and rare (D23).** A region already in the
   DOM at page load announces nothing, so `role="status"` is free on a static surface — while
   `role="alert"` is ASSERTIVE and interrupts the screen reader mid-sentence. So a visible status

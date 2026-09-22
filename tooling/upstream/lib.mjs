@@ -66,11 +66,16 @@ export function migrated() {
   const dir = join(VENDOR, "ui");
   if (!existsSync(dir)) return new Set();
   const exempt = exemptUpstreamItems();
+  // …minus the names `excluded.json` says do not ship here. That file is the ONE way a name leaves
+  // the enforced set, and it never leaves quietly: rule 6 requires the component and its patch to
+  // be gone, and `component-contracts.json`'s expectedCounts — reconciled live inside
+  // `design:verify` — fails until the counts move with it.
+  const notShipped = excluded();
   return new Set(
     readdirSync(dir)
       .filter((file) => file.endsWith(".tsx"))
       .map((file) => file.slice(0, -".tsx".length))
-      .filter((name) => !(name in exempt))
+      .filter((name) => !(name in exempt) && !notShipped.has(name))
       .sort(),
   );
 }
@@ -96,9 +101,14 @@ export function ours() {
   return readJson(join(UPSTREAM_DIR, "ours.json")).items;
 }
 
-/** Names deleted in favour of an upstream replacement (Batch 7). */
-export function retired() {
-  return new Set(readJson(join(UPSTREAM_DIR, "retired.json")).components);
+/**
+ * Names that DO NOT SHIP here, whatever upstream does — both the components Batch 7 deleted in
+ * favour of an upstream replacement and the ones upstream ships that this system does not want.
+ * One list, because it is one fact; `verify-parity.mjs` rule 6 asserts the absence, and
+ * `migrated()` subtracts it.
+ */
+export function excluded() {
+  return new Set(readJson(join(UPSTREAM_DIR, "excluded.json")).components);
 }
 
 /**

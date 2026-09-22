@@ -50,6 +50,78 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* TYP-16 (ours) — Geist smoothed rendering (mirror of base.css; the docs load theme.css, not the
+   full base.css, the same reason the focus ring and the reduced-motion reset are mirrored below).
+   Keep in sync with base.css.
+
+   TYP-17's 14px default body size is DELIBERATELY NOT mirrored here. It is the right default for a
+   product surface, which is what base.css serves; the docs are a prose READING surface, where the
+   16px `text-base` the shadcn reset restored is correct and recorded (see the shell note above).
+   Vercel draws the same line — 14px in the dashboard, 16px in the docs. */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── TYP-15 on the docs shell ──────────────────────────────────────────────────────────────────
+   The ramp reaches every `text-*` UTILITY on this site for free, because Tailwind compiles the
+   utility from the `@theme` bridge. Two surfaces do not go through a utility, so they were the
+   only places on design.vegastack.com still rendering with zero letter-spacing and off-system
+   weights:
+
+   1. PROSE HEADINGS. Fumadocs' `.prose` is `@tailwindcss/typography`, which writes `font-size`
+      directly — `calc(var(--text-3xl) * var(--tw-prose-size))` for h1, then `1.5em`/`1.25em` for
+      h2/h3. Sizes therefore tracked the ramp while letter-spacing never did, h3 sat at 1.6 leading
+      (very loose for a heading), and h1 came in at weight 800 with `h1 strong` at 900 — weights
+      that appear NOWHERE else in this system, whose heaviest is 600.
+
+   2. TWO ARBITRARY CHROME SIZES baked into Fumadocs' own class strings, which no lint of ours can
+      see because they live in `node_modules`: `text-[0.9375rem]` (15px — the docs SIDEBAR, tabs
+      and accordion) and `text-[0.8125rem]` (13px — code blocks and the tab dropdown). An arbitrary
+      value bypasses the `--text-*` namespace, so neither could ever receive the ramp. Both are
+      pulled onto `--text-sm`, which puts every piece of docs chrome at the same 14px the product
+      layer uses.
+
+   Values are REFERENCED from the ramp, never restated, so retuning the bridge retunes this too.
+   Prose BODY deliberately stays 16px: it is a reading surface, and that is the same line Vercel
+   draws between its dashboard and its docs. */
+.prose :where(h1):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-weight: 600;
+  line-height: var(--text-3xl--line-height);
+  letter-spacing: var(--text-3xl--letter-spacing);
+}
+.prose :where(h2):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--text-2xl--letter-spacing);
+}
+.prose :where(h3):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: var(--text-xl--line-height);
+  letter-spacing: var(--text-xl--letter-spacing);
+}
+.prose :where(h4):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+/* `strong` inside a heading inherits the heading's weight rather than climbing to 800/900. */
+.prose
+  :where(h1 strong, h2 strong, h3 strong, h4 strong):not(
+    :where([class~="not-prose"], [class~="not-prose"] *)
+  ) {
+  font-weight: inherit;
+}
+
+/* The two arbitrary Fumadocs chrome sizes, pulled onto the ramp. Written as attribute selectors so
+   they do not depend on Tailwind's class-name escaping. */
+[class~="text-[0.9375rem]"],
+[class~="text-[0.8125rem]"] {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
 /* API Reference tables (DS-02): flat and expanded, every row visible. Prose already styles
    `table`; this only stops long literal unions from forcing horizontal scroll. */
 .vs-api-table {

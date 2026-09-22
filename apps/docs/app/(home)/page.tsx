@@ -62,7 +62,7 @@ const FOUNDATION_GROUPS = [
             <span
               className={`block h-14 rounded-md border border-border ${className}`}
             />
-            <span className="mt-2 block font-mono text-xs tracking-wide uppercase text-muted-foreground">
+            <span className="mt-2 block font-sans text-xs text-muted-foreground">
               {label}
             </span>
           </div>
@@ -90,7 +90,7 @@ const FOUNDATION_GROUPS = [
         <p className="max-w-md text-base leading-relaxed text-muted-foreground">
           Body copy stays readable while labels and metadata remain compact.
         </p>
-        <p className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+        <p className="font-mono text-xs text-muted-foreground">
           --text-lg font-semibold · --icon-default
         </p>
       </div>
@@ -139,7 +139,7 @@ const FOUNDATION_GROUPS = [
           <div key={label} className="grid grid-cols-2 items-center gap-4">
             <div className="min-w-0">
               <p className="truncate text-sm text-foreground">{label}</p>
-              <p className="truncate font-mono text-xs tracking-wide uppercase text-muted-foreground">
+              <p className="truncate font-mono text-xs text-muted-foreground">
                 {token}
               </p>
             </div>
@@ -197,7 +197,7 @@ export default function HomePage() {
         <div className="relative mx-auto flex max-w-5xl flex-col items-center py-24 text-center sm:py-32 lg:py-36">
           <div className="flex w-full flex-col items-center gap-8">
             <div className="flex flex-col items-center gap-5">
-              <p className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+              <p className="font-sans text-xs text-muted-foreground">
                 Maintained by VegaStack team
               </p>
               <h1 className="max-w-5xl text-balance text-6xl font-semibold text-foreground sm:text-7xl">
@@ -265,7 +265,7 @@ export default function HomePage() {
         aria-labelledby="system-promise-title"
       >
         <div className="mx-auto flex max-w-6xl flex-col gap-12">
-          <p className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+          <p className="font-sans text-xs text-muted-foreground">
             One system contract
           </p>
           <HomeProofStatement id="system-promise-title" text={SYSTEM_PROMISE} />
@@ -411,7 +411,7 @@ export default function HomePage() {
                     <h3 className="text-lg font-semibold text-foreground">
                       {group.title}
                     </h3>
-                    <p className="shrink-0 font-mono text-xs tracking-wide uppercase text-muted-foreground">
+                    <p className="shrink-0 font-sans text-xs text-muted-foreground">
                       {group.components.length} components
                     </p>
                   </div>
@@ -456,7 +456,7 @@ export default function HomePage() {
 
           <div className="divide-y divide-border border-y border-border">
             <article className="grid min-w-0 gap-6 py-8 sm:py-10 lg:grid-cols-4 lg:items-start lg:gap-10">
-              <span className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+              <span className="font-sans text-xs text-muted-foreground">
                 01 / Public runtime
               </span>
               <div className="flex min-w-0 flex-col gap-2">
@@ -477,7 +477,7 @@ export default function HomePage() {
             </article>
 
             <article className="grid min-w-0 gap-6 py-8 sm:py-10 lg:grid-cols-4 lg:items-start lg:gap-10">
-              <span className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+              <span className="font-sans text-xs text-muted-foreground">
                 02 / Agent skill
               </span>
               <div className="flex min-w-0 flex-col gap-2">
@@ -499,7 +499,7 @@ export default function HomePage() {
             </article>
 
             <article className="grid min-w-0 gap-6 py-8 sm:py-10 lg:grid-cols-4 lg:items-start lg:gap-10">
-              <span className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+              <span className="font-sans text-xs text-muted-foreground">
                 03 / Owned components
               </span>
               <div className="flex min-w-0 flex-col gap-2">
@@ -626,7 +626,7 @@ export default function HomePage() {
       >
         <div className="mx-auto max-w-6xl">
           <div className="flex max-w-4xl flex-col items-start gap-5">
-            <p className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+            <p className="font-sans text-xs text-muted-foreground">
               Ready to build
             </p>
             <h2

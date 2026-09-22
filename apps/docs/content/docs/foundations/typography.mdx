@@ -1,12 +1,16 @@
 ---
 title: Typography
-description: Geist Sans + Geist Mono on a two-layer scale with one named strong-emphasis role.
+description: Geist Sans + Geist Mono on Tailwind's stock sizes, with Geist's own optical metrics declared globally.
 audience: public
 ---
 
 The type system is **Geist** (sans UI and prose) and **Geist Mono** (code, data, tabular figures),
 on **Tailwind's stock size scale**. Hierarchy comes from size, weight and colour, and the utilities
 mean exactly what they mean everywhere else: `text-sm` is 14px, `text-base` is 16px.
+
+Sizes are stock; **the metrics on top of them are ours and are declared once**. Letter-spacing,
+line-height above the copy tier, the default body size and text rendering all live in the theme,
+never in a component.
 
 <TypeScale />
 
@@ -19,6 +23,63 @@ renders at the size shadcn drew it, and `text-sm` means 14px on a product surfac
 preview and in this sentence alike.
 
 <TypeScaleSizes />
+
+## Optical metrics — the one thing that is not stock
+
+Geist's own specification splits a **copy** tier from a **heading** tier, and so does this system.
+The copy sizes here are 12 / 14 / 16 — exactly Geist's copy tier — so they are left completely
+alone, at zero letter-spacing and stock line-height. Everything from `text-lg` up carries optical
+metrics declared as per-size `--text-*--line-height` and `--text-*--letter-spacing` in the
+`@theme` bridge:
+
+| Step        | Size | Line-height | Letter-spacing |
+| ----------- | ---- | ----------- | -------------- |
+| `text-xs`   | 12px | stock       | 0              |
+| `text-sm`   | 14px | stock       | 0              |
+| `text-base` | 16px | stock       | 0              |
+| `text-lg`   | 18px | 26px        | −0.012em       |
+| `text-xl`   | 20px | 26px        | −0.02em        |
+| `text-2xl`  | 24px | 32px        | −0.04em        |
+| `text-3xl`  | 30px | 38px        | −0.04em        |
+| `text-4xl`  | 36px | 44px        | −0.05em        |
+| `text-5xl`  | 48px | 56px        | −0.06em        |
+| `text-6xl`  | 60px | 64px        | −0.06em        |
+| `text-7xl`  | 72px | 72px        | −0.06em        |
+
+Sizes never move, so a pasted shadcn snippet still renders at the size shadcn drew it. Two of the
+line-heights get **looser**, not tighter: Tailwind's stock ratios collapse toward 1.0 at display
+sizes, which clips Geist's descenders once negative tracking pulls the glyphs together.
+
+**Never write your own `tracking-*`.** Tailwind compiles the ramp as
+`letter-spacing: var(--tw-tracking, …)`, so a local utility silently wins and that one component
+quietly stops following the ramp — `design-lint` rejects it. The single exception is
+`tracking-widest` on a keyboard-shortcut hint, where the spacing separates glyph keys. And never
+write an arbitrary size like `text-[13px]`: it bypasses the `--text-*` namespace and receives
+neither half of the ramp.
+
+## Rendering and the default size
+
+Two rules on `body`, for every product surface:
+
+- `-webkit-font-smoothing: antialiased` — Geist is drawn for smoothed rendering, and without it the
+  same weight renders heavier and softer.
+- A declared **14px** default, matching the component layer. It is set on `body` and **never** on
+  `html`: `rem` resolves against the root, so an `html` size would rescale every token and override
+  the reader's own browser font-size preference.
+
+These docs are the deliberate exception — a reading surface stays at 16px prose, the same line
+Vercel draws between its dashboard and its documentation.
+
+## Case, and when to use mono
+
+**Sentence case for everything** — buttons, headings, labels, body, toasts. There is no `uppercase`
+in this system, and the `uppercase` utility is rejected outright rather than restricted: a CSS
+transform rewrites whatever it is handed, which is how a token name like `--text-lg` once rendered
+as `--TEXT-LG`. If a string is uppercase, write it uppercase in the string.
+
+**Mono is for code, not for texture.** Geist Mono carries code, token names, identifiers and
+tabular figures. A section label, a count or a sentence is language, so it is `font-sans` — a small
+mono label reads technical, which is exactly why it is easy to reach for and wrong for prose.
 
 ## Weight and roles
 
@@ -80,6 +141,6 @@ fallbacks):
 </Callout>
 
 <DoDont
-  do="Use Tailwind's stock scale — text-sm product body, text-base prose, text-sm font-medium labels, font-mono for numbers."
-  dont="Hand-set font-size or line-height in an inline style, or stack three weights in one view."
+  do="Use the stock steps and let the ramp supply tracking and leading — text-sm product body, text-base prose, text-sm font-medium labels, font-mono for code and numbers, sentence case throughout."
+  dont="Write your own tracking-*, an arbitrary text-[13px], an uppercase transform, or mono for running prose."
 />

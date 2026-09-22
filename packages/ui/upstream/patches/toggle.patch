@@ -1,5 +1,5 @@
 # component: toggle
-# decisions: A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4
+# decisions: A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18
 # hunks:
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-[3px]
 #     focus-visible:ring-ring/50` and the `aria-invalid` rings are removed.
@@ -14,11 +14,13 @@
 #     `opacity`: the label painted at full strength UNDER the spinner for a full release, while
 #     `toggle.test.tsx` asserted the `opacity-0` CLASS and passed. The compiled-CSS proof is in
 #     `test/control-paint.browser.test.tsx` (ICO-8's sibling fix, 2026-09-22).
+#   TYP-18: the `sm` tier's `text-[0.8rem]` becomes `text-xs`, matching Button's `sm` tier — the
+#     two share a geometry (`h-7`, `px-2.5`) and must not disagree on type (MK, 2026-09-22).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle.tsx b/toggle.tsx
-index 1651768..39cabac 100644
+index 1651768..a971f35 100644
 --- a/toggle.tsx
 +++ b/toggle.tsx
 @@ -1,11 +1,13 @@
@@ -40,6 +42,15 @@ index 1651768..39cabac 100644
    {
      variants: {
        variant: {
+@@ -15,7 +17,7 @@ const toggleVariants = cva(
+       size: {
+         default:
+           "h-8 min-w-8 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
+-        sm: "h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
++        sm: "h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-2.5 text-xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+         lg: "h-9 min-w-9 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
+       },
+     },
 @@ -23,22 +25,55 @@ const toggleVariants = cva(
        variant: "default",
        size: "default",

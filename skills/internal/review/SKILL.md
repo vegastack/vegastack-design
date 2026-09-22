@@ -80,7 +80,7 @@ finding: parity, coverage and the JSDoc exemption all used to read one hand-main
 2. **`verify-parity.mjs`** (`upstream:parity`) — applies `patches/<name>.patch` to the vendor file in
    memory and compares byte for byte. Also: a component with no patch must equal upstream exactly; a
    patch may only name an ID `decisions.json` marks **ours**; a patch must name every ID
-   `exception-map.json` assigns to that component; a name in `retired.json` must stay absent from the
+   `exception-map.json` assigns to that component; a name in `excluded.json` must stay absent from the
    registry; a canonical file that is neither upstream-backed nor recorded in `ours.json` fails; and
    an `exempt` name must be fileless on **both** sides.
 3. **`verify-variant-coverage.mjs`** (`upstream:variants`) — every section on upstream's own docs page

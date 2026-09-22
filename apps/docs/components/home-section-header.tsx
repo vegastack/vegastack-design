@@ -45,9 +45,7 @@ export function HomeSectionHeader({
       )}
     >
       {eyebrow ? (
-        <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">
-          {eyebrow}
-        </p>
+        <p className="font-sans text-xs text-muted-foreground">{eyebrow}</p>
       ) : null}
       <h2
         data-slot="home-section-header-title"

@@ -1,4 +1,4 @@
-// @vegastack terminal@0.11.3 sha256-rIjo53NpUd3yhaXc9rVn+GGSsPowzBa6atoYTkHivO8=
+// @vegastack terminal@0.11.3 sha256-5Kc6rARR8XZFExzp3Pm4N9XH33ugamr8pvMsweyZRBo=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -32,7 +32,7 @@ export interface TerminalProps extends Omit<
    * @default '$'
    */
   prompt?: string;
-  /** Small mono uppercase label in the header bar. @default 'Terminal' */
+  /** Small mono label in the header bar, in sentence case. @default 'Terminal' */
   title?: React.ReactNode;
   /**
    * Value copied by the trailing `CopyButton`. Defaults to every `command`
@@ -115,10 +115,7 @@ export function Terminal({
         data-slot="terminal-header"
         className="flex items-center border-b border-border px-3 py-2"
       >
-        <span
-          id={titleId}
-          className="font-mono text-xs text-muted-foreground uppercase"
-        >
+        <span id={titleId} className="font-mono text-xs text-muted-foreground">
           {title}
         </span>
       </div>

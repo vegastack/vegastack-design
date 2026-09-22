@@ -509,7 +509,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
         "version": "0.11.3",
-        "integrity": "sha256-5yV9W6I6CPPGdDI/LtkHUpwV/xgZUr2OzlBqRHAxRXM="
+        "integrity": "sha256-5qIEXYVH9kII2R0NewAsoYuaA4jyHcn4YQgAmy8g7T4="
       }
     },
     {
@@ -571,7 +571,7 @@
         "whenToUse": "Choosing one or more dates from a month grid — a booking range, a report period, a due date inside a Popover.",
         "whenNotToUse": "A free-text date a user already knows (an input with a mask) or a time-only value.",
         "version": "0.11.3",
-        "integrity": "sha256-WDoqt0MUEgiyb1VyAaG/XSP811WKxN596qDkTPXovJc="
+        "integrity": "sha256-AWF3IeUtM5IruJxr5fsLDOztKB24bHrfbsFtA26c0M8="
       }
     },
     {
@@ -777,7 +777,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.11.3",
-        "integrity": "sha256-r9/NSmktUph8gf1vDJmkYmJQ/qZPlUUgFtLT3fe//xE="
+        "integrity": "sha256-FpzEdXvpfHS/kpKEFFPx4zGR2rn8FMpWP/X91xOaQb0="
       }
     },
     {
@@ -1421,7 +1421,7 @@
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
         "version": "0.11.3",
-        "integrity": "sha256-LlM6f1wGciQL1xko5bgtGTJAsHHh6ugC3AaKJQO8kiw="
+        "integrity": "sha256-Fq5QAIgi0xP8bT7azym3CqGChAtCqNPEDBsbuxNUsjw="
       }
     },
     {
@@ -15154,7 +15154,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.11.3",
-        "integrity": "sha256-phO6WZ/YSiUZO3Zp9pKefueK/eChN6PzK2a/fldf0ic="
+        "integrity": "sha256-zExBUsfUXUobrGZzJ0AxVxCcDXOjDxb7i/6RDo43TCg="
       }
     },
     {
@@ -15302,7 +15302,7 @@
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.11.3",
-        "integrity": "sha256-lhKrgQaYslGxL3hvDoXIjujA/prDunssm6qkGHX/SrY="
+        "integrity": "sha256-KQNJG5RifPt9qesg6vd3DtVbyinv9gRvEcdSIHrRxYM="
       }
     },
     {
@@ -15815,36 +15815,6 @@
       }
     },
     {
-      "name": "sonner",
-      "type": "registry:ui",
-      "title": "Sonner",
-      "description": "The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.",
-      "categories": [
-        "feedback"
-      ],
-      "dependencies": [
-        "sonner@^2.0.8",
-        "next-themes@^0.4.6",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.6.1",
-        "@vegastack/design-tokens@^0.5.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/sonner.tsx",
-          "type": "registry:ui",
-          "target": "@ui/sonner.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "The same brief notifications as Toast, when a project already speaks sonner's `toast()` API or wants its stacking model.",
-        "whenNotToUse": "Alongside Toast in the same app — pick one notification engine, or two stacks will fight for the same corner.",
-        "version": "0.11.3",
-        "integrity": "sha256-OeXNNBMd0uy+kdUu4ydrKk1FWOOd9zfJ9ZEDmNzhmtM="
-      }
-    },
-    {
       "name": "sortable-list",
       "type": "registry:ui",
       "title": "Sortable List",
@@ -15966,17 +15936,18 @@
       "name": "stepper",
       "type": "registry:ui",
       "title": "Stepper",
-      "description": "A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
+      "description": "A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.",
       "categories": [
         "navigation"
       ],
       "dependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.6.1",
         "@vegastack/design-tokens@^0.5.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/status-icon"
+        "@vegastack/progress"
       ],
       "files": [
         {
@@ -15986,10 +15957,45 @@
         }
       ],
       "meta": {
-        "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
-        "whenNotToUse": "Free navigation between peer views (Tabs), or compact progress where a full step list is too heavy (Progress plus a \"Step n of N\" line).",
+        "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
+        "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.11.3",
-        "integrity": "sha256-/7+bfWxxrdWJEXQTGErtPtj7immJOkwVg4iK6YSZv5w="
+        "integrity": "sha256-3K6gbf6UuYmE3rBNbWMU9xQI5iwtwEZG0nrGo4uXLKg="
+      }
+    },
+    {
+      "name": "multi-step-form",
+      "type": "registry:ui",
+      "title": "Multi-Step Form",
+      "description": "A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, a panel layout for dialogs, an unsaved-work exit guard, and a phone layout chosen from the same predicate. Owns no fields and no validator.",
+      "categories": [
+        "navigation",
+        "form"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.6.1",
+        "@vegastack/design-tokens@^0.5.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/alert-dialog",
+        "@vegastack/button",
+        "@vegastack/stepper",
+        "@vegastack/use-mobile"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/multi-step-form.tsx",
+          "type": "registry:ui",
+          "target": "@ui/multi-step-form.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
+        "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
+        "version": "0.11.3",
+        "integrity": "sha256-BY+ocy3y2HbCRlgWWZcxa6Ees/i/nFEexV4gHYHFiWw="
       }
     },
     {
@@ -16148,7 +16154,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.11.3",
-        "integrity": "sha256-rIjo53NpUd3yhaXc9rVn+GGSsPowzBa6atoYTkHivO8="
+        "integrity": "sha256-5Kc6rARR8XZFExzp3Pm4N9XH33ugamr8pvMsweyZRBo="
       }
     },
     {
@@ -16269,7 +16275,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.11.3",
-        "integrity": "sha256-R+7R97LS4nJ44jcwsgJALa1hm15lTknsJcWCTo17jZ0="
+        "integrity": "sha256-2G5e/Cs9WfkDCyWgCMlLiLhf2dnrFDsuitsEoeXDaG8="
       }
     },
     {
@@ -16300,7 +16306,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.11.3",
-        "integrity": "sha256-KG1nRoF/6v22PjBojloXk/dBRevuRx9Sui/NJwA7CuM="
+        "integrity": "sha256-jMbRddQa4bqxQBH/wjjF641w5Se5numUCxPJxgbBHWE="
       }
     },
     {
@@ -18994,7 +19000,6 @@
         "@tanstack/react-table@^9.2.4",
         "lucide-react@^1.47.0",
         "recharts@^3.10.1",
-        "sonner@^2.0.8",
         "zod@^4.5.4",
         "@vegastack/design-tokens@^0.5.0"
       ],
@@ -19014,6 +19019,7 @@
         "@vegastack/sidebar",
         "@vegastack/table",
         "@vegastack/tabs",
+        "@vegastack/toast",
         "@vegastack/toggle-group",
         "@vegastack/use-mobile"
       ],
@@ -19078,7 +19084,7 @@
         "whenToUse": "Starting from upstream's Dashboard 01 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.11.3",
-        "integrity": "sha256-AdQJ1idh1GBuf1ziz8HlSX1gsSlGw2u3h7jqh8HOoio="
+        "integrity": "sha256-3wNR7jXVqJtDotageZLnot9xnOJlihi39aNhs2Alh6g="
       }
     },
     {
@@ -19155,7 +19161,7 @@
         "whenToUse": "Starting from upstream's Login 02 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.11.3",
-        "integrity": "sha256-SFVKlCoDiQr2my5zQG1moT2yQeZZvO6Smc2Lb1IbAvo="
+        "integrity": "sha256-jyyXXLOJS4tPxoC9AZlLDnx9so0sHUJLbWKPubdFiR8="
       }
     },
     {
@@ -19234,7 +19240,7 @@
         "whenToUse": "Starting from upstream's Login 04 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.11.3",
-        "integrity": "sha256-H4JzjNrGtqsaSCEDzbcdwU6XMbMb1Zr2e5Lzd/wEKJQ="
+        "integrity": "sha256-aFvk3d9gdnsCggRk4W0cYUSMxW3BKbg0v44gVqRxpmk="
       }
     },
     {
@@ -19273,7 +19279,7 @@
         "whenToUse": "Starting from upstream's Login 05 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.11.3",
-        "integrity": "sha256-GgP3Kf4PoyCH0ukG4KlNO+p3Ch/NHqKbAvfGrSB4on4="
+        "integrity": "sha256-7cuBsoJks4qniWRos3S4wD9ThQjdi3OCxsxBSLlR7V0="
       }
     },
     {
@@ -20281,7 +20287,7 @@
         "whenToUse": "Starting from upstream's Signup 02 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.11.3",
-        "integrity": "sha256-OrtJYu+jMfc3t7MwbRPnCWx9XRMuOnlDWr8DEsiKYW4="
+        "integrity": "sha256-PU/ph+gomsg3gkK2oSTzgsPDEbGHgw63tbl/4dI8lT4="
       }
     },
     {
@@ -20359,7 +20365,7 @@
         "whenToUse": "Starting from upstream's Signup 04 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.11.3",
-        "integrity": "sha256-E66kRdJGeHCsCxOaGMkeJ8Ye774KluVLNqgctdX5Uk0="
+        "integrity": "sha256-TjgXehKXEiy5avhiThgetNVfMg8BlBfZ9Sr9SczfsRo="
       }
     },
     {
@@ -20398,7 +20404,7 @@
         "whenToUse": "Starting from upstream's Signup 05 composition — copy it once and own it.",
         "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
         "version": "0.11.3",
-        "integrity": "sha256-pSmCbjpqBrvM3ADE9qwtpznn1wG5XyFM7zfhx3LPq2s="
+        "integrity": "sha256-Wo4aHuBROH5k19lh0HJJHA8ubRPJUU1F0+N8Xe2tyss="
       }
     }
   ]

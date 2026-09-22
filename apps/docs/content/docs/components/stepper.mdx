@@ -1,6 +1,6 @@
 ---
 title: Stepper
-description: A bounded linear process as an ordered list — complete/current/upcoming/error states, aria-current="step", advance gating, and focus that follows the process.
+description: A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, with focus that follows the flow.
 audience: public
 registry: stepper
 status: stable
@@ -32,39 +32,97 @@ import { Stepper } from "@/components/ui/stepper";
 and implies free navigation between peers — actively misleading for a flow
 where step 4 is unreachable until step 3 validates. `Stepper` is an ordered
 list with `aria-current="step"`, which is what a wizard actually is. Where a
-full step list is too heavy, use [`Progress`](/docs/components/progress).
+full step list is too heavy, use [`Progress`](/docs/components/progress)
+directly — though below `collapse` this component already becomes one.
+
+**It has no Back and Next, and most uses need none.** Reach for `Stepper`
+alone when the process is driven by the system and read by a person — an order
+or delivery tracker, a deployment pipeline, an application's status, a long
+import running on a server. When a person drives the flow and it needs
+controls, guards and step bodies, use
+[`MultiStepForm`](/docs/components/multi-step-form), which composes this
+component and owns the action row.
 
 ## Scope
 
-| Behaviour                     | Where it lives                                                      |
-| ----------------------------- | ------------------------------------------------------------------- |
-| Back/Next controls            | Host `Button`s — gating is the host's logic                         |
-| Step bodies and validation    | Host forms (`Field` + validation); see the multi-step form guide    |
-| Deriving states from an index | Host — states are explicit so failed/skipped steps stay expressible |
+It communicates the process, and nothing else.
+
+| Behaviour                     | Where it lives                                                           |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| Back/Next controls            | [`MultiStepForm`](/docs/components/multi-step-form), or your own buttons |
+| Step bodies and validation    | `MultiStepForm`, or your own forms (`Field` + a validator)               |
+| Why the flow will not advance | Beside the control it blocks, never in the rail                          |
+| Deriving states from an index | Host — states are explicit so failed/skipped steps stay expressible      |
+
+The refusal message is the one to read twice. `Stepper` deliberately does not
+render it: the only place it could sit is under the current step's label, which
+in a horizontal rail is a one-column-wide ribbon and in the collapsed form does
+not exist. A reason belongs next to the button it refuses.
+
+## Anatomy
+
+<Anatomy name="stepper" />
 
 ## Examples
+
+### When the host drives it
+
+The buttons below belong to the page, not to `Stepper` — it renders none. They
+sit at the start and end of their row, which is where `MultiStepForm` puts them
+too. For anything more than a demo, use that component rather than wiring this
+by hand.
+
+<ComponentPreview name="stepperDriven" file="components/preview/stepper.tsx" />
+
+### Every state
+
+Seven states, and the two that are coloured are coloured because something needs
+the user. `complete` and `current` stay on the neutral ink — progress is not
+success, and a rail of green leaves nothing louder for the step that has
+actually failed. `loading` is the state an async advance gate occupies while it
+runs, and `skipped` records a step passed over rather than one that failed.
+
+<ComponentPreview name="stepperStates" file="components/preview/stepper.tsx" />
 
 ### Error state
 
 The state every hand-rolled stepper forgets: a step that failed after
-completion. `error` is first-class — icon, tone, and text.
+completion. Its node takes the destructive fill, its label the family's
+`-text` ink, and the rail behind it does **not** fill — you have not passed it.
 
 <ComponentPreview name="stepperError" file="components/preview/stepper.tsx" />
 
-### Advance gating
+### Collapsing to a summary
 
-`blockedReason` communicates why the process cannot advance: rendered against
-the current step, announced politely, and wireable to your Next button through
-`aria-describedby`.
+Below `collapse` the rail becomes the current step's name, its position, and a
+`Progress` bar. It is a **container** query, not a viewport one, so a rail
+inside a narrow dialog collapses on a wide screen too. Both examples below are
+the same component with the same props; only the box around them differs.
 
-<ComponentPreview name="stepperBlocked" file="components/preview/stepper.tsx" />
+<ComponentPreview
+  name="stepperCollapsed"
+  file="components/preview/stepper.tsx"
+/>
+
+### Sizes
+
+<ComponentPreview name="stepperSizes" file="components/preview/stepper.tsx" />
+
+### Inline labels
+
+`labelPosition="inline"` sets each label beside its node with the connector
+running on from it — a compact rail for a card header. The DOM and the reading
+order are identical to the default.
+
+<ComponentPreview name="stepperInline" file="components/preview/stepper.tsx" />
 
 ### Vertical and navigable
 
-Vertical keeps the identical DOM and reading order. In `navigable` mode,
-completed **and error** steps become real buttons for revisiting — a failed step
-is exactly the one the user needs to get back to; current, upcoming, and
-disabled steps never do.
+`orientation="auto"` (the default) switches to vertical at `verticalFrom` steps,
+because a rail long enough to crush its own labels reads better down the page.
+In `navigable` mode, completed, skipped **and error** steps become real buttons
+for revisiting — a failed step is exactly the one the user needs to get back to;
+current, upcoming, and disabled steps never do.
 
 <ComponentPreview
   name="stepperVertical"
@@ -85,19 +143,21 @@ disabled steps never do.
 ## Accessibility
 
 - An `<ol>` labelled by `aria-label`, with `aria-current="step"` on the current
-  item — never tab semantics.
-- Step state is carried by the icon shape **and** visually hidden text
-  ("Completed", "Current step", "Not started", "Needs attention"), never colour
-  alone.
+  item — never tab semantics. A `loading` step is still the current step.
+- Step state is carried by the node's glyph **and** visually hidden text
+  ("Completed", "Checking", "Needs review", "Needs attention", "Skipped"),
+  never colour alone.
 - When the current step changes, focus moves to the new step's label — not the
-  first form field, and never on initial mount.
-- The blocked reason is a polite live region; give your Next button
-  `aria-describedby={blockedReasonId}` so the reason reads with the control.
+  first form field, and never on initial mount. Below the collapse width the
+  rail is not laid out, so focus lands on the summary instead.
+- The compact summary is a real `progressbar`, named by the current step.
+- Navigable steps are `Button`s, so they clear the 24px touch floor and take the
+  system's single focus outline.
 
-| Key                                 | Action                                                 |
-| ----------------------------------- | ------------------------------------------------------ |
-| <kbd>Tab</kbd>                      | Reach completed and error steps (navigable mode only). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Revisit the focused step.                              |
+| Key                                 | Action                                                          |
+| ----------------------------------- | --------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Reach completed, skipped and error steps (navigable mode only). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Revisit the focused step.                                       |
 
 <StatesTested name="stepper" />
 

@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.11.3 sha256-AdQJ1idh1GBuf1ziz8HlSX1gsSlGw2u3h7jqh8HOoio=
+// @vegastack dashboard-01@0.11.3 sha256-3wNR7jXVqJtDotageZLnot9xnOJlihi39aNhs2Alh6g=
 
 "use client";
 
@@ -41,7 +41,6 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { useIsMobile } from "@/components/ui/use-mobile";
@@ -73,6 +72,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/toast";
 import { Label } from "@/components/ui/label";
 import {
   Select,

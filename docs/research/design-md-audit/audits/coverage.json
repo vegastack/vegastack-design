@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e477d1322bae90f8c90a5beaf93aa4ce73aa420db907bad777a7bc961a76aa09",
+  "contractSha256": "54c26f81449cd33d424be2996fdd477ea41982ec55ee1389e4b5adf1ddfc903d",
   "inventory": {
     "expected": 690,
     "actual": 690,
@@ -76,8 +76,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 16,
-      "actual": 16,
+      "expected": 17,
+      "actual": 17,
       "members": [
         "accordion",
         "app-shell",
@@ -88,6 +88,7 @@
         "command",
         "direction",
         "menubar",
+        "multi-step-form",
         "navigation-menu",
         "pagination",
         "resizable",
@@ -98,8 +99,8 @@
       ]
     },
     "Overlays": {
-      "expected": 15,
-      "actual": 15,
+      "expected": 14,
+      "actual": 14,
       "members": [
         "action-bar",
         "alert-dialog",
@@ -113,7 +114,6 @@
         "provider",
         "sheet",
         "shortcut-overlay",
-        "sonner",
         "toast",
         "tooltip"
       ]

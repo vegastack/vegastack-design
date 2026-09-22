@@ -1,4 +1,4 @@
-// @vegastack login-05@0.11.3 sha256-GgP3Kf4PoyCH0ukG4KlNO+p3Ch/NHqKbAvfGrSB4on4=
+// @vegastack login-05@0.11.3 sha256-7cuBsoJks4qniWRos3S4wD9ThQjdi3OCxsxBSLlR7V0=
 
 import { cn } from "@vegastack/design";
 
@@ -34,7 +34,7 @@ export function LoginForm({
               </div>
               <span className="sr-only">Acme Inc.</span>
             </a>
-            <h1 className="text-xl font-bold">Welcome to Acme Inc.</h1>
+            <h1 className="text-xl font-semibold">Welcome to Acme Inc.</h1>
             <FieldDescription>
               Don&apos;t have an account? <a href="#">Sign up</a>
             </FieldDescription>

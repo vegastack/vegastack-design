@@ -1,4 +1,4 @@
-// @vegastack signup-04@0.11.3 sha256-E66kRdJGeHCsCxOaGMkeJ8Ye774KluVLNqgctdX5Uk0=
+// @vegastack signup-04@0.11.3 sha256-TjgXehKXEiy5avhiThgetNVfMg8BlBfZ9Sr9SczfsRo=
 
 import { cn } from "@vegastack/design";
 
@@ -28,7 +28,7 @@ export function SignupForm({
           <form className="p-6 md:p-8">
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Create your account</h1>
+                <h1 className="text-2xl font-semibold">Create your account</h1>
                 <p className="text-sm text-balance text-muted-foreground">
                   Enter your email below to create your account
                 </p>

@@ -11,7 +11,7 @@ export function BrandNavigationTitle() {
       <span aria-hidden="true" className="h-4 w-px shrink-0 bg-border" />
       <span
         aria-hidden="true"
-        className="shrink-0 font-mono text-sm font-medium uppercase text-muted-foreground"
+        className="shrink-0 font-sans text-sm font-medium text-muted-foreground"
       >
         Design
       </span>

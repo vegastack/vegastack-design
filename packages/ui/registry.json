@@ -12674,33 +12674,6 @@
       }
     },
     {
-      "name": "sonner",
-      "type": "registry:ui",
-      "title": "Sonner",
-      "description": "The sonner toaster, themed onto the token contract — an alternative notification engine with its own imperative API.",
-      "categories": ["feedback"],
-      "dependencies": [
-        "sonner@^2.0.8",
-        "next-themes@^0.4.6",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.6.1",
-        "@vegastack/design-tokens@^0.5.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/sonner.tsx",
-          "type": "registry:ui",
-          "target": "@ui/sonner.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "The same brief notifications as Toast, when a project already speaks sonner's `toast()` API or wants its stacking model.",
-        "whenNotToUse": "Alongside Toast in the same app — pick one notification engine, or two stacks will fight for the same corner.",
-        "version": "0.11.3"
-      }
-    },
-    {
       "name": "sortable-list",
       "type": "registry:ui",
       "title": "Sortable List",
@@ -12810,13 +12783,14 @@
       "name": "stepper",
       "type": "registry:ui",
       "title": "Stepper",
-      "description": "A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
+      "description": "A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.",
       "categories": ["navigation"],
       "dependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.6.1",
         "@vegastack/design-tokens@^0.5.0"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/status-icon"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
       "files": [
         {
           "path": "packages/ui/registry/ui/stepper.tsx",
@@ -12825,8 +12799,39 @@
         }
       ],
       "meta": {
-        "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
-        "whenNotToUse": "Free navigation between peer views (Tabs), or compact progress where a full step list is too heavy (Progress plus a \"Step n of N\" line).",
+        "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
+        "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
+        "version": "0.11.3"
+      }
+    },
+    {
+      "name": "multi-step-form",
+      "type": "registry:ui",
+      "title": "Multi-Step Form",
+      "description": "A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, a panel layout for dialogs, an unsaved-work exit guard, and a phone layout chosen from the same predicate. Owns no fields and no validator.",
+      "categories": ["navigation", "form"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.6.1",
+        "@vegastack/design-tokens@^0.5.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/alert-dialog",
+        "@vegastack/button",
+        "@vegastack/stepper",
+        "@vegastack/use-mobile"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/multi-step-form.tsx",
+          "type": "registry:ui",
+          "target": "@ui/multi-step-form.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
+        "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.11.3"
       }
     },
@@ -15198,7 +15203,6 @@
         "@tanstack/react-table@^9.2.4",
         "lucide-react@^1.47.0",
         "recharts@^3.10.1",
-        "sonner@^2.0.8",
         "zod@^4.5.4",
         "@vegastack/design-tokens@^0.5.0"
       ],
@@ -15218,6 +15222,7 @@
         "@vegastack/sidebar",
         "@vegastack/table",
         "@vegastack/tabs",
+        "@vegastack/toast",
         "@vegastack/toggle-group",
         "@vegastack/use-mobile"
       ],

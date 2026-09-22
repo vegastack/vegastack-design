@@ -1,5 +1,5 @@
 # component: toast
-# decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13
+# decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15
 # hunks:
 #   FOC-1, FOC-6: the toast root's `outline-none focus-visible:border-ring
 #     focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outline-none` lets
@@ -43,13 +43,52 @@
 #     `Spinner`, this icon, Sonner's and `StatusIcon`'s `progress` are the same object spinning.
 #     `animate-spin` and `aria-hidden` are upstream's.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
+#   COL-23: `ToastDescription` gains `first:text-popover-foreground`. Base UI renders
+#     `Toast.Title` as `null` when a toast carries no title (`toast/utils/useToastLabelPart.js`,
+#     `useToastLabelElement` returns `null` unless the part has renderable children), so upstream's
+#     flat `text-muted-foreground` paints a description-only toast's ONLY line — its primary
+#     message — in the secondary ink. `first:` is exactly the condition: the description is the
+#     first child of the text column precisely when no title rendered before it, and a description
+#     that follows a title keeps the muted ink. This is hierarchy, not contrast — `muted-foreground`
+#     on `popover` passes AA unaided (contrast-check, 444/444) — and it matches sonner, whose
+#     `[data-title]` is `color: inherit` and whose API takes the title as its first argument, so it
+#     has no description-only case to get wrong.
+#   OVL-15: three extensions to upstream's file, all additive.
+#     (a) POSITION. `toastViewportVariants` gives the viewport six logical corners
+#         (`top`/`bottom` x `start`/`center`/`end`, default `bottom-end`), replacing upstream's
+#         hardcoded `bottom-4 sm:end-4`. Inline names are logical so RTL mirrors without a second
+#         vocabulary. Each variant publishes `--toast-dir` (the stack's growth sign), and every
+#         vertical term in `toastVariants` is multiplied by it, so ONE set of transforms serves a
+#         top- and a bottom-pinned stack; the `var(--toast-dir,-1)` fallback keeps a root composed
+#         outside one of our viewports behaving exactly as upstream's did. The discrete flips that
+#         are not arithmetic — `top-0`/`bottom-0`, `origin-top`/`origin-bottom` and the
+#         pointer-bridging `::after` edge — are the root's `anchor` variant, which `Toaster`
+#         derives from `position` along with the swipe direction, so a toast always swipes away
+#         from the edge it entered from.
+#     (b) ANCHORED TOASTS. `ToastPositioner` and `ToastArrow` wrap the two Base UI parts upstream
+#         wraps neither of, so a toast can position against an element via `positionerProps` on
+#         `add()` instead of stacking in the corner. The corner-stack recipe therefore moved OUT
+#         of `toastVariants`' base and into its `anchor` variant (`TOAST_STACK`), with a third
+#         value `none`: a root inside a positioner must not also emit `absolute bottom-0` and
+#         the stack transform, or it lands ~27px off the element the positioner placed. `Toast`
+#         reads that from `ToastAnchoredContext` rather than asking the caller for a prop, so an
+#         anchored composition cannot be built wrong and needs no magic className; an explicit
+#         `anchor` still wins. `test/stacking.browser.test.tsx` measures the placement against
+#         the anchor after floating-ui settles, and goes red if the context is ignored.
+#     (c) CUSTOM BODY. A toast carrying `data.render` renders that instead of the default row,
+#         still inside `ToastContent` and a real `Toast` — so it keeps the stack, the swipe,
+#         `Escape` and the viewport's live region rather than opting out of them.
+#     The `z-60` band the viewport and positioner take is the same row: it is one band above the
+#     single `z-50` overlay band, so a toast fired while a Dialog is open is visible instead of
+#     behind its scrim. OVL-2 is untouched — nothing else leaves `z-50` — and `z-60` is a plain
+#     Tailwind utility, so no `--z-*` token returns.
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..249df27 100644
+index 325d01b..abbcd8d 100644
 --- a/toast.tsx
 +++ b/toast.tsx
-@@ -1,20 +1,43 @@
+@@ -1,60 +1,234 @@
 -"use client"
 +"use client";
  
@@ -58,6 +97,7 @@ index 325d01b..249df27 100644
 -import { cn } from "cn"
 +import * as React from "react";
 +import { Toast as ToastPrimitive } from "@base-ui/react/toast";
++import { cva, type VariantProps } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
 +import { useInternalThemeScope } from "@vegastack/design/theme-scope";
  
@@ -84,6 +124,114 @@ index 325d01b..249df27 100644
 +// the tab order with it. Base UI clears `aria-hidden` the moment the viewport takes focus (F6), so
 +// the toast becomes tabbable exactly when it becomes visible to assistive technology.
 +const ToastHiddenFromAtContext = React.createContext(false);
++
++// OVL-15: true inside a `ToastPositioner`. An anchored toast is placed by the positioner, so the
++// root must not also emit the corner stack's absolute placement and transform — they would fight.
++// Reading it from context rather than asking the caller for a prop means an anchored composition
++// cannot be built wrong: there is no magic className to remember.
++const ToastAnchoredContext = React.createContext(false);
++
++/**
++ * OVL-15: where the stack pins itself. Names are LOGICAL on the inline axis (`start`/`end` rather
++ * than left/right), so an RTL document mirrors the stack without a second position vocabulary.
++ */
++type ToastPosition =
++  | "top-start"
++  | "top-center"
++  | "top-end"
++  | "bottom-start"
++  | "bottom-center"
++  | "bottom-end";
++
++/**
++ * OVL-15: the viewport recipe. `--toast-dir` is the stack's growth sign, read by every vertical
++ * term in `toastVariants`: `-1` pins the stack to the bottom (toasts behind peek ABOVE the
++ * frontmost), `1` pins it to the top. The mobile layout is upstream's — full width inside a 16px
++ * gutter — and the inline corner only applies from `sm` up.
++ *
++ * OVL-15: `z-60` puts the stack one band above the single `z-50` overlay band, so a toast fired
++ * while a Dialog is open is visible instead of behind its scrim. Nothing else leaves `z-50`.
++ */
++const toastViewportVariants = cva(
++  "pointer-events-none fixed inset-x-4 z-60 mx-auto w-auto max-w-sm outline-none sm:mx-0 sm:w-full",
++  {
++    variants: {
++      position: {
++        "top-start": "top-4 [--toast-dir:1] sm:start-4 sm:end-auto",
++        "top-center": "top-4 [--toast-dir:1] sm:inset-x-0 sm:mx-auto",
++        "top-end": "top-4 [--toast-dir:1] sm:end-4 sm:start-auto",
++        "bottom-start": "bottom-4 [--toast-dir:-1] sm:start-4 sm:end-auto",
++        "bottom-center": "bottom-4 [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
++        "bottom-end": "bottom-4 [--toast-dir:-1] sm:end-4 sm:start-auto",
++      },
++    },
++    defaultVariants: { position: "bottom-end" },
++  },
++);
++
++/**
++ * The toast surface and its stacking behaviour. Base UI publishes `--toast-index`,
++ * `--toast-offset-y`, `--toast-height`/`--toast-frontmost-height` and the two swipe-movement vars;
++ * the transforms below are the collapsed stack (each toast behind scaled down and peeking by
++ * `--peek`), the expanded stack (`data-expanded`, when the viewport is hovered or focused), and the
++ * swipe/dismiss exits.
++ *
++ * OVL-15: every vertical term is multiplied by `--toast-dir` so one expression serves a top- and a
++ * bottom-pinned stack. The fallback `-1` keeps a hand-composed root that is not inside one of our
++ * viewports behaving exactly as upstream's did.
++ */
++/**
++ * OVL-15: the classes that make a toast part of the CORNER STACK — absolute placement inside the
++ * viewport, the published stacking vars, the collapsed/expanded transforms, the enter/exit travel
++ * and the pointer-bridging gap. An ANCHORED toast is not in that stack: it is placed by
++ * `ToastPositioner`, so emitting any of this would fight the positioner's own transform. Hence a
++ * variant rather than a base, and `anchor: "none"` simply does not emit it.
++ */
++const TOAST_STACK = [
++  "absolute end-0 z-[calc(1000-var(--toast-index))] will-change-transform",
++  "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-swipe-movement-y)+var(--toast-dir,-1)*(var(--toast-offset-y)+var(--toast-index)*var(--gap)))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
++  "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+var(--toast-dir,-1)*(var(--toast-index)*var(--peek)+var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
++  "after:absolute after:start-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
++  "data-expanded:h-(--toast-height) data-expanded:[transform:translateX(var(--toast-swipe-movement-x))_translateY(var(--offset-y))]",
++  "data-limited:opacity-0 data-starting-style:[transform:translateY(calc(var(--toast-dir,-1)*-150%))]",
++  "[&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(calc(var(--toast-dir,-1)*-150%))]",
++  "data-ending-style:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]",
++  "data-ending-style:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))]",
++  "data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
++  "data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
++  "data-expanded:data-ending-style:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]",
++  "data-expanded:data-ending-style:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))]",
++  "data-expanded:data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
++  "data-expanded:data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
++];
++
++const toastVariants = cva(
++  "group/toast pointer-events-auto w-full rounded-2xl border bg-popover text-popover-foreground shadow-lg select-none",
++  {
++    variants: {
++      // Which edge the stack grows from — sets `origin` so the collapsed scale reads right, and
++      // moves the pointer-bridging `::after` to the side the next toast is on. `none` is an
++      // anchored toast: no stack, no transform, nothing for the positioner to fight.
++      anchor: {
++        top: [...TOAST_STACK, "top-0 origin-top after:bottom-full"].join(" "),
++        bottom: [...TOAST_STACK, "bottom-0 origin-bottom after:top-full"].join(
++          " ",
++        ),
++        none: "",
++      },
++    },
++    defaultVariants: { anchor: "bottom" },
++  },
++);
++
++/**
++ * OVL-15: the custom body a toast carries in `data.render`. Passing one keeps the toast a real
++ * toast — stacking, swipe-to-dismiss, `Escape` and the viewport's live region all still apply —
++ * instead of opting out of them.
++ */
++type ToastCustomData = {
++  render?: (toast: ToastPrimitive.Root.ToastObject) => React.ReactNode;
++};
  
  function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
 -  return <ToastPrimitive.Provider {...props} />
@@ -102,14 +250,52 @@ index 325d01b..249df27 100644
 +  );
  }
  
- function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
-@@ -23,19 +46,35 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
+-function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
++function ToastViewport({
++  className,
++  position,
++  ...props
++}: ToastPrimitive.Viewport.Props & VariantProps<typeof toastViewportVariants>) {
+   return (
+     <ToastPrimitive.Viewport
        data-slot="toast-viewport"
-       className={cn(
-         "pointer-events-none fixed inset-x-4 bottom-4 z-50 mx-auto w-auto max-w-sm outline-none sm:end-4 sm:start-auto sm:mx-0 sm:w-full",
+-      className={cn(
+-        "pointer-events-none fixed inset-x-4 bottom-4 z-50 mx-auto w-auto max-w-sm outline-none sm:end-4 sm:start-auto sm:mx-0 sm:w-full",
 -        className
-+        className,
-       )}
+-      )}
++      data-position={position ?? "bottom-end"}
++      className={cn(toastViewportVariants({ position }), className)}
++      {...props}
++    />
++  );
++}
++
++/**
++ * OVL-15: `ToastPositioner` — the anchored-toast wrapper. Base UI can position a toast against an
++ * element instead of stacking it in the corner; pass `positionerProps` on the `add()` call and
++ * compose the toast inside one of these. It shares the viewport's `z-60` band.
++ */
++function ToastPositioner({
++  className,
++  ...props
++}: ToastPrimitive.Positioner.Props) {
++  return (
++    <ToastAnchoredContext.Provider value={true}>
++      <ToastPrimitive.Positioner
++        data-slot="toast-positioner"
++        className={cn("z-60", className)}
++        {...props}
++      />
++    </ToastAnchoredContext.Provider>
++  );
++}
++
++/** OVL-15: the anchored toast's pointer, inheriting the surface it grows from. */
++function ToastArrow({ className, ...props }: ToastPrimitive.Arrow.Props) {
++  return (
++    <ToastPrimitive.Arrow
++      data-slot="toast-arrow"
++      className={cn("text-current", className)}
        {...props}
      />
 -  )
@@ -117,10 +303,38 @@ index 325d01b..249df27 100644
  }
  
 -function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
-+function Toast({ className, render, ...props }: ToastPrimitive.Root.Props) {
++function Toast({
++  className,
++  render,
++  anchor,
++  ...props
++}: ToastPrimitive.Root.Props & VariantProps<typeof toastVariants>) {
++  // OVL-15: inside a positioner the default is `none`, not the corner stack. An explicit `anchor`
++  // still wins, so a caller can compose a stacked toast inside a positioner if they really mean to.
++  const anchored = React.useContext(ToastAnchoredContext);
++  const resolvedAnchor = anchor ?? (anchored ? ("none" as const) : undefined);
++
    return (
      <ToastPrimitive.Root
        data-slot="toast"
+-      className={cn(
+-        "group/toast pointer-events-auto absolute end-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-2xl border bg-popover text-popover-foreground shadow-lg will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+-        "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
+-        "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
+-        "after:absolute after:top-full after:start-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
+-        "data-expanded:h-(--toast-height) data-expanded:[transform:translateX(var(--toast-swipe-movement-x))_translateY(var(--offset-y))]",
+-        "data-limited:opacity-0 data-starting-style:[transform:translateY(150%)]",
+-        "[&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(150%)]",
+-        "data-ending-style:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]",
+-        "data-ending-style:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))]",
+-        "data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
+-        "data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
+-        "data-expanded:data-ending-style:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]",
+-        "data-expanded:data-ending-style:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))]",
+-        "data-expanded:data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
+-        "data-expanded:data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
+-        className
+-      )}
 +      // A11Y-9: `tabIndex` follows `aria-hidden` — see `ToastHiddenFromAtContext`.
 +      render={
 +        render ??
@@ -137,19 +351,7 @@ index 325d01b..249df27 100644
 +          );
 +        })
 +      }
-       className={cn(
--        "group/toast pointer-events-auto absolute end-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-2xl border bg-popover text-popover-foreground shadow-lg will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-+        "group/toast pointer-events-auto absolute end-0 bottom-0 z-[calc(1000-var(--toast-index))] w-full origin-bottom rounded-2xl border bg-popover text-popover-foreground shadow-lg will-change-transform select-none",
-         "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
-         "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
-         "after:absolute after:top-full after:start-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
-@@ -50,11 +89,11 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
-         "data-expanded:data-ending-style:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))]",
-         "data-expanded:data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
-         "data-expanded:data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
--        className
-+        className,
-       )}
++      className={cn(toastVariants({ anchor: resolvedAnchor }), className)}
        {...props}
      />
 -  )
@@ -157,7 +359,7 @@ index 325d01b..249df27 100644
  }
  
  function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
-@@ -63,11 +102,11 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+@@ -63,11 +237,11 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
        data-slot="toast-content"
        className={cn(
          "flex h-full items-center gap-3 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
@@ -171,7 +373,7 @@ index 325d01b..249df27 100644
  }
  
  function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
-@@ -77,7 +116,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+@@ -77,7 +251,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
        className={cn("text-sm font-medium", className)}
        {...props}
      />
@@ -180,8 +382,18 @@ index 325d01b..249df27 100644
  }
  
  function ToastDescription({
-@@ -90,7 +129,7 @@ function ToastDescription({
-       className={cn("text-sm text-muted-foreground", className)}
+@@ -87,10 +261,16 @@ function ToastDescription({
+   return (
+     <ToastPrimitive.Description
+       data-slot="toast-description"
+-      className={cn("text-sm text-muted-foreground", className)}
++      // COL-23: Base UI renders `Toast.Title` as `null` when a toast has no title, so a
++      // description-only toast's ONLY line is this one — its primary message. `first:` gives it the
++      // default ink exactly then; a description that follows a title stays the secondary ink.
++      className={cn(
++        "text-sm text-muted-foreground first:text-popover-foreground",
++        className,
++      )}
        {...props}
      />
 -  )
@@ -189,7 +401,7 @@ index 325d01b..249df27 100644
  }
  
  function ToastAction({
-@@ -98,14 +137,18 @@ function ToastAction({
+@@ -98,14 +278,18 @@ function ToastAction({
    render = <Button variant="outline" size="sm" />,
    ...props
  }: ToastPrimitive.Action.Props) {
@@ -209,7 +421,7 @@ index 325d01b..249df27 100644
  }
  
  function ToastClose({
-@@ -114,59 +157,55 @@ function ToastClose({
+@@ -114,59 +298,55 @@ function ToastClose({
    render = <Button variant="ghost" size="icon-sm" />,
    ...props
  }: ToastPrimitive.Close.Props) {
@@ -285,7 +497,7 @@ index 325d01b..249df27 100644
    }
  
    return (
-@@ -176,11 +215,11 @@ function ToastIcon({ type }: { type: string | undefined }) {
+@@ -176,59 +356,102 @@ function ToastIcon({ type }: { type: string | undefined }) {
      >
        {icon}
      </span>
@@ -293,22 +505,94 @@ index 325d01b..249df27 100644
 +  );
  }
  
- function ToastList() {
+-function ToastList() {
 -  const { toasts } = ToastPrimitive.useToastManager()
-+  const { toasts } = ToastPrimitive.useToastManager();
- 
-   return toasts.map((toastItem) => (
-     <Toast key={toastItem.id} toast={toastItem}>
-@@ -194,7 +233,7 @@ function ToastList() {
-         <ToastClose />
-       </ToastContent>
-     </Toast>
+-
+-  return toasts.map((toastItem) => (
+-    <Toast key={toastItem.id} toast={toastItem}>
+-      <ToastContent>
+-        <ToastIcon type={toastItem.type} />
+-        <div className="flex min-w-0 flex-1 flex-col gap-1">
+-          <ToastTitle />
+-          <ToastDescription />
+-        </div>
+-        <ToastAction />
+-        <ToastClose />
+-      </ToastContent>
+-    </Toast>
 -  ))
-+  ));
++function ToastList({
++  anchor,
++  swipeDirection,
++}: VariantProps<typeof toastVariants> &
++  Pick<ToastPrimitive.Root.Props, "swipeDirection">) {
++  const { toasts } = ToastPrimitive.useToastManager();
++
++  return toasts.map((toastItem) => {
++    // OVL-15: a toast carrying `data.render` owns its own body; everything around it — the surface,
++    // the stack, the swipe and the live region — is unchanged.
++    const custom = (toastItem.data as ToastCustomData | undefined)?.render;
++
++    return (
++      <Toast
++        key={toastItem.id}
++        toast={toastItem}
++        anchor={anchor}
++        swipeDirection={swipeDirection}
++      >
++        <ToastContent>
++          {custom ? (
++            custom(toastItem)
++          ) : (
++            <>
++              <ToastIcon type={toastItem.type} />
++              <div className="flex min-w-0 flex-1 flex-col gap-1">
++                <ToastTitle />
++                <ToastDescription />
++              </div>
++              <ToastAction />
++              <ToastClose />
++            </>
++          )}
++        </ToastContent>
++      </Toast>
++    );
++  });
  }
  
  function Toaster({
-@@ -211,11 +250,11 @@ function Toaster({
+   children,
+   toastManager = toast,
++  position = "bottom-end",
++  swipeDirection,
+   ...props
+-}: ToastPrimitive.Provider.Props) {
++}: ToastPrimitive.Provider.Props & {
++  /**
++   * OVL-15: which corner the stack pins to. Inline names are logical, so `bottom-end` is
++   * bottom-right in an LTR document and bottom-left in an RTL one.
++   * @default 'bottom-end'
++   */
++  position?: ToastPosition;
++  /**
++   * Direction(s) a toast can be swiped to dismiss. Defaults to the stack's own block direction
++   * plus both inline directions, so a toast always swipes away from the edge it entered from.
++   */
++  swipeDirection?: ToastPrimitive.Root.Props["swipeDirection"];
++}) {
++  const anchor = position.startsWith("top") ? "top" : "bottom";
++  const swipe: ToastPrimitive.Root.Props["swipeDirection"] =
++    swipeDirection ??
++    (anchor === "top" ? ["up", "left", "right"] : ["down", "left", "right"]);
++
+   return (
+     <ToastProvider toastManager={toastManager} {...props}>
+       {children}
+       <ToastPortal>
+-        <ToastViewport>
+-          <ToastList />
++        <ToastViewport position={position}>
++          <ToastList anchor={anchor} swipeDirection={swipe} />
          </ToastViewport>
        </ToastPortal>
      </ToastProvider>
@@ -323,9 +607,20 @@ index 325d01b..249df27 100644
  
  export {
    Toaster,
-@@ -231,4 +270,4 @@ export {
+   Toast,
+   ToastAction,
++  ToastArrow,
+   ToastClose,
+   ToastContent,
+   ToastDescription,
+   ToastPortal,
++  ToastPositioner,
+   ToastProvider,
+   ToastTitle,
+   ToastViewport,
    createToastManager,
    toast,
    useToastManager,
 -}
++  type ToastPosition,
 +};

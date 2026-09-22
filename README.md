@@ -29,7 +29,7 @@ packages/
   design-tokens/   zero-dependency DTCG token contract (theme/base/utilities CSS + JSON)
   design/          cn() · icon runtime (./icons) · Tailwind v4 preset · vegastack-design CLI
   ui/              PRIVATE registry workspace — canonical component sources + registry.json
-  ui/upstream/     patches/<name>.patch · decisions.json · exception-map.json · ours.json · retired.json
+  ui/upstream/     patches/<name>.patch · decisions.json · exception-map.json · ours.json · excluded.json
 apps/docs/         Fumadocs showcase + guides + the registry host (public/r)
 tooling/           verify.mjs (the one command) · upstream/ (pull · diff · parity · variant coverage)
                    registry hashing/verification · design-lint · lints

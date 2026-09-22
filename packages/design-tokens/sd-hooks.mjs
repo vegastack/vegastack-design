@@ -113,11 +113,16 @@ StyleDictionary.registerTransform({
 
 // The `@theme inline` bridge, in upstream's own shape.
 //
-// It is deliberately thin now. Before the reset this format carried two parallel type ladders, a
+// It is deliberately thin. Before the reset this format carried two parallel type ladders, a
 // scoped `--type-*` binding, a `--text-*` remap, a hand-written radius scale with the `xl` step
 // REMOVED so a lint could ban it, a single `--shadow-overlay` role and a `--blur-glass` role. The
-// reset deletes all of that (TYP-1, BRD-3/4/6 = shadcn): type is stock Tailwind, radius derives
-// from `--radius` exactly as upstream derives it, and shadows are per-component `shadow-sm/md/lg`.
+// reset deletes all of that (TYP-1, BRD-3/4/6 = shadcn): type SIZES are stock Tailwind, radius
+// derives from `--radius` exactly as upstream derives it, and shadows are per-component
+// `shadow-sm/md/lg`.
+//
+// TYP-15 (ours, MK 2026-09-22) adds back ONE thing, and only above the copy tier: the heading
+// tier's optical metrics. See the HEADING TIER block below for why that is not a re-opening of
+// TYP-1.
 //
 // What remains is what upstream's own `globals.css` bridges — every semantic colour, the radius
 // ramp, the font families and the heading alias — plus the four VegaStack motion eases and three
@@ -140,6 +145,47 @@ StyleDictionary.registerFormat({
       "  --radius-2xl: calc(var(--radius) * 1.8);",
       "  --radius-3xl: calc(var(--radius) * 2.2);",
       "  --radius-4xl: calc(var(--radius) * 2.6);",
+      "  /* ── TYP-15 (ours) — HEADING TIER OPTICAL METRICS ────────────────────────────────────",
+      "     Geist's published spec splits a COPY tier (letter-spacing 0) from a HEADING tier whose",
+      "     letter-spacing goes negative as size grows. This system's copy sizes are 12/14/16 —",
+      "     exactly Geist's copy tier — so `text-xs`, `text-sm` and `text-base` are NOT declared",
+      "     here: they stay stock, untouched, and the 202 component usages of them render",
+      "     byte-identically. Restating them at their stock values would be the same dead",
+      "     restatement `restated-motion-reduce` and `restated-focus` exist to reject.",
+      "",
+      "     SIZES ARE STOCK. Only `--line-height` and `--letter-spacing` move, so TYP-1 stays",
+      "     **shadcn** and a pasted shadcn snippet still renders at upstream's size. The size is",
+      "     restated on each step anyway because a modifier with no base is meaningless to read,",
+      "     and it pins the ramp against a future Tailwind default change.",
+      "",
+      "     Two of these go LOOSER, not tighter. Stock Tailwind collapses 3xl-7xl toward 1.0, which",
+      "     clips Geist's descenders once negative tracking pulls the glyphs together; Vercel runs",
+      "     48px at 56px leading, not 48. And stock `text-lg` (1.556) is looser than `text-base`",
+      "     (1.5) — non-monotonic, and backwards from the shape this ramp exists to produce. */",
+      "  --text-lg: 1.125rem;",
+      "  --text-lg--line-height: 1.625rem;",
+      "  --text-lg--letter-spacing: -0.012em;",
+      "  --text-xl: 1.25rem;",
+      "  --text-xl--line-height: 1.625rem;",
+      "  --text-xl--letter-spacing: -0.02em;",
+      "  --text-2xl: 1.5rem;",
+      "  --text-2xl--line-height: 2rem;",
+      "  --text-2xl--letter-spacing: -0.04em;",
+      "  --text-3xl: 1.875rem;",
+      "  --text-3xl--line-height: 2.375rem;",
+      "  --text-3xl--letter-spacing: -0.04em;",
+      "  --text-4xl: 2.25rem;",
+      "  --text-4xl--line-height: 2.75rem;",
+      "  --text-4xl--letter-spacing: -0.05em;",
+      "  --text-5xl: 3rem;",
+      "  --text-5xl--line-height: 3.5rem;",
+      "  --text-5xl--letter-spacing: -0.06em;",
+      "  --text-6xl: 3.75rem;",
+      "  --text-6xl--line-height: 4rem;",
+      "  --text-6xl--letter-spacing: -0.06em;",
+      "  --text-7xl: 4.5rem;",
+      "  --text-7xl--line-height: 4.5rem;",
+      "  --text-7xl--letter-spacing: -0.06em;",
       "  --font-sans: var(--font-family-sans);", // distinct runtime name -> no self-reference (Codex F7)
       "  --font-mono: var(--font-family-mono);",
       "  --font-serif: var(--font-family-serif);",

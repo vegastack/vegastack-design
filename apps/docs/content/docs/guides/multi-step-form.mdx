@@ -1,126 +1,136 @@
 ---
-title: Assembling a multi-step form
-description: Compose Stepper with Field, per-step validation, and async advance gating — the wizard recipe the components deliberately don't own.
+title: Building a multi-step flow
+description: Which component to reach for, how guards and branching work, and when to drop to Stepper and drive the flow yourself.
 audience: public
 ---
 
-[`Stepper`](/docs/components/stepper) communicates a bounded linear process; it
-deliberately owns no Back/Next buttons, no step bodies, and no validation.
-Assembling those into a working wizard is app orchestration, and this page is
-that recipe.
+Two components cover this, and picking the wrong one is the usual mistake.
+
+| You have                                                | Reach for                                           |
+| ------------------------------------------------------- | --------------------------------------------------- |
+| Progress the **system** drives and a person reads       | [`Stepper`](/docs/components/stepper) alone         |
+| A process a **person** drives, with bodies and controls | [`MultiStepForm`](/docs/components/multi-step-form) |
+| One question at a time, with its own shortcut keys      | [`Questionnaire`](/docs/components/questionnaire)   |
+| Free movement between peer views                        | [`Tabs`](/docs/components/tabs) — never a stepper   |
+
+An order tracker, a deployment pipeline, an import running on a server: those
+are `Stepper`. It renders no buttons because those flows need none. A signup, a
+checkout, an import wizard, a multi-section record editor: those are
+`MultiStepForm`, which composes `Stepper` and adds the bodies, the action row
+and the guards.
 
 ## The shape
 
 ```tsx
-import { Stepper, type StepperStep } from "@/components/ui/stepper";
-import { Button } from "@/components/ui/button";
+const steps = [
+  { id: "account", label: "Account" },
+  { id: "company", label: "Business details", when: type === "business" },
+  {
+    id: "billing",
+    label: "Billing",
+    lock: true,
+    beforeNext: async () => (await charge()) || "Your bank declined this card.",
+  },
+  { id: "review", label: "Review" },
+];
 
-const STEP_IDS = ["details", "mapping", "review"] as const;
-type StepId = (typeof STEP_IDS)[number];
-
-function ImportWizard() {
-  const [current, setCurrent] = useState<StepId>("details");
-  const [failed, setFailed] = useState<Set<StepId>>(new Set());
-  const index = STEP_IDS.indexOf(current);
-
-  const steps: StepperStep[] = STEP_IDS.map((id, i) => ({
-    id,
-    label: STEP_LABELS[id],
-    state: failed.has(id)
-      ? "error"
-      : i < index
-        ? "complete"
-        : i === index
-          ? "current"
-          : "upcoming",
-  }));
-
-  return (
-    <div className="flex flex-col gap-6">
-      <Stepper
-        aria-label="Import"
-        steps={steps}
-        blockedReason={blockedReason}
-        blockedReasonId="wizard-block"
-      />
-      {/* One form region per step — only the current one renders. */}
-      <StepBody id={current} />
-      <div className="flex gap-2">
-        <Button variant="outline" disabled={index === 0} onClick={back}>
-          Back
-        </Button>
-        <Button
-          disabled={blockedReason != null}
-          aria-describedby={blockedReason ? "wizard-block" : undefined}
-          onClick={next}
-        >
-          Next
-        </Button>
-      </div>
-    </div>
-  );
-}
+<MultiStepForm steps={steps}>
+  <MultiStepFormNav aria-label="Signup" />
+  <MultiStepFormStep id="account">{/* a Field form */}</MultiStepFormStep>
+  <MultiStepFormStep id="company">{/* another */}</MultiStepFormStep>
+  <MultiStepFormStep id="billing">{/* another */}</MultiStepFormStep>
+  <MultiStepFormStep id="review">
+    {/* a PropertyList — no form at all */}
+  </MultiStepFormStep>
+  <MultiStepFormActions />
+</MultiStepForm>;
 ```
 
-Three decisions carry the accessibility of the whole flow, and the components
-already make them for you:
+The `steps` array is the flow; each `MultiStepFormStep` is one body, and only
+the current one renders.
 
-1. **States are explicit.** Deriving complete/upcoming from the index would
-   bake in "linear and always forward" — an import with a failed step is not.
-   Keep a `failed` set and mark those steps `state: "error"`.
-2. **Focus follows the process.** When `current` changes, `Stepper` moves focus
-   to the new step's label (never on mount). Don't also focus the first field —
-   one movement per transition.
-3. **The blocked reason is data.** Pass `blockedReason` and wire your Next
-   button's `aria-describedby` to `blockedReasonId` — the reason then reads with
-   the control that it blocks.
+## It holds no answers, and that is the point
 
-## Per-step validation
-
-Each step body is an ordinary [`Field`](/docs/components/field) form. Validate
-on the Next click and translate the failure into the gate:
+`when` and `satisfied` are plain booleans **you** compute from state you already
+have, and a guard is an ordinary function returning a promise. That is what lets
+the component ship with no validation library: React Hook Form, Zod, Valibot or a
+hand-written check all plug in from your side, and none of them becomes a
+dependency of the design system.
 
 ```tsx
-const [blockedReason, setBlockedReason] = useState<string>();
-
-async function next() {
-  const result = await validateStep(current); // zod, server call, anything
-  if (!result.ok) {
-    setBlockedReason(result.message); // "Map every required column to continue"
-    return;
-  }
-  setBlockedReason(undefined);
-  setCurrent(STEP_IDS[index + 1]!);
-}
+beforeNext: async () => {
+  const result = schema.safeParse(values);
+  return result.success || result.error.issues[0].message;
+};
 ```
 
-Async gates (a server-side check) work the same way — disable Next with a
-`loading` [`Button`](/docs/components/button) while the check is in flight, and
-never advance optimistically: a wizard that has to walk backwards after the
-fact loses the user's place _and_ their trust.
+## Refusing a move
 
-## Revisiting completed steps
+Return `true` to pass, or a sentence to refuse. The sentence is rendered above
+the action row and tied to the forward button through `aria-describedby`, so it
+reads out with the control it blocks and is still there when the user comes back
+to try again.
 
-For flows where earlier steps stay editable, add `navigable` — completed steps
-become real buttons and fire `onStepSelect`:
+Weight follows cause, and the component decides it so an app team cannot get it
+wrong:
 
-```tsx
-<Stepper
-  aria-label="Import"
-  steps={steps}
-  navigable
-  onStepSelect={(id) => setCurrent(id as StepId)}
-/>
-```
+- a check that **ran and failed** → an assertive `Alert`, and the step is marked
+  in the rail;
+- a gate that is **simply not satisfied yet** → `{ reason, tone: "soft" }`, a
+  quiet polite line, and the rail is left alone.
 
-Keep `navigable` off for strictly linear flows (checkout payment steps):
-non-interactive steps are a promise that order matters.
+A **toast is for neither of those.** It leaves before a slow reader reaches it
+and it is not attached to the button, which is what WCAG 3.3.1 is about. The one
+failure a toast belongs to is the check that could not run at all — a network
+drop, a 500 — and that arrives as `onTransportError` for you to render.
 
-## Where the pieces live
+## Reachability, deep links and resume
 
-| Concern                         | Owner                                                 |
-| ------------------------------- | ----------------------------------------------------- |
-| Progress display, states, focus | `Stepper`                                             |
-| Step bodies, validation         | Your forms (`Field`, `Input`, zod)                    |
-| Advance gating logic            | Your `next()` — `Stepper` only communicates the block |
-| Compact progress (no step list) | [`Progress`](/docs/components/progress)               |
+Mark a step `satisfied` when its data is already there. That single predicate
+decides four things, so they can never disagree:
+
+1. which steps a pasted `#step=…` link may open;
+2. whether the rail starts complete or empty;
+3. whether jumping between steps is offered at all;
+4. which layout a phone gets.
+
+Creating a record satisfies nothing, so a bookmark to step 4 rewinds to step 1.
+Editing one satisfies everything, so the same link opens exactly where it points.
+There is no `mode="create" | "edit"` to keep in sync with the data.
+
+`urlSync` writes `#step=<id>` — a hash, not a query parameter, because a registry
+component may not import a framework's router and a hash needs no adapter passed
+in, never reaches the server, and makes the browser's Back button move a step
+instead of leaving the page.
+
+`persistKey` remembers the position and the steps passed for the life of the tab.
+It is opt-in and off by default: wizard answers are frequently personal, and a
+design system does not get to decide that for you. Never point it at payment
+details.
+
+## Inside a dialog, and leaving one
+
+`layout="panel"` is the shape for a `Dialog`, `Sheet` or `Drawer`: the nav and the action
+row hold their place, the step body becomes the one scrolling region, and the frame cannot
+grow past the viewport and carry its own footer off screen.
+
+Pair it with `dirty` and `MultiStepFormExit`. You decide what dirty means; while it is true,
+leaving asks first and the browser warns on a refresh or a closed tab — the half no
+component can fake. With nothing dirty it just leaves, because a confirmation nobody needs
+is the fastest way to teach people to dismiss confirmations unread.
+
+## When to drop to `Stepper`
+
+When the chrome cannot look like ours — a sticky Continue bar pinned to the
+bottom of a phone, a full-page onboarding where each step is its own illustrated
+screen. Compose `Stepper` and hold the current step yourself; it still gives you
+the states, the rail, the collapse and the focus move.
+
+Three things stay true whichever you pick:
+
+1. **States are explicit.** Deriving them from an index bakes in "linear and
+   always forward", which an import with a failed step is not.
+2. **Focus moves once per transition.** `Stepper` owns it — do not also focus the
+   first field.
+3. **Never advance optimistically.** A flow that walks backwards after the fact
+   loses the user's place and their trust.
