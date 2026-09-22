@@ -840,7 +840,12 @@ A11Y-12 · A11Y-13 · A11Y-16 · FRM-4`
   it, and **neither is carried as an axe suppression**.
 - **A11Y-11** — a stepper is an ordered list with `aria-current="step"`, never tab semantics.
 - **A11Y-12** — a loading button keeps its label at `opacity-0` under the spinner, never
-  `visibility: hidden`, so the box and the accessible name both survive.
+  `visibility: hidden`, so the box and the accessible name both survive. **The label wrapper has
+  to generate a box for that to mean anything**: `display: contents` generates none, so it
+  accepts no `opacity` and the label paints at full strength under the spinner — which is how
+  Toggle shipped for a release while a unit assertion on the `opacity-0` CLASS stayed green. Live
+  at Button and Toggle, measured in `test/control-paint.browser.test.tsx` and
+  `test/button-states.browser.test.tsx`.
 - **A11Y-13** — **a soft status surface takes the family's `-text` ink, never the fill as ink.**
   `bg-<family>/10 text-<family>-text`. The row is the rule, not a roster: it reaches a tinted status
   surface whenever the pair **measures** under the AA floor A11Y-1 enforces. Upstream's
@@ -859,7 +864,7 @@ A11Y-12 · A11Y-13 · A11Y-16 · FRM-4`
 
 ### 4. Tokens and semantics we add
 
-`COL-12 · COL-18 · COL-20 · COL-22 · TYP-10 · ICO-1 · ICO-3 · ICO-6`
+`COL-12 · COL-18 · COL-20 · COL-22 · TYP-10 · ICO-1 · ICO-3 · ICO-6 · ICO-8`
 
 Four status families written in upstream's own `destructive` shape (COL-12); a status hue means
 status, not sentiment — a favourite star is `foreground`, not `warning` (COL-18); semantic tokens
@@ -867,7 +872,8 @@ only, no authored hex and no numbered Tailwind palette (COL-20); `color-scheme` 
 (COL-22); Geist Sans and Geist Mono with tabular figures on code and data (TYP-10). Icons are lucide,
 the lucide-animated mirrors and `thesvg` brand glyphs through `Icon`/`BrandIcon` and nothing else
 (ICO-1); no inline `<svg>` as an icon (ICO-3); the animated-icon factory owns the trigger and
-reduced-motion rules (ICO-6). The token additions themselves are the next section.
+reduced-motion rules (ICO-6); **the indeterminate loading mark is lucide `Loader`, never
+`Loader2`/`LoaderCircle`** (ICO-8). The token additions themselves are the next section.
 
 **COL-20 is narrower than it was.** `bg-black/10` and `bg-white` pass — they are upstream's own scrim
 vocabulary — and a raw `/NN` alpha or an `opacity-50` is ordinary Tailwind now, because the alpha and

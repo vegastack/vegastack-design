@@ -134,6 +134,11 @@ Upstream's file plus `packages/ui/upstream/patches/sonner.patch`. Every hunk:
   it for every toast, which is A11Y-4's mounted-empty region and A11Y-3's polite-by-default policy.
   `sonner.test.tsx` asserts that region exists before any toast is fired, so the day the engine
   changes the test fails.
+- **ICO-8** — the `loading` icon is `LoaderIcon` (lucide `loader`) in place of upstream's
+  `Loader2Icon`, which is an alias of `LoaderCircle`. One loader shape across the system:
+  [`Spinner`](/docs/components/spinner), [Toast](/docs/components/toast)'s loading icon, this one
+  and [`StatusIcon`](/docs/components/status-icon)'s `progress` are the same object spinning. The
+  `size-4 animate-spin` recipe and the other four glyphs are upstream's.
 - **DOC-1** — `registry-stamp.mjs` writes the provenance header the three-copy model needs, and
   prettier reflows the file; neither carries a decision of its own. There is no `cn` hunk here:
   upstream's sonner imports no `cn`.

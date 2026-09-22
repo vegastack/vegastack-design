@@ -16,7 +16,8 @@ rule reject the upstream file this system is now built from?** Every rule whose 
 `bg-muted/50`, `opacity-50`, `z-50`, `h-[18.4px]`, `rounded-[4px]`, `text-4xl`, `font-semibold`,
 `tracking-tight`, `cursor-default` on menu rows, and a `hover:` with no `active:` beside it. Seventeen
 rules went; one arrived, `no-focus-ring-glow`, which is the machine half of the one visual decision
-this reset keeps against upstream everywhere.
+this reset keeps against upstream everywhere. A second, `loader-mark`, arrived later for the same
+reason on a smaller decision (ICO-8).
 
 **When you find something the linter no longer covers, that is usually the decision, not a gap.**
 Check `decisions.md` before reporting it. What survived is the set that is still true of a system
@@ -56,62 +57,75 @@ that catch bugs nobody can see in review.
    next pull and nothing says so. It is not scoped to focus contexts on purpose: FOC-6 bans a
    box-shadow ring _anywhere_, which is why `bubble`'s decorative `ring-3 ring-card` cutout became
    `outline-3 outline-card` (identical paint, no box-shadow) in Batch 1.
-6. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. The allowlist is ONE file:
+6. **`loader-mark`** (AST, ICO-8, **new 2026-09-22**) — a `lucide-react` import of `Loader2`,
+   `Loader2Icon`, `LoaderCircle` or `LoaderCircleIcon` in canonical registry source. Those are FOUR
+   NAMES for ONE glyph — lucide re-exports the first two straight off `LoaderCircle` — and ICO-8
+   gives the system one indeterminate loading mark, lucide `Loader` (`LoaderIcon`). The rule reads
+   the IMPORTED name, not the local binding, so `import { LoaderCircle as Spin }` is caught. Same
+   role as `no-focus-ring-glow`: byte parity already holds `spinner`, `toast` and `sonner` to their
+   ICO-8 hunks, but nothing stopped a NEW component of ours — which has no patch — from reaching
+   for the mark upstream writes everywhere. Scoped to `registry/{ui,blocks}/` and excluding
+   `registry/ui/icons/`: the 467 animated mirrors are a lucide CATALOGUE, and the docs'
+   `spinnerCustomization` preview mounts `LoaderCircleIcon` on purpose to show what swapping the
+   mark looks like. Where a loading affordance is what you mean, compose the `spinner` registry
+   item rather than importing any mark directly.
+
+7. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. The allowlist is ONE file:
    `empty.tsx`, which draws upstream's decorative backdrop — a non-icon graphic primitive. Two
    entries left rather than being carried: the lucide-animated mirrors, now data modules over one
    factory with no JSX at all (`tooling/verify-animated-icons.mjs` asserts that directly), and
    `progress-indicator`, whose determinate ring went with the component when Batch 7a of the shadcn
    reset retired it. (ICO-3.)
-7. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
+8. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
    UI's polymorphic `render` prop. There is NO allowlisted exemption: `split-button.tsx` was the one
    entry, and Batch 7a of the shadcn reset retired it, so the rule now fails closed for every file.
    "Purely presentational, no single root" (Card/PageHeader/Empty/SettingsRow)
    is a valid reason to have NO `render` prop at all, which is different from stripping one via
    `Omit` — do not accept the former as justification for the latter. (API-15.)
-8. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
+9. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
    import (including aliases) are banned. React 19 components accept `ref` as a normal prop. This
    applies to generated animated icons too — normalize at the generator, never by hand-editing a
    generated file. (API-15.)
-9. **`raw-interactive-html`** (AST) — canonical registry components may not render native
-   `<button>`/`<input>`/`<select>`/`<textarea>` unless the file has an exact per-tag count and a
-   concrete adapter/integration rationale in `RAW_INTERACTIVE_EXEMPTIONS`. Counts fail closed in both
-   directions: adding or removing a reviewed native control requires re-audit. (API-15.) Batch 6 of
-   the shadcn reset is what "removing" looks like: upstream's `AttachmentTrigger` reaches its button
-   through `useRender({ defaultTagName: "button" })` and writes no `<button>` JSX, so the
-   `/attachment.tsx` entry dropped to zero and was DELETED rather than carried at `{}` — an
-   exemption that can no longer be reached is one that should not exist.
-10. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
+10. **`raw-interactive-html`** (AST) — canonical registry components may not render native
+    `<button>`/`<input>`/`<select>`/`<textarea>` unless the file has an exact per-tag count and a
+    concrete adapter/integration rationale in `RAW_INTERACTIVE_EXEMPTIONS`. Counts fail closed in both
+    directions: adding or removing a reviewed native control requires re-audit. (API-15.) Batch 6 of
+    the shadcn reset is what "removing" looks like: upstream's `AttachmentTrigger` reaches its button
+    through `useRender({ defaultTagName: "button" })` and writes no `<button>` JSX, so the
+    `/attachment.tsx` entry dropped to zero and was DELETED rather than carried at `{}` — an
+    exemption that can no longer be reached is one that should not exist.
+11. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
     `'use client'` must contain a concrete client requirement: a Base UI/approved engine dependency, a
     React hook/context, an event binding, or a browser API. Pure presentational wrappers stay
     server-safe. (API-16.)
-11. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
+12. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
     `<Button size="icon*">` with no `aria-label`/`aria-labelledby` on the same element AND no spread
     that could supply one. Upstream's Button HAS `icon`, `icon-xs`, `icon-sm` and `icon-lg` sizes
     (API-4 is decided as **shadcn**, and Batch 7a retired `IconButton`), so this rule is now the ONE
     accessible-name check for every icon-only button in the system — there is no longer a wrapper
     enforcing it at the type level.
-12. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
+13. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
     assigned through `x.current = …` in one file. That pair is a ref fan-out and nothing else. Under
     React 19 ref-as-prop, "I need the node and must also forward it" is the normal case, so the
     pattern reappears constantly; `mergeRefs` from `@vegastack/design` is the one implementation
     (wrap the call in `useMemo` — it is not memoized).
-13. **`flex-truncate-conflict`** — `flex`/`inline-flex` co-located with `truncate`/`line-clamp-*` in
+14. **`flex-truncate-conflict`** — `flex`/`inline-flex` co-located with `truncate`/`line-clamp-*` in
     one class literal on the same element. `.flex` always wins the display conflict (verified in the
     compiled cascade), silently defeating the ellipsis. Correct pattern: `flex min-w-0` on the
     container, `truncate` on an inner span. (LAY-11.)
-14. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
+15. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
     `motion-reduce:duration-0` or `motion-reduce:transition-duration-*`. base.css already collapses
     animation and transition duration to 0.01ms under `prefers-reduced-motion`. Scoped on purpose:
     `motion-reduce:transform-none` and other END-STATE suppressions are NOT restatements — they
     remove the displacement itself, which the global reset does not — and stay legal. (MOT-5.)
-15. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
+16. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
     review, survives every merge, and defeats grep (`"a  b"` does not match `/a b/`, which is how
     audit sweeps undercounted). Applies to plain string literals only: a template's spans are joined
     with a synthetic space by the parser, and a multi-line literal is prose, not a class string.
-16. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
+17. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
     the component has stopped styling itself and started styling its children's internals from the
     outside (`audio-player` held 76). Give the child a `data-slot` and let it own the rule.
-17. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
+18. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
     space, so JavaScript welds them into one word and the utility on BOTH sides of the seam is
     destroyed (`"…p-0.5" + "bg-muted …"` ships `p-0.5bg-muted`, which Tailwind never emits and the
     browser silently drops). **AST-only, and it has to be**: every other rule reads one literal at a

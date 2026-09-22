@@ -1,11 +1,11 @@
-// @vegastack spinner@0.11.1 sha256-/+77YAzCOIyyfR9cvxcPZ4swdavTsCJNiDv+Zvqg6Ik=
+// @vegastack spinner@0.11.1 sha256-T7VQuX2RTIc1qi5+s6Brhzc+pi0qJIPbmgeFmPyiXVY=
 
 import { cn } from "@vegastack/design";
-import { Loader2Icon } from "lucide-react";
+import { LoaderIcon } from "lucide-react";
 
 function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
   return (
-    <Loader2Icon
+    <LoaderIcon
       data-slot="spinner"
       role="status"
       aria-label="Loading"

@@ -8,12 +8,17 @@
 #     Tooltip can explain why it is unavailable. Base UI's Toggle has no `focusableWhenDisabled`,
 #     so the native `disabled` attribute stays — the pointer half of FRM-4 only.
 #   API-5, A11Y-12: the `loading` prop, the out-of-flow spinner, and the label held at
-#     `opacity-0` so the control's width does not move and its accessible name survives.
+#     `opacity-0` so the control's width does not move and its accessible name survives. The
+#     label wrapper is an `inline-flex` box inheriting the root's `gap`, exactly as Button's is.
+#     It shipped as `display: contents`, which generates NO box and therefore accepts no
+#     `opacity`: the label painted at full strength UNDER the spinner for a full release, while
+#     `toggle.test.tsx` asserted the `opacity-0` CLASS and passed. The compiled-CSS proof is in
+#     `test/control-paint.browser.test.tsx` (ICO-8's sibling fix, 2026-09-22).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle.tsx b/toggle.tsx
-index 1651768..9bfd0ad 100644
+index 1651768..39cabac 100644
 --- a/toggle.tsx
 +++ b/toggle.tsx
 @@ -1,11 +1,13 @@
@@ -35,7 +40,7 @@ index 1651768..9bfd0ad 100644
    {
      variants: {
        variant: {
-@@ -23,22 +25,50 @@ const toggleVariants = cva(
+@@ -23,22 +25,55 @@ const toggleVariants = cva(
        variant: "default",
        size: "default",
      },
@@ -58,7 +63,10 @@ index 1651768..9bfd0ad 100644
 +  VariantProps<typeof toggleVariants> & {
 +    /**
 +     * Shows a spinner over the label, blocks activation and sets `aria-busy`. The label keeps its
-+     * box at `opacity: 0`, so the toggle's width does not move (API-5, A11Y-12).
++     * box at `opacity: 0`, so the toggle's width does not move and its accessible name survives
++     * (API-5, A11Y-12). The wrapper is a real `inline-flex` box inheriting the root's `gap`, never
++     * `display: contents`: a box-less element accepts no `opacity`, so the label would paint at
++     * full strength under the spinner.
 +     */
 +    loading?: boolean;
 +  }) {
@@ -81,7 +89,9 @@ index 1651768..9bfd0ad 100644
 +          >
 +            <Spinner aria-label={undefined} />
 +          </span>
-+          <span className="contents opacity-0">{children}</span>
++          <span className="inline-flex items-center justify-center gap-[inherit] opacity-0">
++            {children}
++          </span>
 +        </>
 +      ) : (
 +        children

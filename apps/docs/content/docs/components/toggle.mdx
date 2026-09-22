@@ -106,5 +106,8 @@ Upstream's file plus `packages/ui/upstream/patches/toggle.patch`. Every hunk:
   attribute stays: this is the pointer half of FRM-4 only.
 - **API-5, A11Y-12** — the `loading` prop, the out-of-flow spinner and the `opacity-0` label; the
   dim is scoped to `disabled:not-data-loading:opacity-50` so a loading toggle is not dimmed twice.
+  The label wrapper is a real `inline-flex` box inheriting the root's `gap`, exactly as
+  [Button](/docs/components/button)'s is — a `display: contents` wrapper generates no box and so
+  accepts no `opacity`, which would leave the label painted at full strength under the spinner.
   This is why `toggle` depends on the `spinner` registry item.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

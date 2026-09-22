@@ -1,9 +1,9 @@
 {
-  "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (172 rows: 168 decided by MK 2026-09-17/18, plus A11Y-13 added by MK 2026-09-18 during Batch 2, A11Y-16 added by MK 2026-09-18 after the Codex review of main..HEAD, OVL-14 added by MK 2026-09-18 for the closing pass, and TYP-14 explicitly ratified by MK 2026-09-21 for issue #148. IDs A11Y-14 and A11Y-15 are permanently unused: two subagents invented them during Batch 4 and Batch 5 reverted them.)",
+  "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (173 rows: 168 decided by MK 2026-09-17/18, plus A11Y-13 added by MK 2026-09-18 during Batch 2, A11Y-16 added by MK 2026-09-18 after the Codex review of main..HEAD, OVL-14 added by MK 2026-09-18 for the closing pass, TYP-14 explicitly ratified by MK 2026-09-21 for issue #148, and ICO-8 added by MK 2026-09-22 to make lucide `Loader` the one indeterminate loading mark. IDs A11Y-14 and A11Y-15 are permanently unused: two subagents invented them during Batch 4 and Batch 5 reverted them.)",
   "_note": "GENERATED from the prose register, which is an untracked planning document. Regenerate with: node tooling/upstream/verify-parity.mjs --sync-decisions. A gate may only accept an ID whose value here is \"ours\".",
   "counts": {
-    "total": 172,
-    "ours": 62,
+    "total": 173,
+    "ours": 63,
     "shadcn": 110
   },
   "decisions": {
@@ -75,6 +75,7 @@
     "TYP-11": "shadcn",
     "TYP-12": "shadcn",
     "TYP-13": "ours",
+    "TYP-14": "ours",
     "MOT-1": "shadcn",
     "MOT-2": "shadcn",
     "MOT-3": "shadcn",
@@ -113,6 +114,7 @@
     "A11Y-11": "ours",
     "A11Y-12": "ours",
     "A11Y-13": "ours",
+    "A11Y-16": "ours",
     "FRM-1": "shadcn",
     "FRM-2": "shadcn",
     "FRM-3": "shadcn",
@@ -140,6 +142,7 @@
     "OVL-11": "ours",
     "OVL-12": "shadcn",
     "OVL-13": "ours",
+    "OVL-14": "ours",
     "ICO-1": "ours",
     "ICO-2": "shadcn",
     "ICO-3": "ours",
@@ -147,6 +150,7 @@
     "ICO-5": "shadcn",
     "ICO-6": "ours",
     "ICO-7": "shadcn",
+    "ICO-8": "ours",
     "API-1": "shadcn",
     "API-2": "shadcn",
     "API-3": "shadcn",
@@ -175,9 +179,6 @@
     "DOC-9": "ours",
     "DOC-10": "shadcn",
     "DOC-11": "shadcn",
-    "DOC-12": "shadcn",
-    "A11Y-16": "ours",
-    "OVL-14": "ours",
-    "TYP-14": "ours"
+    "DOC-12": "shadcn"
   }
 }

@@ -15,6 +15,7 @@ import { NumberField } from "../registry/ui/number-field";
 import { Switch } from "../registry/ui/switch";
 import { Textarea } from "../registry/ui/textarea";
 import { Toaster, toast } from "../registry/ui/toast";
+import { Toggle } from "../registry/ui/toggle";
 
 /**
  * CONTROL-PAINT CONTRACTS — what the browser paints, not what the source authored.
@@ -452,5 +453,113 @@ describe("aria-invalid reaches the element that paints the tint", () => {
     ).toEqual(
       numbers(getComputedStyle(q.testId("ref-textarea")).borderTopColor),
     );
+  });
+});
+
+describe("Toggle — the loading label is hidden by a box that still holds the width", () => {
+  /**
+   * WHY THIS LANE EXISTS (2026-09-22)
+   *   `toggle.test.tsx` asserted `toHaveClass("opacity-0")` on the loading label and passed, while
+   *   the shipped control wrapped that label in `className="contents opacity-0"`. `display: contents`
+   *   generates NO box, so the element accepts neither the opacity nor a width: the label painted at
+   *   full strength UNDER the spinner, and the control's reserved width collapsed to zero. The class
+   *   was present the whole time — asserting the class is the fail-open, and only the compiled-CSS
+   *   measurement can tell the two apart. Button's own lane has carried the
+   *   `display).not.toBe("contents")` assertion since it was written; Toggle implements the same two
+   *   rows (API-5, A11Y-12) and simply never had one.
+   */
+  test("A11Y-12: the label wrapper is a real box at opacity 0, not `display: contents`", async () => {
+    const screen = await render(
+      <Stage>
+        <Toggle loading>
+          <span data-testid="toggle-label">Bookmark</span>
+        </Toggle>
+      </Stage>,
+    );
+    await settle();
+    const wrapper = within(screen.container).testId(
+      "toggle-label",
+    ).parentElement!;
+    const style = getComputedStyle(wrapper);
+    expect(style.display).not.toBe("contents");
+    expect(wrapper.getClientRects().length).toBeGreaterThan(0);
+    expect(wrapper.getBoundingClientRect().width).toBeGreaterThan(0);
+    expect(style.opacity).toBe("0");
+    // `visibility: hidden` would drop the label out of the accessibility tree and leave a loading
+    // toggle with no discernible name, which is the other half of A11Y-12.
+    expect(style.visibility).not.toBe("hidden");
+  });
+
+  // Both child shapes, at every size. Text alone exercises the anonymous flex item; icon + text is
+  // what the docs fixture actually renders and is the shape that would expose a lost `gap` or a
+  // descendant `[&_svg]` selector that stops reaching the icon once a wrapper sits between them.
+  test.each(["default", "sm", "lg"] as const)(
+    "API-5: loading does not move the toggle's width at size=%s, and the spinner is centered",
+    async (size) => {
+      const screen = await render(
+        <Stage>
+          <div className="flex gap-2">
+            <Toggle data-testid="idle" size={size}>
+              Bookmark
+            </Toggle>
+            <Toggle data-testid="busy" size={size} loading>
+              Bookmark
+            </Toggle>
+            <Toggle data-testid="idle-icon" size={size}>
+              <span className="size-4 shrink-0" />
+              Bookmark
+            </Toggle>
+            <Toggle data-testid="busy-icon" size={size} loading>
+              <span className="size-4 shrink-0" />
+              Bookmark
+            </Toggle>
+          </div>
+        </Stage>,
+      );
+      await settle();
+      const q = within(screen.container);
+      const width = (id: string) => q.testId(id).getBoundingClientRect().width;
+      expect(Math.abs(width("busy") - width("idle"))).toBeLessThan(1);
+      expect(Math.abs(width("busy-icon") - width("idle-icon"))).toBeLessThan(1);
+      // …and the icon pair must actually be WIDER than the text-only pair, or both comparisons
+      // would be satisfied by a wrapper that dropped its children entirely.
+      expect(width("busy-icon")).toBeGreaterThan(width("busy") + 8);
+
+      const busyEl = q.testId("busy");
+      const busy = busyEl.getBoundingClientRect();
+
+      const spinner = busyEl.querySelector('[data-slot="spinner"]')!;
+      const box = spinner.getBoundingClientRect();
+      expect(box.width).toBeGreaterThan(0);
+      expect(getComputedStyle(spinner.parentElement!).opacity).toBe("1");
+      expect(
+        Math.abs(box.x + box.width / 2 - busy.x - busy.width / 2),
+      ).toBeLessThan(1);
+      expect(
+        Math.abs(box.y + box.height / 2 - busy.y - busy.height / 2),
+      ).toBeLessThan(1);
+    },
+  );
+
+  test("the loading label keeps the root's gap between its icon and its text", async () => {
+    const screen = await render(
+      <Stage>
+        <Toggle data-testid="idle">
+          <span data-testid="idle-icon" className="size-4" />
+          Bookmark
+        </Toggle>
+        <Toggle data-testid="busy" loading>
+          <span data-testid="busy-icon" className="size-4" />
+          Bookmark
+        </Toggle>
+      </Stage>,
+    );
+    await settle();
+    const q = within(screen.container);
+    // `gap-[inherit]` on the wrapper is what keeps the icon-to-label rhythm identical once the
+    // children stop being direct flex items of the root.
+    expect(
+      getComputedStyle(q.testId("busy-icon").parentElement!).columnGap,
+    ).toBe(getComputedStyle(q.testId("idle-icon").parentElement!).columnGap);
   });
 });

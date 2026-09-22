@@ -1,4 +1,4 @@
-// @vegastack toast@0.11.1 sha256-zeXfBtLSfc8lZiOCWB1yi60sZn0Mo9UROykJVbjaZRk=
+// @vegastack toast@0.11.1 sha256-X47EJYfdgUSNrbb7Yq77/eTpyw8a1ayiNgqdcxB0R5E=
 
 "use client";
 
@@ -14,7 +14,7 @@ import {
   InfoIcon,
   TriangleAlertIcon,
   OctagonXIcon,
-  Loader2Icon,
+  LoaderIcon,
 } from "lucide-react";
 
 const toast = ToastPrimitive.createToastManager();
@@ -203,7 +203,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   }
 
   if (type === "loading") {
-    icon = <Loader2Icon className="animate-spin" aria-hidden="true" />;
+    icon = <LoaderIcon className="animate-spin" aria-hidden="true" />;
   }
 
   if (!icon) {

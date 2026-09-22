@@ -12,7 +12,7 @@ import {
   InfoIcon,
   TriangleAlertIcon,
   OctagonXIcon,
-  Loader2Icon,
+  LoaderIcon,
 } from "lucide-react";
 
 const toast = ToastPrimitive.createToastManager();
@@ -201,7 +201,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   }
 
   if (type === "loading") {
-    icon = <Loader2Icon className="animate-spin" aria-hidden="true" />;
+    icon = <LoaderIcon className="animate-spin" aria-hidden="true" />;
   }
 
   if (!icon) {

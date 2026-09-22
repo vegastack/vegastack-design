@@ -121,10 +121,17 @@ test("API-5: loading announces busy, marks the control, and blocks activation", 
 test("A11Y-12: the loading label keeps its box rather than being removed", async () => {
   const screen = await render(<Toggle loading>Bookmark</Toggle>);
   // `opacity-0`, never `invisible`: `visibility: hidden` would drop the label out of the
-  // accessibility tree and leave a loading toggle with no discernible name. This lane asserts the
-  // class; the RENDERED width and computed opacity belong to a compiled-CSS lane.
+  // accessibility tree and leave a loading toggle with no discernible name.
+  //
+  // `opacity-0` alone is NOT the claim, and asserting it alone is what let this control ship for a
+  // release with `className="contents opacity-0"`: `display: contents` generates no box, so the
+  // opacity had nothing to apply to and the label painted at full strength under the spinner while
+  // this assertion stayed green. The wrapper must therefore also generate a box. The RENDERED proof
+  // (real computed opacity, real width, real gap) is in test/control-paint.browser.test.tsx, which
+  // compiles the CSS this lane deliberately does not load.
   const label = screen.getByText("Bookmark");
   await expect.element(label).toHaveClass("opacity-0");
+  await expect.element(label).not.toHaveClass("contents");
   await expect
     .element(screen.getByRole("button", { name: "Bookmark" }))
     .toBeInTheDocument();

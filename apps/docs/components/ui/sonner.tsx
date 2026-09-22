@@ -1,4 +1,4 @@
-// @vegastack sonner@0.11.1 sha256-S7TfkG2NxnwTumouLGYFYxV/hhx0N9GN4T8WJvfRRjI=
+// @vegastack sonner@0.11.1 sha256-X18h6pUTUf6X2LVP2AVfru4JzjJzZW8Mr0TuhQkdPuI=
 
 "use client";
 
@@ -9,7 +9,7 @@ import {
   InfoIcon,
   TriangleAlertIcon,
   OctagonXIcon,
-  Loader2Icon,
+  LoaderIcon,
 } from "lucide-react";
 
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -24,7 +24,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         info: <InfoIcon className="size-4" />,
         warning: <TriangleAlertIcon className="size-4" />,
         error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+        loading: <LoaderIcon className="size-4 animate-spin" />,
       }}
       style={
         {
