@@ -124,6 +124,20 @@ const cases = [
     replace: "          node -e 'process.exit(0)' \\\n",
   },
   {
+    // The exact-SHA boundary: the Version PR's head must be confirmed against the branch ref, not
+    // taken from the PR API alone. The positive gate has always asserted this; nothing had ever
+    // watched it fail, and the surrounding step was edited on 2026-09-23 to retry the comparison
+    // through REST. The realistic weakening is not deleting the check but making it vacuous.
+    name: "Version PR head is trusted without binding it to the branch ref",
+    file: "release.yml",
+    // Matched on the API call alone, not the whole line: the first version of this mutation pinned
+    // the leading whitespace and the exact command, and adding `|| true` to that line made it stop
+    // applying. The harness caught that itself — `mutation did not apply` is an assertion, not a
+    // skip — but a mutation needing an edit whenever its line moves is one nobody keeps current.
+    find: '$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$VERSION_BRANCH" --jq .object.sha || true)',
+    replace: '"$HEAD_SHA"',
+  },
+  {
     name: "Version PR creation ignores whether anything bumps",
     file: "release.yml",
     find: "    if: needs.changes.outputs.has_version_bump == 'true'",

@@ -41,6 +41,24 @@ Each user-visible package change carries a changeset. Its body starts with exact
 `📚` docs, `🐛` fixed, or `⚠️` breaking. Do not edit `/CHANGELOG.md`; release assembly owns it.
 Formatting details live in [references/changelog-format.md](references/changelog-format.md).
 
+**The changeset set is a claim about which packages changed, and no gate checks it.** Diff the
+branch against the packages, not the other way round — a changeset can describe a fix perfectly and
+still not bump the package that carries it:
+
+```bash
+# packages with changed source                      # packages the changesets bump
+git diff --name-only main...HEAD -- \
+  packages/design packages/design-tokens \
+  | cut -d/ -f2 | sort -u | sed 's|^|@vegastack/|'
+grep -h '^"@vegastack' .changeset/*.md | cut -d'"' -f2 | sort -u
+```
+
+Every public package with changed source must appear on the second list. On 2026-09-22 it did not:
+`packages/design/src/prose.ts` — a public export — and the `skills/` tree that ships inside that
+package both changed, four changesets named only `ui` and `design-tokens`, and `@vegastack/design`
+would have been published at neither the fix nor the refreshed agent skills. The description was
+there; only the bump was missing, which is exactly what reading the changesets cannot catch.
+
 Before pushing, preview the release batch:
 
 ```bash
