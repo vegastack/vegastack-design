@@ -186,6 +186,12 @@ const RETIRED_COMPONENTS = {
 };
 const B = String.raw`(?<![\w-])`; // a utility or custom property starts here
 const E = String.raw`(?![\w-])`; // …and ends here
+/** An alternation of exactly these names, longest first so `border-subtle` wins over `border`. */
+const oneOf = (names) =>
+  [...names].sort((a, b) => b.length - a.length).join("|");
+// The four STATUS families are the only ones that ever shipped a `-subtle` step (guide section 4.5);
+// `--tag-*-subtle` is kept, and a `muted`/`accent`/project family never had one, so neither is matched.
+const SUBTLE_FAMILIES = ["destructive", "success", "warning", "info"];
 export const RETIRED_VOCABULARY = [
   {
     id: "text-h*",
@@ -228,16 +234,14 @@ export const RETIRED_VOCABULARY = [
     declared: (m) => `--${m}`,
   },
   {
-    // The four STATUS families lost their -subtle step. `--tag-*-subtle` is kept, so a `tag-`
-    // name is never matched.
+    // The four STATUS families lost their -subtle step — and only those four ever had one, so the
+    // hint's `text-<family>-text` always names a real token.
     id: "*-subtle",
     re: new RegExp(
-      `${B}(?:bg|text|border|ring|outline|fill|stroke|divide|from|to|via)-(?!tag-)([a-z][\\w-]*?)-subtle(?:-hover|-active)?${E}`,
+      `${B}(?:bg|text|border|ring|outline|fill|stroke|divide|from|to|via)-(${SUBTLE_FAMILIES.join("|")})-subtle(?:-hover|-active)?${E}`,
       "g",
     ),
-    hint: (m) => {
-      const family =
-        m.match(/^[a-z]+-(?!tag-)([a-z][\w-]*?)-subtle/)?.[1] ?? "<family>";
+    hint: (m, family) => {
       return m.includes("-subtle-")
         ? `hover:bg-${family}/20 (the -hover/-active steps are gone)`
         : `bg-${family}/10 (a tint of the family), with text-${family}-text for text on it`;
@@ -248,33 +252,27 @@ export const RETIRED_VOCABULARY = [
     },
   },
   {
+    // Only the names the system shipped (guide section 4.2). `--alpha-*` is an open prefix other
+    // libraries use too, and a name we never shipped is not ours to call retired.
     id: "--alpha-*",
-    re: new RegExp(`${B}--alpha-[\\w-]+`, "g"),
+    re: new RegExp(`${B}--alpha-(?:${oneOf(Object.keys(ALPHA))})${E}`, "g"),
     hint: (m) => {
       const pct = ALPHA[m.slice(8)];
-      return pct == null
-        ? "the literal percentage the token carried, as a slash alpha (guide section 4.2)"
-        : `the literal /${pct}, e.g. bg-foreground/${pct}`;
+      return `the literal /${pct}, e.g. bg-foreground/${pct}`;
     },
     declared: (m) => m,
   },
   {
     id: "--opacity-*",
-    re: new RegExp(`${B}--opacity-[\\w-]+`, "g"),
-    hint: (m) => {
-      const pct = OPACITY[m.slice(10)];
-      return pct == null
-        ? "opacity-25 / -50 / -60 / -70 (guide section 4.3)"
-        : `opacity-${pct}`;
-    },
+    re: new RegExp(`${B}--opacity-(?:${oneOf(Object.keys(OPACITY))})${E}`, "g"),
+    hint: (m) => `opacity-${OPACITY[m.slice(10)]}`,
     declared: (m) => m,
   },
   {
+    // `--z-index`, `--z-modal`, … belong to other libraries; only the three named bands are ours.
     id: "--z-*",
-    re: new RegExp(`${B}--z-[\\w-]+`, "g"),
-    hint: (m) =>
-      Z[m.slice(4)] ??
-      "z-10 (raised) or z-50 (every overlay — one band, DOM order decides)",
+    re: new RegExp(`${B}--z-(?:${oneOf(Object.keys(Z))})${E}`, "g"),
+    hint: (m) => Z[m.slice(4)],
     declared: (m) => m,
   },
   {
@@ -292,15 +290,18 @@ export const RETIRED_VOCABULARY = [
   },
   {
     id: "retired component",
-    // An import/require/dynamic-import specifier whose LAST path segment is a retired item.
-    // A bare `"sonner"` (the npm package) is not a registry import and is left alone.
+    // An import/require/dynamic-import specifier whose LAST path segment is a retired item — and
+    // only when the specifier resolves INTO the ui alias directory (`accept`): a project's own
+    // `@/components/layout/section-header` or `./sonner` is its code, not a registry copy. A bare
+    // `"sonner"` (the npm package) is not a registry import and is left alone.
     re: new RegExp(
-      String.raw`(?:from\s+|import\s*\(\s*|require\s*\(\s*|import\s+)["'][^"']*\/(${Object.keys(RETIRED_COMPONENTS).join("|")})(?:\.[jt]sx?)?["']`,
+      String.raw`(?:from\s+|import\s*\(\s*|require\s*\(\s*|import\s+)["']([^"']*)\/(${Object.keys(RETIRED_COMPONENTS).join("|")})(?:\.[jt]sx?)?["']`,
       "g",
     ),
-    hint: (_m, name) => RETIRED_COMPONENTS[name],
+    accept: (m, ctx) => importsIntoUi(m[1], ctx),
+    hint: (_m, _dir, name) => RETIRED_COMPONENTS[name],
     declared: () => null,
-    label: (_m, name) => `import …/${name}`,
+    label: (_m, _dir, name) => `import …/${name}`,
   },
 ];
 
@@ -342,9 +343,110 @@ export function uiAliasDirs(componentsJson, componentsDir) {
   return candidates.filter((d) => existsSync(d)).map((d) => resolve(d));
 }
 
+/**
+ * Does an import specifier (the part before the retired name) resolve into the ui alias directory?
+ * Three spellings do: the components.json `ui` alias (`@/components/ui`), the registry's own
+ * `@/components/ui` convention, and a relative path that lands in one of the ui alias dirs.
+ */
+function importsIntoUi(specDir, { file, uiAliases, uiDirs }) {
+  if (uiAliases.includes(specDir)) return true;
+  if (specDir === "." || specDir === ".." || /^\.\.?\//.test(specDir)) {
+    const target = resolve(dirname(file), specDir);
+    return uiDirs.includes(target);
+  }
+  return false;
+}
+
+/**
+ * Blank what is not class or CSS usage, keeping every newline so line numbers survive: `//` and
+ * `/* *\/` comments, and — in script files — a string literal that reads as prose ("Use text-strong
+ * for emphasis"). A class string is lower-case utility tokens; a capitalised word or sentence
+ * punctuation marks a sentence. Single- and double-quoted strings cannot span a line in JS, so an
+ * apostrophe in JSX text ("Don't") can only ever mis-scan the rest of its own line.
+ */
+export function maskNonUsage(
+  src,
+  { script = true, lineComments = script } = {},
+) {
+  const out = src.split("");
+  const blank = (from, to) => {
+    for (let k = from; k < to; k += 1) if (out[k] !== "\n") out[k] = " ";
+  };
+  const isProse = (text) =>
+    /(?:^|\s)[A-Z][a-z]+(?=[\s,.;:!?]|$)|[a-z][.,;:!?](?:\s|$)/.test(
+      text.replace(/\[[^\]]*\]|\([^)]*\)/g, ""),
+    );
+  let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    const next = src[i + 1];
+    if (c === "/" && next === "*") {
+      const end = src.indexOf("*/", i + 2);
+      const stop = end === -1 ? src.length : end + 2;
+      blank(i, stop);
+      i = stop;
+    } else if (
+      c === "/" &&
+      next === "/" &&
+      lineComments &&
+      (script || i === 0 || /\s/.test(src[i - 1]))
+    ) {
+      const end = src.indexOf("\n", i);
+      const stop = end === -1 ? src.length : end;
+      blank(i, stop);
+      i = stop;
+    } else if (c === '"' || c === "'" || c === "`") {
+      let j = i + 1;
+      while (j < src.length && src[j] !== c) {
+        if (src[j] === "\\") j += 1;
+        else if (src[j] === "\n" && c !== "`") break;
+        j += 1;
+      }
+      if (script && isProse(src.slice(i + 1, j))) blank(i + 1, j);
+      i = j + 1;
+    } else {
+      i += 1;
+    }
+  }
+  return out.join("");
+}
+
+/**
+ * Class names a stylesheet DEFINES — `@utility text-h2 { … }` (a `-*` functional utility as a
+ * prefix) and plain class selectors such as `.text-strong { … }`. A retired name the project defines
+ * itself compiles, so it is the project's, not a silent no-op.
+ */
+function definedClasses(css) {
+  const exact = new Set();
+  const prefixes = [];
+  for (const m of css.matchAll(/([^{};]+)\{/g)) {
+    const prelude = m[1].trim();
+    const utility = prelude.match(/^@utility\s+([\w-]+?)(-\*)?$/);
+    if (utility) {
+      if (utility[2]) prefixes.push(`${utility[1]}-`);
+      else exact.add(utility[1]);
+    } else if (!prelude.startsWith("@")) {
+      for (const c of prelude.matchAll(/\.((?:\\.|[\w-])+)/g))
+        exact.add(c[1].replace(/\\(.)/g, "$1"));
+    }
+  }
+  return { exact, prefixes };
+}
+
 /** Every retired-vocabulary occurrence under `root`, skipping build output and the ui alias dirs. */
-export function scanRetiredVocabulary(root, { skipDirs = [] } = {}) {
+export function scanRetiredVocabulary(
+  root,
+  { skipDirs = [], uiAlias = null } = {},
+) {
   const skip = new Set(skipDirs.map((d) => resolve(d)));
+  const uiAliases = [
+    ...new Set(
+      [uiAlias, "@/components/ui"]
+        .filter((a) => typeof a === "string" && a.length > 0)
+        .map((a) => a.replace(/\/+$/, "")),
+    ),
+  ];
+  const uiDirs = [...skip];
   const files = [];
   const walk = (dir) => {
     if (files.length >= SCAN_MAX_FILES) return;
@@ -369,18 +471,33 @@ export function scanRetiredVocabulary(root, { skipDirs = [] } = {}) {
 
   const sources = [];
   const declared = new Set();
+  const declaredClasses = new Set();
+  const classPrefixes = [];
   for (const file of files) {
     try {
       if (statSync(file).size > SCAN_MAX_BYTES) continue;
     } catch {
       continue;
     }
-    const src = readIfExists(file);
-    if (src == null) continue;
+    const raw = readIfExists(file);
+    if (raw == null) continue;
+    const css = /\.s?css$/.test(file);
+    const src = maskNonUsage(raw, {
+      script: !css,
+      lineComments: !css || file.endsWith(".scss"),
+    });
     sources.push({ file, src });
     for (const m of src.matchAll(/(?<![\w-])(--[\w-]+)\s*:/g))
       declared.add(m[1]);
+    if (css) {
+      const defined = definedClasses(src);
+      for (const name of defined.exact) declaredClasses.add(name);
+      classPrefixes.push(...defined.prefixes);
+    }
   }
+  const definesClass = (name) =>
+    declaredClasses.has(name) ||
+    classPrefixes.some((prefix) => name.startsWith(prefix));
 
   const findings = [];
   for (const { file, src } of sources) {
@@ -391,13 +508,17 @@ export function scanRetiredVocabulary(root, { skipDirs = [] } = {}) {
       for (const rule of RETIRED_VOCABULARY) {
         rule.re.lastIndex = 0;
         for (const m of line.matchAll(rule.re)) {
-          const own = [rule.declared(m[0], m[1])].flat().filter(Boolean);
+          const groups = m.slice(1);
+          if (rule.accept && !rule.accept(m, { file, uiAliases, uiDirs }))
+            continue;
+          const own = [rule.declared(m[0], ...groups)].flat().filter(Boolean);
           if (own.some((name) => declared.has(name))) continue;
+          if (!m[0].startsWith("--") && definesClass(m[0])) continue;
           findings.push({
             file: relative(root, file).split(sep).join("/"),
             line: i + 1,
-            match: rule.label ? rule.label(m[0], m[1]) : m[0],
-            hint: rule.hint(m[0], m[1]),
+            match: rule.label ? rule.label(m[0], ...groups) : m[0],
+            hint: rule.hint(m[0], ...groups),
           });
         }
       }
@@ -604,7 +725,10 @@ export function main(argv = []) {
   const skipDirs = componentsJson
     ? uiAliasDirs(componentsJson, dirname(componentsJsonPath))
     : uiAliasDirs(null, root);
-  const scan = scanRetiredVocabulary(root, { skipDirs });
+  const scan = scanRetiredVocabulary(root, {
+    skipDirs,
+    uiAlias: componentsJson?.aliases?.ui ?? null,
+  });
   const scanned = `${scan.files} source file(s)${
     skipDirs.length
       ? `, skipping ${skipDirs.map((d) => relative(root, d) || ".").join(", ")}`

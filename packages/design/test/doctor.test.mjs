@@ -54,8 +54,8 @@ function run(args) {
   }
 }
 
-const matches = (root, skipDirs = []) =>
-  scanRetiredVocabulary(root, { skipDirs }).findings.map(
+const matches = (root, skipDirs = [], uiAlias = null) =>
+  scanRetiredVocabulary(root, { skipDirs, uiAlias }).findings.map(
     (f) => `${f.file}:${f.line} ${f.match}`,
   );
 
@@ -66,7 +66,7 @@ test("every retired utility, token and component import is reported with file:li
     "src/page.tsx": [
       `import { IconButton } from "@/components/ui/icon-button";`,
       `import { Toaster } from "@/components/ui/sonner";`,
-      `const Segmented = await import("../ui/segmented");`,
+      `const Segmented = await import("@/components/ui/segmented");`,
       `<h1 className="text-h1">Title</h1>`,
       `<p className="text-label text-label-sm text-mono-label text-strong">x</p>`,
       `<p className="md:text-display-lg">x</p>`,
@@ -155,6 +155,89 @@ test("the ui alias dir, node_modules and build output are skipped", () => {
   const skip = uiAliasDirs({ aliases: { ui: "@/components/ui" } }, root);
   assert.equal(skip.length, 1);
   assert.deepEqual(matches(root, skip), ["src/app/page.tsx:1 text-h1"]);
+});
+
+test("a retired component import counts only when it resolves into the ui alias dir", () => {
+  const root = project({
+    "src/components/ui/button.tsx": "",
+    "src/components/app/page.tsx": [
+      // the consumer's OWN components that happen to share a retired name — never reported
+      `import { SectionHeader } from "@/components/layout/section-header";`,
+      `import { Toaster } from "./sonner";`,
+      `import { Segmented } from "../marketing/segmented";`,
+      // registry copies, by every spelling that lands in the ui alias dir
+      `import { IconButton } from "@/components/ui/icon-button";`,
+      `import { PasswordInput } from "~/ui/password-input";`,
+      `import { FieldInline } from "../ui/field-inline";`,
+    ].join("\n"),
+  });
+  const skip = uiAliasDirs({ aliases: { ui: "~/ui" } }, root);
+  // `~/ui` resolves to nothing on disk here, so point the alias dir at the real folder too.
+  const dirs = [...skip, join(root, "src/components/ui")];
+  assert.deepEqual(matches(root, dirs, "~/ui"), [
+    "src/components/app/page.tsx:4 import …/icon-button",
+    "src/components/app/page.tsx:5 import …/password-input",
+    "src/components/app/page.tsx:6 import …/field-inline",
+  ]);
+});
+
+test("comments and prose strings are not usage", () => {
+  const root = project({
+    "src/notes.tsx": [
+      `/* --z-toast was retired; we used text-h1 */`,
+      `// TODO: stop using text-label`,
+      `const tip = "Use text-strong for emphasis";`,
+      // a `//` inside a string is not a comment: the class string after it is still usage
+      `const url = "https://example.com", cls = "text-h2"; // text-h3 in a trailing comment`,
+      `/**`,
+      ` * bg-destructive-subtle in a doc block`,
+      ` */`,
+      `<h1 className="text-h4" />`,
+    ].join("\n"),
+    "src/notes.css": `/* var(--z-overlay) */\n.x { color: red; }`,
+  });
+  assert.deepEqual(matches(root), [
+    "src/notes.tsx:4 text-h2",
+    "src/notes.tsx:8 text-h4",
+  ]);
+});
+
+test("a class the project defines in its own CSS is not reported", () => {
+  const root = project({
+    "src/app.css": [
+      `@utility text-h2 { font-size: 1.5rem; }`,
+      `@utility text-display-* { font-size: --value(--text-*); }`,
+      `@layer components { .text-strong, .card > .text-label { font-weight: 600; } }`,
+    ].join("\n"),
+    "src/page.tsx": `<p className="text-h2 text-display-lg text-strong text-label text-h1" />`,
+  });
+  assert.deepEqual(matches(root), ["src/page.tsx:1 text-h1"]);
+});
+
+test("third-party custom properties that share a retired prefix are not reported", () => {
+  const root = project({
+    "src/app.css": [
+      `.a { z-index: var(--z-index); opacity: var(--opacity-disabled); }`,
+      `.b { color: rgb(0 0 0 / var(--alpha-channel)); z-index: var(--z-modal); }`,
+      `.c { z-index: var(--z-overlay); color: var(--alpha-border-subtle); }`,
+    ].join("\n"),
+  });
+  assert.deepEqual(matches(root).sort(), [
+    "src/app.css:3 --alpha-border-subtle",
+    "src/app.css:3 --z-overlay",
+  ]);
+});
+
+test("*-subtle matches only the four status families, so its hint names a real token", () => {
+  const root = project({
+    "src/page.tsx": `<div className="bg-muted-subtle bg-accent-subtle bg-brand-subtle bg-warning-subtle" />`,
+  });
+  const findings = scanRetiredVocabulary(root).findings;
+  assert.deepEqual(
+    findings.map((f) => f.match),
+    ["bg-warning-subtle"],
+  );
+  assert.match(findings[0].hint, /bg-warning\/10 .* text-warning-text/);
 });
 
 test("`doctor` fails with file:line when retired vocabulary is present, passes when clean", () => {
