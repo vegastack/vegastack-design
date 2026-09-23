@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "184afe3ee291877ac5922732270c11688c25b30e4d2673cff6fc3aa4b85aaf03",
+  "contractSha256": "e8614c0b06fa2990dd468bbcc2016ed464ff0a05115ac7d1f9dfd39abb611277",
   "expectedCounts": {
-    "totalRegistryItems": 691,
-    "components": 111,
+    "totalRegistryItems": 692,
+    "components": 112,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -902,6 +902,17 @@
         "packages/ui/registry/ui/search-input.tsx"
       ],
       "docsSlug": "/docs/components/search-input",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "password-input",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/password-input.tsx"
+      ],
+      "docsSlug": "/docs/components/password-input",
       "contractStatus": "reconciled"
     },
     {

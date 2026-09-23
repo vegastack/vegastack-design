@@ -184,8 +184,6 @@ const RETIRED_COMPONENTS = {
   "icon-button":
     'Button with size="icon" (or icon-sm / icon-lg) and an aria-label',
   segmented: "a joined ToggleGroup",
-  "password-input":
-    "an InputGroup composition (Input + an InputGroupButton reveal toggle)",
   "progress-indicator": "Progress (determinate) or Spinner (indeterminate)",
   "field-inline": "EditableCell",
   "floating-surface": "Popover / HoverCard — FloatingSurface was internal only",

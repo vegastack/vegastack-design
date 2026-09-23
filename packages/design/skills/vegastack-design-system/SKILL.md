@@ -20,7 +20,7 @@ live contract for any single component is its page at
 writes:
 
 - **Retired, with no drop-in:** `IconButton` → `Button size="icon*"` · `OTPInput` → `InputOTP` ·
-  `PasswordInput` → an `InputGroup` composition · `CheckboxGroup` → `FieldSet` + `Checkbox` ·
+  `CheckboxGroup` → `FieldSet` + `Checkbox` ·
   `FieldInline` → `EditableCell` · `Segmented` → a joined `ToggleGroup` · `SplitButton` → a
   `ButtonGroup` composition · `ProgressIndicator` → `Progress` + `Spinner` · `OnboardingChecklist` →
   the `onboarding-01` block. The ten marketing components were deleted outright.
@@ -219,19 +219,19 @@ contract.
   silently renders as body text. `vegastack-design doctor` scans your source and lists every
   occurrence with `file:line`; run it after any upgrade or generated change.
 
-  | Retired                                                    | Write instead                                                                         |
-  | ---------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-  | `text-h1` · `text-h2` · `text-h3` · `text-h4`              | `text-3xl` · `text-2xl` · `text-lg` + `font-semibold`; `text-base font-medium`        |
-  | `text-label` · `text-label-sm` · `text-strong`             | `text-sm font-medium` · `text-xs font-medium` · `text-sm font-semibold`               |
-  | `text-mono-label` · `text-code` · `text-code-sm`           | `text-xs font-medium` (a label is sans) · `font-mono text-sm` · `font-mono text-xs`   |
-  | `text-display-{sm,md,lg,xl}`                               | `text-4xl` · `text-5xl` · `text-6xl` · `text-7xl`                                     |
-  | `bg-{destructive,success,warning,info}-subtle`             | `bg-destructive/10` (the family at `/10`), `-text` ink on it                          |
-  | `--alpha-*` · `--opacity-*`                                | the literal: `bg-foreground/10`, `opacity-50`                                         |
-  | `--z-*`                                                    | `z-10` (raised) · `z-50` (every overlay; DOM order decides)                           |
-  | `shadow-overlay` · `backdrop-blur-glass`                   | `shadow-md` (popover) / `shadow-lg` (modal) · delete it                               |
-  | `icon-button` · `segmented` · `password-input`             | `Button size="icon"` + `aria-label` · joined `ToggleGroup` · `InputGroup` composition |
-  | `progress-indicator` · `field-inline` · `floating-surface` | `Progress` / `Spinner` · `EditableCell` · `Popover`                                   |
-  | `section-header` · `sonner`                                | your own heading markup · `toast` (`toast.add({ title })`)                            |
+  | Retired                                                    | Write instead                                                                       |
+  | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+  | `text-h1` · `text-h2` · `text-h3` · `text-h4`              | `text-3xl` · `text-2xl` · `text-lg` + `font-semibold`; `text-base font-medium`      |
+  | `text-label` · `text-label-sm` · `text-strong`             | `text-sm font-medium` · `text-xs font-medium` · `text-sm font-semibold`             |
+  | `text-mono-label` · `text-code` · `text-code-sm`           | `text-xs font-medium` (a label is sans) · `font-mono text-sm` · `font-mono text-xs` |
+  | `text-display-{sm,md,lg,xl}`                               | `text-4xl` · `text-5xl` · `text-6xl` · `text-7xl`                                   |
+  | `bg-{destructive,success,warning,info}-subtle`             | `bg-destructive/10` (the family at `/10`), `-text` ink on it                        |
+  | `--alpha-*` · `--opacity-*`                                | the literal: `bg-foreground/10`, `opacity-50`                                       |
+  | `--z-*`                                                    | `z-10` (raised) · `z-50` (every overlay; DOM order decides)                         |
+  | `shadow-overlay` · `backdrop-blur-glass`                   | `shadow-md` (popover) / `shadow-lg` (modal) · delete it                             |
+  | `icon-button` · `segmented`                                | `Button size="icon"` + `aria-label` · joined `ToggleGroup`                          |
+  | `progress-indicator` · `field-inline` · `floating-surface` | `Progress` / `Spinner` · `EditableCell` · `Popover`                                 |
+  | `section-header` · `sonner`                                | your own heading markup · `toast` (`toast.add({ title })`)                          |
 
 ## Reference
 

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 691,
-    "components": 111,
+    "totalRegistryItems": 692,
+    "components": 112,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 24,
+    "Forms/editing": 25,
     "Navigation/layout": 17,
     "Overlays": 14,
     "Data display": 11,
@@ -68,6 +68,7 @@
       "combobox",
       "searchable-select",
       "search-input",
+      "password-input",
       "country-select",
       "region-select",
       "date-picker",
@@ -15232,6 +15233,118 @@
             {
               "name": "data-slot",
               "values": ["search-input-clear"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "password-input",
+      "registryType": "registry:ui",
+      "title": "Password Input",
+      "summary": "A password field with a show/hide toggle, composed from InputGroup, forwarding native input props and the ref to the inner input.",
+      "status": "stable",
+      "since": "0.14.0",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/password-input.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PasswordInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/password-input.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "input",
+            "rationale": "The React 19 ref prop is spread onto the inner native input."
+          }
+        },
+        {
+          "name": "PasswordInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/password-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "PasswordInput composes existing InputGroup variants without adding a public visual variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "PasswordInput inherits the InputGroup control and icon-xs toggle sizes."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["hidden", "revealed", "disabled", "invalid"],
+          "evidence": "packages/ui/registry/ui/password-input.tsx + packages/ui/registry/ui/password-input.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-password-semantics",
+            "browser-accessibility-test",
+            "labeled",
+            "pressed-toggle",
+            "disabled",
+            "invalid"
+          ],
+          "evidence": "packages/ui/registry/ui/password-input.tsx + packages/ui/registry/ui/password-input.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "disabled", "invalid"],
+          "evidence": "Composed InputGroup and InputGroupButton state selectors."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The compound field must shrink without horizontal overflow while retaining its 24px toggle target."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/password-input",
+      "registryDependencies": ["@vegastack/input-group"],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.1",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": ["packages/ui/registry/ui/password-input.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "selected"
+      },
+      "previewModule": "password-input",
+      "dataAttributes": {
+        "PasswordInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["password-input", "password-input-toggle"]
             }
           ],
           "cssVariables": []

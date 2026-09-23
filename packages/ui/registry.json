@@ -12460,6 +12460,31 @@
       }
     },
     {
+      "name": "password-input",
+      "type": "registry:ui",
+      "title": "Password Input",
+      "description": "A password field with a show/hide toggle, composed from InputGroup, forwarding every native input prop and the ref to the inner input.",
+      "categories": ["form"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.1",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": ["@vegastack/input-group"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/password-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/password-input.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any secret the user types — sign-in, sign-up, or a change-password form — where they may need to reveal what they typed.",
+        "whenNotToUse": "A one-time code (use InputOTP) or a non-secret text field.",
+        "version": "0.13.0"
+      }
+    },
+    {
       "name": "search-input",
       "type": "registry:ui",
       "title": "Search Input",

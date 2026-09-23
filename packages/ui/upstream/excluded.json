@@ -1,5 +1,5 @@
 {
-  "_note": "Names that DO NOT SHIP here, whatever upstream does. Two cases, one list, because they are one fact: (a) components of ours that Batch 7a of the shadcn reset deleted in favour of an upstream replacement (extras.md 'RETIRE'), and (b) components upstream ships that this system deliberately does not want. An excluded name must be absent from packages/ui/registry/ui/ and must carry no patch — `verify-parity.mjs` rule 6 — and it is removed from the enforced `migrated()` set, so byte parity and variant coverage no longer demand a file or a docs page for it. Adding a name here is never a one-line edit: it lands alongside the deletion of that component, its patch, its registry item and its docs page, and `component-contracts.json`'s expectedCounts (reconciled live inside `design:verify`) fails until the counts move with it. The ten names Batch 7a retired carry their replacement and prop map in docs/MIGRATING-SHADCN-RESET.md, which is an upgrade path FROM 0.4.x; `sonner` is not among them, because a 0.4.x consumer never had it — it was reinstated by the reset and retired again on 2026-09-22, so its migration is the changelog entry for that release.",
+  "_note": "Names that DO NOT SHIP here, whatever upstream does. Two cases, one list, because they are one fact: (a) components of ours that Batch 7a of the shadcn reset deleted in favour of an upstream replacement (extras.md 'RETIRE'), and (b) components upstream ships that this system deliberately does not want. An excluded name must be absent from packages/ui/registry/ui/ and must carry no patch — `verify-parity.mjs` rule 6 — and it is removed from the enforced `migrated()` set, so byte parity and variant coverage no longer demand a file or a docs page for it. Adding a name here is never a one-line edit: it lands alongside the deletion of that component, its patch, its registry item and its docs page, and `component-contracts.json`'s expectedCounts (reconciled live inside `design:verify`) fails until the counts move with it. The names Batch 7a retired carry their replacement and prop map in docs/MIGRATING-SHADCN-RESET.md, which is an upgrade path FROM 0.4.x; `sonner` is not among them, because a 0.4.x consumer never had it — it was reinstated by the reset and retired again on 2026-09-22, so its migration is the changelog entry for that release. `password-input` was one of Batch 7a's ten and has left this list: MK reinstated it on 2026-09-23 as a component of ours (see ours.json).",
   "components": [
     "checkbox-group",
     "field-inline",
@@ -7,7 +7,6 @@
     "icon-button",
     "onboarding-checklist",
     "otp-input",
-    "password-input",
     "progress-indicator",
     "segmented",
     "sonner",

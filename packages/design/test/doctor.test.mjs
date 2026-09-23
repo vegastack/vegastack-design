@@ -167,7 +167,7 @@ test("a retired component import counts only when it resolves into the ui alias 
       `import { Segmented } from "../marketing/segmented";`,
       // registry copies, by every spelling that lands in the ui alias dir
       `import { IconButton } from "@/components/ui/icon-button";`,
-      `import { PasswordInput } from "~/ui/password-input";`,
+      `import { ProgressIndicator } from "~/ui/progress-indicator";`,
       `import { FieldInline } from "../ui/field-inline";`,
     ].join("\n"),
   });
@@ -176,7 +176,7 @@ test("a retired component import counts only when it resolves into the ui alias 
   const dirs = [...skip, join(root, "src/components/ui")];
   assert.deepEqual(matches(root, dirs, "~/ui"), [
     "src/components/app/page.tsx:4 import …/icon-button",
-    "src/components/app/page.tsx:5 import …/password-input",
+    "src/components/app/page.tsx:5 import …/progress-indicator",
     "src/components/app/page.tsx:6 import …/field-inline",
   ]);
 });

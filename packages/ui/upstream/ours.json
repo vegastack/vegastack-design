@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 63,
+    "total": 64,
     "fromExtras": 46
   },
   "items": {
@@ -162,6 +162,12 @@
       "disposition": "keep",
       "family": "overlay",
       "source": "internal shared part; not listed in extras.md. It is decision OVL-11's implementation — the sticky, box-free search row a filtering popup puts at the top of its panel. Batch 7a retired `floating-surface`, which used to own it, leaving `emoji-picker` and `shortcut-overlay` with two byte-identical private copies; Batch 7c gave it one owner again, off the components nav like `data-table-parts`. Upstream has no counterpart: its `CommandInput` is an `InputGroup` box inside the panel, which is the box-in-box OVL-11 exists to reject."
+    },
+    "password-input": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "MK instruction 2026-09-23 — reinstated after the shadcn reset retired it",
+      "rationale": "Upstream ships no password field, only an InputGroup recipe; a reveal toggle hand-rolled per consumer drifts in naming, aria-pressed and type=button. A thin InputGroup composition gives it one owner and carries no patch."
     },
     "property-list": {
       "disposition": "keep",

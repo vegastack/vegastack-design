@@ -428,7 +428,8 @@ type Props = React.ComponentProps<typeof Button> & { count: number };
 
 ## 8. The ten retired components
 
-Each was deleted in favour of something upstream already does. Each row states what did **not**
+Each was deleted in favour of something upstream already does — and one, `PasswordInput`, has since
+been reinstated (section 8.3). Each row states what did **not**
 survive, because in several cases something real did.
 
 ### 8.1 `IconButton` → `Button` at an icon size
@@ -521,51 +522,29 @@ import {
 **What did not survive:** the three slot size tiers, and the per-slot "Character N of M" labels —
 upstream has one input, so the field has one accessible name and nothing to enumerate.
 
-### 8.3 `PasswordInput` → an `InputGroup` composition
+### 8.3 `PasswordInput` → reinstated, with a smaller API
 
-| `PasswordInput`             | `InputGroup` composition                                   |
+The reset retired `PasswordInput` in favour of an `InputGroup` recipe; `@vegastack/ui` 0.14.0
+reinstates it as a thin `InputGroup` composition of ours, so keep the import and re-add the item
+(`shadcn add @vegastack/password-input`). Every native input prop and the `ref` land on the inner
+`<input>`, and the toggle is a `type="button"` icon button with `aria-pressed`.
+
+| 0.4.x `PasswordInput`       | Now                                                        |
 | --------------------------- | ---------------------------------------------------------- |
-| `value` / `onChange`        | on `InputGroupInput`                                       |
-| `revealLabel` / `hideLabel` | `aria-label` on the toggle `Button`, swapped on `visible`  |
-| `defaultVisible`            | your own `useState`                                        |
+| `value` / `onChange`        | unchanged — native input props                             |
+| `revealLabel` / `hideLabel` | `showLabel` / `hideLabel`                                  |
+| `defaultVisible`            | **gone** — the field always starts hidden                  |
 | `requirements={[…]}`        | your own list under the field (each row is text + an icon) |
 | `strength`                  | **gone** — compose `Progress` if you want a meter          |
 
 ```tsx
-"use client";
-import * as React from "react";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+import { PasswordInput } from "@/components/ui/password-input";
 
-export function PasswordField() {
-  const [visible, setVisible] = React.useState(false);
-  return (
-    <InputGroup>
-      <InputGroupInput
-        type={visible ? "text" : "password"}
-        aria-label="Password"
-        autoComplete="current-password"
-      />
-      <InputGroupAddon align="inline-end">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          aria-label={visible ? "Hide password" : "Show password"}
-          aria-pressed={visible}
-          onClick={() => setVisible((v) => !v)}
-        >
-          {visible ? <EyeOffIcon /> : <EyeIcon />}
-        </Button>
-      </InputGroupAddon>
-    </InputGroup>
-  );
-}
+<PasswordInput
+  aria-label="Password"
+  name="password"
+  autoComplete="current-password"
+/>;
 ```
 
 **What did not survive:** the built-in requirements checklist and its live announcements.
@@ -1124,7 +1103,7 @@ Run each of these from your project root. A clean project returns **nothing** fo
 
 ```bash
 # 1. Retired and removed component names (compile errors, but catches strings and tests too).
-rg -n 'IconButton|iconButtonGeometry|OTPInput|PasswordInput|CheckboxGroup|FieldInline|Segmented|SegmentedItem|SplitButton|ProgressIndicator|OnboardingChecklist|FloatingSurface|MarketingSurface|ComparisonMatrix|FigureFrame|LogoRow|ParticleField|PricingSection|RuledBand|SectionHeader|Testimonial|StaggeredTextReveal' --glob '!components/ui/**'
+rg -n 'IconButton|iconButtonGeometry|OTPInput|CheckboxGroup|FieldInline|Segmented|SegmentedItem|SplitButton|ProgressIndicator|OnboardingChecklist|FloatingSurface|MarketingSurface|ComparisonMatrix|FigureFrame|LogoRow|ParticleField|PricingSection|RuledBand|SectionHeader|Testimonial|StaggeredTextReveal' --glob '!components/ui/**'
 ```
 
 ```bash
