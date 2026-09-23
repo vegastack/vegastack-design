@@ -302,6 +302,13 @@ const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
 function importantModifierTokens(lit) {
   return lit.split(/\s+/).filter((token) => {
     if (token === "!important" || !/[-:[]/.test(token)) return false;
+    // `![…]` is Tailwind's important arbitrary PROPERTY only when the bracket closes inside the
+    // token and holds `prop:value`; markdown image syntax (`![Alt text](url)`) is neither.
+    if (
+      /(?:^|:)!\[/.test(token) &&
+      !/(?:^|:)!\[[^\]\s]+:[^\]\s]+\](?!\()/.test(token)
+    )
+      return false;
     const bare = token.replace(/\[[^\]]*\]/g, "[]");
     return /[\w\])%]!$/.test(bare) || /(?:^|:)!-?[a-z@*[]/.test(bare);
   });

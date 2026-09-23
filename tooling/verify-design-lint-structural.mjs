@@ -214,8 +214,13 @@ export function LiteralRules(_props: RenderlessProps) {
     <div className="flex p-0!">suffix</div>
     <div className="hover:!mt-2">prefix behind a variant</div>
     <div className="[&>svg]:size-3!">after an arbitrary variant</div>
+    <div className="![color:red]">an important arbitrary property</div>
   </>;
 }
+
+// Markdown image syntax is prose, not a class: \`![Alt text](url)\` must never be read as
+// Tailwind's \`![prop:value]\` (review round 2, 2026-09-23 — the markdown-view preview tripped it).
+export const markdown = \`![A calm abstract mesh](https://example.com/mesh.png)\`;
 
 // A class string that spans lines is still a class string: the old tokenizer returned nothing for
 // any literal containing a newline, so this p-0! on the second line was never seen.
@@ -236,13 +241,13 @@ export const multiline = \`flex items-center
     .filter((line) => /important\.tsx:\d+ \[important\]/.test(line)).length;
   if (
     important.status === 0 ||
-    importantLines < 4 ||
+    importantLines !== 5 ||
     !/badge\.tsx \[important\] reviewed Tailwind `!` modifier count changed from 1 to 2/.test(
       important.output,
     )
   ) {
     console.error(
-      `  observed ${importantLines} of 4 \`!\` modifier forms rejected`,
+      `  observed ${importantLines} of 5 \`!\` modifier specimens rejected (4 forms + the multi-line literal; markdown must pass)`,
     );
     fail(
       "design-lint accepted a Tailwind `!` modifier outside IMPORTANT_MODIFIER_EXEMPTIONS, or " +
