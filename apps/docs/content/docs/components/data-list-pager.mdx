@@ -78,10 +78,30 @@ chooser stay, so a reader can still widen or narrow the page. An empty list read
   file="components/preview/data-list-pager.tsx"
 />
 
+### Narrow containers
+
+The page list follows the pager's own width, not the viewport's, and never wraps — a wrapped run
+of page numbers reads as two lists. It changes layout instead (`data-layout` on the root), while the
+range and the rows-per-page chooser wrap onto their own lines above it:
+
+| `data-layout` | Pager width  | Page list                                                              |
+| ------------- | ------------ | ---------------------------------------------------------------------- |
+| `full`        | 480px and up | Labelled Previous / Next, the current page and one neighbour each side |
+| `compact`     | 240–479px    | Icon-only ends, the current page with no neighbours                    |
+| `minimal`     | below 240px  | Icon-only ends around _Page 3 of 12_                                   |
+
+So the pager fits any container of 200px or more. The server render is `minimal`, the one layout
+that fits everywhere; the client corrects it before first paint.
+
 ### Page sizes
 
 `pageSizes` sets the choices (default `[15, 30, 50]`). A `pageSize` that is not in the list is added
-to it, so the chooser always shows the current value. `pageSizeLabel` renames the chooser — it is
+to it, so the chooser always shows the current value.
+
+Numbers that are not numbers render a sane state rather than `NaN`: a `total` that is `NaN`,
+`undefined` (a count still loading) or negative reads as `0` ("0 of 0", no page controls); a `page`
+that is not finite reads as `1`; and a `pageSize` that is not a positive number — `0` included — shows
+the first `pageSizes` entry and is never added to the chooser. `pageSizeLabel` renames the chooser — it is
 both the visible label and the accessible name.
 
 ```tsx
