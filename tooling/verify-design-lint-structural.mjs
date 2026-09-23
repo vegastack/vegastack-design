@@ -31,6 +31,8 @@ const glowDir = groupDir("glow");
 const classGlueDir = groupDir("class-glue");
 const iconNameDir = groupDir("icon-name");
 const loaderMarkDir = groupDir("loader-mark");
+const importantDir = groupDir("important");
+const surfaceRingDir = groupDir("surface-ring");
 const validDir = groupDir("valid");
 for (const dir of [
   invalidDir,
@@ -39,6 +41,8 @@ for (const dir of [
   classGlueDir,
   iconNameDir,
   loaderMarkDir,
+  importantDir,
+  surfaceRingDir,
   validDir,
 ]) {
   mkdirSync(dir, { recursive: true });
@@ -195,6 +199,79 @@ export function LiteralRules(_props: RenderlessProps) {
       "design-lint rejected a RESTING box-shadow hairline — FOC-1/FOC-6 decide the focus " +
         "affordance, not every 0 0 0 shadow; upstream draws borders this way",
       hairline.output,
+    );
+  }
+
+  // ── important: Tailwind's `!` modifier (2026-09-23) ───────────────────────────────────────
+  // The raw-CSS half of this rule only ever saw the literal text `!important`, so the spelling
+  // component source actually uses — `p-0!`, or the legacy prefix `!p-0` — compiled to
+  // `!important` with no gate noticing. All three shapes are specimen lines: the suffix, the prefix
+  // behind a variant, and a suffix after an arbitrary-selector variant.
+  writeFileSync(
+    join(importantDir, "important.tsx"),
+    `export function Important() {
+  return <>
+    <div className="flex p-0!">suffix</div>
+    <div className="hover:!mt-2">prefix behind a variant</div>
+    <div className="[&>svg]:size-3!">after an arbitrary variant</div>
+  </>;
+}
+`,
+  );
+  // …and the fail-closed count on a listed file: `/ui/badge.tsx` is allowed exactly ONE (upstream's
+  // `[&>svg]:size-3!`), so a second one must fail even though the file is on the list.
+  writeFileSync(
+    join(importantDir, "badge.tsx"),
+    `export const badge = "inline-flex [&>svg]:size-3! h-5!";
+`,
+  );
+  const important = run(importantDir);
+  const importantLines = important.output
+    .split("\n")
+    .filter((line) => /important\.tsx:\d+ \[important\]/.test(line)).length;
+  if (
+    important.status === 0 ||
+    importantLines < 3 ||
+    !/badge\.tsx \[important\] reviewed Tailwind `!` modifier count changed from 1 to 2/.test(
+      important.output,
+    )
+  ) {
+    console.error(
+      `  observed ${importantLines} of 3 \`!\` modifier forms rejected`,
+    );
+    fail(
+      "design-lint accepted a Tailwind `!` modifier outside IMPORTANT_MODIFIER_EXEMPTIONS, or " +
+        "an exempt file whose reviewed count changed",
+      important.output,
+    );
+  }
+
+  // ── no-surface-ring (BRD-1, ours since MK 2026-09-23) ───────────────────────────────────────
+  // Surfaces draw `border border-border`. Upstream's `ring-1 ring-foreground/10` outline arrives
+  // verbatim with every pull of card, dialog, popover, select and the menus, so this rule is the
+  // only thing that notices it coming back. Both the resting and a variant-scoped spelling.
+  writeFileSync(
+    join(surfaceRingDir, "surface-ring.tsx"),
+    `export function Surfaces() {
+  return <>
+    <div className="rounded-xl bg-card ring-1 ring-foreground/10">upstream card</div>
+    <div className="bg-popover ring-1 dark:ring-foreground/20">a variant-scoped outline</div>
+  </>;
+}
+`,
+  );
+  const surfaceRing = run(surfaceRingDir);
+  const surfaceRingLines = surfaceRing.output
+    .split("\n")
+    .filter((line) => line.includes("[no-surface-ring]")).length;
+  if (surfaceRing.status === 0 || surfaceRingLines < 2) {
+    console.error(
+      `  observed ${surfaceRingLines} of 2 surface-ring forms rejected`,
+    );
+    fail(
+      "design-lint accepted a `ring-foreground/…` surface outline — BRD-1 gives surfaces a real " +
+        "`border border-border`",
+      surfaceRing.output,
     );
   }
 
@@ -414,6 +491,9 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <div className={["flex items-center", "gap-2 rounded-md"].join(" ")} />{/* the canonical multi-fragment join — cannot express the class-glue bug */}
     <div title={"a sentence split across two source lines " + "is prose, not a class seam"} />{/* no class context on either side */}
     <p>{"a multi-line literal mentioning max-h-40\\n\\nkeeps its blank lines: it is prose, not a class string"}</p>
+    <div className="size-8 rounded-full ring-2 ring-background" />{/* avatar's stacking gap in a group — a separator in the page colour, not a surface outline (BRD-1) */}
+    <div className="rounded-xl border border-border bg-card" />{/* the BRD-1 surface edge */}
+    <p>{"Heads up! Saved."}</p>{/* prose ending in an exclamation mark is not a Tailwind \`!\` modifier */}
     <Close aria-label="Close toast" render={<Button size="icon-sm" />} />{/* the host names it with aria-label */}
     <Close render={<Button size="icon-sm" />}><XIcon /><span className="sr-only">Close</span></Close>{/* the host names it with an sr-only label */}
   </>;
@@ -434,11 +514,13 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms and all 5 loader-circle ` +
       `spellings are rejected while \`LoaderIcon\` and the animated-icon catalogue pass, a class seam ` +
-      `with no separating space is rejected, an icon-only Button with an anonymous host is ` +
-      `rejected while one carrying its own sr-only label is accepted; the reviewed Textarea ` +
-      `adapter passes, and with it 16 deliberate non-violations ` +
+      `with no separating space is rejected, all 3 Tailwind \`!\` modifier forms and a changed ` +
+      `exempt count are rejected, both surface-ring spellings are rejected, an icon-only Button ` +
+      `with an anonymous host is rejected while one carrying its own sr-only label is accepted; ` +
+      `the reviewed Textarea adapter passes, and with it 19 deliberate non-violations ` +
       `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
-      `hover vocabulary, plus all three spellings of naming an icon Button through its host`,
+      `hover vocabulary, avatar's ring-2 gap, a border surface and prose ending in "!", plus all ` +
+      `three spellings of naming an icon Button through its host`,
   );
 } finally {
   rmSync(scratch, { recursive: true, force: true });

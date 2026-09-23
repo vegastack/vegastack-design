@@ -1,27 +1,24 @@
 #!/usr/bin/env node
-// Design-lint: enforce the VegaStack token-only component styling rules on packages/ui source.
-//   - no hex colors / no raw Tailwind palette utilities (bg-neutral-900, text-red-500, …)
-//   - no !important
-//   - sanctioned icon sources only (G18): lucide-react / lucide-animated / @vegastack/design/icons /
-//     thesvg via Icon/BrandIcon — no other icon library, no inline <svg> used as an icon
-//   - §7.6 render-contract: single-Base-UI-root wrappers must not Omit<…,'render'>
+// Design-lint: the VegaStack rules that byte parity with upstream cannot see, over component source
+// (default root `packages/ui/registry`; pass other roots as arguments). Rules are rebuilt from the
+// shadcn reset's decision register — a rule exists only where the decision row is **ours**:
+//   - colour: no hex literal, no numbered Tailwind palette (`bg-neutral-900`, `text-red-500`)
+//   - `!important`: never in authored CSS outside the two documented raw-CSS exceptions, and never
+//     as Tailwind's `!` modifier (`p-0!`, `!p-0`) in a class string outside the rationale-counted
+//     `IMPORTANT_MODIFIER_EXEMPTIONS` (upstream's own verbatim uses, plus two of ours)
+//   - focus: no ring glow (FOC-1/FOC-6); surfaces: no `ring-1 ring-foreground/…` outline (BRD-1)
+//   - type: no local `tracking-*` but `tracking-widest` (TYP-15), no `uppercase` (TYP-7), no
+//     arbitrary font size (TYP-18), tabular figures on formatted numbers (TYP-10)
+//   - icons: sanctioned sources only (ICO-1), no inline <svg> as an icon, one loader mark (ICO-8),
+//     icon-only Buttons carry an accessible name
+//   - structure: no Omit<…,'render'> (§7.6), no React.forwardRef, no hand-rolled ref merge, native
+//     controls only under a counted exemption, no presentational `'use client'`
+//   - hygiene: class-glue, class-whitespace, descendant-override density, flex+truncate
 //
-// EXPLICIT, COMPLETE exception set (everything else is a violation — Codex R6 MED). The token-only
-// contract is strict: NO hardcoded visual literal anywhere. The only allowed non-literal forms are:
-//   • Arbitrary values `*-[…]` ONLY when: (1) `var(--token)` / a CSS custom property (semantic tokens
-//     + Base UI runtime positioner vars like --available-height/--anchor-width/--transform-origin), or
-//     (2) `calc()` containing a var() or a viewport/relative unit (dvh/vw/%…), or (3) a layout
-//     primitive (fr/%/auto/min-content/max-content/0), or (4) a CSS-wide keyword. A hardcoded
-//     `h-[13px]` / `bg-[#fff]` / `calc(100px-2rem)` fails. (Motion durations use the `duration-fast`
-//     /`-base`/`-slow` token utilities — see @theme inline bridge — never `duration-[var(--…)]`.)
-//   • Inline `style={…}` ONLY when EITHER (a) it assigns ONLY CSS custom properties — every key is a
-//     `--*` variable (dynamic layout/sizing routes through a var that an arbitrary-value class
-//     consumes: --swatch-cols, --te-min-h/--te-max-h, --cell-w, --sidebar-width), OR (b) it is the
-//     ONE documented swatch-fill exception: a dynamic `backgroundColor`/`background` on the
-//     color-picker swatch (no Tailwind utility exists for a runtime user-supplied color). ANY other
-//     `style={…}` carrying a DIRECT visual property (gridTemplateColumns, width, height, minHeight,
-//     maxHeight, padding, …) — dynamic OR literal — FAILS. A hardcoded hex/px/rem literal in any
-//     style object also fails. Formalized in requirements §7.1 (semantic-tokens-only contract).
+// Arbitrary values (`h-[18.4px]`) and inline `style={…}` are NOT banned any more (DOC-10 = shadcn):
+// upstream ships both in its own source. What is still banned inside them is a hex colour, a raw
+// palette step, or an arbitrary FONT SIZE. Each rule is observed failing by
+// `tooling/verify-design-lint-structural.mjs`.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import ts from "typescript";
@@ -82,8 +79,11 @@ if (docsShellMode && ROOTS.length === 0) {
     resolve(REPO_ROOT, "apps/docs/components"),
   );
 }
+// A bare run lints the components. It used to default to `packages/ui/src`, which after the reset
+// holds only the barrel and the provider, so `node tooling/design-lint.mjs` reported "clean"
+// without reading a single component (found 2026-09-23 by the Regent consumer audit).
 if (ROOTS.length === 0 && tokenCssRoots.length === 0)
-  ROOTS.push("packages/ui/src");
+  ROOTS.push(resolve(REPO_ROOT, "packages/ui/registry"));
 const PALETTES =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
 const COLOR_PROPS =
@@ -138,6 +138,23 @@ const RULES = [
     id: "no-focus-ring-glow",
     re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus-visible:ring-|\bfocus(?:-visible|-within)?:shadow-\[0_0_0_/g,
     msg: "focus ring glow (FOC-1/FOC-6): base.css owns the one `:focus-visible` outline — no ring-3, no ring-ring/NN, no focus-visible:ring-*, no focus 0 0 0 box-shadow ring",
+  },
+  // BRD-1 (ours since MK 2026-09-23) — a surface separates with a real 1px `border border-border`,
+  // never shadcn's `ring-1 ring-foreground/10` box-shadow outline. The reset had taken upstream's
+  // ring, `foundations/elevation.mdx` kept describing a border, and consumers read the ring as an
+  // unwanted outline; the Regent audit is what surfaced the contradiction. Card, dialog,
+  // alert-dialog, popover, hover-card, select, the three menus, combobox, navigation-menu and
+  // settings-row each carry the swap in their patch, and this rule is what keeps the next upstream
+  // pull from bringing the ring back — the same job `no-focus-ring-glow` does for the halo.
+  //
+  // Keyed on the COLOUR, `ring-foreground/…`, under any variant: that is the outline ink, and a ring
+  // in it is a surface edge whatever its width. Avatar's `ring-2 ring-background` is NOT this — it
+  // is the page-coloured gap between stacked avatars in a group, a separator rather than an outline
+  // — and stays legal, which the positive specimen in `verify-design-lint-structural.mjs` observes.
+  {
+    id: "no-surface-ring",
+    re: /(?:^|[\s"'`:])ring-foreground\/[\w.[\]]+/,
+    msg: "surface ring outline (BRD-1): cards and floating surfaces draw `border border-border`, not a `ring-1 ring-foreground/…` box-shadow outline",
   },
   // TYP-15 — the ramp owns tracking; a component never restates it.
   //
@@ -197,6 +214,90 @@ const RULES = [
     msg: "arbitrary font size (TYP-18): an arbitrary value bypasses the --text-* namespace, so it receives neither the ramp's line-height nor its letter-spacing — use a ramp step",
   },
 ];
+
+/**
+ * The `important` rule's class-string half: Tailwind's `!` modifier (`p-0!`, legacy `!p-0`) compiles
+ * to `!important` exactly as a hand-written declaration does, so the raw-CSS rule alone left the
+ * commonest spelling unchecked. Found 2026-09-23 by the Regent consumer audit.
+ *
+ * EXPLICIT, COUNTED, fail-closed in both directions — the shape `RAW_INTERACTIVE_EXEMPTIONS` uses.
+ * A file not listed here may carry no `!` modifier; a listed file must carry EXACTLY its count, so
+ * adding one and removing the last both force a re-read of the rationale. Keyed by the path TAIL
+ * starting at `/ui/` or `/blocks/`, so the canonical file and its byte-identical docs copy-in
+ * (`apps/docs/components/ui/…`) share one entry and nothing else can borrow it.
+ *
+ * Every entry but the last two is UPSTREAM VERBATIM — the `!` is in
+ * `vendor/shadcn/4.21.0/{ui,blocks}/…` and byte parity holds it there; stripping it would be a patch
+ * hunk with no decision ID behind it. It exists where upstream must beat a declaration of equal
+ * specificity from a composed part (Command over Dialog and InputGroup, a Sidebar button collapsing
+ * to icon size, the Tooltip arrow over its side offset). The two of ours say why on their own line.
+ */
+const UPSTREAM_IMPORTANT =
+  "upstream verbatim (vendor/shadcn/4.21.0) — overrides an equal-specificity declaration of a composed part; byte parity holds it";
+const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
+  ["/ui/tooltip.tsx", { count: 4, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/command.tsx", { count: 7, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/sidebar.tsx", { count: 3, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/menubar.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/badge.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/button-group.tsx", { count: 2, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/pagination.tsx", { count: 2, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/attachment.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
+  [
+    "/blocks/chart-bar-interactive/chart-bar-interactive.tsx",
+    { count: 2, rationale: UPSTREAM_IMPORTANT },
+  ],
+  [
+    "/blocks/chart-line-interactive/chart-line-interactive.tsx",
+    { count: 1, rationale: UPSTREAM_IMPORTANT },
+  ],
+  [
+    "/blocks/dashboard-01/components/app-sidebar.tsx",
+    { count: 2, rationale: UPSTREAM_IMPORTANT },
+  ],
+  [
+    "/blocks/dashboard-01/components/chart-area-interactive.tsx",
+    { count: 1, rationale: UPSTREAM_IMPORTANT },
+  ],
+  [
+    "/blocks/sidebar-09/components/app-sidebar.tsx",
+    { count: 1, rationale: UPSTREAM_IMPORTANT },
+  ],
+  [
+    "/blocks/sidebar-16/components/app-sidebar.tsx",
+    { count: 1, rationale: UPSTREAM_IMPORTANT },
+  ],
+  [
+    "/ui/data-table-parts.tsx",
+    {
+      count: 2,
+      rationale:
+        "ours — `pe-2!` reinstates the trailing padding upstream's TableHead zeroes on a checkbox cell, keeping the 24px select-all target inside its column (A11Y-2, measured by the geometry lane)",
+    },
+  ],
+  [
+    "/ui/media-player-controls.tsx",
+    {
+      count: 1,
+      rationale:
+        "ours — `*:min-h-0!` releases upstream Slider's vertical `min-h-40` floor inside the volume pill, which it would otherwise overhang; the floor has equal specificity and no decision row to patch it",
+    },
+  ],
+]);
+
+/**
+ * The `!`-modifier tokens in one class literal. A token qualifies only if it is shaped like a
+ * utility — it carries a `-`, `:` or `[` — so prose that ends in an exclamation mark ("Heads up!")
+ * is never read as a class.
+ */
+function importantModifierTokens(lit) {
+  if (lit.includes("\n")) return [];
+  return lit.split(/\s+/).filter((token) => {
+    if (token === "!important" || !/[-:[]/.test(token)) return false;
+    const bare = token.replace(/\[[^\]]*\]/g, "[]");
+    return /[\w\])%]!$/.test(bare) || /(?:^|:)!-?[a-z@*[]/.test(bare);
+  });
+}
 
 // Inline <svg> used as an icon is banned in component source — use a sanctioned lucide icon or the
 // `Icon`/`BrandIcon` wrapper. Allowlist files that legitimately draw a NON-icon graphic primitive
@@ -613,6 +714,7 @@ for (const root of ROOTS) {
     // ── G1-b rules (issue #49 §7) — all literal-scoped, all with a negative fixture in
     // `verify-design-lint-structural.mjs`. Each is a token-vocabulary rule that source review kept
     // finding by hand; a rule nobody can forget is worth more than a review note.
+    const importantModifiers = [];
     for (const { text: lit, line, template } of literals) {
       const report = (id, message) => {
         console.log(`${file}:${line} [${id}] ${message}`);
@@ -699,10 +801,41 @@ for (const root of ROOTS) {
         );
       }
 
+      // (g) Tailwind's `!` modifier — the class-string half of the `important` rule. Counted per
+      // file against IMPORTANT_MODIFIER_EXEMPTIONS after the loop.
+      for (const token of importantModifierTokens(lit)) {
+        importantModifiers.push({ line, token });
+      }
+
       // The `hover-without-pressed` rule is GONE (INT-4 = shadcn). It failed any class string
       // that changed the fill on hover without a pressed rung beside it. Upstream's own controls
       // almost never carry one — the default button is `hover:bg-primary/80` and nothing else — so
       // the rule now rejects upstream's files by construction.
+    }
+
+    {
+      const exemption = [...IMPORTANT_MODIFIER_EXEMPTIONS].find(([tail]) =>
+        file.replaceAll("\\", "/").endsWith(tail),
+      );
+      if (!exemption) {
+        for (const { line, token } of importantModifiers) {
+          console.log(
+            `${file}:${line} [important] Tailwind \`!\` modifier "${token}" compiles to !important — ` +
+              "fix the specificity instead (a data-slot the child owns, or the composed part's own prop); " +
+              "only the counted upstream-verbatim cases in IMPORTANT_MODIFIER_EXEMPTIONS are allowed",
+          );
+          violations++;
+        }
+      } else if (importantModifiers.length !== exemption[1].count) {
+        console.log(
+          `${file} [important] reviewed Tailwind \`!\` modifier count changed from ${exemption[1].count} to ` +
+            `${importantModifiers.length} (${exemption[1].rationale}); re-audit, then update IMPORTANT_MODIFIER_EXEMPTIONS` +
+            (importantModifiers.length
+              ? `\n    ${importantModifiers.map((m) => `${m.line}:${m.token}`).join("  ")}`
+              : ""),
+        );
+        violations++;
+      }
     }
 
     // R flex+truncate co-location ban (audit 12 §b2): `truncate`/`line-clamp-*` on the same
