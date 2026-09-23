@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.12.2 sha256-AKaPU4B7G/pP8pDhkeYw6P9Su90V4ElvYcueysU1uK0=
+// @vegastack data-table-parts@0.12.2 sha256-VCPEU/9T1xJuNv+lGBfzm0riJLCNwEGNv4PyaYbwwME=
 
 "use client";
 
@@ -122,12 +122,24 @@ export function isNowrapColumn(column: DataTableColumnLayout): boolean {
  * `whitespace-nowrap` row or a Badge each pin their own min-content, and
  * `truncate` cannot shrink inside an auto-layout cell anyway, so its ellipsis
  * was never available there — squeezed, it wraps instead. A Badge's fixed `h-5`
- * gives way to its content (`h-auto`) so a wrapped label stays inside it. What
- * the squeeze cannot release is a fixed WIDTH — an icon, an avatar, a control.
+ * gives way to its content (`h-auto`) so a wrapped label stays inside it.
+ *
+ * What the release SKIPS is a control and fixed-size content, and everything
+ * inside one: a native `button`/`input`/`select`/`textarea`, an element with a
+ * control role, a `Button` (`data-slot="button"`, whatever it renders as), an
+ * `Avatar` and a `Kbd`. Each has a fixed height (or a fixed box), so a label
+ * wrapped inside it spills out of it — a squeezed `sm` Button measured 45px of
+ * text in a 26px box. Skipped, a control keeps its one-line min-content, the
+ * text around it breaks, and the row grows taller instead. Two buttons are NOT
+ * controls in that sense and stay released: DataList's own row-action wrapper
+ * (`data-list-row-action`, which holds the first cell's content) and the sort
+ * header (`data-table-sort`, whose label wraps with `h-auto`). The one list
+ * appears twice, identically, because Tailwind can only see a literal class.
  */
 const SQUEEZE_CLASS =
   "in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
-  "in-data-squeezed:**:whitespace-normal in-data-squeezed:**:wrap-anywhere " +
+  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select,textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select,textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd])_*]:whitespace-normal " +
+  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select,textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select,textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd])_*]:wrap-anywhere " +
   "in-data-squeezed:**:data-[slot=badge]:h-auto";
 
 /**
