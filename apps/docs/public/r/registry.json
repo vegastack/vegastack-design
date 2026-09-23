@@ -1059,7 +1059,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.12.2",
-        "integrity": "sha256-Ssnq2fd1JaWv6N97XuOG9J29OReI5Gx4Qb4abnqoxug="
+        "integrity": "sha256-VOp2HvXeifesn8qXkm867T/O/05dnwebYbLdtR69nyc="
       }
     },
     {
@@ -1091,7 +1091,7 @@
         "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Infinite or keyboard-continuous loading (DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.12.2",
-        "integrity": "sha256-w5W9Tn0uv5erUEHg0P8OZvoUkypO19GFH8X/VaIJFSs="
+        "integrity": "sha256-8n1FfBJ0NAfngMh419StAZmvjTHfNkN4SaD+nEwJ0NI="
       }
     },
     {
@@ -1125,7 +1125,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.12.2",
-        "integrity": "sha256-WIleujhRJ5L3D9zuCYIHwf8FpG8rUxt0gKFbA7Fo0xo="
+        "integrity": "sha256-AKaPU4B7G/pP8pDhkeYw6P9Su90V4ElvYcueysU1uK0="
       }
     },
     {
