@@ -17,6 +17,9 @@ import {
   SkeletonRows,
   SortableHead,
   SortHeaderButton,
+  mergedValueClass,
+  offscreenSortSummary,
+  SELECTED_ROW_CLASS,
   useContainerWidth,
   useControlledState,
   useRowSelection,
@@ -54,7 +57,9 @@ test("columnCellClass carries alignment, wrap posture and the mono face", () => 
   // The wrap posture is spelled out in BOTH directions since Batch 5 of the shadcn reset: upstream's
   // `TableCell` is `whitespace-nowrap` by default (LAY-6 resolves as **shadcn**), so a wrapping
   // column has to say `whitespace-normal` or `cn`'s merge leaves upstream's class standing.
-  expect(columnCellClass({ key: "name" })).toBe("text-start whitespace-normal");
+  expect(columnCellClass({ key: "name" })).toBe(
+    "text-start whitespace-normal in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere",
+  );
   expect(columnCellClass({ key: "amount", align: "end" })).toContain(
     "whitespace-nowrap",
   );
@@ -62,6 +67,57 @@ test("columnCellClass carries alignment, wrap posture and the mono face", () => 
   expect(mono).toContain("font-mono");
   expect(mono).toContain("tabular-nums");
   expect(mono).toContain("whitespace-nowrap");
+});
+
+test("mergedValueClass wraps whatever the column's own posture, in the column's own face", () => {
+  // A merged value sits inside the PRIMARY cell. Without its own rule it inherited that cell's
+  // `whitespace-nowrap` (mono / end-aligned primary) and pinned the table wider than its container.
+  for (const column of [
+    { key: "a" },
+    { key: "b", mono: true },
+    { key: "c", align: "end" as const },
+    { key: "d", nowrap: true },
+  ]) {
+    const merged = mergedValueClass(column);
+    expect(merged).toContain("whitespace-normal");
+    expect(merged).toContain("wrap-anywhere");
+    expect(merged).not.toContain("nowrap");
+  }
+  expect(mergedValueClass({ key: "b", mono: true })).toContain("font-mono");
+  expect(mergedValueClass({ key: "a" })).toContain("font-sans");
+});
+
+test("offscreenSortSummary states a sort only once its column has left the header row", () => {
+  const cols = [
+    { key: "name", header: "Name" },
+    { key: "stage", header: "Stage" },
+    { key: "amount", header: <b>Amount</b> },
+  ];
+  const visible = [{ key: "name" }];
+  expect(offscreenSortSummary([], cols, visible)).toBeNull();
+  expect(
+    offscreenSortSummary([{ key: "name", direction: "asc" }], cols, visible),
+  ).toBeNull();
+  expect(
+    offscreenSortSummary([{ key: "stage", direction: "desc" }], cols, visible),
+  ).toBe("Sorted by Stage, descending");
+  // A non-string header falls back to the key; a multi-key order is stated whole.
+  expect(
+    offscreenSortSummary(
+      [
+        { key: "name", direction: "asc" },
+        { key: "amount", direction: "asc" },
+      ],
+      cols,
+      visible,
+    ),
+  ).toBe("Sorted by Name, ascending, then amount, ascending");
+});
+
+test("SELECTED_ROW_CLASS is the half-muted wash in every state, never the badge-coloured accent", () => {
+  expect(SELECTED_ROW_CLASS).toBe(
+    "bg-muted/50 hover:bg-muted/50 active:bg-muted/50",
+  );
 });
 
 /* ------------------------------------------------------------------ sort */

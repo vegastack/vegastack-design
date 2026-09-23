@@ -108,6 +108,19 @@ export function isNowrapColumn(column: DataTableColumnLayout): boolean {
 }
 
 /**
+ * What a cell (and a sort header's label) becomes inside a `data-squeezed`
+ * table — the attribute a renderer sets on its `<table>` when, AFTER
+ * revelation, the table still overflows its container (the last rung of
+ * "never forces a horizontal scroll"). Only `DataList` sets it; `DataGrid`'s
+ * container is allowed to scroll. Squeezed, a cell is
+ * wrapping and breakable anywhere, because the alternative is overflowing.
+ * `wrap-anywhere` is the value that lowers min-content width, which is what an
+ * auto-layout table sizes each column from.
+ */
+const SQUEEZE_CLASS =
+  "in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere";
+
+/**
  * The full class contract for one column's cells — alignment, the wrap posture,
  * and the mono numeral face. Used for header, body and skeleton cells alike.
  */
@@ -119,9 +132,56 @@ export function columnCellClass(column: DataTableColumnLayout): string {
     // (LAY-6 resolves as **shadcn**), so a column that wants to wrap has to say so or `cn`'s
     // merge leaves upstream's class standing.
     isNowrapColumn(column) ? "whitespace-nowrap" : "whitespace-normal",
+    SQUEEZE_CLASS,
     column.mono && "font-mono text-sm tabular-nums",
   );
 }
+
+/**
+ * The class contract for ONE value in the primary cell's merged stack.
+ *
+ * A merged value lives inside the primary column's cell, so without a rule of
+ * its own it inherits that cell's posture — and a `mono` or `align: "end"`
+ * primary column is `whitespace-nowrap` with the mono face. Every value stacked
+ * under it was then pinned to one line too, which widened the primary cell
+ * past its budget and scrolled the table sideways: the one thing the
+ * revelation exists to prevent (a mono first column measured 390px in a 320px
+ * container). So each merged value states its own posture:
+ *
+ * - it WRAPS, whatever its own column's `nowrap` says. `wrap-anywhere` (not
+ *   `wrap-break-word`) is the one that lowers the value's min-content width,
+ *   which is what an auto-layout table sizes the column from; a figure only
+ *   breaks when the cell is genuinely narrower than it, the alternative to
+ *   which is overflowing the table.
+ * - it wears ITS OWN column's face: the mono numeral face for a `mono` column,
+ *   and `font-sans` otherwise, so a prose value under a mono primary is not
+ *   rendered in mono.
+ *
+ * Shared by `DataList` and `DataGrid` so the two stacks cannot drift again.
+ */
+export function mergedValueClass(column: DataTableColumnLayout): string {
+  return cn(
+    "block min-w-0 whitespace-normal wrap-anywhere",
+    column.mono ? "font-mono tabular-nums" : "font-sans",
+  );
+}
+
+/**
+ * The fill of a SELECTED body row, in rest, hover and press alike (SP-06: the
+ * selection never flickers under the cursor).
+ *
+ * Half the `muted` wash, not the full `accent`. `--accent`, `--muted` and
+ * `--secondary` share one value (Colors, "The neutral surfaces"), so a full
+ * `bg-accent` row painted exactly the fill of a `secondary` Badge and the badge
+ * vanished into its own row. Half the wash keeps the row between the page and
+ * the badge fill in both themes — the badge stays distinguishable, and
+ * `text-muted-foreground` stays above 4.5:1 on it (4.87:1 light, 6.84:1 dark),
+ * which a darker tint fails in light (a `primary` tint reaches the badge fill
+ * at 5% and drops muted text under AA by 8%). The checkbox remains the
+ * authoritative selection cue.
+ */
+export const SELECTED_ROW_CLASS =
+  "bg-muted/50 hover:bg-muted/50 active:bg-muted/50";
 
 /** The `minWidth` a column that declares none is budgeted at. */
 export const DEFAULT_COLUMN_MIN_WIDTH = 120;
@@ -303,7 +363,14 @@ export function SortHeaderButton({
       data-slot="data-table-sort"
       onClick={onSort}
       className={cn(
-        "group/sort h-7 gap-1 px-2 text-xs font-medium text-muted-foreground select-none hover:text-foreground",
+        // The label carries upstream `TableHead`'s own type and ink (`text-sm font-medium`,
+        // `text-foreground` inherited from the cell), NOT the `sm` Button's `text-xs` or a muted
+        // ink: a sortable header and a plain one sit in the same row and must read as one
+        // treatment. Measured before: sortable 12px muted beside plain 14px foreground.
+        "group/sort h-7 gap-1 px-2 text-sm font-medium select-none",
+        // In a squeezed table the label may wrap like the cells do.
+        "in-data-squeezed:h-auto in-data-squeezed:min-h-7 in-data-squeezed:text-start",
+        SQUEEZE_CLASS,
         className,
       )}
     >
@@ -340,6 +407,43 @@ export interface DataTableHeaderColumn extends DataTableColumnLayout {
    * @default undefined
    */
   headerClassName?: string;
+}
+
+/**
+ * The sentence that keeps a sort discoverable once its column has left the
+ * header row, or `null` when every sorted column still has its own header.
+ *
+ * Revelation can merge or hide the very column the table is sorted by — a
+ * narrow container, or a sort set by the host on a late column. Its header,
+ * and with it the arrow and `aria-sort`, is then gone, and nothing on screen
+ * or in the accessibility tree says what order the rows are in. Both
+ * renderers print this line beside their hidden-columns count and describe
+ * the table by it, rather than force the sorted column visible (which would
+ * re-open the horizontal scroll the revelation exists to prevent).
+ *
+ * @example
+ * offscreenSortSummary([{ key: "email", direction: "asc" }], columns, visibleColumns);
+ * // "Sorted by Email, ascending"
+ */
+export function offscreenSortSummary(
+  sort: readonly { key: string; direction: SortDirection }[],
+  columns: readonly DataTableHeaderColumn[],
+  visibleColumns: readonly Pick<DataTableColumnLayout, "key">[],
+): string | null {
+  const shown = new Set(visibleColumns.map((column) => column.key));
+  // Multi-key: once any key is off screen the whole order is stated, because a
+  // secondary key only means something after its primary.
+  if (sort.every((entry) => shown.has(entry.key))) return null;
+  const label = (key: string) => {
+    const column = columns.find((candidate) => candidate.key === key);
+    return typeof column?.header === "string" ? column.header : key;
+  };
+  return `Sorted by ${sort
+    .map(
+      (entry) =>
+        `${label(entry.key)}, ${entry.direction === "asc" ? "ascending" : "descending"}`,
+    )
+    .join(", then ")}`;
 }
 
 /** Props for `SortableHead`. */

@@ -5,6 +5,8 @@ import { userEvent } from "vitest/browser";
 import axe from "axe-core";
 import { afterEach, expect, test } from "vitest";
 import { Badge } from "../registry/ui/badge";
+import { DataGrid } from "../registry/ui/data-grid";
+import { DataList } from "../registry/ui/data-list";
 import { Alert, AlertTitle, AlertDescription } from "../registry/ui/alert";
 import { Button } from "../registry/ui/button";
 import { Toaster, toast } from "../registry/ui/toast";
@@ -630,3 +632,133 @@ test("a counted tab's badge color-contrast passes WCAG AA — dark theme", async
     `counted-tab badge color-contrast failures (dark):\n  ${violations.join("\n  ")}`,
   ).toEqual([]);
 });
+
+// ── A Badge on a selected DataList / DataGrid row ─────────────────────────────────────────────
+// `--accent`, `--muted` and `--secondary` share ONE value (Colors, "The neutral surfaces"). A
+// selected row painted with the full `bg-accent` was therefore exactly a `secondary` Badge's fill,
+// and the badge vanished into its own row — measured 1.00:1 between the two fills, in both themes
+// (review 2026-09-23, `shots/`). The row now takes `SELECTED_ROW_CLASS` (`bg-muted/50`), which sits
+// BETWEEN the page and the badge fill. Two facts are asserted on real compiled colours: the badge
+// fill stays separated from the selected row's composite, and every text in the row (including
+// the muted email) still passes axe's AA contrast rule on it.
+
+/** Paint `layers` bottom-to-top onto one canvas pixel and read back its sRGB channels (0-255). */
+function composite(layers: string[]): [number, number, number] {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1;
+  canvas.height = 1;
+  const context = canvas.getContext("2d")!;
+  for (const layer of layers) {
+    context.fillStyle = layer;
+    context.fillRect(0, 0, 1, 1);
+  }
+  const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+  return [r!, g!, b!];
+}
+
+/** WCAG 2.x contrast ratio between two opaque sRGB colours. */
+function contrastRatio(
+  a: [number, number, number],
+  b: [number, number, number],
+) {
+  const luminance = ([r, g, b]: [number, number, number]) => {
+    const channel = (value: number) => {
+      const c = value / 255;
+      return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+  };
+  const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (light! + 0.05) / (dark! + 0.05);
+}
+
+interface SelectedRowPerson {
+  id: string;
+  name: string;
+  email: string;
+  status: string;
+}
+
+const SELECTED_ROW_PEOPLE: SelectedRowPerson[] = [
+  { id: "1", name: "Ada Lovelace", email: "ada@vega.dev", status: "Active" },
+  { id: "2", name: "Bea Arthur", email: "bea@vega.dev", status: "Invited" },
+];
+
+function SelectedRows({ grid }: { grid: boolean }) {
+  const columns = [
+    { key: "name", header: "Name" },
+    {
+      key: "email",
+      header: "Email",
+      render: (p: SelectedRowPerson) => (
+        <span className="text-muted-foreground">{p.email}</span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (p: SelectedRowPerson) => (
+        <Badge variant="secondary">{p.status}</Badge>
+      ),
+    },
+  ];
+  return (
+    <div className="bg-background p-6 text-foreground">
+      {grid ? (
+        <DataGrid
+          aria-label="People"
+          columns={columns}
+          data={SELECTED_ROW_PEOPLE}
+          getRowId={(p) => p.id}
+          selectable
+          selectedIds={new Set(["1"])}
+          columnPicker={false}
+        />
+      ) : (
+        <DataList
+          aria-label="People"
+          columns={columns}
+          data={SELECTED_ROW_PEOPLE}
+          getRowId={(p) => p.id}
+          selectable
+          selectedIds={new Set(["1"])}
+        />
+      )}
+    </div>
+  );
+}
+
+for (const theme of ["light", "dark"] as const) {
+  for (const grid of [false, true]) {
+    const name = grid ? "DataGrid" : "DataList";
+    test(`a secondary Badge stays distinguishable on a selected ${name} row — ${theme} theme`, async () => {
+      const screen = await render(
+        <div className={theme === "dark" ? "dark" : undefined}>
+          <SelectedRows grid={grid} />
+        </div>,
+      );
+      await expect
+        .poll(() => screen.container.querySelector("tr[data-selected]"))
+        .not.toBeNull();
+      const row =
+        screen.container.querySelector<HTMLElement>("tr[data-selected]")!;
+      const badge = row.querySelector<HTMLElement>('[data-slot="badge"]')!;
+      const page = getComputedStyle(
+        screen.container.querySelector<HTMLElement>(".bg-background")!,
+      ).backgroundColor;
+      const rowFill = getComputedStyle(row).backgroundColor;
+      const badgeFill = getComputedStyle(badge).backgroundColor;
+      const rowPixel = composite([page, rowFill]);
+      const badgePixel = composite([page, rowFill, badgeFill]);
+      // The row is visibly selected, and the badge is visibly a badge on it. The full-accent row
+      // measured 1.00 here; the half wash measures ~1.05 light and ~1.17 dark.
+      expect(contrastRatio(rowPixel, composite([page]))).toBeGreaterThan(1.03);
+      expect(contrastRatio(badgePixel, rowPixel)).toBeGreaterThan(1.03);
+      const violations = await contrastViolations(screen.container);
+      expect(
+        violations,
+        `${name} selected-row color-contrast failures (${theme}):\n  ${violations.join("\n  ")}`,
+      ).toEqual([]);
+    });
+  }
+}

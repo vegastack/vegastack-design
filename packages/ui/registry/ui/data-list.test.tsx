@@ -601,15 +601,21 @@ test("toolbar and footer slots render around the table", async () => {
     .toHaveAttribute("data-slot", "data-list");
 });
 
-test("no toolbar/footer wrapper when both slots are omitted", async () => {
+test("one root in every configuration; no toolbar/footer regions when both slots are omitted", async () => {
   const screen = await render(
     <DataList columns={columns} data={data} getRowId={(r) => r.id} />,
   );
-  expect(
-    screen.container.querySelector('[data-slot="data-list-root"]'),
-  ).toBeNull();
+  // The root is DataList's single node in the host's container — its own status lines and
+  // the sr-only loading status can never land there as stray grid/flex items.
+  expect(screen.container.children).toHaveLength(1);
+  expect(screen.container.firstElementChild?.getAttribute("data-slot")).toBe(
+    "data-list-root",
+  );
   expect(
     screen.container.querySelector('[data-slot="data-list-toolbar"]'),
+  ).toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="data-list-footer"]'),
   ).toBeNull();
 });
 
@@ -1109,6 +1115,172 @@ test('`mobile: "hidden"` columns are dropped, counted, and describe the table', 
     screen.container.querySelector('[data-slot="data-list-merged"]'),
   ).toBeNull();
   await expectNoA11yViolations(screen.container);
+});
+
+test("the hidden-columns hint renders inside DataList's own root, not the host's container", async () => {
+  // No toolbar, no footer: the bare configuration used to return a fragment, so the hint became
+  // an extra child of the HOST's grid.
+  const screen = await render(
+    <div data-testid="host" style={{ display: "grid", width: "300px" }}>
+      <DataList
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role", minWidth: 10_000, mobile: "hidden" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect
+    .poll(() =>
+      screen.container.querySelector('[data-slot="data-list-hidden-hint"]'),
+    )
+    .not.toBeNull();
+  const host = screen.getByTestId("host").element();
+  expect(host.children).toHaveLength(1);
+  const hint = screen.container.querySelector(
+    '[data-slot="data-list-hidden-hint"]',
+  )!;
+  expect(hint.closest('[data-slot="data-list-root"]')).toBe(
+    host.firstElementChild,
+  );
+});
+
+test("merged values wrap and wear their own column's face, whatever the primary's posture", async () => {
+  // A mono (and so nowrap) primary column used to pin every merged value to one line in the
+  // mono face. Real-CSS containment is asserted in the geometry lane; this pins the contract.
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        columns={[
+          { key: "name", header: "Name", mono: true },
+          { key: "role", header: "Role" },
+          { key: "email", header: "Email" },
+          { key: "team", header: "Team", mono: true },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const [email, team] = Array.from(
+    screen.container.querySelector('[data-slot="data-list-merged"]')!.children,
+  ) as HTMLElement[];
+  for (const value of [email!, team!]) {
+    expect(value.className).toContain("whitespace-normal");
+    expect(value.className).toContain("wrap-anywhere");
+  }
+  expect(email!.className).toContain("font-sans");
+  expect(email!.className).not.toContain("font-mono");
+  expect(team!.className).toContain("font-mono");
+});
+
+test("a sort on a merged column stays discoverable: a line the table is described by", async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="People"
+        columns={[
+          { key: "name", header: "Name", sortable: true },
+          { key: "role", header: "Role", sortable: true },
+          { key: "email", header: "Email", sortable: true },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+        sort={{ key: "email", direction: "desc" }}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const hint = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-sort-hint"]',
+  );
+  expect(hint?.textContent).toBe("Sorted by Email, descending");
+  expect(
+    screen
+      .getByRole("table")
+      .element()
+      .getAttribute("aria-describedby")
+      ?.split(" "),
+  ).toContain(hint!.id);
+  // The merged value itself carries the direction as a styling hook.
+  expect(
+    screen.container
+      .querySelector('[data-slot="data-list-merged"] [data-sorted]')
+      ?.getAttribute("data-sorted"),
+  ).toBe("desc");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a sort on a hidden column is stated too; a sort on a visible column is not", async () => {
+  function Host() {
+    const [key, setKey] = React.useState("role");
+    return (
+      <div style={{ width: "300px" }}>
+        <button type="button" onClick={() => setKey("name")}>
+          sort by name
+        </button>
+        <DataList
+          columns={[
+            { key: "name", header: "Name", sortable: true },
+            {
+              key: "role",
+              header: "Role",
+              minWidth: 10_000,
+              mobile: "hidden",
+              sortable: true,
+            },
+          ]}
+          data={wideData}
+          getRowId={(r) => r.id}
+          sort={{ key, direction: "asc" }}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Host />);
+  await expect
+    .poll(
+      () =>
+        screen.container.querySelector('[data-slot="data-list-sort-hint"]')
+          ?.textContent,
+    )
+    .toBe("Sorted by Role, ascending");
+  (
+    screen
+      .getByRole("button", { name: "sort by name" })
+      .element() as HTMLElement
+  ).click();
+  await expect
+    .poll(() =>
+      screen.container.querySelector('[data-slot="data-list-sort-hint"]'),
+    )
+    .toBeNull();
+  // The header carries it again.
+  expect(
+    screen.container
+      .querySelector('[data-slot="data-list-head"]')
+      ?.getAttribute("aria-sort"),
+  ).toBe("ascending");
+});
+
+test("a selected row takes the half-muted wash, not the badge-coloured accent", async () => {
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      selectable
+      selectedIds={new Set(["a"])}
+    />,
+  );
+  const row = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-row"][data-selected]',
+  )!;
+  expect(row.className).toContain("bg-muted/50");
+  expect(row.className).not.toContain("bg-accent");
 });
 
 test("the hidden-columns hint is singular for one column and keeps a host aria-describedby", async () => {
