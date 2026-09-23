@@ -7119,7 +7119,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["data-table-sort"]
+              "values": ["data-table-sort", "data-table-sort-glyph"]
             }
           ],
           "cssVariables": []

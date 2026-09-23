@@ -1684,6 +1684,139 @@ test("DataGrid: sortable and plain headers share one type and ink", async () => 
   expect(sortable).toEqual(plain);
 });
 
+/**
+ * A sortable header's LABEL lines up with its column's values, like a plain header's does. The
+ * sort control is a ghost Button whose padding and border sat inside the cell's own padding, so
+ * the label started ~5px after the values below it (review round 2: header x=38, value x=33). A
+ * start column compares text starts, an end column text ends — its direction glyph leads, outside
+ * the text run, so the label's end is the button's content end. The label also keeps the plain
+ * header's vertical position (the glyph must never become the baseline).
+ */
+function firstTextRect(element: Element): DOMRect {
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) =>
+      node.textContent!.trim() &&
+      !(node.parentElement?.closest(".sr-only, [aria-hidden=true]") ?? null)
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_REJECT,
+  });
+  const text = walker.nextNode();
+  expect(text, `no text in ${describe(element)}`).not.toBeNull();
+  const range = document.createRange();
+  range.selectNodeContents(text!);
+  return range.getBoundingClientRect();
+}
+
+/** Each header as `label: edge offset, vertical offset from a plain header` (px). */
+function headerOffsets(root: HTMLElement): string[] {
+  const table = root.querySelector("table")!;
+  const heads = [...table.querySelectorAll("thead th")];
+  const cells = [...table.querySelectorAll("tbody tr:first-child td")];
+  const plainHead = heads.find((th) => !th.querySelector("button"))!;
+  const plainTop = firstTextRect(plainHead).top;
+  return heads.map((th, index) => {
+    const head = firstTextRect(th);
+    const cell = firstTextRect(cells[index]!);
+    // Compare the edge the column aligns to: its inline START or END, which swap sides in RTL.
+    const end = th.className.includes("text-end");
+    const rtl = getComputedStyle(th).direction === "rtl";
+    const edge = end !== rtl ? head.right - cell.right : head.left - cell.left;
+    // Whole pixels, and `0` for `-0`: a sub-pixel is rounding, not misalignment.
+    const px = (value: number) => Math.round(value) || 0;
+    // The glyph (and a multi-sort ordinal) never sits on the label.
+    const glyph = th
+      .querySelector('[data-slot="data-table-sort-glyph"]')
+      ?.getBoundingClientRect();
+    const overlaps =
+      glyph &&
+      glyph.width > 0 &&
+      glyph.left < head.right - 0.5 &&
+      glyph.right > head.left + 0.5;
+    return `${th.textContent}: edge ${px(edge)}, top ${px(head.top - plainTop)}${overlaps ? ", glyph overlaps label" : ""}`;
+  });
+}
+
+const ALIGN_COLUMNS = [
+  { key: "ref", header: "Invoice", sortable: true },
+  { key: "customer", header: "Customer" },
+  { key: "amount", header: "Amount", align: "end" as const, sortable: true },
+];
+const ALIGNED = [
+  "Invoice: edge 0, top 0",
+  "Customer: edge 0, top 0",
+  "Amount: edge 0, top 0",
+];
+
+test("DataGrid: a multi-key sort's ordinal never sits on an end column's label", async () => {
+  const screen = await render(
+    <div style={{ width: "900px" }}>
+      <DataGrid
+        aria-label="Invoices"
+        columns={ALIGN_COLUMNS}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+        columnPicker={false}
+        sort={[
+          { key: "ref", direction: "asc" },
+          { key: "amount", direction: "desc" },
+        ]}
+      />
+    </div>,
+  );
+  await settle();
+  expect(headerOffsets(screen.container)).toEqual([
+    "Invoice1: edge 0, top 0",
+    "Customer: edge 0, top 0",
+    "Amount2: edge 0, top 0",
+  ]);
+});
+
+for (const sort of [null, { key: "amount", direction: "desc" as const }])
+  for (const dir of ["ltr", "rtl"] as const) {
+    const label = `${sort ? "sorted" : "unsorted"}, ${dir}`;
+    test(`DataList: a sortable header's label lines up with its values (${label})`, async () => {
+      if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+      try {
+        const screen = await render(
+          <div style={{ width: "900px" }}>
+            <DataList
+              aria-label="Invoices"
+              columns={ALIGN_COLUMNS}
+              data={INVOICES}
+              getRowId={(row) => row.id}
+              sort={sort}
+            />
+          </div>,
+        );
+        await settle();
+        expect(headerOffsets(screen.container)).toEqual(ALIGNED);
+      } finally {
+        document.documentElement.removeAttribute("dir");
+      }
+    });
+    test(`DataGrid: a sortable header's label lines up with its values (${label})`, async () => {
+      if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+      try {
+        const screen = await render(
+          <div style={{ width: "900px" }}>
+            <DataGrid
+              aria-label="Invoices"
+              columns={ALIGN_COLUMNS}
+              data={INVOICES}
+              getRowId={(row) => row.id}
+              columnPicker={false}
+              {...(sort ? { sort: [sort] } : {})}
+            />
+          </div>,
+        );
+        await settle();
+        expect(headerOffsets(screen.container)).toEqual(ALIGNED);
+      } finally {
+        document.documentElement.removeAttribute("dir");
+      }
+    });
+  }
+
 test("DataList squeezes only when revelation alone cannot fit the table", async () => {
   // A first column whose own one-line value is wider than the whole container: revelation has
   // nothing left to move, so the table squeezes (every cell may break) instead of scrolling.

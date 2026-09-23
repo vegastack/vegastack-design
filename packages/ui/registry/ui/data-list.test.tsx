@@ -110,8 +110,10 @@ test("reflects the controlled sort via aria-sort + data-sorted", async () => {
 test("end-aligned sortable header keeps DOM order (no flex-row-reverse) so the label defines the baseline", async () => {
   // Regression: `flex-row-reverse` made the icon span the flex container's
   // baseline-defining first item; its baseline synthesizes from the svg box
-  // bottom, lifting the label ~2px vs sibling headers. The icon now trails the
-  // label in every alignment; the cell's `text-end` handles right alignment.
+  // bottom, lifting the label ~2px vs sibling headers. The label stays the
+  // first (and only in-flow) child in every alignment; in an END column the
+  // glyph leads visually from an out-of-flow slot, so the label's end lines up
+  // with the values (asserted with real geometry in test/geometry.browser.test.tsx).
   const cols: DataListColumn<Row>[] = [
     { key: "name", header: "Name", sortable: true },
     { key: "role", header: "Role", sortable: true, align: "end" },
@@ -127,9 +129,9 @@ test("end-aligned sortable header keeps DOM order (no flex-row-reverse) so the l
   expect(button.className).not.toContain("flex-row-reverse");
   // Label text first, icon span trailing.
   expect(button.childNodes[0]?.textContent).toBe("Role");
-  expect(
-    (button.lastElementChild as HTMLElement).querySelector("svg"),
-  ).not.toBeNull();
+  const glyph = button.lastElementChild as HTMLElement;
+  expect(glyph.querySelector("svg")).not.toBeNull();
+  expect(glyph.className).toContain("absolute");
 });
 
 test("non-sortable headers are plain (no button, no aria-sort)", async () => {

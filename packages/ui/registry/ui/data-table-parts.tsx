@@ -329,6 +329,12 @@ export interface SortHeaderButtonProps {
   /** Activate the sort. The event carries `shiftKey` for additive multi-sort. */
   onSort: (event: React.MouseEvent<HTMLButtonElement>) => void;
   /**
+   * The column's alignment. In an `end` column the direction glyph LEADS the
+   * label, so the label's end lines up with the values' end.
+   * @default "start"
+   */
+  align?: "start" | "center" | "end";
+  /**
    * Extra classes for the button.
    * @default undefined
    */
@@ -340,18 +346,22 @@ export interface SortHeaderButtonProps {
  * `Button` sized to sit inside the 32px header row, so its hover wash and its
  * focus outline are upstream's rather than restated here.
  *
- * The direction glyph TRAILS the label in every alignment (the cell's own
- * `text-end` right-aligns the shrink-wrapped button). No `flex-row-reverse` for
- * end columns: an icon-first arrangement makes the icon the flex container's
- * baseline-defining first item, and its baseline synthesizes from the svg box
- * bottom — lifting the label ~2px against its sibling headers.
+ * The LABEL lines up with its column's values: 8px in from the cell's edge,
+ * exactly where upstream `TableCell`'s `p-2` puts a value and `TableHead`'s
+ * `px-2` puts a plain header. `SortableHead` narrows its own cell padding to
+ * `px-0.5` and the button adds its 1px border and `px-1.25` (2 + 1 + 5 = 8), so
+ * the hover wash still has room while the button's box never leaves its cell.
+ * A negative margin here once bled 8px into the neighbouring cell and stole the
+ * leading selection checkbox's 24px hit area — the geometry lane's obstruction
+ * probe caught it (`docs/ledger/bugs.md`, 2026-09-09).
  *
- * It carries NO negative inline margin. Optical alignment with a plain header
- * comes from `SortableHead` narrowing its own cell padding to `px-1` instead, so
- * the label still starts 12px in (4px cell + 8px button) while the button's box
- * never leaves its cell. A negative margin here bled 8px into the neighbouring
- * cell and stole the leading selection checkbox's 24px hit area — the geometry
- * lane's obstruction probe caught it (`docs/ledger/bugs.md`, 2026-09-09).
+ * The direction glyph trails the label in a start or center column. In an END
+ * column it leads, so the label's end is the values' end — but it is taken out
+ * of flow (absolutely placed in a start padding reserved for it) rather than
+ * put first: an icon-first flex row makes the icon the baseline-defining first
+ * item, and its baseline synthesizes from the svg box bottom — lifting the
+ * label ~2px against its sibling headers. The label stays the only in-flow
+ * child, so it defines the baseline in every alignment.
  *
  * @example
  * <SortHeaderButton direction="asc" onSort={(e) => sortBy("name", e.shiftKey)}>
@@ -363,8 +373,10 @@ export function SortHeaderButton({
   direction = null,
   order,
   onSort,
+  align = "start",
   className,
 }: SortHeaderButtonProps) {
+  const leading = align === "end";
   return (
     <Button
       type="button"
@@ -377,7 +389,10 @@ export function SortHeaderButton({
         // `text-foreground` inherited from the cell), NOT the `sm` Button's `text-xs` or a muted
         // ink: a sortable header and a plain one sit in the same row and must read as one
         // treatment. Measured before: sortable 12px muted beside plain 14px foreground.
-        "group/sort h-7 gap-1 px-2 text-sm font-medium select-none",
+        "group/sort h-7 gap-1 px-1.25 text-sm font-medium select-none",
+        // An end column reserves the glyph's room at the START: 5px + the 14px glyph + a 4px
+        // gap, and a one-digit multi-sort ordinal (2px gap + ~7px) when there is one.
+        leading && (order != null ? "ps-8" : "ps-5.75"),
         // In a squeezed table the label may wrap like the cells do.
         "in-data-squeezed:h-auto in-data-squeezed:min-h-7 in-data-squeezed:text-start",
         SQUEEZE_CLASS,
@@ -385,7 +400,14 @@ export function SortHeaderButton({
       )}
     >
       {children}
-      <span aria-hidden className="inline-flex items-center gap-0.5">
+      <span
+        aria-hidden
+        data-slot="data-table-sort-glyph"
+        className={cn(
+          "inline-flex items-center gap-0.5",
+          leading && "absolute start-1.25 top-1/2 -translate-y-1/2",
+        )}
+      >
         {direction ? (
           <>
             {direction === "asc" ? (
@@ -519,16 +541,21 @@ export function SortableHead({
       className={cn(
         columnCellClass(column),
         // The sort control carries the cell's inline padding so its box stays
-        // inside the cell: 4px here + the button's own 8px keeps the label on
-        // the same 12px start as a plain `TableHead`.
-        sortable && "px-1",
+        // inside the cell: 2px here + the button's 1px border and 5px padding
+        // put the label 8px in — on its values' edge, like a plain header.
+        sortable && "px-0.5",
         column.headerClassName,
         className,
       )}
       {...props}
     >
       {sortable ? (
-        <SortHeaderButton direction={direction} order={order} onSort={onSort}>
+        <SortHeaderButton
+          direction={direction}
+          order={order}
+          onSort={onSort}
+          align={column.align}
+        >
           {column.header}
         </SortHeaderButton>
       ) : (
