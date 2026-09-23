@@ -1,7 +1,9 @@
+// @vegastack data-list-pager@0.12.2 sha256-dMIM68rryoFZTRMTx7JuuvwdVi4Dp+uL9fEfpkPD8Hs=
+
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import {
   Pagination,
   PaginationContent,
@@ -18,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useContainerWidth } from "@/components/ui/data-table-parts";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /* ---
@@ -47,19 +50,28 @@ Deliberately NOT done here:
 export type DataListPagerItem = number | "ellipsis";
 
 /**
- * The windowed page list: every page when there are seven or fewer, otherwise
- * the first and last page plus the current page and its neighbours, with an
- * `"ellipsis"` wherever a run of pages is collapsed.
+ * The windowed page list: the first and last page plus the current page and
+ * `siblings` pages either side of it, with an `"ellipsis"` wherever a run of
+ * pages is collapsed — or every page when that many fit in the same number of
+ * slots (`5 + 2 × siblings`: seven with the default one sibling, five with
+ * none).
  *
  * @example
  * pagerWindow(5, 10); // [1, "ellipsis", 4, 5, 6, "ellipsis", 10]
+ * pagerWindow(5, 10, 0); // [1, "ellipsis", 5, "ellipsis", 10]
  */
 export function pagerWindow(
   current: number,
   pages: number,
+  siblings = 1,
 ): DataListPagerItem[] {
-  if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
-  const kept = [...new Set([1, pages, current - 1, current, current + 1])]
+  if (pages <= 5 + 2 * siblings)
+    return Array.from({ length: pages }, (_, i) => i + 1);
+  const around = Array.from(
+    { length: 2 * siblings + 1 },
+    (_, i) => current - siblings + i,
+  );
+  const kept = [...new Set([1, pages, ...around])]
     .filter((n) => n >= 1 && n <= pages)
     .sort((a, b) => a - b);
   const out: DataListPagerItem[] = [];
@@ -107,13 +119,24 @@ export interface DataListPagerProps extends Omit<
 const DEFAULT_PAGE_SIZES: readonly number[] = [15, 30, 50];
 
 /**
+ * Below this pager width the page list goes compact: no neighbours around the
+ * current page and icon-only Previous/Next. The full list is at most nine
+ * 32px slots plus two labelled 80px-class end controls — about 480px; the
+ * compact one is at most five slots plus two 32px icons, about 240px, which
+ * fits a 320px viewport inside ordinary page padding.
+ */
+const COMPACT_BELOW = 480;
+
+/**
  * `DataListPager` — a controlled paging footer for `DataList`: a range summary
  * in tabular numerals, a rows-per-page `Select`, and upstream's `Pagination`.
  * The page controls are hidden when everything fits on one page; the range and
  * the rows-per-page chooser stay, so a reader can still widen the page.
  *
  * Previous and Next stay focusable at either end (`aria-disabled`, pointer
- * events alive), and a page change announces the new range politely.
+ * events alive), and a page change announces the new range politely. Below a
+ * 480px container the page list goes compact (no neighbours, icon-only ends,
+ * `data-compact`), so the pager never scrolls sideways.
  *
  * @example
  * const [page, setPage] = React.useState(1);
@@ -145,9 +168,22 @@ export function DataListPager({
   pageSizes = DEFAULT_PAGE_SIZES,
   pageSizeLabel = "Rows per page",
   className,
+  ref,
   ...props
 }: DataListPagerProps) {
   const labelId = React.useId();
+  // Container width, not viewport: a pager in a narrow card on a wide screen
+  // must go compact too. This is a JS branch because the two windows are
+  // different item lists, which CSS cannot derive (LAY-9's last rung), and its
+  // declared server answer is COMPACT — the layout that fits everywhere, so an
+  // unmeasured pager never overflows. The layout effect corrects it before
+  // first paint.
+  const [measureRef, width] = useContainerWidth();
+  const compact = width == null || width < COMPACT_BELOW;
+  const rootRef = React.useMemo(
+    () => mergeRefs<HTMLDivElement>(measureRef, ref),
+    [measureRef, ref],
+  );
   const size = Math.max(1, Math.floor(pageSize));
   const count = Math.max(0, Math.floor(total));
   const pages = Math.max(1, Math.ceil(count / size));
@@ -180,7 +216,9 @@ export function DataListPager({
 
   return (
     <div
+      ref={rootRef}
       data-slot="data-list-pager"
+      data-compact={compact ? "" : undefined}
       className={cn(
         "flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2",
         className,
@@ -240,6 +278,7 @@ export function DataListPager({
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
+                text={compact ? "" : undefined}
                 aria-disabled={atStart || undefined}
                 className="aria-disabled:opacity-50"
                 onClick={(event) => {
@@ -248,7 +287,7 @@ export function DataListPager({
                 }}
               />
             </PaginationItem>
-            {pagerWindow(current, pages).map((item, index) =>
+            {pagerWindow(current, pages, compact ? 0 : 1).map((item, index) =>
               item === "ellipsis" ? (
                 <PaginationItem key={`ellipsis-${index}`}>
                   <PaginationEllipsis />
@@ -271,6 +310,7 @@ export function DataListPager({
             )}
             <PaginationItem>
               <PaginationNext
+                text={compact ? "" : undefined}
                 aria-disabled={atEnd || undefined}
                 className="aria-disabled:opacity-50"
                 onClick={(event) => {

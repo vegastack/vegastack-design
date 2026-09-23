@@ -934,6 +934,7 @@
         "@vegastack/design-tokens@^0.7.0"
       ],
       "registryDependencies": [
+        "@vegastack/data-table-parts",
         "@vegastack/pagination",
         "@vegastack/select",
         "@vegastack/use-announcer"

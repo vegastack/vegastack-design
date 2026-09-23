@@ -1,4 +1,4 @@
-// @vegastack data-list@0.12.2 sha256-TAjosqurUi1Ulm1Vg7YE5NJ4aTSEirSkBaLg7wqK1O8=
+// @vegastack data-list@0.12.2 sha256-WM6LD3iogdo/x8JtVpmT/UzCo1MXx1OT2a4ZQmTmr64=
 
 "use client";
 
@@ -585,9 +585,12 @@ export function DataList<T>({
                           // Overflow columns stack under the primary value. Each keeps its header as
                           // an sr-only prefix: a value lifted out of its column loses the header a
                           // screen reader would otherwise announce with it.
+                          // `mt-1`, not `mt-0.5`: the injected row-action button is 24px tall inside a
+                          // 20px line box (`-my-0.5`), so it overhangs the line by 2px. Stacking the
+                          // merged block any closer would cover the bottom of its pointer target.
                           <span
                             data-slot="data-list-merged"
-                            className="mt-0.5 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
+                            className="mt-1 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
                           >
                             {mergedColumns.map((merged) => (
                               <span key={merged.key} className="min-w-0">

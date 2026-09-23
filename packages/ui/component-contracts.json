@@ -6651,7 +6651,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "The range, chooser and page list wrap onto separate lines in a narrow footer instead of overflowing it."
+        "rationale": "Below a 480px container the page list goes compact (no neighbours, icon-only ends) and the range, chooser and page list wrap onto separate lines, so the pager never overflows a 320px viewport."
       },
       "motion": {
         "status": "not-applicable",
@@ -6664,6 +6664,7 @@
       "engines": [],
       "docsSlug": "/docs/components/data-list-pager",
       "registryDependencies": [
+        "@vegastack/data-table-parts",
         "@vegastack/pagination",
         "@vegastack/select",
         "@vegastack/use-announcer"
@@ -6685,6 +6686,10 @@
       "dataAttributes": {
         "DataListPager": {
           "attributes": [
+            {
+              "name": "data-compact",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": [

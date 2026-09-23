@@ -177,7 +177,18 @@ test("the page controls are hidden when everything fits on one page; the chooser
 });
 
 test("a long run of pages collapses into a window with ellipses", async () => {
-  const screen = await render(<Pager page={5} total={150} />);
+  const screen = await render(
+    <div style={{ width: "800px" }}>
+      <Pager page={5} total={150} />
+    </div>,
+  );
+  await expect
+    .poll(() =>
+      screen.container
+        .querySelector('[data-slot="data-list-pager"]')!
+        .hasAttribute("data-compact"),
+    )
+    .toBe(false);
   const labels = Array.from(
     screen.container.querySelectorAll('[data-slot="pagination-link"]'),
   )
@@ -195,7 +206,36 @@ test("a long run of pages collapses into a window with ellipses", async () => {
   ).toHaveLength(2);
 });
 
+test("a narrow container goes compact: no neighbours, icon-only ends, no horizontal overflow", async () => {
+  const screen = await render(
+    <div style={{ width: "270px" }}>
+      <Pager page={5} total={150} />
+    </div>,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-pager"]',
+  )!;
+  await expect.poll(() => root.hasAttribute("data-compact")).toBe(true);
+  const labels = Array.from(
+    root.querySelectorAll('[data-slot="pagination-link"]'),
+  )
+    .map((a) => a.getAttribute("aria-label"))
+    .filter((label) => label?.startsWith("Go to page"));
+  expect(labels).toEqual(["Go to page 1", "Go to page 5", "Go to page 10"]);
+  // The end controls keep their accessible names without the visible word.
+  const next = screen
+    .getByRole("button", { name: "Go to next page" })
+    .element() as HTMLElement;
+  expect(next.textContent).toBe("");
+  // Wide again: the neighbours come back.
+  (root.parentElement as HTMLElement).style.width = "800px";
+  await expect.poll(() => root.hasAttribute("data-compact")).toBe(false);
+});
+
 test("pagerWindow keeps first, last and the neighbours of the current page", () => {
+  expect(pagerWindow(5, 10, 0)).toEqual([1, "ellipsis", 5, "ellipsis", 10]);
+  expect(pagerWindow(2, 5, 0)).toEqual([1, 2, 3, 4, 5]);
+  expect(pagerWindow(1, 6, 0)).toEqual([1, "ellipsis", 6]);
   expect(pagerWindow(1, 1)).toEqual([1]);
   expect(pagerWindow(3, 7)).toEqual([1, 2, 3, 4, 5, 6, 7]);
   expect(pagerWindow(1, 10)).toEqual([1, 2, "ellipsis", 10]);
