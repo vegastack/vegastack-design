@@ -164,7 +164,12 @@ const ALPHA = {
   "glass-hover": 95,
 };
 const OPACITY = { track: 25, dim: 50, "hint-soft": 60, hint: 70 };
-const Z = { raised: "z-10", overlay: "z-50", toast: "z-50" };
+const Z = {
+  raised: "z-10",
+  overlay: "z-50 — one overlay band, DOM order decides",
+  toast:
+    "nothing — the Toast viewport sets its own z-60, the one exception to z-50",
+};
 const RETIRED_COMPONENTS = {
   "icon-button":
     'Button with size="icon" (or icon-sm / icon-lg) and an aria-label',
@@ -268,7 +273,8 @@ export const RETIRED_VOCABULARY = [
     id: "--z-*",
     re: new RegExp(`${B}--z-[\\w-]+`, "g"),
     hint: (m) =>
-      `${Z[m.slice(4)] ?? "z-10 (raised) or z-50 (overlay)"} — one overlay band, DOM order decides`,
+      Z[m.slice(4)] ??
+      "z-10 (raised) or z-50 (every overlay — one band, DOM order decides)",
     declared: (m) => m,
   },
   {

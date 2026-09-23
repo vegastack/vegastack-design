@@ -123,7 +123,7 @@ test("each finding carries the migration guide's replacement", () => {
     )
       .findings.map((f) => f.hint)
       .join("\n"),
-    /^the literal \/7, e\.g\. bg-foreground\/7\nz-50 — /,
+    /^the literal \/7, e\.g\. bg-foreground\/7\nnothing — the Toast viewport sets its own z-60/,
   );
 });
 
