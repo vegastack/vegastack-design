@@ -259,8 +259,120 @@ export function checkTree({
   };
 }
 
+/**
+ * The two documents that state the register's counts in prose — AGENTS.md's locked-decisions line
+ * and design.md's "What we add" section — must state the ones `decisions.json` holds. Both said
+ * "seventy"/"sixty-one" after the register moved (review round 1, 2026-09-23), and nothing noticed,
+ * because a count in prose is a claim no gate read. Numerals ("108 resolved as **shadcn** … 71 as
+ * **ours**", "179 rows") and the spelled count of exceptions ("seventy-one recorded exceptions",
+ * "the seventy-one exceptions") are both checked; a document that states none is not a failure.
+ */
+const UNITS = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
+  "sixteen",
+  "seventeen",
+  "eighteen",
+  "nineteen",
+];
+const TENS = [
+  "",
+  "",
+  "twenty",
+  "thirty",
+  "forty",
+  "fifty",
+  "sixty",
+  "seventy",
+  "eighty",
+  "ninety",
+];
+function numberWord(n) {
+  if (n < 20) return UNITS[n];
+  if (n < 100)
+    return TENS[Math.floor(n / 10)] + (n % 10 ? `-${UNITS[n % 10]}` : "");
+  return String(n);
+}
+const WORD_VALUES = new Map(
+  Array.from({ length: 100 }, (_, n) => [numberWord(n), n]),
+);
+export function proseCountProblems(label, text, counts) {
+  const problems = [];
+  const flat = text.replace(/\s+/g, " ");
+  for (const m of flat.matchAll(
+    /(\d+) resolved as \*\*shadcn\*\*[^.]*? and (\d+) as \*\*ours\*\*/g,
+  )) {
+    if (Number(m[1]) !== counts.shadcn || Number(m[2]) !== counts.ours)
+      problems.push(
+        `${label}: says ${m[1]} shadcn / ${m[2]} ours, decisions.json holds ${counts.shadcn} / ${counts.ours}`,
+      );
+  }
+  for (const m of flat.matchAll(/\b(\d+) rows\b/g)) {
+    if (Number(m[1]) !== counts.total)
+      problems.push(
+        `${label}: says ${m[1]} rows, decisions.json holds ${counts.total}`,
+      );
+  }
+  for (const m of flat.matchAll(
+    /\b([a-z]+(?:-[a-z]+)?) (?:recorded )?exceptions\b/gi,
+  )) {
+    const value = WORD_VALUES.get(m[1].toLowerCase());
+    if (value !== undefined && value !== counts.ours)
+      problems.push(
+        `${label}: says "${m[0]}", decisions.json holds ${counts.ours} ours (${numberWord(counts.ours)})`,
+      );
+  }
+  return problems;
+}
+
+function proseCounts() {
+  const counts = decisionsCounts();
+  const problems = [];
+  const agents = readFileSync(join(ROOT, "AGENTS.md"), "utf8");
+  const lockedLine = agents
+    .split("\n")
+    .find((line) => line.includes("recorded exceptions"));
+  if (lockedLine)
+    problems.push(...proseCountProblems("AGENTS.md", lockedLine, counts));
+  const design = readFileSync(join(ROOT, "design.md"), "utf8");
+  const start = design.indexOf("## What we add");
+  if (start !== -1) {
+    const end = design.indexOf("\n### ", start);
+    problems.push(
+      ...proseCountProblems(
+        "design.md § What we add",
+        design.slice(start, end === -1 ? undefined : end),
+        counts,
+      ),
+    );
+  }
+  const intro = design
+    .split("\n")
+    .find((line) => line.includes("recorded exceptions"));
+  if (intro) problems.push(...proseCountProblems("design.md", intro, counts));
+  return problems;
+}
+
+function decisionsCounts() {
+  return readJson(join(UPSTREAM_DIR, "decisions.json")).counts;
+}
+
 function live() {
-  return checkTree({
+  const tree = checkTree({
     vendorDir: VENDOR,
     canonicalDir: CANONICAL,
     patchDir: join(UPSTREAM_DIR, "patches"),
@@ -270,6 +382,7 @@ function live() {
     excludedSet: excluded(),
     exemptMap: exemptUpstreamItems(),
   });
+  return { ...tree, failures: [...tree.failures, ...proseCounts()] };
 }
 
 /**
@@ -479,6 +592,29 @@ function selfTest() {
     }),
   );
 
+  const counts = { total: 179, ours: 71, shadcn: 108 };
+  claim(
+    "a stale spelled count of exceptions in prose is rejected",
+    proseCountProblems("x", "plus seventy recorded exceptions", counts)
+      .length === 1,
+  );
+  claim(
+    "stale numeral counts in prose are rejected",
+    proseCountProblems(
+      "x",
+      "179 rows … 109 resolved as **shadcn** (upstream ships unchanged) and 70 as **ours**",
+      counts,
+    ).length === 1,
+  );
+  claim(
+    "current prose counts pass",
+    proseCountProblems(
+      "x",
+      "plus seventy-one recorded exceptions: 179 rows, 108 resolved as **shadcn** (upstream ships unchanged) and 71 as **ours**. The seventy-one exceptions",
+      counts,
+    ).length === 0,
+  );
+
   rmSync(dir, { recursive: true, force: true });
 
   if (failures.length) {
@@ -487,7 +623,7 @@ function selfTest() {
     );
     return 1;
   }
-  console.log(`${PREFIX}:selftest OK — 17 claims observed`);
+  console.log(`${PREFIX}:selftest OK — 20 claims observed`);
   return 0;
 }
 
