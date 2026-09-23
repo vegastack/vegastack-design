@@ -231,7 +231,9 @@
           "text-edit",
           "color-picker",
           "tabs",
-          "attachment"
+          "attachment",
+          "data-list",
+          "data-grid"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
@@ -6266,7 +6268,7 @@
           "text-truncation-and-flex-shrink",
           "horizontal-scroll-containment"
         ],
-        "rationale": "ResizeObserver-driven column revelation MERGES overflow columns into the primary cell by default; a column that opts into mobile:'hidden' is counted and reported in the toolbar, so narrow viewports never lose data silently. The container scrolls, never the page."
+        "rationale": "ResizeObserver-driven column revelation MERGES overflow columns into the primary cell by default (each merged value wraps on its own rule and keeps its header as an sr-only prefix); a column that opts into mobile:'hidden' is counted, and a sorted column that left the header row is stated, in the toolbar the grid is described by, so narrow viewports never lose data silently. The container scrolls, never the page."
       },
       "motion": {
         "status": "observed",
@@ -6347,9 +6349,14 @@
                 "data-grid-row",
                 "data-grid-scroll",
                 "data-grid-section",
+                "data-grid-sort-hint",
                 "data-grid-toolbar",
                 "data-grid-virtual-pad"
               ]
+            },
+            {
+              "name": "data-sorted",
+              "values": []
             }
           ],
           "cssVariables": ["--data-grid-virtual-pad"]
@@ -6496,7 +6503,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["mobile-or-touch-mode", "responsive-or-container-layout"],
-        "rationale": "Columns fit the measured container through the shared revelation (minWidth + mobile: merge/hidden/visible), so a narrow list merges or reports columns instead of scrolling sideways."
+        "rationale": "Columns fit the measured container through the shared revelation (minWidth + mobile: merge/hidden/visible); merged values wrap on their own rule, a table that still overflows is squeezed (data-squeezed: every cell may break), and dropped columns and an off-screen sort are stated under the table. The table container's own scrollWidth is asserted with compiled CSS at 320px in test/geometry.browser.test.tsx (mono and end-aligned first columns, many columns, selectable, clickable, composed toolbar + DataListPager footer)."
       },
       "motion": {
         "status": "modeled",
@@ -6549,8 +6556,18 @@
                 "data-list-root",
                 "data-list-row",
                 "data-list-row-action",
+                "data-list-sort-hint",
+                "data-list-status",
                 "data-list-toolbar"
               ]
+            },
+            {
+              "name": "data-sorted",
+              "values": []
+            },
+            {
+              "name": "data-squeezed",
+              "values": [""]
             }
           ],
           "cssVariables": []
@@ -6651,7 +6668,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "Below a 480px container the page list goes compact (no neighbours, icon-only ends) and the range, chooser and page list wrap onto separate lines, so the pager never overflows a 320px viewport."
+        "rationale": "The page list follows the pager's own width (data-layout): full from 480px, compact from 240px (no neighbours, 32px icon-only ends), minimal below that (icon-only ends around 'Page N of M', the declared server answer); the range, chooser and page list wrap onto separate lines, so the pager fits any container of 200px or more. Containment is asserted with compiled CSS in test/geometry.browser.test.tsx at 200, 204, 270, 320, 479, 480 and 800px."
       },
       "motion": {
         "status": "not-applicable",
@@ -6687,14 +6704,15 @@
         "DataListPager": {
           "attributes": [
             {
-              "name": "data-compact",
-              "values": [""]
+              "name": "data-layout",
+              "values": []
             },
             {
               "name": "data-slot",
               "values": [
                 "data-list-pager",
                 "data-list-pager-nav",
+                "data-list-pager-position",
                 "data-list-pager-range",
                 "data-list-pager-size"
               ]
@@ -6816,6 +6834,24 @@
           }
         },
         {
+          "name": "mergedValueClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "offscreenSortSummary",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
           "name": "revealColumns",
           "kind": "function",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -6841,6 +6877,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SELECTED_ROW_CLASS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
