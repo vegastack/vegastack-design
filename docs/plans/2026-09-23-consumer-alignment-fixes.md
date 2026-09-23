@@ -26,7 +26,7 @@ DataGrid already ships "responsive column revelation" (`minWidth` + `mobile: "vi
 ## 3. Accessibility fixes
 
 - Destructive menu items use the fill colour as text on a 10% tint (3.99:1, below AA by our own `foundations/colors` measure): `dropdown-menu.tsx:109`, `context-menu.tsx:118`, `menubar.tsx:106` → `text-destructive-text`. Same for `questionnaire.tsx:209`, `attachment.tsx:58` (contradicts A11Y-13 in its own file at :128).
-- Physical direction classes under a shipped DirectionProvider: `page-header.tsx:282` (`ml-auto`), `filter-bar.tsx:346,355` (`ml-auto`), `date-picker.tsx:236` (`border-r`, `max-sm:border-r-0`), `sidebar.tsx:294` (`-right-4`, `left-0`) → `ms-auto`, `border-e`, `-end-4`, `start-0`.
+- Physical direction classes under a shipped DirectionProvider: `page-header.tsx:282` (`ml-auto`), `filter-bar.tsx:346,355` (`ml-auto`), `date-picker.tsx:236` (`border-r`, `max-sm:border-r-0`) → `ms-auto`, `border-e`. **Correction (23-09-2026):** `sidebar.tsx:294` (`-right-4`, `left-0`) is removed from this list — the sidebar's physical classes follow its literal `side` prop (`left`/`right`), so they are correct as written and a logical swap would invert them under RTL.
 - `terminal.tsx:144` `text-brand` → `text-brand-text`.
 
 ## 4. Tooling that let the consumer drift silently
