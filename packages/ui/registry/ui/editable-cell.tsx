@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.14.0 sha256-cJ7pI82KoQ5mfFdk9wa2zzClnU/KbieP17laClMVlKc=
+// @vegastack editable-cell@0.14.0 sha256-etZd0bUMhqVbUHlrQdGkOp+akUNxE6WxInr00SfYn4Y=
 
 "use client";
 
@@ -224,6 +224,11 @@ function InlineTextEditor({
         onChange={(event) => edit.setDraft(event.target.value)}
         onBlur={edit.commit}
         onKeyDown={edit.onKeyDown}
+        // The editor takes its surrounding type, exactly as the display does, so a cell inside a
+        // page heading edits at the heading's size and weight. Below `md` the size never drops
+        // under 1rem — upstream's `text-base`, which stops iOS zooming on focus — and `1lh` is the
+        // PARENT's line height, so the editor box matches the display box at every size.
+        className="h-auto min-h-8 text-[length:max(1rem,1em)] leading-[1lh] md:text-[length:inherit]"
       />
     );
   }
@@ -252,7 +257,10 @@ function InlineTextEditor({
         // it rather than keeping it whole like a control, and the box grows with the wrapped
         // value instead of spilling it (review round 4). Unsqueezed it is one line (`truncate`)
         // and measures exactly 32px, as before.
-        "inline-flex min-h-8 max-w-full min-w-0 items-center rounded-lg border border-transparent px-2.5 py-1 text-sm",
+        // No font size of its own: the display inherits the surrounding type (size, weight, line
+        // height, tracking), so the same cell reads as body text in a table and as the title in a
+        // page heading. At the 14px body default it is the same 14px text in the same 32px box.
+        "inline-flex min-h-8 max-w-full min-w-0 items-center rounded-lg border border-transparent px-2.5 py-1",
         !disabled && !readOnly && "cursor-text hover:bg-accent",
         // FRM-4: no `pointer-events-none`. A disabled cell stays hoverable so a Tooltip can
         // explain why it cannot be edited; the hook already no-ops `start()` while disabled.
@@ -485,7 +493,12 @@ export function EditableCell({
       data-slot="editable-cell"
       data-status={status}
       data-focus-mode={focusMode}
-      className={cn("inline-flex min-w-0 items-center gap-1.5", className)}
+      // `max-w-full` caps the inline root at its container, so a long value inside a heading
+      // (a block parent, where `min-w-0` alone shrinks nothing) truncates instead of overflowing.
+      className={cn(
+        "inline-flex max-w-full min-w-0 items-center gap-1.5",
+        className,
+      )}
     >
       {editorSurface}
       {/* The VISIBLE indicator is decorative — every glyph is `aria-hidden`, and the

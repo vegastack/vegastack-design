@@ -76,6 +76,18 @@ whose popover is the editor; commit fires on selection.
   file="components/preview/editable-cell.tsx"
 />
 
+### Heading use
+
+The cell carries no font size of its own: the display and the editor take the surrounding type —
+size, weight, line height and tracking — so the same component reads as body text in a table and as
+the title in a page heading. Put it inside the heading element rather than restyling its parts.
+Below the `md` breakpoint the editor never drops under 16px, so iOS does not zoom on focus.
+
+<ComponentPreview
+  name="editableCellHeading"
+  file="components/preview/editable-cell.tsx"
+/>
+
 ### Managed focus (grid hosts)
 
 Inside a grid, one tab stop per editable cell per row is an ergonomics
