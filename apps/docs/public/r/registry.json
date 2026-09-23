@@ -1029,7 +1029,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.12.2",
-        "integrity": "sha256-5Ink9LOzdxVF672UlKiokXOM2jFgj+dsZz9mV/e+HTU="
+        "integrity": "sha256-FRq5my9H43d7K8/vZd540s/ELwygqK7sg4yvoh4DgmA="
       }
     },
     {
@@ -1059,7 +1059,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.12.2",
-        "integrity": "sha256-WM6LD3iogdo/x8JtVpmT/UzCo1MXx1OT2a4ZQmTmr64="
+        "integrity": "sha256-Ssnq2fd1JaWv6N97XuOG9J29OReI5Gx4Qb4abnqoxug="
       }
     },
     {
@@ -1091,7 +1091,7 @@
         "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Infinite or keyboard-continuous loading (DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.12.2",
-        "integrity": "sha256-dMIM68rryoFZTRMTx7JuuvwdVi4Dp+uL9fEfpkPD8Hs="
+        "integrity": "sha256-w5W9Tn0uv5erUEHg0P8OZvoUkypO19GFH8X/VaIJFSs="
       }
     },
     {
@@ -1125,7 +1125,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.12.2",
-        "integrity": "sha256-aooLgFkrhagZUrwcCvBi7AeyBVFYBIjvRXnTqL0JTug="
+        "integrity": "sha256-WIleujhRJ5L3D9zuCYIHwf8FpG8rUxt0gKFbA7Fo0xo="
       }
     },
     {
@@ -1158,7 +1158,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.12.2",
-        "integrity": "sha256-1KN8Z/rzfoODbElr0r5rrp8bd7Uq8yWI+suqYU/XM7s="
+        "integrity": "sha256-q+igzG+38t2qdH2VRC29H14wlVBehObW1AekLW/HG7Y="
       }
     },
     {
@@ -15599,7 +15599,7 @@
         "whenToUse": "A reusable search field that needs a consistent token-colored clear action across browsers.",
         "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.12.2",
-        "integrity": "sha256-RsCfIjuUJfJ72up3jmC4sMWzT0SJWoB2/L7rSVotHoM="
+        "integrity": "sha256-h6KVz//13zQGeB8AEdDcVPaxnL43b1p7uALjGqJv3HA="
       }
     },
     {
@@ -15788,7 +15788,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.12.2",
-        "integrity": "sha256-8CCm7MTi27TCJprvHBqmr7xGNW7QXO5DudEZS+RpExc="
+        "integrity": "sha256-Ww5V67IX2BUwH+HFsfyyCR5IEHmj+htVH+yRDh2J9aM="
       }
     },
     {

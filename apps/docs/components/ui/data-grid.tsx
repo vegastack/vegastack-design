@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.12.2 sha256-5Ink9LOzdxVF672UlKiokXOM2jFgj+dsZz9mV/e+HTU=
+// @vegastack data-grid@0.12.2 sha256-FRq5my9H43d7K8/vZd540s/ELwygqK7sg4yvoh4DgmA=
 
 "use client";
 
@@ -24,7 +24,10 @@ import {
   columnCellClass,
   cycleSort,
   EmptyRow,
+  mergedValueClass,
+  offscreenSortSummary,
   revealColumns,
+  SELECTED_ROW_CLASS,
   SELECTION_COLUMN_WIDTH,
   SelectAllHead,
   SelectionCell,
@@ -637,6 +640,8 @@ export function DataGrid<T>({
 
   // ---- the APG grid keyboard layer (pass 2) --------------------------------
   const gridId = React.useId();
+  const hiddenHintId = React.useId();
+  const sortHintId = React.useId();
   const colCount = visibleColumns.length + (selectable ? 1 : 0);
   const [activeCell, setActiveCell] = React.useState<{
     row: number;
@@ -806,10 +811,9 @@ export function DataGrid<T>({
         aria-selected={selectable ? isSelected : undefined}
         {...virtualProps}
         className={cn(
-          isSelected &&
-            // A selected row keeps its tint through hover and press (SP-06): the fill is the
-            // same `accent` in all three states, so the selection never flickers under the cursor.
-            "bg-accent hover:bg-accent active:bg-accent data-selected:bg-accent data-selected:hover:bg-accent",
+          // A selected row keeps one wash through hover and press (SP-06), light enough that a
+          // `secondary` Badge in it stays visible — see `SELECTED_ROW_CLASS`.
+          isSelected && SELECTED_ROW_CLASS,
         )}
       >
         {selectable ? (
@@ -896,7 +900,24 @@ export function DataGrid<T>({
                   className="mt-0.5 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
                 >
                   {mergedColumns.map((merged) => (
-                    <span key={merged.key} className="min-w-0 truncate">
+                    // `truncate` used to sit here, and it could not keep the promise: an
+                    // auto-layout table sizes a column from its min-content width, which an
+                    // ellipsis does not lower, so a long merged value still widened the primary
+                    // cell. The shared rule wraps instead (`mergedValueClass`).
+                    <span
+                      key={merged.key}
+                      data-sorted={
+                        activeSort.find((entry) => entry.key === merged.key)
+                          ?.direction
+                      }
+                      className={mergedValueClass(merged)}
+                    >
+                      {/* A value lifted out of its column loses the header a screen reader
+                          would announce with it, so it carries that header as a prefix — as
+                          DataList's stack always has. */}
+                      {typeof merged.header === "string" ? (
+                        <span className="sr-only">{merged.header}: </span>
+                      ) : null}
                       <Cell
                         column={merged}
                         row={row}
@@ -946,6 +967,10 @@ export function DataGrid<T>({
     </TableRow>
   );
 
+  // A sorted column that revelation merged or hid (or the picker switched off)
+  // takes its header's arrow and `aria-sort` with it; state the order instead.
+  const sortSummary = offscreenSortSummary(activeSort, ordered, visibleColumns);
+
   const colSpan = colCount;
   const virtualItems = canVirtualize ? rowVirtualizer.getVirtualItems() : [];
   const totalSize = canVirtualize ? rowVirtualizer.getTotalSize() : 0;
@@ -962,7 +987,10 @@ export function DataGrid<T>({
           : undefined
       }
     >
-      {(toolbar != null || columnPicker || hiddenColumns.length > 0) && (
+      {(toolbar != null ||
+        columnPicker ||
+        hiddenColumns.length > 0 ||
+        sortSummary != null) && (
         <div
           data-slot="data-grid-toolbar"
           className="flex min-w-0 flex-wrap items-center justify-between gap-2"
@@ -970,13 +998,24 @@ export function DataGrid<T>({
           <div className="min-w-0 flex-1">{toolbar}</div>
           {hiddenColumns.length > 0 ? (
             // Revelation dropped something. Saying so is the whole point: a
-            // column that vanishes with no affordance is silent data loss.
+            // column that vanishes with no affordance is silent data loss. The
+            // grid is described by this line, so it is heard with the grid.
             <span
+              id={hiddenHintId}
               data-slot="data-grid-hidden-hint"
               className="text-xs text-muted-foreground"
             >
               {hiddenColumns.length} column
               {hiddenColumns.length === 1 ? "" : "s"} hidden
+            </span>
+          ) : null}
+          {sortSummary != null ? (
+            <span
+              id={sortHintId}
+              data-slot="data-grid-sort-hint"
+              className="text-xs text-muted-foreground"
+            >
+              {sortSummary}
             </span>
           ) : null}
           {columnPicker ? (
@@ -1025,6 +1064,14 @@ export function DataGrid<T>({
         <Table
           role="grid"
           aria-label={ariaLabel}
+          aria-describedby={
+            [
+              hiddenColumns.length > 0 ? hiddenHintId : null,
+              sortSummary != null ? sortHintId : null,
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
           aria-rowcount={loadMore?.hasMore ? -1 : ariaRowTotal}
           aria-colcount={ariaColTotal}
           aria-busy={loading || undefined}

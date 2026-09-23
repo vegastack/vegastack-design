@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.12.2 sha256-8CCm7MTi27TCJprvHBqmr7xGNW7QXO5DudEZS+RpExc=
+// @vegastack sidebar@0.12.2 sha256-Ww5V67IX2BUwH+HFsfyyCR5IEHmj+htVH+yRDh2J9aM=
 
 "use client";
 
@@ -244,7 +244,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
         >
           {children}
         </div>
