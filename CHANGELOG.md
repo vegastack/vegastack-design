@@ -9,6 +9,29 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.14.0] — September 23, 2026
+
+<!-- assembled from 2 changesets: 1bafe7203a5e -->
+
+### 🧩 New components
+
+- PasswordInput is back as a thin InputGroup composition with a show/hide toggle.
+
+  - The toggle is a `type="button"` icon button named "Show password" / "Hide password" with `aria-pressed`, so it never submits a form.
+  - Every native input prop (`id`, `name`, `autoComplete`, `aria-invalid`) and the React 19 `ref` land on the inner input, so it works inside `Field`.
+  - Add it with `shadcn add @vegastack/password-input`.
+    [`c2a246e`](https://github.com/VegaStack/vegastack-design/commit/c2a246e)
+
+### 🛠 CLI & tooling
+
+- `vegastack-design doctor` no longer reports a `password-input` import as retired, and the shipped skills stop listing `PasswordInput` among the retired components — it is a registry component again.
+  [`c2a246e`](https://github.com/VegaStack/vegastack-design/commit/c2a246e)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.2`** (was `0.7.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.13.0 → 0.14.0.
+
 ## [0.13.0] — September 23, 2026
 
 <!-- assembled from 6 changesets: 8d4cf49420c6 -->

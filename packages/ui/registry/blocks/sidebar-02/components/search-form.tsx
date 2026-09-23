@@ -1,4 +1,4 @@
-// @vegastack sidebar-02@0.13.0 sha256-qi0nBbRxWU5XKS7RNmc0rEkXaelqtkNFCDZXewOoqmk=
+// @vegastack sidebar-02@0.14.0 sha256-GJ2GVlJx4/POuNvINyVzh8epYaDU+/srYUbCQDigLjQ=
 
 import { Label } from "@/components/ui/label";
 import {
