@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.12.2 sha256-3lGHcBjDzYfGcxp7G7S+hcEF7RlXxZ3FdDdngbEebek=
+// @vegastack data-table-parts@0.12.2 sha256-aooLgFkrhagZUrwcCvBi7AeyBVFYBIjvRXnTqL0JTug=
 
 "use client";
 
@@ -36,6 +36,13 @@ every other export is a rendered part driven entirely by its props.
 export type SortDirection = "asc" | "desc";
 
 /**
+ * What a column does once its container is too narrow to show it: `visible`
+ * never hides, `merge` stacks the value into the primary (first) column's cell,
+ * `hidden` drops it and is counted so the loss is reported.
+ */
+export type DataTableColumnMobile = "visible" | "hidden" | "merge";
+
+/**
  * The layout facts every table column carries, whichever renderer owns it.
  * `DataListColumn` and `DataGridColumn` both extend this, so the alignment and
  * wrapping rules are decided once.
@@ -62,6 +69,21 @@ export interface DataTableColumnLayout {
    * @default true for `align="end"` and `mono` columns, false otherwise
    */
   nowrap?: boolean;
+  /**
+   * Pixels this column needs before the responsive revelation shows it.
+   * Columns that no longer fit hide right-to-left; `mobile` overrides.
+   * @default 120
+   */
+  minWidth?: number;
+  /**
+   * Responsive posture when the column no longer fits: `visible` never hides;
+   * `merge` stacks the value into the primary (first) column's cell; `hidden`
+   * drops it, which is counted and reported so the loss is never silent.
+   * `merge` is the default because narrowing a viewport must never lose data
+   * silently.
+   * @default "merge"
+   */
+  mobile?: DataTableColumnMobile;
 }
 
 /**
@@ -99,6 +121,123 @@ export function columnCellClass(column: DataTableColumnLayout): string {
     isNowrapColumn(column) ? "whitespace-nowrap" : "whitespace-normal",
     column.mono && "font-mono text-sm tabular-nums",
   );
+}
+
+/** The `minWidth` a column that declares none is budgeted at. */
+export const DEFAULT_COLUMN_MIN_WIDTH = 120;
+
+/** The width budgeted for the leading selection column during revelation. */
+export const SELECTION_COLUMN_WIDTH = 40;
+
+/** The three-way split `revealColumns` returns. */
+export interface ColumnRevelation<C extends DataTableColumnLayout> {
+  /** Columns that keep their own header and cells, in order. */
+  visibleColumns: C[];
+  /** Overflow columns (`mobile: "merge"`) stacked into the primary cell. */
+  mergedColumns: C[];
+  /** Overflow columns (`mobile: "hidden"`) dropped — report their count. */
+  hiddenColumns: C[];
+}
+
+/**
+ * The responsive column revelation both renderers share. Walk the columns in
+ * order, keep the ones whose cumulative `minWidth` fits `containerWidth`;
+ * the primary (first) column and `mobile: "visible"` columns always stay,
+ * `merge` overflow stacks into the primary cell, and only an explicit `hidden`
+ * disappears — where it is COUNTED, so the host can say so. Data is never
+ * silently lost.
+ *
+ * Hiding is right-to-left: once one hideable column no longer fits, every
+ * hideable column after it overflows too — a narrow late column must not
+ * survive a wide earlier one (no holes).
+ *
+ * `containerWidth: null` is the server (and pre-measurement) answer, and it is
+ * a declared one (LAY-9): every column is shown, because a table that has not
+ * been measured has no evidence that anything overflows.
+ *
+ * @example
+ * const { visibleColumns, mergedColumns, hiddenColumns } = revealColumns(
+ *   columns,
+ *   containerWidth,
+ *   selectable ? SELECTION_COLUMN_WIDTH : 0,
+ * );
+ */
+export function revealColumns<C extends DataTableColumnLayout>(
+  columns: readonly C[],
+  containerWidth: number | null,
+  reservedWidth = 0,
+): ColumnRevelation<C> {
+  if (containerWidth == null)
+    return {
+      visibleColumns: [...columns],
+      mergedColumns: [],
+      hiddenColumns: [],
+    };
+  let used = reservedWidth;
+  const shown: C[] = [];
+  const overflow: C[] = [];
+  let exhausted = false;
+  for (const [index, column] of columns.entries()) {
+    const need = column.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH;
+    if (index === 0 || column.mobile === "visible") {
+      used += need;
+      shown.push(column);
+    } else if (!exhausted && used + need <= containerWidth) {
+      used += need;
+      shown.push(column);
+    } else {
+      exhausted = true;
+      overflow.push(column);
+    }
+  }
+  return {
+    visibleColumns: shown,
+    mergedColumns: overflow.filter(
+      (column) => (column.mobile ?? "merge") === "merge",
+    ),
+    hiddenColumns: overflow.filter((column) => column.mobile === "hidden"),
+  };
+}
+
+/**
+ * `useContainerWidth` — measure an element's `clientWidth` and follow it with a
+ * `ResizeObserver`. Returns a STABLE callback ref (attach it, or call it with
+ * the element to measure) and the width, which is `null` until the first
+ * measurement — the server answer `revealColumns` expects.
+ *
+ * Measured in a layout effect, so a client render corrects the column split
+ * before first paint rather than flashing a horizontally-scrolling table.
+ * Quantized to 1px: hiding or showing a column changes the table's own width
+ * and re-fires the observer, and sub-pixel oscillation must not re-render the
+ * table in a loop.
+ *
+ * @example
+ * const [measureRef, containerWidth] = useContainerWidth();
+ * <div ref={measureRef}>…</div>
+ */
+export function useContainerWidth(): [
+  (element: HTMLElement | null) => void,
+  number | null,
+] {
+  const [element, setElement] = React.useState<HTMLElement | null>(null);
+  const [width, setWidth] = React.useState<number | null>(null);
+  const measureRef = React.useCallback(
+    (next: HTMLElement | null) => setElement(next),
+    [],
+  );
+  React.useLayoutEffect(() => {
+    if (!element) return;
+    const update = () =>
+      setWidth((prev) => {
+        const next = element.clientWidth;
+        return prev !== null && Math.abs(prev - next) <= 1 ? prev : next;
+      });
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [element]);
+  return [measureRef, width];
 }
 
 /** Props for `SortHeaderButton`. */

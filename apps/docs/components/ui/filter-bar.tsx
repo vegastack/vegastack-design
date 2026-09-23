@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.12.2 sha256-BqCyn0EVcrAYGZMuQUkIUDS2U/0ZfUTv0mSUGyv+/hc=
+// @vegastack filter-bar@0.12.2 sha256-8hchXpuVo0kFLfX+/ZUFAs+zm3ns5Hb7zjMBr5GNjiE=
 
 "use client";
 
@@ -343,7 +343,7 @@ export function FilterBar({
           aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
           data-slot="filter-bar-search"
           className={cn(
-            "ml-auto h-8 w-auto min-w-0 basis-48",
+            "ms-auto h-8 w-auto min-w-0 basis-48",
             searchInputProps?.className,
           )}
         />
@@ -352,7 +352,7 @@ export function FilterBar({
       {trailing != null ? (
         <div
           data-slot="filter-bar-trailing"
-          className={cn("shrink-0", search == null && "ml-auto")}
+          className={cn("shrink-0", search == null && "ms-auto")}
         >
           {trailing}
         </div>

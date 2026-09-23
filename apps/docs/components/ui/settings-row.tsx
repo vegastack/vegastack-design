@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.12.2 sha256-zAKGjfeJMBQG5TPHkLctp4/23t5l7nZdPl1hiUtMoPA=
+// @vegastack settings-row@0.12.2 sha256-2ohV2fx1pkq5mxjsWasz67vis73XDxkiunm/pOAuYak=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -110,7 +110,7 @@ export type SettingsCardProps = React.ComponentProps<typeof Card>;
  * `SettingsCard` — the container that groups `SettingsRow`s into one surface.
  *
  * **It IS upstream's `Card`**, not a second card recipe: the radius, the `bg-card` ground and the
- * `ring-1 ring-foreground/10` hairline all come from `card.tsx`, so a settings card and every
+ * 1px `border border-border` hairline (BRD-1) all come from `card.tsx`, so a settings card and every
  * other card on the page are the same object. This file only removes the two things a
  * flush divided list cannot use — the card's own vertical padding and its inter-section gap
  * (`py-0 gap-0`) — so each `SettingsRow` sits edge to edge and its own `border-b` is the only

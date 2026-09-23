@@ -1,4 +1,4 @@
-// @vegastack page-header@0.12.2 sha256-+Qc4Yliwt+a0FFFb6vZpJ8EXq09MM7ERWETlls5xMdo=
+// @vegastack page-header@0.12.2 sha256-/eZwq+Lw4K4RFDeZMruVMG2npYzFAvzrJbr/NyLxzw4=
 
 "use client";
 
@@ -217,7 +217,7 @@ export function PageHeader({
       {/* flex-wrap + the title block's basis-48 let the actions row wrap BELOW the title once
           the row can't give the h1 a readable minimum (~basis-48) — without it, the shrink-0
           actions crushed the title to a few characters at narrow widths. On its own wrapped
-          line the actions row keeps the header's right alignment via ml-auto. */}
+          line the actions row keeps the header's end alignment via ms-auto. */}
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         {/* Title block */}
         <div className="flex min-w-0 grow basis-48 flex-col gap-1">
@@ -279,7 +279,7 @@ export function PageHeader({
         {hasRight ? (
           <div
             data-slot="page-header-actions"
-            className="ml-auto flex shrink-0 items-center gap-2"
+            className="ms-auto flex shrink-0 items-center gap-2"
           >
             {actions}
             {secondaryMenu}

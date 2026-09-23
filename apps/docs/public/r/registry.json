@@ -118,7 +118,7 @@
         "whenToUse": "A decision that must be made before anything else continues — deleting, discarding, signing out.",
         "whenNotToUse": "Anything dismissible by clicking away, or a form — use a Dialog.",
         "version": "0.12.2",
-        "integrity": "sha256-0O7VDQOiWMP1ZyK60DbK4hJqjjzi035bpAAAxVmaxi4="
+        "integrity": "sha256-SCE1wW/nYoOGqZn4QA63Y+B4O8cz1OqBsPZu7x4qFvY="
       }
     },
     {
@@ -420,7 +420,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.12.2",
-        "integrity": "sha256-/tMEmgLQacpAjbRce81DXnf5Y0B1q+Je2hKF1uPSwHg="
+        "integrity": "sha256-0f8cB4ByH4opsNtZlwF2LWtQtGUI3ZZfEpkJyRlGI/c="
       }
     },
     {
@@ -598,7 +598,7 @@
         "whenToUse": "Group related content into a bordered surface — summaries, plan tiles, settings sections.",
         "whenNotToUse": "Single standalone values or page layout regions; never nest cards or add shadows.",
         "version": "0.12.2",
-        "integrity": "sha256-lQnzNdEOVHyk8lh1Pj5sFseHBLwOoCa7UORB/BILucU="
+        "integrity": "sha256-YZV7BSCq51gt35RF6DWLFZ6T3Db/jx5StHwsFR7DpDU="
       }
     },
     {
@@ -868,7 +868,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.12.2",
-        "integrity": "sha256-jO28PAx8J3onjyvXQFbtGHTmkbAUdICgm0e9Y/h4U34="
+        "integrity": "sha256-Rr/1MVAUYjacJbjMppILM7NM7AmhNDkOGYT8L5moHsU="
       }
     },
     {
@@ -930,7 +930,7 @@
         "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.12.2",
-        "integrity": "sha256-cmYrbSt70vWiHPLHZ2CHw2irSwJa8p5NIBN2JCuUJsY="
+        "integrity": "sha256-umxBHPytODjTsOwoxEaiYpZPMS0x4QOvUXvE/JgBSmk="
       }
     },
     {
@@ -1029,7 +1029,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.12.2",
-        "integrity": "sha256-5TsaSR2rlzfk8di3tu73H14UKoItjmYDSMWCVcdCgRs="
+        "integrity": "sha256-5Ink9LOzdxVF672UlKiokXOM2jFgj+dsZz9mV/e+HTU="
       }
     },
     {
@@ -1059,7 +1059,39 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.12.2",
-        "integrity": "sha256-TAjosqurUi1Ulm1Vg7YE5NJ4aTSEirSkBaLg7wqK1O8="
+        "integrity": "sha256-WM6LD3iogdo/x8JtVpmT/UzCo1MXx1OT2a4ZQmTmr64="
+      }
+    },
+    {
+      "name": "data-list-pager",
+      "type": "registry:ui",
+      "title": "Data List Pager",
+      "description": "A controlled paging footer for DataList — a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.0",
+        "@vegastack/design-tokens@^0.7.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/data-table-parts",
+        "@vegastack/pagination",
+        "@vegastack/select",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/data-list-pager.tsx",
+          "type": "registry:ui",
+          "target": "@ui/data-list-pager.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
+        "whenNotToUse": "Infinite or keyboard-continuous loading (DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
+        "version": "0.12.2",
+        "integrity": "sha256-dMIM68rryoFZTRMTx7JuuvwdVi4Dp+uL9fEfpkPD8Hs="
       }
     },
     {
@@ -1093,7 +1125,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.12.2",
-        "integrity": "sha256-3lGHcBjDzYfGcxp7G7S+hcEF7RlXxZ3FdDdngbEebek="
+        "integrity": "sha256-aooLgFkrhagZUrwcCvBi7AeyBVFYBIjvRXnTqL0JTug="
       }
     },
     {
@@ -1126,7 +1158,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.12.2",
-        "integrity": "sha256-CrJ7bhzrx4JAm3wiiwfDo+itE8jekhqPESXIYvkNP4U="
+        "integrity": "sha256-1KN8Z/rzfoODbElr0r5rrp8bd7Uq8yWI+suqYU/XM7s="
       }
     },
     {
@@ -1158,7 +1190,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.12.2",
-        "integrity": "sha256-Jifn46pOz4FFtC5WqnLQTPZsk6QxiSbRQs1WoInLZpY="
+        "integrity": "sha256-WTSnHgxkFo3JIyVNwDdWiBp0EQ9kyk1sDQZln2swjqA="
       }
     },
     {
@@ -1267,7 +1299,7 @@
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.12.2",
-        "integrity": "sha256-mGtN0FbRGKo3blFfzeOHSUO2JxJQOWihBT696UiVyG4="
+        "integrity": "sha256-Prqwqrk3X7lynFPl3nMWlkd17qBzh7ac9o5Wm1SEqw8="
       }
     },
     {
@@ -1486,7 +1518,7 @@
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.12.2",
-        "integrity": "sha256-BqCyn0EVcrAYGZMuQUkIUDS2U/0ZfUTv0mSUGyv+/hc="
+        "integrity": "sha256-8hchXpuVo0kFLfX+/ZUFAs+zm3ns5Hb7zjMBr5GNjiE="
       }
     },
     {
@@ -1571,7 +1603,7 @@
         "whenToUse": "A non-essential preview of what a link points at — a profile, a repository, a document card.",
         "whenNotToUse": "Essential content or anything a touch user must reach — hover is not available there.",
         "version": "0.12.2",
-        "integrity": "sha256-51QdXLjeFdzm45ow0pH31IuSE5vGoHeKxHOuATrP2Eg="
+        "integrity": "sha256-gVkMfx56rMZQfLDMbQJh/K2nBqLJ7Ynu9rIaW8UQW6M="
       }
     },
     {
@@ -14974,7 +15006,7 @@
         "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other.",
         "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
         "version": "0.12.2",
-        "integrity": "sha256-51ap1dbE+dUaT7OhoJsjpFuDeGmh7DHtbVFXqr6TaWs="
+        "integrity": "sha256-hUJGKJYQFwY4T4DcrTWT5xhjOZFz4HTwhWFc6gSwVNI="
       }
     },
     {
@@ -15090,7 +15122,7 @@
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.12.2",
-        "integrity": "sha256-3TFaBZr+hYquz5DIXzULu4J4Odh9UxAO5U0YSFgqq70="
+        "integrity": "sha256-4V50mOBQCXvx6RexTChqTPsZKUsTIexnqELZscJhjQA="
       },
       "registryDependencies": []
     },
@@ -15185,7 +15217,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.12.2",
-        "integrity": "sha256-+Qc4Yliwt+a0FFFb6vZpJ8EXq09MM7ERWETlls5xMdo="
+        "integrity": "sha256-/eZwq+Lw4K4RFDeZMruVMG2npYzFAvzrJbr/NyLxzw4="
       }
     },
     {
@@ -15243,7 +15275,7 @@
         "whenToUse": "Rich, interactive content anchored to a control — a small form, a picker, a details card.",
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
         "version": "0.12.2",
-        "integrity": "sha256-AxyT6zXxlj13++blXCok4zvxgp8qRni98mxEFHEIwhM="
+        "integrity": "sha256-gMYs7PXHN6cVTNNVISb/O2wWAqC5jNCt6Phu1BTb/ac="
       }
     },
     {
@@ -15302,7 +15334,7 @@
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.12.2",
-        "integrity": "sha256-/u0MFe6xfA++f5STTSvitZTINpPwBs7LPyNRuYbDJUs="
+        "integrity": "sha256-dtT6NgCJbVxC/gZYAa6Xq6si5WJUkHsnjHjoCXc996c="
       }
     },
     {
@@ -15596,7 +15628,7 @@
         "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
         "version": "0.12.2",
-        "integrity": "sha256-gOY3kcioYaWNlOC6reVpYoQbFv7jGREpV05Lm/kz0so="
+        "integrity": "sha256-KSHk9FwGaUL9bkkQ9I5S1PNpTb2bKCA/SFT9v9ByjqA="
       }
     },
     {
@@ -15653,7 +15685,7 @@
         "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
         "version": "0.12.2",
-        "integrity": "sha256-zAKGjfeJMBQG5TPHkLctp4/23t5l7nZdPl1hiUtMoPA="
+        "integrity": "sha256-2ohV2fx1pkq5mxjsWasz67vis73XDxkiunm/pOAuYak="
       }
     },
     {
@@ -16154,7 +16186,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.12.2",
-        "integrity": "sha256-4U3g2dSqjYHhlYBeIUNZBlqnGjMBpVscJvwdcyUnlLA="
+        "integrity": "sha256-JCSyuwD2wcJfLN4UFQAkn6UrQv4MldAP4THVkLovkUU="
       }
     },
     {

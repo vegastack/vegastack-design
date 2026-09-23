@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.12.2 sha256-CrJ7bhzrx4JAm3wiiwfDo+itE8jekhqPESXIYvkNP4U=
+// @vegastack date-picker@0.12.2 sha256-1KN8Z/rzfoODbElr0r5rrp8bd7Uq8yWI+suqYU/XM7s=
 
 "use client";
 
@@ -226,14 +226,14 @@ export function defaultRangePresets(now: Date = new Date()): DateRangePreset[] {
   ];
 }
 
-/** Shared preset-sidebar shell — a left rail of `ghost` buttons inside the popover. */
+/** Shared preset-sidebar shell — an inline-start rail of `ghost` buttons inside the popover. */
 function PresetRail({ children }: { children: React.ReactNode }) {
   return (
     <div
       data-slot="date-picker-presets"
       // Below sm the rail stacks ABOVE the calendar as a horizontally scrollable chip row —
       // side-by-side rail+calendar exceeds the popup's viewport-width clamp on narrow phones.
-      className="flex flex-col gap-0.5 border-r border-border p-2 max-sm:flex-row max-sm:overflow-x-auto max-sm:border-r-0 max-sm:border-b"
+      className="flex flex-col gap-0.5 border-e border-border p-2 max-sm:flex-row max-sm:overflow-x-auto max-sm:border-e-0 max-sm:border-b"
     >
       {children}
     </div>
