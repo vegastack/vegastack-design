@@ -4,6 +4,11 @@ import { render } from "vitest-browser-react";
 import { page } from "vitest/browser";
 import { afterEach, beforeAll, beforeEach, expect, test } from "vitest";
 import * as Preview from "@/components/preview";
+import { Badge } from "../registry/ui/badge";
+import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
+import { DataList, type DataListColumn } from "../registry/ui/data-list";
+import { DataListPager } from "../registry/ui/data-list-pager";
+import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
 import contracts from "../component-contracts.json";
 import {
   dynamicMountCount,
@@ -689,6 +694,66 @@ async function expectContained(name: string, lane: string) {
 }
 
 /**
+ * Containment INSIDE the data surfaces, which `expectContained` cannot see.
+ *
+ * `expectContained` measures the document. Upstream `Table` wraps every table in an
+ * `overflow-x-auto` `table-container`, so a table scrolling sideways inside its own container
+ * leaves the document untouched and passes by construction — which is exactly how a mono first
+ * column scrolling a DataList 390px wide inside a 320px container stayed green here (review round
+ * 1, 2026-09-23). A pager whose page list overhangs its own box is invisible to it the same way
+ * whenever the surface around it clips. So the two promises are measured on the boxes that make
+ * them:
+ *
+ *   - DataList "never forces a horizontal scroll": its `table-container` and its root stack.
+ *   - DataListPager "never scrolls sideways": its root, and every control inside its box.
+ */
+function dataSurfaceOverflow(root: ParentNode): string[] {
+  const problems: string[] = [];
+  const own = (element: Element, label: string) => {
+    if (element.scrollWidth > element.clientWidth + 1)
+      problems.push(
+        `${label} scrolls: scrollWidth ${element.scrollWidth} > clientWidth ${element.clientWidth}`,
+      );
+  };
+  for (const table of root.querySelectorAll('[data-slot="data-list"]')) {
+    own(table.parentElement!, "DataList table-container");
+    const stack = table.closest('[data-slot="data-list-root"]');
+    if (stack) own(stack, "DataList root");
+  }
+  for (const pager of root.querySelectorAll('[data-slot="data-list-pager"]')) {
+    own(pager, "DataListPager root");
+    const box = pager.getBoundingClientRect();
+    for (const part of pager.querySelectorAll(
+      '[data-slot="data-list-pager-nav"], [data-slot="pagination-link"], ' +
+        '[data-slot="data-list-pager-position"], [data-slot="select-trigger"]',
+    )) {
+      const rect = part.getBoundingClientRect();
+      if (rect.left < box.left - 1 || rect.right > box.right + 1)
+        problems.push(
+          `DataListPager ${describe(part)} ${part.getAttribute("aria-label") ?? ""} leaves the ` +
+            `pager: ${rect.left.toFixed(1)}..${rect.right.toFixed(1)} outside ` +
+            `${box.left.toFixed(1)}..${box.right.toFixed(1)}`,
+        );
+    }
+  }
+  return problems;
+}
+
+/** `dataSurfaceOverflow`, polled like `expectContained` (both follow a ResizeObserver). */
+async function expectDataSurfacesContained(
+  name: string,
+  root: ParentNode,
+  lane: string,
+) {
+  const first = dataSurfaceOverflow(root);
+  await expect
+    .poll(() => dataSurfaceOverflow(root), {
+      message: `${name}: a data surface overflows its own box${lane} — ${first.join("; ")}`,
+    })
+    .toEqual([]);
+}
+
+/**
  * Run one assertion, honouring its per-fixture exclusion — and PROVING the exclusion.
  *
  * An excluded assertion is still executed, with the outcome inverted: it must throw. A component
@@ -919,13 +984,19 @@ for (const [name, fixture] of FIXTURES) {
     );
 
     // (1) 320px reflow. `+1` absorbs sub-pixel rounding, exactly as the route lane did.
-    await runAssertion(name, "reflow", () => expectContained(name, ""));
+    await runAssertion(name, "reflow", async () => {
+      await expectContained(name, "");
+      await expectDataSurfacesContained(name, screen.baseElement, "");
+    });
 
     // (2) RTL containment — the same fact with the writing direction flipped, which is where a
     // hard-coded `left`/`ml-*` or a non-logical inset shows up as an overflow.
     document.documentElement.setAttribute("dir", "rtl");
     await settle();
-    await runAssertion(name, "rtl", () => expectContained(name, " in RTL"));
+    await runAssertion(name, "rtl", async () => {
+      await expectContained(name, " in RTL");
+      await expectDataSurfacesContained(name, screen.baseElement, " in RTL");
+    });
     document.documentElement.removeAttribute("dir");
     await settle();
 
@@ -1059,3 +1130,380 @@ for (const [name, fixture] of FIXTURES) {
     });
   });
 }
+
+// ── DataList / DataListPager: the no-horizontal-scroll promise, with compiled CSS ──────────────
+//
+// The preview fixtures above are the documented compositions. These are the SHAPES that broke
+// the promise or sit on its edge — a mono or end-aligned first column (one line by default),
+// many columns, the selection column, the injected row-action button, a composed toolbar and
+// footer, dropped columns — each mounted in a 320px container and measured on the table
+// container itself (`dataSurfaceOverflow`), not just the document. They run whenever this file
+// runs; they are cheap and they are the only place the promise meets real CSS.
+
+interface Invoice {
+  id: string;
+  ref: string;
+  customer: string;
+  email: string;
+  team: string;
+  status: string;
+  amount: string;
+}
+
+const INVOICES: Invoice[] = Array.from({ length: 4 }, (_, index) => ({
+  id: String(index + 1),
+  ref: `INV-2026-${String(481 + index).padStart(5, "0")}`,
+  customer: [
+    "Northwind Traders",
+    "Contoso Pharmaceuticals",
+    "Fabrikam",
+    "Tailspin",
+  ][index]!,
+  email: [
+    "accounts.payable@northwind-traders.example",
+    "billing-department@contoso-pharmaceuticals.example",
+    "finance@fabrikam.example",
+    "a-very-long-unbroken-mailbox-name-without-spaces@tailspin-toys.example",
+  ][index]!,
+  team: "Revenue operations",
+  status: ["Active", "Invited", "Suspended", "Active"][index]!,
+  amount: ["$12,480.00", "$940.00", "$2,150.00", "$1,234,567.89"][index]!,
+}));
+
+const invoiceColumns = (
+  first: Partial<DataListColumn<Invoice>>,
+): DataListColumn<Invoice>[] => [
+  { key: "ref", header: "Invoice", sortable: true, ...first },
+  { key: "customer", header: "Customer", sortable: true },
+  { key: "email", header: "Billing email" },
+  { key: "team", header: "Team" },
+  {
+    key: "status",
+    header: "Status",
+    render: (row) => <Badge variant="secondary">{row.status}</Badge>,
+  },
+  { key: "amount", header: "Amount", align: "end", mono: true },
+];
+
+const DATA_LIST_CASES: [string, () => React.ReactElement][] = [
+  [
+    "mono first column",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={invoiceColumns({ mono: true })}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    ),
+  ],
+  [
+    "end-aligned first column",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={invoiceColumns({
+          key: "amount",
+          header: "Amount",
+          align: "end",
+        })}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    ),
+  ],
+  [
+    "many columns",
+    () => (
+      <DataList
+        aria-label="Wide"
+        columns={Array.from({ length: 14 }, (_, index) => ({
+          key: `c${index}`,
+          header: `Column ${index}`,
+          mono: index % 3 === 0,
+          align: index % 4 === 0 ? ("end" as const) : undefined,
+          render: (row: Invoice) =>
+            index % 2 === 0 ? row.email : `${row.customer} ${row.team}`,
+        }))}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    ),
+  ],
+  [
+    "selectable, mono first",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={invoiceColumns({ mono: true })}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+        selectable
+        selectedIds={new Set(["1", "3"])}
+      />
+    ),
+  ],
+  [
+    "clickable rows, mono first",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={invoiceColumns({ mono: true })}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+        onRowClick={() => {}}
+      />
+    ),
+  ],
+  [
+    "hidden columns and a sort on one of them",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={invoiceColumns({ mono: true }).map((column) =>
+          column.key === "email" || column.key === "amount"
+            ? { ...column, mobile: "hidden" as const, sortable: true }
+            : column,
+        )}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+        sort={{ key: "amount", direction: "desc" }}
+      />
+    ),
+  ],
+  [
+    "composed toolbar and DataListPager footer",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={invoiceColumns({ mono: true })}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+        selectable
+        onRowClick={() => {}}
+        toolbar={
+          <InputGroup>
+            <InputGroupInput
+              aria-label="Search invoices"
+              placeholder="Search…"
+            />
+          </InputGroup>
+        }
+        footer={
+          <DataListPager
+            page={6}
+            pageSize={15}
+            total={1_234}
+            onPageChange={() => {}}
+            onPageSizeChange={() => {}}
+          />
+        }
+      />
+    ),
+  ],
+];
+
+for (const [label, element] of DATA_LIST_CASES) {
+  test(`DataList at 320px never scrolls sideways — ${label}`, async () => {
+    const screen = await render(
+      <div style={{ width: "320px" }}>{element()}</div>,
+    );
+    await settle();
+    // Revelation measured and ran: at 320px something always leaves the header row here.
+    await expect
+      .poll(
+        () =>
+          screen.container.querySelectorAll('[data-slot="data-list-merged"]')
+            .length +
+          screen.container.querySelectorAll(
+            '[data-slot="data-list-hidden-hint"]',
+          ).length,
+      )
+      .toBeGreaterThan(0);
+    await expectDataSurfacesContained(label, screen.container, "");
+    await expectContained(label, "");
+  });
+}
+
+test("a mono first column's merged values wrap in their own face (compiled CSS)", async () => {
+  const screen = await render(
+    <div style={{ width: "320px" }}>{DATA_LIST_CASES[0]![1]()}</div>,
+  );
+  await expect
+    .poll(() =>
+      screen.container.querySelector('[data-slot="data-list-merged"]'),
+    )
+    .not.toBeNull();
+  const [email] = Array.from(
+    screen.container.querySelector('[data-slot="data-list-merged"]')!.children,
+  ) as HTMLElement[];
+  const style = getComputedStyle(email!);
+  expect({
+    whiteSpace: style.whiteSpace,
+    overflowWrap: style.overflowWrap,
+    mono: style.fontFamily.includes("Mono"),
+  }).toEqual({ whiteSpace: "normal", overflowWrap: "anywhere", mono: false });
+});
+
+for (const width of [200, 204, 270, 320, 479, 480, 800]) {
+  test(`DataListPager fits a ${width}px container`, async () => {
+    const screen = await render(
+      <div style={{ width: `${width}px` }}>
+        <DataListPager
+          page={6}
+          pageSize={15}
+          total={1_234}
+          onPageChange={() => {}}
+          onPageSizeChange={() => {}}
+        />
+      </div>,
+    );
+    const pager = screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-list-pager"]',
+    )!;
+    const expected =
+      width >= 480 ? "full" : width >= 240 ? "compact" : "minimal";
+    await expect.poll(() => pager.getAttribute("data-layout")).toBe(expected);
+    await expectDataSurfacesContained(`pager@${width}`, screen.container, "");
+    // Both ends are always reachable — the clipped Next was the defect.
+    for (const name of ["Go to previous page", "Go to next page"])
+      expect(
+        pager.querySelector(`[aria-label="${name}"]`),
+        `${name} at ${width}px`,
+      ).not.toBeNull();
+  });
+}
+
+test("DataGrid at 320px: merged values under a mono first column do not scroll the grid", async () => {
+  const gridColumns: DataGridColumn<Invoice>[] = [
+    { key: "ref", header: "Invoice", mono: true },
+    { key: "customer", header: "Customer" },
+    { key: "email", header: "Billing email" },
+    { key: "team", header: "Team" },
+    { key: "amount", header: "Amount", align: "end" },
+  ];
+  const screen = await render(
+    <div style={{ width: "320px" }}>
+      <DataGrid
+        aria-label="Invoices"
+        columns={gridColumns}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+        columnPicker={false}
+      />
+    </div>,
+  );
+  await expect
+    .poll(() =>
+      screen.container.querySelector('[data-slot="data-grid-merged"]'),
+    )
+    .not.toBeNull();
+  const container = screen.container.querySelector<HTMLElement>(
+    '[data-slot="table-container"]',
+  )!;
+  await expect
+    .poll(() => container.scrollWidth - container.clientWidth)
+    .toBeLessThanOrEqual(1);
+});
+
+/**
+ * One header treatment. A sortable header's label is a ghost `sm` Button, which brings `text-xs`
+ * and used to add `text-muted-foreground`; a plain header is upstream `TableHead` — `text-sm
+ * font-medium text-foreground`. Side by side in one row they read as two different tables.
+ */
+async function headerTreatments(root: HTMLElement) {
+  const sortable = root.querySelector<HTMLElement>(
+    '[data-slot="data-table-sort"]',
+  )!;
+  const plain = [...root.querySelectorAll<HTMLElement>("th")].find(
+    (th) => !th.querySelector("button, [role=checkbox]"),
+  )!;
+  const read = (element: HTMLElement) => {
+    const style = getComputedStyle(element);
+    return {
+      fontSize: style.fontSize,
+      fontWeight: style.fontWeight,
+      color: style.color,
+      lineHeight: style.lineHeight,
+    };
+  };
+  return { sortable: read(sortable), plain: read(plain) };
+}
+
+test("DataList: sortable and plain headers share one type and ink", async () => {
+  const screen = await render(
+    <DataList
+      aria-label="Invoices"
+      columns={[
+        { key: "ref", header: "Invoice", sortable: true },
+        { key: "customer", header: "Customer" },
+      ]}
+      data={INVOICES}
+      getRowId={(row) => row.id}
+    />,
+  );
+  const { sortable, plain } = await headerTreatments(screen.container);
+  expect(sortable).toEqual(plain);
+  expect(plain.fontSize).toBe("14px");
+});
+
+test("DataGrid: sortable and plain headers share one type and ink", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Invoices"
+      columns={[
+        { key: "ref", header: "Invoice", sortable: true },
+        { key: "customer", header: "Customer" },
+      ]}
+      data={INVOICES}
+      getRowId={(row) => row.id}
+    />,
+  );
+  const { sortable, plain } = await headerTreatments(screen.container);
+  expect(sortable).toEqual(plain);
+});
+
+test("DataList squeezes only when revelation alone cannot fit the table", async () => {
+  // A first column whose own one-line value is wider than the whole container: revelation has
+  // nothing left to move, so the table squeezes (every cell may break) instead of scrolling.
+  const wideFirst: DataListColumn<Invoice>[] = [
+    { key: "email", header: "Billing email", mono: true },
+    { key: "customer", header: "Customer" },
+  ];
+  const narrow = await render(
+    <div style={{ width: "240px" }}>
+      <DataList
+        aria-label="Squeezed"
+        columns={wideFirst}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    </div>,
+  );
+  const table = () =>
+    narrow.container.querySelector<HTMLElement>('[data-slot="data-list"]')!;
+  await expect.poll(() => table().hasAttribute("data-squeezed")).toBe(true);
+  await expectDataSurfacesContained("squeezed", narrow.container, "");
+  await narrow.unmount();
+
+  // The same columns with room to spare keep their one-line posture: no squeeze.
+  const wide = await render(
+    <div style={{ width: "1200px" }}>
+      <DataList
+        aria-label="Roomy"
+        columns={wideFirst}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    </div>,
+  );
+  const roomy = wide.container.querySelector<HTMLElement>(
+    '[data-slot="data-list"]',
+  )!;
+  await settle();
+  await settle();
+  expect(roomy.hasAttribute("data-squeezed")).toBe(false);
+  expect(getComputedStyle(roomy.querySelector("td")!).whiteSpace).toBe(
+    "nowrap",
+  );
+});
