@@ -835,10 +835,13 @@ test("render receives the per-cell context (rowId, columnKey, selected) as a thi
       selectedIds={new Set(["b"])}
     />,
   );
-  expect(seen).toHaveLength(3);
-  expect(seen[0]).toEqual({ rowId: "a", columnKey: "name", selected: false });
-  expect(seen[1]).toEqual({ rowId: "b", columnKey: "name", selected: true });
-  expect(seen[2]).toEqual({ rowId: "c", columnKey: "name", selected: false });
+  // `render` runs once per row per render pass, and the width measurement adds a pass after
+  // mount — so assert on the LAST pass rather than on a pass count.
+  expect(seen.length % 3).toBe(0);
+  const last = seen.slice(-3);
+  expect(last[0]).toEqual({ rowId: "a", columnKey: "name", selected: false });
+  expect(last[1]).toEqual({ rowId: "b", columnKey: "name", selected: true });
+  expect(last[2]).toEqual({ rowId: "c", columnKey: "name", selected: false });
 });
 
 test("every remaining `<table>` prop type-checks and flows through to the table element", async () => {
@@ -942,6 +945,9 @@ test("a wide DataList overflows in upstream's container, which is NOT yet a tab 
   // container verbatim and this test pins the gap rather than hiding it. `data-list` is an
   // extras.md KEEP that Batch 7 rebuilds on the reset primitives; that is where the tab stop
   // belongs now.
+  // Since the responsive column posture landed, a default column MERGES instead of overflowing,
+  // so the gap is pinned with columns that opt out of revelation (`mobile: "visible"`) — the one
+  // posture that still lets a DataList scroll sideways.
   await render(
     <div style={{ width: "280px" }}>
       <DataList
@@ -949,6 +955,7 @@ test("a wide DataList overflows in upstream's container, which is NOT yet a tab 
         columns={Array.from({ length: 10 }, (_, index) => ({
           key: `c${index}`,
           header: `Column ${index}`,
+          mobile: "visible" as const,
         }))}
         data={data}
         getRowId={(r) => r.id}
@@ -965,4 +972,314 @@ test("a wide DataList overflows in upstream's container, which is NOT yet a tab 
   // …and it really is unreachable, which is the thing to fix in Batch 7.
   expect(container.getAttribute("tabindex")).toBeNull();
   expect(container.getAttribute("role")).toBeNull();
+});
+
+// ---- Fitting the width: responsive column revelation (shared with DataGrid) ----
+
+interface Wide {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+  team: string;
+}
+
+const wideData: Wide[] = [
+  {
+    id: "a",
+    name: "Ada",
+    role: "Engineer",
+    email: "ada@vega.dev",
+    team: "Core",
+  },
+  {
+    id: "b",
+    name: "Bea",
+    role: "Designer",
+    email: "bea@vega.dev",
+    team: "Web",
+  },
+];
+
+const headerTexts = () =>
+  Array.from(document.querySelectorAll('[data-slot="data-list-head"]')).map(
+    (th) => th.textContent,
+  );
+
+test("a narrow container merges overflow columns into the primary cell", async () => {
+  // 300px fits Name (120) + Role (120); Email and Team default to `mobile: "merge"`.
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="People"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          { key: "email", header: "Email" },
+          { key: "team", header: "Team" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const merged = screen.container.querySelectorAll(
+    '[data-slot="data-list-merged"]',
+  );
+  expect(merged).toHaveLength(2);
+  // Each merged value keeps its header as an sr-only prefix, so it is never read context-free.
+  expect(merged[0]!.textContent).toBe("Email: ada@vega.devTeam: Core");
+  // The merged stack lives in the FIRST cell of its row.
+  expect(merged[0]!.closest("td")).toBe(
+    merged[0]!.closest("tr")!.querySelector("td"),
+  );
+  // Nothing was dropped, so nothing is reported.
+  expect(
+    screen.container.querySelector('[data-slot="data-list-hidden-hint"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a wide container shows every column and merges nothing", async () => {
+  const screen = await render(
+    <div style={{ width: "1200px" }}>
+      <DataList
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          { key: "email", header: "Email" },
+          { key: "team", header: "Team" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role", "Email", "Team"]);
+  expect(
+    screen.container.querySelector('[data-slot="data-list-merged"]'),
+  ).toBeNull();
+});
+
+test("the leading selection column is budgeted before the data columns", async () => {
+  // 270px: Name (120) + Role (120) = 240 fits alone, but not beside the 40px selection column.
+  await render(
+    <div style={{ width: "270px" }}>
+      <DataList
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+        selectable
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name"]);
+});
+
+test('`mobile: "hidden"` columns are dropped, counted, and describe the table', async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="People"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role", minWidth: 10_000, mobile: "hidden" },
+          { key: "email", header: "Email", mobile: "hidden" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name"]);
+  const hint = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-hidden-hint"]',
+  );
+  expect(hint?.textContent).toBe("2 columns hidden");
+  // Reported to assistive technology with the table, not only painted beside it.
+  const table = screen.getByRole("table").element();
+  expect(table.getAttribute("aria-describedby")?.split(" ")).toContain(
+    hint!.id,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="data-list-merged"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the hidden-columns hint is singular for one column and keeps a host aria-describedby", async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <p id="host-note">Host note</p>
+      <DataList
+        aria-describedby="host-note"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role", minWidth: 10_000, mobile: "hidden" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect
+    .poll(
+      () =>
+        screen.container.querySelector('[data-slot="data-list-hidden-hint"]')
+          ?.textContent,
+    )
+    .toBe("1 column hidden");
+  const describedBy = screen
+    .getByRole("table")
+    .element()
+    .getAttribute("aria-describedby")!
+    .split(" ");
+  expect(describedBy[0]).toBe("host-note");
+  expect(describedBy).toHaveLength(2);
+});
+
+test('`mobile: "visible"` never hides, however little room is left', async () => {
+  await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role", minWidth: 10_000, mobile: "visible" },
+          { key: "email", header: "Email" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  // Role stays although it can never fit; Email (after the budget is spent) merges.
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+});
+
+test("hiding is right-to-left with no holes", async () => {
+  await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        columns={[
+          { key: "name", header: "Name", minWidth: 10 },
+          { key: "role", header: "Role", minWidth: 10_000 },
+          { key: "team", header: "Team", minWidth: 10 },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  // Team alone would fit, but once Role overflows every later column overflows too.
+  await expect.poll(headerTexts).toEqual(["Name"]);
+});
+
+test("a narrow DataList never overflows its table container", async () => {
+  await render(
+    <div style={{ width: "320px" }}>
+      <DataList
+        aria-label="People"
+        columns={Array.from({ length: 10 }, (_, index) => ({
+          key: `c${index}`,
+          header: `Column ${index}`,
+          render: () => `Value ${index}`,
+        }))}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  const container = document.querySelector<HTMLElement>(
+    '[data-slot="table-container"]',
+  )!;
+  await expect.poll(() => headerTexts().length).toBe(2);
+  expect(container.clientWidth).toBeGreaterThan(0);
+  expect(container.scrollWidth).toBeLessThanOrEqual(container.clientWidth);
+});
+
+test("revelation follows the container as it resizes", async () => {
+  function Host() {
+    const [width, setWidth] = React.useState(1200);
+    return (
+      <div>
+        <button type="button" onClick={() => setWidth(300)}>
+          narrow
+        </button>
+        <div style={{ width: `${width}px` }}>
+          <DataList
+            columns={[
+              { key: "name", header: "Name" },
+              { key: "role", header: "Role" },
+              { key: "email", header: "Email" },
+            ]}
+            data={wideData}
+            getRowId={(r) => r.id}
+          />
+        </div>
+      </div>
+    );
+  }
+  const screen = await render(<Host />);
+  await expect.poll(headerTexts).toEqual(["Name", "Role", "Email"]);
+  (
+    screen.getByRole("button", { name: "narrow" }).element() as HTMLElement
+  ).click();
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  expect(
+    document.querySelector('[data-slot="data-list-merged"]')?.textContent,
+  ).toBe("Email: ada@vega.dev");
+});
+
+test("the server render shows every column (LAY-9's declared answer)", async () => {
+  const { renderToString } = await import("react-dom/server");
+  const html = renderToString(
+    <DataList
+      columns={[
+        { key: "name", header: "Name" },
+        { key: "role", header: "Role" },
+        { key: "email", header: "Email", mobile: "hidden" },
+      ]}
+      data={wideData}
+      getRowId={(r) => r.id}
+    />,
+  );
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  expect(
+    Array.from(doc.querySelectorAll('[data-slot="data-list-head"]')).map(
+      (th) => th.textContent,
+    ),
+  ).toEqual(["Name", "Role", "Email"]);
+  expect(doc.querySelector('[data-slot="data-list-merged"]')).toBeNull();
+  expect(doc.querySelector('[data-slot="data-list-hidden-hint"]')).toBeNull();
+});
+
+test("a callback ref still receives the table, and the loading skeleton follows the revealed columns", async () => {
+  let node: HTMLTableElement | null = null;
+  await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        ref={(el) => {
+          node = el;
+        }}
+        loading
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          { key: "email", header: "Email" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  expect(node).toBeInstanceOf(HTMLTableElement);
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const skeletonRow = document.querySelector(
+    '[data-slot="data-list-skeleton-row"]',
+  )!;
+  expect(skeletonRow.querySelectorAll("td")).toHaveLength(2);
 });

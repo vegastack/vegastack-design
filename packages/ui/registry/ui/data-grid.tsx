@@ -24,10 +24,13 @@ import {
   columnCellClass,
   cycleSort,
   EmptyRow,
+  revealColumns,
+  SELECTION_COLUMN_WIDTH,
   SelectAllHead,
   SelectionCell,
   SkeletonRows,
   SortableHead,
+  useContainerWidth,
   useControlledState,
   useRowSelection,
   type DataTableColumnLayout,
@@ -183,21 +186,6 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
    * @default undefined
    */
   editable?: EditableCellEditor;
-  /**
-   * Pixels this column needs before the responsive revelation shows it.
-   * Columns that no longer fit hide right-to-left; `mobile` overrides.
-   * @default 120
-   */
-  minWidth?: number;
-  /**
-   * Responsive posture when the column no longer fits: `visible` never hides;
-   * `merge` stacks the value into the primary (first) column's cell; `hidden`
-   * drops it, which is counted and reported in the toolbar so the loss is never
-   * silent. `merge` is the default because narrowing a viewport must never lose
-   * data silently.
-   * @default "merge"
-   */
-  mobile?: "visible" | "hidden" | "merge";
   /**
    * Group rows into collapsible sections by this column's value. One grouping
    * column at most; grouping disables `virtualize`.
@@ -466,26 +454,18 @@ export function DataGrid<T>({
   const order = columnOrder ?? null;
 
   // ---- responsive column revelation ---------------------------------------
+  // The measurement and the partition are shared with DataList
+  // (`data-table-parts`); the grid keeps a RefObject too, because the
+  // virtualiser reads its scroll element from it.
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [containerWidth, setContainerWidth] = React.useState<number | null>(
-    null,
+  const [measureRef, containerWidth] = useContainerWidth();
+  const setContainer = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      containerRef.current = node;
+      measureRef(node);
+    },
+    [measureRef],
   );
-  React.useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    // Quantized: hiding/showing a column changes the table's own width and
-    // re-fires the observer — sub-pixel oscillation must not re-render the
-    // grid in a loop.
-    const update = () =>
-      setContainerWidth((prev) => {
-        const next = el.clientWidth;
-        return prev !== null && Math.abs(prev - next) <= 1 ? prev : next;
-      });
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   const ordered = React.useMemo(() => {
     if (!order) return columns;
@@ -498,52 +478,20 @@ export function DataGrid<T>({
   }, [columns, order]);
 
   /**
-   * The platform-harvested revelation: walk columns in order, keep the ones
-   * whose cumulative minWidth fits the measured container; `visible` always
+   * The platform-harvested revelation (`revealColumns`): `visible` always
    * stays, `merge` overflow stacks into the primary cell, and only an explicit
    * `hidden` actually disappears — where it is COUNTED, so the toolbar can say
    * so. Data is never silently lost.
    */
-  const { visibleColumns, mergedColumns, hiddenColumns } = React.useMemo(() => {
-    const pickerVisible = ordered.filter(
-      (column) => visibility[column.key] !== false,
-    );
-    if (containerWidth == null)
-      return {
-        visibleColumns: pickerVisible,
-        mergedColumns: [],
-        hiddenColumns: [],
-      };
-    const selectionWidth = selectable ? 40 : 0;
-    let used = selectionWidth;
-    const shown: DataGridColumn<T>[] = [];
-    const overflow: DataGridColumn<T>[] = [];
-    // Hiding is right-to-left as documented: once one hideable column no
-    // longer fits, every hideable column after it hides too — a narrow late
-    // column must not survive a wide earlier one (no holes).
-    let exhausted = false;
-    for (const [index, column] of pickerVisible.entries()) {
-      const need = column.minWidth ?? 120;
-      const isPrimary = index === 0;
-      if (isPrimary || column.mobile === "visible") {
-        used += need;
-        shown.push(column);
-      } else if (!exhausted && used + need <= containerWidth) {
-        used += need;
-        shown.push(column);
-      } else {
-        exhausted = true;
-        overflow.push(column);
-      }
-    }
-    return {
-      visibleColumns: shown,
-      mergedColumns: overflow.filter(
-        (column) => (column.mobile ?? "merge") === "merge",
+  const { visibleColumns, mergedColumns, hiddenColumns } = React.useMemo(
+    () =>
+      revealColumns(
+        ordered.filter((column) => visibility[column.key] !== false),
+        containerWidth,
+        selectable ? SELECTION_COLUMN_WIDTH : 0,
       ),
-      hiddenColumns: overflow.filter((column) => column.mobile === "hidden"),
-    };
-  }, [ordered, visibility, containerWidth, selectable]);
+    [ordered, visibility, containerWidth, selectable],
+  );
 
   // ---- sorting via the TanStack row model ----------------------------------
   const columnHelper = React.useMemo(
@@ -1067,7 +1015,7 @@ export function DataGrid<T>({
           it, so the vertical scroll box and the ref the virtualiser measures live in a wrapper
           this component owns. Batch 7 rebuilds `data-grid` on the reset primitives. */}
       <div
-        ref={containerRef}
+        ref={setContainer}
         data-slot="data-grid-scroll"
         className={cn(
           maxHeight != null &&

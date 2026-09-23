@@ -7,13 +7,17 @@ import {
   alignClass,
   columnCellClass,
   cycleSort,
+  DEFAULT_COLUMN_MIN_WIDTH,
   EmptyRow,
   isNowrapColumn,
+  revealColumns,
+  SELECTION_COLUMN_WIDTH,
   SelectAllHead,
   SelectionCell,
   SkeletonRows,
   SortableHead,
   SortHeaderButton,
+  useContainerWidth,
   useControlledState,
   useRowSelection,
   type DataTableColumnLayout,
@@ -61,6 +65,65 @@ test("columnCellClass carries alignment, wrap posture and the mono face", () => 
 });
 
 /* ------------------------------------------------------------------ sort */
+
+/* ------------------------------------------------------ responsive revelation */
+
+const keys = (list: DataTableColumnLayout[]) => list.map((c) => c.key);
+
+test("revealColumns: an unmeasured container (the server answer) shows every column", () => {
+  const cols: DataTableColumnLayout[] = [
+    { key: "a" },
+    { key: "b", mobile: "hidden" },
+  ];
+  const result = revealColumns(cols, null);
+  expect(keys(result.visibleColumns)).toEqual(["a", "b"]);
+  expect(result.mergedColumns).toEqual([]);
+  expect(result.hiddenColumns).toEqual([]);
+});
+
+test("revealColumns: defaults are minWidth 120 and mobile merge", () => {
+  expect(DEFAULT_COLUMN_MIN_WIDTH).toBe(120);
+  const result = revealColumns([{ key: "a" }, { key: "b" }, { key: "c" }], 250);
+  expect(keys(result.visibleColumns)).toEqual(["a", "b"]);
+  expect(keys(result.mergedColumns)).toEqual(["c"]);
+  expect(result.hiddenColumns).toEqual([]);
+});
+
+test("revealColumns: primary and visible always stay, hidden is counted, no holes", () => {
+  const result = revealColumns(
+    [
+      { key: "primary", minWidth: 10_000 },
+      { key: "wide", minWidth: 10_000, mobile: "hidden" },
+      { key: "narrow", minWidth: 1 },
+      { key: "pinned", minWidth: 10_000, mobile: "visible" },
+    ],
+    300,
+  );
+  expect(keys(result.visibleColumns)).toEqual(["primary", "pinned"]);
+  expect(keys(result.hiddenColumns)).toEqual(["wide"]);
+  expect(keys(result.mergedColumns)).toEqual(["narrow"]);
+});
+
+test("revealColumns: the reserved width is spent before the data columns", () => {
+  const cols: DataTableColumnLayout[] = [{ key: "a" }, { key: "b" }];
+  expect(keys(revealColumns(cols, 250).visibleColumns)).toEqual(["a", "b"]);
+  expect(
+    keys(revealColumns(cols, 250, SELECTION_COLUMN_WIDTH).visibleColumns),
+  ).toEqual(["a"]);
+});
+
+test("useContainerWidth measures the element it is attached to and follows resizes", async () => {
+  let seen: number | null = null;
+  function Probe({ width }: { width: number }) {
+    const [measureRef, measured] = useContainerWidth();
+    seen = measured;
+    return <div ref={measureRef} style={{ width: `${width}px` }} />;
+  }
+  const screen = await render(<Probe width={321} />);
+  await expect.poll(() => seen).toBe(321);
+  await screen.rerender(<Probe width={222} />);
+  await expect.poll(() => seen).toBe(222);
+});
 
 test("cycleSort runs asc → desc → cleared so a sort is always undoable", () => {
   const asc = cycleSort([], "name");

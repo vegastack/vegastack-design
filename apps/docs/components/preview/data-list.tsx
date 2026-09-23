@@ -151,6 +151,28 @@ export function dataList(): ReactNode {
   );
 }
 
+export function dataListFitting(): ReactNode {
+  // A 320px pane. Name and Email keep their own columns; Role, Status and
+  // Amount no longer fit, so they STACK into the Name cell (`mobile: "merge"`,
+  // the default) instead of scrolling the table sideways. A column that opts
+  // into `mobile: "hidden"` would be dropped and counted under the table.
+  const fitting: DataListColumn<Person>[] = columns.map((column) =>
+    column.key === "name" ? { ...column, minWidth: 160 } : column,
+  );
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="w-full max-w-80">
+        <DataList
+          aria-label="People at 320px"
+          columns={fitting}
+          data={people.slice(0, 3)}
+          getRowId={(p) => p.id}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
 export function dataListSelectable(): ReactNode {
   const [selected, setSelected] = React.useState<Set<string>>(
     new Set(["1", "3"]),

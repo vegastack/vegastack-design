@@ -50,7 +50,7 @@ it has in common with [`DataGrid`](/docs/components/data-grid).
 ```tsx
 <DataList<T>
   columns={[
-    { key, header, render?, sortable?, align?, mono?, nowrap?, className?, headerClassName?, interactive? },
+    { key, header, render?, sortable?, align?, mono?, nowrap?, minWidth?, mobile?, className?, headerClassName?, interactive? },
   ]}
   data={rows}
   getRowId={(row, index) => string}
@@ -76,6 +76,9 @@ it has in common with [`DataGrid`](/docs/components/data-grid).
 - **Loading** — skeleton rows (`data-slot="data-list-skeleton-row"`) replace the body while
   `loading`; the table gets `aria-busy` and a live status while placeholder rows stay `aria-hidden`.
 - **Empty** — a single full-width row (`data-slot="data-list-empty-row"`) hosting the `emptyState`.
+- **Merged stack** — when the container is too narrow, overflow columns render inside the first
+  cell as `<span data-slot="data-list-merged">`; a column dropped with `mobile: "hidden"` is counted
+  in `<p data-slot="data-list-hidden-hint">` under the table (see Fitting the width).
 
 ## Examples
 
@@ -193,6 +196,41 @@ icon and actions, for example:
   file="components/preview/data-list.tsx"
 />
 
+### Fitting the width
+
+`DataList` never forces a horizontal scroll. It measures its container and fits the columns into
+it with the same **responsive column revelation** as [`DataGrid`](/docs/components/data-grid): every
+column declares a pixel budget (`minWidth`, default `120`) and a posture for when it no longer fits
+(`mobile`, default `"merge"`). Columns are kept left to right while their budgets fit; the first
+column always stays, and once one column overflows every column after it overflows too, so a narrow
+late column never survives a wide earlier one.
+
+| `mobile`    | When the column no longer fits                                                                           |
+| ----------- | -------------------------------------------------------------------------------------------------------- |
+| `"merge"`   | **Default.** Stacks under the primary (first) column's value, with its header as a screen-reader prefix. |
+| `"visible"` | Never hides — the column is essential, and the table scrolls inside its container instead.               |
+| `"hidden"`  | Drops the column; "N columns hidden" appears under the table, and the table is described by that line.   |
+
+```tsx
+const columns: DataListColumn<Person>[] = [
+  { key: "name", header: "Name", minWidth: 160 }, // primary: always shown
+  { key: "email", header: "Email" }, // merges when it no longer fits
+  { key: "amount", header: "Amount", align: "end", mobile: "visible" }, // never hides
+  { key: "notes", header: "Notes", mobile: "hidden" }, // dropped and counted
+];
+```
+
+A leading selection column is budgeted first (40px). `"hidden"` is the only posture that removes a
+value, which is why it is opt-in and why it reports itself — use it only when the value is
+recoverable elsewhere (a detail page, a drawer). The server render shows every column, because an
+unmeasured table has no evidence that anything overflows; on the client the split is corrected in a
+layout effect, before first paint.
+
+<ComponentPreview
+  name="dataListFitting"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Scope
 
 `DataList` is the **presentational data table** — columns, render functions, row selection,
@@ -206,7 +244,7 @@ already-paged rows:
 | Behaviour                                            | Where it lives                                                                                           | Mount point                  |
 | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------- |
 | Search / filtering                                   | Host owns the query + filtered `data`                                                                    | `toolbar` slot               |
-| Pagination / page-size / load-more                   | Host owns paging + the current page                                                                      | `footer` slot                |
+| Pagination / page-size / load-more                   | Host owns paging + the current page; [`DataListPager`](/docs/components/data-list-pager) is the control  | `footer` slot                |
 | Row activation (navigate / open)                     | Host's handler                                                                                           | `onRowClick`                 |
 | Drag-and-drop reordering                             | The persisted order stays app-coupled; the mechanism is [`SortableList`](/docs/components/sortable-list) | compose it beside this table |
 | Board / Kanban layout, grouping & collapsible groups | [`Board`](/docs/components/board) for Kanban; [`DataGrid`](/docs/components/data-grid) for grouping      | shipped                      |
@@ -325,6 +363,10 @@ was cleared (the third click on a header).
 - While loading, the table has `aria-busy="true"` and is described by a polite `role="status"` node.
   Skeleton rows are decorative (`aria-hidden`); the empty state carries its meaning in the
   title/description text, never by icon or color alone.
+- Columns merged into the first cell keep their header as a visually hidden prefix
+  (_Email: ada@vega.dev_), so a value lifted out of its column is never read without context. A
+  column dropped with `mobile: "hidden"` is counted in a visible line that the table's
+  `aria-describedby` points at, so the loss is heard with the table.
 - Activatable rows (`onRowClick`) keep native table semantics: the `<tr>` is **never** given
   `role="button"`/`tabIndex` (which would invalidate its cells). A real `<button>` injected into the first
   cell is the focusable keyboard / screen-reader activation; the row's `onClick` is mouse-only convenience.

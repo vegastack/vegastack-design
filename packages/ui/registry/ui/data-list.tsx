@@ -3,7 +3,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import {
   Table,
   TableBody,
@@ -15,17 +15,21 @@ import {
   columnCellClass,
   cycleSort,
   EmptyRow,
+  revealColumns,
+  SELECTION_COLUMN_WIDTH,
   SelectAllHead,
   SelectionCell,
   SkeletonRows,
   SortableHead,
+  useContainerWidth,
   useControlledState,
   useRowSelection,
   type DataTableColumnLayout,
+  type DataTableColumnMobile,
   type SortDirection,
 } from "@/components/ui/data-table-parts";
 
-export type { SortDirection };
+export type { DataTableColumnMobile, SortDirection };
 
 /** The active sort — which column and which direction. */
 export interface SortState {
@@ -205,8 +209,9 @@ export interface DataListProps<T> extends Omit<
   toolbar?: React.ReactNode;
   /**
    * Slot rendered below the table — where the host drops its own pagination,
-   * load-more, or row-count footer. Renders nothing when omitted (the paging
-   * *logic* lives in the host; this is just the mount point).
+   * load-more, or row-count footer (`DataListPager` is built for it). Renders
+   * nothing when omitted (the paging *logic* lives in the host; this is just
+   * the mount point).
 
    * @default undefined
    */
@@ -247,6 +252,14 @@ function isFromInteractiveDescendant(
  * and `sort`/`onSortChange` to lift the state, or omit them for the built-in
  * uncontrolled behaviour. Sorting only *signals* intent via `onSortChange`; the
  * parent re-orders `data` (so server-side and client-side sorting share one API).
+ *
+ * **It never forces horizontal scroll.** Every column carries a `minWidth`
+ * budget (default 120) and a `mobile` posture (default `"merge"`), shared with
+ * `DataGrid`: once the measured container is too narrow, overflow columns stack
+ * into the primary (first) column's cell, `mobile: "hidden"` columns drop and
+ * are counted in a visible hint the table is described by, and
+ * `mobile: "visible"` columns never hide. The server render shows every column
+ * (LAY-9's declared answer); the client corrects the split before first paint.
  *
  * For host composition it exposes presentational affordances — `onRowClick` (makes
  * rows activatable via click + Enter/Space), and the `toolbar` / `footer` slots
@@ -325,9 +338,35 @@ export function DataList<T>({
   className,
   "aria-busy": ariaBusy,
   "aria-describedby": ariaDescribedBy,
+  ref,
   ...tableProps
 }: DataListProps<T>) {
   const loadingStatusId = React.useId();
+  const hiddenHintId = React.useId();
+
+  // ---- responsive column revelation (shared with DataGrid) ----------------
+  // Upstream's `Table` owns its `table-container` overflow div and forwards
+  // nothing to it, so the table's ref reaches it through `parentElement`. That
+  // div is `w-full` and clips its own overflow, so its width is the width the
+  // columns must fit, independent of how wide the table currently renders.
+  const [measureRef, containerWidth] = useContainerWidth();
+  const measureContainer = React.useCallback(
+    (node: HTMLTableElement | null) => measureRef(node?.parentElement ?? null),
+    [measureRef],
+  );
+  const tableRef = React.useMemo(
+    () => mergeRefs(measureContainer, ref),
+    [measureContainer, ref],
+  );
+  const { visibleColumns, mergedColumns, hiddenColumns } = React.useMemo(
+    () =>
+      revealColumns(
+        columns,
+        containerWidth,
+        selectable ? SELECTION_COLUMN_WIDTH : 0,
+      ),
+    [columns, containerWidth, selectable],
+  );
   // Sort state — controlled when `sort` is provided (even as null), else internal.
   const [activeSort, commitSort] = useControlledState<SortState | null>(
     sort,
@@ -352,6 +391,25 @@ export function DataList<T>({
   const { selected, allSelected, indeterminate, toggleAll, toggleRow } =
     useRowSelection({ rowIds, selectedIds, onSelectionChange });
 
+  // One cell's content: `column.render` invoked as a plain function (see its
+  // JSDoc), or the raw `row[key]`. Shared by a column's own cell and by the
+  // primary cell's merged stack, so a merged value reads exactly as it would
+  // in its own column.
+  const renderCell = (
+    col: DataListColumn<T>,
+    row: T,
+    index: number,
+    rowId: string,
+    isSelected: boolean,
+  ): React.ReactNode =>
+    col.render
+      ? col.render(row, index, {
+          rowId,
+          columnKey: col.key,
+          selected: isSelected,
+        })
+      : ((row as Record<string, React.ReactNode>)[col.key] ?? null);
+
   // Mouse-pointer convenience: clicking anywhere in the row activates it. A
   // `<tr>` may carry an `onClick` without an ARIA role (it keeps `role="row"`),
   // so this does NOT break table semantics. Keyboard / AT activation comes from
@@ -369,10 +427,15 @@ export function DataList<T>({
     [onRowClick],
   );
 
-  const colSpan = columns.length + (selectable ? 1 : 0);
-  const tableDescribedBy = loading
-    ? [ariaDescribedBy, loadingStatusId].filter(Boolean).join(" ")
-    : ariaDescribedBy;
+  const colSpan = visibleColumns.length + (selectable ? 1 : 0);
+  const tableDescribedBy =
+    [
+      ariaDescribedBy,
+      loading ? loadingStatusId : null,
+      hiddenColumns.length > 0 ? hiddenHintId : null,
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   const loadingStatus = loading ? (
     <div
@@ -385,14 +448,32 @@ export function DataList<T>({
     </div>
   ) : null;
 
+  // Revelation dropped something. Saying so is the whole point: a column that
+  // vanishes with no affordance is silent data loss. The table is described by
+  // this line, so assistive technology hears it with the table. It renders
+  // AFTER the table in both layouts, so its appearing never moves the table in
+  // the tree (a remount would drop focus inside it).
+  const hiddenHint =
+    hiddenColumns.length > 0 ? (
+      <p
+        id={hiddenHintId}
+        data-slot="data-list-hidden-hint"
+        className="text-xs text-muted-foreground"
+      >
+        {hiddenColumns.length} column{hiddenColumns.length === 1 ? "" : "s"}{" "}
+        hidden
+      </p>
+    ) : null;
+
   const table = (
     <>
       {loadingStatus}
       <Table
+        ref={tableRef}
         data-slot="data-list"
         className={className}
         aria-busy={loading ? true : ariaBusy}
-        aria-describedby={tableDescribedBy || undefined}
+        aria-describedby={tableDescribedBy}
         {...tableProps}
       >
         <TableHeader>
@@ -405,7 +486,7 @@ export function DataList<T>({
                 disabled={loading || rowIds.length === 0}
               />
             )}
-            {columns.map((col) => (
+            {visibleColumns.map((col) => (
               <SortableHead
                 key={col.key}
                 data-slot="data-list-head"
@@ -422,7 +503,7 @@ export function DataList<T>({
         <TableBody>
           {loading ? (
             <SkeletonRows
-              columns={columns}
+              columns={visibleColumns}
               rows={loadingRows}
               selectable={selectable}
               slot="data-list-skeleton-row"
@@ -441,7 +522,7 @@ export function DataList<T>({
               // renders its own focusable control, so wrapping would nest one
               // interactive element inside another).
               const injectRowButton =
-                clickable && columns[0]?.interactive !== true;
+                clickable && visibleColumns[0]?.interactive !== true;
               return (
                 <TableRow
                   key={id}
@@ -469,15 +550,8 @@ export function DataList<T>({
                       label={`Select row ${index + 1}`}
                     />
                   )}
-                  {columns.map((col, colIdx) => {
-                    const content = col.render
-                      ? col.render(row, index, {
-                          rowId: id,
-                          columnKey: col.key,
-                          selected: isSelected,
-                        })
-                      : ((row as Record<string, React.ReactNode>)[col.key] ??
-                        null);
+                  {visibleColumns.map((col, colIdx) => {
+                    const content = renderCell(col, row, index, id, isSelected);
                     // First cell + activatable + not an interactive column → wrap
                     // the content in a real <button>. It lives INSIDE the <td>, so
                     // the cell keeps its `role="cell"` and the row its `role="row"`;
@@ -507,6 +581,26 @@ export function DataList<T>({
                         ) : (
                           content
                         )}
+                        {colIdx === 0 && mergedColumns.length > 0 ? (
+                          // Overflow columns stack under the primary value. Each keeps its header as
+                          // an sr-only prefix: a value lifted out of its column loses the header a
+                          // screen reader would otherwise announce with it.
+                          <span
+                            data-slot="data-list-merged"
+                            className="mt-0.5 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
+                          >
+                            {mergedColumns.map((merged) => (
+                              <span key={merged.key} className="min-w-0">
+                                {typeof merged.header === "string" ? (
+                                  <span className="sr-only">
+                                    {merged.header}:{" "}
+                                  </span>
+                                ) : null}
+                                {renderCell(merged, row, index, id, isSelected)}
+                              </span>
+                            ))}
+                          </span>
+                        ) : null}
                       </TableCell>
                     );
                   })}
@@ -516,6 +610,7 @@ export function DataList<T>({
           )}
         </TableBody>
       </Table>
+      {hiddenHint}
     </>
   );
 
