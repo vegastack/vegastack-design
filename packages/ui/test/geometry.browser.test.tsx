@@ -5,6 +5,7 @@ import { page } from "vitest/browser";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import * as Preview from "@/components/preview";
 import { Badge } from "../registry/ui/badge";
+import { Button } from "../registry/ui/button";
 import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
 import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
@@ -709,8 +710,8 @@ async function expectContained(name: string, lane: string) {
  */
 function dataSurfaceOverflow(root: ParentNode): string[] {
   const problems: string[] = [];
-  const own = (element: Element, label: string) => {
-    if (element.scrollWidth > element.clientWidth + 1)
+  const own = (element: Element, label: string, slack = 1) => {
+    if (element.scrollWidth > element.clientWidth + slack)
       problems.push(
         `${label} scrolls: scrollWidth ${element.scrollWidth} > clientWidth ${element.clientWidth}`,
       );
@@ -721,7 +722,9 @@ function dataSurfaceOverflow(root: ParentNode): string[] {
     if (stack) own(stack, "DataList root");
   }
   for (const pager of root.querySelectorAll('[data-slot="data-list-pager"]')) {
-    own(pager, "DataListPager root");
+    // Zero slack, and from fractional rects: a three-digit slot made the compact list 241px in a
+    // 240px pager, with Next 1px outside, and a 1px tolerance here could never see it (round 3).
+    own(pager, "DataListPager root", 0);
     const box = pager.getBoundingClientRect();
     for (const part of pager.querySelectorAll(
       '[data-slot="data-list-pager-nav"], [data-slot="pagination-link"], ' +
@@ -737,7 +740,7 @@ function dataSurfaceOverflow(root: ParentNode): string[] {
           `DataListPager ${describe(part)} ${part.getAttribute("aria-label") ?? ""} spills its ` +
             `own box: scrollWidth ${part.scrollWidth} > clientWidth ${part.clientWidth}`,
         );
-      if (rect.left < box.left - 1 || rect.right > box.right + 1)
+      if (rect.left < box.left || rect.right > box.right)
         problems.push(
           `DataListPager ${describe(part)} ${part.getAttribute("aria-label") ?? ""} leaves the ` +
             `pager: ${rect.left.toFixed(1)}..${rect.right.toFixed(1)} outside ` +
@@ -1460,6 +1463,127 @@ for (const [label, element] of SQUEEZE_CASES)
         ).toBeLessThanOrEqual(1);
     });
 
+/**
+ * The squeeze releases TEXT, never a control. A Button is content-sized with a fixed height, so
+ * when the descendant release reached it (`**:wrap-anywhere`), the table narrowed it and its label
+ * wrapped inside `h-7`: 45px of text in a 26px box at 240 and 320px, 69px with a second visible
+ * column, and 29px at 700px, where one long nowrap email was enough to squeeze (review round 3).
+ * The release skips controls and fixed-size content and everything inside them, so a control
+ * keeps its one-line min-content; the text around it still breaks, and the row grows instead.
+ */
+const invoiceAction = (): DataListColumn<Invoice> => ({
+  key: "action",
+  header: "Action",
+  mobile: "visible",
+  interactive: true,
+  render: () => (
+    <Button size="sm" variant="outline">
+      View details
+    </Button>
+  ),
+});
+const nowrapEmail = (
+  mobile?: DataListColumn<Invoice>["mobile"],
+): DataListColumn<Invoice> => ({
+  key: "email",
+  header: "Billing email",
+  mobile,
+  render: (row) => <span className="whitespace-nowrap">{row.email}</span>,
+});
+const SQUEEZE_CONTROL_CASES: [string, DataListColumn<Invoice>[], boolean?][] = [
+  [
+    "a Button in a visible column",
+    [{ key: "customer", header: "Customer" }, nowrapEmail(), invoiceAction()],
+  ],
+  [
+    "a Button beside two other visible columns",
+    [
+      { key: "customer", header: "Customer" },
+      nowrapEmail("visible"),
+      {
+        key: "status",
+        header: "Status",
+        mobile: "visible",
+        render: (row) => <Badge variant="secondary">{row.status}</Badge>,
+      },
+      invoiceAction(),
+    ],
+  ],
+  // DataList's own row-action wrapper is a <button> that HOLDS the first cell's text: it stays
+  // released, so the nowrap email inside it still breaks while the Button beside it does not.
+  [
+    "a Button beside a clickable row's nowrap first value",
+    [nowrapEmail(), { key: "customer", header: "Customer" }, invoiceAction()],
+    true,
+  ],
+];
+
+/** Every control (and Badge) in a table whose content spills its own box. */
+function controlSpills(root: ParentNode): string[] {
+  const problems: string[] = [];
+  for (const control of root.querySelectorAll<HTMLElement>(
+    '[data-slot="data-list"] :is(button, [data-slot="button"], [data-slot="badge"])',
+  )) {
+    if (
+      control.scrollHeight > control.clientHeight ||
+      control.scrollWidth > control.clientWidth
+    )
+      problems.push(
+        `${describe(control)} "${control.textContent}" spills: ` +
+          `${control.scrollWidth}×${control.scrollHeight} in ${control.clientWidth}×${control.clientHeight}`,
+      );
+  }
+  return problems;
+}
+
+for (const [label, columns, clickable] of SQUEEZE_CONTROL_CASES)
+  for (const width of [240, 320, 700])
+    for (const dir of ["ltr", "rtl"] as const)
+      test(`DataList at ${width}px squeezes text around a control, never the control — ${label}, ${dir}`, async () => {
+        if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+        try {
+          const screen = await render(
+            <div style={{ width: `${width}px` }}>
+              <DataList
+                aria-label="Invoices"
+                columns={columns}
+                data={INVOICES}
+                getRowId={(row) => row.id}
+                onRowClick={clickable ? () => {} : undefined}
+              />
+            </div>,
+          );
+          await settle();
+          // The long nowrap email outgrows its budget even at 700px: the squeeze is live.
+          await expect
+            .poll(() =>
+              screen.container
+                .querySelector('[data-slot="data-list"]')
+                ?.hasAttribute("data-squeezed"),
+            )
+            .toBe(true);
+          // Both hold at once: the controls keep their label inside their box, and the table
+          // still does not scroll — the rows grow taller instead.
+          await expect
+            .poll(() => controlSpills(screen.container), {
+              message: `${label} @${width} ${dir}: ${controlSpills(screen.container).join("; ")}`,
+            })
+            .toEqual([]);
+          await expectDataSurfacesContained(
+            `${label} @${width} ${dir}`,
+            screen.container,
+            "",
+          );
+          // The squeeze still reached the text beside the control.
+          const email = screen.container.querySelector<HTMLElement>(
+            '[data-slot="data-list"] tbody span.whitespace-nowrap',
+          )!;
+          expect(getComputedStyle(email).overflowWrap).toBe("anywhere");
+        } finally {
+          document.documentElement.removeAttribute("dir");
+        }
+      });
+
 test("a mono first column's merged values wrap in their own face (compiled CSS)", async () => {
   const screen = await render(
     <div style={{ width: "320px" }}>{DATA_LIST_CASES[0]![1]()}</div>,
@@ -1482,13 +1606,16 @@ test("a mono first column's merged values wrap in their own face (compiled CSS)"
 
 /**
  * The pager's promise holds for any page count, not just the two-digit one the previews use: a
- * four- or five-digit page number widens every numbered slot and the "Page N of M" position, so
+ * three-, four- or five-digit page number widens every numbered slot and the "Page N of M" position, so
  * the layout the width alone picks can still overflow. Each count is swept at the widths that
  * matter — the 200px floor, the 204px a 320px viewport's docs preview leaves, and each layout's
  * threshold — in both writing directions.
  */
 const PAGER_COUNTS: { label: string; page: number; total: number }[] = [
   { label: "83 pages", page: 6, total: 1_234 },
+  // Three digits: a 100–999-page count widens the compact list's last slot past 32px.
+  { label: "100 pages", page: 3, total: 1_500 },
+  { label: "999 pages", page: 50, total: 14_985 },
   { label: "8229 pages", page: 8_000, total: 123_435 },
   { label: "10000 pages", page: 1_000, total: 150_000 },
   { label: "82305 pages", page: 80_000, total: 1_234_567 },

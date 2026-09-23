@@ -53,13 +53,24 @@ test("cells WRAP by default; figures and mono values opt in to nowrap (D18)", ()
   );
 });
 
+/**
+ * What the squeeze's descendant release skips: controls and fixed-size content, and everything
+ * inside them (a wrapped label spilled a Button's fixed height — review round 3). DataList's own
+ * row-action wrapper and the sort header are buttons that HOLD wrapping text, so they stay released.
+ */
+const SQUEEZE_KEEP =
+  ":is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select," +
+  "textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider]," +
+  "[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd])";
+
 test("columnCellClass carries alignment, wrap posture and the mono face", () => {
   // The wrap posture is spelled out in BOTH directions since Batch 5 of the shadcn reset: upstream's
   // `TableCell` is `whitespace-nowrap` by default (LAY-6 resolves as **shadcn**), so a wrapping
   // column has to say `whitespace-normal` or `cn`'s merge leaves upstream's class standing.
   expect(columnCellClass({ key: "name" })).toBe(
     "text-start whitespace-normal in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
-      "in-data-squeezed:**:whitespace-normal in-data-squeezed:**:wrap-anywhere " +
+      `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:whitespace-normal ` +
+      `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:wrap-anywhere ` +
       "in-data-squeezed:**:data-[slot=badge]:h-auto",
   );
   expect(columnCellClass({ key: "amount", align: "end" })).toContain(

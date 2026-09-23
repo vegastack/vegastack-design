@@ -245,13 +245,16 @@ one-line mono identifier in the first column, several `"visible"` columns — th
 instead of scrolling. The check runs before paint and is re-taken only when the width, the columns
 or the data change.
 
-The squeeze reaches inside a custom `render` too: every element in a cell wraps, whatever it says
-for itself, so a `truncate` span or a `whitespace-nowrap` row breaks across lines instead of
-ellipsing (an auto-layout table cannot truncate, so the ellipsis was never available there), and a
-`Badge` grows taller to hold its wrapped label. The one thing it cannot release is a fixed
-**width** — an icon, an avatar, a button. Text always fits; keep fixed-width content in a render
-small enough that the fixed parts of every always-shown column fit the narrowest container you
-support.
+The squeeze reaches inside a custom `render` too: the text in a cell wraps, whatever it says for
+itself, so a `truncate` span or a `whitespace-nowrap` row breaks across lines instead of ellipsing
+(an auto-layout table cannot truncate, so the ellipsis was never available there), and a `Badge`
+grows taller to hold its wrapped label. **Controls and fixed-size content are left whole**: a
+`Button` (whatever it renders as), a native `button`, `input`, `select` or `textarea`, an element
+with a control role, an `Avatar` and a `Kbd` keep their one-line label, because their height is
+fixed and a label wrapped inside one would spill out of it. The text around them breaks instead,
+and the row grows taller. An icon cannot shrink either. So keep the controls and fixed-size parts of
+every always-shown column small enough to fit, side by side, in the narrowest container you
+support; past that the table has nothing left to squeeze.
 
 **A merged value always wraps.** It does not inherit the first column's posture: under a `mono` or
 `align: "end"` first column (both one line by default) every stacked value still breaks inside the

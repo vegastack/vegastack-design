@@ -264,9 +264,11 @@ function isFromInteractiveDescendant(
  * `mobile: "visible"` columns never hide. If a value is still wider than its
  * column's budget once that has run (a long unbroken email, a one-line mono
  * id, several `visible` columns), the table is squeezed (`data-squeezed`):
- * every cell, and every element a custom `render` puts in it, may then break
+ * every cell, and the text a custom `render` puts in it, may then break
  * anywhere rather than scroll — a `truncate` span wraps, a Badge grows taller.
- * Only fixed-width content (an icon, an avatar, a control) cannot shrink. A
+ * Controls and fixed-size content (a Button or any native control, an Avatar, a
+ * Kbd, an icon) are left whole, so they keep their label inside their box and
+ * the row grows taller instead. A
  * merged value always wraps, whatever the primary column's own posture, so a
  * `mono` or end-aligned first column cannot pin the stack to one line. When the active sort's column is merged or
  * hidden, a "Sorted by …" line under the table (which describes it) keeps the
