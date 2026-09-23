@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.16.0] — September 24, 2026
+
+<!-- assembled from 1 changeset: ec29b0112b73 -->
+
+### 🔧 Changed components
+
+- **DatePicker / DateRangePicker bind to a `FieldLabel`, and a long EditableCell value truncates with its full text on hover.** Both pickers now accept `id`, `aria-describedby` and `aria-invalid` and forward them to the trigger button, so `<FieldLabel htmlFor>` names the picker (clicking the label opens it) and a `FieldDescription`/`FieldError` and the invalid border work as they do for `Input`. `EditableCell`'s display stays on one line and ellipsizes to its container — a long page title at 390px no longer overflows — and when the value is actually clipped the display carries it as `title` and `data-truncated` (measured with `use-overflow`, now a registry dependency); the editor still opens with the whole value.
+  [`ee0cbfd`](https://github.com/VegaStack/vegastack-design/commit/ee0cbfd)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.15.0 → 0.16.0.
+
 ## [0.15.0] — September 23, 2026
 
 <!-- assembled from 2 changesets: 5063166e5d3d -->
