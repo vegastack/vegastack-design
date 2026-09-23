@@ -2,7 +2,7 @@ import "./geometry.css"; // compiled Tailwind + @vegastack token theme (Vite via
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { page } from "vitest/browser";
-import { afterEach, beforeAll, beforeEach, expect, test } from "vitest";
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import * as Preview from "@/components/preview";
 import { Badge } from "../registry/ui/badge";
 import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
@@ -1816,6 +1816,109 @@ for (const sort of [null, { key: "amount", direction: "desc" as const }])
       }
     });
   }
+
+/**
+ * The AppShell previews frame a DESKTOP rail, which upstream pins with `position: fixed` and
+ * `h-svh`. A docs frame is not the viewport: without `contain: paint` the rail resolves against the
+ * viewport — the floating variant's bordered rail, its whole point, sat at the page edge while the
+ * frame showed an empty 256px gap (review round 2) — and with it but at `h-svh` its bottom margin
+ * and edge are cut off. Mounted wide, offset from the viewport origin, so both show.
+ */
+for (const name of [
+  "appShellDemo",
+  "appShellInset",
+  "appShellFloating",
+  "appShellMobile",
+] as const) {
+  test(`${name}: the desktop rail is drawn inside its preview frame`, async () => {
+    await page.viewport(1280, 900);
+    try {
+      const fixture = (Preview as Record<string, () => React.ReactNode>)[name];
+      expect(
+        fixture,
+        `${name} is not exported by the preview barrel`,
+      ).toBeTypeOf("function");
+      const Fixture = () => <>{fixture!()}</>;
+      const screen = await render(
+        <div style={{ margin: "120px 0 0 200px", width: "900px" }}>
+          <Fixture />
+        </div>,
+      );
+      await settle();
+      const rail = screen.container.querySelector<HTMLElement>(
+        '[data-slot="sidebar-inner"]',
+      );
+      expect(rail, `${name} mounted no desktop rail`).not.toBeNull();
+      const frame = screen.container.firstElementChild!
+        .firstElementChild as HTMLElement;
+      const box = frame.getBoundingClientRect();
+      const edge = rail!.getBoundingClientRect();
+      expect(
+        {
+          left: edge.left >= box.left - 0.5,
+          right: edge.right <= box.right + 0.5,
+          top: edge.top >= box.top - 0.5,
+          bottom: edge.bottom <= box.bottom + 0.5,
+        },
+        `rail ${edge.left},${edge.top}..${edge.right},${edge.bottom} vs frame ` +
+          `${box.left},${box.top}..${box.right},${box.bottom}`,
+      ).toEqual({ left: true, right: true, top: true, bottom: true });
+      // And it is what a reader sees there: nothing paints over its middle.
+      const hit = document.elementFromPoint(
+        edge.left + edge.width / 2,
+        edge.top + edge.height / 2,
+      );
+      expect(rail!.contains(hit), `${name}: the rail is covered`).toBe(true);
+    } finally {
+      await page.viewport(320, 812);
+    }
+  });
+}
+
+/**
+ * A docs preview must hydrate onto its own server HTML. Upstream `SidebarMenuSkeleton` picks its
+ * bar width with `Math.random()` in a state initialiser, so the server's `--skeleton-width` and the
+ * client's never match and React logs a hydration mismatch on every load of the page (review round
+ * 2). The two previews that mount it therefore render it after hydration only.
+ */
+for (const name of ["appShellSkeletonDemo", "sidebarMenuSkeleton"] as const) {
+  test(`${name}: the docs preview hydrates without a mismatch`, async () => {
+    const { renderToString } = await import("react-dom/server");
+    const { hydrateRoot } = await import("react-dom/client");
+    const fixture = (Preview as Record<string, () => React.ReactNode>)[name];
+    expect(fixture, `${name} is not exported by the preview barrel`).toBeTypeOf(
+      "function",
+    );
+    const Fixture = () => <>{fixture!()}</>;
+    const host = document.createElement("div");
+    host.innerHTML = renderToString(<Fixture />);
+    document.body.append(host);
+    const errors: string[] = [];
+    const spy = vi
+      .spyOn(console, "error")
+      .mockImplementation((...args: unknown[]) => {
+        errors.push(args.map(String).join(" "));
+      });
+    const root = hydrateRoot(host, <Fixture />, {
+      onRecoverableError: (error) => errors.push(String(error)),
+    });
+    try {
+      await settle();
+      await settle();
+      expect(
+        errors.filter((line) => /hydrat|didn't match/i.test(line)),
+      ).toEqual([]);
+      // And the skeleton does arrive once hydrated.
+      expect(
+        host.querySelectorAll('[data-slot="sidebar-menu-skeleton"]').length,
+      ).toBeGreaterThan(0);
+    } finally {
+      root.unmount();
+      host.remove();
+      spy.mockRestore();
+    }
+  });
+}
 
 test("DataList squeezes only when revelation alone cannot fit the table", async () => {
   // A first column whose own one-line value is wider than the whole container: revelation has

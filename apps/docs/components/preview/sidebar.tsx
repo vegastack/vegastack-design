@@ -1,6 +1,11 @@
 "use client";
 
-import { useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { Wrapper } from "./wrapper";
 import {
   BadgeCheck,
@@ -847,7 +852,24 @@ export function sidebarMenuBadge(): ReactNode {
   );
 }
 
+/*
+ * `true` once this client has hydrated; `false` on the server AND during hydration (React uses
+ * the server snapshot there), so what it gates is never part of the server HTML. Upstream's
+ * `SidebarMenuSkeleton` picks its bar width with `Math.random()`, so a server render of it can never
+ * match the client's and every page load logged a hydration mismatch. The preview mounts it after
+ * hydration instead; the component is not changed (no register ID covers it).
+ */
+const noSubscription = () => () => {};
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
+}
+
 export function sidebarMenuSkeleton(): ReactNode {
+  const hydrated = useHydrated();
   return (
     <Wrapper className="block h-72 overflow-hidden p-0">
       <SidebarProvider className="h-full min-h-0">
@@ -858,7 +880,7 @@ export function sidebarMenuSkeleton(): ReactNode {
               <SidebarMenu>
                 {Array.from({ length: 5 }).map((_, index) => (
                   <SidebarMenuItem key={index}>
-                    <SidebarMenuSkeleton showIcon />
+                    {hydrated ? <SidebarMenuSkeleton showIcon /> : null}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
