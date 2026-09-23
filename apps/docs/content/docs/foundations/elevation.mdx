@@ -55,11 +55,11 @@ There is **one portal band**, `z-50`, and DOM order decides nesting within it â€
 local raise inside a component. The named `--z-raised` / `--z-overlay` / `--z-toast` tokens are
 gone: OVL-2 is decided as shadcn, and upstream writes `z-50` on every portaled surface.
 
-That has one user-visible consequence worth knowing before you hit it. **A toast fired from inside
-an open dialog renders behind the scrim.** The toast viewport mounts with the app provider, before
-any dialog opens, so on DOM order the later dialog wins. The system used to buy its way out with a
-`z-60` toast band; it no longer does, because upstream does not. Raise the toast after the dialog
-closes, or mount your toaster after it. `test/stacking.browser.test.tsx` measures the behaviour
+**The one exception is the Toast viewport, which sits at `z-60`** (decision **OVL-15**, since
+0.12.0). DOM order cannot serve it: the viewport mounts with the app provider, before any dialog
+exists, so on DOM order alone a toast fired from an open dialog would render behind the scrim. One
+band above `z-50` puts it in front of every overlay instead. Nothing else leaves `z-50` â€” do not
+copy `z-60` onto a surface of your own. `test/stacking.browser.test.tsx` measures the behaviour
 rather than assuming it.
 
 <DoDont
