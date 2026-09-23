@@ -3,6 +3,7 @@
 "use client";
 
 import * as React from "react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import {
   Pagination,
@@ -89,11 +90,22 @@ export interface DataListPagerProps extends Omit<
   React.ComponentProps<"div">,
   "children"
 > {
-  /** The active page, 1-based. Clamped into range for display. */
+  /**
+   * The active page, 1-based. Clamped into range for display; a non-finite
+   * value (`NaN`, `undefined` from a loading query) reads as page 1.
+   */
   page: number;
-  /** Rows per page. */
+  /**
+   * Rows per page. A value that is not a positive finite number (`0`, a
+   * negative, `NaN`, `undefined`) is not a page size: the pager shows the first
+   * `pageSizes` entry instead, and never adds the bad value to the chooser.
+   */
   pageSize: number;
-  /** Total number of rows across every page. */
+  /**
+   * Total number of rows across every page. A value that is not a finite
+   * number ≥ 0 (`NaN`, `undefined` while a count loads, a negative) reads as
+   * `0`, so the pager renders its empty state ("0 of 0") rather than `NaN`.
+   */
   total: number;
   /** Called with the next 1-based page when a page control is activated. */
   onPageChange: (page: number) => void;
@@ -103,8 +115,10 @@ export interface DataListPagerProps extends Omit<
    */
   onPageSizeChange: (pageSize: number) => void;
   /**
-   * The rows-per-page choices. A `pageSize` that is not in the list is added,
-   * so the chooser always shows the current value.
+   * The rows-per-page choices. A valid `pageSize` that is not in the list is
+   * added, so the chooser always shows the current value. Entries that are not
+   * positive finite numbers are dropped; an empty result falls back to the
+   * default list.
    * @default [15, 30, 50]
    */
   pageSizes?: readonly number[];
@@ -119,13 +133,39 @@ export interface DataListPagerProps extends Omit<
 const DEFAULT_PAGE_SIZES: readonly number[] = [15, 30, 50];
 
 /**
- * Below this pager width the page list goes compact: no neighbours around the
- * current page and icon-only Previous/Next. The full list is at most nine
- * 32px slots plus two labelled 80px-class end controls — about 480px; the
- * compact one is at most five slots plus two 32px icons, about 240px, which
- * fits a 320px viewport inside ordinary page padding.
+ * The three page-list layouts, widest first, and the pager width each needs.
+ *
+ * - `full` — the window with one neighbour either side of the current page
+ *   (at most seven 32px slots) and labelled Previous/Next: about 480px.
+ * - `compact` — no neighbours (at most five 32px slots) and 32px icon-only
+ *   ends: 7 × 32 + 6 × 2px gaps = 236px, so it needs 240.
+ * - `minimal` — the icon-only ends around a "Page 3 of 12" label, about
+ *   150px. It fits any pager of 200px or more (a 320px viewport's docs
+ *   preview is 204px), and it is the declared server answer because it is
+ *   the one layout that fits everywhere.
+ *
+ * The page list never wraps: a wrapped run of page numbers reads as two
+ * lists. It changes layout instead, and the range and the rows-per-page
+ * chooser wrap onto their own lines above it.
  */
-const COMPACT_BELOW = 480;
+const FULL_FROM = 480;
+const COMPACT_FROM = 240;
+
+/** Which page-list layout a pager of `width` px uses (`null`: unmeasured). */
+type PagerLayout = "full" | "compact" | "minimal";
+function pagerLayout(width: number | null): PagerLayout {
+  if (width == null) return "minimal";
+  if (width >= FULL_FROM) return "full";
+  if (width >= COMPACT_FROM) return "compact";
+  return "minimal";
+}
+
+/** A positive finite integer, or `null`. */
+function positiveInteger(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 1
+    ? Math.floor(value)
+    : null;
+}
 
 /**
  * `DataListPager` — a controlled paging footer for `DataList`: a range summary
@@ -134,9 +174,15 @@ const COMPACT_BELOW = 480;
  * the rows-per-page chooser stay, so a reader can still widen the page.
  *
  * Previous and Next stay focusable at either end (`aria-disabled`, pointer
- * events alive), and a page change announces the new range politely. Below a
- * 480px container the page list goes compact (no neighbours, icon-only ends,
- * `data-compact`), so the pager never scrolls sideways.
+ * events alive), and a page change announces the new range politely. The page
+ * list follows the pager's own width (`data-layout`): `full` from 480px,
+ * `compact` from 240px (no neighbours, icon-only ends), and `minimal` below
+ * that (icon-only ends around "Page N of M"), so the pager fits any container
+ * of 200px or more and never scrolls sideways.
+ *
+ * Bad numbers render a sane state instead of `NaN`: a non-finite or negative
+ * `total` is `0`, a non-finite `page` is `1`, and a `pageSize` that is not a
+ * positive finite number shows the first `pageSizes` entry.
  *
  * @example
  * const [page, setPage] = React.useState(1);
@@ -173,31 +219,41 @@ export function DataListPager({
 }: DataListPagerProps) {
   const labelId = React.useId();
   // Container width, not viewport: a pager in a narrow card on a wide screen
-  // must go compact too. This is a JS branch because the two windows are
+  // must narrow too. This is a JS branch because the three layouts are
   // different item lists, which CSS cannot derive (LAY-9's last rung), and its
-  // declared server answer is COMPACT — the layout that fits everywhere, so an
+  // declared server answer is MINIMAL — the layout that fits everywhere, so an
   // unmeasured pager never overflows. The layout effect corrects it before
   // first paint.
   const [measureRef, width] = useContainerWidth();
-  const compact = width == null || width < COMPACT_BELOW;
+  const layout = pagerLayout(width);
   const rootRef = React.useMemo(
     () => mergeRefs<HTMLDivElement>(measureRef, ref),
     [measureRef, ref],
   );
-  const size = Math.max(1, Math.floor(pageSize));
-  const count = Math.max(0, Math.floor(total));
+  // Sanitised once, here, so nothing below can print `NaN` or offer a bogus
+  // choice (a loading `data?.total`, a `pageSize` of 0).
+  const choices = React.useMemo(() => {
+    const valid = pageSizes
+      .map(positiveInteger)
+      .filter((n): n is number => n !== null);
+    return valid.length > 0 ? valid : [...DEFAULT_PAGE_SIZES];
+  }, [pageSizes]);
+  const size = positiveInteger(pageSize) ?? choices[0]!;
+  const count =
+    typeof total === "number" && Number.isFinite(total) && total > 0
+      ? Math.floor(total)
+      : 0;
   const pages = Math.max(1, Math.ceil(count / size));
-  const current = Math.min(Math.max(1, Math.floor(page)), pages);
+  const requested =
+    typeof page === "number" && Number.isFinite(page) ? Math.floor(page) : 1;
+  const current = Math.min(Math.max(1, requested), pages);
   const first = count === 0 ? 0 : (current - 1) * size + 1;
   const last = Math.min(current * size, count);
   const range = count === 0 ? "0 of 0" : `${first}–${last} of ${count}`;
 
   const sizes = React.useMemo(
-    () =>
-      [...new Set([...pageSizes, size])]
-        .filter((n) => n > 0)
-        .sort((a, b) => a - b),
-    [pageSizes, size],
+    () => [...new Set([...choices, size])].sort((a, b) => a - b),
+    [choices, size],
   );
 
   // Announce the DESTINATION after a change, never the initial state: the
@@ -218,7 +274,7 @@ export function DataListPager({
     <div
       ref={rootRef}
       data-slot="data-list-pager"
-      data-compact={compact ? "" : undefined}
+      data-layout={layout}
       className={cn(
         "flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2",
         className,
@@ -277,47 +333,89 @@ export function DataListPager({
         >
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious
-                text={compact ? "" : undefined}
-                aria-disabled={atStart || undefined}
-                className="aria-disabled:opacity-50"
-                onClick={(event) => {
-                  event.preventDefault();
-                  if (!atStart) onPageChange(current - 1);
-                }}
-              />
-            </PaginationItem>
-            {pagerWindow(current, pages, compact ? 0 : 1).map((item, index) =>
-              item === "ellipsis" ? (
-                <PaginationItem key={`ellipsis-${index}`}>
-                  <PaginationEllipsis />
-                </PaginationItem>
+              {layout === "full" ? (
+                <PaginationPrevious
+                  aria-disabled={atStart || undefined}
+                  className="aria-disabled:opacity-50"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (!atStart) onPageChange(current - 1);
+                  }}
+                />
               ) : (
-                <PaginationItem key={item}>
-                  <PaginationLink
-                    isActive={item === current}
-                    aria-label={`Go to page ${item}`}
-                    className="tabular-nums"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      if (item !== current) onPageChange(item);
-                    }}
-                  >
-                    {item}
-                  </PaginationLink>
-                </PaginationItem>
-              ),
+                // Narrow: a 32px icon end, not upstream's `default`-size
+                // Previous with its text emptied, which stayed ~34px wide.
+                <PaginationLink
+                  size="icon"
+                  aria-label="Go to previous page"
+                  aria-disabled={atStart || undefined}
+                  className="aria-disabled:opacity-50"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (!atStart) onPageChange(current - 1);
+                  }}
+                >
+                  <ChevronLeftIcon className="rtl:rotate-180" />
+                </PaginationLink>
+              )}
+            </PaginationItem>
+            {layout === "minimal" ? (
+              <PaginationItem>
+                <span
+                  data-slot="data-list-pager-position"
+                  className="px-2 text-sm whitespace-nowrap text-muted-foreground tabular-nums"
+                >
+                  Page {current} of {pages}
+                </span>
+              </PaginationItem>
+            ) : (
+              pagerWindow(current, pages, layout === "full" ? 1 : 0).map(
+                (item, index) =>
+                  item === "ellipsis" ? (
+                    <PaginationItem key={`ellipsis-${index}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={item}>
+                      <PaginationLink
+                        isActive={item === current}
+                        aria-label={`Go to page ${item}`}
+                        className="tabular-nums"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          if (item !== current) onPageChange(item);
+                        }}
+                      >
+                        {item}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ),
+              )
             )}
             <PaginationItem>
-              <PaginationNext
-                text={compact ? "" : undefined}
-                aria-disabled={atEnd || undefined}
-                className="aria-disabled:opacity-50"
-                onClick={(event) => {
-                  event.preventDefault();
-                  if (!atEnd) onPageChange(current + 1);
-                }}
-              />
+              {layout === "full" ? (
+                <PaginationNext
+                  aria-disabled={atEnd || undefined}
+                  className="aria-disabled:opacity-50"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (!atEnd) onPageChange(current + 1);
+                  }}
+                />
+              ) : (
+                <PaginationLink
+                  size="icon"
+                  aria-label="Go to next page"
+                  aria-disabled={atEnd || undefined}
+                  className="aria-disabled:opacity-50"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (!atEnd) onPageChange(current + 1);
+                  }}
+                >
+                  <ChevronRightIcon className="rtl:rotate-180" />
+                </PaginationLink>
+              )}
             </PaginationItem>
           </PaginationContent>
         </Pagination>

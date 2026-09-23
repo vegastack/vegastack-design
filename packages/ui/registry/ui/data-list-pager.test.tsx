@@ -186,9 +186,9 @@ test("a long run of pages collapses into a window with ellipses", async () => {
     .poll(() =>
       screen.container
         .querySelector('[data-slot="data-list-pager"]')!
-        .hasAttribute("data-compact"),
+        .getAttribute("data-layout"),
     )
-    .toBe(false);
+    .toBe("full");
   const labels = Array.from(
     screen.container.querySelectorAll('[data-slot="pagination-link"]'),
   )
@@ -206,7 +206,7 @@ test("a long run of pages collapses into a window with ellipses", async () => {
   ).toHaveLength(2);
 });
 
-test("a narrow container goes compact: no neighbours, icon-only ends, no horizontal overflow", async () => {
+test("a narrow container goes compact: no neighbours, icon-only ends (containment: geometry lane)", async () => {
   const screen = await render(
     <div style={{ width: "270px" }}>
       <Pager page={5} total={150} />
@@ -215,7 +215,7 @@ test("a narrow container goes compact: no neighbours, icon-only ends, no horizon
   const root = screen.container.querySelector<HTMLElement>(
     '[data-slot="data-list-pager"]',
   )!;
-  await expect.poll(() => root.hasAttribute("data-compact")).toBe(true);
+  await expect.poll(() => root.getAttribute("data-layout")).toBe("compact");
   const labels = Array.from(
     root.querySelectorAll('[data-slot="pagination-link"]'),
   )
@@ -229,7 +229,118 @@ test("a narrow container goes compact: no neighbours, icon-only ends, no horizon
   expect(next.textContent).toBe("");
   // Wide again: the neighbours come back.
   (root.parentElement as HTMLElement).style.width = "800px";
-  await expect.poll(() => root.hasAttribute("data-compact")).toBe(false);
+  await expect.poll(() => root.getAttribute("data-layout")).toBe("full");
+});
+
+test('below 240px the page list goes minimal: icon ends around "Page N of M"', async () => {
+  const onPageChange = vi.fn();
+  const screen = await render(
+    <div style={{ width: "204px" }}>
+      <Pager page={5} total={150} onPageChange={onPageChange} />
+    </div>,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-pager"]',
+  )!;
+  await expect.poll(() => root.getAttribute("data-layout")).toBe("minimal");
+  // No numbered page links at all — only the two named ends and the position.
+  expect(
+    Array.from(root.querySelectorAll('[data-slot="pagination-link"]')).map(
+      (a) => a.getAttribute("aria-label"),
+    ),
+  ).toEqual(["Go to previous page", "Go to next page"]);
+  expect(
+    root.querySelector('[data-slot="data-list-pager-position"]')?.textContent,
+  ).toBe("Page 5 of 10");
+  (
+    screen
+      .getByRole("button", { name: "Go to next page" })
+      .element() as HTMLElement
+  ).click();
+  expect(onPageChange).toHaveBeenLastCalledWith(6);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the server render declares the minimal layout — the one that fits everywhere", async () => {
+  const { renderToString } = await import("react-dom/server");
+  const html = renderToString(<Pager page={5} total={150} />);
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  expect(
+    doc
+      .querySelector('[data-slot="data-list-pager"]')
+      ?.getAttribute("data-layout"),
+  ).toBe("minimal");
+  expect(
+    doc.querySelector('[data-slot="data-list-pager-position"]')?.textContent,
+  ).toBe("Page 5 of 10");
+});
+
+/* ------------------------------------------------------------------ bad numbers */
+
+test.each([
+  ["NaN", Number.NaN],
+  ["undefined", undefined],
+  ["negative", -5],
+  ["Infinity", Number.POSITIVE_INFINITY],
+])("a %s total renders the empty state, never NaN", async (_label, total) => {
+  const screen = await render(
+    <Pager total={total as unknown as number} page={3} />,
+  );
+  expect(range(screen.container)).toBe("0 of 0");
+  expect(screen.container.textContent).not.toContain("NaN");
+  expect(
+    screen.getByRole("navigation", { name: "pagination" }).query(),
+  ).toBeNull();
+});
+
+test.each([
+  ["0", 0],
+  ["negative", -10],
+  ["NaN", Number.NaN],
+  ["undefined", undefined],
+])(
+  "a %s pageSize shows the first pageSizes entry and injects no option",
+  async (_label, pageSize) => {
+    const screen = await render(
+      <Pager pageSize={pageSize as unknown as number} total={40} />,
+    );
+    expect(range(screen.container)).toBe("1–15 of 40");
+    await expect
+      .poll(
+        () =>
+          screen.container.querySelector('[data-slot="select-value"]')
+            ?.textContent,
+      )
+      .toBe("15");
+    await userEvent.click(
+      screen.getByRole("combobox", { name: "Rows per page" }),
+    );
+    expect(
+      Array.from(document.querySelectorAll('[role="option"]')).map(
+        (option) => option.textContent,
+      ),
+    ).toEqual(["15", "30", "50"]);
+  },
+);
+
+test("a NaN page reads as page 1, and invalid pageSizes entries are dropped", async () => {
+  const screen = await render(
+    <Pager
+      page={Number.NaN}
+      pageSize={10}
+      pageSizes={[0, -1, Number.NaN, 10, 20]}
+      total={40}
+    />,
+  );
+  expect(range(screen.container)).toBe("1–10 of 40");
+  await userEvent.click(
+    screen.getByRole("combobox", { name: "Rows per page" }),
+  );
+  expect(
+    Array.from(document.querySelectorAll('[role="option"]')).map(
+      (option) => option.textContent,
+    ),
+  ).toEqual(["10", "20"]);
 });
 
 test("pagerWindow keeps first, last and the neighbours of the current page", () => {
