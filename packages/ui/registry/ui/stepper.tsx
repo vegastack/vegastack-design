@@ -1,4 +1,4 @@
-// @vegastack stepper@0.12.2 sha256-xX9eiQPh19hYpck2H7Zqws1WC/DzMh+SZ+WXROJTBH0=
+// @vegastack stepper@0.12.2 sha256-kP2hjEbFfrmcHQ5uQ0TFygsoR92PfHecF8PE9Zx5HUY=
 
 "use client";
 
@@ -106,7 +106,9 @@ export interface StepperStep {
  * reserved for `warning` and `error` so that it means "this needs you", not "this exists".
  */
 export const stepperNodeVariants = cva(
-  "flex shrink-0 items-center justify-center rounded-full border border-transparent font-medium tabular-nums transition-colors",
+  // `group/stepper-node` is the class output's own hook: a squeezed DataList keeps any element
+  // wearing this fixed-size circle whole, on whatever element the helper lands (data-table-parts).
+  "group/stepper-node flex shrink-0 items-center justify-center rounded-full border border-transparent font-medium tabular-nums transition-colors",
   {
     variants: {
       state: {

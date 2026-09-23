@@ -1,4 +1,4 @@
-// @vegastack chip@0.12.2 sha256-hNcKRtL5CnAbsXtMZTf0V5T2CVZ8TRFN0MPv9XVm898=
+// @vegastack chip@0.12.2 sha256-4k9S6mWRHvF+nwaTcaI6LzmM4+i9w6fmPYkj/ivQzx4=
 
 "use client";
 
@@ -77,10 +77,15 @@ const ACTIVE_NEUTRAL = "border-border bg-accent text-foreground";
  * The end padding is asymmetric on purpose: the remove control is a real 24×24 box (WCAG 2.5.8),
  * so the trailing edge only needs the gap left over after it, while the leading edge carries the
  * label's own optical padding.
+ *
+ * The height is a FLOOR (`min-h-*`), not a fixed box. A chip is one line by its own
+ * `whitespace-nowrap`, so it measures exactly 28 / 32px — but a squeezed DataList releases the text
+ * in its cells, and a label wrapped inside a fixed `h-7` spilled out of the pill (review round 4).
+ * With a floor the pill grows around the wrapped label instead.
  */
 const SIZE_CLASSES: Record<ChipSize, string> = {
-  sm: "h-7 gap-1 ps-2 pe-0.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3",
-  md: "h-8 gap-1 ps-2.5 pe-1 text-sm font-medium [&_svg:not([class*='size-'])]:size-3.5",
+  sm: "min-h-7 gap-1 ps-2 pe-0.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3",
+  md: "min-h-8 gap-1 ps-2.5 pe-1 text-sm font-medium [&_svg:not([class*='size-'])]:size-3.5",
 };
 
 /** Props accepted by `Chip`. */

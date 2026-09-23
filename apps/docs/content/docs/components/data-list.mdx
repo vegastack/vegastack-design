@@ -247,14 +247,31 @@ or the data change.
 
 The squeeze reaches inside a custom `render` too: the text in a cell wraps, whatever it says for
 itself, so a `truncate` span or a `whitespace-nowrap` row breaks across lines instead of ellipsing
-(an auto-layout table cannot truncate, so the ellipsis was never available there), and a `Badge`
-grows taller to hold its wrapped label. **Controls and fixed-size content are left whole**: a
-`Button` (whatever it renders as), a native `button`, `input`, `select` or `textarea`, an element
-with a control role, an `Avatar` and a `Kbd` keep their one-line label, because their height is
-fixed and a label wrapped inside one would spill out of it. The text around them breaks instead,
-and the row grows taller. An icon cannot shrink either. So keep the controls and fixed-size parts of
-every always-shown column small enough to fit, side by side, in the narrowest container you
-support; past that the table has nothing left to squeeze.
+(an auto-layout table cannot truncate, so the ellipsis was never available there). Parts that are
+text grow taller to hold a wrapped label: a `Badge` (and `badgeVariants()` on your own element, and
+`ToolCallChip`), a `Chip` or `Tag`, a link-variant `Button` (or `buttonVariants({ variant: "link" })`)
+and `EditableCell`'s value.
+
+**Controls and fixed-size content are never wrapped by the squeeze**, because their height is fixed
+and a label wrapped inside one would spill out of it. They are recognised by what reaches the DOM,
+whatever element carries it:
+
+- every other `Button`, and any element styled with `buttonVariants()`, `toggleVariants()`,
+  `navigationMenuTriggerStyle()`, `tabsListVariants()` or `stepperNodeVariants()`;
+- a native `button`, `input`, `select` or `textarea`, and an element with the role `button`,
+  `checkbox`, `combobox`, `radio`, `slider`, `spinbutton`, `switch` or `tab`;
+- an `Avatar` and a `Kbd`.
+
+These keep the one-line posture they give themselves (every VegaStack control sets one), and an
+`Avatar`, a `Kbd` and a stepper node are held on one line and at full width. An unstyled `button` or
+`role="button"` element has no fixed box, so it simply wraps with its cell. The text around a kept
+part breaks instead, and the row grows taller. An icon cannot shrink either.
+
+**A kept part wider than the container is the one thing the squeeze cannot fit.** Controls are never
+wrapped, so keep the controls and fixed-size parts of every always-shown column small enough to fit,
+side by side on one line, in the narrowest container you support; an outline `Button` whose label
+alone is wider than the table leaves it nothing to squeeze, and the table scrolls sideways. Put
+long text in a link-variant `Button` or a plain `<a>`, which wrap.
 
 **A merged value always wraps.** It does not inherit the first column's posture: under a `mono` or
 `align: "end"` first column (both one line by default) every stacked value still breaks inside the

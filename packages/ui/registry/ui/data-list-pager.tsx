@@ -1,4 +1,4 @@
-// @vegastack data-list-pager@0.12.2 sha256-U+uBe7D+VwwDA/IYpKpE3NPpTTRrubSAQzVjzWxqeTg=
+// @vegastack data-list-pager@0.12.2 sha256-ufRQRpW4FLP/f4oiJaV7e5yqsMkyeoNhzYNab4yaVLo=
 
 "use client";
 
@@ -240,7 +240,10 @@ export function DataListPager({
   // declared server answer is MINIMAL — the layout that fits everywhere, so an
   // unmeasured pager never overflows. The layout effect corrects it before
   // first paint.
-  const [measureRef, width] = useContainerWidth();
+  // `exact`: the fit below has zero slack, so its trigger must too. The
+  // table's 1px quantization kept a 242px verdict at 241 and 240.5px, with
+  // Next up to 0.86px outside (review round 4).
+  const [measureRef, width] = useContainerWidth({ exact: true });
   const rootNode = React.useRef<HTMLDivElement | null>(null);
   const rootRef = React.useMemo(
     () => mergeRefs<HTMLDivElement>(measureRef, rootNode, ref),
@@ -292,6 +295,15 @@ export function DataListPager({
   // step down one rung. The verdict is keyed by identity to the inputs that
   // move the list's width and re-taken only when one changes — never by
   // re-measuring its own result — so it cannot oscillate at a boundary.
+  //
+  // The page list's CONTENT can widen with no change to any of those inputs —
+  // a web font swapping in, a stylesheet's letter-spacing — so every element
+  // in the page list is watched too, and a change in one's size re-takes the
+  // check. That
+  // re-check can only step further DOWN (it is not part of `fitKey`, so it
+  // never resets the steps), which bounds it at the last rung: it cannot
+  // oscillate either: a new rung's items re-take it once more, and settle.
+  const [contentChanges, setContentChanges] = React.useState(0);
   const fitKey = React.useMemo(
     () => ({}),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the identity IS the signal
@@ -325,7 +337,21 @@ export function DataListPager({
       root.scrollWidth > root.clientWidth
     )
       setStepsDown({ for: fitKey, steps: steps + 1 });
-  }, [fitKey, steps, rungIndex, width]);
+  }, [fitKey, steps, rungIndex, width, contentChanges]);
+  React.useLayoutEffect(() => {
+    const nav = rootNode.current?.querySelector(
+      '[data-slot="data-list-pager-nav"]',
+    );
+    if (!nav) return;
+    // Any notification re-takes the check, the first one included: a baseline
+    // taken from the first notification could already hold the widened size
+    // (a font that lands between the render and the observer's first frame).
+    const observer = new ResizeObserver(() => setContentChanges((n) => n + 1));
+    // Every element in the list, not just its items: a flex item can hold its
+    // box while the link inside it outgrows it.
+    for (const part of nav.querySelectorAll("*")) observer.observe(part);
+    return () => observer.disconnect();
+  }, [rung, current, pages]);
 
   return (
     <div

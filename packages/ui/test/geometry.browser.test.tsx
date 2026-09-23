@@ -2,10 +2,29 @@ import "./geometry.css"; // compiled Tailwind + @vegastack token theme (Vite via
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { page } from "vitest/browser";
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  expect,
+  onTestFinished,
+  test,
+  vi,
+} from "vitest";
 import * as Preview from "@/components/preview";
-import { Badge } from "../registry/ui/badge";
-import { Button } from "../registry/ui/button";
+import { Avatar, AvatarFallback } from "../registry/ui/avatar";
+import { Badge, badgeVariants } from "../registry/ui/badge";
+import { Button, buttonVariants } from "../registry/ui/button";
+import { Checkbox } from "../registry/ui/checkbox";
+import { Chip } from "../registry/ui/chip";
+import { EditableCell } from "../registry/ui/editable-cell";
+import { Kbd } from "../registry/ui/kbd";
+import { navigationMenuTriggerStyle } from "../registry/ui/navigation-menu";
+import { stepperNodeVariants } from "../registry/ui/stepper";
+import { Switch } from "../registry/ui/switch";
+import { Tag, TagGroup } from "../registry/ui/tag-group";
+import { Toggle, toggleVariants } from "../registry/ui/toggle";
+import { ToolCallChip } from "../registry/ui/tool-call-chip";
 import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
 import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
@@ -1584,6 +1603,282 @@ for (const [label, columns, clickable] of SQUEEZE_CONTROL_CASES)
         }
       });
 
+/**
+ * The squeeze across everything a cell can hold (review round 4). Round 3 keyed the "keep it whole"
+ * exclusion on tags, roles and slots, so `<a className={buttonVariants()}>` — the documented
+ * link-as-button — carried none of them and wrapped inside its `h-7` box; `badgeVariants()` on an
+ * anchor never got the Badge's `h-auto`; a Kbd inherited the cell's `wrap-anywhere` and broke `⌘K`
+ * in two; a Chip's fixed `h-7` spilled its wrapped label. And the kept cases that are really TEXT
+ * — a link-variant Button, EditableCell's display — stopped spilling but scrolled the table
+ * sideways (394 and 416px in 240). Each render sits in the LAST visible column beside a long
+ * nowrap email that forces the squeeze, where a Checkbox's or Switch's 24px target also used to
+ * poke past the table and scroll it (10px and 3px).
+ *
+ * Two assertions, together: no text leaves any box it sits in (measured from the text's own line
+ * rects, so a hit-area pseudo-element cannot fake a spill), and the table container does not
+ * scroll.
+ */
+const SQUEEZE_NAME = "Ada Lovelace-Byron of the Analytical Engine Society";
+const SQUEEZE_CONTENT: [string, () => React.ReactNode][] = [
+  [
+    "a Button",
+    () => (
+      <Button size="sm" variant="outline">
+        View details
+      </Button>
+    ),
+  ],
+  [
+    "an anchor wearing buttonVariants",
+    () => (
+      <a
+        href="#"
+        className={buttonVariants({ variant: "outline", size: "sm" })}
+      >
+        View invoice details
+      </a>
+    ),
+  ],
+  [
+    "an anchor wearing badgeVariants",
+    () => (
+      <a href="#" className={badgeVariants({ variant: "secondary" })}>
+        {SQUEEZE_NAME}
+      </a>
+    ),
+  ],
+  ["a Badge", () => <Badge variant="secondary">{SQUEEZE_NAME}</Badge>],
+  [
+    "a link Button rendered as an anchor",
+    () => (
+      <Button variant="link" render={<a href="#" />} nativeButton={false}>
+        {SQUEEZE_NAME}
+      </Button>
+    ),
+  ],
+  [
+    "a native link Button",
+    () => <Button variant="link">{SQUEEZE_NAME}</Button>,
+  ],
+  [
+    "an anchor wearing the link buttonVariants",
+    () => (
+      <a href="#" className={buttonVariants({ variant: "link" })}>
+        {SQUEEZE_NAME}
+      </a>
+    ),
+  ],
+  [
+    "an EditableCell",
+    () => (
+      <EditableCell value={SQUEEZE_NAME} onCommit={() => {}} label="Name" />
+    ),
+  ],
+  [
+    "an anchor wearing toggleVariants",
+    () => (
+      <a
+        href="#"
+        className={toggleVariants({ variant: "outline", size: "sm" })}
+      >
+        Pin this row
+      </a>
+    ),
+  ],
+  ["a Toggle", () => <Toggle size="sm">Pin row</Toggle>],
+  [
+    "an anchor wearing navigationMenuTriggerStyle",
+    () => (
+      <a href="#" className={navigationMenuTriggerStyle()}>
+        Open page
+      </a>
+    ),
+  ],
+  [
+    "a span wearing stepperNodeVariants",
+    () => <span className={stepperNodeVariants({ size: "sm" })}>100</span>,
+  ],
+  ["a Chip", () => <Chip>{SQUEEZE_NAME}</Chip>],
+  [
+    "a TagGroup",
+    () => (
+      <TagGroup aria-label="Tags">
+        <Tag>{SQUEEZE_NAME}</Tag>
+        <Tag>Finance</Tag>
+      </TagGroup>
+    ),
+  ],
+  [
+    "a ToolCallChip",
+    () => <ToolCallChip label={SQUEEZE_NAME} meta="3 rows in 495ms" />,
+  ],
+  [
+    "an Avatar and a Kbd beside text",
+    () => (
+      <span className="flex items-center gap-1">
+        <Avatar className="size-6">
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Kbd>⌘K</Kbd>
+        {SQUEEZE_NAME}
+      </span>
+    ),
+  ],
+  // Directly in the cell, so it inherits the squeezed cell's `whitespace-normal` and
+  // `wrap-anywhere`. (Inside a consumer's own flex row, an unsqueezed Kbd with a space in it
+  // shrinks to its `min-w-5` and wraps anywhere — upstream Kbd's own behaviour, not DataList's.)
+  ["a Kbd", () => <Kbd>Ctrl K</Kbd>],
+  ["a Checkbox", () => <Checkbox aria-label="Pick" />],
+  ["a Switch", () => <Switch aria-label="Active" />],
+  [
+    "a role=button span",
+    () => (
+      <span role="button" tabIndex={0}>
+        {SQUEEZE_NAME}
+      </span>
+    ),
+  ],
+  ["a plain link", () => <a href="#">{SQUEEZE_NAME}</a>],
+];
+
+/** Every line of text in a table body that leaves a box it sits in, up to its cell. */
+function textSpills(root: ParentNode): string[] {
+  const problems: string[] = [];
+  for (const body of root.querySelectorAll('[data-slot="data-list"] tbody')) {
+    const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!node.textContent?.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const lines = Array.from(range.getClientRects());
+      for (
+        let box = node.parentElement;
+        box && box.tagName !== "TD";
+        box = box.parentElement
+      ) {
+        // A visually-hidden label is clipped to 1px on purpose.
+        if (
+          getComputedStyle(box).position === "absolute" &&
+          box.getBoundingClientRect().width <= 1
+        )
+          break;
+        const rect = box.getBoundingClientRect();
+        for (const line of lines)
+          if (
+            line.top < rect.top - 1 ||
+            line.bottom > rect.bottom + 1 ||
+            line.left < rect.left - 1 ||
+            line.right > rect.right + 1
+          )
+            problems.push(
+              `${describe(box)} "${node.textContent.slice(0, 16)}": a line at ` +
+                `${line.left.toFixed(0)}..${line.right.toFixed(0)} × ${line.top.toFixed(0)}..${line.bottom.toFixed(0)} ` +
+                `leaves ${rect.left.toFixed(0)}..${rect.right.toFixed(0)} × ${rect.top.toFixed(0)}..${rect.bottom.toFixed(0)}`,
+            );
+      }
+    }
+  }
+  return [...new Set(problems)];
+}
+
+for (const [label, content] of SQUEEZE_CONTENT)
+  for (const width of [240, 320, 700])
+    for (const dir of ["ltr", "rtl"] as const)
+      test(`DataList at ${width}px squeezes ${label} without a spill or a scroll, ${dir}`, async () => {
+        if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+        try {
+          const screen = await render(
+            <div style={{ width: `${width}px` }}>
+              <DataList
+                aria-label="Invoices"
+                columns={[
+                  nowrapEmail(),
+                  {
+                    key: "x",
+                    // One letter, so a lone control's cell is as narrow as the control itself.
+                    header: "X",
+                    mobile: "visible",
+                    interactive: true,
+                    render: content,
+                  },
+                ]}
+                data={INVOICES}
+                getRowId={(row) => row.id}
+              />
+            </div>,
+          );
+          await settle();
+          // 240 and 320px are squeezed by the long email; 700px may not be, and must hold too.
+          if (width < 700)
+            await expect
+              .poll(() =>
+                screen.container
+                  .querySelector('[data-slot="data-list"]')
+                  ?.hasAttribute("data-squeezed"),
+              )
+              .toBe(true);
+          await expect
+            .poll(() => textSpills(screen.container), {
+              message: `${label} @${width} ${dir}: ${textSpills(screen.container).join("; ")}`,
+            })
+            .toEqual([]);
+          await expectDataSurfacesContained(
+            `${label} @${width} ${dir}`,
+            screen.container,
+            "",
+          );
+        } finally {
+          document.documentElement.removeAttribute("dir");
+        }
+      });
+
+/**
+ * The one case the squeeze cannot fit, asserted AS the exception so the docs' sentence stays true:
+ * a control is kept on one line, so a control whose label alone is wider than the container
+ * leaves the table nothing to squeeze. It scrolls — and the Button still holds its label.
+ */
+for (const dir of ["ltr", "rtl"] as const)
+  test(`DataList keeps a Button wider than its container whole, and only then scrolls, ${dir}`, async () => {
+    if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+    try {
+      const screen = await render(
+        <div style={{ width: "240px" }}>
+          <DataList
+            aria-label="Invoices"
+            columns={[
+              { key: "customer", header: "Customer" },
+              {
+                key: "x",
+                header: "Action",
+                mobile: "visible",
+                interactive: true,
+                render: () => (
+                  <Button size="sm" variant="outline">
+                    Download the full remittance advice for this invoice
+                  </Button>
+                ),
+              },
+            ]}
+            data={INVOICES}
+            getRowId={(row) => row.id}
+          />
+        </div>,
+      );
+      await settle();
+      const container = screen.container.querySelector<HTMLElement>(
+        '[data-slot="table-container"]',
+      )!;
+      const button = screen.container.querySelector<HTMLElement>(
+        '[data-slot="data-list"] tbody [data-slot="button"]',
+      )!;
+      await expect.poll(() => controlSpills(screen.container)).toEqual([]);
+      expect(button.getBoundingClientRect().width).toBeGreaterThan(240);
+      expect(container.scrollWidth).toBeGreaterThan(container.clientWidth);
+    } finally {
+      document.documentElement.removeAttribute("dir");
+    }
+  });
+
 test("a mono first column's merged values wrap in their own face (compiled CSS)", async () => {
   const screen = await render(
     <div style={{ width: "320px" }}>{DATA_LIST_CASES[0]![1]()}</div>,
@@ -1679,6 +1974,135 @@ for (const { label, page, total } of PAGER_COUNTS)
         }
       });
     }
+
+/**
+ * The fit is re-taken on EVERY change that moves the page list, not only on a width the table's
+ * column hook would notice (review round 4). That hook ignores changes of 1px or less (a guard
+ * against revelation re-firing itself), so a 100-page pager resized 242 → 241px kept the compact
+ * list with Next 0.36px outside, and 0.86px at 240.5px. And content that widens with no width
+ * change at all — a web font swapping in, letter-spacing — was never re-measured: 0.4px of
+ * letter-spacing left an item 0.56px outside at 242px (1px here, so the fixture overflows
+ * whatever the host's font metrics).
+ */
+function mountPager(width: string) {
+  return render(
+    <div style={{ width }}>
+      <DataListPager
+        page={3}
+        pageSize={15}
+        total={1_500}
+        onPageChange={() => {}}
+        onPageSizeChange={() => {}}
+      />
+    </div>,
+  );
+}
+
+for (const dir of ["ltr", "rtl"] as const) {
+  test(`DataListPager re-fits on a sub-pixel resize: 242 → 241 → 240.5px, 100 pages, ${dir}`, async () => {
+    if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+    try {
+      const screen = await mountPager("242px");
+      const host = screen.container.firstElementChild as HTMLElement;
+      for (const width of ["242px", "241px", "240.5px"]) {
+        host.style.width = width;
+        await settle();
+        await expectDataSurfacesContained(
+          `pager@${width} ${dir}`,
+          screen.container,
+          "",
+        );
+      }
+    } finally {
+      document.documentElement.removeAttribute("dir");
+    }
+  });
+
+  for (const [label, rule] of [
+    ["1px of letter-spacing", "letter-spacing: 1px !important"],
+    ["a wider font swapped in", "font-family: Verdana, monospace !important"],
+  ] as const)
+    test(`DataListPager re-fits when its content widens at a fixed width — ${label}, ${dir}`, async () => {
+      if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+      try {
+        const screen = await mountPager("242px");
+        const pager = screen.container.querySelector<HTMLElement>(
+          '[data-slot="data-list-pager"]',
+        )!;
+        await expect
+          .poll(() => pager.getAttribute("data-layout"))
+          .toBe("compact");
+        await expectDataSurfacesContained(
+          `pager@242 ${dir}`,
+          screen.container,
+          "",
+        );
+        // The width does not move; only the page list's own content does — a stylesheet
+        // arriving, as a web font's metrics do, with no React render and no resize of the pager.
+        const sheet = document.createElement("style");
+        // Scoped to the page list: the range and the rows-per-page line are the pager's
+        // documented unbreakable floor, not what this case measures.
+        sheet.textContent = `[data-slot="data-list-pager-nav"] * { ${rule} }`;
+        document.head.append(sheet);
+        onTestFinished(() => sheet.remove());
+        await settle();
+        await expectDataSurfacesContained(
+          `pager@242 ${label} ${dir}`,
+          screen.container,
+          "",
+        );
+      } finally {
+        document.documentElement.removeAttribute("dir");
+      }
+    });
+}
+
+/**
+ * Re-fitting on every resize must still settle. The pager's width can depend on its own layout —
+ * a pager in a shrink-to-fit host narrows when it steps down — so each case waits for the layout
+ * to land and then watches the subtree for 20 frames: a pager that oscillated between two layouts
+ * would keep rewriting it.
+ */
+for (const [label, hostStyle] of [
+  ["a shrink-to-fit host", { display: "inline-block", maxWidth: "242px" }],
+  ["a 240.5px host", { width: "240.5px" }],
+  ["a 241px host", { width: "241px" }],
+  ["a 479.5px host", { width: "479.5px" }],
+] as const)
+  test(`DataListPager settles in ${label} and never oscillates`, async () => {
+    const screen = await render(
+      <div style={hostStyle}>
+        <DataListPager
+          page={3}
+          pageSize={15}
+          total={1_500}
+          onPageChange={() => {}}
+          onPageSizeChange={() => {}}
+        />
+      </div>,
+    );
+    const pager = screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-list-pager"]',
+    )!;
+    for (let frame = 0; frame < 5; frame++) await settle();
+    let mutations = 0;
+    const observer = new MutationObserver((records) => {
+      mutations += records.length;
+    });
+    observer.observe(pager, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+    for (let frame = 0; frame < 20; frame++) await settle();
+    observer.disconnect();
+    expect(mutations, `${label}: the pager kept re-laying itself out`).toBe(0);
+    await expectDataSurfacesContained(
+      `pager in ${label}`,
+      screen.container,
+      "",
+    );
+  });
 
 test("DataListPager steps down a layout for a long page count, and back up when it has room", async () => {
   const screen = await render(

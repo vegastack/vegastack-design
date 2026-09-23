@@ -55,13 +55,21 @@ test("cells WRAP by default; figures and mono values opt in to nowrap (D18)", ()
 
 /**
  * What the squeeze's descendant release skips: controls and fixed-size content, and everything
- * inside them (a wrapped label spilled a Button's fixed height — review round 3). DataList's own
- * row-action wrapper and the sort header are buttons that HOLD wrapping text, so they stay released.
+ * inside them (a wrapped label spilled a Button's fixed height — review round 3). It is keyed on
+ * the variant helpers' CLASS OUTPUT too, because `<a className={buttonVariants()}>` carries no
+ * slot and no role and spilled its `h-7` box (review round 4). DataList's own row-action wrapper,
+ * the sort header, a link-variant button and EditableCell's display HOLD wrapping text, so they
+ * stay released.
  */
+const NOT_TEXT =
+  "[data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']";
 const SQUEEZE_KEEP =
-  ":is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select," +
-  "textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider]," +
-  "[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd])";
+  `:is(button:not(${NOT_TEXT}),input,select,textarea,` +
+  "[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline'])," +
+  "[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab]," +
+  `[class~='group/button']:not(${NOT_TEXT}),[class~='group/toggle'],` +
+  "[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node']," +
+  "[data-slot=avatar],[data-slot=kbd])";
 
 test("columnCellClass carries alignment, wrap posture and the mono face", () => {
   // The wrap posture is spelled out in BOTH directions since Batch 5 of the shadcn reset: upstream's
@@ -71,7 +79,14 @@ test("columnCellClass carries alignment, wrap posture and the mono face", () => 
     "text-start whitespace-normal in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
       `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:whitespace-normal ` +
       `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:wrap-anywhere ` +
-      "in-data-squeezed:**:data-[slot=badge]:h-auto",
+      // Fixed-size content that states no posture of its own is put back on one line: the cell's
+      // wrap posture INHERITS into it (a Kbd broke `⌘K` in two inside its 20px box).
+      "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:whitespace-nowrap " +
+      "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:shrink-0 " +
+      "in-data-squeezed:**:[&[class~='group/badge']]:h-auto " +
+      "in-data-squeezed:**:[&[class~='group/button'][class~='hover:underline']]:h-auto " +
+      "in-data-squeezed:**:[&[class~='group/button'][class~='hover:underline']]:min-h-6 " +
+      "last:has-[[role=checkbox],[role=switch],[role=radio]]:pe-3",
   );
   expect(columnCellClass({ key: "amount", align: "end" })).toContain(
     "whitespace-nowrap",
@@ -98,6 +113,81 @@ test("mergedValueClass wraps whatever the column's own posture, in the column's 
   }
   expect(mergedValueClass({ key: "b", mono: true })).toContain("font-mono");
   expect(mergedValueClass({ key: "a" })).toContain("font-sans");
+});
+
+/** Every registry source, as text, for the variant-helper census below. */
+const REGISTRY_SOURCES = import.meta.glob<string>(
+  ["./*.tsx", "!./*.test.tsx"],
+  {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  } as { eager: true },
+);
+
+/**
+ * Exported variant helpers whose fixed box holds only an icon — never a label, so wrapping cannot
+ * spill them. Each entry names why; anything else with a fixed height must be kept by the squeeze.
+ */
+const ICON_ONLY_HELPERS: Record<string, string> = {
+  statusIconVariants: "sizes a status glyph; it renders no text",
+};
+
+test("the squeeze keeps every exported variant helper with a fixed box, by its class output", () => {
+  // The census: every `cva` helper a registry file EXPORTS whose class output fixes a height or a
+  // size (`h-N`, `size-N`, under any variant). A consumer can put that output on any element — the
+  // docs prescribe `<a className={buttonVariants()}>` — so the squeeze must recognise the output
+  // itself, not a slot or a role that element may not carry (review round 4).
+  const kept = columnCellClass({ key: "x" });
+  const census: string[] = [];
+  const missing: string[] = [];
+  for (const [file, source] of Object.entries(REGISTRY_SOURCES)) {
+    for (const match of source.matchAll(/const\s+(\w+)\s*=\s*cva\(/g)) {
+      const name = match[1]!;
+      const exported = new RegExp(
+        `export\\s+const\\s+${name}\\b|export\\s*\\{[^}]*\\b${name}\\b`,
+      ).test(source);
+      if (!exported) continue;
+      let depth = 0;
+      let end = match.index! + match[0].length - 1;
+      for (let i = end; i < source.length; i++) {
+        if (source[i] === "(") depth++;
+        else if (source[i] === ")" && --depth === 0) {
+          end = i;
+          break;
+        }
+      }
+      const body = source.slice(match.index, end);
+      // A class token whose utility fixes the element's OWN height — under any variant, except one
+      // that targets descendants (`[&_svg]:size-4` sizes an icon, not the box).
+      const fixed = body
+        .split(/[\s"`]+/)
+        .some(
+          (token) =>
+            /(?:^|:)(?:h|size)-(?:\d|\[)/.test(token) && !/\[&|\*:/.test(token),
+        );
+      if (!fixed) continue;
+      census.push(name);
+      if (ICON_ONLY_HELPERS[name]) continue;
+      const hook = /group\/[\w-]+/.exec(body)?.[0];
+      // Released-and-grown (the badge) or kept whole: either way the helper's own hook is named.
+      if (!hook || !kept.includes(`[class~='${hook}']`))
+        missing.push(`${file} ${name} (${hook ?? "no group/ hook"})`);
+    }
+  }
+  expect(missing).toEqual([]);
+  // The census itself is live: if the scan stopped matching, this test would pass vacuously.
+  expect(census).toEqual(
+    expect.arrayContaining([
+      "badgeVariants",
+      "buttonVariants",
+      "navigationMenuTriggerStyle",
+      "statusIconVariants",
+      "stepperNodeVariants",
+      "tabsListVariants",
+      "toggleVariants",
+    ]),
+  );
 });
 
 test("offscreenSortSummary states a sort only once its column has left the header row", () => {
