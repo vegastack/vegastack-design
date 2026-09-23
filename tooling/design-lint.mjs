@@ -156,8 +156,10 @@ const RULES = [
   // and the floating sidebar's `ring-sidebar-border` through (review round 1, 2026-09-23); the
   // second missed bare `ring` and `inset-ring` (round 2).
   //
-  // Bare `ring` is also an English word ("never a ring"), so that one spelling is matched only
-  // inside a string literal on the line (`alsoInStrings`), with comments masked first.
+  // Bare `ring` is also an English word ("never a ring") and a token NAME (`["border", "ring"]`),
+  // so that one spelling is matched only inside a string literal on the line (`alsoInStrings`),
+  // with comments masked first, and only in a CLASS string — one that carries another utility
+  // (a token with `-`, `:`, `/` or `[`) beside it: `ring ring-muted`, `inset-ring shadow-sm`.
   // Avatar's `ring-2 ring-background` is NOT this — it is the page-coloured gap between stacked
   // avatars in a group, a separator rather than an outline — and neither is a bare focus-ring
   // COLOUR such as `ring-sidebar-ring` (upstream's vestigial ring colour, painted by nothing since
@@ -168,7 +170,7 @@ const RULES = [
     re: /(?:^|[\s"'`:])(?:inset-)?ring-(?:1|px|\[1px\]|(?:foreground|border|black|white|input|sidebar-border)(?:\/[\w.[\]]+)?)(?=[\s"'`]|$)/,
     // Bare `ring` / `inset-ring` is also an English word, so it counts only INSIDE a string
     // literal on the line (a class string), never in a trailing comment or JSX prose.
-    alsoInStrings: /(?:^|[\s:])(?:inset-)?ring(?=\s|$)/,
+    alsoInStrings: bareRingClassString,
     msg: "surface ring outline (BRD-1): cards and floating surfaces draw `border border-border` (the sidebar `border-sidebar-border`), not a 1px `ring-*` box-shadow outline in any ink",
   },
   // TYP-15 — the ramp owns tracking; a component never restates it.
@@ -1356,17 +1358,32 @@ if (violations) {
 console.log("✓ design-lint: clean");
 
 /**
- * Does `re` match inside any string literal on `line`? Comments are masked first — a trailing
+ * Is `text` a class string with a bare `ring` or `inset-ring` token in it? Bare `ring` is the 1px
+ * width in Tailwind v4; it counts only beside another utility-shaped token, because alone it is as
+ * likely an English word or a token name as a class.
+ */
+function bareRingClassString(text) {
+  const tokens = text.split(/\s+/).filter(Boolean);
+  const bare = tokens.findIndex((token) =>
+    /^(?:[\w-]+(?:\[[^\]]*\])?:)*(?:inset-)?ring$/.test(token),
+  );
+  return (
+    bare !== -1 &&
+    tokens.some((token, index) => index !== bare && /[-:/[]/.test(token))
+  );
+}
+
+/**
+ * Does `test` hold for any string literal on `line`? Comments are masked first — a trailing
  * `// …` and a `/* … *\/` (JSX `{/* … *\/}` included) — and then only the contents of "…", '…'
  * and `…` literals are tested, so an English word in prose never reads as a class.
  */
-function stringLiteralsHit(line, re) {
+function stringLiteralsHit(line, test) {
   const code = line
     .replace(/\/\*.*?\*\//g, " ")
     .replace(/(^|[\s;,{}()])\/\/.*$/, "$1");
   for (const m of code.matchAll(/"([^"]*)"|'([^']*)'|`([^`]*)`/g)) {
-    re.lastIndex = 0;
-    if (re.test(m[1] ?? m[2] ?? m[3])) return true;
+    if (test(m[1] ?? m[2] ?? m[3])) return true;
   }
   return false;
 }

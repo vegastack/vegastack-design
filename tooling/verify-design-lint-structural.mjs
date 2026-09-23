@@ -515,6 +515,7 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <p>{"a multi-line literal mentioning max-h-40\\n\\nkeeps its blank lines: it is prose, not a class string"}</p>
     <div className="size-8 rounded-full ring-2 ring-background" />{/* avatar's stacking gap in a group — a separator in the page colour, not a surface outline (BRD-1) */}
     <div className="rounded-xl border border-border bg-card" />{/* the BRD-1 surface edge */}
+    <Swatches tokens={["border", "input", "ring"]} title="Add a ring" />{/* \`ring\` as a token NAME and as a word, not a class string (BRD-1) */}
     <div className="rounded-md ring-sidebar-ring ring-0" />{/* upstream's vestigial focus-ring COLOUR with no width, and a zeroed ring: neither draws an outline */}
     <p>{"Heads up! Saved."}</p>{/* prose ending in an exclamation mark is not a Tailwind \`!\` modifier */}
     <Close aria-label="Close toast" render={<Button size="icon-sm" />} />{/* the host names it with aria-label */}
@@ -540,7 +541,7 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
       `with no separating space is rejected, all 4 Tailwind \`!\` modifier forms and a changed ` +
       `exempt count are rejected, all 11 surface-ring spellings are rejected, an icon-only Button ` +
       `with an anonymous host is rejected while one carrying its own sr-only label is accepted; ` +
-      `the reviewed Textarea adapter passes, and with it 20 deliberate non-violations ` +
+      `the reviewed Textarea adapter passes, and with it 21 deliberate non-violations ` +
       `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
       `hover vocabulary, avatar's ring-2 gap, a border surface and prose ending in "!", plus all ` +
       `three spellings of naming an icon Button through its host`,
