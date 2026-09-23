@@ -395,6 +395,31 @@ test("BRD-1: the dialog surface draws a real border, not a ring outline", async 
   expectBorderNotRing(bySlot("dialog-content")!);
 });
 
+test("OVL-16: size defaults to default and keeps upstream's unconditional sm cap", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const popup = bySlot("dialog-content")!;
+  expect(popup.getAttribute("data-size")).toBe("default");
+  // Unconditional, so a consumer's `sm:max-w-*` className still merges over it.
+  expect(popup.className).toContain(" sm:max-w-sm ");
+});
+
+for (const [size, cap] of [
+  ["sm", "data-[size=sm]:sm:max-w-xs"],
+  ["lg", "data-[size=lg]:sm:max-w-2xl"],
+  ["xl", "data-[size=xl]:sm:max-w-5xl"],
+] as const) {
+  test(`OVL-16: size="${size}" publishes data-size and steps the width cap`, async () => {
+    const screen = await render(<Subject contentProps={{ size }} />);
+    await screen.getByRole("button", { name: "Open dialog" }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+    const popup = bySlot("dialog-content")!;
+    expect(popup.getAttribute("data-size")).toBe(size);
+    expect(popup.className).toContain(cap);
+  });
+}
+
 test("no a11y violations — closed", async () => {
   const screen = await render(<Subject />);
   await expectNoA11yViolations(screen.container);

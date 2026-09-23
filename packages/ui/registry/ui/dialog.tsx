@@ -1,4 +1,4 @@
-// @vegastack dialog@0.14.0 sha256-MBGykxbKm+nFl4IJuuG821jZNZBumxz6jyD4MKAoPSo=
+// @vegastack dialog@0.14.0 sha256-F+o+gQffeckTjM6EWYYy8HnhswuGTa42rkW4GmcvNaU=
 
 "use client";
 
@@ -61,9 +61,11 @@ function DialogContent({
   children,
   ref,
   showCloseButton = true,
+  size = "default",
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean;
+  size?: "sm" | "default" | "lg" | "xl";
 }) {
   const modal = React.useContext(DialogModalContext);
   const popupRef = useModalInert<HTMLDivElement>({
@@ -77,8 +79,9 @@ function DialogContent({
       <DialogPrimitive.Popup
         ref={popupRef}
         data-slot="dialog-content"
+        data-size={size}
         className={cn(
-          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className,
         )}
         {...props}

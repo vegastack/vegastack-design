@@ -7513,9 +7513,14 @@
         "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no size dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default", "lg", "xl"],
+            "evidence": "packages/ui/registry/ui/dialog.tsx: size prop (OVL-16)"
+          }
+        ]
       },
       "states": {
         "behavior": {
@@ -7623,6 +7628,10 @@
         },
         "DialogContent": {
           "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
             {
               "name": "data-slot",
               "values": ["dialog-close", "dialog-content"]

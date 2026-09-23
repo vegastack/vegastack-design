@@ -218,6 +218,36 @@ export function dialogScrollableContent(): ReactNode {
   );
 }
 
+export function dialogSizes(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="flex flex-wrap gap-2">
+        {(["sm", "default", "lg", "xl"] as const).map((size) => (
+          <Dialog key={size}>
+            <DialogTrigger render={<Button variant="outline" />}>
+              {size}
+            </DialogTrigger>
+            <DialogContent size={size}>
+              <DialogHeader>
+                <DialogTitle>size=&quot;{size}&quot;</DialogTitle>
+                <DialogDescription>
+                  The width cap steps with the size; below the sm breakpoint
+                  every size fills the viewport less a 1rem gutter.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose render={<Button variant="outline" />}>
+                  Close
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ))}
+      </div>
+    </Wrapper>
+  );
+}
+
 export function dialogRtl(): ReactNode {
   return (
     <Wrapper>
