@@ -41,8 +41,8 @@ import { Terminal } from "@/components/ui/terminal";
 ### Multi-line, custom prompt
 
 Each line is a plain string (a command) or `{ output: string }` (dimmed, no prompt glyph). The
-prompt glyph — the sanctioned "terminal prompt glyph" `--brand` marker role — defaults to `$` and
-is overridable.
+prompt glyph reads in the `brand-text` ink (it is a character, so it is held to text contrast, not
+the 3:1 the `--brand` marker fill meets), defaults to `$` and is overridable.
 
 <ComponentPreview
   name="terminalMultiline"

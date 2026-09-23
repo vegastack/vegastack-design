@@ -197,6 +197,9 @@ test("forwards searchInputProps to SearchInput and preserves placement", async (
     '[data-slot="filter-bar-search"]',
   ) as HTMLElement;
   expect(group.className).toContain("max-w-sm");
+  // RTL: pushed to the logical inline end, so it mirrors under a DirectionProvider.
+  expect(group.className.split(/\s+/)).toContain("ms-auto");
+  expect(group.className).not.toMatch(/(^|\s)ml-auto(\s|$)/);
   await expect
     .element(screen.getByRole("searchbox", { name: "Search" }))
     .toHaveAttribute("name", "query");
@@ -221,6 +224,12 @@ test("renders trailing content", async () => {
   await expect
     .element(screen.getByRole("button", { name: "Clear all" }))
     .toBeInTheDocument();
+  // With no search to push it, the trailing slot takes the logical inline-end push itself.
+  const trailing = document.querySelector(
+    '[data-slot="filter-bar-trailing"]',
+  ) as HTMLElement;
+  expect(trailing.className.split(/\s+/)).toContain("ms-auto");
+  expect(trailing.className).not.toMatch(/(^|\s)ml-auto(\s|$)/);
 });
 
 test("FilterChip computes a remove label from a string label", async () => {

@@ -172,6 +172,25 @@ test("presets select a date and close the popover", async () => {
   expect(onPick).toHaveBeenCalledWith(pinned);
 });
 
+test("RTL: the preset rail divides on its logical inline end, not the physical right", async () => {
+  await render(
+    <DatePicker presets={[{ label: "Pinned", date: new Date() }]} />,
+  );
+  (
+    document.querySelector('[data-slot="date-picker-trigger"]') as HTMLElement
+  ).click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="date-picker-presets"]'))
+    .not.toBeNull();
+  const rail = document.querySelector(
+    '[data-slot="date-picker-presets"]',
+  ) as HTMLElement;
+  const tokens = rail.className.split(/\s+/);
+  expect(tokens).toContain("border-e");
+  expect(tokens).toContain("max-sm:border-e-0");
+  expect(rail.className).not.toMatch(/(^|\s|:)border-[rl](-0)?(\s|$)/);
+});
+
 test("DatePicker forwards calendarProps to the inner Calendar", async () => {
   const screen = await render(
     <DatePicker
