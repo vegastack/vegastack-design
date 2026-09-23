@@ -1,5 +1,5 @@
 # component: dialog
-# decisions: A11Y-9, BRD-1, DOC-1, DOC-2, OVL-13
+# decisions: A11Y-9, BRD-1, DOC-1, DOC-2, OVL-13, OVL-16
 # hunks:
 #   OVL-13: `DialogPortal` reads `useInternalThemeScope()` and wraps its children in a
 #     `display: contents` element carrying that class, so a nested theme scope survives the jump
@@ -13,12 +13,17 @@
 #   BRD-1: `DialogContent` draws a real 1px `border border-border` instead of upstream's
 #     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
 #     border survives forced colours and matches `foundations/elevation`; nothing else moves.
+#   OVL-16: `DialogContent` takes `size?: "sm" | "default" | "lg" | "xl"` (default `"default"`)
+#     and reflects it as `data-size`, the axis `AlertDialogContent` already carries. `default` keeps
+#     upstream's `sm:max-w-sm` unconditionally, so a consumer's `sm:max-w-*` className still merges
+#     over it; `sm`, `lg` and `xl` step it to `max-w-xs`, `max-w-2xl` and `max-w-5xl` through
+#     `data-[size=…]` (approved by MK 23-09-2026, a consumer gap).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..e020389 100644
+index 0b42f3f..f3ef455 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -75,7 +80,7 @@ index 0b42f3f..e020389 100644
  }
  
  function DialogOverlay({
-@@ -32,29 +47,37 @@ function DialogOverlay({
+@@ -32,29 +47,40 @@ function DialogOverlay({
        data-slot="dialog-overlay"
        className={cn(
          "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
@@ -93,10 +98,12 @@ index 0b42f3f..e020389 100644
    children,
 +  ref,
    showCloseButton = true,
++  size = "default",
    ...props
  }: DialogPrimitive.Popup.Props & {
 -  showCloseButton?: boolean
 +  showCloseButton?: boolean;
++  size?: "sm" | "default" | "lg" | "xl";
  }) {
 +  const modal = React.useContext(DialogModalContext);
 +  const popupRef = useModalInert<HTMLDivElement>({
@@ -110,15 +117,16 @@ index 0b42f3f..e020389 100644
        <DialogPrimitive.Popup
 +        ref={popupRef}
          data-slot="dialog-content"
++        data-size={size}
          className={cn(
 -          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 -          className
-+          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +          className,
          )}
          {...props}
        >
-@@ -70,14 +93,13 @@ function DialogContent({
+@@ -70,14 +96,13 @@ function DialogContent({
                />
              }
            >
@@ -135,7 +143,7 @@ index 0b42f3f..e020389 100644
  }
  
  function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -87,7 +109,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -87,7 +112,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2", className)}
        {...props}
      />
@@ -144,7 +152,7 @@ index 0b42f3f..e020389 100644
  }
  
  function DialogFooter({
-@@ -96,14 +118,14 @@ function DialogFooter({
+@@ -96,14 +121,14 @@ function DialogFooter({
    children,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -161,7 +169,7 @@ index 0b42f3f..e020389 100644
        )}
        {...props}
      >
-@@ -114,7 +136,7 @@ function DialogFooter({
+@@ -114,7 +139,7 @@ function DialogFooter({
          </DialogPrimitive.Close>
        )}
      </div>
@@ -170,7 +178,7 @@ index 0b42f3f..e020389 100644
  }
  
  function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-@@ -123,11 +145,11 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+@@ -123,11 +148,11 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
        data-slot="dialog-title"
        className={cn(
          "font-heading text-base leading-none font-medium",
@@ -184,7 +192,7 @@ index 0b42f3f..e020389 100644
  }
  
  function DialogDescription({
-@@ -139,11 +161,11 @@ function DialogDescription({
+@@ -139,11 +164,11 @@ function DialogDescription({
        data-slot="dialog-description"
        className={cn(
          "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
@@ -198,7 +206,7 @@ index 0b42f3f..e020389 100644
  }
  
  export {
-@@ -157,4 +179,4 @@ export {
+@@ -157,4 +182,4 @@ export {
    DialogPortal,
    DialogTitle,
    DialogTrigger,

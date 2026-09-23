@@ -109,6 +109,15 @@ its own `overflow-y-auto` element so the header stays in view.
   file="components/preview/dialog.tsx"
 />
 
+### Size
+
+`size` on `DialogContent` steps the width cap from the `sm` breakpoint up: `sm` (`max-w-xs`),
+`default` (`max-w-sm`, upstream's width), `lg` (`max-w-2xl`) and `xl` (`max-w-5xl`), for a bulk-edit
+table or an attribute editor. The value is published as `data-size`, the same axis
+`AlertDialogContent` carries. Below `sm` every size fills the viewport less a 1rem gutter.
+
+<ComponentPreview name="dialogSizes" file="components/preview/dialog.tsx" />
+
 ### RTL
 
 The popup's position, its close button and its inner padding are written in logical properties, so
@@ -139,8 +148,8 @@ renders closed; open it from the trigger.
 `DialogDescription` add no props of their own — each accepts everything its Base UI part or its
 `div` accepts.
 
-Size is a `className`, not a prop: `DialogContent` ships `sm:max-w-sm` and a wider dialog overrides
-it (`className="sm:max-w-md"`).
+Width is the `size` prop on `DialogContent` (OVL-16). At `size="default"` the cap is a plain
+`sm:max-w-sm`, so a one-off `className="sm:max-w-md"` still overrides it; prefer a size step.
 
 ## Accessibility
 
@@ -182,6 +191,10 @@ Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
 - **BRD-1** — `DialogContent` draws a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+- **OVL-16** — `DialogContent` takes `size?: "sm" | "default" | "lg" | "xl"` (default `"default"`)
+  and reflects it as `data-size`, the axis `AlertDialogContent` already carries. `default` keeps
+  upstream's `sm:max-w-sm` unconditionally; `sm`, `lg` and `xl` step it to `max-w-xs`, `max-w-2xl`
+  and `max-w-5xl` through `data-[size=…]`. Approved by MK 23-09-2026 for a consumer gap.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — the repository formatter reflows the file and `registry-stamp.mjs` writes the
   provenance header the three-copy model needs; those hunks carry no decision of their own.

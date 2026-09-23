@@ -1190,7 +1190,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.14.0",
-        "integrity": "sha256-MBGykxbKm+nFl4IJuuG821jZNZBumxz6jyD4MKAoPSo="
+        "integrity": "sha256-F+o+gQffeckTjM6EWYYy8HnhswuGTa42rkW4GmcvNaU="
       }
     },
     {
