@@ -8720,7 +8720,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "min-w-0 inline-flex root; truncation is owned by the FieldInline leaf."
+        "rationale": "min-w-0 max-w-full inline-flex root and display; the display's inner text span truncates to the container and exposes the clipped value as its title (use-overflow)."
       },
       "motion": {
         "status": "observed",
@@ -8738,7 +8738,8 @@
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
-        "@vegastack/use-inline-edit"
+        "@vegastack/use-inline-edit",
+        "@vegastack/use-overflow"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",

@@ -1158,7 +1158,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.15.0",
-        "integrity": "sha256-uYqqC6QcgdQz7PN2CrRNqGVb5ChxnzkEKq3nRD1Q0zM="
+        "integrity": "sha256-xegOj/RBJu78H/Rf1OnGuOPLh4TurIgIqXtsbws+9t8="
       }
     },
     {
@@ -1350,7 +1350,8 @@
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
-        "@vegastack/use-inline-edit"
+        "@vegastack/use-inline-edit",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -1363,7 +1364,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.15.0",
-        "integrity": "sha256-2ppU6V4pDm/yZPwO3qKpd3thB0nJ25Llm4sQH1QdHhI="
+        "integrity": "sha256-lk3dsr+PxvKtAhWmxHLTjCe4ge3bbmKUptteSi6KW3o="
       }
     },
     {

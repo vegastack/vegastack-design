@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.15.0 sha256-uYqqC6QcgdQz7PN2CrRNqGVb5ChxnzkEKq3nRD1Q0zM=
+// @vegastack date-picker@0.15.0 sha256-xegOj/RBJu78H/Rf1OnGuOPLh4TurIgIqXtsbws+9t8=
 
 "use client";
 
@@ -328,6 +328,23 @@ export interface DatePickerProps {
    * @default undefined
    */
   "aria-label"?: string;
+  /**
+   * `id` for the trigger button, so a `FieldLabel htmlFor` (or any `<label for>`) names it and
+   * clicking the label opens the picker — the same binding every other form control takes.
+   * @default undefined
+   */
+  id?: string;
+  /**
+   * Ids of the elements describing the trigger — a `FieldDescription` or `FieldError`.
+   * @default undefined
+   */
+  "aria-describedby"?: string;
+  /**
+   * Marks the trigger invalid; the outline `Button` shows its destructive border, exactly as an
+   * invalid `Input` or `SelectTrigger` does inside a `Field data-invalid`.
+   * @default undefined
+   */
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"];
 }
 
 /**
@@ -353,6 +370,9 @@ export function DatePicker({
   align = "start",
   className,
   "aria-label": ariaLabel,
+  id,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
   const {
@@ -376,6 +396,9 @@ export function DatePicker({
             data-slot="date-picker-trigger"
             data-empty={value ? undefined : ""}
             aria-label={ariaLabel}
+            id={id}
+            aria-describedby={ariaDescribedBy}
+            aria-invalid={ariaInvalid}
             className={cn(
               // `w-full` like upstream's Input, Select trigger and Combobox trigger — a form
               // control takes its width from its parent. A fixed-width trigger overflowed a 320px
@@ -514,6 +537,23 @@ export interface DateRangePickerProps {
    * @default undefined
    */
   "aria-label"?: string;
+  /**
+   * `id` for the trigger button, so a `FieldLabel htmlFor` (or any `<label for>`) names it and
+   * clicking the label opens the picker — the same binding every other form control takes.
+   * @default undefined
+   */
+  id?: string;
+  /**
+   * Ids of the elements describing the trigger — a `FieldDescription` or `FieldError`.
+   * @default undefined
+   */
+  "aria-describedby"?: string;
+  /**
+   * Marks the trigger invalid; the outline `Button` shows its destructive border, exactly as an
+   * invalid `Input` or `SelectTrigger` does inside a `Field data-invalid`.
+   * @default undefined
+   */
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"];
 }
 
 /**
@@ -540,6 +580,9 @@ export function DateRangePicker({
   align = "start",
   className,
   "aria-label": ariaLabel,
+  id,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
 }: DateRangePickerProps) {
   const [open, setOpen] = React.useState(false);
   // react-day-picker may emit a same-day COMPLETE range on the first click. Closing from that
@@ -584,6 +627,9 @@ export function DateRangePicker({
             data-slot="date-range-picker-trigger"
             data-empty={value?.from ? undefined : ""}
             aria-label={ariaLabel}
+            id={id}
+            aria-describedby={ariaDescribedBy}
+            aria-invalid={ariaInvalid}
             className={cn(
               // `w-full` — see the single DatePicker's note above (audit B8-03).
               "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",

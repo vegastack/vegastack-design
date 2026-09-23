@@ -24,6 +24,24 @@ function Example() {
 }
 ```
 
+Inside a `Field`, give the trigger an `id` and point the `FieldLabel` at it, exactly as for an
+`Input`. `aria-describedby` and `aria-invalid` reach the trigger too, so a description, an error and
+the invalid border work the same way:
+
+```tsx
+<Field data-invalid={!!error}>
+  <FieldLabel htmlFor="due-date">Due date</FieldLabel>
+  <DatePicker
+    id="due-date"
+    value={date}
+    onValueChange={setDate}
+    aria-describedby="due-date-error"
+    aria-invalid={!!error}
+  />
+  <FieldError id="due-date-error">{error}</FieldError>
+</Field>
+```
+
 ## Anatomy
 
 `Date Picker` is a compound component. Every exported part, with the
@@ -230,7 +248,7 @@ Re-exported from `react-day-picker`. `DateRange` is the shape of a range `value`
 - Opening the picker moves focus into the calendar; arrow keys move day-to-day, and selection restores focus to the trigger. Pressing <kbd>Esc</kbd> closes the popover.
 - Opening a picker that sits below the fold does not scroll the page: the popover's day button focuses with `preventScroll`, because the portaled popup is still unpositioned on its first paint.
 - Focus is always visible — the trigger takes the global `:focus-visible` outline, and the day grid manages roving focus itself.
-- The trigger has no visible text label when empty beyond its placeholder, so pass `aria-label` (or wrap it in a `Field`) to name it for assistive tech.
+- The trigger has no visible text label when empty beyond its placeholder, so name it: pass `id` and a `FieldLabel htmlFor` pointing at it (clicking the label then opens the picker), or `aria-label` when there is no visible label. `aria-describedby` and `aria-invalid` are forwarded to the trigger on both pickers.
 
 | Key                                                 | Action                                                                    |
 | --------------------------------------------------- | ------------------------------------------------------------------------- |

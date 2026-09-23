@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.15.0 sha256-2ppU6V4pDm/yZPwO3qKpd3thB0nJ25Llm4sQH1QdHhI=
+// @vegastack editable-cell@0.15.0 sha256-lk3dsr+PxvKtAhWmxHLTjCe4ge3bbmKUptteSi6KW3o=
 
 "use client";
 
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useInlineEdit } from "@/components/ui/use-inline-edit";
+import { useOverflow } from "@/components/ui/use-overflow";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
 import {
   Select,
@@ -209,6 +210,10 @@ function InlineTextEditor({
 
   const hasDisplayValue = value.length > 0;
   const displayFallback = placeholder ?? "Edit value";
+  // A long value truncates to its container (a page title at 390px); when it is actually clipped,
+  // the full value is offered as the display's `title` — and opening the editor shows all of it.
+  const [textNode, setTextNode] = React.useState<HTMLSpanElement | null>(null);
+  const truncated = useOverflow(textNode, { deps: [value] }) && hasDisplayValue;
   // `readOnly` drops button semantics entirely; `disabled` keeps the role and the handlers (so the
   // control stays discoverable, and `useInlineEdit` guards it anyway) but is dimmed and untabbable.
   const isButton = !readOnly;
@@ -241,6 +246,8 @@ function InlineTextEditor({
       tabIndex={readOnly ? undefined : disabled ? -1 : tabIndex}
       aria-disabled={disabled ? true : undefined}
       aria-label={label ?? (hasDisplayValue ? undefined : displayFallback)}
+      title={truncated ? value : undefined}
+      data-truncated={truncated ? "" : undefined}
       onClick={isButton ? edit.start : undefined}
       onKeyDown={
         isButton
@@ -253,10 +260,10 @@ function InlineTextEditor({
           : undefined
       }
       className={cn(
-        // `min-h-8`, not `h-8`: the display is TEXT you can click, so a squeezed DataList wraps
-        // it rather than keeping it whole like a control, and the box grows with the wrapped
-        // value instead of spilling it (review round 4). Unsqueezed it is one line (`truncate`)
-        // and measures exactly 32px, as before.
+        // `min-h-8`, not `h-8`: the box grows with inherited heading type instead of clipping it.
+        // The value is ONE line (`truncate` on the inner span, `min-w-0` + `max-w-full` here and
+        // on the root), so a long value inside a constrained parent ends in an ellipsis rather
+        // than overflowing or wrapping; the clipped value is the `title` above.
         // No font size of its own: the display inherits the surrounding type (size, weight, line
         // height, tracking), so the same cell reads as body text in a table and as the title in a
         // page heading. At the 14px body default it is the same 14px text in the same 32px box.
@@ -268,6 +275,8 @@ function InlineTextEditor({
       )}
     >
       <span
+        ref={setTextNode}
+        data-slot="editable-cell-text"
         className={cn(
           "min-w-0 truncate",
           !hasDisplayValue && "text-muted-foreground",
