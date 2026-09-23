@@ -42,6 +42,12 @@ import {
   file="components/preview/navigation-menu.tsx"
 />
 
+A navigation menu is a desktop row. Its list does not wrap, and its panel is as wide as its content,
+clamped to the space beside the screen edge with anything wider clipped. Fitting a phone is the
+call site's job: size each panel responsively (`w-64 sm:w-96`, not a fixed `w-96`), hide secondary
+triggers below a breakpoint (`hidden sm:flex`), and below `sm` move the navigation into a `Sheet`.
+The demo above does the first two.
+
 ## Anatomy
 
 <Anatomy name="navigation-menu" />

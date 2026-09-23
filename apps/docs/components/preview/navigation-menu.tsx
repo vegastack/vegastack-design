@@ -82,7 +82,15 @@ function ListItem({
   );
 }
 
-/** Upstream's `NavigationMenuDemo`: three panels and a bare link styled as a trigger. */
+/**
+ * Upstream's `NavigationMenuDemo`: three panels and a bare link styled as a trigger.
+ *
+ * Two changes from upstream's demo, both for small screens, because a navigation menu is a desktop
+ * row: its list does not wrap, and its panel is as wide as its content, clipped at the available
+ * width. Upstream already hides "Components" below `md`; "With Icon" is hidden below `sm` too, so
+ * the row fits a 320px screen, and the first panel is `w-64` until `sm` instead of a fixed `w-96`,
+ * so its text is never cut off. Below `sm`, a real app puts this navigation in a Sheet.
+ */
 export function navigationMenu(): ReactNode {
   return (
     <Wrapper className="min-h-72 items-start justify-center pt-4">
@@ -91,7 +99,7 @@ export function navigationMenu(): ReactNode {
           <NavigationMenuItem>
             <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="w-96">
+              <ul className="w-64 sm:w-96">
                 <ListItem href="#" title="Introduction">
                   Re-usable components built with Tailwind CSS.
                 </ListItem>
@@ -120,7 +128,7 @@ export function navigationMenu(): ReactNode {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuItem>
+          <NavigationMenuItem className="hidden sm:flex">
             <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid w-[200px]">
@@ -245,7 +253,8 @@ const rtlComponents: { title: string; description: string }[] = [
  * Upstream's `NavigationMenuRtl`. Upstream drives the strings from its `language-selector` demo
  * hook; here they are inline and the direction comes from `DirectionProvider`, which is what Base
  * UI reads. `align` flips to `end` so the panel hangs from the right edge of the nav row, and `dir`
- * travels onto the content because the panel portals out of the `dir="rtl"` subtree.
+ * travels onto the content because the panel portals out of the `dir="rtl"` subtree. Both panels
+ * are `w-64` until `sm` rather than upstream's fixed `w-80`, so they fit a 320px screen.
  */
 export function navigationMenuRtl(): ReactNode {
   return (
@@ -256,7 +265,7 @@ export function navigationMenuRtl(): ReactNode {
             <NavigationMenuItem>
               <NavigationMenuTrigger>البدء</NavigationMenuTrigger>
               <NavigationMenuContent dir="rtl">
-                <ul className="w-80">
+                <ul className="w-64 sm:w-80">
                   <ListItem href="#" title="مقدمة">
                     مكونات قابلة لإعادة الاستخدام مبنية باستخدام Tailwind CSS.
                   </ListItem>
@@ -269,7 +278,7 @@ export function navigationMenuRtl(): ReactNode {
             <NavigationMenuItem>
               <NavigationMenuTrigger>المكونات</NavigationMenuTrigger>
               <NavigationMenuContent dir="rtl">
-                <ul className="grid w-80 gap-2">
+                <ul className="grid w-64 gap-2 sm:w-80">
                   {rtlComponents.map((component) => (
                     <ListItem
                       key={component.title}

@@ -11,6 +11,7 @@
       // them. Kept in step with that alias: a divergence would typecheck one module graph and
       // execute another.
       "@/components/preview": ["../../apps/docs/components/preview"],
+      "@/components/preview/*": ["../../apps/docs/components/preview/*"],
       // The preview fixtures import `cn` as the docs app spells it; the canonical binding is the
       // registry's own re-export. Same alias vitest.config.ts uses, same reason.
       "@/lib/cn": ["./registry/lib/utils"],

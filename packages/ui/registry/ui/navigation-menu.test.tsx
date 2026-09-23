@@ -1,7 +1,14 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { expect, onTestFinished, test } from "vitest";
+// The compiled lane stylesheet as a STRING, mounted only for the 320px docs-demo test below: every
+// other test here is structural and must not see real CSS.
+import geometryCss from "../../test/geometry.css?inline";
+import {
+  navigationMenu as navigationMenuDemo,
+  navigationMenuRtl as navigationMenuRtlDemo,
+} from "@/components/preview/navigation-menu";
 import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
 import navigationMenuSource from "./navigation-menu.tsx?raw";
@@ -446,3 +453,62 @@ test("no a11y violations — RTL", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+// A navigation menu is a desktop row: its list does not wrap and its panel is as wide as its
+// content, clamped to the available width with the overflow clipped (upstream's layout, which no
+// decision row changes). So what fits a 320px screen is the CALL SITE's job, and the docs demos are
+// the call site people copy: upstream's demo panels were a fixed `w-96`/`w-80` and its row carried
+// three triggers, so at 320px the row ran out of its card and the panel text was cut off.
+test.each([
+  ["the demo", navigationMenuDemo],
+  ["the RTL demo", navigationMenuRtlDemo],
+] as const)(
+  "%s fits a 320px screen: the row stays in its card and the panel is not clipped (docs)",
+  async (_label, demo) => {
+    await page.viewport(320, 700);
+    const sheet = document.createElement("style");
+    sheet.textContent = geometryCss;
+    document.head.append(sheet);
+    onTestFinished(() => sheet.remove());
+    const screen = await render(
+      <div style={{ width: 272 }}>{demo() as React.ReactElement}</div>,
+    );
+    const list = screen.container.querySelector<HTMLElement>(
+      '[data-slot="navigation-menu-list"]',
+    )!;
+    const card = list.closest<HTMLElement>(".not-prose")!;
+    const cardBox = card.getBoundingClientRect();
+    for (const item of list.querySelectorAll<HTMLElement>(
+      '[data-slot="navigation-menu-item"]',
+    )) {
+      const box = item.getBoundingClientRect();
+      if (box.width === 0) continue; // hidden below a breakpoint
+      expect(box.left).toBeGreaterThanOrEqual(cardBox.left);
+      expect(box.right).toBeLessThanOrEqual(cardBox.right);
+    }
+    await userEvent.click(
+      list.querySelector<HTMLElement>('[data-slot="navigation-menu-trigger"]')!,
+    );
+    await expect.poll(popup).not.toBeNull();
+    const viewport = popup()!.closest<HTMLElement>(
+      '[data-slot="navigation-menu-viewport"], .overflow-hidden',
+    )!;
+    // Wait out the open transition, then: nothing inside the panel is clipped by its viewport, and
+    // the panel's content lies on the screen.
+    await expect
+      .poll(() => {
+        // The content element itself is clamped with the popup; what overflows is its children.
+        const boxes = [...popup()!.querySelectorAll("*")].map((element) =>
+          element.getBoundingClientRect(),
+        );
+        const left = Math.min(...boxes.map((box) => box.left));
+        const right = Math.max(...boxes.map((box) => box.right));
+        const clip = viewport.getBoundingClientRect();
+        return JSON.stringify({
+          clipped: left < clip.left - 0.5 || right > clip.right + 0.5,
+          offscreen: left < -0.5 || right > 320.5,
+        });
+      })
+      .toBe(JSON.stringify({ clipped: false, offscreen: false }));
+  },
+);
