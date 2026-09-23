@@ -133,16 +133,23 @@ export interface DataListPagerProps extends Omit<
 const DEFAULT_PAGE_SIZES: readonly number[] = [15, 30, 50];
 
 /**
- * The three page-list layouts, widest first, and the pager width each needs.
+ * The page-list rungs, widest first, and the pager width each needs with
+ * page numbers of up to three digits.
  *
  * - `full` — the window with one neighbour either side of the current page
- *   (at most seven 32px slots) and labelled Previous/Next: about 480px.
- * - `compact` — no neighbours (at most five 32px slots) and 32px icon-only
+ *   (at most seven number slots) and labelled Previous/Next: about 480px.
+ * - `compact` — no neighbours (at most five number slots) and 32px icon-only
  *   ends: 7 × 32 + 6 × 2px gaps = 236px, so it needs 240.
  * - `minimal` — the icon-only ends around a "Page 3 of 12" label, about
- *   150px. It fits any pager of 200px or more (a 320px viewport's docs
- *   preview is 204px), and it is the declared server answer because it is
- *   the one layout that fits everywhere.
+ *   150px, and the declared server answer.
+ * - `minimal-short` — the same ends around "3 / 12". Its label is the one
+ *   part that may shrink, truncating as the very last resort, so the page
+ *   list fits any pager: the 64px of the two ends is its only fixed width.
+ *
+ * Width picks the starting rung. A number slot is at least 32px and grows to
+ * hold its number, so a four- or five-digit page count widens the list past
+ * what width alone predicts; the pager then MEASURES and steps down a rung
+ * until nothing overflows (see `DataListPager`).
  *
  * The page list never wraps: a wrapped run of page numbers reads as two
  * lists. It changes layout instead, and the range and the rows-per-page
@@ -151,13 +158,15 @@ const DEFAULT_PAGE_SIZES: readonly number[] = [15, 30, 50];
 const FULL_FROM = 480;
 const COMPACT_FROM = 240;
 
-/** Which page-list layout a pager of `width` px uses (`null`: unmeasured). */
-type PagerLayout = "full" | "compact" | "minimal";
-function pagerLayout(width: number | null): PagerLayout {
-  if (width == null) return "minimal";
-  if (width >= FULL_FROM) return "full";
-  if (width >= COMPACT_FROM) return "compact";
-  return "minimal";
+const RUNGS = ["full", "compact", "minimal", "minimal-short"] as const;
+type PagerRung = (typeof RUNGS)[number];
+
+/** The rung a pager of `width` px starts from (`null`: unmeasured). */
+function startingRung(width: number | null): number {
+  if (width == null) return RUNGS.indexOf("minimal");
+  if (width >= FULL_FROM) return RUNGS.indexOf("full");
+  if (width >= COMPACT_FROM) return RUNGS.indexOf("compact");
+  return RUNGS.indexOf("minimal");
 }
 
 /** A positive finite integer, or `null`. */
@@ -177,8 +186,12 @@ function positiveInteger(value: unknown): number | null {
  * events alive), and a page change announces the new range politely. The page
  * list follows the pager's own width (`data-layout`): `full` from 480px,
  * `compact` from 240px (no neighbours, icon-only ends), and `minimal` below
- * that (icon-only ends around "Page N of M"), so the pager fits any container
- * of 200px or more and never scrolls sideways.
+ * that (icon-only ends around "Page N of M"). A page count too long for the
+ * layout its width picks — four or five digits — steps down a layout, and at
+ * the last step the position shortens to "N / M" (`data-short`) and may
+ * truncate, while its accessible text stays "Page N of M". So the page list
+ * never scrolls sideways at any page count; below about 200px the range and
+ * the rows-per-page chooser, each one unbreakable line, are what overflow.
  *
  * Bad numbers render a sane state instead of `NaN`: a non-finite or negative
  * `total` is `0`, a non-finite `page` is `1`, and a `pageSize` that is not a
@@ -225,9 +238,9 @@ export function DataListPager({
   // unmeasured pager never overflows. The layout effect corrects it before
   // first paint.
   const [measureRef, width] = useContainerWidth();
-  const layout = pagerLayout(width);
+  const rootNode = React.useRef<HTMLDivElement | null>(null);
   const rootRef = React.useMemo(
-    () => mergeRefs<HTMLDivElement>(measureRef, ref),
+    () => mergeRefs<HTMLDivElement>(measureRef, rootNode, ref),
     [measureRef, ref],
   );
   // Sanitised once, here, so nothing below can print `NaN` or offer a bogus
@@ -269,6 +282,37 @@ export function DataListPager({
 
   const atStart = current <= 1;
   const atEnd = current >= pages;
+
+  // Width picks the starting rung; the page count can still overflow it (a
+  // five-digit number slot, a long "Page N of M"). Measured in a layout
+  // effect, so each step lands before paint: while the page list overflows,
+  // step down one rung. The verdict is keyed by identity to the inputs that
+  // move the list's width and re-taken only when one changes — never by
+  // re-measuring its own result — so it cannot oscillate at a boundary.
+  const fitKey = React.useMemo(
+    () => ({}),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the identity IS the signal
+    [width, current, pages],
+  );
+  const [stepsDown, setStepsDown] = React.useState<{
+    for: object;
+    steps: number;
+  } | null>(null);
+  const steps = stepsDown?.for === fitKey ? stepsDown.steps : 0;
+  const rungIndex = Math.min(startingRung(width) + steps, RUNGS.length - 1);
+  const rung: PagerRung = RUNGS[rungIndex]!;
+  const layout = rung === "minimal-short" ? "minimal" : rung;
+  React.useLayoutEffect(() => {
+    if (width == null || rungIndex === RUNGS.length - 1) return;
+    const root = rootNode.current;
+    const nav = root?.querySelector('[data-slot="data-list-pager-nav"]');
+    if (!root || !nav) return;
+    if (
+      nav.scrollWidth > nav.clientWidth + 1 ||
+      root.scrollWidth > root.clientWidth + 1
+    )
+      setStepsDown({ for: fitKey, steps: steps + 1 });
+  }, [fitKey, steps, rungIndex, width]);
 
   return (
     <div
@@ -329,9 +373,9 @@ export function DataListPager({
       {pages > 1 ? (
         <Pagination
           data-slot="data-list-pager-nav"
-          className="mx-0 w-auto justify-end"
+          className="mx-0 w-auto min-w-0 justify-end"
         >
-          <PaginationContent>
+          <PaginationContent className="min-w-0">
             <PaginationItem>
               {layout === "full" ? (
                 <PaginationPrevious
@@ -359,13 +403,31 @@ export function DataListPager({
                 </PaginationLink>
               )}
             </PaginationItem>
-            {layout === "minimal" ? (
+            {rung === "minimal" ? (
               <PaginationItem>
                 <span
                   data-slot="data-list-pager-position"
-                  className="px-2 text-sm whitespace-nowrap text-muted-foreground tabular-nums"
+                  className="block px-2 text-sm whitespace-nowrap text-muted-foreground tabular-nums"
                 >
                   Page {current} of {pages}
+                </span>
+              </PaginationItem>
+            ) : rung === "minimal-short" ? (
+              // The last rung, and the one part of the pager that may shrink.
+              // The visible "N / M" is hidden from assistive technology, which
+              // hears the whole sentence instead.
+              <PaginationItem className="min-w-0">
+                <span
+                  data-slot="data-list-pager-position"
+                  data-short=""
+                  className="block min-w-0 px-2 text-sm text-muted-foreground tabular-nums"
+                >
+                  <span className="sr-only">
+                    Page {current} of {pages}
+                  </span>
+                  <span aria-hidden="true" className="block truncate">
+                    {current} / {pages}
+                  </span>
                 </span>
               </PaginationItem>
             ) : (
@@ -380,7 +442,9 @@ export function DataListPager({
                       <PaginationLink
                         isActive={item === current}
                         aria-label={`Go to page ${item}`}
-                        className="tabular-nums"
+                        // At least the 32px square, and wider for a number
+                        // that needs it: a fixed slot spilled `10000`.
+                        className="w-auto min-w-8 px-1.5 tabular-nums"
                         onClick={(event) => {
                           event.preventDefault();
                           if (item !== current) onPageChange(item);

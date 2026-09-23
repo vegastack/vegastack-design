@@ -728,6 +728,15 @@ function dataSurfaceOverflow(root: ParentNode): string[] {
         '[data-slot="data-list-pager-position"], [data-slot="select-trigger"]',
     )) {
       const rect = part.getBoundingClientRect();
+      // A numbered slot must hold its own number: a fixed 32px slot spilled a five-digit page.
+      if (
+        part.matches('[data-slot="pagination-link"]') &&
+        part.scrollWidth > part.clientWidth + 1
+      )
+        problems.push(
+          `DataListPager ${describe(part)} ${part.getAttribute("aria-label") ?? ""} spills its ` +
+            `own box: scrollWidth ${part.scrollWidth} > clientWidth ${part.clientWidth}`,
+        );
       if (rect.left < box.left - 1 || rect.right > box.right + 1)
         problems.push(
           `DataListPager ${describe(part)} ${part.getAttribute("aria-label") ?? ""} leaves the ` +
@@ -1345,34 +1354,120 @@ test("a mono first column's merged values wrap in their own face (compiled CSS)"
   }).toEqual({ whiteSpace: "normal", overflowWrap: "anywhere", mono: false });
 });
 
-for (const width of [200, 204, 270, 320, 479, 480, 800]) {
-  test(`DataListPager fits a ${width}px container`, async () => {
-    const screen = await render(
-      <div style={{ width: `${width}px` }}>
-        <DataListPager
-          page={6}
-          pageSize={15}
-          total={1_234}
-          onPageChange={() => {}}
-          onPageSizeChange={() => {}}
-        />
-      </div>,
-    );
-    const pager = screen.container.querySelector<HTMLElement>(
-      '[data-slot="data-list-pager"]',
-    )!;
-    const expected =
-      width >= 480 ? "full" : width >= 240 ? "compact" : "minimal";
-    await expect.poll(() => pager.getAttribute("data-layout")).toBe(expected);
-    await expectDataSurfacesContained(`pager@${width}`, screen.container, "");
-    // Both ends are always reachable — the clipped Next was the defect.
-    for (const name of ["Go to previous page", "Go to next page"])
-      expect(
-        pager.querySelector(`[aria-label="${name}"]`),
-        `${name} at ${width}px`,
-      ).not.toBeNull();
-  });
-}
+/**
+ * The pager's promise holds for any page count, not just the two-digit one the previews use: a
+ * four- or five-digit page number widens every numbered slot and the "Page N of M" position, so
+ * the layout the width alone picks can still overflow. Each count is swept at the widths that
+ * matter — the 200px floor, the 204px a 320px viewport's docs preview leaves, and each layout's
+ * threshold — in both writing directions.
+ */
+const PAGER_COUNTS: { label: string; page: number; total: number }[] = [
+  { label: "83 pages", page: 6, total: 1_234 },
+  { label: "8229 pages", page: 8_000, total: 123_435 },
+  { label: "10000 pages", page: 1_000, total: 150_000 },
+  { label: "82305 pages", page: 80_000, total: 1_234_567 },
+];
+
+for (const { label, page, total } of PAGER_COUNTS)
+  for (const width of [200, 204, 240, 270, 320, 479, 480, 800])
+    for (const dir of ["ltr", "rtl"] as const) {
+      test(`DataListPager fits a ${width}px container — ${label}, ${dir}`, async () => {
+        if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+        try {
+          const screen = await render(
+            <div style={{ width: `${width}px` }}>
+              <DataListPager
+                page={page}
+                pageSize={15}
+                total={total}
+                onPageChange={() => {}}
+                onPageSizeChange={() => {}}
+              />
+            </div>,
+          );
+          const pager = screen.container.querySelector<HTMLElement>(
+            '[data-slot="data-list-pager"]',
+          )!;
+          if (total === 1_234) {
+            const expected =
+              width >= 480 ? "full" : width >= 240 ? "compact" : "minimal";
+            await expect
+              .poll(() => pager.getAttribute("data-layout"))
+              .toBe(expected);
+          }
+          await expectDataSurfacesContained(
+            `pager@${width} ${label} ${dir}`,
+            screen.container,
+            "",
+          );
+          // Both ends are always reachable — the clipped Next was the defect.
+          for (const name of ["Go to previous page", "Go to next page"])
+            expect(
+              pager.querySelector(`[aria-label="${name}"]`),
+              `${name} at ${width}px`,
+            ).not.toBeNull();
+          // Whatever the layout shows, the position is always there in full for assistive tech.
+          const pages = Math.ceil(total / 15);
+          const current = Math.min(page, pages);
+          const position = pager.querySelector(
+            '[data-slot="data-list-pager-position"]',
+          );
+          if (position)
+            expect(
+              position.querySelector(".sr-only")?.textContent ??
+                position.textContent,
+            ).toBe(`Page ${current} of ${pages}`);
+          else
+            expect(
+              pager.querySelector(`[aria-label="Go to page ${current}"]`),
+            ).not.toBeNull();
+        } finally {
+          document.documentElement.removeAttribute("dir");
+        }
+      });
+    }
+
+test("DataListPager steps down a layout for a long page count, and back up when it has room", async () => {
+  const screen = await render(
+    <div style={{ width: "260px" }}>
+      <DataListPager
+        page={80_000}
+        pageSize={15}
+        total={1_234_567}
+        onPageChange={() => {}}
+        onPageSizeChange={() => {}}
+      />
+    </div>,
+  );
+  const pager = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-pager"]',
+  )!;
+  await expect.poll(() => pager.getAttribute("data-layout")).not.toBe("full");
+  await expectDataSurfacesContained("pager 480 five digits", pager, "");
+  // At 200px only the short position fits; it keeps the whole sentence for assistive tech.
+  (pager.parentElement as HTMLElement).style.width = "200px";
+  await expect
+    .poll(() =>
+      pager
+        .querySelector('[data-slot="data-list-pager-position"]')
+        ?.hasAttribute("data-short"),
+    )
+    .toBe(true);
+  const position = pager.querySelector(
+    '[data-slot="data-list-pager-position"]',
+  )!;
+  expect(position.querySelector(".sr-only")?.textContent).toBe(
+    "Page 80000 of 82305",
+  );
+  expect(position.querySelector('[aria-hidden="true"]')?.textContent).toBe(
+    "80000 / 82305",
+  );
+  await expectDataSurfacesContained("pager 200 five digits", pager, "");
+  // Room again: the verdict is re-taken for the new width, so the full list returns.
+  (pager.parentElement as HTMLElement).style.width = "1200px";
+  await expect.poll(() => pager.getAttribute("data-layout")).toBe("full");
+  await expectDataSurfacesContained("pager 1200 five digits", pager, "");
+});
 
 test("DataGrid at 320px: merged values under a mono first column do not scroll the grid", async () => {
   const gridColumns: DataGridColumn<Invoice>[] = [

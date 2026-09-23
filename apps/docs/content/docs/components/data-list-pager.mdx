@@ -84,14 +84,21 @@ The page list follows the pager's own width, not the viewport's, and never wraps
 of page numbers reads as two lists. It changes layout instead (`data-layout` on the root), while the
 range and the rows-per-page chooser wrap onto their own lines above it:
 
-| `data-layout` | Pager width  | Page list                                                              |
-| ------------- | ------------ | ---------------------------------------------------------------------- |
-| `full`        | 480px and up | Labelled Previous / Next, the current page and one neighbour each side |
-| `compact`     | 240–479px    | Icon-only ends, the current page with no neighbours                    |
-| `minimal`     | below 240px  | Icon-only ends around _Page 3 of 12_                                   |
+| `data-layout` | Pager width  | Page list                                                               |
+| ------------- | ------------ | ----------------------------------------------------------------------- |
+| `full`        | 480px and up | Labelled Previous / Next, the current page and one neighbour each side  |
+| `compact`     | 240–479px    | Icon-only ends, the current page with no neighbours                     |
+| `minimal`     | below 240px  | Icon-only ends around _Page 3 of 12_, or _3 / 12_ when that is too long |
 
-So the pager fits any container of 200px or more. The server render is `minimal`, the one layout
-that fits everywhere; the client corrects it before first paint.
+Width picks the starting layout for page numbers of up to three digits. A number slot is at least
+32px and grows to hold its number, so a four- or five-digit page count can outgrow that layout; the
+pager then measures and steps down one layout at a time until the page list fits, before first paint.
+At the last step the position shortens to _N / M_ (`data-short` on
+`data-slot="data-list-pager-position"`) and truncates if it still has no room, while assistive
+technology always hears _Page N of M_. So the page list never scrolls sideways at any page count.
+The range and the rows-per-page chooser are single lines that do not break; at a seven-digit total
+they need about 200px, which is the pager's practical floor. The server render is `minimal`, and
+the client corrects it before first paint.
 
 ### Page sizes
 

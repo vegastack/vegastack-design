@@ -6668,7 +6668,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "The page list follows the pager's own width (data-layout): full from 480px, compact from 240px (no neighbours, 32px icon-only ends), minimal below that (icon-only ends around 'Page N of M', the declared server answer); the range, chooser and page list wrap onto separate lines, so the pager fits any container of 200px or more. Containment is asserted with compiled CSS in test/geometry.browser.test.tsx at 200, 204, 270, 320, 479, 480 and 800px."
+        "rationale": "The page list follows the pager's own width (data-layout): full from 480px, compact from 240px (no neighbours, 32px icon-only ends), minimal below that (icon-only ends around 'Page N of M', the declared server answer). Number slots grow to hold their number, so a four- or five-digit page count that outgrows the width's layout is measured and stepped down a layout at a time; at the last step the position shortens to 'N / M' (data-short) and may truncate, keeping 'Page N of M' for assistive technology, so the page list never scrolls sideways. The range, chooser and page list wrap onto separate lines; the range and chooser are unbreakable lines, about 200px at a seven-digit total. Containment is asserted with compiled CSS in test/geometry.browser.test.tsx at 200, 204, 240, 270, 320, 479, 480 and 800px for 83-, 8229-, 10000- and 82305-page counts, LTR and RTL."
       },
       "motion": {
         "status": "not-applicable",
@@ -6706,6 +6706,10 @@
             {
               "name": "data-layout",
               "values": []
+            },
+            {
+              "name": "data-short",
+              "values": [""]
             },
             {
               "name": "data-slot",
