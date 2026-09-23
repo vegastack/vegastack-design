@@ -77,6 +77,14 @@ function inertOwner(start: Element | null): HTMLElement | null {
   return null;
 }
 
+/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+function expectBorderNotRing(element: HTMLElement) {
+  const tokens = element.className.split(/\s+/);
+  expect(tokens).toContain("border");
+  expect(tokens).toContain("border-border");
+  expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
+}
+
 test("renders the trigger and stays closed until it is used (Usage)", async () => {
   const screen = await render(<Subject />);
   await expect
@@ -378,6 +386,13 @@ test("FOC-1/FOC-6: nothing the dialog renders carries a focus glow", async () =>
       /\bring-3\b|ring-\[3px\]|focus-visible:ring-/.test(classes),
     );
   expect(offenders).toEqual([]);
+});
+
+test("BRD-1: the dialog surface draws a real border, not a ring outline", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  expectBorderNotRing(bySlot("dialog-content")!);
 });
 
 test("no a11y violations — closed", async () => {

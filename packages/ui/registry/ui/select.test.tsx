@@ -60,6 +60,14 @@ const triggerClasses = (screen: { container: HTMLElement }) =>
     ) as HTMLElement
   ).className;
 
+/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+function expectBorderNotRing(element: HTMLElement) {
+  const tokens = element.className.split(/\s+/);
+  expect(tokens).toContain("border");
+  expect(tokens).toContain("border-border");
+  expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
+}
+
 test("renders a combobox trigger carrying data-slot and data-size (Usage)", async () => {
   const screen = await render(<Fruit />);
   const trigger = screen.getByRole("combobox", { name: "Fruit" });
@@ -309,6 +317,14 @@ test("OVL-13: the popup is portaled and the positioner re-applies the theme scop
   expect(popup).not.toBeNull();
   // Portaled: the popup is not inside the component's own container subtree.
   expect(screen.container.contains(popup)).toBe(false);
+});
+
+test("BRD-1: the select popup draws a real border, not a ring outline", async () => {
+  const screen = await render(<Fruit />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Fruit" }));
+  expectBorderNotRing(
+    document.querySelector<HTMLElement>('[data-slot="select-content"]')!,
+  );
 });
 
 test("no a11y violations — closed", async () => {

@@ -142,6 +142,9 @@ Upstream's file plus `packages/ui/upstream/patches/popover.patch`. Every hunk:
 - **OVL-13** — `PopoverContent` reads `useInternalThemeScope()` and attaches it to the Positioner
   INSIDE the portal — the same host shape `select`, `combobox` and `tooltip` carry.
   `tooling/verify-portal-theme-scope.mjs` inventories this host.
+- **BRD-1** — `PopoverContent` draws a real 1px `border border-border` instead of upstream's
+  `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
+  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

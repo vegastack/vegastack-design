@@ -1,5 +1,5 @@
 # component: questionnaire
-# decisions: A11Y-2, A11Y-3, A11Y-4, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, TYP-18
+# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-13, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, TYP-18
 # hunks:
 #   TYP-18: the shortcut badge's `text-[0.625rem]` (10px) becomes `text-xs` (12px). An
 #     arbitrary value receives neither half of the type ramp, and 10px is below every tier
@@ -36,12 +36,15 @@
 #     the choice is `min-h-11` (44px), the answer input `min-h-11`, and the four navigation
 #     buttons `min-h-11` (relaxed to the `Button` tier at `sm:`, which is 32px). Measured in
 #     `questionnaire.test.tsx`.
+#   A11Y-13: `QuestionnaireError`'s `text-destructive` becomes `text-destructive-text` — the
+#     identical pair to Field's error copy, which the row names: the fill used as text ink on the
+#     page. Applied by precedent (as Batch 2 and 6 extended the row); flagged for MK.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/questionnaire.tsx b/questionnaire.tsx
-index 701ac1c..70cfc9b 100644
+index 701ac1c..b45e8c7 100644
 --- a/questionnaire.tsx
 +++ b/questionnaire.tsx
 @@ -1,11 +1,11 @@
@@ -219,8 +222,12 @@ index 701ac1c..70cfc9b 100644
  }
  
  function QuestionnaireError({
-@@ -186,7 +207,7 @@ function QuestionnaireError({
-       className={cn("mt-2 text-sm text-destructive", className)}
+@@ -183,10 +204,10 @@ function QuestionnaireError({
+   return (
+     <QuestionnairePrimitive.Error
+       data-slot="questionnaire-error"
+-      className={cn("mt-2 text-sm text-destructive", className)}
++      className={cn("mt-2 text-sm text-destructive-text", className)}
        {...props}
      />
 -  )

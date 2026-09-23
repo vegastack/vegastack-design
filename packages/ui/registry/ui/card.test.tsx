@@ -44,6 +44,14 @@ function FullCard(props: React.ComponentProps<typeof Card>) {
   );
 }
 
+/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+function expectBorderNotRing(element: HTMLElement) {
+  const tokens = element.className.split(/\s+/);
+  expect(tokens).toContain("border");
+  expect(tokens).toContain("border-border");
+  expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
+}
+
 test("renders a div carrying data-slot and the default size", async () => {
   const screen = await render(<FullCard />);
   const card = screen.container.querySelector("[data-slot=card]")!;
@@ -161,6 +169,16 @@ test("DOC-2: cn from @vegastack/design merges a caller's className onto every pa
   // tailwind-merge aware: the caller's size replaces the recipe's, never stacks on it.
   expect(title.className).toContain("text-lg");
   expect(title.className).not.toContain("text-base");
+});
+
+test("BRD-1: the card draws a real border, not a ring outline", async () => {
+  const screen = await render(<FullCard />);
+  const card =
+    screen.container.querySelector<HTMLElement>('[data-slot="card"]')!;
+  expectBorderNotRing(card);
+  // The image-edge rounding stays upstream's: `overflow-hidden` clips at the border's inner edge.
+  expect(card.className).toContain("overflow-hidden");
+  expect(card.className).toContain("*:[img:first-child]:rounded-t-xl");
 });
 
 test("no a11y violations — rest", async () => {

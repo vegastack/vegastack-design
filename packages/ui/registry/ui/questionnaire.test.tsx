@@ -484,6 +484,10 @@ test("Custom Validation / Controlled: `invalid` marks the item and surfaces the 
   const error = slot(screen.container, "questionnaire-error");
   expect(error.textContent).toBe("Public answers need more context.");
   expect(item.getAttribute("aria-describedby")?.split(" ")).toContain(error.id);
+  // A11Y-13: error copy reads through the family's `-text` ink, never the fill used as ink.
+  const ink = error.className.split(/\s+/);
+  expect(ink).toContain("text-destructive-text");
+  expect(ink).not.toContain("text-destructive");
 });
 
 test("Resume: defaultChecked and defaultValue restore a saved answer", async () => {

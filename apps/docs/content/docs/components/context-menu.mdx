@@ -153,7 +153,8 @@ and selecting one clears the rest of its group.
 ### Destructive
 
 `variant="destructive"` sets `data-variant="destructive"`, which tints the label, the icon and the
-focus wash from the `destructive` token.
+focus wash from the `destructive` token; the focused label reads in the `destructive-text` ink so
+it clears AA on the wash.
 
 <ComponentPreview
   name="contextMenuDestructive"
@@ -230,6 +231,13 @@ Upstream's file plus `packages/ui/upstream/patches/context-menu.patch`. Every hu
   and the radio item.
 - **FRM-4** — `data-disabled:pointer-events-none` is dropped from the item, the checkbox item and
   the radio item, so a disabled row stays hoverable.
+- **BRD-1** — `ContextMenuContent` draws a real 1px `border border-border` instead of upstream's
+  `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
+  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+- **A11Y-13** — a focused destructive `ContextMenuItem` reads `focus:text-destructive-text` on its
+  `bg-destructive/10` wash. Upstream inks it with the fill (`focus:text-destructive`), which
+  measures 3.99:1 on its own tint in light, under the AA floor; the resting ink and the icon
+  ink stay upstream's.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of
   their own.

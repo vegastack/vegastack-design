@@ -57,6 +57,14 @@ function Menu(props: React.ComponentProps<typeof NavigationMenu>) {
   );
 }
 
+/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+function expectBorderNotRing(element: HTMLElement) {
+  const tokens = element.className.split(/\s+/);
+  expect(tokens).toContain("border");
+  expect(tokens).toContain("border-border");
+  expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
+}
+
 test("renders the nav row closed, with its data-slots (Usage)", async () => {
   const screen = await render(<Menu />);
   const root = screen.container.querySelector(
@@ -355,6 +363,31 @@ test("API-16: the module opens with the client directive", () => {
     .filter((line) => line.trim() !== "" && !line.trim().startsWith("//"));
   expect(head.length).toBeGreaterThan(0);
   expect(head[0]!.trim()).toMatch(/^["']use client["'];?$/);
+});
+
+test("BRD-1: the shared popup and the viewport-less content draw a real border, not a ring", async () => {
+  const screen = await render(<Menu />);
+  await userEvent.click(screen.getByRole("button", { name: /Item One/ }));
+  await expect.poll(popup).not.toBeNull();
+  const portal = (popup() as HTMLElement).closest<HTMLElement>(
+    "[data-base-ui-portal]",
+  )!;
+  // The Root's own popup (it carries no data-slot): the surface that wraps the viewport.
+  const surface = [...portal.querySelectorAll<HTMLElement>("*")].find((el) =>
+    el.className.split(/\s+/).includes("bg-popover"),
+  )!;
+  expectBorderNotRing(surface);
+  // With `viewport={false}` the content IS the surface; its border is gated on that group state.
+  const tokens = (popup() as HTMLElement).className.split(/\s+/);
+  expect(tokens).toContain(
+    "group-data-[viewport=false]/navigation-menu:border",
+  );
+  expect(tokens).toContain(
+    "group-data-[viewport=false]/navigation-menu:border-border",
+  );
+  expect((popup() as HTMLElement).className).not.toMatch(
+    /ring-1|ring-foreground/,
+  );
 });
 
 test("no a11y violations — closed", async () => {

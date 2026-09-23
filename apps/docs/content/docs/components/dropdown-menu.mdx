@@ -175,7 +175,8 @@ before their label.
 ### Destructive
 
 `variant="destructive"` sets `data-variant="destructive"` on the row, which tints the label, the
-icon and the focus wash from the `destructive` token. Reserve it for the irreversible action, and
+icon and the focus wash from the `destructive` token; the focused label reads in the
+`destructive-text` ink so it clears AA on the wash. Reserve it for the irreversible action, and
 never for more than one row in a group.
 
 <ComponentPreview
@@ -275,6 +276,13 @@ Upstream's file plus `packages/ui/upstream/patches/dropdown-menu.patch`. Every h
   every `[role^="menuitem"]`.
 - **FRM-4** — `data-disabled:pointer-events-none` is dropped from the item, the checkbox item and
   the radio item, so a disabled row stays hoverable and a Tooltip can explain why.
+- **BRD-1** — `DropdownMenuContent` and `DropdownMenuSubContent` draw a real 1px `border border-border` instead of upstream's
+  `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
+  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+- **A11Y-13** — a focused destructive `DropdownMenuItem` reads `focus:text-destructive-text` on its
+  `bg-destructive/10` wash. Upstream inks it with the fill (`focus:text-destructive`), which
+  measures 3.99:1 on its own tint in light, under the AA floor; the resting ink and the icon
+  ink stay upstream's.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of
   their own.

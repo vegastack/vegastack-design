@@ -118,6 +118,28 @@ function WithSubmenu() {
   );
 }
 
+/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+function expectBorderNotRing(element: HTMLElement) {
+  const tokens = element.className.split(/\s+/);
+  expect(tokens).toContain("border");
+  expect(tokens).toContain("border-border");
+  expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
+}
+
+/** A11Y-13: the destructive row's focused ink is the `-text` ink, never the fill, on its own tint. */
+function expectDestructiveTextInk(row: HTMLElement) {
+  const tokens = row.className.split(/\s+/);
+  expect(tokens).toContain(
+    "data-[variant=destructive]:focus:bg-destructive/10",
+  );
+  expect(tokens).toContain(
+    "data-[variant=destructive]:focus:text-destructive-text",
+  );
+  expect(tokens).not.toContain(
+    "data-[variant=destructive]:focus:text-destructive",
+  );
+}
+
 test("renders a role=menubar bar of triggers, all menus closed (Usage)", async () => {
   const screen = await render(<Everything />);
   const bar = screen.container.querySelector('[data-slot="menubar"]')!;
@@ -398,6 +420,33 @@ test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
     expect(classes).not.toMatch(/ring-3|ring-\[3px\]/);
     expect(classes).not.toContain("focus-visible:ring-");
   }
+});
+
+test("BRD-1: the content and the sub-content draw a real border, not a ring outline", async () => {
+  const screen = await render(<WithSubmenu />);
+  await userEvent.click(screen.getByText("File"));
+  expectBorderNotRing(slot("content")!);
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.element(screen.getByText("Messages")).toBeInTheDocument();
+  expectBorderNotRing(slot("sub-content")!);
+});
+
+test("A11Y-13: a focused destructive row reads through the -text ink on its tint", async () => {
+  const screen = await render(
+    <Frame>
+      <Menubar>
+        <MenubarMenu>
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem variant="destructive">Delete</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+    </Frame>,
+  );
+  await userEvent.click(screen.getByText("File"));
+  expectDestructiveTextInk(slots("item")[0]!);
 });
 
 test("no a11y violations — closed", async () => {

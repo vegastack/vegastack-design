@@ -505,6 +505,9 @@ focus-visible:ring-ring/50` becomes `focus:border-ring/70` — the 70% text-entr
   so it fires for mouse and keyboard alike — `aria-invalid:border-destructive aria-invalid:ring-3
 aria-invalid:ring-destructive/20` becomes `not-focus:aria-invalid:border-destructive` with its dark
   counterpart, and `disabled:pointer-events-none` is dropped.
+- **A11Y-13** — `QuestionnaireError`'s `text-destructive` becomes `text-destructive-text`. It is
+  the identical pair to `Field`'s error copy, which the row names: the status fill used as text ink
+  measures under the AA floor, and the family's `-text` ink clears it.
 - **A11Y-3, A11Y-4 — NO HUNK.** Measured in `@shadcn/react@0.3.1`: `Progress` renders
   `role="progressbar"` with `aria-live="polite"` and `aria-label="Questionnaire progress"` — A11Y-3's
   polite status by default — and `Error` renders `role="alert"` **only** while the item is invalid

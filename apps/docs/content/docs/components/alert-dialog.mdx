@@ -193,6 +193,9 @@ Upstream's file plus `packages/ui/upstream/patches/alert-dialog.patch`. Every hu
 - **A11Y-9** — `AlertDialogContent` mirrors Base UI's `data-base-ui-inert` markers onto native
   `inert` through `useModalInert`. No `modal` context here: Base UI's AlertDialog omits the `modal`
   prop from its root, so an alert dialog is always modal and the hook is always enabled.
+- **BRD-1** — `AlertDialogContent` draws a real 1px `border border-border` instead of upstream's
+  `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
+  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.
