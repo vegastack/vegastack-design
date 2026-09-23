@@ -288,6 +288,10 @@ export const multiline = \`flex items-center
     `<div className={\`flex\n      ring ring-muted\n      p-2\`}>a template class list continued across lines</div>`,
     `<div\n      className="rounded-lg\n        ring ring-muted"\n    >a JSX class attribute continued across lines</div>`,
     `<div className="[&>div]:ring ring-muted">an arbitrary-variant ring</div>`,
+    // Round 4 narrowed a builder's class positions to what can become its VALUE; each of these is.
+    `<div className={open ? "ring" : "border"}>a lone ring as a ternary branch</div>`,
+    `<div className={cva("flex", { variants: { tone: { outline: "ring" } } })()}>a lone ring as a cva variant value</div>`,
+    `<div className={cva("flex", { compoundVariants: [{ tone: "x", class: "ring" }] })()}>a lone ring as a compound class</div>`,
   ];
   // Each form's line RANGE (a multi-line form is reported on the line its literal starts), so the
   // check below proves EVERY form was rejected, not just a count. The head's class constant — a
@@ -556,6 +560,10 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <p aria-label="Draw a ring around the user-selected item" title='keep the ring on the drop-zone edge'>x</p>{/* prose beside a hyphenated word, in a non-class attribute, is not a bare ring (BRD-1) */}
     <p className={cn("text-sm", variant === "ring" && "font-medium")}>{"a ring-shaped hint"}</p>{/* a compared VALUE inside cn and JSX prose are not classes */}
     <div className="rounded-md ring-sidebar-ring ring-0" />{/* upstream's vestigial focus-ring COLOUR with no width, and a zeroed ring: neither draws an outline */}
+    <p className={cn(k.includes("ring") && "font-medium")} />{/* a call's own argument inside cn is a value, not a class (BRD-1) */}
+    <p className={cn(s["ring"], open ? "text-sm" : "text-xs")} />{/* an element-access key inside cn is a value, not a class */}
+    <p className={cn(t("ring"))} />{/* a translation key inside cn is a value, not a class */}
+    <p className={cva("inline-flex", { variants: { tone: { ring: "border", plain: "" } }, compoundVariants: [{ tone: "ring", class: "font-medium" }], defaultVariants: { tone: "ring" } })()} />{/* a cva variant NAME, a compound matcher value and a defaultVariants value name options, not classes */}
     <p>{"Heads up! Saved."}</p>{/* prose ending in an exclamation mark is not a Tailwind \`!\` modifier */}
     <Close aria-label="Close toast" render={<Button size="icon-sm" />} />{/* the host names it with aria-label */}
     <Close render={<Button size="icon-sm" />}><XIcon /><span className="sr-only">Close</span></Close>{/* the host names it with an sr-only label */}
@@ -578,11 +586,12 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms and all 5 loader-circle ` +
       `spellings are rejected while \`LoaderIcon\` and the animated-icon catalogue pass, a class seam ` +
       `with no separating space is rejected, all 4 Tailwind \`!\` modifier forms and a changed ` +
-      `exempt count are rejected, all 18 surface-ring spellings are rejected, an icon-only Button ` +
+      `exempt count are rejected, all ${surfaceRingLinesExpected.length} surface-ring spellings are rejected, an icon-only Button ` +
       `with an anonymous host is rejected while one carrying its own sr-only label is accepted; ` +
-      `the reviewed Textarea adapter passes, and with it 23 deliberate non-violations ` +
+      `the reviewed Textarea adapter passes, and with it 27 deliberate non-violations ` +
       `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
-      `hover vocabulary, avatar's ring-2 gap, a border surface, prose that mentions a ring, prose ending in "!", plus all ` +
+      `hover vocabulary, avatar's ring-2 gap, a border surface, prose that mentions a ring, a "ring" VALUE inside a ` +
+      `class builder (a call argument, an element-access key, a cva matcher or default), prose ending in "!", plus all ` +
       `three spellings of naming an icon Button through its host`,
   );
 } finally {

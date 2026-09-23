@@ -570,6 +570,140 @@ function staticStringLiterals(file, src) {
       : node && ts.isPropertyAccessExpression(node)
         ? node.name.text
         : "";
+  const unwrap = (node) => {
+    while (
+      node &&
+      (ts.isParenthesizedExpression(node) ||
+        ts.isAsExpression(node) ||
+        ts.isSatisfiesExpression(node) ||
+        ts.isNonNullExpression(node))
+    )
+      node = node.expression;
+    return node;
+  };
+  // An EXPRESSION whose value is a class list. Only what can become part of that value is a class
+  // position: the literal itself, a template's static text, both sides of a `+` join, the value
+  // branches of `&&` / `||` / `??` / `?:`, the elements of an array (`clsx([...])`, `[...].join(" ")`)
+  // and a nested class builder. The CONDITIONS those branches hang on, a call's arguments
+  // (`k.includes("ring")`, `t("ring")`) and an element-access key (`s["ring"]`) are values, not
+  // classes, and are walked as ordinary code (review round 4). `objects` says what an object
+  // literal here holds: `"values"` for a named class map (`SIZE_CLASSES = { sm: "…" }`), `"keys"`
+  // for clsx's `{ "class": condition }` argument.
+  const visitClass = (raw, objects) => {
+    const node = unwrap(raw);
+    if (!node) return;
+    if (ts.isStringLiteralLike(node) || ts.isTemplateExpression(node)) {
+      visit(node, true);
+      return;
+    }
+    if (ts.isBinaryExpression(node)) {
+      const op = node.operatorToken.kind;
+      if (op === ts.SyntaxKind.AmpersandAmpersandToken) {
+        visit(node.left, false);
+        visitClass(node.right, objects);
+        return;
+      }
+      if (
+        op === ts.SyntaxKind.BarBarToken ||
+        op === ts.SyntaxKind.QuestionQuestionToken ||
+        op === ts.SyntaxKind.PlusToken
+      ) {
+        visitClass(node.left, objects);
+        visitClass(node.right, objects);
+        return;
+      }
+      visit(node, false);
+      return;
+    }
+    if (ts.isConditionalExpression(node)) {
+      visit(node.condition, false);
+      visitClass(node.whenTrue, objects);
+      visitClass(node.whenFalse, objects);
+      return;
+    }
+    if (ts.isArrayLiteralExpression(node)) {
+      for (const element of node.elements) visitClass(element, objects);
+      return;
+    }
+    if (ts.isObjectLiteralExpression(node)) {
+      for (const property of node.properties) {
+        if (!ts.isPropertyAssignment(property)) {
+          visit(property, false);
+          continue;
+        }
+        if (objects === "keys") {
+          if (ts.isStringLiteralLike(property.name)) visit(property.name, true);
+          visit(property.initializer, false);
+        } else visitClass(property.initializer, objects);
+      }
+      return;
+    }
+    if (ts.isArrowFunction(node) && !ts.isBlock(node.body)) {
+      for (const parameter of node.parameters) visit(parameter, false);
+      visitClass(node.body, objects);
+      return;
+    }
+    // `[...].join(" ")`: the array is the class list; the separator is not.
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === "join" &&
+      ts.isArrayLiteralExpression(unwrap(node.expression.expression))
+    ) {
+      visitClass(node.expression.expression, objects);
+      for (const argument of node.arguments) visit(argument, false);
+      return;
+    }
+    // Everything else — a builder call, a function call, an element access, an identifier — is
+    // walked as code; a class builder inside it is found by `visit`'s own builder rule.
+    visit(node, false);
+  };
+  // `cva(base, { variants, compoundVariants, defaultVariants })`: the base, every variant map's
+  // VALUES and a compound entry's `class`/`className` are classes. A variant or compound MATCHER
+  // value (`{ tone: "ring" }`) and `defaultVariants` name options, not classes.
+  const visitCvaConfig = (raw) => {
+    const node = unwrap(raw);
+    if (!node || !ts.isObjectLiteralExpression(node)) {
+      visit(raw, false);
+      return;
+    }
+    for (const property of node.properties) {
+      const key = ts.isPropertyAssignment(property)
+        ? nameOf(property.name)
+        : "";
+      const value = ts.isPropertyAssignment(property)
+        ? unwrap(property.initializer)
+        : null;
+      if (key === "variants" && value && ts.isObjectLiteralExpression(value)) {
+        for (const group of value.properties) {
+          const options =
+            ts.isPropertyAssignment(group) && unwrap(group.initializer);
+          if (options && ts.isObjectLiteralExpression(options))
+            visitClass(options, "values");
+          else visit(group, false);
+        }
+      } else if (
+        key === "compoundVariants" &&
+        value &&
+        ts.isArrayLiteralExpression(value)
+      ) {
+        for (const entry of value.elements) {
+          const compound = unwrap(entry);
+          if (!compound || !ts.isObjectLiteralExpression(compound)) {
+            visit(entry, false);
+            continue;
+          }
+          for (const field of compound.properties)
+            if (
+              ts.isPropertyAssignment(field) &&
+              /^(?:class|className)$/.test(nameOf(field.name))
+            )
+              visitClass(field.initializer, "values");
+            else visit(field, false);
+        }
+      } else visit(property, false);
+    }
+  };
   const visit = (node, inClass) => {
     if (ts.isStringLiteralLike(node)) {
       push(node, node.text, false, inClass);
@@ -585,45 +719,42 @@ function staticStringLiterals(file, src) {
         true,
         inClass,
       );
-      for (const span of node.templateSpans) visit(span.expression, inClass);
+      for (const span of node.templateSpans)
+        if (inClass) visitClass(span.expression, "keys");
+        else visit(span.expression, false);
       return;
     }
-    // A class attribute or property, a class-named binding, and every argument of a class
-    // builder: whatever static text sits under one of these is a class list.
+    // A class attribute or property, and a class-named binding: its VALUE is a class expression.
     if (
       (ts.isJsxAttribute(node) ||
         ts.isPropertyAssignment(node) ||
         ts.isVariableDeclaration(node)) &&
       CLASS_POSITION.name.test(nameOf(node.name))
     ) {
-      ts.forEachChild(node, (child) =>
-        visit(child, child !== node.name || inClass),
-      );
+      const value = node.initializer;
+      ts.forEachChild(node, (child) => {
+        if (child !== value) visit(child, false);
+      });
+      if (value && ts.isJsxExpression(value)) {
+        if (value.expression) visitClass(value.expression, "values");
+      } else if (value) visitClass(value, "values");
       return;
     }
     if (
       ts.isCallExpression(node) &&
       CLASS_POSITION.builder.test(nameOf(node.expression))
     ) {
-      visit(node.expression, inClass);
-      for (const argument of node.arguments) visit(argument, true);
+      visit(node.expression, false);
+      if (nameOf(node.expression) === "cva") {
+        const [base, config, ...rest] = node.arguments;
+        if (base) visitClass(base, "keys");
+        if (config) visitCvaConfig(config);
+        for (const argument of rest) visit(argument, false);
+      } else
+        for (const argument of node.arguments) visitClass(argument, "keys");
       return;
     }
-    // Any OTHER JSX attribute is not a class position, even inside one (`aria-label` on an element
-    // in a `render` prop), and neither is a comparison operand: `variant === "outline"` is a value.
-    if (ts.isJsxAttribute(node)) {
-      ts.forEachChild(node, (child) => visit(child, false));
-      return;
-    }
-    if (
-      ts.isBinaryExpression(node) &&
-      COMPARISON_OPERATORS.has(node.operatorToken.kind)
-    ) {
-      visit(node.left, false);
-      visit(node.right, false);
-      return;
-    }
-    ts.forEachChild(node, (child) => visit(child, inClass));
+    ts.forEachChild(node, (child) => visit(child, false));
   };
   visit(sourceFile, false);
   return literals;
@@ -632,8 +763,12 @@ function staticStringLiterals(file, src) {
 /**
  * Where the AST says a string is a class list: a `className`/`class` (or `*ClassName`) attribute
  * or object property, a binding named like one (`SQUEEZE_CLASS`, `baseClassName`, `classes`), and
- * every argument of a class builder — `cn`, `cva`, `clsx`, `cx`, `twMerge`, `twJoin` — including
- * a `cva` call's variant map. A rule may read a literal found here as classes without guessing.
+ * the arguments of a class builder — `cn`, `cva`, `clsx`, `cx`, `twMerge`, `twJoin`. Within any of
+ * those, only what can become part of the class VALUE counts (`visitClass`): the literals, the value
+ * branches of `&&` / `||` / `??` / `?:`, array elements, a `cva` base, its variant maps' values and
+ * a compound entry's `class`/`className` — never a condition, a call's own arguments, an
+ * element-access key, a `cva` matcher or `defaultVariants`. A rule may read a literal found here
+ * as classes without guessing.
  */
 const CLASS_POSITION = {
   name: /^(?:class|className|classes|\w*(?:ClassName|Class|Classes|_CLASS|_CLASSES))$/,
@@ -670,13 +805,6 @@ const BARE_UTILITIES = new Set([
   "truncate",
   "underline",
   "visible",
-]);
-
-const COMPARISON_OPERATORS = new Set([
-  ts.SyntaxKind.EqualsEqualsEqualsToken,
-  ts.SyntaxKind.ExclamationEqualsEqualsToken,
-  ts.SyntaxKind.EqualsEqualsToken,
-  ts.SyntaxKind.ExclamationEqualsToken,
 ]);
 
 // §Build-rules class-glue — two ADJACENT string literals joined by `+` with no separating space.
