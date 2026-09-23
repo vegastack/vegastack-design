@@ -209,7 +209,29 @@ contract.
 - Hand-roll a removable pill, or a `role="status"` live region with its own sequence counter.
 - Give a form control a fixed width (`w-56`, `w-64`) — it reads fine on the page it was tuned for
   and overflows at 320px. Constrain the parent instead.
+- Write an arbitrary text size (`text-[13px]`, `text-[0.8rem]`, `text-[2rem]/9`). It bypasses the
+  `--text-*` namespace, so it receives neither the ramp's line-height nor its letter-spacing, and
+  lint rejects it. Take the nearest ramp step. Likewise no local `tracking-*` and no `uppercase`.
+- Draw a surface edge with a ring (`ring-1 ring-foreground/10`). Cards and floating surfaces use
+  `border border-border` (BRD-1); lint rejects the ring.
 - Expect a compatibility shim from before the reset. There is none — see the migration guide.
+- Write retired vocabulary. It compiles to **nothing** — no build error, no type error — so a heading
+  silently renders as body text. `vegastack-design doctor` scans your source and lists every
+  occurrence with `file:line`; run it after any upgrade or generated change.
+
+  | Retired                                                    | Write instead                                                                         |
+  | ---------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+  | `text-h1` · `text-h2` · `text-h3` · `text-h4`              | `text-3xl` · `text-2xl` · `text-lg` + `font-semibold`; `text-base font-medium`        |
+  | `text-label` · `text-label-sm` · `text-strong`             | `text-sm font-medium` · `text-xs font-medium` · `text-sm font-semibold`               |
+  | `text-mono-label` · `text-code` · `text-code-sm`           | `text-xs font-medium` (a label is sans) · `font-mono text-sm` · `font-mono text-xs`   |
+  | `text-display-{sm,md,lg,xl}`                               | `text-4xl` · `text-5xl` · `text-6xl` · `text-7xl`                                     |
+  | `bg-{destructive,success,warning,info}-subtle`             | `bg-destructive/10` (the family at `/10`), `-text` ink on it                          |
+  | `--alpha-*` · `--opacity-*`                                | the literal: `bg-foreground/10`, `opacity-50`                                         |
+  | `--z-*`                                                    | `z-10` (raised) · `z-50` (every overlay; DOM order decides)                           |
+  | `shadow-overlay` · `backdrop-blur-glass`                   | `shadow-md` (popover) / `shadow-lg` (modal) · delete it                               |
+  | `icon-button` · `segmented` · `password-input`             | `Button size="icon"` + `aria-label` · joined `ToggleGroup` · `InputGroup` composition |
+  | `progress-indicator` · `field-inline` · `floating-surface` | `Progress` / `Spinner` · `EditableCell` · `Popover`                                   |
+  | `section-header` · `sonner`                                | your own heading markup · `toast` (`toast.add({ title })`)                            |
 
 ## Reference
 
