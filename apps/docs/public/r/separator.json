@@ -5,14 +5,14 @@
   "description": "A thin rule dividing content — horizontal or vertical, built on Base UI.",
   "dependencies": [
     "@base-ui/react@^1.6.0",
-    "@vegastack/design@^0.7.1",
+    "@vegastack/design@^0.7.2",
     "@vegastack/design-tokens@^0.7.1"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/separator.tsx",
-      "content": "// @vegastack separator@0.13.0 sha256-PWgSxnUqr5k1Xe0lzgBi4kg8o9Wm4O90i798Fm++6k0=\n\n\"use client\";\n\nimport { Separator as SeparatorPrimitive } from \"@base-ui/react/separator\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Separator({\n  className,\n  orientation = \"horizontal\",\n  ...props\n}: SeparatorPrimitive.Props) {\n  return (\n    <SeparatorPrimitive\n      data-slot=\"separator\"\n      orientation={orientation}\n      className={cn(\n        \"shrink-0 bg-border data-horizontal:h-px data-horizontal:w-full data-vertical:w-px data-vertical:self-stretch\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Separator };\n",
+      "content": "// @vegastack separator@0.14.0 sha256-RrZmFiqWEqu0Sv0fu8oUaDO0V98HzbCigknMDIz/Q6c=\n\n\"use client\";\n\nimport { Separator as SeparatorPrimitive } from \"@base-ui/react/separator\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Separator({\n  className,\n  orientation = \"horizontal\",\n  ...props\n}: SeparatorPrimitive.Props) {\n  return (\n    <SeparatorPrimitive\n      data-slot=\"separator\"\n      orientation={orientation}\n      className={cn(\n        \"shrink-0 bg-border data-horizontal:h-px data-horizontal:w-full data-vertical:w-px data-vertical:self-stretch\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Separator };\n",
       "type": "registry:ui",
       "target": "@ui/separator.tsx"
     }
@@ -20,8 +20,8 @@
   "meta": {
     "whenToUse": "Divide distinct sections of content, menus, or toolbars.",
     "whenNotToUse": "Pure spacing between elements — use margin/gap.",
-    "version": "0.13.0",
-    "integrity": "sha256-PWgSxnUqr5k1Xe0lzgBi4kg8o9Wm4O90i798Fm++6k0="
+    "version": "0.14.0",
+    "integrity": "sha256-RrZmFiqWEqu0Sv0fu8oUaDO0V98HzbCigknMDIz/Q6c="
   },
   "categories": [
     "layout"

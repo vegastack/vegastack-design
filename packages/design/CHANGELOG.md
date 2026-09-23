@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.2
+
+### Patch Changes
+
+- [#183](https://github.com/vegastack/vegastack-design/pull/183) [`c2a246e`](https://github.com/vegastack/vegastack-design/commit/c2a246ea63479a81b8a4174e62343f30caa287dd) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 `vegastack-design doctor` no longer reports a `password-input` import as retired, and the shipped skills stop listing `PasswordInput` among the retired components — it is a registry component again.
+
 ## 0.7.1
 
 ### Patch Changes
