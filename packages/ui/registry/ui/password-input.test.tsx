@@ -50,11 +50,8 @@ test("disabled disables both the input and the toggle", async () => {
   expect(
     (screen.getByLabelText("Password").element() as HTMLInputElement).disabled,
   ).toBe(true);
-  expect(
-    (
-      screen
-        .getByRole("button", { name: "Show password" })
-        .element() as HTMLButtonElement
-    ).disabled,
-  ).toBe(true);
+  // Button's disabled form is aria-disabled (FRM-4), not the native attribute.
+  await expect
+    .element(screen.getByRole("button", { name: "Show password" }))
+    .toHaveAttribute("aria-disabled", "true");
 });
