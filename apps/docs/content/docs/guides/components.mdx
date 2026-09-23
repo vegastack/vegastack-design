@@ -96,19 +96,20 @@ redirection; retaining the digest before copy-in also detects replacement of the
 
 ## Customizing
 
-Edit the copied files freely — that's the point of the model. Two practices keep
-future updates painless:
+**Don't edit a copied-in component; customize around it.** In order of preference:
 
-- **Additive edits over rewrites.** Add variants/classes/props; avoid reshuffling
-  the file wholesale, so `--diff` output stays reviewable.
-- **Compose in new files where possible** — wrap `Button` in your own
-  `SubmitButton` rather than forking `button.tsx` for one use case.
+- **A token override** — retune `--primary`, `--radius` or a font family once and every component
+  follows ([Theming](/docs/guides/theming)).
+- **`className` at the call site** — every part accepts one and merges it with `cn()`.
+- **A wrapper in your own file** — wrap `Button` in your own `SubmitButton` rather than forking
+  `button.tsx` for one use case.
 
-Customized files show as `≈ differs from registry` — the content comparison
-can't tell your edits from an upstream change; `add --diff` is what disambiguates.
-**CI note:** `--fail-on-update` treats that status as failure too, so in-place
-customizations keep the drift gate red. If you customize, prefer wrapper files —
-or scope the gate: `check-updates --fail-on-update --filter <uncustomized,...>`.
+**If you must edit one, it becomes yours.** From then on `check-updates` reports it as
+`≈ differs from registry` — the content comparison can't tell your edit from an upstream change,
+so every update becomes a `--diff` you review and re-apply by hand. Keep such edits additive
+(add a variant or a class; don't reshuffle the file) so that diff stays readable.
+**CI note:** `--fail-on-update` treats that status as a failure too, so an edited file keeps the
+drift gate red until you scope it out: `check-updates --fail-on-update --filter <unedited,...>`.
 
 ## Updating — pulled, never pushed
 

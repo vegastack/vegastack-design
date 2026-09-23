@@ -13,15 +13,16 @@
  *
  * This package's own `dist` ships the icon runtime (`BrandIcon`'s
  * `inline-flex shrink-0 [&>svg]:size-full`), and `@vegastack/ui` ships a compiled
- * provider + `Toaster` whose Base UI Toast classes (e.g. `bg-popover shadow-overlay`)
+ * provider + `Toaster` whose Base UI Toast classes (e.g. `bg-popover shadow-lg`)
  * live in its published `dist/*.js`, NOT in the consumer's own source — so without
  * an explicit `@source` a real npm consumer importing ONLY this preset would get
  * a partially-unstyled provider/Toaster + icon UI.
  *
  * Why `./dist` + a RELATIVE `../ui/dist` path and NOT `@source "@vegastack/ui"`:
- *   - Tailwind v4.3.1 (the pinned version) does NOT resolve a bare package-name
- *     `@source` through node_modules — it treats `@vegastack/ui` as a literal
- *     glob and silently scans nothing (verified: tooling/verify-preset-source.mjs).
+ *   - Tailwind v4 (whatever version the lockfile pins) does NOT resolve a bare
+ *     package-name `@source` through node_modules — it treats `@vegastack/ui` as a
+ *     literal glob and silently scans nothing (re-verified against the installed
+ *     version by tooling/verify-preset-source.mjs).
  *   - Tailwind resolves `@source` relative to this file's realpath. The icon runtime
  *     is INSIDE this package now (`./dist`). `@vegastack/ui` — when present — sits as
  *     a sibling under the same `@vegastack` scope in node_modules, making `../ui`

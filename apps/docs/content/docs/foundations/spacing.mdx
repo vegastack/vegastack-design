@@ -6,7 +6,8 @@ audience: public
 
 Spacing is a **single base unit** stepped on a 4px scale. Tailwind v4 supplies the base
 `--spacing` variable (`0.25rem` = 4px); every spacing utility (`p-4`, `gap-2`, `mt-6`, `w-12`)
-resolves to `calc(var(--spacing) * N)`. Use the scale — never one-off `px` values.
+resolves to `calc(var(--spacing) * N)`. Prefer a scale step; an arbitrary value (`p-[3px]`) is
+for an optical fix the scale cannot express, the way upstream's own components use one.
 
 <SpacingScale />
 
@@ -34,8 +35,8 @@ multiplied by Tailwind's numeric utility name.
 package ships no `--spacing` of its own. Internal utilities reference it directly when they need a
 spacing-relative length, e.g. the scroll-fade reveal in `@vegastack/design-tokens/utilities.css` uses
 `calc(var(--spacing) * 24)`. In app code, reach for the named utility. If a repeated computed length
-is truly needed, promote it to a named token or sanctioned utility instead of bypassing the component
-lint with an inline style:
+is truly needed, name it once (a CSS variable or a utility) rather than repeating the calculation
+in every class string:
 
 ```tsx
 <div className="gap-2 p-4" />
@@ -56,7 +57,7 @@ layout stays on-grid by construction. Prefer `gap` on flex/grid containers over 
 
 <DoDont
   do="Use scale steps: p-4, gap-2, mt-6 — multiples of the 4px base."
-  dont="Hardcode off-grid lengths: p-[15px], gap-[7px], mt-[18px]."
+  dont="Reach for off-grid lengths as layout: p-[15px], gap-[7px], mt-[18px]. Keep arbitrary values for optical fixes — a 1px nudge to centre a glyph, a 3px inset the scale has no step for."
 />
 
 ## Related
