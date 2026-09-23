@@ -110,7 +110,7 @@ compatibility layer** — an import resolves to nothing and a deleted token sile
 nothing, which is the worse half. Both searches are mechanical:
 
 ```bash
-rg -n 'IconButton|OTPInput|PasswordInput|CheckboxGroup|FieldInline|Segmented|SplitButton|ProgressIndicator|OnboardingChecklist|FloatingSurface|MarketingSurface|ComparisonMatrix|FigureFrame|LogoRow|ParticleField|PricingSection|RuledBand|SectionHeader|Testimonial|StaggeredTextReveal' --glob '!components/ui/**'
+rg -n 'IconButton|OTPInput|CheckboxGroup|FieldInline|Segmented|SplitButton|ProgressIndicator|OnboardingChecklist|FloatingSurface|MarketingSurface|ComparisonMatrix|FigureFrame|LogoRow|ParticleField|PricingSection|RuledBand|SectionHeader|Testimonial|StaggeredTextReveal' --glob '!components/ui/**'
 rg -n 'surface-(1|2|3|raised)|--alpha-|--opacity-|--size-|--icon-|--panel-width-|--z-(raised|overlay|toast)|shadow-overlay|text-(h[1-4]|label|label-sm|code|mono-label|display-)|muted-foreground-faint|surfaceInteractive|fillInteractive|fieldControl|selectedChipVariants' --glob '!components/ui/**'
 ```
 

@@ -576,7 +576,7 @@ assert(
 
 const expectedWaves = {
   "Core controls": 23,
-  "Forms/editing": 24,
+  "Forms/editing": 25,
   "Navigation/layout": 17,
   Overlays: 14,
   "Data display": 11,
@@ -648,6 +648,7 @@ const expectedComponentWaveMembers = {
     "input-otp",
     "native-select",
     "number-field",
+    "password-input",
     "region-select",
     "search-input",
     "searchable-select",

@@ -11,6 +11,7 @@
     "input",
     "input-group",
     "search-input",
+    "password-input",
     "input-otp",
     "textarea",
     "number-field",
