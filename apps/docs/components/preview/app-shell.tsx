@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Home, Inbox, Settings, BarChart3, Bot } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/app-shell` (dogfoods the registry) → auto-scanned.
@@ -55,22 +55,6 @@ const STAT_CARDS = [
  * belonged. A property of the frame, not of the component: no sidebar part is restyled.
  */
 const FRAME = { contain: "paint" } as const;
-
-/*
- * `true` once this client has hydrated; `false` on the server AND during hydration (React uses
- * the server snapshot there), so what it gates is never part of the server HTML. Upstream's
- * `SidebarMenuSkeleton` picks its bar width with `Math.random()`, so a server render of it can never
- * match the client's and every page load logged a hydration mismatch. The preview mounts it after
- * hydration instead; the component is not changed (no register ID covers it).
- */
-const noSubscription = () => () => {};
-function useHydrated(): boolean {
-  return useSyncExternalStore(
-    noSubscription,
-    () => true,
-    () => false,
-  );
-}
 
 /**
  * The primary composed mini-shell demo — a fixed, non-fullscreen frame (the docs page frames it,
@@ -299,16 +283,9 @@ export function appShellMobile(): ReactNode {
 
 /** `AppShellSkeleton` — drop this straight into a Next.js `loading.tsx` while the real shell's data loads. */
 export function appShellSkeletonDemo(): ReactNode {
-  const hydrated = useHydrated();
   return (
     <Wrapper className="block h-88 overflow-hidden p-0">
-      {hydrated ? (
-        <AppShellSkeleton
-          navItemCount={5}
-          statCardCount={4}
-          className="h-full"
-        />
-      ) : null}
+      <AppShellSkeleton navItemCount={5} statCardCount={4} className="h-full" />
     </Wrapper>
   );
 }

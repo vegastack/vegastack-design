@@ -207,7 +207,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.12.2",
-        "integrity": "sha256-OdpJkNYhzyAp2hw8THWEiszDyyt+QU75ppSLknLjxYY="
+        "integrity": "sha256-EKspbKGEnevdrfyyJXyr9Wac8G96C1r5m9ScvD/63eA="
       }
     },
     {

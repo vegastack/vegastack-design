@@ -399,7 +399,7 @@ test("AppShellSkeleton is decorative and renders navItemCount / statCardCount pl
   expect(root.getAttribute("aria-hidden")).toBe("true");
   expect(root.getAttribute("aria-busy")).toBe("true");
   expect(
-    root.querySelectorAll('[data-slot="sidebar-menu-skeleton"]').length,
+    root.querySelectorAll('[data-slot="app-shell-skeleton-nav-row"]').length,
   ).toBe(3);
   // Two stat-card placeholders, told apart from the sidebar rows by their container.
   expect(
@@ -409,18 +409,27 @@ test("AppShellSkeleton is decorative and renders navItemCount / statCardCount pl
   ).toBe(2);
 });
 
-test("AppShellSkeleton is deterministic across renders (same index -> same width class)", async () => {
-  const a = await render(<AppShellSkeleton navItemCount={2} />);
-  const b = await render(<AppShellSkeleton navItemCount={2} />);
-  const lastLine = (container: Element) =>
-    [
-      ...container.querySelectorAll(
-        '[data-slot="sidebar-menu-skeleton"] [data-slot="skeleton"]',
-      ),
-    ].at(1);
-  const lineA = lastLine(a.container);
-  const lineB = lastLine(b.container);
-  expect(lineA?.className).toBe(lineB?.className);
+test("AppShellSkeleton is deterministic: two server renders emit identical markup", async () => {
+  // Upstream's SidebarMenuSkeleton picked a random width in useState, so the server HTML and the
+  // client's hydration disagreed. Identical server output across renders is the hydration contract.
+  const { renderToString } = await import("react-dom/server");
+  const html = () => renderToString(<AppShellSkeleton navItemCount={6} />);
+  const first = html();
+  expect(html()).toBe(first);
+  expect(first).not.toContain("--skeleton-width");
+  const widths = [
+    ...first.matchAll(
+      /data-slot="app-shell-skeleton-nav-row"[^>]*><div[^>]*class="[^"]*\b(w-\d\/\d)\b/g,
+    ),
+  ].map((m) => m[1]);
+  expect(widths).toEqual([
+    "w-3/4",
+    "w-1/2",
+    "w-5/6",
+    "w-2/3",
+    "w-3/5",
+    "w-3/4",
+  ]);
 });
 
 /* ---------------------------------------------------------------------------------------------

@@ -1879,9 +1879,14 @@ for (const name of [
  * A docs preview must hydrate onto its own server HTML. Upstream `SidebarMenuSkeleton` picks its
  * bar width with `Math.random()` in a state initialiser, so the server's `--skeleton-width` and the
  * client's never match and React logs a hydration mismatch on every load of the page (review round
- * 2). The two previews that mount it therefore render it after hydration only.
+ * 2). The sidebar preview mounts upstream's row after hydration only; `AppShellSkeleton` (ours) draws
+ * its own deterministic rows, so its preview renders on the server like any other.
  */
-for (const name of ["appShellSkeletonDemo", "sidebarMenuSkeleton"] as const) {
+const HYDRATION_FIXTURES = {
+  appShellSkeletonDemo: "app-shell-skeleton-nav-row",
+  sidebarMenuSkeleton: "sidebar-menu-skeleton",
+} as const;
+for (const [name, rowSlot] of Object.entries(HYDRATION_FIXTURES)) {
   test(`${name}: the docs preview hydrates without a mismatch`, async () => {
     const { renderToString } = await import("react-dom/server");
     const { hydrateRoot } = await import("react-dom/client");
@@ -1908,9 +1913,9 @@ for (const name of ["appShellSkeletonDemo", "sidebarMenuSkeleton"] as const) {
       expect(
         errors.filter((line) => /hydrat|didn't match/i.test(line)),
       ).toEqual([]);
-      // And the skeleton does arrive once hydrated.
+      // And the skeleton rows do arrive once hydrated.
       expect(
-        host.querySelectorAll('[data-slot="sidebar-menu-skeleton"]').length,
+        host.querySelectorAll(`[data-slot="${rowSlot}"]`).length,
       ).toBeGreaterThan(0);
     } finally {
       root.unmount();
