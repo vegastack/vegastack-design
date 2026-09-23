@@ -141,8 +141,18 @@ const DISPLAY_HINT = {
   lg: "text-6xl",
   xl: "text-7xl",
 };
-// Guide sections 4.2 and 4.3 — the literal each deleted token carried.
+// The literal each deleted `--alpha-*` token carried. Derived from the token HISTORY, not only the
+// last pre-reset snapshot: every name ever declared in packages/design-tokens (git log -S over
+// src/tokens.ts and tokens/*.tokens.json) is here. Nineteen are the migration guide's section 4.2
+// ladder, retired by the shadcn reset; five were retired before it, per the design-tokens
+// CHANGELOG — fill-hover, input-hover and surface-subtle with `track` (#77), soft-hover and
+// soft-surface with the Bubble contrast fix (#113). A theme-split token gives [light, dark].
 const ALPHA = {
+  "fill-hover": 80,
+  "input-hover": 50,
+  "surface-subtle": 10,
+  "soft-surface": [10, 20],
+  "soft-hover": [20, 30],
   "surface-faint": 5,
   hover: 7,
   border: 8,
@@ -252,12 +262,14 @@ export const RETIRED_VOCABULARY = [
     },
   },
   {
-    // Only the names the system shipped (guide section 4.2). `--alpha-*` is an open prefix other
+    // Only the names the system shipped (see ALPHA). `--alpha-*` is an open prefix other
     // libraries use too, and a name we never shipped is not ours to call retired.
     id: "--alpha-*",
     re: new RegExp(`${B}--alpha-(?:${oneOf(Object.keys(ALPHA))})${E}`, "g"),
     hint: (m) => {
       const pct = ALPHA[m.slice(8)];
+      if (Array.isArray(pct))
+        return `the literal /${pct[0]} in light with a dark: variant at /${pct[1]}, e.g. bg-destructive/${pct[0]} dark:bg-destructive/${pct[1]}`;
       return `the literal /${pct}, e.g. bg-foreground/${pct}`;
     },
     declared: (m) => m,
@@ -361,9 +373,48 @@ function importsIntoUi(specDir, { file, uiAliases, uiDirs }) {
  * Blank what is not class or CSS usage, keeping every newline so line numbers survive: `//` and
  * `/* *\/` comments, and — in script files — a string literal that reads as prose ("Use text-strong
  * for emphasis"). A class string is lower-case utility tokens; a capitalised word or sentence
- * punctuation marks a sentence. Single- and double-quoted strings cannot span a line in JS, so an
- * apostrophe in JSX text ("Don't") can only ever mis-scan the rest of its own line.
+ * punctuation marks a sentence (never `!`, which is Tailwind's important modifier: `hidden!`).
+ *
+ * In a script file, JSX TEXT is not code, so nothing in it may open a comment or a string: an
+ * apostrophe ("Don't"), a URL's `//`, a glob's `/*`. Without a parser, position decides — a string
+ * opens only where an expression can begin (after `=`, `(`, `,`, `[`, `{`, `:`, `?`, an operator,
+ * `=>`, or a keyword such as `return`), and a comment only after whitespace or code punctuation,
+ * never after `:` (`https://`) or a word (`src/*.ts`).
  */
+const EXPRESSION_KEYWORDS = new Set([
+  "return",
+  "case",
+  "typeof",
+  "in",
+  "of",
+  "yield",
+  "await",
+  "void",
+  "delete",
+  "throw",
+  "from",
+  "import",
+  "export",
+  "default",
+  "else",
+  "do",
+]);
+function canStartExpression(src, i) {
+  let k = i - 1;
+  while (k >= 0 && /\s/.test(src[k])) k -= 1;
+  if (k < 0) return true;
+  const p = src[k];
+  if (p === ">") return src[k - 1] === "="; // `=>`, never a JSX tag's `>`
+  if ("=(,[{:?&|!+-*%^~<;".includes(p)) return true;
+  if (/[\w$]/.test(p)) {
+    let w = k;
+    while (w >= 0 && /[\w$]/.test(src[w])) w -= 1;
+    return EXPRESSION_KEYWORDS.has(src.slice(w + 1, k + 1));
+  }
+  return false;
+}
+const canStartComment = (src, i) => i === 0 || /[\s;,{}()[\]]/.test(src[i - 1]);
+
 export function maskNonUsage(
   src,
   { script = true, lineComments = script } = {},
@@ -373,14 +424,14 @@ export function maskNonUsage(
     for (let k = from; k < to; k += 1) if (out[k] !== "\n") out[k] = " ";
   };
   const isProse = (text) =>
-    /(?:^|\s)[A-Z][a-z]+(?=[\s,.;:!?]|$)|[a-z][.,;:!?](?:\s|$)/.test(
+    /(?:^|\s)[A-Z][a-z]+(?=[\s,.;:!?]|$)|[a-z][.,;:?](?:\s|$)/.test(
       text.replace(/\[[^\]]*\]|\([^)]*\)/g, ""),
     );
   let i = 0;
   while (i < src.length) {
     const c = src[i];
     const next = src[i + 1];
-    if (c === "/" && next === "*") {
+    if (c === "/" && next === "*" && (!script || canStartComment(src, i))) {
       const end = src.indexOf("*/", i + 2);
       const stop = end === -1 ? src.length : end + 2;
       blank(i, stop);
@@ -389,13 +440,16 @@ export function maskNonUsage(
       c === "/" &&
       next === "/" &&
       lineComments &&
-      (script || i === 0 || /\s/.test(src[i - 1]))
+      (script ? canStartComment(src, i) : i === 0 || /\s/.test(src[i - 1]))
     ) {
       const end = src.indexOf("\n", i);
       const stop = end === -1 ? src.length : end;
       blank(i, stop);
       i = stop;
-    } else if (c === '"' || c === "'" || c === "`") {
+    } else if (
+      (c === '"' || c === "'" || c === "`") &&
+      (!script || canStartExpression(src, i))
+    ) {
       let j = i + 1;
       while (j < src.length && src[j] !== c) {
         if (src[j] === "\\") j += 1;

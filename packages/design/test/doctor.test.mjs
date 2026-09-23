@@ -202,6 +202,46 @@ test("comments and prose strings are not usage", () => {
   ]);
 });
 
+test("JSX text never hides the real usage after it on the same line", () => {
+  // Round-2 review specimens: each line's class is real usage the comment/prose masking used to
+  // swallow — an apostrophe in JSX text opened a pseudo-string to end of line, a URL's `//` read
+  // as a line comment, a glob's `/*` opened a block comment, and `hidden!` (Tailwind's important
+  // modifier) read as sentence punctuation that blanked its whole class string.
+  const root = project({
+    "src/app/page.tsx": [
+      `export const A = () => <p>Don't worry. <span className="text-h1">T</span></p>;`,
+      `export const B = () => <p>See https://x.dev <span className="text-h2">T</span></p>;`,
+      `export const C = () => <div className="text-h3 hidden! md:flex" />;`,
+      `export const D = () => <p>Match src/*.ts <span className="text-h4">T</span></p>;`,
+      `export const E = () => <p>"Quoted," she said. <span className="text-label">T</span></p>;`,
+      `export const F = () => <p>It's the user's <b className="text-strong">own</b></p>;`,
+    ].join("\n"),
+  });
+  assert.deepEqual(matches(root), [
+    "src/app/page.tsx:1 text-h1",
+    "src/app/page.tsx:2 text-h2",
+    "src/app/page.tsx:3 text-h3",
+    "src/app/page.tsx:4 text-h4",
+    "src/app/page.tsx:5 text-label",
+    "src/app/page.tsx:6 text-strong",
+  ]);
+});
+
+test("strings still start wherever an expression can, so prose strings stay masked", () => {
+  const root = project({
+    "src/strings.tsx": [
+      `const a = "Use text-h1 for emphasis";`,
+      `f("Use text-h2 here.", 'Keep text-h3 short.');`,
+      `const b = ok ? "Pick text-h4 instead" : "Or text-label, please";`,
+      `const c = () => "Try text-strong now";`,
+      `function d() { return "Prefer text-code today"; }`,
+      `const e = [\n  "Add text-code-sm later",\n];`,
+      `const g = x || "Swap text-label-sm now";`,
+    ].join("\n"),
+  });
+  assert.deepEqual(matches(root), []);
+});
+
 test("a class the project defines in its own CSS is not reported", () => {
   const root = project({
     "src/app.css": [
@@ -226,6 +266,37 @@ test("third-party custom properties that share a retired prefix are not reported
     "src/app.css:3 --alpha-border-subtle",
     "src/app.css:3 --z-overlay",
   ]);
+});
+
+test("every --alpha-* the system ever shipped is reported, not just the reset's last nineteen", () => {
+  // The design-tokens CHANGELOG retired five before the reset: fill-hover, input-hover and
+  // surface-subtle (2026-09-08, "track is removed") and soft-hover and soft-surface (the Bubble
+  // contrast fix). A var() naming any of them compiles to nothing.
+  const root = project({
+    "src/page.tsx": [
+      `<div className="bg-primary/(--alpha-fill-hover)" />`,
+      `<div className="dark:hover:bg-input/(--alpha-input-hover)" />`,
+      `<div className="hover:bg-primary/(--alpha-surface-subtle)" />`,
+      `<div className="bg-destructive/(--alpha-soft-surface) hover:bg-destructive/(--alpha-soft-hover)" />`,
+    ].join("\n"),
+  });
+  const findings = scanRetiredVocabulary(root).findings;
+  assert.deepEqual(
+    findings.map((f) => `${f.line} ${f.match}`),
+    [
+      "1 --alpha-fill-hover",
+      "2 --alpha-input-hover",
+      "3 --alpha-surface-subtle",
+      "4 --alpha-soft-surface",
+      "4 --alpha-soft-hover",
+    ],
+  );
+  const hint = (name) => findings.find((f) => f.match === name).hint;
+  assert.match(hint("--alpha-fill-hover"), /\/80/);
+  assert.match(hint("--alpha-input-hover"), /\/50/);
+  assert.match(hint("--alpha-surface-subtle"), /\/10/);
+  assert.match(hint("--alpha-soft-surface"), /\/10 .*dark.*\/20/);
+  assert.match(hint("--alpha-soft-hover"), /\/20 .*dark.*\/30/);
 });
 
 test("*-subtle matches only the four status families, so its hint names a real token", () => {

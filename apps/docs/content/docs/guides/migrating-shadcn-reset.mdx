@@ -185,6 +185,17 @@ Every `--alpha-*` is gone. Write the literal percentage the token carried.
 So `bg-foreground/(--alpha-hover)` becomes `bg-foreground/7`, and
 `border-ring/(--alpha-tint-border)` becomes `border-ring/70`.
 
+Five more were retired before the reset (0.4.x), and a project that skipped those releases may
+still name them. They compile to nothing just the same:
+
+| Token                    | Write instead                          |
+| ------------------------ | -------------------------------------- |
+| `--alpha-fill-hover`     | `/80`                                  |
+| `--alpha-input-hover`    | `/50`                                  |
+| `--alpha-surface-subtle` | `/10`                                  |
+| `--alpha-soft-surface`   | `/10`, with a `dark:` variant at `/20` |
+| `--alpha-soft-hover`     | `/20`, with a `dark:` variant at `/30` |
+
 ### 4.3 The opacity ladder (4 entries)
 
 | Deleted               | Was | Write instead |
