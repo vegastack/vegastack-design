@@ -67,8 +67,10 @@ that catch bugs nobody can see in review.
    box-shadow ring _anywhere_, which is why `bubble`'s decorative `ring-3 ring-card` cutout became
    `outline-3 outline-card` (identical paint, no box-shadow) in Batch 1.
 6. **`no-surface-ring`** (BRD-1, **ours since MK 2026-09-23**) — a 1px ring width (`ring-1`,
-   `ring-px`, `ring-[1px]`) or a hairline ink (`ring-foreground`, `ring-border`, `ring-black`,
-   `ring-white`, `ring-input`, `ring-sidebar-border`, with or without an alpha) under any variant —
+   `ring-px`, `ring-[1px]`, and bare `ring`, which is 1px in Tailwind v4 — matched only inside a
+   string literal, since it is also an English word) or a hairline ink (`ring-foreground`,
+   `ring-border`, `ring-black`, `ring-white`, `ring-input`, `ring-sidebar-border`, with or without
+   an alpha), each also as its `inset-ring` twin, under any variant —
    upstream's `ring-1 ring-foreground/10` surface outline and every other spelling of it. Cards and floating
    surfaces draw a real `border border-border`; the reset had taken upstream's ring while
    `foundations/elevation.mdx` still described a border, and consumers read the ring as an unwanted
