@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.14.0 sha256-4BUsJm44EXUq8nX/ilgvNM+OC2TK9p+BfG9gic8mPWY=
+// @vegastack editable-cell@0.14.0 sha256-etZd0bUMhqVbUHlrQdGkOp+akUNxE6WxInr00SfYn4Y=
 
 "use client";
 
@@ -493,7 +493,12 @@ export function EditableCell({
       data-slot="editable-cell"
       data-status={status}
       data-focus-mode={focusMode}
-      className={cn("inline-flex min-w-0 items-center gap-1.5", className)}
+      // `max-w-full` caps the inline root at its container, so a long value inside a heading
+      // (a block parent, where `min-w-0` alone shrinks nothing) truncates instead of overflowing.
+      className={cn(
+        "inline-flex max-w-full min-w-0 items-center gap-1.5",
+        className,
+      )}
     >
       {editorSurface}
       {/* The VISIBLE indicator is decorative — every glyph is `aria-hidden`, and the
