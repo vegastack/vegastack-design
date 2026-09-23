@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.15.0
+
+### Minor Changes
+
+- [#185](https://github.com/vegastack/vegastack-design/pull/185) [`f93704e`](https://github.com/vegastack/vegastack-design/commit/f93704e9ae36f31fa3231f3547c40a017d523441) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `DialogContent` takes a `size` prop — `sm`, `default`, `lg` or `xl`, published as `data-size` — so a bulk-edit table or an attribute editor gets a wider dialog without a `className` override. `default` keeps upstream's `sm:max-w-sm`; `sm`, `lg` and `xl` step the cap to `max-w-xs`, `max-w-2xl` and `max-w-5xl`. The axis mirrors `AlertDialogContent`'s (decision OVL-16).
+
+- [#187](https://github.com/vegastack/vegastack-design/pull/187) [`e4c7208`](https://github.com/vegastack/vegastack-design/commit/e4c7208e9f63227a2e07b2984c4fc0672655040f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `EditableCell` inherits the surrounding type instead of fixing its display and editor at `text-sm`, so it can edit a page title at the heading's size and weight (`<h1 className="text-3xl font-semibold"><EditableCell … /></h1>`) without descendant-selector overrides. At the 14px body default it looks as before; below `md` the editor still never drops under 16px.
+
 ## 0.14.0
 
 ### Minor Changes
