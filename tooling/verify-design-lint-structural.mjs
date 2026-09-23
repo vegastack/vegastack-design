@@ -263,32 +263,69 @@ export const multiline = \`flex items-center
   // foreground at an alpha and without one, the border token, a raw black/white hairline, the
   // sidebar's own border), a bare 1px width — including bare `ring`, which is 1px in Tailwind v4 —
   // the `inset-ring` twin of each, and a variant-scoped spelling of each half.
+  //
+  // Bare `ring` is also an English word, so it is read from the AST, not the line (review round 3,
+  // 2026-09-23): at a CLASS POSITION — a `className`, a `cn`/`cva` argument — every token is a class,
+  // so a lone `"ring"`, a ring in its own `cn` argument, a class list continued onto the next line
+  // and an arbitrary-variant `[&>div]:ring` are all rejected. The line-level test they replace
+  // missed all four and rejected prose in an `aria-label`/`title`, which the positive specimen
+  // now carries.
+  const surfaceRingForms = [
+    `<div className="rounded-xl bg-card ring-1 ring-foreground/10">upstream card</div>`,
+    `<div className="bg-popover ring-1 dark:ring-foreground/20">a variant-scoped outline</div>`,
+    `<div className="rounded-lg ring-1 ring-border">the border token as a ring</div>`,
+    `<div className="rounded-lg ring-1 ring-black/10">a raw hairline</div>`,
+    `<div className="rounded-lg ring-2 ring-foreground">the foreground with no alpha</div>`,
+    `<div className="group-data-[variant=floating]:ring-sidebar-border">the floating sidebar's edge</div>`,
+    `<div className="rounded-lg ring-[1px]">a bare 1px width</div>`,
+    `<div className="rounded-lg ring ring-muted">bare \`ring\`, which is 1px in Tailwind v4</div>`,
+    `<div className="rounded-lg ring ring-primary/20">bare \`ring\` in a brand ink</div>`,
+    `<div className="rounded-lg inset-ring inset-ring-border">an inset hairline</div>`,
+    `<div className="rounded-lg data-[open]:inset-ring-1 dark:inset-ring-foreground/10">a variant-scoped inset outline</div>`,
+    `<div className="ring">a lone bare ring</div>`,
+    `<div className={cn("rounded-lg", "ring", "ring-muted")}>a ring in its own cn argument</div>`,
+    `<div className={cn(\n      "rounded-lg",\n      open && "ring ring-primary/20",\n    )}>a conditional cn argument on a later line</div>`,
+    `<div className={\`flex\n      ring ring-muted\n      p-2\`}>a template class list continued across lines</div>`,
+    `<div\n      className="rounded-lg\n        ring ring-muted"\n    >a JSX class attribute continued across lines</div>`,
+    `<div className="[&>div]:ring ring-muted">an arbitrary-variant ring</div>`,
+  ];
+  // Each form's line RANGE (a multi-line form is reported on the line its literal starts), so the
+  // check below proves EVERY form was rejected, not just a count. The head's class constant — a
+  // class list nothing names, found by its shape — is form one.
+  const surfaceRingHead =
+    "const surfaceClass = `rounded-lg\n  ring ring-muted`;\n\nexport function Surfaces() {\n  return <>\n";
+  const surfaceRingLinesExpected = [[1, 2]];
+  let surfaceRingLine = surfaceRingHead.split("\n").length;
+  for (const form of surfaceRingForms) {
+    const span = form.split("\n").length;
+    surfaceRingLinesExpected.push([
+      surfaceRingLine,
+      surfaceRingLine + span - 1,
+    ]);
+    surfaceRingLine += span;
+  }
   writeFileSync(
     join(surfaceRingDir, "surface-ring.tsx"),
-    `export function Surfaces() {
-  return <>
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">upstream card</div>
-    <div className="bg-popover ring-1 dark:ring-foreground/20">a variant-scoped outline</div>
-    <div className="rounded-lg ring-1 ring-border">the border token as a ring</div>
-    <div className="rounded-lg ring-1 ring-black/10">a raw hairline</div>
-    <div className="rounded-lg ring-2 ring-foreground">the foreground with no alpha</div>
-    <div className="group-data-[variant=floating]:ring-sidebar-border">the floating sidebar's edge</div>
-    <div className="rounded-lg ring-[1px]">a bare 1px width</div>
-    <div className="rounded-lg ring ring-muted">bare \`ring\`, which is 1px in Tailwind v4</div>
-    <div className="rounded-lg ring ring-primary/20">bare \`ring\` in a brand ink</div>
-    <div className="rounded-lg inset-ring inset-ring-border">an inset hairline</div>
-    <div className="rounded-lg data-[open]:inset-ring-1 dark:inset-ring-foreground/10">a variant-scoped inset outline</div>
-  </>;
-}
-`,
+    `${surfaceRingHead}${surfaceRingForms.map((form) => `    ${form}`).join("\n")}\n  </>;\n}\n`,
   );
   const surfaceRing = run(surfaceRingDir);
-  const surfaceRingLines = surfaceRing.output
-    .split("\n")
-    .filter((line) => line.includes("[no-surface-ring]")).length;
-  if (surfaceRing.status === 0 || surfaceRingLines < 11) {
+  const surfaceRingReported = new Set(
+    [
+      ...surfaceRing.output.matchAll(
+        /surface-ring\.tsx:(\d+) \[no-surface-ring\]/g,
+      ),
+    ].map((m) => Number(m[1])),
+  );
+  const surfaceRingMissed = surfaceRingLinesExpected
+    .filter(
+      ([from, to]) =>
+        ![...surfaceRingReported].some((l) => l >= from && l <= to),
+    )
+    .map(([from]) => from);
+  if (surfaceRing.status === 0 || surfaceRingMissed.length > 0) {
     console.error(
-      `  observed ${surfaceRingLines} of 11 surface-ring forms rejected`,
+      `  ${surfaceRingMissed.length} of ${surfaceRingLinesExpected.length} surface-ring forms ` +
+        `accepted, at specimen line(s) ${surfaceRingMissed.join(", ")}`,
     );
     fail(
       "design-lint accepted a ring surface outline — BRD-1 gives surfaces a real " +
@@ -516,6 +553,8 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <div className="size-8 rounded-full ring-2 ring-background" />{/* avatar's stacking gap in a group — a separator in the page colour, not a surface outline (BRD-1) */}
     <div className="rounded-xl border border-border bg-card" />{/* the BRD-1 surface edge */}
     <Swatches tokens={["border", "input", "ring"]} title="Add a ring" />{/* \`ring\` as a token NAME and as a word, not a class string (BRD-1) */}
+    <p aria-label="Draw a ring around the user-selected item" title='keep the ring on the drop-zone edge'>x</p>{/* prose beside a hyphenated word, in a non-class attribute, is not a bare ring (BRD-1) */}
+    <p className={cn("text-sm", variant === "ring" && "font-medium")}>{"a ring-shaped hint"}</p>{/* a compared VALUE inside cn and JSX prose are not classes */}
     <div className="rounded-md ring-sidebar-ring ring-0" />{/* upstream's vestigial focus-ring COLOUR with no width, and a zeroed ring: neither draws an outline */}
     <p>{"Heads up! Saved."}</p>{/* prose ending in an exclamation mark is not a Tailwind \`!\` modifier */}
     <Close aria-label="Close toast" render={<Button size="icon-sm" />} />{/* the host names it with aria-label */}
@@ -539,11 +578,11 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms and all 5 loader-circle ` +
       `spellings are rejected while \`LoaderIcon\` and the animated-icon catalogue pass, a class seam ` +
       `with no separating space is rejected, all 4 Tailwind \`!\` modifier forms and a changed ` +
-      `exempt count are rejected, all 11 surface-ring spellings are rejected, an icon-only Button ` +
+      `exempt count are rejected, all 18 surface-ring spellings are rejected, an icon-only Button ` +
       `with an anonymous host is rejected while one carrying its own sr-only label is accepted; ` +
-      `the reviewed Textarea adapter passes, and with it 21 deliberate non-violations ` +
+      `the reviewed Textarea adapter passes, and with it 23 deliberate non-violations ` +
       `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
-      `hover vocabulary, avatar's ring-2 gap, a border surface and prose ending in "!", plus all ` +
+      `hover vocabulary, avatar's ring-2 gap, a border surface, prose that mentions a ring, prose ending in "!", plus all ` +
       `three spellings of naming an icon Button through its host`,
   );
 } finally {

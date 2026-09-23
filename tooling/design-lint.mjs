@@ -157,9 +157,12 @@ const RULES = [
   // second missed bare `ring` and `inset-ring` (round 2).
   //
   // Bare `ring` is also an English word ("never a ring") and a token NAME (`["border", "ring"]`),
-  // so that one spelling is matched only inside a string literal on the line (`alsoInStrings`),
-  // with comments masked first, and only in a CLASS string — one that carries another utility
-  // (a token with `-`, `:`, `/` or `[`) beside it: `ring ring-muted`, `inset-ring shadow-sm`.
+  // so that one spelling is not matched on the line at all. `bareRingClass` reads it from the
+  // AST's string literals: at a class POSITION (a `className`/`class` attribute or property, a
+  // class-named binding, a `cn`/`cva`/`clsx` argument) every token is a class, so a lone `"ring"`,
+  // `cn("rounded-lg", "ring", …)`, `[&>div]:ring` and a list continued across lines all count;
+  // anywhere else only a literal every token of which is class-shaped, with another utility
+  // beside the ring. Prose in an `aria-label` or `title` is never a class position (round 3).
   // Avatar's `ring-2 ring-background` is NOT this — it is the page-coloured gap between stacked
   // avatars in a group, a separator rather than an outline — and neither is a bare focus-ring
   // COLOUR such as `ring-sidebar-ring` (upstream's vestigial ring colour, painted by nothing since
@@ -168,9 +171,8 @@ const RULES = [
   {
     id: "no-surface-ring",
     re: /(?:^|[\s"'`:])(?:inset-)?ring-(?:1|px|\[1px\]|(?:foreground|border|black|white|input|sidebar-border)(?:\/[\w.[\]]+)?)(?=[\s"'`]|$)/,
-    // Bare `ring` / `inset-ring` is also an English word, so it counts only INSIDE a string
-    // literal on the line (a class string), never in a trailing comment or JSX prose.
-    alsoInStrings: bareRingClassString,
+    // Bare `ring` / `inset-ring` is also an English word, so it is not matched on the line at all:
+    // `bareRingClass` reads it from the AST's string literals, in the per-literal pass below.
     msg: "surface ring outline (BRD-1): cards and floating surfaces draw `border border-border` (the sidebar `border-sidebar-border`), not a 1px `ring-*` box-shadow outline in any ink",
   },
   // TYP-15 — the ramp owns tracking; a component never restates it.
@@ -249,6 +251,10 @@ const RULES = [
  * specificity from a composed part (Command over Dialog and InputGroup, a Sidebar button collapsing
  * to icon size, the Tooltip arrow over its side offset). The two of ours say why on their own line.
  */
+const NO_SURFACE_RING_MSG = RULES.find(
+  (rule) => rule.id === "no-surface-ring",
+).msg;
+
 const UPSTREAM_IMPORTANT =
   "upstream verbatim (vendor/shadcn/4.21.0) — overrides an equal-specificity declaration of a composed part; byte parity holds it";
 const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
@@ -551,15 +557,22 @@ function staticStringLiterals(file, src) {
   // `template` marks a literal whose text was ASSEMBLED from a template's static spans joined by
   // a space. That join is synthetic: it inserts separators that were never in the source, so any
   // rule about the literal's own whitespace would be reading the joiner rather than the author.
-  const push = (node, text, template = false) => {
+  // `classPosition` marks a literal the AST places where only classes go (see `CLASS_POSITION`).
+  const push = (node, text, template, classPosition) => {
     const line =
       sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line +
       1;
-    literals.push({ text, line, template });
+    literals.push({ text, line, template, classPosition });
   };
-  const visit = (node) => {
+  const nameOf = (node) =>
+    node && (ts.isIdentifier(node) || ts.isStringLiteral(node))
+      ? node.text
+      : node && ts.isPropertyAccessExpression(node)
+        ? node.name.text
+        : "";
+  const visit = (node, inClass) => {
     if (ts.isStringLiteralLike(node)) {
-      push(node, node.text);
+      push(node, node.text, false, inClass);
       return;
     }
     if (ts.isTemplateExpression(node)) {
@@ -570,15 +583,101 @@ function staticStringLiterals(file, src) {
           ...node.templateSpans.map((span) => span.literal.text),
         ].join(" "),
         true,
+        inClass,
       );
-      for (const span of node.templateSpans) visit(span.expression);
+      for (const span of node.templateSpans) visit(span.expression, inClass);
       return;
     }
-    ts.forEachChild(node, visit);
+    // A class attribute or property, a class-named binding, and every argument of a class
+    // builder: whatever static text sits under one of these is a class list.
+    if (
+      (ts.isJsxAttribute(node) ||
+        ts.isPropertyAssignment(node) ||
+        ts.isVariableDeclaration(node)) &&
+      CLASS_POSITION.name.test(nameOf(node.name))
+    ) {
+      ts.forEachChild(node, (child) =>
+        visit(child, child !== node.name || inClass),
+      );
+      return;
+    }
+    if (
+      ts.isCallExpression(node) &&
+      CLASS_POSITION.builder.test(nameOf(node.expression))
+    ) {
+      visit(node.expression, inClass);
+      for (const argument of node.arguments) visit(argument, true);
+      return;
+    }
+    // Any OTHER JSX attribute is not a class position, even inside one (`aria-label` on an element
+    // in a `render` prop), and neither is a comparison operand: `variant === "outline"` is a value.
+    if (ts.isJsxAttribute(node)) {
+      ts.forEachChild(node, (child) => visit(child, false));
+      return;
+    }
+    if (
+      ts.isBinaryExpression(node) &&
+      COMPARISON_OPERATORS.has(node.operatorToken.kind)
+    ) {
+      visit(node.left, false);
+      visit(node.right, false);
+      return;
+    }
+    ts.forEachChild(node, (child) => visit(child, inClass));
   };
-  visit(sourceFile);
+  visit(sourceFile, false);
   return literals;
 }
+
+/**
+ * Where the AST says a string is a class list: a `className`/`class` (or `*ClassName`) attribute
+ * or object property, a binding named like one (`SQUEEZE_CLASS`, `baseClassName`, `classes`), and
+ * every argument of a class builder — `cn`, `cva`, `clsx`, `cx`, `twMerge`, `twJoin` — including
+ * a `cva` call's variant map. A rule may read a literal found here as classes without guessing.
+ */
+const CLASS_POSITION = {
+  name: /^(?:class|className|classes|\w*(?:ClassName|Class|Classes|_CLASS|_CLASSES))$/,
+  builder: /^(?:cn|cva|clsx|cx|twMerge|twJoin)$/,
+};
+/** Tailwind utilities with no `-` in their name, which a class list may hold beside `ring`. */
+const BARE_UTILITIES = new Set([
+  "absolute",
+  "block",
+  "border",
+  "contents",
+  "container",
+  "fixed",
+  "flex",
+  "grid",
+  "group",
+  "grow",
+  "hidden",
+  "inline",
+  "invisible",
+  "isolate",
+  "italic",
+  "outline",
+  "peer",
+  "relative",
+  "ring",
+  "rounded",
+  "shadow",
+  "shrink",
+  "static",
+  "sticky",
+  "table",
+  "transition",
+  "truncate",
+  "underline",
+  "visible",
+]);
+
+const COMPARISON_OPERATORS = new Set([
+  ts.SyntaxKind.EqualsEqualsEqualsToken,
+  ts.SyntaxKind.ExclamationEqualsEqualsToken,
+  ts.SyntaxKind.EqualsEqualsToken,
+  ts.SyntaxKind.ExclamationEqualsToken,
+]);
 
 // §Build-rules class-glue — two ADJACENT string literals joined by `+` with no separating space.
 // JavaScript concatenates them into one word, so the last utility of the left literal and the first
@@ -740,7 +839,7 @@ for (const root of ROOTS) {
     // `verify-design-lint-structural.mjs`. Each is a token-vocabulary rule that source review kept
     // finding by hand; a rule nobody can forget is worth more than a review note.
     const importantModifiers = [];
-    for (const { text: lit, line, template } of literals) {
+    for (const { text: lit, line, template, classPosition } of literals) {
       const report = (id, message) => {
         console.log(`${file}:${line} [${id}] ${message}`);
         violations++;
@@ -824,6 +923,13 @@ for (const root of ROOTS) {
           `${overrides} descendant overrides in one class string (cap ${MAX_DESCENDANT_OVERRIDES}) — ` +
             "style the child through its own data-slot instead of reaching into it",
         );
+      }
+
+      // (h) BRD-1's bare `ring` / `inset-ring` (1px in Tailwind v4) — the spelling the
+      // `no-surface-ring` line regex cannot own, because it is also a word and a token name.
+      const bareRing = bareRingClass(lit, classPosition);
+      if (bareRing) {
+        report("no-surface-ring", `${NO_SURFACE_RING_MSG} ("${bareRing}")`);
       }
 
       // (g) Tailwind's `!` modifier — the class-string half of the `important` rule. Counted per
@@ -921,16 +1027,13 @@ for (const root of ROOTS) {
         trimmed.startsWith("/*")
       )
         return;
-      for (const { id, re, msg, alsoInStrings } of RULES) {
+      for (const { id, re, msg } of RULES) {
         if (id === "hex-color" && HEX_COLOR_FILE_ALLOWLIST.test(file)) continue;
         // `hex-color` reads the line with attribute-selector VALUES masked out — see SELECTOR_HEX.
         const subject =
           id === "hex-color" ? line.replace(SELECTOR_HEX, "[]") : line;
         re.lastIndex = 0;
-        if (
-          re.test(subject) ||
-          (alsoInStrings && stringLiteralsHit(line, alsoInStrings))
-        ) {
+        if (re.test(subject)) {
           console.log(`${file}:${i + 1} [${id}] ${msg}\n    ${trimmed}`);
           violations++;
         }
@@ -1358,32 +1461,36 @@ if (violations) {
 console.log("✓ design-lint: clean");
 
 /**
- * Is `text` a class string with a bare `ring` or `inset-ring` token in it? Bare `ring` is the 1px
- * width in Tailwind v4; it counts only beside another utility-shaped token, because alone it is as
- * likely an English word or a token name as a class.
+ * The bare `ring` / `inset-ring` class in one string literal, under any variant (`hover:`,
+ * `[&>div]:`, `data-[open]:`) and either `!` spelling — or null.
+ *
+ * At a CLASS POSITION (`staticStringLiterals` marks it from the AST) every token is a class, so a
+ * lone `className="ring"`, `cn("rounded-lg", "ring", "ring-muted")` and a class list continued
+ * across lines are all caught. Anywhere else the literal must first read as a class list: every
+ * token utility-shaped (carrying `-`, `:`, `/` or `[`) or a known bare utility, and some OTHER
+ * utility beside the ring. That keeps prose (`title="keep the ring on the drop-zone edge"`) and a
+ * token NAME (`["border", "ring"]`) out, and still catches a class constant nothing names.
  */
-function bareRingClassString(text) {
+function bareRingClass(text, classPosition) {
   const tokens = text.split(/\s+/).filter(Boolean);
-  const bare = tokens.findIndex((token) =>
-    /^(?:[\w-]+(?:\[[^\]]*\])?:)*(?:inset-)?ring$/.test(token),
+  const bare = tokens.find(
+    (token) =>
+      /^!?(?:inset-)?ring!?$/.test(utilityOf(token)) &&
+      // the utility itself, not an arbitrary variant's selector ending in `ring`
+      /(?:^|:)!?(?:inset-)?ring!?$/.test(token),
   );
-  return (
-    bare !== -1 &&
-    tokens.some((token, index) => index !== bare && /[-:/[]/.test(token))
+  if (!bare || classPosition) return bare ?? null;
+  const classShaped = tokens.every(
+    (token) => /[-:/[]/.test(token) || BARE_UTILITIES.has(utilityOf(token)),
   );
+  const beside = tokens.some((token) => token !== bare && /[-:/[]/.test(token));
+  return classShaped && beside ? bare : null;
 }
 
-/**
- * Does `test` hold for any string literal on `line`? Comments are masked first — a trailing
- * `// …` and a `/* … *\/` (JSX `{/* … *\/}` included) — and then only the contents of "…", '…'
- * and `…` literals are tested, so an English word in prose never reads as a class.
- */
-function stringLiteralsHit(line, test) {
-  const code = line
-    .replace(/\/\*.*?\*\//g, " ")
-    .replace(/(^|[\s;,{}()])\/\/.*$/, "$1");
-  for (const m of code.matchAll(/"([^"]*)"|'([^']*)'|`([^`]*)`/g)) {
-    if (test(m[1] ?? m[2] ?? m[3])) return true;
-  }
-  return false;
+/** A class token with its variants removed: `[&>div]:hover:ring` → `ring`. */
+function utilityOf(token) {
+  let flat = token;
+  // Collapse bracket groups innermost-first, so a nested `[&_[data-x]]:` leaves no stray `:`.
+  while (/\[[^\][]*\]/.test(flat)) flat = flat.replace(/\[[^\][]*\]/g, "_");
+  return flat.slice(flat.lastIndexOf(":") + 1);
 }
