@@ -16186,7 +16186,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.12.2",
-        "integrity": "sha256-JCSyuwD2wcJfLN4UFQAkn6UrQv4MldAP4THVkLovkUU="
+        "integrity": "sha256-4U3g2dSqjYHhlYBeIUNZBlqnGjMBpVscJvwdcyUnlLA="
       }
     },
     {

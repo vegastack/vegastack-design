@@ -27,7 +27,7 @@ DataGrid already ships "responsive column revelation" (`minWidth` + `mobile: "vi
 
 - Destructive menu items use the fill colour as text on a 10% tint (3.99:1, below AA by our own `foundations/colors` measure): `dropdown-menu.tsx:109`, `context-menu.tsx:118`, `menubar.tsx:106` → `text-destructive-text`. Same for `questionnaire.tsx:209`, `attachment.tsx:58` (contradicts A11Y-13 in its own file at :128).
 - Physical direction classes under a shipped DirectionProvider: `page-header.tsx:282` (`ml-auto`), `filter-bar.tsx:346,355` (`ml-auto`), `date-picker.tsx:236` (`border-r`, `max-sm:border-r-0`) → `ms-auto`, `border-e`. **Correction (23-09-2026):** `sidebar.tsx:294` (`-right-4`, `left-0`) is removed from this list — the sidebar's physical classes follow its literal `side` prop (`left`/`right`), so they are correct as written and a logical swap would invert them under RTL.
-- `terminal.tsx:144` `text-brand` → `text-brand-text`.
+- ~~`terminal.tsx:144` `text-brand` → `text-brand-text`~~ — dropped at review: the token contract (`semantic.tokens.json` `brand` description) names the aria-hidden terminal prompt glyph as a sanctioned `brand` MARKER role, so `text-brand` is correct.
 
 ## 4. Tooling that let the consumer drift silently
 
@@ -53,4 +53,4 @@ DataGrid already ships "responsive column revelation" (`minWidth` + `mobile: "vi
 
 ## Gates and release
 
-`pnpm verify` (lint incl. new rules, typecheck, tests, registry parity, upstream check, VRT for the ring→border change), changesets: `@vegastack/ui` **minor** (new DataList props, new `data-list-pager`; visual border change), `@vegastack/design` **patch** (doctor scan, skills), `@vegastack/design-tokens` none. Shipping is MK's `ship it`.
+`pnpm verify` against `main` (lint incl. new rules, typecheck, affected Chromium incl. geometry at 320px, registry parity, upstream check) plus an agent visual pass on the affected previews (light/dark, 320px + wide; no committed captures — the repo has no VRT baseline). Changesets: `@vegastack/ui` **minor** (new DataList props, new `data-list-pager`; visual border change), `@vegastack/design` **patch** (doctor scan, skills), `@vegastack/design-tokens` **patch** (`base.css` `!important` comment corrected). Shipping is MK's `ship it`.

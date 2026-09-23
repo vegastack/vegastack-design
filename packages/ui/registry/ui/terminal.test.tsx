@@ -144,16 +144,6 @@ test("a custom prompt glyph replaces the default", async () => {
   ).toBe(">");
 });
 
-test("the prompt glyph reads in the brand-text ink, not the brand marker fill", async () => {
-  const screen = await render(<Terminal lines={["pnpm install"]} />);
-  const prompt = screen.container.querySelector(
-    '[data-slot="terminal-prompt"]',
-  ) as HTMLElement;
-  const tokens = prompt.className.split(/\s+/);
-  expect(tokens).toContain("text-brand-text");
-  expect(tokens).not.toContain("text-brand");
-});
-
 test("output lines render without a prompt glyph", async () => {
   const screen = await render(<Terminal lines={[{ output: "✓ Done" }]} />);
   expect(

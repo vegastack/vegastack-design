@@ -1,4 +1,4 @@
-// @vegastack terminal@0.12.2 sha256-JCSyuwD2wcJfLN4UFQAkn6UrQv4MldAP4THVkLovkUU=
+// @vegastack terminal@0.12.2 sha256-4U3g2dSqjYHhlYBeIUNZBlqnGjMBpVscJvwdcyUnlLA=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -26,9 +26,9 @@ export interface TerminalProps extends Omit<
    */
   lines: (string | TerminalLine)[];
   /**
-   * The prompt glyph shown before each command line, in the `brand-text` ink:
-   * the glyph is a character, so it reads at text contrast rather than the
-   * 3:1 the `--brand` marker fill is held to.
+   * The prompt glyph shown before each command line — the sanctioned
+   * "terminal prompt glyph" `--brand` marker role (audit 17-brand-direction
+   * §Color & surface).
    * @default '$'
    */
   prompt?: string;
@@ -62,7 +62,7 @@ function normalizeLine(line: string | TerminalLine): TerminalLine {
 
 /**
  * `Terminal` (a.k.a. CommandBlock) — a mono command block: a title bar
- * over command/output lines, each command prefixed with a `brand-text` phosphor
+ * over command/output lines, each command prefixed with a `--brand` phosphor
  * prompt glyph, plus a composed trailing {@link CopyButton}. The command pane
  * scrolls independently, so the copy action remains visible at the inline end —
  * which makes it a keyboard focus stop **whenever it actually overflows**, named
@@ -141,7 +141,7 @@ export function Terminal({
                   <span
                     aria-hidden="true"
                     data-slot="terminal-prompt"
-                    className="shrink-0 text-brand-text"
+                    className="shrink-0 text-brand"
                   >
                     {prompt}
                   </span>

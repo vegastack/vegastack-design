@@ -16,4 +16,4 @@
   light). `QuestionnaireError` takes the same `-text` ink as `FieldError`.
 - **Logical direction.** `PageHeader`'s actions and `FilterBar`'s search and trailing slot push with
   `ms-auto`, and `DatePicker`'s preset rail divides with `border-e`, so all three mirror under a
-  `DirectionProvider`. `Terminal`'s prompt glyph reads in `text-brand-text`.
+  `DirectionProvider`.

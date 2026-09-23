@@ -143,7 +143,9 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   `ease-standard|emphasized|exit|spring` tokens remain for the keyed-presence and docked utilities
   (`motion-pop-in`, `motion-enter-up`, `motion-shake`, `motion-flash`, `motion-dock-in/out`,
   `motion-indeterminate`), which are ours. The global reduced-motion reset in `base.css` is the one
-  sanctioned `!important`, and a `motion-reduce:` restatement of it is still a violation.
+  hand-written `!important` in token CSS, and a `motion-reduce:` restatement of it is still a violation;
+  in component class strings Tailwind's `!` modifier is allowed only in the counted, upstream-verbatim
+  cases `design-lint` lists in `IMPORTANT_MODIFIER_EXEMPTIONS`.
 - **Structure and icons** — CVA for variants, `cn()` from `@vegastack/design`, `data-*` for state,
   ref-as-prop (React 19 — never `React.forwardRef`), and Base UI `render` for composition, where a
   single-polymorphic-root component must not `Omit<…, 'render'>`. Icons are `lucide-react`, the
