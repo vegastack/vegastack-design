@@ -10,8 +10,8 @@ generated:
   inputs:
     generator:
       path: "tooling/sync-design-md.mjs"
-      bytes: 12571
-      sha256: "e89e7b952e08607c080e027176a784f27bd2a104c52590a46008e65058bf74ab"
+      bytes: 14290
+      sha256: "6ecea2bf4a2bf6783d1f53da37057218b37d209be9d7aa6d69b569c813fd24d8"
     config:
       path: "tooling/design-md.config.mjs"
       bytes: 3050
@@ -931,7 +931,7 @@ FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 · API-5 · A
   `ToastPositioner`/`ToastArrow` parts, and a `z-60` viewport band — the one surface above the single
   `z-50` overlay band, so a toast fired over a Dialog is not behind its scrim (OVL-15). A portaled
   tooltip or dropdown accepts a `container`, so chrome over a fullscreen surface portals into it
-  (OVL-14). a panel's search is a sticky header row with no nested bordered
+  (OVL-14). A panel's search is a sticky header row with no nested bordered
   input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). Every portal
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
   (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to
