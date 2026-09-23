@@ -13,3 +13,11 @@ declare module "*?raw" {
   const content: string;
   export default content;
 }
+
+// `?inline` is Vite's COMPILED-stylesheet string import. `filter-bar.test.tsx` mounts the geometry
+// lane's sheet for one containment test only, because every other test in that file measures
+// against its own style mirror and must not see real CSS.
+declare module "*?inline" {
+  const content: string;
+  export default content;
+}

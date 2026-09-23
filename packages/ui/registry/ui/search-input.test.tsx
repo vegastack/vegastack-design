@@ -1,3 +1,4 @@
+import "../../test/geometry.css";
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
@@ -255,3 +256,28 @@ test.each(["light", "dark"])(
     await expectNoA11yViolations(screen.container);
   },
 );
+
+// The clear button's addon stays inside the group box. Upstream's inline-end addon carries
+// `has-[>button]:me-[-0.3rem]`, which put its box ~4px past the group's edge and made any container
+// the SearchInput filled overflow by that much; the clear button itself keeps its position.
+test("the clear addon stays inside the group, and the clear button keeps its inset", async () => {
+  const screen = await render(
+    <div style={{ width: 200 }}>
+      <SearchInput defaultValue="Regent" aria-label="Search" />
+    </div>,
+  );
+  const group = screen.container
+    .querySelector('[data-slot="search-input"]')!
+    .getBoundingClientRect();
+  const addon = screen.container
+    .querySelector('[data-slot="search-input-clear"]')!
+    .closest('[data-slot="input-group-addon"]')!
+    .getBoundingClientRect();
+  const clear = screen.container
+    .querySelector('[data-slot="search-input-clear"]')!
+    .getBoundingClientRect();
+  expect(addon.right).toBeLessThanOrEqual(group.right);
+  // 1px border + ~4px of padding: the button sits where upstream's margin/padding pair put it.
+  expect(group.right - clear.right).toBeGreaterThanOrEqual(4);
+  expect(group.right - clear.right).toBeLessThanOrEqual(6);
+});
