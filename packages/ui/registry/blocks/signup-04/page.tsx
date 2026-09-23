@@ -1,4 +1,4 @@
-// @vegastack signup-04@0.15.0 sha256-fGUMj5YnhxkUBeDwW9XP9Bh3ISEQf3DBRbtp4o86p8g=
+// @vegastack signup-04@0.16.0 sha256-u8rcnQ+tWTIxx78HHrcH9ZxcBvsAOXIgfBay6c0sigk=
 
 import { SignupForm } from "./components/signup-form";
 

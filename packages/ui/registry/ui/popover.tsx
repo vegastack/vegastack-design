@@ -1,4 +1,4 @@
-// @vegastack popover@0.15.0 sha256-f6LYafVkped95hFhH/KJIAIrPIQYAyOiCf7SBD92+WI=
+// @vegastack popover@0.16.0 sha256-JFJw7JRaUhhliuVMGrAu4QDfgFHpEeetEYDGEmFbDRI=
 
 "use client";
 

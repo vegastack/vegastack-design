@@ -10,7 +10,7 @@
   "files": [
     {
       "path": "packages/ui/registry/blocks/preview-03/index.tsx",
-      "content": "// @vegastack preview-03@0.15.0 sha256-kjGFSorTd5PEI2t9+Ka7nodS6VO3pnxUL7+hKBPZWRs=\n\nexport default function Preview03() {\n  return <div>Preview 03</div>;\n}\n",
+      "content": "// @vegastack preview-03@0.16.0 sha256-gWHOgdprsjQnjJVYzsX98eke+GcWTpqqQ6kPiEceXnM=\n\nexport default function Preview03() {\n  return <div>Preview 03</div>;\n}\n",
       "type": "registry:page",
       "target": "app/preview-03/page.tsx"
     }
@@ -18,8 +18,8 @@
   "meta": {
     "whenToUse": "Nothing: upstream ships it as a placeholder and it is here so the block set is complete.",
     "whenNotToUse": "Any real page — start from a login, signup, sidebar or dashboard block instead.",
-    "version": "0.15.0",
-    "integrity": "sha256-kjGFSorTd5PEI2t9+Ka7nodS6VO3pnxUL7+hKBPZWRs="
+    "version": "0.16.0",
+    "integrity": "sha256-gWHOgdprsjQnjJVYzsX98eke+GcWTpqqQ6kPiEceXnM="
   },
   "categories": [
     "preview"
