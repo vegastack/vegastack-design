@@ -216,6 +216,11 @@ export function LiteralRules(_props: RenderlessProps) {
     <div className="[&>svg]:size-3!">after an arbitrary variant</div>
   </>;
 }
+
+// A class string that spans lines is still a class string: the old tokenizer returned nothing for
+// any literal containing a newline, so this p-0! on the second line was never seen.
+export const multiline = \`flex items-center
+  p-0! gap-2\`;
 `,
   );
   // …and the fail-closed count on a listed file: `/ui/badge.tsx` is allowed exactly ONE (upstream's
@@ -231,13 +236,13 @@ export function LiteralRules(_props: RenderlessProps) {
     .filter((line) => /important\.tsx:\d+ \[important\]/.test(line)).length;
   if (
     important.status === 0 ||
-    importantLines < 3 ||
+    importantLines < 4 ||
     !/badge\.tsx \[important\] reviewed Tailwind `!` modifier count changed from 1 to 2/.test(
       important.output,
     )
   ) {
     console.error(
-      `  observed ${importantLines} of 3 \`!\` modifier forms rejected`,
+      `  observed ${importantLines} of 4 \`!\` modifier forms rejected`,
     );
     fail(
       "design-lint accepted a Tailwind `!` modifier outside IMPORTANT_MODIFIER_EXEMPTIONS, or " +
@@ -249,13 +254,20 @@ export function LiteralRules(_props: RenderlessProps) {
   // ── no-surface-ring (BRD-1, ours since MK 2026-09-23) ───────────────────────────────────────
   // Surfaces draw `border border-border`. Upstream's `ring-1 ring-foreground/10` outline arrives
   // verbatim with every pull of card, dialog, popover, select and the menus, so this rule is the
-  // only thing that notices it coming back. Both the resting and a variant-scoped spelling.
+  // only thing that notices it coming back. Every ink an outline has been written in (the
+  // foreground at an alpha and without one, the border token, a raw black/white hairline, the
+  // sidebar's own border), a bare 1px width, and a variant-scoped spelling of each half.
   writeFileSync(
     join(surfaceRingDir, "surface-ring.tsx"),
     `export function Surfaces() {
   return <>
     <div className="rounded-xl bg-card ring-1 ring-foreground/10">upstream card</div>
     <div className="bg-popover ring-1 dark:ring-foreground/20">a variant-scoped outline</div>
+    <div className="rounded-lg ring-1 ring-border">the border token as a ring</div>
+    <div className="rounded-lg ring-1 ring-black/10">a raw hairline</div>
+    <div className="rounded-lg ring-2 ring-foreground">the foreground with no alpha</div>
+    <div className="group-data-[variant=floating]:ring-sidebar-border">the floating sidebar's edge</div>
+    <div className="rounded-lg ring-[1px]">a bare 1px width</div>
   </>;
 }
 `,
@@ -264,12 +276,12 @@ export function LiteralRules(_props: RenderlessProps) {
   const surfaceRingLines = surfaceRing.output
     .split("\n")
     .filter((line) => line.includes("[no-surface-ring]")).length;
-  if (surfaceRing.status === 0 || surfaceRingLines < 2) {
+  if (surfaceRing.status === 0 || surfaceRingLines < 7) {
     console.error(
-      `  observed ${surfaceRingLines} of 2 surface-ring forms rejected`,
+      `  observed ${surfaceRingLines} of 7 surface-ring forms rejected`,
     );
     fail(
-      "design-lint accepted a `ring-foreground/…` surface outline — BRD-1 gives surfaces a real " +
+      "design-lint accepted a ring surface outline — BRD-1 gives surfaces a real " +
         "`border border-border`",
       surfaceRing.output,
     );
@@ -493,6 +505,7 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <p>{"a multi-line literal mentioning max-h-40\\n\\nkeeps its blank lines: it is prose, not a class string"}</p>
     <div className="size-8 rounded-full ring-2 ring-background" />{/* avatar's stacking gap in a group — a separator in the page colour, not a surface outline (BRD-1) */}
     <div className="rounded-xl border border-border bg-card" />{/* the BRD-1 surface edge */}
+    <div className="rounded-md ring-sidebar-ring ring-0" />{/* upstream's vestigial focus-ring COLOUR with no width, and a zeroed ring: neither draws an outline */}
     <p>{"Heads up! Saved."}</p>{/* prose ending in an exclamation mark is not a Tailwind \`!\` modifier */}
     <Close aria-label="Close toast" render={<Button size="icon-sm" />} />{/* the host names it with aria-label */}
     <Close render={<Button size="icon-sm" />}><XIcon /><span className="sr-only">Close</span></Close>{/* the host names it with an sr-only label */}
@@ -514,10 +527,10 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms and all 5 loader-circle ` +
       `spellings are rejected while \`LoaderIcon\` and the animated-icon catalogue pass, a class seam ` +
-      `with no separating space is rejected, all 3 Tailwind \`!\` modifier forms and a changed ` +
-      `exempt count are rejected, both surface-ring spellings are rejected, an icon-only Button ` +
+      `with no separating space is rejected, all 4 Tailwind \`!\` modifier forms and a changed ` +
+      `exempt count are rejected, all 7 surface-ring spellings are rejected, an icon-only Button ` +
       `with an anonymous host is rejected while one carrying its own sr-only label is accepted; ` +
-      `the reviewed Textarea adapter passes, and with it 19 deliberate non-violations ` +
+      `the reviewed Textarea adapter passes, and with it 20 deliberate non-violations ` +
       `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
       `hover vocabulary, avatar's ring-2 gap, a border surface and prose ending in "!", plus all ` +
       `three spellings of naming an icon Button through its host`,

@@ -147,14 +147,21 @@ const RULES = [
   // settings-row each carry the swap in their patch, and this rule is what keeps the next upstream
   // pull from bringing the ring back — the same job `no-focus-ring-glow` does for the halo.
   //
-  // Keyed on the COLOUR, `ring-foreground/…`, under any variant: that is the outline ink, and a ring
-  // in it is a surface edge whatever its width. Avatar's `ring-2 ring-background` is NOT this — it
-  // is the page-coloured gap between stacked avatars in a group, a separator rather than an outline
-  // — and stays legal, which the positive specimen in `verify-design-lint-structural.mjs` observes.
+  // Keyed on BOTH halves of an outline, under any variant, since either alone is enough to draw
+  // one: the 1px WIDTH (`ring-1`, `ring-px`, `ring-[1px]` — nothing in this system is a 1px ring
+  // except a surface edge; focus is an outline, FOC-1) and the hairline INKS (`foreground`,
+  // `border`, `black`, `white`, `input`, `sidebar-border`, with or without an alpha). The first
+  // version keyed only on `ring-foreground/…` and let `ring-1 ring-border`, `ring-1 ring-black/10`
+  // and the floating sidebar's `ring-sidebar-border` through (review round 1, 2026-09-23).
+  // Avatar's `ring-2 ring-background` is NOT this — it is the page-coloured gap between stacked
+  // avatars in a group, a separator rather than an outline — and neither is a bare focus-ring
+  // COLOUR such as `ring-sidebar-ring` (upstream's vestigial ring colour, painted by nothing since
+  // FOC-1 removed the width). Both stay legal; the positive specimen in
+  // `verify-design-lint-structural.mjs` observes it.
   {
     id: "no-surface-ring",
-    re: /(?:^|[\s"'`:])ring-foreground\/[\w.[\]]+/,
-    msg: "surface ring outline (BRD-1): cards and floating surfaces draw `border border-border`, not a `ring-1 ring-foreground/…` box-shadow outline",
+    re: /(?:^|[\s"'`:])ring-(?:1|px|\[1px\]|(?:foreground|border|black|white|input|sidebar-border)(?:\/[\w.[\]]+)?)(?=[\s"'`]|$)/,
+    msg: "surface ring outline (BRD-1): cards and floating surfaces draw `border border-border` (the sidebar `border-sidebar-border`), not a 1px `ring-*` box-shadow outline in any ink",
   },
   // TYP-15 — the ramp owns tracking; a component never restates it.
   //
@@ -288,10 +295,11 @@ const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
 /**
  * The `!`-modifier tokens in one class literal. A token qualifies only if it is shaped like a
  * utility — it carries a `-`, `:` or `[` — so prose that ends in an exclamation mark ("Heads up!")
- * is never read as a class.
+ * is never read as a class. That shape test is the whole prose filter: a literal that spans lines
+ * (a multi-line template class string) is split on every whitespace run like any other, because
+ * skipping it returned `[]` and let `p-0!` through on the second line (review round 1, 2026-09-23).
  */
 function importantModifierTokens(lit) {
-  if (lit.includes("\n")) return [];
   return lit.split(/\s+/).filter((token) => {
     if (token === "!important" || !/[-:[]/.test(token)) return false;
     const bare = token.replace(/\[[^\]]*\]/g, "[]");
