@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.12.2 sha256-VCPEU/9T1xJuNv+lGBfzm0riJLCNwEGNv4PyaYbwwME=
+// @vegastack data-table-parts@0.12.2 sha256-U79QGeQGAz+eKJlPd9LF8H55WGimvn5nf9IdehKiHJc=
 
 "use client";
 
@@ -121,26 +121,64 @@ export function isNowrapColumn(column: DataTableColumnLayout): boolean {
  * `whitespace` does not reach inside a custom render: a `truncate` span, a
  * `whitespace-nowrap` row or a Badge each pin their own min-content, and
  * `truncate` cannot shrink inside an auto-layout cell anyway, so its ellipsis
- * was never available there — squeezed, it wraps instead. A Badge's fixed `h-5`
- * gives way to its content (`h-auto`) so a wrapped label stays inside it.
+ * was never available there — squeezed, it wraps instead.
  *
- * What the release SKIPS is a control and fixed-size content, and everything
- * inside one: a native `button`/`input`/`select`/`textarea`, an element with a
- * control role, a `Button` (`data-slot="button"`, whatever it renders as), an
- * `Avatar` and a `Kbd`. Each has a fixed height (or a fixed box), so a label
- * wrapped inside it spills out of it — a squeezed `sm` Button measured 45px of
- * text in a 26px box. Skipped, a control keeps its one-line min-content, the
- * text around it breaks, and the row grows taller instead. Two buttons are NOT
- * controls in that sense and stay released: DataList's own row-action wrapper
- * (`data-list-row-action`, which holds the first cell's content) and the sort
- * header (`data-table-sort`, whose label wraps with `h-auto`). The one list
- * appears twice, identically, because Tailwind can only see a literal class.
+ * What the release SKIPS (the `KEEP` list, below) is a control and fixed-size
+ * content, and everything inside one. Each has a fixed height or a fixed box,
+ * so a label wrapped inside it spills out of it — a squeezed `sm` Button
+ * measured 45px of text in a 26px box. Skipping is enough for a control that
+ * states its own one-line posture (every Button, Toggle and trigger does). The
+ * fixed-size content that states none — `Avatar`, `Kbd`, a stepper node — is
+ * also put back on one line (`whitespace-nowrap`), because the cell's
+ * `whitespace` and `overflow-wrap` INHERIT into it: a Kbd broke `⌘K` in two
+ * inside its 20px box (review round 4). It is kept from shrinking too
+ * (`shrink-0`): Kbd's own `min-w-5` replaces a flex item's min-content floor,
+ * so a squeezed flex row pressed `Ctrl K` into 20px. An unstyled `button` or `role=button`
+ * span is not put back: it has no fixed box, so it wraps with its cell. The
+ * text around a kept control breaks instead, and the row grows taller. The list is keyed on what reaches the DOM whatever
+ * element carries it:
+ *
+ * - a native `button`/`input`/`select`/`textarea` and the control roles —
+ *   `button`, `checkbox`, `combobox`, `radio`, `slider`, `spinbutton`,
+ *   `switch`, `tab`;
+ * - the CLASS OUTPUT of every exported variant helper with a fixed height —
+ *   `buttonVariants` (`group/button`), `toggleVariants` (`group/toggle`),
+ *   `navigationMenuTriggerStyle`, `tabsListVariants` and
+ *   `stepperNodeVariants` — so `<a className={buttonVariants()}>`, the
+ *   documented link-as-button, is kept exactly like a `Button`. A `data-slot`
+ *   or a role is not enough: the helper's output lands on foreign elements that
+ *   carry neither (review round 4). `data-table-parts.test.tsx` fails when an
+ *   exported helper with a fixed height is missing from this list;
+ * - `Avatar` and `Kbd`.
+ *
+ * Four things look like controls but are TEXT, and stay released:
+ *
+ * - DataList's own row-action wrapper (`data-list-row-action`) and the sort
+ *   header (`data-table-sort`, itself a `Button`) — buttons that hold wrapping
+ *   text;
+ * - a link-variant Button or `buttonVariants({ variant: "link" })` (its class
+ *   output carries `hover:underline`, which no other button variant does): it
+ *   reads as text, so it wraps and its fixed height gives way (`h-auto`, with a
+ *   24px floor for the pointer target);
+ * - `EditableCell`'s display state (`editable-cell-display`), a value you can
+ *   click: it wraps, and its `min-h-8` box grows with it;
+ * - a Badge — `Badge`, `badgeVariants()` on an anchor, `ToolCallChip` — keyed
+ *   on its class output `group/badge`: its fixed `h-5` gives way (`h-auto`) so
+ *   a wrapped label stays inside it. (A `Chip` needs nothing: its height is a
+ *   `min-h`.)
+ *
+ * The one list appears four times, identically, because Tailwind can only see
+ * a literal class.
  */
 const SQUEEZE_CLASS =
   "in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
-  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select,textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select,textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd])_*]:whitespace-normal " +
-  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select,textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort]),input,select,textarea,[role=button],[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=switch],[data-slot=button],[data-slot=avatar],[data-slot=kbd])_*]:wrap-anywhere " +
-  "in-data-squeezed:**:data-[slot=badge]:h-auto";
+  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:whitespace-normal " +
+  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:wrap-anywhere " +
+  "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:whitespace-nowrap " +
+  "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:shrink-0 " +
+  "in-data-squeezed:**:[&[class~='group/badge']]:h-auto " +
+  "in-data-squeezed:**:[&[class~='group/button'][class~='hover:underline']]:h-auto " +
+  "in-data-squeezed:**:[&[class~='group/button'][class~='hover:underline']]:min-h-6";
 
 /**
  * The full class contract for one column's cells — alignment, the wrap posture,
@@ -155,6 +193,12 @@ export function columnCellClass(column: DataTableColumnLayout): string {
     // merge leaves upstream's class standing.
     isNowrapColumn(column) ? "whitespace-nowrap" : "whitespace-normal",
     SQUEEZE_CLASS,
+    // Upstream's `TableCell` drops the end padding of a cell holding a checkbox (`pe-0`), and a
+    // Checkbox, Switch or Radio reaches 12px past its box for its 24px pointer target
+    // (`after:-inset-x-3`). In the LAST cell of a row that pseudo-element poked past the table and
+    // scrolled the container 10px (a Switch, in upstream's `p-2`, 3px) once a squeeze had shrunk
+    // the cell to the control (review round 4). The last cell keeps the target's 12px instead.
+    "last:has-[[role=checkbox],[role=switch],[role=radio]]:pe-3",
     column.mono && "font-mono text-sm tabular-nums",
   );
 }
@@ -282,25 +326,35 @@ export function revealColumns<C extends DataTableColumnLayout>(
 }
 
 /**
- * `useContainerWidth` — measure an element's `clientWidth` and follow it with a
+ * `useContainerWidth` — measure an element's width and follow it with a
  * `ResizeObserver`. Returns a STABLE callback ref (attach it, or call it with
  * the element to measure) and the width, which is `null` until the first
  * measurement — the server answer `revealColumns` expects.
  *
  * Measured in a layout effect, so a client render corrects the column split
  * before first paint rather than flashing a horizontally-scrolling table.
- * Quantized to 1px: hiding or showing a column changes the table's own width
- * and re-fires the observer, and sub-pixel oscillation must not re-render the
- * table in a loop.
+ * By default it is the integer `clientWidth`, quantized to 1px: hiding or
+ * showing a column changes the table's own width and re-fires the observer,
+ * and sub-pixel oscillation must not re-render the table in a loop. With
+ * `exact`, it is the fractional layout width and every change is reported.
  *
  * @example
  * const [measureRef, containerWidth] = useContainerWidth();
  * <div ref={measureRef}>…</div>
  */
-export function useContainerWidth(): [
-  (element: HTMLElement | null) => void,
-  number | null,
-] {
+export function useContainerWidth(
+  options: {
+    /**
+     * Report every change, to the fractional pixel, instead of quantizing to
+     * 1px. For a consumer whose verdict is re-taken on each change and can
+     * only move one way per change (DataListPager's fit), so a sub-pixel
+     * change can never feed back into itself.
+     * @default false
+     */
+    exact?: boolean;
+  } = {},
+): [(element: HTMLElement | null) => void, number | null] {
+  const exact = options.exact ?? false;
   const [element, setElement] = React.useState<HTMLElement | null>(null);
   const [width, setWidth] = React.useState<number | null>(null);
   const measureRef = React.useCallback(
@@ -311,6 +365,11 @@ export function useContainerWidth(): [
     if (!element) return;
     const update = () =>
       setWidth((prev) => {
+        if (exact) {
+          // The used width, fractional and unaffected by transforms.
+          const used = parseFloat(getComputedStyle(element).width);
+          return Number.isFinite(used) ? used : element.clientWidth;
+        }
         const next = element.clientWidth;
         return prev !== null && Math.abs(prev - next) <= 1 ? prev : next;
       });
@@ -318,7 +377,7 @@ export function useContainerWidth(): [
     const observer = new ResizeObserver(update);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [element]);
+  }, [element, exact]);
   return [measureRef, width];
 }
 

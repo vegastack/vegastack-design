@@ -717,7 +717,7 @@
         "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
         "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
         "version": "0.12.2",
-        "integrity": "sha256-hNcKRtL5CnAbsXtMZTf0V5T2CVZ8TRFN0MPv9XVm898="
+        "integrity": "sha256-4k9S6mWRHvF+nwaTcaI6LzmM4+i9w6fmPYkj/ivQzx4="
       }
     },
     {
@@ -1091,7 +1091,7 @@
         "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Infinite or keyboard-continuous loading (DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.12.2",
-        "integrity": "sha256-U+uBe7D+VwwDA/IYpKpE3NPpTTRrubSAQzVjzWxqeTg="
+        "integrity": "sha256-ufRQRpW4FLP/f4oiJaV7e5yqsMkyeoNhzYNab4yaVLo="
       }
     },
     {
@@ -1125,7 +1125,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.12.2",
-        "integrity": "sha256-VCPEU/9T1xJuNv+lGBfzm0riJLCNwEGNv4PyaYbwwME="
+        "integrity": "sha256-U79QGeQGAz+eKJlPd9LF8H55WGimvn5nf9IdehKiHJc="
       }
     },
     {
@@ -1363,7 +1363,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.12.2",
-        "integrity": "sha256-P8/X/nbx1JS+CAU67j58Mp9ZT1+ddsb2KjeVVJXyShY="
+        "integrity": "sha256-0x7AejbRRX/+24wCcvA1TYXsbKB5CLY1xHVFM19300U="
       }
     },
     {
@@ -15992,7 +15992,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.12.2",
-        "integrity": "sha256-xX9eiQPh19hYpck2H7Zqws1WC/DzMh+SZ+WXROJTBH0="
+        "integrity": "sha256-kP2hjEbFfrmcHQ5uQ0TFygsoR92PfHecF8PE9Zx5HUY="
       }
     },
     {
