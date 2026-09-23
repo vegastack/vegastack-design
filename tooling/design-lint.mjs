@@ -148,11 +148,16 @@ const RULES = [
   // pull from bringing the ring back — the same job `no-focus-ring-glow` does for the halo.
   //
   // Keyed on BOTH halves of an outline, under any variant, since either alone is enough to draw
-  // one: the 1px WIDTH (`ring-1`, `ring-px`, `ring-[1px]` — nothing in this system is a 1px ring
-  // except a surface edge; focus is an outline, FOC-1) and the hairline INKS (`foreground`,
-  // `border`, `black`, `white`, `input`, `sidebar-border`, with or without an alpha). The first
+  // one: the 1px WIDTH (`ring-1`, `ring-px`, `ring-[1px]`, and bare `ring`, which Tailwind v4
+  // compiles to 1px — nothing in this system is a 1px ring except a surface edge; focus is an
+  // outline, FOC-1) and the hairline INKS (`foreground`, `border`, `black`, `white`, `input`,
+  // `sidebar-border`, with or without an alpha), each also as its `inset-ring` twin. The first
   // version keyed only on `ring-foreground/…` and let `ring-1 ring-border`, `ring-1 ring-black/10`
-  // and the floating sidebar's `ring-sidebar-border` through (review round 1, 2026-09-23).
+  // and the floating sidebar's `ring-sidebar-border` through (review round 1, 2026-09-23); the
+  // second missed bare `ring` and `inset-ring` (round 2).
+  //
+  // Bare `ring` is also an English word ("never a ring"), so that one spelling is matched only
+  // inside a string literal on the line (`alsoInStrings`), with comments masked first.
   // Avatar's `ring-2 ring-background` is NOT this — it is the page-coloured gap between stacked
   // avatars in a group, a separator rather than an outline — and neither is a bare focus-ring
   // COLOUR such as `ring-sidebar-ring` (upstream's vestigial ring colour, painted by nothing since
@@ -160,7 +165,10 @@ const RULES = [
   // `verify-design-lint-structural.mjs` observes it.
   {
     id: "no-surface-ring",
-    re: /(?:^|[\s"'`:])ring-(?:1|px|\[1px\]|(?:foreground|border|black|white|input|sidebar-border)(?:\/[\w.[\]]+)?)(?=[\s"'`]|$)/,
+    re: /(?:^|[\s"'`:])(?:inset-)?ring-(?:1|px|\[1px\]|(?:foreground|border|black|white|input|sidebar-border)(?:\/[\w.[\]]+)?)(?=[\s"'`]|$)/,
+    // Bare `ring` / `inset-ring` is also an English word, so it counts only INSIDE a string
+    // literal on the line (a class string), never in a trailing comment or JSX prose.
+    alsoInStrings: /(?:^|[\s:])(?:inset-)?ring(?=\s|$)/,
     msg: "surface ring outline (BRD-1): cards and floating surfaces draw `border border-border` (the sidebar `border-sidebar-border`), not a 1px `ring-*` box-shadow outline in any ink",
   },
   // TYP-15 — the ramp owns tracking; a component never restates it.
@@ -911,13 +919,16 @@ for (const root of ROOTS) {
         trimmed.startsWith("/*")
       )
         return;
-      for (const { id, re, msg } of RULES) {
+      for (const { id, re, msg, alsoInStrings } of RULES) {
         if (id === "hex-color" && HEX_COLOR_FILE_ALLOWLIST.test(file)) continue;
         // `hex-color` reads the line with attribute-selector VALUES masked out — see SELECTOR_HEX.
         const subject =
           id === "hex-color" ? line.replace(SELECTOR_HEX, "[]") : line;
         re.lastIndex = 0;
-        if (re.test(subject)) {
+        if (
+          re.test(subject) ||
+          (alsoInStrings && stringLiteralsHit(line, alsoInStrings))
+        ) {
           console.log(`${file}:${i + 1} [${id}] ${msg}\n    ${trimmed}`);
           violations++;
         }
@@ -1343,3 +1354,19 @@ if (violations) {
   process.exit(1);
 }
 console.log("✓ design-lint: clean");
+
+/**
+ * Does `re` match inside any string literal on `line`? Comments are masked first — a trailing
+ * `// …` and a `/* … *\/` (JSX `{/* … *\/}` included) — and then only the contents of "…", '…'
+ * and `…` literals are tested, so an English word in prose never reads as a class.
+ */
+function stringLiteralsHit(line, re) {
+  const code = line
+    .replace(/\/\*.*?\*\//g, " ")
+    .replace(/(^|[\s;,{}()])\/\/.*$/, "$1");
+  for (const m of code.matchAll(/"([^"]*)"|'([^']*)'|`([^`]*)`/g)) {
+    re.lastIndex = 0;
+    if (re.test(m[1] ?? m[2] ?? m[3])) return true;
+  }
+  return false;
+}

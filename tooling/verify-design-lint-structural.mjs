@@ -261,7 +261,8 @@ export const multiline = \`flex items-center
   // verbatim with every pull of card, dialog, popover, select and the menus, so this rule is the
   // only thing that notices it coming back. Every ink an outline has been written in (the
   // foreground at an alpha and without one, the border token, a raw black/white hairline, the
-  // sidebar's own border), a bare 1px width, and a variant-scoped spelling of each half.
+  // sidebar's own border), a bare 1px width — including bare `ring`, which is 1px in Tailwind v4 —
+  // the `inset-ring` twin of each, and a variant-scoped spelling of each half.
   writeFileSync(
     join(surfaceRingDir, "surface-ring.tsx"),
     `export function Surfaces() {
@@ -273,6 +274,10 @@ export const multiline = \`flex items-center
     <div className="rounded-lg ring-2 ring-foreground">the foreground with no alpha</div>
     <div className="group-data-[variant=floating]:ring-sidebar-border">the floating sidebar's edge</div>
     <div className="rounded-lg ring-[1px]">a bare 1px width</div>
+    <div className="rounded-lg ring ring-muted">bare \`ring\`, which is 1px in Tailwind v4</div>
+    <div className="rounded-lg ring ring-primary/20">bare \`ring\` in a brand ink</div>
+    <div className="rounded-lg inset-ring inset-ring-border">an inset hairline</div>
+    <div className="rounded-lg data-[open]:inset-ring-1 dark:inset-ring-foreground/10">a variant-scoped inset outline</div>
   </>;
 }
 `,
@@ -281,9 +286,9 @@ export const multiline = \`flex items-center
   const surfaceRingLines = surfaceRing.output
     .split("\n")
     .filter((line) => line.includes("[no-surface-ring]")).length;
-  if (surfaceRing.status === 0 || surfaceRingLines < 7) {
+  if (surfaceRing.status === 0 || surfaceRingLines < 11) {
     console.error(
-      `  observed ${surfaceRingLines} of 7 surface-ring forms rejected`,
+      `  observed ${surfaceRingLines} of 11 surface-ring forms rejected`,
     );
     fail(
       "design-lint accepted a ring surface outline — BRD-1 gives surfaces a real " +
@@ -533,7 +538,7 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms and all 5 loader-circle ` +
       `spellings are rejected while \`LoaderIcon\` and the animated-icon catalogue pass, a class seam ` +
       `with no separating space is rejected, all 4 Tailwind \`!\` modifier forms and a changed ` +
-      `exempt count are rejected, all 7 surface-ring spellings are rejected, an icon-only Button ` +
+      `exempt count are rejected, all 11 surface-ring spellings are rejected, an icon-only Button ` +
       `with an anonymous host is rejected while one carrying its own sr-only label is accepted; ` +
       `the reviewed Textarea adapter passes, and with it 20 deliberate non-violations ` +
       `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
