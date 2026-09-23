@@ -90,9 +90,11 @@ range and the rows-per-page chooser wrap onto their own lines above it:
 | `compact`     | 240–479px    | Icon-only ends, the current page with no neighbours                     |
 | `minimal`     | below 240px  | Icon-only ends around _Page 3 of 12_, or _3 / 12_ when that is too long |
 
-Width picks the starting layout for page numbers of up to three digits. A number slot is at least
-32px and grows to hold its number, so a four- or five-digit page count can outgrow that layout; the
-pager then measures and steps down one layout at a time until the page list fits, before first paint.
+Width picks the starting layout for page numbers of up to two digits. A number slot is at least
+32px and grows to hold its number, so a longer page count can outgrow that layout (a three-digit
+last page already makes the compact list about 241px); the pager then measures every page item
+against its own box, with no tolerance, and steps down one layout at a time until the page list
+fits, before first paint.
 At the last step the position shortens to _N / M_ (`data-short` on
 `data-slot="data-list-pager-position"`) and truncates if it still has no room, while assistive
 technology always hears _Page N of M_. So the page list never scrolls sideways at any page count.

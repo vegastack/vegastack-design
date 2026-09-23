@@ -134,12 +134,15 @@ const DEFAULT_PAGE_SIZES: readonly number[] = [15, 30, 50];
 
 /**
  * The page-list rungs, widest first, and the pager width each needs with
- * page numbers of up to three digits.
+ * page numbers of up to two digits.
  *
  * - `full` — the window with one neighbour either side of the current page
  *   (at most seven number slots) and labelled Previous/Next: about 480px.
- * - `compact` — no neighbours (at most five number slots) and 32px icon-only
- *   ends: 7 × 32 + 6 × 2px gaps = 236px, so it needs 240.
+ * - `compact` — no neighbours (at most five slots, numbers and ellipses) and
+ *   32px icon-only ends: 7 × 32 + 6 × 2px gaps = 236px, so it starts at 240.
+ *   A three-digit last page already outgrows that: its slot is about 37.4px,
+ *   so the list is about 241.4px, and at exactly 240px the pager measures
+ *   and steps down to `minimal`.
  * - `minimal` — the icon-only ends around a "Page 3 of 12" label, about
  *   150px, and the declared server answer.
  * - `minimal-short` — the same ends around "3 / 12". Its label is the one
@@ -307,9 +310,19 @@ export function DataListPager({
     const root = rootNode.current;
     const nav = root?.querySelector('[data-slot="data-list-pager-nav"]');
     if (!root || !nav) return;
+    // Zero slack, from fractional rects: integer `scrollWidth` with a 1px
+    // allowance let a 241.4px compact list (a three-digit last page) sit in a
+    // 240px pager with Next 1.4px outside. Every page item must lie inside
+    // the root's own box, in either writing direction.
+    const box = root.getBoundingClientRect();
+    const spills = Array.from(
+      nav.querySelectorAll('[data-slot="pagination-item"]'),
+      (item) => item.getBoundingClientRect(),
+    ).some((rect) => rect.left < box.left || rect.right > box.right);
     if (
-      nav.scrollWidth > nav.clientWidth + 1 ||
-      root.scrollWidth > root.clientWidth + 1
+      spills ||
+      nav.scrollWidth > nav.clientWidth ||
+      root.scrollWidth > root.clientWidth
     )
       setStepsDown({ for: fitKey, steps: steps + 1 });
   }, [fitKey, steps, rungIndex, width]);
