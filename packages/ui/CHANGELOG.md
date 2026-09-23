@@ -1,5 +1,54 @@
 # @vegastack/ui
 
+## 0.13.0
+
+### Minor Changes
+
+- [#181](https://github.com/vegastack/vegastack-design/pull/181) [`72741b7`](https://github.com/vegastack/vegastack-design/commit/72741b760a741ab3c782ba78ee25e1b44b996a66) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 DataList never forces a horizontal scroll, and the new DataListPager pages it.
+
+  - DataList columns take the same responsive posture as DataGrid — `minWidth` (default 120) and `mobile: "visible" | "hidden" | "merge"` (default `"merge"`) — now declared once on the shared column layout. In a narrow container, overflow columns stack into the first cell, `hidden` columns are dropped and counted in a line the table is described by, and `visible` columns never hide (if they still do not fit, the table is squeezed). See [Fitting the width](/docs/components/data-list).
+  - A merged value always wraps and wears its own column's face, so a `mono` or end-aligned first column no longer pins the stack to one line. If the table still overflows after that — a long unbroken value, a one-line mono id, several `visible` columns — it is squeezed (`data-squeezed`): every cell, and the text a custom `render` puts in it, may break rather than scroll. A `truncate` span or a `whitespace-nowrap` row wraps instead (an auto-layout table cannot truncate), and text-like parts grow taller to hold a wrapped label: a Badge (or `badgeVariants()` on your own element, or ToolCallChip), a Chip or Tag, a link-variant Button (or `buttonVariants({ variant: "link" })`) and EditableCell's value. Controls and fixed-size content are never wrapped, so their label never spills their box — recognised by what reaches the DOM: every other Button and any element styled with `buttonVariants()`, `toggleVariants()`, `navigationMenuTriggerStyle()`, `tabsListVariants()` or `stepperNodeVariants()`, a native `button`/`input`/`select`/`textarea`, the control roles, an Avatar and a Kbd (held on one line at full width). The row grows taller instead; only a kept part wider than the container itself still scrolls the table (see [Fitting the width](/docs/components/data-list)). A Checkbox, Switch or Radio in the last column keeps 12px of end padding, so its 24px pointer target no longer scrolls the table.
+  - When the sorted column is merged or hidden, a "Sorted by …" line under the table states the order its header can no longer show. DataGrid does the same in its toolbar, describes the grid by both lines, and now gives merged values their header as a screen-reader prefix.
+  - DataList always renders one `data-list-root` stack, so its status lines never land in your own grid or flex container.
+  - Sortable headers use the plain header's `text-sm font-medium` and foreground ink in DataList and DataGrid, and their label now lines up with the column's values (it sat about 5px in): the start of a start column, the end of an end column, where the sort arrow leads instead of trailing. `SortHeaderButton` takes the column's `align`. A selected row is `bg-muted/50`, so a `secondary` Badge on it stays visible.
+  - New [DataListPager](/docs/components/data-list-pager) for DataList's `footer` slot: a controlled range summary ("1–15 of 40"), a rows-per-page Select (15 / 30 / 50 by default), and windowed Pagination that hides on a single page. The page list narrows with the pager's width (`data-layout`: full, compact, minimal); a page count that outgrows its layout (three digits at exactly 240px, four or five digits wider) steps down one more (re-checked on any width change, however small, and when the page list's own content changes size, as when a web font swaps in), number slots grow to hold their number, and at the last step the position reads "N / M" (`data-short`) and may truncate while screen readers still hear "Page N of M" — so the page list never scrolls sideways. The range and the rows-per-page chooser each stay on one line, which puts the pager's floor at about 200px. A `NaN`, `undefined` or negative `total` reads as 0, and a `pageSize` of 0 or less shows the first `pageSizes` entry instead of adding a bogus option.
+  - Chip's height and EditableCell's display height are now floors (`min-h-7` / `min-h-8`), not fixed boxes: identical on one line, and a wrapped label grows the box instead of spilling it. `stepperNodeVariants` output carries a `group/stepper-node` hook.
+
+- [#181](https://github.com/vegastack/vegastack-design/pull/181) [`72741b7`](https://github.com/vegastack/vegastack-design/commit/72741b760a741ab3c782ba78ee25e1b44b996a66) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Cards and floating surfaces draw a real border instead of a ring outline, destructive menu rows clear AA, three components mirror under RTL, and FilterBar and DatePicker fit their space.
+
+  - **Border, not ring (BRD-1).** `card`, `dialog`, `alert-dialog`, `popover`, `hover-card`,
+    `select`, `combobox`, `dropdown-menu`, `context-menu`, `menubar` (content and sub-content) and
+    `navigation-menu` swap upstream's `ring-1 ring-foreground/10` box-shadow for a 1px
+    `border border-border`, and the floating `sidebar` swaps its `ring-sidebar-border` outline for
+    `border border-sidebar-border`, so `SettingsCard` and `Board` columns follow. The ring read as a stray
+    outline and disappeared in forced-colours mode. A border takes 1px of layout on each side: under
+    Tailwind's `border-box` sizing a surface with a fixed width or height keeps that size and its
+    content area shrinks by 2px, while a content-sized surface grows by 2px. `Board`'s drop-over highlight now recolours that
+    border (`data-drop-over:border-primary/50`). See [Elevation](/docs/foundations/elevation).
+  - **Destructive menu rows (A11Y-13).** A focused `variant="destructive"` item in `dropdown-menu`,
+    `context-menu` and `menubar` reads `text-destructive-text` on its `/10` wash (it read 3.99:1 in
+    light). `QuestionnaireError` takes the same `-text` ink as `FieldError`.
+  - **Logical direction.** `PageHeader`'s actions and `FilterBar`'s search and trailing slot push with
+    `ms-auto`, and `DatePicker`'s preset rail divides with `border-e`, so all three mirror under a
+    `DirectionProvider`.
+  - **FilterBar never overflows.** `SearchInput`'s clear button sat in an addon whose box ended about
+    4px outside the input (upstream's inline-end `-0.3rem` margin), so a search filling a narrow
+    `FilterBar` pushed the bar 4px past its container at 320px. The addon now stays inside; the clear
+    button keeps its position.
+  - **DatePicker's popup is one surface.** The calendar inside `DatePicker` / `DateRangePicker` is
+    transparent, so it no longer paints `bg-background` over the popup's `bg-popover` (a visible second
+    tone in dark). With `presets`, the rail now sits beside the calendar from `sm` up, as documented —
+    it had stacked above it at every width — and its one divider sits between rail and calendar
+    instead of doubling the popup's edge.
+
+### Patch Changes
+
+- [#181](https://github.com/vegastack/vegastack-design/pull/181) [`72741b7`](https://github.com/vegastack/vegastack-design/commit/72741b760a741ab3c782ba78ee25e1b44b996a66) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `AppShellSkeleton` no longer causes a hydration mismatch. Its nav rows used upstream's `SidebarMenuSkeleton`, which picks a random width per mount, so the server HTML and the client's hydration never agreed in a `loading.tsx`. The rows now take their widths from a fixed cycle — same shape, same 50–90% band, identical on server and client.
+
+- Updated dependencies [[`72741b7`](https://github.com/vegastack/vegastack-design/commit/72741b760a741ab3c782ba78ee25e1b44b996a66), [`72741b7`](https://github.com/vegastack/vegastack-design/commit/72741b760a741ab3c782ba78ee25e1b44b996a66), [`72741b7`](https://github.com/vegastack/vegastack-design/commit/72741b760a741ab3c782ba78ee25e1b44b996a66)]:
+  - @vegastack/design@0.7.1
+  - @vegastack/design-tokens@0.7.1
+
 ## 0.12.2
 
 ### Patch Changes

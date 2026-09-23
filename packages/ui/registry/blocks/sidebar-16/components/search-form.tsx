@@ -1,4 +1,4 @@
-// @vegastack sidebar-16@0.12.2 sha256-6s9yk0/o3HfznFQh+f0rU2xPvHprQP1xMbqwYAJeC60=
+// @vegastack sidebar-16@0.13.0 sha256-dKMsbxnNihjLMLnwoZ+tuVNwssAjB7ehwNFw+H6Fc2Q=
 
 import { Label } from "@/components/ui/label";
 import { SidebarInput } from "@/components/ui/sidebar";

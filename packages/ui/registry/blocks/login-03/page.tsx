@@ -1,4 +1,4 @@
-// @vegastack login-03@0.12.2 sha256-1cllyUuDkUrrdaAXCXA+wUf6wv4Ki+6WFiJR/Nwa5iQ=
+// @vegastack login-03@0.13.0 sha256-T12Z8NFhkIcyvUKOU+0lntHen6n1047lKANZ3mQvgl8=
 
 import { LoginForm } from "./components/login-form";
 import { GalleryVerticalEndIcon } from "lucide-react";

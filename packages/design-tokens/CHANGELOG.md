@@ -1,5 +1,13 @@
 # @vegastack/design-tokens
 
+## 0.7.1
+
+### Patch Changes
+
+- [#181](https://github.com/vegastack/vegastack-design/pull/181) [`72741b7`](https://github.com/vegastack/vegastack-design/commit/72741b760a741ab3c782ba78ee25e1b44b996a66) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The reduced-motion comment in `base.css` now states the `!important` rule precisely: the reset is the only hand-written `!important` in the token CSS, and Tailwind's `!` modifier in component class strings is a separate, counted allowance in `design-lint`.
+
+  No token value, selector or rule changed — this is a documentation correction inside the shipped stylesheet.
+
 ## 0.7.0
 
 ### Minor Changes
