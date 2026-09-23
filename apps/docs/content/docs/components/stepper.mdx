@@ -89,6 +89,9 @@ runs, and `skipped` records a step passed over rather than one that failed.
 The state every hand-rolled stepper forgets: a step that failed after
 completion. Its node takes the destructive fill, its label the family's
 `-text` ink, and the rail behind it does **not** fill — you have not passed it.
+When the step that failed is the one the user is **on**, set `current: true`
+alongside `state: 'error'`: it keeps `aria-current="step"` and the step count
+while showing the error (`MultiStepForm` does this for you).
 
 <ComponentPreview name="stepperError" file="components/preview/stepper.tsx" />
 

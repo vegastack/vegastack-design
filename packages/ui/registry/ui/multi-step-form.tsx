@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.16.0 sha256-vH5ujrubRUZg6BElz3NByouF8me9kGlDsixHZCWhgZM=
+// @vegastack multi-step-form@0.16.0 sha256-lxzKaLDs3Ir+UjbzaWiDfDVE95wtGLfPxekidLZ6k4U=
 
 "use client";
 
@@ -747,6 +747,8 @@ export function MultiStepForm({
         description: spec.description,
         optional: spec.optional,
         disabled: spec.disabled || index <= sealedIndex,
+        // A failed CURRENT step is still where the user is: keep it marked current.
+        current: index === currentIndex,
         state:
           failedId === spec.id
             ? "error"

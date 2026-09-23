@@ -1,4 +1,4 @@
-// @vegastack stepper@0.16.0 sha256-kRuYgh4BGwpRcwxMiA7Zb6SJFkhm+cNL440eIMK1dzg=
+// @vegastack stepper@0.16.0 sha256-NdLvvkr79kaaiTk4c7/fAx+PmC9Wi9EkqQSIeUg76Qg=
 
 "use client";
 
@@ -72,6 +72,15 @@ export type StepperStepState =
   | "skipped"
   | "upcoming";
 
+/** Whether a step is the one the user is on: its state says so, or `current` does. */
+function isCurrentStep(step: StepperStep): boolean {
+  return (
+    step.current === true ||
+    step.state === "current" ||
+    step.state === "loading"
+  );
+}
+
 /** One step in the process. */
 export interface StepperStep {
   /** Stable identifier — selection events return it. */
@@ -85,6 +94,14 @@ export interface StepperStep {
   description?: string;
   /** The step's state. Exactly one step should be `current` or `loading`. */
   state: StepperStepState;
+  /**
+   * Marks the step as the current one while its `state` says something else — the step
+   * the user is on has failed validation (`error`) or carries a caveat (`warning`). It
+   * keeps `aria-current="step"`, the step count and focus-follow on that step, so a
+   * failed step never stops being "where am I".
+   * @default false
+   */
+  current?: boolean;
   /**
    * Marks the step as one the flow may pass over, rendering an "Optional" affix. It is a
    * label, not a state: an optional step that was passed over is `skipped`.
@@ -401,9 +418,7 @@ export function Stepper({
   const isVertical = resolvedOrientation === "vertical";
   const isInline = !isVertical && labelPosition === "inline";
 
-  const currentIndex = steps.findIndex(
-    (step) => step.state === "current" || step.state === "loading",
-  );
+  const currentIndex = steps.findIndex(isCurrentStep);
   const current = currentIndex === -1 ? undefined : steps[currentIndex];
   const completed = steps.filter((step) => connectorPassed(step.state)).length;
 
@@ -499,13 +514,13 @@ export function Stepper({
         )}
       >
         {steps.map((step, index) => {
-          const isCurrent =
-            step.state === "current" || step.state === "loading";
+          const isCurrent = isCurrentStep(step);
           const isLast = index === steps.length - 1;
           // Completed, skipped AND error steps are revisitable in navigable mode — a failed
           // step is exactly the one the user needs to get back to.
           const selectable =
             navigable &&
+            !isCurrent &&
             (step.state === "complete" ||
               step.state === "skipped" ||
               step.state === "error") &&

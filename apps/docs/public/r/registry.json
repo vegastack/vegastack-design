@@ -16023,7 +16023,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.16.0",
-        "integrity": "sha256-kRuYgh4BGwpRcwxMiA7Zb6SJFkhm+cNL440eIMK1dzg="
+        "integrity": "sha256-NdLvvkr79kaaiTk4c7/fAx+PmC9Wi9EkqQSIeUg76Qg="
       }
     },
     {
@@ -16058,7 +16058,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.16.0",
-        "integrity": "sha256-vH5ujrubRUZg6BElz3NByouF8me9kGlDsixHZCWhgZM="
+        "integrity": "sha256-lxzKaLDs3Ir+UjbzaWiDfDVE95wtGLfPxekidLZ6k4U="
       }
     },
     {
