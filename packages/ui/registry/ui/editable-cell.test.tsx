@@ -1,7 +1,10 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
+// The compiled lane stylesheet as a STRING, mounted only for the truncation test below: every other
+// test here is structural and must not see real CSS.
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { EditableCell } from "./editable-cell";
 
@@ -326,6 +329,60 @@ test("heading use: the display and the editor carry no font size of their own, s
   // `h-8` would clip heading-sized text; the box keeps its 32px floor instead.
   expect(input.className).not.toMatch(/(^|\s)h-8(\s|$)/);
   expect(input.className).toContain("min-h-8");
+});
+
+test("page-title use at 390px: a long value truncates to its container and offers the full value as title", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const long =
+    "Quarterly planning review with the regional operations leadership team and finance partners";
+  const screen = await render(
+    <div style={{ width: 390 }}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-3xl font-semibold">
+            <EditableCell
+              value={long}
+              label="Meeting title"
+              onCommit={() => {}}
+            />
+          </h1>
+        </div>
+      </div>
+    </div>,
+  );
+  const display = screen
+    .getByRole("button", { name: "Meeting title" })
+    .element() as HTMLElement;
+  const text = display.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-text"]',
+  )!;
+  const root = display.closest<HTMLElement>('[data-slot="editable-cell"]')!;
+  // One line, clipped with an ellipsis, and nothing wider than the 390px page.
+  expect(getComputedStyle(text).whiteSpace).toBe("nowrap");
+  expect(getComputedStyle(text).textOverflow).toBe("ellipsis");
+  expect(text.scrollWidth).toBeGreaterThan(text.clientWidth);
+  expect(root.getBoundingClientRect().width).toBeLessThanOrEqual(390);
+  expect(display.getBoundingClientRect().right).toBeLessThanOrEqual(
+    root.parentElement!.getBoundingClientRect().right + 0.5,
+  );
+  // The clipped value stays reachable: as the display's title, and in full in the editor.
+  await expect.element(display).toHaveAttribute("title", long);
+  await expect.element(display).toHaveAttribute("data-truncated", "");
+  await display.click();
+  const input = screen.getByRole("textbox", { name: "Meeting title" });
+  await expect.element(input).toHaveValue(long);
+});
+
+test("a value that fits carries no title", async () => {
+  const screen = await render(
+    <EditableCell value="Acme" label="Account name" onCommit={() => {}} />,
+  );
+  const display = screen.getByRole("button", { name: "Account name" });
+  await expect.element(display).not.toHaveAttribute("title");
+  await expect.element(display).not.toHaveAttribute("data-truncated");
 });
 
 test("ref forwards to the root", async () => {

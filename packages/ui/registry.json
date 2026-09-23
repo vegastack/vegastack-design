@@ -1176,7 +1176,8 @@
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
-        "@vegastack/use-inline-edit"
+        "@vegastack/use-inline-edit",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {

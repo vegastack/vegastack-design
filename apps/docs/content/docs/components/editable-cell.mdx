@@ -83,6 +83,12 @@ size, weight, line height and tracking — so the same component reads as body t
 the title in a page heading. Put it inside the heading element rather than restyling its parts.
 Below the `md` breakpoint the editor never drops under 16px, so iOS does not zoom on focus.
 
+The value stays on one line. When the heading is narrower than the value — a long meeting title on a
+390px phone — it truncates with an ellipsis instead of overflowing or wrapping, the clipped display
+carries the full value as its `title` (and `data-truncated`), and opening the editor shows all of
+it. Truncation needs a width to truncate to: inside a flex row, give the heading's flex item
+`min-w-0`.
+
 <ComponentPreview
   name="editableCellHeading"
   file="components/preview/editable-cell.tsx"

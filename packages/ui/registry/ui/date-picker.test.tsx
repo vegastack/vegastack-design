@@ -7,6 +7,7 @@ import geometryCss from "../../test/geometry.css?inline";
 import * as React from "react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { DatePicker, DateRangePicker, type DateRange } from "./date-picker";
+import { Field, FieldDescription, FieldLabel } from "./field";
 
 // A fixed month so the grid is deterministic regardless of the run date. `DatePicker` derives the
 // visible month from `value`, so seeding `value` to a June 2026 date pins the calendar on June 2026.
@@ -390,6 +391,42 @@ test("DateRangePicker forwards calendarProps and lets top-level numberOfMonths w
   expect(
     document.querySelectorAll('[data-slot="calendar"] [role="grid"]'),
   ).toHaveLength(1);
+});
+
+test("inside a Field: FieldLabel htmlFor names the trigger, the description describes it, aria-invalid reaches it", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel htmlFor="due">Due date</FieldLabel>
+      <DatePicker id="due" aria-describedby="due-help" aria-invalid />
+      <FieldDescription id="due-help">When the task is due.</FieldDescription>
+    </Field>,
+  );
+  const trigger = screen.getByRole("button", { name: "Due date" });
+  await expect.element(trigger).toHaveAttribute("id", "due");
+  await expect.element(trigger).toHaveAttribute("aria-describedby", "due-help");
+  await expect.element(trigger).toHaveAttribute("aria-invalid", "true");
+  // Clicking the label activates its control, as it does for every other form control.
+  await screen.getByText("Due date").click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="calendar"]'))
+    .not.toBeNull();
+  await expectNoA11yViolations(document.body);
+});
+
+test("DateRangePicker binds to a FieldLabel the same way", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel htmlFor="window">Reporting window</FieldLabel>
+      <DateRangePicker id="window" aria-describedby="window-help" />
+      <FieldDescription id="window-help">Inclusive.</FieldDescription>
+    </Field>,
+  );
+  const trigger = screen.getByRole("button", { name: "Reporting window" });
+  await expect.element(trigger).toHaveAttribute("id", "window");
+  await expect
+    .element(trigger)
+    .toHaveAttribute("aria-describedby", "window-help");
+  await expect.element(trigger).not.toHaveAttribute("aria-invalid");
 });
 
 test("no a11y violations — disabled", async () => {
