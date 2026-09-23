@@ -116,13 +116,16 @@ test("mergedValueClass wraps whatever the column's own posture, in the column's 
 });
 
 /** Every registry source, as text, for the variant-helper census below. */
-const REGISTRY_SOURCES = import.meta.glob<string>(
-  ["./*.tsx", "!./*.test.tsx"],
-  {
-    query: "?raw",
-    import: "default",
-    eager: true,
-  } as { eager: true },
+const REGISTRY_SOURCES = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<string>("./*.tsx", {
+      query: "?raw",
+      import: "default",
+      eager: true,
+      // The repo's ambient `ImportMeta.glob` (declared in animated-icons.test.tsx) is narrower
+      // than Vite's own signature; the assertion re-widens it without loosening the call.
+    } as { eager: true }),
+  ).filter(([file]) => !file.endsWith(".test.tsx")),
 );
 
 /**
