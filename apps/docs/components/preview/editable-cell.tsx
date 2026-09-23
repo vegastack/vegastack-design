@@ -129,3 +129,21 @@ export function editableCellStates(): ReactNode {
     </Wrapper>
   );
 }
+
+export function editableCellHeading(): ReactNode {
+  const [title, setTitle] = useState("Weekly product sync");
+  return (
+    <Wrapper className="block">
+      <h2 className="text-3xl font-semibold">
+        <EditableCell
+          value={title}
+          label="Meeting title"
+          onCommit={async (next) => {
+            await fakeSave();
+            setTitle(next);
+          }}
+        />
+      </h2>
+    </Wrapper>
+  );
+}

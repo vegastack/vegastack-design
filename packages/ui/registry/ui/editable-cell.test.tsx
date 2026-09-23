@@ -296,6 +296,38 @@ test("disabled keeps the display visible but blocks editing", async () => {
   expect(display.tabIndex).toBe(-1);
 });
 
+test("heading use: the display and the editor carry no font size of their own, so they inherit the surrounding type", async () => {
+  // This lane compiles no CSS, so the contract is the class list: a fixed `text-*` size on either
+  // part would pin the cell at that size inside a page heading (the Regent meeting title).
+  const screen = await render(
+    <h1 className="text-3xl font-semibold">
+      <EditableCell
+        value="Weekly sync"
+        label="Meeting title"
+        onCommit={() => {}}
+      />
+    </h1>,
+  );
+  const display = document.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-display"]',
+  )!;
+  expect(display.className).not.toMatch(
+    /(^|\s)text-(xs|sm|base|lg|\dxl)(\s|$)/,
+  );
+  await screen.getByRole("button", { name: "Meeting title" }).click();
+  const input = document.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-input"]',
+  )!;
+  // Upstream Input's `text-base md:text-sm` is merged away, not layered under an override.
+  expect(input.className).not.toMatch(/(^|\s)(md:)?text-(sm|base)(\s|$)/);
+  expect(input.className).toContain("md:text-[length:inherit]");
+  expect(input.className).toContain("text-[length:max(1rem,1em)]");
+  expect(input.className).toContain("leading-[1lh]");
+  // `h-8` would clip heading-sized text; the box keeps its 32px floor instead.
+  expect(input.className).not.toMatch(/(^|\s)h-8(\s|$)/);
+  expect(input.className).toContain("min-h-8");
+});
+
 test("ref forwards to the root", async () => {
   const ref = React.createRef<HTMLSpanElement>();
   await render(
