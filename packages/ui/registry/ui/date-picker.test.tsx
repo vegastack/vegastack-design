@@ -1,6 +1,9 @@
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
-import { userEvent } from "vitest/browser";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+// The compiled lane stylesheet as a STRING, mounted only for the popup-surface tests below: every
+// other test here is structural and must not see real CSS.
+import geometryCss from "../../test/geometry.css?inline";
 import * as React from "react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { DatePicker, DateRangePicker, type DateRange } from "./date-picker";
@@ -402,4 +405,74 @@ test("no a11y violations when the calendar is open", async () => {
     .not.toBeNull();
   // The popover portals to <body>, so audit the whole document.
   await expectNoA11yViolations(document.body);
+});
+
+/* ── The popup surface, measured on the compiled CSS ─────────────────────────────────────────── */
+
+async function openWithPresets(width: number) {
+  await page.viewport(width, 800);
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  await render(
+    <DatePicker
+      value={JUNE_ANCHOR}
+      presets={[
+        { label: "Today", date: JUNE_ANCHOR },
+        { label: "Tomorrow", date: JUNE_ANCHOR },
+      ]}
+    />,
+  );
+  (
+    document.querySelector('[data-slot="date-picker-trigger"]') as HTMLElement
+  ).click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="calendar"]'))
+    .not.toBeNull();
+  const popup = document.querySelector(
+    '[data-slot="date-picker-content"]',
+  ) as HTMLElement;
+  const rail = document.querySelector(
+    '[data-slot="date-picker-presets"]',
+  ) as HTMLElement;
+  const calendar = document.querySelector(
+    '[data-slot="calendar"]',
+  ) as HTMLElement;
+  return { popup, rail, calendar };
+}
+
+// Upstream's calendar goes transparent only `in-data-[slot=popover-content]`, and the pickers
+// rename their popup, so the calendar used to paint `bg-background` over the popup's `bg-popover`.
+test("the calendar is transparent inside the popup, so the popup reads as one surface", async () => {
+  const { popup, calendar } = await openWithPresets(1024);
+  expect(getComputedStyle(calendar).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  expect(getComputedStyle(popup).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+});
+
+// From sm up the rail sits at the inline start, beside the calendar, and its one divider faces
+// the calendar. The popover's own `flex-col gap-2.5` used to win the class merge, stacking the
+// rail above the calendar at every width and drawing its `border-e` along the popup's own edge.
+test("from sm up the rail sits beside the calendar and divides only between them", async () => {
+  const { popup, rail, calendar } = await openWithPresets(1024);
+  const railBox = rail.getBoundingClientRect();
+  const calendarBox = calendar.getBoundingClientRect();
+  const popupBox = popup.getBoundingClientRect();
+  expect(railBox.right).toBeCloseTo(calendarBox.left, 0);
+  expect(railBox.top).toBeCloseTo(calendarBox.top, 0);
+  // The rail's end edge is interior: the calendar, not the popup border, lies beyond it.
+  expect(railBox.right).toBeLessThan(popupBox.right - 1);
+  const style = getComputedStyle(rail);
+  expect(style.borderRightWidth).toBe("1px");
+  expect(style.borderBottomWidth).toBe("0px");
+});
+
+test("below sm the rail stacks above the calendar and divides only between them", async () => {
+  const { rail, calendar } = await openWithPresets(400);
+  const railBox = rail.getBoundingClientRect();
+  const calendarBox = calendar.getBoundingClientRect();
+  expect(railBox.bottom).toBeCloseTo(calendarBox.top, 0);
+  const style = getComputedStyle(rail);
+  expect(style.borderBottomWidth).toBe("1px");
+  expect(style.borderRightWidth).toBe("0px");
 });
