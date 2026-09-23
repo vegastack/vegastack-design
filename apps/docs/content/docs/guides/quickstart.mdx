@@ -44,7 +44,7 @@ Replace the entire contents of `app/globals.css`:
 
 ```css title="app/globals.css"
 /* preset.css bundles: tailwindcss + tw-animate-css + the token theme (:root/.dark)
- * + the base a11y layer (focus rings, reduced-motion, portal isolation)
+ * + the base a11y layer (the :focus-visible outline, reduced-motion, portal isolation)
  * + the utility helpers (shimmer / scroll-fade / scrollbar).
  * Do NOT also import "tailwindcss" here — the preset already does. */
 @import "@vegastack/design/preset.css";
@@ -182,7 +182,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body>
         <VegaStackProvider>{children}</VegaStackProvider>
@@ -192,7 +192,8 @@ export default function RootLayout({
 }
 ```
 
-And point the token font families at those loaded fonts (append to `app/globals.css`):
+The scaffold's `antialiased` class is not needed: `base.css` already sets font smoothing on `body`.
+Point the token font families at those loaded fonts (append to `app/globals.css`):
 
 ```css title="app/globals.css (append)"
 :root {

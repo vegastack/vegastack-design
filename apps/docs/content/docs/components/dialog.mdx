@@ -179,6 +179,9 @@ Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
   back into the background. The root now publishes its `modal` prop through a context, which is
   exactly the shape upstream's own Drawer uses, because native inert would also block the outside
   POINTER interaction that `modal={false}` and `"trap-focus"` keep.
+- **BRD-1** — `DialogContent` draws a real 1px `border border-border` instead of upstream's
+  `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
+  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — the repository formatter reflows the file and `registry-stamp.mjs` writes the
   provenance header the three-copy model needs; those hunks carry no decision of their own.

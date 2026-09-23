@@ -10,6 +10,7 @@ import {
   type DataListColumn,
   type SortState,
 } from "@/components/ui/data-list";
+import { DataListPager } from "@/components/ui/data-list-pager";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -151,6 +152,135 @@ export function dataList(): ReactNode {
   );
 }
 
+export function dataListFitting(): ReactNode {
+  // A 320px pane. Name and Email keep their own columns; Role, Status and
+  // Amount no longer fit, so they STACK into the Name cell (`mobile: "merge"`,
+  // the default) instead of scrolling the table sideways. A column that opts
+  // into `mobile: "hidden"` is dropped and counted instead — see
+  // `dataListHiddenColumns`.
+  const fitting: DataListColumn<Person>[] = columns.map((column) =>
+    column.key === "name" ? { ...column, minWidth: 160 } : column,
+  );
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="w-full max-w-80">
+        <DataList
+          aria-label="People at 320px"
+          columns={fitting}
+          data={people.slice(0, 3)}
+          getRowId={(p) => p.id}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+interface Invoice {
+  id: string;
+  ref: string;
+  customer: string;
+  email: string;
+  status: Status;
+  amount: number;
+}
+
+const invoices: Invoice[] = [
+  {
+    id: "1",
+    ref: "INV-2026-00481",
+    customer: "Northwind Traders",
+    email: "accounts.payable@northwind-traders.example",
+    status: "active",
+    amount: 12_480,
+  },
+  {
+    id: "2",
+    ref: "INV-2026-00482",
+    customer: "Contoso Pharmaceuticals",
+    email: "billing@contoso-pharmaceuticals.example",
+    status: "invited",
+    amount: 940,
+  },
+  {
+    id: "3",
+    ref: "INV-2026-00483",
+    customer: "Fabrikam",
+    email: "finance@fabrikam.example",
+    status: "suspended",
+    amount: 2_150,
+  },
+];
+
+export function dataListMonoFirst(): ReactNode {
+  // A mono first column is one line in the mono face (`mono` implies
+  // `nowrap`). The values merged under it do NOT inherit that: each wraps and
+  // wears its own column's face, so a long email under an invoice number
+  // breaks inside the cell instead of scrolling the table sideways.
+  const invoiceColumns: DataListColumn<Invoice>[] = [
+    { key: "ref", header: "Invoice", mono: true, minWidth: 150 },
+    { key: "customer", header: "Customer" },
+    { key: "email", header: "Billing email" },
+    {
+      key: "status",
+      header: "Status",
+      render: (i) => (
+        <Badge variant="secondary">{STATUS[i.status].label}</Badge>
+      ),
+    },
+    {
+      key: "amount",
+      header: "Amount",
+      align: "end",
+      mono: true,
+      render: (i) => `$${i.amount.toLocaleString("en-US")}`,
+    },
+  ];
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="w-full max-w-80">
+        <DataList
+          aria-label="Invoices at 320px"
+          columns={invoiceColumns}
+          data={invoices}
+          getRowId={(i) => i.id}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+export function dataListHiddenColumns(): ReactNode {
+  // `mobile: "hidden"` drops a column that no longer fits instead of merging
+  // it, and COUNTS it: "2 columns hidden" appears under the table, which is
+  // described by that line. The table is sorted by Amount, one of the hidden
+  // columns, so a second line states the order its header can no longer show.
+  const hiddenColumns: DataListColumn<Person>[] = columns.map((column) =>
+    column.key === "name"
+      ? { ...column, minWidth: 160 }
+      : column.key === "role" || column.key === "amount"
+        ? { ...column, mobile: "hidden" }
+        : column,
+  );
+  const [sort, setSort] = React.useState<SortState | null>({
+    key: "amount",
+    direction: "desc",
+  });
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="w-full max-w-80">
+        <DataList
+          aria-label="People with hidden columns"
+          columns={hiddenColumns}
+          data={sortPeople(people, sort).slice(0, 3)}
+          getRowId={(p) => p.id}
+          sort={sort}
+          onSortChange={setSort}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
 export function dataListSelectable(): ReactNode {
   const [selected, setSelected] = React.useState<Set<string>>(
     new Set(["1", "3"]),
@@ -267,14 +397,13 @@ export function dataListInteractiveColumn(): ReactNode {
   );
 }
 
-const PAGE_SIZE = 3;
-
 // The headline "Scope" story: the host owns search + paging and drops its own
 // controls into the `toolbar` / `footer` slots, passing DataList the already
 // filtered + paged rows. DataList itself owns no query/paging logic.
 export function dataListComposed(): ReactNode {
   const [query, setQuery] = React.useState("");
-  const [page, setPage] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(3);
   const [sort, setSort] = React.useState<SortState | null>({
     key: "name",
     direction: "asc",
@@ -292,11 +421,13 @@ export function dataListComposed(): ReactNode {
     return sortPeople(matched, sort);
   }, [query, sort]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, pageCount - 1);
+  // The pager clamps the page it DISPLAYS; the host clamps the page it SLICES,
+  // so a search that shrinks the result never shows an empty page.
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, pageCount);
   const pageRows = filtered.slice(
-    safePage * PAGE_SIZE,
-    safePage * PAGE_SIZE + PAGE_SIZE,
+    (safePage - 1) * pageSize,
+    safePage * pageSize,
   );
 
   return (
@@ -319,38 +450,26 @@ export function dataListComposed(): ReactNode {
               aria-label="Search people"
               onChange={(e) => {
                 setQuery(e.currentTarget.value);
-                setPage(0);
+                setPage(1);
               }}
             />
           </InputGroup>
         }
         footer={
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground" aria-live="polite">
-              {filtered.length} {filtered.length === 1 ? "result" : "results"}
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={safePage === 0}
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-              >
-                Previous
-              </Button>
-              <span className="text-sm tabular-nums text-muted-foreground">
-                Page {safePage + 1} of {pageCount}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={safePage >= pageCount - 1}
-                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          // `DataListPager` owns the footer's layout: its range, chooser and
+          // page list wrap and narrow with the pane, so the footer fits a
+          // 320px viewport instead of overflowing it.
+          <DataListPager
+            page={safePage}
+            pageSize={pageSize}
+            pageSizes={[3, 5]}
+            total={filtered.length}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
         }
       />
     </Wrapper>

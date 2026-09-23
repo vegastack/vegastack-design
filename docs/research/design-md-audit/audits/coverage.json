@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "d2fe779ccae483856aac8d30e420e9a4f0b3c3528ee3193b12c5e99f4ee9a232",
+  "contractSha256": "b0822ec8a9ac7079a6ed1c0a6e40aaccc427243d430aecac83449f5e034c30ec",
   "inventory": {
-    "expected": 690,
-    "actual": 690,
-    "unique": 690
+    "expected": 691,
+    "actual": 691,
+    "unique": 691
   },
   "classes": {
-    "components": 110,
+    "components": 111,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -119,8 +119,8 @@
       ]
     },
     "Data display": {
-      "expected": 10,
-      "actual": 10,
+      "expected": 11,
+      "actual": 11,
       "members": [
         "card",
         "carousel",
@@ -128,6 +128,7 @@
         "chip",
         "data-grid",
         "data-list",
+        "data-list-pager",
         "property-list",
         "stat",
         "table",
@@ -771,7 +772,7 @@
       ]
     }
   },
-  "componentRoutes": 108,
+  "componentRoutes": 109,
   "blockRoutes": 39,
   "modeledExemptions": 3
 }

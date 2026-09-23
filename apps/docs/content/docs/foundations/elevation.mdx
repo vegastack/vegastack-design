@@ -15,10 +15,33 @@ There is no single named overlay role any more — a floating surface reaches fo
 - **`shadow-md`** — popovers, menus and selects.
 - **`shadow-lg`** — sheets and submenus.
 - **`shadow-sm`** — the active tab chip, the floating sidebar, the inset main area.
-- **none** — cards, panels, rows, inputs and resting controls, which separate with `border-border`.
+- **none** — cards, panels, rows, inputs and resting controls, which separate with `border-border`
+  (floating surfaces draw the same border under their shadow — see below).
 
 Sticky surfaces gain a separating border when they detach from adjacent content; they do not
 acquire an invented elevation tier.
+
+## Borders, not rings
+
+Every card and every floating surface — dialog, alert dialog, popover, hover card, select,
+combobox, the three menus and the navigation-menu panel — draws a real 1px `border border-border`.
+None of them carries a `ring-*` outline. Shadow is the only thing that changes between a resting
+card and a floating popover; the edge is the same hairline on both.
+
+Upstream shadcn draws that edge as `ring-1 ring-foreground/10`, a box-shadow. The system took it
+at the reset and reversed it (decision **BRD-1**, 23-09-2026), for three reasons:
+
+- **It read as a stray outline.** A foreground-tinted ring sits outside the box and looks like a
+  focus or selection state that nobody asked for, not like the surface's own edge.
+- **It vanishes in forced colours.** Windows High Contrast drops box-shadows, so a ring-edged
+  surface lost its boundary entirely; a border is repainted in the system colour.
+- **It contradicted the rest of the system.** Inputs, tables, alerts and settings rows already
+  separate with `border-border`; one edge vocabulary is easier to hold than two.
+
+The border takes a pixel of layout on each side and sits inside the radius, so a card's
+`overflow-hidden` clips a full-bleed image at the border's inner edge and the corners stay
+concentric. The avatar group's `ring-2 ring-background` is not an outline — it is the gap that
+separates stacked avatars — and stays a ring.
 
 ## Equal-elevation nesting
 
@@ -32,14 +55,14 @@ There is **one portal band**, `z-50`, and DOM order decides nesting within it �
 local raise inside a component. The named `--z-raised` / `--z-overlay` / `--z-toast` tokens are
 gone: OVL-2 is decided as shadcn, and upstream writes `z-50` on every portaled surface.
 
-That has one user-visible consequence worth knowing before you hit it. **A toast fired from inside
-an open dialog renders behind the scrim.** The toast viewport mounts with the app provider, before
-any dialog opens, so on DOM order the later dialog wins. The system used to buy its way out with a
-`z-60` toast band; it no longer does, because upstream does not. Raise the toast after the dialog
-closes, or mount your toaster after it. `test/stacking.browser.test.tsx` measures the behaviour
+**The one exception is the Toast viewport, which sits at `z-60`** (decision **OVL-15**, since
+0.12.0). DOM order cannot serve it: the viewport mounts with the app provider, before any dialog
+exists, so on DOM order alone a toast fired from an open dialog would render behind the scrim. One
+band above `z-50` puts it in front of every overlay instead. Nothing else leaves `z-50` — do not
+copy `z-60` onto a surface of your own. `test/stacking.browser.test.tsx` measures the behaviour
 rather than assuming it.
 
 <DoDont
-  do="Separate resting surfaces with border-border, and reserve shadow for surfaces that genuinely float."
-  dont="Give a card, a row or a resting control a drop shadow, or nest equal-elevation cards."
+  do="Separate resting and floating surfaces with border-border, and reserve shadow for surfaces that genuinely float."
+  dont="Give a card, a row or a resting control a drop shadow, outline a surface with a ring-* box-shadow, or nest equal-elevation cards."
 />

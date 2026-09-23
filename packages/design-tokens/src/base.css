@@ -140,9 +140,12 @@
  * Users who set `prefers-reduced-motion: reduce` MUST have animations and transitions neutralised
  * even over component-authored durations; `!important` is the standard, intentional mechanism for
  * this reset (it has to win against any animated rule, including ones defined later or with higher
- * specificity). This is the SOLE place `!important` is permitted in shipped VegaStack CSS, and
+ * specificity). This is the SOLE hand-written `!important` in the token CSS, and
  * `design-lint --token-css` FAILS on any `!important` outside this block. Do not add `!important`
- * to win a specificity fight elsewhere; restructure the selector or token instead.
+ * to win a specificity fight elsewhere; restructure the selector or token instead. (Component
+ * class strings are a separate ledger: Tailwind's `!` modifier compiles to `!important` too, and
+ * `design-lint`'s `important` rule allows it only in the counted, upstream-verbatim cases listed
+ * in its `IMPORTANT_MODIFIER_EXEMPTIONS`.)
  * ──────────────────────────────────────────────────────────────────────────────────────────────*/
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -799,6 +799,104 @@ test("a dropped column is COUNTED and reported in the toolbar", async () => {
   expect(document.querySelector('[data-slot="data-grid-merged"]')).toBeNull();
 });
 
+test("merged values carry their header as an sr-only prefix and wrap on their own rule", async () => {
+  await render(
+    <div style={{ width: "300px" }}>
+      <DataGrid
+        aria-label="Deals"
+        columns={[
+          {
+            key: "name",
+            header: "Name",
+            minWidth: 10,
+            mono: true,
+            mobile: "visible",
+          },
+          { key: "stage", header: "Stage", minWidth: 10_000 },
+          { key: "amount", header: "Amount", minWidth: 10_000, mono: true },
+        ]}
+        data={DEALS}
+        getRowId={(d) => d.id}
+      />
+    </div>,
+  );
+  await expect
+    .poll(() => document.querySelector('[data-slot="data-grid-merged"]'))
+    .not.toBeNull();
+  const merged = document.querySelector('[data-slot="data-grid-merged"]')!;
+  // Read with its header, as DataList's stack always was.
+  expect(merged.textContent).toBe("Stage: OpenAmount: 300");
+  const [stage, amount] = Array.from(merged.children) as HTMLElement[];
+  // `truncate` could not lower a table column's min-content width; the shared rule wraps.
+  expect(stage!.className).not.toContain("truncate");
+  expect(stage!.className).toContain("whitespace-normal");
+  expect(stage!.className).toContain("wrap-anywhere");
+  // Each value wears its OWN column's face, not the mono primary's.
+  expect(stage!.className).toContain("font-sans");
+  expect(amount!.className).toContain("font-mono");
+});
+
+test("a sorted column that left the header row is stated beside the grid", async () => {
+  await render(
+    <div style={{ width: "300px" }}>
+      <DataGrid
+        aria-label="Deals"
+        columns={[
+          { key: "name", header: "Name", minWidth: 10, mobile: "visible" },
+          { key: "stage", header: "Stage", minWidth: 10_000, sortable: true },
+          {
+            key: "amount",
+            header: "Amount",
+            minWidth: 10_000,
+            mobile: "hidden",
+            sortable: true,
+          },
+        ]}
+        data={DEALS}
+        getRowId={(d) => d.id}
+        sort={[
+          { key: "stage", direction: "desc" },
+          { key: "amount", direction: "asc" },
+        ]}
+      />
+    </div>,
+  );
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="data-grid-sort-hint"]')
+          ?.textContent,
+    )
+    .toBe("Sorted by Stage, descending, then Amount, ascending");
+  const hint = document.querySelector('[data-slot="data-grid-sort-hint"]')!;
+  const grid = document.querySelector('[role="grid"]')!;
+  expect(grid.getAttribute("aria-describedby")?.split(" ")).toContain(hint.id);
+  // The merged value keeps the direction as a styling hook.
+  expect(
+    document
+      .querySelector('[data-slot="data-grid-merged"] [data-sorted]')
+      ?.getAttribute("data-sorted"),
+  ).toBe("desc");
+});
+
+test("no sort line while every sorted column keeps its header", async () => {
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sort={[{ key: "amount", direction: "asc" }]}
+    />,
+  );
+  await expect
+    .poll(() => document.querySelectorAll('[role="columnheader"]').length)
+    .toBe(3);
+  expect(
+    document.querySelector('[data-slot="data-grid-sort-hint"]'),
+  ).toBeNull();
+});
+
 test("the hidden-columns hint is singular for one column", async () => {
   await render(
     <div style={{ width: "300px" }}>

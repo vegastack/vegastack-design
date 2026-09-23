@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.12.2 sha256-5TsaSR2rlzfk8di3tu73H14UKoItjmYDSMWCVcdCgRs=
+// @vegastack data-grid@0.12.2 sha256-FRq5my9H43d7K8/vZd540s/ELwygqK7sg4yvoh4DgmA=
 
 "use client";
 
@@ -24,10 +24,16 @@ import {
   columnCellClass,
   cycleSort,
   EmptyRow,
+  mergedValueClass,
+  offscreenSortSummary,
+  revealColumns,
+  SELECTED_ROW_CLASS,
+  SELECTION_COLUMN_WIDTH,
   SelectAllHead,
   SelectionCell,
   SkeletonRows,
   SortableHead,
+  useContainerWidth,
   useControlledState,
   useRowSelection,
   type DataTableColumnLayout,
@@ -183,21 +189,6 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
    * @default undefined
    */
   editable?: EditableCellEditor;
-  /**
-   * Pixels this column needs before the responsive revelation shows it.
-   * Columns that no longer fit hide right-to-left; `mobile` overrides.
-   * @default 120
-   */
-  minWidth?: number;
-  /**
-   * Responsive posture when the column no longer fits: `visible` never hides;
-   * `merge` stacks the value into the primary (first) column's cell; `hidden`
-   * drops it, which is counted and reported in the toolbar so the loss is never
-   * silent. `merge` is the default because narrowing a viewport must never lose
-   * data silently.
-   * @default "merge"
-   */
-  mobile?: "visible" | "hidden" | "merge";
   /**
    * Group rows into collapsible sections by this column's value. One grouping
    * column at most; grouping disables `virtualize`.
@@ -466,26 +457,18 @@ export function DataGrid<T>({
   const order = columnOrder ?? null;
 
   // ---- responsive column revelation ---------------------------------------
+  // The measurement and the partition are shared with DataList
+  // (`data-table-parts`); the grid keeps a RefObject too, because the
+  // virtualiser reads its scroll element from it.
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [containerWidth, setContainerWidth] = React.useState<number | null>(
-    null,
+  const [measureRef, containerWidth] = useContainerWidth();
+  const setContainer = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      containerRef.current = node;
+      measureRef(node);
+    },
+    [measureRef],
   );
-  React.useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    // Quantized: hiding/showing a column changes the table's own width and
-    // re-fires the observer — sub-pixel oscillation must not re-render the
-    // grid in a loop.
-    const update = () =>
-      setContainerWidth((prev) => {
-        const next = el.clientWidth;
-        return prev !== null && Math.abs(prev - next) <= 1 ? prev : next;
-      });
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   const ordered = React.useMemo(() => {
     if (!order) return columns;
@@ -498,52 +481,20 @@ export function DataGrid<T>({
   }, [columns, order]);
 
   /**
-   * The platform-harvested revelation: walk columns in order, keep the ones
-   * whose cumulative minWidth fits the measured container; `visible` always
+   * The platform-harvested revelation (`revealColumns`): `visible` always
    * stays, `merge` overflow stacks into the primary cell, and only an explicit
    * `hidden` actually disappears — where it is COUNTED, so the toolbar can say
    * so. Data is never silently lost.
    */
-  const { visibleColumns, mergedColumns, hiddenColumns } = React.useMemo(() => {
-    const pickerVisible = ordered.filter(
-      (column) => visibility[column.key] !== false,
-    );
-    if (containerWidth == null)
-      return {
-        visibleColumns: pickerVisible,
-        mergedColumns: [],
-        hiddenColumns: [],
-      };
-    const selectionWidth = selectable ? 40 : 0;
-    let used = selectionWidth;
-    const shown: DataGridColumn<T>[] = [];
-    const overflow: DataGridColumn<T>[] = [];
-    // Hiding is right-to-left as documented: once one hideable column no
-    // longer fits, every hideable column after it hides too — a narrow late
-    // column must not survive a wide earlier one (no holes).
-    let exhausted = false;
-    for (const [index, column] of pickerVisible.entries()) {
-      const need = column.minWidth ?? 120;
-      const isPrimary = index === 0;
-      if (isPrimary || column.mobile === "visible") {
-        used += need;
-        shown.push(column);
-      } else if (!exhausted && used + need <= containerWidth) {
-        used += need;
-        shown.push(column);
-      } else {
-        exhausted = true;
-        overflow.push(column);
-      }
-    }
-    return {
-      visibleColumns: shown,
-      mergedColumns: overflow.filter(
-        (column) => (column.mobile ?? "merge") === "merge",
+  const { visibleColumns, mergedColumns, hiddenColumns } = React.useMemo(
+    () =>
+      revealColumns(
+        ordered.filter((column) => visibility[column.key] !== false),
+        containerWidth,
+        selectable ? SELECTION_COLUMN_WIDTH : 0,
       ),
-      hiddenColumns: overflow.filter((column) => column.mobile === "hidden"),
-    };
-  }, [ordered, visibility, containerWidth, selectable]);
+    [ordered, visibility, containerWidth, selectable],
+  );
 
   // ---- sorting via the TanStack row model ----------------------------------
   const columnHelper = React.useMemo(
@@ -689,6 +640,8 @@ export function DataGrid<T>({
 
   // ---- the APG grid keyboard layer (pass 2) --------------------------------
   const gridId = React.useId();
+  const hiddenHintId = React.useId();
+  const sortHintId = React.useId();
   const colCount = visibleColumns.length + (selectable ? 1 : 0);
   const [activeCell, setActiveCell] = React.useState<{
     row: number;
@@ -858,10 +811,9 @@ export function DataGrid<T>({
         aria-selected={selectable ? isSelected : undefined}
         {...virtualProps}
         className={cn(
-          isSelected &&
-            // A selected row keeps its tint through hover and press (SP-06): the fill is the
-            // same `accent` in all three states, so the selection never flickers under the cursor.
-            "bg-accent hover:bg-accent active:bg-accent data-selected:bg-accent data-selected:hover:bg-accent",
+          // A selected row keeps one wash through hover and press (SP-06), light enough that a
+          // `secondary` Badge in it stays visible — see `SELECTED_ROW_CLASS`.
+          isSelected && SELECTED_ROW_CLASS,
         )}
       >
         {selectable ? (
@@ -948,7 +900,24 @@ export function DataGrid<T>({
                   className="mt-0.5 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
                 >
                   {mergedColumns.map((merged) => (
-                    <span key={merged.key} className="min-w-0 truncate">
+                    // `truncate` used to sit here, and it could not keep the promise: an
+                    // auto-layout table sizes a column from its min-content width, which an
+                    // ellipsis does not lower, so a long merged value still widened the primary
+                    // cell. The shared rule wraps instead (`mergedValueClass`).
+                    <span
+                      key={merged.key}
+                      data-sorted={
+                        activeSort.find((entry) => entry.key === merged.key)
+                          ?.direction
+                      }
+                      className={mergedValueClass(merged)}
+                    >
+                      {/* A value lifted out of its column loses the header a screen reader
+                          would announce with it, so it carries that header as a prefix — as
+                          DataList's stack always has. */}
+                      {typeof merged.header === "string" ? (
+                        <span className="sr-only">{merged.header}: </span>
+                      ) : null}
                       <Cell
                         column={merged}
                         row={row}
@@ -998,6 +967,10 @@ export function DataGrid<T>({
     </TableRow>
   );
 
+  // A sorted column that revelation merged or hid (or the picker switched off)
+  // takes its header's arrow and `aria-sort` with it; state the order instead.
+  const sortSummary = offscreenSortSummary(activeSort, ordered, visibleColumns);
+
   const colSpan = colCount;
   const virtualItems = canVirtualize ? rowVirtualizer.getVirtualItems() : [];
   const totalSize = canVirtualize ? rowVirtualizer.getTotalSize() : 0;
@@ -1014,7 +987,10 @@ export function DataGrid<T>({
           : undefined
       }
     >
-      {(toolbar != null || columnPicker || hiddenColumns.length > 0) && (
+      {(toolbar != null ||
+        columnPicker ||
+        hiddenColumns.length > 0 ||
+        sortSummary != null) && (
         <div
           data-slot="data-grid-toolbar"
           className="flex min-w-0 flex-wrap items-center justify-between gap-2"
@@ -1022,13 +998,24 @@ export function DataGrid<T>({
           <div className="min-w-0 flex-1">{toolbar}</div>
           {hiddenColumns.length > 0 ? (
             // Revelation dropped something. Saying so is the whole point: a
-            // column that vanishes with no affordance is silent data loss.
+            // column that vanishes with no affordance is silent data loss. The
+            // grid is described by this line, so it is heard with the grid.
             <span
+              id={hiddenHintId}
               data-slot="data-grid-hidden-hint"
               className="text-xs text-muted-foreground"
             >
               {hiddenColumns.length} column
               {hiddenColumns.length === 1 ? "" : "s"} hidden
+            </span>
+          ) : null}
+          {sortSummary != null ? (
+            <span
+              id={sortHintId}
+              data-slot="data-grid-sort-hint"
+              className="text-xs text-muted-foreground"
+            >
+              {sortSummary}
             </span>
           ) : null}
           {columnPicker ? (
@@ -1067,7 +1054,7 @@ export function DataGrid<T>({
           it, so the vertical scroll box and the ref the virtualiser measures live in a wrapper
           this component owns. Batch 7 rebuilds `data-grid` on the reset primitives. */}
       <div
-        ref={containerRef}
+        ref={setContainer}
         data-slot="data-grid-scroll"
         className={cn(
           maxHeight != null &&
@@ -1077,6 +1064,14 @@ export function DataGrid<T>({
         <Table
           role="grid"
           aria-label={ariaLabel}
+          aria-describedby={
+            [
+              hiddenColumns.length > 0 ? hiddenHintId : null,
+              sortSummary != null ? sortHintId : null,
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
           aria-rowcount={loadMore?.hasMore ? -1 : ariaRowTotal}
           aria-colcount={ariaColTotal}
           aria-busy={loading || undefined}

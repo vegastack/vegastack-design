@@ -1,4 +1,4 @@
-// @vegastack board@0.12.2 sha256-/tMEmgLQacpAjbRce81DXnf5Y0B1q+Je2hKF1uPSwHg=
+// @vegastack board@0.12.2 sha256-0f8cB4ByH4opsNtZlwF2LWtQtGUI3ZZfEpkJyRlGI/c=
 
 "use client";
 
@@ -396,12 +396,12 @@ export function Board<T>({
               }
               className={cn(
                 "w-(--board-column-width) shrink-0 gap-2 bg-muted py-2",
-                // The drop-over highlight moves the CARD's hairline, and upstream's `Card` draws
-                // that hairline as a `ring-1`, not a border. This read `border-primary/50` until
-                // Batch 7c of the shadcn reset, which set a colour on a zero-width border and so
-                // painted nothing at all — the whole drop affordance was invisible from the day
-                // Batch 2 put `card.tsx` back on upstream.
-                "data-drop-over:ring-primary/50",
+                // The drop-over highlight recolours the CARD's hairline, which `Card` draws as a
+                // real `border border-border` (BRD-1, ours since 23-09-2026). Between Batch 7c of
+                // the shadcn reset and that reversal the hairline was upstream's `ring-1`, so this
+                // read `ring-primary/50`; it must follow whichever one `Card` actually paints, or
+                // it sets a colour on a zero-width edge and the drop affordance goes invisible.
+                "data-drop-over:border-primary/50",
               )}
             >
               <CardHeader className="px-3">

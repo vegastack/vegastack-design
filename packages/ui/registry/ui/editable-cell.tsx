@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.12.2 sha256-P8/X/nbx1JS+CAU67j58Mp9ZT1+ddsb2KjeVVJXyShY=
+// @vegastack editable-cell@0.12.2 sha256-0x7AejbRRX/+24wCcvA1TYXsbKB5CLY1xHVFM19300U=
 
 "use client";
 
@@ -248,7 +248,11 @@ function InlineTextEditor({
           : undefined
       }
       className={cn(
-        "inline-flex h-8 max-w-full min-w-0 items-center rounded-lg border border-transparent px-2.5 py-1 text-sm",
+        // `min-h-8`, not `h-8`: the display is TEXT you can click, so a squeezed DataList wraps
+        // it rather than keeping it whole like a control, and the box grows with the wrapped
+        // value instead of spilling it (review round 4). Unsqueezed it is one line (`truncate`)
+        // and measures exactly 32px, as before.
+        "inline-flex min-h-8 max-w-full min-w-0 items-center rounded-lg border border-transparent px-2.5 py-1 text-sm",
         !disabled && !readOnly && "cursor-text hover:bg-accent",
         // FRM-4: no `pointer-events-none`. A disabled cell stays hoverable so a Tooltip can
         // explain why it cannot be edited; the hook already no-ops `start()` while disabled.

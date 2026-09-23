@@ -290,7 +290,48 @@ const recipeReferenceCount = validateRecipeReferences(
   light,
 );
 
+/**
+ * A sentence that follows a closing parenthesis starts with a capital: "…portals into it
+ * (OVL-14). a panel's search is…" shipped in design.md (review round 2, 2026-09-23). Fenced and
+ * inline code are skipped, and so are the few names this system writes in lower case by design.
+ */
+const LOWERCASE_NAMES = new Set([
+  "shadcn",
+  "npm",
+  "pnpm",
+  "cmdk",
+  "e.g",
+  "i.e",
+]);
+function sentenceCaseProblems(body) {
+  const prose = body
+    // Code becomes a run of "X", not spaces: blanks would let the scan skip PAST a code span that
+    // opens a sentence ("). `intent` is") and read the word after it as the sentence start.
+    .replace(/^```[\s\S]*?^```/gm, (block) => block.replace(/[^\n]/g, "X"))
+    .replace(/`[^`]*`/g, (code) => code.replace(/[^\n]/g, "X"));
+  const problems = [];
+  for (const match of prose.matchAll(/\)\.\s+([a-z][\w.-]*)/g)) {
+    if (LOWERCASE_NAMES.has(match[1].replace(/\.$/, ""))) continue;
+    const line = prose.slice(0, match.index).split("\n").length;
+    problems.push(
+      `line ${line}: a sentence starts in lower case ("${match[1]}")`,
+    );
+  }
+  return problems;
+}
+
 if (selfTestMode) {
+  const lowercase = sentenceCaseProblems(
+    "…portals into it (OVL-14). a panel's search\n(DOC-7). shadcn ships it; `x(). y` is code.",
+  );
+  if (lowercase.length !== 1 || !lowercase[0].includes('"a"')) {
+    throw new Error(
+      "design.md sentence-case negative self-test did not fail closed",
+    );
+  }
+  console.log(
+    "✓ design.md negative self-test: a lower-case sentence after `).` rejected",
+  );
   let rejectedMissingReference = false;
   try {
     validateRecipeReferences(
@@ -347,6 +388,10 @@ const expected = `---\n${serializeFrontmatter(frontmatter)}---\n\n${canonicalPar
 
 if (checkMode) {
   parseYaml(canonicalParts.yaml, canonicalPath);
+  const caseProblems = sentenceCaseProblems(canonicalParts.body);
+  if (caseProblems.length > 0) {
+    throw new Error(`${canonicalPath}: ${caseProblems.join("; ")}`);
+  }
   if (canonicalValue !== expected) {
     throw new Error(
       `${canonicalPath} is stale; run node tooling/sync-design-md.mjs with Node >=24.14`,

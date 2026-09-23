@@ -66,6 +66,14 @@ function Example({
 const popup = () =>
   document.querySelector('[data-slot="popover-content"]') as HTMLElement | null;
 
+/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+function expectBorderNotRing(element: HTMLElement) {
+  const tokens = element.className.split(/\s+/);
+  expect(tokens).toContain("border");
+  expect(tokens).toContain("border-border");
+  expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
+}
+
 test("renders a trigger carrying its data-slot (Usage)", async () => {
   const screen = await render(<Example />);
   const trigger = screen.getByRole("button", { name: "Open Popover" });
@@ -221,6 +229,12 @@ test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
     expect(value).not.toMatch(/ring-3|ring-\[3px\]/);
     expect(value).not.toContain("focus-visible:ring-");
   }
+});
+
+test("BRD-1: the popover surface draws a real border, not a ring outline", async () => {
+  const screen = await render(<Example />);
+  await userEvent.click(screen.getByRole("button", { name: "Open Popover" }));
+  expectBorderNotRing(popup() as HTMLElement);
 });
 
 test("no a11y violations — closed", async () => {

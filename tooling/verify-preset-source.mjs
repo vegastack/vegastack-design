@@ -18,6 +18,9 @@
 //      `@source "./dist"` / `"../ui/dist"` resolve relative to the preset's realpath
 //      (the icon runtime is inside this package; ui — when present — is a sibling).
 //   3. Asserts the Toaster + BrandIcon classes appear in the compiled output.
+//   4. Proves the claim preset.css rests its relative path on: a bare package-name
+//      `@source "@vegastack/ui"` scans nothing under the installed Tailwind, against a control
+//      that reaches the same dist by a relative path.
 //
 // If they appear, the preset alone is enough — consumers do nothing extra. If they don't,
 // the distribution contract is broken and this gate fails the build.
@@ -101,8 +104,57 @@ if (missing.length > 0) {
   );
 }
 
+// ---------------------------------------------------------------------------------------------
+// The claim preset.css makes about the form it does NOT use: a bare package-name `@source
+// "@vegastack/ui"` is not resolved through node_modules — Tailwind reads it as a literal glob and
+// scans nothing. Re-verified here against the installed Tailwind, from a consumer that really has
+// `@vegastack/ui` in its node_modules (the docs app), with a control: the SAME package reached by
+// a relative path does generate the toast root's `rounded-2xl`, so an absent class means the bare
+// form scanned nothing, not that the probe could never have seen it. If a Tailwind upgrade starts
+// resolving package names, this fails — and the preset's relative-path workaround and its comment
+// can be revisited rather than silently outliving their reason.
+const consumerDir = join(here, "..", "apps", "docs");
+const PROBE_CLASS = /\.rounded-2xl\s*\{/;
+async function compileFrom(entry) {
+  const compiler = await compile(entry, {
+    base: consumerDir,
+    onDependency() {},
+  });
+  const scanner = new Scanner({ sources: compiler.sources });
+  return compiler.build(scanner.scan());
+}
+let bareCss;
+let relativeCss;
+try {
+  bareCss = await compileFrom(
+    '@import "tailwindcss";\n@source "@vegastack/ui";\n',
+  );
+  relativeCss = await compileFrom(
+    '@import "tailwindcss";\n@source "./node_modules/@vegastack/ui/dist";\n',
+  );
+} catch (err) {
+  fail(
+    `Tailwind compile of the bare-@source probe errored: ${err.message.split("\n")[0]}`,
+  );
+}
+if (!PROBE_CLASS.test(relativeCss)) {
+  fail(
+    "the control probe — `@vegastack/ui/dist` reached by a relative @source from apps/docs — " +
+      "generated no `rounded-2xl`, so the bare-name probe below it proves nothing. Build " +
+      "@vegastack/ui first.",
+  );
+}
+if (PROBE_CLASS.test(bareCss)) {
+  fail(
+    'a bare `@source "@vegastack/ui"` now RESOLVES through node_modules under the installed ' +
+      "Tailwind. packages/design/preset.css says it does not, and chose a relative " +
+      "`../ui/dist` because of it — revisit the preset's @source and correct its comment.",
+  );
+}
+
 console.log(
   `  ✓ verify-preset-source: preset self-contains @source — ` +
     `${ASSERTIONS.length}/${ASSERTIONS.length} package classes generated ` +
-    `(Toaster + BrandIcon) from the preset import alone.`,
+    `(Toaster + BrandIcon) from the preset import alone, and a bare ` +
+    `\`@source "@vegastack/ui"\` still scans nothing under the installed Tailwind.`,
 );

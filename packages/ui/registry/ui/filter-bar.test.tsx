@@ -1,6 +1,9 @@
 import * as React from "react";
+// The compiled lane stylesheet as a STRING, mounted only for the containment test below: every
+// other test here measures against its own style mirror and must not see real CSS.
+import geometryCss from "../../test/geometry.css?inline";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { Flag } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
@@ -197,6 +200,9 @@ test("forwards searchInputProps to SearchInput and preserves placement", async (
     '[data-slot="filter-bar-search"]',
   ) as HTMLElement;
   expect(group.className).toContain("max-w-sm");
+  // RTL: pushed to the logical inline end, so it mirrors under a DirectionProvider.
+  expect(group.className.split(/\s+/)).toContain("ms-auto");
+  expect(group.className).not.toMatch(/(^|\s)ml-auto(\s|$)/);
   await expect
     .element(screen.getByRole("searchbox", { name: "Search" }))
     .toHaveAttribute("name", "query");
@@ -221,6 +227,12 @@ test("renders trailing content", async () => {
   await expect
     .element(screen.getByRole("button", { name: "Clear all" }))
     .toBeInTheDocument();
+  // With no search to push it, the trailing slot takes the logical inline-end push itself.
+  const trailing = document.querySelector(
+    '[data-slot="filter-bar-trailing"]',
+  ) as HTMLElement;
+  expect(trailing.className.split(/\s+/)).toContain("ms-auto");
+  expect(trailing.className).not.toMatch(/(^|\s)ml-auto(\s|$)/);
 });
 
 test("FilterChip computes a remove label from a string label", async () => {
@@ -416,3 +428,42 @@ test("a point 1px inside the real 24px box still hits and fires onRemove", async
     cleanup();
   }
 });
+
+// The bar never overflows its container. At 320px the search wraps onto its own row and fills it,
+// and the SearchInput's clear-button addon used to end ~4px outside the group (upstream's
+// inline-end `me-[-0.3rem]`), so the bar's scrollWidth ran 4px past its box. Measured on the
+// compiled CSS: every descendant stays inside the container at every narrow width.
+test.each([160, 200, 254, 288, 320])(
+  "the bar and its search stay inside a %dpx container (Search)",
+  async (width) => {
+    const sheet = document.createElement("style");
+    sheet.textContent = geometryCss;
+    document.head.append(sheet);
+    onTestFinished(() => sheet.remove());
+    const screen = await render(
+      <div style={{ width }} data-testid="box">
+        <FilterBar
+          filters={[
+            { id: "label", label: "Label", value: "bug", onRemove: () => {} },
+          ]}
+          addFilters={[{ id: "priority", label: "Priority" }]}
+          search={{ value: "Regent", onValueChange: () => {} }}
+        />
+      </div>,
+    );
+    const box = screen.container
+      .querySelector('[data-testid="box"]')!
+      .getBoundingClientRect();
+    const bar = screen.container.querySelector<HTMLElement>(
+      '[data-slot="filter-bar"]',
+    )!;
+    expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
+    for (const element of bar.querySelectorAll("*")) {
+      const rect = element.getBoundingClientRect();
+      expect(
+        rect.right,
+        `${element.getAttribute("data-slot") ?? element.tagName} ends past the container`,
+      ).toBeLessThanOrEqual(box.right + 0.5);
+    }
+  },
+);

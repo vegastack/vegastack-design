@@ -10,8 +10,8 @@ generated:
   inputs:
     generator:
       path: "tooling/sync-design-md.mjs"
-      bytes: 12571
-      sha256: "e89e7b952e08607c080e027176a784f27bd2a104c52590a46008e65058bf74ab"
+      bytes: 14290
+      sha256: "6ecea2bf4a2bf6783d1f53da37057218b37d209be9d7aa6d69b569c813fd24d8"
     config:
       path: "tooling/design-md.config.mjs"
       bytes: 3050
@@ -685,7 +685,7 @@ recipes:
 
 # VegaStack design
 
-This system **is** shadcn `base-nova`, plus sixty-one recorded exceptions. Every component we share with
+This system **is** shadcn `base-nova`, plus seventy-one recorded exceptions. Every component we share with
 shadcn is upstream's own file with an approved patch applied; every difference traces to a decision
 ID; and three offline gates prove both claims on every pull request. That is the whole doctrine, and
 this document is deliberately thin because most of what used to be written here is now upstream's
@@ -756,12 +756,12 @@ Three offline gates carry that, in `pnpm upstream:check`, inside `pnpm lint`:
 All four scripts under `tooling/upstream/` carry a `--self-test` that observes them failing
 (`pnpm upstream:selftest`), because a gate nobody has seen fail is an assumption.
 
-## What we add — the sixty-one exceptions
+## What we add — the seventy-one exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 171 rows, 110 resolved as
-**shadcn** (upstream ships unchanged) and 61 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 179 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 71 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
-which shared component each exception is assigned to. Re-opening a row is MK's decision. The sixty-one
+which shared component each exception is assigned to. Re-opening a row is MK's decision. The seventy-one
 group into six themes.
 
 ### 1. Focus — one outline, and no glow anywhere
@@ -865,12 +865,19 @@ A11Y-12 · A11Y-13 · A11Y-16 · FRM-4`
 
 ### 4. Tokens and semantics we add
 
-`COL-12 · COL-18 · COL-20 · COL-22 · TYP-10 · ICO-1 · ICO-3 · ICO-6 · ICO-8`
+`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 ·
+ICO-1 · ICO-3 · ICO-6 · ICO-8`
 
 Four status families written in upstream's own `destructive` shape (COL-12); a status hue means
 status, not sentiment — a favourite star is `foreground`, not `warning` (COL-18); semantic tokens
 only, no authored hex and no numbered Tailwind palette (COL-20); `color-scheme` set per theme
-(COL-22); Geist Sans and Geist Mono with tabular figures on code and data (TYP-10). Icons are lucide,
+(COL-22); a toast's first text line carries the default ink even when Base UI renders no title
+(COL-23). Geist Sans and Geist Mono with tabular figures on code and data (TYP-10); the heading tier
+(`text-lg` and up) takes Geist's line-height and letter-spacing from the `@theme inline` bridge, with
+sizes and the copy tier untouched (TYP-15); smoothed font rendering on `body` (TYP-16); a declared
+14px body size on `body`, never on `html` (TYP-17); no arbitrary font size, so upstream's 12.8px `sm`
+half-step resolves down to `text-xs` (TYP-18); Avatar's fallback initials are `text-xs` at every
+size (TYP-14). Icons are lucide,
 the lucide-animated mirrors and `thesvg` brand glyphs through `Icon`/`BrandIcon` and nothing else
 (ICO-1); no inline `<svg>` as an icon (ICO-3); the animated-icon factory owns the trigger and
 reduced-motion rules (ICO-6); **the indeterminate loading mark is lucide `Loader`, never
@@ -885,8 +892,8 @@ token — that is COL-20 being enforced, not broken.
 
 ### 5. Our own recipes and behaviours
 
-`MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · FRM-9 · FRM-10 ·
-FRM-12 · FRM-13 · OVL-11 · OVL-13 · API-5 · API-9 · API-17`
+`MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · FRM-9 · FRM-10 ·
+FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 · API-5 · API-9 · API-17`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
   `motion-reduce:` restatement of it is a violation (MOT-5). Keyed-presence utilities
@@ -898,6 +905,10 @@ FRM-12 · FRM-13 · OVL-11 · OVL-13 · API-5 · API-9 · API-17`
   variants, with no `@tailwindcss/typography`. `MarkdownView` and `TextEdit` both wear it, so rendered
   rich text is identical in both. Because it is descendant-expressed, an element-level class on a
   child **loses** to it; restyle by composing the recipe, never by classing the rendered element.
+- **Surfaces** (BRD-1) — cards and floating surfaces draw a real 1px `border border-border`, never
+  upstream's `ring-1 ring-foreground/10` box-shadow outline; the floating sidebar draws
+  `border border-sidebar-border` (MK, 23-09-2026). Avatar's `ring-2 ring-background` is a stacking
+  gap, not an outline, and stays. `design-lint`'s `no-surface-ring` keeps the ring from returning.
 - **Layout** (LAY-9…LAY-12) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
   edge-pinned surfaces, `dvh` over `vh`, `svh` only for the sidebar; truncation is `min-w-0` on the
@@ -915,7 +926,12 @@ FRM-12 · FRM-13 · OVL-11 · OVL-13 · API-5 · API-9 · API-17`
   (FRM-13). Reusable clearable search fields compose `InputGroup` through `SearchInput`: the native
   search-cancel paint is suppressed, a token-colored 24px clear button owns the action, and generic
   `Input` keeps its single-input DOM and behavior contract.
-- **Overlays** (OVL-11, OVL-13) — a panel's search is a sticky header row with no nested bordered
+- **Overlays** (OVL-10, OVL-11, OVL-13, OVL-14, OVL-15) — Toast is the one notification engine;
+  `sonner` is retired (OVL-10). Toast adds a logical `position` prop, the anchored
+  `ToastPositioner`/`ToastArrow` parts, and a `z-60` viewport band — the one surface above the single
+  `z-50` overlay band, so a toast fired over a Dialog is not behind its scrim (OVL-15). A portaled
+  tooltip or dropdown accepts a `container`, so chrome over a fullscreen surface portals into it
+  (OVL-14). A panel's search is a sticky header row with no nested bordered
   input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). Every portal
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
   (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to

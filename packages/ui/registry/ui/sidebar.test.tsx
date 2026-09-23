@@ -469,6 +469,32 @@ test.each(["sidebar", "floating", "inset"] as const)(
   },
 );
 
+// BRD-1 (extended to the floating sidebar by MK 23-09-2026): the floating panel is a floating
+// surface, so its edge is a real 1px border in the sidebar's own hairline ink — not upstream's
+// `ring-1 ring-sidebar-border` box-shadow outline. Measured on the compiled CSS (geometry.css), so
+// a ring that came back under any spelling shows up as a `0 0 0 1px` layer in box-shadow.
+test("BRD-1: the floating panel draws a real sidebar-border edge, not a ring (Sidebar)", async () => {
+  const screen = await render(<Shell variant="floating" />);
+  const inner = slot(screen.container, "sidebar-inner") as HTMLElement;
+  const style = getComputedStyle(inner);
+  expect(inner.className).not.toMatch(/ring-1|ring-sidebar-border/);
+  expect(style.borderTopWidth).toBe("1px");
+  expect(style.borderInlineEndWidth).toBe("1px");
+  expect(style.borderTopStyle).toBe("solid");
+  const probe = document.createElement("div");
+  probe.style.color = "var(--sidebar-border)";
+  document.body.append(probe);
+  const sidebarBorder = getComputedStyle(probe).color;
+  probe.remove();
+  expect(style.borderTopColor).toBe(sidebarBorder);
+  expect(style.boxShadow).not.toMatch(/0px 0px 0px 1px/);
+
+  // The docked `sidebar` variant keeps its single edge on the container, not a second one here.
+  const docked = await render(<Shell variant="sidebar" />);
+  const dockedInner = slot(docked.container, "sidebar-inner") as HTMLElement;
+  expect(getComputedStyle(dockedInner).borderTopWidth).toBe("0px");
+});
+
 test.each(["offcanvas", "icon"] as const)(
   "collapsible=%s reaches data-collapsible once collapsed (Sidebar)",
   async (collapsible) => {

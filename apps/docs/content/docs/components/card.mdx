@@ -143,7 +143,11 @@ header grid, the action corner and the part insets without any extra work.
 
 Upstream's file plus `packages/ui/upstream/patches/card.patch`. Every hunk:
 
+- **BRD-1** — the card draws a real 1px `border border-border` instead of upstream's
+  `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
+  [Elevation](/docs/foundations/elevation). It sits inside the box, so `overflow-hidden` clips a
+  full-bleed image at the border's inner edge and the corners stay concentric.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 
-Nothing else. The class strings, the `--card-spacing` mechanism and the seven parts are upstream's,
+Nothing else. The `--card-spacing` mechanism, the seven parts and every other class are upstream's,
 byte for byte; the remaining diff is the repository formatter reflowing the file.

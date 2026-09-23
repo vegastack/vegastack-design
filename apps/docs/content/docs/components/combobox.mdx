@@ -268,6 +268,9 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
   addon is not made `inert`, so the mouse still reaches the control.
 - **OVL-13** — `ComboboxContent` reads `useInternalThemeScope()` and attaches it to the positioner
   inside the portal; `tooling/verify-portal-theme-scope.mjs` inventories this host.
+- **BRD-1** — `ComboboxContent` draws a real 1px `border border-border` instead of upstream's
+  `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
+  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

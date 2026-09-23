@@ -118,12 +118,24 @@ Geist Pixel flourish were deleted with the marketing layer.
 
 ## Font loading
 
-**The font-delivery contract:** Geist Sans / Geist Mono ship from the `geist` npm
-package (`geist/font/sans`, `geist/font/mono`). **Newsreader** loads via
-`next/font/google`, which self-hosts the subset woff2 at build time — so the static export
-serves every face itself: no render-blocking external request, no layout shift, and the fonts
-work offline. `app/global.css` binds the loaded faces onto the runtime font tokens (with system
-fallbacks):
+**One path: `next/font/google`.** Load Geist, Geist Mono (and Newsreader, if you use the serif
+accent) through `next/font/google`, which self-hosts the subset woff2 at build time — so the app
+serves every face itself: no render-blocking external request, no layout shift, and the fonts work
+offline. The [Quickstart](/docs/guides/quickstart) and [Theming](/docs/guides/theming) snippets are
+this same setup:
+
+```tsx title="app/layout.tsx (fragment)"
+import { Geist, Geist_Mono } from "next/font/google";
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+// <html className={`${geistSans.variable} ${geistMono.variable}`}>
+```
+
+Loading alone is not enough: `next/font` registers hashed family names. Bind the loaded faces onto
+the runtime font tokens in your global stylesheet (with system fallbacks):
 
 ```css
 :root {

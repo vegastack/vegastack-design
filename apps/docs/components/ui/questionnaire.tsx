@@ -1,4 +1,4 @@
-// @vegastack questionnaire@0.12.2 sha256-/u0MFe6xfA++f5STTSvitZTINpPwBs7LPyNRuYbDJUs=
+// @vegastack questionnaire@0.12.2 sha256-dtT6NgCJbVxC/gZYAa6Xq6si5WJUkHsnjHjoCXc996c=
 
 "use client";
 
@@ -206,7 +206,7 @@ function QuestionnaireError({
   return (
     <QuestionnairePrimitive.Error
       data-slot="questionnaire-error"
-      className={cn("mt-2 text-sm text-destructive", className)}
+      className={cn("mt-2 text-sm text-destructive-text", className)}
       {...props}
     />
   );

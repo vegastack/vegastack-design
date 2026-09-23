@@ -68,7 +68,7 @@ element with a forwarded ref and a `data-slot` for styling and targeting:
   Danger zone).
 - `SettingsCard` — **upstream's [`Card`](/docs/components/card)** (`data-slot="settings-card"`),
   flattened for a divided list: `py-0 gap-0`, so rows sit edge to edge and each row's own `border-b`
-  is the only divider. The radius, the `bg-card` ground and the hairline come from `Card`, which is
+  is the only divider. The radius, the `bg-card` ground and the `border border-border` hairline come from `Card`, which is
   why a settings card and every other card on the page are the same object; the last row's border is
   collapsed so the list ends on the card edge rather than on a stray rule.
 - `SettingsRow` — one setting (`data-slot="settings-row"`): a `label` and optional `description` on
@@ -153,7 +153,7 @@ danger-zone intro.
   real `<label htmlFor={controlId}>`. For composite controls that do not expose an input id, keep an
   explicit `aria-label` or `aria-labelledby` on the control itself.
 - Rows are separated by `border-border` rather than by elevation, so the divided list stays legible
-  in high-contrast and forced-colors modes; the card's own hairline is `Card`'s ring.
+  in high-contrast and forced-colors modes; the card's own hairline is `Card`'s `border border-border` (BRD-1).
 
 | Key                                 | Action                                                      |
 | ----------------------------------- | ----------------------------------------------------------- |

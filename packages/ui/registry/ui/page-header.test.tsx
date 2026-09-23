@@ -110,7 +110,7 @@ test("renders the actions slot, right-aligned", async () => {
 test("title row lets the actions wrap below the title at narrow widths (no crushed h1)", async () => {
   // Regression: `shrink-0` actions in a no-wrap row crushed the title to a few characters.
   // Contract (class-asserted — this suite loads no compiled CSS): the row wraps, and the title
-  // block claims a readable minimum via its flex basis before the actions row (ml-auto keeps it
+  // block claims a readable minimum via its flex basis before the actions row (ms-auto keeps it
   // right-aligned on its own wrapped line) drops down.
   const screen = await render(
     <PageHeader
@@ -128,7 +128,8 @@ test("title row lets the actions wrap below the title at narrow widths (no crush
   const actions = screen.container.querySelector(
     '[data-slot="page-header-actions"]',
   ) as HTMLElement;
-  expect(actions.classList.contains("ml-auto")).toBe(true);
+  expect(actions.classList.contains("ms-auto")).toBe(true);
+  expect(actions.classList.contains("ml-auto")).toBe(false);
 });
 
 test("renders the secondary menu slot after the actions", async () => {

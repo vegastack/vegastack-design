@@ -598,6 +598,10 @@ Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
   does the opposite. `ring-sidebar-ring` is left in place on each — it is a colour with no ring
   width behind it any more, it paints nothing, and removing it would take the `--sidebar-ring`
   token's only reference with it.
+- **BRD-1** — the floating variant's panel draws a real `border border-sidebar-border` instead of
+  upstream's `ring-1 ring-sidebar-border` box-shadow outline. The floating sidebar is a floating
+  surface, and MK extended BRD-1 to it on 23-09-2026; the edge now matches the docked variant's
+  `border-e` and survives forced colours. The collapsed width already budgets `+2px` for it.
 - **FRM-4** — `disabled:pointer-events-none` and `aria-disabled:pointer-events-none` are dropped
   from `SidebarMenuButton` and `SidebarMenuSubButton`, so a disabled nav row stays hoverable and a
   Tooltip can explain why. Both opacity halves stay.

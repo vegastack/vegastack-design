@@ -183,7 +183,10 @@ test("SettingsCard IS upstream's Card, flattened for a divided list", async () =
   // Upstream's own card contract, not a copy of its values.
   expect(card.className).toContain("rounded-xl");
   expect(card.className).toContain("bg-card");
-  expect(card.className).toContain("ring-1");
+  // BRD-1: the hairline is a real border, not upstream's ring outline.
+  expect(card.className.split(/\s+/)).toContain("border");
+  expect(card.className.split(/\s+/)).toContain("border-border");
+  expect(card.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
   expect(card.className).toContain("overflow-hidden");
   // …flattened: no card padding, no inter-section gap, so rows sit edge to edge.
   expect(card.className).toContain("py-0");

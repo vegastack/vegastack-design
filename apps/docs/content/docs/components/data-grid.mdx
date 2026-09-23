@@ -120,6 +120,12 @@ longer fit. **Data is never silently lost when a viewport narrows**, so the defa
 `"hidden"` is the only posture that actually removes a value, which is why it is opt-in and why it
 announces itself. If you choose it, be sure the value is genuinely recoverable elsewhere.
 
+A merged value **wraps** inside the primary cell — it does not inherit a `mono` or end-aligned
+primary column's one-line posture, and it wears its own column's face. When a sorted column is
+merged or hidden (or switched off in the column picker), its header and arrow go with it, so the
+toolbar states the order instead — _Sorted by Stage, descending, then Amount, ascending_ — and the
+grid is described by that line and by the hidden-columns count.
+
 <ComponentPreview
   name="dataGridNarrow"
   file="components/preview/data-grid.tsx"
@@ -153,8 +159,11 @@ announces itself. If you choose it, be sure the value is genuinely recoverable e
 - Multi-key sort headers carry `aria-sort` and a visible ordinal per key;
   shift-click adds a secondary key.
 - Responsive revelation never hides data silently: `merge` (the default) stacks
-  the value into the primary cell, and the only posture that drops a column
-  (`mobile: "hidden"`) reports the count in the toolbar.
+  the value into the primary cell with its header as a visually hidden prefix
+  (_Stage: Open_), and the only posture that drops a column
+  (`mobile: "hidden"`) reports the count in the toolbar. The grid's
+  `aria-describedby` points at that count, and at the "Sorted by …" line
+  when a sorted column has left the header row.
 - The scroll viewport is keyboard-reachable exactly when it scrolls, and the
   roving cell's focus outline is pulled inside so the viewport cannot clip it.
 

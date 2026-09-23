@@ -10,6 +10,24 @@ import { fatal, ROOT, walk as walkTree } from "./lib/fs.mjs";
 
 const STALE_SHADCN_RE = /\b(?:npx\s+)?shadcn@4\.7\.0\b/g;
 
+// Claims the source has since made false, each paired with the source that disproves it. A page
+// that still states one teaches a consumer the opposite of what the component does. OVL-15 (ui
+// 0.12.0) moved the Toast viewport to `z-60`, so "a toast renders behind the scrim" and "there is no
+// `z-60` band" are no longer true anywhere — `foundations/elevation.mdx` kept saying both until the
+// 2026-09-23 review found it. A symptom row ("a toast … is behind the scrim" → re-pull a stale copy)
+// is not a claim about current behaviour and is deliberately not matched.
+export const STALE_CLAIMS = [
+  {
+    re: /\brenders behind the scrim\b/g,
+    truth:
+      "`toast.tsx` puts the viewport at `z-60` (OVL-15, since 0.12.0), above every `z-50` overlay",
+  },
+  {
+    re: /\bno(?:\s+longer\s+(?:has|buys)|t\s+have)?\s+(?:a\s+)?`?z-60`?\s+(?:toast\s+)?band\b|`z-60`\s+toast\s+band;\s+it\s+no\s+longer/g,
+    truth: "the Toast viewport has its own `z-60` band (OVL-15, since 0.12.0)",
+  },
+];
+
 // Only the CONSUMER-FACING surfaces — the agent skills and the published docs content (commands a
 // consumer actually runs). Internal planning/ledger/research notes under docs/ are out of scope.
 const SCAN_DIRS = [join(ROOT, "skills"), join(ROOT, "apps/docs/content")];
@@ -458,6 +476,27 @@ function selfTest() {
       );
     }
   }
+  // The stale-claim table: the retired elevation.mdx wording must be caught, a symptom row must not.
+  const staleFixture =
+    "A toast fired from inside an open dialog renders behind the scrim. The system used to buy its way out with a `z-60` toast band; it no longer does.";
+  const symptomRow =
+    "| A toast fired from a dialog is behind the scrim | A stale copy of `toast`. Since 0.12.0 its viewport sits at `z-60`. |";
+  for (const [index, { re }] of STALE_CLAIMS.entries()) {
+    re.lastIndex = 0;
+    if (!re.test(staleFixture)) {
+      failures++;
+      console.log(
+        `✗ content-lint --self-test: stale claim #${index + 1} did not match its fixture`,
+      );
+    }
+    re.lastIndex = 0;
+    if (re.test(symptomRow)) {
+      failures++;
+      console.log(
+        `✗ content-lint --self-test: stale claim #${index + 1} matched a symptom row`,
+      );
+    }
+  }
   if (failures) {
     console.error(
       `\n✗ content-lint --self-test: ${failures} rule(s) fail open`,
@@ -565,6 +604,18 @@ for (const [index, line] of cssWithoutComments.split("\n").entries()) {
 for (const dir of SCAN_DIRS) {
   for (const file of walk(dir)) {
     const lines = readFileSync(file, "utf8").split("\n");
+    // Prose wraps, so a claim is matched over whitespace-collapsed text rather than line by line.
+    const text = lines.join("\n").replace(/\s+/g, " ");
+    for (const { re, truth } of STALE_CLAIMS) {
+      re.lastIndex = 0;
+      let m;
+      while ((m = re.exec(text))) {
+        violations++;
+        console.log(
+          `${file.replace(ROOT + "/", "")} [stale-claim] "${m[0]}" — no longer true: ${truth}.`,
+        );
+      }
+    }
     lines.forEach((line, i) => {
       STALE_SHADCN_RE.lastIndex = 0;
       let m;

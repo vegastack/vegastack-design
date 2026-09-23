@@ -38,8 +38,9 @@ Two rules that prevent the common failure modes:
 - **Never reintroduce a deleted token by defining it yourself.** Writing `--surface-2: …` back into
   `globals.css` makes the old class strings compile again and freezes the project on a vocabulary
   the system no longer has. Rewrite the class instead.
-- **Never edit a file under `components/ui/`.** Those are re-pulled in stage 4 and `--overwrite`
-  destroys local edits. Fix call sites, or wrap.
+- **Don't edit a file under `components/ui/`.** Fix call sites, or wrap. Those files are re-pulled
+  in stage 4 and `--overwrite` replaces them. If you must edit one, it becomes yours: from then on
+  `check-updates` reports it as drifted, and every update is a `--diff` you re-apply by hand.
 
 ## 2. What changes visually
 
@@ -56,9 +57,9 @@ point of the release, not side effects.
 | Radius capped at `rounded-lg`; `rounded-xl` banned                          | Radius derives from one `--radius` (0.625rem); a card and a dialog wear `rounded-xl`                           |
 | One sanctioned shadow (`--shadow-overlay`), everything else flat            | `shadow-sm` / `shadow-md` / `shadow-lg`, per component, as shadcn uses them                                    |
 | A 14px product type scale bound onto every `text-*` utility                 | Tailwind's stock scale. `text-sm` is 14px, `text-base` is 16px — see section 5                                 |
-| Weight ladder 400/500; `font-semibold` and `font-bold` were lint errors     | Ordinary utilities. `tracking-*`, `blur-*`, `shadow-*` and `text-4xl` are ordinary too                         |
+| Weight ladder 400/500; `font-semibold` and `font-bold` were lint errors     | Ordinary utilities. `blur-*`, `shadow-*` and `text-4xl` are ordinary too; the ramp owns tracking               |
 | Colour transitions banned (`transition-colors` was a lint error)            | `transition-all duration-100 ease-in-out` is upstream's vocabulary and is legal                                |
-| Three named z-bands (`--z-raised/overlay/toast`)                            | `z-50` and DOM order                                                                                           |
+| Three named z-bands (`--z-raised/overlay/toast`)                            | `z-50` and DOM order; only the Toast viewport sits above it, at `z-60`                                         |
 | The modal scrim was `--overlay` at 28% alpha                                | Upstream's `bg-black/10` with a `backdrop-blur-xs` — noticeably lighter                                        |
 | `Sheet` ran on Base UI **Drawer** (swipe, snap points)                      | `Sheet` is Base UI **Dialog** with `side` on the content; the gesture work moved to the new `Drawer`           |
 | Tabs' default list was the underline                                        | Tabs' default list is upstream's grey pill track; `line` is the alternative                                    |
@@ -69,9 +70,10 @@ Three of those can read as regressions and are not:
 - **The table scroll container is not a keyboard tab stop.** Upstream's `Table` wraps itself in a
   plain `overflow-x-auto` div. If a table of yours is genuinely wide, give the wrapper a
   `tabIndex={0}` and an `aria-label` in your own code. This is a known, recorded gap.
-- **A toast fired from inside an open dialog renders behind the scrim.** There is one `z-50` band and
-  DOM order decides; the `<Toaster />` mounts first. Raise the toast after the dialog closes, or
-  mount your toaster after the dialog.
+- **Overlays share one `z-50` band and DOM order decides between them.** A popover opened from a
+  dialog stacks above it because it mounts later. The one exception is the Toast viewport, which
+  sits at `z-60` (since 0.12.0): it mounts with the provider before any dialog exists, so DOM order
+  alone would put a toast behind the scrim. Don't copy `z-60` onto anything else.
 - **`Alert` is always `role="alert"`.** Upstream sets it unconditionally, so a statically rendered
   banner is now an assertive live region. The old `live` prop, which gated that, is gone. If you
   render a page of standing banners, use your own `<section>` with an `<h2>` instead.
@@ -183,6 +185,17 @@ Every `--alpha-*` is gone. Write the literal percentage the token carried.
 So `bg-foreground/(--alpha-hover)` becomes `bg-foreground/7`, and
 `border-ring/(--alpha-tint-border)` becomes `border-ring/70`.
 
+Five more were retired before the reset (0.4.x), and a project that skipped those releases may
+still name them. They compile to nothing just the same:
+
+| Token                    | Write instead                          |
+| ------------------------ | -------------------------------------- |
+| `--alpha-fill-hover`     | `/80`                                  |
+| `--alpha-input-hover`    | `/50`                                  |
+| `--alpha-surface-subtle` | `/10`                                  |
+| `--alpha-soft-surface`   | `/10`, with a `dark:` variant at `/20` |
+| `--alpha-soft-hover`     | `/20`, with a `dark:` variant at `/30` |
+
 ### 4.3 The opacity ladder (4 entries)
 
 | Deleted               | Was | Write instead |
@@ -218,7 +231,7 @@ lint rule that policed that distinction is gone, but the distinction is still th
 | `--sidebar-width-mobile`      | 18rem                  | nothing — set by `SidebarProvider`                |
 | `--z-raised`                  | 10                     | `z-10`                                            |
 | `--z-overlay`                 | 50                     | `z-50`                                            |
-| `--z-toast`                   | 60                     | `z-50` — there is one overlay band now            |
+| `--z-toast`                   | 60                     | nothing — the Toast viewport sets its own `z-60`  |
 | `--radius-xs`                 | 0.125rem               | `rounded-xs`                                      |
 | `--radius-sharp`              | 2px                    | nothing — the sharp gesture was marketing         |
 
@@ -272,13 +285,13 @@ utility in your code got one step larger without you touching it.
   `text-base` also carry Geist's optical line-height and negative letter-spacing
   from the theme (TYP-15). Sizes did not move again — only the metrics on top of
   them — so nothing in this section changes. It does mean you should delete any
-  `tracking-*` you were using to compensate, and that `uppercase` is no longer
-  used anywhere in the system. See [Typography](/docs/foundations/typography).
+  `tracking-*` you were using to compensate, and any `uppercase`: `design-lint`
+  rejects both. See [Typography](/docs/foundations/typography).
 </Callout>
 
 | The class you wrote | Rendered before | Renders now | To keep the old size, write |
 | ------------------- | --------------- | ----------- | --------------------------- |
-| `text-xs`           | 11px            | 12px        | `text-[11px]`               |
+| `text-xs`           | 11px            | 12px        | nothing — 12px is the floor |
 | `text-sm`           | 12px            | 14px        | `text-xs`                   |
 | `text-base`         | 14px            | 16px        | `text-sm`                   |
 | `text-lg`           | 16px            | 18px        | `text-base`                 |
@@ -292,29 +305,38 @@ as a bug. Shift down only where a dense surface genuinely needs it (a data grid,
 
 ### The role utilities are deleted
 
-| Deleted utility   | Was                       | Write instead                                            |
-| ----------------- | ------------------------- | -------------------------------------------------------- |
-| `text-h1`         | 24px / 32, w400, -0.02em  | `text-2xl font-semibold tracking-tight`                  |
-| `text-h2`         | 20px / 28, w400, -0.015em | `text-xl font-semibold tracking-tight`                   |
-| `text-h3`         | 18px / 24, w400, -0.01em  | `text-lg font-semibold`                                  |
-| `text-h4`         | 16px / 22, w500           | `text-base font-medium`                                  |
-| `text-label`      | 14px / 20, w500           | `text-sm font-medium`                                    |
-| `text-strong`     | 14px / 20, w600           | `text-sm font-semibold`                                  |
-| `text-label-sm`   | 12px / 16, w500           | `text-xs font-medium`                                    |
-| `text-code`       | 13px / 20, mono           | `font-mono text-sm`                                      |
-| `text-code-sm`    | 12px / 16, mono           | `font-mono text-xs`                                      |
-| `text-mono-label` | 12px / 16, mono, +0.05em  | `font-mono text-xs tracking-wider`                       |
-| `text-display-sm` | 32px / 36, -0.04em        | `text-4xl tracking-tighter` (36px) or `text-[2rem]/9`    |
-| `text-display-md` | 40px / 44, -0.045em       | `text-5xl tracking-tighter` (48px) or `text-[2.5rem]/11` |
-| `text-display-lg` | 56px / 60, -0.05em        | `text-6xl tracking-tighter` (60px) or `text-[3.5rem]/15` |
-| `text-display-xl` | 72px / 76, -0.06em        | `text-7xl tracking-tighter` (72px)                       |
+| Deleted utility   | Was                       | Write instead                                  |
+| ----------------- | ------------------------- | ---------------------------------------------- |
+| `text-h1`         | 24px / 32, w400, -0.02em  | `text-3xl font-semibold` (page heading)        |
+| `text-h2`         | 20px / 28, w400, -0.015em | `text-2xl font-semibold` (section heading)     |
+| `text-h3`         | 18px / 24, w400, -0.01em  | `text-lg font-semibold`                        |
+| `text-h4`         | 16px / 22, w500           | `text-base font-medium` (card / dialog title)  |
+| `text-label`      | 14px / 20, w500           | `text-sm font-medium`                          |
+| `text-strong`     | 14px / 20, w600           | `text-sm font-semibold`                        |
+| `text-label-sm`   | 12px / 16, w500           | `text-xs font-medium`                          |
+| `text-code`       | 13px / 20, mono           | `font-mono text-sm`                            |
+| `text-code-sm`    | 12px / 16, mono           | `font-mono text-xs`                            |
+| `text-mono-label` | 12px / 16, mono, +0.05em  | `text-xs font-medium` (a label is `font-sans`) |
+| `text-display-sm` | 32px / 36, -0.04em        | `text-4xl` (36px)                              |
+| `text-display-md` | 40px / 44, -0.045em       | `text-5xl` (48px)                              |
+| `text-display-lg` | 56px / 60, -0.05em        | `text-6xl` (60px)                              |
+| `text-display-xl` | 72px / 76, -0.06em        | `text-7xl` (72px)                              |
+
+The heading rows are the same mapping as the role table in
+[Typography](/docs/foundations/typography). None of them carries a `tracking-*`: from `text-lg` up
+the theme supplies Geist's optical letter-spacing per step, and a local utility would silently
+override it. None carries an arbitrary size either — `text-[2rem]` receives neither the ramp's
+line-height nor its tracking — so a display size that used to sit between two steps now takes the
+nearer step.
 
 The `text-h*` utilities carried weight 400 because of the old weight ladder. Upstream headings are
 `font-semibold`; the rewrites above adopt that deliberately. If you need the old look exactly, drop
 the weight class.
 
-Three bans went with the ladder and are now ordinary utilities: `font-semibold` / `font-bold`, a raw
-`tracking-*`, and `text-4xl` and above. Uppercase is no longer mono-exclusive.
+Two bans went with the ladder and are now ordinary utilities: `font-semibold` / `font-bold`, and
+`text-4xl` and above. Three rules remain, and `design-lint` enforces them: no local `tracking-*`
+(the ramp owns it; `tracking-widest` on a keyboard-shortcut hint is the one exception), no arbitrary
+`text-[…]` size, and no `uppercase` anywhere — sentence case throughout.
 
 Rendered rich text is unchanged: `proseClassName` from `@vegastack/design` is still the one recipe,
 and `MarkdownView` and `TextEdit` still wear it.
@@ -1166,11 +1188,11 @@ The compiler catches the loud half. These are the quiet ones.
 | A control is full-height / has no height                       | `h-(--size-md)` compiled to nothing. Write `h-8` (4.4)                                                                                                                                    |
 | An icon renders at its intrinsic 24px inside a small button    | `size-(--icon-default)` compiled to nothing. Write `size-4` — or drop the class: upstream's components size their own icon children                                                       |
 | Everything is subtly larger than before                        | Correct. The type scale is stock now — `text-base` is 16px, not 14px. Section 5                                                                                                           |
-| A heading lost its size and is body-weight text                | `text-h2` compiled to nothing. Write `text-xl font-semibold tracking-tight` (section 5)                                                                                                   |
+| A heading lost its size and is body-weight text                | `text-h2` compiled to nothing. Write `text-2xl font-semibold` (section 5). `vegastack-design doctor` lists every one                                                                      |
 | Status text on a tinted background looks washed out            | You wrote `text-destructive` on `bg-destructive/10`. Use `text-destructive-text` (section 6)                                                                                              |
 | A status surface is transparent                                | `bg-destructive-subtle` compiled to nothing. Write `bg-destructive/10`                                                                                                                    |
 | A dropdown renders behind the page header                      | `body { isolation: isolate }` from `base.css` is missing — a granular-import setup that skipped it. Import the preset                                                                     |
-| A toast fired from a dialog is behind the scrim                | One `z-50` band and DOM order. Fire it after the dialog closes, or mount the toaster after the dialog                                                                                     |
+| A toast fired from a dialog is behind the scrim                | A stale copy of `toast`. Since 0.12.0 its viewport sits at `z-60`, above every `z-50` overlay. Re-pull it (stage 4)                                                                       |
 | The modal scrim looks much lighter than it used to             | Correct. `--overlay` at 28% became upstream's `bg-black/10` with a small backdrop blur                                                                                                    |
 | Nothing shows a focus ring when tabbing                        | `base.css` was skipped. The focus outline is global, not per-component — this is a WCAG 2.4.7 failure, treat it as ship-blocking                                                          |
 | A focused text input shows no outline                          | Correct. Text entry tints its border (`focus:border-ring/70`) instead of drawing an outline                                                                                               |
@@ -1361,9 +1383,7 @@ export function NotificationSettings({ plan }: { plan: string }) {
     <section className="rounded-lg bg-muted p-4">
       <header className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold tracking-tight">
-            Notifications
-          </h2>
+          <h2 className="text-2xl font-semibold">Notifications</h2>
           <Badge variant="info" className="h-4 px-1.5 text-xs leading-none">
             {plan}
           </Badge>
@@ -1435,7 +1455,7 @@ export function NotificationSettings({ plan }: { plan: string }) {
 Eleven changes, all of them mechanical once you know the rule:
 
 1. `bg-surface-1` → `bg-muted`.
-2. `text-h2` → `text-xl font-semibold tracking-tight`.
+2. `text-h2` → `text-2xl font-semibold`.
 3. `text-label` → dropped; `FieldLabel` carries the weight itself.
 4. `border-border/(--alpha-border)` → `border-border` (the token is already the derived hairline).
 5. `IconButton size="sm"` → `Button size="icon-sm"`, keeping `aria-label`.

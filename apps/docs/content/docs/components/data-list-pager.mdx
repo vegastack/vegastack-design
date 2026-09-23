@@ -1,0 +1,165 @@
+---
+title: Data List Pager
+description: A controlled paging footer for DataList — a range summary, a rows-per-page chooser, and windowed page controls.
+audience: public
+registry: data-list-pager
+status: stable
+since: 0.13.0
+a11y: navigation landmark, labelled page-size select, live range
+preview: dataListPager
+---
+
+## Install
+
+<InstallSteps name="data-list-pager" />
+
+## Usage
+
+```tsx
+import { DataList } from "@/components/ui/data-list";
+import { DataListPager } from "@/components/ui/data-list-pager";
+
+const [page, setPage] = React.useState(1);
+const [pageSize, setPageSize] = React.useState(15);
+
+<DataList
+  columns={columns}
+  data={rows.slice((page - 1) * pageSize, page * pageSize)}
+  getRowId={(row) => row.id}
+  footer={
+    <DataListPager
+      page={page}
+      pageSize={pageSize}
+      total={rows.length}
+      onPageChange={setPage}
+      onPageSizeChange={(size) => {
+        setPageSize(size);
+        setPage(1);
+      }}
+    />
+  }
+/>;
+```
+
+`DataListPager` is built for [`DataList`](/docs/components/data-list)'s `footer` slot. It composes
+[`Pagination`](/docs/components/pagination) and [`Select`](/docs/components/select) and adds no
+visual primitive of its own: a range summary in tabular numerals ("1–15 of 40"), a rows-per-page
+chooser, and a windowed page list with Previous and Next.
+
+It is **controlled** and owns no data. The host holds `page` (1-based) and `pageSize`, slices or
+fetches the rows, and passes `total`. A server-paged host sends `limit = pageSize` and
+`offset = (page - 1) * pageSize`. Changing the page size only reports the request — whether that
+returns to page 1 (as above) or keeps the first visible row is the host's policy.
+
+<ComponentPreview
+  name="dataListPager"
+  file="components/preview/data-list-pager.tsx"
+/>
+
+## Examples
+
+### Many pages
+
+With more than seven pages the list collapses into a window: the first and last page, the current
+page and its neighbours, and an ellipsis for each collapsed run.
+
+<ComponentPreview
+  name="dataListPagerWindowed"
+  file="components/preview/data-list-pager.tsx"
+/>
+
+### A single page
+
+When every row fits on one page the page controls are hidden. The range and the rows-per-page
+chooser stay, so a reader can still widen or narrow the page. An empty list reads "0 of 0".
+
+<ComponentPreview
+  name="dataListPagerSinglePage"
+  file="components/preview/data-list-pager.tsx"
+/>
+
+### Narrow containers
+
+The page list follows the pager's own width, not the viewport's, and never wraps — a wrapped run
+of page numbers reads as two lists. It changes layout instead (`data-layout` on the root), while the
+range and the rows-per-page chooser wrap onto their own lines above it:
+
+| `data-layout` | Pager width  | Page list                                                               |
+| ------------- | ------------ | ----------------------------------------------------------------------- |
+| `full`        | 480px and up | Labelled Previous / Next, the current page and one neighbour each side  |
+| `compact`     | 240–479px    | Icon-only ends, the current page with no neighbours                     |
+| `minimal`     | below 240px  | Icon-only ends around _Page 3 of 12_, or _3 / 12_ when that is too long |
+
+Width picks the starting layout for page numbers of up to two digits. A number slot is at least
+32px and grows to hold its number, so a longer page count can outgrow that layout (a three-digit
+last page already makes the compact list about 241px); the pager then measures every page item
+against its own box, with no tolerance, and steps down one layout at a time until the page list
+fits, before first paint. The check is re-taken on any change to the pager's width, however small,
+and whenever an element of the page list changes size on its own — a web font swapping in, say —
+so a late font cannot push _Next_ outside.
+At the last step the position shortens to _N / M_ (`data-short` on
+`data-slot="data-list-pager-position"`) and truncates if it still has no room, while assistive
+technology always hears _Page N of M_. So the page list never scrolls sideways at any page count.
+The range and the rows-per-page chooser are single lines that do not break; at a seven-digit total
+they need about 200px, which is the pager's practical floor. The server render is `minimal`, and
+the client corrects it before first paint.
+
+### Page sizes
+
+`pageSizes` sets the choices (default `[15, 30, 50]`). A `pageSize` that is not in the list is added
+to it, so the chooser always shows the current value.
+
+Numbers that are not numbers render a sane state rather than `NaN`: a `total` that is `NaN`,
+`undefined` (a count still loading) or negative reads as `0` ("0 of 0", no page controls); a `page`
+that is not finite reads as `1`; and a `pageSize` that is not a positive number — `0` included — shows
+the first `pageSizes` entry and is never added to the chooser. `pageSizeLabel` renames the chooser — it is
+both the visible label and the accessible name.
+
+```tsx
+<DataListPager
+  page={page}
+  pageSize={pageSize}
+  total={total}
+  pageSizes={[10, 25, 100]}
+  pageSizeLabel="Invoices per page"
+  onPageChange={setPage}
+  onPageSizeChange={setPageSize}
+/>
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-list-pager.tsx"
+  name="DataListPagerProps"
+/>
+
+`pagerWindow(current, pages)` is exported too: it returns the windowed page list the pager renders
+(`number | "ellipsis"` entries), for a host that draws its own page controls.
+
+## Accessibility
+
+- The page controls are upstream's `Pagination`: a `navigation` landmark named _pagination_, each
+  page link named _Go to page N_, and the current page marked `aria-current="page"`.
+- Previous and Next stay in the tab order at either end. They carry `aria-disabled="true"` and do
+  nothing when activated, rather than disappearing or dropping pointer events.
+- The rows-per-page `Select` is named by its visible label (`aria-labelledby`), so the name a screen
+  reader speaks is the text on screen.
+- A page change announces the new range politely (_Showing 16–30 of 40_) through one live region
+  mounted for the pager's life; the range on screen at first render is not announced.
+
+| Key                                 | Action                                                        |
+| ----------------------------------- | ------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the rows-per-page chooser and the page controls. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused page control, or open the chooser.       |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move through the page sizes while the chooser is open.        |
+| <kbd>Escape</kbd>                   | Close the chooser without changing the page size.             |
+
+<StatesTested name="data-list-pager" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep page and pageSize in the host (or the URL) and pass DataList only the current page's rows."
+  dont="Pass DataList every row and expect the pager to slice them — the pager owns no data."
+/>

@@ -7,13 +7,20 @@ import {
   alignClass,
   columnCellClass,
   cycleSort,
+  DEFAULT_COLUMN_MIN_WIDTH,
   EmptyRow,
   isNowrapColumn,
+  revealColumns,
+  SELECTION_COLUMN_WIDTH,
   SelectAllHead,
   SelectionCell,
   SkeletonRows,
   SortableHead,
   SortHeaderButton,
+  mergedValueClass,
+  offscreenSortSummary,
+  SELECTED_ROW_CLASS,
+  useContainerWidth,
   useControlledState,
   useRowSelection,
   type DataTableColumnLayout,
@@ -46,11 +53,41 @@ test("cells WRAP by default; figures and mono values opt in to nowrap (D18)", ()
   );
 });
 
+/**
+ * What the squeeze's descendant release skips: controls and fixed-size content, and everything
+ * inside them (a wrapped label spilled a Button's fixed height — review round 3). It is keyed on
+ * the variant helpers' CLASS OUTPUT too, because `<a className={buttonVariants()}>` carries no
+ * slot and no role and spilled its `h-7` box (review round 4). DataList's own row-action wrapper,
+ * the sort header, a link-variant button and EditableCell's display HOLD wrapping text, so they
+ * stay released.
+ */
+const NOT_TEXT =
+  "[data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']";
+const SQUEEZE_KEEP =
+  `:is(button:not(${NOT_TEXT}),input,select,textarea,` +
+  "[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline'])," +
+  "[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab]," +
+  `[class~='group/button']:not(${NOT_TEXT}),[class~='group/toggle'],` +
+  "[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node']," +
+  "[data-slot=avatar],[data-slot=kbd])";
+
 test("columnCellClass carries alignment, wrap posture and the mono face", () => {
   // The wrap posture is spelled out in BOTH directions since Batch 5 of the shadcn reset: upstream's
   // `TableCell` is `whitespace-nowrap` by default (LAY-6 resolves as **shadcn**), so a wrapping
   // column has to say `whitespace-normal` or `cn`'s merge leaves upstream's class standing.
-  expect(columnCellClass({ key: "name" })).toBe("text-start whitespace-normal");
+  expect(columnCellClass({ key: "name" })).toBe(
+    "text-start whitespace-normal in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
+      `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:whitespace-normal ` +
+      `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:wrap-anywhere ` +
+      // Fixed-size content that states no posture of its own is put back on one line: the cell's
+      // wrap posture INHERITS into it (a Kbd broke `⌘K` in two inside its 20px box).
+      "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:whitespace-nowrap " +
+      "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:shrink-0 " +
+      "in-data-squeezed:**:[&[class~='group/badge']]:h-auto " +
+      "in-data-squeezed:**:[&[class~='group/button'][class~='hover:underline']]:h-auto " +
+      "in-data-squeezed:**:[&[class~='group/button'][class~='hover:underline']]:min-h-6 " +
+      "last:has-[[role=checkbox],[role=switch],[role=radio]]:pe-3",
+  );
   expect(columnCellClass({ key: "amount", align: "end" })).toContain(
     "whitespace-nowrap",
   );
@@ -60,7 +97,195 @@ test("columnCellClass carries alignment, wrap posture and the mono face", () => 
   expect(mono).toContain("whitespace-nowrap");
 });
 
+test("mergedValueClass wraps whatever the column's own posture, in the column's own face", () => {
+  // A merged value sits inside the PRIMARY cell. Without its own rule it inherited that cell's
+  // `whitespace-nowrap` (mono / end-aligned primary) and pinned the table wider than its container.
+  for (const column of [
+    { key: "a" },
+    { key: "b", mono: true },
+    { key: "c", align: "end" as const },
+    { key: "d", nowrap: true },
+  ]) {
+    const merged = mergedValueClass(column);
+    expect(merged).toContain("whitespace-normal");
+    expect(merged).toContain("wrap-anywhere");
+    expect(merged).not.toContain("nowrap");
+  }
+  expect(mergedValueClass({ key: "b", mono: true })).toContain("font-mono");
+  expect(mergedValueClass({ key: "a" })).toContain("font-sans");
+});
+
+/** Every registry source, as text, for the variant-helper census below. */
+const REGISTRY_SOURCES = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<string>("./*.tsx", {
+      query: "?raw",
+      import: "default",
+      eager: true,
+      // The repo's ambient `ImportMeta.glob` (declared in animated-icons.test.tsx) is narrower
+      // than Vite's own signature; the assertion re-widens it without loosening the call.
+    } as { eager: true }),
+  ).filter(([file]) => !file.endsWith(".test.tsx")),
+);
+
+/**
+ * Exported variant helpers whose fixed box holds only an icon — never a label, so wrapping cannot
+ * spill them. Each entry names why; anything else with a fixed height must be kept by the squeeze.
+ */
+const ICON_ONLY_HELPERS: Record<string, string> = {
+  statusIconVariants: "sizes a status glyph; it renders no text",
+};
+
+test("the squeeze keeps every exported variant helper with a fixed box, by its class output", () => {
+  // The census: every `cva` helper a registry file EXPORTS whose class output fixes a height or a
+  // size (`h-N`, `size-N`, under any variant). A consumer can put that output on any element — the
+  // docs prescribe `<a className={buttonVariants()}>` — so the squeeze must recognise the output
+  // itself, not a slot or a role that element may not carry (review round 4).
+  const kept = columnCellClass({ key: "x" });
+  const census: string[] = [];
+  const missing: string[] = [];
+  for (const [file, source] of Object.entries(REGISTRY_SOURCES)) {
+    for (const match of source.matchAll(/const\s+(\w+)\s*=\s*cva\(/g)) {
+      const name = match[1]!;
+      const exported = new RegExp(
+        `export\\s+const\\s+${name}\\b|export\\s*\\{[^}]*\\b${name}\\b`,
+      ).test(source);
+      if (!exported) continue;
+      let depth = 0;
+      let end = match.index! + match[0].length - 1;
+      for (let i = end; i < source.length; i++) {
+        if (source[i] === "(") depth++;
+        else if (source[i] === ")" && --depth === 0) {
+          end = i;
+          break;
+        }
+      }
+      const body = source.slice(match.index, end);
+      // A class token whose utility fixes the element's OWN height — under any variant, except one
+      // that targets descendants (`[&_svg]:size-4` sizes an icon, not the box).
+      const fixed = body
+        .split(/[\s"`]+/)
+        .some(
+          (token) =>
+            /(?:^|:)(?:h|size)-(?:\d|\[)/.test(token) && !/\[&|\*:/.test(token),
+        );
+      if (!fixed) continue;
+      census.push(name);
+      if (ICON_ONLY_HELPERS[name]) continue;
+      const hook = /group\/[\w-]+/.exec(body)?.[0];
+      // Released-and-grown (the badge) or kept whole: either way the helper's own hook is named.
+      if (!hook || !kept.includes(`[class~='${hook}']`))
+        missing.push(`${file} ${name} (${hook ?? "no group/ hook"})`);
+    }
+  }
+  expect(missing).toEqual([]);
+  // The census itself is live: if the scan stopped matching, this test would pass vacuously.
+  expect(census).toEqual(
+    expect.arrayContaining([
+      "badgeVariants",
+      "buttonVariants",
+      "navigationMenuTriggerStyle",
+      "statusIconVariants",
+      "stepperNodeVariants",
+      "tabsListVariants",
+      "toggleVariants",
+    ]),
+  );
+});
+
+test("offscreenSortSummary states a sort only once its column has left the header row", () => {
+  const cols = [
+    { key: "name", header: "Name" },
+    { key: "stage", header: "Stage" },
+    { key: "amount", header: <b>Amount</b> },
+  ];
+  const visible = [{ key: "name" }];
+  expect(offscreenSortSummary([], cols, visible)).toBeNull();
+  expect(
+    offscreenSortSummary([{ key: "name", direction: "asc" }], cols, visible),
+  ).toBeNull();
+  expect(
+    offscreenSortSummary([{ key: "stage", direction: "desc" }], cols, visible),
+  ).toBe("Sorted by Stage, descending");
+  // A non-string header falls back to the key; a multi-key order is stated whole.
+  expect(
+    offscreenSortSummary(
+      [
+        { key: "name", direction: "asc" },
+        { key: "amount", direction: "asc" },
+      ],
+      cols,
+      visible,
+    ),
+  ).toBe("Sorted by Name, ascending, then amount, ascending");
+});
+
+test("SELECTED_ROW_CLASS is the half-muted wash in every state, never the badge-coloured accent", () => {
+  expect(SELECTED_ROW_CLASS).toBe(
+    "bg-muted/50 hover:bg-muted/50 active:bg-muted/50",
+  );
+});
+
 /* ------------------------------------------------------------------ sort */
+
+/* ------------------------------------------------------ responsive revelation */
+
+const keys = (list: DataTableColumnLayout[]) => list.map((c) => c.key);
+
+test("revealColumns: an unmeasured container (the server answer) shows every column", () => {
+  const cols: DataTableColumnLayout[] = [
+    { key: "a" },
+    { key: "b", mobile: "hidden" },
+  ];
+  const result = revealColumns(cols, null);
+  expect(keys(result.visibleColumns)).toEqual(["a", "b"]);
+  expect(result.mergedColumns).toEqual([]);
+  expect(result.hiddenColumns).toEqual([]);
+});
+
+test("revealColumns: defaults are minWidth 120 and mobile merge", () => {
+  expect(DEFAULT_COLUMN_MIN_WIDTH).toBe(120);
+  const result = revealColumns([{ key: "a" }, { key: "b" }, { key: "c" }], 250);
+  expect(keys(result.visibleColumns)).toEqual(["a", "b"]);
+  expect(keys(result.mergedColumns)).toEqual(["c"]);
+  expect(result.hiddenColumns).toEqual([]);
+});
+
+test("revealColumns: primary and visible always stay, hidden is counted, no holes", () => {
+  const result = revealColumns(
+    [
+      { key: "primary", minWidth: 10_000 },
+      { key: "wide", minWidth: 10_000, mobile: "hidden" },
+      { key: "narrow", minWidth: 1 },
+      { key: "pinned", minWidth: 10_000, mobile: "visible" },
+    ],
+    300,
+  );
+  expect(keys(result.visibleColumns)).toEqual(["primary", "pinned"]);
+  expect(keys(result.hiddenColumns)).toEqual(["wide"]);
+  expect(keys(result.mergedColumns)).toEqual(["narrow"]);
+});
+
+test("revealColumns: the reserved width is spent before the data columns", () => {
+  const cols: DataTableColumnLayout[] = [{ key: "a" }, { key: "b" }];
+  expect(keys(revealColumns(cols, 250).visibleColumns)).toEqual(["a", "b"]);
+  expect(
+    keys(revealColumns(cols, 250, SELECTION_COLUMN_WIDTH).visibleColumns),
+  ).toEqual(["a"]);
+});
+
+test("useContainerWidth measures the element it is attached to and follows resizes", async () => {
+  let seen: number | null = null;
+  function Probe({ width }: { width: number }) {
+    const [measureRef, measured] = useContainerWidth();
+    seen = measured;
+    return <div ref={measureRef} style={{ width: `${width}px` }} />;
+  }
+  const screen = await render(<Probe width={321} />);
+  await expect.poll(() => seen).toBe(321);
+  await screen.rerender(<Probe width={222} />);
+  await expect.poll(() => seen).toBe(222);
+});
 
 test("cycleSort runs asc → desc → cleared so a sort is always undoable", () => {
   const asc = cycleSort([], "name");

@@ -52,6 +52,14 @@ const input = (screen: { container: HTMLElement }) =>
     '[data-slot="input-group-control"]',
   ) as HTMLInputElement;
 
+/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+function expectBorderNotRing(element: HTMLElement) {
+  const tokens = element.className.split(/\s+/);
+  expect(tokens).toContain("border");
+  expect(tokens).toContain("border-border");
+  expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
+}
+
 test("renders a combobox input inside an input group (Usage, Composition)", async () => {
   const screen = await render(<Basic />);
   const control = screen.getByRole("combobox", { name: "Framework" });
@@ -422,6 +430,14 @@ test("OVL-13: the popup is portaled out of the component's own subtree", async (
   const popup = document.querySelector('[data-slot="combobox-content"]');
   expect(popup).not.toBeNull();
   expect(screen.container.contains(popup)).toBe(false);
+});
+
+test("BRD-1: the combobox popup draws a real border, not a ring outline", async () => {
+  const screen = await render(<Basic />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  expectBorderNotRing(
+    document.querySelector<HTMLElement>('[data-slot="combobox-content"]')!,
+  );
 });
 
 test("no a11y violations — closed", async () => {

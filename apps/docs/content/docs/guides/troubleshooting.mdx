@@ -14,6 +14,17 @@ misconfigurations, including the two silent ones below:
 pnpm exec vegastack-design doctor
 ```
 
+It also scans your own source — not `node_modules`, build output, or the
+`components.json` `ui` directory — for vocabulary the shadcn reset retired:
+`text-h1`…`text-h4`, `text-label`, `text-mono-label`, `text-strong`,
+`text-display-*`, the status `*-subtle` steps, `--alpha-*`, `--opacity-*`,
+`--z-*`, `shadow-overlay`, `backdrop-blur-glass`, and imports of the retired
+components (`icon-button`, `segmented`, `password-input`, `progress-indicator`,
+`field-inline`, `floating-surface`, `section-header`, `sonner`). Each compiles
+to nothing, so it fails the run with the `file:line` and the replacement.
+A custom property your project declares itself (`--z-header: 30`) is yours and
+is not reported.
+
 **Coming from 0.4.x?** Most of what breaks there is not a bug — it is the shadcn
 reset. Work [Migrating to the shadcn reset](/docs/guides/migrating-shadcn-reset)
 first; its section 13 lists the silent failures (a deleted token compiles to

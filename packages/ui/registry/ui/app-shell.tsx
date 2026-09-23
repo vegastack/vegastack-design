@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.12.2 sha256-OdpJkNYhzyAp2hw8THWEiszDyyt+QU75ppSLknLjxYY=
+// @vegastack app-shell@0.12.2 sha256-EKspbKGEnevdrfyyJXyr9Wac8G96C1r5m9ScvD/63eA=
 
 "use client";
 
@@ -6,7 +6,6 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import {
   Sidebar,
-  SidebarMenuSkeleton,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
@@ -357,10 +356,16 @@ export function AppShellContent({
   );
 }
 
+/**
+ * Nav-row widths for `AppShellSkeleton`, cycled by index — the same 50–90% band upstream's
+ * `SidebarMenuSkeleton` draws from, without its per-mount `Math.random()`.
+ */
+const NAV_ROW_WIDTHS = ["w-3/4", "w-1/2", "w-5/6", "w-2/3", "w-3/5"] as const;
+
 /** Props accepted by `AppShellSkeleton`. */
 export interface AppShellSkeletonProps extends React.ComponentProps<"div"> {
   /**
-   * Number of nav-row placeholders (`SidebarMenuSkeleton`) in the sidebar column.
+   * Number of nav-row placeholders in the sidebar column.
    * @default 5
    */
   navItemCount?: number;
@@ -373,19 +378,16 @@ export interface AppShellSkeletonProps extends React.ComponentProps<"div"> {
 
 /**
  * `AppShellSkeleton` — a full-shell loading composition: a sidebar column (logo circle + N
- * `SidebarMenuSkeleton` rows), a header line, and a content region (a stat-card row via
- * a stat-card row plus one tall placeholder below it). Decorative
- * (`aria-hidden`) and `aria-busy`, matching `Skeleton`'s own convention. Upstream's
- * `SidebarMenuSkeleton` picks its own row width, so the rows vary without this composition
- * deciding anything.
+ * nav-row placeholders), a header line, and a content region (a stat-card row plus one tall
+ * placeholder below it). Decorative (`aria-hidden`) and `aria-busy`, matching `Skeleton`'s own
+ * convention.
  *
- * **Server-safe**, despite composing `SidebarMenuSkeleton` (defined inside `sidebar.tsx`, a
- * `'use client'` module): `SidebarMenuSkeleton` itself has no hooks and no client-only logic, and
- * — per the React Server Components boundary rules — a Server Component MAY import and render a
- * Client Component as JSX without itself becoming a Client Component (only the DECLARING module
- * crosses the boundary; rendering it as a child from a Server Component is the normal, supported
- * way to mount an interactive island). `AppShellSkeleton` therefore carries no `'use client'` of
- * its own and drops straight into a Next.js `loading.tsx` (a Server Component by default).
+ * **Deterministic and server-safe.** The nav rows draw the same shape as upstream's
+ * `SidebarMenuSkeleton` but take their widths from a fixed cycle, by index. Upstream's row picks a
+ * random width in `useState`, so a server render and the client's hydration draw different widths
+ * and React reports a hydration mismatch in every `loading.tsx` that used this composition (review
+ * round 2, 2026-09-23). With no hooks and no randomness it renders identically on server and
+ * client, and a Server Component such as a Next.js `loading.tsx` renders it directly.
  *
  * @example
  * // app/(dashboard)/loading.tsx — a Server Component, no 'use client' needed.
@@ -421,7 +423,15 @@ export function AppShellSkeleton({
         </div>
         <div className="flex flex-1 flex-col gap-1">
           {Array.from({ length: Math.max(0, navItemCount) }, (_, i) => (
-            <SidebarMenuSkeleton key={i} />
+            <div
+              key={i}
+              data-slot="app-shell-skeleton-nav-row"
+              className="flex h-8 items-center gap-2 rounded-md px-2"
+            >
+              <Skeleton
+                className={cn("h-4", NAV_ROW_WIDTHS[i % NAV_ROW_WIDTHS.length])}
+              />
+            </div>
           ))}
         </div>
       </div>

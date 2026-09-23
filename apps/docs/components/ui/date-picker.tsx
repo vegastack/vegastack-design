@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.12.2 sha256-CrJ7bhzrx4JAm3wiiwfDo+itE8jekhqPESXIYvkNP4U=
+// @vegastack date-picker@0.12.2 sha256-q+igzG+38t2qdH2VRC29H14wlVBehObW1AekLW/HG7Y=
 
 "use client";
 
@@ -226,14 +226,34 @@ export function defaultRangePresets(now: Date = new Date()): DateRangePreset[] {
   ];
 }
 
-/** Shared preset-sidebar shell — a left rail of `ghost` buttons inside the popover. */
+/**
+ * The popup the pickers share. Upstream's `PopoverContent` is a padded `flex-col gap-2.5` card;
+ * here it is a frameless host for the rail and the calendar, which own their padding. Without the
+ * `gap-0` the popover's column gap would sit between them, and without an explicit `flex-row` for a
+ * rail the popover's own `flex-col` wins the merge and the "inline-start" rail stacks ABOVE the
+ * calendar at every width — which is how its `border-e` ended up drawn along the popup's own
+ * edge, a doubled hairline, rather than between the two.
+ */
+const POPUP_CLASSES = "w-auto gap-0 p-0";
+
+/**
+ * The calendar inside the popup is transparent, so it reads as the popup's own surface. Upstream's
+ * `calendar` does this itself for `in-data-[slot=popover-content]`, but the pickers rename the
+ * popup `date-picker-content` / `date-range-picker-content` (their public hooks), so that selector
+ * never matched and the calendar painted `bg-background` over `bg-popover` — two tones in dark.
+ */
+const POPUP_CALENDAR_CLASSES = "bg-transparent";
+
+/** Shared preset-sidebar shell — an inline-start rail of `ghost` buttons inside the popover. */
 function PresetRail({ children }: { children: React.ReactNode }) {
   return (
     <div
       data-slot="date-picker-presets"
-      // Below sm the rail stacks ABOVE the calendar as a horizontally scrollable chip row —
-      // side-by-side rail+calendar exceeds the popup's viewport-width clamp on narrow phones.
-      className="flex flex-col gap-0.5 border-r border-border p-2 max-sm:flex-row max-sm:overflow-x-auto max-sm:border-r-0 max-sm:border-b"
+      // The divider is drawn only on the side that FACES the calendar: `border-e` while the rail
+      // sits at the inline start, `border-b` once it stacks above it. Below sm the rail becomes a
+      // horizontally scrollable chip row — side-by-side rail+calendar exceeds the popup's
+      // viewport-width clamp on narrow phones.
+      className="flex shrink-0 flex-col gap-0.5 border-e border-border p-2 max-sm:flex-row max-sm:overflow-x-auto max-sm:border-e-0 max-sm:border-b"
     >
       {children}
     </div>
@@ -376,7 +396,7 @@ export function DatePicker({
         data-slot="date-picker-content"
         side={side}
         align={align}
-        className={cn("w-auto p-0", presets && "flex max-sm:flex-col")}
+        className={cn(POPUP_CLASSES, presets && "flex-row max-sm:flex-col")}
       >
         {presets ? (
           <PresetRail>
@@ -408,6 +428,7 @@ export function DatePicker({
         <Calendar
           components={POPOVER_CALENDAR_COMPONENTS}
           {...calendarRestProps}
+          className={cn(POPUP_CALENDAR_CLASSES, calendarRestProps.className)}
           mode="single"
           selected={value}
           onSelect={handleSelect}
@@ -581,7 +602,7 @@ export function DateRangePicker({
         data-slot="date-range-picker-content"
         side={side}
         align={align}
-        className={cn("w-auto p-0", presets && "flex max-sm:flex-col")}
+        className={cn(POPUP_CLASSES, presets && "flex-row max-sm:flex-col")}
       >
         {presets ? (
           <PresetRail>
@@ -616,6 +637,7 @@ export function DateRangePicker({
         <Calendar
           components={POPOVER_CALENDAR_COMPONENTS}
           {...calendarRestProps}
+          className={cn(POPUP_CALENDAR_CLASSES, calendarRestProps.className)}
           mode="range"
           selected={value}
           onSelect={handleSelect}

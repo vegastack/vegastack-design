@@ -1,5 +1,5 @@
 # component: menubar
-# decisions: DOC-1, DOC-2, FOC-1, FRM-4, INT-1, OVL-13
+# decisions: A11Y-13, BRD-1, DOC-1, DOC-2, FOC-1, FRM-4, INT-1, OVL-13
 # hunks:
 #   FOC-1: `outline-hidden` is dropped from `MenubarTrigger`. A trigger is a real focusable
 #     control (`role="menuitem"`, in the bar's roving tab order), and upstream's class suppressed
@@ -16,11 +16,18 @@
 #     `DropdownMenuContent` / `DropdownMenuSubContent` / `DropdownMenuPortal`, which carry the
 #     scope. `menubar.test.tsx` asserts the rendered popup carries it, so the day that composition
 #     changes the test fails rather than the scope going quiet.
+#   BRD-1: `MenubarContent` and `MenubarSubContent` each draws a real 1px `border border-border` instead of upstream's
+#     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
+#     border survives forced colours and matches `foundations/elevation`; nothing else moves.
+#   A11Y-13: the destructive `MenubarItem`'s focused ink `focus:text-destructive` becomes
+#     `focus:text-destructive-text`. Upstream paints the fill as ink on its own `/10` tint
+#     (3.99:1 in light, under the AA floor); the family's `-text` ink clears it. The resting ink
+#     and the icon ink stay upstream's.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/menubar.tsx b/menubar.tsx
-index de8698e..8efa582 100644
+index de8698e..9f7909b 100644
 --- a/menubar.tsx
 +++ b/menubar.tsx
 @@ -1,9 +1,9 @@
@@ -104,7 +111,7 @@ index de8698e..8efa582 100644
        sideOffset={sideOffset}
 -      className={cn("min-w-36 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95", className )}
 +      className={cn(
-+        "min-w-36 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
++        "min-w-36 rounded-lg bg-popover p-1 text-popover-foreground shadow-md border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
 +        className,
 +      )}
        {...props}
@@ -114,11 +121,13 @@ index de8698e..8efa582 100644
  }
  
  function MenubarItem({
-@@ -99,11 +102,11 @@ function MenubarItem({
+@@ -98,12 +101,12 @@ function MenubarItem({
+       data-inset={inset}
        data-variant={variant}
        className={cn(
-         "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive!",
+-        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive!",
 -        className
++        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive!",
 +        className,
        )}
        {...props}
@@ -284,7 +293,7 @@ index de8698e..8efa582 100644
        data-slot="menubar-sub-content"
 -      className={cn("min-w-32 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
 +      className={cn(
-+        "min-w-32 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++        "min-w-32 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +        className,
 +      )}
        {...props}

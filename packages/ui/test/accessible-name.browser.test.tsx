@@ -215,8 +215,12 @@ test("data-grid: a merged primary cell names each revealed value separately", as
   await expect
     .poll(() => document.querySelectorAll('[role="columnheader"]').length)
     .toBe(1);
+  // Each merged value carries its column header as an sr-only prefix (as DataList's stack does),
+  // so a value lifted out of its column is never read without its context.
   await expect
-    .element(page.getByRole("gridcell", { name: "Acme Open 300" }))
+    .element(
+      page.getByRole("gridcell", { name: "Acme Stage: Open Amount: 300" }),
+    )
     .toBeInTheDocument();
 });
 

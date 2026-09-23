@@ -17,13 +17,20 @@ These are mechanical and catch the highest-value problems:
 
 ```bash
 npx --package=@vegastack/design vegastack-design check-updates
+npx --package=@vegastack/design vegastack-design doctor
 ```
 
+`doctor` checks setup and also scans the app's own source (skipping `node_modules`, build output
+and the `components.json` `ui` directory) for vocabulary the shadcn reset retired — `text-h1`,
+`text-label`, `bg-destructive-subtle`, `--z-toast`, an `icon-button` import — and exits non-zero
+with `file:line` and the replacement for each. Its findings are §3's retired-vocabulary **errors**;
+cite them rather than re-deriving them.
+
 `⬆ update` means the registry has a newer version. `≈ drift` means the installed file differs from
-the registry item — either an upstream change or a local edit to a file you do not own. Both are
-findings; a local edit to a copied-in component is a **high** finding, because the next
-`--overwrite` silently destroys it. The fix is to move the customisation into your own wrapper
-component or a token override.
+the registry item — either an upstream change or a local edit. Both are findings. The rule for
+edits is the one the Components guide states: **don't edit a copied-in component; if you must, it
+becomes yours** — `check-updates` reports it as drifted from then on and every update is a `--diff`
+re-applied by hand (§5).
 
 Then verify setup, since these failures look like component bugs:
 
@@ -139,9 +146,11 @@ rg -n 'surface-(1|2|3|raised)|--alpha-|--opacity-|--size-|--icon-|--panel-width-
 rg -n '@vegastack' components/ui/ -l
 ```
 
-A copied-in component is yours to keep but not to edit — the next `--overwrite` overwrites it. Any
-diff reported by `check-updates` as `≈ drift` on a file you did not intend to change is a **high**
-finding. Route customisation through a token override, a wrapper component, or a `className` prop.
+Don't edit a copied-in component; if you must, it becomes yours. Report every `≈ drift` as a
+**warning** — the file no longer receives registry fixes and the next `--overwrite` replaces the
+edit — and name the way back: move the customisation into a token override, a wrapper component,
+or a `className` at the call site, then re-pull. A drifted file whose edit nobody meant to make
+(no commit or comment owns it) is an **error**: it is lost work waiting to happen.
 
 A missing `// @vegastack …` provenance header is **normal** and never a finding on its own: the
 shadcn CLI strips leading comments during copy-in.
@@ -150,9 +159,10 @@ shadcn CLI strips leading comments during copy-in.
 
 Group by file. Each finding: `file:line` · rule · suggested fix · severity.
 
-- **error** — a hardcoded visual value, an accessibility violation, or an edited copied-in component.
+- **error** — a hardcoded visual value, an accessibility violation, retired vocabulary, or an
+  unintended edit to a copied-in component.
 - **warning** — raw HTML where a component exists, a missing state, an off-system utility with a
-  working fallback.
+  working fallback, a deliberately edited (now owned) copied-in component.
 - **info** — a component with an available update worth a deliberate `--diff` review.
 
 Never auto-fix. Report, and let the owner decide.

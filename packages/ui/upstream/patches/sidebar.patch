@@ -1,6 +1,11 @@
 # component: sidebar
-# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4
+# decisions: A11Y-2, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4
 # hunks:
+#   BRD-1: the floating variant's inner surface swaps upstream's
+#     `group-data-[variant=floating]:ring-1 …:ring-sidebar-border` box-shadow outline for a real
+#     `…:border …:border-sidebar-border` — the sidebar's own hairline ink, so the edge matches the
+#     `sidebar` variant's `border-e`. The floating sidebar is a floating surface, and MK extended
+#     BRD-1 to it on 23-09-2026. The container already budgets `+2px` for the collapsed width.
 #   FOC-1, FOC-6: `outline-hidden` and `focus-visible:ring-2` are removed from all five controls
 #     that carry them — `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarMenuButton`,
 #     `SidebarMenuAction` and `SidebarMenuSubButton`. `outline-hidden` is the v3 spelling of 'no
@@ -30,7 +35,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..90ac58d 100644
+index cbcc413..6ad2d04 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,56 +1,56 @@
@@ -280,7 +285,7 @@ index cbcc413..90ac58d 100644
          )}
        />
        <div
-@@ -235,7 +235,7 @@ function Sidebar({
+@@ -235,20 +235,20 @@ function Sidebar({
            variant === "floating" || variant === "inset"
              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
              : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-e group-data-[side=right]:border-s",
@@ -289,7 +294,13 @@ index cbcc413..90ac58d 100644
          )}
          {...props}
        >
-@@ -248,7 +248,7 @@ function Sidebar({
+         <div
+           data-sidebar="sidebar"
+           data-slot="sidebar-inner"
+-          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
++          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
+         >
+           {children}
          </div>
        </div>
      </div>

@@ -1,5 +1,5 @@
 # component: combobox
-# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-9, A11Y-16, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-9, A11Y-16, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
 # hunks:
 #   FOC-1, FOC-3, FOC-6: `ComboboxChips` loses `focus-within:ring-3 focus-within:ring-ring/50` and
 #     keeps a `focus-within:border-ring/70` tint; `ComboboxChipsInput`'s `outline-none` becomes
@@ -47,12 +47,15 @@
 #     extra 4px changes nothing visible.
 #   OVL-13: `ComboboxContent` reads `useInternalThemeScope()` and attaches it to the Positioner
 #     inside the Portal; `tooling/verify-portal-theme-scope.mjs` inventories this host.
+#   BRD-1: `ComboboxContent` draws a real 1px `border border-border` instead of upstream's
+#     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
+#     border survives forced colours and matches `foundations/elevation`; nothing else moves.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..b543716 100644
+index 39e776a..0b67760 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,23 @@
@@ -183,7 +186,7 @@ index 39e776a..b543716 100644
            data-chips={!!anchor}
 -          className={cn("group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
 +          className={cn(
-+            "group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            "group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md border border-border duration-100 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +            className,
 +          )}
            {...props}

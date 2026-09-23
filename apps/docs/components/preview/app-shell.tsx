@@ -45,6 +45,17 @@ const STAT_CARDS = [
   "Avg. response",
 ] as const;
 
+/*
+ * The frame every desktop-rail demo sits in. Upstream's `Sidebar` pins its desktop rail with
+ * `position: fixed` and `h-svh`: an application shell, sized to the viewport. A docs frame is not
+ * the viewport, so — exactly as `sidebar.tsx`'s previews do — the frame carries `contain: paint`,
+ * which makes it the fixed-positioning containing block, and the rail and the main column take the
+ * frame's height (`h-full`) instead of the viewport's. Without both, the rail was drawn at the
+ * viewport's edge and the frame showed an empty gap where the floating variant's bordered rail
+ * belonged. A property of the frame, not of the component: no sidebar part is restyled.
+ */
+const FRAME = { contain: "paint" } as const;
+
 /**
  * The primary composed mini-shell demo — a fixed, non-fullscreen frame (the docs page frames it,
  * per the preview convention already used by `sidebar.tsx`'s previews) so the whole trio
@@ -53,9 +64,9 @@ const STAT_CARDS = [
 export function appShellDemo(): ReactNode {
   const [active, setActive] = useState<string>("home");
   return (
-    <Wrapper className="block h-104 overflow-hidden p-0">
-      <AppShell>
-        <AppShellSidebar>
+    <Wrapper className="block h-104 overflow-hidden p-0" style={FRAME}>
+      <AppShell className="h-full min-h-0">
+        <AppShellSidebar className="h-full">
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>Workspace</SidebarGroupLabel>
@@ -88,7 +99,7 @@ export function appShellDemo(): ReactNode {
             </SidebarMenu>
           </SidebarFooter>
         </AppShellSidebar>
-        <div className="flex h-svh min-w-0 flex-1 flex-col">
+        <div className="flex h-full min-w-0 flex-1 flex-col">
           <AppShellHeader actions={<Button size="sm">New agent</Button>}>
             <Breadcrumb>
               <BreadcrumbList>
@@ -127,9 +138,9 @@ export function appShellDemo(): ReactNode {
 export function appShellInset(): ReactNode {
   const [active, setActive] = useState<string>("home");
   return (
-    <Wrapper className="block h-104 overflow-hidden bg-muted p-0">
-      <AppShell>
-        <AppShellSidebar variant="inset">
+    <Wrapper className="block h-104 overflow-hidden bg-muted p-0" style={FRAME}>
+      <AppShell className="h-full min-h-0">
+        <AppShellSidebar variant="inset" className="h-full">
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>Workspace</SidebarGroupLabel>
@@ -149,7 +160,7 @@ export function appShellInset(): ReactNode {
             </SidebarGroup>
           </SidebarContent>
         </AppShellSidebar>
-        <div className="flex h-svh min-w-0 flex-1 flex-col">
+        <div className="flex h-full min-w-0 flex-1 flex-col">
           <AppShellHeader>
             <span className="truncate text-sm font-medium font-medium text-foreground">
               Dashboard
@@ -176,9 +187,9 @@ export function appShellInset(): ReactNode {
 export function appShellFloating(): ReactNode {
   const [active, setActive] = useState<string>("home");
   return (
-    <Wrapper className="block h-104 overflow-hidden bg-muted p-0">
-      <AppShell>
-        <AppShellSidebar variant="floating">
+    <Wrapper className="block h-104 overflow-hidden bg-muted p-0" style={FRAME}>
+      <AppShell className="h-full min-h-0">
+        <AppShellSidebar variant="floating" className="h-full">
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>Workspace</SidebarGroupLabel>
@@ -198,7 +209,7 @@ export function appShellFloating(): ReactNode {
             </SidebarGroup>
           </SidebarContent>
         </AppShellSidebar>
-        <div className="flex h-svh min-w-0 flex-1 flex-col">
+        <div className="flex h-full min-w-0 flex-1 flex-col">
           <AppShellHeader>
             <span className="truncate text-sm font-medium font-medium text-foreground">
               Dashboard
@@ -228,9 +239,9 @@ export function appShellFloating(): ReactNode {
 export function appShellMobile(): ReactNode {
   const [active, setActive] = useState<string>("home");
   return (
-    <Wrapper className="block h-104 overflow-hidden p-0">
+    <Wrapper className="block h-104 overflow-hidden p-0" style={FRAME}>
       <AppShell className="h-full min-h-0">
-        <AppShellSidebar>
+        <AppShellSidebar className="h-full">
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>Workspace</SidebarGroupLabel>

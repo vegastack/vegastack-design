@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 690,
-    "components": 110,
+    "totalRegistryItems": 691,
+    "components": 111,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 32,
@@ -25,7 +25,7 @@
     "Forms/editing": 24,
     "Navigation/layout": 17,
     "Overlays": 14,
-    "Data display": 10,
+    "Data display": 11,
     "Content/marketing": 13,
     "Shared internals": 2,
     "AI/chat": 7,
@@ -127,6 +127,7 @@
       "chip",
       "data-grid",
       "data-list",
+      "data-list-pager",
       "property-list",
       "stat",
       "table",
@@ -230,7 +231,9 @@
           "text-edit",
           "color-picker",
           "tabs",
-          "attachment"
+          "attachment",
+          "data-list",
+          "data-grid"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
@@ -1533,7 +1536,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["app-shell-skeleton", "app-shell-skeleton-stats"]
+              "values": [
+                "app-shell-skeleton",
+                "app-shell-skeleton-nav-row",
+                "app-shell-skeleton-stats"
+              ]
             }
           ],
           "cssVariables": []
@@ -6265,7 +6272,7 @@
           "text-truncation-and-flex-shrink",
           "horizontal-scroll-containment"
         ],
-        "rationale": "ResizeObserver-driven column revelation MERGES overflow columns into the primary cell by default; a column that opts into mobile:'hidden' is counted and reported in the toolbar, so narrow viewports never lose data silently. The container scrolls, never the page."
+        "rationale": "ResizeObserver-driven column revelation MERGES overflow columns into the primary cell by default (each merged value wraps on its own rule and keeps its header as an sr-only prefix); a column that opts into mobile:'hidden' is counted, and a sorted column that left the header row is stated, in the toolbar the grid is described by, so narrow viewports never lose data silently. The container scrolls, never the page."
       },
       "motion": {
         "status": "observed",
@@ -6346,9 +6353,14 @@
                 "data-grid-row",
                 "data-grid-scroll",
                 "data-grid-section",
+                "data-grid-sort-hint",
                 "data-grid-toolbar",
                 "data-grid-virtual-pad"
               ]
+            },
+            {
+              "name": "data-sorted",
+              "values": []
             }
           ],
           "cssVariables": ["--data-grid-virtual-pad"]
@@ -6396,6 +6408,15 @@
         {
           "name": "DataListProps",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataTableColumnMobile",
+          "kind": "type",
           "source": "packages/ui/registry/ui/data-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -6485,8 +6506,8 @@
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["mobile-or-touch-mode"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "risks": ["mobile-or-touch-mode", "responsive-or-container-layout"],
+        "rationale": "Columns fit the measured container through the shared revelation (minWidth + mobile: merge/hidden/visible); merged values wrap on their own rule, a table that still overflows is squeezed (data-squeezed: every cell and every element a custom render puts in it may break; a Badge grows taller; only fixed-width content cannot shrink), and dropped columns and an off-screen sort are stated under the table. The table container's own scrollWidth is asserted with compiled CSS at 320px in test/geometry.browser.test.tsx (mono and end-aligned first columns, many columns, selectable, clickable, composed toolbar + DataListPager footer), and at 240 and 320px for custom renders (a truncate span, a nowrap flex row, two always-visible Badge columns, four always-visible columns)."
       },
       "motion": {
         "status": "modeled",
@@ -6534,10 +6555,174 @@
                 "data-list",
                 "data-list-footer",
                 "data-list-head",
+                "data-list-hidden-hint",
+                "data-list-merged",
                 "data-list-root",
                 "data-list-row",
                 "data-list-row-action",
+                "data-list-sort-hint",
+                "data-list-status",
                 "data-list-toolbar"
+              ]
+            },
+            {
+              "name": "data-sorted",
+              "values": []
+            },
+            {
+              "name": "data-squeezed",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "data-list-pager",
+      "registryType": "registry:ui",
+      "title": "Data List Pager",
+      "summary": "A controlled paging footer for DataList — a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.",
+      "status": "stable",
+      "since": "0.13.0",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/data-list-pager.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DataListPager",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-list-pager.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "The React 19 ref prop is spread onto the root div with the remaining native div props."
+          }
+        },
+        {
+          "name": "DataListPagerItem",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list-pager.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListPagerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list-pager.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "pagerWindow",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-list-pager.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "DataListPager composes Pagination and Select without adding a public visual variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "It uses Select's sm trigger and Pagination's own link sizes; no local size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "first-page",
+            "last-page",
+            "single-page",
+            "empty",
+            "out-of-range",
+            "open"
+          ],
+          "evidence": "packages/ui/registry/ui/data-list-pager.tsx + packages/ui/registry/ui/data-list-pager.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "current",
+            "disabled",
+            "live",
+            "status-announcement",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/data-list-pager.tsx + packages/ui/registry/ui/data-list-pager.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "active", "hover", "focus-visible", "disabled"],
+          "evidence": "Composed Pagination and Select state selectors plus aria-disabled:opacity-50 on the end controls."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "The page list follows the pager's own width (data-layout): full from 480px, compact from 240px (no neighbours, 32px icon-only ends), minimal below that (icon-only ends around 'Page N of M', the declared server answer). Number slots grow to hold their number, so a four- or five-digit page count that outgrows the width's layout is measured and stepped down a layout at a time; at the last step the position shortens to 'N / M' (data-short) and may truncate, keeping 'Page N of M' for assistive technology, so the page list never scrolls sideways. The range, chooser and page list wrap onto separate lines; the range and chooser are unbreakable lines, about 200px at a seven-digit total. Containment is asserted with compiled CSS in test/geometry.browser.test.tsx at 200, 204, 240, 270, 320, 479, 480 and 800px for 83-, 8229-, 10000- and 82305-page counts, LTR and RTL."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/data-list-pager",
+      "registryDependencies": [
+        "@vegastack/data-table-parts",
+        "@vegastack/pagination",
+        "@vegastack/select",
+        "@vegastack/use-announcer"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.0",
+        "@vegastack/design-tokens@^0.7.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/data-list-pager.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "data-list-pager",
+      "dataAttributes": {
+        "DataListPager": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
+            {
+              "name": "data-short",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "data-list-pager",
+                "data-list-pager-nav",
+                "data-list-pager-position",
+                "data-list-pager-range",
+                "data-list-pager-size"
               ]
             }
           ],
@@ -6575,6 +6760,15 @@
           }
         },
         {
+          "name": "ColumnRevelation",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "cycleSort",
           "kind": "function",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -6593,12 +6787,30 @@
           }
         },
         {
+          "name": "DataTableColumnMobile",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataTableHeaderColumn",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DEFAULT_COLUMN_MIN_WIDTH",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -6630,6 +6842,33 @@
           }
         },
         {
+          "name": "mergedValueClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "offscreenSortSummary",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "revealColumns",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
           "name": "SelectAllHead",
           "kind": "component",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -6646,6 +6885,24 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SELECTED_ROW_CLASS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "SELECTION_COLUMN_WIDTH",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -6730,6 +6987,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useContainerWidth",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
@@ -6857,7 +7123,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["data-table-sort"]
+              "values": ["data-table-sort", "data-table-sort-glyph"]
             }
           ],
           "cssVariables": []
