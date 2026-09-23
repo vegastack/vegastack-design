@@ -3,8 +3,8 @@
   "_note": "GENERATED from the prose register, which is an untracked planning document. Regenerate with: node tooling/upstream/verify-parity.mjs --sync-decisions. A gate may only accept an ID whose value here is \"ours\".",
   "counts": {
     "total": 179,
-    "ours": 70,
-    "shadcn": 109
+    "ours": 71,
+    "shadcn": 108
   },
   "decisions": {
     "INT-1": "ours",
@@ -52,7 +52,7 @@
     "COL-21": "shadcn",
     "COL-22": "ours",
     "COL-23": "ours",
-    "BRD-1": "shadcn",
+    "BRD-1": "ours",
     "BRD-2": "shadcn",
     "BRD-3": "shadcn",
     "BRD-4": "shadcn",
