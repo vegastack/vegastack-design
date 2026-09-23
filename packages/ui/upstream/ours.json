@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 62,
+    "total": 63,
     "fromExtras": 46
   },
   "items": {
@@ -79,6 +79,12 @@
       "disposition": "keep",
       "family": "data",
       "source": "extras.md"
+    },
+    "data-list-pager": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "docs/plans/2026-09-23-consumer-alignment-fixes.md § 2 — approved by MK 2026-09-23",
+      "rationale": "Upstream ships Pagination and Select but no paging footer that joins them to a range summary; the Regent consumer built one (list-pager.tsx) and MK approved adopting it as the control DataList's footer slot names. It composes upstream's pagination and select unchanged and carries no patch."
     },
     "data-table-parts": {
       "disposition": "keep",

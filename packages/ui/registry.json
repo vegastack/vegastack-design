@@ -924,6 +924,34 @@
       }
     },
     {
+      "name": "data-list-pager",
+      "type": "registry:ui",
+      "title": "Data List Pager",
+      "description": "A controlled paging footer for DataList — a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.0",
+        "@vegastack/design-tokens@^0.7.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/pagination",
+        "@vegastack/select",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/data-list-pager.tsx",
+          "type": "registry:ui",
+          "target": "@ui/data-list-pager.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
+        "whenNotToUse": "Infinite or keyboard-continuous loading (DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
+        "version": "0.12.2"
+      }
+    },
+    {
       "name": "data-table-parts",
       "type": "registry:ui",
       "title": "Data Table Parts",
