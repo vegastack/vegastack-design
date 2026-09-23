@@ -5,7 +5,8 @@
 //   check-updates   Show which copied-in components have newer registry versions (what to re-pull).
 //   verify          Verify a registry item's integrity before/after `shadcn add` (Sigstore + hash).
 //   skills          Install the bundled VegaStack agent skills into the consuming project.
-//   doctor          Check a consuming project's setup (PostCSS plugin, preset import, registry).
+//   doctor          Check a consuming project's setup (PostCSS plugin, preset import, registry,
+//                   retired design-system vocabulary in its own source).
 //
 // The bin is named `vegastack-design` (NOT `vegastack`) so it never collides with a platform CLI.
 // `check-updates` is imported in-process; `verify` is spawned (it's the standalone, hash-parity-tested
