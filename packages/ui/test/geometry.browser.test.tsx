@@ -1334,6 +1334,132 @@ for (const [label, element] of DATA_LIST_CASES) {
   });
 }
 
+/**
+ * The squeeze reaches INTO a custom render. A cell's own `whitespace` does not reach a render's
+ * `truncate` span or a Badge's `whitespace-nowrap`, and an auto-layout table sizes each column
+ * from its content's min-content — so, before the squeeze released descendants, a `block
+ * truncate` primary value scrolled the table to 411px at 240px (truncation cannot happen in an
+ * auto-layout cell) and two always-visible Badge columns to 336px at 320px (review round 2).
+ */
+const SQUEEZE_CASES: [string, () => React.ReactElement][] = [
+  [
+    "a truncate render in the first column",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={[
+          {
+            key: "email",
+            header: "Billing email",
+            render: (row) => (
+              <span className="block truncate">{row.email}</span>
+            ),
+          },
+          { key: "customer", header: "Customer" },
+        ]}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    ),
+  ],
+  [
+    "a nowrap flex render in the first column",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={[
+          {
+            key: "email",
+            header: "Billing email",
+            render: (row) => (
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <span className="size-2 shrink-0 rounded-full bg-primary" />
+                <span className="truncate">{row.email}</span>
+              </div>
+            ),
+          },
+          { key: "customer", header: "Customer" },
+        ]}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    ),
+  ],
+  [
+    "two always-visible Badge columns",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={[
+          { key: "customer", header: "Customer" },
+          {
+            key: "status",
+            header: "Status",
+            mobile: "visible",
+            render: (row) => (
+              <Badge variant="secondary">Awaiting approval {row.status}</Badge>
+            ),
+          },
+          {
+            key: "team",
+            header: "Team",
+            mobile: "visible",
+            render: (row) => <Badge>{row.team}</Badge>,
+          },
+        ]}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    ),
+  ],
+  [
+    "four always-visible columns",
+    () => (
+      <DataList
+        aria-label="Invoices"
+        columns={[
+          { key: "customer", header: "Customer" },
+          { key: "email", header: "Billing email", mobile: "visible" },
+          { key: "team", header: "Team", mobile: "visible" },
+          {
+            key: "amount",
+            header: "Amount",
+            align: "end",
+            mono: true,
+            mobile: "visible",
+          },
+        ]}
+        data={INVOICES}
+        getRowId={(row) => row.id}
+      />
+    ),
+  ],
+];
+
+for (const [label, element] of SQUEEZE_CASES)
+  for (const width of [240, 320])
+    test(`DataList at ${width}px squeezes a custom render instead of scrolling — ${label}`, async () => {
+      const screen = await render(
+        <div style={{ width: `${width}px` }}>{element()}</div>,
+      );
+      await settle();
+      await expectDataSurfacesContained(label, screen.container, "");
+      await expectContained(label, "");
+      // Every header is still there: the squeeze never hides a column.
+      const headers = screen.container.querySelectorAll(
+        '[data-slot="data-list"] thead th',
+      );
+      expect(headers.length).toBeGreaterThan(0);
+      // A wrapped Badge grows to hold its label rather than clipping it (`overflow-hidden`).
+      for (const badge of screen.container.querySelectorAll<HTMLElement>(
+        '[data-slot="badge"]',
+      ))
+        expect(
+          badge.scrollHeight - badge.clientHeight,
+          `badge "${badge.textContent}" clips its wrapped label`,
+        ).toBeLessThanOrEqual(1);
+    });
+
 test("a mono first column's merged values wrap in their own face (compiled CSS)", async () => {
   const screen = await render(
     <div style={{ width: "320px" }}>{DATA_LIST_CASES[0]![1]()}</div>,

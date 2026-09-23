@@ -58,7 +58,9 @@ test("columnCellClass carries alignment, wrap posture and the mono face", () => 
   // `TableCell` is `whitespace-nowrap` by default (LAY-6 resolves as **shadcn**), so a wrapping
   // column has to say `whitespace-normal` or `cn`'s merge leaves upstream's class standing.
   expect(columnCellClass({ key: "name" })).toBe(
-    "text-start whitespace-normal in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere",
+    "text-start whitespace-normal in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
+      "in-data-squeezed:**:whitespace-normal in-data-squeezed:**:wrap-anywhere " +
+      "in-data-squeezed:**:data-[slot=badge]:h-auto",
   );
   expect(columnCellClass({ key: "amount", align: "end" })).toContain(
     "whitespace-nowrap",

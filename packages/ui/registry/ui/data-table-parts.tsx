@@ -116,9 +116,19 @@ export function isNowrapColumn(column: DataTableColumnLayout): boolean {
  * wrapping and breakable anywhere, because the alternative is overflowing.
  * `wrap-anywhere` is the value that lowers min-content width, which is what an
  * auto-layout table sizes each column from.
+ *
+ * The release reaches every DESCENDANT too (`**:`), because a cell's own
+ * `whitespace` does not reach inside a custom render: a `truncate` span, a
+ * `whitespace-nowrap` row or a Badge each pin their own min-content, and
+ * `truncate` cannot shrink inside an auto-layout cell anyway, so its ellipsis
+ * was never available there — squeezed, it wraps instead. A Badge's fixed `h-5`
+ * gives way to its content (`h-auto`) so a wrapped label stays inside it. What
+ * the squeeze cannot release is a fixed WIDTH — an icon, an avatar, a control.
  */
 const SQUEEZE_CLASS =
-  "in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere";
+  "in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
+  "in-data-squeezed:**:whitespace-normal in-data-squeezed:**:wrap-anywhere " +
+  "in-data-squeezed:**:data-[slot=badge]:h-auto";
 
 /**
  * The full class contract for one column's cells — alignment, the wrap posture,

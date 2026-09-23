@@ -6503,7 +6503,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["mobile-or-touch-mode", "responsive-or-container-layout"],
-        "rationale": "Columns fit the measured container through the shared revelation (minWidth + mobile: merge/hidden/visible); merged values wrap on their own rule, a table that still overflows is squeezed (data-squeezed: every cell may break), and dropped columns and an off-screen sort are stated under the table. The table container's own scrollWidth is asserted with compiled CSS at 320px in test/geometry.browser.test.tsx (mono and end-aligned first columns, many columns, selectable, clickable, composed toolbar + DataListPager footer)."
+        "rationale": "Columns fit the measured container through the shared revelation (minWidth + mobile: merge/hidden/visible); merged values wrap on their own rule, a table that still overflows is squeezed (data-squeezed: every cell and every element a custom render puts in it may break; a Badge grows taller; only fixed-width content cannot shrink), and dropped columns and an off-screen sort are stated under the table. The table container's own scrollWidth is asserted with compiled CSS at 320px in test/geometry.browser.test.tsx (mono and end-aligned first columns, many columns, selectable, clickable, composed toolbar + DataListPager footer), and at 240 and 320px for custom renders (a truncate span, a nowrap flex row, two always-visible Badge columns, four always-visible columns)."
       },
       "motion": {
         "status": "modeled",

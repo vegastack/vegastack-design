@@ -263,10 +263,12 @@ function isFromInteractiveDescendant(
  * are counted in a visible hint the table is described by, and
  * `mobile: "visible"` columns never hide. If a value is still wider than its
  * column's budget once that has run (a long unbroken email, a one-line mono
- * id), the table is squeezed (`data-squeezed`): every cell may then break
- * anywhere rather than scroll. A merged value always wraps, whatever
- * the primary column's own posture, so a `mono` or end-aligned first column
- * cannot pin the stack to one line. When the active sort's column is merged or
+ * id, several `visible` columns), the table is squeezed (`data-squeezed`):
+ * every cell, and every element a custom `render` puts in it, may then break
+ * anywhere rather than scroll — a `truncate` span wraps, a Badge grows taller.
+ * Only fixed-width content (an icon, an avatar, a control) cannot shrink. A
+ * merged value always wraps, whatever the primary column's own posture, so a
+ * `mono` or end-aligned first column cannot pin the stack to one line. When the active sort's column is merged or
  * hidden, a "Sorted by …" line under the table (which describes it) keeps the
  * order discoverable. The server render shows every column (LAY-9's declared
  * answer); the client corrects the split before first paint.
