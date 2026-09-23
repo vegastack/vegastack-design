@@ -1,4 +1,4 @@
-// @vegastack sidebar-03@0.14.0 sha256-Y1AAOO0xD6EoynaBCzC3O36JQ90Cv+4Yn3cw7LhUZF4=
+// @vegastack sidebar-03@0.15.0 sha256-pzo+zADVJy6a4r2+VI7MJQ9SDN+w+USyi8j6biigPqg=
 
 import * as React from "react";
 

@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.15.0] — September 23, 2026
+
+<!-- assembled from 2 changesets: 5063166e5d3d -->
+
+### 🔧 Changed components
+
+- `DialogContent` takes a `size` prop — `sm`, `default`, `lg` or `xl`, published as `data-size` — so a bulk-edit table or an attribute editor gets a wider dialog without a `className` override. `default` keeps upstream's `sm:max-w-sm`; `sm`, `lg` and `xl` step the cap to `max-w-xs`, `max-w-2xl` and `max-w-5xl`. The axis mirrors `AlertDialogContent`'s (decision OVL-16).
+  [`f93704e`](https://github.com/VegaStack/vegastack-design/commit/f93704e)
+- `EditableCell` inherits the surrounding type instead of fixing its display and editor at `text-sm`, so it can edit a page title at the heading's size and weight (`<h1 className="text-3xl font-semibold"><EditableCell … /></h1>`) without descendant-selector overrides. At the 14px body default it looks as before; below `md` the editor still never drops under 16px.
+  [`e4c7208`](https://github.com/VegaStack/vegastack-design/commit/e4c7208)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.14.0 → 0.15.0.
+
 ## [0.14.0] — September 23, 2026
 
 <!-- assembled from 2 changesets: 1bafe7203a5e -->

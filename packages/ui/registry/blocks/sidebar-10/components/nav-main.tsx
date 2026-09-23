@@ -1,4 +1,4 @@
-// @vegastack sidebar-10@0.14.0 sha256-wyFZnePevOsX91vtfTAXbxf1M5NlCx4dFp4b9qfHxFU=
+// @vegastack sidebar-10@0.15.0 sha256-wcvuU3vR9tdhnb0XCB2+zgZKmIOdevVTa0RORXbV6k0=
 
 import {
   SidebarMenu,
