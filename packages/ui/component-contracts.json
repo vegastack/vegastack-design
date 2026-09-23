@@ -1536,7 +1536,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["app-shell-skeleton", "app-shell-skeleton-stats"]
+              "values": [
+                "app-shell-skeleton",
+                "app-shell-skeleton-nav-row",
+                "app-shell-skeleton-stats"
+              ]
             }
           ],
           "cssVariables": []
