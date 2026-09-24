@@ -685,7 +685,7 @@ recipes:
 
 # VegaStack design
 
-This system **is** shadcn `base-nova`, plus seventy-two recorded exceptions. Every component we share with
+This system **is** shadcn `base-nova`, plus seventy-four recorded exceptions. Every component we share with
 shadcn is upstream's own file with an approved patch applied; every difference traces to a decision
 ID; and three offline gates prove both claims on every pull request. That is the whole doctrine, and
 this document is deliberately thin because most of what used to be written here is now upstream's
@@ -756,12 +756,12 @@ Three offline gates carry that, in `pnpm upstream:check`, inside `pnpm lint`:
 All four scripts under `tooling/upstream/` carry a `--self-test` that observes them failing
 (`pnpm upstream:selftest`), because a gate nobody has seen fail is an assumption.
 
-## What we add — the seventy-two exceptions
+## What we add — the seventy-four exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 180 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 72 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 182 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 74 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
-which shared component each exception is assigned to. Re-opening a row is MK's decision. The seventy-two
+which shared component each exception is assigned to. Re-opening a row is MK's decision. The seventy-four
 group into six themes.
 
 ### 1. Focus — one outline, and no glow anywhere
