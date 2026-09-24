@@ -78,11 +78,12 @@ column is the point — a settings page with a stable set of sections.
 A vertical list needs room beside its panel. Below an `@md` container width (448px) switch the
 same tabs to a horizontal `line` list, which scrolls inside itself instead of widening the page
 (LAY-14). The orientation is a prop, not a style, because it also turns the keyboard axis and
-`aria-orientation`, so measure the container and start horizontal until it is measured:
+`aria-orientation`, so measure the container and keep the tabs hidden (`visibility`, which keeps
+their box) until it is measured, so the first paint is already the right orientation:
 
 ```tsx
-const [ref, wide] = useWiderThan(448); // a ResizeObserver on the wrapper, false until measured
-<div ref={ref}>
+const [ref, wide] = useWiderThan(448); // a ResizeObserver on the wrapper, null until measured
+<div ref={ref} style={{ visibility: wide === null ? "hidden" : undefined }}>
   <Tabs orientation={wide ? "vertical" : "horizontal"} defaultValue="general">
     <TabsList variant="line" aria-label="Family settings">
       …

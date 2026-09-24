@@ -364,12 +364,13 @@ function RouteTabs(): ReactNode {
 }
 
 /**
- * True once the element is at least `min` px wide. Before the first measurement (and on the
- * server) it is `false`, so a narrow screen never paints the wide layout first.
+ * Whether the element is at least `min` px wide, or `null` until it has been measured (on the
+ * server and in the static page), so the caller can keep the layout hidden rather than paint one
+ * orientation and jump to the other.
  */
 function useWiderThan(min: number) {
   const ref = useRef<HTMLDivElement>(null);
-  const [wide, setWide] = useState(false);
+  const [wide, setWide] = useState<boolean | null>(null);
   useLayoutEffect(() => {
     const node = ref.current;
     if (!node) return;
@@ -390,7 +391,13 @@ export function tabsVerticalResponsive(): ReactNode {
   const [ref, wide] = useWiderThan(448);
   return (
     <Wrapper className="block">
-      <div ref={ref} className="w-full min-w-0">
+      {/* Hidden (not removed, so it keeps its box and can be measured) until the width is known:
+          the first paint is already the right orientation, for the eye, the keys and ARIA. */}
+      <div
+        ref={ref}
+        className="w-full min-w-0"
+        style={{ visibility: wide === null ? "hidden" : undefined }}
+      >
         <Tabs
           defaultValue="General"
           orientation={wide ? "vertical" : "horizontal"}

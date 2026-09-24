@@ -3324,6 +3324,14 @@ test("tabs-narrow-fallback: vertical tabs turn horizontal and route tabs become 
       );
       const screen = await render(<Fixtures />);
       await settle();
+      // Shown once measured (hidden, not removed, until then), and only then is it read.
+      await expect
+        .poll(() =>
+          screen.container
+            .querySelector('[data-slot="tabs-list"]')
+            ?.checkVisibility({ visibilityProperty: true }),
+        )
+        .toBe(true);
       // A horizontal tablist states no orientation: horizontal is the ARIA default.
       await expect
         .poll(() =>
@@ -3746,24 +3754,49 @@ test("multi-step-form-sticky: sticky actions stay in view on a long step", async
   await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(false);
 });
 
-test("multi-step-form-sticky: the pinned row paints the card it sits in, in both themes", async () => {
+test("multi-step-form-sticky: the pinned row paints its nearest surface, in both themes", async () => {
+  // Distinct values, so the card and the overlay cannot pass for each other.
+  const tokens = {
+    "--card": "rgb(10, 20, 30)",
+    "--popover": "rgb(200, 100, 50)",
+  } as React.CSSProperties;
   for (const theme of ["light", "dark"]) {
-    const screen = await render(
-      <div className={theme}>
+    for (const [label, tree] of [
+      [
+        "card",
         <div data-slot="card" className="bg-card">
           <LongStep sticky />
-        </div>
-      </div>,
-    );
-    const card =
-      screen.container.querySelector<HTMLElement>('[data-slot="card"]')!;
-    const actions = screen.container.querySelector<HTMLElement>(
-      '[data-slot="multi-step-form-actions"]',
-    )!;
-    expect(getComputedStyle(actions).backgroundColor).toBe(
-      getComputedStyle(card).backgroundColor,
-    );
-    await screen.unmount();
+        </div>,
+      ],
+      [
+        "dialog",
+        <div data-slot="dialog-content" className="bg-popover">
+          <LongStep sticky />
+        </div>,
+      ],
+      [
+        "card in a dialog",
+        <div data-slot="dialog-content" className="bg-popover">
+          <div data-slot="card" className="bg-card">
+            <LongStep sticky />
+          </div>
+        </div>,
+      ],
+    ] as const) {
+      const screen = await render(
+        <div className={theme} style={tokens}>
+          {tree}
+        </div>,
+      );
+      const actions = screen.container.querySelector<HTMLElement>(
+        '[data-slot="multi-step-form-actions"]',
+      )!;
+      expect(
+        getComputedStyle(actions).backgroundColor,
+        `${label} (${theme})`,
+      ).toBe(label === "dialog" ? "rgb(200, 100, 50)" : "rgb(10, 20, 30)");
+      await screen.unmount();
+    }
   }
 });
 

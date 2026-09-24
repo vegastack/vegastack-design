@@ -122,10 +122,12 @@ body {
   line-height: var(--text-sm--line-height);
 }
 
-/* A code block's copy button floats over the top-right of its scroll box, so on a narrow screen a
-   long first line ran under it ("@vegas▢k"). End the scroll box before the button instead: the
-   text scrolls, the button never covers it. */
-figure:has(> div > button[aria-label="Copy Text"]) > .fd-scroll-container {
+/* An untitled code block's copy button floats over the top-right of its scroll box (a titled
+   block keeps it in its header), so on a narrow screen a long first line ran under it
+   ("@vegas▢k"). End the scroll box before the overlaid button instead: the text scrolls, the
+   button never covers it. Keyed on the structure, not on the button's label, which changes to
+   "Copied Text" after a click. */
+figure > [class~="absolute"]:has(> button) + .fd-scroll-container {
   margin-inline-end: calc(var(--spacing) * 9);
 }
 
