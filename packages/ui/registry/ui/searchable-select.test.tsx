@@ -3,7 +3,10 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { SearchableSelect } from "./searchable-select";
+import {
+  SearchableSelect,
+  type SearchableSelectProps,
+} from "./searchable-select";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 interface Project {
@@ -17,7 +20,7 @@ const PROJECTS: Project[] = [
   { id: "cinder", name: "Cinder" },
 ];
 
-function Picker(props: Partial<React.ComponentProps<typeof SearchableSelect>>) {
+function Picker(props: Partial<SearchableSelectProps<Project>>) {
   return (
     <SearchableSelect<Project>
       items={PROJECTS}
@@ -300,4 +303,131 @@ test("no a11y violations — inline ghost trigger, open", async () => {
   );
   await screen.getByRole("combobox", { name: "Project" }).click();
   await expectNoA11yViolations(document.body);
+});
+
+// ---- DS-38: server search, several values, option details -------------------------------------
+
+test("remote mode never filters locally and announces loading once (DS-38)", async () => {
+  const onSearchChange = vi.fn();
+  const screen = await render(
+    <Picker remote loading onSearchChange={onSearchChange} />,
+  );
+  await screen.getByRole("combobox").click();
+  await screen.getByPlaceholder("Search projects…").fill("zzz");
+  expect(onSearchChange).toHaveBeenLastCalledWith("zzz");
+  await expect
+    .element(screen.getByRole("option", { name: "Atlas" }))
+    .toBeInTheDocument();
+  const status = document.querySelector(
+    '[data-slot="searchable-select-status"]',
+  )!;
+  expect(status.getAttribute("role")).toBe("status");
+  expect(status.textContent).toContain("Searching…");
+  expect(status.closest('[role="listbox"]')).toBeNull();
+});
+
+test("an error shows in the panel and Try again retries (DS-38)", async () => {
+  const onRetry = vi.fn();
+  const screen = await render(
+    <Picker remote error="Couldn't load projects." onRetry={onRetry} />,
+  );
+  await screen.getByRole("combobox").click();
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Couldn't load projects.");
+  (
+    screen.getByRole("button", { name: "Try again" }).element() as HTMLElement
+  ).click();
+  expect(onRetry).toHaveBeenCalledOnce();
+});
+
+test("loadMore renders the shared footer in the panel (DS-38)", async () => {
+  const onLoadMore = vi.fn();
+  const screen = await render(
+    <Picker remote loadMore={{ hasMore: true, onLoadMore }} />,
+  );
+  await screen.getByRole("combobox").click();
+  (
+    screen.getByRole("button", { name: "Load more" }).element() as HTMLElement
+  ).click();
+  expect(onLoadMore).toHaveBeenCalledOnce();
+});
+
+test("leading items come first and are never filtered out (DS-38)", async () => {
+  const me = { id: "me", name: "Me" };
+  const screen = await render(<Picker leadingItems={[me]} />);
+  await screen.getByRole("combobox").click();
+  await screen.getByPlaceholder("Search projects…").fill("Cin");
+  const options = [...document.querySelectorAll('[role="option"]')].map(
+    (o) => o.textContent,
+  );
+  expect(options).toEqual(["Me", "Cinder"]);
+});
+
+test("a description and a disabled reason are the option's description (DS-38)", async () => {
+  const screen = await render(
+    <Picker
+      itemToDescription={(p: Project) =>
+        p.id === "atlas" ? "Q3 launch" : undefined
+      }
+      itemToDisabledReason={(p: Project) =>
+        p.id === "cinder" ? "Archived projects can't be picked" : undefined
+      }
+    />,
+  );
+  await screen.getByRole("combobox").click();
+  await expect
+    .element(screen.getByRole("option", { name: /Atlas/ }))
+    .toHaveAccessibleDescription("Q3 launch");
+  const cinder = screen.getByRole("option", { name: /Cinder/ });
+  await expect.element(cinder).toHaveAttribute("aria-disabled", "true");
+  await expect
+    .element(cinder)
+    .toHaveAccessibleDescription("Archived projects can't be picked");
+  await expectNoA11yViolations(document.body);
+});
+
+test("multiple picks several values and the trigger reads them (DS-38)", async () => {
+  function Multi() {
+    const [value, setValue] = React.useState<Project[]>([PROJECTS[0]!]);
+    return (
+      <SearchableSelect<Project, true>
+        multiple
+        items={PROJECTS}
+        value={value}
+        onValueChange={setValue}
+        itemToKey={(p) => p.id}
+        itemToStringLabel={(p) => p.name}
+        isItemEqualToValue={(a, b) => a.id === b.id}
+        renderItem={(p) => p.name}
+        searchLabel="Search projects"
+        placeholder="Select projects"
+        aria-label="Projects"
+      />
+    );
+  }
+  const screen = await render(<Multi />);
+  const trigger = screen.getByRole("combobox", { name: "Projects" });
+  await expect.element(trigger).toHaveTextContent("Atlas");
+  await trigger.click();
+  await screen.getByRole("option", { name: "Borealis" }).click();
+  await expect.element(trigger).toHaveTextContent("Atlas, Borealis");
+  await expect
+    .element(screen.getByRole("option", { name: "Borealis" }))
+    .toHaveAttribute("aria-selected", "true");
+  await screen.getByRole("option", { name: "Cinder" }).click();
+  await expect.element(trigger).toHaveTextContent("3 selected");
+});
+
+test("groupBy renders headings (DS-38)", async () => {
+  const screen = await render(
+    <Picker groupBy={(p: Project) => (p.id === "atlas" ? "Mine" : "Team")} />,
+  );
+  await screen.getByRole("combobox").click();
+  await expect
+    .element(screen.getByRole("group", { name: "Mine" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("group", { name: "Team" }))
+    .toBeInTheDocument();
 });

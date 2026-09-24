@@ -7,7 +7,12 @@ import { expect, onTestFinished, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { Flag } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { FilterBar, FilterChip, type FilterBarProps } from "./filter-bar";
+import {
+  FilterBar,
+  FilterBarFacet,
+  FilterChip,
+  type FilterBarProps,
+} from "./filter-bar";
 
 test("searchInputProps cannot take ownership of the search value event", () => {
   const acceptSearchInputProps = (
@@ -542,4 +547,131 @@ test("FilterBar takes no children (D5)", () => {
   const accept = (_props: FilterBarProps) => {};
   // @ts-expect-error children were silently dropped; the type now says so.
   accept({ children: "ignored" });
+});
+
+// ---- DS-35: facets ---------------------------------------------------------------------------
+
+interface Status {
+  id: string;
+  name: string;
+}
+const STATUSES: Status[] = [
+  { id: "open", name: "Open" },
+  { id: "prog", name: "In progress" },
+  { id: "done", name: "Done" },
+];
+
+test.each([
+  [[], "Status: Any"],
+  [[STATUSES[0]!], "Status: Open"],
+  [[STATUSES[0]!, STATUSES[1]!], "Status: Open, In progress"],
+  [STATUSES, "Status: 3 selected"],
+])("a facet trigger reads the selection (DS-35) %#", async (value, text) => {
+  const screen = await render(
+    <FilterBarFacet<Status, true>
+      label="Status"
+      multiple
+      items={STATUSES}
+      value={value}
+      onValueChange={() => {}}
+      itemToKey={(s) => s.id}
+      itemToStringLabel={(s) => s.name}
+      searchLabel="Search statuses"
+    />,
+  );
+  await expect
+    .element(screen.getByRole("combobox", { name: text }))
+    .toHaveTextContent(text);
+});
+
+test("a facet toggles values, pins the selected ones and can be removed (DS-35)", async () => {
+  const onRemove = vi.fn();
+  function Host() {
+    const [value, setValue] = React.useState<Status[]>([STATUSES[2]!]);
+    return (
+      <FilterBarFacet<Status, true>
+        label="Status"
+        multiple
+        pinSelected
+        removable
+        onRemove={onRemove}
+        items={STATUSES}
+        value={value}
+        onValueChange={setValue}
+        itemToKey={(s) => s.id}
+        itemToStringLabel={(s) => s.name}
+        isItemEqualToValue={(a, b) => a.id === b.id}
+        searchLabel="Search statuses"
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  await screen.getByRole("combobox", { name: "Status: Done" }).click();
+  const options = [...document.querySelectorAll('[role="option"]')].map(
+    (o) => o.textContent,
+  );
+  expect(options[0]).toBe("Done");
+  await expect
+    .element(screen.getByRole("group", { name: "Selected" }))
+    .toBeInTheDocument();
+  await screen.getByRole("option", { name: "Open" }).click();
+  await expect
+    .element(screen.getByRole("option", { name: "Open" }))
+    .toHaveAttribute("aria-selected", "true");
+  await userEvent.keyboard("{Escape}");
+  (
+    screen
+      .getByRole("button", { name: "Remove Status filter" })
+      .element() as HTMLElement
+  ).click();
+  expect(onRemove).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container);
+});
+
+// ---- DS-36: editing a filter -----------------------------------------------------------------
+
+test("a chip with an editor opens it in place and returns focus on Escape (DS-36)", async () => {
+  const onEditorOpenChange = vi.fn();
+  const screen = await render(
+    <FilterBar
+      onEditorOpenChange={onEditorOpenChange}
+      filters={[
+        {
+          id: "status",
+          label: "Status",
+          value: "Open",
+          onRemove: () => {},
+          editor: <p>Status editor</p>,
+        },
+      ]}
+    />,
+  );
+  const trigger = screen.getByRole("button", { name: "Status: Open" });
+  await expect
+    .element(trigger)
+    .toHaveAttribute("data-slot", "filter-chip-trigger");
+  // The remove control stays its own target.
+  await expect
+    .element(screen.getByRole("button", { name: "Remove Status filter" }))
+    .toBeInTheDocument();
+  await trigger.click();
+  await expect.element(screen.getByText("Status editor")).toBeInTheDocument();
+  expect(onEditorOpenChange).toHaveBeenLastCalledWith("status", true);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => document.activeElement).toBe(trigger.element());
+  expect(onEditorOpenChange).toHaveBeenLastCalledWith("status", false);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a chip without an editor stays non-interactive (DS-36)", async () => {
+  const screen = await render(
+    <FilterBar
+      filters={[
+        { id: "status", label: "Status", value: "Open", onRemove: () => {} },
+      ]}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="filter-chip-trigger"]'),
+  ).toBeNull();
 });

@@ -6778,7 +6778,8 @@
             "selected",
             "sectioned",
             "collapsed-section",
-            "row-actions"
+            "row-actions",
+            "row-links"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -10069,6 +10070,24 @@
           }
         },
         {
+          "name": "FilterBarFacet",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "FilterBarFacetProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/filter-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "FilterBarFilter",
           "kind": "interface",
           "source": "packages/ui/registry/ui/filter-bar.tsx",
@@ -10134,7 +10153,9 @@
             "disabled",
             "empty",
             "selected",
-            "search-start"
+            "search-start",
+            "facet",
+            "editing"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -10171,7 +10192,9 @@
         "@vegastack/button",
         "@vegastack/chip",
         "@vegastack/dropdown-menu",
-        "@vegastack/search-input"
+        "@vegastack/popover",
+        "@vegastack/search-input",
+        "@vegastack/searchable-select"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -10193,7 +10216,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["filter-chip"]
+              "values": ["filter-chip", "filter-chip-trigger"]
             }
           ],
           "cssVariables": []
@@ -10211,6 +10234,19 @@
                 "filter-bar-add",
                 "filter-bar-search",
                 "filter-bar-trailing"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FilterBarFacet": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "filter-bar-facet",
+                "filter-bar-facet-remove",
+                "filter-bar-facet-select"
               ]
             }
           ],
@@ -16039,6 +16075,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "SearchableSelectValue",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/searchable-select.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -16071,7 +16116,13 @@
             "empty-results",
             "selected",
             "cleared",
-            "disabled"
+            "disabled",
+            "multiple",
+            "remote",
+            "loading",
+            "error",
+            "paged",
+            "option-disabled-reason"
           ],
           "evidence": "Observed from the Combobox root's open/value state, the panel search field, ComboboxEmpty, and the clearable branch."
         },
@@ -16101,7 +16152,12 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/searchable-select",
-      "registryDependencies": ["@vegastack/combobox", "@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/combobox",
+        "@vegastack/item",
+        "@vegastack/load-more"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",

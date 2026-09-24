@@ -15,9 +15,11 @@ import {
 // Copied INTO apps/docs via `shadcn add @vegastack/filter-bar` (dogfoods the registry) → auto-scanned.
 import {
   FilterBar,
+  FilterBarFacet,
   FilterChip,
   type FilterBarFilter,
 } from "@/components/ui/filter-bar";
+import { NumberField } from "@/components/ui/number-field";
 
 const ADD_OPTIONS = [
   { id: "status", label: "Status", icon: <CircleDot /> },
@@ -328,6 +330,101 @@ export function filterBarStandaloneChips(): ReactNode {
         active
         removeLabel="Remove starred filter"
         onRemove={() => {}}
+      />
+    </Wrapper>
+  );
+}
+
+const STATUS_OPTIONS = [
+  { id: "open", name: "Open" },
+  { id: "progress", name: "In progress" },
+  { id: "review", name: "In review" },
+  { id: "done", name: "Done" },
+];
+
+export function filterBarFacets(): ReactNode {
+  const [status, setStatus] = useState([STATUS_OPTIONS[0]!]);
+  const [owner, setOwner] = useState<{ id: string; name: string } | null>(null);
+  return (
+    <Wrapper className="justify-start">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <FilterBarFacet<{ id: string; name: string }, true>
+          label="Status"
+          multiple
+          pinSelected
+          items={STATUS_OPTIONS}
+          value={status}
+          onValueChange={setStatus}
+          itemToKey={(s) => s.id}
+          itemToStringLabel={(s) => s.name}
+          isItemEqualToValue={(a, b) => a.id === b.id}
+          searchLabel="Search statuses"
+        />
+        <FilterBarFacet
+          label="Owner"
+          removable
+          onRemove={() => setOwner(null)}
+          items={[
+            { id: "ada", name: "Ada Lovelace" },
+            { id: "grace", name: "Grace Hopper" },
+          ]}
+          value={owner}
+          onValueChange={setOwner}
+          itemToKey={(o) => o.id}
+          itemToStringLabel={(o) => o.name}
+          isItemEqualToValue={(a, b) => a.id === b.id}
+          searchLabel="Search people"
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+export function filterBarEditing(): ReactNode {
+  const [range, setRange] = useState<{
+    min: number | null;
+    max: number | null;
+  }>({
+    min: 10,
+    max: 40,
+  });
+  const text =
+    range.min != null && range.max != null
+      ? `${range.min}–${range.max} W`
+      : range.min != null
+        ? `≥ ${range.min} W`
+        : range.max != null
+          ? `≤ ${range.max} W`
+          : "Any";
+  return (
+    <Wrapper className="justify-start">
+      <FilterBar
+        aria-label="Product filters"
+        filters={[
+          {
+            id: "wattage",
+            label: "Wattage",
+            value: text,
+            onRemove: () => setRange({ min: null, max: null }),
+            editor: (
+              <div className="flex items-center gap-2 p-1">
+                <NumberField
+                  aria-label="Minimum"
+                  className="w-24"
+                  value={range.min}
+                  onValueChange={(min) => setRange((r) => ({ ...r, min }))}
+                />
+                <span aria-hidden="true">–</span>
+                <NumberField
+                  aria-label="Maximum"
+                  className="w-24"
+                  value={range.max}
+                  onValueChange={(max) => setRange((r) => ({ ...r, max }))}
+                />
+              </div>
+            ),
+          },
+        ]}
       />
     </Wrapper>
   );

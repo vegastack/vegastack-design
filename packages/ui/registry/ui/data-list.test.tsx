@@ -1811,3 +1811,97 @@ test("rowActionsColumn adds a named row menu that never activates the row (DS-32
   expect(onEdit).toHaveBeenCalledOnce();
   expect(onRowClick).not.toHaveBeenCalled();
 });
+
+// ---- DS-33: rows as links --------------------------------------------------------------------
+
+test("getRowHref makes the first cell a real link (DS-33)", async () => {
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `/people/${r.id}`}
+    />,
+  );
+  const link = screen.getByRole("link", { name: "Ada" });
+  await expect.element(link).toHaveAttribute("href", "/people/a");
+  expect(
+    screen.container.querySelector('[data-slot="data-list-row-action"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a row click forwards to its link, modifiers kept; interactive cells don't navigate (DS-33)", async () => {
+  const clicks: { href: string; meta: boolean }[] = [];
+  const onButton = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={[
+        ...columns,
+        {
+          key: "act",
+          header: "Act",
+          interactive: true,
+          render: () => (
+            <button type="button" onClick={onButton}>
+              Ping
+            </button>
+          ),
+        },
+      ]}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `#person-${r.id}`}
+    />,
+  );
+  for (const a of screen.container.querySelectorAll("a")) {
+    a.addEventListener("click", (e) => {
+      clicks.push({
+        href: (e.currentTarget as HTMLAnchorElement).getAttribute("href")!,
+        meta: (e as MouseEvent).metaKey,
+      });
+      e.preventDefault();
+    });
+  }
+  const roleCell = screen.getByRole("cell", { name: "Designer" }).element();
+  roleCell.dispatchEvent(
+    new MouseEvent("click", { bubbles: true, cancelable: true, metaKey: true }),
+  );
+  expect(clicks).toEqual([{ href: "#person-b", meta: true }]);
+  await screen.getByRole("button", { name: "Ping" }).first().click();
+  expect(onButton).toHaveBeenCalledOnce();
+  expect(clicks).toHaveLength(1);
+});
+
+test("getRowLabel names the selection checkbox (DS-33)", async () => {
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      selectable
+      getRowLabel={(r) => r.name}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("checkbox", { name: "Select Bea" }))
+    .toBeInTheDocument();
+});
+
+test("rowLinkRender renders a router link (DS-33)", async () => {
+  function RouterLink(props: React.ComponentProps<"a">) {
+    return <a data-router="" {...props} />;
+  }
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `/people/${r.id}`}
+      rowLinkRender={<RouterLink />}
+    />,
+  );
+  const link = screen.getByRole("link", { name: "Cole" });
+  await expect.element(link).toHaveAttribute("data-router", "");
+  await expect.element(link).toHaveAttribute("href", "/people/c");
+});

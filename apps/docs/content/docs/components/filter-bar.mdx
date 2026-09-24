@@ -98,6 +98,32 @@ field instant.
   file="components/preview/filter-bar.tsx"
 />
 
+### Facets
+
+`FilterBarFacet` is a "Label: value" facet on [`SearchableSelect`](/docs/components/searchable-select):
+the trigger reads _Status: Any_, _Status: Open_, _Status: Open, In progress_ or _Status: 3 selected_.
+It takes SearchableSelect's item props — `multiple`, `remote` with `useAsyncSearch` for a
+server-searched facet, `leadingItems`, `itemToDescription` — plus `pinSelected` (the chosen
+options first, under "Selected"), `removable` with `onRemove` for a facet added from _Add filter_,
+`anyLabel` and `countLabel`.
+
+<ComponentPreview
+  name="filterBarFacets"
+  file="components/preview/filter-bar.tsx"
+/>
+
+### Editing a filter
+
+Give a filter an `editor` and its chip's label and value become a button (`FilterChipTrigger`,
+named `{label}: {value}`) that opens the editor in a popover; <kbd>Escape</kbd> closes it and returns
+focus to the chip. The chip itself stays non-interactive and the remove control stays its own 24px
+target. `onEditorOpenChange(id, open)` reports each open and close — commit on close, or live.
+
+<ComponentPreview
+  name="filterBarEditing"
+  file="components/preview/filter-bar.tsx"
+/>
+
 ### Empty
 
 With no active filters, only the "Add filter" menu (and search, if enabled) remain.

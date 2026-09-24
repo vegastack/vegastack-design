@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.19.0 sha256-fKFbUIcY/3ZIXuVoqrtx8GTujAUOh+j8ZLKPC6oCR8Q=
+// @vegastack searchable-select@0.19.0 sha256-yAn+vVUb842YFsL3I45fDgv1435FobHA/Ga2vH3uPAM=
 
 "use client";
 
@@ -14,8 +14,13 @@ import {
   ComboboxEmpty,
   ComboboxList,
   ComboboxItem,
+  ComboboxGroup,
+  ComboboxLabel,
+  ComboboxCollection,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
+import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
+import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
 
 /* ------------------------------------------------------------------------------------------------
  * SearchableSelect — the ONE "Select-shaped Combobox" preset: a full-width trigger that reads like
@@ -40,20 +45,109 @@ import { Button } from "@/components/ui/button";
  *    set — no width jump, no second magic padding.
  * ----------------------------------------------------------------------------------------------*/
 
+/** The selection type: one item (or `null`), or an array with `multiple`. */
+export type SearchableSelectValue<
+  Item,
+  Multiple extends boolean | undefined,
+> = Multiple extends true ? Item[] : Item | null;
+
 /** Props accepted by `SearchableSelect`. */
-export interface SearchableSelectProps<Item> {
+export interface SearchableSelectProps<
+  Item,
+  Multiple extends boolean | undefined = false,
+> {
   /** The full option list. Passed to the Combobox root so filtering, label resolution and the empty
    * state all work from one source.
    */
   items: readonly Item[];
-  /** The selected item, or `null` when nothing is selected (controlled).
+  /**
+   * Pick several items. `value` becomes an array, rows toggle, the panel stays open while you
+   * pick, and the trigger reads "{a}, {b}" or "{n} selected".
+   * @default false
+   */
+  multiple?: Multiple;
+  /** The selected item — or items, with `multiple` — or `null` when nothing is selected
+   * (controlled). An item missing from `items` still shows its label.
    * @default null
    */
-  value?: Item | null;
-  /** Called with the newly selected item, or `null` when the clear control is used.
+  value?: SearchableSelectValue<Item, Multiple>;
+  /** Called with the new selection (`null`, or `[]` with `multiple`, when cleared).
    * @default undefined
    */
-  onValueChange?: (value: Item | null) => void;
+  onValueChange?: (value: SearchableSelectValue<Item, Multiple>) => void;
+  /**
+   * A second line under an option, read as its description.
+   * @default undefined
+   */
+  itemToDescription?: (item: Item) => string | undefined;
+  /**
+   * Why an option is unavailable. Returning a reason disables the option — it stays reachable
+   * and reads the reason as its description.
+   * @default undefined
+   */
+  itemToDisabledReason?: (item: Item) => string | undefined;
+  /**
+   * The server filters: the list shows `items` as given and never filters locally. Pair with
+   * `onSearchChange`, `loading`, `error` and `loadMore` (or spread `useAsyncSearch`).
+   * @default false
+   */
+  remote?: boolean;
+  /**
+   * Called with the search text as it is typed.
+   * @default undefined
+   */
+  onSearchChange?: (query: string) => void;
+  /**
+   * A search is in flight: "Searching…" is announced, and the rows already shown stay.
+   * @default false
+   */
+  loading?: boolean;
+  /**
+   * The last search failed: the message shows in the panel with a "Try again" button.
+   * @default undefined
+   */
+  error?: React.ReactNode;
+  /**
+   * What "Try again" calls when there is no `loadMore`.
+   * @default undefined
+   */
+  onRetry?: () => void;
+  /**
+   * Keyset paging inside the panel: the shared Load more footer under the rows.
+   * @default undefined
+   */
+  loadMore?: LoadMoreState;
+  /**
+   * Items always listed first and never filtered out — "Me", "Unassigned", recent picks.
+   * @default undefined
+   */
+  leadingItems?: readonly Item[];
+  /**
+   * Group the rows under headings, in first-seen order.
+   * @default undefined
+   */
+  groupBy?: (item: Item) => string;
+  /**
+   * What is announced while `loading`.
+   * @default "Searching…"
+   */
+  loadingLabel?: string;
+  /**
+   * The retry button's label.
+   * @default "Try again"
+   */
+  retryLabel?: string;
+  /**
+   * Replaces the trigger's text for every state, empty included — for a trigger that reads
+   * "Status: Open" (FilterBarFacet). It also becomes the trigger's fallback accessible name.
+   * @default undefined
+   */
+  renderTriggerValue?: (selected: Item[]) => string;
+  /**
+   * The trigger's text for a multiple selection of more than two.
+   * @default (n) => `${n} selected`
+   */
+  countLabel?: (n: number) => string;
   /** Identity comparison between the `value` and an entry of `items`. Defaults to reference equality.
    * @default undefined
    */
@@ -193,10 +287,28 @@ export interface SearchableSelectProps<Item> {
  *   clearable
  * />
  */
-export function SearchableSelect<Item>({
+export function SearchableSelect<
+  Item,
+  Multiple extends boolean | undefined = false,
+>({
   items,
-  value = null,
+  multiple,
+  value: valueProp,
   onValueChange,
+  itemToDescription,
+  itemToDisabledReason,
+  remote = false,
+  onSearchChange,
+  loading = false,
+  error,
+  onRetry,
+  loadMore,
+  leadingItems,
+  groupBy,
+  loadingLabel = "Searching…",
+  retryLabel = "Try again",
+  countLabel = (n) => `${n} selected`,
+  renderTriggerValue,
   isItemEqualToValue,
   itemToStringLabel,
   itemToKey,
@@ -224,8 +336,76 @@ export function SearchableSelect<Item>({
   itemSlot = "searchable-select-item",
   ref,
   rootRef,
-}: SearchableSelectProps<Item>) {
+}: SearchableSelectProps<Item, Multiple>) {
   const face = renderValue ?? renderItem;
+  const isMultiple = multiple === true;
+  const value = (valueProp ?? (isMultiple ? [] : null)) as Item | Item[] | null;
+  const selectedList: Item[] = isMultiple
+    ? (value as Item[])
+    : value
+      ? [value as Item]
+      : [];
+  const hasValue = selectedList.length > 0;
+  const valueText = (list: Item[]) =>
+    list.length > 2
+      ? countLabel(list.length)
+      : list.map(itemToStringLabel).join(", ");
+
+  // Leading items come first and are never filtered; the rest follow without repeats.
+  const leadingKeys = React.useMemo(
+    () => new Set((leadingItems ?? []).map(itemToKey)),
+    [leadingItems, itemToKey],
+  );
+  const allItems = React.useMemo(() => {
+    const lead = leadingItems ?? [];
+    return [...lead, ...items.filter((i) => !leadingKeys.has(itemToKey(i)))];
+  }, [items, leadingItems, leadingKeys, itemToKey]);
+  const grouped = React.useMemo(() => {
+    if (!groupBy) return null;
+    const order: string[] = [];
+    const byGroup = new Map<string, Item[]>();
+    for (const item of allItems) {
+      const g = groupBy(item);
+      if (!byGroup.has(g)) {
+        byGroup.set(g, []);
+        order.push(g);
+      }
+      byGroup.get(g)!.push(item);
+    }
+    return order.map((g) => ({ value: g, items: byGroup.get(g)! }));
+  }, [allItems, groupBy]);
+  const filter = React.useMemo(() => {
+    if (remote) return null;
+    if (leadingKeys.size === 0) return undefined;
+    return (item: Item, query: string) =>
+      leadingKeys.has(itemToKey(item)) ||
+      itemToStringLabel(item)
+        .toLowerCase()
+        .includes(query.trim().toLowerCase());
+  }, [remote, leadingKeys, itemToKey, itemToStringLabel]);
+
+  const renderOption = (item: Item) => {
+    const reason = itemToDisabledReason?.(item);
+    const description = reason ?? itemToDescription?.(item);
+    return (
+      <ComboboxItem
+        key={itemToKey(item)}
+        value={item}
+        data-slot={itemSlot}
+        disabled={reason !== undefined}
+      >
+        {description !== undefined ? (
+          <ItemContent>
+            <ItemTitle>{renderItem(item)}</ItemTitle>
+            <ItemDescription>{description}</ItemDescription>
+          </ItemContent>
+        ) : (
+          renderItem(item)
+        )}
+      </ComboboxItem>
+    );
+  };
+  const showFooter = error != null || (loadMore?.hasMore ?? false);
   // DS-22: the trigger is named by its label. Inside a `Field`, Base UI's Combobox gives the
   // trigger `aria-labelledby` (and the description ids and `aria-invalid`), so no fallback name
   // may be forced on it; only an unlabelled trigger falls back to the value, then the placeholder.
@@ -237,8 +417,14 @@ export function SearchableSelect<Item>({
   });
   const triggerLabel =
     ariaLabel ??
-    (labelled ? undefined : value ? itemToStringLabel(value) : placeholder);
-  const showClear = clearable && value != null;
+    (labelled
+      ? undefined
+      : renderTriggerValue
+        ? renderTriggerValue(selectedList)
+        : hasValue
+          ? valueText(selectedList)
+          : placeholder);
+  const showClear = clearable && hasValue;
   const ghost = variant === "ghost";
 
   return (
@@ -254,9 +440,16 @@ export function SearchableSelect<Item>({
       )}
     >
       <Combobox
-        items={items as Item[]}
+        items={(grouped ?? allItems) as Item[]}
+        multiple={isMultiple}
         value={value}
-        onValueChange={(next: Item | null) => onValueChange?.(next)}
+        onValueChange={(next: Item | Item[] | null) =>
+          onValueChange?.(next as SearchableSelectValue<Item, Multiple>)
+        }
+        filter={filter}
+        onInputValueChange={
+          onSearchChange ? (query: string) => onSearchChange(query) : undefined
+        }
         isItemEqualToValue={isItemEqualToValue}
         itemToStringLabel={itemToStringLabel}
         open={open}
@@ -275,7 +468,7 @@ export function SearchableSelect<Item>({
           aria-label={triggerLabel}
           // The styling hook for "nothing selected yet", so a wrapper can tint the trigger from
           // the outside without reaching through to the value span.
-          data-placeholder={value ? undefined : ""}
+          data-placeholder={hasValue ? undefined : ""}
           render={
             <Button
               variant="outline"
@@ -295,15 +488,25 @@ export function SearchableSelect<Item>({
           }
         >
           <ComboboxValue>
-            {(selected: Item | null) =>
-              selected ? (
-                face(selected)
-              ) : (
-                <span className="truncate text-muted-foreground">
-                  {placeholder}
-                </span>
-              )
-            }
+            {(selected: Item | Item[] | null) => {
+              const list = Array.isArray(selected)
+                ? selected
+                : selected
+                  ? [selected]
+                  : [];
+              if (renderTriggerValue)
+                return (
+                  <span className="truncate">{renderTriggerValue(list)}</span>
+                );
+              if (list.length === 0)
+                return (
+                  <span className="truncate text-muted-foreground">
+                    {placeholder}
+                  </span>
+                );
+              if (!isMultiple) return face(list[0]!);
+              return <span className="truncate">{valueText(list)}</span>;
+            }}
           </ComboboxValue>
         </BaseCombobox.Trigger>
         <ComboboxContent
@@ -315,18 +518,34 @@ export function SearchableSelect<Item>({
             aria-label={searchLabel}
             placeholder={searchPlaceholder}
           />
-          <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>
+          {/* Base UI's own polite status region: mounted for the panel's life, only its text
+              changes, and a sibling of the list (never inside the listbox). */}
+          <BaseCombobox.Status data-slot={`${slot}-status`} className="sr-only">
+            {loading ? loadingLabel : null}
+          </BaseCombobox.Status>
+          <ComboboxEmpty>{loading ? null : emptyMessage}</ComboboxEmpty>
           <ComboboxList className="p-1">
-            {(item: Item) => (
-              <ComboboxItem
-                key={itemToKey(item)}
-                value={item}
-                data-slot={itemSlot}
-              >
-                {renderItem(item)}
-              </ComboboxItem>
-            )}
+            {grouped
+              ? (group: { value: string; items: Item[] }) => (
+                  <ComboboxGroup key={group.value} items={group.items}>
+                    <ComboboxLabel>{group.value}</ComboboxLabel>
+                    <ComboboxCollection>
+                      {(item: Item) => renderOption(item)}
+                    </ComboboxCollection>
+                  </ComboboxGroup>
+                )
+              : (item: Item) => renderOption(item)}
           </ComboboxList>
+          {showFooter ? (
+            <LoadMore
+              hasMore
+              loading={loadMore?.loading}
+              error={error}
+              retryLabel={retryLabel}
+              onLoadMore={loadMore?.onLoadMore ?? onRetry ?? (() => {})}
+              className="border-t border-border p-1.5"
+            />
+          ) : null}
         </ComboboxContent>
       </Combobox>
       {showClear ? (
@@ -341,7 +560,9 @@ export function SearchableSelect<Item>({
             // DS-22: this control unmounts the moment the value clears, which would drop focus
             // to <body>; hand it to the trigger first. No announcement — the change is visible.
             trigger?.focus();
-            onValueChange?.(null);
+            onValueChange?.(
+              (isMultiple ? [] : null) as SearchableSelectValue<Item, Multiple>,
+            );
           }}
         >
           <X />

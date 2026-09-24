@@ -251,6 +251,19 @@ tooltip instead of a menu. The column header is _Actions_ for assistive tech onl
 `RowActionsMenu` (and `RowActionMenuItems`, for a host that owns its own menu) are exported from
 `data-table-parts`; Board cards and SortableList rows use the same parts.
 
+### Rows as links
+
+`getRowHref(row)` makes each row a real link: the first cell's content becomes an `<a>` (or your
+router's link through `rowLinkRender`), so Enter, a middle click and ⌘/Ctrl/Shift-clicks are the
+browser's own. A click anywhere else on the row follows the same link with its modifiers; interactive
+cells (a checkbox, a menu) keep their own behaviour. A row without an href falls back to
+`onRowClick`. `getRowLabel(row)` names each selection checkbox ("Select Ada Lovelace").
+
+<ComponentPreview
+  name="dataListRowLinks"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Sections
 
 `sections` plus `getRowSection` split the rows into collapsible sections under the one header, in
