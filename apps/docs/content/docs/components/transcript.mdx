@@ -1,0 +1,165 @@
+---
+title: Transcript
+description: A timestamped, speaker-labelled transcript of a recording that follows playback, seeks from each line, and searches with highlighted matches.
+audience: public
+registry: transcript
+status: stable
+since: 0.18.0
+a11y: labelled scroll region with a list of lines
+preview: transcript
+---
+
+## Install
+
+<InstallSteps name="transcript" />
+
+## Usage
+
+```tsx
+import {
+  Transcript,
+  TranscriptList,
+  TranscriptSearch,
+} from "@/components/ui/transcript";
+
+<Transcript
+  aria-label="Meeting transcript"
+  segments={segments}
+  speakerName={(id) => people[id].name}
+  currentTime={time}
+  onSeek={(seconds) => seekTo(seconds)}
+  className="h-96"
+>
+  <TranscriptSearch />
+  <TranscriptList />
+</Transcript>;
+```
+
+Each segment is `{ id, start, end?, speaker, text }`, with `start` and `end` in seconds and the
+segments sorted by `start`. The row playing at `currentTime` is marked current, and while the
+transcript is following it stays centred. A reader who scrolls pauses following, and "Back to
+current line" brings it back.
+
+## Scope
+
+- **Owns:** the current line, following it, pausing on a user scroll, seek buttons, search with
+  `<mark>` highlights, and the empty and loading states.
+- **Does not own:** playback or the clock. Pass `currentTime` from your player, and seek it in
+  `onSeek`.
+- **Compose with:** [`AudioPlayer`](/docs/components/audio-player) or
+  [`VideoPlayer`](/docs/components/video-player) through their `mediaRef`. Scrolling is
+  [`MessageScroller`](/docs/components/message-scroller)'s engine.
+
+## Anatomy
+
+`Transcript` is a compound component. Every exported part, with the `data-slot` it renders
+(generated from the canonical source):
+
+<Anatomy name="transcript" />
+
+## Examples
+
+### Current line and seek
+
+Each timestamp is a button named "Play from 0:15" that calls `onSeek` with the segment's start.
+Here it moves a local clock, so clicking a line makes it the current one.
+
+<ComponentPreview name="transcript" file="components/preview/transcript.tsx" />
+
+### With audio
+
+Read `currentTime` from the player's `<audio>` element on `timeupdate`, and set it in `onSeek`.
+The transcript follows the playing line until you scroll it yourself.
+
+<ComponentPreview
+  name="transcriptWithAudio"
+  file="components/preview/transcript.tsx"
+/>
+
+### Search
+
+`TranscriptSearch` wraps each match in `<mark>`. Enter and Shift+Enter, or the
+arrow buttons, move between matches. Each move scrolls the match into view,
+pauses following, and announces its position ("2 of 5"). Pass `query` and
+`onQueryChange` to control the query yourself, for example to keep it in the URL.
+
+<ComponentPreview
+  name="transcriptSearch"
+  file="components/preview/transcript.tsx"
+/>
+
+### Read-only
+
+Without `onSeek` the timestamps are plain text and no row has a button. Without `currentTime`
+no line is current.
+
+<ComponentPreview
+  name="transcriptReadOnly"
+  file="components/preview/transcript.tsx"
+/>
+
+### Loading and empty
+
+`loading` shows skeleton lines and marks the list busy. With no segments and nothing loading,
+the list shows `emptyState` ("No transcript yet" by default).
+
+<ComponentPreview
+  name="transcriptStates"
+  file="components/preview/transcript.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/transcript.tsx"
+  name="TranscriptProps"
+/>
+
+### TranscriptSearch
+
+<ApiTable
+  path="../../packages/ui/registry/ui/transcript.tsx"
+  name="TranscriptSearchProps"
+/>
+
+### TranscriptList
+
+<ApiTable
+  path="../../packages/ui/registry/ui/transcript.tsx"
+  name="TranscriptListProps"
+/>
+
+## Accessibility
+
+- The list is a scroll region named by `aria-label` and reachable with <kbd>Tab</kbd>. Its lines
+  are a `list` of `listitem`s. The current line has `aria-current="true"` and starts with a
+  visually hidden "Now playing".
+- The line is not a live region, so playback never talks over the recording. The one live region
+  announces search positions ("1 of 3", "No matches").
+- A seek button's name, "Play from 0:15", contains its visible time. Time updates never move
+  focus.
+- When "Back to current line" scrolls back, focus moves to the list so it does not fall to the
+  page.
+- Follow and search scroll smoothly, and instantly under `prefers-reduced-motion`.
+
+| Key                                                                                              | Action                                                          |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| <kbd>Tab</kbd>                                                                                   | Move to the search field, the list, and each line's seek button |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                                                              | Play from the focused line's timestamp                          |
+| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Page Up</kbd> <kbd>Page Down</kbd> <kbd>Home</kbd> <kbd>End</kbd> | Scroll the list; pauses following                               |
+| <kbd>Enter</kbd> (in search)                                                                     | Next match                                                      |
+| <kbd>Shift</kbd>+<kbd>Enter</kbd> (in search)                                                    | Previous match                                                  |
+
+<StatesTested name="transcript" />
+
+## Do / Don't
+
+<DoDont
+  do="Use Transcript for the text of a recording, with currentTime from the player and onSeek wired back to it."
+  dont="Build a recording's transcript from MessageScroller and Message — a chat thread pins to its newest message and has no current line."
+/>
+
+<DoDont
+  do="Use Timeline for a record of events, such as an activity feed or an audit trail."
+  dont="Use Transcript for events that are not speech, or announce every line as it plays."
+/>

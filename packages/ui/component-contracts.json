@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 664,
-    "components": 112,
+    "totalRegistryItems": 665,
+    "components": 113,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 4,
@@ -28,7 +28,7 @@
     "Data display": 11,
     "Content/marketing": 13,
     "Shared internals": 2,
-    "AI/chat": 7,
+    "AI/chat": 8,
     "Hooks": 11,
     "Block": 1,
     "Animated icons": 467
@@ -157,7 +157,8 @@
       "message-scroller",
       "attachment",
       "tool-call-chip",
-      "questionnaire"
+      "questionnaire",
+      "transcript"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -12377,6 +12378,210 @@
             {
               "name": "data-variant",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "transcript",
+      "registryType": "registry:ui",
+      "title": "Transcript",
+      "summary": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - marks the line playing at currentTime, follows it, pauses on a user scroll with a Back to current line button, seeks from each timestamp, and searches with highlighted, announced matches.",
+      "status": "stable",
+      "since": "0.18.0",
+      "family": "communication",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/transcript.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Transcript",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition that takes no ref: its root is the engine's provider plus a plain frame, and the parts render engine-owned elements."
+          }
+        },
+        {
+          "name": "TranscriptList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition that takes no ref: its root is the engine's provider plus a plain frame, and the parts render engine-owned elements."
+          }
+        },
+        {
+          "name": "TranscriptListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TranscriptProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TranscriptSearch",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition that takes no ref: its root is the engine's provider plus a plain frame, and the parts render engine-owned elements."
+          }
+        },
+        {
+          "name": "TranscriptSearchProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TranscriptSegment",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant axis; rows compose Item size=\"sm\" and the seek control is Button ghost/xs."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local size scale; the consumer sizes the frame, rows take Item's sm tier."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "current",
+            "following",
+            "paused",
+            "searching",
+            "no-matches",
+            "empty",
+            "loading"
+          ],
+          "evidence": "packages/ui/registry/ui/transcript.tsx + packages/ui/registry/ui/transcript.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "list-semantics",
+            "aria-current",
+            "busy",
+            "announced-search-position",
+            "label-in-name",
+            "focus-preserved",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/transcript.tsx + packages/ui/registry/ui/transcript.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "current",
+            "hover",
+            "focus",
+            "highlighted-match",
+            "current-match"
+          ],
+          "evidence": "aria-[current=true]:bg-muted on the row; mark tints bg-primary/15 and bg-primary for the current match."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink", "overflow-and-scroll"],
+        "rationale": "Rows wrap their text and truncate the speaker name on an inner span; the frame scrolls vertically inside a consumer-sized height."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": [
+          "engine smooth scroll",
+          "keyed presence motion-enter-up"
+        ],
+        "reducedMotion": {
+          "status": "observed-or-documented",
+          "rationale": "Follow and search jumps scroll with behavior auto under prefers-reduced-motion (MOT-5's rule, read through usePrefersReducedMotion); motion-enter-up collapses under the global reset."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/transcript",
+      "registryDependencies": [
+        "@vegastack/message-scroller",
+        "@vegastack/item",
+        "@vegastack/button",
+        "@vegastack/panel-search",
+        "@vegastack/use-announcer",
+        "@vegastack/skeleton",
+        "@vegastack/media-player-controls",
+        "@vegastack/use-media-query"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.4",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": ["packages/ui/registry/ui/transcript.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "transcript",
+      "dataAttributes": {
+        "Transcript": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["transcript"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TranscriptList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["transcript-list"]
+            },
+            {
+              "name": "data-state",
+              "values": ["empty", "loading"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TranscriptSearch": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["transcript-search"]
             }
           ],
           "cssVariables": []

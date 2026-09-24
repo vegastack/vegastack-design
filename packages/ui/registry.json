@@ -12024,6 +12024,40 @@
       }
     },
     {
+      "name": "transcript",
+      "type": "registry:ui",
+      "title": "Transcript",
+      "description": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - marks the line playing at currentTime, follows it, pauses on a user scroll with a Back to current line button, seeks from each timestamp, and searches with highlighted, announced matches.",
+      "categories": ["communication"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.4",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": [
+        "@vegastack/message-scroller",
+        "@vegastack/item",
+        "@vegastack/button",
+        "@vegastack/panel-search",
+        "@vegastack/use-announcer",
+        "@vegastack/skeleton",
+        "@vegastack/media-player-controls",
+        "@vegastack/use-media-query"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/transcript.tsx",
+          "type": "registry:ui",
+          "target": "@ui/transcript.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
+        "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
+        "version": "0.17.1"
+      }
+    },
+    {
       "name": "native-select",
       "type": "registry:ui",
       "title": "Native Select",
