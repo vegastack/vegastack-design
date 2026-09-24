@@ -98,10 +98,24 @@ export function proseProblems(text, { skipCommitShas = false } = {}) {
   for (const path of docsLinks(text))
     if (!docsPageExists(path))
       problems.push(`docs link resolves to no content page: ${path}`);
+  for (const expr of bareBraces(text))
+    problems.push(
+      `bare ${expr} outside code: the docs changelog is MDX, so it evaluates as JavaScript and ` +
+        `breaks the docs build; wrap it in backticks`,
+    );
   return problems;
 }
 
+/** `{…}` in prose (outside inline code spans), which MDX would evaluate as an expression. */
+export function bareBraces(text) {
+  return [...text.replace(/`[^`]*`/g, "").matchAll(/\{[^}\n]*\}/g)].map(
+    (m) => m[0],
+  );
+}
+
 function selfTest() {
+  assert.deepEqual(bareBraces('named "Move {label}" now'), ["{label}"]);
+  assert.deepEqual(bareBraces("named `Move {label}` and `{ a, b }`"), []);
   assert.deepEqual(
     docsLinks("See [API](/docs/components/button#api-reference)."),
     ["/docs/components/button"],
