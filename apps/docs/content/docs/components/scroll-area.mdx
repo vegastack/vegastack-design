@@ -128,6 +128,11 @@ and `tabIndex` are forwarded to the viewport rather than the root. `ScrollBar` a
 accepts Base UI's `Scrollbar` props, and its `orientation` is `"vertical"` by default and takes
 `"horizontal"` for the other axis.
 
+| Prop          | Component    | Type                         | Default      | Description                      |
+| ------------- | ------------ | ---------------------------- | ------------ | -------------------------------- |
+| `viewportRef` | `ScrollArea` | `React.Ref<HTMLDivElement>`  | —            | A ref to the scrolling viewport. |
+| `orientation` | `ScrollBar`  | `"vertical" \| "horizontal"` | `"vertical"` | The axis the scrollbar tracks.   |
+
 ## Accessibility
 
 - The viewport is a tab stop exactly when it can scroll (A11Y-6). Base UI sets

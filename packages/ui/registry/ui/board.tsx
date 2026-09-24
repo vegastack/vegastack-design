@@ -1,4 +1,4 @@
-// @vegastack board@0.19.0 sha256-Gi9LXmFZ7+kdxS35yvQ76f4mmkoixR1T5igtOUUxpcI=
+// @vegastack board@0.19.0 sha256-kFhb6vX77HWRdHdFgoBPesE/gD/Lj6lV1rg3zOPvz7Q=
 
 "use client";
 
@@ -37,6 +37,10 @@ import {
   type DragReorderAnnouncements,
   type DragReorderMove,
 } from "@/components/ui/use-drag-reorder";
+
+// Bundlers replace `process.env.NODE_ENV` at build time; declared here so consumers without
+// @types/node still type-check the dev-only warning below.
+declare const process: { env: { NODE_ENV?: string } };
 
 /* ---
 `Board` owns column layout, the drag/move model, the keyboard-and-menu equivalent, and
