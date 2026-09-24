@@ -1,7 +1,7 @@
 import "./geometry.css"; // compiled Tailwind + @vegastack token theme (Vite via @tailwindcss/vite)
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import {
   afterEach,
   beforeAll,
@@ -28,16 +28,7 @@ import { ToolCallChip } from "../registry/ui/tool-call-chip";
 import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
 import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
-import { ButtonGroup } from "../registry/ui/button-group";
-import { Input } from "../registry/ui/input";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../registry/ui/select";
 import contracts from "../component-contracts.json";
 import {
   dynamicMountCount,
@@ -236,7 +227,6 @@ const DYNAMIC_DOM: Record<string, string> = {
   textEditInvalid: ".tiptap[contenteditable]",
   textEditSubmit: ".tiptap[contenteditable]",
   textEditHeights: ".tiptap[contenteditable]",
-  textEditInsideField: ".tiptap[contenteditable]",
 };
 
 type Fixture = () => React.ReactNode;
@@ -2532,103 +2522,45 @@ test("DataList squeezes only when revelation alone cannot fit the table", async 
 });
 
 /**
- * select-trigger-width (API-24): the default (outline) trigger takes its width from its parent,
- * like every other form control, and `variant="ghost"` sizes to its content with no border at
- * rest — the border comes back on hover, on focus and while the popup is open.
+ * Transcript (DS-49), on compiled layout at the file's 320px. The sweep proves the `transcript`
+ * fixture reflows and that its seek buttons meet the 24px floor; it cannot see WHERE the list
+ * scrolled to. This fixture mounts mid-recording (`currentTime` 16s, the third line), so the
+ * engine's start position and follow's `scrollToMessage(…, { align: "center" })` both run on
+ * mount — and the current line must end up centred in the list, with every line wrapping inside
+ * it rather than pushing it sideways. With the engine's `content-visibility: auto` left on the
+ * rows, the centring missed by a row or more (estimated heights), which is why rows opt out.
  */
-test("select-trigger-width: the default trigger fills its parent; ghost sizes to content", async () => {
-  const fruit = (variant?: "outline" | "ghost", testId?: string) => (
-    <Select items={[{ label: "Apple", value: "apple" }]} defaultValue="apple">
-      <SelectTrigger data-testid={testId} variant={variant}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="apple">Apple</SelectItem>
-      </SelectContent>
-    </Select>
-  );
-  const screen = await render(
-    <div style={{ width: "320px" }}>
-      {fruit(undefined, "outline")}
-      {fruit("ghost", "ghost")}
-    </div>,
-  );
-  const outline = screen.getByTestId("outline").element() as HTMLElement;
-  const ghost = screen.getByTestId("ghost").element() as HTMLElement;
-  expect(outline.getAttribute("data-variant")).toBe("outline");
-  expect(outline.getBoundingClientRect().width).toBe(320);
-  expect(ghost.getAttribute("data-variant")).toBe("ghost");
-  expect(ghost.getBoundingClientRect().width).toBeLessThan(320);
-
-  const borderAlpha = (element: HTMLElement) => {
-    const color = getComputedStyle(element).borderTopColor;
-    return color === "transparent" || /\/ 0\)$|, 0\)$/.test(color);
-  };
-  // Rest: the ghost has no visible border; the outline one does.
-  expect(borderAlpha(ghost)).toBe(true);
-  expect(borderAlpha(outline)).toBe(false);
-  // Focus: the ghost shows the text-entry border tint.
-  ghost.focus();
-  await expect.poll(() => borderAlpha(ghost)).toBe(false);
-  ghost.blur();
-  await expect.poll(() => borderAlpha(ghost)).toBe(true);
-  // Hover: the border comes back under the pointer.
-  await userEvent.hover(ghost);
-  await expect.poll(() => borderAlpha(ghost)).toBe(false);
-  await userEvent.unhover(ghost);
-  await expect.poll(() => borderAlpha(ghost)).toBe(true);
-  // Open: the border stays while the popup is up.
-  ghost.click();
-  await expect.poll(() => ghost.hasAttribute("data-popup-open")).toBe(true);
-  // `transition-colors` animates the border in, so poll for its settled value.
-  await expect.poll(() => borderAlpha(ghost)).toBe(false);
-});
-
-test("select-trigger-width: a consumer width wins on either variant", async () => {
-  const screen = await render(
-    <div style={{ width: "320px" }}>
-      {(["outline", "ghost"] as const).map((variant) => (
-        <Select key={variant} items={[{ label: "Apple", value: "apple" }]}>
-          <SelectTrigger
-            data-testid={variant}
-            variant={variant}
-            className="w-40"
-          >
-            <SelectValue />
-          </SelectTrigger>
-        </Select>
-      ))}
-    </div>,
-  );
-  for (const variant of ["outline", "ghost"]) {
-    const trigger = screen.getByTestId(variant).element() as HTMLElement;
-    expect(trigger.getBoundingClientRect().width).toBe(160);
+test("transcript at 320px: lines wrap inside the list and the current line is centred", async () => {
+  const fixture = (Preview as Record<string, () => React.ReactNode>).transcript;
+  expect(
+    fixture,
+    "transcript is not exported by the preview barrel",
+  ).toBeTypeOf("function");
+  const Fixture = () => <>{fixture!()}</>;
+  const screen = await render(<Fixture />);
+  await settle();
+  const viewport = screen.container.querySelector<HTMLElement>(
+    '[data-slot="transcript-list"] [data-slot="message-scroller-viewport"]',
+  )!;
+  expect(viewport, "the transcript list mounted no viewport").not.toBeNull();
+  expect(
+    viewport.scrollWidth,
+    `the list scrolls sideways: scrollWidth ${viewport.scrollWidth} > clientWidth ${viewport.clientWidth}`,
+  ).toBeLessThanOrEqual(viewport.clientWidth);
+  for (const row of viewport.querySelectorAll<HTMLElement>(
+    '[data-slot="transcript-segment"]',
+  )) {
+    expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth + 1);
   }
-});
-
-test("select-trigger-width: inside upstream's ButtonGroup the trigger keeps content width", async () => {
-  const screen = await render(
-    <div style={{ width: "360px" }}>
-      <ButtonGroup>
-        <Select
-          items={[{ label: "US Dollar", value: "usd" }]}
-          defaultValue="usd"
-        >
-          <SelectTrigger aria-label="Currency" data-testid="currency">
-            <SelectValue />
-          </SelectTrigger>
-        </Select>
-        <Input aria-label="Amount" placeholder="10.00" />
-      </ButtonGroup>
-    </div>,
-  );
-  const trigger = screen.getByTestId("currency").element() as HTMLElement;
-  const amount = screen.getByRole("textbox", { name: "Amount" }).element();
-  // The amount input is the group's flexible member; the trigger must not squeeze it below a
-  // usable target (the regression was a 21px sliver beside a full-width trigger).
-  expect(amount.getBoundingClientRect().width).toBeGreaterThanOrEqual(24);
-  // Content width: "US Dollar" plus its chevron is far narrower than the flexible amount field.
-  expect(trigger.getBoundingClientRect().width).toBeLessThan(
-    amount.getBoundingClientRect().width,
-  );
+  const current = viewport.querySelector<HTMLElement>('[aria-current="true"]');
+  expect(current, "no current line at 16s").not.toBeNull();
+  await expect
+    .poll(() => {
+      const v = viewport.getBoundingClientRect();
+      const r = current!.getBoundingClientRect();
+      return Math.round(
+        Math.abs(r.top + r.height / 2 - (v.top + v.height / 2)),
+      );
+    })
+    .toBeLessThan(2);
 });

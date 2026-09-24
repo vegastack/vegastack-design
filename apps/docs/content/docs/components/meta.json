@@ -120,6 +120,7 @@
     "attachment",
     "tool-call-chip",
     "message-scroller",
+    "transcript",
     "questionnaire"
   ]
 }

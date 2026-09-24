@@ -98,6 +98,7 @@ export * from "./message";
 export * from "./bubble";
 export * from "./attachment";
 export * from "./message-scroller";
+export * from "./transcript";
 export * from "./questionnaire";
 export * from "./item";
 export * from "./chart";
