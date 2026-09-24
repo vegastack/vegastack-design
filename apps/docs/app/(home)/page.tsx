@@ -12,7 +12,7 @@ import { Icon } from "@vegastack/design/icons";
 import { HomeProofStatement } from "@/components/home-proof-statement";
 import { HomeSectionHeader } from "@/components/home-section-header";
 import { HomeSystemTrace } from "@/components/home-system-trace";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Terminal } from "@/components/ui/terminal";
 import {
   HOME_ANIMATED_ICON_COUNT,
@@ -210,24 +210,26 @@ export default function HomePage() {
               </p>
             </div>
             <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
-              <Button
-                size="lg"
-                className="w-full sm:w-auto"
-                nativeButton={false}
-                render={<Link href="/docs" />}
+              <Link
+                href="/docs"
+                className={buttonVariants({
+                  size: "lg",
+                  className: "w-full sm:w-auto",
+                })}
               >
                 Explore the system
                 <Icon as={ArrowRight} size="sm" />
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full sm:w-auto"
-                nativeButton={false}
-                render={<Link href="#system-trace" />}
+              </Link>
+              <Link
+                href="#system-trace"
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "lg",
+                  className: "w-full sm:w-auto",
+                })}
               >
                 See how it works
-              </Button>
+              </Link>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
               {["Tailwind v4", "Base UI", "React 19"].map((item) => (
@@ -341,14 +343,13 @@ export default function HomePage() {
                 Every foundation resolves to a token or documented behavior.
                 Theme the values once; component markup remains stable.
               </p>
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href="/docs/foundations/design-principles" />}
+              <Link
+                href="/docs/foundations/design-principles"
+                className={buttonVariants({ variant: "outline" })}
               >
                 Read the principles
                 <Icon as={ArrowRight} size="sm" />
-              </Button>
+              </Link>
             </div>
           </div>
           <div className="divide-y divide-border border-y border-border">
@@ -521,22 +522,19 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row">
-            <Button
-              size="lg"
-              nativeButton={false}
-              render={<Link href="/docs/guides/quickstart" />}
+            <Link
+              href="/docs/guides/quickstart"
+              className={buttonVariants({ size: "lg" })}
             >
               Open the quickstart
               <Icon as={ArrowRight} size="sm" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              nativeButton={false}
-              render={<Link href="/docs/guides/registry-auth" />}
+            </Link>
+            <Link
+              href="/docs/guides/registry-auth"
+              className={buttonVariants({ variant: "outline", size: "lg" })}
             >
               Configure registry access
-            </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -639,15 +637,16 @@ export default function HomePage() {
               Install the foundation, follow the implementation guide, and start
               composing production-ready interfaces.
             </p>
-            <Button
-              size="lg"
-              className="w-full sm:w-auto"
-              nativeButton={false}
-              render={<Link href="/docs/guides/quickstart" />}
+            <Link
+              href="/docs/guides/quickstart"
+              className={buttonVariants({
+                size: "lg",
+                className: "w-full sm:w-auto",
+              })}
             >
               Read the quickstart
               <Icon as={ArrowRight} size="sm" />
-            </Button>
+            </Link>
           </div>
         </div>
       </section>

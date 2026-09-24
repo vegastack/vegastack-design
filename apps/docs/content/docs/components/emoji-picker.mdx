@@ -32,8 +32,9 @@ import { EmojiPicker } from "@/components/ui/emoji-picker";
 `panel-search` row — a leading glyph and a bare text field, because a bordered input inside a
 bordered popup would nest two borders — and a scrollable grid of icon
 [`Button`](/docs/components/button)s. That row is a
-[shared internal](/docs/guides/components) this picker, `SearchableSelect` and `ShortcutOverlay`
-all install; it arrives automatically and is documented there.
+[shared internal](/docs/guides/components) this picker and `ShortcutOverlay` install; it arrives
+automatically and is documented there. `SearchableSelect` draws its own search field and does not
+install it.
 Selecting an emoji fires `onValueChange(emoji)` with the character and (by default) closes the panel.
 
 The emoji data is a **curated, embedded set** (`EMOJI`) — a few hundred of the most common emoji

@@ -1,6 +1,6 @@
 ---
 title: Empty states
-description: The eight-tier empty-state system — when a surface has nothing to show, which tier fits, and the shared monoline illustration language.
+description: The ten-tier empty-state system — when a surface has nothing to show, found nothing, or could not load, which tier fits, and the shared icon language.
 audience: public
 ---
 
@@ -9,18 +9,66 @@ An empty state is a design surface, not an accident. VegaStack ships a graded sy
 single blank field. Pick the **lowest tier that carries the meaning**; reaching for a big
 illustration where a faint phrase would do is the most common mistake.
 
-## The eight tiers
+## The ten tiers
 
-| #   | Tier                | Component                                     | Use it for                                              |
-| --- | ------------------- | --------------------------------------------- | ------------------------------------------------------- |
-| 1   | **Page**            | `Empty` + `EmptyMedia variant="icon"` + a CTA | a whole view with no records ("No companies yet")       |
-| 2   | **Panel**           | `Empty` inside a `Card`                       | a card/pane with no content (a sidebar list, a widget)  |
-| 3   | **Inline value**    | a muted placeholder span                      | a single blank value slot ("No value", "Set a value…")  |
-| 4   | **Stat**            | `StatEmpty`                                   | a metric with nothing to report ("No connection")       |
-| 5   | **Well**            | `Empty className="border"`                    | a drop target / favourites well (dashed border)         |
-| 6   | **Blocked / error** | `Empty` + an icon in `text-destructive-text`  | a state the user must resolve ("No mailbox configured") |
-| 7   | **Not found**       | `Empty` + a `SearchX` icon                    | a thing that doesn't exist (404, deleted record)        |
-| 8   | **Loading→empty**   | `Skeleton` → tier 1/2                         | the settled empty after a load resolves to nothing      |
+| #   | Tier                | Component                                                               | Use it for                                                                  |
+| --- | ------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| 1   | **Page**            | `Empty` + `EmptyMedia variant="icon"` + a CTA                           | a whole view with no records ("No companies yet")                           |
+| 2   | **Panel**           | `Empty` inside a `Card`                                                 | a card/pane with no content (a sidebar list, a widget)                      |
+| 3   | **Inline value**    | a muted placeholder span                                                | a single blank value slot ("No value", "Set a value…")                      |
+| 4   | **Stat**            | `StatEmpty`                                                             | a metric with nothing to report ("No connection")                           |
+| 5   | **Well**            | `Empty className="border"` (dashed)                                     | a favourites well — a drop target for files is `Dropzone`, not this tier    |
+| 6   | **Blocked / error** | `Empty` + an icon in `text-destructive-text`                            | a state the user must resolve ("No mailbox configured")                     |
+| 7   | **Not found**       | `Empty` + a `SearchX` icon                                              | a thing that doesn't exist (404, deleted record)                            |
+| 8   | **Loading→empty**   | `Skeleton` → tier 1/2                                                   | the settled empty after a load resolves to nothing                          |
+| 9   | **No matches**      | `Empty` + a `SearchX` icon + a "Clear filters" action                   | a search or filter that matched nothing, while the collection itself exists |
+| 10  | **Couldn't load**   | `Empty role="alert"` + an icon in `text-destructive-text` + "Try again" | a load that failed ("Couldn't load tasks")                                  |
+
+**Blocked or failed.** Tier 6 is a state the user must fix (configure, connect, get permission);
+tier 10 is a load that failed and may work on a retry. Either one carries `role="alert"` when it
+_replaces_ content after a failure, so the failure is announced; a blocked state present from first
+paint stays silent.
+
+**No matches is not empty.** Tier 1 says "there is nothing yet, create one"; tier 9 says "there is
+something, but not for this query", so its one action clears the query rather than creating a record:
+
+```tsx
+<Empty>
+  <EmptyHeader>
+    <EmptyMedia variant="icon">
+      <SearchXIcon className="text-muted-foreground" />
+    </EmptyMedia>
+    <EmptyTitle>No matches</EmptyTitle>
+    <EmptyDescription>
+      Try a different search or clear the filters.
+    </EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent>
+    <Button variant="outline" onClick={clearFilters}>
+      Clear filters
+    </Button>
+  </EmptyContent>
+</Empty>
+```
+
+**Couldn't load** keeps what the user typed and offers the retry in place:
+
+```tsx
+<Empty role="alert">
+  <EmptyHeader>
+    <EmptyMedia variant="icon">
+      <CircleAlertIcon className="text-destructive-text" />
+    </EmptyMedia>
+    <EmptyTitle>Couldn't load tasks</EmptyTitle>
+    <EmptyDescription>Check your connection, then try again.</EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent>
+    <Button variant="outline" onClick={retry}>
+      Try again
+    </Button>
+  </EmptyContent>
+</Empty>
+```
 
 ## One drawing language
 
@@ -57,3 +105,6 @@ asset set:
 - **One CTA.** An empty state proposes the single next action — not a menu.
 - **Blocked ≠ empty.** If the user must do something to unblock (configure, connect,
   permission), use the error tier in the destructive register — not the neutral one.
+- **Default copy.** A retry is "Try again". A loading line is `Loading {noun}…`, with the ellipsis
+  character. The end of a list is "End of list". A one-line state has no full stop; a sentence
+  does. Every default uses `EmptyMedia variant="icon"`.

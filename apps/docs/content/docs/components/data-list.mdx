@@ -381,25 +381,27 @@ render functions keep working unchanged.
   name="DataListColumn"
 />
 
-### Wrapping and the mono face
+### Wrapping, numbers and the mono face
 
 `DataList` cells wrap by default: a long value breaks inside its own column instead of forcing the
 whole table to scroll. Upstream's `TableCell` is `whitespace-nowrap`, so `DataList` spells
 `whitespace-normal` out per cell rather than relying on an inherited default. Two column shapes are
 unreadable when broken, so they opt back out automatically:
 
-- `align: "end"` — the numeric convention.
-- `mono: true` — renders values in the mono numeral face (`font-mono text-sm tabular-nums`) so
-  figures line up down the column, and pins them to one line.
+- `align: "end"` — the numeric convention. Give a number column `className: "tabular-nums"` too,
+  so its digits line up in the regular font.
+- `mono: true` — for codes and IDs only (an order reference, a ticket key): renders values in the
+  mono face (`font-mono text-sm tabular-nums`) and pins them to one line. A count, a date or an
+  amount is a number, not an identifier — use `align: "end"` with `tabular-nums` instead.
 
 `nowrap` overrides the inference in either direction: `nowrap: true` pins a prose column, and
 `nowrap: false` lets an end-aligned column wrap.
 
 ```tsx
 const columns: DataListColumn<Invoice>[] = [
-  { key: "ref", header: "Ref", mono: true }, // one line, mono numerals
+  { key: "ref", header: "Ref", mono: true }, // an identifier: one line, mono
   { key: "subject", header: "Subject" }, // wraps
-  { key: "amount", header: "Amount", align: "end" }, // one line
+  { key: "amount", header: "Amount", align: "end", className: "tabular-nums" }, // a number: one line
   { key: "note", header: "Note", align: "end", nowrap: false }, // end-aligned but wrapping
 ];
 ```

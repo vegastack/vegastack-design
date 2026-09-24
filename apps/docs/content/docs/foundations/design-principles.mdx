@@ -36,7 +36,8 @@ marker role. Product controls stay neutral unless color carries one of those exp
 
 ## Size does hierarchy
 
-Headings, body, and prose are all **Geist**; code and data are **Geist Mono**. Hierarchy comes
+Headings, body, prose and numbers are all **Geist** (numbers with `tabular-nums`); code and
+identifiers are **Geist Mono**. Hierarchy comes
 from **size, weight and color**, on Tailwind's stock scale — `text-sm` is 14px, `text-base` is 16px,
 and there are no named role utilities layered over them. What _is_ layered on is optical: every step
 above `text-base` carries Geist's own line-height and negative letter-spacing, declared once in the
@@ -45,7 +46,8 @@ theme, so a heading is correctly spaced without anyone reaching for `tracking-*`
 
 <TypeScaleSizes />
 
-Use `font-sans` for everything textual and `font-mono` for numbers, currency and code; the serif
+Use `font-sans` for everything textual, with `tabular-nums` for numbers and currency, and `font-mono`
+for code and identifiers; the serif
 face is a rationed display accent (emphasis words, pull-quotes), never running text.
 
 <DoDont

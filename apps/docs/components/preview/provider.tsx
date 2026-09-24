@@ -1,9 +1,17 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Moon, Sun } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
@@ -18,7 +26,7 @@ import { toast } from "@/components/ui/toast";
 export function providerDemo(): ReactNode {
   return (
     <Wrapper>
-      <ThemeToggleDemo />
+      <ThemeMenuDemo />
       <Button
         variant="outline"
         onClick={() =>
@@ -31,18 +39,29 @@ export function providerDemo(): ReactNode {
   );
 }
 
-function ThemeToggleDemo() {
-  const { resolvedTheme, setTheme } = useVegaStackTheme();
-  const isDark = resolvedTheme === "dark";
+// Theme is a preference, so it is chosen from a menu (in an app, the user menu) as a
+// Light / Dark / System radio group bound to `theme` — never a local toggle button.
+function ThemeMenuDemo() {
+  const { theme, setTheme } = useVegaStackTheme();
   return (
-    <Button
-      variant="outline"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-    >
-      {isDark ? <Sun /> : <Moon />}
-      {isDark ? "Light mode" : "Dark mode"}
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button variant="outline" />}>
+        Theme
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-40">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Theme</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            value={theme ?? "system"}
+            onValueChange={(value) => setTheme(value)}
+          >
+            <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

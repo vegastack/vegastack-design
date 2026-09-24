@@ -174,6 +174,9 @@ Contract for every new animated element:
 
 ## 3. Naming and API canon
 
+Before adding a prop, part, component or block to one that is ours, run the checklist and the
+decision tree in [references/conventions.md](references/conventions.md).
+
 - **Flat exports only** — no dotted sub-component namespaces. Compound parts are separate named
   exports (`AlertTitle`, `DialogTrigger`, `EmptyHeader`, `ItemMedia`).
 - **React 19 ref-as-prop, never `React.forwardRef`** (banned by the `forward-ref` AST rule). The four

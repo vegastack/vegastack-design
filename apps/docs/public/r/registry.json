@@ -380,9 +380,9 @@
       ],
       "meta": {
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
-        "whenNotToUse": "Anything clickable — use a Button; a Badge is a non-interactive label.",
+        "whenNotToUse": "An action — use a Button. A Badge is a label; it can be a link through render, but never a control.",
         "version": "0.17.0",
-        "integrity": "sha256-QrdGk13fjwVznN28LJNz1xdBkhma0ulBtaAF62eEsoI="
+        "integrity": "sha256-hO07lkStDtSeDfWrsV1e+SKre5MwSCTzfuR8TV9pZXA="
       }
     },
     {
@@ -507,9 +507,9 @@
       ],
       "meta": {
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
-        "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
+        "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.17.0",
-        "integrity": "sha256-euR+FUtpehwhtOr5VwMinE7DPxKMLMNQ2visudiR79w="
+        "integrity": "sha256-b3YL4MJdjpvomMti9jlGic/QS9BLFDOTxpOjluGSTdU="
       }
     },
     {
@@ -693,7 +693,7 @@
       "name": "chip",
       "type": "registry:ui",
       "title": "Chip",
-      "description": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.",
+      "description": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag and FilterChip; ComboboxChip is Base UI's own chip, not this primitive.",
       "categories": [
         "display"
       ],
@@ -717,14 +717,14 @@
         "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
         "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
         "version": "0.17.0",
-        "integrity": "sha256-MnTh1VRV9LoWH1DbMr2hRtthe+9V1kkD6veU3fuHdvg="
+        "integrity": "sha256-mjd0SwkAZJA/e00ms/bUrOZjoiJ4cwy9WPqyzADqNVQ="
       }
     },
     {
       "name": "chip-input",
       "type": "registry:ui",
       "title": "Chip Input",
-      "description": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
+      "description": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. InputGroup field chrome + real Tag chips.",
       "categories": [
         "form"
       ],
@@ -748,7 +748,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.17.0",
-        "integrity": "sha256-muNBITWGdzulsgHceZxLtz/uq0AW+gTtzaPqSck2Fx8="
+        "integrity": "sha256-KB4Xf2ZEycF7ImYWVxzboP0UHgPaq1gnXnSjc1fYPNs="
       }
     },
     {
@@ -898,10 +898,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
-        "whenNotToUse": "A simple form select (Select), or a small static action menu (DropdownMenu).",
+        "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to.",
+        "whenNotToUse": "Picking a form value — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.17.0",
-        "integrity": "sha256-v6QSUD3BhNq+k2UBiyfw7YIEp8oJ2lfG8xQGfcPenRI="
+        "integrity": "sha256-7Ae+4WxYOSCZ65QJOK94S2fKI/UhV5y9+0GTFW4HMM8="
       }
     },
     {
@@ -1371,7 +1371,7 @@
       "name": "emoji-picker",
       "type": "registry:ui",
       "title": "Emoji Picker",
-      "description": "A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).",
+      "description": "A popover with a searchable, category-grouped grid of emoji that returns the selected character via onValueChange (curated set, not full Unicode).",
       "categories": [
         "form"
       ],
@@ -1397,7 +1397,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.17.0",
-        "integrity": "sha256-nkVCGoVi/yEXlXN9wES3cMeiWZGQeolLcJTnQaH+E8M="
+        "integrity": "sha256-dAq29L3vNQ2RPP9B/5ertNW1BUTzHjiHrB9GSJEpSyY="
       }
     },
     {
@@ -1526,7 +1526,7 @@
       "name": "filter-bar-managed",
       "type": "registry:ui",
       "title": "Filter Builder",
-      "description": "The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "description": "The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
       "categories": [
         "data"
       ],
@@ -1552,7 +1552,7 @@
         "whenToUse": "Structured, saveable filters with nesting — build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.17.0",
-        "integrity": "sha256-ouwksmH5numwjOHysIIw8ZK/PptMeAAet9uMtCiN10k="
+        "integrity": "sha256-o1VRcPS7Gbhn7md6zkEGd9J6W/orZO8lg2Pi/IxyfWI="
       }
     },
     {
@@ -14879,10 +14879,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Label any form control — pair via htmlFor/id or by wrapping. Use required for mandatory fields.",
+        "whenToUse": "Label any form control — pair via htmlFor/id or by wrapping. Mark a mandatory field on the control itself (required, aria-required) and say so in the label text.",
         "whenNotToUse": "As a heading, or when you need a full field layout — use Field.",
         "version": "0.17.0",
-        "integrity": "sha256-vjcDuA1mmLsEP+n+GQoHHlhhFkcsU2qAdACx/hpgpuo="
+        "integrity": "sha256-dde6whESTobos2i4n/AQQP4jslA7/qM+SqxwMPkbN7c="
       }
     },
     {
@@ -15041,7 +15041,7 @@
       "name": "message-scroller",
       "type": "registry:ui",
       "title": "Message Scroller",
-      "description": "A virtualised, auto-scrolling conversation viewport - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.",
+      "description": "An auto-scrolling conversation viewport (not virtualised) - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.",
       "categories": [
         "communication"
       ],
@@ -15063,10 +15063,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
+        "whenToUse": "A live chat/AI thread that must auto-scroll, keep its place when older messages load, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.17.0",
-        "integrity": "sha256-se/7r6AxfuPtfBUD/IUBIcKWpor175A+j29S02z2fDs="
+        "integrity": "sha256-7axyi3BjEZVfEthGoo1XNsM92UeiaUm+qZNQcnI3+NI="
       }
     },
     {
@@ -15417,10 +15417,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "2–5 mutually-exclusive choices all visible at once.",
-        "whenNotToUse": "Many options (Select) or non-exclusive multi-select (Checkboxes).",
+        "whenToUse": "A form value from 2–5 mutually-exclusive choices, all visible at once.",
+        "whenNotToUse": "An immediate view or scope switch over the same content (ToggleGroup), many options (Select), or non-exclusive multi-select (Checkboxes).",
         "version": "0.17.0",
-        "integrity": "sha256-aBQwYWFCERHy8RgBIk3I1IIY8JEjMngyrEAnDIoHyac="
+        "integrity": "sha256-X27i5BFROtFuiLaZc/w+iDVibahohatJQuPtDoli5OE="
       }
     },
     {
@@ -15656,10 +15656,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
-        "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
+        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select.",
+        "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.17.0",
-        "integrity": "sha256-HFHNZ7+uWBTvXrbYoR7USaGcume3bP/pu/OrmerIktw="
+        "integrity": "sha256-9cifYahyva+asvifeKOTcxJP970u2LeqZepaoZbGQPI="
       }
     },
     {
@@ -16397,10 +16397,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Related toggle buttons sharing one selection — alignment, or multi-select formatting.",
-        "whenNotToUse": "Navigation between views (Tabs) or a single on/off control (Toggle/Switch).",
+        "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) that keeps one item pressed, or related toggle buttons such as formatting.",
+        "whenNotToUse": "A form value (RadioGroup), swapping page regions (Tabs), moving between URLs (links), or a single on/off control (Toggle/Switch).",
         "version": "0.17.0",
-        "integrity": "sha256-5nCykj0/DLK+26oxgpkbdUt7ZZuSYKMcXbyfX1fF3TA="
+        "integrity": "sha256-J6EatUugcPNKL3GLI0vdvAmjFaNvDXgWahhxVURpDyU="
       }
     },
     {

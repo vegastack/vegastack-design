@@ -631,8 +631,8 @@ const argv = process.argv.slice(2);
 if (argv.includes("--self-test")) {
   process.exit(selfTest());
 } else if (argv.includes("--sync-decisions")) {
-  // Regenerate the committed machine register from the prose one. Only possible where the plan
-  // directory exists (it is untracked by MK's instruction), which is why the JSON is committed.
+  // Regenerate the committed machine register from the prose one. The prose register is tracked
+  // in git; the gates read the JSON so that none of them parses prose.
   const source = join(ROOT, "docs/plans/2026-09-18-shadcn-reset/decisions.md");
   if (!existsSync(source)) {
     console.error(

@@ -326,7 +326,7 @@
       ],
       "meta": {
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
-        "whenNotToUse": "Anything clickable — use a Button; a Badge is a non-interactive label.",
+        "whenNotToUse": "An action — use a Button. A Badge is a label; it can be a link through render, but never a control.",
         "version": "0.17.0"
       }
     },
@@ -439,7 +439,7 @@
       ],
       "meta": {
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
-        "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
+        "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.17.0"
       }
     },
@@ -600,7 +600,7 @@
       "name": "chip",
       "type": "registry:ui",
       "title": "Chip",
-      "description": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.",
+      "description": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag and FilterChip; ComboboxChip is Base UI's own chip, not this primitive.",
       "categories": ["display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -626,7 +626,7 @@
       "name": "chip-input",
       "type": "registry:ui",
       "title": "Chip Input",
-      "description": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
+      "description": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. InputGroup field chrome + real Tag chips.",
       "categories": ["form"],
       "dependencies": [
         "@vegastack/design@^0.7.3",
@@ -778,8 +778,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
-        "whenNotToUse": "A simple form select (Select), or a small static action menu (DropdownMenu).",
+        "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to.",
+        "whenNotToUse": "Picking a form value — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.17.0"
       }
     },
@@ -1196,7 +1196,7 @@
       "name": "emoji-picker",
       "type": "registry:ui",
       "title": "Emoji Picker",
-      "description": "A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).",
+      "description": "A popover with a searchable, category-grouped grid of emoji that returns the selected character via onValueChange (curated set, not full Unicode).",
       "categories": ["form"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -1333,7 +1333,7 @@
       "name": "filter-bar-managed",
       "type": "registry:ui",
       "title": "Filter Builder",
-      "description": "The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "description": "The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -11853,7 +11853,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Label any form control — pair via htmlFor/id or by wrapping. Use required for mandatory fields.",
+        "whenToUse": "Label any form control — pair via htmlFor/id or by wrapping. Mark a mandatory field on the control itself (required, aria-required) and say so in the label text.",
         "whenNotToUse": "As a heading, or when you need a full field layout — use Field.",
         "version": "0.17.0"
       }
@@ -11994,7 +11994,7 @@
       "name": "message-scroller",
       "type": "registry:ui",
       "title": "Message Scroller",
-      "description": "A virtualised, auto-scrolling conversation viewport - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.",
+      "description": "An auto-scrolling conversation viewport (not virtualised) - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.",
       "categories": ["communication"],
       "dependencies": [
         "@shadcn/react@^0.3.1",
@@ -12014,7 +12014,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
+        "whenToUse": "A live chat/AI thread that must auto-scroll, keep its place when older messages load, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.17.0"
       }
@@ -12323,8 +12323,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "2–5 mutually-exclusive choices all visible at once.",
-        "whenNotToUse": "Many options (Select) or non-exclusive multi-select (Checkboxes).",
+        "whenToUse": "A form value from 2–5 mutually-exclusive choices, all visible at once.",
+        "whenNotToUse": "An immediate view or scope switch over the same content (ToggleGroup), many options (Select), or non-exclusive multi-select (Checkboxes).",
         "version": "0.17.0"
       }
     },
@@ -12531,8 +12531,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
-        "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
+        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select.",
+        "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.17.0"
       }
     },
@@ -13180,8 +13180,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Related toggle buttons sharing one selection — alignment, or multi-select formatting.",
-        "whenNotToUse": "Navigation between views (Tabs) or a single on/off control (Toggle/Switch).",
+        "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) that keeps one item pressed, or related toggle buttons such as formatting.",
+        "whenNotToUse": "A form value (RadioGroup), swapping page regions (Tabs), moving between URLs (links), or a single on/off control (Toggle/Switch).",
         "version": "0.17.0"
       }
     },

@@ -872,7 +872,7 @@ Four status families written in upstream's own `destructive` shape (COL-12); a s
 status, not sentiment — a favourite star is `foreground`, not `warning` (COL-18); semantic tokens
 only, no authored hex and no numbered Tailwind palette (COL-20); `color-scheme` set per theme
 (COL-22); a toast's first text line carries the default ink even when Base UI renders no title
-(COL-23). Geist Sans and Geist Mono with tabular figures on code and data (TYP-10); the heading tier
+(COL-23). Geist Sans and Geist Mono (TYP-10): numbers — counts, dates, amounts, quantities — are Geist Sans with tabular digits (`tabular-nums`), and Geist Mono is for code and identifiers only; the heading tier
 (`text-lg` and up) takes Geist's line-height and letter-spacing from the `@theme inline` bridge, with
 sizes and the copy tier untouched (TYP-15); smoothed font rendering on `body` (TYP-16); a declared
 14px body size on `body`, never on `html` (TYP-17); no arbitrary font size, so upstream's 12.8px `sm`
@@ -958,6 +958,47 @@ manifest (DOC-1); hybrid distribution — public npm for the runtime and tokens,
 components, model "own it" with no `Vega*` prefix (DOC-2). The engine list is closed, and everything
 upstream itself depends on was pre-approved with it; anything else is a new MK decision (DOC-7).
 TypeScript is pinned (DOC-9, and the reason is in § Toolchain).
+
+## Conventions for components we own
+
+A component shadcn ships takes upstream's names verbatim. A component that is **ours** has no
+upstream to copy, so these are the spellings it uses — one per concern. A new prop follows the table;
+a shipped component that still differs is listed under **Known deviations in components we own** below and is brought in
+line when its file is next touched, never in a drive-by rename.
+
+| Concern                 | One spelling                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Axis words              | `size` is a tier, `xs · sm · default · lg` (+ `icon-*`); an overlay width is `sm · default · lg · xl`; never `md`. `variant` is the look. `intent` is a hue-only axis (API-17). `state` is a lifecycle enum. `orientation` is upstream's word. `layout` is an arrangement.                                                                                                                                               |
+| Identity accessors      | The combobox family uses Base UI's names — `itemToStringLabel`, `itemToStringValue`, `isItemEqualToValue`, and `itemToDescription` / `itemToDisabledReason` for new ones. The table and board family spells them `getRowId`, `getRowHref`, `getRowLabel` and `getItemId`, `getItemHref`, `getItemLabel`; `getRowId` (DataList, DataGrid) and `getItemId` (Board) ship today, and a new accessor takes the matching name. |
+| Second-line option text | Compose `ItemTitle` + `ItemDescription` inside the row; a preset exposes an `itemToDescription` accessor. No per-component title and description props.                                                                                                                                                                                                                                                                  |
+| Why unavailable         | `disabled` plus a description line saying why. The prop is `<noun>Reason: string` (`lockedReason`). A disabled control stays focusable (FRM-4).                                                                                                                                                                                                                                                                          |
+| Empty-state copy        | A region takes `emptyState: ReactNode`; a popup list takes `emptyMessage: string`.                                                                                                                                                                                                                                                                                                                                       |
+| In flight               | `loading`, never `pending`. `error?: ReactNode` renders a `role="alert"` line in the `-text` ink with the retry "Try again".                                                                                                                                                                                                                                                                                             |
+| Paging                  | One `loadMore` object on a collection — `{ hasMore, onLoadMore, loading? }`, as `DataGrid`'s `loadMore` is today, plus an `error?` when a collection shows its own load failure. No page numbers on a keyset list.                                                                                                                                                                                                       |
+| Element choice          | `render` on parts. A props-API component takes a `<slot>Render` element prop — a slot named `back` takes `backRender`. No new `as` or `titleAs`.                                                                                                                                                                                                                                                                         |
+| Default copy            | Every rendered string is an overridable `<action>Label` (or `…Message`) prop with a sentence-case default; a `labels` object only past about six strings. Progress text and search placeholders end with the ellipsis character; a one-line state has no full stop.                                                                                                                                                      |
+| Settled value           | `onValueCommitted` — Base UI's word.                                                                                                                                                                                                                                                                                                                                                                                     |
+| Counts in controls      | The visible count plus an `sr-only` suffix inside the control's accessible name; the visual badge is `aria-hidden`. A new prop that supplies the host noun is `countLabel?: (n) => string` (or `badgeLabel` for a fixed string). A `Badge` shows a count only for unread or attention.                                                                                                                                   |
+| Headings                | Page: `font-heading text-2xl font-semibold`, through `PageHeader`. Section `h2`: `font-heading text-base font-medium` (a plain `h2` with those utilities, or `CardTitle`; the `SettingsSection` title is the same size and weight). Group label: `text-xs font-medium text-muted-foreground` (table section rows, Board lanes; `SidebarGroupLabel` keeps the sidebar's own ink).                                         |
+| Numbers                 | Counts, dates, amounts and quantities are the regular font with `tabular-nums`; `font-mono` is for code and identifiers only (TYP-10).                                                                                                                                                                                                                                                                                   |
+| Announcements           | `useAnnouncer` for events; the engine's own region where it ships one (Base UI's `Combobox.Status`, the toast viewport); a persistent status that is the component's own content may be `role="status"`.                                                                                                                                                                                                                 |
+| Slots                   | `data-slot` on every part, prefixed with the exported component's kebab-case name; a container-query name is the slot name.                                                                                                                                                                                                                                                                                              |
+| Exports                 | `XProps` for every component that is ours; `XVariant` / `XSize` unions and the class recipe for every CVA'd component.                                                                                                                                                                                                                                                                                                   |
+| Tones                   | success · info (in flight) · warning · destructive · neutral, mapped the same way across `Badge`, `Alert`, `StatusIcon`, `Stepper` and `Attachment`'s `state`.                                                                                                                                                                                                                                                           |
+
+**Known deviations in components we own**, each fixed when its file is next touched: `md` on
+`Stat`, `StatusIcon` and `Chip` (add `default`, keep `md` as an alias); `SettingsSection`'s `titleAs`
+and `TruncatedText`'s `as` (→ `render`); `dismissable` on `AnnouncementBanner` (→ `dismissible`);
+`ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip`, `Exit` and `Actions`
+parts, which export no `…Props` type; `DataList`'s "Loading rows" status (→ "Loading rows…");
+`PanelSearch`'s look differing from `SearchableSelect`'s in-popup search; and per-component
+async-write status (→ one shared shape).
+
+**Differences in upstream components** do not follow this table — each would need its own decision
+row, so they are listed only so nobody copies them into a component we own: `md` on
+`SidebarMenuSubButton`, a physical `side` on `Sheet` and `Sidebar`, three option-row recipes across
+`Select`, `Combobox` and `Command`, and `ComboboxChip` rendering Base UI's own chip rather than
+`Chip`.
 
 ## Tokens we add
 
@@ -1074,6 +1115,17 @@ on screen.
 both, it ships as both: `board` is a component and `board-01` is a block, exactly as `app-shell` pairs
 with `app-shell-01`. Two narrower types exist: `registry:hook` for a pure hook, and
 `registry:lib` for a module with no React in it at all.
+
+**Where a new thing goes — the decision tree.** Ask in order and stop at the first yes:
+
+1. **An existing component already owns the job** → a `variant` or a prop on it.
+2. **It is a new named region of an existing compound** → a part (a new flat export).
+3. **It is reused, configured through props and tracked for updates** → a component.
+4. **It is a page composition copied once that composes at least two components in a way no single
+   docs example shows** → a block. A block uses `PageHeader`, `FilterBar`, `DataList`, `Empty` and
+   `ActionBar` wherever the page has that region, never an `href="#"`, container queries rather than
+   viewport breakpoints for its own layout, `dvh` for viewport heights, and sentence case.
+5. **Otherwise** → a docs example on the owning component's page.
 
 Rules that survive the reset, because they are ours and not upstream's:
 

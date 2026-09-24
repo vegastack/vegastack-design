@@ -210,3 +210,28 @@ test("no a11y violations — icon only", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("a link styled with buttonVariants keeps the link role", async () => {
+  const screen = await render(
+    <a href="/docs" className={buttonVariants({ size: "lg" })}>
+      Docs
+    </a>,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Docs" }))
+    .toBeInTheDocument();
+  expect(screen.container.querySelector('[role="button"]')).toBeNull();
+});
+
+test("a Button rendered as a link announces as a button — why the link recipe exists", async () => {
+  const screen = await render(
+    <Button nativeButton={false} render={<a href="/docs" />}>
+      Docs
+    </Button>,
+  );
+  // Base UI gives a non-native element role="button", so navigation reads as an
+  // action. The recipe is a link styled with buttonVariants() instead.
+  await expect
+    .element(screen.getByRole("button", { name: "Docs" }))
+    .toBeInTheDocument();
+});
