@@ -1,0 +1,62 @@
+---
+title: settings-02
+description: A settings hub — one titled section per area, each a grid of whole-tile links with one fact apiece.
+audience: public
+registry: settings-02
+preview: settings02Demo
+---
+
+## What it is
+
+A settings hub — one titled section per area, each a grid of whole-tile links with one fact apiece. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+Use it for the page that `/settings` lands on: it names each settings area and takes the reader there. Editing happens on each area's own page (settings-01 is one).
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/settings-02
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `app-shell`, `badge`, `item`, `page-header`, `settings-row`.
+
+## Preview
+
+<ComponentPreview name="settings02Demo" />
+
+## Anatomy
+
+- `AppShellPage` › `PageHeader title="Settings"` — the page's one `h1`.
+- One `SettingsSection titleAs="h2"` per area, with a one-line description.
+- In each section, an `ItemGroup` laid out as a container-query grid —
+  `grid gap-3 @sm:grid-cols-2 @4xl:grid-cols-3` — so it is one column in a narrow content region and
+  three in a wide one, whatever the viewport.
+- Each tile is `Item variant="outline"` rendered as an `<a href>`: `ItemTitle`, one fact in
+  `ItemDescription` ("8 active · 1 invited") and a decorative chevron in `ItemActions`.
+
+## Tiles
+
+- **One link per tile.** The link is named by the title and described by the fact
+  (`aria-labelledby` / `aria-describedby`), so a screen reader hears "Members, link, 8 active · 1
+  invited". Nothing inside a tile is interactive: no buttons, no second link.
+- **One fact, not a menu.** Pick the number or state the reader checks most often. Actions belong on
+  the area's own page.
+- **An area that isn't built yet** has no `href`. It renders as a plain tile with a `Badge
+variant="outline"` "TBD", so it is not a tab stop and never pretends to be a link.
+- **No icons** unless they tell areas apart in a way the title doesn't.
+
+## Files
+
+| File                   | Registry type   | Target                     |
+| ---------------------- | --------------- | -------------------------- |
+| `settings-02/page.tsx` | `registry:page` | `app/settings-02/page.tsx` |
+
+## Do / Don't
+
+<DoDont
+  do="Give every tile one fact and one destination, and leave an unbuilt area as a plain TBD tile."
+  dont="Put buttons or a second link inside a tile, or fill the grid with decorative icons."
+/>

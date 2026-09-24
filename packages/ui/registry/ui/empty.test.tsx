@@ -205,7 +205,7 @@ test("no a11y violations — media-less, with a search field", async () => {
   const screen = await render(
     <Empty>
       <EmptyHeader>
-        <EmptyTitle>404 - Not Found</EmptyTitle>
+        <EmptyTitle>Page not found</EmptyTitle>
         <EmptyDescription>That page does not exist.</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>

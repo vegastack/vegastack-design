@@ -16906,7 +16906,7 @@
       "name": "app-shell-01",
       "type": "registry:block",
       "title": "App Shell 01",
-      "description": "A full application shell page — AppShell's landmark trio and skip link, a collapsible sidebar, a breadcrumb header and a content area with sample cards.",
+      "description": "The application shell reference — AppShell's landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and a page of linked stat tiles.",
       "categories": [
         "dashboard",
         "layout"
@@ -16917,10 +16917,20 @@
       ],
       "registryDependencies": [
         "@vegastack/app-shell",
+        "@vegastack/avatar",
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/card",
-        "@vegastack/sidebar"
+        "@vegastack/collapsible",
+        "@vegastack/command",
+        "@vegastack/dropdown-menu",
+        "@vegastack/item",
+        "@vegastack/kbd",
+        "@vegastack/page-header",
+        "@vegastack/provider",
+        "@vegastack/sidebar",
+        "@vegastack/stat",
+        "@vegastack/use-platform"
       ],
       "files": [
         {
@@ -16935,17 +16945,17 @@
         }
       ],
       "meta": {
-        "whenToUse": "Starting an application whose every route sits inside one shell — copy it once, then hoist AppShell into a layout.",
+        "whenToUse": "Starting an application whose every route sits inside one shell and sidebar — copy it once, then hoist AppShell into a layout.",
         "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
         "version": "0.19.0",
-        "integrity": "sha256-zbjmF6bIKXndz0hgC9SG1jyGPwwCb526EIGx6cdwrQo="
+        "integrity": "sha256-G+epbGLT16SB34OxhfwP3OjpZzVbJETbM5wfYcxJwyE="
       }
     },
     {
       "name": "board-01",
       "type": "registry:block",
       "title": "Board 01",
-      "description": "A kanban board page — Board's drag-and-drop columns under a toolbar with a search field, an assignee filter and a view switch.",
+      "description": "A board page — a PageHeader over a FilterBar and Board, with lanes named by their count, cards that link to each task, and a No matches state.",
       "categories": [
         "board",
         "data"
@@ -16955,12 +16965,14 @@
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
+        "@vegastack/app-shell",
         "@vegastack/avatar",
         "@vegastack/board",
         "@vegastack/button",
-        "@vegastack/input-group",
-        "@vegastack/select",
-        "@vegastack/toggle-group"
+        "@vegastack/dropdown-menu",
+        "@vegastack/empty",
+        "@vegastack/filter-bar",
+        "@vegastack/page-header"
       ],
       "files": [
         {
@@ -16975,10 +16987,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Starting a task, pipeline or triage board — copy it once and replace the sample columns with your own data.",
-        "whenNotToUse": "A single sortable list (sortable-list) or a tabular view of the same records (data-grid).",
+        "whenToUse": "A tasks or pipeline page laid out as lanes — copy it once and wire the filters, card links and moves to your data.",
+        "whenNotToUse": "A list with many columns of data — use a DataList page instead.",
         "version": "0.19.0",
-        "integrity": "sha256-Dt7euxIWjLiiYexlS8+Xu9BJ/rk08BdjYiH0cjDYwcU="
+        "integrity": "sha256-6IMWbSfUZA+HdORBJjtYl6QJk2qta2tSB04L/rbK6dI="
       }
     },
     {
@@ -19224,6 +19236,136 @@
         "whenNotToUse": "One setting inside another page — compose settings-row directly.",
         "version": "0.19.0",
         "integrity": "sha256-cxU0XV6FlbSa0tVQ6UWuij42y3UO7HzllkPk97ylCHU="
+      }
+    },
+    {
+      "name": "settings-02",
+      "type": "registry:block",
+      "title": "Settings 02",
+      "description": "A settings hub — one titled section per area, each a grid of whole-tile links with one fact apiece.",
+      "categories": [
+        "settings",
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/badge",
+        "@vegastack/item",
+        "@vegastack/page-header",
+        "@vegastack/settings-row"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/settings-02/page.tsx",
+          "type": "registry:page",
+          "target": "app/settings-02/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The settings landing page that links to each settings area — copy it once and point each tile at your routes.",
+        "whenNotToUse": "Editing settings in place — use settings-01, or compose settings-row directly.",
+        "version": "0.19.0",
+        "integrity": "sha256-xfTd3HIUMQG2WA6QhkaV4rF3CgB948fhnrArnHhnJ+M="
+      }
+    },
+    {
+      "name": "status-pages-01",
+      "type": "registry:block",
+      "title": "Status Pages 01",
+      "description": "The 404, 403 and error pages — an Empty whose title is the page's h1, one way out, and the error's reference to copy.",
+      "categories": [
+        "errors",
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.5",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/copy-button",
+        "@vegastack/empty"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/status-pages-01/components/error-page.tsx",
+          "type": "registry:component",
+          "target": "app/status-pages-01/components/error-page.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/status-pages-01/components/forbidden-page.tsx",
+          "type": "registry:component",
+          "target": "app/status-pages-01/components/forbidden-page.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/status-pages-01/components/not-found-page.tsx",
+          "type": "registry:component",
+          "target": "app/status-pages-01/components/not-found-page.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/status-pages-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/status-pages-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Your app's not-found, forbidden and error boundary pages, in the shell or standalone — copy the page each boundary file needs.",
+        "whenNotToUse": "An empty list or a failed section inside a page — compose Empty with the empty-state tiers instead.",
+        "version": "0.19.0",
+        "integrity": "sha256-J0Lt/rKxlkczyiP42BgCX7c8SF5zuYMdbn3qVBSjpOA="
+      }
+    },
+    {
+      "name": "review-split-01",
+      "type": "registry:block",
+      "title": "Review Split 01",
+      "description": "A record review page — summary and action items beside a sticky transcript, with a docked player, turning into tabs when its own container is narrow.",
+      "categories": [
+        "meetings",
+        "layout"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.5",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/audio-player",
+        "@vegastack/checkbox",
+        "@vegastack/data-table-parts",
+        "@vegastack/field",
+        "@vegastack/page-header",
+        "@vegastack/skeleton",
+        "@vegastack/tabs",
+        "@vegastack/transcript"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/review-split-01/components/review-split.tsx",
+          "type": "registry:component",
+          "target": "app/review-split-01/components/review-split.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+          "type": "registry:component",
+          "target": "app/review-split-01/components/sample-meeting.ts"
+        },
+        {
+          "path": "packages/ui/registry/blocks/review-split-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/review-split-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A detail page that reviews a record against a long companion pane, such as a meeting with its transcript — copy it once and wire your record.",
+        "whenNotToUse": "A plain detail page with one column — compose AppShellPage and PageHeader directly.",
+        "version": "0.19.0",
+        "integrity": "sha256-fHYeJFVUYAGiZ3LkqUa6EXcQwC1OFz4e8Bt2ACmlg/I="
       }
     }
   ]

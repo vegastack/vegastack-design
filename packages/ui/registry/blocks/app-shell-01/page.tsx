@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.19.0 sha256-zbjmF6bIKXndz0hgC9SG1jyGPwwCb526EIGx6cdwrQo=
+// @vegastack app-shell-01@0.19.0 sha256-G+epbGLT16SB34OxhfwP3OjpZzVbJETbM5wfYcxJwyE=
 
 import { Plus } from "lucide-react";
 
@@ -7,6 +7,7 @@ import {
   AppShell,
   AppShellContent,
   AppShellHeader,
+  AppShellPage,
 } from "@/components/ui/app-shell";
 import {
   Breadcrumb,
@@ -23,21 +24,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Item, ItemContent } from "@/components/ui/item";
+import { PageHeader } from "@/components/ui/page-header";
+import { Stat, StatLabel, StatValue } from "@/components/ui/stat";
 
-const stats = [
-  { label: "Active agents", value: "12", note: "+2 this week" },
-  { label: "Tasks completed", value: "1,284", note: "+18.2%" },
-  { label: "Avg. resolution", value: "4m 12s", note: "-31s" },
-  { label: "Escalations", value: "7", note: "-3" },
+const counts = [
+  { label: "Active agents", value: 12, href: "/agents?status=active" },
+  { label: "Open tasks", value: 1284, href: "/tasks?status=open" },
+  { label: "Overdue tasks", value: 3, href: "/tasks?due=overdue" },
+  { label: "Escalations", value: 7, href: "/tasks?escalated=true" },
 ];
 
 /**
- * `app-shell-01` — the shell starter page: `AppShell`'s landmark trio and skip link, the
- * collapsible rail, a breadcrumb banner and a content grid of sample cards.
+ * `app-shell-01` — the shell reference page: `AppShell`'s landmark trio and skip link, the rail
+ * (`AppSidebar`), a breadcrumb banner, and a page of `PageHeader` h1 over linked stat tiles — each
+ * count a link to the list it counts.
  *
  * Copy-once. Once a second route exists, move the `AppShell` composition into
- * `app/<segment>/layout.tsx` and leave each page its own content — the shell then survives a
- * navigation instead of remounting with it.
+ * `app/<segment>/layout.tsx` and leave each page its own `AppShellPage` — the shell then survives a
+ * navigation instead of remounting with it. For a static shell that paints collapsed on first
+ * load, put `SidebarStateScript` in the root layout's `<head>`.
  *
  * @example
  * // app/dashboard/page.tsx, straight after `shadcn add @vegastack/app-shell-01`
@@ -48,18 +54,11 @@ export default function Page() {
     <AppShell>
       <AppSidebar />
       <div className="flex h-svh min-w-0 flex-1 flex-col">
-        <AppShellHeader
-          actions={
-            <Button size="sm">
-              <Plus />
-              New agent
-            </Button>
-          }
-        >
+        <AppShellHeader>
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="#">Acme</BreadcrumbLink>
+                <BreadcrumbLink href="/">Acme</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -69,31 +68,48 @@ export default function Page() {
           </Breadcrumb>
         </AppShellHeader>
         <AppShellContent>
-          <div className="grid gap-4 p-4 @sm/app-shell-content:grid-cols-2 @4xl/app-shell-content:grid-cols-4">
-            {stats.map((stat) => (
-              <Card key={stat.label}>
-                <CardHeader>
-                  <CardDescription>{stat.label}</CardDescription>
-                  <CardTitle className="text-2xl tabular-nums">
-                    {stat.value}
-                  </CardTitle>
-                  <CardDescription>{stat.note}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-          <div className="px-4 pb-4">
+          <AppShellPage>
+            <PageHeader
+              title="Overview"
+              description="What needs you today across Acme."
+              actions={
+                <Button size="sm">
+                  <Plus />
+                  New agent
+                </Button>
+              }
+            />
+            <section aria-label="Counts" className="@container">
+              <div className="grid grid-cols-2 gap-3 @3xl:grid-cols-4">
+                {counts.map((count) => (
+                  <Item
+                    key={count.label}
+                    variant="outline"
+                    render={<a href={count.href} />}
+                  >
+                    <ItemContent>
+                      <Stat size="lg">
+                        <StatLabel>{count.label}</StatLabel>
+                        <StatValue>
+                          {count.value.toLocaleString("en-US")}
+                        </StatValue>
+                      </Stat>
+                    </ItemContent>
+                  </Item>
+                ))}
+              </div>
+            </section>
             <Card className="min-h-80">
               <CardHeader>
-                <CardTitle>Your content</CardTitle>
+                <CardTitle render={<h2 />}>Your content</CardTitle>
                 <CardDescription>
                   Replace this region with the page a route actually renders.
-                  Everything above it — the rail, the banner, the skip link —
+                  Everything around it — the rail, the banner, the skip link —
                   belongs in a shared layout once there is more than one route.
                 </CardDescription>
               </CardHeader>
             </Card>
-          </div>
+          </AppShellPage>
         </AppShellContent>
       </div>
     </AppShell>

@@ -1,0 +1,72 @@
+---
+title: review-split-01
+description: A record review page — summary and action items beside a sticky transcript, with a docked player, turning into tabs when its own container is narrow.
+audience: public
+registry: review-split-01
+preview: reviewSplit01Demo
+---
+
+## What it is
+
+A record review page — summary and action items beside a sticky transcript, with a docked player, turning into tabs when its own container is narrow. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+`ReviewSplit` lives in `components/`, with the sample meeting beside it. Replace the sample data with your record, and `RECORDING_SRC` with its recording.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/review-split-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `app-shell`, `audio-player`, `checkbox`, `data-table-parts`, `field`, `page-header`, `skeleton`, `tabs`, `transcript`.
+
+## Preview
+
+<ComponentPreview name="reviewSplit01Demo" />
+
+## One measure
+
+The block decides its layout from **its own width**, not the viewport's. `useContainerWidth`
+measures the block, and its layout classes use the same `@4xl/review` container query (56rem), so
+the layout and the mode can't disagree when the sidebar opens or closes.
+
+- **Wide** — a two-column grid, `minmax(0,1.55fr) minmax(0,1fr)`. The summary and action items
+  stack on the left with the docked `AudioPlayer` at the end of the column; the transcript sits in a
+  sticky right pane that scrolls on its own, capped at
+  `calc(100dvh - var(--review-split-offset))`. Set `--review-split-offset` to your shell header's
+  height (the block uses `4rem`).
+- **Narrow** — `Tabs` (`TabsList variant="line"`) "Summary · Action items (4) · Transcript" over the
+  same panels.
+- **Before the first measurement** the block renders narrow, which is also the server-rendered
+  answer, so a phone never flashes the wide grid.
+
+## Panels mount once
+
+The three panels are the same elements in both modes. Only their tab semantics change — `role`,
+`hidden` and `inert` apply in narrow mode only — so nothing remounts when the width crosses the
+boundary: a checked action item, a transcript search and the player's position all survive.
+
+## Player and transcript
+
+The transcript's "Play from 0:12" buttons seek the docked player through its `actionsRef`, and
+the player's `timeupdate` drives the transcript's current line. The player is a `region` named
+"Meeting recording", docked to the bottom of its column. Pass a function as `recordingSrc` to
+fetch a signed URL on first play.
+
+## Files
+
+| File                                           | Registry type        | Target                                             |
+| ---------------------------------------------- | -------------------- | -------------------------------------------------- |
+| `review-split-01/components/review-split.tsx`  | `registry:component` | `app/review-split-01/components/review-split.tsx`  |
+| `review-split-01/components/sample-meeting.ts` | `registry:component` | `app/review-split-01/components/sample-meeting.ts` |
+| `review-split-01/page.tsx`                     | `registry:page`      | `app/review-split-01/page.tsx`                     |
+
+## Do / Don't
+
+<DoDont
+  do="Let the block measure itself, set the header offset, and keep each panel mounted in both modes."
+  dont="Switch one half on a viewport query and the other on the container, or render the panels twice."
+/>

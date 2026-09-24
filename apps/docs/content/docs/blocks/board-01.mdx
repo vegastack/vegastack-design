@@ -1,6 +1,6 @@
 ---
 title: board-01
-description: A kanban board page — drag-and-drop columns under a toolbar with a search field, an assignee filter and a view switch.
+description: A board page — a PageHeader over a FilterBar and Board, with lanes named by their count, cards that link to each task, and a No matches state.
 audience: public
 registry: board-01
 preview: board01Demo
@@ -8,8 +8,10 @@ preview: board01Demo
 
 ## What it is
 
-A kanban board page — Board's drag-and-drop columns under a toolbar with a search field, an assignee filter and a view switch. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+A board page — a PageHeader over a FilterBar and Board, with lanes named by their count, cards that link to each task, and a No matches state. It is a **block**: you pull it once with `shadcn add`, and then you own it —
 nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+`BoardView` in `components/` holds the filters and the board; the page is the server-safe frame around it.
 
 ## Install
 
@@ -19,11 +21,28 @@ npx shadcn@latest add @vegastack/board-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `avatar`, `board`, `button`, `input-group`, `select`, `toggle-group`.
+This installs the block's own files plus the components it composes: `app-shell`, `avatar`, `board`, `button`, `dropdown-menu`, `empty`, `filter-bar`, `page-header`.
 
 ## Preview
 
 <ComponentPreview name="board01Demo" />
+
+## Anatomy
+
+- `AppShellPage size="full"` › `PageHeader` h1 "Tasks" with its "New task" action.
+- `FilterBar` — search plus an Assignee facet (a radio menu), with the chosen assignee shown as a
+  removable chip and "Clear filters" while anything is filtered.
+- `Board` — each lane is a region named with its count ("Backlog, 3 tasks", via `countLabel`),
+  each card is a link to its task (`getItemHref`) and is named for moves (`getItemLabel`), and an
+  empty lane says so ("No tasks", or "No matching tasks" while filtering).
+- **No matches** — when the filters hide every card, the board gives way to an `Empty` with "Clear
+  filters".
+
+## Filters and moves
+
+The filters narrow what each lane **shows**; a move always lands in the full lane, which is why
+`onMove` updates the unfiltered columns. Space on a focused card lifts it into keyboard move mode;
+Enter follows its link.
 
 ## Files
 
@@ -35,6 +54,6 @@ This installs the block's own files plus the components it composes: `avatar`, `
 ## Do / Don't
 
 <DoDont
-  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
-  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+  do="Name each lane with its count, link cards to their records, and show No matches with a way to clear."
+  dont="Add a view switch nothing reads, or fix the toolbar controls to breakpoint widths."
 />

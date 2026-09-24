@@ -12,11 +12,11 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 666,
+    "totalRegistryItems": 669,
     "components": 114,
     "animatedIcons": 467,
     "hooks": 11,
-    "blocks": 4,
+    "blocks": 7,
     "libs": 2,
     "chartBlocks": 68
   },
@@ -25578,7 +25578,7 @@
       "name": "app-shell-01",
       "registryType": "registry:block",
       "title": "App Shell 01",
-      "summary": "A full application shell page — AppShell's landmark trio and skip link, a collapsible sidebar, a breadcrumb header and a content area with sample cards.",
+      "summary": "The application shell reference — AppShell's landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and a page of linked stat tiles.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -25618,7 +25618,7 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default"],
+          "values": ["default", "search-open"],
           "evidence": "Observed from the block's own branches and the state its parts carry."
         },
         "accessibility": {
@@ -25649,10 +25649,20 @@
       "docsSlug": "/docs/blocks/app-shell-01",
       "registryDependencies": [
         "@vegastack/app-shell",
+        "@vegastack/avatar",
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/card",
-        "@vegastack/sidebar"
+        "@vegastack/collapsible",
+        "@vegastack/command",
+        "@vegastack/dropdown-menu",
+        "@vegastack/item",
+        "@vegastack/kbd",
+        "@vegastack/page-header",
+        "@vegastack/provider",
+        "@vegastack/sidebar",
+        "@vegastack/stat",
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -25675,7 +25685,7 @@
       "name": "board-01",
       "registryType": "registry:block",
       "title": "Board 01",
-      "summary": "A kanban board page — Board's drag-and-drop columns under a toolbar with a search field, an assignee filter and a view switch.",
+      "summary": "A board page — a PageHeader over a FilterBar and Board, with lanes named by their count, cards that link to each task, and a No matches state.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -25715,7 +25725,7 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "active", "selected", "open"],
+          "values": ["default", "filtered", "no-matches"],
           "evidence": "Observed from the block's own branches and the state its parts carry."
         },
         "accessibility": {
@@ -25745,12 +25755,14 @@
       "engines": [],
       "docsSlug": "/docs/blocks/board-01",
       "registryDependencies": [
+        "@vegastack/app-shell",
         "@vegastack/avatar",
         "@vegastack/board",
         "@vegastack/button",
-        "@vegastack/input-group",
-        "@vegastack/select",
-        "@vegastack/toggle-group"
+        "@vegastack/dropdown-menu",
+        "@vegastack/empty",
+        "@vegastack/filter-bar",
+        "@vegastack/page-header"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -25890,6 +25902,171 @@
       "previewModule": "login-01"
     },
     {
+      "name": "review-split-01",
+      "registryType": "registry:block",
+      "title": "Review Split 01",
+      "summary": "A record review page — summary and action items beside a sticky transcript, with a docked player, turning into tabs when its own container is narrow.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/review-split-01/components/review-split.tsx",
+        "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+        "packages/ui/registry/blocks/review-split-01/page.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "ACTION_ITEMS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "ActionItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Page",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/review-split-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: Page forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "RECORDING_SRC",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "ReviewSplit",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/review-split-01/components/review-split.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: ReviewSplit forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "ReviewSplitProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/review-split-01/components/review-split.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SEGMENTS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "SPEAKERS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "SUMMARY",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["wide", "narrow-tabs", "loading"],
+          "evidence": "Observed from the block's own branches and the state its parts carry."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/review-split-01/components/review-split.tsx + packages/ui/registry/blocks/review-split-01/review-split-01.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "Observed from the token classes the composition carries."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A block is a whole page: it is laid out across breakpoints and captured at 1440x900 and 390x844 in the batch's review artifact."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/review-split-01",
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/audio-player",
+        "@vegastack/checkbox",
+        "@vegastack/data-table-parts",
+        "@vegastack/field",
+        "@vegastack/page-header",
+        "@vegastack/skeleton",
+        "@vegastack/tabs",
+        "@vegastack/transcript"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.5",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": [
+        "packages/ui/registry/blocks/review-split-01/review-split-01.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "review-split-01"
+    },
+    {
       "name": "settings-01",
       "registryType": "registry:block",
       "title": "Settings 01",
@@ -25976,6 +26153,241 @@
         "vrt": "required"
       },
       "previewModule": "settings-01"
+    },
+    {
+      "name": "settings-02",
+      "registryType": "registry:block",
+      "title": "Settings 02",
+      "summary": "A settings hub — one titled section per area, each a grid of whole-tile links with one fact apiece.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": ["packages/ui/registry/blocks/settings-02/page.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Page",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/settings-02/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: Page forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "tbd-tile"],
+          "evidence": "Observed from the block's own branches and the state its parts carry."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/settings-02/page.tsx + packages/ui/registry/blocks/settings-02/settings-02.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "Observed from the token classes the composition carries."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A block is a whole page: it is laid out across breakpoints and captured at 1440x900 and 390x844 in the batch's review artifact."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/settings-02",
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/badge",
+        "@vegastack/item",
+        "@vegastack/page-header",
+        "@vegastack/settings-row"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": [
+        "packages/ui/registry/blocks/settings-02/settings-02.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "settings-02"
+    },
+    {
+      "name": "status-pages-01",
+      "registryType": "registry:block",
+      "title": "Status Pages 01",
+      "summary": "The 404, 403 and error pages — an Empty whose title is the page's h1, one way out, and the error's reference to copy.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/status-pages-01/components/error-page.tsx",
+        "packages/ui/registry/blocks/status-pages-01/components/forbidden-page.tsx",
+        "packages/ui/registry/blocks/status-pages-01/components/not-found-page.tsx",
+        "packages/ui/registry/blocks/status-pages-01/page.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "ErrorPage",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/status-pages-01/components/error-page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: ErrorPage forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "ErrorPageProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/status-pages-01/components/error-page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ForbiddenPage",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/status-pages-01/components/forbidden-page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: ForbiddenPage forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "ForbiddenPageProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/status-pages-01/components/forbidden-page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "NotFoundPage",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/status-pages-01/components/not-found-page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: NotFoundPage forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "NotFoundPageProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/status-pages-01/components/not-found-page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Page",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/status-pages-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: Page forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "not-found",
+            "forbidden",
+            "error",
+            "error-with-reference",
+            "in-shell",
+            "standalone"
+          ],
+          "evidence": "Observed from the block's own branches and the state its parts carry."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/status-pages-01/components/error-page.tsx + packages/ui/registry/blocks/status-pages-01/status-pages-01.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "Observed from the token classes the composition carries."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A block is a whole page: it is laid out across breakpoints and captured at 1440x900 and 390x844 in the batch's review artifact."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/status-pages-01",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/copy-button",
+        "@vegastack/empty"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.5",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": [
+        "packages/ui/registry/blocks/status-pages-01/status-pages-01.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "status-pages-01"
     }
   ],
   "modeledExemptions": [

@@ -1,6 +1,6 @@
 ---
 title: app-shell-01
-description: A full application shell page — the landmark trio and skip link, a collapsible rail, a breadcrumb header and a content grid.
+description: The shell reference — AppShell landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and linked stat tiles.
 audience: public
 registry: app-shell-01
 preview: appShell01Demo
@@ -8,8 +8,10 @@ preview: appShell01Demo
 
 ## What it is
 
-A full application shell page — AppShell's landmark trio and skip link, a collapsible sidebar, a breadcrumb header and a content area with sample cards. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+The application shell reference — AppShell's landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and a page of linked stat tiles. It is a **block**: you pull it once with `shadcn add`, and then you own it —
 nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+It is the one shell and sidebar reference: every recipe a rail needs is in `components/app-sidebar.tsx`.
 
 ## Install
 
@@ -19,11 +21,59 @@ npx shadcn@latest add @vegastack/app-shell-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `app-shell`, `breadcrumb`, `button`, `card`, `sidebar`.
+This installs the block's own files plus the components it composes: `app-shell`, `avatar`, `breadcrumb`, `button`, `card`, `collapsible`, `command`, `dropdown-menu`, `item`, `kbd`, `page-header`, `provider`, `sidebar`, `stat`, `use-platform`.
 
 ## Preview
 
 <ComponentPreview name="appShell01Demo" />
+
+## The rail
+
+- **Workspace menu** — the header row is a real `DropdownMenu` trigger ("Workspace: Acme") with a
+  radio group of workspaces.
+- **Search** — an outline row that opens a palette on click or on ⌘K / Ctrl+K. The hint is
+  `formatShortcut(["mod", "K"], os)` from `use-platform`, marked `aria-hidden`, and the chord is on
+  the button as `aria-keyshortcuts`, so the name stays "Search". Swap the palette for
+  `command-search-01` when you have search.
+- **Inbox** — `badge` and `badgeLabel` on `SidebarMenuButton`, so the row is announced as "Inbox 3
+  unread" and the visual count is decoration.
+- **Grouped links** under `SidebarGroupLabel`s. `isActive` on a link row sets
+  `aria-current="page"`.
+- **Coming soon** — a collapsible row: the `Collapsible` renders as the `SidebarMenuItem`, so the
+  menu list keeps only list items, and the row's `CollapsibleTrigger` carries `aria-expanded`.
+- **User menu** — the footer row opens the account menu, with the theme as a
+  `DropdownMenuRadioGroup` (Light · Dark · System) through `useVegaStackTheme`.
+
+## The page
+
+`AppShellContent` › `AppShellPage` › `PageHeader` h1 › linked stat tiles (the `stat.mdx` "Linked
+stat tiles" recipe): each count is a whole-tile link to the list it counts, named label first
+("Overdue tasks 3").
+
+## No flash on a static shell
+
+A statically rendered shell can't read the sidebar cookie on the server. Put `SidebarStateScript`
+in the root layout's `<head>`: it marks the collapsed state before first paint, so the rail doesn't
+flash open.
+
+```tsx
+import { SidebarStateScript } from "@/components/ui/sidebar";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <SidebarStateScript />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
 
 ## Files
 
@@ -35,6 +85,6 @@ This installs the block's own files plus the components it composes: `app-shell`
 ## Do / Don't
 
 <DoDont
-  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
-  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+  do="Hoist the shell into a layout once there is a second route, and keep the count inside the row's name."
+  dont="Hand-roll stat cards or a workspace button that opens nothing, or link rows to #."
 />
