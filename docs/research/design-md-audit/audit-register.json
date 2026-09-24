@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "75fcd81dbaa35036c7fbbb208fb043c2996b6b7b136e1be818338599140a8b19",
+  "contractSha256": "314ef6aab17941f0363b33349df4899f375fdfda9c92c2c15d653f53d2b112bf",
   "expectedCounts": {
-    "totalRegistryItems": 664,
-    "components": 112,
+    "totalRegistryItems": 665,
+    "components": 113,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 4,
@@ -704,6 +704,17 @@
         "packages/ui/registry/ui/message-scroller.tsx"
       ],
       "docsSlug": "/docs/components/message-scroller",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "transcript",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "communication",
+      "sourceFiles": [
+        "packages/ui/registry/ui/transcript.tsx"
+      ],
+      "docsSlug": "/docs/components/transcript",
       "contractStatus": "reconciled"
     },
     {
