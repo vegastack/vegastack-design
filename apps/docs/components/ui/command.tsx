@@ -1,4 +1,4 @@
-// @vegastack command@0.20.0 sha256-w1DEquT3IiaOaeA5KTy0bynhSQaAjhdNjnOP9UlFXrk=
+// @vegastack command@0.20.0 sha256-C1UvJCW6XdDhSuT3yQt/EWSng3x+8Elf2+akSZQXyHQ=
 
 "use client";
 
@@ -208,7 +208,7 @@ function CommandEmpty({
 function CommandLoading({
   className,
   children,
-  label = "Loading…",
+  label = "Searching…",
   progress,
   ref,
   ...props

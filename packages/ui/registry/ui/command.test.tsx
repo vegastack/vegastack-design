@@ -626,7 +626,7 @@ test("API-18: CommandLoading is a polite status whose text is spoken", async () 
   expect(loading.hasAttribute("aria-valuenow")).toBe(false);
   expect(loading.hasAttribute("aria-label")).toBe(false);
   // The default copy is VOI-1's, and it is exposed rather than hidden behind cmdk's aria-hidden.
-  expect(loading.textContent).toBe("Loading…");
+  expect(loading.textContent).toBe("Searching…");
   expect(loading.querySelector('[aria-hidden="true"]')).toBeNull();
   expect(screen.container.querySelector('[role="progressbar"]')).toBeNull();
 });

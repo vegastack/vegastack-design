@@ -1,4 +1,4 @@
-// @vegastack review-split-01@0.20.0 sha256-dQKMqgF61Qjz+q7DW2kTU0ra+T6QF9ikjyn4zRMiySc=
+// @vegastack review-split-01@0.20.0 sha256-xdnMTi0ID77GR4UJ/x7kzAS8YrcU+yeMoqjuEI5v6U0=
 
 "use client";
 
@@ -64,7 +64,8 @@ function rootFontSize(): number {
  * window resized or the sidebar opened. Before the first measurement it assumes narrow, the
  * server-rendered answer.
  *
- * Wide: summary and action items on the left with the docked player at the end of the column,
+ * Wide: summary and action items on the left with the docked player at the end of the column —
+ * one flex column, so the player sticks to the viewport's bottom edge while the column scrolls —
  * and the transcript in a sticky right pane that scrolls on its own. Narrow: `Tabs` over the SAME
  * three panels. Each panel mounts once and only its tab semantics change, so a checked action item
  * or a transcript search survives a switch.
@@ -138,87 +139,109 @@ export function ReviewSplit({
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="actions">
               Action items{" "}
-              <span className="text-muted-foreground tabular-nums">
+              <span
+                aria-hidden="true"
+                className="text-muted-foreground tabular-nums"
+              >
                 {openCount}
               </span>
+              <span className="sr-only">{openCount} open</span>
             </TabsTrigger>
             <TabsTrigger value="transcript">Transcript</TabsTrigger>
           </TabsList>
         ) : null}
 
-        <TabsContent
-          value="summary"
-          keepMounted
-          className="flex flex-col gap-3 @4xl/review:col-start-1"
-          {...panelProps("summary")}
+        {/* The left column is ONE element in wide mode, so the docked player's `sticky bottom-0` has
+            the whole column to stick within; narrow, it is `contents` and its panels are the tab grid's
+            own rows. */}
+        <div
+          data-slot="review-split-column"
+          className="contents @4xl/review:col-start-1 @4xl/review:row-start-1 @4xl/review:flex @4xl/review:min-w-0 @4xl/review:flex-col @4xl/review:gap-6"
         >
-          <h2 className="font-heading text-base font-medium">Summary</h2>
-          {loading ? (
-            <div className="flex flex-col gap-2" aria-hidden>
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-11/12" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          ) : (
-            summary.map((point) => (
-              <p key={point} className="text-sm leading-relaxed">
-                {point}
-              </p>
-            ))
-          )}
-        </TabsContent>
+          <TabsContent
+            value="summary"
+            keepMounted
+            className="flex flex-col gap-3"
+            {...panelProps("summary")}
+          >
+            <h2 className="font-heading text-base font-medium">Summary</h2>
+            {loading ? (
+              <div className="flex flex-col gap-2" aria-hidden>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-11/12" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            ) : (
+              summary.map((point) => (
+                <p key={point} className="text-sm leading-relaxed">
+                  {point}
+                </p>
+              ))
+            )}
+          </TabsContent>
 
-        <TabsContent
-          value="actions"
-          keepMounted
-          className="flex flex-col gap-3 @4xl/review:col-start-1"
-          {...panelProps("actions")}
-        >
-          <h2 className="font-heading text-base font-medium">
-            Action items{" "}
-            <span className="font-sans text-muted-foreground tabular-nums">
-              {openCount} open
-            </span>
-          </h2>
-          {loading ? (
-            <div className="flex flex-col gap-3" aria-hidden>
-              {actionItems.map((item) => (
-                <Skeleton key={item.id} className="h-5 w-2/3" />
-              ))}
-            </div>
-          ) : (
-            <ul className="flex flex-col gap-3">
-              {actionItems.map((item) => (
-                <li key={item.id}>
-                  <Field orientation="horizontal">
-                    <Checkbox
-                      checked={done[item.id] ?? false}
-                      onCheckedChange={(checked) =>
-                        setDone((current) => ({
-                          ...current,
-                          [item.id]: checked === true,
-                        }))
-                      }
-                    />
-                    <FieldContent>
-                      <FieldLabel className="font-normal">
-                        {item.text}
-                      </FieldLabel>
-                      <FieldDescription>{item.owner}</FieldDescription>
-                    </FieldContent>
-                  </Field>
-                </li>
-              ))}
-            </ul>
-          )}
-        </TabsContent>
+          <TabsContent
+            value="actions"
+            keepMounted
+            className="flex flex-col gap-3"
+            {...panelProps("actions")}
+          >
+            <h2 className="font-heading text-base font-medium">
+              Action items{" "}
+              <span className="font-sans text-muted-foreground tabular-nums">
+                {openCount} open
+              </span>
+            </h2>
+            {loading ? (
+              <div className="flex flex-col gap-3" aria-hidden>
+                {actionItems.map((item) => (
+                  <Skeleton key={item.id} className="h-5 w-2/3" />
+                ))}
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {actionItems.map((item) => (
+                  <li key={item.id}>
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        checked={done[item.id] ?? false}
+                        onCheckedChange={(checked) =>
+                          setDone((current) => ({
+                            ...current,
+                            [item.id]: checked === true,
+                          }))
+                        }
+                      />
+                      <FieldContent>
+                        <FieldLabel className="font-normal">
+                          {item.text}
+                        </FieldLabel>
+                        <FieldDescription>{item.owner}</FieldDescription>
+                      </FieldContent>
+                    </Field>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          {/* Narrow, the player still closes the page, after whichever panel is showing. */}
+          <AudioPlayer
+            docked
+            label="Meeting recording"
+            src={recordingSrc}
+            mediaRef={setMedia}
+            actionsRef={player}
+            className="order-last min-w-0 @4xl/review:order-none"
+          />
+        </div>
 
         <TabsContent
           value="transcript"
           keepMounted
           className={cn(
             "flex min-h-0 flex-col gap-3",
-            "@4xl/review:sticky @4xl/review:top-(--review-split-offset) @4xl/review:col-start-2 @4xl/review:row-span-3 @4xl/review:row-start-1 @4xl/review:max-h-[calc(100dvh-var(--review-split-offset))]",
+            "@4xl/review:sticky @4xl/review:top-(--review-split-offset) @4xl/review:col-start-2 @4xl/review:row-start-1 @4xl/review:max-h-[calc(100dvh-var(--review-split-offset))]",
           )}
           {...panelProps("transcript")}
         >
@@ -236,16 +259,6 @@ export function ReviewSplit({
             <TranscriptList />
           </Transcript>
         </TabsContent>
-
-        <div className="min-w-0 @4xl/review:col-start-1">
-          <AudioPlayer
-            docked
-            label="Meeting recording"
-            src={recordingSrc}
-            mediaRef={setMedia}
-            actionsRef={player}
-          />
-        </div>
       </Tabs>
     </div>
   );

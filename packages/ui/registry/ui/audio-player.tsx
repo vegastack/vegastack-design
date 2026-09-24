@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.20.0 sha256-KuiLbnLuriReT5iKhzWWuJfWPqHmwAMucyZK0khIsuU=
+// @vegastack audio-player@0.20.0 sha256-Hz36YqoHoU1R9mhnCgfkiLQws6txv0hOqrWozB1zhi8=
 
 "use client";
 
@@ -275,10 +275,16 @@ export interface AudioPlayerProps extends Omit<
    */
   loadingLabel?: string;
   /**
-   * A load failure. Renders a `role="alert"` line with a retry button.
+   * A load failure. Renders a `role="alert"` line with a retry button. The player also shows
+   * `loadErrorLabel` on its own when a lazy `src` rejects or the media fails to load.
    * @default undefined
    */
   error?: React.ReactNode;
+  /**
+   * The error line when the player's own load fails and no `error` is given.
+   * @default "Couldn’t load the recording"
+   */
+  loadErrorLabel?: string;
   /**
    * Label of the retry button shown with `error`.
    * @default "Try again"
@@ -338,6 +344,7 @@ export function AudioPlayer({
   loading = false,
   loadingLabel = "Loading audio…",
   error,
+  loadErrorLabel = "Couldn’t load the recording",
   retryLabel = "Try again",
   onRetry,
   actionsRef,
@@ -368,6 +375,11 @@ export function AudioPlayer({
   const resolutionRef = React.useRef<Promise<void> | null>(null);
   const pendingPlaysRef = React.useRef<PendingPlay[]>([]);
 
+  // DS-77: the player's own load failure (a rejected lazy `src`, a media `error` event).
+  const [loadFailed, setLoadFailed] = React.useState(false);
+  // A new URL starts clean; a lazy function is often an inline arrow, so only retry clears it.
+  const urlSrc = typeof src === "function" ? null : src;
+  React.useEffect(() => setLoadFailed(false), [urlSrc]);
   const ensureSource = React.useCallback((): Promise<void> => {
     const current = srcRef.current;
     if (typeof current !== "function") return Promise.resolve();
@@ -382,7 +394,10 @@ export function AudioPlayer({
         },
         (reason: unknown) => {
           // A failed resolution is forgotten, so the next play tries again.
-          if (resolutionRef.current === attempt) resolutionRef.current = null;
+          if (resolutionRef.current === attempt) {
+            resolutionRef.current = null;
+            setLoadFailed(true);
+          }
           throw reason;
         },
       )
@@ -498,7 +513,7 @@ export function AudioPlayer({
   };
 
   // ── Loading and error ────────────────────────────────────────────────────
-  const hasError = error != null && error !== false;
+  const hasError = (error != null && error !== false) || loadFailed;
   const isLoading = (loading || resolving) && !hasError;
   const { announce, Announcer } = useAnnouncer();
   const announcedLoadingRef = React.useRef(false);
@@ -510,6 +525,7 @@ export function AudioPlayer({
   }, [announce, isLoading, loadingLabel]);
 
   const handleRetry = () => {
+    setLoadFailed(false);
     if (typeof srcRef.current === "function") {
       resolutionRef.current = null;
       setResolvedUrl(undefined);
@@ -585,6 +601,10 @@ export function AudioPlayer({
         preload={preload}
         aria-label={label}
         className="hidden"
+        onError={(event) => {
+          if (event.currentTarget.getAttribute("src")) setLoadFailed(true);
+          props.onError?.(event);
+        }}
       />
 
       <MediaPlayerControls
@@ -627,7 +647,7 @@ export function AudioPlayer({
             role="alert"
             className="min-w-0 flex-1 text-sm text-destructive-text"
           >
-            {error}
+            {error != null && error !== false ? error : loadErrorLabel}
           </p>
           <Button variant="outline" size="sm" onClick={handleRetry}>
             {retryLabel}

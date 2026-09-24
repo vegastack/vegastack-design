@@ -49,17 +49,70 @@ This installs the block's own files plus the components it composes: `app-shell`
 
 ## Keep the view and filters
 
-Keep the last view and filters per person for the session, so Back returns to the same list:
+Keep the last view and filters per person for the session, so Back returns to the same list.
+Storage can throw (a privacy mode, a full quota, a sandboxed frame) and can hold anything, so read it
+in an effect rather than a `useState` initializer (the server has no `sessionStorage`, and an
+initializer that reads it renders differently on the client), guard both directions, and accept only
+the values the page knows — anything else falls back to the default:
 
 ```tsx
-const [view, setView] = React.useState<"list" | "grid">(
-  () => (sessionStorage.getItem("customers:view") as "list" | "grid") ?? "list",
+const KEY = "customers:list";
+const VIEWS = ["list", "grid"] as const;
+const SCOPES = ["mine", "team"] as const;
+const STATUSES = ["Active", "Prospect", "Paused"] as const;
+const oneOf = <T extends string>(
+  allowed: readonly T[],
+  value: unknown,
+): value is T =>
+  typeof value === "string" && (allowed as readonly string[]).includes(value);
+
+const [view, setView] = React.useState<(typeof VIEWS)[number]>("list");
+const [scope, setScope] = React.useState<(typeof SCOPES)[number]>("team");
+const [status, setStatus] = React.useState<(typeof STATUSES)[number] | null>(
+  null,
 );
-React.useEffect(() => sessionStorage.setItem("customers:view", view), [view]);
+const [restored, setRestored] = React.useState(false);
+
+React.useEffect(() => {
+  try {
+    const saved: unknown = JSON.parse(sessionStorage.getItem(KEY) ?? "null");
+    if (saved && typeof saved === "object") {
+      const { view, scope, status } = saved as Record<string, unknown>;
+      if (oneOf(VIEWS, view)) setView(view);
+      if (oneOf(SCOPES, scope)) setScope(scope);
+      if (oneOf(STATUSES, status)) setStatus(status);
+    }
+  } catch {
+    // Unreadable or malformed: keep the defaults.
+  }
+  setRestored(true);
+}, []);
+
+React.useEffect(() => {
+  if (!restored) return; // never overwrite the saved state with the defaults
+  try {
+    sessionStorage.setItem(KEY, JSON.stringify({ view, scope, status }));
+  } catch {
+    // Storage unavailable: the page still works, it just forgets.
+  }
+}, [restored, view, scope, status]);
 ```
 
-A **preset route** (`/customers?owner=mine&status=Active`) is the same state in the URL: read it
-into the initial filters, and write changes back with your router's `replace`.
+A **preset route** is a path segment, never query parameters: `/customers/mine` renders the same
+page with its initial scope set to Mine. Make each preset its own static route, so there is nothing
+to parse or validate and it cannot collide with the `/customers/[id]` record route beside it (a
+static segment wins over a dynamic one):
+
+```tsx
+// app/customers/mine/page.tsx
+export default function Page() {
+  return <CustomerList initialScope="mine" />;
+}
+```
+
+`initialScope` is a prop you add to your copy of `CustomerList`, typed as the same `"mine" | "team"`
+union. The link someone followed wins over what the session remembered, so skip restoring `scope`
+when `initialScope` is set; their changes after that are saved as above.
 
 ## Files
 

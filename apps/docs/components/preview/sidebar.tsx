@@ -66,6 +66,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { formatShortcutKey, usePlatform } from "@/components/ui/use-platform";
 import {
   Tooltip,
   TooltipContent,
@@ -1215,6 +1216,11 @@ export function sidebarCounts(): ReactNode {
 }
 
 export function sidebarActionRow(): ReactNode {
+  return <SidebarActionRowDemo />;
+}
+
+function SidebarActionRowDemo(): ReactNode {
+  const { os } = usePlatform();
   return (
     <Wrapper className="block h-64 overflow-hidden p-0">
       <SidebarProvider className="h-full min-h-0">
@@ -1230,7 +1236,7 @@ export function sidebarActionRow(): ReactNode {
                     <Search />
                     <span>Search</span>
                     <KbdGroup aria-hidden="true" className="ms-auto">
-                      <Kbd>⌘</Kbd>
+                      <Kbd>{formatShortcutKey("mod", os)}</Kbd>
                       <Kbd>K</Kbd>
                     </KbdGroup>
                   </SidebarMenuButton>
@@ -1321,7 +1327,9 @@ export function sidebarUnavailableItem(): ReactNode {
                       render={
                         <SidebarMenuButton
                           aria-disabled="true"
-                          aria-describedby="sidebar-unavailable-reason"
+                          aria-describedby="agents-reason"
+                          badge="TBD"
+                          badgeLabel="Coming soon"
                         />
                       }
                     >
@@ -1332,7 +1340,7 @@ export function sidebarUnavailableItem(): ReactNode {
                       Available on the Team plan
                     </TooltipContent>
                   </Tooltip>
-                  <span id="sidebar-unavailable-reason" className="sr-only">
+                  <span id="agents-reason" className="sr-only">
                     Available on the Team plan
                   </span>
                 </SidebarMenuItem>

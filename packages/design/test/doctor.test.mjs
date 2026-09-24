@@ -112,7 +112,7 @@ test("each finding carries the migration guide's replacement", () => {
   const hints = Object.fromEntries(
     scanRetiredVocabulary(root).findings.map((f) => [f.match, f.hint]),
   );
-  assert.match(hints["text-h2"], /text-2xl font-semibold/);
+  assert.match(hints["text-h2"], /font-heading text-base font-medium/);
   assert.match(hints["bg-info-subtle"], /bg-info\/10/);
   assert.equal(hints["--opacity-hint"], "opacity-70");
   assert.match(
@@ -346,7 +346,7 @@ test("`doctor` fails with file:line when retired vocabulary is present, passes w
   );
   assert.match(
     dirtyRun.output,
-    /src\/app\/page\.tsx:2 {2}text-h1 {2}→ {2}text-3xl font-semibold/,
+    /src\/app\/page\.tsx:2 {2}text-h1 {2}→ {2}PageHeader \(font-heading text-2xl font-semibold/,
   );
 });
 

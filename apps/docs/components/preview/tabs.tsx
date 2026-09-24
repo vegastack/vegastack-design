@@ -252,7 +252,10 @@ export function tabsRtl(): ReactNode {
   );
 }
 
-/** A count rides inside the trigger, so it is part of the tab's accessible name. */
+/**
+ * A count rides inside the trigger, so it is part of the tab's accessible name: the visible number
+ * is `aria-hidden` and an `sr-only` suffix says what it counts — the tab reads "Open 12 tasks".
+ */
 export function tabsCounts(): ReactNode {
   return (
     <Wrapper>
@@ -260,11 +263,17 @@ export function tabsCounts(): ReactNode {
         <TabsList variant="line">
           <TabsTrigger value="open">
             Open
-            <span className="text-muted-foreground tabular-nums">12</span>
+            <span aria-hidden className="text-muted-foreground tabular-nums">
+              12
+            </span>
+            <span className="sr-only">12 tasks</span>
           </TabsTrigger>
           <TabsTrigger value="review">
             In review
-            <span className="text-muted-foreground tabular-nums">3</span>
+            <span aria-hidden className="text-muted-foreground tabular-nums">
+              3
+            </span>
+            <span className="sr-only">3 tasks</span>
           </TabsTrigger>
           <TabsTrigger value="closed">Closed</TabsTrigger>
         </TabsList>

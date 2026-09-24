@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.20.0 sha256-ozxlwLCOnaKkXC2OMXFNX7LCgKnzBrxkGor7cg/adHA=
+// @vegastack searchable-select@0.20.0 sha256-ddgXHGt+5fyTPDDMhYFDdcblW2gTWWsjwlT2c+pehGc=
 
 "use client";
 
@@ -129,6 +129,12 @@ export interface SearchableSelectProps<
    */
   groupBy?: (item: Item) => string;
   /**
+   * Headings listed first, in this order, ahead of the first-seen order of the rest — so a
+   * pinned group stays on top even when a leading item belongs to another group.
+   * @default undefined
+   */
+  groupOrder?: readonly string[];
+  /**
    * What is announced while `loading`.
    * @default "Searching…"
    */
@@ -237,6 +243,17 @@ export interface SearchableSelectProps<
    * @default undefined
    */
   "aria-label"?: string;
+  /**
+   * Marks the trigger invalid — for a control whose error lives outside a `Field` (inside a
+   * `Field` the trigger reads its invalid state from the Field).
+   * @default undefined
+   */
+  "aria-invalid"?: boolean;
+  /**
+   * Ids of the elements that describe the trigger — an error message outside a `Field`.
+   * @default undefined
+   */
+  "aria-describedby"?: string;
   /** Additional classes merged onto the trigger button.
    * @default undefined
    */
@@ -306,6 +323,7 @@ export function SearchableSelect<
   loadMore,
   leadingItems,
   groupBy,
+  groupOrder,
   loadingLabel = "Searching…",
   retryLabel = "Try again",
   countLabel = (n) => `${n} selected`,
@@ -331,6 +349,8 @@ export function SearchableSelect<
   open,
   onOpenChange,
   "aria-label": ariaLabel,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
   className,
   containerClassName,
   "data-slot": slot = "searchable-select",
@@ -373,8 +393,12 @@ export function SearchableSelect<
       }
       byGroup.get(g)!.push(item);
     }
-    return order.map((g) => ({ value: g, items: byGroup.get(g)! }));
-  }, [allItems, groupBy]);
+    const first = (groupOrder ?? []).filter((g) => byGroup.has(g));
+    return [...first, ...order.filter((g) => !first.includes(g))].map((g) => ({
+      value: g,
+      items: byGroup.get(g)!,
+    }));
+  }, [allItems, groupBy, groupOrder]);
   const filter = React.useMemo(() => {
     if (remote) return null;
     if (leadingKeys.size === 0) return undefined;
@@ -408,13 +432,18 @@ export function SearchableSelect<
   };
   const showFooter = error != null || (loadMore?.hasMore ?? false);
   // DS-22: the trigger is named by its label. Inside a `Field`, Base UI's Combobox gives the
-  // trigger `aria-labelledby` (and the description ids and `aria-invalid`), so no fallback name
-  // may be forced on it; only an unlabelled trigger falls back to the value, then the placeholder.
+  // trigger `aria-labelledby` (and the description ids and `aria-invalid`), and a `<label for>`
+  // names it natively; an `aria-label` would override either, so only a trigger with neither
+  // falls back to the value, then the placeholder.
   const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
   const triggerRef = React.useMemo(() => mergeRefs(setTrigger, ref), [ref]);
   const [labelled, setLabelled] = React.useState(false);
   React.useLayoutEffect(() => {
-    setLabelled(Boolean(trigger?.getAttribute("aria-labelledby")));
+    setLabelled(
+      Boolean(
+        trigger?.getAttribute("aria-labelledby") || trigger?.labels?.length,
+      ),
+    );
   });
   const triggerLabel =
     ariaLabel ??
@@ -467,6 +496,8 @@ export function SearchableSelect<
           ref={triggerRef}
           disabled={disabled}
           aria-label={triggerLabel}
+          aria-invalid={ariaInvalid || undefined}
+          aria-describedby={ariaDescribedBy}
           // The styling hook for "nothing selected yet", so a wrapper can tint the trigger from
           // the outside without reaching through to the value span.
           data-placeholder={hasValue ? undefined : ""}

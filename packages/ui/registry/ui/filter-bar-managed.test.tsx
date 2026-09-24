@@ -869,8 +869,76 @@ test("OptionsValueEditor round-trips a list value (DS-42)", async () => {
   );
   expect(screen.container.textContent).toContain("Non-dimmable");
   await screen.getByRole("combobox", { name: "Dimming values" }).click();
+  // A SearchableSelect multiple: the panel has a search field and stays open while picking.
+  await expect
+    .element(screen.getByRole("combobox", { name: "Search options" }))
+    .toBeInTheDocument();
   await screen.getByRole("option", { name: "DALI" }).click();
   expect(onValueChange).toHaveBeenLastCalledWith(["none", "dali"]);
+});
+
+test("OptionValueEditor searches above seven options (DS-42)", async () => {
+  const onValueChange = vi.fn();
+  const colours = "Red Orange Yellow Green Blue Indigo Violet Black"
+    .split(" ")
+    .map((label) => ({ value: label.toLowerCase(), label }));
+  const screen = await render(
+    <OptionValueEditor
+      field={{ ...RULES[0]!, options: colours }}
+      operator="is"
+      value={undefined}
+      onValueChange={onValueChange}
+      aria-label="Colour value"
+    />,
+  );
+  await screen.getByRole("combobox", { name: "Colour value" }).click();
+  await screen.getByRole("combobox", { name: "Search options" }).fill("vio");
+  await screen.getByRole("option", { name: "Violet" }).click();
+  expect(onValueChange).toHaveBeenLastCalledWith("violet");
+});
+
+test('fieldPicker="searchable" picks the field from a searchable list (DS-41)', async () => {
+  const screen = await render(
+    <RuleBuilder
+      fieldPicker="searchable"
+      initial={{
+        type: "group",
+        op: "and",
+        children: [RULE.children[0]!],
+      }}
+    />,
+  );
+  const picker = screen.getByRole("combobox", { name: "Field" });
+  await expect.element(picker).toHaveTextContent("Dimming");
+  await picker.click();
+  await screen.getByRole("combobox", { name: "Search fields" }).fill("wat");
+  await screen.getByRole("option", { name: "Wattage" }).click();
+  await expect.element(picker).toHaveTextContent("Wattage");
+  await expect
+    .poll(
+      () =>
+        screen.getByRole("combobox", { name: "Operator" }).element()
+          .textContent,
+    )
+    .toContain("is between");
+});
+
+test("a row error on a no-value operator is read by the field picker (DS-41)", async () => {
+  const screen = await render(
+    <Controlled
+      initial={{
+        type: "group",
+        op: "and",
+        children: [{ type: "condition", field: "owner", operator: "is-empty" }],
+      }}
+      conditionError={() => "Owner can't be empty here."}
+    />,
+  );
+  const picker = screen.getByRole("combobox", { name: "Field" });
+  await expect.element(picker).toHaveAttribute("aria-invalid", "true");
+  await expect
+    .element(picker)
+    .toHaveAccessibleDescription("Owner can't be empty here.");
 });
 
 test("NumberValueEditor round-trips a number (DS-42)", async () => {

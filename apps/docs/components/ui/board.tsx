@@ -1,4 +1,4 @@
-// @vegastack board@0.20.0 sha256-fR9qpbzv1U+0sRrBgSFB9O7q6W5HL/sSDeq0zjtJRVs=
+// @vegastack board@0.20.0 sha256-KIAv7A2mPKBVOSQVZSLglpAWEfdoImrpA6r5JINMb1E=
 
 "use client";
 
@@ -776,7 +776,9 @@ export function Board<T>({
                                   {renderCard(item, column)}
                                 </TruncationFocusProvider>
                               </BoardCardSurface>
-                              {readOnly ? null : (
+                              {/* A read-only lane (collapsed or terminal) keeps the card's own
+                                  actions; only the Move items go. */}
+                              {readOnly && itemActions.length === 0 ? null : (
                                 <DropdownMenu
                                   open={openMenuCard === id}
                                   onOpenChange={(open) =>
@@ -822,87 +824,94 @@ export function Board<T>({
                                             )
                                           }
                                         />
-                                        <DropdownMenuSeparator />
+                                        {readOnly ? null : (
+                                          <DropdownMenuSeparator />
+                                        )}
                                       </>
                                     ) : null}
-                                    {/* Within-column ordering — on touch the
+                                    {readOnly ? null : (
+                                      <>
+                                        {/* Within-column ordering — on touch the
                                         menu is the ONLY ordering path, so it
                                         must be lossless on its own. */}
-                                    {[
-                                      {
-                                        label: "Move up",
-                                        index: index - 1,
-                                        enabled: index > 0,
-                                      },
-                                      {
-                                        label: "Move down",
-                                        index: index + 1,
-                                        enabled:
-                                          index < column.items.length - 1,
-                                      },
-                                      {
-                                        label: "Move to top",
-                                        index: 0,
-                                        enabled: index > 0,
-                                      },
-                                      {
-                                        label: "Move to bottom",
-                                        index: column.items.length - 1,
-                                        enabled:
-                                          index < column.items.length - 1,
-                                      },
-                                    ].map((step) => (
-                                      <DropdownMenuItem
-                                        key={step.label}
-                                        disabled={!step.enabled}
-                                        onClick={() =>
-                                          reorder.requestMove({
-                                            id,
-                                            from: {
-                                              container: column.id,
-                                              index,
-                                            },
-                                            to: {
-                                              container: column.id,
-                                              index: step.index,
-                                            },
-                                          })
-                                        }
-                                      >
-                                        {step.label}
-                                      </DropdownMenuItem>
-                                    ))}
-                                    {moveTargetsFor(id, column).map(
-                                      ({ column: target, locked }) => (
-                                        <DropdownMenuItem
-                                          key={target.id}
-                                          disabled={locked}
-                                          onClick={() =>
-                                            reorder.requestMove({
-                                              id,
-                                              from: {
-                                                container: column.id,
-                                                index,
-                                              },
-                                              to: {
-                                                container: target.id,
-                                                index: target.items.length,
-                                              },
-                                            })
-                                          }
-                                        >
-                                          <span className="flex min-w-0 flex-col">
-                                            <span className="truncate">
-                                              Move to {laneLabel(target)}
-                                            </span>
-                                            {locked && target.lockedReason ? (
-                                              <span className="text-xs text-muted-foreground">
-                                                {target.lockedReason}
+                                        {[
+                                          {
+                                            label: "Move up",
+                                            index: index - 1,
+                                            enabled: index > 0,
+                                          },
+                                          {
+                                            label: "Move down",
+                                            index: index + 1,
+                                            enabled:
+                                              index < column.items.length - 1,
+                                          },
+                                          {
+                                            label: "Move to top",
+                                            index: 0,
+                                            enabled: index > 0,
+                                          },
+                                          {
+                                            label: "Move to bottom",
+                                            index: column.items.length - 1,
+                                            enabled:
+                                              index < column.items.length - 1,
+                                          },
+                                        ].map((step) => (
+                                          <DropdownMenuItem
+                                            key={step.label}
+                                            disabled={!step.enabled}
+                                            onClick={() =>
+                                              reorder.requestMove({
+                                                id,
+                                                from: {
+                                                  container: column.id,
+                                                  index,
+                                                },
+                                                to: {
+                                                  container: column.id,
+                                                  index: step.index,
+                                                },
+                                              })
+                                            }
+                                          >
+                                            {step.label}
+                                          </DropdownMenuItem>
+                                        ))}
+                                        {moveTargetsFor(id, column).map(
+                                          ({ column: target, locked }) => (
+                                            <DropdownMenuItem
+                                              key={target.id}
+                                              disabled={locked}
+                                              onClick={() =>
+                                                reorder.requestMove({
+                                                  id,
+                                                  from: {
+                                                    container: column.id,
+                                                    index,
+                                                  },
+                                                  to: {
+                                                    container: target.id,
+                                                    index: target.items.length,
+                                                  },
+                                                })
+                                              }
+                                            >
+                                              <span className="flex min-w-0 flex-col">
+                                                <span className="truncate">
+                                                  Move to {laneLabel(target)}
+                                                </span>
+                                                {locked &&
+                                                target.lockedReason ? (
+                                                  <span className="text-xs text-muted-foreground">
+                                                    {target.lockedReason}
+                                                  </span>
+                                                ) : null}
                                               </span>
-                                            ) : null}
-                                          </span>
-                                        </DropdownMenuItem>
-                                      ),
+                                            </DropdownMenuItem>
+                                          ),
+                                        )}
+                                      </>
                                     )}
                                   </DropdownMenuContent>
                                 </DropdownMenu>

@@ -2,8 +2,8 @@
  * `command-search-01.test.tsx` — the block's browser contract: changing scope (chip or Alt+→)
  * re-asks with the same query; results are grouped options, "No results" and the error line with
  * "Try again" have their states; ⌘↵ / Ctrl+↵ opens the selection in a new tab; Enter on a scope
- * chip switches scope rather than opening a result; a `javascript:` href is never followed;
- * axe-clean.
+ * chip switches scope rather than opening a result; a `javascript:` href is never followed; a
+ * settled search announces its count once, and never "0 results" while in flight; axe-clean.
  */
 
 import { render } from "vitest-browser-react";
@@ -12,7 +12,7 @@ import { expect, test, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
 import { CommandSearch, type SearchResult } from "./components/command-search";
-import { INDEX } from "./components/sample-search";
+import { INDEX, sampleSearch } from "./components/sample-search";
 
 const skyline = INDEX.filter((r) => r.title.includes("Skyline"));
 
@@ -62,7 +62,19 @@ test("no results and a failed search have their own states", async () => {
     <CommandSearch search={async () => []} defaultOpen />,
   );
   await userEvent.type(empty.getByRole("combobox"), "zzz");
-  await expect.element(empty.getByText("No results")).toBeInTheDocument();
+  await expect
+    .poll(
+      () => document.querySelector('[data-slot="command-empty"]')?.textContent,
+    )
+    .toBe("No results");
+  // …and the live region says so once, in the same words.
+  await expect
+    .poll(() =>
+      [...document.querySelectorAll('[role="status"]')].some(
+        (region) => region.textContent === "No results",
+      ),
+    )
+    .toBe(true);
   expect(document.querySelector('[role="listbox"]')).toBeNull();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
   await empty.unmount();
@@ -130,4 +142,33 @@ test("a javascript: href is not followed", async () => {
   expect(open).not.toHaveBeenCalled();
   expect(onOpenChange).not.toHaveBeenCalled();
   open.mockRestore();
+});
+
+test("a settled search announces its count once, and nothing while it is in flight", async () => {
+  const spoken: string[] = [];
+  const observer = new MutationObserver(() => {
+    for (const region of document.querySelectorAll('[role="status"]')) {
+      const text = region.textContent?.trim();
+      if (text && text !== "Searching…" && spoken.at(-1) !== text)
+        spoken.push(text);
+    }
+  });
+  observer.observe(document.body, {
+    subtree: true,
+    childList: true,
+    characterData: true,
+  });
+  const screen = await render(
+    <CommandSearch search={sampleSearch} defaultOpen />,
+  );
+  await userEvent.type(screen.getByRole("combobox"), "sky");
+  const count = INDEX.filter((r) =>
+    r.title.toLowerCase().includes("sky"),
+  ).length;
+  await expect.poll(() => spoken).toContain(`${count} results`);
+  await userEvent.clear(screen.getByRole("combobox"));
+  await userEvent.type(screen.getByRole("combobox"), "colour");
+  await expect.poll(() => spoken).toContain("1 result");
+  observer.disconnect();
+  expect(spoken).toEqual([`${count} results`, "1 result"]);
 });

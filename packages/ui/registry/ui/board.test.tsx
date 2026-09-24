@@ -738,6 +738,29 @@ test("defaultCollapsed renders the strip, named by the lane and its count", asyn
   ).toBe(true);
 });
 
+test("a read-only lane keeps a card's own actions and drops only the Move items (DS-51)", async () => {
+  const screen = await render(
+    laneBoard(
+      [{ id: "done", title: "Done", items: TWO_TASKS, defaultCollapsed: true }],
+      {
+        getItemActions: (t) => [
+          { label: `Edit ${t.title}`, onSelect: () => {} },
+        ],
+      },
+    ),
+  );
+  await screen.getByRole("button", { name: /^Done/ }).click();
+  await screen.getByRole("button", { name: "Actions for Write spec" }).click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Edit Write spec" }))
+    .toBeInTheDocument();
+  expect(
+    [...document.querySelectorAll('[role="menuitem"]')].map(
+      (n) => n.textContent,
+    ),
+  ).toEqual(["Edit Write spec"]);
+});
+
 test("getItemHref makes each card a real link, one roving tab stop", async () => {
   const onCardActivate = vi.fn();
   const screen = await render(

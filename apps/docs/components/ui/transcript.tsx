@@ -1,4 +1,4 @@
-// @vegastack transcript@0.20.0 sha256-a8ifqEHb/mTebYbEexrE36I7d7cm0MBdN1BWcsxrQ2U=
+// @vegastack transcript@0.20.0 sha256-pLKz1pPJOh8+UGBnqRIEIp/r8GAY1MRHwd0eePr0oKs=
 
 "use client";
 
@@ -762,7 +762,9 @@ export function TranscriptList({ className }: TranscriptListProps) {
       >
         {loading ? (
           <div className="flex flex-col gap-4 p-3">
-            <span className="sr-only">{loadingLabel}</span>
+            <span role="status" className="sr-only">
+              {loadingLabel}
+            </span>
             {[0, 1, 2].map((row) => (
               <div key={row} aria-hidden className="flex flex-col gap-2">
                 <Skeleton className="h-4 w-24" />
@@ -792,6 +794,10 @@ export function TranscriptList({ className }: TranscriptListProps) {
         aria-label={label}
         onWheel={pause}
         onTouchMove={pause}
+        onPointerDown={(event) => {
+          // A press on the viewport itself, not on a row, is its scrollbar: a drag is coming.
+          if (event.target === event.currentTarget) pause();
+        }}
         onKeyDown={(event) => {
           if (!SCROLL_KEYS.has(event.key)) return;
           if (event.key === " " && event.target !== event.currentTarget) return;

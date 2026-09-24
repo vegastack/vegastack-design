@@ -149,7 +149,8 @@ in the current page still shows its label.
 reads `{a}, {b}` or `{n} selected` (`countLabel`), each option reports `aria-selected`, and a form
 posts every key under `name`. `itemToDescription` adds a second line read as the option's
 description; `itemToDisabledReason` disables an option while keeping it reachable, with the reason
-as its description. `groupBy` puts the rows under headings.
+as its description. `groupBy` puts the rows under headings, in first-seen order; `groupOrder`
+lists the headings that come first whatever the rows' order.
 
 <ComponentPreview
   name="searchableSelectMultiple"
@@ -178,8 +179,10 @@ public ref is its root.
 
 - The trigger is `role="combobox"` with `aria-expanded` and `aria-haspopup="dialog"` — Base UI's
   pattern for a Select-style combobox whose input lives inside the panel. `role="combobox"`
-  prohibits name-from-content, so the trigger always carries an explicit `aria-label`, defaulting
-  to the selected item's label and falling back to the placeholder.
+  prohibits name-from-content, so the trigger is always named: by its `FieldLabel` inside a
+  `Field`, by a `<label for>` pointing at `id`, or by `aria-label`. With none of these it falls
+  back to the selected item's label, then the placeholder — never over a label it has.
+- Outside a `Field`, `aria-invalid` and `aria-describedby` wire the trigger to an error message.
 - The search field is labelled by the required `searchLabel` and focused when the panel opens.
 - The clear control is a `Button size="icon-xs"` **sibling** of the trigger with its own `aria-label`, so the
   trigger never nests one interactive control inside another.

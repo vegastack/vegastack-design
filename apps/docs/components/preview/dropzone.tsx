@@ -31,7 +31,17 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Select,
   SelectContent,
@@ -279,15 +289,38 @@ function uploadFile(
 }
 const retried = new WeakSet<File>();
 
+/**
+ * A stand-in for the host's "attach these uploads to the record" call. Its first call fails, so
+ * the preview shows the uploaded-but-not-saved branch: the bytes are stored, only the save retries.
+ */
+function saveFiles(
+  records: { name: string; category: string }[],
+  attempt: number,
+): Promise<void> {
+  return new Promise((resolve, reject) =>
+    window.setTimeout(
+      () =>
+        attempt === 0 && records.length > 0
+          ? reject(new Error("The server didn't respond."))
+          : resolve(),
+      600,
+    ),
+  );
+}
+
 type QueueItem = {
   id: string;
   file: File;
-  kind: string;
+  /** The record's name, editable per file; starts as the file name without its extension. */
+  name: string;
+  category: string;
   state: "uploading" | "error" | "done";
   progress: number;
   error?: string;
   /** Refused by the drop surface, so there is nothing to retry. */
   rejected?: boolean;
+  /** Attached to the record; until then a done upload is "uploaded, not saved". */
+  saved?: boolean;
 };
 
 function sampleFile(name: string, bytes: number, type: string): File {
@@ -300,31 +333,50 @@ function retriedOnce(file: File): File {
   return file;
 }
 
+const baseName = (file: File) => file.name.replace(/\.[^.]+$/, "");
+
 let nextQueueId = 0;
 
-export function dropzoneUploadQueue(): ReactNode {
-  const [kind, setKind] = useState("datasheet");
-  const [queue, setQueue] = useState<QueueItem[]>(() => [
+function seededQueue(): QueueItem[] {
+  const spec = sampleFile("beam-angle-spec.pdf", 2_400_000, "application/pdf");
+  const photo = retriedOnce(
+    sampleFile("fixture-photo.png", 1_200_000, "image/png"),
+  );
+  return [
     {
       id: "seed-done",
-      file: sampleFile("beam-angle-spec.pdf", 2_400_000, "application/pdf"),
-      kind: "datasheet",
+      file: spec,
+      name: baseName(spec),
+      category: "datasheet",
       state: "done",
       progress: 100,
     },
     {
       id: "seed-error",
-      file: retriedOnce(
-        sampleFile("fixture-photo.png", 1_200_000, "image/png"),
-      ),
-      kind: "photo",
+      file: photo,
+      name: baseName(photo),
+      category: "photo",
       state: "error",
       progress: 60,
       error: "The connection dropped.",
     },
-  ]);
+  ];
+}
+
+export function dropzoneUploadQueue(): ReactNode {
+  return <UploadQueueDemo />;
+}
+
+function UploadQueueDemo(): ReactNode {
+  const [mode, setMode] = useState<"single" | "multiple">("multiple");
+  const multiple = mode === "multiple";
+  const [queue, setQueue] = useState<QueueItem[]>(seededQueue);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [showInvalid, setShowInvalid] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const controllers = useRef(new Map<string, AbortController>());
+  const saveAttempts = useRef(0);
 
   useEffect(() => {
     const running = controllers.current;
@@ -335,6 +387,11 @@ export function dropzoneUploadQueue(): ReactNode {
     setQueue((current) =>
       current.map((item) => (item.id === id ? { ...item, ...next } : item)),
     );
+
+  const abortAll = () => {
+    controllers.current.forEach((controller) => controller.abort());
+    controllers.current.clear();
+  };
 
   const start = (id: string, file: File) => {
     const controller = new AbortController();
@@ -360,162 +417,287 @@ export function dropzoneUploadQueue(): ReactNode {
     );
   };
 
+  const remove = (id: string) =>
+    setQueue((current) => current.filter((item) => item.id !== id));
+
   const discard = (item: QueueItem) => {
-    controllers.current.get(item.id)?.abort();
-    controllers.current.delete(item.id);
-    setQueue((current) => current.filter(({ id }) => id !== item.id));
+    remove(item.id);
     setAnnouncement(`${item.file.name} discarded.`);
   };
 
+  // Cancelling drops the file from the queue: nothing was stored, so the surface is back to idle.
   const cancel = (item: QueueItem) => {
     controllers.current.get(item.id)?.abort();
     controllers.current.delete(item.id);
-    patch(item.id, { state: "error", error: "Upload cancelled." });
+    remove(item.id);
     setAnnouncement(`Upload of ${item.file.name} cancelled.`);
   };
 
   const accept = (files: File[]) => {
-    const added = files.map((file) => ({
+    const added = files.map((file): QueueItem => ({
       id: `upload-${nextQueueId++}`,
       file,
-      kind,
-      state: "uploading" as const,
+      name: baseName(file),
+      category: UPLOAD_KINDS[0]!.value,
+      state: "uploading",
       progress: 0,
     }));
-    setQueue((current) => [...current, ...added]);
+    if (!multiple) abortAll();
+    setQueue((current) => (multiple ? [...current, ...added] : added));
+    setSaveError(null);
     added.forEach((item) => start(item.id, item.file));
   };
 
-  const reject = (rejections: FileDropRejection[]) =>
-    setQueue((current) => [
-      ...current,
-      ...rejections.map(({ file, reasons }): QueueItem => ({
-        id: `upload-${nextQueueId++}`,
-        file,
-        kind,
-        state: "error",
-        progress: 0,
-        error: reasons.includes("file-too-large")
-          ? `${file.name} is larger than 25 MB.`
-          : `${file.name} isn't a supported file type.`,
-        rejected: true,
-      })),
-    ]);
+  const reject = (rejections: FileDropRejection[]) => {
+    const refused = rejections.map(({ file, reasons }): QueueItem => ({
+      id: `upload-${nextQueueId++}`,
+      file,
+      name: baseName(file),
+      category: UPLOAD_KINDS[0]!.value,
+      state: "error",
+      progress: 0,
+      error: reasons.includes("file-too-large")
+        ? `${file.name} is larger than 25 MB.`
+        : `${file.name} isn't a supported file type.`,
+      rejected: true,
+    }));
+    if (!multiple) abortAll();
+    setQueue((current) => (multiple ? [...current, ...refused] : refused));
+  };
+
+  const switchMode = (next: "single" | "multiple") => {
+    abortAll();
+    setMode(next);
+    setQueue([]);
+    setSaveError(null);
+    setShowInvalid(false);
+  };
+
+  const editable = queue.filter((item) => !item.rejected && !item.saved);
+  const unsaved = queue.filter((item) => item.state === "done" && !item.saved);
+  const uploading = queue.some((item) => item.state === "uploading");
+
+  const save = () => {
+    if (unsaved.some((item) => item.name.trim() === "")) {
+      setShowInvalid(true);
+      return;
+    }
+    setShowInvalid(false);
+    setSaving(true);
+    const ids = new Set(unsaved.map((item) => item.id));
+    saveFiles(
+      unsaved.map(({ name, category }) => ({ name: name.trim(), category })),
+      saveAttempts.current++,
+    ).then(
+      () => {
+        setSaving(false);
+        setSaveError(null);
+        setQueue((current) =>
+          current.map((item) =>
+            ids.has(item.id) ? { ...item, saved: true } : item,
+          ),
+        );
+        setAnnouncement(
+          ids.size === 1 ? "1 file saved." : `${ids.size} files saved.`,
+        );
+      },
+      (reason: unknown) => {
+        setSaving(false);
+        setSaveError(
+          reason instanceof Error ? reason.message : "The save failed.",
+        );
+      },
+    );
+  };
+
+  const describe = (item: QueueItem) => {
+    if (item.state === "error") return item.error;
+    if (item.state === "uploading") return `${item.progress}%`;
+    const size = formatSize(item.file.size);
+    return item.saved ? `Saved · ${size}` : `Uploaded, not saved · ${size}`;
+  };
 
   return (
     <Wrapper className="block">
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-3">
-        <Field>
-          <FieldLabel htmlFor="upload-kind">Attach as</FieldLabel>
-          <Select
-            items={UPLOAD_KINDS}
-            value={kind}
-            onValueChange={(value) => value && setKind(value)}
-          >
-            <SelectTrigger id="upload-kind" className="w-full sm:w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {UPLOAD_KINDS.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </Field>
+      <div className="mx-auto flex w-full max-w-xl flex-col gap-3">
+        <ToggleGroup
+          size="sm"
+          variant="outline"
+          deselectable={false}
+          aria-label="Files per upload"
+          value={[mode]}
+          onValueChange={(value) => {
+            const next = value[0];
+            if (next === "single" || next === "multiple") switchMode(next);
+          }}
+        >
+          <ToggleGroupItem value="single">One file</ToggleGroupItem>
+          <ToggleGroupItem value="multiple">Several files</ToggleGroupItem>
+        </ToggleGroup>
         <Dropzone
-          multiple
+          multiple={multiple}
           maxSize={MAX_UPLOAD_BYTES}
           accept={{
             "application/pdf": [".pdf"],
             "image/*": [".png", ".jpg", ".jpeg", ".webp"],
           }}
-          aria-label="Upload files"
+          aria-label={multiple ? "Upload files" : "Upload a file"}
           onFilesAccepted={accept}
           onFilesRejected={reject}
         >
           <Empty className="border">
             <EmptyHeader>
-              <EmptyTitle>Drop files here or browse</EmptyTitle>
+              <EmptyTitle>
+                {multiple
+                  ? "Drop files here or browse"
+                  : "Drop a file here or browse"}
+              </EmptyTitle>
               <EmptyDescription>
-                PDF or images, up to 25 MB each
+                {multiple
+                  ? "PDF or images, up to 25 MB each"
+                  : "PDF or image, up to 25 MB"}
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
         </Dropzone>
         {queue.length > 0 ? (
           <AttachmentGroup layout="grid" aria-label="Upload queue" role="group">
-            {queue.map((item) => {
-              const label =
-                UPLOAD_KINDS.find(({ value }) => value === item.kind)?.label ??
-                item.kind;
-              return (
-                <Attachment
-                  key={item.id}
-                  state={item.state}
-                  orientation="vertical"
-                >
-                  <AttachmentMedia>
-                    {item.state === "error" ? (
-                      <FileWarningIcon />
-                    ) : item.state === "done" ? (
-                      <CheckIcon />
-                    ) : (
-                      <FileTextIcon />
-                    )}
-                  </AttachmentMedia>
-                  <AttachmentContent>
-                    <AttachmentTitle>{item.file.name}</AttachmentTitle>
-                    <AttachmentDescription>
-                      {item.state === "error"
-                        ? item.error
-                        : item.state === "uploading"
-                          ? `${label} · ${item.progress}%`
-                          : `${label} · ${formatSize(item.file.size)}`}
-                    </AttachmentDescription>
-                  </AttachmentContent>
+            {queue.map((item) => (
+              <Attachment
+                key={item.id}
+                state={item.state}
+                orientation="vertical"
+              >
+                <AttachmentMedia>
+                  {item.state === "error" ? (
+                    <FileWarningIcon />
+                  ) : item.state === "done" ? (
+                    <CheckIcon />
+                  ) : (
+                    <FileTextIcon />
+                  )}
+                </AttachmentMedia>
+                <AttachmentContent>
+                  <AttachmentTitle>{item.file.name}</AttachmentTitle>
+                  <AttachmentDescription>
+                    {describe(item)}
+                  </AttachmentDescription>
+                </AttachmentContent>
+                {item.state === "uploading" ? (
+                  <AttachmentProgress
+                    value={item.progress}
+                    aria-label={`Uploading ${item.file.name}`}
+                  />
+                ) : null}
+                <AttachmentActions>
                   {item.state === "uploading" ? (
-                    <AttachmentProgress
-                      value={item.progress}
-                      aria-label={`Uploading ${item.file.name}`}
-                    />
+                    <AttachmentAction
+                      aria-label={`Cancel upload of ${item.file.name}`}
+                      title="Cancel upload"
+                      onClick={() => cancel(item)}
+                    >
+                      <X />
+                    </AttachmentAction>
                   ) : null}
-                  <AttachmentActions>
-                    {item.state === "uploading" ? (
-                      <AttachmentAction
-                        aria-label={`Cancel upload of ${item.file.name}`}
-                        title="Cancel upload"
-                        onClick={() => cancel(item)}
-                      >
-                        <X />
-                      </AttachmentAction>
-                    ) : null}
-                    {item.state === "error" && !item.rejected ? (
-                      <AttachmentAction
-                        aria-label={`Retry upload of ${item.file.name}`}
-                        title="Retry upload"
-                        onClick={() => start(item.id, item.file)}
-                      >
-                        <RotateCwIcon />
-                      </AttachmentAction>
-                    ) : null}
-                    {item.state !== "uploading" ? (
-                      <AttachmentAction
-                        aria-label={`Discard file ${item.file.name}`}
-                        title="Discard file"
-                        onClick={() => discard(item)}
-                      >
-                        <Trash2Icon />
-                      </AttachmentAction>
-                    ) : null}
-                  </AttachmentActions>
-                </Attachment>
-              );
-            })}
+                  {item.state === "error" && !item.rejected ? (
+                    <AttachmentAction
+                      aria-label={`Retry upload of ${item.file.name}`}
+                      title="Retry upload"
+                      onClick={() => start(item.id, item.file)}
+                    >
+                      <RotateCwIcon />
+                    </AttachmentAction>
+                  ) : null}
+                  {item.state !== "uploading" && !item.saved ? (
+                    <AttachmentAction
+                      aria-label={`Discard file ${item.file.name}`}
+                      title="Discard file"
+                      onClick={() => discard(item)}
+                    >
+                      <Trash2Icon />
+                    </AttachmentAction>
+                  ) : null}
+                </AttachmentActions>
+              </Attachment>
+            ))}
           </AttachmentGroup>
+        ) : null}
+        {editable.map((item) => {
+          const invalid = showInvalid && item.name.trim() === "";
+          return (
+            <FieldSet key={item.id}>
+              <FieldLegend variant="label">{item.file.name}</FieldLegend>
+              <FieldGroup className="grid gap-3 sm:grid-cols-2">
+                <Field data-invalid={invalid}>
+                  <FieldLabel htmlFor={`${item.id}-name`}>Name</FieldLabel>
+                  <Input
+                    id={`${item.id}-name`}
+                    value={item.name}
+                    aria-invalid={invalid || undefined}
+                    onChange={(event) =>
+                      patch(item.id, { name: event.target.value })
+                    }
+                  />
+                  {invalid ? <FieldError>Enter a name.</FieldError> : null}
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor={`${item.id}-category`}>
+                    Category
+                  </FieldLabel>
+                  <Select
+                    items={UPLOAD_KINDS}
+                    value={item.category}
+                    onValueChange={(value) =>
+                      value && patch(item.id, { category: value })
+                    }
+                  >
+                    <SelectTrigger
+                      id={`${item.id}-category`}
+                      className="w-full"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {UPLOAD_KINDS.map((kind) => (
+                          <SelectItem key={kind.value} value={kind.value}>
+                            {kind.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </FieldGroup>
+            </FieldSet>
+          );
+        })}
+        {saveError ? (
+          <Alert variant="destructive">
+            <AlertTitle>
+              {unsaved.length === 1
+                ? "1 file is uploaded but not saved"
+                : `${unsaved.length} files are uploaded but not saved`}
+            </AlertTitle>
+            <AlertDescription>
+              {saveError} The uploads are kept; saving again won't upload them
+              twice.
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        {unsaved.length > 0 ? (
+          <Button
+            className="self-start"
+            loading={saving}
+            disabled={uploading}
+            onClick={save}
+          >
+            {saveError
+              ? "Retry save"
+              : unsaved.length === 1
+                ? "Save file"
+                : `Save ${unsaved.length} files`}
+          </Button>
         ) : null}
         <span className="sr-only" role="status" aria-live="polite">
           {announcement}

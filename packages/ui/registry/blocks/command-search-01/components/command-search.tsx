@@ -1,4 +1,4 @@
-// @vegastack command-search-01@0.20.0 sha256-mM+u57OXPCKfiKiFGRTRtW59K5t8G7j6HKV7Vd0hG74=
+// @vegastack command-search-01@0.20.0 sha256-k/Xrfebo6yZjziWcV7qtXBPSBQIUau8g35qUXXwhXiA=
 
 "use client";
 
@@ -8,7 +8,11 @@ import {
   Box,
   CalendarDays,
   FileText,
+  FolderKanban,
+  Layers,
   ListChecks,
+  Puzzle,
+  SlidersHorizontal,
   TriangleAlert,
   UsersRound,
 } from "lucide-react";
@@ -38,7 +42,16 @@ import {
 /** One search result. */
 export interface SearchResult {
   id: string;
-  type: "meeting" | "task" | "product" | "customer" | "page";
+  type:
+    | "meeting"
+    | "task"
+    | "product"
+    | "family"
+    | "accessory"
+    | "customer"
+    | "project"
+    | "attribute"
+    | "page";
   title: string;
   /** One line of context, e.g. "Meeting · Skyline · 3 Sep". */
   description: string;
@@ -58,7 +71,11 @@ export const SCOPES = [
   { value: "meetings", label: "Meetings" },
   { value: "tasks", label: "Tasks" },
   { value: "products", label: "Products" },
+  { value: "families", label: "Families" },
+  { value: "accessories", label: "Accessories" },
   { value: "customers", label: "Customers" },
+  { value: "projects", label: "Projects" },
+  { value: "attributes", label: "Attributes" },
   { value: "pages", label: "Pages" },
 ] as const;
 
@@ -66,7 +83,11 @@ const GROUPS: { type: SearchResult["type"]; heading: string }[] = [
   { type: "meeting", heading: "Meetings" },
   { type: "task", heading: "Tasks" },
   { type: "product", heading: "Products" },
+  { type: "family", heading: "Families" },
+  { type: "accessory", heading: "Accessories" },
   { type: "customer", heading: "Customers" },
+  { type: "project", heading: "Projects" },
+  { type: "attribute", heading: "Attributes" },
   { type: "page", heading: "Pages" },
 ];
 
@@ -74,9 +95,24 @@ const ICONS: Record<SearchResult["type"], React.ElementType> = {
   meeting: CalendarDays,
   task: ListChecks,
   product: Box,
+  family: Layers,
+  accessory: Puzzle,
   customer: UsersRound,
+  project: FolderKanban,
+  attribute: SlidersHorizontal,
   page: FileText,
 };
+
+/**
+ * The settled count, spoken once per answer. `Command`'s own result announcer counts cmdk's items,
+ * which with `shouldFilter={false}` is 0 while the host call is in flight, so it would say
+ * "0 results" on every keystroke; the block silences it and speaks the answer itself.
+ */
+function resultsLabel(count: number): string {
+  if (count === 0) return "No results";
+  return count === 1 ? "1 result" : `${count} results`;
+}
+const silentResultsLabel = () => "";
 
 /** Only http(s) and same-origin relative links are followed; `javascript:` and the rest are not. */
 function isSafeHref(href: string): boolean {
@@ -195,6 +231,7 @@ export function CommandSearch({
           if (controller.signal.aborted) return;
           setResults(next);
           setStatus("ready");
+          announce(resultsLabel(next.length));
         },
         () => {
           if (!controller.signal.aborted) setStatus("error");
@@ -205,7 +242,7 @@ export function CommandSearch({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query, scope, attempt]);
+  }, [announce, query, scope, attempt]);
 
   const shown = query.trim() ? results : recents;
   const byId = new Map(shown.map((r) => [r.id, r]));
@@ -253,10 +290,11 @@ export function CommandSearch({
       onOpenChange={setOpen}
       size="lg"
       title="Search"
-      description="Search meetings, tasks, products, customers and pages"
+      description="Search meetings, tasks, products, families, accessories, customers, projects, attributes and pages"
     >
       <Command
         shouldFilter={false}
+        resultsLabel={silentResultsLabel}
         value={selected}
         onValueChange={setSelected}
         onKeyDown={onCommandKeyDown}

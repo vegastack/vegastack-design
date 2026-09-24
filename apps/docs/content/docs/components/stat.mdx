@@ -60,6 +60,15 @@ all three delta intents.
 
 <ComponentPreview name="statTiles" file="components/preview/stat.tsx" />
 
+### Linked stat tiles
+
+When a count opens the list it counts, make the whole tile the link: an outline `Item` rendered as
+an `<a>`, with the label first and the value after it. The link's accessible name is the tile's text
+in reading order, so each tile announces as "Overdue tasks 3" with no `aria-label` to keep in sync.
+While counts load, a `Skeleton` stands in for the value and the label keeps naming the link.
+
+<ComponentPreview name="statLinkedTiles" file="components/preview/stat.tsx" />
+
 ## API Reference
 
 ### Stat

@@ -212,7 +212,7 @@
     "API-21": ["dialog", "sheet"],
     "A11Y-20": ["tabs", "toggle-group"],
     "LAY-14": ["tabs"],
-    "API-25": ["badge"],
+    "API-25": ["badge", "tabs"],
     "API-23": ["toggle-group"],
     "A11Y-19": ["checkbox"],
     "FRM-15": ["checkbox", "radio-group"],

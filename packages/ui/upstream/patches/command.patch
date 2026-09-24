@@ -40,7 +40,7 @@
 #     outside the listbox. cmdk renders its loading slot as a `progressbar` with no value and
 #     `aria-hidden` text, written AFTER spreading props, so the part corrects the node in a layout
 #     effect (as `CommandList` does): `role="status"`, no `aria-value*`/`aria-label`, and the text
-#     exposed — a polite status whose text is spoken (A11Y-3). Default text "Loading…" (VOI-1).
+#     exposed — a polite status whose text is spoken (A11Y-3). Default text "Searching…" (VOI-1; the palette is always a search).
 #     Given a `progress` value the slot stays cmdk's labelled `progressbar`, so the value is
 #     still exposed; switching mode remounts the node.
 #   API-19: `CommandItem` provides `ItemDescriptionContext` (from `item`) and points
@@ -53,7 +53,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..87415da 100644
+index 5cb64c9..ac30cc4 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -288,7 +288,7 @@ index 5cb64c9..87415da 100644
 +function CommandLoading({
 +  className,
 +  children,
-+  label = "Loading…",
++  label = "Searching…",
 +  progress,
 +  ref,
 +  ...props

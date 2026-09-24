@@ -207,6 +207,20 @@ test("DS-22: inside an invalid Field the trigger is described and invalid", asyn
   await expect.element(trigger).toHaveAccessibleDescription(/Pick a project/);
 });
 
+test("DS-22: a <label for> names the trigger; no fallback aria-label overrides it", async () => {
+  const screen = await render(
+    <>
+      <label htmlFor="project">Project</label>
+      <Picker id="project" value={PROJECTS[0]} onValueChange={() => {}} />
+    </>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Project" });
+  await expect.element(trigger).toBeInTheDocument();
+  await expect
+    .poll(() => trigger.element().hasAttribute("aria-label"))
+    .toBe(false);
+});
+
 test("DS-22: standalone with no label it still falls back to the value, then the placeholder", async () => {
   const screen = await render(<Picker value={PROJECTS[2]} />);
   await expect

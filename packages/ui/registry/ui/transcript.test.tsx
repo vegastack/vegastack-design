@@ -272,6 +272,11 @@ for (const [how, act] of [
       v.dispatchEvent(new WheelEvent("wheel", { deltaY: 120, bubbles: true })),
   ],
   [
+    "scrollbar",
+    (v: HTMLElement) =>
+      v.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })),
+  ],
+  [
     "touch",
     (v: HTMLElement) =>
       v.dispatchEvent(new Event("touchmove", { bubbles: true })),

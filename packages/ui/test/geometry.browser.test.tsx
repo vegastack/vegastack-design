@@ -3468,6 +3468,117 @@ test("sidebarCounts: a long label stops short of its count (sidebar-badge-long-l
 });
 
 /**
+ * dropzone-upload-queue (DS-45). The docs recipe's branches, on the real preview: an upload in
+ * flight shows progress and Cancel returns the surface to idle; a refused file says why; a done
+ * upload carries per-file Name and Category fields; the first save fails into the
+ * uploaded-but-not-saved branch and "Retry save" saves without re-uploading; One file empties the
+ * queue.
+ */
+test("dropzoneUploadQueue: cancel returns to idle, and a failed save retries (dropzone-upload-queue)", async () => {
+  const fixture = (Preview as Record<string, () => React.ReactNode>)
+    .dropzoneUploadQueue;
+  expect(
+    fixture,
+    "dropzoneUploadQueue is not exported by the preview barrel",
+  ).toBeTypeOf("function");
+  const Fixture = () => <>{fixture!()}</>;
+  const screen = await render(<Fixture />);
+  await settle();
+  const tiles = () =>
+    document.querySelectorAll(
+      '[aria-label="Upload queue"] [data-slot="attachment"]',
+    );
+  const drop = async (file: File) => {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const target = document.querySelector<HTMLElement>(
+      '[data-slot="dropzone"]',
+    )!;
+    for (const type of ["dragenter", "dragover", "drop"] as const) {
+      target.dispatchEvent(
+        new DragEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: dt,
+        }),
+      );
+      await new Promise((r) => setTimeout(r, 20));
+    }
+  };
+
+  // The seeded, uploaded file has its own fields, and is not yet saved.
+  expect(tiles()).toHaveLength(2);
+  await expect
+    .element(screen.getByText(/Uploaded, not saved/))
+    .toBeInTheDocument();
+  await expect
+    .element(
+      screen
+        .getByRole("group", { name: "beam-angle-spec.pdf" })
+        .getByRole("textbox", { name: "Name" }),
+    )
+    .toHaveValue("beam-angle-spec");
+
+  // In flight → progress and Cancel; cancelling drops it again.
+  await drop(
+    new File([new Uint8Array(4)], "wiring.pdf", { type: "application/pdf" }),
+  );
+  await expect
+    .element(screen.getByRole("progressbar", { name: "Uploading wiring.pdf" }))
+    .toBeInTheDocument();
+  await screen
+    .getByRole("button", { name: "Cancel upload of wiring.pdf" })
+    .click();
+  await expect.poll(() => tiles().length).toBe(2);
+
+  // A refused file says why.
+  await drop(
+    new File([new Uint8Array(4)], "notes.txt", { type: "text/plain" }),
+  );
+  await expect
+    .element(screen.getByText("notes.txt isn't a supported file type."))
+    .toBeInTheDocument();
+
+  // The first save fails; the uploads stay, and the retry saves them.
+  await screen.getByRole("button", { name: "Save file" }).click();
+  await expect
+    .element(screen.getByText("1 file is uploaded but not saved"))
+    .toBeInTheDocument();
+  await screen.getByRole("button", { name: "Retry save" }).click();
+  await expect.element(screen.getByText(/^Saved ·/)).toBeInTheDocument();
+
+  // One file: the queue empties and the surface is idle.
+  await screen.getByRole("button", { name: "One file" }).click();
+  await expect.poll(() => tiles().length).toBe(0);
+  await expect
+    .element(screen.getByText("Drop a file here or browse"))
+    .toBeInTheDocument();
+  await screen.unmount();
+});
+
+/**
+ * tabs-count-name (A11Y-17's rule, applied to tabs). `tabsCounts` shows each count as an
+ * `aria-hidden` number and speaks it through an `sr-only` suffix, so on compiled CSS the tab's
+ * computed name is the label and the counted noun as separate words — never "Open12".
+ */
+test("tabsCounts: a count is part of the tab's name, read once (tabs-count-name)", async () => {
+  const fixture = (Preview as Record<string, () => React.ReactNode>).tabsCounts;
+  expect(
+    fixture,
+    "tabsCounts is not exported by the preview barrel",
+  ).toBeTypeOf("function");
+  const Fixture = () => <>{fixture!()}</>;
+  const screen = await render(<Fixture />);
+  await settle();
+  for (const name of ["Open 12 tasks", "In review 3 tasks", "Closed"]) {
+    await expect
+      .element(screen.getByRole("tab", { name, exact: true }))
+      .toBeInTheDocument();
+  }
+  await screen.unmount();
+});
+
+/**
  * checkbox-mixed — the A11Y-19 glyph and the FRM-15 dimming, on compiled CSS.
  *
  * The component suite proves WHICH glyph is in the DOM; only compiled CSS can prove that the minus

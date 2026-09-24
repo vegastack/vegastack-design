@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.20.0 sha256-h4+qzhMR/YTlRRWTIJpUksuxOtUlF0QiQH5NbRbvAvE=
+// @vegastack list-page-01@0.20.0 sha256-Ty2k5WjhieDkp2/+E8vlwavrEBoz41v2MzoGK4q2wLA=
 
 "use client";
 
@@ -51,12 +51,13 @@ type Scope = "mine" | "team";
 type Status = Customer["status"];
 
 const STATUSES: Status[] = ["Active", "Prospect", "Paused"];
+type Industry = Customer["industry"];
+const INDUSTRIES: Industry[] = ["Hospitality", "Retail", "Offices"];
 const STATUS_BADGE: Record<Status, BadgeVariant> = {
   Active: "success",
   Prospect: "info",
   Paused: "outline",
 };
-const INDUSTRIES: Customer["industry"][] = ["Hospitality", "Retail", "Offices"];
 
 /** Props for {@link CustomerList}. */
 export interface CustomerListProps {
@@ -85,12 +86,17 @@ export interface CustomerListProps {
    * @default "list"
    */
   defaultView?: View;
+  /**
+   * A read-only list: no "New customer" in the empty state.
+   * @default false
+   */
+  readOnly?: boolean;
 }
 
 const customerHref = (customer: Customer) => `/customers/${customer.id}`;
 
 /**
- * The customer list: a `FilterBar` (search first, a Status facet, a Mine | Team switch and a
+ * The customer list: a `FilterBar` (search first, Status and Industry facets, a Mine | Team switch and a
  * Grid | List view switch) over the same records as a `DataList` or a grid of whole-tile links
  * grouped by industry, paged with Load more. Three empty tiers: nothing yet, no matches (with
  * "Clear filters"), and a failed load (with "Try again").
@@ -104,11 +110,17 @@ export function CustomerList({
   error,
   onRetry,
   defaultView = "list",
+  readOnly = false,
 }: CustomerListProps) {
   const [view, setView] = React.useState<View>(defaultView);
   const [scope, setScope] = React.useState<Scope>("team");
+  // The field follows every keystroke; the list follows the settled (debounced) query.
   const [query, setQuery] = React.useState("");
+  const [committedQuery, setCommittedQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<Status | null>(null);
+  const [industryFilter, setIndustryFilter] = React.useState<Industry | null>(
+    null,
+  );
   const [pages, setPages] = React.useState(1);
   const [loadingMore, setLoadingMore] = React.useState(false);
   const searchRef = React.useRef<HTMLInputElement>(null);
@@ -116,21 +128,25 @@ export function CustomerList({
   const inScope = customers.filter(
     (c) => scope === "team" || c.owner === CURRENT_USER,
   );
-  const needle = query.trim().toLowerCase();
+  const needle = committedQuery.trim().toLowerCase();
   const matching = inScope.filter(
     (c) =>
       (statusFilter === null || c.status === statusFilter) &&
+      (industryFilter === null || c.industry === industryFilter) &&
       (needle === "" ||
         c.name.toLowerCase().includes(needle) ||
         c.city.toLowerCase().includes(needle)),
   );
   const shown = matching.slice(0, pages * PAGE_SIZE);
   const hasMore = shown.length < matching.length;
-  const filtering = needle !== "" || statusFilter !== null;
+  const filtering =
+    query.trim() !== "" || statusFilter !== null || industryFilter !== null;
 
   function clearFilters() {
     setQuery("");
+    setCommittedQuery("");
     setStatusFilter(null);
+    setIndustryFilter(null);
     setPages(1);
     // The button that called this unmounts; keep focus in the filters.
     searchRef.current?.focus();
@@ -149,6 +165,7 @@ export function CustomerList({
     {
       key: "name",
       header: "Customer",
+      mobile: "visible",
       render: (c) => (
         <span className="flex min-w-0 flex-col">
           <span className="truncate font-medium">{c.name}</span>
@@ -161,11 +178,13 @@ export function CustomerList({
     {
       key: "status",
       header: "Status",
+      mobile: "visible",
       render: (c) => <Badge variant={STATUS_BADGE[c.status]}>{c.status}</Badge>,
     },
     {
       key: "projects",
       header: "Projects",
+      mobile: "merge",
       className: "text-end tabular-nums",
       headerClassName: "text-end",
       render: (c) => c.projects,
@@ -173,6 +192,7 @@ export function CustomerList({
     {
       key: "updated",
       header: "Updated",
+      mobile: "hidden",
       render: (c) => (
         <RelativeTime date={c.updatedAt} className="text-muted-foreground" />
       ),
@@ -222,11 +242,13 @@ export function CustomerList({
             Customers you add show up here, with their projects and status.
           </EmptyDescription>
         </EmptyHeader>
-        <EmptyContent>
-          <a href="/customers/new" className={buttonVariants()}>
-            New customer
-          </a>
-        </EmptyContent>
+        {readOnly ? null : (
+          <EmptyContent>
+            <a href="/customers/new" className={buttonVariants()}>
+              New customer
+            </a>
+          </EmptyContent>
+        )}
       </Empty>
     );
   } else if (ready && matching.length === 0) {
@@ -338,16 +360,17 @@ export function CustomerList({
         searchPlacement="start"
         search={{
           value: query,
-          onValueChange: (value) => {
-            setQuery(value);
+          onValueChange: setQuery,
+          onValueCommitted: (value) => {
+            setCommittedQuery(value);
             setPages(1);
           },
           placeholder: "Search customers…",
           "aria-label": "Search customers",
         }}
         searchInputProps={{ ref: searchRef }}
-        trailing={
-          <div className="flex flex-wrap items-center gap-2">
+        facets={
+          <>
             <FilterBarFacet<{ id: Status; name: Status }>
               label="Status"
               items={STATUSES.map((st) => ({ id: st, name: st }))}
@@ -362,6 +385,26 @@ export function CustomerList({
               itemToStringLabel={(item) => item.name}
               searchLabel="Search statuses"
             />
+            <FilterBarFacet<{ id: Industry; name: Industry }>
+              label="Industry"
+              items={INDUSTRIES.map((ind) => ({ id: ind, name: ind }))}
+              value={
+                industryFilter
+                  ? { id: industryFilter, name: industryFilter }
+                  : null
+              }
+              onValueChange={(item) => {
+                setIndustryFilter(item ? item.id : null);
+                setPages(1);
+              }}
+              itemToKey={(item) => item.id}
+              itemToStringLabel={(item) => item.name}
+              searchLabel="Search industries"
+            />
+          </>
+        }
+        trailing={
+          <div className="flex flex-wrap items-center gap-2">
             {filtering ? (
               <Button variant="ghost" onClick={clearFilters}>
                 Clear filters

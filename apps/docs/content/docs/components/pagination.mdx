@@ -63,9 +63,9 @@ import {
 ### Composition
 
 `Pagination` is a `nav` labelled `pagination`; `PaginationContent` is the `ul` inside it, and every
-control sits in its own `PaginationItem`. `PaginationLink` renders a `Button` with
-`nativeButton={false}` around an anchor it builds itself, so anchor props — `href`, `onClick` — go
-straight on `PaginationLink`.
+control sits in its own `PaginationItem`. `PaginationLink` renders a plain `<a>`
+styled with `buttonVariants` (`outline` when `isActive`, `ghost` otherwise), so anchor props —
+`href`, `onClick` — go straight on `PaginationLink`.
 
 ```text
 Pagination

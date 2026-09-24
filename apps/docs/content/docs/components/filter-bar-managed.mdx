@@ -137,10 +137,21 @@ Option values read by their labels, numbers carry the field's `unit`, ranges rea
 Five editors ship with the item, for the `editors` registry or on their own: `TextValueEditor`,
 `NumberValueEditor` (a `NumberField` with the field's `unit`), `NumberRangeEditor` (Minimum and
 Maximum; either may be empty, and a minimum above the maximum is an error on the Minimum field),
-`OptionValueEditor` and `OptionsValueEditor` (one or several of the field's `options`). Without an
+`OptionValueEditor` and `OptionsValueEditor` (one or several of the field's `options` — one on a
+`Select` up to seven options and a `SearchableSelect` above seven, several always on a
+`SearchableSelect multiple`; both take `placeholder` and `searchLabel`). Without an
 entry in `editors`, a `range` operator gets `NumberRangeEditor`, a `list` operator on a field with
 `options` gets `OptionsValueEditor`, a field with `options` gets `OptionValueEditor`, and the rest get
 `TextValueEditor`. `editors.range` and `editors.list` override the shape defaults.
+
+For a long vocabulary, `fieldPicker="searchable"` makes each row's field picker a
+`SearchableSelect`; `fieldPickerProps` reaches it, so `remote` with `useAsyncSearch` searches the
+fields on the server (every field it offers must also be in `vocabulary`).
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
+  name="OptionValueEditorProps"
+/>
 
 ### Depth and condition caps
 
@@ -183,6 +194,8 @@ visible text beside it.
   top of the page.
 - A value-requiring condition without a value is flagged with visible text
   ("Value required") and `data-invalid`, never colour alone.
+- A row's own error (`conditionError`) is read as the field picker's description, with
+  `aria-invalid` — so it is announced even for an operator that takes no value.
 - At the depth or condition cap the add affordances disable and the reason
   renders as visible text beside them.
 

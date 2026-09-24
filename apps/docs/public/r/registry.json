@@ -208,7 +208,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — gutters, rhythm and a narrow/default/full measure.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.20.0",
-        "integrity": "sha256-BkfO/Cjyt+fxGMGeKpNDM1yrxaYOtc6WW6lmm+O3FSg="
+        "integrity": "sha256-FWD57TRKowOoPU1FbDIXkNVjGekVIMq7q9wsz5gCCz8="
       }
     },
     {
@@ -300,7 +300,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, and `actionsRef` seeks it from a transcript or chapter list.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.20.0",
-        "integrity": "sha256-KuiLbnLuriReT5iKhzWWuJfWPqHmwAMucyZK0khIsuU="
+        "integrity": "sha256-Hz36YqoHoU1R9mhnCgfkiLQws6txv0hOqrWozB1zhi8="
       }
     },
     {
@@ -430,7 +430,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.20.0",
-        "integrity": "sha256-fR9qpbzv1U+0sRrBgSFB9O7q6W5HL/sSDeq0zjtJRVs="
+        "integrity": "sha256-KIAv7A2mPKBVOSQVZSLglpAWEfdoImrpA6r5JINMb1E="
       }
     },
     {
@@ -914,7 +914,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.20.0",
-        "integrity": "sha256-w1DEquT3IiaOaeA5KTy0bynhSQaAjhdNjnOP9UlFXrk="
+        "integrity": "sha256-C1UvJCW6XdDhSuT3yQt/EWSng3x+8Elf2+akSZQXyHQ="
       }
     },
     {
@@ -1578,7 +1578,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.20.0",
-        "integrity": "sha256-ufwrF6BkHgl3J5LOU59Y2ut5wjg7jbYP7sU4i2u1ldY="
+        "integrity": "sha256-fPFa0Yc8JigmBJpyNY3kK7GbTHC8CG2odmTgzlxDPIY="
       }
     },
     {
@@ -1599,6 +1599,7 @@
         "@vegastack/filter-bar",
         "@vegastack/input",
         "@vegastack/number-field",
+        "@vegastack/searchable-select",
         "@vegastack/select"
       ],
       "files": [
@@ -1612,7 +1613,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.20.0",
-        "integrity": "sha256-rlWPkHFBG4bzTsnuCief/NoDUxvu0EyVZTq4ps7DZAk="
+        "integrity": "sha256-j8Ajft9ecwm1IEEkY6ou3cbNQ0X+rNEnR1fmadYObjk="
       }
     },
     {
@@ -15165,7 +15166,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
         "version": "0.20.0",
-        "integrity": "sha256-a8ifqEHb/mTebYbEexrE36I7d7cm0MBdN1BWcsxrQ2U="
+        "integrity": "sha256-pLKz1pPJOh8+UGBnqRIEIp/r8GAY1MRHwd0eePr0oKs="
       }
     },
     {
@@ -15492,7 +15493,7 @@
         "whenToUse": "Once, around your app root (layout.tsx) — every VegaStack component below it gets dark mode, working toast() calls, shared tooltip delays, and direction context.",
         "whenNotToUse": "Anywhere below the root, or a second time — the bundled Toaster is a mount-once portal; pass toaster={false} if you must render your own.",
         "version": "0.20.0",
-        "integrity": "sha256-yJJB2+7LJJHuCxQZ1nO7+foKDOT0ImOEm6f9vkwTi/0="
+        "integrity": "sha256-7oVE6Njdtq+QUo5UGETcx+Z5pC7PhtgGtOcKqfmnULw="
       }
     },
     {
@@ -15674,7 +15675,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.20.0",
-        "integrity": "sha256-ozxlwLCOnaKkXC2OMXFNX7LCgKnzBrxkGor7cg/adHA="
+        "integrity": "sha256-ddgXHGt+5fyTPDDMhYFDdcblW2gTWWsjwlT2c+pehGc="
       }
     },
     {
@@ -16236,7 +16237,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "Layered content sections — line or pill variants, optional icons and count badges, horizontal or vertical, full keyboard navigation.",
+      "description": "Layered content sections — line or pill variants, optional icons and counts, horizontal or vertical, full keyboard navigation.",
       "categories": [
         "navigation"
       ],
@@ -16255,10 +16256,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
+        "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.20.0",
-        "integrity": "sha256-YYjd52L9zlOGyQz2RbX0ly4r/6rFWgpBmrWgLu8BwcE="
+        "integrity": "sha256-QRStaw29bEhzKR5X9YOPwdQtTN4SxbhwkErgO/J1uu8="
       }
     },
     {
@@ -19406,7 +19407,7 @@
         "whenToUse": "A detail page that reviews a record against a long companion pane, such as a meeting with its transcript — copy it once and wire your record.",
         "whenNotToUse": "A plain detail page with one column — compose AppShellPage and PageHeader directly.",
         "version": "0.20.0",
-        "integrity": "sha256-dQKMqgF61Qjz+q7DW2kTU0ra+T6QF9ikjyn4zRMiySc="
+        "integrity": "sha256-xdnMTi0ID77GR4UJ/x7kzAS8YrcU+yeMoqjuEI5v6U0="
       }
     },
     {
@@ -19457,7 +19458,7 @@
         "whenToUse": "A page that lists one kind of record — customers, products, projects — copy it once and wire the filters, paging and routes to your API.",
         "whenNotToUse": "A small list inside another page — compose DataList or an ItemGroup directly.",
         "version": "0.20.0",
-        "integrity": "sha256-h4+qzhMR/YTlRRWTIJpUksuxOtUlF0QiQH5NbRbvAvE="
+        "integrity": "sha256-Ty2k5WjhieDkp2/+E8vlwavrEBoz41v2MzoGK4q2wLA="
       }
     },
     {
@@ -19558,7 +19559,7 @@
         "whenToUse": "App-wide search behind ⌘K and the sidebar's Search row — copy it once and pass your search call.",
         "whenNotToUse": "Filtering one list in place — use FilterBar's search.",
         "version": "0.20.0",
-        "integrity": "sha256-mM+u57OXPCKfiKiFGRTRtW59K5t8G7j6HKV7Vd0hG74="
+        "integrity": "sha256-k/Xrfebo6yZjziWcV7qtXBPSBQIUau8g35qUXXwhXiA="
       }
     }
   ]
