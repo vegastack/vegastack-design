@@ -75,6 +75,22 @@ an automated check can synthesise. It is presentation only: a real drag always w
   file="components/preview/dropzone.tsx"
 />
 
+### Upload queue
+
+Dropzone only acquires files; the host owns the queue. This example hands each accepted file to an
+`uploadFile(file, { onProgress, signal })` call — a stub here, `fetch` or `XMLHttpRequest` in an app
+— and renders the queue as `Attachment` tiles in an `AttachmentGroup layout="grid"`. An upload in
+flight shows `AttachmentProgress` and a **Cancel upload** action that aborts its signal; a failed
+one offers **Retry upload** and **Discard file**. Refused files join the queue as error tiles whose
+description says why ("… is larger than 25 MB.", "… isn't a supported file type."), and a polite
+status line announces each upload that finishes or fails. The **Attach as** `Select` in a `Field`
+tags the next batch.
+
+<ComponentPreview
+  name="dropzoneUploadQueue"
+  file="components/preview/dropzone.tsx"
+/>
+
 ## API Reference
 
 <ApiTable
