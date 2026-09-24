@@ -19,7 +19,7 @@ test("board-01 has one h1 and lanes named with their count", async () => {
     .toBeInTheDocument();
   expect(document.querySelectorAll("h1")).toHaveLength(1);
   await expect
-    .element(screen.getByRole("region", { name: "Backlog, 3 tasks" }))
+    .element(screen.getByRole("region", { name: "Backlog, 6 tasks" }))
     .toBeInTheDocument();
   await expect
     .element(screen.getByRole("region", { name: "In review, 1 task" }))
@@ -34,6 +34,21 @@ test("board-01 cards are links to each task", async () => {
   expect(document.querySelector('a[href="#"]')).toBeNull();
 });
 
+test("board-01 pages the Backlog and gives each card its own menu", async () => {
+  const screen = await render(<Board01Page />);
+  await expect
+    .element(screen.getByRole("region", { name: "Backlog, 6 tasks" }))
+    .toBeInTheDocument();
+  await screen.getByRole("button", { name: "Load more" }).click();
+  await expect
+    .element(screen.getByRole("link", { name: /Rotate API signing keys/ }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Load more" }))
+    .not.toBeInTheDocument();
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
 test("board-01 shows No matches and clears its filters", async () => {
   const screen = await render(<Board01Page />);
   await userEvent.type(
@@ -46,6 +61,6 @@ test("board-01 shows No matches and clears its filters", async () => {
   await expectNoA11yViolations(document.body, ["color-contrast"]);
   await screen.getByRole("button", { name: "Clear filters" }).first().click();
   await expect
-    .element(screen.getByRole("region", { name: "Backlog, 3 tasks" }))
+    .element(screen.getByRole("region", { name: "Backlog, 6 tasks" }))
     .toBeInTheDocument();
 });

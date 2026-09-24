@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "f923eb4c33a6f0150d45decb1653bb1620d00e21c3cfaf56a6d9306c6dfabd98",
+  "contractSha256": "1d2bb129e81f6a019b94bbd4e335076c5c17f3b83890cbeb5977aac0194b0081",
   "expectedCounts": {
-    "totalRegistryItems": 670,
+    "totalRegistryItems": 673,
     "components": 114,
     "animatedIcons": 467,
     "hooks": 12,
-    "blocks": 7,
+    "blocks": 10,
     "libs": 2,
     "chartBlocks": 68
   },
@@ -6563,6 +6563,32 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "command-search-01",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+        "packages/ui/registry/blocks/command-search-01/components/sample-search.ts",
+        "packages/ui/registry/blocks/command-search-01/page.tsx"
+      ],
+      "docsSlug": "/docs/blocks/command-search-01",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "list-page-01",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/list-page-01/components/customer-list.tsx",
+        "packages/ui/registry/blocks/list-page-01/components/sample-customers.ts",
+        "packages/ui/registry/blocks/list-page-01/page.tsx"
+      ],
+      "docsSlug": "/docs/blocks/list-page-01",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "login-01",
       "inventoryClass": "block",
       "wave": "Block",
@@ -6572,6 +6598,19 @@
         "packages/ui/registry/blocks/login-01/page.tsx"
       ],
       "docsSlug": "/docs/blocks/login-01",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "notifications-01",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/notifications-01/components/inbox-sheet.tsx",
+        "packages/ui/registry/blocks/notifications-01/components/sample-notifications.ts",
+        "packages/ui/registry/blocks/notifications-01/page.tsx"
+      ],
+      "docsSlug": "/docs/blocks/notifications-01",
       "contractStatus": "reconciled"
     },
     {

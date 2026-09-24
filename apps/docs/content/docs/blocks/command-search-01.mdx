@@ -1,0 +1,65 @@
+---
+title: command-search-01
+description: A search palette with scope chips, recents, results grouped by type, loading, empty and error states, and ⌘↵ to open in a new tab.
+audience: public
+registry: command-search-01
+preview: commandSearch01Demo
+---
+
+## What it is
+
+A search palette — scope chips, recents, results grouped by type, loading, empty and error states, and ⌘↵ to open in a new tab. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+`CommandSearch` in `components/` is the palette; `sample-search.ts` is a stand-in `search(query, scope, signal)` over an in-memory index.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/command-search-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `app-shell`, `button`, `command`, `item`, `kbd`, `page-header`, `toggle-group`, `use-platform`.
+
+## Preview
+
+<ComponentPreview name="commandSearch01Demo" />
+
+## Anatomy
+
+- `CommandDialog size="lg"` › `Command shouldFilter={false}` — the host's search does the matching.
+- `CommandInput` "Search…", then the scope chips — All · Meetings · Tasks · Products · Customers ·
+  Pages — as a `ToggleGroup wrap deselectable={false}`. The chips are their own Tab stop after the
+  input; Alt+← and Alt+→ switch scope without leaving it.
+- `CommandList`: "Recent" while the query is empty; `CommandLoading` while a search runs; one
+  `CommandGroup` per type, each row an `ItemTitle` over an `ItemDescription` ("Meeting · Skyline
+  Hotels · 3 Sep"); `CommandEmpty` "No results"; or the error line with "Try again".
+- `CommandFooter` hints — ↵ Open · ⌘↵ / Ctrl+↵ New tab · Esc Close — built with `formatShortcut`
+  and hidden below `sm`.
+
+## Searching
+
+Each keystroke or scope change calls `search(query, scope, signal)` and aborts the one before, so a
+slow answer never overwrites a newer one. Changing scope keeps the query.
+
+## Opening a result
+
+↵ opens the selected result; ⌘↵ or Ctrl+↵ opens it in a new tab. cmdk's `onSelect` receives no
+event, so the new-tab path reads the controlled selection in the palette's `onKeyDown`.
+
+## Files
+
+| File                                              | Registry type        | Target                                                |
+| ------------------------------------------------- | -------------------- | ----------------------------------------------------- |
+| `command-search-01/components/command-search.tsx` | `registry:component` | `app/command-search-01/components/command-search.tsx` |
+| `command-search-01/components/sample-search.ts`   | `registry:component` | `app/command-search-01/components/sample-search.ts`   |
+| `command-search-01/page.tsx`                      | `registry:page`      | `app/command-search-01/page.tsx`                      |
+
+## Do / Don't
+
+<DoDont
+  do="Let the server match, abort stale searches, and keep the query when the scope changes."
+  dont="Filter results on the client with cmdk, or hide the error behind “No results”."
+/>

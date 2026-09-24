@@ -1,4 +1,4 @@
-// @vegastack board-01@0.20.0 sha256-6Y0H8iG1QA+t54VhiSOUnIykMS1VVVHQPwbTCgxZWGQ=
+// @vegastack board-01@0.20.0 sha256-4O5aNBrfTE6Qnvb016PJKT+eC/f0UaNe9BCRYyISpM8=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { SearchX, User } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Board, type BoardColumn } from "@/components/ui/board";
+import type { RowAction } from "@/components/ui/data-table-parts";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -90,6 +91,26 @@ const INITIAL: BoardColumn<Task>[] = [
   },
 ];
 
+/**
+ * The Backlog's next page, as the server would return it. The lane shows its full count from the
+ * start and loads these on "Load more"; replace with your paged fetch.
+ */
+const BACKLOG_NEXT_PAGE: Task[] = [
+  {
+    id: "t8",
+    title: "Rotate API signing keys",
+    assignee: "PS",
+    estimate: "1d",
+  },
+  { id: "t9", title: "Archive stale projects", assignee: "MK", estimate: "2d" },
+  {
+    id: "t10",
+    title: "Invite flow copy review",
+    assignee: "AL",
+    estimate: "1d",
+  },
+];
+
 const ASSIGNEES = [
   { initials: "MK", name: "Manoj Kumar" },
   { initials: "PS", name: "Priya Shah" },
@@ -117,7 +138,8 @@ function applyMove(
 
 /**
  * The board and its filters: a `FilterBar` (search plus an Assignee facet) over `Board`, whose lanes
- * are named with their count ("In progress, 2 tasks") and whose cards are links to each task. When
+ * are named with their count ("In progress, 2 tasks"), whose cards are links to each task with
+ * an Edit / Archive menu, and whose Backlog is paged with Load more. When
  * the filters match nothing the board gives way to a "No matches" state with "Clear filters".
  *
  * The filters narrow what each lane SHOWS; a move always lands in the full lane, which is why
@@ -131,6 +153,41 @@ export function BoardView() {
   const [columns, setColumns] = React.useState(INITIAL);
   const [query, setQuery] = React.useState("");
   const [assignee, setAssignee] = React.useState<string | null>(null);
+  const [backlogMore, setBacklogMore] = React.useState(BACKLOG_NEXT_PAGE);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+
+  // Stand-in for a paged fetch: append the Backlog's next page after a short wait.
+  function loadMoreBacklog() {
+    setLoadingMore(true);
+    window.setTimeout(() => {
+      setColumns((previous) =>
+        previous.map((column) =>
+          column.id === "backlog"
+            ? { ...column, items: [...column.items, ...BACKLOG_NEXT_PAGE] }
+            : column,
+        ),
+      );
+      setBacklogMore([]);
+      setLoadingMore(false);
+    }, 600);
+  }
+
+  function taskActions(task: Task): RowAction[] {
+    return [
+      { label: "Edit", render: <a href={`/tasks/${task.id}/edit`} /> },
+      {
+        label: "Archive",
+        destructive: true,
+        onSelect: () =>
+          setColumns((previous) =>
+            previous.map((column) => ({
+              ...column,
+              items: column.items.filter((item) => item.id !== task.id),
+            })),
+          ),
+      },
+    ];
+  }
 
   const filtering = query.trim() !== "" || assignee !== null;
   const visible = React.useMemo(
@@ -138,13 +195,26 @@ export function BoardView() {
       columns.map((column) => ({
         ...column,
         emptyState: filtering ? "No matching tasks" : "No tasks",
+        // A paged lane: its count is the server's total, and Load more fetches the rest. While
+        // filtering, the lane shows only what it has loaded, so the count is what is visible.
+        ...(column.id === "backlog" && !filtering && backlogMore.length > 0
+          ? {
+              count: column.items.length + backlogMore.length,
+              loadMore: {
+                hasMore: true,
+                loading: loadingMore,
+                onLoadMore: loadMoreBacklog,
+              },
+            }
+          : {}),
         items: column.items.filter(
           (task) =>
             (assignee === null || task.assignee === assignee) &&
             task.title.toLowerCase().includes(query.trim().toLowerCase()),
         ),
       })),
-    [columns, query, assignee, filtering],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadMoreBacklog only closes over setters
+    [columns, query, assignee, filtering, backlogMore, loadingMore],
   );
   const noMatches =
     filtering && visible.every((column) => column.items.length === 0);
@@ -236,6 +306,7 @@ export function BoardView() {
           getItemId={(task) => task.id}
           getItemLabel={(task) => task.title}
           getItemHref={(task) => `/tasks/${task.id}`}
+          getItemActions={taskActions}
           countLabel={(n) => (n === 1 ? "1 task" : `${n} tasks`)}
           renderCard={(task) => (
             <>

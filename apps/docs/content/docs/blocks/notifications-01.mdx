@@ -1,0 +1,72 @@
+---
+title: notifications-01
+description: An Inbox sheet opened from the rail and the bell, with All | Unread, Today and Earlier groups of linked rows, and Load older.
+audience: public
+registry: notifications-01
+preview: notifications01Demo
+---
+
+## What it is
+
+An Inbox sheet — rail row and bell triggers with the unread count in their names, All | Unread, Today and Earlier groups of linked rows, and Load older. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+`InboxSheet` in `components/` is the sheet; the page wires it to two triggers and the sample notifications.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/notifications-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `app-shell`, `button`, `empty`, `item`, `load-more`, `notification-bell`, `page-header`, `relative-time`, `sheet`, `sidebar`, `skeleton`, `toggle-group`, `use-announcer`.
+
+## Preview
+
+<ComponentPreview name="notifications01Demo" />
+
+## Triggers
+
+On a desktop the rail's **Inbox** row opens it; on a phone the header's `NotificationBell` does.
+Both carry the unread count in their accessible names — `badge` + `badgeLabel` on the row,
+`countLabel` on the bell — so the visual count is decoration. When the sheet closes, focus returns
+to whichever trigger opened it.
+
+## The sheet
+
+- `SheetContent side="right" size="default"` › `SheetHeader` with `SheetTitle` "Inbox" and
+  `SheetAction` "Mark all read" › an All | Unread `ToggleGroup` (`deselectable={false}`) ›
+  `SheetBody`.
+- Rows are grouped under `ItemGroupLabel`s "Today" and "Earlier". Each row is one link — `Item
+size="sm"` rendered as an `<a>` — with a title, up to two lines of detail and a `RelativeTime`
+  that is not a tab stop of its own.
+- An unread row shows `NotificationDot` (the primary ink, because unread is not a failure), a
+  heavier title and an sr-only "Unread:".
+- "Mark all read" is announced once through `useAnnouncer`: "Marked all read".
+- `LoadMore label="Load older"` pages older notifications.
+
+## States
+
+| State          | Copy                                                             |
+| -------------- | ---------------------------------------------------------------- |
+| Loading        | skeleton rows, with "Loading notifications" for screen readers   |
+| Nothing at all | No notifications — Assignments and meeting updates show up here. |
+| Nothing unread | You’re all caught up                                             |
+| Failed load    | Couldn’t load notifications — Try again                          |
+
+## Files
+
+| File                                                  | Registry type        | Target                                                    |
+| ----------------------------------------------------- | -------------------- | --------------------------------------------------------- |
+| `notifications-01/components/inbox-sheet.tsx`         | `registry:component` | `app/notifications-01/components/inbox-sheet.tsx`         |
+| `notifications-01/components/sample-notifications.ts` | `registry:component` | `app/notifications-01/components/sample-notifications.ts` |
+| `notifications-01/page.tsx`                           | `registry:page`      | `app/notifications-01/page.tsx`                           |
+
+## Do / Don't
+
+<DoDont
+  do="Put the count in each trigger’s name, and make every row one link to the thing it is about."
+  dont="Colour the unread dot red, or put buttons inside a row."
+/>
