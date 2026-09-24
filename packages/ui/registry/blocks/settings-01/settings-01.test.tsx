@@ -6,6 +6,7 @@
  */
 
 import { render } from "vitest-browser-react";
+import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
@@ -25,5 +26,62 @@ test("settings-01 is axe-clean", async () => {
     .toBeInTheDocument();
   // Unstyled: the fast browser suite mounts without the compiled token theme, so axe's contrast
   // maths would read unresolved custom properties (see test/a11y.ts).
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
+test("the save bar appears only after a change, and Discard restores", async () => {
+  const screen = await render(<Settings01Page />);
+  expect(
+    screen.container.querySelector(
+      '[data-slot="action-bar"][data-active="true"]',
+    ),
+  ).toBeNull();
+  await userEvent.fill(
+    screen.getByRole("textbox", { name: "Workspace name" }),
+    "Acme Robotics",
+  );
+  await expect
+    .element(screen.getByText("Unsaved changes").first())
+    .toBeVisible();
+  expect(
+    screen.container.querySelector(
+      '[data-slot="action-bar"][data-active="true"]',
+    ),
+  ).not.toBeNull();
+  await userEvent.click(screen.getByRole("button", { name: "Discard" }));
+  await expect
+    .element(screen.getByRole("textbox", { name: "Workspace name" }))
+    .toHaveValue("Acme");
+  expect(
+    screen.container.querySelector(
+      '[data-slot="action-bar"][data-active="true"]',
+    ),
+  ).toBeNull();
+});
+
+test("one h1, from PageHeader", async () => {
+  const screen = await render(<Settings01Page />);
+  await expect
+    .element(screen.getByRole("heading", { level: 1, name: "Settings" }))
+    .toBeInTheDocument();
+  expect(screen.container.querySelectorAll("h1")).toHaveLength(1);
+  expect(
+    screen.container.querySelector('[data-slot="page-header"]'),
+  ).not.toBeNull();
+});
+
+test("Delete workspace asks for confirmation with the same verb", async () => {
+  const screen = await render(<Settings01Page />);
+  await userEvent.click(
+    screen.getByRole("button", { name: "Delete workspace" }),
+  );
+  const dialog = screen.getByRole("alertdialog");
+  await expect.element(dialog).toBeInTheDocument();
+  await expect
+    .element(dialog.getByRole("button", { name: "Delete workspace" }))
+    .toBeInTheDocument();
+  await expect
+    .element(dialog.getByRole("button", { name: "Cancel" }))
+    .toBeInTheDocument();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });

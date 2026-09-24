@@ -1,4 +1,4 @@
-// @vegastack toggle-group@0.19.0 sha256-W80HFuVQqj2d1/YAqHwE7SGb+hoCCmOzmuaMOEFT2hI=
+// @vegastack toggle-group@0.19.0 sha256-Fo0ipfyIb9wNhgQX27fRphk96hX8VPligCYLXdiJq90=
 
 "use client";
 
@@ -100,6 +100,7 @@ function ToggleGroup({
       data-size={size}
       data-spacing={spacing}
       data-orientation={orientation}
+      orientation={orientation}
       data-wrap={wrap ? "" : undefined}
       style={{ "--gap": spacing } as React.CSSProperties}
       className={cn(

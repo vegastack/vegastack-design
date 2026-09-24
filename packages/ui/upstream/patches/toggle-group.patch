@@ -1,6 +1,9 @@
 # component: toggle-group
-# decisions: API-23, DOC-2
+# decisions: A11Y-20, API-23, DOC-2
 # hunks:
+#   A11Y-20 (widened 2026-09-24): `orientation` is forwarded to the Base UI group as well as mirrored
+#     to `data-orientation`, so a vertical group's arrow keys are up and down. Upstream styles the
+#     column and leaves the keys horizontal.
 #   API-23: `ToggleGroup` takes `deselectable` (default `true`) and `wrap` (default `false`),
 #     both destructured so neither reaches the DOM. `deselectable={false}` wraps `onValueChange`:
 #     in single mode (`multiple` is destructured and forwarded unchanged to read it) a change to
@@ -18,7 +21,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle-group.tsx b/toggle-group.tsx
-index 1910ec8..5211d1b 100644
+index 1910ec8..907d004 100644
 --- a/toggle-group.tsx
 +++ b/toggle-group.tsx
 @@ -1,24 +1,69 @@
@@ -130,10 +133,11 @@ index 1910ec8..5211d1b 100644
    return (
      <ToggleGroupPrimitive
        data-slot="toggle-group"
-@@ -40,11 +98,24 @@ function ToggleGroup({
+@@ -40,11 +98,25 @@ function ToggleGroup({
        data-size={size}
        data-spacing={spacing}
        data-orientation={orientation}
++      orientation={orientation}
 +      data-wrap={wrap ? "" : undefined}
        style={{ "--gap": spacing } as React.CSSProperties}
        className={cn(
@@ -156,7 +160,7 @@ index 1910ec8..5211d1b 100644
        {...props}
      >
        <ToggleGroupContext.Provider
-@@ -53,7 +124,7 @@ function ToggleGroup({
+@@ -53,7 +125,7 @@ function ToggleGroup({
          {children}
        </ToggleGroupContext.Provider>
      </ToggleGroupPrimitive>
@@ -165,7 +169,7 @@ index 1910ec8..5211d1b 100644
  }
  
  function ToggleGroupItem({
-@@ -63,7 +134,7 @@ function ToggleGroupItem({
+@@ -63,7 +135,7 @@ function ToggleGroupItem({
    size = "default",
    ...props
  }: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
@@ -174,7 +178,7 @@ index 1910ec8..5211d1b 100644
  
    return (
      <TogglePrimitive
-@@ -73,17 +144,18 @@ function ToggleGroupItem({
+@@ -73,17 +145,18 @@ function ToggleGroupItem({
        data-spacing={context.spacing}
        className={cn(
          "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t",

@@ -15373,7 +15373,7 @@
       "name": "settings-01",
       "type": "registry:block",
       "title": "Settings 01",
-      "description": "A settings page — grouped SettingsRow sections over Field controls, with a sticky save bar.",
+      "description": "A settings page — PageHeader over grouped SettingsRow sections, an ActionBar save bar that appears once something changed, and a confirmed delete.",
       "categories": ["settings", "forms"],
       "dependencies": ["@vegastack/design-tokens@^0.7.1"],
       "registryDependencies": [
@@ -15383,7 +15383,11 @@
         "@vegastack/native-select",
         "@vegastack/settings-row",
         "@vegastack/switch",
-        "@vegastack/textarea"
+        "@vegastack/textarea",
+        "@vegastack/action-bar",
+        "@vegastack/alert-dialog",
+        "@vegastack/app-shell",
+        "@vegastack/page-header"
       ],
       "files": [
         {

@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.19.0 sha256-aFISVyDUiAEHIKJGsPpMw9YZjxgOdDLsH843umkQH4A=
+// @vegastack app-shell@0.19.0 sha256-suQXRQ7rEoROOI4pbpWkdlBWZOVOMfhvcYX50fz29DY=
 
 "use client";
 
@@ -112,6 +112,12 @@ export interface AppShellProps extends React.ComponentProps<"div"> {
  *     <AppShellContent>…page content…</AppShellContent>
  *   </div>
  * </AppShell>
+ *
+ * @example
+ * // A static or cached shell: `<SidebarStateScript collapsible="icon" />` goes in the root
+ * // layout's <head>, and the shell is controlled from the cookie hook (LAY-13).
+ * const [open, setOpen] = useSidebarCookieOpen();
+ * <AppShell open={open} onOpenChange={setOpen}>…</AppShell>
  */
 export function AppShell({
   defaultOpen,

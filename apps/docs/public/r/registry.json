@@ -208,7 +208,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — gutters, rhythm and a narrow/default/full measure.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.19.0",
-        "integrity": "sha256-aFISVyDUiAEHIKJGsPpMw9YZjxgOdDLsH843umkQH4A="
+        "integrity": "sha256-suQXRQ7rEoROOI4pbpWkdlBWZOVOMfhvcYX50fz29DY="
       }
     },
     {
@@ -16499,7 +16499,7 @@
         "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) — pass deselectable={false} so one item always stays pressed — or related toggle buttons such as formatting; wrap lets a long option set fall onto rows on a narrow screen.",
         "whenNotToUse": "A form value (RadioGroup), swapping page regions (Tabs), moving between URLs (links), or a single on/off control (Toggle/Switch).",
         "version": "0.19.0",
-        "integrity": "sha256-W80HFuVQqj2d1/YAqHwE7SGb+hoCCmOzmuaMOEFT2hI="
+        "integrity": "sha256-Fo0ipfyIb9wNhgQX27fRphk96hX8VPligCYLXdiJq90="
       }
     },
     {
@@ -19191,7 +19191,7 @@
       "name": "settings-01",
       "type": "registry:block",
       "title": "Settings 01",
-      "description": "A settings page — grouped SettingsRow sections over Field controls, with a sticky save bar.",
+      "description": "A settings page — PageHeader over grouped SettingsRow sections, an ActionBar save bar that appears once something changed, and a confirmed delete.",
       "categories": [
         "settings",
         "forms"
@@ -19206,7 +19206,11 @@
         "@vegastack/native-select",
         "@vegastack/settings-row",
         "@vegastack/switch",
-        "@vegastack/textarea"
+        "@vegastack/textarea",
+        "@vegastack/action-bar",
+        "@vegastack/alert-dialog",
+        "@vegastack/app-shell",
+        "@vegastack/page-header"
       ],
       "files": [
         {
@@ -19219,7 +19223,7 @@
         "whenToUse": "Starting a preferences, profile or workspace-settings route — copy it once and wire each row to your own state.",
         "whenNotToUse": "One setting inside another page — compose settings-row directly.",
         "version": "0.19.0",
-        "integrity": "sha256-IKWWQlTMWvrntsFLF/LQ//BoBezrn522l3Y+WIKcDRw="
+        "integrity": "sha256-cxU0XV6FlbSa0tVQ6UWuij42y3UO7HzllkPk97ylCHU="
       }
     }
   ]
