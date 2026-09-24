@@ -240,7 +240,8 @@
           "data-grid",
           "dropdown-menu",
           "context-menu",
-          "menubar"
+          "menubar",
+          "notification-bell"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },

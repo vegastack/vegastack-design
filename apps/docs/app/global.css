@@ -122,6 +122,15 @@ body {
   line-height: var(--text-sm--line-height);
 }
 
+/* An untitled code block's copy button floats over the top-right of its scroll box (a titled
+   block keeps it in its header), so on a narrow screen a long first line ran under it
+   ("@vegas▢k"). End the scroll box before the overlaid button instead: the text scrolls, the
+   button never covers it. Keyed on the structure, not on the button's label, which changes to
+   "Copied Text" after a click. */
+figure > [class~="absolute"]:has(> button) + .fd-scroll-container {
+  margin-inline-end: calc(var(--spacing) * 9);
+}
+
 /* API Reference tables (DS-02): flat and expanded, every row visible. Prose already styles
    `table`; this only stops long literal unions from forcing horizontal scroll. */
 .vs-api-table {

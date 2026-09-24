@@ -73,6 +73,31 @@ column is the point — a settings page with a stable set of sections.
 
 <ComponentPreview name="tabsVertical" file="components/preview/tabs.tsx" />
 
+### Vertical in a narrow container
+
+A vertical list needs room beside its panel. Below an `@md` container width (448px) switch the
+same tabs to a horizontal `line` list, which scrolls inside itself instead of widening the page
+(LAY-14). The orientation is a prop, not a style, because it also turns the keyboard axis and
+`aria-orientation`, so measure the container and keep the tabs hidden (`visibility`, which keeps
+their box) until it is measured, so the first paint is already the right orientation:
+
+```tsx
+const [ref, wide] = useWiderThan(448); // a ResizeObserver on the wrapper, null until measured
+<div ref={ref} style={{ visibility: wide === null ? "hidden" : undefined }}>
+  <Tabs orientation={wide ? "vertical" : "horizontal"} defaultValue="general">
+    <TabsList variant="line" aria-label="Family settings">
+      …
+    </TabsList>
+    …
+  </Tabs>
+</div>;
+```
+
+<ComponentPreview
+  name="tabsVerticalResponsive"
+  file="components/preview/tabs.tsx"
+/>
+
 ### Disabled
 
 `disabled` on a `TabsTrigger` takes it out of the roving tab sequence and dims it. It keeps its
@@ -176,6 +201,48 @@ function ProjectTabs({
 ```
 
 <ComponentPreview name="tabsRoute" file="components/preview/tabs.tsx" />
+
+Route tabs can run vertically too — set `data-orientation="vertical"` on the `nav` and the list —
+and a list of more than a few routes, or a narrow column, jumps with a `NativeSelect` instead: below
+the `@md` container width the select replaces the links, so a phone opens its own picker. Both
+live in the markup and a container query shows one, so nothing is measured. Put a count in a
+route's name the way a tab carries one: the visible number `aria-hidden`, a spoken suffix beside it.
+
+```tsx
+<div className="@container">
+  <NativeSelect
+    aria-label="Picklist"
+    className="@md:hidden"
+    value={pathname}
+    onChange={(event) => router.push(event.target.value)}
+  >
+    {routes.map((r) => (
+      <NativeSelectOption
+        key={r.href}
+        value={r.href}
+      >{`${r.label} (${r.count})`}</NativeSelectOption>
+    ))}
+  </NativeSelect>
+  <nav
+    aria-label="Picklists"
+    data-orientation="vertical"
+    className="group/tabs hidden @md:block"
+  >
+    <div
+      data-orientation="vertical"
+      data-variant="line"
+      className={`${tabsListVariants({ variant: "line" })} w-full`}
+    >
+      {/* the same links as above, each ending in its count */}
+    </div>
+  </nav>
+</div>
+```
+
+<ComponentPreview
+  name="tabsRouteResponsive"
+  file="components/preview/tabs.tsx"
+/>
 
 ## Playground
 

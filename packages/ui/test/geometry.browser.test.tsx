@@ -3307,6 +3307,52 @@ for (const dir of ["ltr", "rtl"] as const) {
   });
 }
 
+// ── tabs: narrow-container fallbacks (DS-62) ────────────────────────────────────────────────────
+
+test("tabs-narrow-fallback: vertical tabs turn horizontal and route tabs become a select below @md", async () => {
+  try {
+    for (const [width, wide] of [
+      [320, false],
+      [1280, true],
+    ] as const) {
+      await page.viewport(width, 800);
+      const Fixtures = () => (
+        <>
+          {Preview.tabsVerticalResponsive()}
+          {Preview.tabsRouteResponsive()}
+        </>
+      );
+      const screen = await render(<Fixtures />);
+      await settle();
+      // Shown once measured (hidden, not removed, until then), and only then is it read.
+      await expect
+        .poll(() =>
+          screen.container
+            .querySelector('[data-slot="tabs-list"]')
+            ?.checkVisibility({ visibilityProperty: true }),
+        )
+        .toBe(true);
+      // A horizontal tablist states no orientation: horizontal is the ARIA default.
+      await expect
+        .poll(() =>
+          screen.container
+            .querySelector('[data-slot="tabs-list"]')
+            ?.getAttribute("aria-orientation"),
+        )
+        .toBe(wide ? "vertical" : null);
+      const select = screen.container.querySelector("select")!;
+      const nav = screen.container.querySelector("nav")!;
+      expect(select.checkVisibility()).toBe(!wide);
+      expect(nav.checkVisibility()).toBe(wide);
+      await expectContained("tabs-narrow-fallback", ` at ${width}px`);
+      await screen.unmount();
+    }
+  } finally {
+    // The lane's default width, for every test after this one.
+    await page.viewport(320, 812);
+  }
+});
+
 // ── toggle-group (API-23) ────────────────────────────────────────────────────────────────────────
 
 const TEN_OPTIONS = [
@@ -3706,6 +3752,52 @@ test("multi-step-form-sticky: sticky actions stay in view on a long step", async
   await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(true);
   scroller.scrollTop = scroller.scrollHeight;
   await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(false);
+});
+
+test("multi-step-form-sticky: the pinned row paints its nearest surface, in both themes", async () => {
+  // Distinct values, so the card and the overlay cannot pass for each other.
+  const tokens = {
+    "--card": "rgb(10, 20, 30)",
+    "--popover": "rgb(200, 100, 50)",
+  } as React.CSSProperties;
+  for (const theme of ["light", "dark"]) {
+    for (const [label, tree] of [
+      [
+        "card",
+        <div data-slot="card" className="bg-card">
+          <LongStep sticky />
+        </div>,
+      ],
+      [
+        "dialog",
+        <div data-slot="dialog-content" className="bg-popover">
+          <LongStep sticky />
+        </div>,
+      ],
+      [
+        "card in a dialog",
+        <div data-slot="dialog-content" className="bg-popover">
+          <div data-slot="card" className="bg-card">
+            <LongStep sticky />
+          </div>
+        </div>,
+      ],
+    ] as const) {
+      const screen = await render(
+        <div className={theme} style={tokens}>
+          {tree}
+        </div>,
+      );
+      const actions = screen.container.querySelector<HTMLElement>(
+        '[data-slot="multi-step-form-actions"]',
+      )!;
+      expect(
+        getComputedStyle(actions).backgroundColor,
+        `${label} (${theme})`,
+      ).toBe(label === "dialog" ? "rgb(200, 100, 50)" : "rgb(10, 20, 30)");
+      await screen.unmount();
+    }
+  }
 });
 
 test('multi-step-form-sticky: "narrow" pins at 320px and rests in the flow on a wide form', async () => {

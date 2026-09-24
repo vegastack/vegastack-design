@@ -5,6 +5,7 @@ import { userEvent } from "vitest/browser";
 import axe from "axe-core";
 import { afterEach, expect, test, vi } from "vitest";
 import { Badge } from "../registry/ui/badge";
+import { NotificationBell } from "../registry/ui/notification-bell";
 import { DataGrid } from "../registry/ui/data-grid";
 import { DataList } from "../registry/ui/data-list";
 import { Alert, AlertTitle, AlertDescription } from "../registry/ui/alert";
@@ -641,6 +642,29 @@ function TabsCounts() {
       ))}
     </div>
   );
+}
+
+for (const theme of ["light", "dark"] as const) {
+  test(`a notification bell's count passes WCAG AA — ${theme} theme`, async () => {
+    const screen = await render(
+      <div className={`flex gap-4 bg-background p-6 ${theme}`}>
+        <NotificationBell count={5} />
+        <NotificationBell count={120} />
+      </div>,
+    );
+    await expect.poll(() => screen.container.textContent).toContain("99+");
+    // The count is `aria-hidden` (its words are in the bell's name), and axe skips hidden text,
+    // so expose it for the measurement: sighted users still have to read it.
+    for (const badge of screen.container.querySelectorAll(
+      '[data-slot="notification-bell-badge"]',
+    ))
+      badge.removeAttribute("aria-hidden");
+    const violations = await contrastViolations(screen.container);
+    expect(
+      violations,
+      `bell count color-contrast failures (${theme}):\n  ${violations.join("\n  ")}`,
+    ).toEqual([]);
+  });
 }
 
 test("a counted tab's badge color-contrast passes WCAG AA — light theme", async () => {

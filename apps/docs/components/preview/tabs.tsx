@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { AppWindowIcon, CodeIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/tabs` (dogfoods the registry) → auto-scanned.
@@ -12,6 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DirectionProvider } from "@/components/ui/direction";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
 import {
   Tabs,
   TabsContent,
@@ -355,6 +359,133 @@ function RouteTabs(): ReactNode {
           ))}
         </div>
       </nav>
+    </Wrapper>
+  );
+}
+
+/**
+ * Whether the element is at least `min` px wide, or `null` until it has been measured (on the
+ * server and in the static page), so the caller can keep the layout hidden rather than paint one
+ * orientation and jump to the other.
+ */
+function useWiderThan(min: number) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [wide, setWide] = useState<boolean | null>(null);
+  useLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setWide((entry?.contentRect.width ?? 0) >= min),
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [min]);
+  return [ref, wide] as const;
+}
+
+const SECTIONS = ["General", "Specifications", "Pricing", "Media", "History"];
+
+/** DS-62: vertical in-page sections that become a horizontal line list in a narrow container. */
+export function tabsVerticalResponsive(): ReactNode {
+  // 448px is the `@md` container width.
+  const [ref, wide] = useWiderThan(448);
+  return (
+    <Wrapper className="block">
+      {/* Hidden (not removed, so it keeps its box and can be measured) until the width is known:
+          the first paint is already the right orientation, for the eye, the keys and ARIA. */}
+      <div
+        ref={ref}
+        className="w-full min-w-0"
+        style={{ visibility: wide === null ? "hidden" : undefined }}
+      >
+        <Tabs
+          defaultValue="General"
+          orientation={wide ? "vertical" : "horizontal"}
+          className="w-full gap-4"
+        >
+          <TabsList variant="line" aria-label="Family settings">
+            {SECTIONS.map((section) => (
+              <TabsTrigger key={section} value={section}>
+                {section}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {SECTIONS.map((section) => (
+            <TabsContent
+              key={section}
+              value={section}
+              className="text-sm text-muted-foreground"
+            >
+              The {section.toLowerCase()} settings for this family.
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
+    </Wrapper>
+  );
+}
+
+const LISTS = [
+  { href: "#colours", label: "Colours", count: 12 },
+  { href: "#finishes", label: "Finishes", count: 8 },
+  { href: "#materials", label: "Materials", count: 23 },
+  { href: "#mounting", label: "Mounting types", count: 4 },
+];
+
+/** DS-62: vertical route tabs with counts, and a `NativeSelect` jump in a narrow container. */
+export function tabsRouteResponsive(): ReactNode {
+  const [current, setCurrent] = useState(LISTS[0]!.href);
+  return (
+    <Wrapper className="block">
+      <div className="@container w-full min-w-0">
+        <NativeSelect
+          aria-label="Picklist"
+          className="@md:hidden"
+          value={current}
+          onChange={(event) => setCurrent(event.target.value)}
+        >
+          {LISTS.map((list) => (
+            <NativeSelectOption key={list.href} value={list.href}>
+              {`${list.label} (${list.count})`}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
+        <nav
+          aria-label="Picklists"
+          data-orientation="vertical"
+          className="group/tabs hidden w-56 @md:block"
+        >
+          <div
+            data-orientation="vertical"
+            data-variant="line"
+            // Full width, so every link spans the column and the counts line up at its end.
+            className={`${tabsListVariants({ variant: "line" })} w-full`}
+          >
+            {LISTS.map((list) => (
+              <a
+                key={list.href}
+                href={list.href}
+                aria-current={list.href === current ? "page" : undefined}
+                data-active={list.href === current ? "" : undefined}
+                className={tabsTriggerVariants()}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setCurrent(list.href);
+                }}
+              >
+                {list.label}
+                <span
+                  aria-hidden="true"
+                  className="ms-auto text-muted-foreground tabular-nums"
+                >
+                  {list.count}
+                </span>
+                <span className="sr-only">{list.count} values</span>
+              </a>
+            ))}
+          </div>
+        </nav>
+      </div>
     </Wrapper>
   );
 }
