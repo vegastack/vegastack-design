@@ -1,5 +1,69 @@
 # @vegastack/ui
 
+## 0.20.0
+
+### Minor Changes
+
+- [#217](https://github.com/vegastack/vegastack-design/pull/217) [`a109931`](https://github.com/vegastack/vegastack-design/commit/a109931ebf6f124af0e14139c55884999f497585) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 The app-shell-01 and board-01 blocks are modernised as the shell and board references (DS-80).
+
+  - **app-shell-01**: the rail has a workspace menu (a real menu trigger) and a Search row that opens a palette on ⌘K / Ctrl+K, with its hint from `formatShortcut`. It also has an Inbox row whose unread count is part of its name, grouped links with `aria-current="page"`, a collapsible "Coming soon" group, and a user menu with the theme choice. The page is `AppShellPage` › `PageHeader` h1 › linked stat tiles, which replace the hand-rolled stat cards. The docs page shows `SidebarStateScript`. [docs](https://design.vegastack.com/docs/blocks/app-shell-01)
+  - **board-01**: `AppShellPage` › `PageHeader` h1 › a `FilterBar` (search plus an Assignee facet) over `Board`. Lanes are named with their count ("Backlog, 3 tasks"), cards link to their task, and filters that match nothing show "No matches" with "Clear filters". [docs](https://design.vegastack.com/docs/blocks/board-01)
+  - Migration: the board's view switch that nothing read and its fixed toolbar widths are gone, and every `href="#"` in both blocks is a real route. A copy you already own is unaffected until you copy the block again.
+
+- [#215](https://github.com/vegastack/vegastack-design/pull/215) [`ce43c9b`](https://github.com/vegastack/vegastack-design/commit/ce43c9beaa008db42c309c6500f85ed3dc02b9fe) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Board** lanes page with `column.loadMore` (the shared LoadMore footer inside the lane's scroll), and cards take their own actions through `getItemActions` — listed first in the card's ⋯ menu above the Move items, which is then named `Actions for {card}`. **SortableList** rows do the same through `menuItems`, on locked rows too.
+  [docs](https://design.vegastack.com/docs/components/board) · [docs](https://design.vegastack.com/docs/components/sortable-list)
+
+- [#198](https://github.com/vegastack/vegastack-design/pull/198) [`c087ef9`](https://github.com/vegastack/vegastack-design/commit/c087ef9f785880750917622ec69531d8b959612d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `Combobox` exports `ComboboxStatus`, Base UI's own polite status region for a list that loads asynchronously. Render it as a sibling of `ComboboxList` and change its children ("Searching…", then the result count) rather than mounting it conditionally. It is screen-reader-only by default; `visible` shows the message as a muted row above the list. It carries `data-slot="combobox-status"` (decision API-27).
+
+- [#217](https://github.com/vegastack/vegastack-design/pull/217) [`a109931`](https://github.com/vegastack/vegastack-design/commit/a109931ebf6f124af0e14139c55884999f497585) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Three new blocks: a settings hub, the status pages and a two-pane review page.
+
+  - **settings-02**: the settings landing page. It has one section per area, and each area is a container-query grid of whole-tile links, each named by its title and described by one fact. An area that isn't built yet is a plain "TBD" tile, not a tab stop (DS-53). [docs](https://design.vegastack.com/docs/blocks/settings-02)
+  - **status-pages-01**: `NotFoundPage`, `ForbiddenPage` and `ErrorPage`, each usable in the shell or standalone. Each is an `Empty` whose title is the page's `h1` and gives one way out. The error page adds "Try again" and, when there is a digest, the reference with a copy button (DS-60). [docs](https://design.vegastack.com/docs/blocks/status-pages-01)
+  - **review-split-01**: `ReviewSplit` puts the summary and action items beside a sticky transcript, with the docked `AudioPlayer` at the end of the column. The block measures its own container: the layout and the switch to tabs change together at 56rem, and each panel mounts once (DS-58). [docs](https://design.vegastack.com/docs/blocks/review-split-01)
+
+- [#213](https://github.com/vegastack/vegastack-design/pull/213) [`a08665c`](https://github.com/vegastack/vegastack-design/commit/a08665c857fd70a05e463c38689e655783a203ad) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **settings-01** is now the reference settings page, and **ToggleGroup** moves with the up and down arrows when vertical.
+
+  - **settings-01**: an `AppShellPage size="narrow"` with a `PageHeader`, full-width controls, an `ActionBar` save bar that appears only once something changed (Discard restores the defaults), and "Delete workspace" confirmed in an `AlertDialog`. [docs](https://design.vegastack.com/docs/blocks/settings-01)
+  - **ToggleGroup**: `orientation="vertical"` now reaches the primitive, so the arrow keys follow the column. [docs](https://design.vegastack.com/docs/components/toggle-group)
+  - **AppShell**: the docs show a static or cached shell kept collapsed on first paint with `SidebarStateScript` and `useSidebarCookieOpen`, and the preview's counts use `badgeLabel`. [docs](https://design.vegastack.com/docs/components/app-shell)
+
+- [#221](https://github.com/vegastack/vegastack-design/pull/221) [`c4c7dff`](https://github.com/vegastack/vegastack-design/commit/c4c7dffbd404903c23b94e503760b5779ee31a2d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **FilterBar** gains `FilterBarFacet` — a "Status: Open" facet on SearchableSelect, single or multiple, local or server-searched, pinnable and removable — and chips that edit in place: a filter's `editor` opens from its label and value (`FilterChipTrigger`), Escape returns focus to the chip, and `onEditorOpenChange` reports it. **DataList** rows become real links with `getRowHref` (and `rowLinkRender` for a router link): modifier and middle clicks work anywhere on the row, and `getRowLabel` names each selection checkbox.
+  [docs](https://design.vegastack.com/docs/components/filter-bar) · [docs](https://design.vegastack.com/docs/components/data-list)
+
+- [#215](https://github.com/vegastack/vegastack-design/pull/215) [`ce43c9b`](https://github.com/vegastack/vegastack-design/commit/ce43c9beaa008db42c309c6500f85ed3dc02b9fe) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **SearchInput** and **FilterBar** send a settled query. SearchInput gains `onValueCommitted`, which fires after `debounceMs` of quiet (default `TIMINGS.searchDebounceMs`, 300 ms) and at once on Enter and on clear, while `onValueChange` keeps the field instant; FilterBar's `search` passes both through. FilterBar gains `searchPlacement="start"` for search-first lists, its chips now read "Label: value" with the colon the docs always promised, and `children` is gone from its type (it was silently dropped).
+  [docs](https://design.vegastack.com/docs/components/search-input) · [docs](https://design.vegastack.com/docs/components/filter-bar)
+
+- [#215](https://github.com/vegastack/vegastack-design/pull/215) [`ce43c9b`](https://github.com/vegastack/vegastack-design/commit/ce43c9beaa008db42c309c6500f85ed3dc02b9fe) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **FilterBuilder** edits flat condition rules: `allowGroups={false}`, a `prefix` that names the rule ("Required when"), `labels` for its own words, `conditionError` for a row's own message, and `summary="sentence"` for a read-only sentence. `describeFilter` and `formatRange` print a tree or a range as text, fields take `options` and a `unit`, and five value editors ship with it — `TextValueEditor`, `NumberValueEditor`, `NumberRangeEditor`, `OptionValueEditor`, `OptionsValueEditor` — picked by default from the operator's `valueShape`.
+  [docs](https://design.vegastack.com/docs/components/filter-bar-managed)
+
+- [#215](https://github.com/vegastack/vegastack-design/pull/215) [`ce43c9b`](https://github.com/vegastack/vegastack-design/commit/ce43c9beaa008db42c309c6500f85ed3dc02b9fe) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **DataList** gains collapsible `sections` (with `getRowSection` and `groupState`/`defaultGroupState`/`onGroupStateChange`) and a `rowActionsColumn` helper: one ⋯ menu per row, named `Actions for {row}`, with link actions, destructive ink, disabled actions that stay reachable and read their reason, and a single-icon shortcut. The parts behind them — `SectionRow`, `SectionToggle`, `GroupState`, `RowAction`, `RowActionsMenu`, `RowActionMenuItems` — are exported from `data-table-parts`. **DataGrid**'s group header now uses the same toggle: its count reads in muted tabular numerals without parentheses ("Open 2", heard as "Open, 2 rows").
+  [docs](https://design.vegastack.com/docs/components/data-list) · [docs](https://design.vegastack.com/docs/components/data-grid)
+
+- [#212](https://github.com/vegastack/vegastack-design/pull/212) [`f3dbf16`](https://github.com/vegastack/vegastack-design/commit/f3dbf1633f5412664efb42d1bc382ced3b6055d4) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 The login-01 block is rebuilt as a real sign-in page to the block rules (DS-79).
+
+  - **login-01**: one `h1` "Sign in" (`CardTitle render={<h1 />}`), Email (`autoComplete="email"`) and Password through `PasswordInput` (`autoComplete="current-password"`), each labelled and described by its `Field`, a `FieldError` per field with focus on the first invalid one, a live destructive `Alert` shown only after a rejected sign-in, and a submit `Button` that loads in place without changing width. [docs](https://design.vegastack.com/docs/blocks/login-01)
+  - **LoginForm** takes your `signIn` call; "Forgot password?" and "Sign up" are real links (`forgotPasswordHref`, `signUpHref`). The docs page adds sign-up and forgot-password recipes on the same frame.
+  - Migration: the "Login with Google" button and every `href="#"` are gone; a copy you already own is unaffected until you copy the block again.
+
+- [#198](https://github.com/vegastack/vegastack-design/pull/198) [`c087ef9`](https://github.com/vegastack/vegastack-design/commit/c087ef9f785880750917622ec69531d8b959612d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **MultiStepForm** tells a route-driven host whether to push or replace: `onStepChange(id, { replace })` passes `replace: false` for Next, Back and rail jumps, and `true` when the form clamps a step it will not admit or follows the address bar's hash. One-argument handlers keep working. [docs](https://design.vegastack.com/docs/components/multi-step-form)
+
+- [#221](https://github.com/vegastack/vegastack-design/pull/221) [`c4c7dff`](https://github.com/vegastack/vegastack-design/commit/c4c7dffbd404903c23b94e503760b5779ee31a2d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **SearchableSelect** searches on the server and picks several values: `remote` stops local filtering, `onSearchChange`/`loading`/`error`/`onRetry`/`loadMore` take `useAsyncSearch` as-is (with "Searching…" announced through the panel's own status region and the Load more footer under the rows), `leadingItems` stay first and unfiltered, `multiple` makes the value an array (`{a}, {b}` or `{n} selected`), `itemToDescription` and `itemToDisabledReason` add a described second line, `groupBy` adds headings and `renderTriggerValue` rewrites the trigger text.
+  [docs](https://design.vegastack.com/docs/components/searchable-select)
+
+- [#215](https://github.com/vegastack/vegastack-design/pull/215) [`ce43c9b`](https://github.com/vegastack/vegastack-design/commit/ce43c9beaa008db42c309c6500f85ed3dc02b9fe) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **useAsyncSearch** — a new hook for server search over a cursor-paged list: the query updates as you type and the request waits for `TIMINGS.searchDebounceMs` (a new 300 ms timing in `@vegastack/design`), a newer request aborts the last and late responses are dropped, `loadMore` pages with the returned cursor, and a failure keeps the loaded items with a retry. Documented in the [components guide](https://design.vegastack.com/docs/guides/components).
+
+### Patch Changes
+
+- [#220](https://github.com/vegastack/vegastack-design/pull/220) [`ad7294f`](https://github.com/vegastack/vegastack-design/commit/ad7294f547747dd5d58028c67550bf6902ff0ac1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Board type-checks in apps without `@types/node`: its dev-only lane-name warning declares the `process.env.NODE_ENV` it reads. The sortable-list page quotes `Actions for {label}` as code, and scroll-area documents its props in a table, so the public docs build and export pass again.
+
+- [#217](https://github.com/vegastack/vegastack-design/pull/217) [`a109931`](https://github.com/vegastack/vegastack-design/commit/a109931ebf6f124af0e14139c55884999f497585) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The Stat page gains a "Linked stat tiles" example: each count is a whole-tile link to the list it counts.
+
+  - **Stat**: tiles are `Item variant="outline"` rendered as a link, in a container-query grid. The name reads label first ("Overdue tasks 3"), the value is `tabular-nums` in the regular font, and a `Skeleton` holds each tile's box while loading (DS-59). [docs](https://design.vegastack.com/docs/components/stat)
+  - **Empty**: the docs example's "404 - Not Found" now reads "Page not found". [docs](https://design.vegastack.com/docs/components/empty)
+
+- Updated dependencies [[`1786767`](https://github.com/vegastack/vegastack-design/commit/1786767749742f6b72e1267675c8cf14323e638d), [`ce43c9b`](https://github.com/vegastack/vegastack-design/commit/ce43c9beaa008db42c309c6500f85ed3dc02b9fe)]:
+  - @vegastack/design@0.7.6
+
 ## 0.19.0
 
 ### Minor Changes
