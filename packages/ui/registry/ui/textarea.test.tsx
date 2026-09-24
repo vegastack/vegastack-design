@@ -236,3 +236,9 @@ fieldWiringTests({
   render: (props) => <Textarea {...props} />,
   find: (screen, name) => screen.getByRole("textbox", { name }),
 });
+
+test("API-26: a standalone textarea carries a generated id, as Base UI's Input does", async () => {
+  const screen = await render(<Textarea aria-label="Standalone" />);
+  const box = screen.getByRole("textbox", { name: "Standalone" }).element();
+  expect(box.id).toMatch(/^base-ui-/);
+});

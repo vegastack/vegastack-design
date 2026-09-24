@@ -15,6 +15,7 @@ export interface WiredControlProps {
   id?: string;
   "aria-label"?: string;
   "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 }
 
 type Screen = Awaited<ReturnType<typeof render>>;
@@ -135,7 +136,13 @@ export function fieldWiringTests({
         '[data-slot="field-label"]',
       )!;
       await expect.poll(() => label.getAttribute("for")).toBe("wired-explicit");
-      expect(document.getElementById("wired-explicit")).not.toBeNull();
+      // …and that element is the control, or the hidden native input that belongs to it.
+      const target = document.getElementById("wired-explicit");
+      expect(target).not.toBeNull();
+      expect(
+        target === control.element() ||
+          control.element().parentElement!.contains(target),
+      ).toBe(true);
     }
     const description = screen.container.querySelector(
       '[data-slot="field-description"]',
@@ -147,6 +154,20 @@ export function fieldWiringTests({
           ? ["wired-external", description.id]
           : [description.id],
       );
+  });
+
+  test(`API-26 (${name}): while the Field is invalid, aria-invalid follows the Field over an explicit false`, async () => {
+    // Base UI's merge (ruling on Regent #137): the Field's invalid state is applied after the
+    // control's own props, so an invalid Field cannot be contradicted by one control.
+    const screen = await render(
+      <Field data-invalid>
+        <FieldLabel>Wired control</FieldLabel>
+        {renderControl({ "aria-invalid": false })}
+        <FieldError>Error text</FieldError>
+      </Field>,
+    );
+    const control = find(screen, "Wired control");
+    await expect.element(control).toHaveAttribute("aria-invalid", "true");
   });
 
   test(`API-26 (${name}): outside a Field it carries no Field wiring`, async () => {

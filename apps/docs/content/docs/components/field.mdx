@@ -157,7 +157,10 @@ Inside a `Field`, the control needs no ids and no `aria-*` props. `Field` render
 underneath, so the control is labelled by `FieldLabel`, described by the `FieldDescription` and
 `FieldError` that are rendered right now, and marked `aria-invalid` when the `Field` carries
 `data-invalid`. An explicit `id` or `htmlFor` still wins, and an explicit `aria-describedby` keeps
-its ids first, with the Field's rendered message ids after it. A control outside a `Field` gets no
+its ids first, with the Field's rendered message ids after it. While the Field is invalid its
+control is `aria-invalid`, whatever the control's own prop says. A `Slider` takes its label and
+messages on its thumb from the Field; its own `id` and `aria-describedby` stay on the slider root,
+as Base UI's Slider places them. A control outside a `Field` gets no
 Field wiring. Put one control in each `Field`: a second control inside the same `Field` would take
 the same label and messages.
 

@@ -1,4 +1,4 @@
-// @vegastack select@0.17.1 sha256-AUk24QV7To8S1mSiPYj26cUP6/Usq7BsKE9x5EIH72E=
+// @vegastack select@0.17.1 sha256-yEWkAtdoH0C1qtT+7aU1wfBS7AGQuj4EXx7iXhmIK5k=
 
 "use client";
 
@@ -67,10 +67,11 @@ function SelectTrigger({
         selectTriggerVariants({ variant }),
         // API-24: upstream's ButtonGroup sizes an unsized trigger to its content
         // (`[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit`), which a `w-full` default
-        // would defeat — so an outline trigger with no width of its own yields inside a group.
+        // would defeat — so an outline trigger with no width of its own, as a group's direct child,
+        // keeps upstream's content width there.
         variant === "outline" &&
           !(typeof className === "string" && /(^|[\s:])w-/.test(className)) &&
-          "in-data-[slot=button-group]:w-fit",
+          "[[data-slot=button-group]>&]:w-fit",
         className,
       )}
       {...props}

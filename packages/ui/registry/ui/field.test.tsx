@@ -567,5 +567,7 @@ test("API-26: Base UI's own validation does not mark a control invalid without d
   await userEvent.click(input);
   await userEvent.keyboard("{Enter}");
   (input.element() as HTMLInputElement).blur();
-  await expect.element(input).not.toHaveAttribute("aria-invalid");
+  // Wait for Base UI to settle the blur (it marks the field touched), then check.
+  await expect.element(input).toHaveAttribute("data-touched");
+  expect(input.element().hasAttribute("aria-invalid")).toBe(false);
 });

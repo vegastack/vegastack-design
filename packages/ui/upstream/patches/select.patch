@@ -25,9 +25,10 @@
 #     its parent like Input, Combobox and every other form control; `ghost` keeps `w-fit`, drops
 #     the border (and the dark-mode fill) at rest, and shows the border on hover, on `:focus` (the
 #     FOC-3 tint) and while the popup is open — the inline tier for table rows and toolbars. An
-#     outline trigger with no width of its own takes `in-data-[slot=button-group]:w-fit`, because
-#     upstream's ButtonGroup sizes an unsized trigger to its content with a `:not([class*='w-'])`
-#     rule the `w-full` default would otherwise defeat.
+#     outline trigger with no width of its own takes `[[data-slot=button-group]>&]:w-fit` — as a
+#     ButtonGroup's direct child, exactly the scope of upstream's group rule — because upstream's
+#     ButtonGroup sizes an unsized trigger to its content with a `:not([class*='w-'])` rule the
+#     `w-full` default would otherwise defeat.
 #   API-26: NO HUNK for the Field wiring — Base UI's `Select.Root` and `Select.Trigger` read the
 #     `Field` context themselves (label, description and error ids, `aria-invalid`);
 #     `select.test.tsx` pins it.
@@ -36,7 +37,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..b938ee7 100644
+index e8a22e1..d42bd36 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,11 +1,30 @@
@@ -85,7 +86,7 @@ index e8a22e1..b938ee7 100644
  }
  
  function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
-@@ -24,24 +43,33 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
+@@ -24,24 +43,34 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
        className={cn("flex flex-1 text-start", className)}
        {...props}
      />
@@ -115,15 +116,16 @@ index e8a22e1..b938ee7 100644
 +        selectTriggerVariants({ variant }),
 +        // API-24: upstream's ButtonGroup sizes an unsized trigger to its content
 +        // (`[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit`), which a `w-full` default
-+        // would defeat — so an outline trigger with no width of its own yields inside a group.
++        // would defeat — so an outline trigger with no width of its own, as a group's direct child,
++        // keeps upstream's content width there.
 +        variant === "outline" &&
 +          !(typeof className === "string" && /(^|[\s:])w-/.test(className)) &&
-+          "in-data-[slot=button-group]:w-fit",
++          "[[data-slot=button-group]>&]:w-fit",
 +        className,
        )}
        {...props}
      >
-@@ -52,7 +80,7 @@ function SelectTrigger({
+@@ -52,7 +81,7 @@ function SelectTrigger({
          }
        />
      </SelectPrimitive.Trigger>
@@ -132,7 +134,7 @@ index e8a22e1..b938ee7 100644
  }
  
  function SelectContent({
-@@ -69,6 +97,8 @@ function SelectContent({
+@@ -69,6 +98,8 @@ function SelectContent({
      SelectPrimitive.Positioner.Props,
      "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
    >) {
@@ -141,7 +143,7 @@ index e8a22e1..b938ee7 100644
    return (
      <SelectPrimitive.Portal>
        <SelectPrimitive.Positioner
-@@ -77,12 +107,15 @@ function SelectContent({
+@@ -77,12 +108,15 @@ function SelectContent({
          align={align}
          alignOffset={alignOffset}
          alignItemWithTrigger={alignItemWithTrigger}
@@ -159,7 +161,7 @@ index e8a22e1..b938ee7 100644
            {...props}
          >
            <SelectScrollUpButton />
-@@ -91,7 +124,7 @@ function SelectContent({
+@@ -91,7 +125,7 @@ function SelectContent({
          </SelectPrimitive.Popup>
        </SelectPrimitive.Positioner>
      </SelectPrimitive.Portal>
@@ -168,7 +170,7 @@ index e8a22e1..b938ee7 100644
  }
  
  function SelectLabel({
-@@ -104,7 +137,7 @@ function SelectLabel({
+@@ -104,7 +138,7 @@ function SelectLabel({
        className={cn("px-1.5 py-1 text-xs text-muted-foreground", className)}
        {...props}
      />
@@ -177,7 +179,7 @@ index e8a22e1..b938ee7 100644
  }
  
  function SelectItem({
-@@ -116,8 +149,8 @@ function SelectItem({
+@@ -116,8 +150,8 @@ function SelectItem({
      <SelectPrimitive.Item
        data-slot="select-item"
        className={cn(
@@ -188,7 +190,7 @@ index e8a22e1..b938ee7 100644
        )}
        {...props}
      >
-@@ -132,7 +165,7 @@ function SelectItem({
+@@ -132,7 +166,7 @@ function SelectItem({
          <CheckIcon className="pointer-events-none" />
        </SelectPrimitive.ItemIndicator>
      </SelectPrimitive.Item>
@@ -197,7 +199,7 @@ index e8a22e1..b938ee7 100644
  }
  
  function SelectSeparator({
-@@ -145,7 +178,7 @@ function SelectSeparator({
+@@ -145,7 +179,7 @@ function SelectSeparator({
        className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
        {...props}
      />
@@ -206,7 +208,7 @@ index e8a22e1..b938ee7 100644
  }
  
  function SelectScrollUpButton({
-@@ -157,14 +190,13 @@ function SelectScrollUpButton({
+@@ -157,14 +191,13 @@ function SelectScrollUpButton({
        data-slot="select-scroll-up-button"
        className={cn(
          "top-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
@@ -224,7 +226,7 @@ index e8a22e1..b938ee7 100644
  }
  
  function SelectScrollDownButton({
-@@ -176,14 +208,13 @@ function SelectScrollDownButton({
+@@ -176,14 +209,13 @@ function SelectScrollDownButton({
        data-slot="select-scroll-down-button"
        className={cn(
          "bottom-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
@@ -242,7 +244,7 @@ index e8a22e1..b938ee7 100644
  }
  
  export {
-@@ -197,4 +228,4 @@ export {
+@@ -197,4 +229,4 @@ export {
    SelectSeparator,
    SelectTrigger,
    SelectValue,
