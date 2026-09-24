@@ -13,6 +13,25 @@ import { Toaster, toast } from "../registry/ui/toast";
 import { TextEdit } from "../registry/ui/text-edit";
 import { ColorPicker } from "../registry/ui/color-picker";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../registry/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../registry/ui/dropdown-menu";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "../registry/ui/context-menu";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "../registry/ui/menubar";
 import { FileWarningIcon } from "lucide-react";
 import { isTransparent } from "./color";
 import {
@@ -759,6 +778,101 @@ for (const theme of ["light", "dark"] as const) {
         violations,
         `${name} selected-row color-contrast failures (${theme}):\n  ${violations.join("\n  ")}`,
       ).toEqual([]);
+    });
+  }
+}
+
+// ── menu-destructive-rest: a destructive menu row's RESTING ink on the popup ──────────────────────
+// A11Y-13 moved the three menus' FOCUSED destructive ink onto `-text`; the resting ink
+// `data-[variant=destructive]:text-destructive` on `bg-popover` stayed upstream's (Regent #138,
+// DS-10 (a)). This measures that pair on real compiled colours — three menus × two themes — and pins
+// it at the 4.5:1 AA floor, so a token move that drops it under the floor fails here by number.
+// Measured 24-09-2026: 4.770:1 light and 6.207:1 dark in all three menus (menubar's item IS the
+// dropdown item), so the resting ink stays upstream's and A11Y-13 is not extended to it.
+const DESTRUCTIVE_MENUS = {
+  "dropdown-menu": {
+    open: async () => {},
+    node: (
+      <DropdownMenu defaultOpen>
+        <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  },
+  "context-menu": {
+    open: async () => {
+      const trigger = document.querySelector<HTMLElement>(
+        '[data-slot="context-menu-trigger"]',
+      )!;
+      await userEvent.click(trigger, { button: "right" });
+    },
+    node: (
+      <div style={{ padding: 160 }}>
+        <ContextMenu>
+          <ContextMenuTrigger>Right click here</ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem>Edit</ContextMenuItem>
+            <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      </div>
+    ),
+  },
+  menubar: {
+    open: async () => {
+      const trigger = document.querySelector<HTMLElement>(
+        '[data-slot="menubar-trigger"]',
+      )!;
+      await userEvent.click(trigger);
+    },
+    node: (
+      <Menubar>
+        <MenubarMenu>
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>Edit</MenubarItem>
+            <MenubarItem variant="destructive">Delete</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+    ),
+  },
+} as const;
+
+for (const theme of ["light", "dark"] as const) {
+  for (const [menu, fixture] of Object.entries(DESTRUCTIVE_MENUS)) {
+    test(`menu-destructive-rest: ${menu} resting destructive ink clears 4.5:1 — ${theme} theme`, async () => {
+      if (theme === "dark") document.documentElement.classList.add("dark");
+      await render(fixture.node);
+      await fixture.open();
+      const destructive = () =>
+        document.querySelector<HTMLElement>(
+          '[role="menuitem"][data-variant="destructive"]',
+        );
+      await expect.poll(destructive).not.toBeNull();
+      const item = destructive()!;
+      const popup = item.closest<HTMLElement>('[role="menu"]')!;
+      // Measure only once the enter transition has settled — mid-fade opacity blends colours.
+      await expect
+        .poll(() => Number(getComputedStyle(popup).opacity), { timeout: 3000 })
+        .toBeGreaterThanOrEqual(0.99);
+      // At REST: neither highlighted nor focused.
+      expect(item.hasAttribute("data-highlighted")).toBe(false);
+      expect(item).not.toBe(document.activeElement);
+      const page = getComputedStyle(document.body).backgroundColor;
+      const surface = [
+        isTransparent(page) ? "white" : page,
+        getComputedStyle(popup).backgroundColor,
+        getComputedStyle(item).backgroundColor,
+      ];
+      const ratio = contrastRatio(
+        composite([...surface, getComputedStyle(item).color]),
+        composite(surface),
+      );
+      expect(ratio).toBeGreaterThanOrEqual(4.5);
     });
   }
 }

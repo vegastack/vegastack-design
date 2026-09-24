@@ -2959,3 +2959,28 @@ FilterBar in light, dark and 320px views; no visual defect was found. This subst
 evidence only, not the missing before/after report. WebKit also cannot launch on this host, and the
 skill-scan analyzers degraded while inspecting existing repository skills. Those unavailable gates
 are surfaced to the operator rather than waived locally.
+
+## 2026-09-24 — A11Y-17 amended: a comma-free count suffix (MK-delegated, Regent #138)
+
+A11Y-17 as approved said the sidebar count would join the row's name "through the A11Y-5 separator".
+Measured in `sidebar.test.tsx` over compiled CSS, an `sr-only ", "` suffix produces the name
+"Inbox , 12 unread": the menu button is a flex container, so its children are blockified and
+accname step 2F wraps each one in spaces. That is the defect `test/accessible-name.browser.test.tsx`
+records and issue 103 reverted. The orchestrator, acting under MK's blanket approval for the
+facelift, chose a comma-free `sr-only` suffix instead, so the name reads "Inbox 12 unread", and the
+row text in `decisions.md` was amended to say so. The row's resolution (**ours**) did not change.
+
+## 2026-09-24 — LAY-13 amended: the head script sets the panel's own attributes (plan D4, MK-delegated)
+
+LAY-13 as approved had the sidebar recipes mirror the collapsed state in CSS from an `<html>`
+attribute. Counting the recipes showed the mirror would restate 29 collapsed-state class tokens
+across 13 sidebar parts. The icon-mode rules on the child parts would also need a mode signal the
+`<html>` attribute does not carry. That is the "restated wholesale" case plan D4 names, so the build
+stopped and brought options. The orchestrator, acting under MK's blanket approval for the facelift,
+chose a smaller mechanism. `SidebarStateScript` reads the cookie in `<head>`, marks `<html>`, and
+sets the collapsed `data-state`/`data-collapsible` on the desktop panel as the parser inserts it.
+The recipes' own selectors then paint it collapsed. The provider starts from the `<html>` mark, so
+React's first client render equals what is on screen and hydration logs no mismatch
+(`sidebar.test.tsx` checks both the pre-hydration width and the silent hydration). The row text in
+`decisions.md` was amended to match. Consumers pass `collapsible` to the script, and it must equal
+the `Sidebar`'s.

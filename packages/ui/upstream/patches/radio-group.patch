@@ -1,5 +1,5 @@
 # component: radio-group
-# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-12, FOC-5, FOC-6
+# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-12, FOC-5, FOC-6, FRM-15
 # hunks:
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50` and the `aria-invalid` halo rings are removed.
@@ -14,12 +14,15 @@
 #     shared band, which `test/geometry.browser.test.tsx` measures with a real `elementFromPoint`
 #     probe. 12px puts the centres exactly 32px apart: the areas touch and every target is
 #     unobstructed. This is the A11Y-2 audit the exception map asks for on `radio-group`.
+#   FRM-15: `disabled:cursor-not-allowed disabled:opacity-50` become `data-disabled:…`. Base UI
+#     renders the item as a `<span>`, which `:disabled` never matches, so upstream's radio dimmed
+#     only inside a disabled Field; Base UI sets `data-disabled` on the root.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/radio-group.tsx b/radio-group.tsx
-index ef52dfe..da08032 100644
+index ef52dfe..78b12f0 100644
 --- a/radio-group.tsx
 +++ b/radio-group.tsx
 @@ -1,17 +1,17 @@
@@ -52,7 +55,7 @@ index ef52dfe..da08032 100644
        className={cn(
 -        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input outline-none group-has-[:focus-visible]/field-label:ring-0 group-has-[:focus-visible]/field-label:not-data-checked:border-input after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground group-has-[:focus-visible]/field-label:data-checked:border-primary dark:data-checked:bg-primary",
 -        className
-+        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive not-focus:aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:not-focus:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
++        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50 not-focus:aria-invalid:border-destructive not-focus:aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:not-focus:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
 +        className,
        )}
        {...props}

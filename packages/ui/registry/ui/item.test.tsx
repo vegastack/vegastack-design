@@ -9,11 +9,15 @@ import {
   ItemDescription,
   ItemFooter,
   ItemGroup,
+  ItemGroupLabel,
   ItemHeader,
   ItemMedia,
   ItemSeparator,
   ItemTitle,
+  ItemDescriptionContext,
+  useItemDescriptionId,
 } from "./item";
+import { RelativeTime } from "./relative-time";
 
 /** Upstream's three variants (docs § Variant). */
 const VARIANTS = ["default", "outline", "muted"] as const;
@@ -469,6 +473,190 @@ test("no a11y violations — every variant and size", async () => {
         )),
       )}
     </div>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("A11Y-7 (amended): a link row in a group keeps its link role", async () => {
+  const screen = await render(
+    <>
+      <ItemGroupLabel>Recent</ItemGroupLabel>
+      <ItemGroup>
+        <Item render={<a href="/m/1" />}>
+          <ItemTitle>Depot review</ItemTitle>
+        </Item>
+      </ItemGroup>
+    </>,
+  );
+  const link = screen.getByRole("link", { name: /Depot review/ });
+  expect(link.element().parentElement!.getAttribute("role")).toBe("listitem");
+  await expect
+    .element(screen.getByRole("list", { name: "Recent" }))
+    .toBeInTheDocument();
+});
+
+test("A11Y-7 (amended): a button row in a group keeps its button role inside a listitem wrapper", async () => {
+  const screen = await render(
+    <ItemGroup aria-label="Actions">
+      <Item render={<button type="button" />}>
+        <ItemTitle>Archive</ItemTitle>
+      </Item>
+    </ItemGroup>,
+  );
+  const button = screen.getByRole("button", { name: "Archive" });
+  const wrapper = button.element().parentElement!;
+  expect(wrapper.getAttribute("role")).toBe("listitem");
+  expect(wrapper.getAttribute("data-slot")).toBe("item-listitem");
+  expect(button.element().hasAttribute("role")).toBe(false);
+});
+
+test("A11Y-7: a div row in a group takes listitem itself, with no wrapper", async () => {
+  const screen = await render(
+    <ItemGroup aria-label="People">
+      <Item>
+        <ItemTitle>ada</ItemTitle>
+      </Item>
+      <Item render={<div />}>
+        <ItemTitle>linus</ItemTitle>
+      </Item>
+    </ItemGroup>,
+  );
+  const rows = screen.container.querySelectorAll("[data-slot=item]");
+  expect(rows).toHaveLength(2);
+  for (const row of rows) expect(row.getAttribute("role")).toBe("listitem");
+  expect(
+    screen.container.querySelector("[data-slot=item-listitem]"),
+  ).toBeNull();
+});
+
+test("A11Y-7: a link row outside a group gets no wrapper and no listitem", async () => {
+  const screen = await render(
+    <Item render={<a href="/m/1" />}>
+      <ItemTitle>Depot review</ItemTitle>
+    </Item>,
+  );
+  const link = screen.getByRole("link", { name: "Depot review" });
+  expect(link.element().hasAttribute("role")).toBe(false);
+  expect(
+    screen.container.querySelector("[data-slot=item-listitem]"),
+  ).toBeNull();
+});
+
+test("A11Y-7 (amended): a timestamp inside a link row is not a tab stop of its own", async () => {
+  const screen = await render(
+    <ItemGroup aria-label="Recent">
+      <Item render={<a href="/m/1" />}>
+        <ItemContent>
+          <ItemTitle>Depot review</ItemTitle>
+        </ItemContent>
+        <RelativeTime date={new Date("2026-09-01T10:00:00Z")} />
+      </Item>
+    </ItemGroup>,
+  );
+  const link = screen.getByRole("link").element();
+  // The row is the one control: nothing inside it is in the tab order.
+  expect(link.querySelectorAll('[tabindex="0"]')).toHaveLength(0);
+  // Outside a control row the same timestamp stays a tab stop, so the provider did the work.
+  const bare = await render(
+    <RelativeTime date={new Date("2026-09-01T10:00:00Z")} />,
+  );
+  expect(bare.container.querySelectorAll('[tabindex="0"]')).toHaveLength(1);
+});
+
+test("API-20: ItemGroupLabel is an h3 heading that names the group after it", async () => {
+  const screen = await render(
+    <>
+      <ItemGroupLabel>Recent</ItemGroupLabel>
+      <ItemGroup>
+        <Item>
+          <ItemTitle>Depot review</ItemTitle>
+        </Item>
+      </ItemGroup>
+    </>,
+  );
+  const heading = screen.getByRole("heading", { level: 3, name: "Recent" });
+  await expect
+    .element(heading)
+    .toHaveAttribute("data-slot", "item-group-label");
+  const list = screen.getByRole("list", { name: "Recent" });
+  await expect
+    .element(list)
+    .toHaveAttribute("aria-labelledby", heading.element().id);
+});
+
+test("API-20: ItemGroupLabel takes its heading level through render, and a caller's own name wins", async () => {
+  const screen = await render(
+    <>
+      <ItemGroupLabel render={<h2 />}>Recent</ItemGroupLabel>
+      <ItemGroup aria-label="Pinned meetings">
+        <Item>
+          <ItemTitle>Depot review</ItemTitle>
+        </Item>
+      </ItemGroup>
+    </>,
+  );
+  await expect
+    .element(screen.getByRole("heading", { level: 2, name: "Recent" }))
+    .toBeInTheDocument();
+  const list = screen.getByRole("list", { name: "Pinned meetings" });
+  expect(list.element().hasAttribute("aria-labelledby")).toBe(false);
+});
+
+test("API-19: ItemDescription registers its id with a row that provides the context", async () => {
+  function Row() {
+    const { id, register } = useItemDescriptionId();
+    return (
+      <ItemDescriptionContext value={register}>
+        <div role="button" tabIndex={0} aria-describedby={id || undefined}>
+          <ItemContent>
+            <ItemTitle>Depot review</ItemTitle>
+            <ItemDescription>Meeting · 3 Sep</ItemDescription>
+          </ItemContent>
+        </div>
+      </ItemDescriptionContext>
+    );
+  }
+  const screen = await render(<Row />);
+  await expect
+    .element(screen.getByRole("button"))
+    .toHaveAccessibleDescription("Meeting · 3 Sep");
+});
+
+test("API-19: outside a describing row, ItemDescription renders no id of its own", async () => {
+  const screen = await render(
+    <Item>
+      <ItemContent>
+        <ItemDescription>Plain</ItemDescription>
+      </ItemContent>
+    </Item>,
+  );
+  const description = screen.container.querySelector(
+    "[data-slot=item-description]",
+  )!;
+  expect(description.hasAttribute("id")).toBe(false);
+});
+
+test("no a11y violations — a labelled group of link and button rows", async () => {
+  const screen = await render(
+    <>
+      <ItemGroupLabel>Recent</ItemGroupLabel>
+      <ItemGroup>
+        <Item render={<a href="/m/1" />}>
+          <ItemContent>
+            <ItemTitle>Depot review</ItemTitle>
+            <ItemDescription>Meeting · 3 Sep</ItemDescription>
+          </ItemContent>
+          <RelativeTime date={new Date("2026-09-01T10:00:00Z")} />
+        </Item>
+        <ItemSeparator />
+        <Item render={<button type="button" />}>
+          <ItemTitle>Archive</ItemTitle>
+        </Item>
+        <Item>
+          <ItemTitle>Plain row</ItemTitle>
+        </Item>
+      </ItemGroup>
+    </>,
   );
   await expectNoA11yViolations(screen.container);
 });

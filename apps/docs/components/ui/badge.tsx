@@ -1,4 +1,4 @@
-// @vegastack badge@0.18.0 sha256-+M6vs9x85eeUMu2pb2cEKJTsilW8B5zkkIwvoRz+clw=
+// @vegastack badge@0.18.0 sha256-gSdFdjvJjGZHJ2p5mwgXDyjtcU/VD/HoZkUt4jczKv8=
 
 "use client";
 
@@ -35,6 +35,8 @@ const badgeVariants = cva(
   },
 );
 
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
+
 function Badge({
   className,
   variant = "default",
@@ -57,4 +59,4 @@ function Badge({
   });
 }
 
-export { Badge, badgeVariants };
+export { Badge, badgeVariants, type BadgeVariant };

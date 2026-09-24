@@ -1,4 +1,4 @@
-// @vegastack context-menu@0.18.0 sha256-kF9J7l+TF5ztoFNpQYiL3mbHAg412V7KdUjnwnNWV5Y=
+// @vegastack context-menu@0.18.0 sha256-ejIZSKjsp9Sq46K9U67Mkfw3q0XBhGVKHjVeokhIslI=
 
 "use client";
 
@@ -7,6 +7,11 @@ import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { ChevronRightIcon, CheckIcon } from "lucide-react";
+
+import {
+  ItemDescriptionContext,
+  useItemDescriptionId,
+} from "@/components/ui/item";
 
 function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
   return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />;
@@ -109,17 +114,21 @@ function ContextMenuItem({
   inset?: boolean;
   variant?: "default" | "destructive";
 }) {
+  const description = useItemDescriptionId();
   return (
-    <ContextMenuPrimitive.Item
-      data-slot="context-menu-item"
-      data-inset={inset}
-      data-variant={variant}
-      className={cn(
-        "group/context-menu-item relative flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 focus:*:[svg]:text-accent-foreground data-[variant=destructive]:*:[svg]:text-destructive",
-        className,
-      )}
-      {...props}
-    />
+    <ItemDescriptionContext.Provider value={description.register}>
+      <ContextMenuPrimitive.Item
+        data-slot="context-menu-item"
+        aria-describedby={description.id || undefined}
+        data-inset={inset}
+        data-variant={variant}
+        className={cn(
+          "group/context-menu-item relative flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 focus:*:[svg]:text-accent-foreground data-[variant=destructive]:*:[svg]:text-destructive",
+          className,
+        )}
+        {...props}
+      />
+    </ItemDescriptionContext.Provider>
   );
 }
 
@@ -175,24 +184,28 @@ function ContextMenuCheckboxItem({
 }: ContextMenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
 }) {
+  const description = useItemDescriptionId();
   return (
-    <ContextMenuPrimitive.CheckboxItem
-      data-slot="context-menu-checkbox-item"
-      data-inset={inset}
-      className={cn(
-        "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      checked={checked}
-      {...props}
-    >
-      <span className="pointer-events-none absolute end-2">
-        <ContextMenuPrimitive.CheckboxItemIndicator>
-          <CheckIcon />
-        </ContextMenuPrimitive.CheckboxItemIndicator>
-      </span>
-      {children}
-    </ContextMenuPrimitive.CheckboxItem>
+    <ItemDescriptionContext.Provider value={description.register}>
+      <ContextMenuPrimitive.CheckboxItem
+        data-slot="context-menu-checkbox-item"
+        aria-describedby={description.id || undefined}
+        data-inset={inset}
+        className={cn(
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          className,
+        )}
+        checked={checked}
+        {...props}
+      >
+        <span className="pointer-events-none absolute end-2">
+          <ContextMenuPrimitive.CheckboxItemIndicator>
+            <CheckIcon />
+          </ContextMenuPrimitive.CheckboxItemIndicator>
+        </span>
+        {children}
+      </ContextMenuPrimitive.CheckboxItem>
+    </ItemDescriptionContext.Provider>
   );
 }
 
@@ -215,23 +228,27 @@ function ContextMenuRadioItem({
 }: ContextMenuPrimitive.RadioItem.Props & {
   inset?: boolean;
 }) {
+  const description = useItemDescriptionId();
   return (
-    <ContextMenuPrimitive.RadioItem
-      data-slot="context-menu-radio-item"
-      data-inset={inset}
-      className={cn(
-        "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      {...props}
-    >
-      <span className="pointer-events-none absolute end-2">
-        <ContextMenuPrimitive.RadioItemIndicator>
-          <CheckIcon />
-        </ContextMenuPrimitive.RadioItemIndicator>
-      </span>
-      {children}
-    </ContextMenuPrimitive.RadioItem>
+    <ItemDescriptionContext.Provider value={description.register}>
+      <ContextMenuPrimitive.RadioItem
+        data-slot="context-menu-radio-item"
+        aria-describedby={description.id || undefined}
+        data-inset={inset}
+        className={cn(
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          className,
+        )}
+        {...props}
+      >
+        <span className="pointer-events-none absolute end-2">
+          <ContextMenuPrimitive.RadioItemIndicator>
+            <CheckIcon />
+          </ContextMenuPrimitive.RadioItemIndicator>
+        </span>
+        {children}
+      </ContextMenuPrimitive.RadioItem>
+    </ItemDescriptionContext.Provider>
   );
 }
 

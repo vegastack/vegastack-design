@@ -1,5 +1,5 @@
 # component: sidebar
-# decisions: A11Y-2, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4
+# decisions: A11Y-2, A11Y-17, A11Y-18, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, LAY-13, LAY-16, OVL-16, VOI-1
 # hunks:
 #   BRD-1: the floating variant's inner surface swaps upstream's
 #     `group-data-[variant=floating]:ring-1 …:ring-sidebar-border` box-shadow outline for a real
@@ -27,6 +27,46 @@
 #     an assignment; this is that audit finding a real violation, so the exception is applied. The
 #     hit area is the only thing that changes: the visible 20px box, its position and its hover
 #     wash are upstream's. `sidebar.test.tsx` measures both controls at both widths.
+#   A11Y-17: `SidebarMenuButton` takes `badge` and `badgeLabel`. The count joins the control's
+#     name through a comma-free `sr-only` suffix (" 12 unread"), so the name reads
+#     "Inbox 12 unread"; an A11Y-5 `sr-only ", "` separator was measured to read "Inbox , 12
+#     unread" once CSS blockifies the flex children (accname step 2F), and the row was amended
+#     to the suffix. `badgeLabel` defaults to a string or number `badge`. The button renders the
+#     visual `SidebarMenuBadge` as its upstream sibling, so every `peer-*/menu-button` recipe on
+#     the badge still applies, and `SidebarMenuBadge` is now `aria-hidden` wherever it is used.
+#     While a count is present the label (`span:nth-last-child(2)`) keeps upstream's `truncate`,
+#     because the suffix is now the last span. The collapsed tooltip carries the same count.
+#     Badge padding: `group-has-data-[sidebar=menu-badge]/menu-item:pe-8`, beside upstream's
+#     menu-action `pe-8`, and `pe-12` when the badge is `data-badge-size="lg"` (a string or
+#     number badge of three or more characters), so a long label stops short of the count.
+#   A11Y-18: `SidebarMenuButton` sets `aria-current="page"` when `isActive` and `render` is a
+#     link (an `<a>`, or any element carrying `href`). A button never gets it, and a caller's own
+#     `aria-current` wins.
+#   INT-11: the Mod+B handler returns early when the event is already `defaultPrevented` or
+#     started in an editable target — `isEditableTarget` from `@/components/ui/use-platform`
+#     (input, textarea, select, contenteditable; the same guard `shortcut-overlay` uses). The
+#     provider takes `keyboardShortcut` (default upstream's "b"; `false` attaches no listener).
+#   LAY-13: static-shell state. New exports `SidebarStateScript` — an inline `<head>` script that
+#     reads the cookie, sets `data-sidebar-state="collapsed"` on `<html>`, and gives the desktop
+#     panel (`[data-slot=sidebar][data-state]`) the collapsed `data-state` and the caller's
+#     `data-collapsible` as the parser inserts it (a MutationObserver that disconnects on the first
+#     hit or at DOMContentLoaded), so upstream's own `group-data-*`/`peer-data-*` recipes paint it
+#     collapsed; the cookie name is written through a `<`-escaped JSON literal — and
+#     `useSidebarCookieOpen(cookieName?)`, the `[open, setOpen]` pair for a controlled provider.
+#     The uncontrolled provider's initial state reads the `<html>` mark (falling back to
+#     `defaultOpen`), so the client's hydration render equals the pre-painted DOM, and every
+#     toggle keeps an existing mark in step. The cookie write moves into `writeSidebarCookie`,
+#     gains `SameSite=Lax`, and happens only when the provider is uncontrolled.
+#   LAY-16: `SidebarMenuSkeleton`'s `Math.random()` width in a state initialiser becomes a fixed
+#     cycle (70%, 55%, 85%, 60%, 75%) picked by a new `index` prop, so server and client markup
+#     agree and the docs preview no longer has to mount it after hydration.
+#   OVL-16: the mobile panel's `SheetContent` adds `data-[side=left]:w-(--sidebar-width)` and
+#     `data-[side=right]:w-(--sidebar-width)`. The Sheet's side widths are keyed on `data-side`,
+#     which outranks the plain `w-(--sidebar-width)` upstream relies on; restating the width on the
+#     same variant keeps the sheet at SIDEBAR_WIDTH_MOBILE (18rem) whatever width OVL-16's sheet
+#     sizes give a side sheet, so the scrim beside it stays tappable.
+#   VOI-1: "Toggle Sidebar" becomes "Toggle sidebar" in `SidebarTrigger`'s `sr-only` label and on
+#     `SidebarRail`'s `aria-label` and `title`, and both take `triggerLabel` to override it.
 #   registry layout (DOC-1): `@/hooks/use-mobile` becomes `@/components/ui/use-mobile`. Hooks are
 #     `registry:hook` items alongside the components in this registry, which is the path the
 #     three-copy model and `shadcn add @vegastack/use-mobile` both use.
@@ -35,10 +75,10 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..6ad2d04 100644
+index cbcc413..d9d5c0c 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
-@@ -1,56 +1,56 @@
+@@ -1,117 +1,203 @@
 -"use client"
 -
 -import * as React from "react"
@@ -60,6 +100,7 @@ index cbcc413..6ad2d04 100644
 +import { cn } from "@vegastack/design";
 +
 +import { useIsMobile } from "@/components/ui/use-mobile";
++import { isEditableTarget } from "@/components/ui/use-platform";
 +import { Button } from "@/components/ui/button";
 +import { Input } from "@/components/ui/input";
 +import { Separator } from "@/components/ui/separator";
@@ -81,6 +122,22 @@ index cbcc413..6ad2d04 100644
 -import { PanelLeftIcon } from "lucide-react"
 +} from "@/components/ui/tooltip";
 +import { PanelLeftIcon } from "lucide-react";
++
++const SIDEBAR_COOKIE_NAME = "sidebar_state";
++const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
++const SIDEBAR_WIDTH = "16rem";
++const SIDEBAR_WIDTH_MOBILE = "18rem";
++const SIDEBAR_WIDTH_ICON = "3rem";
++const SIDEBAR_KEYBOARD_SHORTCUT = "b";
++
++const SIDEBAR_STATE_ATTRIBUTE = "data-sidebar-state";
++
++/** The collapsed mark `SidebarStateScript` leaves on `<html>`, read once on the client. */
++function readSidebarStateMark(): boolean | undefined {
++  if (typeof document === "undefined") return undefined;
++  const mark = document.documentElement.getAttribute(SIDEBAR_STATE_ATTRIBUTE);
++  return mark === null ? undefined : mark !== "collapsed";
++}
  
 -const SIDEBAR_COOKIE_NAME = "sidebar_state"
 -const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -88,14 +145,15 @@ index cbcc413..6ad2d04 100644
 -const SIDEBAR_WIDTH_MOBILE = "18rem"
 -const SIDEBAR_WIDTH_ICON = "3rem"
 -const SIDEBAR_KEYBOARD_SHORTCUT = "b"
-+const SIDEBAR_COOKIE_NAME = "sidebar_state";
-+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-+const SIDEBAR_WIDTH = "16rem";
-+const SIDEBAR_WIDTH_MOBILE = "18rem";
-+const SIDEBAR_WIDTH_ICON = "3rem";
-+const SIDEBAR_KEYBOARD_SHORTCUT = "b";
++/** Keeps an existing `<html>` mark in step with the state, so a remount reads the truth. */
++function writeSidebarStateMark(open: boolean) {
++  const root = document.documentElement;
++  if (root.hasAttribute(SIDEBAR_STATE_ATTRIBUTE)) {
++    root.setAttribute(SIDEBAR_STATE_ATTRIBUTE, open ? "expanded" : "collapsed");
++  }
++}
  
- type SidebarContextProps = {
+-type SidebarContextProps = {
 -  state: "expanded" | "collapsed"
 -  open: boolean
 -  setOpen: (open: boolean) => void
@@ -103,7 +161,70 @@ index cbcc413..6ad2d04 100644
 -  setOpenMobile: (open: boolean) => void
 -  isMobile: boolean
 -  toggleSidebar: () => void
--}
++function writeSidebarCookie(name: string, open: boolean) {
++  document.cookie = `${name}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax`;
++}
++
++/**
++ * A static or cached shell cannot read the `sidebar_state` cookie on the server, so it renders
++ * the panel expanded. Put this script in `<head>`: before first paint it reads the cookie, marks
++ * `<html>` with `data-sidebar-state`, and gives the desktop panel the `data-state` and
++ * `data-collapsible` the sidebar's own recipes read, so a collapsed panel paints collapsed.
++ * `collapsible` must match the `Sidebar`'s. The provider and `useSidebarCookieOpen` start from
++ * that mark, so hydration agrees with the screen.
++ */
++/** A JSON string literal that cannot close the inline `<script>` it is written into. */
++function scriptLiteral(value: string) {
++  return JSON.stringify(value).replace(/</g, "\\u003c");
++}
++
++function SidebarStateScript({
++  cookieName = SIDEBAR_COOKIE_NAME,
++  collapsible = "offcanvas",
++}: {
++  cookieName?: string;
++  collapsible?: "offcanvas" | "icon" | "none";
++}) {
++  const source = `(function(n,m){try{if(document.cookie.split(/;\\s*/).indexOf(n+"=false")<0)return;var r=document.documentElement;r.setAttribute("${SIDEBAR_STATE_ATTRIBUTE}","collapsed");if(m==="none")return;var f=function(){var e=document.querySelector('[data-slot="sidebar"][data-state]');if(!e)return false;e.setAttribute("data-state","collapsed");e.setAttribute("data-collapsible",m);return true};if(f())return;var o=new MutationObserver(function(){if(f())o.disconnect()});o.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){o.disconnect()},{once:true})}catch(e){}})(${scriptLiteral(cookieName)},${scriptLiteral(collapsible)})`;
++  return (
++    <script
++      data-slot="sidebar-state-script"
++      dangerouslySetInnerHTML={{ __html: source }}
++    />
++  );
++}
++
++/**
++ * The open state for a controlled `SidebarProvider`, persisted in the sidebar cookie. It starts
++ * from `SidebarStateScript`'s mark when there is one, so hydration matches a pre-painted panel,
++ * and otherwise reads the cookie after hydration. The setter writes the cookie; the controlled
++ * provider itself writes none.
++ */
++function useSidebarCookieOpen(
++  cookieName: string = SIDEBAR_COOKIE_NAME,
++): [boolean, (open: boolean) => void] {
++  const [open, setOpenState] = React.useState(
++    () => readSidebarStateMark() ?? true,
++  );
++  React.useEffect(() => {
++    if (readSidebarStateMark() !== undefined) return;
++    if (document.cookie.split(/;\s*/).includes(`${cookieName}=false`)) {
++      setOpenState(false);
++    }
++  }, [cookieName]);
++  const setOpen = React.useCallback(
++    (value: boolean) => {
++      setOpenState(value);
++      writeSidebarCookie(cookieName, value);
++      writeSidebarStateMark(value);
++    },
++    [cookieName],
++  );
++  return [open, setOpen];
+ }
+ 
+-const SidebarContext = React.createContext<SidebarContextProps | null>(null)
++type SidebarContextProps = {
 +  state: "expanded" | "collapsed";
 +  open: boolean;
 +  setOpen: (open: boolean) => void;
@@ -112,8 +233,7 @@ index cbcc413..6ad2d04 100644
 +  isMobile: boolean;
 +  toggleSidebar: () => void;
 +};
- 
--const SidebarContext = React.createContext<SidebarContextProps | null>(null)
++
 +const SidebarContext = React.createContext<SidebarContextProps | null>(null);
  
  function useSidebar() {
@@ -129,7 +249,12 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarProvider({
-@@ -62,36 +62,36 @@ function SidebarProvider({
+   defaultOpen = true,
+   open: openProp,
+   onOpenChange: setOpenProp,
++  keyboardShortcut = SIDEBAR_KEYBOARD_SHORTCUT,
+   className,
+   style,
    children,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -139,6 +264,7 @@ index cbcc413..6ad2d04 100644
 +  defaultOpen?: boolean;
 +  open?: boolean;
 +  onOpenChange?: (open: boolean) => void;
++  keyboardShortcut?: string | false;
  }) {
 -  const isMobile = useIsMobile()
 -  const [openMobile, setOpenMobile] = React.useState(false)
@@ -149,7 +275,9 @@ index cbcc413..6ad2d04 100644
    // We use openProp and setOpenProp for control from outside the component.
 -  const [_open, _setOpen] = React.useState(defaultOpen)
 -  const open = openProp ?? _open
-+  const [_open, _setOpen] = React.useState(defaultOpen);
++  const [_open, _setOpen] = React.useState(
++    () => readSidebarStateMark() ?? defaultOpen,
++  );
 +  const open = openProp ?? _open;
    const setOpen = React.useCallback(
      (value: boolean | ((value: boolean) => boolean)) => {
@@ -163,13 +291,17 @@ index cbcc413..6ad2d04 100644
 +        _setOpen(openState);
        }
  
-       // This sets the cookie to keep the sidebar state.
+-      // This sets the cookie to keep the sidebar state.
 -      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
-+      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
++      // This sets the cookie to keep the sidebar state. A controlled provider's host owns it.
++      if (openProp === undefined) {
++        writeSidebarCookie(SIDEBAR_COOKIE_NAME, openState);
++        writeSidebarStateMark(openState);
++      }
      },
 -    [setOpenProp, open]
 -  )
-+    [setOpenProp, open],
++    [setOpenProp, open, openProp],
 +  );
  
    // Helper to toggle the sidebar.
@@ -181,12 +313,16 @@ index cbcc413..6ad2d04 100644
  
    // Adds a keyboard shortcut to toggle the sidebar.
    React.useEffect(() => {
-@@ -100,18 +100,18 @@ function SidebarProvider({
-         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-         (event.metaKey || event.ctrlKey)
-       ) {
++    if (keyboardShortcut === false) return;
+     const handleKeyDown = (event: KeyboardEvent) => {
+-      if (
+-        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
+-        (event.metaKey || event.ctrlKey)
+-      ) {
 -        event.preventDefault()
 -        toggleSidebar()
++      if (event.defaultPrevented || isEditableTarget(event)) return;
++      if (event.key === keyboardShortcut && (event.metaKey || event.ctrlKey)) {
 +        event.preventDefault();
 +        toggleSidebar();
        }
@@ -198,7 +334,7 @@ index cbcc413..6ad2d04 100644
 -  }, [toggleSidebar])
 +    window.addEventListener("keydown", handleKeyDown);
 +    return () => window.removeEventListener("keydown", handleKeyDown);
-+  }, [toggleSidebar]);
++  }, [toggleSidebar, keyboardShortcut]);
  
    // We add a state so that we can do data-state="expanded" or "collapsed".
    // This makes it easier to style the sidebar with Tailwind classes.
@@ -207,7 +343,7 @@ index cbcc413..6ad2d04 100644
  
    const contextValue = React.useMemo<SidebarContextProps>(
      () => ({
-@@ -123,8 +123,8 @@ function SidebarProvider({
+@@ -123,8 +209,8 @@ function SidebarProvider({
        setOpenMobile,
        toggleSidebar,
      }),
@@ -218,7 +354,7 @@ index cbcc413..6ad2d04 100644
  
    return (
      <SidebarContext.Provider value={contextValue}>
-@@ -139,14 +139,14 @@ function SidebarProvider({
+@@ -139,14 +225,14 @@ function SidebarProvider({
          }
          className={cn(
            "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
@@ -235,7 +371,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function Sidebar({
-@@ -158,11 +158,11 @@ function Sidebar({
+@@ -158,11 +244,11 @@ function Sidebar({
    dir,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -251,7 +387,7 @@ index cbcc413..6ad2d04 100644
  
    if (collapsible === "none") {
      return (
-@@ -170,13 +170,13 @@ function Sidebar({
+@@ -170,13 +256,13 @@ function Sidebar({
          data-slot="sidebar"
          className={cn(
            "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
@@ -267,7 +403,16 @@ index cbcc413..6ad2d04 100644
    }
  
    if (isMobile) {
-@@ -202,7 +202,7 @@ function Sidebar({
+@@ -187,7 +273,7 @@ function Sidebar({
+           data-sidebar="sidebar"
+           data-slot="sidebar"
+           data-mobile="true"
+-          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
++          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground data-[side=left]:w-(--sidebar-width) data-[side=right]:w-(--sidebar-width) [&>button]:hidden"
+           style={
+             {
+               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+@@ -202,7 +288,7 @@ function Sidebar({
            <div className="flex h-full w-full flex-col">{children}</div>
          </SheetContent>
        </Sheet>
@@ -276,7 +421,7 @@ index cbcc413..6ad2d04 100644
    }
  
    return (
-@@ -223,7 +223,7 @@ function Sidebar({
+@@ -223,7 +309,7 @@ function Sidebar({
            "group-data-[side=right]:rotate-180",
            variant === "floating" || variant === "inset"
              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
@@ -285,7 +430,7 @@ index cbcc413..6ad2d04 100644
          )}
        />
        <div
-@@ -235,20 +235,20 @@ function Sidebar({
+@@ -235,28 +321,31 @@ function Sidebar({
            variant === "floating" || variant === "inset"
              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
              : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-e group-data-[side=right]:border-s",
@@ -309,16 +454,20 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarTrigger({
-@@ -256,7 +256,7 @@ function SidebarTrigger({
+   className,
    onClick,
++  triggerLabel = "Toggle sidebar",
    ...props
- }: React.ComponentProps<typeof Button>) {
+-}: React.ComponentProps<typeof Button>) {
 -  const { toggleSidebar } = useSidebar()
++}: React.ComponentProps<typeof Button> & {
++  triggerLabel?: string;
++}) {
 +  const { toggleSidebar } = useSidebar();
  
    return (
      <Button
-@@ -266,19 +266,19 @@ function SidebarTrigger({
+@@ -266,28 +355,34 @@ function SidebarTrigger({
        size="icon-sm"
        className={cn(className)}
        onClick={(event) => {
@@ -330,19 +479,38 @@ index cbcc413..6ad2d04 100644
        {...props}
      >
        <PanelLeftIcon className="rtl:rotate-180" />
-       <span className="sr-only">Toggle Sidebar</span>
+-      <span className="sr-only">Toggle Sidebar</span>
++      <span className="sr-only">{triggerLabel}</span>
      </Button>
 -  )
 +  );
  }
  
- function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
+-function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 -  const { toggleSidebar } = useSidebar()
++function SidebarRail({
++  className,
++  triggerLabel = "Toggle sidebar",
++  ...props
++}: React.ComponentProps<"button"> & {
++  triggerLabel?: string;
++}) {
 +  const { toggleSidebar } = useSidebar();
  
    return (
      <button
-@@ -295,11 +295,11 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
+       data-sidebar="rail"
+       data-slot="sidebar-rail"
+-      aria-label="Toggle Sidebar"
++      aria-label={triggerLabel}
+       tabIndex={-1}
+       onClick={toggleSidebar}
+-      title="Toggle Sidebar"
++      title={triggerLabel}
+       className={cn(
+         "absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2",
+         "in-data-[side=left]:cursor-w-resize rtl:in-data-[side=left]:cursor-e-resize in-data-[side=right]:cursor-e-resize rtl:in-data-[side=right]:cursor-w-resize",
+@@ -295,11 +390,11 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
          "group-data-[collapsible=offcanvas]:translate-x-0 rtl:group-data-[collapsible=offcanvas]:-translate-x-0 group-data-[collapsible=offcanvas]:after:start-full hover:group-data-[collapsible=offcanvas]:bg-sidebar",
          "[[data-side=left][data-collapsible=offcanvas]_&]:-end-2",
          "[[data-side=right][data-collapsible=offcanvas]_&]:-start-2",
@@ -356,7 +524,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
-@@ -308,11 +308,11 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+@@ -308,11 +403,11 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
        data-slot="sidebar-inset"
        className={cn(
          "relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ms-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ms-2",
@@ -370,7 +538,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarInput({
-@@ -326,7 +326,7 @@ function SidebarInput({
+@@ -326,7 +421,7 @@ function SidebarInput({
        className={cn("h-8 w-full bg-background shadow-none", className)}
        {...props}
      />
@@ -379,7 +547,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -337,7 +337,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -337,7 +432,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2 p-2", className)}
        {...props}
      />
@@ -388,7 +556,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -348,7 +348,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -348,7 +443,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2 p-2", className)}
        {...props}
      />
@@ -397,7 +565,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarSeparator({
-@@ -362,7 +362,7 @@ function SidebarSeparator({
+@@ -362,7 +457,7 @@ function SidebarSeparator({
        className={cn("mx-2 w-auto bg-sidebar-border", className)}
        {...props}
      />
@@ -406,7 +574,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -372,11 +372,11 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -372,11 +467,11 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
        data-sidebar="content"
        className={cn(
          "no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
@@ -420,7 +588,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
-@@ -387,7 +387,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -387,7 +482,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
        {...props}
      />
@@ -429,7 +597,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarGroupLabel({
-@@ -400,18 +400,18 @@ function SidebarGroupLabel({
+@@ -400,18 +495,18 @@ function SidebarGroupLabel({
      props: mergeProps<"div">(
        {
          className: cn(
@@ -452,7 +620,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarGroupAction({
-@@ -424,18 +424,18 @@ function SidebarGroupAction({
+@@ -424,18 +519,18 @@ function SidebarGroupAction({
      props: mergeProps<"button">(
        {
          className: cn(
@@ -475,7 +643,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarGroupContent({
-@@ -449,7 +449,7 @@ function SidebarGroupContent({
+@@ -449,7 +544,7 @@ function SidebarGroupContent({
        className={cn("w-full text-sm", className)}
        {...props}
      />
@@ -484,7 +652,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -460,7 +460,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -460,7 +555,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
        className={cn("flex w-full min-w-0 flex-col gap-0", className)}
        {...props}
      />
@@ -493,7 +661,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
-@@ -471,11 +471,11 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
+@@ -471,11 +566,11 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
        className={cn("group/menu-item relative", className)}
        {...props}
      />
@@ -503,11 +671,11 @@ index cbcc413..6ad2d04 100644
  
  const sidebarMenuButtonVariants = cva(
 -  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
-+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
++  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-has-data-[sidebar=menu-badge]/menu-item:pe-8 group-has-[[data-sidebar=menu-badge][data-badge-size=lg]]/menu-item:pe-12 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
    {
      variants: {
        variant: {
-@@ -493,8 +493,8 @@ const sidebarMenuButtonVariants = cva(
+@@ -493,8 +588,8 @@ const sidebarMenuButtonVariants = cva(
        variant: "default",
        size: "default",
      },
@@ -518,7 +686,14 @@ index cbcc413..6ad2d04 100644
  
  function SidebarMenuButton({
    render,
-@@ -506,17 +506,17 @@ function SidebarMenuButton({
+@@ -502,21 +597,45 @@ function SidebarMenuButton({
+   variant = "default",
+   size = "default",
+   tooltip,
++  badge,
++  badgeLabel,
+   className,
++  children,
    ...props
  }: useRender.ComponentProps<"button"> &
    React.ComponentProps<"button"> & {
@@ -526,30 +701,71 @@ index cbcc413..6ad2d04 100644
 -    tooltip?: string | React.ComponentProps<typeof TooltipContent>
 +    isActive?: boolean;
 +    tooltip?: string | React.ComponentProps<typeof TooltipContent>;
++    badge?: React.ReactNode;
++    badgeLabel?: string;
    } & VariantProps<typeof sidebarMenuButtonVariants>) {
 -  const { isMobile, state } = useSidebar()
 +  const { isMobile, state } = useSidebar();
++  const countLabel =
++    badgeLabel ??
++    (typeof badge === "string" || typeof badge === "number"
++      ? String(badge)
++      : undefined);
++  const isLink =
++    React.isValidElement<{ href?: unknown }>(render) &&
++    (render.type === "a" || render.props.href !== undefined);
    const comp = useRender({
      defaultTagName: "button",
      props: mergeProps<"button">(
        {
-         className: cn(sidebarMenuButtonVariants({ variant, size }), className),
+-        className: cn(sidebarMenuButtonVariants({ variant, size }), className),
++        className: cn(
++          sidebarMenuButtonVariants({ variant, size }),
++          countLabel && "[&>span:nth-last-child(2)]:truncate",
++          className,
++        ),
++        "aria-current": isActive && isLink ? "page" : undefined,
++        children: (
++          <>
++            {children}
++            {countLabel ? <span className="sr-only"> {countLabel}</span> : null}
++          </>
++        ),
        },
 -      props
 +      props,
      ),
      render: !tooltip ? render : <TooltipTrigger render={render} />,
      state: {
-@@ -525,16 +525,16 @@ function SidebarMenuButton({
+@@ -525,29 +644,59 @@ function SidebarMenuButton({
        size,
        active: isActive,
      },
 -  })
 +  });
++
++  const badgeElement =
++    badge !== undefined && badge !== null ? (
++      <SidebarMenuBadge
++        data-badge-size={
++          (typeof badge === "string" || typeof badge === "number") &&
++          String(badge).length >= 3
++            ? "lg"
++            : "default"
++        }
++      >
++        {badge}
++      </SidebarMenuBadge>
++    ) : null;
  
    if (!tooltip) {
 -    return comp
-+    return comp;
++    return (
++      <>
++        {comp}
++        {badgeElement}
++      </>
++    );
    }
  
    if (typeof tooltip === "string") {
@@ -560,16 +776,41 @@ index cbcc413..6ad2d04 100644
    }
  
    return (
-@@ -547,7 +547,7 @@ function SidebarMenuButton({
-         {...tooltip}
-       />
-     </Tooltip>
+-    <Tooltip>
+-      {comp}
+-      <TooltipContent
+-        side="right"
+-        align="center"
+-        hidden={state !== "collapsed" || isMobile}
+-        {...tooltip}
+-      />
+-    </Tooltip>
 -  )
++    <>
++      <Tooltip>
++        {comp}
++        <TooltipContent
++          side="right"
++          align="center"
++          hidden={state !== "collapsed" || isMobile}
++          {...tooltip}
++        >
++          {tooltip.children}
++          {countLabel ? (
++            <>
++              <span className="sr-only"> </span>
++              <span>{countLabel}</span>
++            </>
++          ) : null}
++        </TooltipContent>
++      </Tooltip>
++      {badgeElement}
++    </>
 +  );
  }
  
  function SidebarMenuAction({
-@@ -557,27 +557,27 @@ function SidebarMenuAction({
+@@ -557,27 +706,27 @@ function SidebarMenuAction({
    ...props
  }: useRender.ComponentProps<"button"> &
    React.ComponentProps<"button"> & {
@@ -602,8 +843,11 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarMenuBadge({
-@@ -590,11 +590,11 @@ function SidebarMenuBadge({
+@@ -588,26 +737,32 @@ function SidebarMenuBadge({
+     <div
+       data-slot="sidebar-menu-badge"
        data-sidebar="menu-badge"
++      aria-hidden="true"
        className={cn(
          "pointer-events-none absolute end-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground",
 -        className
@@ -615,24 +859,31 @@ index cbcc413..6ad2d04 100644
 +  );
  }
  
++const SIDEBAR_SKELETON_WIDTHS = ["70%", "55%", "85%", "60%", "75%"];
++
  function SidebarMenuSkeleton({
-@@ -602,12 +602,12 @@ function SidebarMenuSkeleton({
+   className,
    showIcon = false,
++  index = 0,
    ...props
  }: React.ComponentProps<"div"> & {
 -  showIcon?: boolean
 +  showIcon?: boolean;
++  index?: number;
  }) {
-   // Random width between 50 to 90%.
-   const [width] = React.useState(() => {
+-  // Random width between 50 to 90%.
+-  const [width] = React.useState(() => {
 -    return `${Math.floor(Math.random() * 40) + 50}%`
 -  })
-+    return `${Math.floor(Math.random() * 40) + 50}%`;
-+  });
++  // A width from a fixed cycle, so the server and the client render the same markup.
++  const width =
++    SIDEBAR_SKELETON_WIDTHS[
++      Math.abs(Math.trunc(index)) % SIDEBAR_SKELETON_WIDTHS.length
++    ];
  
    return (
      <div
-@@ -632,7 +632,7 @@ function SidebarMenuSkeleton({
+@@ -632,7 +787,7 @@ function SidebarMenuSkeleton({
          }
        />
      </div>
@@ -641,7 +892,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -642,11 +642,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -642,11 +797,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
        data-sidebar="menu-sub"
        className={cn(
          "mx-3.5 flex min-w-0 translate-x-px rtl:-translate-x-px flex-col gap-1 border-s border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden",
@@ -655,7 +906,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarMenuSubItem({
-@@ -660,7 +660,7 @@ function SidebarMenuSubItem({
+@@ -660,7 +815,7 @@ function SidebarMenuSubItem({
        className={cn("group/menu-sub-item relative", className)}
        {...props}
      />
@@ -664,7 +915,7 @@ index cbcc413..6ad2d04 100644
  }
  
  function SidebarMenuSubButton({
-@@ -671,19 +671,19 @@ function SidebarMenuSubButton({
+@@ -671,19 +826,19 @@ function SidebarMenuSubButton({
    ...props
  }: useRender.ComponentProps<"a"> &
    React.ComponentProps<"a"> & {
@@ -689,7 +940,7 @@ index cbcc413..6ad2d04 100644
      ),
      render,
      state: {
-@@ -692,7 +692,7 @@ function SidebarMenuSubButton({
+@@ -692,7 +847,7 @@ function SidebarMenuSubButton({
        size,
        active: isActive,
      },
@@ -698,9 +949,13 @@ index cbcc413..6ad2d04 100644
  }
  
  export {
-@@ -720,4 +720,4 @@ export {
+@@ -718,6 +873,8 @@ export {
+   SidebarProvider,
+   SidebarRail,
    SidebarSeparator,
++  SidebarStateScript,
    SidebarTrigger,
    useSidebar,
 -}
++  useSidebarCookieOpen,
 +};

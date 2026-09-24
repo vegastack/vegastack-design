@@ -1,5 +1,5 @@
 # component: badge
-# decisions: A11Y-13, A11Y-2, A11Y-8, API-16, COL-12, DOC-2, FOC-1, FOC-5, FOC-6
+# decisions: A11Y-13, A11Y-2, A11Y-8, API-16, API-25, COL-12, DOC-2, FOC-1, FOC-5, FOC-6
 # hunks:
 #   A11Y-2: an interactive badge (`[a]`/`[button]`) gets an invisible `::after` hit area and drops
 #           `overflow-hidden`, so its pointer target clears 24px. Upstream's is 20px tall.
@@ -14,11 +14,13 @@
 #     `text-<family>` measures 3.98–4.35:1, under the AA floor A11Y-1 enforces.
 #   A11Y-8: a badge is a labelled chip — the tint never carries the meaning alone; asserted by
 #     `badge.test.tsx` and shown on the docs page.
+#   API-25: `BadgeVariant` — the non-null variant union derived from `badgeVariants` — is
+#     declared and exported, so a consumer types a status map against the system's own union.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/badge.tsx b/badge.tsx
-index 92bd62f..ac07245 100644
+index 92bd62f..714f206 100644
 --- a/badge.tsx
 +++ b/badge.tsx
 @@ -1,10 +1,12 @@
@@ -53,7 +55,7 @@ index 92bd62f..ac07245 100644
          outline:
            "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
          ghost:
-@@ -23,8 +30,8 @@ const badgeVariants = cva(
+@@ -23,8 +30,10 @@ const badgeVariants = cva(
      defaultVariants: {
        variant: "default",
      },
@@ -61,10 +63,12 @@ index 92bd62f..ac07245 100644
 -)
 +  },
 +);
++
++type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
  
  function Badge({
    className,
-@@ -38,14 +45,14 @@ function Badge({
+@@ -38,14 +47,14 @@ function Badge({
        {
          className: cn(badgeVariants({ variant }), className),
        },
@@ -81,4 +85,4 @@ index 92bd62f..ac07245 100644
  }
  
 -export { Badge, badgeVariants }
-+export { Badge, badgeVariants };
++export { Badge, badgeVariants, type BadgeVariant };

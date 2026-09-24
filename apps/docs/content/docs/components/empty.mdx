@@ -106,6 +106,17 @@ the action row and the description without any extra work.
 
 <ComponentPreview name="emptyRtl" file="components/preview/empty.tsx" />
 
+### As a heading
+
+`EmptyTitle` renders a `div` by default. Pass `render` to make it the real heading at the level
+the page needs; the classes and the `data-slot` stay the same.
+
+```tsx
+<EmptyTitle render={<h3 />}>No projects yet</EmptyTitle>
+```
+
+<ComponentPreview name="emptyAsHeading" file="components/preview/empty.tsx" />
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="EmptyProps" />
@@ -124,9 +135,9 @@ the action row and the description without any extra work.
 
 - Every part renders a plain `<div>`, so the empty state adds no landmark and no implicit heading.
   Where the placeholder replaces a named region, give the surrounding container the heading.
-- `EmptyTitle` is styled text, not a heading element, and the part takes no `render` prop. When the
-  empty state stands in for a section that already had a heading level, put the real heading in the
-  surrounding container rather than relying on the title.
+- `EmptyTitle` is styled text by default, not a heading element. When the empty state stands in
+  for a section, pass `render={<h2 />}` (or the level the outline needs) so the title is the real
+  heading (API-22).
 - `EmptyMedia` is decorative: the icon inside it carries no accessible name, and the title plus
   the description are what a screen reader announces.
 - `EmptyContent` holds real controls — a `Button`, an `Input`, a link — and each keeps its own
@@ -145,4 +156,11 @@ the action row and the description without any extra work.
 
 Upstream's file plus `packages/ui/upstream/patches/empty.patch`. Every hunk:
 
+- **TYP-15** — the title's `tracking-tight` is dropped: the title is `text-sm`, in the copy tier,
+  which the theme holds at zero tracking.
+- **API-22** — `EmptyTitle` renders through Base UI's `useRender`, so it takes `render` and the
+  heading level is set on the part. The default `div`, the `data-slot` and the classes are
+  upstream's.
+- **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the module
+  needs the client boundary to import in a Server Component.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

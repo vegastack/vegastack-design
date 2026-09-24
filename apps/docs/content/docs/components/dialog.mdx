@@ -129,6 +129,18 @@ reaches it.
 
 <ComponentPreview name="dialogRtl" file="components/preview/dialog.tsx" />
 
+### Scrolling body
+
+`DialogBody` is the scroller for long content (`min-h-0 flex-1 overflow-y-auto`, with `-mx-4 px-4`
+so focus outlines are not clipped at the popup's padding). A popup that holds one becomes a flex
+column capped 1rem inside the viewport, so the header and the footer band stay in view while the
+body scrolls. A dialog without a `DialogBody` keeps upstream's growing grid.
+
+<ComponentPreview
+  name="dialogScrollingBody"
+  file="components/preview/dialog.tsx"
+/>
+
 ## Playground
 
 Retune the content's max-width cap and either close button, then copy the generated JSX. The dialog
@@ -144,8 +156,11 @@ renders closed; open it from the trigger.
 
 <ApiTable path="lib/api-props.ts" name="DialogFooterProps" />
 
-`DialogTrigger`, `DialogClose`, `DialogPortal`, `DialogOverlay`, `DialogHeader`, `DialogTitle` and
-`DialogDescription` add no props of their own — each accepts everything its Base UI part or its
+`closeLabel` (default `"Close"`) names the built-in close control on both `DialogContent` (the
+corner button) and `DialogFooter` (its opt-in outline button).
+
+`DialogTrigger`, `DialogClose`, `DialogPortal`, `DialogOverlay`, `DialogHeader`, `DialogBody`,
+`DialogTitle` and `DialogDescription` add no props of their own — each accepts everything its Base UI part or its
 `div` accepts.
 
 Width is the `size` prop on `DialogContent` (OVL-16). At `size="default"` the cap is a plain
@@ -164,7 +179,8 @@ Width is the `size` prop on `DialogContent` (OVL-16). At `size="default"` the ca
   stays interactive and nothing is made inert, which is the point of that mode.
 - The popup portals to `<body>`, so `DialogPortal` re-applies the enclosing theme scope on a
   `display: contents` host inside the portal (OVL-13) — a scoped or dark surface survives the jump.
-- The corner close button is an icon-only `Button` carrying a `sr-only` "Close" label.
+- The corner close button is an icon-only `Button` carrying a `sr-only` label, "Close" unless
+  `closeLabel` names it.
 
 <StatesTested name="dialog" />
 
@@ -195,6 +211,10 @@ Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
   and reflects it as `data-size`, the axis `AlertDialogContent` already carries. `default` keeps
   upstream's `sm:max-w-sm` unconditionally; `sm`, `lg` and `xl` step it to `max-w-xs`, `max-w-2xl`
   and `max-w-5xl` through `data-[size=…]`. Approved by MK 23-09-2026 for a consumer gap.
+- **API-21** — `DialogBody` scrolls between the header and the footer band; a popup holding one
+  becomes a flex column capped at `max-h-[calc(100%-2rem)]`, and a dialog without one is
+  untouched. `closeLabel` renames the corner close control and the footer's opt-in close.
+- **VOI-1** — both built-in close strings are the overridable `closeLabel`, default "Close".
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — the repository formatter reflows the file and `registry-stamp.mjs` writes the
   provenance header the three-copy model needs; those hunks carry no decision of their own.

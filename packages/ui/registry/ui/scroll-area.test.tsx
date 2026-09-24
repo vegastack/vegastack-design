@@ -241,3 +241,70 @@ test("no a11y violations — both axes composed", async () => {
   const screen = await render(<BothAxes />);
   await expectNoA11yViolations(screen.container);
 });
+
+test("A11Y-6: the label names the focusable viewport (Named region)", async () => {
+  const screen = await render(
+    <ScrollArea aria-label="Inbox" className="h-20">
+      <div style={{ height: 400 }} />
+    </ScrollArea>,
+  );
+  await expect
+    .element(screen.getByRole("region", { name: "Inbox" }))
+    .toHaveAttribute("data-slot", "scroll-area-viewport");
+  const root = slot("scroll-area", screen.container) as HTMLElement;
+  expect(root.hasAttribute("aria-label")).toBe(false);
+  expect(root.getAttribute("role")).not.toBe("region");
+});
+
+test("A11Y-6: aria-labelledby names the viewport region too", async () => {
+  const screen = await render(
+    <>
+      <h2 id="release-tags">Release tags</h2>
+      <Tall aria-label={undefined} aria-labelledby="release-tags" />
+    </>,
+  );
+  await expect
+    .element(screen.getByRole("region", { name: "Release tags" }))
+    .toHaveAttribute("data-slot", "scroll-area-viewport");
+});
+
+test("A11Y-6: an unnamed viewport takes no region role", async () => {
+  const screen = await render(<Tall aria-label={undefined} />);
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  // Base UI's own `role="presentation"` stays; a region needs a name to be one.
+  expect(viewport.getAttribute("role")).not.toBe("region");
+});
+
+test("A11Y-6: a caller's tabIndex lands on the viewport, not the root", async () => {
+  const screen = await render(<Fits tabIndex={0} />);
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  const root = slot("scroll-area", screen.container) as HTMLElement;
+  await expect.poll(() => viewport.getAttribute("tabindex")).toBe("0");
+  expect(root.hasAttribute("tabindex")).toBe(false);
+});
+
+test("A11Y-22: viewportRef reaches the viewport and scrolls it (Programmatic scroll)", async () => {
+  const ref = React.createRef<HTMLDivElement>();
+  const screen = await render(<Tall viewportRef={ref} />);
+  const viewport = slot(
+    "scroll-area-viewport",
+    screen.container,
+  ) as HTMLElement;
+  expect(ref.current).toBe(viewport);
+  ref.current!.scrollTop = 100;
+  expect(viewport.scrollTop).toBe(100);
+});
+
+test("no a11y violations — a named region that scrolls", async () => {
+  const screen = await render(<Tall aria-label="Release tags" />);
+  await expect
+    .poll(() => screen.container.querySelector('[role="region"]'))
+    .not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});

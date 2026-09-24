@@ -1,4 +1,4 @@
-// @vegastack menubar@0.18.0 sha256-4bN9g4rcs+uxdVIA6Qv6aMW2EqG9nJ3xzjZIXbLN3yU=
+// @vegastack menubar@0.18.0 sha256-aj6sL4zX9H6+DM0FjzY+k9GPuXRvz0JX2LEFkyt0Chs=
 
 "use client";
 
@@ -23,6 +23,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CheckIcon } from "lucide-react";
+
+import {
+  ItemDescriptionContext,
+  useItemDescriptionId,
+} from "@/components/ui/item";
 
 function Menubar({ className, ...props }: MenubarPrimitive.Props) {
   return (
@@ -120,24 +125,28 @@ function MenubarCheckboxItem({
 }: MenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
 }) {
+  const description = useItemDescriptionId();
   return (
-    <MenuPrimitive.CheckboxItem
-      data-slot="menubar-checkbox-item"
-      data-inset={inset}
-      className={cn(
-        "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-        className,
-      )}
-      checked={checked}
-      {...props}
-    >
-      <span className="pointer-events-none absolute start-1.5 flex size-4 items-center justify-center [&_svg:not([class*='size-'])]:size-4">
-        <MenuPrimitive.CheckboxItemIndicator>
-          <CheckIcon />
-        </MenuPrimitive.CheckboxItemIndicator>
-      </span>
-      {children}
-    </MenuPrimitive.CheckboxItem>
+    <ItemDescriptionContext.Provider value={description.register}>
+      <MenuPrimitive.CheckboxItem
+        data-slot="menubar-checkbox-item"
+        aria-describedby={description.id || undefined}
+        data-inset={inset}
+        className={cn(
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+          className,
+        )}
+        checked={checked}
+        {...props}
+      >
+        <span className="pointer-events-none absolute start-1.5 flex size-4 items-center justify-center [&_svg:not([class*='size-'])]:size-4">
+          <MenuPrimitive.CheckboxItemIndicator>
+            <CheckIcon />
+          </MenuPrimitive.CheckboxItemIndicator>
+        </span>
+        {children}
+      </MenuPrimitive.CheckboxItem>
+    </ItemDescriptionContext.Provider>
   );
 }
 
@@ -155,23 +164,27 @@ function MenubarRadioItem({
 }: MenuPrimitive.RadioItem.Props & {
   inset?: boolean;
 }) {
+  const description = useItemDescriptionId();
   return (
-    <MenuPrimitive.RadioItem
-      data-slot="menubar-radio-item"
-      data-inset={inset}
-      className={cn(
-        "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      {...props}
-    >
-      <span className="pointer-events-none absolute start-1.5 flex size-4 items-center justify-center [&_svg:not([class*='size-'])]:size-4">
-        <MenuPrimitive.RadioItemIndicator>
-          <CheckIcon />
-        </MenuPrimitive.RadioItemIndicator>
-      </span>
-      {children}
-    </MenuPrimitive.RadioItem>
+    <ItemDescriptionContext.Provider value={description.register}>
+      <MenuPrimitive.RadioItem
+        data-slot="menubar-radio-item"
+        aria-describedby={description.id || undefined}
+        data-inset={inset}
+        className={cn(
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          className,
+        )}
+        {...props}
+      >
+        <span className="pointer-events-none absolute start-1.5 flex size-4 items-center justify-center [&_svg:not([class*='size-'])]:size-4">
+          <MenuPrimitive.RadioItemIndicator>
+            <CheckIcon />
+          </MenuPrimitive.RadioItemIndicator>
+        </span>
+        {children}
+      </MenuPrimitive.RadioItem>
+    </ItemDescriptionContext.Provider>
   );
 }
 

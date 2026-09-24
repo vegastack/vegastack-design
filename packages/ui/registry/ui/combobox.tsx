@@ -1,4 +1,4 @@
-// @vegastack combobox@0.18.0 sha256-rUhj5QtoqyG7RNn736aWU6JpO1S/nxHHyy+J/OqZlBA=
+// @vegastack combobox@0.18.0 sha256-FqaRPDIhN2GfYKdO+3Epoq/mD/ko9wJYu/bwbi1ggcw=
 
 "use client";
 
@@ -15,6 +15,11 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { ChevronDownIcon, XIcon, CheckIcon } from "lucide-react";
+
+import {
+  ItemDescriptionContext,
+  useItemDescriptionId,
+} from "@/components/ui/item";
 
 const Combobox = ComboboxPrimitive.Root;
 
@@ -173,24 +178,28 @@ function ComboboxItem({
   children,
   ...props
 }: ComboboxPrimitive.Item.Props) {
+  const description = useItemDescriptionId();
   return (
-    <ComboboxPrimitive.Item
-      data-slot="combobox-item"
-      className={cn(
-        "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-      <ComboboxPrimitive.ItemIndicator
-        render={
-          <span className="pointer-events-none absolute end-2 flex size-4 items-center justify-center" />
-        }
+    <ItemDescriptionContext.Provider value={description.register}>
+      <ComboboxPrimitive.Item
+        data-slot="combobox-item"
+        aria-describedby={description.id || undefined}
+        className={cn(
+          "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          className,
+        )}
+        {...props}
       >
-        <CheckIcon className="pointer-events-none" />
-      </ComboboxPrimitive.ItemIndicator>
-    </ComboboxPrimitive.Item>
+        {children}
+        <ComboboxPrimitive.ItemIndicator
+          render={
+            <span className="pointer-events-none absolute end-2 flex size-4 items-center justify-center" />
+          }
+        >
+          <CheckIcon className="pointer-events-none" />
+        </ComboboxPrimitive.ItemIndicator>
+      </ComboboxPrimitive.Item>
+    </ItemDescriptionContext.Provider>
   );
 }
 

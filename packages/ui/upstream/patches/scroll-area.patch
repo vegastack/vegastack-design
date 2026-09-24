@@ -1,24 +1,28 @@
 # component: scroll-area
-# decisions: A11Y-6, DOC-1, DOC-2, FOC-1, FOC-6
+# decisions: A11Y-22, A11Y-6, DOC-1, DOC-2, FOC-1, FOC-6
 # hunks:
 #   FOC-1, FOC-6: `outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50
 #     focus-visible:outline-1` goes from the viewport. The viewport IS a tab stop (see A11Y-6),
 #     so `outline-none` would leave the one focusable part of this component with no affordance.
-#   A11Y-6: NO HUNK — the engine already implements it. Base UI's `ScrollArea.Viewport` sets
+#   A11Y-6: the tab-stop half needs NO HUNK — Base UI's `ScrollArea.Viewport` sets
 #     `tabIndex: hiddenState.x && hiddenState.y ? -1 : 0`, which is exactly 'a scroll viewport is
-#     a tab stop only when it can actually scroll'. The pre-reset component computed the same
-#     thing itself with `useOverflow`; that code is gone because the engine beat it to it.
-#     `scroll-area.test.tsx` asserts both directions, so the day Base UI makes the viewport
-#     unconditionally tabbable this row stops being satisfied and the test says so.
+#     a tab stop only when it can actually scroll'. `scroll-area.test.tsx` asserts both
+#     directions, so the day Base UI makes the viewport unconditionally tabbable the test says so.
+#     The naming half IS a hunk (MK, D2 of the 2026-09-24 facelift plan): `aria-label`,
+#     `aria-labelledby` and `tabIndex` are taken off the root and forwarded to the viewport — the
+#     one focusable part — and a named viewport gets `role="region"`. Upstream spread them onto
+#     the non-focusable root, so a keyboard user landed on an unnamed scroller.
+#   A11Y-22: `viewportRef` is forwarded to `ScrollAreaPrimitive.Viewport`, so a consumer can
+#     scroll it programmatically (`viewportRef.current.scrollTop = …`).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/scroll-area.tsx b/scroll-area.tsx
-index 7cf529c..8171a24 100644
+index 7cf529c..caeeae6 100644
 --- a/scroll-area.tsx
 +++ b/scroll-area.tsx
-@@ -1,8 +1,8 @@
+@@ -1,14 +1,21 @@
 -"use client"
 +"use client";
  
@@ -31,12 +35,32 @@ index 7cf529c..8171a24 100644
  
  function ScrollArea({
    className,
-@@ -17,14 +17,14 @@ function ScrollArea({
+   children,
++  "aria-label": ariaLabel,
++  "aria-labelledby": ariaLabelledBy,
++  tabIndex,
++  viewportRef,
+   ...props
+-}: ScrollAreaPrimitive.Root.Props) {
++}: ScrollAreaPrimitive.Root.Props & {
++  viewportRef?: React.Ref<HTMLDivElement>;
++}) {
++  const named = ariaLabel !== undefined || ariaLabelledBy !== undefined;
+   return (
+     <ScrollAreaPrimitive.Root
+       data-slot="scroll-area"
+@@ -16,15 +23,20 @@ function ScrollArea({
+       {...props}
      >
        <ScrollAreaPrimitive.Viewport
++        ref={viewportRef}
          data-slot="scroll-area-viewport"
 -        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
 +        className="size-full rounded-[inherit] transition-[color,box-shadow]"
++        aria-label={ariaLabel}
++        aria-labelledby={ariaLabelledBy}
++        {...(named ? { role: "region" } : {})}
++        {...(tabIndex !== undefined ? { tabIndex } : {})}
        >
          {children}
        </ScrollAreaPrimitive.Viewport>
@@ -48,7 +72,7 @@ index 7cf529c..8171a24 100644
  }
  
  function ScrollBar({
-@@ -39,7 +39,7 @@ function ScrollBar({
+@@ -39,7 +51,7 @@ function ScrollBar({
        orientation={orientation}
        className={cn(
          "flex touch-none p-px transition-colors select-none data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-s data-vertical:border-s-transparent",
@@ -57,7 +81,7 @@ index 7cf529c..8171a24 100644
        )}
        {...props}
      >
-@@ -48,7 +48,7 @@ function ScrollBar({
+@@ -48,7 +60,7 @@ function ScrollBar({
          className="relative flex-1 rounded-full bg-border"
        />
      </ScrollAreaPrimitive.Scrollbar>

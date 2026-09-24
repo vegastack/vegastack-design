@@ -28,7 +28,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 ### Checked State
 
 Use `defaultChecked` for an uncontrolled checkbox, or `checked` with `onCheckedChange` to control
-it. `indeterminate` draws the mixed state a "select all" parent needs.
+it. `indeterminate` draws the mixed state a "select all" parent needs, with a minus in place of
+the check so it never reads as checked.
 
 ```tsx
 const [checked, setChecked] = React.useState(false);
@@ -68,7 +69,8 @@ Use `FieldContent` and `FieldDescription` for helper text below the label.
 
 ### Disabled
 
-Use `disabled` to prevent interaction, and `data-disabled` on the `Field` so the label dims with it.
+Use `disabled` to prevent interaction; the control dims on its own, inside a `Field` or not. Add
+`data-disabled` to the `Field` so the label dims with it.
 
 <ComponentPreview
   name="checkboxDisabled"
@@ -118,8 +120,11 @@ Try the disabled, indeterminate and invalid states, then copy the generated JSX.
 
 ## Accessibility
 
-- Renders Base UI's Checkbox, which is a native `<button role="checkbox">` carrying `aria-checked`
-  (`"mixed"` when indeterminate); <kbd>Space</kbd> toggles it.
+- Renders Base UI's Checkbox: a `<span role="checkbox">` root carrying `aria-checked` (`"mixed"`
+  when indeterminate) and a visually hidden native `<input type="checkbox">` that takes part in the
+  form; <kbd>Space</kbd> toggles it.
+- The mixed state has its own glyph, a minus, so it is distinguishable from checked without
+  reading `aria-checked` (A11Y-19).
 - The visible box is 16px, so an `::after` pseudo-element extends the pointer target to at least
   24×24 (A11Y-2), verified by a real `elementFromPoint` probe.
 - On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1). The recipe carries no
@@ -149,6 +154,12 @@ focus-visible:ring-ring/50` glow is removed, along with the `aria-invalid` halo 
 - **FOC-12** — upstream rings the whole choice card and cancels the control's own ring with three
   `group-has-[:focus-visible]/field-label:` rules. This system rings the control, so all three are
   removed with the card ring they existed to serve.
+- **A11Y-19** — the indicator renders through Base UI's `render` callback and draws `MinusIcon`
+  when the state is indeterminate, `CheckIcon` otherwise. Upstream always draws the check, so a
+  mixed box looked checked.
+- **FRM-15** — `disabled:cursor-not-allowed disabled:opacity-50` become `data-disabled:…`. Base UI
+  renders the root as a `<span>`, which `:disabled` never matches, so upstream's checkbox dimmed
+  only inside a disabled `Field`; keyed on the `data-disabled` Base UI sets, it dims everywhere.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

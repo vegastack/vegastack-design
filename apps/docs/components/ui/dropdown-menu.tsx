@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu@0.18.0 sha256-h6yAtn5dLRLh47j7PiZ1oeFsmfDRXvBvnvZ9EBXZvpw=
+// @vegastack dropdown-menu@0.18.0 sha256-X4qVdXNPPFxckSBY3MyWhTqJOvoNiccqf0lMTUGiuZc=
 
 "use client";
 
@@ -7,6 +7,11 @@ import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { ChevronRightIcon, CheckIcon } from "lucide-react";
+
+import {
+  ItemDescriptionContext,
+  useItemDescriptionId,
+} from "@/components/ui/item";
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -100,17 +105,21 @@ function DropdownMenuItem({
   inset?: boolean;
   variant?: "default" | "destructive";
 }) {
+  const description = useItemDescriptionId();
   return (
-    <MenuPrimitive.Item
-      data-slot="dropdown-menu-item"
-      data-inset={inset}
-      data-variant={variant}
-      className={cn(
-        "group/dropdown-menu-item relative flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive",
-        className,
-      )}
-      {...props}
-    />
+    <ItemDescriptionContext.Provider value={description.register}>
+      <MenuPrimitive.Item
+        data-slot="dropdown-menu-item"
+        aria-describedby={description.id || undefined}
+        data-inset={inset}
+        data-variant={variant}
+        className={cn(
+          "group/dropdown-menu-item relative flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive",
+          className,
+        )}
+        {...props}
+      />
+    </ItemDescriptionContext.Provider>
   );
 }
 
@@ -175,27 +184,31 @@ function DropdownMenuCheckboxItem({
 }: MenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
 }) {
+  const description = useItemDescriptionId();
   return (
-    <MenuPrimitive.CheckboxItem
-      data-slot="dropdown-menu-checkbox-item"
-      data-inset={inset}
-      className={cn(
-        "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      checked={checked}
-      {...props}
-    >
-      <span
-        className="pointer-events-none absolute end-2 flex items-center justify-center"
-        data-slot="dropdown-menu-checkbox-item-indicator"
+    <ItemDescriptionContext.Provider value={description.register}>
+      <MenuPrimitive.CheckboxItem
+        data-slot="dropdown-menu-checkbox-item"
+        aria-describedby={description.id || undefined}
+        data-inset={inset}
+        className={cn(
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          className,
+        )}
+        checked={checked}
+        {...props}
       >
-        <MenuPrimitive.CheckboxItemIndicator>
-          <CheckIcon />
-        </MenuPrimitive.CheckboxItemIndicator>
-      </span>
-      {children}
-    </MenuPrimitive.CheckboxItem>
+        <span
+          className="pointer-events-none absolute end-2 flex items-center justify-center"
+          data-slot="dropdown-menu-checkbox-item-indicator"
+        >
+          <MenuPrimitive.CheckboxItemIndicator>
+            <CheckIcon />
+          </MenuPrimitive.CheckboxItemIndicator>
+        </span>
+        {children}
+      </MenuPrimitive.CheckboxItem>
+    </ItemDescriptionContext.Provider>
   );
 }
 
@@ -216,26 +229,30 @@ function DropdownMenuRadioItem({
 }: MenuPrimitive.RadioItem.Props & {
   inset?: boolean;
 }) {
+  const description = useItemDescriptionId();
   return (
-    <MenuPrimitive.RadioItem
-      data-slot="dropdown-menu-radio-item"
-      data-inset={inset}
-      className={cn(
-        "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      {...props}
-    >
-      <span
-        className="pointer-events-none absolute end-2 flex items-center justify-center"
-        data-slot="dropdown-menu-radio-item-indicator"
+    <ItemDescriptionContext.Provider value={description.register}>
+      <MenuPrimitive.RadioItem
+        data-slot="dropdown-menu-radio-item"
+        aria-describedby={description.id || undefined}
+        data-inset={inset}
+        className={cn(
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          className,
+        )}
+        {...props}
       >
-        <MenuPrimitive.RadioItemIndicator>
-          <CheckIcon />
-        </MenuPrimitive.RadioItemIndicator>
-      </span>
-      {children}
-    </MenuPrimitive.RadioItem>
+        <span
+          className="pointer-events-none absolute end-2 flex items-center justify-center"
+          data-slot="dropdown-menu-radio-item-indicator"
+        >
+          <MenuPrimitive.RadioItemIndicator>
+            <CheckIcon />
+          </MenuPrimitive.RadioItemIndicator>
+        </span>
+        {children}
+      </MenuPrimitive.RadioItem>
+    </ItemDescriptionContext.Provider>
   );
 }
 

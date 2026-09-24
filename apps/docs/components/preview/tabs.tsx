@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { AppWindowIcon, CodeIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/tabs` (dogfoods the registry) → auto-scanned.
@@ -11,13 +11,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { DirectionProvider } from "@/components/ui/direction";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  tabsListVariants,
+  tabsTriggerVariants,
+} from "@/components/ui/tabs";
 
 /*
- * Every fixture is upstream's own example from `vendor/shadcn/4.21.0/docs/tabs.md`, adapted only
- * for our import paths and — for RTL — for the fact that upstream's `language-selector` helper is
- * a docs-site fixture we do not have. Nothing here restyles the component.
+ * Every fixture down to `tabsRtl` is upstream's own example from `vendor/shadcn/4.21.0/docs/tabs.md`,
+ * adapted only for our import paths and — for RTL — for the fact that upstream's
+ * `language-selector` helper is a docs-site fixture we do not have. The fixtures after it
+ * (`tabsCounts`, `tabsMany`, `tabsRoute`) demonstrate this system's own sections. Nothing here
+ * restyles the component.
  */
 
 export function tabs(): ReactNode {
@@ -240,5 +250,103 @@ export function tabsRtl(): ReactNode {
         </Tabs>
       </Wrapper>
     </DirectionProvider>
+  );
+}
+
+/** A count rides inside the trigger, so it is part of the tab's accessible name. */
+export function tabsCounts(): ReactNode {
+  return (
+    <Wrapper>
+      <Tabs defaultValue="open">
+        <TabsList variant="line">
+          <TabsTrigger value="open">
+            Open
+            <Badge variant="secondary">12</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="review">
+            In review
+            <Badge variant="secondary">3</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="closed">Closed</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </Wrapper>
+  );
+}
+
+const MANY_TABS = [
+  "Overview",
+  "Activity",
+  "Members",
+  "Billing",
+  "Integrations",
+  "Security",
+  "Notifications",
+  "Advanced",
+] as const;
+
+/**
+ * Eight line tabs: `overflow="scroll"` is the line default, so the row scrolls inside itself with
+ * edge fades, and the selected tab — the last one here — starts scrolled into view.
+ */
+export function tabsMany(): ReactNode {
+  return (
+    <Wrapper>
+      <Tabs defaultValue="advanced" className="w-full min-w-0">
+        <TabsList variant="line">
+          {MANY_TABS.map((label) => (
+            <TabsTrigger key={label} value={label.toLowerCase()}>
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+    </Wrapper>
+  );
+}
+
+const ROUTES = ["Overview", "Activity", "Settings"] as const;
+
+/**
+ * Route tabs: each tab is a page, so this is a named `nav` of links drawn from the two exported
+ * recipes — not a tablist. `aria-current="page"` marks the current route and `data-active` paints
+ * it. In an app the links are the router's `Link` and `current` comes from the pathname.
+ */
+export function tabsRoute(): ReactNode {
+  return <RouteTabs />;
+}
+
+function RouteTabs(): ReactNode {
+  const [current, setCurrent] = useState<string>("Overview");
+  return (
+    <Wrapper>
+      <nav
+        aria-label="Project"
+        data-orientation="horizontal"
+        className="group/tabs w-full min-w-0"
+      >
+        <div
+          data-orientation="horizontal"
+          data-variant="line"
+          className={tabsListVariants({ variant: "line", overflow: "scroll" })}
+        >
+          {ROUTES.map((route) => (
+            <a
+              key={route}
+              href={`#${route.toLowerCase()}`}
+              aria-current={route === current ? "page" : undefined}
+              data-active={route === current ? "" : undefined}
+              className={tabsTriggerVariants()}
+              onClick={(event) => {
+                event.preventDefault();
+                setCurrent(route);
+              }}
+            >
+              {route}
+            </a>
+          ))}
+        </div>
+      </nav>
+    </Wrapper>
   );
 }

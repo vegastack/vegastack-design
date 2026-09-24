@@ -281,3 +281,24 @@ export function emptyRtl(): ReactNode {
     </Wrapper>
   );
 }
+
+export function emptyAsHeading(): ReactNode {
+  return (
+    <Wrapper>
+      <Empty className="max-w-md">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FolderCodeIcon />
+          </EmptyMedia>
+          <EmptyTitle render={<h3 />}>No projects yet</EmptyTitle>
+          <EmptyDescription>
+            Create a project to see it listed here.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button>Create project</Button>
+        </EmptyContent>
+      </Empty>
+    </Wrapper>
+  );
+}

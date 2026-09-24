@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "./select";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
+import { ItemContent, ItemDescription, ItemTitle } from "./item";
 // The scroll arrows only mount while the popup overflows, which needs compiled CSS this lane does
 // not have. Their INT-1 exemption is asserted against the source instead.
 import selectSource from "./select.tsx?raw";
@@ -487,4 +488,34 @@ fieldWiringTests({
     </Select>
   ),
   find: (screen, name) => screen.getByRole("combobox", { name }),
+});
+
+test("API-19: a two-line option exposes its description (Two-line options)", async () => {
+  const screen = await render(
+    <Select defaultValue="m1">
+      <SelectTrigger aria-label="Meeting">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="m1">
+          <ItemContent>
+            <ItemTitle>Depot review</ItemTitle>
+            <ItemDescription>Meeting · 3 Sep</ItemDescription>
+          </ItemContent>
+        </SelectItem>
+        <SelectItem value="m2">Standup</SelectItem>
+      </SelectContent>
+    </Select>,
+  );
+  await userEvent.click(screen.getByRole("combobox", { name: "Meeting" }));
+  const options = [...document.querySelectorAll('[role="option"]')];
+  const twoLine = options.find((o) => o.textContent?.includes("Depot review"))!;
+  const described = document.getElementById(
+    twoLine.getAttribute("aria-describedby") ?? "",
+  );
+  expect(described?.textContent).toBe("Meeting · 3 Sep");
+  // a one-line option links nothing
+  const oneLine = options.find((o) => o.textContent === "Standup")!;
+  expect(oneLine.hasAttribute("aria-describedby")).toBe(false);
+  await expectNoA11yViolations(document.body);
 });

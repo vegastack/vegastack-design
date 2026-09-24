@@ -135,6 +135,11 @@ const REGISTRY_SOURCES = Object.fromEntries(
 const ICON_ONLY_HELPERS: Record<string, string> = {
   statusIconVariants: "sizes a status glyph; it renders no text",
 };
+/** Exported recipes for page chrome that never renders inside a data cell. */
+const PAGE_CHROME_HELPERS: Record<string, string> = {
+  tabsTriggerVariants:
+    "styles the route-tab links of a page-level <nav> (API-25); inside a table a tab is a TabsTrigger, which [role=tab] already keeps",
+};
 
 test("the squeeze keeps every exported variant helper with a fixed box, by its class output", () => {
   // The census: every `cva` helper a registry file EXPORTS whose class output fixes a height or a
@@ -171,7 +176,7 @@ test("the squeeze keeps every exported variant helper with a fixed box, by its c
         );
       if (!fixed) continue;
       census.push(name);
-      if (ICON_ONLY_HELPERS[name]) continue;
+      if (ICON_ONLY_HELPERS[name] || PAGE_CHROME_HELPERS[name]) continue;
       const hook = /group\/[\w-]+/.exec(body)?.[0];
       // Released-and-grown (the badge) or kept whole: either way the helper's own hook is named.
       if (!hook || !kept.includes(`[class~='${hook}']`))
@@ -188,6 +193,7 @@ test("the squeeze keeps every exported variant helper with a fixed box, by its c
       "statusIconVariants",
       "stepperNodeVariants",
       "tabsListVariants",
+      "tabsTriggerVariants",
       "toggleVariants",
     ]),
   );

@@ -31,7 +31,12 @@ import type {
   AlertDialogCancel,
   AlertDialogContent,
 } from "@/components/ui/alert-dialog";
-import type { Command, CommandDialog } from "@/components/ui/command";
+import type {
+  Command,
+  CommandDialog,
+  CommandFooter,
+  CommandLoading,
+} from "@/components/ui/command";
 import type {
   ContextMenuContent,
   ContextMenuItem,
@@ -123,6 +128,7 @@ import type {
   ItemDescription,
   ItemFooter,
   ItemGroup,
+  ItemGroupLabel,
   ItemHeader,
   ItemMedia,
   ItemSeparator,
@@ -188,6 +194,9 @@ import type {
   SidebarMenuSkeleton,
   SidebarMenuSubButton,
   SidebarProvider,
+  SidebarRail,
+  SidebarStateScript,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import type {
   Attachment,
@@ -255,6 +264,7 @@ export type ItemTitleProps = React.ComponentProps<typeof ItemTitle>;
 export type ItemDescriptionProps = React.ComponentProps<typeof ItemDescription>;
 export type ItemActionsProps = React.ComponentProps<typeof ItemActions>;
 export type ItemGroupProps = React.ComponentProps<typeof ItemGroup>;
+export type ItemGroupLabelProps = React.ComponentProps<typeof ItemGroupLabel>;
 export type ItemSeparatorProps = React.ComponentProps<typeof ItemSeparator>;
 export type ItemHeaderProps = React.ComponentProps<typeof ItemHeader>;
 export type ItemFooterProps = React.ComponentProps<typeof ItemFooter>;
@@ -386,6 +396,8 @@ export type MenubarSubTriggerProps = React.ComponentProps<
 
 export type CommandProps = React.ComponentProps<typeof Command>;
 export type CommandDialogProps = React.ComponentProps<typeof CommandDialog>;
+export type CommandLoadingProps = React.ComponentProps<typeof CommandLoading>;
+export type CommandFooterProps = React.ComponentProps<typeof CommandFooter>;
 
 export type ToastProps = React.ComponentProps<typeof Toast>;
 export type ToastViewportProps = React.ComponentProps<typeof ToastViewport>;
@@ -465,6 +477,11 @@ export type SidebarMenuSubButtonProps = React.ComponentProps<
 >;
 export type SidebarMenuSkeletonProps = React.ComponentProps<
   typeof SidebarMenuSkeleton
+>;
+export type SidebarTriggerProps = React.ComponentProps<typeof SidebarTrigger>;
+export type SidebarRailProps = React.ComponentProps<typeof SidebarRail>;
+export type SidebarStateScriptProps = React.ComponentProps<
+  typeof SidebarStateScript
 >;
 
 export type AttachmentProps = React.ComponentProps<typeof Attachment>;

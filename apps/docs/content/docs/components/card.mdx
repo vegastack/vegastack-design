@@ -88,6 +88,17 @@ header grid, the action corner and the part insets without any extra work.
 
 <ComponentPreview name="cardRtl" file="components/preview/card.tsx" />
 
+### As a heading
+
+`CardTitle` renders a `div` by default. Pass `render` to make it the real heading at the level the
+page needs; the classes and the `data-slot` stay the same.
+
+```tsx
+<CardTitle render={<h3 />}>Usage this month</CardTitle>
+```
+
+<ComponentPreview name="cardAsHeading" file="components/preview/card.tsx" />
+
 ## API Reference
 
 ### Card
@@ -121,10 +132,10 @@ header grid, the action corner and the part insets without any extra work.
 ## Accessibility
 
 - Every part renders a plain `div` with no implicit role, so a card adds nothing to the
-  accessibility tree on its own. Give it the landmark or heading it deserves — pass `render` on a
-  heading inside `CardTitle`, or wrap the card in a `section` with an accessible name.
-- `CardTitle` is styled, not semantic. A page of cards still needs a real heading level so the
-  document outline reads correctly.
+  accessibility tree on its own. Give it the landmark or heading it deserves — pass
+  `render={<h2 />}` to `CardTitle`, or wrap the card in a `section` with an accessible name.
+- `CardTitle` is styled, not semantic, until it is given `render` (API-22). A page of cards still
+  needs a real heading level so the document outline reads correctly.
 - Keep the reading order the visual order: `CardAction` sits in the top corner but is written
   inside `CardHeader`, after the title and description, which is where a keyboard reaches it.
 - An image placed before the header is decorative in these examples and takes an empty `alt`. Give
@@ -147,6 +158,11 @@ Upstream's file plus `packages/ui/upstream/patches/card.patch`. Every hunk:
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation). It sits inside the box, so `overflow-hidden` clips a
   full-bleed image at the border's inner edge and the corners stay concentric.
+- **API-22** — `CardTitle` renders through Base UI's `useRender`, so it takes `render` and the
+  heading level is set on the part. The default `div`, the `data-slot` and the classes are
+  upstream's.
+- **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the module
+  needs the client boundary to import in a Server Component.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 
 Nothing else. The `--card-spacing` mechanism, the seven parts and every other class are upstream's,

@@ -6,6 +6,7 @@ import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -299,6 +300,41 @@ export function dialogRtl(): ReactNode {
           </Dialog>
         </div>
       </DirectionProvider>
+    </Wrapper>
+  );
+}
+
+export function dialogScrollingBody(): ReactNode {
+  return (
+    <Wrapper>
+      <Dialog>
+        <DialogTrigger render={<Button variant="outline" />}>
+          Edit attributes
+        </DialogTrigger>
+        <DialogContent size="lg">
+          <DialogHeader>
+            <DialogTitle>Edit attributes</DialogTitle>
+            <DialogDescription>
+              The body scrolls; the header and the footer stay in view.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogBody>
+            <FieldGroup>
+              {Array.from({ length: 12 }, (_, index) => (
+                <Field key={index}>
+                  <FieldLabel htmlFor={`dialog-body-field-${index}`}>
+                    Attribute {index + 1}
+                  </FieldLabel>
+                  <Input id={`dialog-body-field-${index}`} />
+                </Field>
+              ))}
+            </FieldGroup>
+          </DialogBody>
+          <DialogFooter showCloseButton closeLabel="Cancel">
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Wrapper>
   );
 }

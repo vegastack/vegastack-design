@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import {
   detectPlatformOs,
+  isEditableTarget,
   formatShortcut,
   formatShortcutKey,
   usePlatform,
@@ -190,4 +191,80 @@ test("formatShortcut joins one chord the platform's way", () => {
   expect(formatShortcut(["mod", "shift", "P"], "linux")).toBe("Ctrl+Shift+P");
   expect(formatShortcut(["⌘", "Enter"], "other")).toBe("Ctrl+Enter");
   expect(formatShortcut([], "mac")).toBe("");
+});
+
+test("isEditableTarget: input, textarea, select and contenteditable take typing; nothing else does", () => {
+  const host = document.createElement("div");
+  host.innerHTML =
+    '<input data-k="input" /><textarea data-k="textarea"></textarea>' +
+    '<select data-k="select"><option>a</option></select>' +
+    '<div data-k="editable" contenteditable="true"><span data-k="inside">x</span></div>' +
+    '<button data-k="button">b</button><div data-k="div" tabindex="0"></div>';
+  document.body.append(host);
+  try {
+    const verdict = (key: string) => {
+      const element = host.querySelector(`[data-k="${key}"]`)!;
+      let result: boolean | undefined;
+      element.addEventListener("keydown", (event) => {
+        result = isEditableTarget(event);
+      });
+      element.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "b",
+          bubbles: true,
+          composed: true,
+        }),
+      );
+      return result;
+    };
+    expect(
+      Object.fromEntries(
+        [
+          "input",
+          "textarea",
+          "select",
+          "editable",
+          "inside",
+          "button",
+          "div",
+        ].map((key) => [key, verdict(key)]),
+      ),
+    ).toEqual({
+      input: true,
+      textarea: true,
+      select: true,
+      editable: true,
+      inside: true,
+      button: false,
+      div: false,
+    });
+  } finally {
+    host.remove();
+  }
+});
+
+test("isEditableTarget: a window-level listener still sees a field inside an open shadow root", () => {
+  const host = document.createElement("div");
+  const shadow = host.attachShadow({ mode: "open" });
+  shadow.innerHTML = "<input />";
+  document.body.append(host);
+  let result: boolean | undefined;
+  const onKeyDown = (event: Event) => {
+    result = isEditableTarget(event);
+  };
+  window.addEventListener("keydown", onKeyDown);
+  try {
+    shadow.querySelector("input")!.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "b",
+        bubbles: true,
+        composed: true,
+      }),
+    );
+    // Retargeted, `event.target` at the window is the host <div>; the composed path is not.
+    expect(result).toBe(true);
+  } finally {
+    window.removeEventListener("keydown", onKeyDown);
+    host.remove();
+  }
 });

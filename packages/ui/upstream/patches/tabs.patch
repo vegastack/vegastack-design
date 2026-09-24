@@ -1,6 +1,28 @@
 # component: tabs
-# decisions: API-5, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4
+# decisions: A11Y-20, API-5, API-25, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, LAY-14
 # hunks:
+#   A11Y-20: `Tabs` passes `orientation={orientation}` to `TabsPrimitive.Root` as well as writing
+#     `data-orientation`. Upstream destructures the prop for the attribute and never forwards it,
+#     so Base UI kept `horizontal`: a vertical list announced no `aria-orientation` and moved on
+#     left/right. The layout classes are untouched; they still read the root's attribute.
+#   LAY-14: `tabsListVariants` gains an `overflow` axis (`visible` | `scroll`), and `TabsList`
+#     resolves it to `scroll` for `variant="line"` and `visible` otherwise, written as
+#     `data-overflow`. `scroll` is `AttachmentGroup`'s recipe (`min-w-0 scroll-fade-x
+#     scrollbar-none overflow-x-auto overscroll-x-contain`) plus `max-w-full` (a `w-fit` flex row's
+#     fit-content never narrows below its min-content), `justify-start` (a centred overflowing row
+#     clips its first tab), `overflow-y-hidden`, and `bottom-[-4px]` on the triggers' line
+#     indicator, which upstream draws 1px below the list and a scroll box would clip — every one
+#     behind `data-horizontal:`, so a vertical list keeps upstream's layout and its inline-end
+#     indicator. `relative` makes the list the triggers' offset parent, which Base UI's own
+#     composite measures against when it scrolls the roving stop into view on mount and on arrow
+#     keys; without it that scroll lands on the wrong offset. The one thing the engine does not do —
+#     keep the SELECTED tab in view when the value changes from outside — is `useActiveTabInView`,
+#     a `MutationObserver` on `aria-selected` that moves only the list's own `scrollLeft`, never the
+#     page. The list's `ref` is merged with the internal one through `mergeRefs` from our npm layer,
+#     and `React` is imported for the hooks.
+#   API-25: `TabsTrigger`'s class string moves verbatim into an exported `tabsTriggerVariants`
+#     recipe, beside upstream's own exported `tabsListVariants`, so route tabs (links in a `nav`)
+#     are drawn from the system's classes rather than a copy of them.
 #   FOC-1, FOC-6: `focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50
 #     focus-visible:outline-1 focus-visible:outline-ring` goes from `TabsTrigger`, and
 #     `outline-none` goes from `TabsContent` — Base UI gives the panel a tab stop, so suppressing
@@ -18,24 +40,28 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/tabs.tsx b/tabs.tsx
-index c3262d3..94e0fd3 100644
+index c3262d3..b993cc6 100644
 --- a/tabs.tsx
 +++ b/tabs.tsx
-@@ -1,8 +1,8 @@
+@@ -1,8 +1,9 @@
 -"use client"
 +"use client";
  
 -import { Tabs as TabsPrimitive } from "@base-ui/react/tabs"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
++import * as React from "react";
 +import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 +import { cva, type VariantProps } from "class-variance-authority";
-+import { cn } from "@vegastack/design";
++import { cn, mergeRefs } from "@vegastack/design";
  
  function Tabs({
    className,
-@@ -15,11 +15,11 @@ function Tabs({
+@@ -13,13 +14,14 @@ function Tabs({
+     <TabsPrimitive.Root
+       data-slot="tabs"
        data-orientation={orientation}
++      orientation={orientation}
        className={cn(
          "group/tabs flex gap-2 data-horizontal:flex-col",
 -        className
@@ -48,38 +74,102 @@ index c3262d3..94e0fd3 100644
  }
  
  const tabsListVariants = cva(
-@@ -34,8 +34,8 @@ const tabsListVariants = cva(
+@@ -30,52 +32,107 @@ const tabsListVariants = cva(
+         default: "bg-muted",
+         line: "gap-1 bg-transparent",
+       },
++      overflow: {
++        visible: "",
++        scroll:
++          "relative data-horizontal:max-w-full data-horizontal:min-w-0 data-horizontal:scroll-fade-x data-horizontal:justify-start data-horizontal:scrollbar-none data-horizontal:overflow-x-auto data-horizontal:overflow-y-hidden data-horizontal:overscroll-x-contain data-horizontal:[&>[data-slot=tabs-trigger]]:after:bottom-[-4px]",
++      },
+     },
      defaultVariants: {
        variant: "default",
++      overflow: "visible",
      },
 -  }
 -)
 +  },
 +);
++
++/**
++ * Keep the active trigger inside a scrolling list's visible box: on mount, and whenever the
++ * selection changes — a click, a keyboard commit or a controlled `value` from outside. Only the
++ * list's own `scrollLeft` moves, never the page (`scrollIntoView` would scroll every ancestor).
++ */
++function useActiveTabInView(list: HTMLElement | null) {
++  React.useEffect(() => {
++    if (!list) return;
++    const reveal = () => {
++      const active = list.querySelector<HTMLElement>(
++        '[role="tab"][aria-selected="true"]',
++      );
++      if (!active) return;
++      const box = list.getBoundingClientRect();
++      const tab = active.getBoundingClientRect();
++      if (tab.left < box.left) list.scrollLeft += tab.left - box.left;
++      else if (tab.right > box.right) list.scrollLeft += tab.right - box.right;
++    };
++    reveal();
++    const observer = new MutationObserver(reveal);
++    observer.observe(list, {
++      subtree: true,
++      attributes: true,
++      attributeFilter: ["aria-selected"],
++    });
++    return () => observer.disconnect();
++  }, [list]);
++}
  
  function TabsList({
    className,
-@@ -49,7 +49,7 @@ function TabsList({
-       className={cn(tabsListVariants({ variant }), className)}
+   variant = "default",
++  overflow,
++  ref,
+   ...props
+ }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
++  const resolvedOverflow =
++    overflow ?? (variant === "line" ? "scroll" : "visible");
++  const [list, setList] = React.useState<HTMLDivElement | null>(null);
++  const mergedRef = React.useMemo(() => mergeRefs(setList, ref), [ref]);
++  useActiveTabInView(resolvedOverflow === "scroll" ? list : null);
+   return (
+     <TabsPrimitive.List
+       data-slot="tabs-list"
+       data-variant={variant}
+-      className={cn(tabsListVariants({ variant }), className)}
++      data-overflow={resolvedOverflow}
++      ref={mergedRef}
++      className={cn(
++        tabsListVariants({ variant, overflow: resolvedOverflow }),
++        className,
++      )}
        {...props}
      />
 -  )
 +  );
  }
  
++const tabsTriggerVariants = cva([
++  "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground disabled:opacity-50 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++  "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
++  "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
++  "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-end-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
++]);
++
  function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
-@@ -57,25 +57,25 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
+   return (
      <TabsPrimitive.Tab
        data-slot="tabs-trigger"
-       className={cn(
+-      className={cn(
 -        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 aria-disabled:pointer-events-none aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-+        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground disabled:opacity-50 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
-         "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
-         "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-end-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+-        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
+-        "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
+-        "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-end-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
 -        className
-+        className,
-       )}
+-      )}
++      className={cn(tabsTriggerVariants(), className)}
        {...props}
      />
 -  )
@@ -99,4 +189,11 @@ index c3262d3..94e0fd3 100644
  }
  
 -export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants }
-+export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants };
++export {
++  Tabs,
++  TabsList,
++  TabsTrigger,
++  TabsContent,
++  tabsListVariants,
++  tabsTriggerVariants,
++};

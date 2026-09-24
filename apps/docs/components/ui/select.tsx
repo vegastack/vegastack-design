@@ -1,4 +1,4 @@
-// @vegastack select@0.18.0 sha256-AHpgagL19rTPmv/q4WttERDKfo2ZW4ncqNATkycGviE=
+// @vegastack select@0.18.0 sha256-fKUTa6I/TTrV3UTF5KDfLk2bcT6DPafbnltkyGcnLrI=
 
 "use client";
 
@@ -8,6 +8,11 @@ import { cva } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
+
+import {
+  ItemDescriptionContext,
+  useItemDescriptionId,
+} from "@/components/ui/item";
 
 const Select = SelectPrimitive.Root;
 
@@ -148,26 +153,30 @@ function SelectItem({
   children,
   ...props
 }: SelectPrimitive.Item.Props) {
+  const description = useItemDescriptionId();
   return (
-    <SelectPrimitive.Item
-      data-slot="select-item"
-      className={cn(
-        "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
-        className,
-      )}
-      {...props}
-    >
-      <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
-        {children}
-      </SelectPrimitive.ItemText>
-      <SelectPrimitive.ItemIndicator
-        render={
-          <span className="pointer-events-none absolute end-2 flex size-4 items-center justify-center" />
-        }
+    <ItemDescriptionContext.Provider value={description.register}>
+      <SelectPrimitive.Item
+        data-slot="select-item"
+        aria-describedby={description.id || undefined}
+        className={cn(
+          "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+          className,
+        )}
+        {...props}
       >
-        <CheckIcon className="pointer-events-none" />
-      </SelectPrimitive.ItemIndicator>
-    </SelectPrimitive.Item>
+        <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
+          {children}
+        </SelectPrimitive.ItemText>
+        <SelectPrimitive.ItemIndicator
+          render={
+            <span className="pointer-events-none absolute end-2 flex size-4 items-center justify-center" />
+          }
+        >
+          <CheckIcon className="pointer-events-none" />
+        </SelectPrimitive.ItemIndicator>
+      </SelectPrimitive.Item>
+    </ItemDescriptionContext.Provider>
   );
 }
 

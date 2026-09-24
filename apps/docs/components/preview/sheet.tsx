@@ -9,6 +9,8 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
+  SheetAction,
+  SheetBody,
   SheetClose,
   SheetContent,
   SheetDescription,
@@ -210,6 +212,102 @@ export function sheetRtl(): ReactNode {
           </Sheet>
         </div>
       </DirectionProvider>
+    </Wrapper>
+  );
+}
+
+export function sheetSizes(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="flex flex-wrap gap-2">
+        {(["sm", "default", "lg", "xl"] as const).map((size) => (
+          <Sheet key={size}>
+            <SheetTrigger render={<Button variant="outline" />}>
+              {size}
+            </SheetTrigger>
+            <SheetContent size={size}>
+              <SheetHeader>
+                <SheetTitle>size=&quot;{size}&quot;</SheetTitle>
+                <SheetDescription>
+                  A side sheet steps Dialog&apos;s width scale from the sm
+                  breakpoint up; below it every size is full width.
+                </SheetDescription>
+              </SheetHeader>
+              <SheetFooter>
+                <SheetClose render={<Button variant="outline" />}>
+                  Close
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        ))}
+      </div>
+    </Wrapper>
+  );
+}
+
+export function sheetScrollingBody(): ReactNode {
+  return (
+    <Wrapper>
+      <Sheet>
+        <SheetTrigger render={<Button variant="outline" />}>
+          Edit record
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Edit record</SheetTitle>
+            <SheetDescription>
+              The body scrolls; the header and the footer stay put.
+            </SheetDescription>
+          </SheetHeader>
+          <SheetBody>
+            <FieldGroup>
+              {Array.from({ length: 10 }, (_, index) => (
+                <Field key={index}>
+                  <FieldLabel htmlFor={`sheet-body-field-${index}`}>
+                    Field {index + 1}
+                  </FieldLabel>
+                  <Input id={`sheet-body-field-${index}`} />
+                </Field>
+              ))}
+            </FieldGroup>
+          </SheetBody>
+          <SheetFooter>
+            <Button type="submit">Save changes</Button>
+            <SheetClose render={<Button variant="outline" />}>
+              Cancel
+            </SheetClose>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </Wrapper>
+  );
+}
+
+export function sheetHeaderAction(): ReactNode {
+  return (
+    <Wrapper>
+      <Sheet>
+        <SheetTrigger render={<Button variant="outline" />}>
+          Open invoice
+        </SheetTrigger>
+        <SheetContent closeLabel="Close invoice">
+          <SheetHeader>
+            <SheetTitle>Invoice INV-2041</SheetTitle>
+            <SheetDescription>
+              Issued 12 September, due in 30 days.
+            </SheetDescription>
+            <SheetAction>
+              <Button size="sm" variant="outline">
+                Duplicate
+              </Button>
+            </SheetAction>
+          </SheetHeader>
+          <SheetBody>
+            <p className="leading-relaxed">{LOREM}</p>
+          </SheetBody>
+        </SheetContent>
+      </Sheet>
     </Wrapper>
   );
 }

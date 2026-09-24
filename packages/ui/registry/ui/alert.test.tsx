@@ -27,15 +27,24 @@ async function classesFor(variant: (typeof VARIANTS)[number]) {
   return screen.container.querySelector("[data-slot=alert]")!.className;
 }
 
-test("renders a live region carrying data-slot", async () => {
+test("renders a polite status region carrying data-slot (A11Y-3)", async () => {
   const screen = await render(
     <Alert>
       <AlertTitle>Heads up!</AlertTitle>
     </Alert>,
   );
-  const alert = screen.getByRole("alert");
+  const alert = screen.getByRole("status");
   await expect.element(alert).toBeInTheDocument();
   await expect.element(alert).toHaveAttribute("data-slot", "alert");
+});
+
+test("A11Y-3: an alert present at load is not assertive", async () => {
+  const screen = await render(
+    <Alert variant="destructive">
+      <AlertTitle>Sync failed</AlertTitle>
+    </Alert>,
+  );
+  expect(screen.container.querySelector('[role="alert"]')).toBeNull();
 });
 
 test("every exported part renders and carries its own data-slot (Composition)", async () => {
@@ -118,7 +127,7 @@ test("A11Y-13: every status variant takes the family's -text ink, never the fill
   }
 });
 
-test("the root reserves the trailing inset when an action is present (Action)", async () => {
+test("LAY-15: the action takes its own grid column, never an absolute overlay (Action)", async () => {
   const screen = await render(
     <Alert>
       <AlertTitle>Dark mode is now available</AlertTitle>
@@ -128,9 +137,14 @@ test("the root reserves the trailing inset when an action is present (Action)", 
     </Alert>,
   );
   const root = screen.container.querySelector("[data-slot=alert]")!;
-  expect(root.className).toContain("has-data-[slot=alert-action]:pe-18");
+  expect(root.className).toContain("@container/alert");
+  expect(root.className).toContain(
+    "@md/alert:has-data-[slot=alert-action]:grid-cols-[1fr_auto]",
+  );
+  expect(root.className).not.toContain("pe-18");
   const action = root.querySelector("[data-slot=alert-action]")!;
-  expect(action.className).toContain("end-2");
+  expect(action.className).not.toContain("absolute");
+  expect(action.className).toContain("@md/alert:row-span-2");
 });
 
 test("DOC-2: cn from @vegastack/design merges a caller's className onto the recipe (Custom Colors)", async () => {
@@ -198,6 +212,88 @@ test("no a11y violations — title only, no icon", async () => {
     <Alert variant="info">
       <AlertTitle>Maintenance window on Sunday</AlertTitle>
     </Alert>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+for (const variant of ["destructive", "warning"] as const) {
+  test(`A11Y-3: live + ${variant} is assertive (role="alert")`, async () => {
+    const screen = await render(
+      <Alert variant={variant} live>
+        <AlertTitle>Payment failed</AlertTitle>
+      </Alert>,
+    );
+    await expect
+      .element(screen.getByRole("alert"))
+      .toHaveAttribute("data-slot", "alert");
+  });
+}
+
+for (const variant of ["default", "success", "info"] as const) {
+  test(`A11Y-3: live + ${variant} stays a polite status`, async () => {
+    const screen = await render(
+      <Alert variant={variant} live>
+        <AlertTitle>Saved</AlertTitle>
+      </Alert>,
+    );
+    expect(screen.container.querySelector('[role="alert"]')).toBeNull();
+    await expect
+      .element(screen.getByRole("status"))
+      .toHaveAttribute("data-slot", "alert");
+  });
+}
+
+test("A11Y-3: every variant at rest is a polite status, never assertive", async () => {
+  const screen = await render(
+    <div>
+      {VARIANTS.map((variant) => (
+        <Alert key={variant} variant={variant}>
+          <AlertTitle>{variant}</AlertTitle>
+        </Alert>
+      ))}
+    </div>,
+  );
+  const roots = [
+    ...screen.container.querySelectorAll<HTMLElement>("[data-slot=alert]"),
+  ];
+  expect(roots.map((root) => root.getAttribute("role"))).toEqual(
+    VARIANTS.map(() => "status"),
+  );
+});
+
+test("A11Y-3: live is not forwarded to the DOM", async () => {
+  const screen = await render(
+    <Alert variant="warning" live>
+      <AlertTitle>Quota nearly used</AlertTitle>
+    </Alert>,
+  );
+  const root = screen.container.querySelector("[data-slot=alert]")!;
+  expect(root.hasAttribute("live")).toBe(false);
+});
+
+test("A11Y-3: a caller's explicit role still wins", async () => {
+  const screen = await render(
+    <Alert variant="info" role="note">
+      <AlertTitle>Read-only workspace</AlertTitle>
+    </Alert>,
+  );
+  expect(
+    screen.container.querySelector("[data-slot=alert]")!.getAttribute("role"),
+  ).toBe("note");
+});
+
+test("no a11y violations — live destructive and live warning", async () => {
+  const screen = await render(
+    <div>
+      <Alert variant="destructive" live>
+        <svg aria-hidden="true" />
+        <AlertTitle>Payment failed</AlertTitle>
+        <AlertDescription>Your card was declined.</AlertDescription>
+      </Alert>
+      <Alert variant="warning" live>
+        <AlertTitle>Quota nearly used</AlertTitle>
+      </Alert>
+    </div>,
   );
   await expectNoA11yViolations(screen.container);
 });

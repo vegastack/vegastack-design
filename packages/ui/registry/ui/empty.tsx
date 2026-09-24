@@ -1,5 +1,9 @@
-// @vegastack empty@0.18.0 sha256-Ql4uE8Fp7fx9XNLH5nPDa/cuSP4NuplaE0hcLREUm8o=
+// @vegastack empty@0.18.0 sha256-tlQbxL4HQceCGvEiXcptXVJioh++LS3hxtCcAAVpMPg=
 
+"use client";
+
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
@@ -56,14 +60,24 @@ function EmptyMedia({
   );
 }
 
-function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="empty-title"
-      className={cn("font-heading text-sm font-medium", className)}
-      {...props}
-    />
-  );
+function EmptyTitle({
+  className,
+  render,
+  ...props
+}: useRender.ComponentProps<"div">) {
+  return useRender({
+    defaultTagName: "div",
+    props: mergeProps<"div">(
+      {
+        className: cn("font-heading text-sm font-medium", className),
+      },
+      props,
+    ),
+    render,
+    state: {
+      slot: "empty-title",
+    },
+  });
 }
 
 function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {

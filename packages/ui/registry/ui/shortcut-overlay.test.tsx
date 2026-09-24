@@ -39,6 +39,21 @@ test("the trigger never fires from a text field", async () => {
   await expect.element(input).toHaveValue("?");
 });
 
+test("the trigger never fires from a textarea or a contenteditable (isEditableTarget)", async () => {
+  const screen = await render(
+    <div>
+      <textarea aria-label="Body" />
+      <div contentEditable role="textbox" aria-label="Notes" />
+      <ShortcutOverlay shortcuts={SHORTCUTS} />
+    </div>,
+  );
+  for (const name of ["Body", "Notes"]) {
+    (screen.getByRole("textbox", { name }).element() as HTMLElement).focus();
+    await userEvent.keyboard("?");
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  }
+});
+
 test("shouldHandle=false suppresses the trigger (overlay-open rule)", async () => {
   await render(
     <ShortcutOverlay shortcuts={SHORTCUTS} shouldHandle={() => false} />,

@@ -22,6 +22,7 @@ import {
 } from "./combobox";
 import { Button } from "./button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
+import { ItemContent, ItemDescription, ItemTitle } from "./item";
 
 const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 
@@ -662,4 +663,37 @@ test("API-26: with a clear control, still one element named by the Field", async
   await expect
     .element(screen.getByRole("button", { name: "Clear selection" }))
     .toBeInTheDocument();
+});
+test("API-19: a two-line option exposes its description (Two-line options)", async () => {
+  const screen = await render(
+    <Combobox items={["m1", "m2"]}>
+      <ComboboxInput aria-label="Meeting" />
+      <ComboboxContent>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item === "m1" ? (
+                <ItemContent>
+                  <ItemTitle>Depot review</ItemTitle>
+                  <ItemDescription>Meeting · 3 Sep</ItemDescription>
+                </ItemContent>
+              ) : (
+                "Standup"
+              )}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  );
+  await userEvent.click(screen.getByRole("combobox", { name: "Meeting" }));
+  const options = [...document.querySelectorAll('[role="option"]')];
+  const twoLine = options.find((o) => o.textContent?.includes("Depot review"))!;
+  const described = document.getElementById(
+    twoLine.getAttribute("aria-describedby") ?? "",
+  );
+  expect(described?.textContent).toBe("Meeting · 3 Sep");
+  const oneLine = options.find((o) => o.textContent === "Standup")!;
+  expect(oneLine.hasAttribute("aria-describedby")).toBe(false);
+  await expectNoA11yViolations(document.body);
 });

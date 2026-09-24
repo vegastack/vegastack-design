@@ -1,4 +1,4 @@
-// @vegastack radio-group@0.18.0 sha256-a5nnYuMGkelGcJiK9LIQ05WRrS9XJIDOQhpws1B3HrY=
+// @vegastack radio-group@0.18.0 sha256-rG8Y8d4fmsMU95l1rxV3YxPDZvsMk1oLbkWB8LaTRZ4=
 
 "use client";
 
@@ -21,7 +21,7 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
     <RadioPrimitive.Root
       data-slot="radio-group-item"
       className={cn(
-        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive not-focus:aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:not-focus:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
+        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50 not-focus:aria-invalid:border-destructive not-focus:aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:not-focus:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
         className,
       )}
       {...props}

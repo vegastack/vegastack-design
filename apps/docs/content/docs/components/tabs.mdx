@@ -65,9 +65,11 @@ Use `orientation="vertical"` on `Tabs` for vertical tabs. The root writes `data-
 itself, and the `group-data-vertical/tabs:` variants on the list and the trigger read it to stack the
 tabs, fill the width, and move the active indicator from the bottom edge to the inline end.
 
-The prop is consumed by the wrapper rather than forwarded, so it is a layout switch: the roving
-keyboard axis stays on <kbd>←</kbd>/<kbd>→</kbd>. Reach for a vertical list where the label column is
-the point, and say so in the surrounding copy.
+The prop also reaches Base UI's root (A11Y-20), so the list announces `aria-orientation="vertical"`
+and the roving keyboard axis turns with it: <kbd>↑</kbd>/<kbd>↓</kbd> move between tabs, and
+
+<kbd>←</kbd>/<kbd>→</kbd> do nothing. Reach for a vertical list where the label
+column is the point — a settings page with a stable set of sections.
 
 <ComponentPreview name="tabsVertical" file="components/preview/tabs.tsx" />
 
@@ -93,6 +95,75 @@ reading direction without a second rule.
 
 <ComponentPreview name="tabsRtl" file="components/preview/tabs.tsx" />
 
+### With counts
+
+A count goes inside the trigger, after the label, so it is part of the tab's accessible name — a
+screen reader hears "Open 12", not "Open" and a stray number.
+
+<ComponentPreview name="tabsCounts" file="components/preview/tabs.tsx" />
+
+### Many tabs
+
+`TabsList` takes `overflow`: `"scroll"` or `"visible"`. A line list defaults to `"scroll"` (LAY-14):
+the row scrolls sideways inside itself, never the page, with the same edge fades and hidden
+scrollbar as `AttachmentGroup`. The selected tab is kept in view on mount and whenever the
+selection changes, and the keyboard's roving stop scrolls in as it moves. The pill track defaults to
+`"visible"`, upstream's behaviour; pass `overflow="scroll"` to opt it in.
+
+<ComponentPreview name="tabsMany" file="components/preview/tabs.tsx" />
+
+### Route tabs
+
+When each tab is its own page, the tabs are navigation, not a tablist: render a named `nav` of links
+and mark the current one with `aria-current="page"`. The two recipes, `tabsListVariants` and
+`tabsTriggerVariants` (API-25), draw it exactly like the line tabs beside it. The trigger recipe
+paints `data-active`, and reads the list's `data-variant` and the `group/tabs` ancestor's
+`data-orientation`, so set all three:
+
+```tsx
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { tabsListVariants, tabsTriggerVariants } from "@/components/ui/tabs";
+
+function ProjectTabs({
+  routes,
+}: {
+  routes: { href: string; label: string }[];
+}) {
+  const pathname = usePathname();
+  return (
+    <nav
+      aria-label="Project"
+      data-orientation="horizontal"
+      className="group/tabs"
+    >
+      <div
+        data-orientation="horizontal"
+        data-variant="line"
+        className={tabsListVariants({ variant: "line", overflow: "scroll" })}
+      >
+        {routes.map((route) => {
+          const current = pathname === route.href;
+          return (
+            <Link
+              key={route.href}
+              href={route.href}
+              aria-current={current ? "page" : undefined}
+              data-active={current ? "" : undefined}
+              className={tabsTriggerVariants()}
+            >
+              {route.label}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+```
+
+<ComponentPreview name="tabsRoute" file="components/preview/tabs.tsx" />
+
 ## Playground
 
 Switch the list between its two variants and the root between its two orientations, then copy the
@@ -104,10 +175,16 @@ generated JSX.
 
 <ApiTable path="lib/api-props.ts" name="TabsListProps" />
 
-`Tabs`, `TabsTrigger` and `TabsContent` add no props of their own — each accepts everything the
-corresponding Base UI Tabs part accepts (`Root`, `Tab`, `Panel`): `value` / `defaultValue` /
-`onValueChange` and `orientation` on the root, `value` and `disabled` on a tab, `value` and
-`keepMounted` on a panel, plus `className`, `ref` and `render` everywhere.
+`TabsList` adds `variant` (`"default"` or `"line"`) and `overflow` (`"scroll"` or `"visible"`,
+defaulting to `"scroll"` for `variant="line"` and `"visible"` otherwise). `Tabs`, `TabsTrigger` and
+`TabsContent` add no props of their own — each accepts everything the corresponding Base UI Tabs
+part accepts (`Root`, `Tab`, `Panel`): `value` / `defaultValue` / `onValueChange` and `orientation`
+on the root, `value` and `disabled` on a tab, `value` and `keepMounted` on a panel, plus
+`className`, `ref` and `render` everywhere.
+
+Two class recipes are exported for markup that is not a Base UI tablist: `tabsListVariants({ variant,
+overflow })` and `tabsTriggerVariants()`, the trigger's whole class string. The route-tabs recipe
+above is what they are for.
 
 ## Accessibility
 
@@ -115,12 +192,16 @@ corresponding Base UI Tabs part accepts (`Root`, `Tab`, `Panel`): `value` / `def
   trigger a `role="tab"` with `aria-selected` and `aria-controls`, and each panel a `role="tabpanel"`
   labelled by its tab.
 - Keyboard navigation is a roving tab index — one stop for the whole list, then
-  <kbd>←</kbd>/<kbd>→</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> inside it, and
-  <kbd>Enter</kbd> or
-  <kbd>Space</kbd> to activate. Activation is manual, not on focus, so arrowing
-  through a list does not swap panels under the reader. A disabled tab is
-  skipped, and the axis stays horizontal in the vertical layout because
-  `orientation` is a layout switch on the wrapper.
+  <kbd>←</kbd>/<kbd>→</kbd> (or <kbd>↑</kbd>/<kbd>↓</kbd> in a vertical list,
+  which says so with `aria-orientation="vertical"`), <kbd>Home</kbd> and
+  <kbd>End</kbd> inside it, and <kbd>Enter</kbd>
+  or <kbd>Space</kbd> to activate. Activation is manual, not on focus, so
+  arrowing through a list does not swap panels under the reader. A disabled tab
+  is skipped.
+- A scrolling list (`overflow="scroll"`) keeps the tab under the keyboard in view as the roving stop
+  moves, and keeps the selected tab in view when the selection changes from outside.
+- Route tabs are not a tablist: they are a named `nav` of links, and the current one carries
+  `aria-current="page"`.
 - The panel itself carries `tabindex="0"`, so a panel whose content holds nothing focusable is still
   reachable. That is why `TabsContent` keeps its outline: suppressing it would leave a focusable
   element with no affordance (FOC-6).
@@ -142,6 +223,16 @@ corresponding Base UI Tabs part accepts (`Root`, `Tab`, `Panel`): `value` / `def
 
 Upstream's file plus `packages/ui/upstream/patches/tabs.patch`. Every hunk:
 
+- **A11Y-20** — `Tabs` forwards `orientation` to Base UI's root as well as writing
+  `data-orientation`, so a vertical list announces `aria-orientation="vertical"` and moves with
+  <kbd>↑</kbd>/<kbd>↓</kbd>. Upstream consumed the prop, so a vertical list
+  navigated as a row.
+- **LAY-14** — `TabsList` takes `overflow="scroll" | "visible"`, defaulting to `"scroll"` for
+  `variant="line"`: a horizontal list scrolls inside itself with the `AttachmentGroup` edge fades,
+  starts at the inline start, pulls the line indicator 1px up so the scroll box does not clip it, and
+  keeps the selected tab in view when the selection changes.
+- **API-25** — the trigger's class string is the exported `tabsTriggerVariants` recipe, beside
+  upstream's `tabsListVariants`, so route tabs can be drawn from the system's own classes.
 - **FOC-1, FOC-6** — the four `focus-visible:` classes (`border-ring`, `ring-[3px]`,
   `ring-ring/50`, `outline-1 outline-ring`) go from `TabsTrigger`, and `outline-none` goes from
   `TabsContent` — Base UI gives the panel a tab stop, so suppressing the outline would leave a

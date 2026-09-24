@@ -23,7 +23,10 @@ import { navigationMenuTriggerStyle } from "../registry/ui/navigation-menu";
 import { stepperNodeVariants } from "../registry/ui/stepper";
 import { Switch } from "../registry/ui/switch";
 import { Tag, TagGroup } from "../registry/ui/tag-group";
+import { Tabs, TabsList, TabsTrigger } from "../registry/ui/tabs";
 import { Toggle, toggleVariants } from "../registry/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "../registry/ui/toggle-group";
+import { DirectionProvider } from "../registry/ui/direction";
 import { ToolCallChip } from "../registry/ui/tool-call-chip";
 import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
 import { DataList, type DataListColumn } from "../registry/ui/data-list";
@@ -39,6 +42,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../registry/ui/select";
+import {
+  Sheet,
+  SheetAction,
+  SheetBody,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "../registry/ui/sheet";
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+} from "../registry/ui/alert";
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../registry/ui/dialog";
 import contracts from "../component-contracts.json";
 import {
   dynamicMountCount,
@@ -2441,9 +2467,9 @@ for (const name of [
 /**
  * A docs preview must hydrate onto its own server HTML. Upstream `SidebarMenuSkeleton` picks its
  * bar width with `Math.random()` in a state initialiser, so the server's `--skeleton-width` and the
- * client's never match and React logs a hydration mismatch on every load of the page (review round
- * 2). The sidebar preview mounts upstream's row after hydration only; `AppShellSkeleton` (ours) draws
- * its own deterministic rows, so its preview renders on the server like any other.
+ * client's never matched and React logged a hydration mismatch on every load of the page (review
+ * round 2). LAY-16 replaced the random width with an index cycle, so the sidebar preview now renders
+ * its skeleton rows on the server like `AppShellSkeleton` (ours) always has.
  */
 const HYDRATION_FIXTURES = {
   appShellSkeletonDemo: "app-shell-skeleton-nav-row",
@@ -2819,4 +2845,659 @@ test("select-trigger-width: inside upstream's ButtonGroup the trigger keeps cont
   expect(trigger.getBoundingClientRect().width).toBeLessThan(
     amount.getBoundingClientRect().width,
   );
+});
+// ── sheet and dialog (DS-13: OVL-16 widened, API-21) ────────────────────────────────────────────
+
+/**
+ * `sheet-sizes-1280`: a side sheet takes Dialog's exact OVL-16 width scale, so `size="lg"` on
+ * either overlay is the same 42rem cap; top and bottom sheets ignore the axis.
+ */
+test("sheet-sizes-1280: a side sheet's size steps Dialog's width scale", async () => {
+  await page.viewport(1280, 800);
+  try {
+    const caps: Record<string, string> = {};
+    for (const size of ["sm", "default", "lg", "xl"] as const) {
+      const screen = await render(
+        <Sheet defaultOpen>
+          <SheetContent side="right" size={size}>
+            <SheetHeader>
+              <SheetTitle>Sized</SheetTitle>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>,
+      );
+      await settle();
+      const content = document.querySelector<HTMLElement>(
+        '[data-slot="sheet-content"]',
+      )!;
+      caps[size] = getComputedStyle(content).maxWidth;
+      await screen.unmount();
+    }
+    expect(caps).toEqual({
+      sm: "320px",
+      default: "384px",
+      lg: "672px",
+      xl: "1024px",
+    });
+
+    // The same `lg` on Dialog is the same cap.
+    const dialog = await render(
+      <Dialog defaultOpen>
+        <DialogContent size="lg">
+          <DialogHeader>
+            <DialogTitle>Sized</DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>,
+    );
+    await settle();
+    expect(
+      getComputedStyle(
+        document.querySelector<HTMLElement>('[data-slot="dialog-content"]')!,
+      ).maxWidth,
+    ).toBe("672px");
+    await dialog.unmount();
+
+    // Top and bottom sheets ignore the axis: they stay edge to edge.
+    for (const side of ["top", "bottom"] as const) {
+      const screen = await render(
+        <Sheet defaultOpen>
+          <SheetContent side={side} size="sm">
+            <SheetHeader>
+              <SheetTitle>Edge</SheetTitle>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>,
+      );
+      await settle();
+      const box = document
+        .querySelector<HTMLElement>('[data-slot="sheet-content"]')!
+        .getBoundingClientRect();
+      expect(Math.round(box.width), `${side} sheet width`).toBe(1280);
+      await screen.unmount();
+    }
+  } finally {
+    await page.viewport(320, 812);
+  }
+});
+
+/** Rows enough to overflow any overlay at the viewports below. */
+const LONG_FORM = Array.from({ length: 24 }, (_, index) => (
+  <p key={index} className="py-2">
+    Field {index + 1}
+  </p>
+));
+
+/** `rect` lies wholly inside `frame`, with half a pixel of rounding either way. */
+function within(rect: DOMRect, frame: DOMRect) {
+  return (
+    rect.left >= frame.left - 0.5 &&
+    rect.right <= frame.right + 0.5 &&
+    rect.top >= frame.top - 0.5 &&
+    rect.bottom <= frame.bottom + 0.5
+  );
+}
+
+/**
+ * `sheet-390`: below `sm` a side sheet is full width whatever its size, and an overflowing
+ * `SheetBody` / `DialogBody` scrolls between a fixed header and footer — the footer stays inside
+ * the viewport, and the body stays inside the panel horizontally.
+ */
+test("sheet-390: a side sheet is full width and its footer stays visible", async () => {
+  await page.viewport(390, 700);
+  try {
+    for (const size of ["sm", "default", "xl"] as const) {
+      const screen = await render(
+        <Sheet defaultOpen>
+          <SheetContent side="right" size={size}>
+            <SheetHeader>
+              <SheetTitle>Edit record</SheetTitle>
+            </SheetHeader>
+            <SheetBody>{LONG_FORM}</SheetBody>
+            <SheetFooter>
+              <Button>Save</Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>,
+      );
+      await settle();
+      const panel = document
+        .querySelector<HTMLElement>('[data-slot="sheet-content"]')!
+        .getBoundingClientRect();
+      expect(Math.round(panel.width), `size=${size} panel width`).toBe(390);
+      const body = document.querySelector<HTMLElement>(
+        '[data-slot="sheet-body"]',
+      )!;
+      expect(
+        body.scrollHeight > body.clientHeight,
+        `size=${size}: the body is what overflows`,
+      ).toBe(true);
+      expect(
+        within(body.getBoundingClientRect(), panel),
+        `size=${size}: the body stays inside the panel`,
+      ).toBe(true);
+      const save = screen.getByRole("button", { name: "Save" }).element();
+      const viewport = new DOMRect(0, 0, 390, 700);
+      expect(
+        within(save.getBoundingClientRect(), viewport),
+        `size=${size}: the footer action is on screen`,
+      ).toBe(true);
+      await screen.unmount();
+    }
+
+    const dialog = await render(
+      <Dialog defaultOpen>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit record</DialogTitle>
+          </DialogHeader>
+          <DialogBody>{LONG_FORM}</DialogBody>
+          <DialogFooter>
+            <Button>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>,
+    );
+    await settle();
+    const popup = document
+      .querySelector<HTMLElement>('[data-slot="dialog-content"]')!
+      .getBoundingClientRect();
+    const dialogBody = document.querySelector<HTMLElement>(
+      '[data-slot="dialog-body"]',
+    )!;
+    expect(
+      dialogBody.scrollHeight > dialogBody.clientHeight,
+      "the dialog body is what overflows",
+    ).toBe(true);
+    expect(
+      within(dialogBody.getBoundingClientRect(), popup),
+      "the dialog body stays inside the popup",
+    ).toBe(true);
+    expect(
+      within(popup, new DOMRect(0, 0, 390, 700)),
+      "the dialog popup fits the viewport",
+    ).toBe(true);
+    const save = dialog.getByRole("button", { name: "Save" }).element();
+    expect(
+      within(save.getBoundingClientRect(), popup),
+      "the dialog footer action is inside the popup",
+    ).toBe(true);
+    await dialog.unmount();
+  } finally {
+    await page.viewport(320, 812);
+  }
+});
+
+/**
+ * `sheet-action-vs-close`: `SheetAction` is an end seat in `SheetHeader` that clears the corner
+ * close button, even beside a title long enough to wrap.
+ */
+for (const width of [320, 1280] as const) {
+  test(`sheet-action-vs-close: the header action never meets the close button at ${width}px`, async () => {
+    await page.viewport(width, 800);
+    try {
+      const screen = await render(
+        <Sheet defaultOpen>
+          <SheetContent side="right">
+            <SheetHeader>
+              <SheetTitle>
+                Quarterly revenue attribution for the northern region
+              </SheetTitle>
+              <SheetAction>
+                <Button size="sm" variant="outline">
+                  Edit
+                </Button>
+              </SheetAction>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>,
+      );
+      await settle();
+      const action = screen
+        .getByRole("button", { name: "Edit" })
+        .element()
+        .getBoundingClientRect();
+      const close = screen
+        .getByRole("button", { name: "Close" })
+        .element()
+        .getBoundingClientRect();
+      const title = document
+        .querySelector<HTMLElement>('[data-slot="sheet-title"]')!
+        .getBoundingClientRect();
+      const meets = (a: DOMRect, b: DOMRect) =>
+        a.left < b.right &&
+        b.left < a.right &&
+        a.top < b.bottom &&
+        b.top < a.bottom;
+      expect(
+        meets(action, close),
+        `action ${action.left},${action.top}..${action.right},${action.bottom} vs close ` +
+          `${close.left},${close.top}..${close.right},${close.bottom}`,
+      ).toBe(false);
+      expect(meets(action, title), "the action overlaps the title").toBe(false);
+      const panel = document
+        .querySelector<HTMLElement>('[data-slot="sheet-content"]')!
+        .getBoundingClientRect();
+      expect(within(action, panel), "the action stays inside the panel").toBe(
+        true,
+      );
+    } finally {
+      await page.viewport(320, 812);
+    }
+  });
+}
+
+// ── alert (DS-15, LAY-15) ────────────────────────────────────────────────────────────────────────
+
+/**
+ * `alert-action-320`: LAY-15 (MK, 24-09-2026). Measurement 11a found upstream's `absolute top-2
+ * end-2` action overlapping the title in all four cases (an 8- and a 14-character `sm` label, at
+ * 320px and 1280px), because the root reserved only `pe-18` for it. The action now takes its own
+ * top-aligned grid column beside the title and description, and drops below the text when the
+ * alert is narrower than `@md` (28rem). Either way it never meets the text, and at 1280px it sits
+ * beside it: to the right, with its top on the title's first line.
+ */
+for (const width of [320, 1280] as const) {
+  for (const label of ["Undo all", "Review details"] as const) {
+    test(`alert-action-320: a ${label.length}-character sm action at ${width}px clears the title and description (LAY-15)`, async () => {
+      await page.viewport(width, 800);
+      try {
+        const screen = await render(
+          <div style={{ padding: "16px" }}>
+            <Alert>
+              <AlertTitle>
+                Your workspace sync finished with warnings for several projects
+              </AlertTitle>
+              <AlertDescription>
+                Three files could not be uploaded because they exceed the size
+                limit for your current plan.
+              </AlertDescription>
+              <AlertAction>
+                <Button size="sm" variant="outline">
+                  {label}
+                </Button>
+              </AlertAction>
+            </Alert>
+          </div>,
+        );
+        await settle();
+        const box = (slot: string) =>
+          screen.container
+            .querySelector<HTMLElement>(`[data-slot="${slot}"]`)!
+            .getBoundingClientRect();
+        const action = screen
+          .getByRole("button", { name: label })
+          .element()
+          .getBoundingClientRect();
+        const meets = (a: DOMRect, b: DOMRect) =>
+          a.left < b.right - 0.5 &&
+          b.left < a.right - 0.5 &&
+          a.top < b.bottom - 0.5 &&
+          b.top < a.bottom - 0.5;
+        const title = box("alert-title");
+        const description = box("alert-description");
+        const detail =
+          `action ${action.left.toFixed(1)}..${action.right.toFixed(1)} ` +
+          `(w ${action.width.toFixed(1)}) · title ..${title.right.toFixed(1)} · ` +
+          `description ..${description.right.toFixed(1)}`;
+        expect(
+          {
+            title: meets(action, title),
+            description: meets(action, description),
+          },
+          detail,
+        ).toEqual({ title: false, description: false });
+        if (width === 1280) {
+          // beside the text, top-aligned with the title
+          expect(action.left, detail).toBeGreaterThanOrEqual(title.right);
+          expect(Math.abs(action.top - title.top), detail).toBeLessThan(8);
+        } else {
+          // below the text
+          expect(action.top, detail).toBeGreaterThanOrEqual(description.bottom);
+        }
+      } finally {
+        await page.viewport(320, 812);
+      }
+    });
+  }
+}
+
+// ── tabs (LAY-14, A11Y-20) ───────────────────────────────────────────────────────────────────────
+
+const EIGHT_TABS = [
+  "Overview",
+  "Activity",
+  "Members",
+  "Billing",
+  "Integrations",
+  "Security",
+  "Notifications",
+  "Advanced",
+] as const;
+
+/** Is the trigger's whole box inside the list's visible box? 1px absorbs sub-pixel text widths. */
+function triggerInView(list: HTMLElement, trigger: Element) {
+  const box = list.getBoundingClientRect();
+  const rect = trigger.getBoundingClientRect();
+  return rect.left >= box.left - 1 && rect.right <= box.right + 1;
+}
+
+for (const dir of ["ltr", "rtl"] as const) {
+  test(`tabs-line-320-eight: eight line tabs scroll inside their row, never the page (${dir})`, async () => {
+    if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+    try {
+      const screen = await render(
+        <Tabs defaultValue="overview">
+          <TabsList variant="line">
+            {EIGHT_TABS.map((label) => (
+              <TabsTrigger key={label} value={label.toLowerCase()}>
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>,
+      );
+      await settle();
+      const list = screen.container.querySelector<HTMLElement>(
+        '[data-slot="tabs-list"]',
+      )!;
+      const triggers = [...list.querySelectorAll('[role="tab"]')];
+      // The row really is longer than the viewport, so the case is not vacuous …
+      expect(list.scrollWidth).toBeGreaterThan(list.clientWidth);
+      expect(getComputedStyle(list).overflowX).toBe("auto");
+      // … and the page does not scroll: the list does.
+      await expectContained(
+        "tabs-line-320-eight",
+        dir === "rtl" ? " in RTL" : "",
+      );
+      expect(list.getBoundingClientRect().width).toBeLessThanOrEqual(
+        document.documentElement.clientWidth,
+      );
+      // No scrollbar is painted (the fades carry the affordance), and no vertical scroll either.
+      expect(list.offsetHeight - list.clientHeight).toBe(0);
+      expect(list.scrollHeight).toBeLessThanOrEqual(list.clientHeight);
+      // The start of the row is reachable: a centred overflowing row would clip its first tab.
+      expect(triggerInView(list, triggers[0]!)).toBe(true);
+      // Keyboard: End reaches the last tab and it scrolls into view; Home comes back.
+      (triggers[0] as HTMLElement).focus();
+      await userEvent.keyboard("{End}");
+      expect(document.activeElement).toBe(triggers.at(-1));
+      await expect.poll(() => triggerInView(list, triggers.at(-1)!)).toBe(true);
+      await userEvent.keyboard("{Enter}");
+      // The line indicator under the active tab is drawn inside the scroll box, not clipped.
+      const active = triggers.at(-1) as HTMLElement;
+      const after = getComputedStyle(active, "::after");
+      await expect
+        .poll(() => getComputedStyle(active, "::after").opacity)
+        .toBe("1");
+      const indicatorBottom =
+        active.getBoundingClientRect().bottom - parseFloat(after.bottom);
+      expect(parseFloat(after.height)).toBe(2);
+      expect(
+        indicatorBottom,
+        "the active line indicator is clipped by the scroll box",
+      ).toBeLessThanOrEqual(list.getBoundingClientRect().bottom + 0.5);
+      await userEvent.keyboard("{Home}");
+      await expect.poll(() => triggerInView(list, triggers[0]!)).toBe(true);
+      expect(document.documentElement.scrollLeft).toBe(0);
+    } finally {
+      document.documentElement.removeAttribute("dir");
+    }
+  });
+}
+
+for (const dir of ["ltr", "rtl"] as const) {
+  test(`tabs-vertical: a vertical list stacks, fills its column and moves with up and down (${dir})`, async () => {
+    if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+    try {
+      const screen = await render(
+        <Tabs defaultValue="account" orientation="vertical">
+          <TabsList variant="line">
+            <TabsTrigger value="account">Account</TabsTrigger>
+            <TabsTrigger value="password">Password</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          </TabsList>
+        </Tabs>,
+      );
+      await settle();
+      const list = screen.container.querySelector<HTMLElement>(
+        '[data-slot="tabs-list"]',
+      )!;
+      const triggers = [...list.querySelectorAll<HTMLElement>('[role="tab"]')];
+      expect(list.getAttribute("aria-orientation")).toBe("vertical");
+      // A line list defaults to `scroll`, but the scroll box is horizontal-only: a vertical list
+      // keeps upstream's layout, so its inline-end indicator is not clipped.
+      expect(getComputedStyle(list).overflowX).toBe("visible");
+      await expectContained("tabs-vertical", dir === "rtl" ? " in RTL" : "");
+      // Stacked, one per row, each as wide as the list's content box.
+      const rects = triggers.map((trigger) => trigger.getBoundingClientRect());
+      for (let index = 1; index < rects.length; index++)
+        expect(rects[index]!.top).toBeGreaterThanOrEqual(
+          rects[index - 1]!.bottom - 0.5,
+        );
+      const widths = new Set(rects.map((rect) => Math.round(rect.width)));
+      expect(widths.size).toBe(1);
+      for (const rect of rects)
+        expect(rect.height, "vertical trigger height").toBeGreaterThanOrEqual(
+          24,
+        );
+      // The active indicator sits on the inline-end edge, outside the trigger.
+      const active = triggers[0]!;
+      const after = getComputedStyle(active, "::after");
+      expect(parseFloat(after.width)).toBe(2);
+      // Up and down move the roving stop; left and right do not.
+      active.focus();
+      await userEvent.keyboard("{ArrowRight}");
+      expect(document.activeElement).toBe(triggers[0]);
+      await userEvent.keyboard("{ArrowDown}");
+      expect(document.activeElement).toBe(triggers[1]);
+      await userEvent.keyboard("{ArrowUp}");
+      expect(document.activeElement).toBe(triggers[0]);
+    } finally {
+      document.documentElement.removeAttribute("dir");
+    }
+  });
+}
+
+// ── toggle-group (API-23) ────────────────────────────────────────────────────────────────────────
+
+const TEN_OPTIONS = [
+  "Design",
+  "Engineering",
+  "Marketing",
+  "Sales",
+  "Support",
+  "Finance",
+  "Legal",
+  "Operations",
+  "Research",
+  "People",
+] as const;
+
+for (const dir of ["ltr", "rtl"] as const) {
+  test(`toggle-group-wrap-320: ten options wrap onto rows, each row with its own ends (${dir})`, async () => {
+    if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
+    try {
+      const screen = await render(
+        <DirectionProvider direction={dir}>
+          <ToggleGroup
+            aria-label="Team"
+            variant="outline"
+            spacing={0}
+            wrap
+            defaultValue={["design"]}
+            deselectable={false}
+          >
+            {TEN_OPTIONS.map((option) => (
+              <ToggleGroupItem key={option} value={option.toLowerCase()}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </DirectionProvider>,
+      );
+      await settle();
+      const group = screen.container.querySelector<HTMLElement>(
+        '[data-slot="toggle-group"]',
+      )!;
+      const items = [
+        ...group.querySelectorAll<HTMLElement>(
+          '[data-slot="toggle-group-item"]',
+        ),
+      ];
+      await expectContained(
+        "toggle-group-wrap-320",
+        dir === "rtl" ? " in RTL" : "",
+      );
+      expect(group.getBoundingClientRect().width).toBeLessThanOrEqual(
+        document.documentElement.clientWidth,
+      );
+      // It really wraps — the case is not vacuous.
+      const tops = new Set(
+        items.map((item) => Math.round(item.getBoundingClientRect().top)),
+      );
+      expect(tops.size, "the ten options fit one row").toBeGreaterThan(1);
+      const starts = items.filter((item) =>
+        item.hasAttribute("data-row-start"),
+      );
+      const ends = items.filter((item) => item.hasAttribute("data-row-end"));
+      expect(starts.length).toBe(tops.size);
+      expect(ends.length).toBe(tops.size);
+      for (const item of items) {
+        const style = getComputedStyle(item);
+        const start = item.hasAttribute("data-row-start");
+        const end = item.hasAttribute("data-row-end");
+        // Each row is its own joined segment: rounded at its two ends, square in between, and a
+        // leading border on its first item even though that item is not `:first-child`.
+        expect(
+          parseFloat(style.borderStartStartRadius) > 0,
+          `${item.textContent}: rounded start`,
+        ).toBe(start);
+        expect(
+          parseFloat(style.borderStartEndRadius) > 0,
+          `${item.textContent}: rounded end`,
+        ).toBe(end);
+        expect(
+          parseFloat(style.borderInlineStartWidth) > 0,
+          `${item.textContent}: leading border`,
+        ).toBe(start);
+      }
+      // Rows do not touch: the joined borders of one row never double up on the next.
+      const rows = [...tops].sort((a, b) => a - b);
+      const firstRowBottom = Math.max(
+        ...items
+          .filter(
+            (item) => Math.round(item.getBoundingClientRect().top) === rows[0],
+          )
+          .map((item) => item.getBoundingClientRect().bottom),
+      );
+      expect(rows[1]!).toBeGreaterThan(firstRowBottom);
+      // The arrows cross rows: the last item of row one hands focus to the first of row two. Base
+      // UI reads the reading direction from `DirectionProvider`, so under RTL "next" is left.
+      const rowOneEnd = ends[0]!;
+      const rowTwoStart = starts[1]!;
+      rowOneEnd.focus();
+      await userEvent.keyboard(dir === "rtl" ? "{ArrowLeft}" : "{ArrowRight}");
+      expect(document.activeElement).toBe(rowTwoStart);
+      // A view switch always has a view: Space on the pressed item keeps it pressed.
+      items[0]!.focus();
+      await userEvent.keyboard(" ");
+      expect(items[0]!.getAttribute("aria-pressed")).toBe("true");
+    } finally {
+      document.documentElement.removeAttribute("dir");
+    }
+  });
+}
+
+/**
+ * sidebar-badge-long-label (A11Y-17). `sidebarCounts` puts a label far longer than its row beside
+ * a two-digit count and a five-character one. The row reserves `pe-8` for a badge and `pe-12` for a
+ * wide one, so the truncated label must end before the badge begins, at the narrow sweep width and
+ * on a desktop one.
+ */
+test("sidebarCounts: a long label stops short of its count (sidebar-badge-long-label)", async () => {
+  const fixture = (Preview as Record<string, () => React.ReactNode>)
+    .sidebarCounts;
+  expect(
+    fixture,
+    "sidebarCounts is not exported by the preview barrel",
+  ).toBeTypeOf("function");
+  const Fixture = () => <>{fixture!()}</>;
+  for (const [width, height] of [
+    [320, 812],
+    [1280, 900],
+  ] as const) {
+    await page.viewport(width, height);
+    const screen = await render(<Fixture />);
+    await settle();
+    const rows = [
+      ...screen.container.querySelectorAll<HTMLElement>(
+        '[data-slot="sidebar-menu-item"]',
+      ),
+    ];
+    expect(rows.length).toBe(3);
+    for (const row of rows) {
+      const button = row.querySelector<HTMLElement>(
+        '[data-slot="sidebar-menu-button"]',
+      )!;
+      const badge = row.querySelector<HTMLElement>(
+        '[data-slot="sidebar-menu-badge"]',
+      )!;
+      const label = [...button.querySelectorAll(":scope > span")].find(
+        (span) => !span.classList.contains("sr-only"),
+      ) as HTMLElement;
+      const labelEnd = label.getBoundingClientRect().right;
+      const badgeStart = badge.getBoundingClientRect().left;
+      expect(
+        labelEnd <= badgeStart + 0.5,
+        `${width}px, "${label.textContent}": label ends at ${labelEnd.toFixed(1)}px, ` +
+          `badge "${badge.textContent}" starts at ${badgeStart.toFixed(1)}px`,
+      ).toBe(true);
+    }
+    await screen.unmount();
+  }
+  await page.viewport(320, 812);
+});
+
+/**
+ * checkbox-mixed — the A11Y-19 glyph and the FRM-15 dimming, on compiled CSS.
+ *
+ * The component suite proves WHICH glyph is in the DOM; only compiled CSS can prove that the minus
+ * is actually painted: 14px wide (`[&>svg]:size-3.5`), centred in the 16px box, in a visible ink,
+ * and that a disabled mixed box dims to 0.5 with no Field around it (the `<span>` root never
+ * matched upstream's `disabled:` variant).
+ */
+test("checkbox-mixed: the minus is painted centred in the box, and a disabled mixed box dims", async () => {
+  const screen = await render(
+    <div className="flex gap-6 p-4">
+      <Checkbox aria-label="Select all" indeterminate />
+      <Checkbox aria-label="Select none" indeterminate disabled />
+    </div>,
+  );
+  for (const name of ["Select all", "Select none"]) {
+    const box = screen.getByRole("checkbox", { name }).element() as HTMLElement;
+    expect(box.getAttribute("aria-checked")).toBe("mixed");
+    const glyph = box.querySelector("svg") as SVGSVGElement;
+    expect(glyph.classList.contains("lucide-minus")).toBe(true);
+    const b = box.getBoundingClientRect();
+    const g = glyph.getBoundingClientRect();
+    expect(b.width).toBe(16);
+    expect(g.width).toBe(14);
+    expect(
+      Math.abs(g.left + g.width / 2 - (b.left + b.width / 2)),
+    ).toBeLessThan(0.5);
+    expect(
+      Math.abs(g.top + g.height / 2 - (b.top + b.height / 2)),
+    ).toBeLessThan(0.5);
+    expect(getComputedStyle(glyph).visibility).toBe("visible");
+    expect(getComputedStyle(glyph).display).not.toBe("none");
+  }
+  const enabled = screen
+    .getByRole("checkbox", { name: "Select all" })
+    .element();
+  const disabled = screen
+    .getByRole("checkbox", { name: "Select none" })
+    .element();
+  expect(getComputedStyle(enabled).opacity).toBe("1");
+  expect(getComputedStyle(disabled).opacity).toBe("0.5");
 });

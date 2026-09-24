@@ -1,4 +1,4 @@
-// @vegastack use-platform@0.18.0 sha256-90icG/v3iK73TiOR8pwIdJaaK5z/1hR25f6Py8RBrnc=
+// @vegastack use-platform@0.18.0 sha256-0Tpv5ugnBz7wtWTAuk0jMjkphTPyoLj7ywxgzqjJIEY=
 
 "use client";
 
@@ -204,4 +204,35 @@ export function usePlatform({
   // A NEW object identity only when a field actually changed, so a consumer that
   // depends on the returned object (an effect dep, a memo key) is not woken every render.
   return React.useMemo(() => ({ os, isTouch }), [os, isTouch]);
+}
+
+/**
+ * `isEditableTarget` — whether a keyboard event started in a place that takes
+ * typing: an `<input>`, a `<textarea>`, a `<select>`, or a `contenteditable`
+ * element. A global shortcut must ignore these (INT-11), or a chord such as
+ * Mod+B fires while the user is formatting text. It reads the event's
+ * composed path, so a field inside an open shadow root still counts.
+ *
+ * Pair it with `event.defaultPrevented`, so a shortcut also yields to a
+ * handler nearer the target that has already claimed the key.
+ *
+ * @example
+ * React.useEffect(() => {
+ *   const onKeyDown = (event: KeyboardEvent) => {
+ *     if (event.defaultPrevented || isEditableTarget(event)) return;
+ *     if (event.key === "?") openShortcuts();
+ *   };
+ *   window.addEventListener("keydown", onKeyDown);
+ *   return () => window.removeEventListener("keydown", onKeyDown);
+ * }, []);
+ */
+export function isEditableTarget(event: Event): boolean {
+  const target = event.composedPath?.()[0] ?? event.target;
+  if (!(target instanceof HTMLElement)) return false;
+  return (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    target.isContentEditable
+  );
 }

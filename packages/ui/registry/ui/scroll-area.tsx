@@ -1,4 +1,4 @@
-// @vegastack scroll-area@0.18.0 sha256-KoG8ydg+7aASQXPsAQe71Xa6dVpDNOpTeFMVge67Ff4=
+// @vegastack scroll-area@0.18.0 sha256-rsrptpqzXmVTb6sEmM1Uv1pue5rjd4fW7NnT48pd3yU=
 
 "use client";
 
@@ -9,8 +9,15 @@ import { cn } from "@vegastack/design";
 function ScrollArea({
   className,
   children,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+  tabIndex,
+  viewportRef,
   ...props
-}: ScrollAreaPrimitive.Root.Props) {
+}: ScrollAreaPrimitive.Root.Props & {
+  viewportRef?: React.Ref<HTMLDivElement>;
+}) {
+  const named = ariaLabel !== undefined || ariaLabelledBy !== undefined;
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
@@ -18,8 +25,13 @@ function ScrollArea({
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
+        ref={viewportRef}
         data-slot="scroll-area-viewport"
         className="size-full rounded-[inherit] transition-[color,box-shadow]"
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        {...(named ? { role: "region" } : {})}
+        {...(tabIndex !== undefined ? { tabIndex } : {})}
       >
         {children}
       </ScrollAreaPrimitive.Viewport>

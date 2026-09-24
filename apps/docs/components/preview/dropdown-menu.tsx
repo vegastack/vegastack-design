@@ -59,6 +59,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 
 /*
  * Every fixture renders its trigger and nothing else: the menu is CLOSED at rest, which is how
@@ -885,6 +886,37 @@ export function dropdownMenuRtl(): ReactNode {
           </DropdownMenu>
         </div>
       </DirectionProvider>
+    </Wrapper>
+  );
+}
+
+/**
+ * API-19: a two-line row composes `ItemContent` › `ItemTitle` + `ItemDescription`, and the row
+ * links the description as its accessible description. A disabled row keeps focus, so its reason
+ * travels as that description rather than in a Tooltip.
+ */
+export function dropdownMenuDescriptionLine(): ReactNode {
+  return (
+    <Wrapper>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Export
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-64">
+          <DropdownMenuItem>
+            <ItemContent>
+              <ItemTitle>Download CSV</ItemTitle>
+              <ItemDescription>Every row, for a spreadsheet</ItemDescription>
+            </ItemContent>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled>
+            <ItemContent>
+              <ItemTitle>Download data sheet</ItemTitle>
+              <ItemDescription>No specs yet</ItemDescription>
+            </ItemContent>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </Wrapper>
   );
 }

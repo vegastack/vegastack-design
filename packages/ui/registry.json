@@ -509,6 +509,7 @@
       "description": "A content surface with composable header, content, footer and action parts.",
       "categories": ["data-display"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
@@ -746,7 +747,11 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/input-group"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/input-group",
+        "@vegastack/item"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/combobox.tsx",
@@ -755,7 +760,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
+        "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.18.0"
       }
@@ -775,6 +780,7 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/input-group",
+        "@vegastack/item",
         "@vegastack/use-announcer"
       ],
       "files": [
@@ -785,8 +791,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to.",
-        "whenNotToUse": "Picking a form value — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
+        "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
+        "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.18.0"
       }
     },
@@ -802,7 +808,7 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/item"],
       "files": [
         {
           "path": "packages/ui/registry/ui/context-menu.tsx",
@@ -811,7 +817,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card.",
+        "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.18.0"
       }
@@ -1071,7 +1077,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
+        "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.18.0"
       }
@@ -1155,7 +1161,7 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/item"],
       "files": [
         {
           "path": "packages/ui/registry/ui/dropdown-menu.tsx",
@@ -1164,7 +1170,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher.",
+        "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.18.0"
       }
@@ -1289,6 +1295,7 @@
       "description": "A zero-data placeholder — media, title, description and a content slot.",
       "categories": ["data-display"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
@@ -11831,7 +11838,10 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": ["@vegastack/separator"],
+      "registryDependencies": [
+        "@vegastack/separator",
+        "@vegastack/truncated-text"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/item.tsx",
@@ -11840,7 +11850,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions.",
+        "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions. Rows rendered as links or buttons can sit inside an ItemGroup (the list item moves to a wrapper), and ItemGroupLabel names a group.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.18.0"
       }
@@ -11987,7 +11997,7 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": ["@vegastack/dropdown-menu"],
+      "registryDependencies": ["@vegastack/dropdown-menu", "@vegastack/item"],
       "files": [
         {
           "path": "packages/ui/registry/ui/menubar.tsx",
@@ -11996,7 +12006,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other.",
+        "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
         "version": "0.18.0"
       }
@@ -12592,7 +12602,7 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/item"],
       "files": [
         {
           "path": "packages/ui/registry/ui/select.tsx",
@@ -12601,7 +12611,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars.",
+        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.18.0"
       }
@@ -12679,7 +12689,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Secondary content beside the page — filters, details, a settings panel — that should not take the centre of the screen.",
+        "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.18.0"
       }
@@ -12734,7 +12744,8 @@
         "@vegastack/sheet",
         "@vegastack/skeleton",
         "@vegastack/tooltip",
-        "@vegastack/use-mobile"
+        "@vegastack/use-mobile",
+        "@vegastack/use-platform"
       ],
       "files": [
         {
@@ -13035,8 +13046,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
-        "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
+        "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
+        "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.18.0"
       }
     },
@@ -13252,7 +13263,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) that keeps one item pressed, or related toggle buttons such as formatting.",
+        "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) — pass deselectable={false} so one item always stays pressed — or related toggle buttons such as formatting; wrap lets a long option set fall onto rows on a narrow screen.",
         "whenNotToUse": "A form value (RadioGroup), swapping page regions (Tabs), moving between URLs (links), or a single on/off control (Toggle/Switch).",
         "version": "0.18.0"
       }

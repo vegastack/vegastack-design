@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { ArrowUpRightIcon, BadgeCheckIcon, BookmarkIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/badge` (dogfoods the registry) → auto-scanned.
-import { Badge } from "@/components/ui/badge";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 
 export function badge(): ReactNode {
@@ -132,6 +132,30 @@ export function badgeRtl(): ReactNode {
           <BookmarkIcon data-icon="inline-end" />
         </Badge>
       </div>
+    </Wrapper>
+  );
+}
+
+type RunStatus =
+  "live" | "running" | "paused" | "failed" | "draft" | "archived";
+
+const RUN_STATUS = {
+  live: { label: "Live", variant: "success" },
+  running: { label: "Running", variant: "info" },
+  paused: { label: "Paused", variant: "warning" },
+  failed: { label: "Failed", variant: "destructive" },
+  draft: { label: "Draft", variant: "secondary" },
+  archived: { label: "Archived", variant: "outline" },
+} satisfies Record<RunStatus, { label: string; variant: BadgeVariant }>;
+
+export function badgeStatusMap(): ReactNode {
+  return (
+    <Wrapper>
+      {(Object.keys(RUN_STATUS) as RunStatus[]).map((status) => (
+        <Badge key={status} variant={RUN_STATUS[status].variant}>
+          {RUN_STATUS[status].label}
+        </Badge>
+      ))}
     </Wrapper>
   );
 }

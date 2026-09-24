@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.18.0 sha256-6PU6T5qikbQIylAOW3f9RIyJdL7XN24Ax2VbG72Z+p4=
+// @vegastack multi-step-form@0.18.0 sha256-O7ljtGartCu8cGMfy2+5Qo24JLJ0M4XBq2mEmlyVIDY=
 
 "use client";
 
@@ -1258,11 +1258,13 @@ export function MultiStepFormActions({
       {...props}
     >
       {refusal?.tone === "error" ? (
-        // `Alert` is `role="alert"`, which is assertive — correct here and only here: the
-        // message appeared after mount because the user asked to move and a check said no.
+        // `live` makes this destructive `Alert` `role="alert"`, which is assertive — correct here
+        // and only here (A11Y-3): the message appeared after mount because the user asked to move
+        // and a check said no. Without `live` an Alert is a polite `status`.
         <Alert
           id={refusalId}
           variant="destructive"
+          live
           data-slot="multi-step-form-refusal"
           data-tone="error"
         >

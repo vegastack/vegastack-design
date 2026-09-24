@@ -1,5 +1,5 @@
 # component: checkbox
-# decisions: DOC-1, DOC-2, FOC-1, FOC-12, FOC-5, FOC-6
+# decisions: A11Y-19, DOC-1, DOC-2, FOC-1, FOC-12, FOC-5, FOC-6, FRM-15
 # hunks:
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50` and the `aria-invalid` halo rings are removed. `base.css` owns
@@ -10,15 +10,21 @@
 #   FOC-12: the three `group-has-[:focus-visible]/field-label:` rules are removed. They exist to
 #     cancel the control's ring while the choice CARD is ringed; this system rings the control, and
 #     the card's ring is removed in field.tsx by the same decision.
+#   A11Y-19: the indicator renders through Base UI's `render` callback and draws `MinusIcon` when
+#     the state is indeterminate, `CheckIcon` otherwise (upstream always draws the check, so the
+#     mixed state looked identical to checked). `MinusIcon` joins the lucide import.
+#   FRM-15: `disabled:cursor-not-allowed disabled:opacity-50` become `data-disabled:…`. Base UI
+#     renders the root as a `<span>`, which `:disabled` never matches, so upstream's control dimmed
+#     only inside a disabled Field; Base UI sets `data-disabled` on the root.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/checkbox.tsx b/checkbox.tsx
-index e1a3574..7dd0650 100644
+index e1a3574..fda3515 100644
 --- a/checkbox.tsx
 +++ b/checkbox.tsx
-@@ -1,16 +1,16 @@
+@@ -1,28 +1,30 @@
 -"use client"
 +"use client";
  
@@ -27,7 +33,7 @@ index e1a3574..7dd0650 100644
 -import { CheckIcon } from "lucide-react"
 +import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
 +import { cn } from "@vegastack/design";
-+import { CheckIcon } from "lucide-react";
++import { CheckIcon, MinusIcon } from "lucide-react";
  
  function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
    return (
@@ -36,19 +42,24 @@ index e1a3574..7dd0650 100644
        className={cn(
 -        "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors outline-none group-has-disabled/field:opacity-50 group-has-[:focus-visible]/field-label:ring-0 group-has-[:focus-visible]/field-label:not-data-checked:border-input after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground group-has-[:focus-visible]/field-label:data-checked:border-primary dark:data-checked:bg-primary",
 -        className
-+        "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive not-focus:aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:not-focus:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
++        "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50 not-focus:aria-invalid:border-destructive not-focus:aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:not-focus:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
 +        className,
        )}
        {...props}
      >
-@@ -18,11 +18,10 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
+       <CheckboxPrimitive.Indicator
          data-slot="checkbox-indicator"
          className="grid place-content-center text-current transition-none [&>svg]:size-3.5"
-       >
+-      >
 -        <CheckIcon
 -        />
-+        <CheckIcon />
-       </CheckboxPrimitive.Indicator>
+-      </CheckboxPrimitive.Indicator>
++        render={(props, state) => (
++          <span {...props}>
++            {state.indeterminate ? <MinusIcon /> : <CheckIcon />}
++          </span>
++        )}
++      />
      </CheckboxPrimitive.Root>
 -  )
 +  );

@@ -1,4 +1,4 @@
-// @vegastack sheet@0.18.0 sha256-8zmmTcs4flupkzKeNC5PbpdMwAr+QXSeiY3e9d2/M8E=
+// @vegastack sheet@0.18.0 sha256-+de0WRWObvjWHuvxaUy45N57ppTLKsIisx/sMZlphFU=
 
 "use client";
 
@@ -59,10 +59,14 @@ function SheetContent({
   ref,
   side = "right",
   showCloseButton = true,
+  size = "default",
+  closeLabel = "Close",
   ...props
 }: SheetPrimitive.Popup.Props & {
   side?: "top" | "right" | "bottom" | "left";
   showCloseButton?: boolean;
+  size?: "sm" | "default" | "lg" | "xl";
+  closeLabel?: string;
 }) {
   const modal = React.useContext(SheetModalContext);
   const popupRef = useModalInert<HTMLDivElement>({
@@ -77,8 +81,9 @@ function SheetContent({
         ref={popupRef}
         data-slot="sheet-content"
         data-side={side}
+        data-size={size}
         className={cn(
-          "fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm text-popover-foreground shadow-lg transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-e data-[side=left]:data-ending-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-ending-style:-translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-starting-style:-translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-s data-[side=right]:data-ending-style:translate-x-[2.5rem] rtl:data-[side=right]:data-ending-style:-translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] rtl:data-[side=right]:data-starting-style:-translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm",
+          "fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm text-popover-foreground shadow-lg transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-full data-[side=left]:sm:w-3/4 data-[side=left]:border-e data-[side=left]:data-ending-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-ending-style:-translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-starting-style:-translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:sm:w-3/4 data-[side=right]:border-s data-[side=right]:data-ending-style:translate-x-[2.5rem] rtl:data-[side=right]:data-ending-style:-translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] rtl:data-[side=right]:data-starting-style:-translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-[side=left]:data-[size=sm]:sm:max-w-xs data-[side=right]:data-[size=sm]:sm:max-w-xs data-[side=left]:data-[size=lg]:sm:max-w-2xl data-[side=right]:data-[size=lg]:sm:max-w-2xl data-[side=left]:data-[size=xl]:sm:max-w-5xl data-[side=right]:data-[size=xl]:sm:max-w-5xl",
           className,
         )}
         {...props}
@@ -96,7 +101,7 @@ function SheetContent({
             }
           >
             <XIcon />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{closeLabel}</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Popup>
@@ -108,7 +113,33 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-0.5 p-4", className)}
+      className={cn(
+        "flex flex-col gap-0.5 p-4 has-data-[slot=sheet-action]:grid has-data-[slot=sheet-action]:grid-cols-[1fr_auto] has-data-[slot=sheet-action]:gap-x-4",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SheetAction({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="sheet-action"
+      className={cn(
+        "col-start-2 row-span-2 row-start-1 self-start justify-self-end me-8",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SheetBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="sheet-body"
+      className={cn("min-h-0 flex-1 overflow-y-auto px-4", className)}
       {...props}
     />
   );
@@ -156,6 +187,8 @@ export {
   SheetClose,
   SheetContent,
   SheetHeader,
+  SheetAction,
+  SheetBody,
   SheetFooter,
   SheetTitle,
   SheetDescription,

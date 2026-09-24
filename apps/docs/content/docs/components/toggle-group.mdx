@@ -130,6 +130,31 @@ document mirrors them without any extra work.
   file="components/preview/toggle-group.tsx"
 />
 
+### Always one selected
+
+A single-select group can normally be emptied by pressing the pressed item. Pass
+`deselectable={false}` (API-23) for a view switch that must always show a view: that one press is
+ignored — the item stays pressed and `onValueChange` is not called with `[]`. Choosing another item
+still works. It has no effect with `multiple`.
+
+<ComponentPreview
+  name="toggleGroupAlwaysOne"
+  file="components/preview/toggle-group.tsx"
+/>
+
+### Many options
+
+Pass `wrap` (API-23) when the options can outgrow the row: the items wrap onto new lines instead of
+widening the page. A joined group (`spacing={0}`) keeps each row a segment of its own, with rounded
+ends and a leading border on every row, and a small gap between rows so their borders never double
+up. The arrow keys still run through the items in order, from the end of one row to the start of the
+next.
+
+<ComponentPreview
+  name="toggleGroupMany"
+  file="components/preview/toggle-group.tsx"
+/>
+
 ## API Reference
 
 ### ToggleGroup
@@ -144,25 +169,30 @@ document mirrors them without any extra work.
 
 - The root renders `role="group"`; each item is a native `<button>` carrying `aria-pressed`, so the
   selection is announced per item rather than as a list position.
-- <kbd>Tab</kbd> moves into the group and <kbd>Enter</kbd> or <kbd>Space</kbd>
-  flips the focused item. Base UI loops arrow-key focus inside the group.
+- <kbd>Tab</kbd> moves into the group, the arrow keys move between items
+  (looping at the ends, and across rows in a wrapped group), and
+  <kbd>Enter</kbd> or <kbd>Space</kbd> flips the focused item. With
+  `deselectable={false}`, flipping the pressed item of a single-select group
+  does nothing.
 - Icon-only items have no visible text — give each one an `aria-label`, as every example here does.
 - The group itself has no implicit name. Point `aria-label` or `aria-labelledby` at the visible
   label when one exists, as the Custom example does.
 - Items keep the `toggle` recipe's focus behaviour: the global 2px `:focus-visible` outline from
   `base.css`, raised over its neighbours by `focus:z-10` so a joined group never clips it.
 
-| Key                                 | Action                                |
-| ----------------------------------- | ------------------------------------- |
-| <kbd>Tab</kbd>                      | Move focus into and out of the group. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the focused item.              |
+| Key                                 | Action                                                        |
+| ----------------------------------- | ------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move focus into and out of the group.                         |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Move focus to the previous or next item, looping at the ends. |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Move focus to the first or last item.                         |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the focused item.                                      |
 
 <StatesTested name="toggle-group" />
 
 ## Do / Don't
 
 <DoDont
-  do="Use a single-select group for an immediate view or scope switch over the same content (Mine | Team, Grid | List), and keep one item pressed by ignoring an empty value in onValueChange. Set variant and size once on the group."
+  do="Use a single-select group for an immediate view or scope switch over the same content (Mine | Team, Grid | List), and keep one item pressed with deselectable={false}. Set variant and size once on the group."
   dont="Use a toggle group for a form value (a Radio Group), for swapping page regions (Tabs), or for moving between URLs (links)."
 />
 
@@ -170,6 +200,10 @@ document mirrors them without any extra work.
 
 Upstream's file plus `packages/ui/upstream/patches/toggle-group.patch`. Every hunk:
 
-- **DOC-2** — `cn` is imported from `@vegastack/design`. Nothing else differs: the recipe, the
-  context, the spacing seams and the orientation classes are upstream's, and the item's styling is
+- **API-23** — `ToggleGroup` takes `deselectable` (default `true`; `false` cancels the change that
+  would empty a single-select group, so a view switch always has a view) and `wrap` (the items wrap
+  onto rows; a joined group marks each row's first and last item so every row gets its own rounded
+  ends, leading border and row gap).
+- **DOC-2** — `cn` is imported from `@vegastack/design`. Everything else — the recipe, the context,
+  the spacing seams and the orientation classes — is upstream's, and the item's styling is
   upstream's `toggleVariants` re-used from the `toggle` item.

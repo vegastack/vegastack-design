@@ -247,3 +247,19 @@ export function cardRtl(): ReactNode {
     </Wrapper>
   );
 }
+
+export function cardAsHeading(): ReactNode {
+  return (
+    <Wrapper>
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle render={<h3 />}>Usage this month</CardTitle>
+          <CardDescription>Seats in use across the workspace</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-2xl font-semibold tabular-nums">12 of 20</p>
+        </CardContent>
+      </Card>
+    </Wrapper>
+  );
+}

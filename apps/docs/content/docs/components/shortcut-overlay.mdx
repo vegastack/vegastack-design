@@ -82,7 +82,10 @@ popups cannot drift into two search rows.
   as a pair; the keys are real `<kbd>` elements.
 - The <kbd>?</kbd> binding never fires while focus is in an input, textarea,
   select, or contenteditable surface, and defers to `shouldHandle` while
-  another overlay owns the keyboard.
+  another overlay owns the keyboard. The editable-target check is
+  `isEditableTarget` from `use-platform`, the same guard the sidebar's
+  <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd> uses, so a global shortcut of your
+  own can reuse it.
 - The dialog is labelled and closes on <kbd>Escape</kbd>; category headers are
   real headings.
 
