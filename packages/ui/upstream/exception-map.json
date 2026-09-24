@@ -183,6 +183,15 @@
       "popover",
       "select",
       "sidebar"
+    ],
+    "API-24": ["select"],
+    "API-26": [
+      "combobox",
+      "field",
+      "input",
+      "input-group",
+      "select",
+      "textarea"
     ]
   },
   "advisory": {
