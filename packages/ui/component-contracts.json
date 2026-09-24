@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 665,
-    "components": 113,
+    "totalRegistryItems": 666,
+    "components": 114,
     "animatedIcons": 467,
     "hooks": 11,
     "blocks": 4,
@@ -25,7 +25,7 @@
     "Forms/editing": 25,
     "Navigation/layout": 17,
     "Overlays": 14,
-    "Data display": 11,
+    "Data display": 12,
     "Content/marketing": 13,
     "Shared internals": 2,
     "AI/chat": 8,
@@ -129,6 +129,7 @@
       "data-grid",
       "data-list",
       "data-list-pager",
+      "load-more",
       "property-list",
       "stat",
       "table",
@@ -6294,7 +6295,16 @@
         },
         {
           "name": "DataGridLoadMore",
-          "kind": "interface",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridLoadMoreProps",
+          "kind": "type",
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
             "status": "not-applicable",
@@ -6400,6 +6410,7 @@
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
+        "@vegastack/load-more",
         "@vegastack/table",
         "@vegastack/use-announcer"
       ],
@@ -6449,7 +6460,6 @@
                 "data-grid-group-toggle",
                 "data-grid-head",
                 "data-grid-hidden-hint",
-                "data-grid-load-more",
                 "data-grid-merged",
                 "data-grid-row",
                 "data-grid-scroll",
@@ -6500,6 +6510,15 @@
         {
           "name": "DataListColumn",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListLoadMoreProps",
+          "kind": "type",
           "source": "packages/ui/registry/ui/data-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -6622,8 +6641,9 @@
       "engines": [],
       "docsSlug": "/docs/components/data-list",
       "registryDependencies": [
-        "@vegastack/table",
-        "@vegastack/data-table-parts"
+        "@vegastack/data-table-parts",
+        "@vegastack/load-more",
+        "@vegastack/table"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.7.4",
@@ -6825,6 +6845,125 @@
                 "data-list-pager-range",
                 "data-list-pager-size"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "load-more",
+      "registryType": "registry:ui",
+      "title": "Load More",
+      "summary": "The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.",
+      "status": "stable",
+      "since": "0.18.0",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/load-more.tsx"],
+      "publicSymbols": [
+        {
+          "name": "LoadMore",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/load-more.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "The React 19 ref prop is placed on the root div; nothing renders (and no ref attaches) when the list is complete with no endLabel."
+          }
+        },
+        {
+          "name": "LoadMoreProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/load-more.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "LoadMoreState",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/load-more.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "LoadMore renders Button's outline variant at size sm; it adds no visual variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "It uses Button's sm tier; no local size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["idle", "loading", "error", "done", "hidden"],
+          "evidence": "packages/ui/registry/ui/load-more.tsx + packages/ui/registry/ui/load-more.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "busy",
+            "alert",
+            "focus-retained",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/load-more.tsx + packages/ui/registry/ui/load-more.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus-visible", "loading", "error"],
+          "evidence": "Button's outline variant and loading contract (label kept at opacity 0) plus the destructive -text ink on the error line."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "A centred column: the error line wraps and centres, the button never grows past its label. The footer's containment at 320px is asserted in test/geometry.browser.test.tsx."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism; Button's spinner is its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/load-more",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.4",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": ["packages/ui/registry/ui/load-more.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "load-more",
+      "dataAttributes": {
+        "LoadMore": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["load-more", "load-more-error"]
+            },
+            {
+              "name": "data-state",
+              "values": ["done", "error", "idle", "loading"]
             }
           ],
           "cssVariables": []

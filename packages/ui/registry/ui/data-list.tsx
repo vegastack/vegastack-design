@@ -1,4 +1,4 @@
-// @vegastack data-list@0.18.0 sha256-k2Im2fCwOJ4rc5rgwGgl9znmAf4bmFHnPEgShuuYEWU=
+// @vegastack data-list@0.18.0 sha256-x9ocAGf+0RMSdo1tFcU5K2cIA5KX/eSUEUzOH5uL/40=
 
 "use client";
 
@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LoadMore, type LoadMoreProps } from "@/components/ui/load-more";
 import {
   columnCellClass,
   cycleSort,
@@ -219,7 +220,19 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   footer?: React.ReactNode;
+  /**
+   * Keyset paging: renders the shared `LoadMore` footer below the table (above
+   * `footer`). The table reports `aria-rowcount="-1"` while `hasMore`, because
+   * the total is unknown. `loading` here is a next-batch fetch — the loaded
+   * rows stay; the list-level `loading` prop is the first-load skeleton.
+   * `endLabel` is shown once `hasMore` is false (nothing by default).
+   * @default undefined
+   */
+  loadMore?: DataListLoadMoreProps;
 }
+
+/** The `loadMore` prop: the paging state plus the footer's own labels. */
+export type DataListLoadMoreProps = Omit<LoadMoreProps, "className" | "ref">;
 
 /**
  * Interactive descendants that own their own click/keyboard activation. A click
@@ -353,6 +366,7 @@ export function DataList<T>({
   onRowClick,
   toolbar,
   footer,
+  loadMore,
   className,
   "aria-busy": ariaBusy,
   "aria-describedby": ariaDescribedBy,
@@ -537,6 +551,7 @@ export function DataList<T>({
         className={className}
         aria-busy={loading ? true : ariaBusy}
         aria-describedby={tableDescribedBy}
+        aria-rowcount={loadMore?.hasMore ? -1 : undefined}
         data-squeezed={squeezed ? "" : undefined}
         {...tableProps}
       >
@@ -703,6 +718,7 @@ export function DataList<T>({
         <div data-slot="data-list-toolbar">{toolbar}</div>
       ) : null}
       {table}
+      {loadMore ? <LoadMore {...loadMore} /> : null}
       {footer != null ? <div data-slot="data-list-footer">{footer}</div> : null}
     </div>
   );

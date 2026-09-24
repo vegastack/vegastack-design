@@ -204,6 +204,35 @@ icon and actions, for example:
   file="components/preview/data-list.tsx"
 />
 
+### Load more (keyset)
+
+A list fetched by cursor has no total and no page numbers. Pass `loadMore` and `DataList` renders
+the shared [`LoadMore`](/docs/components/load-more) footer below the table (above `footer`): an
+outline _Load more_ button, a busy state that keeps the loaded rows, an error line with _Try again_,
+and — only when you pass `endLabel` — a caption once `hasMore` is false. While `hasMore` is true
+the table reports `aria-rowcount="-1"`, because the total is unknown.
+
+`loadMore.loading` is a next-batch fetch; the list-level `loading` prop is the first-load skeleton.
+
+<ComponentPreview
+  name="dataListLoadMore"
+  file="components/preview/data-list.tsx"
+/>
+
+```tsx
+<DataList
+  columns={columns}
+  data={rows}
+  getRowId={(row) => row.id}
+  loadMore={{
+    hasMore: nextCursor != null,
+    loading: isFetchingNextPage,
+    error: fetchError ? "Couldn't load more people." : undefined,
+    onLoadMore: fetchNextPage,
+  }}
+/>
+```
+
 ### Fitting the width
 
 `DataList` never forces a horizontal scroll. It measures its container and fits the columns into
@@ -308,7 +337,8 @@ already-paged rows:
 | Behaviour                                            | Where it lives                                                                                           | Mount point                  |
 | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------- |
 | Search / filtering                                   | Host owns the query + filtered `data`                                                                    | `toolbar` slot               |
-| Pagination / page-size / load-more                   | Host owns paging + the current page; [`DataListPager`](/docs/components/data-list-pager) is the control  | `footer` slot                |
+| Pagination / page-size                               | Host owns paging + the current page; [`DataListPager`](/docs/components/data-list-pager) is the control  | `footer` slot                |
+| Keyset load-more                                     | Host owns the cursor and the fetch; [`LoadMore`](/docs/components/load-more) is the control              | `loadMore` prop              |
 | Row activation (navigate / open)                     | Host's handler                                                                                           | `onRowClick`                 |
 | Drag-and-drop reordering                             | The persisted order stays app-coupled; the mechanism is [`SortableList`](/docs/components/sortable-list) | compose it beside this table |
 | Board / Kanban layout, grouping & collapsible groups | [`Board`](/docs/components/board) for Kanban; [`DataGrid`](/docs/components/data-grid) for grouping      | shipped                      |

@@ -343,6 +343,32 @@ export function dataListLoading(): ReactNode {
   );
 }
 
+export function dataListLoadMore(): ReactNode {
+  const [count, setCount] = React.useState(3);
+  const [loading, setLoading] = React.useState(false);
+  return (
+    <Wrapper className="block">
+      <DataList
+        columns={columns}
+        data={people.slice(0, count)}
+        getRowId={(p) => p.id}
+        loadMore={{
+          hasMore: count < people.length,
+          loading,
+          endLabel: "End of list",
+          onLoadMore: () => {
+            setLoading(true);
+            setTimeout(() => {
+              setCount((n) => n + 2);
+              setLoading(false);
+            }, 600);
+          },
+        }}
+      />
+    </Wrapper>
+  );
+}
+
 export function dataListEmpty(): ReactNode {
   return (
     <Wrapper className="block">
