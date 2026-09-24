@@ -1,9 +1,9 @@
-// @vegastack filter-bar@0.19.0 sha256-p8hyCkHl1GscTzsiPm5ekYG6ux8/xtLDC96bxf2HHF0=
+// @vegastack filter-bar@0.19.0 sha256-1yC/JDEl7slH3LhJvz2G84CLRg0MSzqsK+l4ljFa7EA=
 
 "use client";
 
 import * as React from "react";
-import { ListFilterPlus } from "lucide-react";
+import { ListFilterPlus, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -17,6 +17,15 @@ import {
   SearchInput,
   type SearchInputProps,
 } from "@/components/ui/search-input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  SearchableSelect,
+  type SearchableSelectProps,
+} from "@/components/ui/searchable-select";
 
 /* ------------------------------------------------------------------------------------------------
  * Types
@@ -45,6 +54,13 @@ export interface FilterBarFilter {
   icon?: React.ReactNode;
   /** Invoked when the chip's remove (`×`) control is activated. */
   onRemove: () => void;
+  /**
+   * Edit the filter in place: the chip's label and value become a button that opens this
+   * content in a popover (a facet list, a date range, a number range). The remove control
+   * stays its own target.
+   * @default undefined
+   */
+  editor?: React.ReactNode;
   /**
    * Whether the chip reads as an active selection (the `accent` selected fill).
    * An applied filter is a selection, so this defaults to `true`; set `false`
@@ -112,6 +128,11 @@ export interface FilterBarProps extends Omit<
    * @default "end"
    */
   searchPlacement?: "start" | "end";
+  /**
+   * Called when a chip's editor opens or closes, with the filter's id.
+   * @default undefined
+   */
+  onEditorOpenChange?: (id: string, open: boolean) => void;
   /**
    * The active filters, rendered as removable chips at the start of the bar.
    * @default []
@@ -205,6 +226,40 @@ export interface FilterChipProps extends Omit<
    * @default true
    */
   active?: boolean;
+  /**
+   * Content opened from the chip's label and value, which become a button (`FilterChipTrigger`).
+   * @default undefined
+   */
+  editor?: React.ReactNode;
+  /**
+   * Called when the editor opens or closes.
+   * @default undefined
+   */
+  onEditorOpenChange?: (open: boolean) => void;
+}
+
+/** The chip's "Label: value" text, shared by the plain chip and its editor trigger. */
+function FilterChipText({
+  label,
+  value,
+}: {
+  label: React.ReactNode;
+  value?: React.ReactNode;
+}) {
+  return (
+    <>
+      {value != null ? (
+        // "Label: value" — the colon joins the pair in the accessible name, and the trailing
+        // space (collapsed at the end of the flex item) keeps the text reading "Status: Open".
+        <span className="shrink-0 text-muted-foreground">
+          <span className="text-muted-foreground">{label}</span>:{" "}
+        </span>
+      ) : (
+        <span className="shrink-0 text-muted-foreground">{label}</span>
+      )}
+      {value != null ? <span className="min-w-0 truncate">{value}</span> : null}
+    </>
+  );
 }
 
 /**
@@ -226,6 +281,8 @@ export function FilterChip({
   onRemove,
   removeLabel,
   active = true,
+  editor,
+  onEditorOpenChange,
   ...props
 }: FilterChipProps) {
   const computedRemoveLabel =
@@ -248,16 +305,21 @@ export function FilterChip({
       {icon != null ? (
         <span className="shrink-0 text-muted-foreground">{icon}</span>
       ) : null}
-      {value != null ? (
-        // "Label: value" — the colon joins the pair in the accessible name, and the trailing
-        // space (collapsed at the end of the flex item) keeps the text reading "Status: Open".
-        <span className="shrink-0 text-muted-foreground">
-          <span className="text-muted-foreground">{label}</span>:{" "}
-        </span>
+      {editor != null ? (
+        <Popover onOpenChange={(open) => onEditorOpenChange?.(open)}>
+          <PopoverTrigger
+            data-slot="filter-chip-trigger"
+            className="-my-0.5 -ms-1 inline-flex min-w-0 items-center rounded-sm px-1 py-0.5 text-start hover:bg-foreground/5"
+          >
+            <FilterChipText label={label} value={value} />
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-auto min-w-56">
+            {editor}
+          </PopoverContent>
+        </Popover>
       ) : (
-        <span className="shrink-0 text-muted-foreground">{label}</span>
+        <FilterChipText label={label} value={value} />
       )}
-      {value != null ? <span className="min-w-0 truncate">{value}</span> : null}
     </Chip>
   );
 }
@@ -299,6 +361,7 @@ export function FilterBar({
   search,
   searchInputProps,
   searchPlacement = "end",
+  onEditorOpenChange,
   trailing,
   ...props
 }: FilterBarProps) {
@@ -349,6 +412,12 @@ export function FilterBar({
           icon={filter.icon}
           active={filter.active}
           onRemove={filter.onRemove}
+          editor={filter.editor}
+          onEditorOpenChange={
+            onEditorOpenChange
+              ? (open) => onEditorOpenChange(filter.id, open)
+              : undefined
+          }
         />
       ))}
 
@@ -397,5 +466,146 @@ export function FilterBar({
         </div>
       ) : null}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * FilterBarFacet
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props accepted by `FilterBarFacet`. */
+export type FilterBarFacetProps<
+  Item,
+  Multiple extends boolean | undefined = false,
+> = Omit<
+  SearchableSelectProps<Item, Multiple>,
+  | "renderItem"
+  | "renderValue"
+  | "renderTriggerValue"
+  | "placeholder"
+  | "variant"
+  | "size"
+  | "aria-label"
+  | "groupBy"
+> & {
+  /** The facet's name — the trigger reads "{label}: {value}". */
+  label: string;
+  /**
+   * Renders one option.
+   * @default itemToStringLabel
+   */
+  renderItem?: (item: Item) => React.ReactNode;
+  /**
+   * Show a remove control beside the facet (a facet added from "Add filter").
+   * @default false
+   */
+  removable?: boolean;
+  /**
+   * Called when the remove control is used.
+   * @default undefined
+   */
+  onRemove?: () => void;
+  /**
+   * List the selected options first, under "Selected", above the rest under "More".
+   * @default false
+   */
+  pinSelected?: boolean;
+  /**
+   * What an empty facet reads.
+   * @default "Any"
+   */
+  anyLabel?: string;
+};
+
+/**
+ * `FilterBarFacet` — a "Label: value" facet on `SearchableSelect`: "Status: Any", "Status:
+ * Open", "Status: Open, In progress", "Status: 3 selected". Single or `multiple`, local or
+ * server-searched (`remote` + `useAsyncSearch`), optionally pinned and removable. Put it in a
+ * `FilterBar`'s `leading` slot or anywhere in a toolbar.
+ *
+ * @example
+ * <FilterBarFacet
+ *   label="Status"
+ *   multiple
+ *   items={statuses}
+ *   value={status}
+ *   onValueChange={setStatus}
+ *   itemToKey={(s) => s.id}
+ *   itemToStringLabel={(s) => s.name}
+ *   searchLabel="Search statuses"
+ * />
+ */
+export function FilterBarFacet<
+  Item,
+  Multiple extends boolean | undefined = false,
+>({
+  label,
+  renderItem,
+  removable = false,
+  onRemove,
+  pinSelected = false,
+  anyLabel = "Any",
+  countLabel = (n) => `${n} selected`,
+  ...select
+}: FilterBarFacetProps<Item, Multiple>) {
+  const { itemToStringLabel, itemToKey } = select;
+  const current = select.value as Item | Item[] | null | undefined;
+  const selectedKeys = new Set(
+    (Array.isArray(current) ? current : current ? [current] : []).map(
+      itemToKey,
+    ),
+  );
+  const text = (list: Item[]) =>
+    `${label}: ${
+      list.length === 0
+        ? anyLabel
+        : list.length > 2
+          ? countLabel(list.length)
+          : list.map(itemToStringLabel).join(", ")
+    }`;
+  return (
+    <span
+      data-slot="filter-bar-facet"
+      className="inline-flex min-w-0 items-center gap-0.5"
+    >
+      <SearchableSelect<Item, Multiple>
+        {...select}
+        items={
+          pinSelected
+            ? [
+                ...select.items.filter((i) => selectedKeys.has(itemToKey(i))),
+                ...select.items.filter((i) => !selectedKeys.has(itemToKey(i))),
+              ]
+            : select.items
+        }
+        variant="outline"
+        size="sm"
+        countLabel={countLabel}
+        placeholder={`${label}: ${anyLabel}`}
+        renderItem={renderItem ?? itemToStringLabel}
+        renderTriggerValue={text}
+        groupBy={
+          pinSelected
+            ? (item: Item) =>
+                selectedKeys.has(itemToKey(item)) ? "Selected" : "More"
+            : undefined
+        }
+        containerClassName="w-fit"
+        className="w-auto max-w-64"
+        contentClassName="min-w-56"
+        data-slot="filter-bar-facet-select"
+      />
+      {removable ? (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label={`Remove ${label} filter`}
+          data-slot="filter-bar-facet-remove"
+          onClick={onRemove}
+        >
+          <X aria-hidden />
+        </Button>
+      ) : null}
+    </span>
   );
 }

@@ -417,6 +417,21 @@ export function dataListSections(): ReactNode {
   );
 }
 
+export function dataListRowLinks(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList
+        columns={columns}
+        data={people.slice(0, 4)}
+        getRowId={(p) => p.id}
+        getRowHref={(p) => `#person-${p.id}`}
+        getRowLabel={(p) => p.name}
+        selectable
+      />
+    </Wrapper>
+  );
+}
+
 export function dataListEmpty(): ReactNode {
   return (
     <Wrapper className="block">

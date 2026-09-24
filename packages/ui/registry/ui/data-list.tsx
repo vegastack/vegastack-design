@@ -1,8 +1,9 @@
-// @vegastack data-list@0.19.0 sha256-saLDlQLwyZ5KKr1yaqDnYpWO2cbsVFNHaWKBw/h2C6k=
+// @vegastack data-list@0.19.0 sha256-jED5rZpCkqPpsrOfGruVi38u1Vq0uX7PbTnGhY6O3x0=
 
 "use client";
 
 import * as React from "react";
+import { mergeProps } from "@base-ui/react/merge-props";
 import { cn, mergeRefs } from "@vegastack/design";
 import {
   Table,
@@ -209,6 +210,25 @@ export interface DataListProps<T> extends Omit<
    */
   onRowClick?: (row: T, index: number) => void;
   /**
+   * Make rows real links. The first cell's content becomes the link (`<a>`, or
+   * `rowLinkRender`), so Enter, a middle click and every modifier click are the browser's own;
+   * a click anywhere else on the row follows the same link, modifiers kept. Interactive cells
+   * keep their own behaviour. A row without an href falls back to `onRowClick`.
+   * @default undefined
+   */
+  getRowHref?: (row: T) => string | undefined;
+  /**
+   * The element a row link renders — a router link such as `<Link />`. It receives the `href`
+   * and the cell content.
+   * @default <a />
+   */
+  rowLinkRender?: React.ReactElement;
+  /**
+   * A row's name, for its selection checkbox ("Select {label}").
+   * @default (row, index) => `row ${index + 1}`
+   */
+  getRowLabel?: (row: T) => string;
+  /**
    * Slot rendered above the table — where the host drops its own search input,
    * filter bar, or bulk actions. Renders nothing when omitted (per the G7 split,
    * the search/filter *logic* lives in the host; this is just the mount point).
@@ -367,6 +387,32 @@ function isFromInteractiveDescendant(
   return target.closest(INTERACTIVE_SELECTOR) != null;
 }
 
+/** The first cell's link: `<a>` or the host's router link, carrying the row's href. */
+function RowLink({
+  href,
+  render,
+  children,
+}: {
+  href: string;
+  render?: React.ReactElement;
+  children: React.ReactNode;
+}) {
+  const props = {
+    href,
+    "data-slot": "data-list-row-link",
+    className:
+      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-sm px-1 py-0.5 text-start text-inherit no-underline hover:underline",
+    children,
+  };
+  if (render) {
+    return React.cloneElement(
+      render,
+      mergeProps(render.props as object, props) as object,
+    );
+  }
+  return <a {...props} />;
+}
+
 /**
  * `DataList<T>` — a generic, typed data table with row selection, sortable
  * columns, a skeleton loading state, and an empty state. Built on
@@ -474,6 +520,9 @@ export function DataList<T>({
   loadingRows = 5,
   emptyState,
   onRowClick,
+  getRowHref,
+  rowLinkRender,
+  getRowLabel,
   toolbar,
   footer,
   loadMore,
@@ -598,6 +647,25 @@ export function DataList<T>({
   const handleRowClick = React.useCallback(
     (event: React.MouseEvent<HTMLTableRowElement>, row: T, index: number) => {
       if (isFromInteractiveDescendant(event)) return;
+      const link = event.currentTarget.querySelector<HTMLElement>(
+        '[data-slot="data-list-row-link"]',
+      );
+      if (link) {
+        // Forward the click to the row's real link with its modifiers, so ⌘/Ctrl/Shift and the
+        // middle button open it where the browser would.
+        link.dispatchEvent(
+          new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+            button: event.button,
+            ctrlKey: event.ctrlKey,
+            metaKey: event.metaKey,
+            shiftKey: event.shiftKey,
+            altKey: event.altKey,
+          }),
+        );
+        return;
+      }
       onRowClick?.(row, index);
     },
     [onRowClick],
@@ -661,13 +729,18 @@ export function DataList<T>({
   const renderRow = (row: T, index: number) => {
     const id = rowIds[index]!;
     const isSelected = selected.has(id);
-    const clickable = !!onRowClick;
+    const href = getRowHref?.(row);
+    const clickable = !!onRowClick || href !== undefined;
+    const linkFirstCell =
+      href !== undefined && visibleColumns[0]?.interactive !== true;
     // Inject the accessible row-activation button into the first cell —
     // but never when that first column is `interactive` (it already
     // renders its own focusable control, so wrapping would nest one
     // interactive element inside another).
     const injectRowButton =
-      clickable && visibleColumns[0]?.interactive !== true;
+      !!onRowClick &&
+      href === undefined &&
+      visibleColumns[0]?.interactive !== true;
     return (
       <TableRow
         key={id}
@@ -675,6 +748,13 @@ export function DataList<T>({
         data-selected={isSelected ? "" : undefined}
         data-clickable={clickable ? "" : undefined}
         onClick={clickable ? (e) => handleRowClick(e, row, index) : undefined}
+        onAuxClick={
+          href !== undefined
+            ? (e) => {
+                if (e.button === 1) handleRowClick(e, row, index);
+              }
+            : undefined
+        }
         className={cn(
           clickable && "cursor-pointer",
           // A checked row keeps a persistent half-`muted` wash through hover and press
@@ -687,7 +767,11 @@ export function DataList<T>({
           <SelectionCell
             checked={isSelected}
             onToggle={() => toggleRow(id)}
-            label={`Select row ${index + 1}`}
+            label={
+              getRowLabel
+                ? `Select ${getRowLabel(row)}`
+                : `Select row ${index + 1}`
+            }
           />
         )}
         {visibleColumns.map((col, colIdx) => {
@@ -709,7 +793,11 @@ export function DataList<T>({
                 col.cellClassName?.(row, index),
               )}
             >
-              {isActionCell ? (
+              {colIdx === 0 && linkFirstCell ? (
+                <RowLink href={href!} render={rowLinkRender}>
+                  {content}
+                </RowLink>
+              ) : isActionCell ? (
                 <button
                   type="button"
                   data-slot="data-list-row-action"

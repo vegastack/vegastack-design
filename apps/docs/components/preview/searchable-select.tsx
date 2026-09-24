@@ -6,6 +6,7 @@ import { GitBranch } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/searchable-select` (dogfoods the registry).
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { useAsyncSearch } from "@/components/ui/use-async-search";
 import {
   Field,
   FieldDescription,
@@ -229,6 +230,95 @@ export function searchableSelectInline(): ReactNode {
           variant="ghost"
           contentClassName="min-w-64"
           clearable
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+const OWNERS = [
+  "Ada Lovelace",
+  "Grace Hopper",
+  "Alan Turing",
+  "Katherine Johnson",
+  "Edsger Dijkstra",
+  "Barbara Liskov",
+  "Donald Knuth",
+  "Margaret Hamilton",
+].map((name, index) => ({ id: String(index + 1), name }));
+
+/** Server search: a fake endpoint pages four at a time behind `useAsyncSearch`. */
+export function searchableSelectServerSearch(): ReactNode {
+  const [value, setValue] = React.useState<{ id: string; name: string } | null>(
+    null,
+  );
+  const search = useAsyncSearch<{ id: string; name: string }>(
+    (query, { cursor, signal }) =>
+      new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          const matches = OWNERS.filter((o) =>
+            o.name.toLowerCase().includes(query.trim().toLowerCase()),
+          );
+          const start = Number(cursor ?? 0);
+          resolve({
+            items: matches.slice(start, start + 4),
+            nextCursor: start + 4 < matches.length ? String(start + 4) : null,
+          });
+        }, 400);
+        signal.addEventListener("abort", () => {
+          clearTimeout(timer);
+          reject(new DOMException("aborted", "AbortError"));
+        });
+      }),
+  );
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xs">
+        <SearchableSelect
+          remote
+          items={search.items}
+          onSearchChange={search.onSearchChange}
+          loading={search.loading}
+          error={search.error}
+          loadMore={search.loadMore}
+          leadingItems={[{ id: "me", name: "Me" }]}
+          value={value}
+          onValueChange={setValue}
+          itemToKey={(o) => o.id}
+          itemToStringLabel={(o) => o.name}
+          isItemEqualToValue={(a, b) => a.id === b.id}
+          renderItem={(o) => o.name}
+          searchLabel="Search people"
+          placeholder="Assign to"
+          aria-label="Owner"
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/** Several values, a description line, and a disabled option that says why. */
+export function searchableSelectMultiple(): ReactNode {
+  const [value, setValue] = React.useState<Repo[]>([REPOS[0]!]);
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xs">
+        <SearchableSelect<Repo, true>
+          multiple
+          items={REPOS}
+          value={value}
+          onValueChange={setValue}
+          itemToKey={(r) => r.id}
+          itemToStringLabel={(r) => r.name}
+          isItemEqualToValue={(a, b) => a.id === b.id}
+          itemToDescription={(r) => r.owner}
+          itemToDisabledReason={(r) =>
+            r.id === "docs" ? "Archived — read only" : undefined
+          }
+          renderItem={(r) => r.name}
+          searchLabel="Search repositories"
+          placeholder="Select repositories"
+          aria-label="Repositories"
         />
       </div>
     </Wrapper>
