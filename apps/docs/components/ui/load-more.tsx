@@ -1,4 +1,4 @@
-// @vegastack load-more@0.20.0 sha256-TrujPc3xir5PxV5WLeOu1dEcMo4OOCvWSdASldhNrxM=
+// @vegastack load-more@0.20.0 sha256-q/2e2YjHm1ZGgXIjIfYONmm/d6F55V/1c3ekPA+UYT4=
 
 "use client";
 
@@ -27,8 +27,8 @@ Deliberately NOT done here:
 - The button swaps its label and busy state in place, which is what keeps
   focus on it while rows append. When the last batch arrives the button goes
   away, so a footer that held focus takes it (`tabIndex={-1}`) instead of
-  dropping it to the page: Tab continues after the list, Shift+Tab goes back
-  into it.
+  dropping it to the page, and says why: its `endLabel`, or "End of list" when
+  the host gave none. Tab continues after the list, Shift+Tab goes back into it.
 --- */
 
 /** The keyset paging contract a list, a lane or a data hook passes around. */
@@ -64,7 +64,8 @@ export interface LoadMoreProps extends LoadMoreState {
    */
   retryLabel?: string;
   /**
-   * What to show once `hasMore` is false. Nothing renders when omitted.
+   * What to show once `hasMore` is false. Nothing renders when omitted — unless the button had
+   * focus when the list ended, when the footer keeps that focus and reads "End of list".
    * @default undefined
    */
   endLabel?: React.ReactNode;
@@ -122,11 +123,11 @@ export function LoadMore({
         tabIndex={keepFocus ? -1 : undefined}
         onBlur={() => setHeldFocus(false)}
         className={cn(
-          "flex justify-center text-xs text-muted-foreground outline-none",
+          "flex justify-center text-xs text-muted-foreground",
           className,
         )}
       >
-        {endLabel}
+        {endLabel ?? "End of list"}
       </div>
     );
   }

@@ -94,7 +94,8 @@ test("a row action that deletes its row keeps focus in the list (DS-43)", async 
     const [items, setItems] = React.useState<SortableListItem[]>([
       { id: "a", label: "Alpha" },
       { id: "b", label: "Beta" },
-      { id: "c", label: "Gamma" },
+      { id: "c", label: "Gamma", disabled: true },
+      { id: "d", label: "Delta" },
     ]);
     return (
       <SortableList
@@ -115,8 +116,14 @@ test("a row action that deletes its row keeps focus in the list (DS-43)", async 
   const screen = await render(<Host />);
   await screen.getByRole("button", { name: "Actions for Beta" }).click();
   await screen.getByRole("menuitem", { name: "Delete" }).click();
+  // Gamma is locked and has no handle: its menu trigger takes focus.
   await expect
-    .element(screen.getByRole("button", { name: "Reorder Gamma" }))
+    .element(screen.getByRole("button", { name: "Actions for Gamma" }))
+    .toHaveFocus();
+  await screen.getByRole("button", { name: "Actions for Gamma" }).click();
+  await screen.getByRole("menuitem", { name: "Delete" }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Reorder Delta" }))
     .toHaveFocus();
 });
 

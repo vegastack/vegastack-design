@@ -1140,7 +1140,7 @@
         "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
         "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
         "version": "0.20.0",
-        "integrity": "sha256-TrujPc3xir5PxV5WLeOu1dEcMo4OOCvWSdASldhNrxM="
+        "integrity": "sha256-q/2e2YjHm1ZGgXIjIfYONmm/d6F55V/1c3ekPA+UYT4="
       }
     },
     {
@@ -15735,7 +15735,7 @@
         "whenToUse": "A reusable search field with a consistent token-colored clear action, and a settled (debounced, Enter-flushed) value for sending the query.",
         "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.20.0",
-        "integrity": "sha256-7GnmnSDiipnIVb2rdGEXrP1hJxvUUJwm1fxYNvMvW9A="
+        "integrity": "sha256-KPvuGcqsOT/6omVU6qLInT+QDZwBct4geOxzbXSGhWQ="
       }
     },
     {
@@ -16708,7 +16708,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.20.0",
-        "integrity": "sha256-KGQ9x6arjw+RqNukQdwc3gHLXaf8tyxl+ddSd5PEA5g="
+        "integrity": "sha256-s5dmEJRAlB5VKBUzQqIBr2VkmWBWmpOC3ugOVn/3BxA="
       }
     },
     {

@@ -339,6 +339,32 @@ test("clearing commits the empty value at once (DS-37)", async () => {
   }
 });
 
+test("a value reset from outside drops the typed value's pending commit (DS-37)", async () => {
+  vi.useFakeTimers();
+  try {
+    const committed = vi.fn();
+    const screen = await render(
+      <SearchInput aria-label="Search" value="" onValueCommitted={committed} />,
+    );
+    await screen.getByRole("searchbox", { name: "Search" }).fill("ab");
+    // The host puts "ab" in, then resets it (its "Clear filters") before the debounce ends.
+    await screen.rerender(
+      <SearchInput
+        aria-label="Search"
+        value="ab"
+        onValueCommitted={committed}
+      />,
+    );
+    await screen.rerender(
+      <SearchInput aria-label="Search" value="" onValueCommitted={committed} />,
+    );
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(committed).not.toHaveBeenCalled();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
 test("debounceMs defaults to TIMINGS.searchDebounceMs (DS-37)", async () => {
   vi.useFakeTimers();
   try {

@@ -1,4 +1,4 @@
-// @vegastack search-input@0.20.0 sha256-7GnmnSDiipnIVb2rdGEXrP1hJxvUUJwm1fxYNvMvW9A=
+// @vegastack search-input@0.20.0 sha256-KPvuGcqsOT/6omVU6qLInT+QDZwBct4geOxzbXSGhWQ=
 
 "use client";
 
@@ -103,6 +103,7 @@ function SearchInput({
     commitRef.current = onValueCommitted;
   });
   const commitTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingValue = React.useRef("");
   const cancelCommit = React.useCallback(() => {
     if (commitTimer.current != null) {
       clearTimeout(commitTimer.current);
@@ -120,6 +121,7 @@ function SearchInput({
     (nextValue: string) => {
       if (commitRef.current == null) return;
       cancelCommit();
+      pendingValue.current = nextValue;
       commitTimer.current = setTimeout(() => {
         commitTimer.current = null;
         commitRef.current?.(nextValue);
@@ -128,6 +130,11 @@ function SearchInput({
     [cancelCommit, debounceMs],
   );
   React.useEffect(() => cancelCommit, [cancelCommit]);
+  // A value set from outside (a host's "Clear filters") replaces what was typed, so the typed
+  // value's pending commit is dropped rather than settling the old query afterwards.
+  React.useEffect(() => {
+    if (currentValue !== pendingValue.current) cancelCommit();
+  }, [currentValue, cancelCommit]);
 
   const updateValue = React.useCallback(
     (nextValue: string) => {

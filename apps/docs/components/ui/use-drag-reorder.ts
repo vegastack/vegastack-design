@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.20.0 sha256-KGQ9x6arjw+RqNukQdwc3gHLXaf8tyxl+ddSd5PEA5g=
+// @vegastack use-drag-reorder@0.20.0 sha256-s5dmEJRAlB5VKBUzQqIBr2VkmWBWmpOC3ugOVn/3BxA=
 
 "use client";
 
@@ -188,7 +188,8 @@ export interface UseDragReorderReturn {
   /**
    * Call before running an item's own action (a row menu's "Delete", say). If the action
    * removes the item and focus falls to the page, focus moves to the handle of the item that
-   * took its place (or the new last item) instead.
+   * took its place (or the new last item) instead — or to that item's first control when it has
+   * no handle (a locked row).
    */
   keepFocusAfter: (container: string, id: string) => void;
   /**
@@ -741,8 +742,17 @@ export function useDragReorder({
     const focused = document.activeElement;
     if (focused instanceof HTMLElement && focused !== document.body) return;
     const next = ids[Math.min(target.index, ids.length - 1)];
-    if (next !== undefined)
-      handleElements.current.get(`${target.container}:${next}`)?.focus();
+    if (next === undefined) return;
+    const key = `${target.container}:${next}`;
+    // A locked row renders no handle; its first control (its menu trigger) takes focus instead.
+    (
+      handleElements.current.get(key) ??
+      itemElements.current
+        .get(key)
+        ?.querySelector<HTMLElement>(
+          'button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
+        )
+    )?.focus();
   });
 
   // A cross-container keyboard move REMOUNTS the item under its new parent;

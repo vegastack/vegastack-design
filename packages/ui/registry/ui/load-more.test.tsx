@@ -120,6 +120,8 @@ test("focus stays on the button while rows append", async () => {
   await expect
     .poll(() => document.activeElement?.getAttribute("data-slot"))
     .toBe("load-more");
+  // The focused footer says why the button went: a focus target is never empty.
+  expect(document.activeElement?.textContent).toBe("End of list");
 });
 
 test("forwards ref and className to the root", async () => {
