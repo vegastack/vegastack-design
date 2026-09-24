@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.16.1
+
+### Patch Changes
+
+- [#190](https://github.com/vegastack/vegastack-design/pull/190) [`cefa8f5`](https://github.com/vegastack/vegastack-design/commit/cefa8f5b09308df1bc84072f53f305f5f7258c50) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `stepper` and `multi-step-form` keep the current-step marker (`aria-current="step"`, the step count and focus-follow) when the current step fails validation. `StepperStep` gains an optional `current` flag that marks the step current alongside an `error` or `warning` state; `MultiStepForm` sets it, so a refused step now reads as both current and in error.
+
 ## 0.16.0
 
 ### Minor Changes
