@@ -15198,10 +15198,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler.",
+        "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler. Its NotificationDot is the one unread marker for rows, inbox items and nav items.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
         "version": "0.18.0",
-        "integrity": "sha256-7eL0UvbpPzRADOUc3KlZIs9Q05wiaSgL8z0Mr5KKmc8="
+        "integrity": "sha256-6PjdTpCg4koMxGIRxxZ+pklkQ6hqzjoeQHPvZnQ0O+w="
       }
     },
     {
@@ -15827,7 +15827,7 @@
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (Kbd in a Tooltip, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
         "version": "0.18.0",
-        "integrity": "sha256-wCAF6KAlrnDhSodmBJBiRTy5W1I8f3ZxuzxXuDJZmB0="
+        "integrity": "sha256-yJzi5F/so/6r50ZtmK7Bhpz6Pen3CiQtfj8Z5Pon0x8="
       }
     },
     {
@@ -16815,10 +16815,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Any copy or control that branches on modifier-key conventions (Kbd's os prop, shortcut hints, Command footers) or on a coarse pointer.",
+        "whenToUse": "Any copy or control that branches on modifier-key conventions (Kbd's os prop, shortcut hints, Command footers) or on a coarse pointer; formatShortcutKey / formatShortcut turn \"mod\" into ⌘ or Ctrl.",
         "whenNotToUse": "Viewport-width layout switching — that is useIsMobile; and never wire it inside Kbd itself, which must stay server-safe.",
         "version": "0.18.0",
-        "integrity": "sha256-eg2Qv5MQYSZCYznXnj3e7XdYZt3J5SEI18Uy+Kq++uA="
+        "integrity": "sha256-90icG/v3iK73TiOR8pwIdJaaK5z/1hR25f6Py8RBrnc="
       }
     },
     {

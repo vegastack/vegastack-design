@@ -159,3 +159,83 @@ test("focus indicator: nothing in the open overlay strips the outline (text entr
   );
   expect(focusableOffenders).toEqual([]);
 });
+
+// DS-57 moved the key formatting into `use-platform`. These are the rendered key labels captured
+// from the overlay BEFORE the move (its private `MODIFIER_LABEL` / `formatShortcutKey`), per
+// platform; the overlay must render exactly these after it.
+const EVERY_KEY: ShortcutDefinition[] = [
+  { keys: ["⌘", "K"], label: "Command", category: "Keys" },
+  { keys: ["⇧", "⌥", "P"], label: "Shift option", category: "Keys" },
+  { keys: ["⌃", "⏎"], label: "Control return", category: "Keys" },
+  { keys: ["↵"], label: "Enter", category: "Keys" },
+  { keys: ["⌫"], label: "Backspace", category: "Keys" },
+  { keys: ["G", "D"], label: "Sequence", category: "Keys" },
+  { keys: ["?", "Esc"], label: "Plain", category: "Keys" },
+  { keys: ["Shift", "Enter"], label: "Words", category: "Keys" },
+];
+const RENDERED_BEFORE = {
+  mac: [
+    "⌘",
+    "K",
+    "⇧",
+    "⌥",
+    "P",
+    "⌃",
+    "⏎",
+    "↵",
+    "⌫",
+    "G",
+    "D",
+    "?",
+    "Esc",
+    "Shift",
+    "Enter",
+  ],
+  other: [
+    "Ctrl",
+    "K",
+    "Shift",
+    "Alt",
+    "P",
+    "Ctrl",
+    "Enter",
+    "Enter",
+    "Bksp",
+    "G",
+    "D",
+    "?",
+    "Esc",
+    "Shift",
+    "Enter",
+  ],
+};
+
+test.each([
+  ["mac", "macOS"],
+  ["other", "Windows"],
+] as const)(
+  "rendered key labels are unchanged by the DS-57 move (%s)",
+  async (os, platform) => {
+    Object.defineProperty(navigator, "userAgentData", {
+      configurable: true,
+      value: { platform },
+    });
+    try {
+      const screen = await render(
+        <ShortcutOverlay shortcuts={EVERY_KEY} open />,
+      );
+      await expect
+        .element(screen.getByRole("dialog", { name: "Keyboard shortcuts" }))
+        .toBeInTheDocument();
+      await vi.waitFor(() =>
+        expect(
+          Array.from(
+            document.querySelectorAll('[role="dialog"] kbd:not(:has(kbd))'),
+          ).map((kbd) => kbd.textContent),
+        ).toEqual(RENDERED_BEFORE[os]),
+      );
+    } finally {
+      delete (navigator as { userAgentData?: unknown }).userAgentData;
+    }
+  },
+);

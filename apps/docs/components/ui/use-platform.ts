@@ -1,4 +1,4 @@
-// @vegastack use-platform@0.18.0 sha256-eg2Qv5MQYSZCYznXnj3e7XdYZt3J5SEI18Uy+Kq++uA=
+// @vegastack use-platform@0.18.0 sha256-90icG/v3iK73TiOR8pwIdJaaK5z/1hR25f6Py8RBrnc=
 
 "use client";
 
@@ -76,6 +76,82 @@ export function detectPlatformOs(raw: string): PlatformOS {
   if (platform.includes("android")) return "other";
   if (platform.includes("linux")) return "linux";
   return "other";
+}
+
+/** A key's label on a Mac, and everywhere else. */
+interface KeyLabel {
+  mac: string;
+  other: string;
+}
+
+const MOD: KeyLabel = { mac: "\u2318", other: "Ctrl" };
+const SHIFT: KeyLabel = { mac: "\u21e7", other: "Shift" };
+const ALT: KeyLabel = { mac: "\u2325", other: "Alt" };
+const CTRL: KeyLabel = { mac: "\u2303", other: "Ctrl" };
+const ENTER: KeyLabel = { mac: "\u21b5", other: "Enter" };
+const BACKSPACE: KeyLabel = { mac: "\u232b", other: "Bksp" };
+
+/**
+ * Lower-case named tokens, and the Mac glyphs a mac-first declaration uses. A glyph keeps itself on
+ * a Mac, so `⏎` and `↵` both stay as written there and both read "Enter" elsewhere. The tokens are
+ * case-sensitive on purpose: a key already written as a word (`"Enter"`, `"Shift"`) is a label,
+ * and it renders as written on every platform.
+ */
+const NAMED_KEYS = new Map<string, KeyLabel>([
+  ["mod", MOD],
+  ["cmd", MOD],
+  ["command", MOD],
+  ["shift", SHIFT],
+  ["alt", ALT],
+  ["option", ALT],
+  ["ctrl", CTRL],
+  ["control", CTRL],
+  ["enter", ENTER],
+  ["return", ENTER],
+  ["backspace", BACKSPACE],
+]);
+const GLYPH_KEYS = new Map<string, string>([
+  ["\u2318", "Ctrl"],
+  ["\u21e7", "Shift"],
+  ["\u2325", "Alt"],
+  ["\u2303", "Ctrl"],
+  ["\u23ce", "Enter"],
+  ["\u21b5", "Enter"],
+  ["\u232b", "Bksp"],
+]);
+
+/**
+ * One key token in the label `os` uses: `⌘` on a Mac and `Ctrl` elsewhere for `"mod"`, and the
+ * same for the other modifiers. Takes a lower-case named token (`"mod"`, `"shift"`, `"alt"`,
+ * `"ctrl"`, `"enter"`, `"backspace"`) or a Mac glyph (`"⌘"`, `"⇧"`, `"⌥"`, `"⌃"`, `"⏎"`, `"↵"`,
+ * `"⌫"`); any other key (`"K"`, `"Esc"`, `"Enter"`) comes back unchanged.
+ *
+ * @example
+ * formatShortcutKey("mod", os); // "⌘" on macOS, "Ctrl" elsewhere
+ */
+export function formatShortcutKey(key: string, os: PlatformOS): string {
+  const mac = os === "mac";
+  const named = NAMED_KEYS.get(key);
+  if (named) return mac ? named.mac : named.other;
+  if (mac) return key;
+  return GLYPH_KEYS.get(key) ?? key;
+}
+
+/**
+ * One chord as a single string: glyphs run together on a Mac (`⌘K`), words joined with `+`
+ * elsewhere (`Ctrl+K`). For a sequence of chords, format each one.
+ *
+ * @example
+ * const { os } = usePlatform();
+ * formatShortcut(["mod", "K"], os); // "⌘K" or "Ctrl+K"
+ */
+export function formatShortcut(
+  keys: readonly string[],
+  os: PlatformOS,
+): string {
+  return keys
+    .map((key) => formatShortcutKey(key, os))
+    .join(os === "mac" ? "" : "+");
 }
 
 /**

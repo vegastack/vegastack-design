@@ -1,4 +1,4 @@
-// @vegastack notification-bell@0.18.0 sha256-7eL0UvbpPzRADOUc3KlZIs9Q05wiaSgL8z0Mr5KKmc8=
+// @vegastack notification-bell@0.18.0 sha256-6PjdTpCg4koMxGIRxxZ+pklkQ6hqzjoeQHPvZnQ0O+w=
 
 "use client";
 
@@ -63,16 +63,79 @@ export type NotificationBellProps = Omit<
      * @default 'Notifications'
      */
     "aria-label"?: string;
+    /**
+     * Words for the unread count in the accessible name, after the base
+     * label: "Notifications, 3 unread". Receives the real count; the default
+     * caps it at "99+" like the badge.
+     * @default (n) => `${n} unread`
+     */
+    countLabel?: (n: number) => string;
   };
+
+/** Props accepted by `NotificationDot`. */
+export interface NotificationDotProps extends Omit<
+  React.ComponentPropsWithRef<"span">,
+  "children"
+> {
+  /**
+   * The dot's fill. `default` is the primary ink, for "unread" on a row or a
+   * nav item; `destructive` is for something that needs attention.
+   * @default "default"
+   */
+  tone?: "default" | "destructive";
+  /**
+   * Classes merged onto the dot.
+   * @default undefined
+   */
+  className?: string;
+}
+
+/**
+ * `NotificationDot` — the one unread dot: an 8px solid circle, decorative
+ * (`aria-hidden`), so the row or control it marks must say "unread" in its own
+ * accessible name. It is what `NotificationBell` draws in `dot` mode, and what
+ * an unread row in a list, an inbox or a nav item shows.
+ *
+ * It is solid, never a tint: a dot carries no text, so the 3:1 non-text floor
+ * applies and the saturated fill is the only thing legible at 8px.
+ *
+ * @example
+ * <ItemTitle>
+ *   Design review <NotificationDot />
+ * </ItemTitle>
+ */
+export function NotificationDot({
+  tone = "default",
+  className,
+  ...props
+}: NotificationDotProps) {
+  return (
+    <span
+      data-slot="notification-bell-dot"
+      aria-hidden="true"
+      className={cn(
+        "inline-block size-2 shrink-0 rounded-full",
+        tone === "destructive" ? "bg-destructive" : "bg-primary",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function defaultCountLabel(n: number): string {
+  return `${n > MAX_COUNT ? `${MAX_COUNT}+` : n} unread`;
+}
 
 /**
  * `NotificationBell` — a bell icon `Button` with an unread-count badge
  * overlaid at the top inline-end edge. **Purely presentational:** the app provides `count` and
  * the `onClick` handler; this component owns no data-fetching or state.
  *
- * The badge shows the numeric `count` (capped to `"99+"`), or a small dot when
- * `dot` is set. The accessible name folds the count in — screen readers hear
- * "Notifications, 3 unread" — so the visual badge is `aria-hidden`.
+ * The badge shows the numeric `count` (capped to `"99+"`), or the shared
+ * {@link NotificationDot} when `dot` is set. The accessible name folds the count
+ * in — screen readers hear "Notifications, 3 unread", worded by `countLabel` —
+ * so the visual badge is `aria-hidden`.
  *
  * The badge pops in (`motion-pop-in`) when `count` RISES after mount and the visible badge
  * changes with it — new activity, in other words. It never pops on mount, so a page that loads
@@ -91,6 +154,7 @@ export function NotificationBell({
   dot = false,
   className,
   "aria-label": ariaLabel = "Notifications",
+  countLabel = defaultCountLabel,
   ...props
 }: NotificationBellProps) {
   const safeCount = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;
@@ -98,7 +162,7 @@ export function NotificationBell({
   const displayCount =
     safeCount > MAX_COUNT ? `${MAX_COUNT}+` : String(safeCount);
   const accessibleName = hasUnread
-    ? `${ariaLabel}, ${displayCount} unread`
+    ? `${ariaLabel}, ${countLabel(safeCount)}`
     : ariaLabel;
 
   // The pop is a class toggle driven by `useAnimationReplay`, never a remount (B7-03). The old
@@ -141,18 +205,13 @@ export function NotificationBell({
       </Button>
       {hasUnread ? (
         dot ? (
-          // Dot mode stays a bare status dot — Badge has no 8px dot-only form — and it is
-          // SOLID `bg-destructive` while the count pill below is `Badge variant="destructive"`,
-          // a tint. The two look different on purpose, and the reason is the content, not an
-          // oversight: a pill carries a NUMBER, so A11Y-13 puts `text-destructive-text` on the
-          // family's own `/10` tint (the solid fill measures under the AA floor as text), while a
-          // dot carries no text at all, so the 3:1 non-text floor applies and the saturated fill
-          // is both legal and the only thing legible at 8px. A tinted 8px dot is invisible.
-          <span
-            data-slot="notification-bell-badge"
-            aria-hidden
+          // Dot mode is the shared `NotificationDot` — solid, never a tint, because it carries no
+          // text (the 3:1 non-text floor applies, and a tinted 8px dot is invisible). The count
+          // pill below is a tint because it carries a number (A11Y-13). The dot's default tone is
+          // the primary ink (DS-56); an unread marker is not an error.
+          <NotificationDot
             className={cn(
-              "pointer-events-none absolute -top-0.5 -end-0.5 size-2 shrink-0 rounded-full bg-destructive",
+              "pointer-events-none absolute -top-0.5 -end-0.5",
               badgePop.className,
             )}
             onAnimationEnd={badgePop.onAnimationEnd}

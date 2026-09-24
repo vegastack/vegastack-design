@@ -13040,7 +13040,7 @@
       "name": "notification-bell",
       "registryType": "registry:ui",
       "title": "Notification Bell",
-      "summary": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
+      "summary": "A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.",
       "status": "stable",
       "since": "0.1.0",
       "family": "media",
@@ -13064,12 +13064,36 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "NotificationDot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/notification-bell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Spreads props (including ref) onto the dot span."
+          }
+        },
+        {
+          "name": "NotificationDotProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/notification-bell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "tone",
+            "values": ["default", "destructive"],
+            "evidence": "packages/ui/registry/ui/notification-bell.tsx: NotificationDotProps tone union (default | destructive); default is bg-primary, destructive is bg-destructive"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -13079,8 +13103,8 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "error"],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
+          "values": ["default", "error", "dot", "count-label"],
+          "evidence": "Observed from branches, state attributes, and inline source contract. DS-56: dot mode renders the shared NotificationDot; countLabel words the count in the accessible name."
         },
         "accessibility": {
           "status": "observed",
@@ -13089,7 +13113,7 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "error"],
+          "values": ["default", "error", "dot-default", "dot-destructive"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
@@ -13130,6 +13154,15 @@
       },
       "previewModule": "notification-bell",
       "dataAttributes": {
+        "NotificationDot": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["notification-bell-dot"]
+            }
+          ],
+          "cssVariables": []
+        },
         "NotificationBell": {
           "attributes": [
             {
@@ -16545,7 +16578,7 @@
         "accessibility": {
           "status": "observed",
           "values": ["keyboard", "labeled", "semantic-html"],
-          "evidence": "Labelled Dialog; description-list pairs with real kbd elements; category headers are real headings; Escape closes via Dialog."
+          "evidence": "Labelled Dialog; description-list pairs with real kbd elements; category headers are real headings; Escape closes via Dialog. Key labels come from use-platform's formatShortcutKey (DS-57), unchanged per platform."
         },
         "visual": {
           "status": "observed",
@@ -24562,13 +24595,31 @@
       "name": "use-platform",
       "registryType": "registry:hook",
       "title": "usePlatform",
-      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
+      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning — plus formatShortcutKey / formatShortcut for platform key labels.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-platform.ts"],
       "publicSymbols": [
         {
           "name": "detectPlatformOs",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "formatShortcut",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "formatShortcutKey",
           "kind": "function",
           "source": "packages/ui/registry/ui/use-platform.ts",
           "ref": {

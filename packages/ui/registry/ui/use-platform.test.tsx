@@ -3,8 +3,11 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import {
   detectPlatformOs,
+  formatShortcut,
+  formatShortcutKey,
   usePlatform,
   type PlatformInfo,
+  type PlatformOS,
   type UsePlatformOptions,
 } from "./use-platform";
 
@@ -141,4 +144,50 @@ test("no a11y violations — hook harness", async () => {
   const { expectNoA11yViolations } = await import("../../test/a11y");
   const screen = await render(<Harness onRender={() => {}} />);
   await expectNoA11yViolations(screen.container);
+});
+
+test.each([
+  ["mod", "mac", "⌘"],
+  ["mod", "windows", "Ctrl"],
+  ["mod", "linux", "Ctrl"],
+  ["mod", "other", "Ctrl"],
+  ["shift", "mac", "⇧"],
+  ["shift", "windows", "Shift"],
+  ["alt", "mac", "⌥"],
+  ["alt", "linux", "Alt"],
+  ["ctrl", "mac", "⌃"],
+  ["ctrl", "windows", "Ctrl"],
+  ["enter", "mac", "↵"],
+  ["enter", "windows", "Enter"],
+  ["backspace", "windows", "Bksp"],
+  // Tokens are lower-case; a key already written as a word is a label.
+  ["Mod", "windows", "Mod"],
+  ["Enter", "mac", "Enter"],
+  ["Shift", "mac", "Shift"],
+  ["constructor", "windows", "constructor"],
+  // Mac-first glyphs, as ShortcutOverlay declarations spell them.
+  ["⌘", "mac", "⌘"],
+  ["⌘", "windows", "Ctrl"],
+  ["⇧", "other", "Shift"],
+  ["⌥", "linux", "Alt"],
+  ["⌃", "windows", "Ctrl"],
+  ["⏎", "windows", "Enter"],
+  ["↵", "windows", "Enter"],
+  ["⌫", "other", "Bksp"],
+  // Anything else passes through untouched.
+  ["K", "mac", "K"],
+  ["K", "windows", "K"],
+  ["Esc", "windows", "Esc"],
+  ["?", "mac", "?"],
+])("formatShortcutKey(%s, %s)", (k, os, out) => {
+  expect(formatShortcutKey(k, os as PlatformOS)).toBe(out);
+});
+
+test("formatShortcut joins one chord the platform's way", () => {
+  expect(formatShortcut(["mod", "K"], "mac")).toBe("⌘K");
+  expect(formatShortcut(["mod", "K"], "windows")).toBe("Ctrl+K");
+  expect(formatShortcut(["mod", "shift", "P"], "mac")).toBe("⌘⇧P");
+  expect(formatShortcut(["mod", "shift", "P"], "linux")).toBe("Ctrl+Shift+P");
+  expect(formatShortcut(["⌘", "Enter"], "other")).toBe("Ctrl+Enter");
+  expect(formatShortcut([], "mac")).toBe("");
 });

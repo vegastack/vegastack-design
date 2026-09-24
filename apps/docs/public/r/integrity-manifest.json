@@ -605,7 +605,7 @@
   "multi-step-form": "sha256-6PU6T5qikbQIylAOW3f9RIyJdL7XN24Ax2VbG72Z+p4=",
   "native-select": "sha256-LGXbp3QMIfuhQTA5nsBwolT9NUmfqFj/Y59/csHpva4=",
   "navigation-menu": "sha256-xT2O2e7f3uK3pRSx7cygMX9Av9AC8fEcjg5WSGS6w6M=",
-  "notification-bell": "sha256-7eL0UvbpPzRADOUc3KlZIs9Q05wiaSgL8z0Mr5KKmc8=",
+  "notification-bell": "sha256-6PjdTpCg4koMxGIRxxZ+pklkQ6hqzjoeQHPvZnQ0O+w=",
   "number-field": "sha256-bBTjntMw/Ue2SBurtbIDC5mQWMrvBglh+njmHVJHX+E=",
   "page-header": "sha256-xBEyu64L7nMza7Y5yDI8hryym/T2szA40VSfV25XMZQ=",
   "pagination": "sha256-ZJA4+msJu2jCeQlZqALPLFLKf3RIeWXi+yPuUuo6tzo=",
@@ -628,7 +628,7 @@
   "settings-01": "sha256-+Kcqh+Qy/UTFYl/sjf+uJ1EOWANAUplMJGPGuqz2AiY=",
   "settings-row": "sha256-00s/K1y25w49DrcjCi4Mka+Skfdf+IPhW14ybOxCAOM=",
   "sheet": "sha256-8zmmTcs4flupkzKeNC5PbpdMwAr+QXSeiY3e9d2/M8E=",
-  "shortcut-overlay": "sha256-wCAF6KAlrnDhSodmBJBiRTy5W1I8f3ZxuzxXuDJZmB0=",
+  "shortcut-overlay": "sha256-yJzi5F/so/6r50ZtmK7Bhpz6Pen3CiQtfj8Z5Pon0x8=",
   "sidebar": "sha256-5zb9cqMJOp1pOyrB6sqB5N+oKYp7JKro6Nt+EGxwGxo=",
   "skeleton": "sha256-yA/HN6K7CrAuNbcHRe9nx5izQZWUNkK4BlfYY/yGgCY=",
   "slider": "sha256-gXuVgVfQJtc/uo0wZ2484ftY33ctBG4hnequS/ZufVY=",
@@ -662,6 +662,6 @@
   "use-mobile": "sha256-70XAiNt97RYAx+DtmAzk7PGloG3nRc+Vn4dXLZwF/JE=",
   "use-modal-inert": "sha256-Lc+OiyYtjpmoAPRowXDpeZI2tSdEuUd5sra68LyT2KI=",
   "use-overflow": "sha256-KX1qCkQji0/wjBYcVJ6hJs/X6GznVIneJGwm4gXlG/U=",
-  "use-platform": "sha256-eg2Qv5MQYSZCYznXnj3e7XdYZt3J5SEI18Uy+Kq++uA=",
+  "use-platform": "sha256-90icG/v3iK73TiOR8pwIdJaaK5z/1hR25f6Py8RBrnc=",
   "video-player": "sha256-JmawL35ojczt6y/ohzp4HZuzlVs3YSGOiGdT5k46HVM="
 }

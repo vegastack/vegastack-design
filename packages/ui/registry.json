@@ -12138,7 +12138,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler.",
+        "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler. Its NotificationDot is the one unread marker for rows, inbox items and nav items.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
         "version": "0.18.0"
       }
@@ -13533,7 +13533,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Any copy or control that branches on modifier-key conventions (Kbd's os prop, shortcut hints, Command footers) or on a coarse pointer.",
+        "whenToUse": "Any copy or control that branches on modifier-key conventions (Kbd's os prop, shortcut hints, Command footers) or on a coarse pointer; formatShortcutKey / formatShortcut turn \"mod\" into ⌘ or Ctrl.",
         "whenNotToUse": "Viewport-width layout switching — that is useIsMobile; and never wire it inside Kbd itself, which must stay server-safe.",
         "version": "0.18.0"
       }

@@ -3,7 +3,10 @@
 import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/notification-bell` (dogfoods the registry) → auto-scanned.
-import { NotificationBell } from "@/components/ui/notification-bell";
+import {
+  NotificationBell,
+  NotificationDot,
+} from "@/components/ui/notification-bell";
 import { Button } from "@/components/ui/button";
 
 export function notificationBell(): ReactNode {
@@ -63,6 +66,54 @@ export function notificationBellPassthrough(): ReactNode {
       <NotificationBell count={3} variant="outline" />
       <NotificationBell count={3} variant="ghost" />
       <NotificationBell count={3} disabled />
+    </Wrapper>
+  );
+}
+
+const THREADS = [
+  { title: "Design review for the billing page", unread: true },
+  { title: "Quarterly planning notes", unread: false },
+  { title: "Invoice 1042 failed to send", unread: true, attention: true },
+];
+
+// The shared unread dot on list rows: primary for "unread", destructive for
+// something that needs attention. The dot is decorative, so each row says
+// "unread" in its own text for screen readers.
+export function notificationBellDot(): ReactNode {
+  return (
+    <Wrapper>
+      <ul className="flex w-full max-w-sm flex-col divide-y divide-border rounded-lg border border-border bg-background">
+        {THREADS.map((thread) => (
+          <li
+            key={thread.title}
+            className="flex min-w-0 items-center gap-3 px-3 py-2 text-sm"
+          >
+            <span className="min-w-0 flex-1 truncate">
+              {thread.title}
+              {thread.unread ? <span className="sr-only">, unread</span> : null}
+            </span>
+            {thread.unread ? (
+              <NotificationDot
+                tone={thread.attention ? "destructive" : "default"}
+              />
+            ) : null}
+          </li>
+        ))}
+      </ul>
+      <NotificationBell count={4} dot />
+    </Wrapper>
+  );
+}
+
+export function notificationBellCountLabel(): ReactNode {
+  return (
+    <Wrapper>
+      {/* Accessible name: "Inbox, 3 new mentions". */}
+      <NotificationBell
+        count={3}
+        aria-label="Inbox"
+        countLabel={(n) => (n === 1 ? "1 new mention" : `${n} new mentions`)}
+      />
     </Wrapper>
   );
 }

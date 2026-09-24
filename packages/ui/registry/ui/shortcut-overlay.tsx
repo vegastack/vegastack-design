@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.18.0 sha256-wCAF6KAlrnDhSodmBJBiRTy5W1I8f3ZxuzxXuDJZmB0=
+// @vegastack shortcut-overlay@0.18.0 sha256-yJzi5F/so/6r50ZtmK7Bhpz6Pen3CiQtfj8Z5Pon0x8=
 
 "use client";
 
@@ -14,27 +14,7 @@ import {
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { usePlatform } from "@/components/ui/use-platform";
-
-/**
- * Mac modifier glyphs and their Windows/Linux words. Since the shadcn reset (Batch 2) `Kbd` is
- * upstream's presentational `<kbd>` with no `keys`/`os` props, so the one caller that needs
- * per-platform labels resolves them here.
- */
-const MODIFIER_LABEL: Record<string, string> = {
-  "\u2318": "Ctrl",
-  "\u21e7": "Shift",
-  "\u2325": "Alt",
-  "\u2303": "Ctrl",
-  "\u23ce": "Enter",
-  "\u21b5": "Enter",
-  "\u232b": "Bksp",
-};
-
-/** One key token, in the label the resolved platform uses. */
-function formatShortcutKey(key: string, os: "mac" | "other"): string {
-  return os === "mac" ? key : (MODIFIER_LABEL[key] ?? key);
-}
+import { formatShortcutKey, usePlatform } from "@/components/ui/use-platform";
 
 /* ---
 `ShortcutOverlay`'s value is the REGISTRY model, not the dialog. A hand-listed shortcuts
@@ -160,7 +140,6 @@ export function ShortcutOverlay({
 
   const [query, setQuery] = React.useState("");
   const { os } = usePlatform();
-  const kbdOs = os === "mac" ? "mac" : "other";
 
   // The global `?` binding. Never fires from a text field or other editable
   // surface, and defers to `shouldHandle` while another overlay owns the keys.
@@ -275,9 +254,7 @@ export function ShortcutOverlay({
                         <dd className="m-0 shrink-0">
                           <KbdGroup>
                             {shortcut.keys.map((key) => (
-                              <Kbd key={key}>
-                                {formatShortcutKey(key, kbdOs)}
-                              </Kbd>
+                              <Kbd key={key}>{formatShortcutKey(key, os)}</Kbd>
                             ))}
                           </KbdGroup>
                         </dd>
