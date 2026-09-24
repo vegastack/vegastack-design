@@ -991,7 +991,9 @@ API-24 · API-26 · API-27 · API-28 · VOI-1`
   Attachment's `AttachmentGroup layout="scroll" | "grid"`, `AttachmentProgress` with
   `aria-valuetext` "{n}%", `muted`, and nested-image styling (API-28).
 - **Voice** (VOI-1) — upstream's default English copy is rewritten to sentence case with the ellipsis
-  character, and every built-in string is an overridable `<action>Label` prop. § Voice & content has
+  character, and every built-in string can be overridden: through an `<action>Label` prop on a part
+  we add, and through the prop upstream already names where it has one (`PaginationPrevious` /
+  `PaginationNext` `text`, `CommandLoading` `label`), which is not renamed. § Voice & content has
   the rules.
 
 ### 6. Engineering conventions
@@ -1205,7 +1207,8 @@ Rules that survive the reset, because they are ours and not upstream's:
 
 Copy is part of the design — precise, no filler. The built-in strings follow the same rules:
 upstream's Title Case defaults ("Toggle Sidebar") and three-dot ellipses are rewritten, and each one
-is an overridable `<action>Label` prop (VOI-1).
+can be overridden — an `<action>Label` prop where we add the string, upstream's own prop where it
+already has one (VOI-1).
 
 - **Case:** sentence case for everything (buttons, headings, labels, body, toasts). Enforced
   by `design-lint`'s `uppercase-transform` since 2026-09-22 — the rule bans the CSS

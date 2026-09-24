@@ -118,7 +118,7 @@ A component's name undersells it. Before composing something by hand, check this
 | `MultiStepForm` · `Stepper` · `Questionnaire` · `Tabs` | A form in steps · progress display (`navigable` on request) · one question at a time · peer regions.                                                                                                                                                                               |
 | `NativeSelect`                                         | The platform `<select>`, so a touch device opens its own picker.                                                                                                                                                                                                                   |
 | `Board`                                                | A column's `lockedReason` explains why it cannot take a card.                                                                                                                                                                                                                      |
-| `AudioPlayer`                                          | `mediaRef` to drive playback, a transcript button and a waveform; `docked` pins a closable player to the bottom of a scroll column, and `actionsRef` seeks it.                                                                                                                     |
+| `AudioPlayer`                                          | `mediaRef` to drive playback, a transcript button and a waveform; `docked` pins it to the bottom of a scroll column, `onOpenChange` adds its close button, and `actionsRef` seeks it.                                                                                              |
 | `Tabs`                                                 | `TabsList variant="line"` and `Tabs orientation="vertical"`.                                                                                                                                                                                                                       |
 | `MessageScroller`                                      | `defaultScrollPosition` (`start` · `end` · `last-anchor`), `scrollToMessage` from `useMessageScroller()`, and `useMessageScrollerVisibility()`.                                                                                                                                    |
 
@@ -152,7 +152,7 @@ closest one rather than composing the page from nothing:
   more and three empty tiers.
 - **`board-01`** — lanes of cards under a `FilterBar`, with a paged backlog.
 - **`settings-01`** — one settings page: grouped `SettingsRow` sections and a save bar.
-- **`settings-02`** — the settings hub: a grid of linked tiles, one per area.
+- **`settings-02`** — the settings hub: grids of linked tiles, grouped by area.
 - **`review-split-01`** — a record reviewed beside a sticky transcript and a docked player; tabs
   when narrow.
 - **`notifications-01`** — the inbox sheet: All | Unread, Today and Earlier, Load older.
