@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.21.2] — September 25, 2026
+
+<!-- assembled from 1 changeset: b3844c66caa6 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.21.1 → 0.21.2.
+
+### 🐛 Fixed
+
+- `useAsyncSearch` aborts the in-flight request as soon as the query changes, so a slow response for the previous text can no longer fill the list while the new query waits out its debounce.
+  [`638d754`](https://github.com/VegaStack/vegastack-design/commit/638d754)
+
 ## [0.21.1] — September 25, 2026
 
 <!-- assembled from 1 changeset: 55771294d40b -->

@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.21.2] — September 25, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.21.1 → 0.21.2.
+
+### 🐛 Fixed
+
+- `useAsyncSearch` aborts the in-flight request as soon as the query changes, so a slow response for the previous text can no longer fill the list while the new query waits out its debounce.
+  [`638d754`](https://github.com/VegaStack/vegastack-design/commit/638d754)
+
 ## [0.21.1] — September 25, 2026
 
 ### 📦 npm
