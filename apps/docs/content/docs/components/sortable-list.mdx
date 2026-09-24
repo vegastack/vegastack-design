@@ -108,6 +108,12 @@ recipe — the same one `Board` uses, installed once as its own registry item.
   file="components/preview/sortable-list.tsx"
 />
 
+### Drag handle
+
+Only the handle starts a pointer drag — the rest of the row stays free for text selection and the
+controls inside it. That holds even when the handle mounts after its row, such as a row that was
+disabled and becomes editable: the row's drag source is rebuilt around the handle as it is now.
+
 ## API Reference
 
 <ApiTable

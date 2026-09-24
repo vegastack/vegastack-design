@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.18.0 sha256-KnIYoVJ8Dzpl6a+NMu11cBX4ms9AZWYFXPXHPepgCn0=
+// @vegastack use-drag-reorder@0.18.0 sha256-ucBOuQqw+4Jmf5ypfid5hna5TeK+IWAMcn3UMhfoVzA=
 
 "use client";
 
@@ -399,8 +399,9 @@ export function useDragReorder({
 
   const cleanups = React.useRef(new Map<string, () => void>());
   const handleElements = React.useRef(new Map<string, HTMLElement>());
-  // Item elements by `${container}:${id}` — read only to measure a wrapped
-  // grid's column count (`columns: "auto"`).
+  // Item elements by `${container}:${id}` — read to measure a wrapped grid's column count
+  // (`columns: "auto"`), and (DS-70) so a handle that attaches or detaches AFTER its item can
+  // rebuild the item's draggable around the current handle: Pragmatic reads `dragHandle` once.
   const itemElements = React.useRef(new Map<string, HTMLElement>());
   // Ref-callback identity MUST be stable per (container, id): React re-runs a
   // changed callback ref on every render (null → cleanup → re-attach), which
@@ -483,6 +484,8 @@ export function useDragReorder({
     },
     [announce, isDisabled],
   );
+  const makeItemRefRef = React.useRef(makeItemRef);
+  makeItemRefRef.current = makeItemRef;
   const registerItem = React.useCallback(
     (container: string, id: string) => {
       const key = `item-ref:${container}:${id}`;
@@ -745,6 +748,11 @@ export function useDragReorder({
           // and card churn cannot grow the cache without bound.
           refCache.current.delete(key);
         }
+        // DS-70: a handle that mounts after its item (a row switched from disabled to enabled,
+        // say) would otherwise never own the drag — the draggable was built without it, so the
+        // whole row dragged. Rebuild the item's draggable around the handle as it is now.
+        const item = itemElements.current.get(mapKey);
+        if (item) makeItemRefRef.current(container, id)(item);
       };
       refCache.current.set(key, cached);
     }
