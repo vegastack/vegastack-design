@@ -1,14 +1,29 @@
-// @vegastack field@0.17.1 sha256-lE1857jzNmMUcJGGsrs10hmKpNZXc2g0yZd4eYe80Os=
+// @vegastack field@0.17.1 sha256-UUmXZ1BmkojWEFLU1ng14DjY4oV+K4TkrJs1hacg1YI=
 
 "use client";
 
-import { useMemo } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn } from "@vegastack/design";
 import { CircleAlertIcon } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+
+// API-26: the Base UI Field parts need a `Field.Root` above them, and upstream also places these
+// parts outside one (a FieldDescription in a FieldSet, a FieldLabel wrapping a choice-card Field, a
+// standalone FieldError). Each part renders its Base UI part only inside a `Field`, and upstream's
+// plain element everywhere else.
+const FieldScope = createContext(false);
+
+function FieldPartLabel(props: React.ComponentProps<typeof Label>) {
+  return <FieldPrimitive.Label render={<Label />} {...props} />;
+}
+
+function FieldPartError(props: React.ComponentProps<"div">) {
+  return <FieldPrimitive.Error match {...props} />;
+}
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
@@ -75,16 +90,25 @@ const fieldVariants = cva(
 function Field({
   className,
   orientation = "vertical",
+  "data-invalid": dataInvalid,
+  children,
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof fieldVariants> & {
+    "data-invalid"?: boolean | "true" | "false";
+  }) {
   return (
-    <div
+    <FieldPrimitive.Root
       role="group"
       data-slot="field"
       data-orientation={orientation}
+      data-invalid={dataInvalid}
+      invalid={dataInvalid === true || dataInvalid === "true"}
       className={cn(fieldVariants({ orientation }), className)}
       {...props}
-    />
+    >
+      <FieldScope.Provider value>{children}</FieldScope.Provider>
+    </FieldPrimitive.Root>
   );
 }
 
@@ -105,8 +129,9 @@ function FieldLabel({
   className,
   ...props
 }: React.ComponentProps<typeof Label>) {
+  const Root = useContext(FieldScope) ? FieldPartLabel : Label;
   return (
-    <Label
+    <Root
       data-slot="field-label"
       className={cn(
         "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-muted/50 *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10",
@@ -132,8 +157,9 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
+  const Root = useContext(FieldScope) ? FieldPrimitive.Description : "p";
   return (
-    <p
+    <Root
       data-slot="field-description"
       className={cn(
         "text-start text-sm leading-normal font-normal text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
@@ -184,6 +210,7 @@ function FieldError({
 }: React.ComponentProps<"div"> & {
   errors?: Array<{ message?: string } | undefined>;
 }) {
+  const Root = useContext(FieldScope) ? FieldPartError : "div";
   const content = useMemo(() => {
     if (children) {
       return children;
@@ -216,7 +243,7 @@ function FieldError({
   }
 
   return (
-    <div
+    <Root
       role="alert"
       data-slot="field-error"
       className={cn(
@@ -227,7 +254,7 @@ function FieldError({
     >
       <CircleAlertIcon aria-hidden />
       <span className="flex-1">{content}</span>
-    </div>
+    </Root>
   );
 }
 

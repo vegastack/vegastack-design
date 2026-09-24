@@ -388,3 +388,149 @@ test("no a11y violations — horizontal", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+/* ---------------------------------------------------------------------------------------------- */
+/* API-26 — Field renders Base UI Field underneath, and the control reads it                       */
+/* ---------------------------------------------------------------------------------------------- */
+
+test("API-26: Field wires label, description, error and invalid onto the control", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Name</FieldLabel>
+      <Input />
+      <FieldDescription>Shown on invoices</FieldDescription>
+      <FieldError>Name is required</FieldError>
+    </Field>,
+  );
+  const input = screen.getByRole("textbox", { name: "Name" });
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await expect.element(input).toHaveAccessibleDescription(/Shown on invoices/);
+  await expect.element(input).toHaveAccessibleDescription(/Name is required/);
+});
+
+test("API-26: a description or error id is described only while it is rendered", async () => {
+  function Toggle({ show }: { show: boolean }) {
+    return (
+      <Field data-invalid={show}>
+        <FieldLabel>Code</FieldLabel>
+        <Input />
+        {show && <FieldDescription>Six characters</FieldDescription>}
+        <FieldError>{show ? "Code is taken" : null}</FieldError>
+      </Field>
+    );
+  }
+  const screen = await render(<Toggle show />);
+  const input = screen.getByRole("textbox", { name: "Code" });
+  const ids = () =>
+    (input.element().getAttribute("aria-describedby") ?? "")
+      .split(" ")
+      .filter(Boolean);
+  expect(ids()).toHaveLength(2);
+  const [description, error] = [
+    screen.container.querySelector('[data-slot="field-description"]')!,
+    screen.container.querySelector('[data-slot="field-error"]')!,
+  ];
+  expect(ids()).toEqual(expect.arrayContaining([description.id, error.id]));
+
+  await screen.rerender(<Toggle show={false} />);
+  await expect.poll(() => ids()).toEqual([]);
+  expect(input.element().hasAttribute("aria-invalid")).toBe(false);
+});
+
+test("API-26: data-invalid={false} leaves the field valid", async () => {
+  const screen = await render(
+    <Field data-invalid={false}>
+      <FieldLabel>Name</FieldLabel>
+      <Input />
+    </Field>,
+  );
+  const input = screen.getByRole("textbox", { name: "Name" }).element();
+  expect(input.hasAttribute("aria-invalid")).toBe(false);
+  expect(fieldRoot(screen).getAttribute("data-invalid")).toBe("false");
+});
+
+test("API-26: an explicit id and htmlFor win; an explicit aria-describedby keeps its ids first", async () => {
+  const screen = await render(
+    <>
+      <p id="external-hint">Managed elsewhere</p>
+      <Field>
+        <FieldLabel htmlFor="explicit-name">Name</FieldLabel>
+        <Input id="explicit-name" aria-describedby="external-hint" />
+        <FieldDescription>Shown on invoices</FieldDescription>
+      </Field>
+    </>,
+  );
+  const input = screen.getByRole("textbox", { name: "Name" });
+  await expect.element(input).toHaveAttribute("id", "explicit-name");
+  // Base UI's own merge: the caller's ids stay, first and de-duplicated, and the Field's
+  // rendered messages follow — an explicit id is never dropped or reordered.
+  const description = screen.container.querySelector(
+    '[data-slot="field-description"]',
+  )!;
+  await expect
+    .element(input)
+    .toHaveAttribute("aria-describedby", `external-hint ${description.id}`);
+  await expect
+    .element(input)
+    .toHaveAccessibleDescription("Managed elsewhere Shown on invoices");
+  expect(
+    screen.container
+      .querySelector('[data-slot="field-label"]')!
+      .getAttribute("for"),
+  ).toBe("explicit-name");
+});
+
+test("API-26: a control outside a Field is unchanged", async () => {
+  const screen = await render(<Input aria-label="Loose" />);
+  const input = screen.getByRole("textbox", { name: "Loose" }).element();
+  expect(input.hasAttribute("aria-describedby")).toBe(false);
+  expect(input.hasAttribute("aria-invalid")).toBe(false);
+  expect(input.hasAttribute("aria-labelledby")).toBe(false);
+});
+
+test("API-26: the parts keep their slots, classes and the error's alert role", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Name</FieldLabel>
+      <Input />
+      <FieldDescription>Hint</FieldDescription>
+      <FieldError>Bad</FieldError>
+    </Field>,
+  );
+  const root = fieldRoot(screen);
+  expect(root.getAttribute("role")).toBe("group");
+  expect(root.getAttribute("data-invalid")).toBe("true");
+  const label = screen.container.querySelector('[data-slot="field-label"]')!;
+  expect(label.tagName).toBe("LABEL");
+  expect(label.className).toContain("font-medium");
+  const description = screen.container.querySelector(
+    '[data-slot="field-description"]',
+  )!;
+  expect(description.tagName).toBe("P");
+  const error = screen.getByRole("alert").element();
+  expect(error.getAttribute("data-slot")).toBe("field-error");
+  expect(error.querySelector("svg")).not.toBeNull();
+});
+
+test("no a11y violations — automatic wiring, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Name</FieldLabel>
+      <Input />
+      <FieldDescription>Shown on invoices.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — automatic wiring, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Name</FieldLabel>
+      <Input />
+      <FieldDescription>Shown on invoices.</FieldDescription>
+      <FieldError>Name is required.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});

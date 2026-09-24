@@ -1280,6 +1280,7 @@
       "description": "The form-field scaffold — label, description, error, legend, separator and choice-card layouts in vertical, horizontal or responsive orientation.",
       "categories": ["form"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -1294,7 +1295,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
+        "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.17.1"
       }
