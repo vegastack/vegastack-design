@@ -366,10 +366,10 @@ test("no a11y violations — disabled", async () => {
 
 /* API-26 — no hunk: Base UI's Select reads the Field context itself */
 
-function FieldFruit() {
+function FieldFruit({ variant }: { variant?: "outline" | "ghost" }) {
   return (
     <Select items={items}>
-      <SelectTrigger>
+      <SelectTrigger variant={variant}>
         <SelectValue placeholder="Select a fruit" />
       </SelectTrigger>
       <SelectContent>
@@ -421,5 +421,81 @@ test("no a11y violations — automatic Field wiring, invalid", async () => {
       <FieldError>Please select a fruit.</FieldError>
     </Field>,
   );
+  await expectNoA11yViolations(screen.container);
+});
+
+/* API-24 — the default trigger is `w-full`; `variant="ghost"` is the inline, content-width tier */
+
+test("API-24: the trigger reflects its variant, outline by default", async () => {
+  const screen = await render(
+    <>
+      <Fruit />
+      <Fruit
+        triggerProps={{ variant: "ghost", "aria-label": "Inline fruit" }}
+      />
+    </>,
+  );
+  const outline = screen.getByRole("combobox", { name: "Fruit" }).element();
+  const ghost = screen
+    .getByRole("combobox", { name: "Inline fruit" })
+    .element();
+  expect(outline.getAttribute("data-variant")).toBe("outline");
+  expect(ghost.getAttribute("data-variant")).toBe("ghost");
+});
+
+test("API-24: the default trigger fills its parent and ghost sizes to content", async () => {
+  const screen = await render(<Fruit />);
+  const classes = screen
+    .getByRole("combobox", { name: "Fruit" })
+    .element().className;
+  expect(classes).toContain("w-full");
+  expect(classes).not.toMatch(/(^|\s)w-fit(\s|$)/);
+  expect(classes).toContain("data-[variant=ghost]:w-fit");
+});
+
+test("API-24: ghost hides its border at rest and shows it on hover, focus and open", async () => {
+  const screen = await render(<Fruit triggerProps={{ variant: "ghost" }} />);
+  const classes = screen
+    .getByRole("combobox", { name: "Fruit" })
+    .element().className;
+  expect(classes).toContain("data-[variant=ghost]:border-transparent");
+  expect(classes).toContain("data-[variant=ghost]:hover:border-input");
+  expect(classes).toContain("data-[variant=ghost]:focus:border-ring/70");
+  expect(classes).toContain(
+    "data-[variant=ghost]:data-popup-open:border-input",
+  );
+});
+
+test("API-24: a className width still wins over the default", async () => {
+  const screen = await render(<Fruit triggerProps={{ className: "w-40" }} />);
+  const classes = screen
+    .getByRole("combobox", { name: "Fruit" })
+    .element().className;
+  expect(classes).toContain("w-40");
+  expect(classes).not.toMatch(/(^|\s)w-full(\s|$)/);
+});
+
+test("no a11y violations — ghost at rest", async () => {
+  const screen = await render(<Fruit triggerProps={{ variant: "ghost" }} />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — ghost open", async () => {
+  const screen = await render(<Fruit triggerProps={{ variant: "ghost" }} />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Fruit" }));
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations — ghost invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Fruit</FieldLabel>
+      <FieldFruit variant="ghost" />
+      <FieldError>Please select a fruit.</FieldError>
+    </Field>,
+  );
+  await expect
+    .element(screen.getByRole("combobox", { name: "Fruit" }))
+    .toHaveAttribute("aria-invalid", "true");
   await expectNoA11yViolations(screen.container);
 });

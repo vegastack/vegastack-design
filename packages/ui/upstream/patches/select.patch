@@ -1,5 +1,5 @@
 # component: select
-# decisions: API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# decisions: API-24, API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
 # hunks:
 #   FOC-1, FOC-3, FOC-4, FOC-6: the trigger's `outline-none focus-visible:border-ring
 #     focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70` — the border
@@ -19,6 +19,11 @@
 #   BRD-1: `SelectContent` draws a real 1px `border border-border` instead of upstream's
 #     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
 #     border survives forced colours and matches `foundations/elevation`; nothing else moves.
+#   API-24: `SelectTrigger` gains `variant: "outline" | "ghost"` (default `outline`, reflected as
+#     `data-variant`). The default trigger is `w-full` instead of upstream's `w-fit`, so a Select
+#     takes its width from its parent like Input, Combobox and every other form control; `ghost`
+#     keeps `w-fit`, drops the border at rest, and shows it on hover, on `:focus` (the FOC-3 tint)
+#     and while the popup is open — the inline tier for table rows and toolbars.
 #   API-26: NO HUNK for the Field wiring — Base UI's `Select.Root` and `Select.Trigger` read the
 #     `Field` context themselves (label, description and error ids, `aria-invalid`);
 #     `select.test.tsx` pins it.
@@ -27,7 +32,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..e12527a 100644
+index e8a22e1..88faee5 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,11 +1,12 @@
@@ -58,7 +63,7 @@ index e8a22e1..e12527a 100644
  }
  
  function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
-@@ -24,7 +25,7 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
+@@ -24,24 +25,28 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
        className={cn("flex flex-1 text-start", className)}
        {...props}
      />
@@ -67,26 +72,31 @@ index e8a22e1..e12527a 100644
  }
  
  function SelectTrigger({
-@@ -33,15 +34,15 @@ function SelectTrigger({
+   className,
+   size = "default",
++  variant = "outline",
    children,
    ...props
  }: SelectPrimitive.Trigger.Props & {
 -  size?: "sm" | "default"
 +  size?: "sm" | "default";
++  variant?: "outline" | "ghost";
  }) {
    return (
      <SelectPrimitive.Trigger
        data-slot="select-trigger"
        data-size={size}
++      data-variant={variant}
        className={cn(
 -        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 -        className
-+        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++        "flex w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++        "data-[variant=ghost]:w-fit data-[variant=ghost]:border-transparent data-[variant=ghost]:hover:border-input data-[variant=ghost]:focus:border-ring/70 data-[variant=ghost]:data-popup-open:border-input",
 +        className,
        )}
        {...props}
      >
-@@ -52,7 +53,7 @@ function SelectTrigger({
+@@ -52,7 +57,7 @@ function SelectTrigger({
          }
        />
      </SelectPrimitive.Trigger>
@@ -95,7 +105,7 @@ index e8a22e1..e12527a 100644
  }
  
  function SelectContent({
-@@ -69,6 +70,8 @@ function SelectContent({
+@@ -69,6 +74,8 @@ function SelectContent({
      SelectPrimitive.Positioner.Props,
      "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
    >) {
@@ -104,7 +114,7 @@ index e8a22e1..e12527a 100644
    return (
      <SelectPrimitive.Portal>
        <SelectPrimitive.Positioner
-@@ -77,12 +80,15 @@ function SelectContent({
+@@ -77,12 +84,15 @@ function SelectContent({
          align={align}
          alignOffset={alignOffset}
          alignItemWithTrigger={alignItemWithTrigger}
@@ -122,7 +132,7 @@ index e8a22e1..e12527a 100644
            {...props}
          >
            <SelectScrollUpButton />
-@@ -91,7 +97,7 @@ function SelectContent({
+@@ -91,7 +101,7 @@ function SelectContent({
          </SelectPrimitive.Popup>
        </SelectPrimitive.Positioner>
      </SelectPrimitive.Portal>
@@ -131,7 +141,7 @@ index e8a22e1..e12527a 100644
  }
  
  function SelectLabel({
-@@ -104,7 +110,7 @@ function SelectLabel({
+@@ -104,7 +114,7 @@ function SelectLabel({
        className={cn("px-1.5 py-1 text-xs text-muted-foreground", className)}
        {...props}
      />
@@ -140,7 +150,7 @@ index e8a22e1..e12527a 100644
  }
  
  function SelectItem({
-@@ -116,8 +122,8 @@ function SelectItem({
+@@ -116,8 +126,8 @@ function SelectItem({
      <SelectPrimitive.Item
        data-slot="select-item"
        className={cn(
@@ -151,7 +161,7 @@ index e8a22e1..e12527a 100644
        )}
        {...props}
      >
-@@ -132,7 +138,7 @@ function SelectItem({
+@@ -132,7 +142,7 @@ function SelectItem({
          <CheckIcon className="pointer-events-none" />
        </SelectPrimitive.ItemIndicator>
      </SelectPrimitive.Item>
@@ -160,7 +170,7 @@ index e8a22e1..e12527a 100644
  }
  
  function SelectSeparator({
-@@ -145,7 +151,7 @@ function SelectSeparator({
+@@ -145,7 +155,7 @@ function SelectSeparator({
        className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
        {...props}
      />
@@ -169,7 +179,7 @@ index e8a22e1..e12527a 100644
  }
  
  function SelectScrollUpButton({
-@@ -157,14 +163,13 @@ function SelectScrollUpButton({
+@@ -157,14 +167,13 @@ function SelectScrollUpButton({
        data-slot="select-scroll-up-button"
        className={cn(
          "top-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
@@ -187,7 +197,7 @@ index e8a22e1..e12527a 100644
  }
  
  function SelectScrollDownButton({
-@@ -176,14 +181,13 @@ function SelectScrollDownButton({
+@@ -176,14 +185,13 @@ function SelectScrollDownButton({
        data-slot="select-scroll-down-button"
        className={cn(
          "bottom-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
@@ -205,7 +215,7 @@ index e8a22e1..e12527a 100644
  }
  
  export {
-@@ -197,4 +201,4 @@ export {
+@@ -197,4 +205,4 @@ export {
    SelectSeparator,
    SelectTrigger,
    SelectValue,

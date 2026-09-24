@@ -29,6 +29,13 @@ import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
 import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../registry/ui/select";
 import contracts from "../component-contracts.json";
 import {
   dynamicMountCount,
@@ -2520,4 +2527,52 @@ test("DataList squeezes only when revelation alone cannot fit the table", async 
   expect(getComputedStyle(roomy.querySelector("td")!).whiteSpace).toBe(
     "nowrap",
   );
+});
+
+/**
+ * select-trigger-width (API-24): the default (outline) trigger takes its width from its parent,
+ * like every other form control, and `variant="ghost"` sizes to its content with no border at
+ * rest — the border comes back on hover, on focus and while the popup is open.
+ */
+test("select-trigger-width: the default trigger fills its parent; ghost sizes to content", async () => {
+  const fruit = (variant?: "outline" | "ghost", testId?: string) => (
+    <Select items={[{ label: "Apple", value: "apple" }]} defaultValue="apple">
+      <SelectTrigger data-testid={testId} variant={variant}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="apple">Apple</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+  const screen = await render(
+    <div style={{ width: "320px" }}>
+      {fruit(undefined, "outline")}
+      {fruit("ghost", "ghost")}
+    </div>,
+  );
+  const outline = screen.getByTestId("outline").element() as HTMLElement;
+  const ghost = screen.getByTestId("ghost").element() as HTMLElement;
+  expect(outline.getAttribute("data-variant")).toBe("outline");
+  expect(outline.getBoundingClientRect().width).toBe(320);
+  expect(ghost.getAttribute("data-variant")).toBe("ghost");
+  expect(ghost.getBoundingClientRect().width).toBeLessThan(320);
+
+  const borderAlpha = (element: HTMLElement) => {
+    const color = getComputedStyle(element).borderTopColor;
+    return color === "transparent" || /\/ 0\)$|, 0\)$/.test(color);
+  };
+  // Rest: the ghost has no visible border; the outline one does.
+  expect(borderAlpha(ghost)).toBe(true);
+  expect(borderAlpha(outline)).toBe(false);
+  // Focus: the ghost shows the text-entry border tint.
+  ghost.focus();
+  await expect.poll(() => borderAlpha(ghost)).toBe(false);
+  ghost.blur();
+  await expect.poll(() => borderAlpha(ghost)).toBe(true);
+  // Open: the border stays while the popup is up.
+  ghost.click();
+  await expect.poll(() => ghost.hasAttribute("data-popup-open")).toBe(true);
+  // `transition-colors` animates the border in, so poll for its settled value.
+  await expect.poll(() => borderAlpha(ghost)).toBe(false);
 });

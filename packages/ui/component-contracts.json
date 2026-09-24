@@ -15476,9 +15476,14 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no variant dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["outline", "ghost"],
+            "evidence": "packages/ui/registry/ui/select.tsx: SelectTrigger variant prop (API-24)"
+          }
+        ]
       },
       "sizes": {
         "status": "observed",
@@ -15576,6 +15581,10 @@
             {
               "name": "data-size",
               "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": ["outline", "ghost"]
             },
             {
               "name": "data-slot",

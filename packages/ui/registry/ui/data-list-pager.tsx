@@ -1,4 +1,4 @@
-// @vegastack data-list-pager@0.17.1 sha256-gUkoF8k+Y6ZBu3iZ64OZbTWNgzti8AHiLQkJBuVFg6E=
+// @vegastack data-list-pager@0.17.1 sha256-CY09NFTpB/jJUe+bXymQUYLTC8D4uU111NwlyxUesyQ=
 
 "use client";
 
@@ -390,7 +390,7 @@ export function DataListPager({
             <SelectTrigger
               size="sm"
               aria-labelledby={labelId}
-              className="tabular-nums"
+              className="w-fit tabular-nums"
             >
               <SelectValue />
             </SelectTrigger>

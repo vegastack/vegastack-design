@@ -1,4 +1,4 @@
-// @vegastack select@0.17.1 sha256-8E3kx8WDRI/XWFjY95mMmJ52zvoxXXNw7TCo++KAHno=
+// @vegastack select@0.17.1 sha256-ZRrAZP+9g1NcYPvNrJvB4Rwj0WjlDtK6KeDRCfXNzvY=
 
 "use client";
 
@@ -33,17 +33,21 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
 function SelectTrigger({
   className,
   size = "default",
+  variant = "outline",
   children,
   ...props
 }: SelectPrimitive.Trigger.Props & {
   size?: "sm" | "default";
+  variant?: "outline" | "ghost";
 }) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       data-size={size}
+      data-variant={variant}
       className={cn(
-        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "flex w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "data-[variant=ghost]:w-fit data-[variant=ghost]:border-transparent data-[variant=ghost]:hover:border-input data-[variant=ghost]:focus:border-ring/70 data-[variant=ghost]:data-popup-open:border-input",
         className,
       )}
       {...props}

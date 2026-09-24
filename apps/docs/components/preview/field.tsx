@@ -203,7 +203,7 @@ export function fieldSelect(): ReactNode {
       <Field className="mx-auto w-full max-w-xs">
         <FieldLabel>Department</FieldLabel>
         <Select items={departments}>
-          <SelectTrigger aria-label="Department">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

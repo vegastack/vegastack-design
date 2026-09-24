@@ -1091,7 +1091,7 @@
         "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Infinite or keyboard-continuous loading (DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.17.1",
-        "integrity": "sha256-gUkoF8k+Y6ZBu3iZ64OZbTWNgzti8AHiLQkJBuVFg6E="
+        "integrity": "sha256-CY09NFTpB/jJUe+bXymQUYLTC8D4uU111NwlyxUesyQ="
       }
     },
     {
@@ -15658,10 +15658,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select.",
+        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.17.1",
-        "integrity": "sha256-8E3kx8WDRI/XWFjY95mMmJ52zvoxXXNw7TCo++KAHno="
+        "integrity": "sha256-ZRrAZP+9g1NcYPvNrJvB4Rwj0WjlDtK6KeDRCfXNzvY="
       }
     },
     {

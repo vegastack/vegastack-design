@@ -399,6 +399,59 @@ export function selectSizes(): ReactNode {
   );
 }
 
+const priorities = [
+  { label: "Low", value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High", value: "high" },
+];
+
+/**
+ * API-24: `variant="ghost"` is the inline tier — content width, no border at rest, the border on
+ * hover, focus and open — beside the default trigger, which fills its parent.
+ */
+export function selectInlineTrigger(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-6">
+      <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+        <span className="min-w-0 truncate text-sm">
+          Renew the SSL certificate
+        </span>
+        <Select items={priorities} defaultValue="medium">
+          <SelectTrigger variant="ghost" size="sm" aria-label="Priority">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {priorities.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <Field className="w-full max-w-xs">
+        <FieldLabel>Default priority</FieldLabel>
+        <Select items={priorities} defaultValue="low">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {priorities.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </Field>
+    </Wrapper>
+  );
+}
+
 /** Ours: the trigger's rest, invalid and disabled chrome, side by side and closed. */
 export function selectStates(): ReactNode {
   return (

@@ -63,7 +63,7 @@ export function numberFieldMoney(): ReactNode {
               <SelectTrigger
                 size="sm"
                 aria-label="Currency"
-                className="border-none bg-transparent shadow-none dark:bg-transparent"
+                className="w-fit border-none bg-transparent shadow-none dark:bg-transparent"
               >
                 <SelectValue />
               </SelectTrigger>
