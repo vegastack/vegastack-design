@@ -1,5 +1,52 @@
 # @vegastack/ui
 
+## 0.21.0
+
+### Minor Changes
+
+- [#223](https://github.com/vegastack/vegastack-design/pull/223) [`1f8da35`](https://github.com/vegastack/vegastack-design/commit/1f8da357dc34df3e6e496ece21f9816b5de2ed56) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 The board-01 block pages its Backlog and gives each card its own menu (DS-80).
+
+  - **board-01**: the Backlog lane shows its full count and loads the rest with Load more (`loadMore`), and each card has Edit and Archive above Move in its ⋯ menu (`getItemActions`). [docs](https://design.vegastack.com/docs/blocks/board-01)
+
+- [#223](https://github.com/vegastack/vegastack-design/pull/223) [`1f8da35`](https://github.com/vegastack/vegastack-design/commit/1f8da357dc34df3e6e496ece21f9816b5de2ed56) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Three new blocks: a list page, the notification inbox and the search palette.
+
+  - **list-page-01**: search first, a Status `FilterBarFacet`, and Mine | Team and Grid | List switches that never deselect. It shows the same records as a `DataList` with row links and row actions, or as industry-grouped grids of linked tiles, pages both views with Load more, and has three empty tiers: nothing yet, no matches and couldn't load (DS-52). [docs](https://design.vegastack.com/docs/blocks/list-page-01)
+  - **notifications-01**: `InboxSheet`. The rail row and the bell carry the unread count in their names. The sheet has All | Unread, Today and Earlier groups of linked rows with the neutral unread dot, "Mark all read" announced once, Load older, and loading, empty, caught-up and error states (DS-56). [docs](https://design.vegastack.com/docs/blocks/notifications-01)
+  - **command-search-01**: `CommandSearch` has scope chips (Alt+←/→ from the input), recents, results grouped by type, and aborted stale searches. It has loading, no-results and error states, footer hints from `formatShortcut`, and ⌘↵ / Ctrl+↵ to open in a new tab (DS-57). [docs](https://design.vegastack.com/docs/blocks/command-search-01)
+
+### Patch Changes
+
+- [#225](https://github.com/vegastack/vegastack-design/pull/225) [`5f33be1`](https://github.com/vegastack/vegastack-design/commit/5f33be13532ff52ede7514459194e873031280a6) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Fixes from the consolidated review of the facelift design-system work (Regent #136–#140).
+
+  - **Two-line rows** (Command, Select, Combobox and the three menus): the second line is read once, as the row's description, and no longer repeated inside its name. A caller's own `aria-describedby` still wins, and the second line then stays in the name. [docs](https://design.vegastack.com/docs/components/item)
+  - **CommandLoading** reads "Searching…" by default. With a `progress` value it stays a labelled `progressbar`, so the value reaches assistive technology. [docs](https://design.vegastack.com/docs/components/command)
+  - **LoadMore**: when the last batch arrives the footer keeps the focus its button had, instead of dropping it to the page, and reads its `endLabel` (or "End of list"). It is now a client component.
+  - **SortableList and Board**: a row or card action that removes its row moves focus to the row that took its place (its handle, or its menu when the row is locked). SortableList takes the accessor as `getItemActions`, Board's name; `menuItems` is deprecated. Board takes `actionsLabel`, a lane's `loadMore` takes the footer's labels, and a read-only lane keeps a card's own actions (only the Move items go). [docs](https://design.vegastack.com/docs/components/sortable-list)
+  - **RowActionsMenu**: a disabled single icon action is described by its `disabledReason`, not only in its tooltip.
+  - **FilterBar**: facets have their own seat (`facets`), after the search and before the chips; an "Add filter" option with an `editor` opens it on the new chip; `FilterChip` takes `defaultEditorOpen`. **FilterBarFacet**: the pinned "Selected" group comes first and is taken when the list opens, so toggling a row no longer moves it; the facet is the bar's height (`h-8`); `removeLabel`, `selectedGroupLabel` and `moreGroupLabel` override its strings. [docs](https://design.vegastack.com/docs/components/filter-bar)
+  - **FilterBuilder** (`filter-bar-managed`): `fieldPicker="searchable"` (with `fieldPickerProps`) searches the fields, an option value with more than seven options is a search picker and a several-values editor is `SearchableSelect multiple`, and a row error is tied to the field picker whenever the operator takes no value. [docs](https://design.vegastack.com/docs/components/filter-bar-managed)
+  - **SearchInput**: a value reset from outside (a host's "Clear filters") drops the typed value's pending `onValueCommitted`.
+  - **SearchableSelect**: a server search with no rows yet shows its loading line; `groupOrder` puts named groups first; its fallback name no longer overrides a `<label for>`; it takes `aria-invalid` and `aria-describedby`.
+  - **TextEdit**: a disabled Base UI `Field` disables the editor.
+  - **RelativeTime**: `formatOptions` with `dateStyle` or `timeStyle` no longer throws for another year's date or with `withTime`.
+  - **useAsyncSearch**: Load more waits out a typed query's debounce instead of pairing the new query with the old cursor.
+  - **Transcript**: matches after characters whose lower case is longer are highlighted exactly; segments that only add matches keep the reader's position without a new announcement; a press on the scrollbar pauses follow; the loading line is a status.
+  - **AudioPlayer**: a rejected lazy `src` or a failed media load shows the player's own error line (`loadErrorLabel`); the loading glyph is `Spinner`. **AttachmentProgress** speaks a clamped percent.
+  - **VegaStackProvider**: a custom `toaster={<Toaster limit timeout />}` sets the provider's queue, and a `Toaster` on another manager brings its own provider.
+  - **AppShell** takes `keyboardShortcut` (or `false`), forwarded to the sidebar. **SidebarStateScript** takes a `nonce`. The sidebar docs render a collapsible menu row as the `SidebarMenuItem`, show the unavailable item's `TBD` badge and reason, and format the shortcut per platform.
+  - **DataList** section rows use the group-label face; **SettingsSection** titles use the heading face; **Board** keeps one stable ref per card.
+  - **Blocks**: command-search-01 keeps Enter on its scope chips and Try again, follows only http(s) links, debounces its search, announces a scope change and a settled result count once, and has all ten scopes; the Mod+K shortcuts in command-search-01 and app-shell-01 ignore text fields; list-page-01 searches on the settled query, adds an Industry facet, sets `mobile` on every column, takes `readOnly`, and moves focus to the search after "Clear filters", as board-01 does; both use one control height per row; notifications-01 and list-page-01 take `loading` / `error` (and notifications-01 `loadMore`) instead of `status` / `loadOlder`; review-split-01 keeps its player docked in its column and names its tab count; counts in tabs are muted tabular numbers with a spoken suffix.
+  - **Docs**: Stat shows linked tiles; Dropzone's upload queue has per-file fields and a save retry; Pagination describes its `<a>` links; list-page-01 keeps view state in guarded `sessionStorage`.
+  - **`vegastack-design doctor`** points retired `text-h1`/`text-h2` at the page and section heading faces.
+  - Migration: the `data-slot` values `notification-bell-dot`, `row-action` and `row-actions-trigger` are now `notification-dot`, `row-actions-menu-action` and `row-actions-menu-trigger`. Copied blocks are yours: re-add list-page-01 or notifications-01 to take the prop renames. From 0.19.0 (not in its notes): a mixed checkbox shows a minus, disabled checkboxes and radios dim outside a Field too, and `Card` and `Empty` are client modules.
+
+- [#223](https://github.com/vegastack/vegastack-design/pull/223) [`1f8da35`](https://github.com/vegastack/vegastack-design/commit/1f8da357dc34df3e6e496ece21f9816b5de2ed56) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The multi-step form guide gains a "Full-page flow" example with the step in the route.
+
+  - **MultiStepForm**: the example keeps the step in the route with a controlled `step`, `onStepChange(id, { replace })`, a vertical nav, sticky actions on a phone, and a Review step with Change links and a checklist (DS-55). [docs](https://design.vegastack.com/docs/guides/multi-step-form)
+
+- Updated dependencies [[`4178c7f`](https://github.com/vegastack/vegastack-design/commit/4178c7f1d9390fccf40a8f05519ede8b55d662bd), [`5f33be1`](https://github.com/vegastack/vegastack-design/commit/5f33be13532ff52ede7514459194e873031280a6)]:
+  - @vegastack/design@0.7.7
+
 ## 0.20.0
 
 ### Minor Changes
