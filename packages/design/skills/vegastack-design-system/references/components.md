@@ -135,10 +135,10 @@ starts with `icon-` is a component and never an icon.
 
 ## Media
 
-- **`audio-player`** — A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.
+- **`audio-player`** — A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player. Docks to the bottom of a scroll column with a close, resolves a lazy source on first play, and seeks from outside through actionsRef.
 - **`image`** — A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
 - **`media-player-controls`** — The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.
-- **`notification-bell`** — A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.
+- **`notification-bell`** — A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.
 - **`video-player`** — A framed video player with the same grouped custom transport controls as Audio Player.
 
 ## Rich text

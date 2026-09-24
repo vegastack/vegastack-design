@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { NotificationBell } from "./notification-bell";
+import { NotificationBell, NotificationDot } from "./notification-bell";
 
 test("renders the bell trigger with a default accessible name", async () => {
   const screen = await render(<NotificationBell />);
@@ -55,7 +55,7 @@ test('caps the displayed count at "99+"', async () => {
 test("dot mode renders an empty indicator instead of the number", async () => {
   const screen = await render(<NotificationBell count={5} dot />);
   const badge = screen.container.querySelector(
-    '[data-slot="notification-bell-badge"]',
+    '[data-slot="notification-bell-dot"]',
   );
   expect(badge).not.toBeNull();
   expect(badge?.textContent).toBe("");
@@ -102,7 +102,9 @@ test("no a11y violations", async () => {
  * ------------------------------------------------------------------------------------------- */
 
 const badgeOf = (container: HTMLElement) =>
-  container.querySelector('[data-slot="notification-bell-badge"]');
+  container.querySelector(
+    '[data-slot="notification-bell-badge"], [data-slot="notification-bell-dot"]',
+  );
 
 test("does not animate static unread state on initial mount", async () => {
   const countScreen = await render(<NotificationBell count={3} />);
@@ -222,4 +224,77 @@ test("forwards ref to the underlying Button element", async () => {
   await render(<NotificationBell ref={ref} count={3} />);
   expect(ref.current).toBeInstanceOf(HTMLButtonElement);
   expect(ref.current?.dataset.slot).toBe("button");
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * DS-56: the shared unread dot and the count label.
+ * ------------------------------------------------------------------------------------------- */
+
+test("NotificationDot is a decorative primary dot by default", async () => {
+  const screen = await render(<NotificationDot className="ms-auto" />);
+  const dot = screen.container.querySelector<HTMLElement>(
+    '[data-slot="notification-bell-dot"]',
+  )!;
+  expect(dot).not.toBeNull();
+  expect(dot).toHaveAttribute("aria-hidden", "true");
+  expect(dot.classList.contains("bg-primary")).toBe(true);
+  expect(dot.classList.contains("bg-destructive")).toBe(false);
+  expect(dot.classList.contains("ms-auto")).toBe(true);
+  expect(dot.textContent).toBe("");
+});
+
+test('NotificationDot intent="destructive" is the destructive fill', async () => {
+  const screen = await render(<NotificationDot intent="destructive" />);
+  const dot = screen.container.querySelector<HTMLElement>(
+    '[data-slot="notification-bell-dot"]',
+  )!;
+  expect(dot.classList.contains("bg-destructive")).toBe(true);
+  expect(dot.classList.contains("bg-primary")).toBe(false);
+});
+
+test("the bell's dot mode is the shared NotificationDot, primary by default", async () => {
+  const screen = await render(<NotificationBell count={2} dot />);
+  const dot = screen.container.querySelector<HTMLElement>(
+    '[data-slot="notification-bell"] [data-slot="notification-bell-dot"]',
+  )!;
+  expect(dot).not.toBeNull();
+  expect(dot.classList.contains("bg-primary")).toBe(true);
+  expect(dot.classList.contains("absolute")).toBe(true);
+  expect(
+    screen.container.querySelector('[data-slot="notification-bell-badge"]'),
+  ).toBeNull();
+});
+
+test("countLabel names the count in the accessible name", async () => {
+  const countLabel = vi.fn((n: number) => `${n} new mentions`);
+  const screen = await render(
+    <NotificationBell count={3} countLabel={countLabel} aria-label="Inbox" />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Inbox, 3 new mentions" }))
+    .toBeInTheDocument();
+  expect(countLabel).toHaveBeenLastCalledWith(3);
+});
+
+test("countLabel is not called with no unread items", async () => {
+  const countLabel = vi.fn((n: number) => `${n} new`);
+  const screen = await render(
+    <NotificationBell count={0} countLabel={countLabel} />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Notifications" }))
+    .toBeInTheDocument();
+  expect(countLabel).not.toHaveBeenCalled();
+});
+
+test("no a11y violations — dot mode and a standalone dot", async () => {
+  const screen = await render(
+    <div>
+      <NotificationBell count={4} dot />
+      <p>
+        Design review <NotificationDot intent="destructive" />
+      </p>
+    </div>,
+  );
+  await expectNoA11yViolations(screen.container);
 });

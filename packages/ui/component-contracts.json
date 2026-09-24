@@ -1976,7 +1976,7 @@
       "name": "audio-player",
       "registryType": "registry:ui",
       "title": "Audio Player",
-      "summary": "A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
+      "summary": "A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player. Docks to the bottom of a scroll column with a close, resolves a lazy source on first play, and seeks from outside through actionsRef.",
       "status": "stable",
       "since": "0.5.0",
       "family": "media",
@@ -1991,6 +1991,15 @@
             "status": "observed",
             "target": "div",
             "rationale": "Source forwards the ref to the outer player root."
+          }
+        },
+        {
+          "name": "AudioPlayerActions",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -2030,9 +2039,16 @@
             "seeking",
             "keyboard-shortcuts",
             "playback-rate",
-            "transcript"
+            "transcript",
+            "docked",
+            "open",
+            "hidden",
+            "loading",
+            "error",
+            "lazy-source",
+            "queued-seek"
           ],
-          "evidence": "Observed from media event handlers, rewind/forward transport, the shared useMediaShortcuts map, the mute + volume control, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes."
+          "evidence": "Observed from media event handlers, rewind/forward transport, the shared useMediaShortcuts map, the mute + volume control, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes. DS-77: docked sticky region; open/onOpenChange with inert while hidden and focus returned to the opener on close; loading announced once; error alert with retry; a function src resolved once on first play; actionsRef seek queued until loadedmetadata."
         },
         "accessibility": {
           "status": "observed",
@@ -2040,13 +2056,26 @@
             "focus-visible",
             "keyboard-operable",
             "labeled",
-            "semantic-html"
+            "semantic-html",
+            "landmark-region",
+            "status-announcement",
+            "alert",
+            "inert-when-hidden",
+            "focus-return"
           ],
-          "evidence": "Observed from named controls, the composed Slider, and semantic media element."
+          "evidence": "Observed from named controls, the composed Slider, and semantic media element. A docked player is role=region named by label (not a toolbar); loading announced through useAnnouncer; error is role=alert; hidden is inert; close returns focus to the opener."
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "with-copy", "waveform"],
+          "values": [
+            "default",
+            "with-copy",
+            "waveform",
+            "docked",
+            "hidden",
+            "loading",
+            "error"
+          ],
           "evidence": "Observed from token classes, optional header branches, and preview states."
         }
       },
@@ -2055,22 +2084,33 @@
         "risks": [
           "overflow-and-scroll",
           "responsive-or-container-layout",
-          "mobile-or-touch-mode"
+          "mobile-or-touch-mode",
+          "viewport-pinning"
         ],
-        "rationale": "Source uses container queries, truncation, flexible seek controls, and touch-oriented transport buttons."
+        "rationale": "Source uses container queries, truncation, flexible seek controls, and touch-oriented transport buttons. Docked: sticky bottom-0 in its scroll column, padded by the bottom safe-area inset."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
+        "status": "observed",
+        "mechanisms": [
+          "tokenized CSS transition",
+          "CSS utility motion-dock-in",
+          "CSS utility motion-dock-out"
+        ],
         "reducedMotion": {
-          "status": "observed-or-documented",
-          "rationale": "Composed controls use tokenized transitions and inherited reduced-motion handling."
+          "status": "inherited-global",
+          "rationale": "The docked-control pair (motion-dock-in/out) is CSS; base.css collapses it to its end state under prefers-reduced-motion.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/audio-player",
-      "registryDependencies": ["@vegastack/media-player-controls"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/media-player-controls",
+        "@vegastack/use-announcer"
+      ],
       "npmDependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
@@ -2088,8 +2128,26 @@
         "AudioPlayer": {
           "attributes": [
             {
+              "name": "data-active",
+              "values": ["false", "true"]
+            },
+            {
+              "name": "data-docked",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
-              "values": ["audio-player", "audio-player-header"]
+              "values": [
+                "audio-player",
+                "audio-player-close",
+                "audio-player-error",
+                "audio-player-header",
+                "audio-player-status"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["error", "idle", "loading"]
             },
             {
               "name": "data-variant",
@@ -12982,7 +13040,7 @@
       "name": "notification-bell",
       "registryType": "registry:ui",
       "title": "Notification Bell",
-      "summary": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
+      "summary": "A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.",
       "status": "stable",
       "since": "0.1.0",
       "family": "media",
@@ -13006,12 +13064,36 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "NotificationDot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/notification-bell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Spreads props (including ref) onto the dot span."
+          }
+        },
+        {
+          "name": "NotificationDotProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/notification-bell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "intent",
+            "values": ["default", "destructive"],
+            "evidence": "packages/ui/registry/ui/notification-bell.tsx: NotificationDotProps intent union (API-17) (default | destructive); default is bg-primary, destructive is bg-destructive"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -13021,8 +13103,8 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "error"],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
+          "values": ["default", "error", "dot", "count-label"],
+          "evidence": "Observed from branches, state attributes, and inline source contract. DS-56: dot mode renders the shared NotificationDot; countLabel words the count in the accessible name."
         },
         "accessibility": {
           "status": "observed",
@@ -13031,7 +13113,12 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "error"],
+          "values": [
+            "default",
+            "error",
+            "dot-intent-default",
+            "dot-intent-destructive"
+          ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
@@ -13072,6 +13159,15 @@
       },
       "previewModule": "notification-bell",
       "dataAttributes": {
+        "NotificationDot": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["notification-bell-dot"]
+            }
+          ],
+          "cssVariables": []
+        },
         "NotificationBell": {
           "attributes": [
             {
@@ -16487,7 +16583,7 @@
         "accessibility": {
           "status": "observed",
           "values": ["keyboard", "labeled", "semantic-html"],
-          "evidence": "Labelled Dialog; description-list pairs with real kbd elements; category headers are real headings; Escape closes via Dialog."
+          "evidence": "Labelled Dialog; description-list pairs with real kbd elements; category headers are real headings; Escape closes via Dialog. Key labels come from use-platform's formatShortcutKey (DS-57), unchanged per platform."
         },
         "visual": {
           "status": "observed",
@@ -24504,13 +24600,31 @@
       "name": "use-platform",
       "registryType": "registry:hook",
       "title": "usePlatform",
-      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
+      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning — plus formatShortcutKey / formatShortcut for platform key labels.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-platform.ts"],
       "publicSymbols": [
         {
           "name": "detectPlatformOs",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "formatShortcut",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "formatShortcutKey",
           "kind": "function",
           "source": "packages/ui/registry/ui/use-platform.ts",
           "ref": {

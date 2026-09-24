@@ -2564,3 +2564,69 @@ test("transcript at 320px: lines wrap inside the list and the current line is ce
     })
     .toBeLessThan(2);
 });
+
+/**
+ * DS-77: a docked AudioPlayer is `position: sticky` at the bottom of its scroll column. With the
+ * column scrolled to the TOP, its content runs on below the fold and the dock must still sit on the
+ * column's bottom edge, painted over the notes behind it — and its bottom padding is the compiled
+ * `calc(var(--spacing) * 3 + env(safe-area-inset-bottom))`, which is 12px where the inset is 0 (a
+ * dropped arbitrary value would compute to the plain `p-3` only by accident of being overridden, so
+ * the probe reads the rule the class generated rather than the resolved box alone).
+ */
+test("audioPlayerDocked: the dock sits on its column's bottom edge, clear of the safe area", async () => {
+  await page.viewport(1280, 900);
+  try {
+    const screen = await render(<>{Preview.audioPlayerDocked()}</>);
+    await settle();
+    const dock = screen.container.querySelector<HTMLElement>(
+      '[data-slot="audio-player"][data-docked]',
+    );
+    expect(dock, "the docked fixture mounted no dock").not.toBeNull();
+    const column = dock!.parentElement!;
+    expect(getComputedStyle(column).overflowY).toBe("auto");
+    expect(
+      column.scrollHeight,
+      "the column must overflow for the probe to mean anything",
+    ).toBeGreaterThan(column.clientHeight);
+    column.scrollTop = 0;
+    await settle();
+
+    const style = getComputedStyle(dock!);
+    expect(style.position).toBe("sticky");
+    expect(style.bottom).toBe("0px");
+    expect(style.paddingBottom).toBe("12px");
+    const generated = Array.from(document.styleSheets)
+      .flatMap((sheet) => {
+        try {
+          return Array.from(sheet.cssRules);
+        } catch {
+          return [];
+        }
+      })
+      .map((rule) => rule.cssText)
+      .find(
+        (text) =>
+          text.includes("safe-area-inset-bottom") && text.includes("pb-"),
+      );
+    expect(
+      generated,
+      "the safe-area padding utility was not compiled",
+    ).toBeDefined();
+
+    const box = column.getBoundingClientRect();
+    const edge = dock!.getBoundingClientRect();
+    const borderBottom = parseFloat(getComputedStyle(column).borderBottomWidth);
+    expect(
+      Math.abs(box.bottom - borderBottom - edge.bottom),
+    ).toBeLessThanOrEqual(1);
+    const hit = document.elementFromPoint(
+      edge.left + edge.width / 2,
+      edge.top + 4,
+    );
+    expect(dock!.contains(hit), "the dock is painted under the notes").toBe(
+      true,
+    );
+  } finally {
+    await page.viewport(320, 812);
+  }
+});
