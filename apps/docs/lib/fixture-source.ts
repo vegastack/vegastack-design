@@ -12,9 +12,9 @@ import ts from "typescript";
  * Paths are relative to `apps/docs` (the cwd of `next build` and `next dev`), exactly as the
  * MDX pages pass them today.
  *
- * One page points `file` somewhere else on purpose: `blocks/dashboard-01` shows the block's own
- * `page.tsx`, because that whole file IS the example a consumer installs. For a file outside
- * `components/preview/`, the whole source is the snippet. Inside it, extraction fails closed.
+ * A page may point `file` somewhere else on purpose — at a block's own `page.tsx`, when that
+ * whole file IS the example a consumer installs. For a file outside `components/preview/`, the
+ * whole source is the snippet. Inside it, extraction fails closed.
  */
 const PREVIEW_FIXTURE_FILE = /^components\/preview\//;
 

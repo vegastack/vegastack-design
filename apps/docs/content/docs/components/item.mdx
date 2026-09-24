@@ -121,6 +121,14 @@ At `size="xs"` an item drops its padding inside a dropdown menu, so it composes 
 
 <ComponentPreview name="itemDropdown" file="components/preview/item.tsx" />
 
+### Checklist
+
+A getting-started checklist is a composition, not a component: a `Progress` over an `ItemGroup` of
+`Item size="sm"` rows, each led by a `StatusIcon` that names its state. The host owns which steps
+are done.
+
+<ComponentPreview name="itemChecklist" file="components/preview/item.tsx" />
+
 ### RTL
 
 Every gap and padding is written in logical properties, so a right-to-left document mirrors the

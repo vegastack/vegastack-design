@@ -275,22 +275,6 @@ const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
     { count: 1, rationale: UPSTREAM_IMPORTANT },
   ],
   [
-    "/blocks/dashboard-01/components/app-sidebar.tsx",
-    { count: 2, rationale: UPSTREAM_IMPORTANT },
-  ],
-  [
-    "/blocks/dashboard-01/components/chart-area-interactive.tsx",
-    { count: 1, rationale: UPSTREAM_IMPORTANT },
-  ],
-  [
-    "/blocks/sidebar-09/components/app-sidebar.tsx",
-    { count: 1, rationale: UPSTREAM_IMPORTANT },
-  ],
-  [
-    "/blocks/sidebar-16/components/app-sidebar.tsx",
-    { count: 1, rationale: UPSTREAM_IMPORTANT },
-  ],
-  [
     "/ui/data-table-parts.tsx",
     {
       count: 2,
@@ -371,7 +355,7 @@ function namedByHost(button, sf) {
   // 0. `<Button size="icon"><Icon /><span className="sr-only">Go to next page</span></Button>` —
   //    the name is on the Button's OWN children. Batch 8 of the shadcn reset (2026-09-18) is why
   //    this clause exists: upstream's blocks spell an icon control exactly this way, and the rule
-  //    reported four correctly-named controls in `dashboard-01` as anonymous. It is the same
+  //    reported four correctly-named controls in upstream's dashboard block as anonymous. It is the same
   //    evidence `nameOn` already accepts from a host, read one element closer — not a widening:
   //    a Button with no name anywhere still fails, which the structural gate observes.
   if (ts.isJsxOpeningElement(button) && nameOn(button)) return true;
@@ -454,17 +438,6 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     {
       counts: { input: 1 },
       rationale: "react-markdown non-checkbox input passthrough",
-    },
-  ],
-  // `extras.md` dispositions `onboarding-checklist` as block-only, so `onboarding-01` carries its
-  // own copy of these two parts and inherits the same rationale at its own path. The component
-  // entry above goes when the component does; this one is the one that survives.
-  [
-    "registry/blocks/onboarding-01/components/checklist.tsx",
-    {
-      counts: { button: 2 },
-      rationale:
-        "the collapsed progress pill and the step rows \u2014 both carry VISIBLE text, so they are text controls, not icon buttons (the icon-only collapse toggle is an icon Button)",
     },
   ],
   [
@@ -1536,7 +1509,7 @@ for (const root of tokenCssRoots) {
       if (canonicalRegistryFile) {
         // Keyed by the file's REPO PATH tail, not its basename. Batch 8 of the shadcn reset
         // (2026-09-18) is why: `/date-picker.tsx` also matched
-        // `registry/blocks/sidebar-12/components/date-picker.tsx`, so an upstream block inherited a
+        // a `date-picker.tsx` inside an upstream sidebar block (since removed, DS-78), so an upstream block inherited a
         // component's exemption — a rationale silently lent to a file nobody had reviewed, and the
         // "reviewed count changed" arm then fired on a file that had no raw control at all.
         const exemption = [...RAW_INTERACTIVE_EXEMPTIONS].find(([path]) =>

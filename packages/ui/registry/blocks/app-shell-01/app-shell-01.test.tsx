@@ -16,7 +16,7 @@ import AppShell01Page from "./page";
  * upstream's `SidebarProvider` reads one fixed 768px breakpoint through `useIsMobile`: below it the
  * rail mounts as a CLOSED `Sheet`, so none of the block's navigation is in the DOM at all. Report
  * "desktop" so the composition under test is the one the block is FOR; the mobile branch is the
- * sidebar component's own contract, and `dashboard-01.test.tsx` exercises it directly.
+ * sidebar component's own contract, and its own suite exercises it directly.
  */
 beforeEach(() => {
   vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({

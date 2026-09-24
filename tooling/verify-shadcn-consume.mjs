@@ -134,7 +134,9 @@ const REQUIRED_EXTERNAL_FAMILIES = {
     ),
   recharts: (dependencies, name) =>
     dependencies.some((dependency) => dependency.startsWith("recharts")),
-  "dashboard-block": (_dependencies, name) => name === "dashboard-01",
+  // A block: registry:page + registry:component targets under app/<name>/. `board-01` since DS-78
+  // (2026-09-24) removed upstream's dashboard block.
+  "block-page": (_dependencies, name) => name === "board-01",
   // Every animated icon is now a data module over
   // `@vegastack/design/create-animated-icon`, and they come in two import
   // shapes. Both are pinned, because the set-cover would otherwise satisfy the
@@ -618,7 +620,7 @@ function proveRealShadcnAdd(
       continue;
     }
     // Assert every file in the expected graph exists at its components.json-resolved target,
-    // including registry:page/file targets owned by dashboard-01.
+    // including the registry:page targets a block owns.
     const expected = resolveGraph(name);
     const missing = expected.flatMap((graphName) =>
       (readItem(graphName).files ?? [])

@@ -91,9 +91,9 @@ describe("affected component closure", () => {
       plan(change("packages/ui/registry/lib/geo-data.ts")).affectedItems,
     ).toEqual(["country-select", "geo-data", "region-select"]);
     expect(
-      plan(change("packages/ui/registry/blocks/dashboard-01/page.tsx"))
+      plan(change("packages/ui/registry/blocks/board-01/page.tsx"))
         .affectedItems,
-    ).toEqual(["dashboard-01"]);
+    ).toEqual(["board-01"]);
   });
 });
 

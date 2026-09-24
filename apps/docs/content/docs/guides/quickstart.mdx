@@ -212,27 +212,27 @@ Three non-negotiables, all silent failures if skipped:
   dark mode never applies, and tooltips lose shared-delay coordination. See
   [Provider setup](/docs/guides/provider-setup).
 
-## 7. A real page in one command — the dashboard block
+## 7. A real page in one command — the app shell block
 
 ```bash
-pnpm dlx shadcn@latest add @vegastack/dashboard-01
+pnpm dlx shadcn@latest add @vegastack/app-shell-01
 ```
 
-This is a `registry:block`: it copies a complete dashboard
-(`app/dashboard/page.tsx` + `loading.tsx` + `data.json` + four page components)
-plus its full component dependency graph — expect **~30 files** (AppShell, Sidebar,
-Card, Chart, Badge, hooks, …) in one shot. Unlike components, a block is a
-**starter you own from day one** — edit the page freely; it is not update-tracked.
-(A common first adaptation is moving the shell into a shared
-`app/dashboard/layout.tsx` so child routes keep the sidebar.)
+This is a `registry:block`: it copies a complete signed-in page
+(`app/app-shell-01/page.tsx` + its `components/app-sidebar.tsx`) plus its full
+component dependency graph (AppShell, Sidebar, Breadcrumb, Card, Button, hooks, …)
+in one shot. Unlike components, a block is a **starter you own from day one** —
+edit the page freely; it is not update-tracked. (A common first adaptation is
+moving the shell into a shared `app/(app)/layout.tsx` so child routes keep the
+sidebar.)
 
 ```bash
 pnpm dev
-# open http://localhost:3000/dashboard
+# open http://localhost:3000/app-shell-01
 ```
 
-**Proof:** a sidebar-navigated dashboard with stat cards, a usage chart, and an
-activity feed — all themed, all dark-mode-ready.
+**Proof:** a sidebar-navigated page with a breadcrumb header and stat cards — all
+themed, all dark-mode-ready.
 
 ## 8. Add individual components as you build
 
@@ -283,7 +283,7 @@ loud, but the fix belongs in the script:
 | `components.json`     | you (step 4)                                                                                               | yes                                                  |
 | `.env.local`          | you (step 5)                                                                                               | yes — never commit                                   |
 | `components/ui/*.tsx` | copied by `shadcn add`                                                                                     | yes — you own them; updates are pulled, never pushed |
-| `app/dashboard/*`     | the `dashboard-01` block                                                                                   | yes — a starter, not update-tracked                  |
+| `app/app-shell-01/*`  | the `app-shell-01` block                                                                                   | yes — a starter, not update-tracked                  |
 | `lib/utils.ts`        | optional — create it as `export { cn } from '@vegastack/design';` if any copied file imports `@/lib/utils` | yes                                                  |
 
 Anything unclear or broken on this path → [Troubleshooting](/docs/guides/troubleshooting).

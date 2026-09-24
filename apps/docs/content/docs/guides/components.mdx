@@ -15,7 +15,7 @@ when you decide. This page is the full lifecycle.
 | Component (`registry:ui`) | `@vegastack/button`                                                                                                                                                                                                                     | copied to `components/ui/`, update-tracked by content                                                                                                                                                                    |
 | Hook (`registry:hook`)    | `@vegastack/use-media-query`, `@vegastack/use-mobile`, `@vegastack/use-list-nav`, `@vegastack/use-platform`, `@vegastack/use-drag-reorder`, `@vegastack/use-file-drop`, `@vegastack/use-animation-replay`, `@vegastack/use-modal-inert` | plain `.ts` into `components/ui/`, same tracking                                                                                                                                                                         |
 | Icon item                 | `@vegastack/icon-arrow-right`                                                                                                                                                                                                           | one animated-icon mirror per item — 467 of them; bare names never collide with components                                                                                                                                |
-| Block (`registry:block`)  | `@vegastack/dashboard-01`                                                                                                                                                                                                               | a multi-file **starter composition** (page + components + data) you own outright — deliberately NOT update-tracked                                                                                                       |
+| Block (`registry:block`)  | `@vegastack/app-shell-01`                                                                                                                                                                                                               | a multi-file **starter composition** (page + components + data) you own outright — deliberately NOT update-tracked                                                                                                       |
 | Lib (`registry:lib`)      | `@vegastack/geo-data`, `@vegastack/drag-item`                                                                                                                                                                                           | plain `.ts` into your `lib/` alias — data and class-string recipes with no React in them, pulled in automatically as a dependency of the components that read them, and installed **once** however many of those you add |
 
 ### Shared internals
@@ -164,8 +164,8 @@ default) and reject redirects; checkout-local dotenv files cannot redefine that 
 
 ## Blocks are different — by design
 
-`dashboard-01` copies once and is then **yours**; `check-updates` will not track
-its page/data files. Rationale: a starter composition you've built a real page on
+`app-shell-01` copies once and is then **yours**; `check-updates` will not track
+its page files. Rationale: a starter composition you've built a real page on
 top of must never be at risk of an upstream overwrite. Its underlying
 _components_ (Card, Chart, Sidebar, …) remain individually tracked like any
 other.

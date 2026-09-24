@@ -106,9 +106,6 @@ function expectedEnginePackages(dependencies = [], sourceFiles = []) {
     if (dependency.startsWith("@atlaskit/pragmatic-drag-and-drop"))
       packages.add("@atlaskit/pragmatic-drag-and-drop");
     if (dependency.startsWith("react-dropzone")) packages.add("react-dropzone");
-    // Batch 8: upstream's `dashboard-01` block drags its data-table rows with @dnd-kit. The four
-    // packages are one engine identity, exactly as `-hitbox` folds into the pragmatic one.
-    if (dependency.startsWith("@dnd-kit/")) packages.add("@dnd-kit");
     // Pre-approved with upstream's whole dependency set (DOC-7, MK 2026-09-18) and adopted by the
     // shadcn reset: `input-otp` in Batch 3 and `cmdk` in Batch 4. `sonner` was adopted with them
     // and retired on 2026-09-22 (OVL-10): Toast is the one notification engine, so the package is
@@ -1111,7 +1108,9 @@ sameStrings(
 );
 sameStrings(
   contracts.expectedWaveMembers?.Block ?? [],
-  ["dashboard-01"],
+  // DS-78 (2026-09-24) removed upstream's dashboard block; `board-01` is the canary now: an ours block that
+  // composes an engine-backed component.
+  ["board-01"],
   "Block membership",
 );
 assert(

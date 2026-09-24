@@ -1071,8 +1071,8 @@ on screen.
 **A component is reusable, prop-configured, imported in several places and tracked for updates**
 (`registry:ui`). **A block is a screen or section someone copies once and then owns** (`registry:block`)
 — sample data inline, no primitive invented inside it, never updated after install. When a thing is
-both, it ships as both: `board` is a component and `board-01` is a block, exactly as upstream pairs
-`sidebar` with `sidebar-01…16`. Two narrower types exist: `registry:hook` for a pure hook, and
+both, it ships as both: `board` is a component and `board-01` is a block, exactly as `sidebar` pairs
+with `app-shell-01`. Two narrower types exist: `registry:hook` for a pure hook, and
 `registry:lib` for a module with no React in it at all.
 
 Rules that survive the reset, because they are ours and not upstream's:
