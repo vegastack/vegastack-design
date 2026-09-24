@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.21.0 sha256-nNLtc8Bcg4EjFHCBvY7+fAum8s+/G2s1bd6afyA/iLo=
+// @vegastack multi-step-form@0.21.0 sha256-Capk0SDMvkazjPmiGjl0HT1ckGUnlUMjsmXn2RZlzXk=
 
 "use client";
 
@@ -1303,11 +1303,14 @@ export function MultiStepFormActions({
       setStuck(false);
     };
   }, [sticky, node]);
+  // The pinned row paints the surface it sits on, so content scrolling under it is covered by
+  // the same colour: the page, or the card or overlay the form lives in. Literal class strings,
+  // so Tailwind generates every one.
   const stickyClasses =
     sticky === true
-      ? "sticky bottom-0 z-10 bg-background pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))]"
+      ? "sticky bottom-0 z-10 bg-background pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))] in-data-[slot=card]:bg-card in-data-[slot=dialog-content]:bg-popover in-data-[slot=drawer-content]:bg-popover in-data-[slot=sheet-content]:bg-popover"
       : sticky === "narrow"
-        ? "@max-md/multi-step-form:sticky @max-md/multi-step-form:bottom-0 @max-md/multi-step-form:z-10 @max-md/multi-step-form:bg-background @max-md/multi-step-form:pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))]"
+        ? "@max-md/multi-step-form:sticky @max-md/multi-step-form:bottom-0 @max-md/multi-step-form:z-10 @max-md/multi-step-form:bg-background @max-md/multi-step-form:pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))] @max-md/multi-step-form:in-data-[slot=card]:bg-card @max-md/multi-step-form:in-data-[slot=dialog-content]:bg-popover @max-md/multi-step-form:in-data-[slot=drawer-content]:bg-popover @max-md/multi-step-form:in-data-[slot=sheet-content]:bg-popover"
         : undefined;
   if (overview) {
     // The section list IS the screen for a record being edited, so it carries the one action

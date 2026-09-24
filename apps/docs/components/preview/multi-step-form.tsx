@@ -402,7 +402,9 @@ export function multiStepFormSticky(): ReactNode {
   ];
   return (
     <Wrapper className="block">
-      <div className="mx-auto h-96 w-full max-w-2xl overflow-y-auto rounded-lg border p-4">
+      {/* No bottom padding: the pinned row meets the scroll box's edge, so nothing scrolls
+          visibly beneath it. The page surface is the one the row paints. */}
+      <div className="mx-auto h-96 w-full max-w-2xl overflow-y-auto rounded-lg border bg-background px-4 pt-4">
         <MultiStepForm steps={steps}>
           <MultiStepFormNav aria-label="Product" />
           {steps.map((step) => (
