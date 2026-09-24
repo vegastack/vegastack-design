@@ -1,5 +1,17 @@
 # @vegastack/design
 
+## 0.7.6
+
+### Patch Changes
+
+- [#214](https://github.com/vegastack/vegastack-design/pull/214) [`1786767`](https://github.com/vegastack/vegastack-design/commit/1786767749742f6b72e1267675c8cf14323e638d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The doctrine now describes the form, toast and overlay behaviour that shipped in the facelift fixes.
+
+  - **Forms**: the skill and design.md say `Field` wires its control through Base UI Field — label, description and error ids, and `aria-invalid` from `data-invalid` — so ids are passed only to override, and an explicit `aria-*` prop merges with the Field's. [docs](https://design.vegastack.com/docs/components/field)
+  - **Toast**: one action, one toast — a repeat rewrites the live toast with `toast.update`. [docs](https://design.vegastack.com/docs/components/toast)
+  - **Elevation**: one overlay width table for Dialog, Sheet and CommandDialog `size`. [docs](https://design.vegastack.com/docs/foundations/elevation)
+
+- [#215](https://github.com/vegastack/vegastack-design/pull/215) [`ce43c9b`](https://github.com/vegastack/vegastack-design/commit/ce43c9beaa008db42c309c6500f85ed3dc02b9fe) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **useAsyncSearch** — a new hook for server search over a cursor-paged list: the query updates as you type and the request waits for `TIMINGS.searchDebounceMs` (a new 300 ms timing in `@vegastack/design`), a newer request aborts the last and late responses are dropped, `loadMore` pages with the returned cursor, and a failure keeps the loaded items with a retry. Documented in the [components guide](https://design.vegastack.com/docs/guides/components).
+
 ## 0.7.5
 
 ### Patch Changes
