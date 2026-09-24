@@ -68,13 +68,26 @@ test("renders the exact final value statically at rest — no animation on mount
   expect(liveText(screen.container)).toBe(new Intl.NumberFormat().format(1234));
 });
 
-test("carries the data-slot and sets numerals in mono with tabular figures", async () => {
+test("DS-74: carries the data-slot and sets numerals in the regular face with tabular figures", async () => {
   const screen = await render(<AnimatedNumber value={42} />);
   const root = screen.container.querySelector('[data-slot="animated-number"]');
   expect(root).not.toBeNull();
-  // Numerals canon: mono + tabular-nums for layout stability while tweening.
-  expect((root as HTMLElement).classList.contains("font-mono")).toBe(true);
+  // Numerals canon: the regular face + tabular-nums for layout stability while tweening; mono is
+  // for codes and IDs, not counts.
+  expect((root as HTMLElement).classList.contains("font-sans")).toBe(true);
+  expect((root as HTMLElement).classList.contains("font-mono")).toBe(false);
   expect((root as HTMLElement).classList.contains("tabular-nums")).toBe(true);
+});
+
+test("DS-74: a className face still overrides the default", async () => {
+  const screen = await render(
+    <AnimatedNumber value={42} className="font-mono" />,
+  );
+  const root = screen.container.querySelector(
+    '[data-slot="animated-number"]',
+  ) as HTMLElement;
+  expect(root.classList.contains("font-mono")).toBe(true);
+  expect(root.classList.contains("font-sans")).toBe(false);
 });
 
 test("formats a static value with currency options", async () => {

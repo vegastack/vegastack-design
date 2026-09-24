@@ -1,4 +1,4 @@
-// @vegastack animated-number@0.18.0 sha256-bniuDNSKB884UgNWjnkvgcqlRjbtzBIoilvky0QudZ0=
+// @vegastack animated-number@0.18.0 sha256-njRQj4P8jjZDQpYq0YNG/t35w5xrzBqzif7RcDAR+kY=
 
 "use client";
 
@@ -301,9 +301,10 @@ export function AnimatedNumber({
     <span
       ref={setMergedRef}
       data-slot="animated-number"
-      // Numerals canon: numbers set in mono with tabular figures (consumer
-      // `className` can still override via cn/tw-merge).
-      className={cn("font-mono tabular-nums", className)}
+      // Numerals canon (DS-74): numbers read in the regular face with tabular figures, so the
+      // digits hold their width while the value ticks — the same face as `StatValue`. Mono is for
+      // codes and IDs; a consumer `className` still overrides via cn/tw-merge.
+      className={cn("font-sans tabular-nums", className)}
       {...props}
     >
       <span data-slot="animated-number-value" aria-hidden="true">

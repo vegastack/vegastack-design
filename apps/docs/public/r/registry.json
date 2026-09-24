@@ -147,7 +147,7 @@
         "whenToUse": "A numeric stat/metric that updates over time and should visually count/tween to its new value — dashboard KPIs, live prices, counters.",
         "whenNotToUse": "A static number that never changes after render — just render it directly; the tween machinery adds nothing.",
         "version": "0.18.0",
-        "integrity": "sha256-bniuDNSKB884UgNWjnkvgcqlRjbtzBIoilvky0QudZ0="
+        "integrity": "sha256-njRQj4P8jjZDQpYq0YNG/t35w5xrzBqzif7RcDAR+kY="
       }
     },
     {
