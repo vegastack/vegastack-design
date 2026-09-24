@@ -5,8 +5,10 @@ import { expect, test } from "vitest";
 import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { DirectionProvider } from "./direction";
+import { Button } from "./button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -435,6 +437,129 @@ test("no a11y violations — open", async () => {
 
 test("no a11y violations — open and non-modal", async () => {
   const screen = await render(<Subject modal={false} />);
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});
+
+/** A long dialog: header, a scrolling body, a footer. */
+function LongSubject() {
+  return (
+    <Dialog>
+      <DialogTrigger>Open dialog</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit record</DialogTitle>
+          <DialogDescription>Ten fields and a footer.</DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+          {Array.from({ length: 10 }, (_, index) => (
+            <label key={index} className="block">
+              Field {index + 1}
+              <input />
+            </label>
+          ))}
+        </DialogBody>
+        <DialogFooter>
+          <Button>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+test("API-21: DialogBody is the scroller, inset by the popup's own padding", async () => {
+  const screen = await render(<LongSubject />);
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const body = bySlot("dialog-body")!;
+  expect(bySlot("dialog-content")!.contains(body)).toBe(true);
+  const tokens = body.className.split(/\s+/);
+  for (const token of [
+    "min-h-0",
+    "flex-1",
+    "overflow-y-auto",
+    "-mx-4",
+    "px-4",
+  ]) {
+    expect(tokens).toContain(token);
+  }
+});
+
+test("API-21: a popup holding a DialogBody becomes a viewport-capped column", async () => {
+  const screen = await render(<LongSubject />);
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const tokens = bySlot("dialog-content")!.className.split(/\s+/);
+  for (const token of [
+    "has-data-[slot=dialog-body]:flex",
+    "has-data-[slot=dialog-body]:flex-col",
+    "has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)]",
+  ]) {
+    expect(tokens).toContain(token);
+  }
+  // Without a body the popup keeps upstream's grid and no height cap applies.
+  expect(tokens).toContain("grid");
+});
+
+test("API-21, VOI-1: closeLabel renames the corner close button", async () => {
+  const screen = await render(
+    <Subject contentProps={{ closeLabel: "Close editor" }} />,
+  );
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const corner = screen.getByRole("button", { name: "Close editor" });
+  await expect.element(corner).toBeInTheDocument();
+  (corner.element() as HTMLElement).click();
+  await waitForClosed();
+});
+
+test("API-21, VOI-1: DialogFooter's closeLabel renames its own close button", async () => {
+  const screen = await render(
+    <Subject
+      contentProps={{ showCloseButton: false }}
+      footerProps={{ showCloseButton: true, closeLabel: "Done" }}
+    />,
+  );
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const done = screen.getByRole("button", { name: "Done" });
+  await expect.element(done).toBeInTheDocument();
+  expect(bySlot("dialog-footer")!.contains(done.element())).toBe(true);
+  (done.element() as HTMLElement).click();
+  await waitForClosed();
+});
+
+test("VOI-1: both built-in closes default to sentence-case Close", async () => {
+  const screen = await render(
+    <Subject footerProps={{ showCloseButton: true }} />,
+  );
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const closes = [...document.querySelectorAll<HTMLElement>("button")].filter(
+    (button) => button.textContent?.trim() === "Close",
+  );
+  expect(closes.length).toBe(2);
+});
+
+test("focus is trapped in a long dialog and returns to the trigger on Escape", async () => {
+  const screen = await render(<LongSubject />);
+  const trigger = screen.getByRole("button", { name: "Open dialog" });
+  await trigger.click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const popup = bySlot("dialog-content")!;
+  await expect.poll(() => popup.contains(document.activeElement)).toBe(true);
+  for (let step = 0; step < 16; step += 1) {
+    await userEvent.keyboard("{Tab}");
+    expect(popup.contains(document.activeElement)).toBe(true);
+  }
+  await userEvent.keyboard("{Escape}");
+  await waitForClosed();
+  await expect.poll(() => document.activeElement).toBe(trigger.element());
+});
+
+test("no a11y violations — open with a body and a footer", async () => {
+  const screen = await render(<LongSubject />);
   await screen.getByRole("button", { name: "Open dialog" }).click();
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
   await expectNoA11yViolations(document.body);

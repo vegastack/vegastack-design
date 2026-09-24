@@ -5,7 +5,7 @@ audience: public
 registry: alert
 status: stable
 since: 0.1.0
-a11y: role alert, icon beside the label
+a11y: role status, alert only when live, icon beside the label
 preview: alert
 ---
 
@@ -88,10 +88,29 @@ and survives a retheme.
 
 ### RTL
 
-The root is written in logical properties — `text-start`, `pe-18` for the action inset, `end-2` on
-`AlertAction` — so a right-to-left document mirrors without any extra work.
+The root is written in logical properties — `text-start`, and a grid whose action column is the
+trailing one — so a right-to-left document mirrors without any extra work.
 
 <ComponentPreview name="alertRtl" file="components/preview/alert.tsx" />
+
+### Live alerts
+
+An Alert is a polite `role="status"` region by default, whatever its variant, so an alert that is
+on the page when it loads is read in page order and interrupts nobody (A11Y-3). Pass `live` when
+the alert appears after mount because of something the user just did — a failed save, a declined
+card. With `live`, a `destructive` or `warning` alert becomes an assertive `role="alert"`; every
+other variant stays a polite `status`.
+
+<ComponentPreview name="alertLive" file="components/preview/alert.tsx" />
+
+### Action placement
+
+`AlertAction` takes its own column beside the title and description, top-aligned with the title, so
+a long label never reaches under the text (LAY-15). When the alert itself is narrower than 28rem —
+a phone, a sidebar card — the action drops below the text instead. The switch follows the alert's
+own width (a container query), not the viewport's.
+
+<ComponentPreview name="alertActionWidth" file="components/preview/alert.tsx" />
 
 ## API Reference
 
@@ -113,8 +132,10 @@ The root is written in logical properties — `text-start`, `pe-18` for the acti
 
 ## Accessibility
 
-- The root carries `role="alert"`, so assistive technology announces its content as soon as it
-  enters the accessibility tree. Render it when the event happens, not on every page load.
+- The root is a polite `role="status"` region by default, so an alert present at page load is read
+  in page order rather than interrupting (A11Y-3). With `live`, a `destructive` or `warning` alert
+  is an assertive `role="alert"` instead: use it only for a message the user's own action just
+  caused, and render it when that happens. A `role` you pass yourself still wins.
 - Status is never colour alone (A11Y-8): every variant takes an icon, and the title carries the
   words. The icon is decorative — the sentence is what gets read.
 - Each variant takes its family's `-text` ink over the card surface (A11Y-13), which clears the AA
@@ -142,4 +163,11 @@ Upstream's file plus `packages/ui/upstream/patches/alert.patch`. Every hunk:
   `text-destructive` on card measures 3.98:1 in light, under the AA floor A11Y-1 enforces.
 - **A11Y-8** — status is never colour alone: the page and `alert.test.tsx` require an icon and a
   title beside the tint, and the class string reserves the icon column either way.
+- **A11Y-3** — `Alert` takes `live?: boolean`. The root is a polite `role="status"` for every
+  variant, and takes upstream's assertive `role="alert"` only with `live` on a `destructive` or
+  `warning` alert; a caller's own `role` still wins.
+- **LAY-15** — `AlertAction` is a grid item in its own top-aligned column beside the title and
+  description, and drops below the text when the alert is narrower than `@md` (28rem). Upstream
+  positions it `absolute top-2 end-2` and reserves only `pe-18` for it, so an `sm` label over seven
+  characters reaches under the title ([Action placement](#action-placement)).
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

@@ -30,6 +30,7 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 
 /*
  * The bar itself is the resting state: every menu is CLOSED, which is what a menubar looks like in
@@ -442,6 +443,39 @@ export function menubarRtl(): ReactNode {
           </Menubar>
         </div>
       </DirectionProvider>
+    </Wrapper>
+  );
+}
+
+/**
+ * API-19: a two-line row composes `ItemContent` › `ItemTitle` + `ItemDescription`, and the row
+ * links the description as its accessible description — on the item, the checkbox item and the
+ * radio item alike. A disabled row keeps focus, so its reason travels as that description rather
+ * than in a Tooltip.
+ */
+export function menubarDescriptionLine(): ReactNode {
+  const [ruler, setRuler] = React.useState(true);
+  return (
+    <Wrapper>
+      <Menubar className="w-72">
+        <MenubarMenu>
+          <MenubarTrigger>View</MenubarTrigger>
+          <MenubarContent className="w-64">
+            <MenubarCheckboxItem checked={ruler} onCheckedChange={setRuler}>
+              <ItemContent>
+                <ItemTitle>Show ruler</ItemTitle>
+                <ItemDescription>Guides snap to its ticks</ItemDescription>
+              </ItemContent>
+            </MenubarCheckboxItem>
+            <MenubarItem disabled>
+              <ItemContent>
+                <ItemTitle>Presenter view</ItemTitle>
+                <ItemDescription>Connect a second display</ItemDescription>
+              </ItemContent>
+            </MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
     </Wrapper>
   );
 }

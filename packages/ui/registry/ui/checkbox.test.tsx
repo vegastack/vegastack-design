@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
 import { Checkbox } from "./checkbox";
@@ -12,6 +13,20 @@ import {
   FieldLegend,
   FieldSet,
 } from "./field";
+
+/*
+ * This lane compiles no Tailwind by default. The FRM-15 dimming assertions read a COMPUTED
+ * opacity, so they inject the compiled token CSS for the one test that needs it.
+ */
+function withCompiledCss() {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+}
+
+const glyphOf = (screen: { container: HTMLElement }) =>
+  screen.container.querySelector('[data-slot="checkbox-indicator"] svg');
 
 const classesOf = (screen: { container: HTMLElement }) =>
   (screen.container.querySelector('[data-slot="checkbox"]') as HTMLElement)
@@ -222,6 +237,101 @@ test("no a11y violations — disabled", async () => {
       <FieldLabel htmlFor="a11y-disabled">Accept</FieldLabel>
     </Field>,
   );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("A11Y-19: the mixed state draws a minus, not a check (Checked State, Table)", async () => {
+  const screen = await render(
+    <Checkbox aria-label="Select all" indeterminate />,
+  );
+  await expect
+    .element(screen.getByRole("checkbox", { name: "Select all" }))
+    .toHaveAttribute("aria-checked", "mixed");
+  const glyph = glyphOf(screen);
+  expect(glyph?.classList.contains("lucide-minus")).toBe(true);
+  expect(
+    screen.container.querySelectorAll('[data-slot="checkbox-indicator"] svg'),
+  ).toHaveLength(1);
+});
+
+test("A11Y-19: the glyph swaps to a check when the mixed state resolves", async () => {
+  function Parent() {
+    const [state, setState] = React.useState<"mixed" | "checked">("mixed");
+    return (
+      <Checkbox
+        aria-label="Select all"
+        checked={state === "checked"}
+        indeterminate={state === "mixed"}
+        onCheckedChange={() => setState("checked")}
+      />
+    );
+  }
+  const screen = await render(<Parent />);
+  expect(glyphOf(screen)?.classList.contains("lucide-minus")).toBe(true);
+  (
+    screen
+      .getByRole("checkbox", { name: "Select all" })
+      .element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("checkbox", { name: "Select all" }))
+    .toHaveAttribute("aria-checked", "true");
+  expect(glyphOf(screen)?.classList.contains("lucide-check")).toBe(true);
+  expect(glyphOf(screen)?.classList.contains("lucide-minus")).toBe(false);
+});
+
+test("A11Y-19: a plain checked box keeps upstream's check", async () => {
+  const screen = await render(<Checkbox aria-label="Accept" defaultChecked />);
+  expect(glyphOf(screen)?.classList.contains("lucide-check")).toBe(true);
+});
+
+test("FRM-15: a disabled checkbox outside a Field is dimmed (Disabled)", async () => {
+  withCompiledCss();
+  const screen = await render(<Checkbox aria-label="Accept" disabled />);
+  const checkbox = screen
+    .getByRole("checkbox", { name: "Accept" })
+    .element() as HTMLElement;
+  expect(checkbox.hasAttribute("data-disabled")).toBe(true);
+  expect(getComputedStyle(checkbox).opacity).toBe("0.5");
+  expect(getComputedStyle(checkbox).cursor).toBe("not-allowed");
+});
+
+test("FRM-15: an enabled checkbox is not dimmed", async () => {
+  withCompiledCss();
+  const screen = await render(<Checkbox aria-label="Accept" />);
+  const checkbox = screen
+    .getByRole("checkbox", { name: "Accept" })
+    .element() as HTMLElement;
+  expect(getComputedStyle(checkbox).opacity).toBe("1");
+});
+
+test("FRM-15: the label dims with the control inside a disabled Field", async () => {
+  withCompiledCss();
+  const screen = await render(
+    <Field orientation="horizontal" data-disabled="true">
+      <Checkbox id="dim" disabled />
+      <FieldLabel htmlFor="dim">Accept</FieldLabel>
+    </Field>,
+  );
+  const checkbox = screen
+    .getByRole("checkbox", { name: "Accept" })
+    .element() as HTMLElement;
+  const label = screen.container.querySelector(
+    '[data-slot="field-label"]',
+  ) as HTMLElement;
+  expect(getComputedStyle(checkbox).opacity).toBe("0.5");
+  expect(getComputedStyle(label).opacity).toBe("0.5");
+});
+
+test("FRM-15: the recipe keys disabled styles on data-disabled", async () => {
+  const classes = classesOf(await render(<Checkbox aria-label="Accept" />));
+  expect(classes).toContain("data-disabled:opacity-50");
+  expect(classes).toContain("data-disabled:cursor-not-allowed");
+  expect(classes).not.toMatch(/(?:^|\s)disabled:/);
+});
+
+test("no a11y violations — disabled outside a Field", async () => {
+  const screen = await render(<Checkbox aria-label="Accept" disabled />);
   await expectNoA11yViolations(screen.container);
 });
 

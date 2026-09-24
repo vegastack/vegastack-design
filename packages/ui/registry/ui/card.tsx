@@ -1,6 +1,10 @@
-// @vegastack card@0.18.0 sha256-j/xlnNF7H/mruYPyz8fyB4mbv1/mCrE4AhVwBtlSvIo=
+// @vegastack card@0.18.0 sha256-eDr6XPPztf9Z5QoArQNYW0f83cC5mlcwABFbGRvkwAU=
+
+"use client";
 
 import * as React from "react";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@vegastack/design";
 
 function Card({
@@ -34,17 +38,27 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-title"
-      className={cn(
-        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
-        className,
-      )}
-      {...props}
-    />
-  );
+function CardTitle({
+  className,
+  render,
+  ...props
+}: useRender.ComponentProps<"div">) {
+  return useRender({
+    defaultTagName: "div",
+    props: mergeProps<"div">(
+      {
+        className: cn(
+          "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+          className,
+        ),
+      },
+      props,
+    ),
+    render,
+    state: {
+      slot: "card-title",
+    },
+  });
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {

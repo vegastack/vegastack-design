@@ -122,11 +122,60 @@ shortcut's `ms-auto` are logical properties, so the whole palette mirrors.
 
 <ComponentPreview name="commandRtl" file="components/preview/command.tsx" />
 
+### Large palette
+
+`CommandDialog` takes the same `size` scale as `DialogContent` — `sm`, `default`, `lg` and `xl`.
+At `lg` and `xl` the list inside grows too, to `min(28rem, 60dvh)`, so a wide palette over many
+results is not a wide letterbox.
+
+<ComponentPreview
+  name="commandLargePalette"
+  file="components/preview/command.tsx"
+/>
+
+### Server results
+
+When results come from a server, turn cmdk's filter off with `shouldFilter={false}`, feed the
+query to your fetch through `CommandInput`'s `value`/`onValueChange`, and render `CommandLoading`
+while a request is in flight. It is a polite `role="status"` whose text is spoken (default
+"Loading…"); render it above `CommandList`, or only while the list is empty — a status inside a
+listbox that holds options is not a valid listbox child.
+
+<ComponentPreview
+  name="commandServerResults"
+  file="components/preview/command.tsx"
+/>
+
+### Two-line results
+
+Compose `ItemContent`, `ItemTitle` and `ItemDescription` from `item` inside a `CommandItem`. The
+row links the description as the option's accessible description (`aria-describedby`), so a screen
+reader reads it after the option rather than as a second name.
+
+<ComponentPreview
+  name="commandTwoLineResults"
+  file="components/preview/command.tsx"
+/>
+
+### Footer hints
+
+`CommandFooter` is a row for key hints, a result count or a link. It sits outside `CommandList`,
+so it is never announced as an option.
+
+<ComponentPreview
+  name="commandFooterHints"
+  file="components/preview/command.tsx"
+/>
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="CommandProps" />
 
 <ApiTable path="lib/api-props.ts" name="CommandDialogProps" />
+
+<ApiTable path="lib/api-props.ts" name="CommandLoadingProps" />
+
+<ApiTable path="lib/api-props.ts" name="CommandFooterProps" />
 
 `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandSeparator` and
 `CommandShortcut` add no props of their own — each accepts everything the cmdk part (or, for
@@ -147,7 +196,15 @@ shortcut's `ms-auto` are logical properties, so the whole palette mirrors.
 - Rows carry the hand cursor from the one global rule in `base.css` (INT-1); upstream's local
   `cursor-default` is removed.
 - In the dialog form, give `CommandDialog` a `title` and `description` — they are the dialog's
-  accessible name and description even though they are visually hidden.
+  accessible name and description even though they are visually hidden. The defaults are
+  "Command palette" and "Search for a command…", and `Command`'s `resultsLabel` sets the announced
+  count ("1 result", "3 results" by default), so every built-in string can be localised (VOI-1).
+- `CommandLoading` is a polite `role="status"` whose text is spoken (API-18), and `CommandFooter`
+  sits outside the listbox.
+- A two-line row's `ItemDescription` is the option's accessible description (API-19).
+- The check mark is visual only. It shows on a row carrying `data-checked="true"`, which cmdk never
+  sets and which is not `aria-selected` or `aria-checked` — so Command is not a multi-select, and a
+  row you mark checked is not announced as checked. Picking values is a Select or a Combobox.
 
 <StatesTested name="command" />
 
@@ -162,8 +219,10 @@ shortcut's `ms-auto` are logical properties, so the whole palette mirrors.
 
 Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
 
-- **INT-1** — `cursor-default` is removed from `CommandItem`, so a row shows the hand cursor the one
-  global rule gives every `[role="option"]`.
+- **A11Y-2** — `CommandInput` gains `min-h-6`. cmdk's input carries no height of its own, so it
+  measures its line box — 20px inside the 32px `InputGroup`, under the 24px target floor. Its focus
+  affordance needed the matching half in `input-group`: upstream names this slot `command-input`,
+  so the group's text-entry border tint never saw it focus (FOC-3, in `input-group.patch`).
 - **A11Y-3, A11Y-4** — cmdk ships no live region, so filtering a palette to two results, or to none,
   is silent. `Command` now renders one `useAnnouncer` region for its whole life (A11Y-4: mounted
   empty, keyed by a sequence counter) and announces the result count politely whenever the search or
@@ -175,13 +234,20 @@ Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
   the role while the filtered count is 0 and restores it above 0, which is A11Y-7's context-licensed
   role applied to the other end of the same relationship, and `CommandEmpty` puts `role="status"` on
   the message so the empty state is still announced. Upstream's public composition is untouched.
-- **DOC-2** — `cn` is imported from `@vegastack/design`; our npm layer owns `cn`.
+- **API-18** — `CommandLoading` over cmdk's loading slot, corrected from a value-less
+  `progressbar` with hidden text to a polite `status` whose text is spoken, and a `CommandFooter`
+  part outside the listbox.
+- **API-19** — `CommandItem` links an `ItemDescription` inside it as the option's accessible
+  description, through `item`'s `ItemDescriptionContext`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.
-- **A11Y-2** — `CommandInput` gains `min-h-6`. cmdk's input carries no height of its own, so it
-  measures its line box — 20px inside the 32px `InputGroup`, under the 24px target floor. Its focus
-  affordance needed the matching half in `input-group`: upstream names this slot `command-input`,
-  so the group's text-entry border tint never saw it focus (FOC-3, in `input-group.patch`).
+- **DOC-2** — `cn` is imported from `@vegastack/design`; our npm layer owns `cn`.
+- **INT-1** — `cursor-default` is removed from `CommandItem`, so a row shows the hand cursor the one
+  global rule gives every `[role="option"]`.
 - **LAY-10** — `CommandDialog` restores `DialogContent`'s centered transform, caps its block size
   against `100dvh`, and gives the command region a shrinkable grid row. Short viewports keep the
   search row, scrolling results and an optional footer inside the visible browser area.
+- **OVL-16** — `CommandDialog` takes `DialogContent`'s `size` scale, and the list grows taller at
+  `lg` and `xl`.
+- **VOI-1** — the default title and description are "Command palette" and "Search for a
+  command…", and `resultsLabel` overrides the announced result count.

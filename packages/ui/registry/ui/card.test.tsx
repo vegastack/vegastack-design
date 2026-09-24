@@ -208,3 +208,51 @@ test("no a11y violations — empty card", async () => {
   const screen = await render(<Card />);
   await expectNoA11yViolations(screen.container);
 });
+
+test("API-22: CardTitle renders as an h2", async () => {
+  const screen = await render(
+    <Card>
+      <CardHeader>
+        <CardTitle render={<h2 />}>Usage</CardTitle>
+      </CardHeader>
+    </Card>,
+  );
+  await expect
+    .element(screen.getByRole("heading", { level: 2, name: "Usage" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("heading", { level: 2, name: "Usage" }))
+    .toHaveAttribute("data-slot", "card-title");
+});
+
+test("API-22: the heading keeps the title's class list, merged with the caller's", async () => {
+  const screen = await render(
+    <Card>
+      <CardHeader>
+        <CardTitle>Plain</CardTitle>
+        <CardTitle render={<h3 />} className="extra">
+          Heading
+        </CardTitle>
+      </CardHeader>
+    </Card>,
+  );
+  const [plain, heading] = Array.from(
+    screen.container.querySelectorAll('[data-slot="card-title"]'),
+  ) as HTMLElement[];
+  expect(plain!.tagName).toBe("DIV");
+  expect(heading!.tagName).toBe("H3");
+  expect(heading!.className).toBe(`${plain!.className} extra`);
+});
+
+test("no a11y violations — a heading title", async () => {
+  const screen = await render(
+    <Card>
+      <CardHeader>
+        <CardTitle render={<h2 />}>Usage</CardTitle>
+        <CardDescription>This month</CardDescription>
+      </CardHeader>
+      <CardContent>12 seats</CardContent>
+    </Card>,
+  );
+  await expectNoA11yViolations(screen.container);
+});

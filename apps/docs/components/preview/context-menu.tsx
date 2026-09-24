@@ -32,6 +32,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 
 /*
  * Upstream's trigger surface, with one change: upstream's `pointer-fine:`/`pointer-coarse:` pair of
@@ -522,6 +523,39 @@ export function contextMenuRtl(): ReactNode {
           </ContextMenu>
         </div>
       </DirectionProvider>
+    </Wrapper>
+  );
+}
+
+/**
+ * API-19: a two-line row composes `ItemContent` › `ItemTitle` + `ItemDescription`, and the row
+ * links the description as its accessible description. A disabled row keeps focus, so its reason
+ * travels as that description rather than in a Tooltip.
+ */
+export function contextMenuDescriptionLine(): ReactNode {
+  return (
+    <Wrapper>
+      <ContextMenu>
+        <ContextMenuTrigger className={TRIGGER_SURFACE}>
+          Right click here
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-64">
+          <ContextMenuItem>
+            <ItemContent>
+              <ItemTitle>Duplicate</ItemTitle>
+              <ItemDescription>
+                Copies the layers and their notes
+              </ItemDescription>
+            </ItemContent>
+          </ContextMenuItem>
+          <ContextMenuItem disabled>
+            <ItemContent>
+              <ItemTitle>Publish</ItemTitle>
+              <ItemDescription>Needs an approved review</ItemDescription>
+            </ItemContent>
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     </Wrapper>
   );
 }

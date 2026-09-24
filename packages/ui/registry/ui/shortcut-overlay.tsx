@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.18.0 sha256-yJzi5F/so/6r50ZtmK7Bhpz6Pen3CiQtfj8Z5Pon0x8=
+// @vegastack shortcut-overlay@0.18.0 sha256-eCNLTWz81Ed6u2bHFQ33njxJYEMzoR4zy8ie8o7iHis=
 
 "use client";
 
@@ -14,7 +14,11 @@ import {
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatShortcutKey, usePlatform } from "@/components/ui/use-platform";
+import {
+  formatShortcutKey,
+  isEditableTarget,
+  usePlatform,
+} from "@/components/ui/use-platform";
 
 /* ---
 `ShortcutOverlay`'s value is the REGISTRY model, not the dialog. A hand-listed shortcuts
@@ -155,15 +159,7 @@ export function ShortcutOverlay({
       if (event.key !== triggerKey) return;
       if (event.defaultPrevented) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target;
-      if (
-        target instanceof HTMLElement &&
-        (target instanceof HTMLInputElement ||
-          target instanceof HTMLTextAreaElement ||
-          target instanceof HTMLSelectElement ||
-          target.isContentEditable)
-      )
-        return;
+      if (isEditableTarget(event)) return;
       if (shouldHandleRef.current && !shouldHandleRef.current()) return;
       event.preventDefault();
       setOpenRef.current(true);

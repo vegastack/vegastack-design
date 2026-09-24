@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   AlertCircleIcon,
   CheckCircle2Icon,
@@ -186,6 +186,70 @@ export function alertRtl(): ReactNode {
           <AlertAction>
             <Button size="xs" variant="outline">
               عرض
+            </Button>
+          </AlertAction>
+        </Alert>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function alertLive(): ReactNode {
+  return <AlertLiveExample />;
+}
+
+function AlertLiveExample(): ReactNode {
+  const [failed, setFailed] = useState(false);
+  return (
+    <Wrapper>
+      <div className="grid w-full max-w-xl gap-3">
+        <Button variant="outline" onClick={() => setFailed(true)}>
+          Save changes
+        </Button>
+        {failed ? (
+          <Alert variant="destructive" live>
+            <AlertCircleIcon />
+            <AlertTitle>Your changes were not saved</AlertTitle>
+            <AlertDescription>
+              The server did not respond. Check your connection and try again.
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        <Alert variant="info">
+          <InfoIcon />
+          <AlertTitle>Maintenance on Sunday</AlertTitle>
+          <AlertDescription>
+            Present at load, so it is a polite status and is read in page order.
+          </AlertDescription>
+        </Alert>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function alertActionWidth(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="grid w-full max-w-md gap-3">
+        <Alert>
+          <InfoIcon />
+          <AlertTitle>Your trial ends in three days</AlertTitle>
+          <AlertDescription>
+            Pick a plan to keep your workspace and its history.
+          </AlertDescription>
+          <AlertAction>
+            <Button size="sm" variant="outline">
+              Review details
+            </Button>
+          </AlertAction>
+        </Alert>
+        <Alert className="max-w-xs">
+          <InfoIcon />
+          <AlertTitle>Two files were removed (a narrow alert)</AlertTitle>
+          <AlertDescription>You can restore them for 30 days.</AlertDescription>
+          <AlertAction>
+            <Button size="xs" variant="outline">
+              Undo all
             </Button>
           </AlertAction>
         </Alert>

@@ -1,9 +1,10 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { ItemContent, ItemDescription, ItemTitle } from "./item";
 import {
   Menubar,
   MenubarCheckboxItem,
@@ -466,5 +467,160 @@ test("no a11y violations — submenu open", async () => {
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   await expect.element(screen.getByText("Messages")).toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});
+
+// ── D3 (Regent #138, DS-10): a disabled row keeps focus and carries its reason ────────────────
+// No source hunk and no FRM-4 extension: Base UI's `useMenuItem` builds every row — the item,
+// menubar's own checkbox item and radio item alike — with `focusableWhenDisabled: true`, and the
+// menu root passes no `disabledIndices`, so arrow keys already land on a disabled row. This pins
+// that engine behaviour for all three row kinds, plus API-19's description line on each.
+function DisabledRows({
+  onClick,
+  onCheckedChange,
+  onValueChange,
+}: {
+  onClick: () => void;
+  onCheckedChange: () => void;
+  onValueChange: () => void;
+}) {
+  return (
+    <Frame>
+      <Menubar>
+        <MenubarMenu>
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>Edit</MenubarItem>
+            <MenubarItem disabled onClick={onClick}>
+              <ItemContent>
+                <ItemTitle>Download data sheet</ItemTitle>
+                <ItemDescription>No specs yet</ItemDescription>
+              </ItemContent>
+            </MenubarItem>
+            <MenubarCheckboxItem
+              disabled
+              checked={false}
+              onCheckedChange={onCheckedChange}
+            >
+              <ItemContent>
+                <ItemTitle>Show ruler</ItemTitle>
+                <ItemDescription>Only in page view</ItemDescription>
+              </ItemContent>
+            </MenubarCheckboxItem>
+            <MenubarRadioGroup value="light" onValueChange={onValueChange}>
+              <MenubarRadioItem value="dark" disabled>
+                <ItemContent>
+                  <ItemTitle>Dark</ItemTitle>
+                  <ItemDescription>Managed by your admin</ItemDescription>
+                </ItemContent>
+              </MenubarRadioItem>
+            </MenubarRadioGroup>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+    </Frame>
+  );
+}
+
+test("D3: arrow keys reach disabled item, checkbox and radio rows, and Enter does nothing", async () => {
+  const onClick = vi.fn();
+  const onCheckedChange = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <DisabledRows
+      onClick={onClick}
+      onCheckedChange={onCheckedChange}
+      onValueChange={onValueChange}
+    />,
+  );
+  await userEvent.click(screen.getByText("File"));
+  await expect.element(screen.getByText("Edit")).toBeInTheDocument();
+
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  const item = screen.getByRole("menuitem", { name: /Download data sheet/ });
+  await expect.element(item).toHaveFocus();
+  await expect.element(item).toHaveAccessibleDescription("No specs yet");
+  await userEvent.keyboard("{Enter}");
+
+  await userEvent.keyboard("{ArrowDown}");
+  const checkbox = screen.getByRole("menuitemcheckbox", { name: /Show ruler/ });
+  await expect.element(checkbox).toHaveFocus();
+  await expect
+    .element(checkbox)
+    .toHaveAccessibleDescription("Only in page view");
+  await userEvent.keyboard("{Enter}");
+
+  await userEvent.keyboard("{ArrowDown}");
+  const radio = screen.getByRole("menuitemradio", { name: /Dark/ });
+  await expect.element(radio).toHaveFocus();
+  await expect
+    .element(radio)
+    .toHaveAccessibleDescription("Managed by your admin");
+  await userEvent.keyboard("{Enter}");
+
+  expect(onClick).not.toHaveBeenCalled();
+  expect(onCheckedChange).not.toHaveBeenCalled();
+  expect(onValueChange).not.toHaveBeenCalled();
+});
+
+/** API-19: every row kind — item, checkbox item, radio item — links a composed description. */
+function DescriptionRows() {
+  return (
+    <Frame>
+      <Menubar>
+        <MenubarMenu>
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>Plain</MenubarItem>
+            <MenubarItem>
+              <ItemContent>
+                <ItemTitle>Download CSV</ItemTitle>
+                <ItemDescription>Every row, for a spreadsheet</ItemDescription>
+              </ItemContent>
+            </MenubarItem>
+            <MenubarCheckboxItem checked>
+              <ItemContent>
+                <ItemTitle>Show ruler</ItemTitle>
+                <ItemDescription>Guides snap to its ticks</ItemDescription>
+              </ItemContent>
+            </MenubarCheckboxItem>
+            <MenubarRadioGroup value="compact">
+              <MenubarRadioItem value="compact">
+                <ItemContent>
+                  <ItemTitle>Compact</ItemTitle>
+                  <ItemDescription>Fits more rows</ItemDescription>
+                </ItemContent>
+              </MenubarRadioItem>
+            </MenubarRadioGroup>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+    </Frame>
+  );
+}
+
+test("API-19: item, checkbox and radio rows each take their ItemDescription as the accessible description", async () => {
+  const screen = await render(<DescriptionRows />);
+  await userEvent.click(screen.getByText("File"));
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Download CSV/ }))
+    .toHaveAccessibleDescription("Every row, for a spreadsheet");
+  await expect
+    .element(screen.getByRole("menuitemcheckbox", { name: /Show ruler/ }))
+    .toHaveAccessibleDescription("Guides snap to its ticks");
+  await expect
+    .element(screen.getByRole("menuitemradio", { name: /Compact/ }))
+    .toHaveAccessibleDescription("Fits more rows");
+  // A one-line row names no description: the row only points at one that registered.
+  const plain = screen.getByRole("menuitem", { name: "Plain" }).element();
+  expect(plain.hasAttribute("aria-describedby")).toBe(false);
+});
+
+test("no a11y violations — open, with description rows", async () => {
+  const screen = await render(<DescriptionRows />);
+  await userEvent.click(screen.getByText("File"));
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Download CSV/ }))
+    .toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });

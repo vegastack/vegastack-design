@@ -77,8 +77,9 @@ Wrap the whole `Field` in a `FieldLabel` for a clickable card, which tints when 
 
 ### Disabled
 
-`disabled` on an item disables that option; on the `RadioGroup` it disables all of them. Add
-`data-disabled` to the `Field` so the label dims with it.
+`disabled` on an item disables that option; on the `RadioGroup` it disables all of them. The
+radio dims on its own, inside a `Field` or not; add `data-disabled` to the `Field` so the label
+dims with it.
 
 <ComponentPreview
   name="radioGroupDisabled"
@@ -159,4 +160,7 @@ focus-visible:ring-ring/50` glow is removed, along with the `aria-invalid` halo 
 - **FOC-12** — upstream rings the whole choice card and cancels the control's own ring with two
   `group-has-[:focus-visible]/field-label:` rules. This system rings the control, so both are
   removed with the card ring they existed to serve.
+- **FRM-15** — `disabled:cursor-not-allowed disabled:opacity-50` become `data-disabled:…`. Base UI
+  renders each item as a `<span>`, which `:disabled` never matches, so upstream's radio dimmed only
+  inside a disabled `Field`; keyed on the `data-disabled` Base UI sets, it dims everywhere.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

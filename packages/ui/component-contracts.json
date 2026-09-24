@@ -236,7 +236,10 @@
           "tabs",
           "attachment",
           "data-list",
-          "data-grid"
+          "data-grid",
+          "dropdown-menu",
+          "context-menu",
+          "menubar"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
@@ -690,13 +693,18 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "error", "open", "saved", "success"],
+          "values": ["default", "error", "open", "saved", "success", "live"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
           "status": "observed",
-          "values": ["labeled", "alert-announcement", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "values": [
+            "labeled",
+            "status-announcement",
+            "alert-announcement",
+            "semantic-html"
+          ],
+          "evidence": "A11Y-3: polite role=status by default; role=alert only with live on destructive or warning (alert.tsx + alert.test.tsx)."
         },
         "visual": {
           "status": "observed",
@@ -2512,6 +2520,15 @@
           }
         },
         {
+          "name": "BadgeVariant",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/badge.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "badgeVariants",
           "kind": "variant-builder",
           "source": "packages/ui/registry/ui/badge.tsx",
@@ -3756,6 +3773,7 @@
       "docsSlug": "/docs/components/card",
       "registryDependencies": [],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
@@ -3788,15 +3806,6 @@
             {
               "name": "data-slot",
               "values": ["card-header"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "CardTitle": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["card-title"]
             }
           ],
           "cssVariables": []
@@ -5224,7 +5233,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/combobox",
-      "registryDependencies": ["@vegastack/button", "@vegastack/input-group"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/input-group",
+        "@vegastack/item"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
@@ -5436,6 +5449,26 @@
           }
         },
         {
+          "name": "CommandLoading",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "CommandFooter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Props (including ref) spread onto its own div."
+          }
+        },
+        {
           "name": "CommandGroup",
           "kind": "component",
           "source": "packages/ui/registry/ui/command.tsx",
@@ -5482,9 +5515,14 @@
         "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no size dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default", "lg", "xl"],
+            "evidence": "packages/ui/registry/ui/command.tsx: CommandDialog size prop forwarded to DialogContent; CommandList data-size (OVL-16)"
+          }
+        ]
       },
       "states": {
         "behavior": {
@@ -5495,7 +5533,8 @@
             "empty",
             "selected",
             "disabled",
-            "open"
+            "open",
+            "loading"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -5516,7 +5555,8 @@
             "empty",
             "disabled",
             "short-viewport",
-            "with-footer"
+            "with-footer",
+            "loading"
           ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
@@ -5550,6 +5590,7 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/input-group",
+        "@vegastack/item",
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
@@ -5590,6 +5631,10 @@
         "CommandList": {
           "attributes": [
             {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["command-list"]
             }
@@ -5601,6 +5646,24 @@
             {
               "name": "data-slot",
               "values": ["command-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandLoading": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-loading"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-footer"]
             }
           ],
           "cssVariables": []
@@ -5839,7 +5902,9 @@
           "values": [
             "native-or-base-ui-semantics",
             "browser-accessibility-test",
-            "keyboard-navigation"
+            "keyboard-navigation",
+            "described",
+            "disabled"
           ],
           "evidence": "packages/ui/registry/ui/context-menu.tsx + packages/ui/registry/ui/context-menu.test.tsx"
         },
@@ -5871,7 +5936,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/context-menu",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/item"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
@@ -7657,6 +7722,16 @@
           }
         },
         {
+          "name": "DialogBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dialog.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "API-21: spreads props, ref included, onto its div."
+          }
+        },
+        {
           "name": "DialogClose",
           "kind": "component",
           "source": "packages/ui/registry/ui/dialog.tsx",
@@ -7884,6 +7959,15 @@
             {
               "name": "data-slot",
               "values": ["dialog-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-body"]
             }
           ],
           "cssVariables": []
@@ -8519,7 +8603,9 @@
           "values": [
             "native-or-base-ui-semantics",
             "browser-accessibility-test",
-            "keyboard-navigation"
+            "keyboard-navigation",
+            "described",
+            "disabled"
           ],
           "evidence": "packages/ui/registry/ui/dropdown-menu.tsx + packages/ui/registry/ui/dropdown-menu.test.tsx"
         },
@@ -8551,7 +8637,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/dropdown-menu",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/item"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
@@ -9304,6 +9390,7 @@
       "docsSlug": "/docs/components/empty",
       "registryDependencies": [],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
@@ -9346,15 +9433,6 @@
             {
               "name": "data-variant",
               "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "EmptyTitle": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["empty-title"]
             }
           ],
           "cssVariables": []
@@ -10822,6 +10900,15 @@
           }
         },
         {
+          "name": "ItemDescriptionContext",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/item.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
           "name": "ItemFooter",
           "kind": "component",
           "source": "packages/ui/registry/ui/item.tsx",
@@ -10839,6 +10926,16 @@
             "status": "observed",
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "ItemGroupLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/item.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "API-20: useRender forwards the ref to the heading it renders."
           }
         },
         {
@@ -10879,6 +10976,15 @@
             "status": "observed",
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "useItemDescriptionId",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/item.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook renders nothing and accepts no ref."
           }
         }
       ],
@@ -10938,7 +11044,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/item",
-      "registryDependencies": ["@vegastack/separator"],
+      "registryDependencies": [
+        "@vegastack/separator",
+        "@vegastack/truncated-text"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -10970,6 +11079,15 @@
             {
               "name": "data-slot",
               "values": ["item-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Item": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-listitem"]
             }
           ],
           "cssVariables": []
@@ -11936,7 +12054,9 @@
           "values": [
             "native-or-base-ui-semantics",
             "browser-accessibility-test",
-            "keyboard-navigation"
+            "keyboard-navigation",
+            "described",
+            "disabled"
           ],
           "evidence": "packages/ui/registry/ui/menubar.tsx + packages/ui/registry/ui/menubar.test.tsx"
         },
@@ -11968,7 +12088,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/menubar",
-      "registryDependencies": ["@vegastack/dropdown-menu"],
+      "registryDependencies": ["@vegastack/dropdown-menu", "@vegastack/item"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
@@ -16025,7 +16145,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/select",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/item"],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
@@ -16475,6 +16595,26 @@
           }
         },
         {
+          "name": "SheetAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "API-21: spreads props, ref included, onto its div."
+          }
+        },
+        {
+          "name": "SheetBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "API-21: spreads props, ref included, onto its div."
+          }
+        },
+        {
           "name": "SheetFooter",
           "kind": "component",
           "source": "packages/ui/registry/ui/sheet.tsx",
@@ -16516,9 +16656,14 @@
         ]
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no size dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default", "lg", "xl"],
+            "evidence": "packages/ui/registry/ui/sheet.tsx: size prop (OVL-16, side sheets only)"
+          }
+        ]
       },
       "states": {
         "behavior": {
@@ -16544,7 +16689,7 @@
       "responsive": {
         "status": "modeled",
         "risks": [],
-        "rationale": "Upstream's own layout; no component-owned responsive branch."
+        "rationale": "Below sm a side sheet is full width; from sm up upstream w-3/4 under the OVL-16 size cap. Measured by the sheet-390 and sheet-sizes-1280 geometry tests."
       },
       "motion": {
         "status": "observed",
@@ -16613,6 +16758,10 @@
               "values": []
             },
             {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["sheet-close", "sheet-content"]
             }
@@ -16624,6 +16773,24 @@
             {
               "name": "data-slot",
               "values": ["sheet-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetAction": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-body"]
             }
           ],
           "cssVariables": []
@@ -16777,634 +16944,6 @@
                 "shortcut-overlay-empty",
                 "shortcut-overlay-row"
               ]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "sidebar",
-      "registryType": "registry:ui",
-      "title": "Sidebar",
-      "summary": "A composable, themeable and customizable sidebar — a provider, a collapsible panel with header, content and footer, labelled groups, menu rows with actions, badges and submenus, a rail and a trigger.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "navigation",
-      "wave": "Navigation/layout",
-      "sourceFiles": ["packages/ui/registry/ui/sidebar.tsx"],
-      "publicSymbols": [
-        {
-          "name": "Sidebar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarFooter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupLabel",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarInput",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarInset",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenu",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuBadge",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuButton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSkeleton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSub",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSubButton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSubItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarProvider",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarRail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarSeparator",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarTrigger",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "useSidebar",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "side",
-            "values": ["left", "right"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "variant",
-            "values": ["sidebar", "floating", "inset"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "collapsible",
-            "values": ["offcanvas", "icon", "none"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "menuButtonVariant",
-            "values": ["default", "outline"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
-          }
-        ]
-      },
-      "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "menuButtonSize",
-            "values": ["default", "sm", "lg"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
-          },
-          {
-            "name": "menuSubButtonSize",
-            "values": ["sm", "md"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          }
-        ]
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "default",
-            "expanded",
-            "collapsed",
-            "open",
-            "active",
-            "disabled",
-            "loading",
-            "mobile"
-          ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "native-or-base-ui-semantics",
-            "browser-accessibility-test",
-            "keyboard-navigation",
-            "labeled",
-            "focus-visible"
-          ],
-          "evidence": "packages/ui/registry/ui/sidebar.tsx + packages/ui/registry/ui/sidebar.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "active", "disabled", "loading"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "mobile-or-touch-mode",
-          "overflow-and-scroll",
-          "text-truncation-and-flex-shrink"
-        ],
-        "rationale": "Upstream's own layout: a fixed desktop panel above the md breakpoint and a Sheet below it, with a scrolling content region and truncating rows."
-      },
-      "motion": {
-        "status": "observed",
-        "mechanisms": ["tokenized CSS transition"],
-        "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5).",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/sidebar",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/input",
-        "@vegastack/separator",
-        "@vegastack/sheet",
-        "@vegastack/skeleton",
-        "@vegastack/tooltip",
-        "@vegastack/use-mobile"
-      ],
-      "npmDependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.4",
-        "@vegastack/design-tokens@^0.7.1"
-      ],
-      "testFiles": ["packages/ui/registry/ui/sidebar.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "sidebar",
-      "dataAttributes": {
-        "SidebarProvider": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-wrapper"]
-            }
-          ],
-          "cssVariables": ["--sidebar-width", "--sidebar-width-icon"]
-        },
-        "Sidebar": {
-          "attributes": [
-            {
-              "name": "data-collapsible",
-              "values": [""]
-            },
-            {
-              "name": "data-mobile",
-              "values": ["true"]
-            },
-            {
-              "name": "data-side",
-              "values": []
-            },
-            {
-              "name": "data-sidebar",
-              "values": ["sidebar"]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "sidebar",
-                "sidebar-container",
-                "sidebar-gap",
-                "sidebar-inner"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": []
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": ["--sidebar-width"]
-        },
-        "SidebarTrigger": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["trigger"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarRail": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["rail"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-rail"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarInset": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-inset"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarInput": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["input"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-input"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarHeader": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["header"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-header"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarFooter": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["footer"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-footer"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarSeparator": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["separator"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-separator"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarContent": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["content"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-content"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarGroup": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["group"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarGroupContent": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["group-content"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-group-content"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenu": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuItem": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-item"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-item"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuBadge": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-badge"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-badge"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuSkeleton": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": [
-                "menu-skeleton",
-                "menu-skeleton-icon",
-                "menu-skeleton-text"
-              ]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-skeleton"]
-            }
-          ],
-          "cssVariables": ["--skeleton-width"]
-        },
-        "SidebarMenuSub": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-sub"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-sub"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuSubItem": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-sub-item"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-sub-item"]
             }
           ],
           "cssVariables": []
@@ -19292,6 +18831,15 @@
             "status": "not-applicable",
             "rationale": "Not a rendering component; accepts no runtime ref."
           }
+        },
+        {
+          "name": "tabsTriggerVariants",
+          "kind": "variant-builder",
+          "source": "packages/ui/registry/ui/tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Not a rendering component; accepts no runtime ref."
+          }
         }
       ],
       "variants": {
@@ -19301,6 +18849,11 @@
             "name": "variant",
             "values": ["default", "line"],
             "evidence": "packages/ui/registry/ui/tabs.tsx: cva variant on TabsList"
+          },
+          {
+            "name": "overflow",
+            "values": ["visible", "scroll"],
+            "evidence": "packages/ui/registry/ui/tabs.tsx: cva overflow on TabsList; scroll is the default for variant=\"line\" (LAY-14)"
           }
         ]
       },
@@ -19333,7 +18886,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "The root's data-orientation switches the list between a row and a column; the trigger is flex-1."
+        "rationale": "The root forwards orientation to Base UI and writes data-orientation, which switches the list between a row and a column; the trigger is flex-1. A horizontal list with overflow=\"scroll\" (the line default) scrolls inside itself and never widens the page; test/geometry.browser.test.tsx asserts eight line tabs at 320px, LTR and RTL."
       },
       "motion": {
         "status": "observed",
@@ -19381,6 +18934,10 @@
         },
         "TabsList": {
           "attributes": [
+            {
+              "name": "data-overflow",
+              "values": []
+            },
             {
               "name": "data-slot",
               "values": ["tabs-list"]
@@ -20651,7 +20208,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "Items never shrink (shrink-0), so a long option set would widen its row; wrap (API-23) lets them fall onto rows, and a joined wrapped group marks each row start and end (data-row-start / data-row-end) for its own rounded ends. test/geometry.browser.test.tsx asserts ten options at 320px, LTR and RTL."
       },
       "motion": {
         "status": "not-applicable",
@@ -20702,6 +20259,10 @@
             {
               "name": "data-variant",
               "values": []
+            },
+            {
+              "name": "data-wrap",
+              "values": [""]
             }
           ],
           "cssVariables": ["--gap"]
@@ -21437,6 +20998,671 @@
             {
               "name": "data-slot",
               "values": ["panel-search"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "sidebar",
+      "registryType": "registry:ui",
+      "title": "Sidebar",
+      "summary": "A composable, themeable and customizable sidebar — a provider, a collapsible panel with header, content and footer, labelled groups, menu rows with actions, badges and submenus, a rail and a trigger.",
+      "status": "stable",
+      "since": "0.1.0",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/sidebar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Sidebar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarFooter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarGroupAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarGroupContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarGroupLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarInset",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuBadge",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuSub",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuSubButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarMenuSubItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarRail",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "SidebarStateScript",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders an inline head script with no consumer-facing element to reference."
+          }
+        },
+        {
+          "name": "SidebarTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "useSidebar",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "useSidebarCookieOpen",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/sidebar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "side",
+            "values": ["left", "right"],
+            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
+          },
+          {
+            "name": "variant",
+            "values": ["sidebar", "floating", "inset"],
+            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
+          },
+          {
+            "name": "collapsible",
+            "values": ["offcanvas", "icon", "none"],
+            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
+          },
+          {
+            "name": "menuButtonVariant",
+            "values": ["default", "outline"],
+            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "menuButtonSize",
+            "values": ["default", "sm", "lg"],
+            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
+          },
+          {
+            "name": "menuSubButtonSize",
+            "values": ["sm", "md"],
+            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
+          }
+        ]
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "expanded",
+            "collapsed",
+            "open",
+            "active",
+            "disabled",
+            "loading",
+            "mobile"
+          ],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "labeled",
+            "focus-visible"
+          ],
+          "evidence": "packages/ui/registry/ui/sidebar.tsx + packages/ui/registry/ui/sidebar.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "active", "disabled", "loading"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "mobile-or-touch-mode",
+          "overflow-and-scroll",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Upstream's own layout: a fixed desktop panel above the md breakpoint and a Sheet below it, with a scrolling content region and truncating rows."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["tokenized CSS transition"],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5).",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/sidebar",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/input",
+        "@vegastack/separator",
+        "@vegastack/sheet",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip",
+        "@vegastack/use-mobile",
+        "@vegastack/use-platform"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.4",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": ["packages/ui/registry/ui/sidebar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "sidebar",
+      "dataAttributes": {
+        "SidebarStateScript": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-state-script"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarProvider": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-wrapper"]
+            }
+          ],
+          "cssVariables": ["--sidebar-width", "--sidebar-width-icon"]
+        },
+        "Sidebar": {
+          "attributes": [
+            {
+              "name": "data-collapsible",
+              "values": [""]
+            },
+            {
+              "name": "data-mobile",
+              "values": ["true"]
+            },
+            {
+              "name": "data-side",
+              "values": []
+            },
+            {
+              "name": "data-sidebar",
+              "values": ["sidebar"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "sidebar",
+                "sidebar-container",
+                "sidebar-gap",
+                "sidebar-inner"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": ["--sidebar-width"]
+        },
+        "SidebarTrigger": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["trigger"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarRail": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["rail"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-rail"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarInset": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-inset"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarInput": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["input"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-input"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarHeader": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["header"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarFooter": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["footer"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarSeparator": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["separator"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarContent": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["content"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarGroup": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["group"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarGroupContent": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["group-content"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-group-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenu": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuItem": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu-item"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuButton": {
+          "attributes": [
+            {
+              "name": "data-badge-size",
+              "values": ["default", "lg"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuBadge": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu-badge"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-badge"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuSkeleton": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": [
+                "menu-skeleton",
+                "menu-skeleton-icon",
+                "menu-skeleton-text"
+              ]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-skeleton"]
+            }
+          ],
+          "cssVariables": ["--skeleton-width"]
+        },
+        "SidebarMenuSub": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu-sub"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-sub"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuSubItem": {
+          "attributes": [
+            {
+              "name": "data-sidebar",
+              "values": ["menu-sub-item"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-sub-item"]
             }
           ],
           "cssVariables": []
@@ -24769,7 +24995,7 @@
       "name": "use-platform",
       "registryType": "registry:hook",
       "title": "usePlatform",
-      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning — plus formatShortcutKey / formatShortcut for platform key labels.",
+      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning — plus formatShortcutKey / formatShortcut for platform key labels, and isEditableTarget, which global shortcuts use to ignore typing in fields.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-platform.ts"],
@@ -24835,6 +25061,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "isEditableTarget",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],

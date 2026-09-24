@@ -1,9 +1,10 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { ItemContent, ItemDescription, ItemTitle } from "./item";
 import {
   ContextMenu,
   ContextMenuCheckboxItem,
@@ -436,5 +437,96 @@ test("no a11y violations — submenu open", async () => {
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   await expect.element(screen.getByText("Developer Tools")).toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});
+
+// ── D3 (Regent #138, DS-10): a disabled row keeps focus and carries its reason ────────────────
+// No source hunk and no FRM-4 extension: Base UI's `useMenuItem` builds every row with
+// `focusableWhenDisabled: true` and the menu root passes no `disabledIndices`, so arrow keys
+// already land on a disabled row. This pins that engine behaviour, plus API-19's description line.
+test("D3: arrow keys reach a disabled item and Enter does nothing", async () => {
+  const onClick = vi.fn();
+  const screen = await render(
+    <Frame>
+      <ContextMenu>
+        <ContextMenuTrigger>Right click here</ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem>Edit</ContextMenuItem>
+          <ContextMenuItem disabled onClick={onClick}>
+            <ItemContent>
+              <ItemTitle>Download data sheet</ItemTitle>
+              <ItemDescription>No specs yet</ItemDescription>
+            </ItemContent>
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Frame>,
+  );
+  await rightClick(screen.getByText("Right click here").element());
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  const item = screen.getByRole("menuitem", { name: /Download data sheet/ });
+  await expect.element(item).toHaveFocus();
+  await expect.element(item).toHaveAccessibleDescription("No specs yet");
+  await userEvent.keyboard("{Enter}");
+  expect(onClick).not.toHaveBeenCalled();
+});
+
+/** API-19: every row kind — item, checkbox item, radio item — links a composed description. */
+function DescriptionRows() {
+  return (
+    <Frame>
+      <ContextMenu>
+        <ContextMenuTrigger>Right click here</ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem>Plain</ContextMenuItem>
+          <ContextMenuItem>
+            <ItemContent>
+              <ItemTitle>Download CSV</ItemTitle>
+              <ItemDescription>Every row, for a spreadsheet</ItemDescription>
+            </ItemContent>
+          </ContextMenuItem>
+          <ContextMenuCheckboxItem checked>
+            <ItemContent>
+              <ItemTitle>Show ruler</ItemTitle>
+              <ItemDescription>Guides snap to its ticks</ItemDescription>
+            </ItemContent>
+          </ContextMenuCheckboxItem>
+          <ContextMenuRadioGroup value="compact">
+            <ContextMenuRadioItem value="compact">
+              <ItemContent>
+                <ItemTitle>Compact</ItemTitle>
+                <ItemDescription>Fits more rows</ItemDescription>
+              </ItemContent>
+            </ContextMenuRadioItem>
+          </ContextMenuRadioGroup>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Frame>
+  );
+}
+
+test("API-19: item, checkbox and radio rows each take their ItemDescription as the accessible description", async () => {
+  const screen = await render(<DescriptionRows />);
+  await rightClick(screen.getByText("Right click here").element());
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Download CSV/ }))
+    .toHaveAccessibleDescription("Every row, for a spreadsheet");
+  await expect
+    .element(screen.getByRole("menuitemcheckbox", { name: /Show ruler/ }))
+    .toHaveAccessibleDescription("Guides snap to its ticks");
+  await expect
+    .element(screen.getByRole("menuitemradio", { name: /Compact/ }))
+    .toHaveAccessibleDescription("Fits more rows");
+  // A one-line row names no description: the row only points at one that registered.
+  const plain = screen.getByRole("menuitem", { name: "Plain" }).element();
+  expect(plain.hasAttribute("aria-describedby")).toBe(false);
+});
+
+test("no a11y violations — open, with description rows", async () => {
+  const screen = await render(<DescriptionRows />);
+  await rightClick(screen.getByText("Right click here").element());
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Download CSV/ }))
+    .toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });

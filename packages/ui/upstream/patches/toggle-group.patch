@@ -1,14 +1,27 @@
 # component: toggle-group
-# decisions: DOC-2
+# decisions: API-23, DOC-2
 # hunks:
+#   API-23: `ToggleGroup` takes `deselectable` (default `true`) and `wrap` (default `false`),
+#     both destructured so neither reaches the DOM. `deselectable={false}` wraps `onValueChange`:
+#     in single mode (`multiple` is destructured and forwarded unchanged to read it) a change to
+#     `[]` is cancelled through Base UI's own `eventDetails.cancel()` before the engine commits it,
+#     so the pressed item stays pressed and the caller's `onValueChange` is never called with `[]`,
+#     controlled or not. `wrap` writes `data-wrap` and the root gains `data-wrap:flex-wrap` plus,
+#     for a joined group, `data-wrap:data-[spacing=0]:gap-y-2`, so the joined borders of two rows
+#     never double up. A joined wrapped row starts at an item that is not `:first-child`, which no
+#     selector can find, so `useWrappedRowEnds` (a layout effect with a `ResizeObserver` and a
+#     child-list `MutationObserver`, active only for `wrap` + `spacing={0}` + horizontal) marks
+#     each row's first and last item `data-row-start` / `data-row-end`, and the item gains three
+#     classes that give those their rounded ends and the outline variant's leading border. The
+#     root's `ref` is merged with the internal one through `mergeRefs` from our npm layer.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle-group.tsx b/toggle-group.tsx
-index 1910ec8..00a8162 100644
+index 1910ec8..5211d1b 100644
 --- a/toggle-group.tsx
 +++ b/toggle-group.tsx
-@@ -1,24 +1,24 @@
+@@ -1,24 +1,69 @@
 -"use client"
 +"use client";
  
@@ -21,7 +34,7 @@ index 1910ec8..00a8162 100644
 +import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
 +import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group";
 +import { type VariantProps } from "class-variance-authority";
-+import { cn } from "@vegastack/design";
++import { cn, mergeRefs } from "@vegastack/design";
  
 -import { toggleVariants } from "@/components/ui/toggle"
 +import { toggleVariants } from "@/components/ui/toggle";
@@ -40,10 +53,64 @@ index 1910ec8..00a8162 100644
    orientation: "horizontal",
 -})
 +});
++
++/**
++ * Mark the first and last item of every visual row of a wrapped, joined (`spacing={0}`) group, so
++ * each row gets its own rounded ends and its own leading border — a row start is not `:first-child`
++ * once the items wrap, and CSS has no selector for it. Re-marked whenever the group resizes or
++ * its items change.
++ */
++function useWrappedRowEnds(group: HTMLElement | null, active: boolean) {
++  React.useLayoutEffect(() => {
++    if (!group || !active) return;
++    const items = () => [
++      ...group.querySelectorAll<HTMLElement>('[data-slot="toggle-group-item"]'),
++    ];
++    const mark = () => {
++      const list = items();
++      const rects = list.map((item) => item.getBoundingClientRect());
++      list.forEach((item, index) => {
++        const previous = rects[index - 1];
++        const next = rects[index + 1];
++        const rect = rects[index]!;
++        item.toggleAttribute(
++          "data-row-start",
++          !previous || rect.top >= previous.bottom - 0.5,
++        );
++        item.toggleAttribute(
++          "data-row-end",
++          !next || next.top >= rect.bottom - 0.5,
++        );
++      });
++    };
++    mark();
++    const resize = new ResizeObserver(mark);
++    resize.observe(group);
++    const mutation = new MutationObserver(mark);
++    mutation.observe(group, { childList: true, subtree: true });
++    return () => {
++      resize.disconnect();
++      mutation.disconnect();
++      for (const item of items()) {
++        item.removeAttribute("data-row-start");
++        item.removeAttribute("data-row-end");
++      }
++    };
++  }, [group, active]);
++}
  
  function ToggleGroup({
    className,
-@@ -30,8 +30,8 @@ function ToggleGroup({
+@@ -26,13 +71,26 @@ function ToggleGroup({
+   size,
+   spacing = 2,
+   orientation = "horizontal",
++  deselectable = true,
++  wrap = false,
++  multiple,
++  onValueChange,
++  ref,
+   children,
    ...props
  }: ToggleGroupPrimitive.Props &
    VariantProps<typeof toggleVariants> & {
@@ -51,19 +118,45 @@ index 1910ec8..00a8162 100644
 -    orientation?: "horizontal" | "vertical"
 +    spacing?: number;
 +    orientation?: "horizontal" | "vertical";
++    deselectable?: boolean;
++    wrap?: boolean;
    }) {
++  const [group, setGroup] = React.useState<HTMLDivElement | null>(null);
++  const mergedRef = React.useMemo(() => mergeRefs(setGroup, ref), [ref]);
++  useWrappedRowEnds(
++    group,
++    wrap && spacing === 0 && orientation === "horizontal",
++  );
    return (
      <ToggleGroupPrimitive
-@@ -43,7 +43,7 @@ function ToggleGroup({
+       data-slot="toggle-group"
+@@ -40,11 +98,24 @@ function ToggleGroup({
+       data-size={size}
+       data-spacing={spacing}
+       data-orientation={orientation}
++      data-wrap={wrap ? "" : undefined}
        style={{ "--gap": spacing } as React.CSSProperties}
        className={cn(
          "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-vertical:flex-col data-vertical:items-stretch",
 -        className
++        "data-wrap:flex-wrap data-wrap:data-[spacing=0]:gap-y-2",
 +        className,
        )}
++      ref={mergedRef}
++      multiple={multiple}
++      onValueChange={(value, eventDetails) => {
++        // A single-mode view switch always has a view: pressing the pressed item would empty the
++        // group, so that one change is cancelled before Base UI commits it.
++        if (!deselectable && !multiple && value.length === 0) {
++          eventDetails.cancel();
++          return;
++        }
++        onValueChange?.(value, eventDetails);
++      }}
        {...props}
      >
-@@ -53,7 +53,7 @@ function ToggleGroup({
+       <ToggleGroupContext.Provider
+@@ -53,7 +124,7 @@ function ToggleGroup({
          {children}
        </ToggleGroupContext.Provider>
      </ToggleGroupPrimitive>
@@ -72,7 +165,7 @@ index 1910ec8..00a8162 100644
  }
  
  function ToggleGroupItem({
-@@ -63,7 +63,7 @@ function ToggleGroupItem({
+@@ -63,7 +134,7 @@ function ToggleGroupItem({
    size = "default",
    ...props
  }: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
@@ -81,7 +174,12 @@ index 1910ec8..00a8162 100644
  
    return (
      <TogglePrimitive
-@@ -77,13 +77,13 @@ function ToggleGroupItem({
+@@ -73,17 +144,18 @@ function ToggleGroupItem({
+       data-spacing={context.spacing}
+       className={cn(
+         "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t",
++        "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-lg group-data-wrap/toggle-group:data-[spacing=0]:data-row-end:rounded-e-lg group-data-wrap/toggle-group:data-[spacing=0]:data-[variant=outline]:data-row-start:border-s",
+         toggleVariants({
            variant: context.variant || variant,
            size: context.size || size,
          }),

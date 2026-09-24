@@ -19,6 +19,7 @@ import {
   ItemDescription,
   ItemFooter,
   ItemGroup,
+  ItemGroupLabel,
   ItemHeader,
   ItemMedia,
   ItemSeparator,
@@ -33,6 +34,7 @@ import {
   ProgressLabel,
   ProgressValue,
 } from "@/components/ui/progress";
+import { RelativeTime } from "@/components/ui/relative-time";
 import { StatusIcon } from "@/components/ui/status-icon";
 import {
   DropdownMenu,
@@ -607,6 +609,88 @@ export function itemRtl(): ReactNode {
             <ChevronRightIcon className="size-4 rtl:rotate-180" />
           </ItemActions>
         </Item>
+      </div>
+    </Wrapper>
+  );
+}
+
+const RECENT_MEETINGS = [
+  {
+    id: "m1",
+    title: "Depot review",
+    kind: "Meeting",
+    at: "2026-09-03T10:00:00Z",
+  },
+  {
+    id: "m2",
+    title: "Fleet renewal",
+    kind: "Call",
+    at: "2026-09-02T15:30:00Z",
+  },
+  {
+    id: "m3",
+    title: "Quarterly planning",
+    kind: "Meeting",
+    at: "2026-08-29T09:00:00Z",
+  },
+] as const;
+
+/** A labelled group of link rows: each link keeps its role, the list item is a wrapper. */
+export function itemLinkRowsInGroup(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-2">
+        <ItemGroupLabel>Recent</ItemGroupLabel>
+        <ItemGroup className="gap-1">
+          {RECENT_MEETINGS.map((meeting) => (
+            <Item
+              key={meeting.id}
+              size="sm"
+              render={<a href={`#${meeting.id}`} />}
+            >
+              <ItemContent>
+                <ItemTitle>{meeting.title}</ItemTitle>
+                <ItemDescription>{meeting.kind}</ItemDescription>
+              </ItemContent>
+              <RelativeTime
+                date={meeting.at}
+                className="text-xs text-muted-foreground"
+              />
+            </Item>
+          ))}
+        </ItemGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
+/** Two groups, each named by the ItemGroupLabel rendered just before it. */
+export function itemGroupedWithLabels(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-2">
+        <ItemGroupLabel>Pinned</ItemGroupLabel>
+        <ItemGroup className="gap-1">
+          <Item variant="outline" size="sm">
+            <ItemMedia variant="icon">
+              <InboxIcon />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>Support inbox</ItemTitle>
+            </ItemContent>
+          </Item>
+        </ItemGroup>
+        <ItemGroupLabel className="mt-4">Archived</ItemGroupLabel>
+        <ItemGroup className="gap-1">
+          <Item variant="outline" size="sm">
+            <ItemMedia variant="icon">
+              <ShieldAlertIcon />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>Security review</ItemTitle>
+            </ItemContent>
+          </Item>
+        </ItemGroup>
       </div>
     </Wrapper>
   );

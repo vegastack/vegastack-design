@@ -181,6 +181,18 @@ so a right-to-left document mirrors the whole control.
 
 <ComponentPreview name="comboboxRtl" file="components/preview/combobox.tsx" />
 
+### Two-line options
+
+An option that needs a second line composes Item's parts: `ItemContent` › `ItemTitle` +
+`ItemDescription`. `ComboboxItem` provides Item's description context, so the description's id lands
+on the option's `aria-describedby` and a screen reader hears it as the option's description
+(API-19). A one-line option links nothing.
+
+<ComponentPreview
+  name="comboboxTwoLineOptions"
+  file="components/preview/combobox.tsx"
+/>
+
 ### States
 
 The closed input's rest, invalid and disabled chrome.
@@ -240,6 +252,10 @@ UI part accepts.
 
 Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
 
+- **API-19** — `ComboboxItem` provides Item's `ItemDescriptionContext` and points `aria-describedby` at an
+  `ItemDescription` once one registers inside the option, so a two-line option reads its second
+  line as the option's accessible description ([Two-line options](#two-line-options)). A one-line
+  option is unchanged.
 - **FOC-1, FOC-3, FOC-6** — `ComboboxChips`' `focus-within:border-ring` plus `ring-3 ring-ring/50`
   becomes `focus-within:border-ring/70`, and `ComboboxChipsInput`'s `outline-none` becomes
   `outline-hidden` so the forced-colours fallback has something to repaint. The single-line field's

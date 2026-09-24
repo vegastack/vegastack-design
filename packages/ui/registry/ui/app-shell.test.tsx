@@ -215,7 +215,7 @@ test("an explicit contentId wins over the generated one, on both halves", async 
 test("header renders the trigger, the actions slot, and a min-w-0 middle slot", async () => {
   const screen = await render(<Demo />);
   await expect
-    .element(screen.getByRole("button", { name: "Toggle Sidebar" }))
+    .element(screen.getByRole("button", { name: "Toggle sidebar" }))
     .toBeInTheDocument();
   await expect
     .element(screen.getByRole("button", { name: "New agent" }))
@@ -451,7 +451,7 @@ test("no a11y violations — mobile-mocked, sheet closed", async () => {
 test("no a11y violations — mobile-mocked, sheet open", async () => {
   await withMobileViewport(async () => {
     const screen = await render(<Demo />);
-    await screen.getByRole("button", { name: "Toggle Sidebar" }).click();
+    await screen.getByRole("button", { name: "Toggle sidebar" }).click();
     await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
     // The sheet portals to <body>, so audit the whole document (same pattern as sidebar.test.tsx).
     await expectNoA11yViolations(document.body);

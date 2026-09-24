@@ -71,7 +71,9 @@ Use the `variant` prop to change the visual style of the item: `default`, `outli
 ### Size
 
 Use the `size` prop to change the size of the item. Available sizes are `default`, `sm` and `xs`.
-An enclosing `ItemGroup` tightens its own gap to match.
+An enclosing `ItemGroup` tightens its own gap to match. The tier steps the padding and the gaps;
+of the parts inside, only `ItemMedia` shrinks — the title and description keep their type size
+(`xs` alone drops the description to `text-xs`).
 
 <ComponentPreview name="itemSize" file="components/preview/item.tsx" />
 
@@ -136,6 +138,30 @@ are done.
 
 <ComponentPreview name="itemChecklist" file="components/preview/item.tsx" />
 
+### Link rows in a group
+
+An `Item` rendered as a link or a button inside an `ItemGroup` keeps its own role: the `listitem`
+the group requires moves to a `<div role="listitem" data-slot="item-listitem">` wrapper around it.
+A `RelativeTime` or truncated cell inside such a row is not a tab stop of its own — the row is the
+one control.
+
+<ComponentPreview
+  name="itemLinkRowsInGroup"
+  file="components/preview/item.tsx"
+/>
+
+### Grouped with labels
+
+`ItemGroupLabel` is a small heading (an `h3` by default; pass `render={<h2 />}` for another level)
+that names the `ItemGroup` rendered immediately after it, so each group is announced as a named
+list. The name is linked after mount; to name the list in server-rendered HTML as well, give the
+label an `id` and the group `aria-labelledby` yourself.
+
+<ComponentPreview
+  name="itemGroupedWithLabels"
+  file="components/preview/item.tsx"
+/>
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="ItemProps" />
@@ -152,6 +178,8 @@ are done.
 
 <ApiTable path="lib/api-props.ts" name="ItemGroupProps" />
 
+<ApiTable path="lib/api-props.ts" name="ItemGroupLabelProps" />
+
 <ApiTable path="lib/api-props.ts" name="ItemSeparatorProps" />
 
 <ApiTable path="lib/api-props.ts" name="ItemHeaderProps" />
@@ -162,10 +190,17 @@ are done.
 
 - `Item` is a `div` by default and carries no role of its own — it is content, not a control. Pass
   `render` to make it an anchor or a button when the whole row is activatable.
-- `ItemGroup` renders `role="list"`, which admits only `listitem` children. Give every `Item` inside
-  one `role="listitem"`, and hide an `ItemSeparator` between two rows with `aria-hidden` — the list
+- `ItemGroup` renders `role="list"`, which admits only `listitem` children. Every `Item` inside it
+  takes `role="listitem"` through context; a row rendered as a link or a button keeps its own role
+  and gets a `listitem` wrapper instead. `ItemSeparator` is hidden with `aria-hidden` — the list
   already conveys the separation, and an exposed `role="separator"` there is a critical
   `aria-required-children` failure.
+- `ItemGroupLabel` names the group after it through `aria-labelledby`, so the list is announced
+  with its heading.
+- A row that owns an accessible description (a command option, a menu item) provides
+  `ItemDescriptionContext`; an `ItemDescription` inside it registers its `id`, and the row points
+  `aria-describedby` at it, so the second line is read as a description rather than as part of the
+  name.
 - On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1). The item's recipe
   carries no focus ring, no `ring-3` glow and no `outline-none` of its own (FOC-6).
 - `ItemTitle` never clamps on the element that is also a flex container; wrap the text in an inner
@@ -185,14 +220,20 @@ are done.
 
 Upstream's file plus `packages/ui/upstream/patches/item.patch`. Every hunk:
 
+- **A11Y-7** — `ItemGroup` licenses `role="listitem"` on the items inside it, through context, and
+  hides the separator's rule from assistive tech. `role="list"` admits only `listitem` children, so
+  upstream's own composition is a critical `aria-required-children` violation as shipped. A row
+  rendered as a link or a button keeps its own role and the `listitem` moves to a wrapper, and its
+  truncated cells are not tab stops of their own.
+- **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the
+  module throws on import in a React Server Component without the boundary.
+- **API-19** — `ItemDescriptionContext` and `useItemDescriptionId()` let a row link its
+  `ItemDescription` as its accessible description. Outside such a row the description renders as
+  upstream's.
+- **API-20** — `ItemGroupLabel`, a heading part that names the `ItemGroup` after it.
+- **DOC-2** — `cn` is imported from `@vegastack/design`, and the file carries the registry
+  provenance header.
 - **FOC-1, FOC-6** — `itemVariants` loses upstream's `outline-none`, `focus-visible:border-ring` and
   3px `focus-visible:ring-ring/50` glow, so the global 2px outline is what a focused item shows.
 - **LAY-11** — `ItemTitle` loses `line-clamp-1`, which upstream sets on the same element as `flex`.
   Truncation goes on an inner span instead.
-- **DOC-2** — `cn` is imported from `@vegastack/design`, and the file carries the registry
-  provenance header.
-- **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the
-  module throws on import in a React Server Component without the boundary.
-- **A11Y-7** — `ItemGroup` licenses `role="listitem"` on the items inside it, through context, and
-  hides the separator's rule from assistive tech. `role="list"` admits only `listitem` children, so
-  upstream's own composition is a critical `aria-required-children` violation as shipped.

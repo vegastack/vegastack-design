@@ -144,6 +144,19 @@ chevron.
 
 <ComponentPreview name="menubarRtl" file="components/preview/menubar.tsx" />
 
+### Description line
+
+A row that needs a second line composes Item's parts: `ItemContent` › `ItemTitle` +
+`ItemDescription`. `MenubarItem`, `MenubarCheckboxItem` and `MenubarRadioItem` each provide Item's description context, so the description's id
+lands on the row's `aria-describedby` and a screen reader hears it as the row's description
+(API-19). This is also where a disabled row says why: a disabled item keeps focus and shows its
+reason as a description; Tooltip is not the reason carrier.
+
+<ComponentPreview
+  name="menubarDescriptionLine"
+  file="components/preview/menubar.tsx"
+/>
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="MenubarContentProps" />
@@ -174,7 +187,9 @@ wraps, accepts.
   `menubar.test.tsx` asserts the rendered popup carries it, so the day that composition changes
   the test fails rather than the scope going quiet.
 - Rows carry the hand cursor from the one global rule in `base.css` (INT-1).
-- A disabled row keeps its pointer events (FRM-4), so a Tooltip can explain why it is unavailable.
+- A disabled item keeps focus and shows its reason as a description; Tooltip is not the reason
+  carrier. <kbd>↑</kbd>/<kbd>↓</kbd> land on it and <kbd>Enter</kbd> does nothing — Base UI keeps
+  every row focusable when disabled — and its pointer events stay alive too (FRM-4).
 
 <StatesTested name="menubar" />
 
@@ -208,8 +223,13 @@ Upstream's file plus `packages/ui/upstream/patches/menubar.patch`. Every hunk:
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **A11Y-13** — a focused destructive `MenubarItem` reads `focus:text-destructive-text` on its
   `bg-destructive/10` wash. Upstream inks it with the fill (`focus:text-destructive`), which
-  measures 3.99:1 on its own tint in light, under the AA floor; the resting ink and the icon
-  ink stay upstream's.
+  measures 3.99:1 on its own tint in light, under the AA floor. The resting ink measures 4.77:1 in light and
+  6.21:1 in dark on the popup, over the floor, so it and the icon ink stay upstream's.
+- **API-19** — `MenubarCheckboxItem` and `MenubarRadioItem` each provide Item's
+  `ItemDescriptionContext` and point `aria-describedby` at an `ItemDescription` once one
+  registers inside the row; `MenubarItem` inherits the same hunk from `DropdownMenuItem`. A
+  two-line row reads its second line as the row's accessible description
+  ([Description line](#description-line)).
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of
   their own.

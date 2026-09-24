@@ -2,8 +2,8 @@
   "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (183 rows: 168 decided by MK 2026-09-17/18 and fifteen added by MK since, each dated in the register header; OVL-10 and BRD-1 are the two rows whose resolution changed. IDs A11Y-14 and A11Y-15 are permanently unused.)",
   "_note": "GENERATED from the prose register, which is tracked in git. Regenerate with: node tooling/upstream/verify-parity.mjs --sync-decisions. A gate may only accept an ID whose value here is \"ours\".",
   "counts": {
-    "total": 183,
-    "ours": 75,
+    "total": 202,
+    "ours": 94,
     "shadcn": 108
   },
   "decisions": {
@@ -17,6 +17,7 @@
     "INT-8": "shadcn",
     "INT-9": "ours",
     "INT-10": "shadcn",
+    "INT-11": "ours",
     "FOC-1": "ours",
     "FOC-2": "ours",
     "FOC-3": "ours",
@@ -106,6 +107,10 @@
     "LAY-10": "ours",
     "LAY-11": "ours",
     "LAY-12": "ours",
+    "LAY-13": "ours",
+    "LAY-14": "ours",
+    "LAY-15": "ours",
+    "LAY-16": "ours",
     "A11Y-1": "ours",
     "A11Y-2": "ours",
     "A11Y-3": "ours",
@@ -120,6 +125,11 @@
     "A11Y-12": "ours",
     "A11Y-13": "ours",
     "A11Y-16": "ours",
+    "A11Y-17": "ours",
+    "A11Y-18": "ours",
+    "A11Y-19": "ours",
+    "A11Y-20": "ours",
+    "A11Y-22": "ours",
     "FRM-1": "shadcn",
     "FRM-2": "shadcn",
     "FRM-3": "shadcn",
@@ -134,6 +144,7 @@
     "FRM-12": "ours",
     "FRM-13": "ours",
     "FRM-14": "shadcn",
+    "FRM-15": "ours",
     "OVL-1": "shadcn",
     "OVL-2": "shadcn",
     "OVL-3": "shadcn",
@@ -175,6 +186,13 @@
     "API-15": "ours",
     "API-16": "ours",
     "API-17": "ours",
+    "API-18": "ours",
+    "API-19": "ours",
+    "API-20": "ours",
+    "API-21": "ours",
+    "API-22": "ours",
+    "API-23": "ours",
+    "API-25": "ours",
     "API-24": "ours",
     "API-26": "ours",
     "API-28": "ours",
@@ -189,6 +207,7 @@
     "DOC-9": "ours",
     "DOC-10": "shadcn",
     "DOC-11": "shadcn",
-    "DOC-12": "shadcn"
+    "DOC-12": "shadcn",
+    "VOI-1": "ours"
   }
 }

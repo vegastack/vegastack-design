@@ -1,26 +1,36 @@
 # component: empty
-# decisions: DOC-2, TYP-15
+# decisions: API-16, API-22, DOC-2, TYP-15
 # hunks:
 #   TYP-15: the title's `tracking-tight` is dropped. TYP-15 puts the heading tier's optical
 #     tracking in the theme and holds the COPY tier at zero, which is Geist's own copy/heading
 #     split; this title is `text-sm` (14px), squarely in the copy tier, where negative tracking
 #     costs legibility and buys nothing. It was the only copy-tier tracking in the registry.
+#   API-22: `EmptyTitle` renders through Base UI's `useRender` (upstream's own Badge pattern:
+#     `mergeProps` + `render` + `state.slot`) instead of a fixed `<div>`, so a page sets the heading
+#     level on the part (`render={<h2 />}`). The default tag, the `data-slot` and the class list are
+#     upstream's, unchanged.
+#   API-16: `"use client"` is added — `useRender` calls `React.useRef` internally, so the module
+#     throws on import in an RSC without the boundary (`verify-rsc-safety.mjs`).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/empty.tsx b/empty.tsx
-index e11ce34..8652da7 100644
+index e11ce34..8eaf67e 100644
 --- a/empty.tsx
 +++ b/empty.tsx
-@@ -1,5 +1,5 @@
+@@ -1,5 +1,9 @@
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
++"use client";
++
++import { mergeProps } from "@base-ui/react/merge-props";
++import { useRender } from "@base-ui/react/use-render";
 +import { cva, type VariantProps } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
  
  function Empty({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -7,11 +7,11 @@ function Empty({ className, ...props }: React.ComponentProps<"div">) {
+@@ -7,11 +11,11 @@ function Empty({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="empty"
        className={cn(
          "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-xl border-dashed p-6 text-center text-balance",
@@ -34,7 +44,7 @@ index e11ce34..8652da7 100644
  }
  
  function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -21,7 +21,7 @@ function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -21,7 +25,7 @@ function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex max-w-sm flex-col items-center gap-2", className)}
        {...props}
      />
@@ -43,7 +53,7 @@ index e11ce34..8652da7 100644
  }
  
  const emptyMediaVariants = cva(
-@@ -36,8 +36,8 @@ const emptyMediaVariants = cva(
+@@ -36,8 +40,8 @@ const emptyMediaVariants = cva(
      defaultVariants: {
        variant: "default",
      },
@@ -54,7 +64,7 @@ index e11ce34..8652da7 100644
  
  function EmptyMedia({
    className,
-@@ -51,20 +51,17 @@ function EmptyMedia({
+@@ -51,20 +55,27 @@ function EmptyMedia({
        className={cn(emptyMediaVariants({ variant, className }))}
        {...props}
      />
@@ -62,23 +72,39 @@ index e11ce34..8652da7 100644
 +  );
  }
  
- function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
-   return (
-     <div
-       data-slot="empty-title"
+-function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
+-  return (
+-    <div
+-      data-slot="empty-title"
 -      className={cn(
 -        "font-heading text-sm font-medium tracking-tight",
 -        className
 -      )}
-+      className={cn("font-heading text-sm font-medium", className)}
-       {...props}
-     />
+-      {...props}
+-    />
 -  )
-+  );
++function EmptyTitle({
++  className,
++  render,
++  ...props
++}: useRender.ComponentProps<"div">) {
++  return useRender({
++    defaultTagName: "div",
++    props: mergeProps<"div">(
++      {
++        className: cn("font-heading text-sm font-medium", className),
++      },
++      props,
++    ),
++    render,
++    state: {
++      slot: "empty-title",
++    },
++  });
  }
  
  function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
-@@ -73,11 +70,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
+@@ -73,11 +84,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
        data-slot="empty-description"
        className={cn(
          "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
@@ -92,7 +118,7 @@ index e11ce34..8652da7 100644
  }
  
  function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -86,11 +83,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -86,11 +97,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="empty-content"
        className={cn(
          "flex w-full max-w-sm min-w-0 flex-col items-center gap-2.5 text-sm text-balance",
@@ -106,7 +132,7 @@ index e11ce34..8652da7 100644
  }
  
  export {
-@@ -100,4 +97,4 @@ export {
+@@ -100,4 +111,4 @@ export {
    EmptyDescription,
    EmptyContent,
    EmptyMedia,

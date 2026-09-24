@@ -87,7 +87,7 @@
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
         "version": "0.18.0",
-        "integrity": "sha256-oMUiKDb5U6qgAZPtkqnocNorkFcF2h2MybhkEMZctWY="
+        "integrity": "sha256-Zr6uvRg7lD+9ci5LZGoSES2hO92iyOAf6UjVN9TiY8o="
       }
     },
     {
@@ -386,7 +386,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "An action — use a Button. A Badge is a label; it can be a link through render, but never a control.",
         "version": "0.18.0",
-        "integrity": "sha256-+M6vs9x85eeUMu2pb2cEKJTsilW8B5zkkIwvoRz+clw="
+        "integrity": "sha256-gSdFdjvJjGZHJ2p5mwgXDyjtcU/VD/HoZkUt4jczKv8="
       }
     },
     {
@@ -589,6 +589,7 @@
         "data-display"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
@@ -604,7 +605,7 @@
         "whenToUse": "Group related content into a bordered surface — summaries, plan tiles, settings sections.",
         "whenNotToUse": "Single standalone values or page layout regions; never nest cards or add shadows.",
         "version": "0.18.0",
-        "integrity": "sha256-j/xlnNF7H/mruYPyz8fyB4mbv1/mCrE4AhVwBtlSvIo="
+        "integrity": "sha256-eDr6XPPztf9Z5QoArQNYW0f83cC5mlcwABFbGRvkwAU="
       }
     },
     {
@@ -692,7 +693,7 @@
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
         "version": "0.18.0",
-        "integrity": "sha256-Oa5+F4iF4JFnMNiJgLs7HI83vBtQ2sjBRH1AKosjJ8E="
+        "integrity": "sha256-DlCEctGek4Zwyfsk986ymdbwq8leZ6rZSXqQf2PXxQc="
       }
     },
     {
@@ -861,7 +862,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/input-group"
+        "@vegastack/input-group",
+        "@vegastack/item"
       ],
       "files": [
         {
@@ -871,10 +873,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
+        "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.18.0",
-        "integrity": "sha256-rUhj5QtoqyG7RNn736aWU6JpO1S/nxHHyy+J/OqZlBA="
+        "integrity": "sha256-FqaRPDIhN2GfYKdO+3Epoq/mD/ko9wJYu/bwbi1ggcw="
       }
     },
     {
@@ -894,6 +896,7 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/input-group",
+        "@vegastack/item",
         "@vegastack/use-announcer"
       ],
       "files": [
@@ -904,10 +907,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to.",
-        "whenNotToUse": "Picking a form value — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
+        "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
+        "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.18.0",
-        "integrity": "sha256-Ikl1JWY3YDfiF2G2iDDG11/k5xbGe6iMqXdlxM1RW5E="
+        "integrity": "sha256-Gopo6erXBeb+6sECd6EqiTCrzOHlYxLD0nun+ZJ4tEE="
       }
     },
     {
@@ -924,7 +927,9 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/item"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/context-menu.tsx",
@@ -933,10 +938,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card.",
+        "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.18.0",
-        "integrity": "sha256-kF9J7l+TF5ztoFNpQYiL3mbHAg412V7KdUjnwnNWV5Y="
+        "integrity": "sha256-ejIZSKjsp9Sq46K9U67Mkfw3q0XBhGVKHjVeokhIslI="
       }
     },
     {
@@ -1225,10 +1230,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
+        "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.18.0",
-        "integrity": "sha256-SAEsQROZXw2qlgomFjsRQrKtqUy7Xvnfx1lPMzR3egU="
+        "integrity": "sha256-7nyCfAkBVU859kv4niOmWn/QQyNGMnb8wFBlv+jWc5c="
       }
     },
     {
@@ -1325,7 +1330,9 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/item"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/dropdown-menu.tsx",
@@ -1334,10 +1341,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher.",
+        "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.18.0",
-        "integrity": "sha256-h6yAtn5dLRLh47j7PiZ1oeFsmfDRXvBvnvZ9EBXZvpw="
+        "integrity": "sha256-X4qVdXNPPFxckSBY3MyWhTqJOvoNiccqf0lMTUGiuZc="
       }
     },
     {
@@ -1476,6 +1483,7 @@
         "data-display"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
@@ -1492,7 +1500,7 @@
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
         "version": "0.18.0",
-        "integrity": "sha256-Ql4uE8Fp7fx9XNLH5nPDa/cuSP4NuplaE0hcLREUm8o="
+        "integrity": "sha256-tlQbxL4HQceCGvEiXcptXVJioh++LS3hxtCcAAVpMPg="
       }
     },
     {
@@ -14854,7 +14862,8 @@
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
-        "@vegastack/separator"
+        "@vegastack/separator",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -14864,10 +14873,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions.",
+        "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions. Rows rendered as links or buttons can sit inside an ItemGroup (the list item moves to a wrapper), and ItemGroupLabel names a group.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.18.0",
-        "integrity": "sha256-GPv1zntMSe6+OS8yFewxi3hk0q+39AIiGfe2IhLx3o4="
+        "integrity": "sha256-mJD/DcwRml8SZKqPEAQMtcvmY0pahBOW7PuaxT0Dr2Q="
       }
     },
     {
@@ -15033,7 +15042,8 @@
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
-        "@vegastack/dropdown-menu"
+        "@vegastack/dropdown-menu",
+        "@vegastack/item"
       ],
       "files": [
         {
@@ -15043,10 +15053,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other.",
+        "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
         "version": "0.18.0",
-        "integrity": "sha256-4bN9g4rcs+uxdVIA6Qv6aMW2EqG9nJ3xzjZIXbLN3yU="
+        "integrity": "sha256-aj6sL4zX9H6+DM0FjzY+k9GPuXRvz0JX2LEFkyt0Chs="
       }
     },
     {
@@ -15496,7 +15506,7 @@
         "whenToUse": "A form value from 2–5 mutually-exclusive choices, all visible at once.",
         "whenNotToUse": "An immediate view or scope switch over the same content (ToggleGroup), many options (Select), or non-exclusive multi-select (Checkboxes).",
         "version": "0.18.0",
-        "integrity": "sha256-a5nnYuMGkelGcJiK9LIQ05WRrS9XJIDOQhpws1B3HrY="
+        "integrity": "sha256-rG8Y8d4fmsMU95l1rxV3YxPDZvsMk1oLbkWB8LaTRZ4="
       }
     },
     {
@@ -15614,7 +15624,7 @@
         "whenToUse": "Bounded panels whose content overflows — sidebars, log viewers, modal bodies, chat histories.",
         "whenNotToUse": "Whole-page scrolling, or content that already fits.",
         "version": "0.18.0",
-        "integrity": "sha256-KoG8ydg+7aASQXPsAQe71Xa6dVpDNOpTeFMVge67Ff4="
+        "integrity": "sha256-rsrptpqzXmVTb6sEmM1Uv1pue5rjd4fW7NnT48pd3yU="
       }
     },
     {
@@ -15724,7 +15734,9 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/item"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/select.tsx",
@@ -15733,10 +15745,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars.",
+        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.18.0",
-        "integrity": "sha256-AHpgagL19rTPmv/q4WttERDKfo2ZW4ncqNATkycGviE="
+        "integrity": "sha256-fKUTa6I/TTrV3UTF5KDfLk2bcT6DPafbnltkyGcnLrI="
       }
     },
     {
@@ -15822,10 +15834,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Secondary content beside the page — filters, details, a settings panel — that should not take the centre of the screen.",
+        "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.18.0",
-        "integrity": "sha256-8zmmTcs4flupkzKeNC5PbpdMwAr+QXSeiY3e9d2/M8E="
+        "integrity": "sha256-+de0WRWObvjWHuvxaUy45N57ppTLKsIisx/sMZlphFU="
       }
     },
     {
@@ -15858,7 +15870,7 @@
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (Kbd in a Tooltip, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
         "version": "0.18.0",
-        "integrity": "sha256-yJzi5F/so/6r50ZtmK7Bhpz6Pen3CiQtfj8Z5Pon0x8="
+        "integrity": "sha256-eCNLTWz81Ed6u2bHFQ33njxJYEMzoR4zy8ie8o7iHis="
       }
     },
     {
@@ -15883,7 +15895,8 @@
         "@vegastack/sheet",
         "@vegastack/skeleton",
         "@vegastack/tooltip",
-        "@vegastack/use-mobile"
+        "@vegastack/use-mobile",
+        "@vegastack/use-platform"
       ],
       "files": [
         {
@@ -15896,7 +15909,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.18.0",
-        "integrity": "sha256-5zb9cqMJOp1pOyrB6sqB5N+oKYp7JKro6Nt+EGxwGxo="
+        "integrity": "sha256-2wTwpwkFhIs8jOzp3ftNpG+TUsXMX33wwQxLrjkvUnI="
       }
     },
     {
@@ -16135,7 +16148,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.18.0",
-        "integrity": "sha256-6PU6T5qikbQIylAOW3f9RIyJdL7XN24Ax2VbG72Z+p4="
+        "integrity": "sha256-O7ljtGartCu8cGMfy2+5Qo24JLJ0M4XBq2mEmlyVIDY="
       }
     },
     {
@@ -16223,10 +16236,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
-        "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
+        "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
+        "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.18.0",
-        "integrity": "sha256-ujGW01L1R0/2AK9Sk+RttqmvnfQaqEfjaidI9z+Z/uM="
+        "integrity": "sha256-jAavPD7LAjn2sJG4IZN05nco4vk9p08MQcudgDoR37o="
       }
     },
     {
@@ -16476,10 +16489,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) that keeps one item pressed, or related toggle buttons such as formatting.",
+        "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) — pass deselectable={false} so one item always stays pressed — or related toggle buttons such as formatting; wrap lets a long option set fall onto rows on a narrow screen.",
         "whenNotToUse": "A form value (RadioGroup), swapping page regions (Tabs), moving between URLs (links), or a single on/off control (Toggle/Switch).",
         "version": "0.18.0",
-        "integrity": "sha256-0O+SCA/uTnjd8Lvtz+/33a9id7o9tpnE2SdDivEWGng="
+        "integrity": "sha256-LckJMBFxZAenKgDnQz8X8WwDupqyhq1lEHDzfBphqs0="
       }
     },
     {
@@ -16850,7 +16863,7 @@
         "whenToUse": "Any copy or control that branches on modifier-key conventions (Kbd's os prop, shortcut hints, Command footers) or on a coarse pointer; formatShortcutKey / formatShortcut turn \"mod\" into ⌘ or Ctrl.",
         "whenNotToUse": "Viewport-width layout switching — that is useIsMobile; and never wire it inside Kbd itself, which must stay server-safe.",
         "version": "0.18.0",
-        "integrity": "sha256-90icG/v3iK73TiOR8pwIdJaaK5z/1hR25f6Py8RBrnc="
+        "integrity": "sha256-0Tpv5ugnBz7wtWTAuk0jMjkphTPyoLj7ywxgzqjJIEY="
       }
     },
     {

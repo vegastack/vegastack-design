@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
 import { RadioGroup, RadioGroupItem } from "./radio-group";
@@ -15,6 +16,17 @@ import {
   FieldTitle,
 } from "./field";
 import { Label } from "./label";
+
+/*
+ * This lane compiles no Tailwind by default. The FRM-15 dimming assertions read a COMPUTED
+ * opacity, so they inject the compiled token CSS for the one test that needs it.
+ */
+function withCompiledCss() {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+}
 
 const itemClasses = (screen: { container: HTMLElement }) =>
   (
@@ -250,6 +262,49 @@ test("no a11y violations — disabled", async () => {
         <RadioGroupItem value="two" id="a11y-d2" />
         <FieldLabel htmlFor="a11y-d2">Two</FieldLabel>
       </Field>
+    </RadioGroup>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FRM-15: a disabled radio outside a Field is dimmed (Disabled)", async () => {
+  withCompiledCss();
+  const screen = await render(
+    <RadioGroup aria-label="Status">
+      <RadioGroupItem value="a" disabled aria-label="Draft" />
+    </RadioGroup>,
+  );
+  const radio = screen.getByRole("radio", { name: "Draft" }).element();
+  expect(radio.hasAttribute("data-disabled")).toBe(true);
+  expect(getComputedStyle(radio).opacity).toBe("0.5");
+  expect(getComputedStyle(radio).cursor).toBe("not-allowed");
+});
+
+test("FRM-15: an enabled radio beside it is not dimmed", async () => {
+  withCompiledCss();
+  const screen = await render(
+    <RadioGroup aria-label="Status">
+      <RadioGroupItem value="a" disabled aria-label="Draft" />
+      <RadioGroupItem value="b" aria-label="Live" />
+    </RadioGroup>,
+  );
+  const radio = screen.getByRole("radio", { name: "Live" }).element();
+  expect(getComputedStyle(radio).opacity).toBe("1");
+});
+
+test("FRM-15: the recipe keys disabled styles on data-disabled", async () => {
+  const screen = await render(<Basic />);
+  const classes = itemClasses(screen);
+  expect(classes).toContain("data-disabled:opacity-50");
+  expect(classes).toContain("data-disabled:cursor-not-allowed");
+  expect(classes).not.toMatch(/(?:^|\s)disabled:/);
+});
+
+test("no a11y violations — disabled outside a Field", async () => {
+  const screen = await render(
+    <RadioGroup aria-label="Status">
+      <RadioGroupItem value="a" disabled aria-label="Draft" />
+      <RadioGroupItem value="b" aria-label="Live" />
     </RadioGroup>,
   );
   await expectNoA11yViolations(screen.container);

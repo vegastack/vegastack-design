@@ -35,13 +35,17 @@ import {
   Command,
   CommandDialog,
   CommandEmpty,
+  CommandFooter,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandLoading,
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
+import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
+import { Kbd } from "@/components/ui/kbd";
 import { DirectionProvider } from "@/components/ui/direction";
 
 export function command(): ReactNode {
@@ -440,6 +444,145 @@ export function commandRtl(): ReactNode {
           </CommandList>
         </Command>
       </DirectionProvider>
+    </Wrapper>
+  );
+}
+
+const MEETINGS = [
+  { id: "m1", title: "Depot review", meta: "Meeting · 3 Sep" },
+  { id: "m2", title: "Fleet renewal", meta: "Call · 2 Sep" },
+  { id: "m3", title: "Quarterly planning", meta: "Meeting · 29 Aug" },
+  { id: "m4", title: "Driver onboarding", meta: "Document · 27 Aug" },
+] as const;
+
+/** OVL-16: a large palette — wider dialog, taller list. */
+export function commandLargePalette(): ReactNode {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Wrapper>
+      <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
+        Open large palette
+      </Button>
+      <CommandDialog open={open} onOpenChange={setOpen} size="lg">
+        <Command>
+          <CommandInput placeholder="Search meetings, documents and people…" />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Recent">
+              {MEETINGS.map((meeting) => (
+                <CommandItem key={meeting.id} value={meeting.title}>
+                  <ItemContent>
+                    <ItemTitle>{meeting.title}</ItemTitle>
+                    <ItemDescription>{meeting.meta}</ItemDescription>
+                  </ItemContent>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </CommandDialog>
+    </Wrapper>
+  );
+}
+
+/** API-18: results fetched per query, with cmdk's filter off and a loading status above the list. */
+export function commandServerResults(): ReactNode {
+  const [search, setSearch] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [results, setResults] =
+    React.useState<readonly (typeof MEETINGS)[number][]>(MEETINGS);
+
+  React.useEffect(() => {
+    setLoading(true);
+    const timer = window.setTimeout(() => {
+      const query = search.trim().toLowerCase();
+      setResults(
+        MEETINGS.filter((meeting) =>
+          meeting.title.toLowerCase().includes(query),
+        ),
+      );
+      setLoading(false);
+    }, 600);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  return (
+    <Wrapper>
+      <Command shouldFilter={false} className="max-w-sm rounded-lg border">
+        <CommandInput
+          value={search}
+          onValueChange={setSearch}
+          placeholder="Search meetings…"
+        />
+        {loading ? <CommandLoading>Searching meetings…</CommandLoading> : null}
+        <CommandList>
+          {loading ? null : <CommandEmpty>No meetings found.</CommandEmpty>}
+          {results.map((meeting) => (
+            <CommandItem key={meeting.id} value={meeting.id}>
+              {meeting.title}
+            </CommandItem>
+          ))}
+        </CommandList>
+      </Command>
+    </Wrapper>
+  );
+}
+
+/** API-19: the second line is the option's accessible description. */
+export function commandTwoLineResults(): ReactNode {
+  return (
+    <Wrapper>
+      <Command className="max-w-sm rounded-lg border">
+        <CommandInput placeholder="Search meetings…" />
+        <CommandList>
+          <CommandEmpty>No meetings found.</CommandEmpty>
+          {MEETINGS.map((meeting) => (
+            <CommandItem key={meeting.id} value={meeting.title}>
+              <ItemContent>
+                <ItemTitle>{meeting.title}</ItemTitle>
+                <ItemDescription>{meeting.meta}</ItemDescription>
+              </ItemContent>
+            </CommandItem>
+          ))}
+        </CommandList>
+      </Command>
+    </Wrapper>
+  );
+}
+
+/** API-18: key hints in a footer that sits outside the listbox. */
+export function commandFooterHints(): ReactNode {
+  return (
+    <Wrapper>
+      <Command className="max-w-sm rounded-lg border">
+        <CommandInput placeholder="Type a command or search…" />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Suggestions">
+            <CommandItem>
+              <CalendarIcon />
+              <span>Calendar</span>
+            </CommandItem>
+            <CommandItem>
+              <SettingsIcon />
+              <span>Settings</span>
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+        <CommandFooter>
+          <span className="flex items-center gap-1">
+            <Kbd>↑</Kbd>
+            <Kbd>↓</Kbd> to navigate
+          </span>
+          <span className="flex items-center gap-1">
+            <Kbd>↵</Kbd> to select
+          </span>
+          <span className="ms-auto flex items-center gap-1">
+            <Kbd>Esc</Kbd> to close
+          </span>
+        </CommandFooter>
+      </Command>
     </Wrapper>
   );
 }

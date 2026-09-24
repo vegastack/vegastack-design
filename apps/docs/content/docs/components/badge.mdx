@@ -75,6 +75,41 @@ the icon spacing without any extra work.
 
 <ComponentPreview name="badgeRtl" file="components/preview/badge.tsx" />
 
+### Mapping domain statuses
+
+Map each of your domain's statuses to a label and a variant in ONE typed table, and render every
+badge from it. `BadgeVariant` is the variant union, so `satisfies` rejects a misspelt or retired
+variant at compile time and fails the build when a new status has no entry.
+
+| Tone          | Use it for                                    |
+| ------------- | --------------------------------------------- |
+| `success`     | Done and healthy: live, paid, passed          |
+| `info`        | In flight: running, syncing, in review        |
+| `warning`     | Needs attention soon: paused, expiring, stale |
+| `destructive` | Failed or blocked: failed, rejected, overdue  |
+| `secondary`   | Not started or neutral: draft, queued         |
+| `outline`     | Out of play: archived, cancelled              |
+
+```tsx
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
+
+type RunStatus =
+  "live" | "running" | "paused" | "failed" | "draft" | "archived";
+
+const RUN_STATUS = {
+  live: { label: "Live", variant: "success" },
+  running: { label: "Running", variant: "info" },
+  paused: { label: "Paused", variant: "warning" },
+  failed: { label: "Failed", variant: "destructive" },
+  draft: { label: "Draft", variant: "secondary" },
+  archived: { label: "Archived", variant: "outline" },
+} satisfies Record<RunStatus, { label: string; variant: BadgeVariant }>;
+
+<Badge variant={RUN_STATUS[status].variant}>{RUN_STATUS[status].label}</Badge>;
+```
+
+<ComponentPreview name="badgeStatusMap" file="components/preview/badge.tsx" />
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="BadgeProps" />
@@ -116,3 +151,5 @@ Upstream's file plus `packages/ui/upstream/patches/badge.patch`. Every hunk:
   module throws on import in a React Server Component without the boundary.
 - **A11Y-2** — an interactive badge (rendered as a link or a button) gets an invisible `::after`
   hit area and drops `overflow-hidden`, so its pointer target clears 24px. Upstream's is 20px tall.
+- **API-25** — `BadgeVariant`, the variant union derived from `badgeVariants`, is exported so a
+  status map is typed against the system's own variants.

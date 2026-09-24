@@ -94,6 +94,38 @@ from `left` in a right-to-left one. And hand `dir` to `SheetContent` — the pan
 
 <ComponentPreview name="sheetRtl" file="components/preview/sheet.tsx" />
 
+### Sizes
+
+`size` on `SheetContent` steps a left or right sheet through Dialog's own width scale (OVL-16), so
+`size="lg"` is the same cap on either overlay: `sm` (`max-w-xs`), `default` (`max-w-sm`, upstream's
+width), `lg` (`max-w-2xl`) and `xl` (`max-w-5xl`), from the `sm` breakpoint up. The value is
+published as `data-size`. Below `sm` a side sheet is full width whatever its size, and from `sm` up
+it is three quarters of the viewport under that cap. Top and bottom sheets ignore the axis.
+
+<ComponentPreview name="sheetSizes" file="components/preview/sheet.tsx" />
+
+### Scrolling body
+
+Put long content in `SheetBody`. It is the one scroller in the panel's flex column
+(`min-h-0 flex-1 overflow-y-auto`), so the header stays at the top and the footer's actions stay on
+screen however many fields sit between them. It carries the panel's `px-4` inset itself.
+
+<ComponentPreview
+  name="sheetScrollingBody"
+  file="components/preview/sheet.tsx"
+/>
+
+### Header action
+
+`SheetAction` seats one control at the end of `SheetHeader`, beside the title and description, and
+reserves the corner close button's width so the two never meet. `closeLabel` on `SheetContent`
+renames that close button — here "Close invoice" instead of the default "Close".
+
+<ComponentPreview
+  name="sheetHeaderAction"
+  file="components/preview/sheet.tsx"
+/>
+
 ## Playground
 
 Pick the edge the panel pins to and whether it carries a close button, then copy the generated JSX.
@@ -106,8 +138,11 @@ Pick the edge the panel pins to and whether it carries a close button, then copy
 
 <ApiTable path="lib/api-props.ts" name="SheetContentProps" />
 
-`SheetTrigger`, `SheetClose`, `SheetHeader`, `SheetFooter`, `SheetTitle` and `SheetDescription` add
-no props of their own — each accepts everything its Base UI part or its `div` accepts. The portal
+`SheetContent` adds `size` (`"sm" | "default" | "lg" | "xl"`, default `"default"`; side sheets
+only) and `closeLabel` (the corner close button's name, default `"Close"`).
+
+`SheetTrigger`, `SheetClose`, `SheetHeader`, `SheetAction`, `SheetBody`, `SheetFooter`,
+`SheetTitle` and `SheetDescription` add no props of their own — each accepts everything its Base UI part or its `div` accepts. The portal
 and the backdrop are internal to `SheetContent` and are not exported.
 
 ## Accessibility
@@ -122,7 +157,8 @@ and the backdrop are internal to `SheetContent` and are not exported.
   the root nothing is made inert, so the page behind stays interactive — that is the mode's point.
 - The panel portals to `<body>`, so `SheetPortal` re-applies the enclosing theme scope on a
   `display: contents` host inside the portal (OVL-13).
-- The corner close button is an icon-only `Button` carrying a `sr-only` "Close" label.
+- The corner close button is an icon-only `Button` carrying a `sr-only` label, "Close" unless
+  `closeLabel` names it.
 
 <StatesTested name="sheet" />
 
@@ -142,6 +178,13 @@ Upstream's file plus `packages/ui/upstream/patches/sheet.patch`. Every hunk:
 - **A11Y-9** — `SheetContent` mirrors Base UI's `data-base-ui-inert` markers onto native `inert`
   through `useModalInert`, gated on the root's `modal` prop published through a context — the same
   pair `dialog` carries, because upstream's Sheet is Base UI's Dialog.
+- **OVL-16** — `SheetContent` takes `size?: "sm" | "default" | "lg" | "xl"` and reflects it as
+  `data-size`; a left or right sheet steps Dialog's scale (`sm:max-w-xs` · `sm:max-w-sm` ·
+  `sm:max-w-2xl` · `sm:max-w-5xl`), top and bottom ignore it, and below `sm` a side sheet is full
+  width. Widened from Dialog by MK 2026-09-24.
+- **API-21** — `SheetBody` scrolls between the header and the footer; `SheetAction` is an end seat
+  in `SheetHeader` that clears the close button; `closeLabel` renames the corner close control.
+- **VOI-1** — the corner close's built-in string is the overridable `closeLabel`, default "Close".
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.

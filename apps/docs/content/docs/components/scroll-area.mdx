@@ -70,6 +70,48 @@ Wrap the subtree in `DirectionProvider direction="rtl"`. The vertical bar sits o
   file="components/preview/scroll-area.tsx"
 />
 
+### Named region
+
+`aria-label` or `aria-labelledby` on `ScrollArea` names the viewport — the part a keyboard user
+tabs to — and makes it a `region` landmark, so a screen-reader user hears what it holds before
+scrolling it. An unnamed scroll area stays a plain scroller.
+
+```tsx
+<h4 id="release-tags">Release tags</h4>
+<ScrollArea aria-labelledby="release-tags" className="h-48">
+  …
+</ScrollArea>
+```
+
+<ComponentPreview
+  name="scrollAreaNamedRegion"
+  file="components/preview/scroll-area.tsx"
+/>
+
+### Programmatic scroll
+
+`viewportRef` is a ref to the scrolling element itself, for jumping to an edge, restoring a saved
+position or keeping a log pinned to its end.
+
+```tsx
+const viewportRef = React.useRef<HTMLDivElement>(null);
+
+<ScrollArea
+  viewportRef={viewportRef}
+  aria-label="Release tags"
+  className="h-48"
+>
+  …
+</ScrollArea>;
+
+viewportRef.current?.scrollTo({ top: 0 });
+```
+
+<ComponentPreview
+  name="scrollAreaProgrammatic"
+  file="components/preview/scroll-area.tsx"
+/>
+
 ## Playground
 
 Pick the axis the content overflows on and read off the one composition step that follows: a
@@ -79,10 +121,12 @@ vertical area is `ScrollArea` alone, and either horizontal setting adds the `Scr
 
 ## API Reference
 
-`ScrollArea` and `ScrollBar` add no props of their own — each accepts everything the corresponding
-[Base UI Scroll Area](https://base-ui.com/react/components/scroll-area) part accepts (`Root`,
-`Scrollbar`). `ScrollBar`'s `orientation` is `"vertical"` by default and takes `"horizontal"` for the
-other axis; the root also takes Base UI's `Root` props, plus `className`, `ref` and `render`.
+`ScrollArea` accepts everything the [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
+`Root` accepts, plus `className`, `ref` and `render`, and adds one prop of its own: `viewportRef`
+(`React.Ref<HTMLDivElement>`), a ref to the scrolling viewport. `aria-label`, `aria-labelledby`
+and `tabIndex` are forwarded to the viewport rather than the root. `ScrollBar` adds no props: it
+accepts Base UI's `Scrollbar` props, and its `orientation` is `"vertical"` by default and takes
+`"horizontal"` for the other axis.
 
 ## Accessibility
 
@@ -90,7 +134,8 @@ other axis; the root also takes Base UI's `Root` props, plus `className`, `ref` 
   `tabIndex: hidden.x && hidden.y ? -1 : 0`, so a keyboard-only reader can reach overflowing content
   with arrow keys, and an area whose content fits adds no empty stop to the tab order.
 - Give a scroll area an accessible name — `aria-label`, or `aria-labelledby` pointing at the heading
-  above it — so a screen-reader user hears what the region holds before entering it.
+  above it. The name lands on the focusable viewport, which becomes `role="region"`, so a
+  screen-reader user hears what the region holds before entering it (A11Y-6).
 - Focus is the global 2px `:focus-visible` outline from `base.css`. Upstream's ring glow and its
   `outline-none` are removed (FOC-1, FOC-6): the viewport is the one focusable part of this
   component, so suppressing the outline would leave it with no affordance at all.
@@ -116,12 +161,12 @@ Upstream's file plus `packages/ui/upstream/patches/scroll-area.patch`. Every hun
   `focus-visible:ring-[3px]`, `focus-visible:ring-ring/50` and `focus-visible:outline-1`. The
   viewport IS a tab stop (see A11Y-6), so `outline-none` would leave the one focusable part of this
   component with no affordance.
-- **A11Y-6** — NO HUNK: the engine already implements it. Base UI's `ScrollArea.Viewport` sets
+- **A11Y-6** — the tab-stop half needs no hunk: Base UI's `ScrollArea.Viewport` sets
   `tabIndex: hiddenState.x && hiddenState.y ? -1 : 0`, which is exactly "a scroll viewport is a tab
-  stop only when it can actually scroll". The pre-reset component computed the same thing itself with
-  `useOverflow`; that code is gone because the engine beat it to it. `scroll-area.test.tsx` asserts
-  both directions, so the day Base UI makes the viewport unconditionally tabbable this row stops
-  being satisfied and the test says so.
+  stop only when it can actually scroll", and `scroll-area.test.tsx` asserts both directions. The
+  naming half is a hunk: `aria-label`, `aria-labelledby` and `tabIndex` go to the viewport instead
+  of the non-focusable root, and a named viewport is `role="region"`.
+- **A11Y-22** — `viewportRef` is forwarded to the viewport, for programmatic scrolling.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

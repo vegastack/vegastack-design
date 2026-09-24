@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { Switch } from "@/components/ui/switch";
 
 const themes = [
@@ -496,6 +497,36 @@ export function selectStates(): ReactNode {
               </SelectItem>
             ))}
           </SelectGroup>
+        </SelectContent>
+      </Select>
+    </Wrapper>
+  );
+}
+
+/**
+ * API-19: a two-line option composes `ItemContent` › `ItemTitle` + `ItemDescription`, and the
+ * option links the description as its accessible description.
+ */
+export function selectTwoLineOptions(): ReactNode {
+  return (
+    <Wrapper>
+      <Select defaultValue="depot">
+        <SelectTrigger aria-label="Meeting" className="w-64">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="depot">
+            <ItemContent>
+              <ItemTitle>Depot review</ItemTitle>
+              <ItemDescription>Meeting · 3 Sep</ItemDescription>
+            </ItemContent>
+          </SelectItem>
+          <SelectItem value="pricing">
+            <ItemContent>
+              <ItemTitle>Pricing sync</ItemTitle>
+              <ItemDescription>Meeting · 5 Sep</ItemDescription>
+            </ItemContent>
+          </SelectItem>
         </SelectContent>
       </Select>
     </Wrapper>

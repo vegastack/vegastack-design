@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useSyncExternalStore,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 import {
   BadgeCheck,
@@ -53,6 +48,7 @@ import {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  useSidebarCookieOpen,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -68,6 +64,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /*
  * TWO SHAPES OF FIXTURE, and the reason there are two.
@@ -113,7 +116,7 @@ function SidebarStateReadout(): ReactNode {
         isMobile: <code>{String(isMobile)}</code>
       </p>
       <Button variant="outline" size="sm" onClick={toggleSidebar}>
-        Toggle Sidebar
+        Toggle sidebar
       </Button>
     </div>
   );
@@ -834,7 +837,9 @@ export function sidebarMenuBadge(): ReactNode {
               <SidebarMenu>
                 {NAV.map((item) => (
                   <SidebarMenuItem key={item.key}>
-                    <SidebarMenuButton>
+                    <SidebarMenuButton
+                      badgeLabel={item.badge ? `${item.badge} new` : undefined}
+                    >
                       <item.icon />
                       <span>{item.title}</span>
                     </SidebarMenuButton>
@@ -852,24 +857,7 @@ export function sidebarMenuBadge(): ReactNode {
   );
 }
 
-/*
- * `true` once this client has hydrated; `false` on the server AND during hydration (React uses
- * the server snapshot there), so what it gates is never part of the server HTML. Upstream's
- * `SidebarMenuSkeleton` picks its bar width with `Math.random()`, so a server render of it can never
- * match the client's and every page load logged a hydration mismatch. The preview mounts it after
- * hydration instead; the component is not changed (no register ID covers it).
- */
-const noSubscription = () => () => {};
-function useHydrated(): boolean {
-  return useSyncExternalStore(
-    noSubscription,
-    () => true,
-    () => false,
-  );
-}
-
 export function sidebarMenuSkeleton(): ReactNode {
-  const hydrated = useHydrated();
   return (
     <Wrapper className="block h-72 overflow-hidden p-0">
       <SidebarProvider className="h-full min-h-0">
@@ -880,7 +868,7 @@ export function sidebarMenuSkeleton(): ReactNode {
               <SidebarMenu>
                 {Array.from({ length: 5 }).map((_, index) => (
                   <SidebarMenuItem key={index}>
-                    {hydrated ? <SidebarMenuSkeleton showIcon /> : null}
+                    <SidebarMenuSkeleton index={index} showIcon />
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
@@ -1166,5 +1154,287 @@ export function sidebarRtl(): ReactNode {
         </SidebarProvider>
       </Wrapper>
     </DirectionProvider>
+  );
+}
+
+/*
+ * The sections below come after upstream's examples: they document what this system adds on top
+ * of upstream's parts (A11Y-17's counts, A11Y-18's current page) and the compositions a product
+ * sidebar reaches for most.
+ */
+
+const COUNTED = [
+  {
+    key: "inbox",
+    title: "Inbox",
+    icon: Inbox,
+    count: "12",
+    label: "12 unread",
+  },
+  {
+    key: "review",
+    title: "Waiting for your review across every workspace",
+    icon: BadgeCheck,
+    count: "1,204",
+    label: "1,204 waiting",
+  },
+  { key: "agents", title: "Agents", icon: Bot, count: "3", label: "3 running" },
+] as const;
+
+export function sidebarCounts(): ReactNode {
+  return (
+    <Wrapper className="block h-72 overflow-hidden p-0">
+      <SidebarProvider className="h-full min-h-0">
+        <Sidebar collapsible="none" className="h-full border-e">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Counts</SidebarGroupLabel>
+              <SidebarMenu>
+                {COUNTED.map((item, index) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton
+                      render={<a href={`#${item.key}`} />}
+                      isActive={index === 0}
+                      badge={item.count}
+                      badgeLabel={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
+export function sidebarActionRow(): ReactNode {
+  return (
+    <Wrapper className="block h-64 overflow-hidden p-0">
+      <SidebarProvider className="h-full min-h-0">
+        <Sidebar collapsible="none" className="h-full border-e">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    variant="outline"
+                    aria-keyshortcuts="Meta+K Control+K"
+                  >
+                    <Search />
+                    <span>Search</span>
+                    <KbdGroup aria-hidden="true" className="ms-auto">
+                      <Kbd>⌘</Kbd>
+                      <Kbd>K</Kbd>
+                    </KbdGroup>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton render={<a href="#projects" />}>
+                    <Folder />
+                    <span>Projects</span>
+                  </SidebarMenuButton>
+                  <SidebarMenuAction>
+                    <Plus />
+                    <span className="sr-only">New project</span>
+                  </SidebarMenuAction>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
+export function sidebarCollapsibleGroup(): ReactNode {
+  return (
+    <Wrapper className="block h-80 overflow-hidden p-0">
+      <SidebarProvider className="h-full min-h-0">
+        <Sidebar collapsible="none" className="h-full border-e">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Platform</SidebarGroupLabel>
+              <SidebarMenu>
+                <Collapsible defaultOpen className="group/collapsible">
+                  <SidebarMenuItem>
+                    <SidebarMenuButton render={<CollapsibleTrigger />}>
+                      <SquareTerminal />
+                      <span>Playground</span>
+                      <ChevronRight className="ms-auto transition-transform group-data-open/collapsible:rotate-90 rtl:rotate-180" />
+                    </SidebarMenuButton>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton
+                            render={<a href="#history" />}
+                            isActive
+                            aria-current="page"
+                          >
+                            <span>History</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton render={<a href="#starred" />}>
+                            <span>Starred</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
+export function sidebarUnavailableItem(): ReactNode {
+  return (
+    <Wrapper className="block h-64 overflow-hidden p-0">
+      <SidebarProvider className="h-full min-h-0">
+        <Sidebar collapsible="none" className="h-full border-e">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton render={<a href="#home" />}>
+                    <Home />
+                    <span>Home</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <SidebarMenuButton
+                          aria-disabled="true"
+                          aria-describedby="sidebar-unavailable-reason"
+                        />
+                      }
+                    >
+                      <Bot />
+                      <span>Agents</span>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      Available on the Team plan
+                    </TooltipContent>
+                  </Tooltip>
+                  <span id="sidebar-unavailable-reason" className="sr-only">
+                    Available on the Team plan
+                  </span>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
+export function sidebarKeyboardShortcut(): ReactNode {
+  const [enabled, setEnabled] = useState(true);
+  return (
+    <Wrapper
+      className="block h-80 overflow-hidden p-0"
+      style={{ contain: "paint" }}
+    >
+      <SidebarProvider
+        className="h-full min-h-0"
+        keyboardShortcut={enabled ? "b" : false}
+      >
+        <Sidebar collapsible="icon">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                {NAV.map((item) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton tooltip={item.title}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+          <div className="flex flex-col items-start gap-3 p-4 text-sm">
+            <p>
+              Press <Kbd>⌘</Kbd>/<Kbd>Ctrl</Kbd> + <Kbd>B</Kbd>. Typing it in
+              the field below does nothing.
+            </p>
+            <Input
+              aria-label="Draft"
+              placeholder="Type here"
+              className="max-w-xs"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEnabled((value) => !value)}
+            >
+              {enabled ? "Turn the shortcut off" : "Turn the shortcut on"}
+            </Button>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
+export function sidebarStaticShell(): ReactNode {
+  const [open, setOpen] = useSidebarCookieOpen();
+  return (
+    <Wrapper
+      className="block h-80 overflow-hidden p-0"
+      style={{ contain: "paint" }}
+    >
+      <SidebarProvider
+        className="h-full min-h-0"
+        open={open}
+        onOpenChange={setOpen}
+      >
+        <Sidebar collapsible="icon">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                {NAV.map((item) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton tooltip={item.title}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+          <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger />
+            <span className="text-sm font-medium">
+              Collapse it, then reload the page
+            </span>
+          </header>
+          <div className="p-4 text-sm text-muted-foreground">
+            <code>useSidebarCookieOpen</code> keeps the state in the{" "}
+            <code>sidebar_state</code> cookie, which{" "}
+            <code>SidebarStateScript</code> reads before first paint.
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </Wrapper>
   );
 }

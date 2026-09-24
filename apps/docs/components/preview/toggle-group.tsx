@@ -282,3 +282,60 @@ export function toggleGroupRtl(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * A view switch always has a view: `deselectable={false}` ignores the press that would empty a
+ * single-select group, so pressing the pressed item leaves it pressed.
+ */
+export function toggleGroupAlwaysOne(): ReactNode {
+  return (
+    <Wrapper>
+      <ToggleGroup
+        aria-label="Show"
+        variant="outline"
+        spacing={0}
+        defaultValue={["mine"]}
+        deselectable={false}
+      >
+        <ToggleGroupItem value="mine">Mine</ToggleGroupItem>
+        <ToggleGroupItem value="team">Team</ToggleGroupItem>
+        <ToggleGroupItem value="everyone">Everyone</ToggleGroupItem>
+      </ToggleGroup>
+    </Wrapper>
+  );
+}
+
+const TEAMS = [
+  "Design",
+  "Engineering",
+  "Marketing",
+  "Sales",
+  "Support",
+  "Finance",
+  "Legal",
+  "Operations",
+  "Research",
+  "People",
+] as const;
+
+/** Ten options in a joined group: `wrap` lets them fall onto rows, each row with its own ends. */
+export function toggleGroupMany(): ReactNode {
+  return (
+    <Wrapper>
+      <ToggleGroup
+        aria-label="Teams"
+        variant="outline"
+        spacing={0}
+        wrap
+        multiple
+        defaultValue={["design", "research"]}
+      >
+        {TEAMS.map((team) => (
+          <ToggleGroupItem key={team} value={team.toLowerCase()}>
+            {team}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </Wrapper>
+  );
+}

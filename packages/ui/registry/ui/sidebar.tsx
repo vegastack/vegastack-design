@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.18.0 sha256-5zb9cqMJOp1pOyrB6sqB5N+oKYp7JKro6Nt+EGxwGxo=
+// @vegastack sidebar@0.18.0 sha256-2wTwpwkFhIs8jOzp3ftNpG+TUsXMX33wwQxLrjkvUnI=
 
 "use client";
 
@@ -9,6 +9,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
 import { useIsMobile } from "@/components/ui/use-mobile";
+import { isEditableTarget } from "@/components/ui/use-platform";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -33,6 +34,85 @@ const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+
+const SIDEBAR_STATE_ATTRIBUTE = "data-sidebar-state";
+
+/** The collapsed mark `SidebarStateScript` leaves on `<html>`, read once on the client. */
+function readSidebarStateMark(): boolean | undefined {
+  if (typeof document === "undefined") return undefined;
+  const mark = document.documentElement.getAttribute(SIDEBAR_STATE_ATTRIBUTE);
+  return mark === null ? undefined : mark !== "collapsed";
+}
+
+/** Keeps an existing `<html>` mark in step with the state, so a remount reads the truth. */
+function writeSidebarStateMark(open: boolean) {
+  const root = document.documentElement;
+  if (root.hasAttribute(SIDEBAR_STATE_ATTRIBUTE)) {
+    root.setAttribute(SIDEBAR_STATE_ATTRIBUTE, open ? "expanded" : "collapsed");
+  }
+}
+
+function writeSidebarCookie(name: string, open: boolean) {
+  document.cookie = `${name}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
+/**
+ * A static or cached shell cannot read the `sidebar_state` cookie on the server, so it renders
+ * the panel expanded. Put this script in `<head>`: before first paint it reads the cookie, marks
+ * `<html>` with `data-sidebar-state`, and gives the desktop panel the `data-state` and
+ * `data-collapsible` the sidebar's own recipes read, so a collapsed panel paints collapsed.
+ * `collapsible` must match the `Sidebar`'s. The provider and `useSidebarCookieOpen` start from
+ * that mark, so hydration agrees with the screen.
+ */
+/** A JSON string literal that cannot close the inline `<script>` it is written into. */
+function scriptLiteral(value: string) {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
+}
+
+function SidebarStateScript({
+  cookieName = SIDEBAR_COOKIE_NAME,
+  collapsible = "offcanvas",
+}: {
+  cookieName?: string;
+  collapsible?: "offcanvas" | "icon" | "none";
+}) {
+  const source = `(function(n,m){try{if(document.cookie.split(/;\\s*/).indexOf(n+"=false")<0)return;var r=document.documentElement;r.setAttribute("${SIDEBAR_STATE_ATTRIBUTE}","collapsed");if(m==="none")return;var f=function(){var e=document.querySelector('[data-slot="sidebar"][data-state]');if(!e)return false;e.setAttribute("data-state","collapsed");e.setAttribute("data-collapsible",m);return true};if(f())return;var o=new MutationObserver(function(){if(f())o.disconnect()});o.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){o.disconnect()},{once:true})}catch(e){}})(${scriptLiteral(cookieName)},${scriptLiteral(collapsible)})`;
+  return (
+    <script
+      data-slot="sidebar-state-script"
+      dangerouslySetInnerHTML={{ __html: source }}
+    />
+  );
+}
+
+/**
+ * The open state for a controlled `SidebarProvider`, persisted in the sidebar cookie. It starts
+ * from `SidebarStateScript`'s mark when there is one, so hydration matches a pre-painted panel,
+ * and otherwise reads the cookie after hydration. The setter writes the cookie; the controlled
+ * provider itself writes none.
+ */
+function useSidebarCookieOpen(
+  cookieName: string = SIDEBAR_COOKIE_NAME,
+): [boolean, (open: boolean) => void] {
+  const [open, setOpenState] = React.useState(
+    () => readSidebarStateMark() ?? true,
+  );
+  React.useEffect(() => {
+    if (readSidebarStateMark() !== undefined) return;
+    if (document.cookie.split(/;\s*/).includes(`${cookieName}=false`)) {
+      setOpenState(false);
+    }
+  }, [cookieName]);
+  const setOpen = React.useCallback(
+    (value: boolean) => {
+      setOpenState(value);
+      writeSidebarCookie(cookieName, value);
+      writeSidebarStateMark(value);
+    },
+    [cookieName],
+  );
+  return [open, setOpen];
+}
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -59,6 +139,7 @@ function SidebarProvider({
   defaultOpen = true,
   open: openProp,
   onOpenChange: setOpenProp,
+  keyboardShortcut = SIDEBAR_KEYBOARD_SHORTCUT,
   className,
   style,
   children,
@@ -67,13 +148,16 @@ function SidebarProvider({
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  keyboardShortcut?: string | false;
 }) {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen);
+  const [_open, _setOpen] = React.useState(
+    () => readSidebarStateMark() ?? defaultOpen,
+  );
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -84,10 +168,13 @@ function SidebarProvider({
         _setOpen(openState);
       }
 
-      // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      // This sets the cookie to keep the sidebar state. A controlled provider's host owns it.
+      if (openProp === undefined) {
+        writeSidebarCookie(SIDEBAR_COOKIE_NAME, openState);
+        writeSidebarStateMark(openState);
+      }
     },
-    [setOpenProp, open],
+    [setOpenProp, open, openProp],
   );
 
   // Helper to toggle the sidebar.
@@ -97,11 +184,10 @@ function SidebarProvider({
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
+    if (keyboardShortcut === false) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-        (event.metaKey || event.ctrlKey)
-      ) {
+      if (event.defaultPrevented || isEditableTarget(event)) return;
+      if (event.key === keyboardShortcut && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         toggleSidebar();
       }
@@ -109,7 +195,7 @@ function SidebarProvider({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [toggleSidebar]);
+  }, [toggleSidebar, keyboardShortcut]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
@@ -189,7 +275,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground data-[side=left]:w-(--sidebar-width) data-[side=right]:w-(--sidebar-width) [&>button]:hidden"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -256,8 +342,11 @@ function Sidebar({
 function SidebarTrigger({
   className,
   onClick,
+  triggerLabel = "Toggle sidebar",
   ...props
-}: React.ComponentProps<typeof Button>) {
+}: React.ComponentProps<typeof Button> & {
+  triggerLabel?: string;
+}) {
   const { toggleSidebar } = useSidebar();
 
   return (
@@ -274,22 +363,28 @@ function SidebarTrigger({
       {...props}
     >
       <PanelLeftIcon className="rtl:rotate-180" />
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">{triggerLabel}</span>
     </Button>
   );
 }
 
-function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
+function SidebarRail({
+  className,
+  triggerLabel = "Toggle sidebar",
+  ...props
+}: React.ComponentProps<"button"> & {
+  triggerLabel?: string;
+}) {
   const { toggleSidebar } = useSidebar();
 
   return (
     <button
       data-sidebar="rail"
       data-slot="sidebar-rail"
-      aria-label="Toggle Sidebar"
+      aria-label={triggerLabel}
       tabIndex={-1}
       onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      title={triggerLabel}
       className={cn(
         "absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2",
         "in-data-[side=left]:cursor-w-resize rtl:in-data-[side=left]:cursor-e-resize in-data-[side=right]:cursor-e-resize rtl:in-data-[side=right]:cursor-w-resize",
@@ -477,7 +572,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-has-data-[sidebar=menu-badge]/menu-item:pe-8 group-has-[[data-sidebar=menu-badge][data-badge-size=lg]]/menu-item:pe-12 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
   {
     variants: {
       variant: {
@@ -504,19 +599,43 @@ function SidebarMenuButton({
   variant = "default",
   size = "default",
   tooltip,
+  badge,
+  badgeLabel,
   className,
+  children,
   ...props
 }: useRender.ComponentProps<"button"> &
   React.ComponentProps<"button"> & {
     isActive?: boolean;
     tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+    badge?: React.ReactNode;
+    badgeLabel?: string;
   } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const { isMobile, state } = useSidebar();
+  const countLabel =
+    badgeLabel ??
+    (typeof badge === "string" || typeof badge === "number"
+      ? String(badge)
+      : undefined);
+  const isLink =
+    React.isValidElement<{ href?: unknown }>(render) &&
+    (render.type === "a" || render.props.href !== undefined);
   const comp = useRender({
     defaultTagName: "button",
     props: mergeProps<"button">(
       {
-        className: cn(sidebarMenuButtonVariants({ variant, size }), className),
+        className: cn(
+          sidebarMenuButtonVariants({ variant, size }),
+          countLabel && "[&>span:nth-last-child(2)]:truncate",
+          className,
+        ),
+        "aria-current": isActive && isLink ? "page" : undefined,
+        children: (
+          <>
+            {children}
+            {countLabel ? <span className="sr-only"> {countLabel}</span> : null}
+          </>
+        ),
       },
       props,
     ),
@@ -529,8 +648,27 @@ function SidebarMenuButton({
     },
   });
 
+  const badgeElement =
+    badge !== undefined && badge !== null ? (
+      <SidebarMenuBadge
+        data-badge-size={
+          (typeof badge === "string" || typeof badge === "number") &&
+          String(badge).length >= 3
+            ? "lg"
+            : "default"
+        }
+      >
+        {badge}
+      </SidebarMenuBadge>
+    ) : null;
+
   if (!tooltip) {
-    return comp;
+    return (
+      <>
+        {comp}
+        {badgeElement}
+      </>
+    );
   }
 
   if (typeof tooltip === "string") {
@@ -540,15 +678,26 @@ function SidebarMenuButton({
   }
 
   return (
-    <Tooltip>
-      {comp}
-      <TooltipContent
-        side="right"
-        align="center"
-        hidden={state !== "collapsed" || isMobile}
-        {...tooltip}
-      />
-    </Tooltip>
+    <>
+      <Tooltip>
+        {comp}
+        <TooltipContent
+          side="right"
+          align="center"
+          hidden={state !== "collapsed" || isMobile}
+          {...tooltip}
+        >
+          {tooltip.children}
+          {countLabel ? (
+            <>
+              <span className="sr-only"> </span>
+              <span>{countLabel}</span>
+            </>
+          ) : null}
+        </TooltipContent>
+      </Tooltip>
+      {badgeElement}
+    </>
   );
 }
 
@@ -590,6 +739,7 @@ function SidebarMenuBadge({
     <div
       data-slot="sidebar-menu-badge"
       data-sidebar="menu-badge"
+      aria-hidden="true"
       className={cn(
         "pointer-events-none absolute end-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground",
         className,
@@ -599,17 +749,22 @@ function SidebarMenuBadge({
   );
 }
 
+const SIDEBAR_SKELETON_WIDTHS = ["70%", "55%", "85%", "60%", "75%"];
+
 function SidebarMenuSkeleton({
   className,
   showIcon = false,
+  index = 0,
   ...props
 }: React.ComponentProps<"div"> & {
   showIcon?: boolean;
+  index?: number;
 }) {
-  // Random width between 50 to 90%.
-  const [width] = React.useState(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  });
+  // A width from a fixed cycle, so the server and the client render the same markup.
+  const width =
+    SIDEBAR_SKELETON_WIDTHS[
+      Math.abs(Math.trunc(index)) % SIDEBAR_SKELETON_WIDTHS.length
+    ];
 
   return (
     <div
@@ -720,6 +875,8 @@ export {
   SidebarProvider,
   SidebarRail,
   SidebarSeparator,
+  SidebarStateScript,
   SidebarTrigger,
   useSidebar,
+  useSidebarCookieOpen,
 };

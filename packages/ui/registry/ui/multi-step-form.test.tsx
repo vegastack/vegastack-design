@@ -236,6 +236,8 @@ test("a refused move does not happen, and says why beside the control", async ()
   await userEvent.click(next(screen.container));
   const refusal = slot(screen.container, "multi-step-form-refusal")!;
   expect(refusal.dataset.tone).toBe("error");
+  // Rendered after mount by the user's own move, so the destructive Alert is `live`: assertive.
+  expect(refusal.getAttribute("role")).toBe("alert");
   expect(refusal.textContent).toContain("Your bank declined this card.");
   // The flow stayed put, the step is marked, and the reason is tied to the button it blocks.
   expect(screen.container.textContent).toContain("A body");

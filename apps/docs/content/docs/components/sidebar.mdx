@@ -132,7 +132,8 @@ SidebarProvider
 ### SidebarProvider
 
 Always wrap the application in `SidebarProvider`. It owns `open`, writes the `sidebar_state` cookie
-on every uncontrolled toggle, and binds <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd>.
+on every uncontrolled toggle, and binds <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd> (see Keyboard
+shortcut below to retune or turn it off).
 
 For a single sidebar, the `SIDEBAR_WIDTH`, `SIDEBAR_WIDTH_ICON` and `SIDEBAR_WIDTH_MOBILE`
 constants in `sidebar.tsx` set the widths. For more than one, set `--sidebar-width` and
@@ -320,7 +321,8 @@ navigation as a list with a length.
 
 `SidebarMenuButton` is the row itself. It renders a `button` by default; pass `render` to make it an
 anchor or a framework `Link`. `isActive` marks the current route, `size` picks between a compact
-row, the default and a two-line row, and `variant="outline"` gives it a hairline.
+row, the default and a two-line row, and `variant="outline"` gives it a hairline. On a link,
+`isActive` also sets `aria-current="page"`; a button never gets it.
 
 ```tsx
 <SidebarMenuButton render={<a href="#" />} isActive>
@@ -377,11 +379,13 @@ the same `render` and `isActive` props as the row above it, plus a `size` of `sm
 ### SidebarMenuBadge
 
 A badge is a count pinned to the end of a row. It is `pointer-events: none`, so it never steals the
-row's click, and it disappears in icon mode.
+row's click, and it disappears in icon mode. It is also `aria-hidden`: the count a screen reader
+hears is part of the row's own name, so give the button a `badgeLabel`. The simplest way is the
+button's `badge` prop, which renders this part for you (see Counts below).
 
 ```tsx
 <SidebarMenuItem>
-  <SidebarMenuButton />
+  <SidebarMenuButton badgeLabel="24 unread" />
   <SidebarMenuBadge>24</SidebarMenuBadge>
 </SidebarMenuItem>
 ```
@@ -394,13 +398,14 @@ row's click, and it disappears in icon mode.
 ### SidebarMenuSkeleton
 
 `SidebarMenuSkeleton` stands in for a row while the navigation loads. `showIcon` adds the leading
-square, and each instance picks its own text width between 50% and 90% once, on mount.
+square, and `index` picks the text width from a fixed cycle (70%, 55%, 85%, 60%, 75%), so a list of
+rows looks varied and the server renders exactly what the client hydrates (LAY-16).
 
 ```tsx
 <SidebarMenu>
   {Array.from({ length: 5 }).map((_, index) => (
     <SidebarMenuItem key={index}>
-      <SidebarMenuSkeleton />
+      <SidebarMenuSkeleton index={index} />
     </SidebarMenuItem>
   ))}
 </SidebarMenu>
@@ -422,9 +427,11 @@ import { useSidebar } from "@/components/ui/sidebar";
 export function CustomTrigger() {
   const { toggleSidebar } = useSidebar();
 
-  return <button onClick={toggleSidebar}>Toggle Sidebar</button>;
+  return <button onClick={toggleSidebar}>Toggle sidebar</button>;
 }
 ```
+
+Its accessible name is "Toggle sidebar"; pass `triggerLabel` to localise it.
 
 <ComponentPreview name="sidebarTrigger" file="components/preview/sidebar.tsx" />
 
@@ -432,7 +439,8 @@ export function CustomTrigger() {
 
 `SidebarRail` is the thin strip along the panel's outer edge that toggles it on click. It is
 deliberately outside the tab order — `SidebarTrigger` is the keyboard affordance and the rail is the
-pointer one — so a sidebar that ships a rail still ships a trigger.
+pointer one — so a sidebar that ships a rail still ships a trigger. Its `aria-label` and `title`
+read "Toggle sidebar", and `triggerLabel` overrides both.
 
 ```tsx
 <Sidebar>
@@ -449,8 +457,9 @@ pointer one — so a sidebar that ships a rail still ships a trigger.
 
 ### Controlled Sidebar
 
-Pass `open` and `onOpenChange` to drive the panel from your own state. A controlled provider stops
-writing the `sidebar_state` cookie on its own — persistence becomes the host's decision.
+Pass `open` and `onOpenChange` to drive the panel from your own state. A controlled provider writes
+no `sidebar_state` cookie of its own — persistence becomes the host's decision, and
+`useSidebarCookieOpen` (see Static shells below) is the ready-made one.
 
 ```tsx
 export function AppSidebar() {
@@ -534,6 +543,181 @@ anchors it to the reading start and `SidebarTrigger`'s icon flips with it.
 
 <ComponentPreview name="sidebarRtl" file="components/preview/sidebar.tsx" />
 
+### Counts
+
+Pass `badge` to `SidebarMenuButton` and it renders the visual `SidebarMenuBadge` beside the row,
+while `badgeLabel` joins the row's accessible name: the link below is announced as "Inbox 12
+unread". A string or number `badge` names itself when you leave `badgeLabel` out. The label
+truncates before it reaches the count, and a count of three characters or more gets a wider
+reserve. When the panel collapses to icons, the `tooltip` carries the count too.
+
+```tsx
+<SidebarMenuButton
+  render={<a href="/inbox" />}
+  isActive
+  tooltip="Inbox"
+  badge="12"
+  badgeLabel="12 unread"
+>
+  <Inbox />
+  <span>Inbox</span>
+</SidebarMenuButton>
+```
+
+<ComponentPreview name="sidebarCounts" file="components/preview/sidebar.tsx" />
+
+### Action row with shortcut
+
+A row that opens a palette shows its shortcut with `Kbd`. Mark the keys `aria-hidden` and put the
+chord on the button with `aria-keyshortcuts`, so the name stays "Search". A row with a secondary
+action keeps it in `SidebarMenuAction`, a separate control.
+
+```tsx
+<SidebarMenuButton variant="outline" aria-keyshortcuts="Meta+K Control+K">
+  <Search />
+  <span>Search</span>
+  <KbdGroup aria-hidden="true" className="ms-auto">
+    <Kbd>⌘</Kbd>
+    <Kbd>K</Kbd>
+  </KbdGroup>
+</SidebarMenuButton>
+```
+
+<ComponentPreview
+  name="sidebarActionRow"
+  file="components/preview/sidebar.tsx"
+/>
+
+### Collapsible group
+
+A menu row can open a submenu. Render the row as a `CollapsibleTrigger`, which gives it
+`aria-expanded`, and put the `SidebarMenuSub` in `CollapsibleContent`. Mark the current sub-page
+with `isActive` and `aria-current="page"` on its link.
+
+```tsx
+<Collapsible defaultOpen className="group/collapsible">
+  <SidebarMenuItem>
+    <SidebarMenuButton render={<CollapsibleTrigger />}>
+      <SquareTerminal />
+      <span>Playground</span>
+      <ChevronRight className="ms-auto group-data-open/collapsible:rotate-90" />
+    </SidebarMenuButton>
+    <CollapsibleContent>
+      <SidebarMenuSub>{/* SidebarMenuSubItem rows */}</SidebarMenuSub>
+    </CollapsibleContent>
+  </SidebarMenuItem>
+</Collapsible>
+```
+
+<ComponentPreview
+  name="sidebarCollapsibleGroup"
+  file="components/preview/sidebar.tsx"
+/>
+
+### Unavailable item
+
+An item the user cannot open yet stays in the list with `aria-disabled="true"`. The row keeps its
+pointer events (FRM-4), so a `Tooltip` can say why, and `aria-describedby` gives a screen reader the
+same reason.
+
+```tsx
+<Tooltip>
+  <TooltipTrigger
+    render={
+      <SidebarMenuButton
+        aria-disabled="true"
+        aria-describedby="agents-reason"
+      />
+    }
+  >
+    <Bot />
+    <span>Agents</span>
+  </TooltipTrigger>
+  <TooltipContent side="right">Available on the Team plan</TooltipContent>
+</Tooltip>
+```
+
+<ComponentPreview
+  name="sidebarUnavailableItem"
+  file="components/preview/sidebar.tsx"
+/>
+
+### Keyboard shortcut
+
+<kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd> toggles the sidebar from anywhere on
+the page, except where the user is typing: the provider ignores the chord inside
+an input, a textarea, a select or a `contenteditable` element
+(`isEditableTarget` from `use-platform`), and ignores an event another handler
+has already `preventDefault`ed. `keyboardShortcut` changes the key, and `false`
+turns the binding off — for an editor that owns <kbd>⌘</kbd> + <kbd>B</kbd> for
+bold, say.
+
+```tsx
+<SidebarProvider keyboardShortcut="j">{/* ⌘/Ctrl + J */}</SidebarProvider>
+<SidebarProvider keyboardShortcut={false}>{/* no chord */}</SidebarProvider>
+```
+
+<ComponentPreview
+  name="sidebarKeyboardShortcut"
+  file="components/preview/sidebar.tsx"
+/>
+
+### Static shells
+
+A shell that is prerendered or cached cannot read the `sidebar_state` cookie on the server, so it
+renders the panel expanded and a collapsed sidebar would jump on hydration. Put
+`SidebarStateScript` in the root layout's `<head>`: before first paint it reads the cookie, marks
+`<html>` with `data-sidebar-state="collapsed"`, and gives the desktop panel the `data-state` and
+`data-collapsible` its own recipes already read, so it paints collapsed. Pass it the same
+`collapsible` as your `Sidebar`. The provider starts from that mark, so hydration agrees with the
+screen and React warns about nothing.
+
+For a controlled provider, `useSidebarCookieOpen` returns `[open, setOpen]`: it starts from the
+same mark, reads the cookie after hydration when there is no mark, and its setter writes the cookie
+(`SameSite=Lax`). The controlled provider itself never writes one.
+
+```tsx title="app/layout.tsx"
+import { SidebarStateScript } from "@/components/ui/sidebar";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <SidebarStateScript collapsible="icon" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx title="components/app-frame.tsx"
+"use client";
+
+import { SidebarProvider, useSidebarCookieOpen } from "@/components/ui/sidebar";
+
+export function AppFrame({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useSidebarCookieOpen();
+  return (
+    <SidebarProvider open={open} onOpenChange={setOpen}>
+      {children}
+    </SidebarProvider>
+  );
+}
+```
+
+`suppressHydrationWarning` on `<html>` covers the `data-sidebar-state` attribute the script adds
+there. The script is inline, so a strict Content Security Policy needs a nonce or hash for it.
+
+<ComponentPreview
+  name="sidebarStaticShell"
+  file="components/preview/sidebar.tsx"
+/>
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="SidebarProviderProps" />
@@ -548,11 +732,20 @@ anchors it to the reading start and `SidebarTrigger`'s icon flips with it.
 
 <ApiTable path="lib/api-props.ts" name="SidebarMenuSkeletonProps" />
 
+<ApiTable path="lib/api-props.ts" name="SidebarTriggerProps" />
+
+<ApiTable path="lib/api-props.ts" name="SidebarRailProps" />
+
+<ApiTable path="lib/api-props.ts" name="SidebarStateScriptProps" />
+
+`useSidebarCookieOpen(cookieName?: string)` returns `[open: boolean, setOpen: (open: boolean) => void]`;
+`cookieName` defaults to `sidebar_state`.
+
 `SidebarGroupLabel` and `SidebarGroupAction` add only Base UI's `render`, which swaps the rendered
 element — that is how a `CollapsibleTrigger` becomes a group label. `SidebarHeader`, `SidebarContent`,
 `SidebarFooter`, `SidebarGroup`, `SidebarGroupContent`, `SidebarMenu`, `SidebarMenuItem`,
-`SidebarMenuBadge`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarInset`, `SidebarRail`,
-`SidebarSeparator`, `SidebarInput` and `SidebarTrigger` add no props of their own — each accepts
+`SidebarMenuBadge`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarInset`, `SidebarSeparator` and
+`SidebarInput` add no props of their own — each accepts
 everything its underlying element or component accepts.
 
 ## Accessibility
@@ -561,14 +754,19 @@ everything its underlying element or component accepts.
   landmark of your own when it is the page's navigation — an `aria-label`led `nav` inside
   `SidebarContent`, or `aria-label` on the element you pass through `render`.
 - `SidebarMenu` and `SidebarMenuSub` are real `ul` lists of `li` rows, so the navigation is announced
-  with a length and a position. Mark the current route with `isActive`, and add `aria-current="page"`
-  to the anchor you pass through `render` — the data attribute is a styling hook, not a semantic.
+  with a length and a position. Mark the current route with `isActive`: on a link it also sets
+  `aria-current="page"` (A11Y-18), and a button never gets it. `SidebarMenuSubButton` does not do
+  this for you, so add `aria-current="page"` to the active sub-link yourself.
+- A count is part of the row's name, not loose text beside it: `badge` and `badgeLabel` on
+  `SidebarMenuButton` make the link read "Inbox 12 unread", and the visual badge is `aria-hidden`
+  (A11Y-17).
 - Below the `md` breakpoint the panel mounts inside `Sheet`, which brings the focus trap, the scroll
   lock and <kbd>Esc</kbd> with it; `SidebarTrigger` opens it and focus returns to the trigger on
   close.
 - `SidebarRail` is `tabIndex={-1}` by design. It is the pointer affordance; `SidebarTrigger` and
   <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd> are the keyboard ones, so ship a
-  trigger with every rail.
+  trigger with every rail. The chord never fires while focus is in a text field
+  or a `contenteditable` element (INT-11).
 - `SidebarMenuAction` and `SidebarGroupAction` are 20px glyphs that an invisible
   `after:absolute after:-inset-2` grows to a 36px pointer target — at every width, not only on touch
   (A11Y-2). Give each one a real name too: an icon plus an `sr-only` label, as every example here
@@ -583,28 +781,14 @@ everything its underlying element or component accepts.
 ## Do / Don't
 
 <DoDont
-  do="Compose the shell — SidebarProvider, Sidebar, SidebarInset — and use render on SidebarMenuButton so a nav row is a real link, with isActive and aria-current on the current route."
-  dont="Ship a SidebarRail as the only way to collapse the panel, or rely on isActive alone to say where the user is — the rail is not tabbable and data-active is a styling hook."
+  do="Compose the shell — SidebarProvider, Sidebar, SidebarInset — and use render on SidebarMenuButton so a nav row is a real link; isActive then marks it aria-current, and badge with badgeLabel puts its count in its name."
+  dont="Ship a SidebarRail as the only way to collapse the panel, or place a SidebarMenuBadge with no badgeLabel on the row — the rail is not tabbable, and the badge is aria-hidden."
 />
 
 ## Deviations
 
 Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
 
-- **FOC-1, FOC-6** — `outline-hidden` and `focus-visible:ring-2` are removed from all five controls
-  that carry them: `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarMenuButton`,
-  `SidebarMenuAction` and `SidebarMenuSubButton`. `outline-hidden` is the v3 spelling of "no
-  outline": upstream suppresses the browser's and paints its own 2px ring instead, and this system
-  does the opposite. `ring-sidebar-ring` is left in place on each — it is a colour with no ring
-  width behind it any more, it paints nothing, and removing it would take the `--sidebar-ring`
-  token's only reference with it.
-- **BRD-1** — the floating variant's panel draws a real `border border-sidebar-border` instead of
-  upstream's `ring-1 ring-sidebar-border` box-shadow outline. The floating sidebar is a floating
-  surface, and MK extended BRD-1 to it on 23-09-2026; the edge now matches the docked variant's
-  `border-e` and survives forced colours. The collapsed width already budgets `+2px` for it.
-- **FRM-4** — `disabled:pointer-events-none` and `aria-disabled:pointer-events-none` are dropped
-  from `SidebarMenuButton` and `SidebarMenuSubButton`, so a disabled nav row stays hoverable and a
-  Tooltip can explain why. Both opacity halves stay.
 - **A11Y-2** — `md:after:hidden` is dropped from `SidebarMenuAction` and `SidebarGroupAction`. Both
   are `w-5` (20px) squares, which is under the 24px floor, and upstream already solves that the way
   A11Y-2 asks — with an invisible `after:absolute after:-inset-2` hit area — and then switches the
@@ -613,8 +797,45 @@ Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
   the floor at every desktop width. The hit area is the only thing that changes: the visible 20px
   box, its position and its hover wash are upstream's. `sidebar.test.tsx` measures both controls at
   both widths.
+- **A11Y-17** — `SidebarMenuButton` takes `badge` and `badgeLabel`. The count joins the row's
+  accessible name through a comma-free `sr-only` suffix ("Inbox 12 unread"), the collapsed tooltip
+  carries the same count, and the visual `SidebarMenuBadge` is `aria-hidden`. The button renders the
+  badge as its upstream sibling, the label keeps its `truncate` while the suffix is the last child,
+  and the row reserves `pe-8` for a badge (`pe-12` for one of three or more characters).
+- **A11Y-18** — `SidebarMenuButton` sets `aria-current="page"` when `isActive` and `render` is a
+  link. A button never gets it, and a caller's own `aria-current` wins.
+- **BRD-1** — the floating variant's panel draws a real `border border-sidebar-border` instead of
+  upstream's `ring-1 ring-sidebar-border` box-shadow outline. The floating sidebar is a floating
+  surface, and MK extended BRD-1 to it on 23-09-2026; the edge now matches the docked variant's
+  `border-e` and survives forced colours. The collapsed width already budgets `+2px` for it.
 - **DOC-1** — registry layout: `@/hooks/use-mobile` becomes `@/components/ui/use-mobile`. Hooks are
   `registry:hook` items alongside the components in this registry, which is the path the three-copy
   model and `shadcn add @vegastack/use-mobile` both use. Plus the prettier reflow and the
   `registry-stamp.mjs` provenance header; those carry no decision of their own.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
+- **FOC-1, FOC-6** — `outline-hidden` and `focus-visible:ring-2` are removed from all five controls
+  that carry them: `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarMenuButton`,
+  `SidebarMenuAction` and `SidebarMenuSubButton`. `outline-hidden` is the v3 spelling of "no
+  outline": upstream suppresses the browser's and paints its own 2px ring instead, and this system
+  does the opposite. `ring-sidebar-ring` is left in place on each — it is a colour with no ring
+  width behind it any more, it paints nothing, and removing it would take the `--sidebar-ring`
+  token's only reference with it.
+- **FRM-4** — `disabled:pointer-events-none` and `aria-disabled:pointer-events-none` are dropped
+  from `SidebarMenuButton` and `SidebarMenuSubButton`, so a disabled nav row stays hoverable and a
+  Tooltip can explain why. Both opacity halves stay.
+- **INT-11** — the <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd> handler returns early on an event
+  that is already `defaultPrevented` or that started in an editable target (`isEditableTarget` from
+  `use-platform`: input, textarea, select, `contenteditable`). `SidebarProvider` takes
+  `keyboardShortcut` (default `"b"`; `false` removes the listener).
+- **LAY-13** — static-shell state. New `SidebarStateScript` (a `<head>` script that reads the
+  cookie, marks `<html>` with `data-sidebar-state` and sets the collapsed `data-state` and
+  `data-collapsible` on the desktop panel as the parser inserts it) and `useSidebarCookieOpen`. The
+  uncontrolled provider starts from that mark and keeps it in step; the cookie write gains
+  `SameSite=Lax` and happens only when the provider is uncontrolled.
+- **LAY-16** — `SidebarMenuSkeleton`'s `Math.random()` width becomes a fixed cycle (70%, 55%, 85%,
+  60%, 75%) picked by a new `index` prop, so the server and the client render the same markup.
+- **OVL-16** — the mobile panel's `SheetContent` restates `data-[side=left]:w-(--sidebar-width)` and
+  `data-[side=right]:w-(--sidebar-width)`, so the sheet stays at the sidebar's own mobile width
+  (18rem) whatever width the Sheet gives a side sheet, and the scrim beside it stays tappable.
+- **VOI-1** — "Toggle Sidebar" becomes "Toggle sidebar" on `SidebarTrigger` and `SidebarRail`, and
+  both take `triggerLabel` to override it.

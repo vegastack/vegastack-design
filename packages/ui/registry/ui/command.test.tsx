@@ -7,13 +7,16 @@ import {
   Command,
   CommandDialog,
   CommandEmpty,
+  CommandFooter,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandLoading,
   CommandSeparator,
   CommandShortcut,
 } from "./command";
+import { ItemContent, ItemDescription, ItemTitle } from "./item";
 
 /*
  * The eleven SPEC behaviours that used to live in `command.characterization.test.tsx` are ported
@@ -502,5 +505,198 @@ test("no a11y violations — inside the dialog", async () => {
     </CommandDialog>,
   );
   // Portaled: audit the document rather than the render container.
+  await expectNoA11yViolations(document.body);
+});
+
+test("API-19: a two-line option exposes its description", async () => {
+  const screen = await render(
+    <Command>
+      <CommandList>
+        <CommandItem value="m1">
+          <ItemContent>
+            <ItemTitle>Depot review</ItemTitle>
+            <ItemDescription>Meeting · 3 Sep</ItemDescription>
+          </ItemContent>
+        </CommandItem>
+      </CommandList>
+    </Command>,
+  );
+  await expect
+    .element(screen.getByRole("option", { name: /Depot review/ }))
+    .toHaveAccessibleDescription("Meeting · 3 Sep");
+});
+
+test("API-19: a caller's own aria-describedby wins over the linked description", async () => {
+  const screen = await render(
+    <Command>
+      <p id="own">Own description</p>
+      <CommandList>
+        <CommandItem value="m1" aria-describedby="own">
+          <ItemTitle>Depot review</ItemTitle>
+          <ItemDescription>Meeting · 3 Sep</ItemDescription>
+        </CommandItem>
+      </CommandList>
+    </Command>,
+  );
+  await expect
+    .element(screen.getByRole("option", { name: /Depot review/ }))
+    .toHaveAccessibleDescription("Own description");
+});
+
+test("API-19: a one-line option has no description", async () => {
+  const screen = await render(<Palette />);
+  const option = screen.getByRole("option", { name: "Calendar" });
+  expect(option.element().hasAttribute("aria-describedby")).toBe(false);
+});
+
+test("OVL-16 (widened): CommandDialog size reaches the dialog and the list", async () => {
+  await render(
+    <CommandDialog open size="lg">
+      <Palette />
+    </CommandDialog>,
+  );
+  const content = document.querySelector(
+    '[data-slot="dialog-content"]',
+  ) as HTMLElement;
+  expect(content.getAttribute("data-size")).toBe("lg");
+  const list = content.querySelector(
+    '[data-slot="command-list"]',
+  ) as HTMLElement;
+  expect(list.getAttribute("data-size")).toBe("lg");
+  expect(list.className).toContain("data-[size=lg]:max-h-[min(28rem,60dvh)]");
+});
+
+test("OVL-16: without a dialog, or at the default size, the list keeps upstream's height", async () => {
+  const screen = await render(<Palette />);
+  const list = screen.container.querySelector(
+    '[data-slot="command-list"]',
+  ) as HTMLElement;
+  expect(list.getAttribute("data-size")).toBe("default");
+  expect(list.className).toContain("max-h-72");
+  await render(
+    <CommandDialog open>
+      <Palette />
+    </CommandDialog>,
+  );
+  expect(
+    document
+      .querySelector('[data-slot="dialog-content"]')
+      ?.getAttribute("data-size"),
+  ).toBe("default");
+});
+
+test("VOI-1: the dialog's built-in copy is sentence case with the ellipsis character", async () => {
+  await render(
+    <CommandDialog open>
+      <Palette />
+    </CommandDialog>,
+  );
+  expect(
+    document.querySelector('[data-slot="dialog-title"]')?.textContent,
+  ).toBe("Command palette");
+  expect(
+    document.querySelector('[data-slot="dialog-description"]')?.textContent,
+  ).toBe("Search for a command…");
+});
+
+test("VOI-1: resultsLabel overrides the announced result count", async () => {
+  const screen = await render(
+    <Palette resultsLabel={(count) => `${count} Treffer`} />,
+  );
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("cal");
+  await expect
+    .poll(() => announcer(screen.container)?.textContent)
+    .toBe("2 Treffer");
+});
+
+test("API-18: CommandLoading is a polite status whose text is spoken", async () => {
+  const screen = await render(
+    <Command shouldFilter={false}>
+      <CommandInput aria-label="Search meetings" />
+      <CommandLoading />
+      <CommandList />
+    </Command>,
+  );
+  const loading = screen.container.querySelector(
+    '[data-slot="command-loading"]',
+  ) as HTMLElement;
+  expect(loading.getAttribute("role")).toBe("status");
+  expect(loading.hasAttribute("aria-valuenow")).toBe(false);
+  expect(loading.hasAttribute("aria-label")).toBe(false);
+  // The default copy is VOI-1's, and it is exposed rather than hidden behind cmdk's aria-hidden.
+  expect(loading.textContent).toBe("Loading…");
+  expect(loading.querySelector('[aria-hidden="true"]')).toBeNull();
+  expect(screen.container.querySelector('[role="progressbar"]')).toBeNull();
+});
+
+test("API-18: CommandFooter sits outside the listbox", async () => {
+  const screen = await render(
+    <Command>
+      <CommandInput aria-label="Search" />
+      <CommandList>
+        <CommandItem>Calendar</CommandItem>
+      </CommandList>
+      <CommandFooter>
+        <span>↵ to select</span>
+      </CommandFooter>
+    </Command>,
+  );
+  const footer = screen.container.querySelector(
+    '[data-slot="command-footer"]',
+  ) as HTMLElement;
+  expect(footer.textContent).toBe("↵ to select");
+  expect(footer.closest('[role="listbox"]')).toBeNull();
+  expect(footer.hasAttribute("role")).toBe(false);
+});
+
+test("no a11y violations — loading, above an empty list", async () => {
+  const screen = await render(
+    <Command shouldFilter={false}>
+      <CommandInput aria-label="Search meetings" />
+      <CommandLoading>Searching meetings…</CommandLoading>
+      <CommandList>
+        <CommandEmpty>No meetings.</CommandEmpty>
+      </CommandList>
+    </Command>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — loading above results, with a footer", async () => {
+  const screen = await render(
+    <Command shouldFilter={false}>
+      <CommandInput aria-label="Search meetings" />
+      <CommandLoading>Searching meetings…</CommandLoading>
+      <CommandList>
+        <CommandItem value="m1">
+          <ItemContent>
+            <ItemTitle>Depot review</ItemTitle>
+            <ItemDescription>Meeting · 3 Sep</ItemDescription>
+          </ItemContent>
+        </CommandItem>
+      </CommandList>
+      <CommandFooter>↵ to open</CommandFooter>
+    </Command>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — a large dialog with two-line results", async () => {
+  await render(
+    <CommandDialog open size="lg">
+      <Command>
+        <CommandInput aria-label="Search" />
+        <CommandList>
+          <CommandItem value="m1">
+            <ItemContent>
+              <ItemTitle>Depot review</ItemTitle>
+              <ItemDescription>Meeting · 3 Sep</ItemDescription>
+            </ItemContent>
+          </CommandItem>
+        </CommandList>
+        <CommandFooter>↵ to open</CommandFooter>
+      </Command>
+    </CommandDialog>,
+  );
   await expectNoA11yViolations(document.body);
 });

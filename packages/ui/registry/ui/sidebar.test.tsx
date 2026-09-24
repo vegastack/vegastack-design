@@ -21,7 +21,7 @@ import "../../test/geometry.css";
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
-import { afterEach, beforeAll, beforeEach, expect, test } from "vitest";
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { Home, Inbox, Plus, Settings2 } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
@@ -47,8 +47,10 @@ import {
   SidebarProvider,
   SidebarRail,
   SidebarSeparator,
+  SidebarStateScript,
   SidebarTrigger,
   useSidebar,
+  useSidebarCookieOpen,
 } from "./sidebar";
 
 /** Wide enough for `md:` (the desktop panel) and `sm:` (the rail). */
@@ -93,6 +95,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   document.cookie = "sidebar_state=; path=/; max-age=0";
+  document.documentElement.removeAttribute("data-sidebar-state");
 });
 
 afterEach(async () => {
@@ -392,7 +395,7 @@ test("defaultOpen={false} mounts collapsed, and a toggle writes the state cookie
   expect(sidebar.getAttribute("data-state")).toBe("collapsed");
   expect(sidebar.getAttribute("data-collapsible")).toBe("offcanvas");
 
-  await screen.getByRole("button", { name: "Toggle Sidebar" }).click();
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
   expect(sidebar.getAttribute("data-state")).toBe("expanded");
   expect(sidebar.getAttribute("data-collapsible")).toBe("");
   expect(document.cookie).toContain("sidebar_state=true");
@@ -422,20 +425,6 @@ test("cmd/ctrl + B toggles the sidebar (SidebarProvider — Keyboard Shortcut)",
 
   await userEvent.keyboard("{Control>}b{/Control}");
   await expect.poll(() => sidebar.getAttribute("data-state")).toBe("expanded");
-});
-
-test("that chord is the ONLY one — the shortcut is not configurable (SidebarProvider — Keyboard Shortcut)", async () => {
-  // Upstream's provider hard-codes `SIDEBAR_KEYBOARD_SHORTCUT = "b"` and exposes no prop to retune
-  // or disable it; the pre-reset `keyboardShortcut` prop is gone. What can still be asserted is the
-  // replacement contract: a different chord, and an unmodified "b", do nothing.
-  const screen = await render(<Shell />);
-  const sidebar = slot(screen.container, "sidebar") as HTMLElement;
-
-  await userEvent.keyboard("{Control>}k{/Control}");
-  expect(sidebar.getAttribute("data-state")).toBe("expanded");
-
-  await userEvent.keyboard("b");
-  expect(sidebar.getAttribute("data-state")).toBe("expanded");
 });
 
 /* ── Sidebar ────────────────────────────────────────────────────────────────────────────────── */
@@ -542,7 +531,7 @@ test("below md the panel mounts inside a Sheet and opens from the trigger (Sideb
     document.querySelector('[data-slot="sidebar"][data-mobile="true"]'),
   ).toBeNull();
 
-  await screen.getByRole("button", { name: "Toggle Sidebar" }).click();
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
   await expect
     .poll(() =>
       document.querySelector('[data-slot="sidebar"][data-mobile="true"]'),
@@ -999,13 +988,8 @@ test("showIcon adds the leading square, and the text bar is width-capped (Sideba
   const bar = withIcon!.querySelector(
     '[data-sidebar="menu-skeleton-text"]',
   ) as HTMLElement;
-  // Upstream picks a random 50–90% width once per mount; assert the CONTRACT (the variable is set
-  // and inside the documented band), never a specific number.
-  const width = Number.parseFloat(
-    bar.style.getPropertyValue("--skeleton-width"),
-  );
-  expect(width).toBeGreaterThanOrEqual(50);
-  expect(width).toBeLessThanOrEqual(90);
+  // LAY-16: the width comes from a fixed cycle, and index 0 (the default) is its first entry.
+  expect(bar.style.getPropertyValue("--skeleton-width")).toBe("70%");
 });
 
 /* ── SidebarTrigger ─────────────────────────────────────────────────────────────────────────── */
@@ -1027,7 +1011,7 @@ test("the trigger toggles the sidebar and keeps its own onClick (SidebarTrigger)
     </SidebarProvider>,
   );
   const sidebar = slot(screen.container, "sidebar") as HTMLElement;
-  const trigger = screen.getByRole("button", { name: "Toggle Sidebar" });
+  const trigger = screen.getByRole("button", { name: "Toggle sidebar" });
 
   await trigger.click();
   expect(clicks).toBe(1);
@@ -1045,8 +1029,8 @@ test("the rail toggles the sidebar, is named, and is out of the tab order (Sideb
   const rail = slot(screen.container, "sidebar-rail") as HTMLButtonElement;
   const sidebar = slot(screen.container, "sidebar") as HTMLElement;
 
-  expect(rail.getAttribute("aria-label")).toBe("Toggle Sidebar");
-  expect(rail.getAttribute("title")).toBe("Toggle Sidebar");
+  expect(rail.getAttribute("aria-label")).toBe("Toggle sidebar");
+  expect(rail.getAttribute("title")).toBe("Toggle sidebar");
   // Upstream keeps the rail out of sequential focus on purpose: SidebarTrigger is the keyboard
   // affordance, and the rail is the pointer one. Recorded here so a change is deliberate.
   expect(rail.tabIndex).toBe(-1);
@@ -1082,7 +1066,7 @@ test("open/onOpenChange drive the panel from outside (Controlled Sidebar)", asyn
   await screen.getByRole("button", { name: "open from outside" }).click();
   await expect.poll(() => sidebar.getAttribute("data-state")).toBe("expanded");
 
-  await screen.getByRole("button", { name: "Toggle Sidebar" }).click();
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
   await expect.poll(() => sidebar.getAttribute("data-state")).toBe("collapsed");
 });
 
@@ -1477,6 +1461,685 @@ test("A11Y-2: the rows and the trigger clear 24px at both widths", async () => {
   expect(probe.misses, "SidebarTrigger").toEqual([]);
 });
 
+/* ── A11Y-17, A11Y-18, VOI-1 — counts in the name, the current page, the trigger's copy ────── */
+
+/**
+ * A desktop, icon-collapsible sidebar holding one menu row. `children` is the row's content, so a
+ * test can put a menu button — or any other control — inside a real, mounted panel.
+ */
+function SidebarFixture({
+  children,
+  ...provider
+}: React.ComponentProps<typeof SidebarProvider>) {
+  return (
+    <SidebarProvider {...provider}>
+      <Sidebar collapsible="icon">
+        <SidebarContent>
+          <SidebarMenu>
+            <SidebarMenuItem>{children}</SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
+        <SidebarTrigger />
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+test("the count is part of the menu button's name", async () => {
+  const screen = await render(
+    <SidebarFixture>
+      <SidebarMenuButton
+        render={<a href="/inbox" />}
+        isActive
+        badge="12"
+        badgeLabel="12 unread"
+      >
+        Inbox
+      </SidebarMenuButton>
+    </SidebarFixture>,
+  );
+  // This file loads compiled CSS, so the button's children are blockified flex items and accname
+  // step 2F wraps each one in spaces. That is why the count arrives through a comma-free sr-only
+  // suffix: an sr-only ", " separator would read "Inbox , 12 unread" (the defect
+  // test/accessible-name.browser.test.tsx records), while this one reads as written.
+  const link = screen.getByRole("link", { name: "Inbox 12 unread" });
+  await expect.element(link).toHaveAttribute("aria-current", "page");
+});
+
+test("A11Y-17: the visual badge is aria-hidden, standalone or through the badge prop", async () => {
+  const screen = await render(
+    <StaticPanel>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton badge="12" badgeLabel="12 unread">
+            <Inbox />
+            <span>Inbox</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton>
+            <Home />
+            <span>Home</span>
+          </SidebarMenuButton>
+          <SidebarMenuBadge>3</SidebarMenuBadge>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </StaticPanel>,
+  );
+  const badges = allSlots(screen.container, "sidebar-menu-badge");
+  expect(badges.map((badge) => badge.textContent)).toEqual(["12", "3"]);
+  for (const badge of badges) {
+    expect(badge.getAttribute("aria-hidden")).toBe("true");
+    // The badge is still upstream's sibling of the button, so every `peer-*/menu-button` recipe
+    // on it keeps working.
+    expect(badge.previousElementSibling?.getAttribute("data-slot")).toBe(
+      "sidebar-menu-button",
+    );
+  }
+  await expect
+    .element(screen.getByRole("button", { name: "Inbox 12 unread" }))
+    .toBeInTheDocument();
+});
+
+test("A11Y-17: a string or number badge names itself when no badgeLabel is given", async () => {
+  const screen = await render(
+    <StaticPanel>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton badge={4}>
+            <span>Agents</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </StaticPanel>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Agents 4" }))
+    .toBeInTheDocument();
+});
+
+test("A11Y-17: the collapsed tooltip carries the same count", async () => {
+  const screen = await render(
+    <SidebarFixture defaultOpen={false}>
+      <SidebarMenuButton tooltip="Inbox" badge="12" badgeLabel="12 unread">
+        <Inbox />
+        <span>Inbox</span>
+      </SidebarMenuButton>
+    </SidebarFixture>,
+  );
+  const button = screen.getByRole("button", { name: "Inbox 12 unread" });
+  await userEvent.hover(button);
+  await expect
+    .poll(() => document.querySelector('[data-slot="tooltip-content"]'))
+    .not.toBeNull();
+  const tooltip = document.querySelector(
+    '[data-slot="tooltip-content"]',
+  ) as HTMLElement;
+  expect(tooltip.textContent).toContain("Inbox 12 unread");
+  await userEvent.unhover(button);
+});
+
+test("A11Y-17: a long label stops short of the badge (the badge padding)", async () => {
+  const screen = await render(
+    <StaticPanel>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton badge="12" badgeLabel="12 unread">
+            <Inbox />
+            <span>A navigation label long enough to run under the count</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton badge="1,204" badgeLabel="1,204 unread">
+            <Inbox />
+            <span>A navigation label long enough to run under the count</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </StaticPanel>,
+  );
+  const rows = allSlots(screen.container, "sidebar-menu-button");
+  const badges = allSlots(screen.container, "sidebar-menu-badge");
+  expect(badges.map((badge) => badge.dataset.badgeSize)).toEqual([
+    "default",
+    "lg",
+  ]);
+  rows.forEach((row, index) => {
+    const label = [...row.querySelectorAll("span")].find(
+      (span) => !span.classList.contains("sr-only"),
+    )!;
+    // The label still truncates with an ellipsis once the sr-only suffix is its last sibling.
+    expect(getComputedStyle(label).textOverflow).toBe("ellipsis");
+    const labelEnd = label.getBoundingClientRect().right;
+    const badgeStart = badges[index]!.getBoundingClientRect().left;
+    expect(
+      labelEnd <= badgeStart + 0.5,
+      `row ${index}: label ends at ${labelEnd.toFixed(1)}px, badge starts at ${badgeStart.toFixed(1)}px`,
+    ).toBe(true);
+  });
+});
+
+test("A11Y-18: aria-current marks only the active link, never a button", async () => {
+  const screen = await render(
+    <StaticPanel>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton render={<a href="#home" />} isActive>
+            <span>Home</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton render={<a href="#inbox" />}>
+            <span>Inbox</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton isActive>
+            <span>Settings</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </StaticPanel>,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Home" }))
+    .toHaveAttribute("aria-current", "page");
+  await expect
+    .element(screen.getByRole("link", { name: "Inbox" }))
+    .not.toHaveAttribute("aria-current");
+  // An active BUTTON is a state, not a location: it keeps `data-active` and gets no aria-current.
+  const button = screen.getByRole("button", { name: "Settings" });
+  await expect.element(button).toHaveAttribute("data-active");
+  await expect.element(button).not.toHaveAttribute("aria-current");
+});
+
+test("A11Y-18: a caller's own aria-current wins", async () => {
+  const screen = await render(
+    <StaticPanel>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            render={<a href="#step" />}
+            isActive
+            aria-current="step"
+          >
+            <span>Step</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </StaticPanel>,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Step" }))
+    .toHaveAttribute("aria-current", "step");
+});
+
+test("VOI-1: the trigger and the rail read 'Toggle sidebar', and triggerLabel overrides both", async () => {
+  const screen = await render(<Shell />);
+  const trigger = slot(screen.container, "sidebar-trigger") as HTMLElement;
+  expect(trigger.textContent).toBe("Toggle sidebar");
+  const rail = slot(screen.container, "sidebar-rail") as HTMLElement;
+  expect(rail.getAttribute("aria-label")).toBe("Toggle sidebar");
+  expect(rail.getAttribute("title")).toBe("Toggle sidebar");
+  await screen.unmount();
+
+  const localized = await render(
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarContent />
+        <SidebarRail triggerLabel="Seitenleiste umschalten" />
+      </Sidebar>
+      <SidebarInset>
+        <SidebarTrigger triggerLabel="Seitenleiste umschalten" />
+      </SidebarInset>
+    </SidebarProvider>,
+  );
+  expect(slot(localized.container, "sidebar-trigger")!.textContent).toBe(
+    "Seitenleiste umschalten",
+  );
+  const localizedRail = slot(localized.container, "sidebar-rail")!;
+  expect(localizedRail.getAttribute("aria-label")).toBe(
+    "Seitenleiste umschalten",
+  );
+  expect(localizedRail.getAttribute("title")).toBe("Seitenleiste umschalten");
+});
+
+test("no a11y violations — counts and the current page", async () => {
+  const screen = await render(
+    <SidebarFixture>
+      <SidebarMenuButton
+        render={<a href="#inbox" />}
+        isActive
+        badge="12"
+        badgeLabel="12 unread"
+      >
+        <Inbox />
+        <span>Inbox</span>
+      </SidebarMenuButton>
+    </SidebarFixture>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — counts, collapsed to icons", async () => {
+  const screen = await render(
+    <SidebarFixture defaultOpen={false}>
+      <SidebarMenuButton
+        render={<a href="#inbox" />}
+        isActive
+        tooltip="Inbox"
+        badge="12"
+        badgeLabel="12 unread"
+      >
+        <Inbox />
+        <span>Inbox</span>
+      </SidebarMenuButton>
+    </SidebarFixture>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+/* ── INT-11, LAY-16 — a guarded, configurable shortcut; a deterministic skeleton ─────────────── */
+
+test("Mod+B inside a text field does not toggle the sidebar", async () => {
+  const screen = await render(
+    <SidebarFixture>
+      <input aria-label="Title" />
+    </SidebarFixture>,
+  );
+  await userEvent.click(screen.getByRole("textbox", { name: "Title" }));
+  await userEvent.keyboard("{Control>}b{/Control}");
+  expect(
+    screen.container
+      .querySelector('[data-slot="sidebar"]')!
+      .getAttribute("data-state"),
+  ).toBe("expanded");
+});
+
+test("INT-11: Mod+B inside a contenteditable, a textarea or a select does not toggle", async () => {
+  const screen = await render(
+    <SidebarFixture>
+      <div contentEditable aria-label="Notes" role="textbox" />
+      <textarea aria-label="Body" />
+      <select aria-label="Status">
+        <option>Open</option>
+      </select>
+    </SidebarFixture>,
+  );
+  const sidebar = slot(screen.container, "sidebar") as HTMLElement;
+  for (const target of [
+    screen.getByRole("textbox", { name: "Notes" }),
+    screen.getByRole("textbox", { name: "Body" }),
+    screen.getByRole("combobox", { name: "Status" }),
+  ]) {
+    (target.element() as HTMLElement).focus();
+    await userEvent.keyboard("{Control>}b{/Control}");
+    expect(sidebar.getAttribute("data-state")).toBe("expanded");
+  }
+});
+
+test("INT-11: an event another handler already claimed is left alone", async () => {
+  const screen = await render(
+    <SidebarFixture>
+      <div
+        data-testid="claims"
+        tabIndex={0}
+        onKeyDown={(event) => event.preventDefault()}
+      />
+    </SidebarFixture>,
+  );
+  const sidebar = slot(screen.container, "sidebar") as HTMLElement;
+  (screen.getByTestId("claims").element() as HTMLElement).focus();
+  await userEvent.keyboard("{Control>}b{/Control}");
+  expect(sidebar.getAttribute("data-state")).toBe("expanded");
+});
+
+test("INT-11: keyboardShortcut={false} turns the chord off", async () => {
+  const screen = await render(<SidebarFixture keyboardShortcut={false} />);
+  const sidebar = slot(screen.container, "sidebar") as HTMLElement;
+  await userEvent.keyboard("{Control>}b{/Control}");
+  expect(sidebar.getAttribute("data-state")).toBe("expanded");
+});
+
+test("INT-11: keyboardShortcut retunes the chord", async () => {
+  const screen = await render(<SidebarFixture keyboardShortcut="j" />);
+  const sidebar = slot(screen.container, "sidebar") as HTMLElement;
+  await userEvent.keyboard("{Control>}b{/Control}");
+  expect(sidebar.getAttribute("data-state")).toBe("expanded");
+  await userEvent.keyboard("{Control>}j{/Control}");
+  await expect.poll(() => sidebar.getAttribute("data-state")).toBe("collapsed");
+});
+
+test("LAY-16: skeleton widths cycle by index, never at random", async () => {
+  const screen = await render(
+    <StaticPanel>
+      <SidebarMenu>
+        {Array.from({ length: 6 }).map((_, index) => (
+          <SidebarMenuItem key={index}>
+            <SidebarMenuSkeleton index={index} />
+          </SidebarMenuItem>
+        ))}
+        <SidebarMenuItem>
+          <SidebarMenuSkeleton />
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </StaticPanel>,
+  );
+  const widths = allSlots(screen.container, "sidebar-menu-skeleton").map(
+    (row) =>
+      (
+        row.querySelector('[data-sidebar="menu-skeleton-text"]') as HTMLElement
+      ).style.getPropertyValue("--skeleton-width"),
+  );
+  expect(widths).toEqual(["70%", "55%", "85%", "60%", "75%", "70%", "70%"]);
+});
+
+test("LAY-16: the skeleton's server markup equals its client markup, with no hydration warning", async () => {
+  const { renderToString } = await import("react-dom/server");
+  const { hydrateRoot } = await import("react-dom/client");
+  const tree = (
+    <SidebarProvider>
+      <Sidebar collapsible="none">
+        <SidebarContent>
+          <SidebarMenu>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <SidebarMenuItem key={index}>
+                <SidebarMenuSkeleton index={index} showIcon />
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+      </Sidebar>
+    </SidebarProvider>
+  );
+  const first = renderToString(tree);
+  expect(renderToString(tree)).toBe(first);
+
+  const host = document.createElement("div");
+  host.innerHTML = first;
+  document.body.append(host);
+  const errors: string[] = [];
+  const spy = vi
+    .spyOn(console, "error")
+    .mockImplementation((...args: unknown[]) => {
+      errors.push(args.map(String).join(" "));
+    });
+  const root = hydrateRoot(host, tree, {
+    onRecoverableError: (error) => errors.push(String(error)),
+  });
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(errors.filter((line) => /hydrat|didn't match/i.test(line))).toEqual(
+      [],
+    );
+  } finally {
+    root.unmount();
+    host.remove();
+    spy.mockRestore();
+  }
+});
+
+/* ── LAY-13 — static-shell state ─────────────────────────────────────────────────────────────── */
+
+test("controlled provider writes no cookie", async () => {
+  document.cookie = "sidebar_state=; max-age=0; path=/";
+  const screen = await render(
+    <SidebarProvider open onOpenChange={() => {}}>
+      <Sidebar />
+      <SidebarTrigger />
+    </SidebarProvider>,
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Toggle sidebar" }));
+  expect(document.cookie).not.toContain("sidebar_state");
+});
+
+/** Every `document.cookie` write made while `run` executes, attributes included. */
+async function recordCookieWrites(run: () => Promise<void>) {
+  const descriptor = Object.getOwnPropertyDescriptor(
+    Document.prototype,
+    "cookie",
+  )!;
+  const writes: string[] = [];
+  Object.defineProperty(document, "cookie", {
+    configurable: true,
+    get: () => descriptor.get!.call(document),
+    set: (value: string) => {
+      writes.push(value);
+      descriptor.set!.call(document, value);
+    },
+  });
+  try {
+    await run();
+  } finally {
+    delete (document as { cookie?: string }).cookie;
+  }
+  return writes;
+}
+
+test("LAY-13: an uncontrolled toggle writes the cookie with SameSite=Lax", async () => {
+  const writes = await recordCookieWrites(async () => {
+    const screen = await render(<Shell />);
+    (slot(screen.container, "sidebar-trigger") as HTMLElement).click();
+    await expect
+      .poll(() => slot(screen.container, "sidebar")!.getAttribute("data-state"))
+      .toBe("collapsed");
+  });
+  expect(writes).toEqual([
+    "sidebar_state=false; path=/; max-age=604800; SameSite=Lax",
+  ]);
+});
+
+test("LAY-13: the server string carries the state script", async () => {
+  const { renderToString } = await import("react-dom/server");
+  const html = renderToString(
+    <SidebarStateScript cookieName="nav</script>" collapsible="icon" />,
+  );
+  expect(html).toContain('<script data-slot="sidebar-state-script">');
+  expect(html).toContain("data-sidebar-state");
+  expect(html).toContain('"icon"');
+  // A cookie name can never close the script it is written into.
+  expect(html.match(/<\/script>/g)).toHaveLength(1);
+});
+
+/**
+ * The static-shell sequence, in order: the server HTML is expanded (it cannot read the cookie),
+ * the `<head>` script runs before the body is parsed, the panel arrives, and the page paints — all
+ * before any JavaScript bundle hydrates. Then React hydrates onto what is on screen.
+ */
+function StaticShell() {
+  return (
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Inbox">
+                <Inbox />
+                <span>Inbox</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
+        <SidebarTrigger />
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+async function paintStaticShell() {
+  const { renderToString } = await import("react-dom/server");
+  const html = renderToString(<StaticShell />);
+  const scriptHtml = renderToString(<SidebarStateScript collapsible="icon" />);
+  // Run the head script the way the parser would: before the body markup exists.
+  const script = document.createElement("script");
+  script.textContent = new DOMParser()
+    .parseFromString(scriptHtml, "text/html")
+    .querySelector("script")!.textContent;
+  document.head.append(script);
+  const host = document.createElement("div");
+  host.innerHTML = html;
+  document.body.append(host);
+  // MutationObserver callbacks run as microtasks, before the next frame paints.
+  await Promise.resolve();
+  return { host, script, html };
+}
+
+test("LAY-13: with the cookie false, the panel is collapsed before hydration (JS paused)", async () => {
+  document.cookie = "sidebar_state=false; path=/";
+  const { host, script, html } = await paintStaticShell();
+  try {
+    // The server HTML itself is expanded — the script, not the server, collapses it.
+    expect(html).toContain('data-state="expanded"');
+    expect(document.documentElement.getAttribute("data-sidebar-state")).toBe(
+      "collapsed",
+    );
+    const panel = slot(host, "sidebar") as HTMLElement;
+    expect(panel.getAttribute("data-state")).toBe("collapsed");
+    expect(panel.getAttribute("data-collapsible")).toBe("icon");
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(getComputedStyle(slot(host, "sidebar-gap")!).width).toBe("48px");
+    expect(getComputedStyle(slot(host, "sidebar-container")!).width).toBe(
+      "48px",
+    );
+  } finally {
+    host.remove();
+    script.remove();
+    document.documentElement.removeAttribute("data-sidebar-state");
+  }
+});
+
+test("LAY-13: hydration onto the pre-painted panel warns nothing, and the panel still toggles", async () => {
+  const { hydrateRoot } = await import("react-dom/client");
+  document.cookie = "sidebar_state=false; path=/";
+  const { host, script } = await paintStaticShell();
+  const errors: string[] = [];
+  const spy = vi
+    .spyOn(console, "error")
+    .mockImplementation((...args: unknown[]) => {
+      errors.push(args.map(String).join(" "));
+    });
+  const root = hydrateRoot(host, <StaticShell />, {
+    onRecoverableError: (error) => errors.push(String(error)),
+  });
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(errors.filter((line) => /hydrat|didn't match/i.test(line))).toEqual(
+      [],
+    );
+    const panel = slot(host, "sidebar") as HTMLElement;
+    expect(panel.getAttribute("data-state")).toBe("collapsed");
+    await expectNoA11yViolations(host);
+
+    (slot(host, "sidebar-trigger") as HTMLElement).click();
+    await expect.poll(() => panel.getAttribute("data-state")).toBe("expanded");
+    // The mark follows the state, so a remount reads the truth.
+    expect(document.documentElement.getAttribute("data-sidebar-state")).toBe(
+      "expanded",
+    );
+  } finally {
+    root.unmount();
+    host.remove();
+    script.remove();
+    spy.mockRestore();
+    document.documentElement.removeAttribute("data-sidebar-state");
+  }
+});
+
+test("LAY-13: without the cookie the script leaves the page alone", async () => {
+  const { host, script } = await paintStaticShell();
+  try {
+    expect(document.documentElement.hasAttribute("data-sidebar-state")).toBe(
+      false,
+    );
+    expect(slot(host, "sidebar")!.getAttribute("data-state")).toBe("expanded");
+  } finally {
+    host.remove();
+    script.remove();
+  }
+});
+
+function CookieControlled() {
+  const [open, setOpen] = useSidebarCookieOpen();
+  return (
+    <SidebarProvider open={open} onOpenChange={setOpen}>
+      <Sidebar collapsible="icon">
+        <SidebarContent />
+      </Sidebar>
+      <SidebarInset>
+        <SidebarTrigger />
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+test("LAY-13: useSidebarCookieOpen reads the cookie and is the only cookie writer", async () => {
+  document.cookie = "sidebar_state=false; path=/";
+  const writes = await recordCookieWrites(async () => {
+    const screen = await render(<CookieControlled />);
+    const panel = slot(screen.container, "sidebar") as HTMLElement;
+    await expect.poll(() => panel.getAttribute("data-state")).toBe("collapsed");
+    (slot(screen.container, "sidebar-trigger") as HTMLElement).click();
+    await expect.poll(() => panel.getAttribute("data-state")).toBe("expanded");
+  });
+  // One write — the hook's. The controlled provider added none of its own.
+  expect(writes).toEqual([
+    "sidebar_state=true; path=/; max-age=604800; SameSite=Lax",
+  ]);
+});
+
+test("LAY-13: useSidebarCookieOpen starts from the head script's mark", async () => {
+  document.documentElement.setAttribute("data-sidebar-state", "collapsed");
+  try {
+    const screen = await render(<CookieControlled />);
+    // The very first render is collapsed — no expanded frame to correct.
+    expect(slot(screen.container, "sidebar")!.getAttribute("data-state")).toBe(
+      "collapsed",
+    );
+  } finally {
+    document.documentElement.removeAttribute("data-sidebar-state");
+  }
+});
+
+/* ── the mobile sheet keeps the sidebar's own width ─────────────────────────────────────────── */
+
+test("at 390px the mobile sheet is the sidebar's width, and tapping the scrim closes it", async () => {
+  await page.viewport(...NARROW);
+  const screen = await render(<Shell />);
+  (slot(screen.container, "sidebar-trigger") as HTMLElement).click();
+  await expect
+    .poll(() =>
+      document.querySelector<HTMLElement>(
+        '[data-slot="sidebar"][data-mobile="true"]',
+      ),
+    )
+    .not.toBeNull();
+  const sheet = document.querySelector<HTMLElement>(
+    '[data-slot="sidebar"][data-mobile="true"]',
+  )!;
+  // SIDEBAR_WIDTH_MOBILE is 18rem: 288px, leaving 102px of scrim beside it.
+  await expect
+    .poll(() => Math.round(sheet.getBoundingClientRect().width))
+    .toBe(288);
+  const scrim = document.querySelector<HTMLElement>(
+    '[data-slot="sheet-overlay"]',
+  )!;
+  expect(scrim).not.toBeNull();
+  const x = 390 - 40;
+  const y = 400;
+  const hit = document.elementFromPoint(x, y);
+  expect(hit === scrim || scrim.contains(hit)).toBe(true);
+  await userEvent.click(scrim, { position: { x: x, y: y } });
+  await expect
+    .poll(() =>
+      document.querySelector('[data-slot="sidebar"][data-mobile="true"]'),
+    )
+    .toBeNull();
+});
+
 /* ── accessibility, per distinct state ──────────────────────────────────────────────────────── */
 
 test("no a11y violations — expanded", async () => {
@@ -1543,7 +2206,7 @@ test("no a11y violations — loading skeletons", async () => {
 test("no a11y violations — mobile sheet open", async () => {
   await page.viewport(...NARROW);
   const screen = await render(<Shell />);
-  await screen.getByRole("button", { name: "Toggle Sidebar" }).click();
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
   await expect
     .poll(() =>
       document.querySelector('[data-slot="sidebar"][data-mobile="true"]'),

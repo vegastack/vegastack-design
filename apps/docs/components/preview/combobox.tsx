@@ -557,3 +557,38 @@ export function comboboxStates(): ReactNode {
     </Wrapper>
   );
 }
+
+const meetings = [
+  { value: "depot", title: "Depot review", when: "Meeting · 3 Sep" },
+  { value: "pricing", title: "Pricing sync", when: "Meeting · 5 Sep" },
+];
+
+/**
+ * API-19: a two-line option composes `ItemContent` › `ItemTitle` + `ItemDescription`, and the
+ * option links the description as its accessible description.
+ */
+export function comboboxTwoLineOptions(): ReactNode {
+  return (
+    <Wrapper>
+      <Combobox
+        items={meetings}
+        itemToStringLabel={(item: (typeof meetings)[number]) => item.title}
+      >
+        <ComboboxInput aria-label="Meeting" placeholder="Find a meeting" />
+        <ComboboxContent>
+          <ComboboxEmpty>No meetings found.</ComboboxEmpty>
+          <ComboboxList>
+            {(item: (typeof meetings)[number]) => (
+              <ComboboxItem key={item.value} value={item}>
+                <ItemContent>
+                  <ItemTitle>{item.title}</ItemTitle>
+                  <ItemDescription>{item.when}</ItemDescription>
+                </ItemContent>
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    </Wrapper>
+  );
+}

@@ -1,4 +1,4 @@
-// @vegastack item@0.18.0 sha256-GPv1zntMSe6+OS8yFewxi3hk0q+39AIiGfe2IhLx3o4=
+// @vegastack item@0.18.0 sha256-mJD/DcwRml8SZKqPEAQMtcvmY0pahBOW7PuaxT0Dr2Q=
 
 "use client";
 
@@ -6,9 +6,10 @@ import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 
 import { Separator } from "@/components/ui/separator";
+import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 
 /**
  * A11Y-7 — a context-licensed role. `ItemGroup` is `role="list"`, and `role="list"` admits only
@@ -22,10 +23,35 @@ const ItemGroupContext = React.createContext(false);
 function ItemGroup({
   className,
   children,
+  ref,
   ...props
 }: React.ComponentProps<"div">) {
+  const groupRef = React.useRef<HTMLDivElement>(null);
+  const mergedRef = React.useMemo(
+    () => mergeRefs<HTMLDivElement>(groupRef, ref),
+    [ref],
+  );
+  const named =
+    props["aria-label"] !== undefined || props["aria-labelledby"] !== undefined;
+
+  // API-20: an `ItemGroupLabel` rendered IMMEDIATELY before the group names it. The two are
+  // siblings with no shared owner to carry a context, so the group reads its previous sibling
+  // after mount; a caller's own `aria-label`/`aria-labelledby` always wins, and is the way to
+  // name the list in server-rendered HTML before hydration.
+  React.useEffect(() => {
+    const node = groupRef.current;
+    if (!node || named) return;
+    const label = node.previousElementSibling;
+    if (label?.getAttribute("data-slot") !== "item-group-label" || !label.id) {
+      return;
+    }
+    node.setAttribute("aria-labelledby", label.id);
+    return () => node.removeAttribute("aria-labelledby");
+  });
+
   return (
     <div
+      ref={mergedRef}
       role="list"
       data-slot="item-group"
       className={cn(
@@ -87,16 +113,32 @@ function Item({
   variant = "default",
   size = "default",
   render,
+  children,
   ...props
 }: useRender.ComponentProps<"div"> & VariantProps<typeof itemVariants>) {
   const inGroup = React.useContext(ItemGroupContext);
+  // A11Y-7 (amended): a row rendered as anything but a `div` — a link, a button — owns a role
+  // of its own, and `listitem` would overwrite it. Such a row keeps its role and the `listitem`
+  // moves to a wrapper instead. Its truncated cells (`TruncatedText`, `RelativeTime`) are not
+  // tab stops of their own: the row is the one control, and a focusable cell nested inside a
+  // link or button is an interactive-in-interactive violation.
+  const control =
+    render !== undefined &&
+    !(React.isValidElement(render) && render.type === "div");
 
-  return useRender({
+  const row = useRender({
     defaultTagName: "div",
     props: mergeProps<"div">(
       {
-        role: inGroup ? "listitem" : undefined,
+        role: inGroup && !control ? "listitem" : undefined,
         className: cn(itemVariants({ variant, size, className })),
+        children: control ? (
+          <TruncationFocusProvider focusable={false}>
+            {children}
+          </TruncationFocusProvider>
+        ) : (
+          children
+        ),
       },
       props,
     ),
@@ -107,6 +149,13 @@ function Item({
       size,
     },
   });
+
+  if (!inGroup || !control) return row;
+  return (
+    <div role="listitem" data-slot="item-listitem">
+      {row}
+    </div>
+  );
 }
 
 const itemMediaVariants = cva(
@@ -167,9 +216,49 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
+/**
+ * API-19 — a row that owns an accessible description (a command option, a menu item, a select
+ * option) provides a register function here; an `ItemDescription` inside it reports its `id`,
+ * and the row points `aria-describedby` at it, so the second line is read as a description
+ * rather than appended to the row's name. Outside such a row the context is `null` and the
+ * description renders exactly as upstream's.
+ */
+const ItemDescriptionContext = React.createContext<
+  ((id: string | undefined) => void) | null
+>(null);
+
+/**
+ * API-19 — the row half of `ItemDescriptionContext`. Provide `register` as the context value
+ * and set `aria-describedby={id || undefined}` on the row; `id` is `""` until a description
+ * registers.
+ */
+function useItemDescriptionId(): {
+  id: string;
+  register: (id?: string) => void;
+} {
+  const [id, setId] = React.useState("");
+  const register = React.useCallback((next?: string) => setId(next ?? ""), []);
+  return { id, register };
+}
+
+function ItemDescription({
+  className,
+  id: idProp,
+  ...props
+}: React.ComponentProps<"p">) {
+  const register = React.useContext(ItemDescriptionContext);
+  const autoId = React.useId();
+  const id = idProp ?? autoId;
+
+  React.useEffect(() => {
+    if (!register) return;
+    register(id);
+    return () => register(undefined);
+  }, [register, id]);
+
   return (
     <p
+      id={register ? id : idProp}
       data-slot="item-description"
       className={cn(
         "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
@@ -216,15 +305,46 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * API-20 — the heading that names the `ItemGroup` rendered immediately after it (default `h3`;
+ * pass `render` for another level).
+ */
+function ItemGroupLabel({
+  className,
+  render,
+  id: idProp,
+  ...props
+}: useRender.ComponentProps<"h3">) {
+  const autoId = React.useId();
+
+  return useRender({
+    defaultTagName: "h3",
+    props: mergeProps<"h3">(
+      {
+        id: idProp ?? autoId,
+        className: cn("text-xs font-medium text-muted-foreground", className),
+      },
+      props,
+    ),
+    render,
+    state: {
+      slot: "item-group-label",
+    },
+  });
+}
+
 export {
   Item,
   ItemMedia,
   ItemContent,
   ItemActions,
   ItemGroup,
+  ItemGroupLabel,
   ItemSeparator,
   ItemTitle,
   ItemDescription,
   ItemHeader,
   ItemFooter,
+  ItemDescriptionContext,
+  useItemDescriptionId,
 };

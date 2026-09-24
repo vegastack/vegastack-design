@@ -1,8 +1,9 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { expect, expectTypeOf, test } from "vitest";
+import type { VariantProps } from "class-variance-authority";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Badge, badgeVariants } from "./badge";
+import { Badge, badgeVariants, type BadgeVariant } from "./badge";
 import { Spinner } from "./spinner";
 
 /**
@@ -195,4 +196,38 @@ test("no a11y violations — with a decorative icon", async () => {
     </Badge>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("API-25: BadgeVariant is the variant union", () => {
+  expectTypeOf<BadgeVariant>().toEqualTypeOf<
+    NonNullable<VariantProps<typeof badgeVariants>["variant"]>
+  >();
+  expectTypeOf<"info">().toMatchTypeOf<BadgeVariant>();
+  expectTypeOf<"danger">().not.toMatchTypeOf<BadgeVariant>();
+});
+
+test("API-25: a typed status map renders through BadgeVariant (Mapping domain statuses)", async () => {
+  type Status = "live" | "running" | "paused" | "failed" | "draft" | "archived";
+  const STATUS = {
+    live: { label: "Live", variant: "success" },
+    running: { label: "Running", variant: "info" },
+    paused: { label: "Paused", variant: "warning" },
+    failed: { label: "Failed", variant: "destructive" },
+    draft: { label: "Draft", variant: "secondary" },
+    archived: { label: "Archived", variant: "outline" },
+  } satisfies Record<Status, { label: string; variant: BadgeVariant }>;
+  const screen = await render(
+    <div>
+      {(Object.keys(STATUS) as Status[]).map((status) => (
+        <Badge key={status} variant={STATUS[status].variant}>
+          {STATUS[status].label}
+        </Badge>
+      ))}
+    </div>,
+  );
+  for (const status of Object.keys(STATUS) as Status[]) {
+    await expect
+      .element(screen.getByText(STATUS[status].label))
+      .toHaveAttribute("data-variant", STATUS[status].variant);
+  }
 });

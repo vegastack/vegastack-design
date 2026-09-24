@@ -1,4 +1,4 @@
-// @vegastack command@0.18.0 sha256-Ikl1JWY3YDfiF2G2iDDG11/k5xbGe6iMqXdlxM1RW5E=
+// @vegastack command@0.18.0 sha256-Gopo6erXBeb+6sECd6EqiTCrzOHlYxLD0nun+ZJ4tEE=
 
 "use client";
 
@@ -16,17 +16,29 @@ import {
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { SearchIcon, CheckIcon } from "lucide-react";
 
+import {
+  ItemDescriptionContext,
+  useItemDescriptionId,
+} from "@/components/ui/item";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
-function CommandResultAnnouncer() {
+// VOI-1: the result count is built-in copy, so it is overridable (and localisable) as a label.
+const defaultResultsLabel = (count: number) =>
+  count === 1 ? "1 result" : `${count} results`;
+
+function CommandResultAnnouncer({
+  resultsLabel,
+}: {
+  resultsLabel: (count: number) => string;
+}) {
   const { announce, Announcer } = useAnnouncer();
   const search = useCommandState((state) => state.search);
   const count = useCommandState((state) => state.filtered.count);
 
   React.useEffect(() => {
     if (!search) return;
-    announce(`${count} ${count === 1 ? "result" : "results"}`);
-  }, [announce, count, search]);
+    announce(resultsLabel(count));
+  }, [announce, count, search, resultsLabel]);
 
   return <Announcer />;
 }
@@ -34,8 +46,11 @@ function CommandResultAnnouncer() {
 function Command({
   className,
   children,
+  resultsLabel = defaultResultsLabel,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive>) {
+}: React.ComponentProps<typeof CommandPrimitive> & {
+  resultsLabel?: (count: number) => string;
+}) {
   return (
     <CommandPrimitive
       data-slot="command"
@@ -46,23 +61,31 @@ function Command({
       {...props}
     >
       {children}
-      <CommandResultAnnouncer />
+      <CommandResultAnnouncer resultsLabel={resultsLabel} />
     </CommandPrimitive>
   );
 }
 
+// OVL-16 (widened): the dialog's size reaches the list inside it, which grows taller with it.
+type CommandDialogSize = "sm" | "default" | "lg" | "xl";
+const CommandDialogSizeContext = React.createContext<
+  CommandDialogSize | undefined
+>(undefined);
+
 function CommandDialog({
-  title = "Command Palette",
-  description = "Search for a command to run...",
+  title = "Command palette",
+  description = "Search for a command…",
   children,
   className,
   showCloseButton = false,
+  size = "default",
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
   title?: string;
   description?: string;
   className?: string;
   showCloseButton?: boolean;
+  size?: CommandDialogSize;
   children: React.ReactNode;
 }) {
   return (
@@ -77,8 +100,11 @@ function CommandDialog({
           className,
         )}
         showCloseButton={showCloseButton}
+        size={size}
       >
-        {children}
+        <CommandDialogSizeContext.Provider value={size}>
+          {children}
+        </CommandDialogSizeContext.Provider>
       </DialogContent>
     </Dialog>
   );
@@ -117,6 +143,7 @@ function CommandList({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.List>) {
   const count = useCommandState((state) => state.filtered.count);
+  const size = React.useContext(CommandDialogSizeContext) ?? "default";
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const setRef = React.useMemo(
     () => mergeRefs<HTMLDivElement>(listRef, ref),
@@ -139,9 +166,10 @@ function CommandList({
   return (
     <CommandPrimitive.List
       data-slot="command-list"
+      data-size={size}
       ref={setRef}
       className={cn(
-        "no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none",
+        "no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none data-[size=lg]:max-h-[min(28rem,60dvh)] data-[size=xl]:max-h-[min(28rem,60dvh)]",
         className,
       )}
       {...props}
@@ -165,6 +193,76 @@ function CommandEmpty({
           `role="listbox"` removed (A11Y-7), so a status is never nested inside a listbox. */}
       <span role="status">{children}</span>
     </CommandPrimitive.Empty>
+  );
+}
+
+/**
+ * API-18 — cmdk's loading slot. cmdk renders it as an unnamed-value `progressbar` whose visible
+ * text is `aria-hidden`, so a screen reader hears nothing of it; this part turns it into a polite
+ * `status` whose text is the announcement (A11Y-3). Render it OUTSIDE `CommandList` (above it)
+ * or while the list has no results: a status inside a listbox with options is an
+ * `aria-required-children` violation.
+ */
+function CommandLoading({
+  className,
+  children,
+  label = "Loading…",
+  ref,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Loading>) {
+  const nodeRef = React.useRef<HTMLDivElement | null>(null);
+  const setRef = React.useMemo(
+    () => mergeRefs<HTMLDivElement>(nodeRef, ref),
+    [ref],
+  );
+
+  // cmdk writes its role and ARIA AFTER spreading props, so they can only be corrected on the
+  // node. No dependency array, as in `CommandList`: every render has to reassert it.
+  React.useLayoutEffect(() => {
+    const node = nodeRef.current;
+    if (!node) return;
+    node.setAttribute("role", "status");
+    for (const name of [
+      "aria-valuenow",
+      "aria-valuemin",
+      "aria-valuemax",
+      "aria-label",
+    ]) {
+      node.removeAttribute(name);
+    }
+    node.firstElementChild?.removeAttribute("aria-hidden");
+  });
+
+  return (
+    <CommandPrimitive.Loading
+      data-slot="command-loading"
+      ref={setRef}
+      label={label}
+      className={cn(
+        "flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground",
+        className,
+      )}
+      {...props}
+    >
+      {children ?? label}
+    </CommandPrimitive.Loading>
+  );
+}
+
+/**
+ * API-18 — a footer part (key hints, a result count, a link) that sits OUTSIDE the listbox, so
+ * it is never announced as an option.
+ */
+function CommandFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="command-footer"
+      className={cn(
+        "flex items-center gap-3 border-t px-3 py-2 text-xs text-muted-foreground",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -202,16 +300,22 @@ function CommandItem({
   children,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Item>) {
+  // API-19: a two-line row links its `ItemDescription` as the option's description.
+  const description = useItemDescriptionId();
+
   return (
     <CommandPrimitive.Item
       data-slot="command-item"
+      aria-describedby={description.id || undefined}
       className={cn(
         "group/command-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground",
         className,
       )}
       {...props}
     >
-      {children}
+      <ItemDescriptionContext.Provider value={description.register}>
+        {children}
+      </ItemDescriptionContext.Provider>
       <CheckIcon className="ms-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
     </CommandPrimitive.Item>
   );
@@ -239,6 +343,8 @@ export {
   CommandInput,
   CommandList,
   CommandEmpty,
+  CommandLoading,
+  CommandFooter,
   CommandGroup,
   CommandItem,
   CommandShortcut,

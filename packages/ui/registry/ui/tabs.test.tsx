@@ -9,6 +9,7 @@ import {
   TabsList,
   TabsTrigger,
   tabsListVariants,
+  tabsTriggerVariants,
 } from "./tabs";
 import { DirectionProvider } from "./direction";
 
@@ -113,22 +114,68 @@ test("the list variant defaults to the pill track, not to line (Line)", async ()
   expect(tabsListVariants()).toContain("bg-muted");
 });
 
-test('orientation="vertical" is written onto the root and read by the list (Vertical)', async () => {
+test('A11Y-20: orientation="vertical" reaches the primitive, so the list is vertical too (Vertical)', async () => {
   const screen = await render(<Subject orientation="vertical" />);
   const root = screen.container.querySelector('[data-slot="tabs"]')!;
   expect(root.getAttribute("data-orientation")).toBe("vertical");
-  // Upstream DESTRUCTURES `orientation` and writes `data-orientation` itself rather than
-  // forwarding the prop, so Base UI's own parts still report `horizontal`. The vertical layout is
-  // carried entirely by the `group-data-vertical/tabs:` variants that read the ROOT's attribute —
-  // which is what this asserts, because it is what upstream actually ships.
+  // Upstream DESTRUCTURES `orientation` and writes only `data-orientation` on the root, so Base
+  // UI's own parts reported `horizontal` and the list announced and navigated as a row. A11Y-20
+  // forwards the prop, so every part now agrees with the root.
   const list = screen.container.querySelector(
     '[data-slot="tabs-list"]',
   ) as HTMLElement;
-  expect(list.getAttribute("data-orientation")).toBe("horizontal");
+  expect(list.getAttribute("data-orientation")).toBe("vertical");
+  expect(list.getAttribute("aria-orientation")).toBe("vertical");
+  for (const tab of screen.container.querySelectorAll('[role="tab"]'))
+    expect(tab.getAttribute("data-orientation")).toBe("vertical");
+  // The layout variants still read the root's attribute, exactly as upstream wrote them.
   expect(list.className).toContain("group-data-vertical/tabs:flex-col");
   expect(
     screen.container.querySelector('[data-slot="tabs-trigger"]')!.className,
   ).toContain("group-data-vertical/tabs:w-full");
+});
+
+test("vertical tabs announce and move vertically", async () => {
+  const screen = await render(
+    <Tabs orientation="vertical" defaultValue="a">
+      <TabsList>
+        <TabsTrigger value="a">A</TabsTrigger>
+        <TabsTrigger value="b">B</TabsTrigger>
+      </TabsList>
+    </Tabs>,
+  );
+  await expect
+    .element(screen.getByRole("tablist"))
+    .toHaveAttribute("aria-orientation", "vertical");
+  await userEvent.click(screen.getByRole("tab", { name: "A" }));
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.element(screen.getByRole("tab", { name: "B" })).toHaveFocus();
+});
+
+test("A11Y-20: a vertical list ignores the horizontal arrows (Vertical, keyboard)", async () => {
+  const screen = await render(<Subject orientation="vertical" />);
+  await userEvent.tab();
+  const tabs = [...screen.container.querySelectorAll('[role="tab"]')];
+  expect(document.activeElement).toBe(tabs[0]);
+  await userEvent.keyboard("{ArrowRight}");
+  expect(document.activeElement).toBe(tabs[0]);
+  await userEvent.keyboard("{ArrowDown}");
+  expect(document.activeElement).toBe(tabs[1]);
+  await userEvent.keyboard("{ArrowUp}");
+  expect(document.activeElement).toBe(tabs[0]);
+});
+
+test("A11Y-20: the horizontal default is unchanged — no aria-orientation, and ArrowDown does not move (Vertical)", async () => {
+  const screen = await render(<Subject />);
+  const list = screen.getByRole("tablist").element();
+  expect(list.getAttribute("aria-orientation")).toBeNull();
+  expect(list.getAttribute("data-orientation")).toBe("horizontal");
+  await userEvent.tab();
+  const tabs = [...screen.container.querySelectorAll('[role="tab"]')];
+  await userEvent.keyboard("{ArrowDown}");
+  expect(document.activeElement).toBe(tabs[0]);
+  await userEvent.keyboard("{ArrowRight}");
+  expect(document.activeElement).toBe(tabs[1]);
 });
 
 test("the horizontal default is written onto the root too (Vertical)", async () => {
@@ -276,6 +323,221 @@ test("API-5: Tabs ships no loading prop — the panel, not the tab, owns a pendi
   expect(Object.keys(Tabs)).not.toContain("loading");
 });
 
+const MANY = [
+  "Overview",
+  "Activity",
+  "Members",
+  "Billing",
+  "Integrations",
+  "Security",
+  "Notifications",
+  "Advanced",
+] as const;
+
+/**
+ * Eight line tabs in a 200px box. This lane compiles no Tailwind, so the list's scroll box is
+ * given inline — the declarations `overflow="scroll"` compiles to, `relative` included, which makes
+ * the list the triggers' offset parent that Base UI's own keyboard scroll measures against — and
+ * what is under test is the reveal logic, not the utilities.
+ */
+function Many(props: Omit<React.ComponentProps<typeof Tabs>, "children">) {
+  return (
+    <div style={{ width: 200 }}>
+      <Tabs {...props}>
+        <TabsList
+          variant="line"
+          style={{
+            display: "flex",
+            position: "relative",
+            maxWidth: "100%",
+            overflowX: "auto",
+          }}
+        >
+          {MANY.map((label) => (
+            <TabsTrigger
+              key={label}
+              value={label.toLowerCase()}
+              style={{ flex: "none", padding: "0 16px" }}
+            >
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+    </div>
+  );
+}
+
+function inView(list: HTMLElement, name: string) {
+  const tab = [...list.querySelectorAll('[role="tab"]')].find(
+    (element) => element.textContent === name,
+  )!;
+  const box = list.getBoundingClientRect();
+  const rect = tab.getBoundingClientRect();
+  // 1px absorbs sub-pixel text widths: `scrollWidth` is an integer, so the last fraction of a
+  // pixel of the final trigger can never be scrolled to.
+  return rect.left >= box.left - 1 && rect.right <= box.right + 1;
+}
+
+test('LAY-14: a line list defaults to overflow="scroll"; the pill track stays visible', async () => {
+  const screen = await render(
+    <Tabs defaultValue="a">
+      <TabsList variant="line">
+        <TabsTrigger value="a">A</TabsTrigger>
+      </TabsList>
+      <TabsList>
+        <TabsTrigger value="b">B</TabsTrigger>
+      </TabsList>
+      <TabsList variant="line" overflow="visible">
+        <TabsTrigger value="c">C</TabsTrigger>
+      </TabsList>
+      <TabsList overflow="scroll">
+        <TabsTrigger value="d">D</TabsTrigger>
+      </TabsList>
+    </Tabs>,
+  );
+  const lists = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="tabs-list"]',
+    ),
+  ];
+  expect(lists.map((list) => list.getAttribute("data-overflow"))).toEqual([
+    "scroll",
+    "visible",
+    "visible",
+    "scroll",
+  ]);
+  for (const list of lists) {
+    const scrolls = list.getAttribute("data-overflow") === "scroll";
+    // The scroll box is horizontal-only, and it is the AttachmentGroup recipe: edge fades that
+    // track the scroll position, no scrollbar, no scroll chaining into the page.
+    for (const utility of [
+      "relative",
+      "data-horizontal:overflow-x-auto",
+      "data-horizontal:scroll-fade-x",
+      "data-horizontal:scrollbar-none",
+      "data-horizontal:overscroll-x-contain",
+      "data-horizontal:max-w-full",
+      "data-horizontal:justify-start",
+    ])
+      expect(list.className.includes(utility), `${utility}`).toBe(scrolls);
+  }
+});
+
+test("LAY-14: the active trigger is scrolled into view on mount", async () => {
+  const screen = await render(<Many defaultValue="advanced" />);
+  const list = screen.getByRole("tablist").element() as HTMLElement;
+  expect(list.scrollWidth).toBeGreaterThan(list.clientWidth);
+  await expect.poll(() => inView(list, "Advanced")).toBe(true);
+  expect(list.scrollLeft).toBeGreaterThan(0);
+  // Only the list moved: the page did not.
+  expect(document.scrollingElement!.scrollLeft).toBe(0);
+});
+
+test("LAY-14: a controlled value from outside scrolls its trigger into view", async () => {
+  function Controlled() {
+    const [value, setValue] = React.useState("overview");
+    return (
+      <>
+        <button type="button" onClick={() => setValue("advanced")}>
+          Jump to the end
+        </button>
+        <button type="button" onClick={() => setValue("overview")}>
+          Jump to the start
+        </button>
+        <Many value={value} onValueChange={setValue} />
+      </>
+    );
+  }
+  const screen = await render(<Controlled />);
+  const list = screen.getByRole("tablist").element() as HTMLElement;
+  expect(inView(list, "Advanced")).toBe(false);
+  await userEvent.click(
+    screen.getByRole("button", { name: "Jump to the end" }),
+  );
+  await expect.poll(() => inView(list, "Advanced")).toBe(true);
+  await userEvent.click(
+    screen.getByRole("button", { name: "Jump to the start" }),
+  );
+  await expect.poll(() => inView(list, "Overview")).toBe(true);
+  expect(list.scrollLeft).toBe(0);
+});
+
+test("LAY-14: arrowing to an off-screen tab scrolls it into view", async () => {
+  const screen = await render(<Many defaultValue="overview" />);
+  const list = screen.getByRole("tablist").element() as HTMLElement;
+  await userEvent.tab();
+  // End jumps the roving stop to the last tab; the focus move is what brings it into view.
+  await userEvent.keyboard("{End}");
+  expect(document.activeElement?.textContent).toBe("Advanced");
+  await expect.poll(() => inView(list, "Advanced")).toBe(true);
+  await userEvent.keyboard("{Home}");
+  await expect.poll(() => inView(list, "Overview")).toBe(true);
+});
+
+test("API-25: tabsTriggerVariants is the trigger's own class recipe", async () => {
+  const screen = await render(<Subject />);
+  const trigger = screen.container.querySelector<HTMLElement>(
+    '[data-slot="tabs-trigger"]',
+  )!;
+  const recipe = tabsTriggerVariants();
+  expect(typeof recipe).toBe("string");
+  for (const utility of recipe.split(" "))
+    expect(trigger.classList.contains(utility), utility).toBe(true);
+  // The line indicator and the active ink live in the recipe, so a route nav drawn from it
+  // looks like the tabs it sits beside.
+  expect(recipe).toContain(
+    "group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+  );
+  expect(recipe).toContain("data-active:text-foreground");
+});
+
+/** The route-tabs recipe from the docs page: a named nav of links, drawn from the two recipes. */
+function RouteTabs({ current }: { current: string }) {
+  const routes = ["Overview", "Activity", "Settings"];
+  return (
+    <nav
+      aria-label="Project"
+      data-orientation="horizontal"
+      className="group/tabs"
+    >
+      <div
+        data-orientation="horizontal"
+        data-variant="line"
+        className={tabsListVariants({ variant: "line", overflow: "scroll" })}
+      >
+        {routes.map((route) => (
+          <a
+            key={route}
+            href={`#${route.toLowerCase()}`}
+            aria-current={route === current ? "page" : undefined}
+            data-active={route === current ? "" : undefined}
+            className={tabsTriggerVariants()}
+          >
+            {route}
+          </a>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+test("API-25: route tabs are links with aria-current and no tab roles", async () => {
+  const screen = await render(<RouteTabs current="Activity" />);
+  await expect
+    .element(screen.getByRole("navigation", { name: "Project" }))
+    .toBeInTheDocument();
+  expect(screen.container.querySelector('[role="tablist"]')).toBeNull();
+  expect(screen.container.querySelector('[role="tab"]')).toBeNull();
+  await expect
+    .element(screen.getByRole("link", { name: "Activity" }))
+    .toHaveAttribute("aria-current", "page");
+  for (const name of ["Overview", "Settings"])
+    expect(
+      screen.getByRole("link", { name }).element().hasAttribute("aria-current"),
+    ).toBe(false);
+});
+
 test("no a11y violations — rest", async () => {
   const screen = await render(<Subject />);
   await expectNoA11yViolations(screen.container);
@@ -312,6 +574,16 @@ test("no a11y violations — disabled", async () => {
       <TabsContent value="home">Home panel</TabsContent>
     </Tabs>,
   );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — a scrolling line list with eight tabs", async () => {
+  const screen = await render(<Many defaultValue="advanced" />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — route tabs", async () => {
+  const screen = await render(<RouteTabs current="Activity" />);
   await expectNoA11yViolations(screen.container);
 });
 

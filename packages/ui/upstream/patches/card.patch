@@ -1,25 +1,35 @@
 # component: card
-# decisions: BRD-1, DOC-2
+# decisions: API-16, API-22, BRD-1, DOC-2
 # hunks:
 #   BRD-1: the card surface draws a real 1px `border border-border` instead of upstream's
 #     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
 #     border survives forced colours and matches `foundations/elevation`; nothing else moves.
+#   API-22: `CardTitle` renders through Base UI's `useRender` (upstream's own Badge pattern:
+#     `mergeProps` + `render` + `state.slot`) instead of a fixed `<div>`, so a page sets the heading
+#     level on the part (`render={<h2 />}`). The default tag, the `data-slot` and the class list are
+#     upstream's, unchanged.
+#   API-16: `"use client"` is added — `useRender` calls `React.useRef` internally, so the module
+#     throws on import in an RSC without the boundary (`verify-rsc-safety.mjs`).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/card.tsx b/card.tsx
-index cf02f48..61ffe69 100644
+index cf02f48..8f3ddf7 100644
 --- a/card.tsx
 +++ b/card.tsx
-@@ -1,5 +1,5 @@
+@@ -1,5 +1,9 @@
 -import * as React from "react"
 -import { cn } from "cn"
++"use client";
++
 +import * as React from "react";
++import { mergeProps } from "@base-ui/react/merge-props";
++import { useRender } from "@base-ui/react/use-render";
 +import { cn } from "@vegastack/design";
  
  function Card({
    className,
-@@ -11,12 +11,12 @@ function Card({
+@@ -11,12 +15,12 @@ function Card({
        data-slot="card"
        data-size={size}
        className={cn(
@@ -35,7 +45,7 @@ index cf02f48..61ffe69 100644
  }
  
  function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -25,11 +25,11 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -25,24 +29,34 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="card-header"
        className={cn(
          "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
@@ -48,22 +58,42 @@ index cf02f48..61ffe69 100644
 +  );
  }
  
- function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-@@ -38,11 +38,11 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-       data-slot="card-title"
-       className={cn(
-         "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+-  return (
+-    <div
+-      data-slot="card-title"
+-      className={cn(
+-        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
 -        className
-+        className,
-       )}
-       {...props}
-     />
+-      )}
+-      {...props}
+-    />
 -  )
-+  );
++function CardTitle({
++  className,
++  render,
++  ...props
++}: useRender.ComponentProps<"div">) {
++  return useRender({
++    defaultTagName: "div",
++    props: mergeProps<"div">(
++      {
++        className: cn(
++          "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
++          className,
++        ),
++      },
++      props,
++    ),
++    render,
++    state: {
++      slot: "card-title",
++    },
++  });
  }
  
  function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
-@@ -52,7 +52,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
+@@ -52,7 +66,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("text-sm text-muted-foreground", className)}
        {...props}
      />
@@ -72,7 +102,7 @@ index cf02f48..61ffe69 100644
  }
  
  function CardAction({ className, ...props }: React.ComponentProps<"div">) {
-@@ -61,11 +61,11 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
+@@ -61,11 +75,11 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="card-action"
        className={cn(
          "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
@@ -86,7 +116,7 @@ index cf02f48..61ffe69 100644
  }
  
  function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -75,7 +75,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -75,7 +89,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("px-(--card-spacing)", className)}
        {...props}
      />
@@ -95,7 +125,7 @@ index cf02f48..61ffe69 100644
  }
  
  function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -84,11 +84,11 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -84,11 +98,11 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="card-footer"
        className={cn(
          "flex items-center rounded-b-xl border-t bg-muted/50 p-(--card-spacing)",
@@ -109,7 +139,7 @@ index cf02f48..61ffe69 100644
  }
  
  export {
-@@ -99,4 +99,4 @@ export {
+@@ -99,4 +113,4 @@ export {
    CardAction,
    CardDescription,
    CardContent,

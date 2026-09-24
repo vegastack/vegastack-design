@@ -5,8 +5,11 @@ import { expect, test } from "vitest";
 import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { DirectionProvider } from "./direction";
+import { Button } from "./button";
 import {
   Sheet,
+  SheetAction,
+  SheetBody,
   SheetClose,
   SheetContent,
   SheetDescription,
@@ -351,6 +354,172 @@ test("no a11y violations — open", async () => {
 
 test("no a11y violations — open and non-modal", async () => {
   const screen = await render(<Subject modal={false} />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});
+
+/** A long sheet: header with an action seat, a scrolling body, a footer. */
+function LongSubject({
+  contentProps,
+}: {
+  contentProps?: React.ComponentProps<typeof SheetContent>;
+}) {
+  return (
+    <Sheet>
+      <SheetTrigger>Open sheet</SheetTrigger>
+      <SheetContent {...contentProps}>
+        <SheetHeader>
+          <SheetTitle>Edit record</SheetTitle>
+          <SheetDescription>Ten fields and a footer.</SheetDescription>
+          <SheetAction>
+            <Button size="sm" variant="outline">
+              Duplicate
+            </Button>
+          </SheetAction>
+        </SheetHeader>
+        <SheetBody>
+          {Array.from({ length: 10 }, (_, index) => (
+            <label key={index} className="block">
+              Field {index + 1}
+              <input />
+            </label>
+          ))}
+        </SheetBody>
+        <SheetFooter>
+          <Button>Save</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+test("OVL-16: size defaults to default and keeps upstream's side cap", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const panel = bySlot("sheet-content")!;
+  expect(panel.getAttribute("data-size")).toBe("default");
+  expect(panel.className).toContain("data-[side=right]:sm:max-w-sm");
+});
+
+for (const [size, cap] of [
+  ["sm", "sm:max-w-xs"],
+  ["lg", "sm:max-w-2xl"],
+  ["xl", "sm:max-w-5xl"],
+] as const) {
+  test(`OVL-16: size="${size}" publishes data-size and steps only the side sheets' cap`, async () => {
+    const screen = await render(<Subject contentProps={{ size }} />);
+    await screen.getByRole("button", { name: "Open sheet" }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+    const panel = bySlot("sheet-content")!;
+    expect(panel.getAttribute("data-size")).toBe(size);
+    const tokens = panel.className.split(/\s+/);
+    expect(tokens).toContain(`data-[side=left]:data-[size=${size}]:${cap}`);
+    expect(tokens).toContain(`data-[side=right]:data-[size=${size}]:${cap}`);
+    // Top and bottom sheets ignore the axis: no cap is keyed on them.
+    expect(
+      tokens.filter((token) => /data-\[side=(top|bottom)\].*max-w/.test(token)),
+    ).toEqual([]);
+  });
+}
+
+test("OVL-16: below sm a side sheet is full width, and 3/4 from sm up", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const tokens = bySlot("sheet-content")!.className.split(/\s+/);
+  for (const side of ["left", "right"]) {
+    expect(tokens).toContain(`data-[side=${side}]:w-full`);
+    expect(tokens).toContain(`data-[side=${side}]:sm:w-3/4`);
+  }
+});
+
+test("API-21: SheetBody scrolls between a fixed header and footer", async () => {
+  const screen = await render(<LongSubject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const body = bySlot("sheet-body")!;
+  expect(bySlot("sheet-content")!.contains(body)).toBe(true);
+  const tokens = body.className.split(/\s+/);
+  for (const token of ["min-h-0", "flex-1", "overflow-y-auto", "px-4"]) {
+    expect(tokens).toContain(token);
+  }
+  // The panel has no padding of its own, so the body takes no negative margin.
+  expect(tokens).not.toContain("-mx-4");
+  // Header, body, footer, in that order.
+  const order = [...bySlot("sheet-content")!.children].map((child) =>
+    child.getAttribute("data-slot"),
+  );
+  expect(order.slice(0, 3)).toEqual([
+    "sheet-header",
+    "sheet-body",
+    "sheet-footer",
+  ]);
+});
+
+test("API-21: SheetAction is an end seat in the header that clears the close button", async () => {
+  const screen = await render(<LongSubject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const action = bySlot("sheet-action")!;
+  expect(bySlot("sheet-header")!.contains(action)).toBe(true);
+  const tokens = action.className.split(/\s+/);
+  for (const token of [
+    "col-start-2",
+    "row-span-2",
+    "row-start-1",
+    "justify-self-end",
+    "me-8",
+  ]) {
+    expect(tokens).toContain(token);
+  }
+  expect(bySlot("sheet-header")!.className).toContain(
+    "has-data-[slot=sheet-action]:grid-cols-[1fr_auto]",
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Duplicate" }))
+    .toBeInTheDocument();
+});
+
+test("API-21, VOI-1: closeLabel renames the corner close button", async () => {
+  const screen = await render(
+    <Subject contentProps={{ closeLabel: "Close record" }} />,
+  );
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const corner = screen.getByRole("button", { name: "Close record" });
+  await expect.element(corner).toBeInTheDocument();
+  (corner.element() as HTMLElement).click();
+  await waitForClosed();
+});
+
+test("VOI-1: the corner close button's default name is sentence-case Close", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Close" }))
+    .toBeInTheDocument();
+});
+
+test("focus is trapped in a long sheet and returns to the trigger on Escape", async () => {
+  const screen = await render(<LongSubject />);
+  const trigger = screen.getByRole("button", { name: "Open sheet" });
+  await trigger.click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const panel = bySlot("sheet-content")!;
+  await expect.poll(() => panel.contains(document.activeElement)).toBe(true);
+  for (let step = 0; step < 16; step += 1) {
+    await userEvent.keyboard("{Tab}");
+    expect(panel.contains(document.activeElement)).toBe(true);
+  }
+  await userEvent.keyboard("{Escape}");
+  await waitForClosed();
+  await expect.poll(() => document.activeElement).toBe(trigger.element());
+});
+
+test("no a11y violations — open with an action, a body and a footer", async () => {
+  const screen = await render(<LongSubject contentProps={{ size: "lg" }} />);
   await screen.getByRole("button", { name: "Open sheet" }).click();
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
   await expectNoA11yViolations(document.body);

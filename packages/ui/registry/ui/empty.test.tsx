@@ -235,3 +235,47 @@ test("no a11y violations — right to left", async () => {
   const screen = await render(<Composition dir="rtl" />);
   await expectNoA11yViolations(screen.container);
 });
+
+test("API-22: EmptyTitle renders as an h2", async () => {
+  const screen = await render(
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle render={<h2 />}>No projects yet</EmptyTitle>
+      </EmptyHeader>
+    </Empty>,
+  );
+  await expect
+    .element(screen.getByRole("heading", { level: 2, name: "No projects yet" }))
+    .toHaveAttribute("data-slot", "empty-title");
+});
+
+test("API-22: the heading keeps the title's class list, merged with the caller's", async () => {
+  const screen = await render(
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>Plain</EmptyTitle>
+        <EmptyTitle render={<h3 />} className="extra">
+          Heading
+        </EmptyTitle>
+      </EmptyHeader>
+    </Empty>,
+  );
+  const [plain, heading] = Array.from(
+    screen.container.querySelectorAll('[data-slot="empty-title"]'),
+  ) as HTMLElement[];
+  expect(plain!.tagName).toBe("DIV");
+  expect(heading!.tagName).toBe("H3");
+  expect(heading!.className).toBe(`${plain!.className} extra`);
+});
+
+test("no a11y violations — a heading title", async () => {
+  const screen = await render(
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle render={<h2 />}>No projects yet</EmptyTitle>
+        <EmptyDescription>Create one to get started.</EmptyDescription>
+      </EmptyHeader>
+    </Empty>,
+  );
+  await expectNoA11yViolations(screen.container);
+});

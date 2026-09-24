@@ -128,6 +128,18 @@ at rest, and shows the border on hover, on focus and while the popup is open. Pa
   file="components/preview/select.tsx"
 />
 
+### Two-line options
+
+An option that needs a second line composes Item's parts: `ItemContent` › `ItemTitle` +
+`ItemDescription`. `SelectItem` provides Item's description context, so the description's id lands
+on the option's `aria-describedby` and a screen reader hears it as the option's description
+(API-19). A one-line option links nothing.
+
+<ComponentPreview
+  name="selectTwoLineOptions"
+  file="components/preview/select.tsx"
+/>
+
 ### States
 
 The trigger's rest, invalid and disabled chrome, closed.
@@ -176,6 +188,10 @@ props of their own — each accepts everything the Base UI part accepts.
 
 Upstream's file plus `packages/ui/upstream/patches/select.patch`. Every hunk:
 
+- **API-19** — `SelectItem` provides Item's `ItemDescriptionContext` and points `aria-describedby` at an
+  `ItemDescription` once one registers inside the option, so a two-line option reads its second
+  line as the option's accessible description ([Two-line options](#two-line-options)). A one-line
+  option is unchanged.
 - **FOC-1, FOC-3, FOC-4, FOC-6** — the trigger's `outline-none focus-visible:border-ring
 focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70`: a border tint on
   `:focus` for mouse and keyboard alike, plus the global outline, which the dropped `outline-none`

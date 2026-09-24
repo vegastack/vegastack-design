@@ -93,8 +93,9 @@ DropdownMenu
 
 ### Basic
 
-Labels name a group, separators divide them, and `disabled` on an item keeps the row in the menu
-but takes it out of the roving tab order.
+Labels name a group, separators divide them, and `disabled` on an item keeps the row in the menu.
+A disabled item keeps focus and shows its reason as a description; Tooltip is not the reason
+carrier (see [Description line](#description-line)).
 
 <ComponentPreview
   name="dropdownMenuBasic"
@@ -216,6 +217,19 @@ second stylesheet.
   file="components/preview/dropdown-menu.tsx"
 />
 
+### Description line
+
+A row that needs a second line composes Item's parts: `ItemContent` › `ItemTitle` +
+`ItemDescription`. `DropdownMenuItem`, `DropdownMenuCheckboxItem` and `DropdownMenuRadioItem` each provide Item's description context, so the description's id
+lands on the row's `aria-describedby` and a screen reader hears it as the row's description
+(API-19). This is also where a disabled row says why: a disabled item keeps focus and shows its
+reason as a description; Tooltip is not the reason carrier.
+
+<ComponentPreview
+  name="dropdownMenuDescriptionLine"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="DropdownMenuContentProps" />
@@ -246,7 +260,9 @@ re-applies the theme scope.
   `display: contents` wrapper (OVL-13) — a dark or scoped surface survives the portal.
 - Rows carry the hand cursor from the one global rule in `base.css` (INT-1); upstream's local
   `cursor-default` is removed.
-- A disabled row keeps its pointer events (FRM-4), so a Tooltip can explain why it is unavailable.
+- A disabled item keeps focus and shows its reason as a description; Tooltip is not the reason
+  carrier. <kbd>↑</kbd>/<kbd>↓</kbd> land on it and <kbd>Enter</kbd> does nothing — Base UI keeps
+  every row focusable when disabled — and its pointer events stay alive too (FRM-4).
 - Give an icon-only trigger an `aria-label`.
 
 <StatesTested name="dropdown-menu" />
@@ -275,14 +291,18 @@ Upstream's file plus `packages/ui/upstream/patches/dropdown-menu.patch`. Every h
   and the radio item, so a menu row shows the hand cursor the one global rule in `base.css` gives
   every `[role^="menuitem"]`.
 - **FRM-4** — `data-disabled:pointer-events-none` is dropped from the item, the checkbox item and
-  the radio item, so a disabled row stays hoverable and a Tooltip can explain why.
+  the radio item, so a disabled row stays hoverable.
 - **BRD-1** — `DropdownMenuContent` and `DropdownMenuSubContent` draw a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **A11Y-13** — a focused destructive `DropdownMenuItem` reads `focus:text-destructive-text` on its
   `bg-destructive/10` wash. Upstream inks it with the fill (`focus:text-destructive`), which
-  measures 3.99:1 on its own tint in light, under the AA floor; the resting ink and the icon
-  ink stay upstream's.
+  measures 3.99:1 on its own tint in light, under the AA floor. The resting ink measures 4.77:1 in light and
+  6.21:1 in dark on the popup, over the floor, so it and the icon ink stay upstream's.
+- **API-19** — `DropdownMenuItem`, `DropdownMenuCheckboxItem` and `DropdownMenuRadioItem` each
+  provide Item's `ItemDescriptionContext` and point `aria-describedby` at an `ItemDescription`
+  once one registers inside the row, so a two-line row reads its second line as the row's
+  accessible description ([Description line](#description-line)). A one-line row is unchanged.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of
   their own.

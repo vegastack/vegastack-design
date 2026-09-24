@@ -1,8 +1,9 @@
 "use client";
 
-import { Fragment, type ReactNode } from "react";
+import { Fragment, useRef, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/scroll-area` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
 import { DirectionProvider } from "@/components/ui/direction";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -117,5 +118,74 @@ export function scrollAreaRtl(): ReactNode {
         </ScrollArea>
       </Wrapper>
     </DirectionProvider>
+  );
+}
+
+export function scrollAreaNamedRegion(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="flex w-48 flex-col gap-2">
+        <h4 id="scroll-area-release-tags" className="text-sm font-medium">
+          Release tags
+        </h4>
+        <ScrollArea
+          aria-labelledby="scroll-area-release-tags"
+          className="h-48 rounded-md border"
+        >
+          <div className="p-4">
+            {tags.map((tag) => (
+              <Fragment key={tag}>
+                <div className="text-sm">{tag}</div>
+                <Separator className="my-2" />
+              </Fragment>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function scrollAreaProgrammatic(): ReactNode {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const scrollTo = (edge: "top" | "bottom") => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    viewport.scrollTo({
+      top: edge === "top" ? 0 : viewport.scrollHeight,
+      behavior: "smooth",
+    });
+  };
+  return (
+    <Wrapper>
+      <div className="flex w-48 flex-col gap-2">
+        <ScrollArea
+          aria-label="Release tags"
+          viewportRef={viewportRef}
+          className="h-48 rounded-md border"
+        >
+          <div className="p-4">
+            {tags.map((tag) => (
+              <Fragment key={tag}>
+                <div className="text-sm">{tag}</div>
+                <Separator className="my-2" />
+              </Fragment>
+            ))}
+          </div>
+        </ScrollArea>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => scrollTo("top")}>
+            Oldest
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => scrollTo("bottom")}
+          >
+            Newest
+          </Button>
+        </div>
+      </div>
+    </Wrapper>
   );
 }
