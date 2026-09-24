@@ -1382,6 +1382,34 @@
           }
         },
         {
+          "name": "AppShellPage",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellPageProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "appShellPageVariants",
+          "kind": "variant-builder",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Not a rendering component; accepts no runtime ref."
+          }
+        },
+        {
           "name": "AppShellProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/app-shell.tsx",
@@ -1440,9 +1468,14 @@
         ]
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["narrow", "default", "full"],
+            "evidence": "packages/ui/registry/ui/app-shell.tsx: AppShellPage size prop (DS-19)"
+          }
+        ]
       },
       "states": {
         "behavior": {
@@ -1485,6 +1518,7 @@
       "docsSlug": "/docs/components/app-shell",
       "registryDependencies": ["@vegastack/sidebar", "@vegastack/skeleton"],
       "npmDependencies": [
+        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
@@ -1539,6 +1573,19 @@
             {
               "name": "data-variant",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellPage": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["app-shell-page"]
             }
           ],
           "cssVariables": []

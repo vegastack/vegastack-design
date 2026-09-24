@@ -33,6 +33,7 @@ import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
 import { ButtonGroup } from "../registry/ui/button-group";
 import { Input } from "../registry/ui/input";
+import { AppShellPage } from "../registry/ui/app-shell";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
 import { SortableList } from "../registry/ui/sortable-list";
 import {
@@ -3500,4 +3501,58 @@ test("checkbox-mixed: the minus is painted centred in the box, and a disabled mi
     .element();
   expect(getComputedStyle(enabled).opacity).toBe("1");
   expect(getComputedStyle(disabled).opacity).toBe("0.5");
+});
+
+/**
+ * app-shell-page-320 (DS-19): the page container caps its measure with real compiled CSS, keeps
+ * its gutters, and never scrolls the page sideways at 320px — even around a long unbroken child.
+ */
+test("app-shell-page-320: the page container caps its measure; a long wrapping child never scrolls the page sideways", async () => {
+  // This file runs at 320×812; widen only to read the two measures, then come back.
+  await page.viewport(1280, 900);
+  try {
+    const wide = await render(
+      <div style={{ width: "1400px" }}>
+        <AppShellPage size="narrow">x</AppShellPage>
+        <AppShellPage>y</AppShellPage>
+      </div>,
+    );
+    const [narrow, standard] = [
+      ...wide.container.querySelectorAll<HTMLElement>(
+        '[data-slot="app-shell-page"]',
+      ),
+    ] as [HTMLElement, HTMLElement];
+    expect(getComputedStyle(narrow).maxWidth).toBe("768px");
+    expect(getComputedStyle(standard).maxWidth).toBe("1280px");
+    expect(getComputedStyle(standard).paddingInlineStart).toBe("32px");
+    await wide.unmount();
+  } finally {
+    await page.viewport(320, 812);
+  }
+
+  const narrowScreen = await render(
+    <AppShellPage size="narrow">
+      <p className="wrap-break-word">
+        {"Supercalifragilisticexpialidocious".repeat(6)}
+      </p>
+    </AppShellPage>,
+  );
+  const container = narrowScreen.container.querySelector<HTMLElement>(
+    '[data-slot="app-shell-page"]',
+  )!;
+  expect(getComputedStyle(container).paddingInlineStart).toBe("16px");
+  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
+});
+
+test("app-shell-page-320: size full fills a bounded height", async () => {
+  const screen = await render(
+    <div style={{ height: "500px", display: "flex", flexDirection: "column" }}>
+      <AppShellPage size="full">content</AppShellPage>
+    </div>,
+  );
+  const full = screen.container.querySelector<HTMLElement>(
+    '[data-slot="app-shell-page"]',
+  )!;
+  expect(full.getBoundingClientRect().height).toBe(500);
+  expect(getComputedStyle(full).maxWidth).toBe("none");
 });

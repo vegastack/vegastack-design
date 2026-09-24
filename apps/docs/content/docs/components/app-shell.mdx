@@ -71,7 +71,9 @@ focusable element; you compose `AppShellSidebar` as one child and your own conte
     <AppShellHeader actions={<>…buttons…</>}>
       <Breadcrumb>…</Breadcrumb>
     </AppShellHeader>
-    <AppShellContent variant="sidebar">…</AppShellContent>
+    <AppShellContent variant="sidebar">
+      <AppShellPage size="default">…</AppShellPage>
+    </AppShellContent>
   </div>
 </AppShell>
 ```
@@ -89,6 +91,8 @@ focusable element; you compose `AppShellSidebar` as one child and your own conte
 - `AppShellContent` — the `<main tabIndex={-1}>` `data-slot="app-shell-content"` — this shell's
   skip-link target, carrying `@container/app-shell-content` for width-aware grids. Its `id` is
   generated per shell by `AppShell` (`contentId` pins it), never a fixed literal.
+- `AppShellPage` — the page container inside `AppShellContent` (`data-slot="app-shell-page"`,
+  `data-size`): the page gutters, a `gap-6` rhythm and the `narrow` / `default` / `full` measure.
 - `AppShellSkeleton` — a full-shell loading composition for `loading.tsx` (`data-slot="app-shell-skeleton"`).
 
 **Why no `AppShellBody`/column component?** Keeping the content column a plain, undecorated
@@ -117,6 +121,26 @@ on their own corner.
   name="appShellFloating"
   file="components/preview/app-shell.tsx"
 />
+
+### Page container
+
+Put each page's content in `AppShellPage` inside `AppShellContent`. It is the one place a page's
+width and gutters come from: a centred column with `px-4 py-6` (`md:px-8 md:py-8`) gutters and a
+`gap-6` rhythm between the `PageHeader` and each section. `size` picks the measure — `narrow`
+(768px) for forms and settings, `default` (1280px) for lists and dashboards, and `full` (no max
+width, fills the height) for boards and split views. It renders a plain `<div>`, because
+`AppShellContent` is already the `main` landmark.
+
+<ComponentPreview name="appShellPage" file="components/preview/app-shell.tsx" />
+
+```tsx
+<AppShellContent>
+  <AppShellPage size="narrow">
+    <PageHeader title="Profile" />
+    <ProfileForm />
+  </AppShellPage>
+</AppShellContent>
+```
 
 ### Skeleton
 
@@ -212,6 +236,13 @@ function RouteFocus() {
 <ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellContentProps"
+/>
+
+### AppShellPage
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellPageProps"
 />
 
 ### AppShellSkeleton
