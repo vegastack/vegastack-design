@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 65,
+    "total": 66,
     "fromExtras": 46
   },
   "items": {
@@ -291,6 +291,11 @@
       "disposition": "keep",
       "family": "hook",
       "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "use-async-search": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it; docs/plans/2026-09-24-facelift-lists-filters-forms.md (DS-39, D6) — approved by MK 2026-09-24"
     },
     "use-drag-reorder": {
       "disposition": "keep",

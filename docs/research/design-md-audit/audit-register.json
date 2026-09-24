@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "229027f52b1eab43c55131b86ec1cef634e056410a8970573b50c984de69ec46",
+  "contractSha256": "22e514297d2f13032ac9ee49c20d4f6cc268e056c965bc4198e7cbe4628c31b4",
   "expectedCounts": {
-    "totalRegistryItems": 669,
+    "totalRegistryItems": 670,
     "components": 114,
     "animatedIcons": 467,
-    "hooks": 11,
+    "hooks": 12,
     "blocks": 7,
     "libs": 2,
     "chartBlocks": 68
@@ -6435,6 +6435,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-announcer.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-async-search",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-async-search.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

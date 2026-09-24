@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 669,
+    "totalRegistryItems": 670,
     "components": 114,
     "animatedIcons": 467,
-    "hooks": 11,
+    "hooks": 12,
     "blocks": 7,
     "libs": 2,
     "chartBlocks": 68
@@ -29,7 +29,7 @@
     "Content/marketing": 13,
     "Shared internals": 2,
     "AI/chat": 8,
-    "Hooks": 11,
+    "Hooks": 12,
     "Block": 1,
     "Animated icons": 467
   },
@@ -164,6 +164,7 @@
     "Hooks": [
       "use-animation-replay",
       "use-announcer",
+      "use-async-search",
       "use-inline-edit",
       "use-drag-reorder",
       "use-file-drop",
@@ -24714,6 +24715,126 @@
         "preview": "exempt",
         "vrt": "exempt"
       }
+    },
+    {
+      "name": "use-async-search",
+      "registryType": "registry:hook",
+      "title": "useAsyncSearch",
+      "summary": "The server-search state machine for a searched, cursor-paged list — debounced query, abortable requests with stale responses dropped, cursor paging as a LoadMoreState, and errors that keep the loaded items.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-async-search.ts"],
+      "publicSymbols": [
+        {
+          "name": "useAsyncSearch",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-async-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "AsyncSearchContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-async-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AsyncSearchLoader",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/use-async-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AsyncSearchPage",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-async-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseAsyncSearchOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-async-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseAsyncSearchResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-async-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A hook renders nothing and owns no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["idle", "loading", "error", "paged", "disabled"],
+          "evidence": "packages/ui/registry/ui/use-async-search.ts + packages/ui/registry/ui/use-async-search.test.tsx"
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "A pure hook renders nothing; the list or select composing it owns the live status and the Load more control."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": ["@vegastack/load-more"],
+      "npmDependencies": ["@vegastack/design@^0.7.4"],
+      "testFiles": ["packages/ui/registry/ui/use-async-search.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "docsSlug": "/docs/guides/components",
+      "previewModule": null
     },
     {
       "name": "use-inline-edit",

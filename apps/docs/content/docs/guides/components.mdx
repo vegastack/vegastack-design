@@ -10,13 +10,13 @@ when you decide. This page is the full lifecycle.
 
 ## The five item kinds
 
-| Kind                      | Example                                                                                                                                                                                                                                 | Behavior                                                                                                                                                                                                                 |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Component (`registry:ui`) | `@vegastack/button`                                                                                                                                                                                                                     | copied to `components/ui/`, update-tracked by content                                                                                                                                                                    |
-| Hook (`registry:hook`)    | `@vegastack/use-media-query`, `@vegastack/use-mobile`, `@vegastack/use-list-nav`, `@vegastack/use-platform`, `@vegastack/use-drag-reorder`, `@vegastack/use-file-drop`, `@vegastack/use-animation-replay`, `@vegastack/use-modal-inert` | plain `.ts` into `components/ui/`, same tracking                                                                                                                                                                         |
-| Icon item                 | `@vegastack/icon-arrow-right`                                                                                                                                                                                                           | one animated-icon mirror per item — 467 of them; bare names never collide with components                                                                                                                                |
-| Block (`registry:block`)  | `@vegastack/app-shell-01`                                                                                                                                                                                                               | a multi-file **starter composition** (a page and its components) you own outright — deliberately NOT update-tracked                                                                                                      |
-| Lib (`registry:lib`)      | `@vegastack/geo-data`, `@vegastack/drag-item`                                                                                                                                                                                           | plain `.ts` into your `lib/` alias — data and class-string recipes with no React in them, pulled in automatically as a dependency of the components that read them, and installed **once** however many of those you add |
+| Kind                      | Example                                                                                                                                                                                                                                                                | Behavior                                                                                                                                                                                                                 |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Component (`registry:ui`) | `@vegastack/button`                                                                                                                                                                                                                                                    | copied to `components/ui/`, update-tracked by content                                                                                                                                                                    |
+| Hook (`registry:hook`)    | `@vegastack/use-media-query`, `@vegastack/use-mobile`, `@vegastack/use-list-nav`, `@vegastack/use-platform`, `@vegastack/use-drag-reorder`, `@vegastack/use-file-drop`, `@vegastack/use-animation-replay`, `@vegastack/use-modal-inert`, `@vegastack/use-async-search` | plain `.ts` into `components/ui/`, same tracking                                                                                                                                                                         |
+| Icon item                 | `@vegastack/icon-arrow-right`                                                                                                                                                                                                                                          | one animated-icon mirror per item — 467 of them; bare names never collide with components                                                                                                                                |
+| Block (`registry:block`)  | `@vegastack/app-shell-01`                                                                                                                                                                                                                                              | a multi-file **starter composition** (a page and its components) you own outright — deliberately NOT update-tracked                                                                                                      |
+| Lib (`registry:lib`)      | `@vegastack/geo-data`, `@vegastack/drag-item`                                                                                                                                                                                                                          | plain `.ts` into your `lib/` alias — data and class-string recipes with no React in them, pulled in automatically as a dependency of the components that read them, and installed **once** however many of those you add |
 
 ### Shared internals
 
@@ -35,6 +35,40 @@ their own because there is nothing to choose: you get them by adding the compone
   no box at all. It arrives with either popup, and installing both installs it once.
 - **`@vegastack/table-scroll-region`** — the named, conditionally-focusable scroll viewport that
   ships inside [`Table`](/docs/components/table)'s item.
+
+### Hooks
+
+A hook renders nothing, so it has no page of its own; its contract is its JSDoc and the pages of the
+components built on it.
+
+- **`@vegastack/use-async-search`** — `useAsyncSearch(load, options)` is the server-search state
+  machine for a searched, cursor-paged list. `load(query, { cursor, signal })` returns
+  `{ items, nextCursor }`; the hook returns `{ items, query, onSearchChange, loading, error,
+loadMore, reload }`. Typing updates `query` at once and sends the request after
+  `TIMINGS.searchDebounceMs` (300 ms) of quiet; a newer request aborts the last, and a late
+  response is dropped; `loadMore` is a [`LoadMore`](/docs/components/load-more) state that fetches
+  the next page with the returned cursor; a failure keeps the loaded items, sets `error` (from
+  `errorMessage`, never the raw exception), and `loadMore.onLoadMore` retries it. `enabled: false`
+  holds the first load (until a popup opens, say); `deps` reset the results when a scope changes.
+
+```tsx
+const customers = useAsyncSearch((query, { cursor, signal }) =>
+  searchCustomers({ query, cursor, signal }),
+);
+
+<DataList
+  columns={columns}
+  data={customers.items}
+  loadMore={customers.loadMore}
+  toolbar={
+    <SearchInput
+      aria-label="Search customers"
+      value={customers.query}
+      onValueChange={customers.onSearchChange}
+    />
+  }
+/>;
+```
 
 ## Adding
 
