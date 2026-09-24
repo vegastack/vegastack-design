@@ -21,6 +21,22 @@ There is no single named overlay role any more — a floating surface reaches fo
 Sticky surfaces gain a separating border when they detach from adjacent content; they do not
 acquire an invented elevation tier.
 
+## Overlay widths
+
+Dialog, Sheet (left and right) and CommandDialog share one width scale, set with `size` (OVL-16).
+Below `sm` every one of them fills the viewport less a 1rem gutter (a side sheet fills it); the scale
+applies from `sm` up. AlertDialog keeps its own narrower pair.
+
+| `size`    | Width from `sm` | Use                                                      |
+| --------- | --------------- | -------------------------------------------------------- |
+| `sm`      | `max-w-xs`      | A single question or one field                           |
+| `default` | `max-w-sm`      | A short form or a confirmation with context              |
+| `lg`      | `max-w-2xl`     | A form of up to about ten fields, or a two-column form   |
+| `xl`      | `max-w-5xl`     | A review, a comparison, or a table the user works inside |
+
+A long form in a Dialog or Sheet goes in its body part (`DialogBody`, `SheetBody`), which scrolls while
+the header and footer stay put.
+
 ## Borders, not rings
 
 Every card and every floating surface — dialog, alert dialog, popover, hover card, select,

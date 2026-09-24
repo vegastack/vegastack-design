@@ -916,7 +916,10 @@ FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 · OVL-16 · 
   trio, the skip link and the content container. **The `<nav>` landmark lives inside the rail**:
   upstream's `Sidebar` is divs by design and renders two different trees, so there is no single
   element a role can ride through both.
-- **Forms** (FRM-9…FRM-13) — the invalid shake is the field's, not the control's, and fires only on a
+- **Forms** (FRM-9…FRM-13) — `Field` wires its control through Base UI Field: the label, the
+  description and error ids, and `aria-invalid` from the Field's `data-invalid`, on every control
+  including the composite ones (Select, Combobox, RadioGroup, NumberField, DatePicker, TextEdit). Pass
+  ids only to override; an explicit `aria-*` prop merges with the Field's. The invalid shake is the field's, not the control's, and fires only on a
   live valid→invalid transition (FRM-9; no canonical component calls it today, because `field.tsx` is
   upstream's file and upstream's Field has no validation motion — the hook ships for consumers).
   `SearchableSelect` is the one combobox-shaped select, and its clear control is a sibling of the
