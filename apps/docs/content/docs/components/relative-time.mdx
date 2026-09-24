@@ -80,6 +80,39 @@ to follow the runtime locale.
   file="components/preview/relative-time.tsx"
 />
 
+### Standalone label
+
+Inside a sentence the relative words read lower-case ("due today"). A label that stands on its own
+takes `capitalize` ("Today"). With `title={false}` it has no tooltip, so it is plain inline text at
+the line's height rather than a 24px pointer target.
+
+<ComponentPreview
+  name="relativeTimeStandalone"
+  file="components/preview/relative-time.tsx"
+/>
+
+### Fixed time zone
+
+`timeZone` (an IANA name) decides which calendar day an instant falls on, and formats the server's
+first render and the tooltip in the same zone — so a server in UTC and a reader in IST agree on what
+"today" is. Omit it to follow the runtime's zone.
+
+<ComponentPreview
+  name="relativeTimeTimeZone"
+  file="components/preview/relative-time.tsx"
+/>
+
+### Day with time
+
+In `mode="day"`, `withTime` appends the time of day ("Today, 10:00 AM"). `formatOptions` shapes
+the absolute date shown beyond yesterday and tomorrow — `{ day: "numeric", month: "short" }` reads
+"6 Jan" in `en-IN` — and the year is added only when the date is in another year.
+
+<ComponentPreview
+  name="relativeTimeWithTime"
+  file="components/preview/relative-time.tsx"
+/>
+
 ### Live updates
 
 While the date is recent and `now` is left unset, the component reads the live clock

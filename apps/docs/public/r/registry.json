@@ -15572,7 +15572,7 @@
         "whenToUse": "A timestamp relative to now — comment/activity times (ago) or calendar-day grouping (day).",
         "whenNotToUse": "A fixed absolute date that should never change — just format it once.",
         "version": "0.18.0",
-        "integrity": "sha256-MyNbuvU2aM7pIFDh+5PrmBcvt3J0NBcuJzcByYkNjLM="
+        "integrity": "sha256-PoL9BvaIb1F1u9ZwiupjUXtRYrSSrvLpFE2R62QHqe4="
       }
     },
     {

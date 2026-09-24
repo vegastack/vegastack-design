@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.18.0 sha256-MyNbuvU2aM7pIFDh+5PrmBcvt3J0NBcuJzcByYkNjLM=
+// @vegastack relative-time@0.18.0 sha256-PoL9BvaIb1F1u9ZwiupjUXtRYrSSrvLpFE2R62QHqe4=
 
 "use client";
 
@@ -59,30 +59,82 @@ function formatAgo(deltaMs: number, rtf: Intl.RelativeTimeFormat): string {
 }
 
 /**
+ * The calendar day an instant falls on, as `[year, month, day]` — in `timeZone` when one is
+ * given (through `Intl`, so it is the zone's own wall-clock date), else in the runtime's zone.
+ * Every day comparison and the same-year check go through this, so the label, the tooltip and
+ * the server render all agree on which day "today" is.
+ */
+function calendarDay(
+  d: Date,
+  timeZone: string | undefined,
+): [number, number, number] {
+  if (!timeZone) return [d.getFullYear(), d.getMonth(), d.getDate()];
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(d);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((p) => p.type === type)?.value);
+  return [part("year"), part("month") - 1, part("day")];
+}
+
+/** The default absolute-day format for `mode="day"`: `"March 15"`. */
+const DEFAULT_DAY_FORMAT: Intl.DateTimeFormatOptions = {
+  month: "long",
+  day: "numeric",
+};
+
+/** The time-of-day format `withTime` appends: `"11:30 AM"`. */
+const TIME_FORMAT: Intl.DateTimeFormatOptions = { timeStyle: "short" };
+
+/**
  * Calendar-day label for the `day` mode: `"today"` / `"yesterday"` / `"tomorrow"`
  * for the adjacent days (via `Intl.RelativeTimeFormat`'s `numeric: 'auto'`), and
- * an absolute `"March 15"` / `"March 15, 2025"` for anything further out.
+ * an absolute date for anything further out — `formatOptions` (default `"March 15"`), plus the
+ * year when it is not the current one. `withTime` appends the time of day to either form.
  */
 function formatDay(
   target: Date,
   now: Date,
   locale: string | string[] | undefined,
   rtf: Intl.RelativeTimeFormat,
+  timeZone: string | undefined,
+  formatOptions: Intl.DateTimeFormatOptions,
+  withTime: boolean,
 ): string {
-  const startOf = (d: Date) =>
-    Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
-  const dayDelta = Math.round((startOf(target) - startOf(now)) / MS.day);
+  const [ty, tm, td] = calendarDay(target, timeZone);
+  const [ny, nm, nd] = calendarDay(now, timeZone);
+  const dayDelta = Math.round(
+    (Date.UTC(ty, tm, td) - Date.UTC(ny, nm, nd)) / MS.day,
+  );
+  const time = withTime
+    ? new Intl.DateTimeFormat(locale, { ...TIME_FORMAT, timeZone }).format(
+        target,
+      )
+    : "";
 
   if (Math.abs(dayDelta) <= 1) {
     // numeric: 'auto' yields "today"/"yesterday"/"tomorrow" for -1..1.
-    return rtf.format(dayDelta, "day");
+    const word = rtf.format(dayDelta, "day");
+    return withTime ? `${word}, ${time}` : word;
   }
-  const sameYear = target.getFullYear() === now.getFullYear();
+  const sameYear = ty === ny;
   return new Intl.DateTimeFormat(locale, {
-    month: "long",
-    day: "numeric",
-    ...(sameYear ? {} : { year: "numeric" }),
+    ...formatOptions,
+    ...(sameYear || "year" in formatOptions ? {} : { year: "numeric" }),
+    ...(withTime ? { hour: "numeric", minute: "2-digit" } : {}),
+    timeZone: timeZone ?? formatOptions.timeZone,
   }).format(target);
+}
+
+/** Upper-case the first character, in the label's own locale (`"today"` → `"Today"`). */
+function capitalizeFirst(
+  text: string,
+  locale: string | string[] | undefined,
+): string {
+  return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
 }
 
 /**
@@ -99,10 +151,12 @@ function formatDay(
 function formatAbsolute(
   target: Date,
   locale: string | string[] | undefined,
+  timeZone: string | undefined,
 ): string {
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
-    target,
-  );
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeZone,
+  }).format(target);
 }
 
 /**
@@ -161,6 +215,33 @@ export interface RelativeTimeProps extends Omit<
    */
   locale?: string | string[];
   /**
+   * IANA time zone (`"Asia/Kolkata"`) that decides the calendar day and every formatted date and
+   * time — the `day` label, the server's first render and the tooltip — so a server in UTC and a
+   * reader in IST agree on what "today" is. Defaults to the runtime's zone.
+
+   * @default undefined
+   */
+  timeZone?: string;
+  /**
+   * `Intl.DateTimeFormat` options for the absolute date `mode="day"` shows beyond
+   * yesterday/tomorrow — e.g. `{ day: "numeric", month: "short" }` for `"22 Sep"` in `en-IN`.
+   * The year is added when the date is not in the current year, unless you set `year` yourself.
+   * @default { month: "long", day: "numeric" }
+   */
+  formatOptions?: Intl.DateTimeFormatOptions;
+  /**
+   * Upper-case the label's first letter — `"Today"`, `"Yesterday"`, `"Now"` — for a label that
+   * stands on its own rather than inside a sentence.
+   * @default false
+   */
+  capitalize?: boolean;
+  /**
+   * In `mode="day"`, append the time of day: `"Today, 11:30 AM"`, or the absolute date with its
+   * time. Ignored in `mode="ago"`.
+   * @default false
+   */
+  withTime?: boolean;
+  /**
    * Reveal the absolute date/time in a Tooltip on hover/focus.
    * - `true`: a localized full date-time (`"March 15, 2025, 2:30 PM"`).
    * - a string: your own label.
@@ -208,6 +289,8 @@ export interface RelativeTimeProps extends Omit<
  * <RelativeTime date={comment.createdAt} />            // "2 hours ago"
  * <RelativeTime date={dueDate} mode="day" />            // "tomorrow" / "March 15"
  * <RelativeTime date={ts} now={FIXED} refresh={false} /> // deterministic
+ * <RelativeTime date={due} mode="day" capitalize timeZone="Asia/Kolkata" withTime />
+ * // "Today, 11:30 AM" — the day decided in IST
  *
  * **Announcements (register P2-40, deliberate):** the periodic re-render is intentionally
  * SILENT to assistive tech — no `aria-live`. A ticking timestamp that announced every minute
@@ -225,6 +308,10 @@ export function RelativeTime({
   title = true,
   tooltipDelay = 0,
   focusable,
+  timeZone,
+  formatOptions = DEFAULT_DAY_FORMAT,
+  capitalize = false,
+  withTime = false,
   className,
   ref,
   ...props
@@ -278,13 +365,22 @@ export function RelativeTime({
 
   const isValid = !Number.isNaN(targetMs);
   const isPendingHydration = !isControlled && !hydrated;
-  const display = !isValid
+  const label = !isValid
     ? ""
     : isPendingHydration
-      ? formatAbsolute(target, locale)
+      ? formatAbsolute(target, locale, timeZone)
       : mode === "day"
-        ? formatDay(target, nowDate, locale, rtf)
+        ? formatDay(
+            target,
+            nowDate,
+            locale,
+            rtf,
+            timeZone,
+            formatOptions,
+            withTime,
+          )
         : formatAgo(targetMs - nowMs, rtf);
+  const display = capitalize ? capitalizeFirst(label, locale) : label;
 
   const isoString = isValid ? target.toISOString() : undefined;
   const hasTooltip = Boolean(title) && isValid;
@@ -301,12 +397,14 @@ export function RelativeTime({
       // a real, readable absolute date, not a placeholder.
       tabIndex={hasTooltip && isFocusable ? 0 : undefined}
       className={cn(
+        "tabular-nums",
         // A11Y-2: when the <time> is a tooltip trigger it is a real pointer target, so it owns a
         // real 24px box (`min-h-6`) instead of an invisible `::before` expansion. The pseudo
         // version lost the hit test wherever a denser neighbour's box overlapped the overflow —
         // measured in `geometry.browser.test.tsx`'s `timeline` fixture after Batch 2 tightened
-        // Item's padding. A box the browser lays out cannot be out-painted the same way.
-        "relative inline-flex min-h-6 items-center rounded-sm tabular-nums",
+        // Item's padding. A box the browser lays out cannot be out-painted the same way. A plain
+        // label (`title={false}`) is not a target, so it stays inline text at the line's height.
+        hasTooltip && "relative inline-flex min-h-6 items-center rounded-sm",
         className,
       )}
       {...props}
@@ -323,6 +421,7 @@ export function RelativeTime({
       : new Intl.DateTimeFormat(locale, {
           dateStyle: "long",
           timeStyle: "short",
+          timeZone,
         }).format(target);
 
   return (
