@@ -73,6 +73,81 @@ Use `title` and `description` when the player needs a visible track name or shor
   file="components/preview/audio-player.tsx"
 />
 
+### Docked with close
+
+Set `docked` to pin the player to the bottom of its scroll column. It is `position: sticky`, so it
+sits at the end of the column's content and stays on its bottom edge while the column scrolls, with
+a border, the popover surface and a shadow, padded clear of the bottom safe-area inset. A docked
+player is a landmark `region` named by `label`, so a screen-reader user can jump to it.
+
+Pass `open` and `onOpenChange` to make it closable. The close button (named by `closeLabel`,
+"Close player" by default) pauses playback, calls `onOpenChange(false)` and hands focus back to the
+control that opened the player. A hidden player stays mounted and `inert` and slides out with the
+docked-control pair, so its playback position survives a hide. Escape does not close it: Escape
+belongs to whatever overlay the page opens above it.
+
+<ComponentPreview
+  name="audioPlayerDocked"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Lazy source
+
+`src` also takes a function that resolves a URL, for a short-lived signed URL you only want to
+fetch when someone listens. It is called once, on the first play (or the first `actionsRef` seek),
+and the result is kept. While it resolves the player shows its loading line. To load a different
+recording, remount the player with a new `key`.
+
+```tsx
+<AudioPlayer
+  src={() => getSignedUrl(recording.id)}
+  label={`${recording.title} recording`}
+/>
+```
+
+<ComponentPreview
+  name="audioPlayerLazySource"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Loading and error
+
+`loading` shows a status line with `loadingLabel` ("Loading audio…") and announces it once.
+`error` renders an alert in the destructive ink with a "Try again" button (`retryLabel`). The retry
+reloads the source, resolves a lazy `src` again and calls `onRetry`, where you clear `error`.
+
+<ComponentPreview
+  name="audioPlayerStates"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Seek from outside
+
+To jump the player from a transcript line or a chapter list, attach `actionsRef`. Its `seek(seconds,
+{ play })`, `play()` and `pause()` are the player's own: a seek made before the metadata loads is
+queued and applied on `loadedmetadata`, and a lazy `src` is resolved first. `mediaRef` still
+exposes the raw `<audio>` element for anything else, such as reading `currentTime`.
+
+```tsx
+const actions = React.useRef<AudioPlayerActions>(null);
+const media = React.useRef<HTMLAudioElement>(null);
+
+<AudioPlayer
+  src={url}
+  label="Call recording"
+  actionsRef={actions}
+  mediaRef={media}
+/>;
+<Button onClick={() => actions.current?.seek(line.start, { play: true })}>
+  {line.text}
+</Button>;
+```
+
+<ComponentPreview
+  name="audioPlayerSeek"
+  file="components/preview/audio-player.tsx"
+/>
+
 ### Playback rates
 
 Pass `playbackRates` and `defaultPlaybackRate` to control the options the tappable speed
@@ -102,7 +177,7 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
 
 | Key                                 | Action                                                               |
 | ----------------------------------- | -------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move through play/pause, rewind, forward, seek, and speed            |
+| <kbd>Tab</kbd>                      | Move through close, play/pause, rewind, forward, seek, and speed     |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused button                                          |
 | <kbd>K</kbd>                        | Play or pause                                                        |
 | <kbd>J</kbd>                        | Rewind 15 seconds                                                    |
@@ -131,6 +206,11 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
   visible — without it there is no scrub affordance at all.
 - The native `<audio>` element is used as the media engine and does not expose browser-native
   controls; VegaStack renders the consistent control surface.
+- A docked player is a `region` named by `label`, not a toolbar: every control keeps its own tab
+  stop and the seek rail keeps its arrow keys. A hidden player is `inert`, so nothing invisible is
+  focusable, and closing returns focus to the control that opened it. Escape does not close it.
+- `loading` is announced once through a polite live region; `error` is a `role="alert"` line in
+  the `-text` ink, with the retry as a separate button after it.
 
 <StatesTested name="audio-player" />
 
@@ -138,5 +218,10 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
 
 <DoDont
   do="Use AudioPlayer for a single audio asset that needs a compact, branded transport."
-  dont="Use AudioPlayer for playlists, queue management, waveform editing, or transcript navigation."
+  dont="Use AudioPlayer for playlists, queue management, or waveform editing."
+/>
+
+<DoDont
+  do="Dock the player at the bottom of the column that holds the recording's transcript or notes, so it stays in reach while they scroll."
+  dont="Put playback in an ActionBar: that bar is a toolbar of bulk actions over a selection, parked at the viewport edge, and a transport is neither."
 />

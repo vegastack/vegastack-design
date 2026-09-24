@@ -1,13 +1,17 @@
-// @vegastack audio-player@0.18.0 sha256-UcqE/hxhSLnd/mea7L/ym/BbBiHVv37im1v7X4j8o0E=
+// @vegastack audio-player@0.18.0 sha256-zqp45Cn8MkitUXJJaflukWVNtnBdY97XGMr5szjnHqM=
 
 "use client";
 
 import * as React from "react";
+import { LoaderIcon, XIcon } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
+import { Button } from "@/components/ui/button";
 import {
   MediaPlayerControls,
+  clampTime,
   type MediaPlayerControlsProps,
 } from "@/components/ui/media-player-controls";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 
 // Audio's tappable speed control cycles these in order, starting at 1x:
 // 1 → 1.25 → 1.5 → 2 → 0.5 → back to 1. Deliberately not sorted — the cycle
@@ -105,6 +109,30 @@ function useAudioPeaks(src: string, enabled: boolean): readonly number[] {
   return peaks;
 }
 
+/**
+ * Imperative handle for driving a player from outside it — a transcript line,
+ * a chapter list, a "jump to" link. Attach it through `actionsRef`.
+ */
+export type AudioPlayerActions = {
+  /**
+   * Move playback to `seconds` (clamped to the track). Before the metadata has
+   * loaded the seek is queued and applied on `loadedmetadata`; a lazy `src` is
+   * resolved so the metadata can load. Pass `{ play: true }` to start playback
+   * too.
+   */
+  seek(seconds: number, opts?: { play?: boolean }): void;
+  /** Start playback (resolving a lazy `src` first). */
+  play(): void;
+  /** Pause playback. */
+  pause(): void;
+};
+
+/** A play() caller waiting on a lazy source. */
+interface PendingPlay {
+  resolve: () => void;
+  reject: (reason: unknown) => void;
+}
+
 /** Props accepted by `AudioPlayer`. */
 export interface AudioPlayerProps extends Omit<
   React.ComponentPropsWithRef<"audio">,
@@ -112,6 +140,7 @@ export interface AudioPlayerProps extends Omit<
   | "className"
   | "controls"
   | "ref"
+  | "src"
   | "title"
   | "onTimeUpdate"
   | "onRateChange"
@@ -119,9 +148,13 @@ export interface AudioPlayerProps extends Omit<
   | "onPause"
 > {
   /**
-   * Audio source URL.
+   * Audio source URL, or a function that resolves one — a signed URL fetched
+   * only when someone listens. The function is called once, on the first play
+   * (or the first `actionsRef` seek), and its result is kept; "Try again"
+   * calls it afresh. To load a different recording, remount the player with a
+   * new `key`.
    */
-  src: string;
+  src: string | (() => Promise<string>);
   /**
    * Accessible label used by the audio element and custom controls.
    * @default 'Audio'
@@ -202,6 +235,65 @@ export interface AudioPlayerProps extends Omit<
    * @default 'default'
    */
   variant?: "default" | "waveform";
+  /**
+   * Dock the player to the bottom of its scroll column: `position: sticky`
+   * with a border, the popover surface and a shadow, padded clear of the
+   * bottom safe-area inset. A docked player is a `region` named by `label`.
+   * @default false
+   */
+  docked?: boolean;
+  /**
+   * Whether the player is shown. It stays mounted while hidden (`inert`,
+   * `data-active="false"`, and a docked player slides out with the
+   * docked-control pair), so playback state survives a hide.
+   * @default true
+   */
+  open?: boolean;
+  /**
+   * Called when the close button asks to hide the player. Passing it renders
+   * the close button. Escape does not close the player.
+   * @default undefined
+   */
+  onOpenChange?: (open: boolean) => void;
+  /**
+   * Accessible name of the close button. The close pauses playback, calls
+   * `onOpenChange(false)` and returns focus to the element that opened the
+   * player.
+   * @default "Close player"
+   */
+  closeLabel?: string;
+  /**
+   * The source is loading. Shows a status line with `loadingLabel` and
+   * announces it once. A lazy `src` that is resolving counts as loading too.
+   * @default false
+   */
+  loading?: boolean;
+  /**
+   * Text shown and announced while loading.
+   * @default "Loading audio…"
+   */
+  loadingLabel?: string;
+  /**
+   * A load failure. Renders a `role="alert"` line with a retry button.
+   * @default undefined
+   */
+  error?: React.ReactNode;
+  /**
+   * Label of the retry button shown with `error`.
+   * @default "Try again"
+   */
+  retryLabel?: string;
+  /**
+   * Called when the retry button is pressed, after the player reloads its
+   * source (a lazy `src` is resolved again). Clear `error` here.
+   * @default undefined
+   */
+  onRetry?: () => void;
+  /**
+   * Imperative `seek` / `play` / `pause` for driving the player from outside.
+   * @default undefined
+   */
+  actionsRef?: React.Ref<AudioPlayerActions>;
 }
 
 /**
@@ -213,6 +305,10 @@ export interface AudioPlayerProps extends Omit<
  * the media engine; the transport itself is `MediaPlayerControls`, the same item
  * `VideoPlayer` composes, so audio and video share one surface and one keyboard
  * map.
+ *
+ * Pass `docked` to pin it to the bottom of a scroll column, `open` and
+ * `onOpenChange` to hide it with a close button, a function `src` to resolve a
+ * signed URL on first play, and `actionsRef` to seek it from a transcript.
  *
  * @example
  * <AudioPlayer src="/media/demo.mp3" label="Product demo audio" />
@@ -234,40 +330,249 @@ export function AudioPlayer({
   onTranscriptClick,
   variant = "default",
   preload = "metadata",
+  docked = false,
+  open,
+  onOpenChange,
+  closeLabel = "Close player",
+  loading = false,
+  loadingLabel = "Loading audio…",
+  error,
+  retryLabel = "Try again",
+  onRetry,
+  actionsRef,
   ref,
   ...props
 }: AudioPlayerProps) {
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
   const internalMediaRef = React.useRef<HTMLAudioElement | null>(null);
   const controlsMediaRef =
     internalMediaRef as React.RefObject<HTMLMediaElement | null>;
-  const isWaveform = variant === "waveform";
-  const waveformPeaks = useAudioPeaks(src, isWaveform);
+  const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
   const setAudioRef = React.useMemo(
     () => mergeRefs(internalMediaRef, mediaRef),
     [mediaRef],
   );
 
+  // ── Lazy source ──────────────────────────────────────────────────────────
+  // The function is read through a ref, so an inline arrow (a new identity on
+  // every render) never re-resolves or drops the loaded URL.
+  const srcRef = React.useRef(src);
+  React.useLayoutEffect(() => {
+    srcRef.current = src;
+  });
+  const isLazy = typeof src === "function";
+  const [resolvedUrl, setResolvedUrl] = React.useState<string>();
+  const [resolving, setResolving] = React.useState(false);
+  const audioSrc = typeof src === "string" ? src : resolvedUrl;
+  const resolutionRef = React.useRef<Promise<void> | null>(null);
+  const pendingPlaysRef = React.useRef<PendingPlay[]>([]);
+
+  const ensureSource = React.useCallback((): Promise<void> => {
+    const current = srcRef.current;
+    if (typeof current !== "function") return Promise.resolve();
+    if (resolutionRef.current) return resolutionRef.current;
+    setResolving(true);
+    const attempt: Promise<void> = new Promise<string>((resolve) =>
+      resolve(current()),
+    )
+      .then(
+        (url) => {
+          if (resolutionRef.current === attempt) setResolvedUrl(url);
+        },
+        (reason: unknown) => {
+          // A failed resolution is forgotten, so the next play tries again.
+          if (resolutionRef.current === attempt) resolutionRef.current = null;
+          throw reason;
+        },
+      )
+      .finally(() => setResolving(false));
+    resolutionRef.current = attempt;
+    return attempt;
+  }, []);
+
+  // Until a lazy source has a URL, `play()` on the media element — from the
+  // transport, a shortcut, `mediaRef` or `actionsRef` — resolves it first and
+  // then plays once the URL is committed. The native method is never reached
+  // with no source, so the transport never sees a spurious rejection.
+  React.useLayoutEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media) return;
+    if (isLazy && audioSrc === undefined) {
+      Object.defineProperty(media, "play", {
+        configurable: true,
+        writable: true,
+        value: () =>
+          new Promise<void>((resolve, reject) => {
+            pendingPlaysRef.current.push({ resolve, reject });
+            ensureSource().catch((reason: unknown) => {
+              for (const waiting of pendingPlaysRef.current.splice(0)) {
+                waiting.reject(reason);
+              }
+            });
+          }),
+      });
+      return () => {
+        delete (media as { play?: unknown }).play;
+      };
+    }
+    const waiting = pendingPlaysRef.current.splice(0);
+    if (waiting.length === 0) return;
+    const started = media.play();
+    for (const caller of waiting) started.then(caller.resolve, caller.reject);
+  }, [audioSrc, ensureSource, isLazy]);
+
+  const isWaveform = variant === "waveform";
+  const waveformPeaks = useAudioPeaks(audioSrc ?? "", isWaveform);
+
+  // ── Imperative seek ──────────────────────────────────────────────────────
+  const pendingSeekRef = React.useRef<{
+    seconds: number;
+    play: boolean;
+  } | null>(null);
+
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media) return;
+    const applyQueuedSeek = () => {
+      const queued = pendingSeekRef.current;
+      if (!queued) return;
+      pendingSeekRef.current = null;
+      media.currentTime = clampTime(media, queued.seconds);
+      if (queued.play) void media.play().catch(() => {});
+    };
+    media.addEventListener("loadedmetadata", applyQueuedSeek);
+    return () => media.removeEventListener("loadedmetadata", applyQueuedSeek);
+  }, []);
+
+  React.useImperativeHandle(
+    actionsRef,
+    (): AudioPlayerActions => ({
+      seek(seconds, opts) {
+        const media = internalMediaRef.current;
+        if (!media) return;
+        const play = opts?.play === true;
+        if (media.readyState >= HTMLMediaElement.HAVE_METADATA) {
+          media.currentTime = clampTime(media, seconds);
+          if (play) void media.play().catch(() => {});
+          return;
+        }
+        pendingSeekRef.current = { seconds, play };
+        if (play) void media.play().catch(() => {});
+        else void ensureSource().catch(() => {});
+      },
+      play() {
+        void internalMediaRef.current?.play().catch(() => {});
+      },
+      pause() {
+        internalMediaRef.current?.pause();
+      },
+    }),
+    [ensureSource],
+  );
+
+  // ── Open / close ─────────────────────────────────────────────────────────
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(true);
+  const isOpen = open ?? uncontrolledOpen;
+  const openerRef = React.useRef<HTMLElement | null>(null);
+
+  // Remember what had focus when the player opened, to hand focus back on close.
+  React.useLayoutEffect(() => {
+    if (!isOpen) return;
+    const active = document.activeElement;
+    if (
+      active instanceof HTMLElement &&
+      active !== document.body &&
+      !rootRef.current?.contains(active)
+    ) {
+      openerRef.current = active;
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    internalMediaRef.current?.pause();
+    setUncontrolledOpen(false);
+    onOpenChange?.(false);
+    const opener = openerRef.current;
+    if (opener?.isConnected) opener.focus();
+  };
+
+  // ── Loading and error ────────────────────────────────────────────────────
+  const hasError = error != null && error !== false;
+  const isLoading = (loading || resolving) && !hasError;
+  const { announce, Announcer } = useAnnouncer();
+  const announcedLoadingRef = React.useRef(false);
+  React.useEffect(() => {
+    // Announce the transition into loading once — never on a re-render while
+    // it lasts.
+    if (isLoading && !announcedLoadingRef.current) announce(loadingLabel);
+    announcedLoadingRef.current = isLoading;
+  }, [announce, isLoading, loadingLabel]);
+
+  const handleRetry = () => {
+    if (typeof srcRef.current === "function") {
+      resolutionRef.current = null;
+      setResolvedUrl(undefined);
+      void ensureSource().catch(() => {});
+    } else {
+      internalMediaRef.current?.load();
+    }
+    onRetry?.();
+  };
+
+  const showClose = onOpenChange != null;
+
   return (
     <div
-      ref={ref}
+      ref={setRootRef}
       data-slot="audio-player"
       data-variant={variant}
-      className={cn("flex w-full flex-col gap-2", className)}
+      data-docked={docked ? "" : undefined}
+      data-active={isOpen ? "true" : "false"}
+      data-state={hasError ? "error" : isLoading ? "loading" : "idle"}
+      role={docked ? "region" : undefined}
+      aria-label={docked ? label : undefined}
+      aria-busy={isLoading || undefined}
+      // A hidden player keeps no focusable, activatable controls; it stays
+      // mounted so the exit transition and the playback state survive.
+      inert={!isOpen || undefined}
+      className={cn(
+        "flex w-full flex-col gap-2",
+        docked && [
+          "sticky bottom-0 z-10 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-md",
+          // Pinned to the bottom edge → clear the safe-area inset.
+          "pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))]",
+          // The shared docked-control pair; only the travel distance is ours.
+          "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+env(safe-area-inset-bottom))]",
+        ],
+        !docked && !isOpen && "hidden",
+        className,
+      )}
     >
-      {title || description ? (
-        <div
-          data-slot="audio-player-header"
-          className="flex min-w-0 flex-col gap-1"
-        >
-          {title ? (
-            <div className="min-w-0 text-sm font-medium text-foreground">
-              <span className="block truncate">{title}</span>
-            </div>
-          ) : null}
-          {description ? (
-            <div className="min-w-0 text-xs text-muted-foreground">
-              <span className="block truncate">{description}</span>
-            </div>
+      {title || description || showClose ? (
+        <div data-slot="audio-player-header" className="flex min-w-0 gap-2">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            {title ? (
+              <div className="min-w-0 text-sm font-medium text-foreground">
+                <span className="block truncate">{title}</span>
+              </div>
+            ) : null}
+            {description ? (
+              <div className="min-w-0 text-xs text-muted-foreground">
+                <span className="block truncate">{description}</span>
+              </div>
+            ) : null}
+          </div>
+          {showClose ? (
+            <Button
+              data-slot="audio-player-close"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={closeLabel}
+              className="-me-1 -mt-1 shrink-0"
+              onClick={handleClose}
+            >
+              <XIcon aria-hidden="true" />
+            </Button>
           ) : null}
         </div>
       ) : null}
@@ -275,7 +580,7 @@ export function AudioPlayer({
       <audio
         {...props}
         ref={setAudioRef}
-        src={src}
+        src={audioSrc}
         preload={preload}
         aria-label={label}
         className="hidden"
@@ -296,6 +601,35 @@ export function AudioPlayer({
         waveformPeaks={waveformPeaks}
         waveformFlatPeaks={WAVEFORM_FLAT_BARS}
       />
+
+      {isLoading ? (
+        <div
+          data-slot="audio-player-status"
+          className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
+        >
+          <LoaderIcon aria-hidden="true" className="size-3.5 animate-spin" />
+          <span className="truncate">{loadingLabel}</span>
+        </div>
+      ) : null}
+
+      {hasError ? (
+        <div
+          data-slot="audio-player-error"
+          className="flex min-w-0 flex-wrap items-center gap-2"
+        >
+          <p
+            role="alert"
+            className="min-w-0 flex-1 text-sm text-destructive-text"
+          >
+            {error}
+          </p>
+          <Button variant="outline" size="sm" onClick={handleRetry}>
+            {retryLabel}
+          </Button>
+        </div>
+      ) : null}
+
+      <Announcer />
     </div>
   );
 }

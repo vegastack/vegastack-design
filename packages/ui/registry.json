@@ -237,10 +237,15 @@
       "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
       "categories": ["media"],
       "dependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": ["@vegastack/media-player-controls"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/media-player-controls",
+        "@vegastack/use-announcer"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/audio-player.tsx",
@@ -249,8 +254,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control.",
-        "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
+        "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, and `actionsRef` seeks it from a transcript or chapter list.",
+        "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.18.0"
       }
     },

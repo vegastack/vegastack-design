@@ -3,7 +3,7 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { AudioPlayer } from "./audio-player";
+import { AudioPlayer, type AudioPlayerActions } from "./audio-player";
 
 const SOURCE =
   "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
@@ -430,6 +430,379 @@ test("has no accessibility violations", async () => {
 test("has no accessibility violations in the waveform variant", async () => {
   const screen = await render(
     <AudioPlayer src={SOURCE} label="Demo audio" variant="waveform" />,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+// ── Dock options (DS-77) ──────────────────────────────────────────────────────────────────────
+
+test("a lazy src resolves once on first play and a queued seek applies on metadata", async () => {
+  const src = vi.fn(async () => "/a.mp3");
+  const actions = React.createRef<AudioPlayerActions>();
+  const screen = await render(
+    <AudioPlayer
+      label="Meeting recording"
+      docked
+      open
+      src={src}
+      actionsRef={actions}
+    />,
+  );
+  const audio = screen.container.querySelector("audio")!;
+  expect(audio.hasAttribute("src")).toBe(false);
+  expect(src).not.toHaveBeenCalled();
+
+  actions.current!.seek(42, { play: true });
+  // The same tick: the transport's play joins the one resolution in flight.
+  within(
+    compactLayout(screen.container),
+    'button[aria-label="Play Meeting recording"]',
+  ).click();
+  await vi.waitFor(() => expect(audio.getAttribute("src")).toBe("/a.mp3"));
+  expect(src).toHaveBeenCalledOnce();
+
+  audio.dispatchEvent(new Event("loadedmetadata"));
+  expect(audio.currentTime).toBe(42);
+  expect(screen.container.querySelector('[role="toolbar"]')).toBeNull();
+});
+
+test("a lazy src is not resolved again by a later play", async () => {
+  const src = vi.fn(async () => SOURCE);
+  const mediaRef = React.createRef<HTMLAudioElement>();
+  const screen = await render(
+    <AudioPlayer label="Call" src={src} mediaRef={mediaRef} />,
+  );
+  const play = within(
+    compactLayout(screen.container),
+    'button[aria-label="Play Call"]',
+  );
+  play.click();
+  await vi.waitFor(() =>
+    expect(mediaRef.current!.getAttribute("src")).toBe(SOURCE),
+  );
+  mediaRef.current!.pause();
+  await mediaRef.current!.play().catch(() => {});
+  expect(src).toHaveBeenCalledOnce();
+});
+
+test("docked: a labelled region at the bottom of its column, not a toolbar", async () => {
+  const rootRef = React.createRef<HTMLDivElement>();
+  const screen = await render(
+    <AudioPlayer ref={rootRef} src={SOURCE} label="Meeting recording" docked />,
+  );
+  const region = screen.getByRole("region", { name: "Meeting recording" });
+  await expect.element(region).toBeInTheDocument();
+  // `ref` is still the root, and the root IS the region.
+  expect(rootRef.current).toBe(region.element());
+  expect(rootRef.current!.dataset.slot).toBe("audio-player");
+  expect(rootRef.current).toHaveAttribute("data-docked", "");
+  for (const cls of [
+    "sticky",
+    "bottom-0",
+    "border",
+    "bg-popover",
+    "shadow-md",
+    "pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))]",
+  ]) {
+    expect(rootRef.current!.classList.contains(cls), cls).toBe(true);
+  }
+  expect(screen.container.querySelector('[role="toolbar"]')).toBeNull();
+});
+
+test("an undocked player is not a region", async () => {
+  const screen = await render(<AudioPlayer src={SOURCE} label="Clip" />);
+  expect(screen.container.querySelector('[role="region"]')).toBeNull();
+});
+
+function ClosableDock({
+  onOpenChange,
+  mediaRef,
+}: {
+  onOpenChange?: (open: boolean) => void;
+  mediaRef?: React.Ref<HTMLAudioElement>;
+}) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <button type="button" onClick={() => setOpen(true)}>
+        Play recording
+      </button>
+      <AudioPlayer
+        src={SOURCE}
+        label="Meeting recording"
+        docked
+        open={open}
+        mediaRef={mediaRef}
+        onOpenChange={(next) => {
+          onOpenChange?.(next);
+          setOpen(next);
+        }}
+      />
+    </div>
+  );
+}
+
+test("hidden: inert, parked, and out of the tab order", async () => {
+  const screen = await render(<ClosableDock />);
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="audio-player"]',
+  )!;
+  expect(root).toHaveAttribute("inert");
+  expect(root).toHaveAttribute("data-active", "false");
+  expect(root.className).toContain("data-[active=false]:motion-dock-out");
+  expect(root.className).toContain("data-[active=true]:motion-dock-in");
+});
+
+test("close pauses, reports closed, and returns focus to the opener", async () => {
+  const onOpenChange = vi.fn();
+  const mediaRef = React.createRef<HTMLAudioElement>();
+  const screen = await render(
+    <ClosableDock onOpenChange={onOpenChange} mediaRef={mediaRef} />,
+  );
+  const opener = screen.getByRole("button", { name: "Play recording" });
+  await userEvent.click(opener);
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="audio-player"]',
+  )!;
+  await vi.waitFor(() => expect(root).toHaveAttribute("data-active", "true"));
+  expect(root.hasAttribute("inert")).toBe(false);
+
+  const pause = vi.spyOn(mediaRef.current!, "pause");
+  await userEvent.click(screen.getByRole("button", { name: "Close player" }));
+  expect(pause).toHaveBeenCalled();
+  expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false);
+  await vi.waitFor(() => expect(root).toHaveAttribute("inert"));
+  expect(document.activeElement).toBe(opener.element());
+});
+
+test("Escape does not close the dock", async () => {
+  const onOpenChange = vi.fn();
+  const screen = await render(<ClosableDock onOpenChange={onOpenChange} />);
+  await userEvent.click(screen.getByRole("button", { name: "Play recording" }));
+  const close = screen.getByRole("button", { name: "Close player" });
+  (close.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Escape}");
+  expect(onOpenChange).not.toHaveBeenCalled();
+  expect(
+    screen.container.querySelector('[data-slot="audio-player"]'),
+  ).toHaveAttribute("data-active", "true");
+});
+
+test("the close button renders only when onOpenChange is wired, with an overridable label", async () => {
+  const bare = await render(<AudioPlayer src={SOURCE} label="Clip" docked />);
+  expect(
+    bare.container.querySelector('[data-slot="audio-player-close"]'),
+  ).toBeNull();
+
+  const screen = await render(
+    <AudioPlayer
+      src={SOURCE}
+      label="Clip"
+      docked
+      onOpenChange={() => {}}
+      closeLabel="Hide recording"
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Hide recording" }))
+    .toBeInTheDocument();
+});
+
+test("Tab reaches every control in the dock and then leaves it", async () => {
+  const screen = await render(
+    <div>
+      <button type="button">Before</button>
+      <AudioPlayer
+        src={SOURCE}
+        label="Meeting recording"
+        docked
+        onOpenChange={() => {}}
+      />
+      <button type="button">After</button>
+    </div>,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="audio-player"]',
+  )!;
+  const expected = Array.from(
+    root.querySelectorAll<HTMLElement>("button, input"),
+  ).filter(
+    // The seek rail is disabled until the metadata reports a duration.
+    (el) => el.tabIndex >= 0 && !el.matches(":disabled"),
+  );
+  expect(expected.length).toBeGreaterThan(0);
+
+  (
+    screen.getByRole("button", { name: "Before" }).element() as HTMLElement
+  ).focus();
+  const reached = new Set<Element>();
+  for (let step = 0; step < expected.length + 5; step += 1) {
+    await userEvent.keyboard("{Tab}");
+    const active = document.activeElement;
+    if (!active || !root.contains(active)) break;
+    reached.add(active);
+  }
+  expect(document.activeElement?.textContent).toBe("After");
+  for (const control of expected) {
+    expect(
+      reached.has(control),
+      control.getAttribute("aria-label") ?? control.outerHTML,
+    ).toBe(true);
+  }
+});
+
+test("loading shows a status line and is announced once", async () => {
+  const screen = await render(
+    <AudioPlayer src={SOURCE} label="Clip" docked loading />,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="audio-player"]',
+  )!;
+  expect(root).toHaveAttribute("aria-busy", "true");
+  expect(root).toHaveAttribute("data-state", "loading");
+  const announcer = root.querySelector<HTMLElement>('[data-slot="announcer"]')!;
+  await vi.waitFor(() => expect(announcer.textContent).toBe("Loading audio…"));
+  const spoken = announcer.firstElementChild;
+
+  await screen.rerender(
+    <AudioPlayer src={SOURCE} label="Clip" docked loading title="Standup" />,
+  );
+  await screen.rerender(
+    <AudioPlayer src={SOURCE} label="Clip" docked loading title="Standup 2" />,
+  );
+  await expect.element(screen.getByText("Standup 2")).toBeInTheDocument();
+  // Same node: re-renders while loading never re-announce.
+  expect(announcer.firstElementChild).toBe(spoken);
+  expect(
+    root.querySelector('[data-slot="audio-player-status"]')?.textContent,
+  ).toBe("Loading audio…");
+
+  await screen.rerender(<AudioPlayer src={SOURCE} label="Clip" docked />);
+  await vi.waitFor(() =>
+    expect(root.querySelector('[data-slot="audio-player-status"]')).toBeNull(),
+  );
+  expect(root.hasAttribute("aria-busy")).toBe(false);
+});
+
+test("loadingLabel overrides the announced and visible copy", async () => {
+  const screen = await render(
+    <AudioPlayer
+      src={SOURCE}
+      label="Clip"
+      loading
+      loadingLabel="Fetching recording…"
+    />,
+  );
+  const announcer = screen.container.querySelector('[data-slot="announcer"]')!;
+  await vi.waitFor(() =>
+    expect(announcer.textContent).toBe("Fetching recording…"),
+  );
+});
+
+test("error renders an alert in the -text ink with a retry", async () => {
+  const onRetry = vi.fn();
+  const mediaRef = React.createRef<HTMLAudioElement>();
+  const screen = await render(
+    <AudioPlayer
+      src={SOURCE}
+      label="Clip"
+      docked
+      mediaRef={mediaRef}
+      error="Couldn't load the recording."
+      onRetry={onRetry}
+    />,
+  );
+  const alert = screen.getByRole("alert");
+  await expect.element(alert).toHaveTextContent("Couldn't load the recording.");
+  await expect.element(alert).toHaveClass("text-destructive-text");
+  expect(
+    screen.container.querySelector('[data-slot="audio-player"]'),
+  ).toHaveAttribute("data-state", "error");
+
+  const load = vi.spyOn(mediaRef.current!, "load");
+  await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+  expect(onRetry).toHaveBeenCalledOnce();
+  expect(load).toHaveBeenCalledOnce();
+});
+
+test("retry re-resolves a lazy source", async () => {
+  const src = vi.fn(async () => SOURCE);
+  const mediaRef = React.createRef<HTMLAudioElement>();
+  const screen = await render(
+    <AudioPlayer
+      src={src}
+      label="Clip"
+      mediaRef={mediaRef}
+      error="Couldn't load the recording."
+      retryLabel="Reload"
+    />,
+  );
+  within(
+    compactLayout(screen.container),
+    'button[aria-label="Play Clip"]',
+  ).click();
+  await vi.waitFor(() => expect(src).toHaveBeenCalledOnce());
+  await userEvent.click(screen.getByRole("button", { name: "Reload" }));
+  await vi.waitFor(() => expect(src).toHaveBeenCalledTimes(2));
+});
+
+test("actionsRef seeks a loaded player at once and plays and pauses it", async () => {
+  const actions = React.createRef<AudioPlayerActions>();
+  const mediaRef = React.createRef<HTMLAudioElement>();
+  await render(
+    <AudioPlayer
+      src={SOURCE}
+      label="Clip"
+      mediaRef={mediaRef}
+      actionsRef={actions}
+    />,
+  );
+  const media = mediaRef.current!;
+  Object.defineProperty(media, "readyState", { configurable: true, value: 1 });
+  setMediaState(media, { currentTime: 0, duration: 120 });
+  const play = vi.spyOn(media, "play").mockResolvedValue(undefined);
+  const pause = vi.spyOn(media, "pause").mockImplementation(() => {});
+
+  actions.current!.seek(30);
+  expect(media.currentTime).toBe(30);
+  expect(play).not.toHaveBeenCalled();
+  actions.current!.seek(500, { play: true });
+  expect(media.currentTime).toBe(120);
+  expect(play).toHaveBeenCalledOnce();
+  actions.current!.pause();
+  expect(pause).toHaveBeenCalledOnce();
+  actions.current!.play();
+  expect(play).toHaveBeenCalledTimes(2);
+});
+
+test("has no accessibility violations when docked and open", async () => {
+  const screen = await render(
+    <AudioPlayer
+      src={SOURCE}
+      label="Meeting recording"
+      title="Weekly sync"
+      docked
+      onOpenChange={() => {}}
+    />,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("has no accessibility violations while loading", async () => {
+  const screen = await render(
+    <AudioPlayer src={SOURCE} label="Meeting recording" docked loading />,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("has no accessibility violations with an error", async () => {
+  const screen = await render(
+    <AudioPlayer
+      src={SOURCE}
+      label="Meeting recording"
+      docked
+      error="Couldn't load the recording."
+    />,
   );
   await expectNoA11yViolations(screen.container);
 });
