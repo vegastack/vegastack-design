@@ -258,6 +258,27 @@ function externalFamilySetCover(itemNames) {
   return selected;
 }
 
+// A transient network failure (the CLI fetches ui.shadcn.com's colour and style JSON) is not a
+// registry defect: a runner container's resolver intermittently answers EAI_AGAIN. Retry such a
+// failure twice after a short pause; any other failure is returned on the first attempt.
+const TRANSIENT_NETWORK =
+  /\b(EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNRESET|ECONNREFUSED)\b|socket hang up|fetch failed/;
+function runCappedWithNetworkRetry(cmd, cmdArgs, opts = {}, attempts = 3) {
+  let r;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    r = runCapped(cmd, cmdArgs, opts);
+    if (r.ok || !TRANSIENT_NETWORK.test(r.out) || attempt === attempts)
+      return r;
+    Atomics.wait(
+      new Int32Array(new SharedArrayBuffer(4)),
+      0,
+      0,
+      2000 * attempt,
+    );
+  }
+  return r;
+}
+
 // Run a subprocess with a hard timeout + SIGKILL. Returns { ok, status, signal, out }.
 function runCapped(cmd, cmdArgs, opts = {}) {
   const r = spawnSync(cmd, cmdArgs, {
@@ -608,7 +629,7 @@ function proveRealShadcnAdd(
         join(consumerRoot, sourceRoot, relativeAlias(layout.aliases.ui)),
       ),
     );
-    const r = runCapped(
+    const r = runCappedWithNetworkRetry(
       shadcnBin,
       ["add", `@vegastack/${name}`, "--yes", "--cwd", consumerRoot],
       { timeout: 60_000 },
