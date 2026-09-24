@@ -16679,7 +16679,7 @@
         "whenToUse": "Server-side search over a list that pages by cursor: a remote SearchableSelect, a searched facet, a picker dialog, a searched DataList — debounce, races, paging and retry in one hook.",
         "whenNotToUse": "Filtering items already in memory (pass them to the component and let it filter); a one-shot fetch with no query (use your data library directly).",
         "version": "0.21.1",
-        "integrity": "sha256-wvaZOi1CWCSF7wJhLYQqF2u/r2AZPDGtPF5LneUqkDU="
+        "integrity": "sha256-pBJtbm9dGXWX6tq98vcm780BmmkgYshOxIdbpdKs4Fk="
       }
     },
     {

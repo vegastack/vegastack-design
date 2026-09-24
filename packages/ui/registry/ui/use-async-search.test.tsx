@@ -55,6 +55,27 @@ test("drops an out-of-order response and aborts the stale request", async () => 
   }
 });
 
+test("a new query drops the in-flight request before its debounce ends", async () => {
+  vi.useFakeTimers();
+  try {
+    const first = deferred<{ items: string[] }>();
+    const load = vi.fn(
+      (_q: string, _ctx: { signal: AbortSignal }) => first.promise,
+    );
+    const { out, element } = mount(load, { debounceMs: 50, enabled: false });
+    await render(element);
+    React.act(() => out.current.onSearchChange("a"));
+    await vi.advanceTimersByTimeAsync(50);
+    React.act(() => out.current.onSearchChange("ab"));
+    expect(load.mock.calls[0]![1].signal.aborted).toBe(true);
+    first.resolve({ items: ["a"] });
+    await vi.advanceTimersByTimeAsync(10);
+    expect(out.current.items).toEqual([]);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
 test("debounces typing: one request with the settled query", async () => {
   vi.useFakeTimers();
   try {
