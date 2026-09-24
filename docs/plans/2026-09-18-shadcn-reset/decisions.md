@@ -1,4 +1,4 @@
-# Decision register — 202 micro-decisions
+# Decision register — 203 micro-decisions
 
 Every deliberate choice this repo made on top of or against shadcn, each checked against `base-nova`'s live source on 2026-09-17, with MK's decision recorded on 2026-09-17/18 and every later row added by MK on the date it names.
 
@@ -8,13 +8,14 @@ Parenthesised references in the rows (`DM:`, `IDX:`, `BC:`, `SH:`, `TH:`, `R/…
 
 **This file is the authority; `packages/ui/upstream/decisions.json` is its machine copy.** Regenerate the copy with `node tooling/upstream/verify-parity.mjs --sync-decisions` after any row changes. A new row is a new MK decision: take the next free number in its family, and never reuse a burned one (`A11Y-14` and `A11Y-15` are permanently unused: both were assigned without a decision during the reset and reverted).
 
-Counts: **204 rows** — **108 shadcn**, **96 ours**. 168 rows were decided on 2026-09-17/18. MK added thirty-six since:
+Counts: **205 rows** — **108 shadcn**, **97 ours**. 168 rows were decided on 2026-09-17/18. MK added thirty-seven since:
 
 - 2026-09-18: **A11Y-13** (during Batch 2, resolving the conflict Batch 1 recorded), **A11Y-16** (accessible names on upstream controls that ship without one) and **OVL-14** (the fullscreen portal container Batch 4 lost).
 - 2026-09-21: **TYP-14**, explicitly ratified.
 - 2026-09-22: **ICO-8** (lucide `Loader` is the one indeterminate loading mark), **TYP-15…TYP-18** (the global Geist type ramp: heading-tier metrics, `-webkit-font-smoothing`, a declared 14px body default, and no arbitrary font size), **OVL-15** and **COL-23** (Toast's position, anchoring and `z-60` band, and its description-only ink).
 - 2026-09-23: **OVL-16** (DialogContent's `size` prop).
 - 2026-09-24: **API-24**, **API-26** (the facelift component fixes, Regent #137: Field wiring and the Select inline trigger).
+- 2026-09-24: **API-27** (Combobox re-exports Base UI's `Combobox.Status` as `ComboboxStatus`).
 - 2026-09-24: **API-28** (Attachment's widened scope: grid layout, determinate progress, muted tiles, nested-image styling).
 - 2026-09-24: **VOI-1**, **INT-11**, **LAY-13**, **LAY-14**, **LAY-15** (after measurement 11a), **LAY-16**, **A11Y-17…A11Y-20**, **A11Y-22**, **FRM-15**, **API-18…API-23** and **API-25** (the facelift upstream-backed pack, Regent #138), with **A11Y-7** amended and **OVL-16** widened.
 - 2026-09-24: **OVL-17** (the facelift component fixes, Regent #137: one toast queue).
@@ -272,6 +273,7 @@ Two rows have changed resolution, both from shadcn to ours: **OVL-10** on 2026-0
 | API-24 | **ours**   | Select `variant="ghost"`; the default trigger is `w-full`.                                                                                                                                                                                                                                                                                                              | `SelectTrigger` is `w-fit` with one bordered look and no variant.                                                                                                          | A Select takes its width from its parent like every form control, and inline rows get a borderless trigger. |
 | API-26 | **ours**   | `Field` parts render Base UI `Field` underneath; controls read it. Explicit props follow Base UI's merge (accepted by MK 24-09-2026): an explicit `id` wins, an explicit `aria-describedby` keeps its ids first with the Field's rendered ids after, and `aria-invalid` follows an invalid Field; secondary controls (a combobox toggle, a clear) keep their own names. | `Field`, `FieldLabel`, `FieldDescription` and `FieldError` are plain elements; the caller wires `id`, `htmlFor`, `aria-describedby` and `aria-invalid` by hand.            | A control inside a `Field` is labelled, described and marked invalid with no ids to keep in sync.           |
 | API-28 | **ours**   | Attachment widened scope (DS-44): `AttachmentGroup layout="scroll" \| "grid"`, a new `AttachmentProgress` on the Progress parts (`aria-valuetext` "{n}%"), `muted`, and nested-image styling (`[&_img]` in place of `*:[img]`); approved by MK 24-09-2026.                                                                                                              | `AttachmentGroup` is only a scrolling row; there is no progress part (uploading is a title shimmer), no muted tile, and image styling reaches only a direct `<img>` child. | Record-file grids and upload queues use Attachment tiles with a real percentage bar.                        |
+| API-27 | **ours**   | Combobox re-exports Base UI `Combobox.Status` as `ComboboxStatus` (sr-only by default, `visible` variant) (DS-40); approved by MK 24-09-2026. It is the engine's own polite live region, so it stays mounted as a sibling of the list and only its children toggle.                                                                                                     | `combobox.tsx` exports no status part; Base UI's `Combobox.Status` is reachable only through the primitive.                                                                | Async lists announce "Searching…" and result counts through the engine's own region.                        |
 
 ## 13. Docs & tooling conventions
 

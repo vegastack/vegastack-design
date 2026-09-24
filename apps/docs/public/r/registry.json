@@ -877,7 +877,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.19.0",
-        "integrity": "sha256-xHAVw40yVLecCKNzxbPZIbj2XZEWL4PYVNaVGPlrKPQ="
+        "integrity": "sha256-uHuB4rPzWsCsEpJiUBL/gpbItYO/yv7ZP+DGmihFM9A="
       }
     },
     {
@@ -16155,7 +16155,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.19.0",
-        "integrity": "sha256-+Uch5GsO7XnBW8S3BGQYVVzim8R1RdhC5oNY4IA4C9k="
+        "integrity": "sha256-6tArBQZQ43IyX8d4As0KMk3nSIhrIuz9w4Ja4VS9BjE="
       }
     },
     {

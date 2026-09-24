@@ -5147,6 +5147,16 @@
           }
         },
         {
+          "name": "ComboboxStatus",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/combobox.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
           "name": "ComboboxSeparator",
           "kind": "component",
           "source": "packages/ui/registry/ui/combobox.tsx",
@@ -5392,6 +5402,19 @@
             {
               "name": "data-slot",
               "values": ["combobox-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxStatus": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-status"]
+            },
+            {
+              "name": "data-visible",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -18293,6 +18316,15 @@
             "status": "observed",
             "target": "div",
             "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "MultiStepFormStepChangeDetails",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {

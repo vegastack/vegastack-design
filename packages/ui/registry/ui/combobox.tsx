@@ -1,4 +1,4 @@
-// @vegastack combobox@0.19.0 sha256-xHAVw40yVLecCKNzxbPZIbj2XZEWL4PYVNaVGPlrKPQ=
+// @vegastack combobox@0.19.0 sha256-uHuB4rPzWsCsEpJiUBL/gpbItYO/yv7ZP+DGmihFM9A=
 
 "use client";
 
@@ -245,6 +245,26 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
   );
 }
 
+function ComboboxStatus({
+  className,
+  visible = false,
+  ...props
+}: ComboboxPrimitive.Status.Props & { visible?: boolean }) {
+  return (
+    <ComboboxPrimitive.Status
+      data-slot="combobox-status"
+      data-visible={visible || undefined}
+      className={cn(
+        visible
+          ? "px-2 py-1.5 text-sm text-muted-foreground empty:p-0"
+          : "sr-only",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 function ComboboxSeparator({
   className,
   ...props
@@ -333,6 +353,7 @@ export {
   ComboboxLabel,
   ComboboxCollection,
   ComboboxEmpty,
+  ComboboxStatus,
   ComboboxSeparator,
   ComboboxChips,
   ComboboxChip,

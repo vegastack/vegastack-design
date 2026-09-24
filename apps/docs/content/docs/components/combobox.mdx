@@ -193,6 +193,19 @@ on the option's `aria-describedby` and a screen reader hears it as the option's 
   file="components/preview/combobox.tsx"
 />
 
+### Async status
+
+When the list comes from a server, pass `filter={null}` so the engine stops filtering locally, and
+render `ComboboxStatus` as a sibling of `ComboboxList`. It is Base UI's own polite status region:
+keep it mounted and change its children — "Searching…", then the result count — rather than
+rendering it conditionally. It is screen-reader-only by default; `visible` shows the message as a
+muted row above the list.
+
+<ComponentPreview
+  name="comboboxAsyncStatus"
+  file="components/preview/combobox.tsx"
+/>
+
 ### States
 
 The closed input's rest, invalid and disabled chrome.
@@ -291,6 +304,10 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
   takes its label, the rendered description and error ids, and `aria-invalid`. The addon's "Show
   suggestions" toggle drops the Field label Base UI also hands `Combobox.Trigger`, so the input is
   the one element the Field names.
+- **API-27** — a new `ComboboxStatus` part re-exports Base UI's `Combobox.Status`, the engine's own
+  polite status region for an asynchronously loaded list. It carries `data-slot="combobox-status"`,
+  is `sr-only` unless `visible`, and is never hidden with `display: none`, so it stays mounted as a
+  sibling of `ComboboxList` and only its children change.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

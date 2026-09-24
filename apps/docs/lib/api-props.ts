@@ -81,6 +81,7 @@ import type {
   ComboboxChip,
   ComboboxContent,
   ComboboxInput,
+  ComboboxStatus,
 } from "@/components/ui/combobox";
 import type { DirectionProvider } from "@/components/ui/direction";
 import type { Field, FieldError, FieldLegend } from "@/components/ui/field";
@@ -299,6 +300,7 @@ export type CheckboxProps = React.ComponentProps<typeof Checkbox>;
 export type ComboboxInputProps = React.ComponentProps<typeof ComboboxInput>;
 export type ComboboxContentProps = React.ComponentProps<typeof ComboboxContent>;
 export type ComboboxChipProps = React.ComponentProps<typeof ComboboxChip>;
+export type ComboboxStatusProps = React.ComponentProps<typeof ComboboxStatus>;
 
 export type DirectionProviderProps = React.ComponentProps<
   typeof DirectionProvider
