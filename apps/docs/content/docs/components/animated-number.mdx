@@ -87,8 +87,9 @@ Pick a different value preset to watch the tween, try the format and duration op
 - `prefers-reduced-motion: reduce` renders every value change **instantly**, with no tween at all
   — the same SSR-safe `matchMedia` hook used by `TruncatedText`'s no-hover detection and
   `MessageScroller`'s reduced-motion handling.
-- Digits use `tabular-nums` so the layout never jitters horizontally as the character count
-  changes mid-animation (e.g. `99` → `100`).
+- Digits are the regular face with `tabular-nums` — the same face as `StatValue` — so the layout
+  never jitters horizontally as the character count changes mid-animation (e.g. `99` → `100`).
+  Mono is for codes and IDs, not counts.
 - Server-safe: the initial render (server AND client) always shows the static final value —
   there is no hydration mismatch to reconcile.
 

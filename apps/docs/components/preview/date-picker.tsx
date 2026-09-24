@@ -288,3 +288,52 @@ export function datePickerInsideField(): ReactNode {
     </Wrapper>
   );
 }
+
+/** DS-17: `clearable` puts a clear control beside the trigger; focus returns to the trigger. */
+export function datePickerClearable(): ReactNode {
+  const [date, setDate] = useState<Date | undefined>(SELECTED);
+  return (
+    <Wrapper>
+      <div className="w-full max-w-56">
+        <DatePicker
+          aria-label="Due date"
+          value={date}
+          onValueChange={setDate}
+          clearable
+          locale={DOCS_LOCALE}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-17: the inline tier in a row — `size="sm"`, `variant="ghost"`, clearable, and a
+ * `renderValue` face ("Due Jun 18").
+ */
+export function datePickerInline(): ReactNode {
+  const [date, setDate] = useState<Date | undefined>(SELECTED);
+  const short = new Intl.DateTimeFormat(DOCS_LOCALE, {
+    month: "short",
+    day: "numeric",
+  });
+  return (
+    <Wrapper className="items-stretch">
+      <div className="flex w-full max-w-md min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2">
+        <span className="min-w-0 truncate text-sm">
+          Renew the SSL certificate
+        </span>
+        <DatePicker
+          aria-label="Due date"
+          size="sm"
+          variant="ghost"
+          clearable
+          value={date}
+          onValueChange={setDate}
+          locale={DOCS_LOCALE}
+          renderValue={(value) => `Due ${short.format(value)}`}
+        />
+      </div>
+    </Wrapper>
+  );
+}

@@ -8,6 +8,7 @@ import {
   AppShell,
   AppShellContent,
   AppShellHeader,
+  AppShellPage,
   AppShellSidebar,
   AppShellSkeleton,
 } from "./app-shell";
@@ -483,4 +484,86 @@ test("AppShellSkeleton's rail is exactly the width the loaded rail will be", asy
   // `w-64` is `--spacing(64)` = 16rem, which is `sidebar.tsx`'s `SIDEBAR_WIDTH` exactly.
   expect(sidebarColumn.classList.contains("w-64")).toBe(true);
   expect(sidebarColumn.classList.contains("w-60")).toBe(false);
+});
+
+/* DS-19 — AppShellPage, the one page container */
+
+test("DS-19: AppShellPage defaults to the 1280px measure with the page gutters", async () => {
+  const screen = await render(<AppShellPage>Page</AppShellPage>);
+  const page = screen.container.querySelector('[data-slot="app-shell-page"]')!;
+  expect(page.getAttribute("data-size")).toBe("default");
+  for (const cls of [
+    "max-w-7xl",
+    "mx-auto",
+    "w-full",
+    "min-w-0",
+    "gap-6",
+    "px-4",
+    "py-6",
+    "md:px-8",
+    "md:py-8",
+  ]) {
+    expect(page.className).toContain(cls);
+  }
+});
+
+test("DS-19: each size sets its measure and reflects it as data-size", async () => {
+  const screen = await render(
+    <>
+      <AppShellPage size="narrow">a</AppShellPage>
+      <AppShellPage size="full">b</AppShellPage>
+    </>,
+  );
+  const [narrow, full] = [
+    ...screen.container.querySelectorAll('[data-slot="app-shell-page"]'),
+  ] as [Element, Element];
+  expect(narrow.getAttribute("data-size")).toBe("narrow");
+  expect(narrow.className).toContain("max-w-3xl");
+  expect(full.getAttribute("data-size")).toBe("full");
+  expect(full.className).not.toMatch(/max-w-/);
+  expect(full.className).toContain("min-h-0");
+});
+
+test("DS-19: inside the shell there is still exactly one main landmark", async () => {
+  const screen = await render(
+    <AppShell>
+      <div className="flex h-svh min-w-0 flex-1 flex-col">
+        <AppShellContent>
+          <AppShellPage size="narrow">
+            <h1>Profile</h1>
+          </AppShellPage>
+        </AppShellContent>
+      </div>
+    </AppShell>,
+  );
+  expect(screen.container.querySelectorAll("main")).toHaveLength(1);
+  const page = screen.container.querySelector('[data-slot="app-shell-page"]')!;
+  expect(page.tagName).toBe("DIV");
+  expect(page.closest("main")).not.toBeNull();
+});
+
+test("DS-19: the skeleton uses the page gutters", async () => {
+  const screen = await render(<AppShellSkeleton />);
+  const content = screen.container.querySelector(
+    '[data-slot="app-shell-skeleton-stats"]',
+  )!.parentElement!;
+  for (const cls of ["px-4", "py-6", "md:px-8", "md:py-8", "gap-6"]) {
+    expect(content.className).toContain(cls);
+  }
+});
+
+test("no a11y violations — page container in the shell", async () => {
+  const screen = await render(
+    <AppShell>
+      <div className="flex h-svh min-w-0 flex-1 flex-col">
+        <AppShellContent>
+          <AppShellPage size="narrow">
+            <h1>Profile</h1>
+            <p>Your details.</p>
+          </AppShellPage>
+        </AppShellContent>
+      </div>
+    </AppShell>,
+  );
+  await expectNoA11yViolations(screen.container);
 });

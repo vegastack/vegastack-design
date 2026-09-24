@@ -264,3 +264,188 @@ test("forwards ref to the <time> element", async () => {
   expect(ref.current).toBeInstanceOf(HTMLTimeElement);
   expect(ref.current?.dataset.slot).toBe("relative-time");
 });
+
+/* DS-11 — time zone, capitalize, format options, with time, and a plain label's box */
+
+// 00:30 on 23 Sep in IST (UTC+5:30) is still 19:00 on 22 Sep in UTC.
+const ZONE_NOW = Date.UTC(2026, 8, 22, 19, 0, 0);
+// 22:30 on 22 Sep in IST, 17:00 on 22 Sep in UTC.
+const ZONE_DATE = new Date(Date.UTC(2026, 8, 22, 17, 0, 0));
+
+test("DS-11: timeZone decides the calendar day", async () => {
+  const screen = await render(
+    <>
+      <RelativeTime
+        mode="day"
+        date={ZONE_DATE}
+        now={ZONE_NOW}
+        timeZone="Asia/Kolkata"
+        locale="en-US"
+        title={false}
+        data-testid="ist"
+      />
+      <RelativeTime
+        mode="day"
+        date={ZONE_DATE}
+        now={ZONE_NOW}
+        timeZone="UTC"
+        locale="en-US"
+        title={false}
+        data-testid="utc"
+      />
+    </>,
+  );
+  await expect
+    .element(screen.getByTestId("ist"))
+    .toHaveTextContent("yesterday");
+  await expect.element(screen.getByTestId("utc")).toHaveTextContent("today");
+});
+
+test("DS-11: capitalize upper-cases a standalone label", async () => {
+  const screen = await render(
+    <RelativeTime
+      mode="day"
+      capitalize
+      date={ZONE_DATE}
+      now={ZONE_NOW}
+      timeZone="UTC"
+      locale="en-US"
+      title={false}
+    />,
+  );
+  await expect.element(screen.getByText("Today")).toBeInTheDocument();
+});
+
+test("DS-11: formatOptions shapes the absolute date, and the year appears only for another year", async () => {
+  const screen = await render(
+    <>
+      <RelativeTime
+        mode="day"
+        date={new Date(Date.UTC(2026, 8, 2, 12))}
+        now={ZONE_NOW}
+        timeZone="UTC"
+        locale="en-US"
+        formatOptions={{ month: "short", day: "numeric" }}
+        title={false}
+        data-testid="same-year"
+      />
+      <RelativeTime
+        mode="day"
+        date={new Date(Date.UTC(2025, 8, 2, 12))}
+        now={ZONE_NOW}
+        timeZone="UTC"
+        locale="en-US"
+        formatOptions={{ month: "short", day: "numeric" }}
+        title={false}
+        data-testid="last-year"
+      />
+    </>,
+  );
+  await expect
+    .element(screen.getByTestId("same-year"))
+    .toHaveTextContent("Sep 2");
+  await expect
+    .element(screen.getByTestId("last-year"))
+    .toHaveTextContent("Sep 2, 2025");
+});
+
+test("DS-11: withTime appends the time of day in the given zone", async () => {
+  const screen = await render(
+    <RelativeTime
+      mode="day"
+      withTime
+      capitalize
+      date={ZONE_DATE}
+      now={ZONE_NOW}
+      timeZone="UTC"
+      locale="en-US"
+      title={false}
+    />,
+  );
+  await expect.element(screen.getByText("Today, 5:00 PM")).toBeInTheDocument();
+});
+
+test("DS-11: the tooltip label is formatted in the same zone", async () => {
+  const screen = await render(
+    <TooltipProvider>
+      <RelativeTime
+        mode="day"
+        date={ZONE_DATE}
+        now={ZONE_NOW}
+        timeZone="Asia/Kolkata"
+        locale="en-US"
+      />
+    </TooltipProvider>,
+  );
+  (screen.getByText("yesterday").element() as HTMLElement).focus();
+  const tip = await openTooltip(screen.container);
+  expect(tip?.textContent ?? "").toContain("September 22, 2026 at 10:30 PM");
+});
+
+test("DS-11: the server render and the client render print the same text in a zone", async () => {
+  const element = (
+    <RelativeTime
+      mode="day"
+      capitalize
+      date={ZONE_DATE}
+      now={ZONE_NOW}
+      timeZone="Asia/Kolkata"
+      locale="en-US"
+      title={false}
+    />
+  );
+  const markup = renderToString(element);
+  const screen = await render(element);
+  const client = screen.container.querySelector("time")!.textContent!;
+  expect(client).toBe("Yesterday");
+  expect(markup).toContain(`>${client}</time>`);
+});
+
+test("DS-11: an uncontrolled server render formats its absolute date in the zone", () => {
+  const markup = renderToString(
+    <RelativeTime date={ZONE_DATE} timeZone="Asia/Kolkata" locale="en-US" />,
+  );
+  // 17:00 UTC on 22 Sep is 22:30 on 22 Sep in IST, and 05:00 on 23 Sep in Auckland (NZST, UTC+12).
+  expect(markup).toContain("Sep 22, 2026");
+  const auckland = renderToString(
+    <RelativeTime
+      date={ZONE_DATE}
+      timeZone="Pacific/Auckland"
+      locale="en-US"
+    />,
+  );
+  expect(auckland).toContain("Sep 23, 2026");
+});
+
+test("DS-11: a plain label is inline text; only a tooltip trigger owns the 24px box", async () => {
+  const screen = await render(
+    <TooltipProvider>
+      <RelativeTime date={new Date(ms(-3_600_000))} now={NOW} title={false} />
+      <RelativeTime date={new Date(ms(-7_200_000))} now={NOW} />
+    </TooltipProvider>,
+  );
+  const plain = screen.getByText("1 hour ago").element();
+  const trigger = screen.getByText("2 hours ago").element();
+  expect(plain.className).not.toContain("min-h-6");
+  expect(plain.className).not.toContain("inline-flex");
+  expect(plain.className).toContain("tabular-nums");
+  expect(trigger.className).toContain("min-h-6");
+  expect(trigger.className).toContain("inline-flex");
+});
+
+test("no a11y violations — day mode with time zone, capitalized, with time", async () => {
+  const screen = await render(
+    <TooltipProvider>
+      <RelativeTime
+        mode="day"
+        withTime
+        capitalize
+        date={ZONE_DATE}
+        now={ZONE_NOW}
+        timeZone="Asia/Kolkata"
+        locale="en-US"
+      />
+    </TooltipProvider>,
+  );
+  await expectNoA11yViolations(screen.container);
+});

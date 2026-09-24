@@ -69,6 +69,17 @@ whose popover is the editor; commit fires on selection.
   file="components/preview/editable-cell.tsx"
 />
 
+### Custom editor with a label
+
+When the value is an id — an owner, a customer, a project — pass `renderValue` so the cell shows
+the name a person reads instead of the stored id. It is used while displaying, for every editor
+type; the editor still works on the raw `value`, and an empty value keeps the placeholder.
+
+<ComponentPreview
+  name="editableCellCustomLabel"
+  file="components/preview/editable-cell.tsx"
+/>
+
 ### States
 
 <ComponentPreview

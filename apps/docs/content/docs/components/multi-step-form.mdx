@@ -127,6 +127,18 @@ running `beforeNext` and records the step as `skipped` rather than complete.
   file="components/preview/multi-step-form.tsx"
 />
 
+### Sticky actions
+
+On a long step, pass `sticky` to `MultiStepFormActions` so the refusal and the action row stay at
+the bottom of the scroll area while the step scrolls under them — `sticky="narrow"` pins only
+while the form is narrower than its `@md` container rung, a phone. The row reports `data-stuck`
+while it is actually pinned over content; the focus order does not change.
+
+<ComponentPreview
+  name="multiStepFormSticky"
+  file="components/preview/multi-step-form.tsx"
+/>
+
 ### Inside a dialog
 
 `layout="panel"` is the shape a wizard takes in a `Dialog`, `Sheet` or `Drawer`: the nav

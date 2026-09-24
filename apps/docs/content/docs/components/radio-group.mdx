@@ -163,4 +163,7 @@ focus-visible:ring-ring/50` glow is removed, along with the `aria-invalid` halo 
 - **FRM-15** — `disabled:cursor-not-allowed disabled:opacity-50` become `data-disabled:…`. Base UI
   renders each item as a `<span>`, which `:disabled` never matches, so upstream's radio dimmed only
   inside a disabled `Field`; keyed on the `data-disabled` Base UI sets, it dims everywhere.
+- **API-26** — inside a `Field`, the `RadioGroup` is the control the Field names; each item keeps
+  its own name (Base UI would otherwise hand the Field's label to every item). An item in a
+  `Field` of its own still takes that Field's label.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

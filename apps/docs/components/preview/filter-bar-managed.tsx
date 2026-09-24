@@ -94,8 +94,14 @@ export function filterBarManagedCaps(): ReactNode {
     op: "and",
     children: [
       { type: "condition", field: "stage", operator: "is", value: "Won" },
-      { type: "condition", field: "owner", operator: "is-empty" },
-      { type: "condition", field: "amount", operator: "gt", value: "500" },
+      {
+        type: "group",
+        op: "or",
+        children: [
+          { type: "condition", field: "owner", operator: "is-empty" },
+          { type: "condition", field: "amount", operator: "gt", value: "500" },
+        ],
+      },
     ],
   });
   return (
@@ -106,11 +112,74 @@ export function filterBarManagedCaps(): ReactNode {
           value={tree}
           onValueChange={setTree}
           maxConditions={3}
-          maxDepth={1}
+          maxDepth={2}
         />
         <p className="text-xs text-muted-foreground">
           Both caps reached: the add affordances disable with a readable reason.
         </p>
+      </div>
+    </Wrapper>
+  );
+}
+
+/** DS-28: `maxDepth={1}` is a flat list — no add-group control, and no reason to explain one. */
+export function filterBarManagedOneLevel(): ReactNode {
+  const [tree, setTree] = useState<Group>({
+    type: "group",
+    op: "and",
+    children: [
+      { type: "condition", field: "stage", operator: "is", value: "Won" },
+    ],
+  });
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-xl">
+        <FilterBuilder<string>
+          vocabulary={VOCABULARY}
+          value={tree}
+          onValueChange={setTree}
+          maxDepth={1}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+const SHAPED_VOCABULARY: FilterField<string>[] = [
+  {
+    key: "stage",
+    label: "Stage",
+    type: "text",
+    operators: [
+      { value: "is", label: "is" },
+      { value: "is-not", label: "is not" },
+      { value: "in", label: "is any of", valueShape: "list" },
+      { value: "is-empty", label: "is empty", valueShape: "none" },
+    ],
+  },
+];
+
+/**
+ * DS-28: `valueShape` — switching "is" to "is not" keeps the value (both scalar); switching to
+ * "is any of" (a list) clears it, and "is empty" takes none.
+ */
+export function filterBarManagedValueShapes(): ReactNode {
+  const [tree, setTree] = useState<Group>({
+    type: "group",
+    op: "and",
+    children: [
+      { type: "condition", field: "stage", operator: "is", value: "Won" },
+    ],
+  });
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-xl">
+        <FilterBuilder<string>
+          vocabulary={SHAPED_VOCABULARY}
+          value={tree}
+          onValueChange={setTree}
+          maxDepth={1}
+        />
       </div>
     </Wrapper>
   );

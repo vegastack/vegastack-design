@@ -1,11 +1,11 @@
-// @vegastack searchable-select@0.18.0 sha256-VF45JU+I8p8J0lVf0YmvXYhtO24vrnH7jZjbLbL+XDo=
+// @vegastack searchable-select@0.18.0 sha256-rPOFMiSqox/wl6z8DNWgehTec4O5FOPU+tN58i3rQYg=
 
 "use client";
 
 import * as React from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { ChevronsUpDown, X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import {
   Combobox,
   ComboboxValue,
@@ -94,10 +94,39 @@ export interface SearchableSelectProps<Item> {
    * @default false
    */
   disabled?: boolean;
-  /** `id` forwarded to the trigger for label association.
+  /** `id` forwarded to the trigger for label association. Inside a `Field` it is not needed —
+   * the trigger reads its id, label, description and invalid state from the Field.
    * @default undefined
    */
   id?: string;
+  /**
+   * Submits the selection with a surrounding `<form>` under this name. The submitted value is
+   * the item's `itemToKey`.
+   * @default undefined
+   */
+  name?: string;
+  /**
+   * Requires a selection before the surrounding `<form>` submits.
+   * @default false
+   */
+  required?: boolean;
+  /**
+   * Trigger height: `sm` (28px) is the inline tier shared with `Select size="sm"` and
+   * `DatePicker size="sm"`, for table rows and toolbars.
+   * @default 'default'
+   */
+  size?: "sm" | "default";
+  /**
+   * `ghost` is the inline trigger: content width, no border at rest, the border on hover, on
+   * focus and while the panel is open — the same tier as `Select variant="ghost"`.
+   * @default 'outline'
+   */
+  variant?: "outline" | "ghost";
+  /** Additional classes merged onto the popup panel — e.g. `min-w-64` when an inline trigger is
+   * narrower than its options.
+   * @default undefined
+   */
+  contentClassName?: string;
   /** Open state of the panel (controlled).
    * @default undefined
    */
@@ -107,8 +136,9 @@ export interface SearchableSelectProps<Item> {
    */
   onOpenChange?: (open: boolean) => void;
   /**
-   * Accessible name for the trigger. `role="combobox"` prohibits name-from-content, so the control
-   * always needs one; defaults to the selected item's label, falling back to the placeholder.
+   * Accessible name for the trigger. Inside a `Field` the `FieldLabel` names it. Standalone,
+   * `role="combobox"` prohibits name-from-content, so a trigger with no label falls back to the
+   * selected item's label, then the placeholder.
    * @default undefined
    */
   "aria-label"?: string;
@@ -180,6 +210,11 @@ export function SearchableSelect<Item>({
   clearLabel = "Clear selection",
   disabled = false,
   id,
+  name,
+  required = false,
+  size = "default",
+  variant = "outline",
+  contentClassName,
   open,
   onOpenChange,
   "aria-label": ariaLabel,
@@ -191,15 +226,32 @@ export function SearchableSelect<Item>({
   rootRef,
 }: SearchableSelectProps<Item>) {
   const face = renderValue ?? renderItem;
+  // DS-22: the trigger is named by its label. Inside a `Field`, Base UI's Combobox gives the
+  // trigger `aria-labelledby` (and the description ids and `aria-invalid`), so no fallback name
+  // may be forced on it; only an unlabelled trigger falls back to the value, then the placeholder.
+  const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
+  const triggerRef = React.useMemo(() => mergeRefs(setTrigger, ref), [ref]);
+  const [labelled, setLabelled] = React.useState(false);
+  React.useLayoutEffect(() => {
+    setLabelled(Boolean(trigger?.getAttribute("aria-labelledby")));
+  });
   const triggerLabel =
-    ariaLabel ?? (value ? itemToStringLabel(value) : placeholder);
+    ariaLabel ??
+    (labelled ? undefined : value ? itemToStringLabel(value) : placeholder);
   const showClear = clearable && value != null;
+  const ghost = variant === "ghost";
 
   return (
     <div
       ref={rootRef}
       data-slot={slot}
-      className={cn("relative w-full min-w-0", containerClassName)}
+      data-size={size}
+      data-variant={variant}
+      className={cn(
+        "relative min-w-0",
+        ghost ? "w-fit" : "w-full",
+        containerClassName,
+      )}
     >
       <Combobox
         items={items as Item[]}
@@ -211,10 +263,14 @@ export function SearchableSelect<Item>({
         onOpenChange={onOpenChange}
         autoHighlight
         disabled={disabled}
+        name={name}
+        required={required}
+        // A form posts the item's key, not "[object Object]".
+        itemToStringValue={itemToKey}
       >
         <BaseCombobox.Trigger
           id={id}
-          ref={ref}
+          ref={triggerRef}
           disabled={disabled}
           aria-label={triggerLabel}
           // The styling hook for "nothing selected yet", so a wrapper can tint the trigger from
@@ -223,9 +279,17 @@ export function SearchableSelect<Item>({
           render={
             <Button
               variant="outline"
+              size={size === "sm" ? "sm" : "default"}
               // `pe-9` is the trailing reserve the chevron AND the clear control share, so the
-              // label's box is identical whether or not something is selected.
-              className={cn("w-full justify-start pe-9 font-normal", className)}
+              // label's box is identical whether or not something is selected. The `sm` tier
+              // keeps the 14px text of `Select size="sm"`, so an inline row reads as one type.
+              className={cn(
+                "w-full justify-start pe-9 font-normal",
+                size === "sm" && "text-sm",
+                ghost &&
+                  "border-transparent bg-transparent shadow-none hover:border-input focus:border-ring/70 aria-expanded:border-input dark:bg-transparent",
+                className,
+              )}
               data-slot={`${slot}-trigger`}
             />
           }
@@ -242,7 +306,10 @@ export function SearchableSelect<Item>({
             }
           </ComboboxValue>
         </BaseCombobox.Trigger>
-        <ComboboxContent align="start" className="w-(--anchor-width) p-0">
+        <ComboboxContent
+          align="start"
+          className={cn("w-(--anchor-width) p-0", contentClassName)}
+        >
           <ComboboxInput
             showTrigger={false}
             aria-label={searchLabel}
@@ -270,7 +337,12 @@ export function SearchableSelect<Item>({
           disabled={disabled}
           data-slot={`${slot}-clear`}
           className="absolute end-1.5 top-1/2 -translate-y-1/2"
-          onClick={() => onValueChange?.(null)}
+          onClick={() => {
+            // DS-22: this control unmounts the moment the value clears, which would drop focus
+            // to <body>; hand it to the trigger first. No announcement — the change is visible.
+            trigger?.focus();
+            onValueChange?.(null);
+          }}
         >
           <X />
         </Button>

@@ -1,10 +1,10 @@
-// @vegastack multi-step-form@0.18.0 sha256-O7ljtGartCu8cGMfy2+5Qo24JLJ0M4XBq2mEmlyVIDY=
+// @vegastack multi-step-form@0.18.0 sha256-aOoIzTQcXxVYUOjHyqUat23XL/j5JCr55y1f3PuXWEk=
 
 "use client";
 
 import * as React from "react";
 import { ChevronRight, ChevronLeft, CircleAlert } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 
 import {
   Stepper,
@@ -1216,23 +1216,88 @@ export function MultiStepFormExit({
   );
 }
 
+/** Props accepted by `MultiStepFormActions`. */
+export interface MultiStepFormActionsProps extends React.ComponentPropsWithRef<"div"> {
+  /**
+   * Keep the refusal and the action row in view at the bottom of the scroll area while a long
+   * step scrolls under them. `"narrow"` does so only while the form is narrower than its `@md`
+   * container rung — a phone — and leaves the row in the flow on a wide screen. The row reports
+   * `data-stuck` while it is actually pinned over content.
+   * @default false
+   */
+  sticky?: boolean | "narrow";
+}
+
 /**
  * `MultiStepFormActions` — the refusal, then the action row: back at the far start, forward
  * at the far end, with skip beside forward on an optional step. Pass children to compose the
- * row yourself; the refusal is rendered either way.
+ * row yourself; the refusal is rendered either way. `sticky` pins both to the bottom of the
+ * scroll area on a long step.
  *
  * @example
  * <MultiStepFormActions />
+ *
+ * @example
+ * // A long step on a phone: the actions stay in reach
+ * <MultiStepFormActions sticky="narrow" />
  */
 export function MultiStepFormActions({
   className,
   children,
+  sticky = false,
   ref,
   ...props
-}: React.ComponentPropsWithRef<"div">) {
+}: MultiStepFormActionsProps) {
   const { refusal, refusalId, overview, labels, complete, layout } =
     useMultiStepFormContext("MultiStepFormActions");
   const hold = layout === "panel" ? "shrink-0" : undefined;
+  // DS-23: `data-stuck` — the row is pinned over content: it is `position: sticky` right now
+  // (`"narrow"` is not on a wide form), it sits on its scroll area's bottom edge, and there is
+  // still content below to scroll to. Resting at the end of the step, it is not stuck. The scroll
+  // area is the nearest scrolling ancestor (a dialog body, a panel), else the page.
+  const [node, setNode] = React.useState<HTMLDivElement | null>(null);
+  const setMergedRef = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
+  const [stuck, setStuck] = React.useState(false);
+  React.useEffect(() => {
+    if (!sticky || !node) return;
+    let root: HTMLElement | null = node.parentElement;
+    while (root && !/(auto|scroll)/.test(getComputedStyle(root).overflowY)) {
+      root = root.parentElement;
+    }
+    const scroller: HTMLElement = root ?? document.documentElement;
+    const target: HTMLElement | Window = root ?? window;
+    const update = () => {
+      if (getComputedStyle(node).position !== "sticky") {
+        setStuck(false);
+        return;
+      }
+      const edge = root
+        ? root.getBoundingClientRect().top +
+          root.clientTop +
+          root.clientHeight -
+          parseFloat(getComputedStyle(root).paddingBottom)
+        : window.innerHeight;
+      const remaining =
+        scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
+      setStuck(
+        node.getBoundingClientRect().bottom >= edge - 1 && remaining > 1,
+      );
+    };
+    update();
+    target.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      target.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      setStuck(false);
+    };
+  }, [sticky, node]);
+  const stickyClasses =
+    sticky === true
+      ? "sticky bottom-0 z-10 bg-background pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))]"
+      : sticky === "narrow"
+        ? "@max-md/multi-step-form:sticky @max-md/multi-step-form:bottom-0 @max-md/multi-step-form:z-10 @max-md/multi-step-form:bg-background @max-md/multi-step-form:pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))]"
+        : undefined;
   if (overview) {
     // The section list IS the screen for a record being edited, so it carries the one action
     // that belongs to the whole record rather than to any step in it.
@@ -1252,9 +1317,16 @@ export function MultiStepFormActions({
   }
   return (
     <div
-      ref={ref}
+      ref={setMergedRef}
       data-slot="multi-step-form-actions"
-      className={cn("flex min-w-0 flex-col gap-3", hold, className)}
+      data-sticky={sticky === false ? undefined : String(sticky)}
+      data-stuck={sticky && stuck ? "" : undefined}
+      className={cn(
+        "flex min-w-0 flex-col gap-3",
+        hold,
+        stickyClasses,
+        className,
+      )}
       {...props}
     >
       {refusal?.tone === "error" ? (

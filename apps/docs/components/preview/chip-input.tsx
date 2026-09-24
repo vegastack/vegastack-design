@@ -4,6 +4,12 @@ import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/chip-input` (dogfoods the registry) → auto-scanned.
 import { ChipInput } from "@/components/ui/chip-input";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 
 export function chipInput(): ReactNode {
   const [tags, setTags] = useState<string[]>(["design", "tokens"]);
@@ -64,6 +70,48 @@ export function chipInputStates(): ReactNode {
         />
         <ChipInput aria-label="Disabled" defaultValue={["locked"]} disabled />
       </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-21: inside a `Field` the inner input is labelled by `FieldLabel` (a click on it focuses the
+ * input), described by the rendered description and error, and posts every chip under `name`.
+ */
+export function chipInputInsideField(): ReactNode {
+  const [synonyms, setSynonyms] = useState<string[]>(["sofa"]);
+  return (
+    <Wrapper className="block">
+      <Field
+        data-invalid={synonyms.length < 2}
+        className="mx-auto w-full max-w-sm"
+      >
+        <FieldLabel>Synonyms</FieldLabel>
+        <ChipInput
+          name="synonyms"
+          value={synonyms}
+          onValueChange={setSynonyms}
+          placeholder="Add a synonym…"
+        />
+        <FieldDescription>Search matches any of these words.</FieldDescription>
+        <FieldError>
+          {synonyms.length < 2 ? "Add at least two synonyms." : null}
+        </FieldError>
+      </Field>
+    </Wrapper>
+  );
+}
+
+/** DS-21: `max` refuses entries past the cap and announces "Up to 3 entries". */
+export function chipInputMax(): ReactNode {
+  const [tags, setTags] = useState<string[]>(["red", "green", "blue"]);
+  return (
+    <Wrapper className="block">
+      <Field className="mx-auto w-full max-w-sm">
+        <FieldLabel>Colours</FieldLabel>
+        <ChipInput max={3} value={tags} onValueChange={setTags} />
+        <FieldDescription>Up to 3 colours.</FieldDescription>
+      </Field>
     </Wrapper>
   );
 }

@@ -3,6 +3,7 @@
 import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/editable-cell` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
 import { EditableCell } from "@/components/ui/editable-cell";
 
 function fakeSave(shouldFail = false): Promise<void> {
@@ -144,6 +145,50 @@ export function editableCellHeading(): ReactNode {
           }}
         />
       </h2>
+    </Wrapper>
+  );
+}
+
+const PEOPLE: Record<string, string> = {
+  u_7: "Asha Rao",
+  u_9: "Kiran Mehta",
+};
+
+/**
+ * DS-18: a custom editor whose value is an id. `renderValue` shows the person's name while
+ * displaying; the editor still works on the id.
+ */
+export function editableCellCustomLabel(): ReactNode {
+  const [owner, setOwner] = useState("u_7");
+  return (
+    <Wrapper>
+      <EditableCell
+        value={owner}
+        label="Owner"
+        onCommit={setOwner}
+        renderValue={(id) => PEOPLE[id] ?? id}
+        editor={{
+          type: "custom",
+          render: ({ value, commit, cancel }) => (
+            <span className="flex gap-1">
+              {Object.entries(PEOPLE).map(([id, name]) => (
+                <Button
+                  key={id}
+                  size="sm"
+                  variant={id === value ? "secondary" : "outline"}
+                  aria-pressed={id === value}
+                  onClick={() => commit(id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") cancel();
+                  }}
+                >
+                  {name}
+                </Button>
+              ))}
+            </span>
+          ),
+        }}
+      />
     </Wrapper>
   );
 }

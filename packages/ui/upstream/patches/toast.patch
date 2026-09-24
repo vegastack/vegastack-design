@@ -1,5 +1,5 @@
 # component: toast
-# decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15
+# decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15, OVL-17
 # hunks:
 #   FOC-1, FOC-6: the toast root's `outline-none focus-visible:border-ring
 #     focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outline-none` lets
@@ -42,6 +42,12 @@
 #     `Loader2Icon`, which is an alias of `LoaderCircle`. One loader shape across the system —
 #     `Spinner`, this icon, Sonner's and `StatusIcon`'s `progress` are the same object spinning.
 #     `animate-spin` and `aria-hidden` are upstream's.
+#   OVL-17: one toast store. `ToastProvider` marks its subtree with a `ToastProviderScope`
+#     context, and `Toaster` given the module `toast` manager renders ONLY its viewport under an
+#     existing provider instead of mounting a second one — so under `VegaStackProvider` (which
+#     mounts `ToastProvider toastManager={toast}`), `toast()` and `useToastManager()` write to the
+#     store the viewport renders, and there is one `[data-slot="toast-viewport"]`. A Toaster given
+#     its own manager still brings its own provider.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   COL-23: `ToastDescription` gains `first:text-popover-foreground`. Base UI renders
 #     `Toast.Title` as `null` when a toast carries no title (`toast/utils/useToastLabelPart.js`,
@@ -85,10 +91,10 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..abbcd8d 100644
+index 325d01b..8c66287 100644
 --- a/toast.tsx
 +++ b/toast.tsx
-@@ -1,60 +1,234 @@
+@@ -1,60 +1,245 @@
 -"use client"
 +"use client";
  
@@ -115,7 +121,9 @@ index 325d01b..abbcd8d 100644
  
 -const toast = ToastPrimitive.createToastManager()
 +const toast = ToastPrimitive.createToastManager();
-+
+ 
+-function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
+-  return <ToastPrimitive.Provider {...props} />
 +// A11Y-9: what is hidden from assistive technology must not be reachable by keyboard. Base UI keeps
 +// a `priority: "high"` toast `aria-hidden` for as long as the viewport is unfocused — it announces a
 +// visually hidden `role="alert"` clone instead — while leaving the visible root and its buttons in
@@ -232,10 +240,20 @@ index 325d01b..abbcd8d 100644
 +type ToastCustomData = {
 +  render?: (toast: ToastPrimitive.Root.ToastObject) => React.ReactNode;
 +};
- 
- function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
--  return <ToastPrimitive.Provider {...props} />
-+  return <ToastPrimitive.Provider {...props} />;
++
++// OVL-17: whether a `ToastProvider` is already mounted above. `Toaster` reuses it rather than
++// mounting a second provider, so `toast()` and `useToastManager()` write to the one store the
++// viewport renders.
++const ToastProviderScope = React.createContext(false);
++
++function ToastProvider({ children, ...props }: ToastPrimitive.Provider.Props) {
++  return (
++    <ToastPrimitive.Provider {...props}>
++      <ToastProviderScope.Provider value>
++        {children}
++      </ToastProviderScope.Provider>
++    </ToastPrimitive.Provider>
++  );
  }
  
 -function ToastPortal({ ...props }: ToastPrimitive.Portal.Props) {
@@ -265,11 +283,13 @@ index 325d01b..abbcd8d 100644
 -      )}
 +      data-position={position ?? "bottom-end"}
 +      className={cn(toastViewportVariants({ position }), className)}
-+      {...props}
-+    />
+       {...props}
+     />
+-  )
 +  );
-+}
-+
+ }
+ 
+-function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
 +/**
 + * OVL-15: `ToastPositioner` — the anchored-toast wrapper. Base UI can position a toast against an
 + * element instead of stacking it in the corner; pass `positionerProps` on the `add()` call and
@@ -296,13 +316,11 @@ index 325d01b..abbcd8d 100644
 +    <ToastPrimitive.Arrow
 +      data-slot="toast-arrow"
 +      className={cn("text-current", className)}
-       {...props}
-     />
--  )
++      {...props}
++    />
 +  );
- }
- 
--function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
++}
++
 +function Toast({
 +  className,
 +  render,
@@ -359,7 +377,7 @@ index 325d01b..abbcd8d 100644
  }
  
  function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
-@@ -63,11 +237,11 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+@@ -63,11 +248,11 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
        data-slot="toast-content"
        className={cn(
          "flex h-full items-center gap-3 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
@@ -373,7 +391,7 @@ index 325d01b..abbcd8d 100644
  }
  
  function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
-@@ -77,7 +251,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+@@ -77,7 +262,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
        className={cn("text-sm font-medium", className)}
        {...props}
      />
@@ -382,7 +400,7 @@ index 325d01b..abbcd8d 100644
  }
  
  function ToastDescription({
-@@ -87,10 +261,16 @@ function ToastDescription({
+@@ -87,10 +272,16 @@ function ToastDescription({
    return (
      <ToastPrimitive.Description
        data-slot="toast-description"
@@ -401,7 +419,7 @@ index 325d01b..abbcd8d 100644
  }
  
  function ToastAction({
-@@ -98,14 +278,18 @@ function ToastAction({
+@@ -98,14 +289,18 @@ function ToastAction({
    render = <Button variant="outline" size="sm" />,
    ...props
  }: ToastPrimitive.Action.Props) {
@@ -421,7 +439,7 @@ index 325d01b..abbcd8d 100644
  }
  
  function ToastClose({
-@@ -114,59 +298,55 @@ function ToastClose({
+@@ -114,59 +309,55 @@ function ToastClose({
    render = <Button variant="ghost" size="icon-sm" />,
    ...props
  }: ToastPrimitive.Close.Props) {
@@ -497,7 +515,7 @@ index 325d01b..abbcd8d 100644
    }
  
    return (
-@@ -176,59 +356,102 @@ function ToastIcon({ type }: { type: string | undefined }) {
+@@ -176,59 +367,117 @@ function ToastIcon({ type }: { type: string | undefined }) {
      >
        {icon}
      </span>
@@ -584,17 +602,35 @@ index 325d01b..abbcd8d 100644
 +  const swipe: ToastPrimitive.Root.Props["swipeDirection"] =
 +    swipeDirection ??
 +    (anchor === "top" ? ["up", "left", "right"] : ["down", "left", "right"]);
++  const insideProvider = React.useContext(ToastProviderScope);
 +
++  const viewport = (
++    <ToastPortal>
++      <ToastViewport position={position}>
++        <ToastList anchor={anchor} swipeDirection={swipe} />
++      </ToastViewport>
++    </ToastPortal>
++  );
++  // OVL-17: under an existing provider (VegaStackProvider mounts one with the module `toast`
++  // manager) the Toaster renders only its viewport, into that provider's one store. A Toaster
++  // given its own manager still brings its own provider.
++  if (insideProvider && toastManager === toast) {
++    return (
++      <>
++        {children}
++        {viewport}
++      </>
++    );
++  }
    return (
      <ToastProvider toastManager={toastManager} {...props}>
        {children}
-       <ToastPortal>
+-      <ToastPortal>
 -        <ToastViewport>
 -          <ToastList />
-+        <ToastViewport position={position}>
-+          <ToastList anchor={anchor} swipeDirection={swipe} />
-         </ToastViewport>
-       </ToastPortal>
+-        </ToastViewport>
+-      </ToastPortal>
++      {viewport}
      </ToastProvider>
 -  )
 +  );

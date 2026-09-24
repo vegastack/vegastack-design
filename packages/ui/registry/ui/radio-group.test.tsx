@@ -320,9 +320,42 @@ fieldWiringTests({
   ),
   find: (screen, name) => screen.getByRole("radiogroup", { name }),
   idCheck: "control",
-  // A RadioGroup placed directly in a labelled Field hands the Field's label to every radio item
-  // too (Base UI's labelable context reaches the items). Upstream's own pattern gives each item
-  // its own Field and FieldLabel, where the nearest Field names each item correctly. The
-  // group-in-a-Field case is a follow-up, not this check.
-  labelledCount: null,
+});
+
+test("API-26: a RadioGroup in a Field is named by the Field; each item keeps its own name", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Plan</FieldLabel>
+      <RadioGroup defaultValue="free">
+        <RadioGroupItem value="free" aria-label="Free" />
+        <RadioGroupItem value="pro" aria-label="Pro" />
+      </RadioGroup>
+    </Field>,
+  );
+  await expect
+    .element(screen.getByRole("radiogroup", { name: "Plan" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("radio", { name: "Free" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("radio", { name: "Pro" }))
+    .toBeInTheDocument();
+  for (const radio of screen.container.querySelectorAll('[role="radio"]')) {
+    expect(radio.hasAttribute("aria-labelledby")).toBe(false);
+  }
+});
+
+test("API-26: an item in its own Field still takes that Field's label", async () => {
+  const screen = await render(
+    <RadioGroup defaultValue="k8s" aria-label="Environment">
+      <Field orientation="horizontal">
+        <RadioGroupItem value="k8s" />
+        <FieldLabel>Kubernetes</FieldLabel>
+      </Field>
+    </RadioGroup>,
+  );
+  await expect
+    .element(screen.getByRole("radio", { name: "Kubernetes" }))
+    .toBeInTheDocument();
 });

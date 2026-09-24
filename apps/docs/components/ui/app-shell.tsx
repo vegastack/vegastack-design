@@ -1,8 +1,9 @@
-// @vegastack app-shell@0.18.0 sha256-LP0rO8R1XZs23wC021+NNOzmadW93sPO2ZePNZzYj+g=
+// @vegastack app-shell@0.18.0 sha256-vvKTD9sYeTvMerdmHIVkfKd97qOojgip1YhU0x+KZ14=
 
 "use client";
 
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 import {
   Sidebar,
@@ -357,6 +358,73 @@ export function AppShellContent({
 }
 
 /**
+ * The page container's measure: `narrow` (`max-w-3xl`, 768px) for forms and settings, `default`
+ * (`max-w-7xl`, 1280px) for lists and dashboards, `full` (no max) for boards and split views that
+ * use the whole content region. The gutters are the page-rhythm recipe on the stock scale —
+ * `px-4 py-6`, `md:px-8 md:py-8` — and `gap-6` separates the page's direct children (the
+ * PageHeader, then each section).
+ */
+export const appShellPageVariants = cva(
+  "mx-auto flex w-full min-w-0 flex-1 flex-col gap-6 px-4 py-6 md:px-8 md:py-8",
+  {
+    variants: {
+      size: {
+        narrow: "max-w-3xl",
+        default: "max-w-7xl",
+        // A bounded page (a board, a split view) fills the height the content region gives it.
+        full: "min-h-0",
+      },
+    },
+    defaultVariants: { size: "default" },
+  },
+);
+
+/** Props accepted by `AppShellPage`. */
+export interface AppShellPageProps
+  extends
+    React.ComponentProps<"div">,
+    VariantProps<typeof appShellPageVariants> {
+  /**
+   * The page's measure — `narrow` (768px) for forms and settings, `default` (1280px) for lists
+   * and dashboards, `full` (no max width, fills the height) for boards and split views.
+   * @default 'default'
+   */
+  size?: "narrow" | "default" | "full";
+}
+
+/**
+ * `AppShellPage` — the one page container inside `AppShellContent`: a centred column with the
+ * system's page gutters and a `gap-6` rhythm between its children, capped at the measure `size`
+ * picks. Put the `PageHeader` and the page's sections inside it, and nothing else decides a
+ * page's width or gutters.
+ *
+ * It renders a plain `<div>` — `AppShellContent` is already the `main` landmark — and never
+ * scrolls sideways: `min-w-0` lets a long unbroken child shrink inside the column.
+ *
+ * @example
+ * <AppShellContent>
+ *   <AppShellPage size="narrow">
+ *     <PageHeader title="Profile" />
+ *     <ProfileForm />
+ *   </AppShellPage>
+ * </AppShellContent>
+ */
+export function AppShellPage({
+  size = "default",
+  className,
+  ...props
+}: AppShellPageProps) {
+  return (
+    <div
+      data-slot="app-shell-page"
+      data-size={size}
+      className={cn(appShellPageVariants({ size }), className)}
+      {...props}
+    />
+  );
+}
+
+/**
  * Nav-row widths for `AppShellSkeleton`, cycled by index — the same 50–90% band upstream's
  * `SidebarMenuSkeleton` draws from, without its per-mount `Math.random()`.
  */
@@ -441,7 +509,8 @@ export function AppShellSkeleton({
           <Skeleton className="rounded-full size-4" />
           <Skeleton className="h-4 w-32" />
         </div>
-        <div className="@container/app-shell-content flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
+        {/* The same gutters as `AppShellPage`, so the loaded page does not jump. */}
+        <div className="@container/app-shell-content flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
           <div
             data-slot="app-shell-skeleton-stats"
             className="grid grid-cols-1 gap-4 @sm/app-shell-content:grid-cols-2 @lg/app-shell-content:grid-cols-4"

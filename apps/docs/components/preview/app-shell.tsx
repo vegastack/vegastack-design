@@ -8,9 +8,11 @@ import {
   AppShell,
   AppShellContent,
   AppShellHeader,
+  AppShellPage,
   AppShellSidebar,
   AppShellSkeleton,
 } from "@/components/ui/app-shell";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   SidebarContent,
   SidebarFooter,
@@ -286,6 +288,33 @@ export function appShellSkeletonDemo(): ReactNode {
   return (
     <Wrapper className="block h-88 overflow-hidden p-0">
       <AppShellSkeleton navItemCount={5} statCardCount={4} className="h-full" />
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-19: `AppShellPage` is the one page container inside the content region — the page gutters,
+ * a `gap-6` rhythm between the header and each section, and the `size` measure (`narrow` here,
+ * for a settings form).
+ */
+export function appShellPage(): ReactNode {
+  return (
+    <Wrapper className="block h-104 overflow-hidden bg-muted p-0">
+      <AppShellContent landmark="region" aria-label="Page content">
+        <AppShellPage size="narrow">
+          <PageHeader
+            title="Profile"
+            description="How your name and photo appear to your team."
+          />
+          <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+            <h2 className="text-sm font-medium">Display name</h2>
+            <p className="text-sm text-muted-foreground">
+              A narrow page caps its measure at 768px and keeps the same gutters
+              as every other page.
+            </p>
+          </section>
+        </AppShellPage>
+      </AppShellContent>
     </Wrapper>
   );
 }

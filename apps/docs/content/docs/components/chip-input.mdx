@@ -55,6 +55,28 @@ are fixed or removed.
   file="components/preview/chip-input.tsx"
 />
 
+### Inside a Field
+
+Inside a [`Field`](/docs/components/field) the inner input is labelled by `FieldLabel` — a click on
+the label focuses it — described by the rendered `FieldDescription` and `FieldError`, and marked
+invalid by the Field or by an invalid chip. `name` submits every chip with a form, one value per
+chip.
+
+<ComponentPreview
+  name="chipInputInsideField"
+  file="components/preview/chip-input.tsx"
+/>
+
+### Maximum entries
+
+`max` caps the number of chips. An entry past the cap is not added, stays in the input, and the
+reason is announced — "Up to 3 entries" by default, or your own copy from `maxLabel`.
+
+<ComponentPreview
+  name="chipInputMax"
+  file="components/preview/chip-input.tsx"
+/>
+
 ### States
 
 <ComponentPreview

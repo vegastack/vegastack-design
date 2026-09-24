@@ -1,8 +1,9 @@
-// @vegastack page-header@0.18.0 sha256-xBEyu64L7nMza7Y5yDI8hryym/T2szA40VSfV25XMZQ=
+// @vegastack page-header@0.18.0 sha256-x1fdbQancSHygEYW8tWbRghkoW+H+YEDv8NonBpesYA=
 
 "use client";
 
 import * as React from "react";
+import { useRender } from "@base-ui/react/use-render";
 import { ChevronLeft, Star } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -74,6 +75,16 @@ export interface PageHeaderProps extends Omit<
    */
   backHref?: string;
   /**
+   * Renders the back link through your framework's link element — pass an element such as
+   * `<Link href="/products" />` (Next.js) and it receives the back affordance's classes,
+   * `aria-label`, `data-slot` and chevron, so navigation stays client-side instead of a full
+   * page load. `backHref` is the shorthand for `backRender={<a href={backHref} />}`. Ignored when
+   * `onBack` is set; wins over `backHref`.
+
+   * @default undefined
+   */
+  backRender?: React.ReactElement;
+  /**
    * Renders a back button (`ChevronLeft`) before the title that calls this
    * handler. Use for app-local imperative behavior, such as closing a picker
    * or returning to the previous in-app state. Prefer `backHref` for URL-backed
@@ -87,6 +98,21 @@ export interface PageHeaderProps extends Omit<
    * @default 'Go back'
    */
   backLabel?: string;
+  /**
+   * How many lines the title may take before it clips with an ellipsis (the full title then
+   * shows in a Tooltip). `"none"` lets a long title wrap freely, with no truncation at all —
+   * for record pages whose name is the content.
+   * @default 1
+   */
+  titleLines?: number | "none";
+  /**
+   * Metadata under the title — status badges, owners, dates, or inline pickers. Unlike
+   * `description` (a `<p>`), this is a `<div>` row, so it can hold buttons, selects and other
+   * interactive controls without invalid HTML. Muted, `text-sm`, wrapping.
+
+   * @default undefined
+   */
+  meta?: React.ReactNode;
   /**
    * Right-aligned action slot — typically one or more `Button`s. Rendered on the
    * title row, opposite the title block.
@@ -177,6 +203,16 @@ function FavoriteStar({
  * <PageHeader title="Profile" />
  *
  * @example
+ * // A framework back link, a wrapping title and a metadata row with a picker
+ * <PageHeader
+ *   backRender={<Link href="/products" />}
+ *   backLabel="Back to products"
+ *   title={product.name}
+ *   titleLines="none"
+ *   meta={<><StatusBadge status="active" /><Select>…</Select></>}
+ * />
+ *
+ * @example
  * // With breadcrumb, back button, actions, and a favorite star
  * <PageHeader
  *   breadcrumb={<Breadcrumb>…</Breadcrumb>}
@@ -192,8 +228,11 @@ export function PageHeader({
   description,
   breadcrumb,
   backHref,
+  backRender,
   onBack,
   backLabel = "Go back",
+  titleLines = 1,
+  meta,
   actions,
   secondaryMenu,
   favorite,
@@ -201,8 +240,25 @@ export function PageHeader({
   children,
   ...props
 }: PageHeaderProps) {
-  const hasBack = Boolean(onBack || backHref);
+  const hasBack = Boolean(onBack || backRender || backHref);
   const hasRight = Boolean(actions || secondaryMenu);
+  // The link form of the back affordance. It is NAVIGATION, so it stays a real link wearing the
+  // button's classes — routing a link through `Button` would put `role="button"` on it.
+  // `backRender` lets the host pass its framework link (client-side navigation); `backHref` is
+  // the plain-anchor shorthand. `buttonVariants({ size: "icon-sm" })` is the same square the
+  // button form renders, so every back affordance is pixel-identical.
+  const backLink = useRender({
+    render: backRender ?? <a href={backHref} />,
+    props: {
+      "aria-label": backLabel,
+      "data-slot": "page-header-back",
+      className: cn(
+        buttonVariants({ variant: "ghost", size: "icon-sm" }),
+        "-ms-2 shrink-0",
+      ),
+      children: <ChevronLeft aria-hidden />,
+    },
+  });
 
   return (
     <header
@@ -236,32 +292,25 @@ export function PageHeader({
                 <ChevronLeft />
               </Button>
             ) : null}
-            {hasBack && !onBack && backHref ? (
-              // The href form is NAVIGATION, so it stays a real `<a>` wearing the button's
-              // classes — routing an anchor through `Button` would put `role="button"` on a
-              // link. `buttonVariants({ size: "icon-sm" })` is the same square the button form
-              // renders, so the two back affordances are pixel-identical.
-              <a
-                href={backHref}
-                aria-label={backLabel}
-                data-slot="page-header-back"
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                  "-ms-2 shrink-0",
-                )}
-              >
-                <ChevronLeft aria-hidden />
-              </a>
-            ) : null}
+            {hasBack && !onBack ? backLink : null}
             {/* min-w-0 lets the h1 shrink below its content width inside the flex row above —
                 without it, the flex item's default `min-width: auto` would stop TruncatedText's
                 inner span from ever measuring an overflow. TruncatedText owns the actual
                 truncate/line-clamp class; the h1 stays the accessible heading. */}
             <h1
               data-slot="page-header-title"
-              className="min-w-0 text-2xl font-semibold text-foreground"
+              data-title-lines={titleLines}
+              className={cn(
+                "min-w-0 font-heading text-2xl font-semibold text-foreground",
+                // A wrapping title still never pushes the page sideways: an unbroken token breaks.
+                titleLines === "none" && "wrap-break-word",
+              )}
             >
-              <TruncatedText>{title}</TruncatedText>
+              {titleLines === "none" ? (
+                title
+              ) : (
+                <TruncatedText lines={titleLines}>{title}</TruncatedText>
+              )}
             </h1>
             {favorite ? <FavoriteStar {...favorite} /> : null}
           </div>
@@ -272,6 +321,14 @@ export function PageHeader({
             >
               {description}
             </p>
+          ) : null}
+          {meta ? (
+            <div
+              data-slot="page-header-meta"
+              className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
+            >
+              {meta}
+            </div>
           ) : null}
         </div>
 

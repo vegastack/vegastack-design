@@ -135,8 +135,19 @@ type ToastCustomData = {
   render?: (toast: ToastPrimitive.Root.ToastObject) => React.ReactNode;
 };
 
-function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
-  return <ToastPrimitive.Provider {...props} />;
+// OVL-17: whether a `ToastProvider` is already mounted above. `Toaster` reuses it rather than
+// mounting a second provider, so `toast()` and `useToastManager()` write to the one store the
+// viewport renders.
+const ToastProviderScope = React.createContext(false);
+
+function ToastProvider({ children, ...props }: ToastPrimitive.Provider.Props) {
+  return (
+    <ToastPrimitive.Provider {...props}>
+      <ToastProviderScope.Provider value>
+        {children}
+      </ToastProviderScope.Provider>
+    </ToastPrimitive.Provider>
+  );
 }
 
 function ToastPortal({ children, ...props }: ToastPrimitive.Portal.Props) {
@@ -421,15 +432,30 @@ function Toaster({
   const swipe: ToastPrimitive.Root.Props["swipeDirection"] =
     swipeDirection ??
     (anchor === "top" ? ["up", "left", "right"] : ["down", "left", "right"]);
+  const insideProvider = React.useContext(ToastProviderScope);
 
+  const viewport = (
+    <ToastPortal>
+      <ToastViewport position={position}>
+        <ToastList anchor={anchor} swipeDirection={swipe} />
+      </ToastViewport>
+    </ToastPortal>
+  );
+  // OVL-17: under an existing provider (VegaStackProvider mounts one with the module `toast`
+  // manager) the Toaster renders only its viewport, into that provider's one store. A Toaster
+  // given its own manager still brings its own provider.
+  if (insideProvider && toastManager === toast) {
+    return (
+      <>
+        {children}
+        {viewport}
+      </>
+    );
+  }
   return (
     <ToastProvider toastManager={toastManager} {...props}>
       {children}
-      <ToastPortal>
-        <ToastViewport position={position}>
-          <ToastList anchor={anchor} swipeDirection={swipe} />
-        </ToastViewport>
-      </ToastPortal>
+      {viewport}
     </ToastProvider>
   );
 }

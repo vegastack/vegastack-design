@@ -61,7 +61,7 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
   `PageHeader` sits at the top of the page — not nested inside `<article>` / `<aside>` /
   `<main>` / `<nav>` / `<section>`.
 - `page-header-breadcrumb` — wraps the breadcrumb node above the title row. Omitted when no `breadcrumb`.
-- `page-header-back` — the back affordance (`<a>` with a `ChevronLeft` when `backHref` is set, a button when `onBack` is set). Omitted when neither is set.
+- `page-header-back` — the back affordance: the `backRender` element (your framework link) or an `<a>` when `backHref` is set, each with a `ChevronLeft`; a button when `onBack` is set. Omitted when none is set.
 - `page-header-title` — the page `<h1>`. The title text itself routes through `TruncatedText`
   (`data-slot="truncated-text"`, nested inside the `<h1>`), so an overlong tenant/workspace title
   clips with an ellipsis instead of overflowing the header row, and reveals in full via a tooltip
@@ -69,6 +69,7 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
   never replaces it.
 - `page-header-favorite` — the star toggle. Sets `aria-pressed` and `data-active`. Omitted when no `favorite`.
 - `page-header-description` — the muted description under the title. Omitted when no `description`.
+- `page-header-meta` — the muted metadata row under the description, a `<div>` that can hold controls. Omitted when no `meta`.
 - `page-header-actions` — the right-aligned slot holding `actions` then `secondaryMenu`. Omitted when both are empty.
 
 ## Examples
@@ -117,6 +118,28 @@ real `<button>`:
 <PageHeader title="Select plan" onBack={() => closePlanPicker()} />
 ```
 
+### Framework link for back
+
+`backHref` renders a plain `<a>`, which reloads the page in a client-routed app. Pass your router's
+link element as `backRender` instead — it receives the back affordance's classes, `aria-label`,
+`data-slot` and chevron, and navigates client-side. `backRender` wins over `backHref`; `onBack`
+wins over both.
+
+<ComponentPreview
+  name="pageHeaderBackRender"
+  file="components/preview/page-header.tsx"
+/>
+
+```tsx
+import Link from "next/link";
+
+<PageHeader
+  backRender={<Link href="/products" />}
+  backLabel="Back to products"
+  title={product.name}
+/>;
+```
+
 ### Long title
 
 An overlong tenant or workspace title truncates with an ellipsis instead of overflowing the
@@ -131,6 +154,27 @@ disclosure on devices that can't hover (see `TruncatedText`):
 ```tsx
 <PageHeader title="Q3 Platform Reliability & Performance Engineering Initiative Retrospective" />
 ```
+
+### Wrapping title
+
+`titleLines` sets how many lines the title may take before it clips — `2` clamps to two lines —
+and `"none"` lets it wrap freely with no truncation, for record pages whose name is the content.
+An unbroken token still breaks rather than pushing the page sideways.
+
+<ComponentPreview
+  name="pageHeaderWrappingTitle"
+  file="components/preview/page-header.tsx"
+/>
+
+### Metadata with controls
+
+`description` is a paragraph, so a button or select inside it is invalid HTML. Put status badges,
+owners, dates and inline pickers in `meta` instead: a muted, wrapping `<div>` row under the title.
+
+<ComponentPreview
+  name="pageHeaderMeta"
+  file="components/preview/page-header.tsx"
+/>
 
 ### Favorite star
 
@@ -215,11 +259,11 @@ must be placed elsewhere.
 - The root renders `<header>`, a banner landmark when `PageHeader` sits at the top of the page
   (outside `<article>`/`<aside>`/`<main>`/`<nav>`/`<section>`), so assistive tech can jump straight
   to it.
-- The title renders as a single `<h1>` — one per page — so assistive tech announces the page's
-  primary heading. Pass the breadcrumb as a labelled `<nav aria-label="breadcrumb">`.
+- The title renders as a single `<h1>` in the page-heading face (`font-heading text-2xl
+font-semibold`) — one per page — so assistive tech announces the page's primary heading. Pass the breadcrumb as a labelled `<nav aria-label="breadcrumb">`.
 - An overlong title is keyboard-focusable when clipped (`TruncatedText`'s overflow measurement),
   so the full title is reachable via `Tab` and a focus-triggered tooltip — not hover-only.
-- The back affordance is a real link (`backHref`) or button (`onBack`) with an accessible
+- The back affordance is a real link (`backRender` or `backHref`) or button (`onBack`) with an accessible
   `backLabel` (default `"Go back"`), and shows a visible `:focus-visible` ring.
 - The favorite star is a toggle button: it carries `aria-pressed` reflecting the starred state and a
   `label` (default `"Favorite"`); the visual fill is decorative.
@@ -236,6 +280,6 @@ must be placed elsewhere.
 ## Do / Don't
 
 <DoDont
-  do="Keep one PageHeader (one h1) per page, use backHref for routing, and reserve onBack for app-local behavior."
+  do="Keep one PageHeader (one h1) per page, pass your router's Link as backRender, and reserve onBack for app-local behavior."
   dont="Stack multiple PageHeaders or nest an h1 inside another heading — and don't hardcode navigation inside the header."
 />

@@ -4,6 +4,7 @@ import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { ChipInput } from "./chip-input";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 function chipTexts(): string[] {
   // Visible chip text only — invalid chips carry an sr-only ", invalid entry"
@@ -228,4 +229,129 @@ test("a second identical duplicate rejection still announces (sequence-keyed liv
   // The keyed span remounted — the DOM mutated, so AT re-announces.
   await expect.poll(() => region.querySelector("span") !== first).toBe(true);
   expect(region.textContent).toContain("duplicate");
+});
+
+/* DS-21 — Field wiring (through the inner Input, a Base UI Field.Control), name, max */
+
+test("DS-21: FieldLabel click focuses the chip input", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Synonyms</FieldLabel>
+      <ChipInput value={[]} onValueChange={() => {}} />
+    </Field>,
+  );
+  await screen.getByText("Synonyms").click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Synonyms" }))
+    .toHaveFocus();
+});
+
+test("DS-21: the Field's description and error describe the input only while rendered", async () => {
+  function Wired({ invalid }: { invalid: boolean }) {
+    return (
+      <Field data-invalid={invalid}>
+        <FieldLabel>Synonyms</FieldLabel>
+        <ChipInput defaultValue={["alpha"]} />
+        <FieldDescription>Comma separated.</FieldDescription>
+        <FieldError>{invalid ? "Add at least two." : null}</FieldError>
+      </Field>
+    );
+  }
+  const screen = await render(<Wired invalid />);
+  const input = screen.getByRole("textbox", { name: "Synonyms" });
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await expect.element(input).toHaveAccessibleDescription(/Add at least two/);
+  await screen.rerender(<Wired invalid={false} />);
+  await expect
+    .poll(() => input.element().getAttribute("aria-describedby") ?? "")
+    .not.toContain(
+      screen.container.querySelector('[data-slot="field-error"]')?.id ?? "x",
+    );
+  await expect
+    .poll(() => input.element().hasAttribute("aria-invalid"))
+    .toBe(false);
+});
+
+test("DS-21: an invalid chip still marks the input invalid inside a valid Field", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Emails</FieldLabel>
+      <ChipInput
+        defaultValue={["not-an-email"]}
+        validate={(c) => c.includes("@")}
+      />
+    </Field>,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Emails" }))
+    .toHaveAttribute("aria-invalid", "true");
+});
+
+test("DS-21: name posts every chip with the form", async () => {
+  let posted: string[] = [];
+  const screen = await render(
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        posted = new FormData(event.currentTarget).getAll("tags") as string[];
+      }}
+    >
+      <ChipInput
+        aria-label="Tags"
+        name="tags"
+        defaultValue={["alpha", "beta"]}
+      />
+      <button type="submit">Save</button>
+    </form>,
+  );
+  await screen.getByRole("button", { name: "Save" }).click();
+  expect(posted).toEqual(["alpha", "beta"]);
+});
+
+test("DS-21: max blocks adding and announces the reason, keeping the draft", async () => {
+  const screen = await render(
+    <ChipInput aria-label="Tags" max={2} defaultValue={["alpha", "beta"]} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await input.fill("gamma");
+  await userEvent.keyboard("{Enter}");
+  expect(chipTexts()).toEqual(["alpha", "beta"]);
+  const status = document.querySelector('[role="status"]') as HTMLElement;
+  await expect.poll(() => status.textContent).toContain("Up to 2 entries");
+  expect((input.element() as HTMLInputElement).value).toBe("gamma");
+});
+
+test("DS-21: maxLabel sets the announced copy", async () => {
+  const screen = await render(
+    <ChipInput
+      aria-label="Tags"
+      max={1}
+      maxLabel={(n) => `Only ${n} tag`}
+      defaultValue={["alpha"]}
+    />,
+  );
+  await screen.getByRole("textbox", { name: "Tags" }).fill("beta");
+  await userEvent.keyboard("{Enter}");
+  const status = document.querySelector('[role="status"]') as HTMLElement;
+  await expect.poll(() => status.textContent).toContain("Only 1 tag");
+});
+
+test("no a11y violations — inside a Field, valid and invalid", async () => {
+  const valid = await render(
+    <Field>
+      <FieldLabel>Synonyms</FieldLabel>
+      <ChipInput defaultValue={["alpha"]} name="synonyms" />
+      <FieldDescription>Comma separated.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(valid.container);
+  await valid.unmount();
+  const invalid = await render(
+    <Field data-invalid>
+      <FieldLabel>Synonyms</FieldLabel>
+      <ChipInput defaultValue={["alpha"]} />
+      <FieldError>Add at least two.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(invalid.container);
 });

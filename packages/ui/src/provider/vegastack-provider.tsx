@@ -12,7 +12,7 @@ import * as React from "react";
 import { TIMINGS } from "@vegastack/design";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { DirectionProvider } from "@base-ui/react/direction-provider";
-import { ToastProvider, Toaster } from "./toaster";
+import { ToastProvider, Toaster, toast } from "./toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export interface VegaStackProviderProps extends Omit<
@@ -38,9 +38,11 @@ export interface VegaStackProviderProps extends Omit<
  *
  * The host `<html>` needs `suppressHydrationWarning` (next-themes mutates it).
  *
- * `ToastProvider` always mounts — it is the context the imperative `toast()`
- * writes into. The `toaster` prop suppresses (`false`) or replaces only the
- * VISIBLE viewport, which is the part that must not be mounted twice.
+ * `ToastProvider` always mounts with the module `toast` manager — so the
+ * imperative `toast()` and `useToastManager()` write into one store — and a
+ * `<Toaster />` below it reuses it. The `toaster` prop suppresses (`false`) or
+ * replaces only the VISIBLE viewport, which is the part that must not be
+ * mounted twice.
  */
 export function VegaStackProvider({
   children,
@@ -63,7 +65,9 @@ export function VegaStackProvider({
           delay={TIMINGS.tooltipOpenDelayMs}
           closeDelay={TIMINGS.tooltipCloseDelayMs}
         >
-          <ToastProvider>
+          {/* OVL-17: the provider carries the module `toast` manager, so `toast()` and
+              `useToastManager()` feed one store, and the bundled `Toaster` renders into it. */}
+          <ToastProvider toastManager={toast}>
             {children}
             {toasterNode}
           </ToastProvider>

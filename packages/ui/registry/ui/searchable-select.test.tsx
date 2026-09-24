@@ -4,6 +4,7 @@ import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { SearchableSelect } from "./searchable-select";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 interface Project {
   id: string;
@@ -168,4 +169,135 @@ test("forwards ref to the trigger and rootRef to the wrapper", async () => {
   expect(ref.current?.dataset.slot).toBe("searchable-select-trigger");
   expect(rootRef.current).toBeInstanceOf(HTMLDivElement);
   expect(rootRef.current?.dataset.slot).toBe("searchable-select");
+});
+
+/* DS-22 — Field wiring, name/required, focus after clear · DS-17 — the inline tier */
+
+test("DS-22: inside a Field the trigger is named by its label, not its value", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Project</FieldLabel>
+      <Picker value={PROJECTS[0]} onValueChange={() => {}} />
+    </Field>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Project" });
+  await expect.element(trigger).toBeInTheDocument();
+  await expect
+    .poll(() => trigger.element().hasAttribute("aria-label"))
+    .toBe(false);
+});
+
+test("DS-22: inside an invalid Field the trigger is described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Project</FieldLabel>
+      <Picker />
+      <FieldDescription>Where the work is billed.</FieldDescription>
+      <FieldError>Pick a project.</FieldError>
+    </Field>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Project" });
+  await expect.element(trigger).toHaveAttribute("aria-invalid", "true");
+  await expect
+    .element(trigger)
+    .toHaveAccessibleDescription(/Where the work is billed/);
+  await expect.element(trigger).toHaveAccessibleDescription(/Pick a project/);
+});
+
+test("DS-22: standalone with no label it still falls back to the value, then the placeholder", async () => {
+  const screen = await render(<Picker value={PROJECTS[2]} />);
+  await expect
+    .element(screen.getByRole("combobox", { name: "Cinder" }))
+    .toBeInTheDocument();
+});
+
+test("DS-22: the form posts the item's key under name", async () => {
+  const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    return new FormData(event.currentTarget).get("project");
+  });
+  const screen = await render(
+    <form onSubmit={onSubmit}>
+      <Picker name="project" value={PROJECTS[1]} onValueChange={() => {}} />
+      <button type="submit">Save</button>
+    </form>,
+  );
+  await screen.getByRole("button", { name: "Save" }).click();
+  expect(onSubmit).toHaveBeenCalledOnce();
+  expect(onSubmit.mock.results[0]!.value).toBe("borealis");
+});
+
+test("DS-22: required blocks the submit while nothing is selected", async () => {
+  const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+  const screen = await render(
+    <form onSubmit={onSubmit}>
+      <Picker name="project" required />
+      <button type="submit">Save</button>
+    </form>,
+  );
+  await screen.getByRole("button", { name: "Save" }).click();
+  expect(onSubmit).not.toHaveBeenCalled();
+});
+
+test("DS-22: clearing returns focus to the trigger", async () => {
+  function Clearable() {
+    const [value, setValue] = React.useState<Project | null>(PROJECTS[0]!);
+    return (
+      <Picker
+        clearable
+        value={value}
+        onValueChange={(next) => setValue(next as Project | null)}
+      />
+    );
+  }
+  const screen = await render(<Clearable />);
+  await screen.getByRole("button", { name: "Clear selection" }).click();
+  const trigger = screen.getByRole("combobox", { name: "Select project" });
+  await expect.element(trigger).toHaveFocus();
+});
+
+test("DS-17: size and variant reflect on the picker, and contentClassName reaches the panel", async () => {
+  const screen = await render(
+    <Picker size="sm" variant="ghost" contentClassName="min-w-64" />,
+  );
+  const root = screen.container.querySelector(
+    '[data-slot="searchable-select"]',
+  )!;
+  expect(root.getAttribute("data-size")).toBe("sm");
+  expect(root.getAttribute("data-variant")).toBe("ghost");
+  await screen.getByRole("combobox").click();
+  await expect
+    .poll(() =>
+      document
+        .querySelector('[data-slot="combobox-content"]')
+        ?.className.includes("min-w-64"),
+    )
+    .toBe(true);
+});
+
+test("no a11y violations — inside a Field, valid and invalid", async () => {
+  const valid = await render(
+    <Field>
+      <FieldLabel>Project</FieldLabel>
+      <Picker />
+    </Field>,
+  );
+  await expectNoA11yViolations(valid.container);
+  await valid.unmount();
+  const invalid = await render(
+    <Field data-invalid>
+      <FieldLabel>Project</FieldLabel>
+      <Picker />
+      <FieldError>Pick a project.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(invalid.container);
+});
+
+test("no a11y violations — inline ghost trigger, open", async () => {
+  const screen = await render(
+    <Picker size="sm" variant="ghost" aria-label="Project" />,
+  );
+  await screen.getByRole("combobox", { name: "Project" }).click();
+  await expectNoA11yViolations(document.body);
 });

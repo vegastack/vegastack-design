@@ -3,7 +3,8 @@ import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { VegaStackProvider, useVegaStackTheme } from "./provider";
-import { toast } from "./toast";
+import * as React from "react";
+import { Toaster, toast, useToastManager } from "./toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /** Poll until a mounted toast carrying `text` is in the portal under <body>. */
@@ -164,4 +165,86 @@ test("tooltips below the provider open on the shared TIMINGS delay", async () =>
         ?.textContent?.includes("Save the draft"),
     )
     .toBe(true);
+});
+
+/* DS-64 / OVL-17 — one toast store for toast() and useToastManager() */
+
+test("OVL-17: useToastManager().add() under the provider renders in the Toaster", async () => {
+  function Fire() {
+    const manager = useToastManager();
+    const fired = React.useRef(false);
+    React.useEffect(() => {
+      // Fire once: the hook's value changes with every toast it holds.
+      if (fired.current) return;
+      fired.current = true;
+      manager.add({ title: "Saved from the hook" });
+    }, [manager]);
+    return null;
+  }
+  await render(
+    <VegaStackProvider>
+      <Fire />
+    </VegaStackProvider>,
+  );
+  await waitForToast("Saved from the hook");
+  expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
+    1,
+  );
+  await drainToasts();
+});
+
+test("OVL-17: toast() and the hook share one queue under the provider", async () => {
+  let hookManager: ReturnType<typeof useToastManager> | undefined;
+  function Capture() {
+    hookManager = useToastManager();
+    return null;
+  }
+  await render(
+    <VegaStackProvider>
+      <Capture />
+    </VegaStackProvider>,
+  );
+  toast.add({ title: "From toast()", timeout: 0 });
+  await waitForToast("From toast()");
+  // The hook sees the toast the module manager added — one store, not two.
+  await expect
+    .poll(() => hookManager?.toasts.some((t) => t.title === "From toast()"))
+    .toBe(true);
+  await drainToasts();
+});
+
+test("OVL-17: a host Toaster below the provider reuses it — still one viewport", async () => {
+  await render(
+    <VegaStackProvider toaster={false}>
+      <Toaster position="top-center" />
+    </VegaStackProvider>,
+  );
+  toast.add({ title: "Host toaster" });
+  await waitForToast("Host toaster");
+  expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
+    1,
+  );
+  await drainToasts();
+});
+
+test("no a11y violations — provider with a toast from the hook", async () => {
+  function Fire() {
+    const manager = useToastManager();
+    const fired = React.useRef(false);
+    React.useEffect(() => {
+      // Fire once: the hook's value changes with every toast it holds.
+      if (fired.current) return;
+      fired.current = true;
+      manager.add({ title: "Hook toast", timeout: 0 });
+    }, [manager]);
+    return null;
+  }
+  const screen = await render(
+    <VegaStackProvider>
+      <Fire />
+    </VegaStackProvider>,
+  );
+  await waitForToast("Hook toast");
+  await expectNoA11yViolations(screen.container);
+  await drainToasts();
 });

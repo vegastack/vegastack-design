@@ -33,6 +33,14 @@ import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
 import { ButtonGroup } from "../registry/ui/button-group";
 import { Input } from "../registry/ui/input";
+import { AppShellPage } from "../registry/ui/app-shell";
+import { DatePicker } from "../registry/ui/date-picker";
+import { SearchableSelect } from "../registry/ui/searchable-select";
+import {
+  MultiStepForm,
+  MultiStepFormActions,
+  MultiStepFormStep,
+} from "../registry/ui/multi-step-form";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
 import { SortableList } from "../registry/ui/sortable-list";
 import {
@@ -3500,4 +3508,178 @@ test("checkbox-mixed: the minus is painted centred in the box, and a disabled mi
     .element();
   expect(getComputedStyle(enabled).opacity).toBe("1");
   expect(getComputedStyle(disabled).opacity).toBe("0.5");
+});
+
+/**
+ * app-shell-page-320 (DS-19): the page container caps its measure with real compiled CSS, keeps
+ * its gutters, and never scrolls the page sideways at 320px — even around a long unbroken child.
+ */
+test("app-shell-page-320: the page container caps its measure; a long wrapping child never scrolls the page sideways", async () => {
+  // This file runs at 320×812; widen only to read the two measures, then come back.
+  await page.viewport(1280, 900);
+  try {
+    const wide = await render(
+      <div style={{ width: "1400px" }}>
+        <AppShellPage size="narrow">x</AppShellPage>
+        <AppShellPage>y</AppShellPage>
+      </div>,
+    );
+    const [narrow, standard] = [
+      ...wide.container.querySelectorAll<HTMLElement>(
+        '[data-slot="app-shell-page"]',
+      ),
+    ] as [HTMLElement, HTMLElement];
+    expect(getComputedStyle(narrow).maxWidth).toBe("768px");
+    expect(getComputedStyle(standard).maxWidth).toBe("1280px");
+    expect(getComputedStyle(standard).paddingInlineStart).toBe("32px");
+    await wide.unmount();
+  } finally {
+    await page.viewport(320, 812);
+  }
+
+  const narrowScreen = await render(
+    <AppShellPage size="narrow">
+      <p className="wrap-break-word">
+        {"Supercalifragilisticexpialidocious".repeat(6)}
+      </p>
+    </AppShellPage>,
+  );
+  const container = narrowScreen.container.querySelector<HTMLElement>(
+    '[data-slot="app-shell-page"]',
+  )!;
+  expect(getComputedStyle(container).paddingInlineStart).toBe("16px");
+  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
+});
+
+test("app-shell-page-320: size full fills a bounded height", async () => {
+  const screen = await render(
+    <div style={{ height: "500px", display: "flex", flexDirection: "column" }}>
+      <AppShellPage size="full">content</AppShellPage>
+    </div>,
+  );
+  const full = screen.container.querySelector<HTMLElement>(
+    '[data-slot="app-shell-page"]',
+  )!;
+  expect(full.getBoundingClientRect().height).toBe(500);
+  expect(getComputedStyle(full).maxWidth).toBe("none");
+});
+
+/**
+ * multi-step-form-sticky (DS-23): on a long step the sticky actions stay in view at the bottom of
+ * the scroll area and report `data-stuck`; scrolled to the end they rest in the flow again.
+ * `"narrow"` pins only below the form's `@md` container rung.
+ */
+function LongStep({ sticky }: { sticky: boolean | "narrow" }) {
+  return (
+    <div data-testid="scroller" style={{ height: "700px", overflowY: "auto" }}>
+      <MultiStepForm steps={[{ id: "one", label: "One" }]}>
+        <MultiStepFormStep id="one">
+          <div style={{ height: "1600px" }}>A very long step</div>
+        </MultiStepFormStep>
+        <MultiStepFormActions sticky={sticky} />
+      </MultiStepForm>
+    </div>
+  );
+}
+
+test("multi-step-form-sticky: sticky actions stay in view on a long step", async () => {
+  const screen = await render(<LongStep sticky />);
+  const scroller = screen.getByTestId("scroller").element() as HTMLElement;
+  const actions = screen.container.querySelector<HTMLElement>(
+    '[data-slot="multi-step-form-actions"]',
+  )!;
+  expect(getComputedStyle(actions).position).toBe("sticky");
+  expect(actions.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    scroller.getBoundingClientRect().bottom + 0.5,
+  );
+  await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(true);
+  scroller.scrollTop = scroller.scrollHeight;
+  await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(false);
+});
+
+test('multi-step-form-sticky: "narrow" pins at 320px and rests in the flow on a wide form', async () => {
+  const narrow = await render(<LongStep sticky="narrow" />);
+  const narrowActions = narrow.container.querySelector<HTMLElement>(
+    '[data-slot="multi-step-form-actions"]',
+  )!;
+  expect(getComputedStyle(narrowActions).position).toBe("sticky");
+  await narrow.unmount();
+
+  await page.viewport(1280, 900);
+  try {
+    const wide = await render(<LongStep sticky="narrow" />);
+    const wideActions = wide.container.querySelector<HTMLElement>(
+      '[data-slot="multi-step-form-actions"]',
+    )!;
+    expect(getComputedStyle(wideActions).position).toBe("static");
+    expect(wideActions.hasAttribute("data-stuck")).toBe(false);
+    await wide.unmount();
+  } finally {
+    await page.viewport(320, 812);
+  }
+});
+
+/**
+ * inline-trigger-row (DS-17): the three inline pickers share one `sm` height, so a table row or a
+ * toolbar reads as one tier, and each clear control is its own pointer target of at least 24px.
+ */
+test("inline-trigger-row: Select, SearchableSelect and DatePicker sm share one height", async () => {
+  const screen = await render(
+    <div className="flex items-center gap-2">
+      <Select items={[{ label: "High", value: "high" }]} defaultValue="high">
+        <SelectTrigger size="sm" variant="ghost" aria-label="Priority">
+          <SelectValue />
+        </SelectTrigger>
+      </Select>
+      <SearchableSelect<string>
+        items={["Asha", "Kiran"]}
+        value="Asha"
+        onValueChange={() => {}}
+        itemToKey={(name) => name}
+        itemToStringLabel={(name) => name}
+        renderItem={(name) => name}
+        searchLabel="Search people"
+        aria-label="Assignee"
+        size="sm"
+        variant="ghost"
+        clearable
+      />
+      <DatePicker
+        aria-label="Due"
+        size="sm"
+        variant="ghost"
+        clearable
+        value={new Date(2026, 8, 27)}
+        locale="en-US"
+      />
+    </div>,
+  );
+  const heights = [
+    '[data-slot="select-trigger"]',
+    '[data-slot="searchable-select-trigger"]',
+    '[data-slot="date-picker-trigger"]',
+  ].map(
+    (selector) =>
+      screen.container
+        .querySelector<HTMLElement>(selector)!
+        .getBoundingClientRect().height,
+  );
+  expect(new Set(heights).size).toBe(1);
+  expect(heights[0]).toBe(28);
+
+  for (const selector of [
+    '[data-slot="searchable-select-clear"]',
+    '[data-slot="date-picker-clear"]',
+  ]) {
+    const clear = screen.container.querySelector<HTMLElement>(selector)!;
+    const box = clear.getBoundingClientRect();
+    expect(box.width).toBeGreaterThanOrEqual(24);
+    expect(box.height).toBeGreaterThanOrEqual(24);
+    // The clear control is really hit at its own centre — not covered by the trigger.
+    const hit = document.elementFromPoint(
+      box.left + box.width / 2,
+      box.top + box.height / 2,
+    );
+    expect(clear.contains(hit)).toBe(true);
+  }
 });

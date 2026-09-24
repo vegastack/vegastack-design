@@ -6,6 +6,12 @@ import { GitBranch } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/searchable-select` (dogfoods the registry).
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 
 interface Repo {
   id: string;
@@ -163,6 +169,66 @@ export function searchableSelectDisabled(): ReactNode {
           renderItem={(repo) => repo.name}
           searchLabel="Search repositories"
           disabled
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-22: inside a `Field` the trigger is named by `FieldLabel`, described by the rendered
+ * description and error, and marked invalid — and it posts the repo's key under `name`.
+ */
+export function searchableSelectInsideField(): ReactNode {
+  const [value, setValue] = React.useState<Repo | null>(null);
+  return (
+    <Wrapper>
+      <Field data-invalid={value === null} className="w-full max-w-72">
+        <FieldLabel>Repository</FieldLabel>
+        <SearchableSelect<Repo>
+          items={REPOS}
+          value={value}
+          onValueChange={setValue}
+          itemToKey={(repo) => repo.id}
+          itemToStringLabel={(repo) => repo.name}
+          renderItem={(repo) => repo.name}
+          searchLabel="Search repositories"
+          placeholder="Select repository"
+          name="repository"
+          required
+        />
+        <FieldDescription>Where the release is cut from.</FieldDescription>
+        <FieldError>
+          {value === null ? "Choose a repository." : null}
+        </FieldError>
+      </Field>
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-17: the inline tier in a row — `size="sm"` and `variant="ghost"` sit at the row's height with
+ * no border at rest; `contentClassName` widens the panel past the narrow trigger.
+ */
+export function searchableSelectInline(): ReactNode {
+  const [value, setValue] = React.useState<Repo | null>(REPOS[1]!);
+  return (
+    <Wrapper className="items-stretch">
+      <div className="flex w-full max-w-md min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2">
+        <span className="min-w-0 truncate text-sm">Release 2026.09</span>
+        <SearchableSelect<Repo>
+          items={REPOS}
+          value={value}
+          onValueChange={setValue}
+          itemToKey={(repo) => repo.id}
+          itemToStringLabel={(repo) => repo.name}
+          renderItem={(repo) => repo.name}
+          searchLabel="Search repositories"
+          aria-label="Repository"
+          size="sm"
+          variant="ghost"
+          contentClassName="min-w-64"
+          clearable
         />
       </div>
     </Wrapper>

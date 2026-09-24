@@ -93,6 +93,30 @@ the same code path every other selection uses.
   file="components/preview/searchable-select.tsx"
 />
 
+### Inside a Field
+
+Inside a [`Field`](/docs/components/field) the trigger is named by `FieldLabel` — not by its value —
+described by the rendered `FieldDescription` and `FieldError`, and marked invalid from the Field.
+`name` submits the selected item's `itemToKey` with a form, and `required` blocks the submit while
+nothing is selected.
+
+<ComponentPreview
+  name="searchableSelectInsideField"
+  file="components/preview/searchable-select.tsx"
+/>
+
+### Inline in a row
+
+For a picker inside a table row or a toolbar, `size="sm"` matches `Select size="sm"` and
+`DatePicker size="sm"`, and `variant="ghost"` sizes the trigger to its content with no border at
+rest. `contentClassName` widens the panel past a narrow trigger. Clearing returns focus to the
+trigger.
+
+<ComponentPreview
+  name="searchableSelectInline"
+  file="components/preview/searchable-select.tsx"
+/>
+
 ### Rich rows
 
 `renderItem` draws a row; `renderValue` draws the trigger face when it should differ. Filtering

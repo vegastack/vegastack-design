@@ -148,3 +148,74 @@ export function relativeTimeLive(): ReactNode {
     </Wrapper>
   );
 }
+
+/** DS-11: a label that stands alone — capitalized, no tooltip, inline text at the line's height. */
+export function relativeTimeStandalone(): ReactNode {
+  return (
+    <Wrapper className="gap-4 text-sm">
+      <span className="flex items-center gap-2">
+        <span className="text-muted-foreground">Due</span>
+        <RelativeTime
+          date={offset(0)}
+          now={NOW}
+          mode="day"
+          capitalize
+          title={false}
+          timeZone="UTC"
+          locale="en-US"
+        />
+      </span>
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-11: `timeZone` decides which calendar day an instant falls on. 23:30 UTC on 14 January is
+ * already 15 January in Kolkata, so the same instant reads "yesterday" in UTC and "today" in IST.
+ */
+export function relativeTimeTimeZone(): ReactNode {
+  const lateEvening = new Date(Date.UTC(2026, 0, 14, 23, 30));
+  return (
+    <Wrapper className="gap-6 text-sm">
+      {(["UTC", "Asia/Kolkata"] as const).map((timeZone) => (
+        <span key={timeZone} className="flex items-center gap-2">
+          <span className="text-muted-foreground">{timeZone}</span>
+          <RelativeTime
+            date={lateEvening}
+            now={NOW}
+            mode="day"
+            capitalize
+            timeZone={timeZone}
+            locale="en-US"
+          />
+        </span>
+      ))}
+    </Wrapper>
+  );
+}
+
+/** DS-11: `withTime` appends the time of day; `formatOptions` shapes a distant date. */
+export function relativeTimeWithTime(): ReactNode {
+  return (
+    <Wrapper className="gap-6 text-sm text-muted-foreground">
+      <RelativeTime
+        date={offset(-2 * HOUR)}
+        now={NOW}
+        mode="day"
+        withTime
+        capitalize
+        timeZone="UTC"
+        locale="en-US"
+      />
+      <RelativeTime
+        date={offset(-9 * DAY)}
+        now={NOW}
+        mode="day"
+        withTime
+        timeZone="UTC"
+        locale="en-IN"
+        formatOptions={{ day: "numeric", month: "short" }}
+      />
+    </Wrapper>
+  );
+}

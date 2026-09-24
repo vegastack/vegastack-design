@@ -147,7 +147,7 @@
         "whenToUse": "A numeric stat/metric that updates over time and should visually count/tween to its new value — dashboard KPIs, live prices, counters.",
         "whenNotToUse": "A static number that never changes after render — just render it directly; the tween machinery adds nothing.",
         "version": "0.18.0",
-        "integrity": "sha256-bniuDNSKB884UgNWjnkvgcqlRjbtzBIoilvky0QudZ0="
+        "integrity": "sha256-njRQj4P8jjZDQpYq0YNG/t35w5xrzBqzif7RcDAR+kY="
       }
     },
     {
@@ -189,6 +189,7 @@
         "layout"
       ],
       "dependencies": [
+        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
@@ -204,10 +205,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app.",
+        "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — gutters, rhythm and a narrow/default/full measure.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.18.0",
-        "integrity": "sha256-LP0rO8R1XZs23wC021+NNOzmadW93sPO2ZePNZzYj+g="
+        "integrity": "sha256-vvKTD9sYeTvMerdmHIVkfKd97qOojgip1YhU0x+KZ14="
       }
     },
     {
@@ -755,7 +756,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.18.0",
-        "integrity": "sha256-dBfHWIuXjYaqeYIHSbdpvrTPcWYLFYx1GbPv7nIGriw="
+        "integrity": "sha256-ocSqxYLqCQqm0Xv731k18kbNJp9Ya+ReycJBO9kMOMI="
       }
     },
     {
@@ -1198,10 +1199,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
+        "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.18.0",
-        "integrity": "sha256-+4zmMERvrfvV0C/2Zp7/bLD3yzvq6+mBe39dsPL88IA="
+        "integrity": "sha256-KlH7HyEJPv0/5GJozqCXisEBFfP652ADnGSYoG0xcV4="
       }
     },
     {
@@ -1409,7 +1410,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.18.0",
-        "integrity": "sha256-1vD8HrS2fBRi4BH6C5ozr/BbJ8D5exXqNx2AnPZ4fyY="
+        "integrity": "sha256-NKUYYlaoZMFceJkjL95Yjg9U6ZIugcyTM467fZrnspU="
       }
     },
     {
@@ -1533,7 +1534,7 @@
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.18.0",
-        "integrity": "sha256-4PpqgQ7Mjgbw+MrvKA2eyuIL95RyU7akqPK/Sx68aXE="
+        "integrity": "sha256-koQA9sul998A7W+KR2/vxNs72EVDaGGXdRkgTOh2ZEE="
       }
     },
     {
@@ -1599,7 +1600,7 @@
         "whenToUse": "Structured, saveable filters with nesting — build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.18.0",
-        "integrity": "sha256-QxgnyS83IfizDGxmRS3FLoSxaAUHRKccGrwwfrLA9tE="
+        "integrity": "sha256-sWCvxBMooSj1LFcmiJ/jWhUhY9l1hF45s/0q2egaLKQ="
       }
     },
     {
@@ -15285,6 +15286,7 @@
         "navigation"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
@@ -15301,10 +15303,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
+        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.18.0",
-        "integrity": "sha256-xBEyu64L7nMza7Y5yDI8hryym/T2szA40VSfV25XMZQ="
+        "integrity": "sha256-x1fdbQancSHygEYW8tWbRghkoW+H+YEDv8NonBpesYA="
       }
     },
     {
@@ -15478,7 +15480,7 @@
         "whenToUse": "Once, around your app root (layout.tsx) — every VegaStack component below it gets dark mode, working toast() calls, shared tooltip delays, and direction context.",
         "whenNotToUse": "Anywhere below the root, or a second time — the bundled Toaster is a mount-once portal; pass toaster={false} if you must render your own.",
         "version": "0.18.0",
-        "integrity": "sha256-AxFJ3ACHetq16SNnc9KB0L5El4FCU0hs3MaQwjjyYK0="
+        "integrity": "sha256-n0uKAf0k3sUa8h8jkMo2CPfcURGCKlXJkVswtpDuJSw="
       }
     },
     {
@@ -15494,7 +15496,9 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/field"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/radio-group.tsx",
@@ -15506,7 +15510,7 @@
         "whenToUse": "A form value from 2–5 mutually-exclusive choices, all visible at once.",
         "whenNotToUse": "An immediate view or scope switch over the same content (ToggleGroup), many options (Select), or non-exclusive multi-select (Checkboxes).",
         "version": "0.18.0",
-        "integrity": "sha256-rG8Y8d4fmsMU95l1rxV3YxPDZvsMk1oLbkWB8LaTRZ4="
+        "integrity": "sha256-shdvHUh+NKaXpA/qp9gkqqyg0yxaWUy3pLsYWI4sFBs="
       }
     },
     {
@@ -15568,7 +15572,7 @@
         "whenToUse": "A timestamp relative to now — comment/activity times (ago) or calendar-day grouping (day).",
         "whenNotToUse": "A fixed absolute date that should never change — just format it once.",
         "version": "0.18.0",
-        "integrity": "sha256-MyNbuvU2aM7pIFDh+5PrmBcvt3J0NBcuJzcByYkNjLM="
+        "integrity": "sha256-PoL9BvaIb1F1u9ZwiupjUXtRYrSSrvLpFE2R62QHqe4="
       }
     },
     {
@@ -15653,10 +15657,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A single-select field whose option list is long enough to need a search — countries, regions, projects, repositories, currencies.",
+        "whenToUse": "A single-select field whose option list is long enough to need a search — countries, regions, projects, repositories, currencies. Inside a Field it is named and described by the Field; size=\"sm\" + variant=\"ghost\" is the inline row tier.",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.18.0",
-        "integrity": "sha256-VF45JU+I8p8J0lVf0YmvXYhtO24vrnH7jZjbLbL+XDo="
+        "integrity": "sha256-rPOFMiSqox/wl6z8DNWgehTec4O5FOPU+tN58i3rQYg="
       }
     },
     {
@@ -16148,7 +16152,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.18.0",
-        "integrity": "sha256-O7ljtGartCu8cGMfy2+5Qo24JLJ0M4XBq2mEmlyVIDY="
+        "integrity": "sha256-aOoIzTQcXxVYUOjHyqUat23XL/j5JCr55y1f3PuXWEk="
       }
     },
     {
@@ -16430,7 +16434,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.18.0",
-        "integrity": "sha256-+FaZ2vrkEBdSMrvzxj+TU8l96DO0CN0OIZW9OHvIxqA="
+        "integrity": "sha256-MY+gc8Sk9wOglheOvSGrXoHCyhpvFcZ5ZKfWhvarwXg="
       }
     },
     {

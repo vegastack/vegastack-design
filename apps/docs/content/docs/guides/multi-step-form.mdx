@@ -114,6 +114,11 @@ details.
 row hold their place, the step body becomes the one scrolling region, and the frame cannot
 grow past the viewport and carry its own footer off screen.
 
+On a page, a long step can push the action row below the fold instead. `sticky` on
+`MultiStepFormActions` keeps the refusal and the row at the bottom of the scroll area while the
+step scrolls under them; `sticky="narrow"` does it only on a phone-width form, where the row
+leaves the screen first.
+
 Pair it with `dirty` and `MultiStepFormExit`. You decide what dirty means; while it is true,
 leaving asks first and the browser warns on a refresh or a closed tab — the half no
 component can fake. With nothing dirty it just leaves, because a confirmation nobody needs
