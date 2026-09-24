@@ -1,5 +1,34 @@
 # @vegastack/design
 
+## 0.7.5
+
+### Patch Changes
+
+- [#208](https://github.com/vegastack/vegastack-design/pull/208) [`10f8d06`](https://github.com/vegastack/vegastack-design/commit/10f8d06129151232c554e448278847198dad4132) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **AudioPlayer** docks, closes, loads its source lazily and seeks from outside. `docked` pins it to the bottom of its scroll column (sticky, bordered, on the popover surface, clear of the bottom safe area) as a `region` named by `label`. `open` and `onOpenChange` hide it with a close button (`closeLabel`, "Close player") that pauses, reports `false` and returns focus to the control that opened it; a hidden player stays mounted and `inert`, and Escape does not close it. `src` also takes a function, resolved once on the first play. `loading` shows and announces "Loading audio…" (`loadingLabel`) once, and `error` renders an alert with "Try again" (`retryLabel`, `onRetry`). `actionsRef` exposes `seek(seconds, { play })`, `play()` and `pause()`; a seek before the metadata loads is applied when it does. `ref` is still the root element.
+  [docs](https://design.vegastack.com/docs/components/audio-player)
+
+- [#208](https://github.com/vegastack/vegastack-design/pull/208) [`10f8d06`](https://github.com/vegastack/vegastack-design/commit/10f8d06129151232c554e448278847198dad4132) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **NotificationBell** exports `NotificationDot`, the one unread dot for rows, inbox items and nav items (`intent` `default` or `destructive`, decorative), and its dot mode now draws it: **the dot's default intent changes from destructive to primary**, and its `data-slot` is `notification-bell-dot` (the count pill keeps `notification-bell-badge`). A new `countLabel` words the count in the accessible name ("Notifications, 3 unread" by default). **usePlatform** now exports `formatShortcutKey` and `formatShortcut`, which turn `"mod"` into ⌘ on macOS and Ctrl elsewhere; **ShortcutOverlay** uses them and renders the same key labels as before.
+  [docs](https://design.vegastack.com/docs/components/notification-bell) · [docs](https://design.vegastack.com/docs/components/shortcut-overlay)
+
+- [#199](https://github.com/vegastack/vegastack-design/pull/199) [`88b7a1e`](https://github.com/vegastack/vegastack-design/commit/88b7a1e909c86d0de8042a891a6cfcfaedca03ee) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Board lanes show their total as a muted count, lanes and cards have names, and cards can be links. The lane count is now muted `tabular-nums` text instead of a `Badge`, and it shows `count` (the lane's total) when the lane has loaded only some of its cards. [docs](https://design.vegastack.com/docs/components/board)
+
+  - Names: a lane takes a plain-text `label` (required when its `title` is not a string; development warns without one), and `getItemLabel` names each card. Each lane is a region named "Open, 14 tasks" (`countLabel` supplies the noun, default "cards"), the Move menu says "Move to In progress", each card's menu control is "Move Write spec", and move announcements name the card and the lane instead of a column id.
+  - Lane states: `loading` shows skeleton cards and marks the lane `aria-busy`; `emptyState` replaces the default "No cards" drop target; `defaultCollapsed` starts a lane collapsed (`collapsed` stays as its alias). "Drag a card here" shows only where a pointer drag can start.
+  - Cards as links: `getItemHref` renders a card as a real link (`itemLinkRender` swaps in your router's link). Clicks and modifier clicks are the browser's own, Enter follows the link, and Space still lifts the card into move mode. Card content no longer adds a second tab stop through `TruncatedText`.
+
+- [#196](https://github.com/vegastack/vegastack-design/pull/196) [`d7e9562`](https://github.com/vegastack/vegastack-design/commit/d7e95629a18315a85150a5861dcd15a6dc2ac62f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **LoadMore** — the one "Load more" footer for keyset lists: an outline button that keeps its width and focus while the next batch loads, an error line with Try again, and an optional `endLabel` once the list has ended. `LoadMoreState` (`hasMore`, `onLoadMore`, `loading`, `error`) is the shape lists, board lanes and data hooks pass around.
+  [docs](https://design.vegastack.com/docs/components/load-more)
+
+- [#201](https://github.com/vegastack/vegastack-design/pull/201) [`5500590`](https://github.com/vegastack/vegastack-design/commit/550059080d45eb6c11ec94fddc020cdc7a198978) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `sortable-list` keeps a locked row in the list: a row with `disabled: true` now shows a spacer the size of the handle (`data-slot="sortable-list-handle-spacer"`) and KEEPS its row menu with the Move items disabled, where it used to lose both. New props: `lockedReason` (the accessible description of a locked row's disabled Move items), `renderActions` (inline actions before the row menu), `actionsLabel` (the menu trigger's name) and `layout="grid"` (auto-fill image tiles with the handle and actions over the tile's top corners). The row menu trigger is now named "Actions for {label}" by default, where it was "Move {label}". `use-drag-reorder` gains `columns` (a number or `"auto"`, measured from where items wrap) so ↑/↓ in keyboard move mode step a whole row when a horizontal axis wraps into a grid, and `drag-item` draws the left and right drop-edge hairlines a horizontal axis reports. The component roster in the shipped `vegastack-design-system` skill describes the new surface.
+
+- [#200](https://github.com/vegastack/vegastack-design/pull/200) [`b38e9a7`](https://github.com/vegastack/vegastack-design/commit/b38e9a7f4044afa687091e3a32e8c62a824d1966) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Transcript is a new component for the text of a recording: timestamped, speaker-labelled lines on MessageScroller's engine.
+
+  - The line playing at `currentTime` gets `aria-current="true"` and stays centred while following. Scrolling the list pauses following, and "Back to current line" brings it back.
+  - Each timestamp is a "Play from 0:15" button that calls `onSeek`. Without `onSeek`, timestamps are plain text.
+  - `TranscriptSearch` highlights matches with `<mark>`. Enter and Shift+Enter move between them, and each move announces "2 of 5" or "No matches".
+  - `loading` and `emptyState` cover the states before there is any text.
+  - Add it with `shadcn add @vegastack/transcript`.
+
 ## 0.7.4
 
 ### Patch Changes

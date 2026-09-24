@@ -4,14 +4,14 @@
   "title": "Aspect Ratio",
   "description": "Constrains its children to a given width-to-height ratio.",
   "dependencies": [
-    "@vegastack/design@^0.7.4",
+    "@vegastack/design@^0.7.5",
     "@vegastack/design-tokens@^0.7.1"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/aspect-ratio.tsx",
-      "content": "// @vegastack aspect-ratio@0.18.0 sha256-M2Hv/JQg5JloqdV5DbqI0x76JHZe+ydWBSLjBqTKr2Y=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction AspectRatio({\n  ratio,\n  className,\n  ...props\n}: React.ComponentProps<\"div\"> & { ratio: number }) {\n  return (\n    <div\n      data-slot=\"aspect-ratio\"\n      style={\n        {\n          \"--ratio\": ratio,\n        } as React.CSSProperties\n      }\n      className={cn(\"relative aspect-(--ratio)\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { AspectRatio };\n",
+      "content": "// @vegastack aspect-ratio@0.19.0 sha256-4MaKBSiiMjVfPWTI//zPpeF2fTj96u9SRfQtWiXHhfs=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction AspectRatio({\n  ratio,\n  className,\n  ...props\n}: React.ComponentProps<\"div\"> & { ratio: number }) {\n  return (\n    <div\n      data-slot=\"aspect-ratio\"\n      style={\n        {\n          \"--ratio\": ratio,\n        } as React.CSSProperties\n      }\n      className={cn(\"relative aspect-(--ratio)\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { AspectRatio };\n",
       "type": "registry:ui",
       "target": "@ui/aspect-ratio.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Reserve a fixed ratio for media — a video embed, a cover image, a map tile — so the layout does not shift as it loads.",
     "whenNotToUse": "Content whose height must follow its text; use ordinary flow instead.",
-    "version": "0.18.0",
-    "integrity": "sha256-M2Hv/JQg5JloqdV5DbqI0x76JHZe+ydWBSLjBqTKr2Y="
+    "version": "0.19.0",
+    "integrity": "sha256-4MaKBSiiMjVfPWTI//zPpeF2fTj96u9SRfQtWiXHhfs="
   },
   "categories": [
     "layout"
