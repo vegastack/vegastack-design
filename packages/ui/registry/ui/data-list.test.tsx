@@ -3,7 +3,12 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { DataList, type DataListColumn, type SortState } from "./data-list";
+import {
+  DataList,
+  rowActionsColumn,
+  type DataListColumn,
+  type SortState,
+} from "./data-list";
 
 interface Row {
   id: string;
@@ -1644,4 +1649,165 @@ test("DS-68: Tab from a row link skips the timestamp to the next row's link", as
   for (const time of screen.container.querySelectorAll("time")) {
     expect(time.getAttribute("tabindex")).toBeNull();
   }
+});
+
+// ---- DS-34: sections ------------------------------------------------------------------------
+
+interface Task {
+  id: string;
+  name: string;
+  due: "overdue" | "today" | "later";
+}
+
+const tasks: Task[] = [
+  { id: "t1", name: "Send quote", due: "today" },
+  { id: "t2", name: "Call back", due: "overdue" },
+  { id: "t3", name: "Order samples", due: "today" },
+  { id: "t4", name: "Chase invoice", due: "overdue" },
+];
+
+const taskCols: DataListColumn<Task>[] = [{ key: "name", header: "Task" }];
+
+const sectionList = [
+  { id: "overdue", label: "Overdue" },
+  { id: "today", label: "Today" },
+  { id: "later", label: "Later" },
+];
+
+test("sections render in prop order under one header (DS-34)", async () => {
+  const screen = await render(
+    <DataList
+      data={tasks}
+      columns={taskCols}
+      getRowId={(r) => r.id}
+      sections={sectionList}
+      getRowSection={(r) => r.due}
+    />,
+  );
+  expect(screen.container.querySelectorAll("thead")).toHaveLength(1);
+  const heads = screen.container.querySelectorAll('th[scope="rowgroup"]');
+  expect([...heads].map((h) => h.textContent)).toEqual([
+    expect.stringMatching(/^Overdue/),
+    expect.stringMatching(/^Today/),
+  ]);
+  // An empty section is omitted.
+  expect(screen.container.textContent).not.toContain("Later");
+  const bodies = screen.container.querySelectorAll(
+    'tbody[data-slot="data-list-section"]',
+  );
+  expect(bodies).toHaveLength(2);
+  expect(bodies[0]!.textContent).toContain("Call back");
+  expect(bodies[0]!.textContent).toContain("Chase invoice");
+  expect(bodies[1]!.textContent).toContain("Send quote");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("collapsing a section hides its rows and flips aria-expanded (DS-34)", async () => {
+  const onGroupStateChange = vi.fn();
+  const screen = await render(
+    <DataList
+      data={tasks}
+      columns={taskCols}
+      getRowId={(r) => r.id}
+      sections={sectionList}
+      getRowSection={(r) => r.due}
+      onGroupStateChange={onGroupStateChange}
+    />,
+  );
+  const toggle = screen.getByRole("button", { name: /Overdue/ });
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+  await toggle.click();
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+  expect(screen.container.textContent).not.toContain("Call back");
+  expect(screen.container.textContent).toContain("Send quote");
+  expect(onGroupStateChange).toHaveBeenLastCalledWith({
+    overdue: "collapsed",
+  });
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a section shows its count, and a host count wins (DS-34)", async () => {
+  const screen = await render(
+    <DataList
+      data={tasks}
+      columns={taskCols}
+      getRowId={(r) => r.id}
+      sections={[
+        { id: "overdue", label: "Overdue", count: 12 },
+        { id: "today", label: "Today" },
+      ]}
+      getRowSection={(r) => r.due}
+      defaultGroupState={{ today: "collapsed" }}
+    />,
+  );
+  const counts = screen.container.querySelectorAll(
+    '[data-slot="section-row-count"]',
+  );
+  expect([...counts].map((c) => c.textContent)).toEqual(["12", "2"]);
+  await expect
+    .element(screen.getByRole("button", { name: /Today/ }))
+    .toHaveAttribute("aria-expanded", "false");
+});
+
+test("select-all covers loaded rows across sections, and loadMore appends into its section (DS-34)", async () => {
+  const onSelectionChange = vi.fn();
+  const props = {
+    columns: taskCols,
+    getRowId: (r: Task) => r.id,
+    sections: sectionList,
+    getRowSection: (r: Task) => r.due,
+    selectable: true,
+    onSelectionChange,
+  };
+  const screen = await render(
+    <DataList
+      {...props}
+      data={tasks}
+      loadMore={{ hasMore: true, onLoadMore: () => {} }}
+    />,
+  );
+  (
+    screen
+      .getByRole("checkbox", { name: "Select all rows" })
+      .element() as HTMLElement
+  ).click();
+  expect(onSelectionChange.mock.calls.at(-1)![0].size).toBe(4);
+  await screen.rerender(
+    <DataList
+      {...props}
+      data={[...tasks, { id: "t5", name: "Review drawings", due: "overdue" }]}
+      loadMore={{ hasMore: false, onLoadMore: () => {} }}
+    />,
+  );
+  const bodies = screen.container.querySelectorAll(
+    'tbody[data-slot="data-list-section"]',
+  );
+  expect(bodies[0]!.textContent).toContain("Review drawings");
+});
+
+test("rowActionsColumn adds a named row menu that never activates the row (DS-32)", async () => {
+  const onRowClick = vi.fn();
+  const onEdit = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={[
+        ...columns,
+        rowActionsColumn<Row>({
+          getRowLabel: (r) => r.name,
+          actions: () => [{ label: "Edit", onSelect: onEdit }],
+        }),
+      ]}
+      data={data}
+      getRowId={(r) => r.id}
+      onRowClick={onRowClick}
+    />,
+  );
+  // The column header is named for assistive tech only.
+  const header = [...screen.container.querySelectorAll("thead th")].at(-1)!;
+  expect(header.textContent).toBe("Actions");
+  expect(header.querySelector(".sr-only")).not.toBeNull();
+  await screen.getByRole("button", { name: "Actions for Bea" }).click();
+  await screen.getByRole("menuitem", { name: "Edit" }).click();
+  expect(onEdit).toHaveBeenCalledOnce();
+  expect(onRowClick).not.toHaveBeenCalled();
 });

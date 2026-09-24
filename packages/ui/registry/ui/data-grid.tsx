@@ -1,9 +1,9 @@
-// @vegastack data-grid@0.19.0 sha256-nw9/3efeNnVnNhOQO16kZf5LTOTgSe8kdeztt6cAMOA=
+// @vegastack data-grid@0.19.0 sha256-6ExFSrRcAORZEO1X0WyIDlKaL96n0n85pn1kh/ujOTI=
 
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronRight, Columns3 } from "lucide-react";
+import { Columns3 } from "lucide-react";
 import {
   createColumnHelper,
   createSortedRowModel,
@@ -31,12 +31,14 @@ import {
   SELECTION_COLUMN_WIDTH,
   SelectAllHead,
   SelectionCell,
+  SectionToggle,
   SkeletonRows,
   SortableHead,
   useContainerWidth,
   useControlledState,
   useRowSelection,
   type DataTableColumnLayout,
+  type GroupState,
 } from "@/components/ui/data-table-parts";
 import {
   DropdownMenu,
@@ -272,15 +274,13 @@ export interface DataGridProps<T> {
 
    * @default undefined
    */
-  groupState?: Record<string, "expanded" | "collapsed">;
+  groupState?: GroupState;
   /**
    * Fired when a group toggles.
 
    * @default undefined
    */
-  onGroupStateChange?: (
-    state: Record<string, "expanded" | "collapsed">,
-  ) => void;
+  onGroupStateChange?: (state: GroupState) => void;
   /**
    * Commit an inline cell edit. Return a promise to engage the async layer;
    * rejection reverts and announces (EditableCell's contract).
@@ -369,7 +369,7 @@ export interface DataGridProps<T> {
 // every memo downstream of it.
 const EMPTY_SORT: DataGridSort[] = [];
 const EMPTY_VISIBILITY: Record<string, boolean> = {};
-const EMPTY_GROUPS: Record<string, "expanded" | "collapsed"> = {};
+const EMPTY_GROUPS: GroupState = {};
 
 /**
  * A cell rendered as a real component ELEMENT, so column `render`
@@ -452,9 +452,11 @@ export function DataGrid<T>({
   const [visibility, commitVisibility] = useControlledState<
     Record<string, boolean>
   >(columnVisibility, EMPTY_VISIBILITY, onColumnVisibilityChange);
-  const [groups, commitGroups] = useControlledState<
-    Record<string, "expanded" | "collapsed">
-  >(groupState, EMPTY_GROUPS, onGroupStateChange);
+  const [groups, commitGroups] = useControlledState<GroupState>(
+    groupState,
+    EMPTY_GROUPS,
+    onGroupStateChange,
+  );
 
   // Column order is CONTROLLED-ONLY: the grid applies it, the host owns the
   // reorder affordance (a settings surface). No internal order state exists,
@@ -1177,42 +1179,19 @@ export function DataGrid<T>({
                         className="bg-muted hover:bg-muted active:bg-muted"
                       >
                         <TableCell colSpan={colSpan} className="py-1">
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            data-slot="data-grid-group-toggle"
-                            aria-expanded={!collapsed}
-                            onClick={() =>
+                          <SectionToggle
+                            label={section.label}
+                            count={section.rows.length}
+                            expanded={!collapsed}
+                            onExpandedChange={(expanded) =>
                               commitGroups({
                                 ...groups,
-                                [section.id!]: collapsed
+                                [section.id!]: expanded
                                   ? "expanded"
                                   : "collapsed",
                               })
                             }
-                            // `aria-expanded` on upstream's ghost Button means "this control's
-                            // POPUP is open", and it paints `bg-muted text-foreground` to say so.
-                            // Here it means "this SECTION is expanded", which is the resting state
-                            // of every group — so the two neutralisers below keep the resting
-                            // header quiet and leave hover and press to the variant. Measured:
-                            // without them an expanded group header wears a permanent 245/245/245
-                            // chip and full-strength ink.
-                            className={cn(
-                              "-mx-2 min-w-0 justify-start font-normal text-muted-foreground",
-                              "aria-expanded:bg-transparent aria-expanded:text-muted-foreground",
-                              "[&_svg:not([class*='size-'])]:size-3",
-                            )}
-                          >
-                            {collapsed ? (
-                              <ChevronRight className="rtl:rotate-180" />
-                            ) : (
-                              <ChevronDown />
-                            )}
-                            <span className="min-w-0 truncate">
-                              {section.label}
-                            </span>
-                            <span>({section.rows.length})</span>
-                          </Button>
+                          />
                         </TableCell>
                       </TableRow>
                     ) : null}

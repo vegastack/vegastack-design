@@ -25,7 +25,12 @@ function Controlled({
 } & Partial<
   Pick<
     SortableListProps,
-    "lockedReason" | "renderActions" | "actionsLabel" | "layout" | "renderItem"
+    | "lockedReason"
+    | "renderActions"
+    | "actionsLabel"
+    | "layout"
+    | "renderItem"
+    | "menuItems"
   >
 >) {
   const [items, setItems] = React.useState<SortableListItem[]>(
@@ -63,6 +68,30 @@ function rowLabels(): string[] {
     (el) => el.querySelector("[data-slot=item-content]")?.textContent ?? "",
   );
 }
+
+test("menuItems render above the Move items in the one row menu (DS-43)", async () => {
+  const onRename = vi.fn();
+  const screen = await render(
+    <Controlled
+      menuItems={(item) => [
+        { label: `Rename ${item.label}`, onSelect: onRename },
+        { label: "Delete", destructive: true },
+      ]}
+    />,
+  );
+  await screen.getByRole("button", { name: "Actions for Beta" }).click();
+  const items = [...document.querySelectorAll('[role="menuitem"]')].map((n) =>
+    n.textContent?.trim(),
+  );
+  expect(items.slice(0, 2)).toEqual(["Rename Beta", "Delete"]);
+  expect(items).toContain("Move up");
+  (
+    [...document.querySelectorAll('[role="menuitem"]')].find(
+      (n) => n.textContent?.trim() === "Rename Beta",
+    ) as HTMLElement
+  ).click();
+  expect(onRename).toHaveBeenCalledOnce();
+});
 
 test("renders a labelled list of items with handles and menus", async () => {
   const screen = await render(<Controlled />);

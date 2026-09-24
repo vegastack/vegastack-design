@@ -4,6 +4,7 @@ import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/filter-bar-managed` (dogfoods the registry) → auto-scanned.
 import {
+  describeFilter,
   FilterBuilder,
   type FilterField,
   type FilterNode,
@@ -181,6 +182,84 @@ export function filterBarManagedValueShapes(): ReactNode {
           maxDepth={1}
         />
       </div>
+    </Wrapper>
+  );
+}
+
+const RULE_VOCABULARY: FilterField<unknown>[] = [
+  {
+    key: "dimming",
+    label: "Dimming",
+    type: "option",
+    options: [
+      { value: "none", label: "Non-dimmable" },
+      { value: "dali", label: "DALI" },
+      { value: "triac", label: "TRIAC" },
+    ],
+    operators: [
+      { value: "is", label: "is" },
+      { value: "is-not", label: "is not" },
+      { value: "any-of", label: "is any of", valueShape: "list" },
+    ],
+  },
+  {
+    key: "beam",
+    label: "Beam angle",
+    type: "number",
+    unit: "°",
+    operators: [
+      { value: "gte", label: "is at least" },
+      { value: "between", label: "is between", valueShape: "range" },
+    ],
+  },
+];
+
+type RuleGroup = Extract<FilterNode<unknown>, { type: "group" }>;
+
+const RULE_SEED: RuleGroup = {
+  type: "group",
+  op: "and",
+  children: [
+    { type: "condition", field: "dimming", operator: "is-not", value: "none" },
+    { type: "condition", field: "beam", operator: "gte", value: 30 },
+  ],
+};
+
+export function filterBarManagedConditionRules(): ReactNode {
+  const [tree, setTree] = useState<RuleGroup>(RULE_SEED);
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <FilterBuilder<unknown>
+        vocabulary={RULE_VOCABULARY}
+        value={tree}
+        onValueChange={setTree}
+        allowGroups={false}
+        prefix="Required when"
+        labels={{ addCondition: "Add rule", remove: (l) => `Remove ${l} rule` }}
+        conditionError={(c) =>
+          c.field === "beam" && typeof c.value === "number" && c.value > 120
+            ? "Beam angle can't be more than 120°."
+            : undefined
+        }
+      />
+      <p className="text-sm text-muted-foreground">
+        {describeFilter(tree, RULE_VOCABULARY, { prefix: "Required when" })}
+      </p>
+    </Wrapper>
+  );
+}
+
+export function filterBarManagedSentence(): ReactNode {
+  return (
+    <Wrapper className="justify-start">
+      <FilterBuilder<unknown>
+        vocabulary={RULE_VOCABULARY}
+        value={RULE_SEED}
+        onValueChange={() => {}}
+        readOnly
+        summary="sentence"
+        prefix="Required when"
+      />
     </Wrapper>
   );
 }

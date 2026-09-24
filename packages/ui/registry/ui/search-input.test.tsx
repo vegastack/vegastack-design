@@ -281,3 +281,77 @@ test("the clear addon stays inside the group, and the clear button keeps its ins
   expect(group.right - clear.right).toBeGreaterThanOrEqual(4);
   expect(group.right - clear.right).toBeLessThanOrEqual(6);
 });
+
+test("onValueCommitted fires after the debounce and at once on Enter (DS-37)", async () => {
+  vi.useFakeTimers();
+  try {
+    const committed = vi.fn();
+    const onValueChange = vi.fn();
+    const screen = await render(
+      <SearchInput
+        aria-label="Search"
+        debounceMs={300}
+        onValueChange={onValueChange}
+        onValueCommitted={committed}
+      />,
+    );
+    const input = screen.getByRole("searchbox", { name: "Search" });
+    await input.fill("ab");
+    // The input itself stays instant.
+    expect(onValueChange).toHaveBeenLastCalledWith("ab");
+    expect(committed).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(299);
+    expect(committed).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(committed).toHaveBeenCalledOnce();
+    expect(committed).toHaveBeenLastCalledWith("ab");
+
+    await input.fill("abc");
+    await userEvent.keyboard("{Enter}");
+    expect(committed).toHaveBeenCalledTimes(2);
+    expect(committed).toHaveBeenLastCalledWith("abc");
+    // Enter flushed the pending commit: nothing fires again when the delay runs out.
+    await vi.advanceTimersByTimeAsync(300);
+    expect(committed).toHaveBeenCalledTimes(2);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("clearing commits the empty value at once (DS-37)", async () => {
+  vi.useFakeTimers();
+  try {
+    const committed = vi.fn();
+    const screen = await render(
+      <SearchInput
+        aria-label="Search"
+        defaultValue="regent"
+        onValueCommitted={committed}
+      />,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Clear search" }));
+    expect(committed).toHaveBeenCalledOnce();
+    expect(committed).toHaveBeenLastCalledWith("");
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(committed).toHaveBeenCalledOnce();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("debounceMs defaults to TIMINGS.searchDebounceMs (DS-37)", async () => {
+  vi.useFakeTimers();
+  try {
+    const committed = vi.fn();
+    const screen = await render(
+      <SearchInput aria-label="Search" onValueCommitted={committed} />,
+    );
+    await screen.getByRole("searchbox", { name: "Search" }).fill("a");
+    await vi.advanceTimersByTimeAsync(299);
+    expect(committed).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(committed).toHaveBeenCalledWith("a");
+  } finally {
+    vi.useRealTimers();
+  }
+});

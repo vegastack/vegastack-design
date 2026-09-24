@@ -85,6 +85,19 @@ A query input is pushed to the trailing edge alongside the chips and the "Add fi
   file="components/preview/filter-bar.tsx"
 />
 
+### Search first
+
+For a list where search is the main way in, `searchPlacement="start"` puts the field before the
+chips; the trailing slot then takes the push to the end. Send the query from
+`search.onValueCommitted`, which fires with the settled value — after `search.debounceMs`
+(300 ms by default) of quiet, and at once on Enter and on clear — while `onValueChange` keeps the
+field instant.
+
+<ComponentPreview
+  name="filterBarSearchFirst"
+  file="components/preview/filter-bar.tsx"
+/>
+
 ### Empty
 
 With no active filters, only the "Add filter" menu (and search, if enabled) remain.

@@ -266,3 +266,33 @@ export function sortableListGrid(): ReactNode {
     </Wrapper>
   );
 }
+
+export function sortableListRowActions(): ReactNode {
+  const [items, setItems] = useState(STAGES);
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-sm">
+        <SortableList
+          aria-label="Pipeline stages with actions"
+          items={items}
+          lockedReason="Closed stages stay last"
+          menuItems={(item) => [
+            { label: "Rename", onSelect: () => {} },
+            {
+              label: "Delete",
+              destructive: true,
+              disabled: item.disabled,
+              disabledReason: "Built-in stages can't be deleted",
+              onSelect: () =>
+                setItems((prev) => prev.filter((i) => i.id !== item.id)),
+            },
+          ]}
+          renderItem={(item) => <span className="truncate">{item.label}</span>}
+          onReorder={({ id, to }) =>
+            setItems((prev) => applyMove(prev, id, to.index))
+          }
+        />
+      </div>
+    </Wrapper>
+  );
+}

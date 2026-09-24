@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.19.0 sha256-WdxSCMPPs8K/Wzn5iiI+K5tpt+ZwrGwzv5TLlrTjTcs=
+// @vegastack filter-bar-managed@0.19.0 sha256-zeRoAFfrAJPYXQpWBgN5O4LBEvu5WnDsLkLZIeUsk/U=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { Plus, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberField } from "@/components/ui/number-field";
 import { FilterChip } from "@/components/ui/filter-bar";
 import {
   Select,
@@ -103,6 +104,17 @@ export interface FilterField<V = unknown> {
   /** Operators this field accepts, in menu order. */
   operators: readonly FilterOperator[];
   /**
+   * The choices of an option field — what `OptionValueEditor`/`OptionsValueEditor` offer and
+   * what `describeFilter` and the chip summary print for a stored value.
+   * @default undefined
+   */
+  options?: readonly { value: string; label: string }[];
+  /**
+   * The unit a number field is measured in ("W", "°", "mm"), printed after its values.
+   * @default undefined
+   */
+  unit?: string;
+  /**
    * Format a value for the read-only chip summary.
 
    * @default undefined
@@ -164,6 +176,37 @@ export interface FilterBuilderProps<V = unknown> {
    * @default 3
    */
   maxDepth?: number;
+  /**
+   * `false` makes a flat list of conditions — the same as `maxDepth={1}`: no add-group control
+   * and no reason. For rule editors ("required when …") that never nest.
+   * @default true
+   */
+  allowGroups?: boolean;
+  /**
+   * What the rule is for, read as the root fieldset's name ("Required when") and put before the
+   * sentence summary. Falls back to `aria-label`.
+   * @default undefined
+   */
+  prefix?: string;
+  /**
+   * The builder's own words, for another language or a domain's vocabulary.
+   * @default English defaults
+   */
+  labels?: Partial<FilterBuilderLabels>;
+  /**
+   * A row's own validation message, shown under the row and read as its value editor's
+   * description. Runs on every render; return `undefined` for a valid row.
+   * @default undefined
+   */
+  conditionError?: (
+    condition: Extract<FilterNode<V>, { type: "condition" }>,
+    path: number[],
+  ) => string | undefined;
+  /**
+   * How the read-only summary reads: removable chips, or one sentence (`describeFilter`).
+   * @default "chips"
+   */
+  summary?: "chips" | "sentence";
   /**
    * Maximum total conditions across the tree. The add affordances disable at
    * the cap.
@@ -238,8 +281,11 @@ function collectConditions<V>(
  * The built-in fallback value editor: a text `Input`. STRING-VALUED — when `V`
  * is not `string`, register a typed editor for that field `type`; the fallback
  * would otherwise write strings into the tree.
+ *
+ * @example
+ * editors={{ text: TextValueEditor }}
  */
-function TextValueEditor<V>({
+export function TextValueEditor<V>({
   field,
   value,
   onValueChange,
@@ -265,7 +311,336 @@ function TextValueEditor<V>({
   );
 }
 
-const OP_LABEL = { and: "All conditions match", or: "Any condition matches" };
+/** The words `FilterBuilder` and `describeFilter` print. */
+export interface FilterBuilderLabels {
+  /** The "and" match type. */
+  matchAll: string;
+  /** The "or" match type. */
+  matchAny: string;
+  /** The add-condition button. */
+  addCondition: string;
+  /** The read-only summary of an empty tree. */
+  empty: string;
+  /** A missing value's message. */
+  valueRequired: string;
+  /** The field picker's accessible name. */
+  field: string;
+  /** The operator picker's accessible name. */
+  operator: string;
+  /** A condition's remove button, from its field label. */
+  remove: (label: string) => string;
+}
+
+const DEFAULT_LABELS: FilterBuilderLabels = {
+  matchAll: "All conditions match",
+  matchAny: "Any condition matches",
+  addCondition: "Add condition",
+  empty: "No filters",
+  valueRequired: "Value required",
+  field: "Field",
+  operator: "Operator",
+  remove: (label) => `Remove ${label} condition`,
+};
+
+/**
+ * A number range as text: `≥ 10 W`, `10–20 W`, `≤ 20 W`. A unit that is a symbol (`°`, `%`)
+ * sits on the number; a word unit gets a space.
+ *
+ * @example
+ * formatRange(10, 20, "W"); // "10–20 W"
+ */
+export function formatRange(min?: number, max?: number, unit?: string): string {
+  const withUnit = (text: string) =>
+    unit ? (/^[°%′″]/.test(unit) ? `${text}${unit}` : `${text} ${unit}`) : text;
+  if (min != null && max != null) return withUnit(`${min}–${max}`);
+  if (min != null) return withUnit(`≥ ${min}`);
+  if (max != null) return withUnit(`≤ ${max}`);
+  return "";
+}
+
+/** One stored value, printed for a person: option labels, units, ranges. */
+function formatFilterValue<V>(
+  field: FilterField<V> | undefined,
+  value: unknown,
+  listJoin: string,
+): string {
+  if (value === undefined || value === null || value === "") return "";
+  if (field?.formatValue) return field.formatValue(value as V);
+  const optionLabel = (v: unknown) =>
+    field?.options?.find((o) => o.value === v)?.label ?? String(v);
+  if (Array.isArray(value)) return value.map(optionLabel).join(listJoin);
+  if (typeof value === "object") {
+    const { min, max } = value as { min?: number; max?: number };
+    return formatRange(min, max, field?.unit);
+  }
+  if (typeof value === "number") {
+    const unit = field?.unit;
+    if (!unit) return String(value);
+    return /^[°%′″]/.test(unit) ? `${value}${unit}` : `${value} ${unit}`;
+  }
+  return optionLabel(value);
+}
+
+/**
+ * The filter tree as one sentence — "Required when Dimming is not Non-dimmable and Beam angle is
+ * at least 30°". Nested groups read in parentheses. An empty tree reads as "".
+ *
+ * @example
+ * describeFilter(tree, vocabulary, { prefix: "Shown when" });
+ */
+export function describeFilter<V>(
+  tree: Extract<FilterNode<V>, { type: "group" }>,
+  vocabulary: readonly FilterField<V>[],
+  labels: { prefix?: string; and?: string; or?: string } = {},
+): string {
+  const and = labels.and ?? "and";
+  const or = labels.or ?? "or";
+  const byKey = new Map(vocabulary.map((f) => [f.key, f]));
+  const read = (node: FilterNode<V>, nested: boolean): string => {
+    if (node.type === "condition") {
+      const field = byKey.get(node.field);
+      const operator = field?.operators.find(
+        (op) => op.value === node.operator,
+      );
+      const value = formatFilterValue(field, node.value, ` ${or} `);
+      return [
+        field?.label ?? node.field,
+        operator?.label ?? node.operator,
+        value,
+      ]
+        .filter(Boolean)
+        .join(" ");
+    }
+    const parts = node.children
+      .map((child) => read(child, true))
+      .filter(Boolean);
+    const text = parts.join(` ${node.op === "and" ? and : or} `);
+    return nested && parts.length > 1 ? `(${text})` : text;
+  };
+  const body = read(tree, false);
+  if (!body) return "";
+  return labels.prefix ? `${labels.prefix} ${body}` : body;
+}
+
+/**
+ * A number value editor on `NumberField`. Commits a number, or `undefined` when cleared. The
+ * field's `unit` shows as a suffix.
+ *
+ * @example
+ * editors={{ number: NumberValueEditor }}
+ */
+export function NumberValueEditor<V>({
+  field,
+  value,
+  onValueChange,
+  "aria-label": ariaLabel,
+  disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+}: FilterValueEditorProps<V>) {
+  return (
+    <NumberField
+      id={id}
+      aria-label={ariaLabel}
+      aria-invalid={ariaInvalid || undefined}
+      aria-describedby={ariaDescribedBy}
+      disabled={disabled}
+      suffix={field.unit}
+      value={typeof value === "number" ? value : null}
+      onValueChange={(next) =>
+        onValueChange((next ?? undefined) as V | undefined)
+      }
+    />
+  );
+}
+
+/**
+ * A range value editor: Minimum and Maximum `NumberField`s. Either bound may be empty
+ * (`{ min }`, `{ max }`), and a minimum above the maximum is an error read on the Minimum field.
+ *
+ * @example
+ * editors={{ range: NumberRangeEditor }}
+ */
+export function NumberRangeEditor<V>({
+  field,
+  value,
+  onValueChange,
+  "aria-label": ariaLabel,
+  disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+}: FilterValueEditorProps<V>) {
+  const errorId = React.useId();
+  const range = (value ?? {}) as { min?: number; max?: number };
+  const inverted =
+    range.min != null && range.max != null && range.min > range.max;
+  const commit = (next: { min?: number; max?: number }) => {
+    const clean: { min?: number; max?: number } = {};
+    if (next.min != null) clean.min = next.min;
+    if (next.max != null) clean.max = next.max;
+    onValueChange(
+      (clean.min == null && clean.max == null ? undefined : clean) as
+        V | undefined,
+    );
+  };
+  const describedBy = (extra?: string) =>
+    [extra, ariaDescribedBy].filter(Boolean).join(" ") || undefined;
+  return (
+    <span
+      role="group"
+      aria-label={ariaLabel}
+      data-slot="filter-range-editor"
+      className="flex min-w-0 flex-wrap items-center gap-2"
+    >
+      <NumberField
+        id={id}
+        aria-label="Minimum"
+        aria-invalid={inverted || ariaInvalid || undefined}
+        aria-describedby={describedBy(inverted ? errorId : undefined)}
+        disabled={disabled}
+        suffix={field.unit}
+        className="w-28"
+        value={range.min ?? null}
+        onValueChange={(next) => commit({ ...range, min: next ?? undefined })}
+      />
+      <span aria-hidden="true" className="text-muted-foreground">
+        –
+      </span>
+      <NumberField
+        aria-label="Maximum"
+        aria-invalid={inverted || ariaInvalid || undefined}
+        aria-describedby={describedBy()}
+        disabled={disabled}
+        suffix={field.unit}
+        className="w-28"
+        value={range.max ?? null}
+        onValueChange={(next) => commit({ ...range, max: next ?? undefined })}
+      />
+      {inverted ? (
+        <span
+          id={errorId}
+          data-slot="filter-range-editor-error"
+          className="basis-full text-xs text-destructive-text"
+        >
+          Minimum can't be more than maximum.
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+/**
+ * One option from the field's `options`, on `Select`.
+ *
+ * @example
+ * editors={{ option: OptionValueEditor }}
+ */
+export function OptionValueEditor<V>({
+  field,
+  value,
+  onValueChange,
+  "aria-label": ariaLabel,
+  disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+}: FilterValueEditorProps<V>) {
+  const options = field.options ?? [];
+  return (
+    <Select
+      items={Object.fromEntries(options.map((o) => [o.value, o.label]))}
+      value={typeof value === "string" ? value : null}
+      onValueChange={(next) =>
+        onValueChange((next ?? undefined) as V | undefined)
+      }
+      disabled={disabled}
+    >
+      <SelectTrigger
+        id={id}
+        size="sm"
+        aria-label={ariaLabel}
+        aria-invalid={ariaInvalid || undefined}
+        aria-describedby={ariaDescribedBy}
+        className="w-fit min-w-32"
+      >
+        <SelectValue placeholder="Choose…" />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((o) => (
+          <SelectItem key={o.value} value={o.value}>
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+/**
+ * Several options from the field's `options` (a `list` operator — "is any of"), on a
+ * multiple `Select`. Commits the chosen values in option order, or `undefined` when none.
+ *
+ * @example
+ * editors={{ options: OptionsValueEditor }}
+ */
+export function OptionsValueEditor<V>({
+  field,
+  value,
+  onValueChange,
+  "aria-label": ariaLabel,
+  disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+}: FilterValueEditorProps<V>) {
+  const options = field.options ?? [];
+  const selected = Array.isArray(value) ? (value as string[]) : [];
+  const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? v;
+  return (
+    <Select
+      multiple
+      items={Object.fromEntries(options.map((o) => [o.value, o.label]))}
+      value={selected}
+      onValueChange={(next: string[]) => {
+        const ordered = options
+          .map((o) => o.value)
+          .filter((v) => next.includes(v));
+        onValueChange(
+          (ordered.length > 0 ? ordered : undefined) as V | undefined,
+        );
+      }}
+      disabled={disabled}
+    >
+      <SelectTrigger
+        id={id}
+        size="sm"
+        aria-label={ariaLabel}
+        aria-invalid={ariaInvalid || undefined}
+        aria-describedby={ariaDescribedBy}
+        className="w-fit min-w-32"
+      >
+        <SelectValue placeholder="Choose…">
+          {(current: string[]) =>
+            current.length === 0
+              ? null
+              : current.length > 2
+                ? `${current.length} selected`
+                : current.map(labelOf).join(", ")
+          }
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((o) => (
+          <SelectItem key={o.value} value={o.value}>
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 
 /**
  * `FilterBuilder` — the stateful nested and/or filter builder
@@ -297,7 +672,12 @@ export function FilterBuilder<V = unknown>({
   editors,
   value,
   onValueChange,
-  maxDepth = 3,
+  maxDepth: maxDepthProp = 3,
+  allowGroups = true,
+  prefix,
+  labels: labelsProp,
+  conditionError,
+  summary = "chips",
   maxConditions = 25,
   disabled = false,
   readOnly = false,
@@ -306,6 +686,10 @@ export function FilterBuilder<V = unknown>({
   ref,
 }: FilterBuilderProps<V>) {
   const idBase = React.useId();
+  const maxDepth = allowGroups ? maxDepthProp : 1;
+  const labels = { ...DEFAULT_LABELS, ...labelsProp };
+  const opLabel = { and: labels.matchAll, or: labels.matchAny };
+  const rootName = prefix ?? ariaLabel;
   // DS-28: "Value required" shows only once the value control was touched (blurred) or the
   // enclosing form was submitted — a freshly added row is not an error yet.
   const rootRef = React.useRef<HTMLDivElement>(null);
@@ -376,7 +760,13 @@ export function FilterBuilder<V = unknown>({
         )}
       >
         {conditions.length === 0 ? (
-          <span className="text-xs text-muted-foreground">No filters</span>
+          <span className="text-xs text-muted-foreground">{labels.empty}</span>
+        ) : summary === "sentence" ? (
+          <p data-slot="filter-builder-sentence" className="text-sm">
+            {describeFilter(value, vocabulary, {
+              prefix,
+            })}
+          </p>
         ) : (
           conditions.map(({ condition, path }) => {
             const field = fieldByKey.get(condition.field);
@@ -386,8 +776,7 @@ export function FilterBuilder<V = unknown>({
             const formatted =
               condition.value === undefined
                 ? undefined
-                : (field?.formatValue?.(condition.value) ??
-                  String(condition.value));
+                : formatFilterValue(field, condition.value, ", ");
             const label = field?.label ?? condition.field;
             return (
               <FilterChip
@@ -467,11 +856,11 @@ export function FilterBuilder<V = unknown>({
         )}
       >
         <legend className="sr-only">
-          {depth === 1 ? ariaLabel : `Condition group (${OP_LABEL[group.op]})`}
+          {depth === 1 ? rootName : `Condition group (${opLabel[group.op]})`}
         </legend>
         <div className="flex items-center gap-2">
           <Select
-            items={OP_LABEL}
+            items={opLabel}
             value={group.op}
             onValueChange={(next) => {
               if (next === "and" || next === "or")
@@ -485,8 +874,8 @@ export function FilterBuilder<V = unknown>({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="and">{OP_LABEL.and}</SelectItem>
-              <SelectItem value="or">{OP_LABEL.or}</SelectItem>
+              <SelectItem value="and">{opLabel.and}</SelectItem>
+              <SelectItem value="or">{opLabel.or}</SelectItem>
             </SelectContent>
           </Select>
           {depth > 1 ? (
@@ -529,7 +918,21 @@ export function FilterBuilder<V = unknown>({
             (child.value === undefined ||
               child.value === ("" as unknown) ||
               (Array.isArray(child.value) && child.value.length === 0));
-          const Editor = editors?.[field.type] ?? TextValueEditor<V>;
+          const shape = valueShapeOf(operator);
+          const Editor: React.ComponentType<FilterValueEditorProps<V>> =
+            (shape === "range" || shape === "list"
+              ? editors?.[shape]
+              : undefined) ??
+            editors?.[field.type] ??
+            (shape === "range"
+              ? NumberRangeEditor<V>
+              : shape === "list" && field.options
+                ? OptionsValueEditor<V>
+                : field.options
+                  ? OptionValueEditor<V>
+                  : TextValueEditor<V>);
+          const rowError = conditionError?.(child, childPath);
+          const invalid = missingValue || rowError !== undefined;
           const editorId = `${rowId(childPath)}-value`;
           const errorId = `${rowId(childPath)}-error`;
 
@@ -548,7 +951,7 @@ export function FilterBuilder<V = unknown>({
             <div
               key={childPath.join("-")}
               data-slot="filter-builder-condition"
-              data-invalid={missingValue ? "" : undefined}
+              data-invalid={invalid ? "" : undefined}
               className="flex min-w-0 flex-wrap items-center gap-2"
             >
               <Select
@@ -573,7 +976,7 @@ export function FilterBuilder<V = unknown>({
                 <SelectTrigger
                   id={rowId(childPath)}
                   size="sm"
-                  aria-label="Field"
+                  aria-label={labels.field}
                   className="w-fit"
                 >
                   <SelectValue />
@@ -610,7 +1013,7 @@ export function FilterBuilder<V = unknown>({
               >
                 <SelectTrigger
                   size="sm"
-                  aria-label="Operator"
+                  aria-label={labels.operator}
                   className="w-fit"
                 >
                   <SelectValue />
@@ -636,24 +1039,24 @@ export function FilterBuilder<V = unknown>({
                     aria-label={`${field.label} value`}
                     disabled={disabled}
                     id={editorId}
-                    aria-invalid={missingValue || undefined}
-                    aria-describedby={missingValue ? errorId : undefined}
+                    aria-invalid={invalid || undefined}
+                    aria-describedby={invalid ? errorId : undefined}
                   />
                 </span>
               ) : null}
-              {missingValue ? (
+              {invalid ? (
                 <span
                   id={errorId}
                   data-slot="filter-builder-condition-error"
                   className="text-xs text-destructive-text"
                 >
-                  Value required
+                  {missingValue ? labels.valueRequired : rowError}
                 </span>
               ) : null}
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label={`Remove ${field.label} condition`}
+                aria-label={labels.remove(field.label)}
                 disabled={disabled}
                 onClick={() => removeChild(index)}
               >
@@ -686,7 +1089,7 @@ export function FilterBuilder<V = unknown>({
               );
             }}
           >
-            <Plus /> Add condition
+            <Plus /> {labels.addCondition}
           </Button>
           {allowsGroups ? (
             <Button

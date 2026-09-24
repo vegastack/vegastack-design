@@ -1,12 +1,32 @@
-// @vegastack data-table-parts@0.19.0 sha256-xw8NYqg6tGuQzMWC4i7Zaa8V00xvUvbsH9q2GdwXwFU=
+// @vegastack data-table-parts@0.19.0 sha256-G2p4cS1cC3zpTcqWZnWZ4B4AJvqe+MEDJ4MvI7EkDsg=
 
 "use client";
 
 import * as React from "react";
-import { ArrowDown, ArrowUp, ChevronsUpDown, Inbox } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
+  EllipsisVertical,
+  Inbox,
+} from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Empty,
   EmptyDescription,
@@ -875,6 +895,273 @@ export function EmptyRow({
           </Empty>
         )}
       </TableCell>
+    </TableRow>
+  );
+}
+
+/** One entry of a row's actions menu. */
+export interface RowAction {
+  /** The item's text, and its accessible name. */
+  label: string;
+  /**
+   * Run the action. Omit for a link action that passes `render`.
+   * @default undefined
+   */
+  onSelect?: () => void;
+  /**
+   * Render the item as another element — `<a href="…" />` or a router `Link` — so the action
+   * is a real link that opens in a new tab on ⌘-click.
+   * @default undefined
+   */
+  render?: React.ReactElement;
+  /**
+   * Paint the item in the destructive ink (delete, archive).
+   * @default false
+   */
+  destructive?: boolean;
+  /**
+   * Keep the item in the menu but unavailable. It stays reachable by arrow keys.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Why a disabled item is unavailable — a second line, read as the item's description.
+   * @default undefined
+   */
+  disabledReason?: string;
+  /**
+   * A leading icon. A row with exactly one action that has an icon shows it as an icon button
+   * with a tooltip instead of a menu.
+   * @default undefined
+   */
+  icon?: React.ReactNode;
+}
+
+/**
+ * `RowActionMenuItems` — a `RowAction[]` as dropdown menu items, for a host that already owns
+ * a menu (Board's card menu, SortableList's row menu) and merges its own items after them.
+ *
+ * @example
+ * <DropdownMenuContent>
+ *   <RowActionMenuItems actions={actions} />
+ *   <DropdownMenuSeparator />
+ *   {moveItems}
+ * </DropdownMenuContent>
+ */
+export function RowActionMenuItems({ actions }: { actions: RowAction[] }) {
+  return (
+    <>
+      {actions.map((action) => (
+        <DropdownMenuItem
+          key={action.label}
+          variant={action.destructive ? "destructive" : "default"}
+          disabled={action.disabled}
+          render={action.render}
+          onClick={action.disabled ? undefined : action.onSelect}
+        >
+          {action.icon}
+          {action.disabled && action.disabledReason ? (
+            <ItemContent>
+              <ItemTitle>{action.label}</ItemTitle>
+              <ItemDescription>{action.disabledReason}</ItemDescription>
+            </ItemContent>
+          ) : (
+            action.label
+          )}
+        </DropdownMenuItem>
+      ))}
+    </>
+  );
+}
+
+/** Props accepted by `RowActionsMenu`. */
+export interface RowActionsMenuProps {
+  /** The row's name, used in the trigger's accessible name. */
+  label: string;
+  /** The actions, in menu order. Renders nothing when empty. */
+  actions: RowAction[];
+  /**
+   * The trigger's accessible name, from the row's label.
+   * @default (label) => `Actions for ${label}`
+   */
+  actionsLabel?: (label: string) => string;
+}
+
+const defaultActionsLabel = (label: string) => `Actions for ${label}`;
+
+/**
+ * `RowActionsMenu` — one ⋯ menu per row, named for the row ("Actions for Aria"). A row with a
+ * single icon action gets that action as an icon button with a tooltip instead.
+ *
+ * @example
+ * <RowActionsMenu
+ *   label={product.name}
+ *   actions={[
+ *     { label: "Edit", onSelect: () => edit(product) },
+ *     { label: "Delete", destructive: true, disabled: inUse, disabledReason: "In use by 3 lists" },
+ *   ]}
+ * />
+ */
+export function RowActionsMenu({
+  label,
+  actions,
+  actionsLabel = defaultActionsLabel,
+}: RowActionsMenuProps) {
+  if (actions.length === 0) return null;
+  const only = actions.length === 1 ? actions[0]! : null;
+  if (only && only.icon != null) {
+    const name = `${only.label} ${label}`;
+    return (
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              data-slot="row-action"
+              aria-label={name}
+              disabled={only.disabled}
+              render={only.render}
+              nativeButton={only.render == null}
+              onClick={only.disabled ? undefined : only.onSelect}
+              className={cn(only.destructive && "text-destructive-text")}
+            >
+              {only.icon}
+            </Button>
+          }
+        />
+        <TooltipContent>
+          {only.disabled && only.disabledReason
+            ? only.disabledReason
+            : only.label}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            data-slot="row-actions-trigger"
+            aria-label={actionsLabel(label)}
+          >
+            <EllipsisVertical />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end">
+        <RowActionMenuItems actions={actions} />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/** Collapsed or expanded, per section (DataList) or group (DataGrid) id. */
+export type GroupState = Record<string, "expanded" | "collapsed">;
+
+/** Props accepted by `SectionToggle`. */
+export interface SectionToggleProps {
+  /** The section's name. */
+  label: React.ReactNode;
+  /**
+   * How many rows the section holds. Shown muted, in tabular numerals, after the label.
+   * @default undefined
+   */
+  count?: number;
+  /** Whether the section's rows are shown. */
+  expanded: boolean;
+  /** Called with the next expanded state when the toggle is activated. */
+  onExpandedChange: (expanded: boolean) => void;
+  /**
+   * The count as a screen reader hears it.
+   * @default (n) => `${n} rows` ("1 row" for one)
+   */
+  countLabel?: (count: number) => string;
+}
+
+const defaultCountLabel = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
+
+/**
+ * `SectionToggle` — the disclosure button a section or group header carries: a chevron, the
+ * label, and a muted tabular count. DataGrid's group row and `SectionRow` both render it.
+ *
+ * @example
+ * <SectionToggle label="Overdue" count={3} expanded={open} onExpandedChange={setOpen} />
+ */
+export function SectionToggle({
+  label,
+  count,
+  expanded,
+  onExpandedChange,
+  countLabel = defaultCountLabel,
+}: SectionToggleProps) {
+  return (
+    <Button
+      variant="ghost"
+      size="xs"
+      data-slot="section-toggle"
+      aria-expanded={expanded}
+      onClick={() => onExpandedChange(!expanded)}
+      // `aria-expanded` on upstream's ghost Button means "this control's POPUP is open", and it
+      // paints `bg-muted text-foreground` to say so. Here it means "this SECTION is expanded",
+      // the resting state of every section — so the two neutralisers keep the resting header
+      // quiet and leave hover and press to the variant.
+      className={cn(
+        "-mx-2 min-w-0 justify-start font-normal text-muted-foreground",
+        "aria-expanded:bg-transparent aria-expanded:text-muted-foreground",
+        "[&_svg:not([class*='size-'])]:size-3",
+      )}
+    >
+      {expanded ? <ChevronDown /> : <ChevronRight className="rtl:rotate-180" />}
+      <span className="min-w-0 truncate text-foreground">{label}</span>
+      {count != null ? (
+        <>
+          <span
+            aria-hidden="true"
+            data-slot="section-row-count"
+            className="text-muted-foreground tabular-nums"
+          >
+            {count}
+          </span>
+          <span className="sr-only">, {countLabel(count)}</span>
+        </>
+      ) : null}
+    </Button>
+  );
+}
+
+/** Props accepted by `SectionRow`. */
+export interface SectionRowProps extends SectionToggleProps {
+  /** The section's id (reflected as `data-section`). */
+  id: string;
+  /** How many columns the header spans. */
+  colSpan: number;
+}
+
+/**
+ * `SectionRow` — a section's header row: one `th scope="rowgroup"` spanning the table, holding
+ * a `SectionToggle`. Put it first in the section's own `<tbody>`, so the header names every row
+ * below it.
+ *
+ * @example
+ * <TableBody>
+ *   <SectionRow id="overdue" label="Overdue" count={3} colSpan={4} expanded onExpandedChange={toggle} />
+ *   {rows}
+ * </TableBody>
+ */
+export function SectionRow({ id, colSpan, ...toggle }: SectionRowProps) {
+  return (
+    <TableRow
+      data-slot="section-row"
+      data-section={id}
+      className="bg-muted hover:bg-muted active:bg-muted"
+    >
+      <TableHead scope="rowgroup" colSpan={colSpan} className="h-auto py-1">
+        <SectionToggle {...toggle} />
+      </TableHead>
     </TableRow>
   );
 }

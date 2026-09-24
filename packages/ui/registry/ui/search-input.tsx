@@ -1,10 +1,10 @@
-// @vegastack search-input@0.19.0 sha256-/Mlek581SLlhHoPrYfG5uI4uOquf+b8HNDLJC1RGKi8=
+// @vegastack search-input@0.19.0 sha256-WBIK6fnREQ1zcpDDnfHtmO3xdvh7hvTKzZrdstANBVA=
 
 "use client";
 
 import * as React from "react";
 import { Search, X } from "lucide-react";
-import { mergeRefs } from "@vegastack/design";
+import { mergeRefs, TIMINGS } from "@vegastack/design";
 
 import {
   InputGroup,
@@ -24,6 +24,18 @@ export interface SearchInputProps extends Omit<
   defaultValue?: string;
   /** Called with the next value after typing or clearing. @default undefined */
   onValueChange?: (value: string) => void;
+  /**
+   * Called with the SETTLED value: after `debounceMs` of quiet, and at once on
+   * Enter and on clear. The field itself stays instant — `onValueChange` still
+   * fires on every keystroke. Use this one to send the query.
+   * @default undefined
+   */
+  onValueCommitted?: (value: string) => void;
+  /**
+   * Quiet time after the last keystroke before `onValueCommitted` fires.
+   * @default TIMINGS.searchDebounceMs (300)
+   */
+  debounceMs?: number;
   /** Accessible name for the clear action. @default 'Clear search' */
   clearLabel?: string;
   /** Slot name applied to the InputGroup root. @default 'search-input' */
@@ -49,6 +61,8 @@ function SearchInput({
   value,
   defaultValue = "",
   onValueChange,
+  onValueCommitted,
+  debounceMs = TIMINGS.searchDebounceMs,
   clearLabel = "Clear search",
   className,
   disabled,
@@ -83,6 +97,38 @@ function SearchInput({
     };
   }, [controlled, defaultValue, input]);
 
+  // The settled-value channel: one pending timer, flushed by Enter and clear.
+  const commitRef = React.useRef(onValueCommitted);
+  React.useLayoutEffect(() => {
+    commitRef.current = onValueCommitted;
+  });
+  const commitTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelCommit = React.useCallback(() => {
+    if (commitTimer.current != null) {
+      clearTimeout(commitTimer.current);
+      commitTimer.current = null;
+    }
+  }, []);
+  const commitNow = React.useCallback(
+    (nextValue: string) => {
+      cancelCommit();
+      commitRef.current?.(nextValue);
+    },
+    [cancelCommit],
+  );
+  const scheduleCommit = React.useCallback(
+    (nextValue: string) => {
+      if (commitRef.current == null) return;
+      cancelCommit();
+      commitTimer.current = setTimeout(() => {
+        commitTimer.current = null;
+        commitRef.current?.(nextValue);
+      }, debounceMs);
+    },
+    [cancelCommit, debounceMs],
+  );
+  React.useEffect(() => cancelCommit, [cancelCommit]);
+
   const updateValue = React.useCallback(
     (nextValue: string) => {
       if (!controlled) setUncontrolledValue(nextValue);
@@ -94,8 +140,9 @@ function SearchInput({
   const clear = React.useCallback(() => {
     if (!canClear) return;
     updateValue("");
+    commitNow("");
     input?.focus();
-  }, [canClear, input, updateValue]);
+  }, [canClear, commitNow, input, updateValue]);
 
   return (
     <InputGroup className={className} data-slot={dataSlot}>
@@ -112,10 +159,18 @@ function SearchInput({
         className="[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
         onChange={(event) => {
           updateValue(event.currentTarget.value);
+          scheduleCommit(event.currentTarget.value);
           onChange?.(event);
         }}
         onKeyDown={(event) => {
           onKeyDown?.(event);
+          if (
+            !event.defaultPrevented &&
+            event.key === "Enter" &&
+            onValueCommitted != null
+          ) {
+            commitNow(event.currentTarget.value);
+          }
           if (!event.defaultPrevented && event.key === "Escape" && canClear) {
             event.preventDefault();
             clear();

@@ -82,7 +82,9 @@ all.
 
 One `group` column renders a collapsible `<tbody>` section per value — valid
 HTML where a div-based collapsible between `tbody` and `tr` is not. Grouping
-and `virtualize` are mutually exclusive.
+and `virtualize` are mutually exclusive. The group header is the shared `SectionToggle` DataList's
+sections use: the row count sits after the label in muted tabular numerals (no parentheses), and a
+screen reader hears it as "Open, 2 rows".
 
 <ComponentPreview
   name="dataGridGrouped"

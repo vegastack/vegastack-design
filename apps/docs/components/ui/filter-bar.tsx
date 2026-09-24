@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.19.0 sha256-YxBId1raIFVVmNM1eJlvWQdDXV7vGEZF2GY8jxzjT5Y=
+// @vegastack filter-bar@0.19.0 sha256-p8hyCkHl1GscTzsiPm5ekYG6ux8/xtLDC96bxf2HHF0=
 
 "use client";
 
@@ -77,6 +77,17 @@ export interface FilterBarSearch {
   /** Invoked with the next value on every keystroke. */
   onValueChange: (value: string) => void;
   /**
+   * Invoked with the settled query — after `debounceMs` of quiet, and at once
+   * on Enter and on clear. Send the query from here, not from `onValueChange`.
+   * @default undefined
+   */
+  onValueCommitted?: (value: string) => void;
+  /**
+   * Quiet time before `onValueCommitted` fires.
+   * @default TIMINGS.searchDebounceMs (300)
+   */
+  debounceMs?: number;
+  /**
    * Placeholder text shown while the query is empty. Also used as the field's
    * accessible name when no `aria-label` is supplied.
    * @default 'Search…'
@@ -92,8 +103,15 @@ export interface FilterBarSearch {
 /** Props accepted by `FilterBar`. */
 export interface FilterBarProps extends Omit<
   React.ComponentPropsWithRef<"div">,
-  "onChange"
+  "onChange" | "children"
 > {
+  /**
+   * Where the search field sits: `"end"` pushes it to the trailing edge after
+   * the chips; `"start"` puts it first, for lists where search is the primary
+   * filter (the trailing slot then takes the end push).
+   * @default "end"
+   */
+  searchPlacement?: "start" | "end";
   /**
    * The active filters, rendered as removable chips at the start of the bar.
    * @default []
@@ -230,7 +248,15 @@ export function FilterChip({
       {icon != null ? (
         <span className="shrink-0 text-muted-foreground">{icon}</span>
       ) : null}
-      <span className="shrink-0 text-muted-foreground">{label}</span>
+      {value != null ? (
+        // "Label: value" — the colon joins the pair in the accessible name, and the trailing
+        // space (collapsed at the end of the flex item) keeps the text reading "Status: Open".
+        <span className="shrink-0 text-muted-foreground">
+          <span className="text-muted-foreground">{label}</span>:{" "}
+        </span>
+      ) : (
+        <span className="shrink-0 text-muted-foreground">{label}</span>
+      )}
       {value != null ? <span className="min-w-0 truncate">{value}</span> : null}
     </Chip>
   );
@@ -272,11 +298,33 @@ export function FilterBar({
   addFilterMenuAlign = "start",
   search,
   searchInputProps,
+  searchPlacement = "end",
   trailing,
   ...props
 }: FilterBarProps) {
   const hasDeclarativeMenu =
     addFilterMenu == null && addFilters != null && addFilters.length > 0;
+
+  // Optional controlled search/query input — first, or pushed to the trailing edge.
+  const searchStart = searchPlacement === "start";
+  const searchField =
+    search != null ? (
+      <SearchInput
+        {...searchInputProps}
+        value={search.value}
+        onValueChange={search.onValueChange}
+        onValueCommitted={search.onValueCommitted}
+        debounceMs={search.debounceMs}
+        placeholder={search.placeholder ?? "Search…"}
+        aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
+        data-slot="filter-bar-search"
+        className={cn(
+          "h-8 w-auto min-w-0 basis-48",
+          !searchStart && "ms-auto",
+          searchInputProps?.className,
+        )}
+      />
+    ) : null;
 
   return (
     <div
@@ -290,6 +338,8 @@ export function FilterBar({
       )}
       {...props}
     >
+      {searchStart ? searchField : null}
+
       {filters.map((filter) => (
         <FilterChip
           key={filter.id}
@@ -333,26 +383,15 @@ export function FilterBar({
           </DropdownMenu>
         ) : null)}
 
-      {/* Optional controlled search/query input — pushed to the trailing edge. */}
-      {search != null ? (
-        <SearchInput
-          {...searchInputProps}
-          value={search.value}
-          onValueChange={search.onValueChange}
-          placeholder={search.placeholder ?? "Search…"}
-          aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
-          data-slot="filter-bar-search"
-          className={cn(
-            "ms-auto h-8 w-auto min-w-0 basis-48",
-            searchInputProps?.className,
-          )}
-        />
-      ) : null}
+      {searchStart ? null : searchField}
 
       {trailing != null ? (
         <div
           data-slot="filter-bar-trailing"
-          className={cn("shrink-0", search == null && "ms-auto")}
+          className={cn(
+            "shrink-0",
+            (search == null || searchStart) && "ms-auto",
+          )}
         >
           {trailing}
         </div>

@@ -351,9 +351,11 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/data-table-parts",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/load-more",
         "@vegastack/scroll-area",
         "@vegastack/skeleton",
         "@vegastack/truncated-text",
@@ -936,7 +938,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, and keyset paging through loadMore.",
+        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, collapsible sections and a row-actions column.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.19.0"
       }
@@ -1009,9 +1011,12 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/item",
         "@vegastack/skeleton",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -1370,7 +1375,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
+        "whenToUse": "Filter toolbars for lists/tables — active filters as removable 'Label: value' chips + an Add-filter menu + optional search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.19.0"
       }
@@ -1388,8 +1393,9 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/input",
         "@vegastack/filter-bar",
+        "@vegastack/input",
+        "@vegastack/number-field",
         "@vegastack/select"
       ],
       "files": [
@@ -1400,7 +1406,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Structured, saveable filters with nesting — build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
+        "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.19.0"
       }
@@ -12589,7 +12595,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A reusable search field that needs a consistent token-colored clear action across browsers.",
+        "whenToUse": "A reusable search field with a consistent token-colored clear action, and a settled (debounced, Enter-flushed) value for sending the query.",
         "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.19.0"
       }
@@ -12827,6 +12833,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/data-table-parts",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/item",
@@ -13387,6 +13394,27 @@
         "whenToUse": "Any component that must tell a screen-reader user something happened with no focus change — a row moved, an entry was rejected, a save failed.",
         "whenNotToUse": "Content that is visible on screen anyway and already announced by focus, or an assertive alert (role=alert is a separate policy).",
         "version": "0.19.0"
+      }
+    },
+    {
+      "name": "use-async-search",
+      "type": "registry:hook",
+      "title": "useAsyncSearch",
+      "description": "The server-search state machine for a searched, cursor-paged list — debounced query, abortable requests with stale responses dropped, cursor paging as a LoadMoreState, and errors that keep the loaded items.",
+      "categories": ["hook"],
+      "dependencies": ["@vegastack/design@^0.7.4"],
+      "registryDependencies": ["@vegastack/load-more"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-async-search.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-async-search.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Server-side search over a list that pages by cursor: a remote SearchableSelect, a searched facet, a picker dialog, a searched DataList — debounce, races, paging and retry in one hook.",
+        "whenNotToUse": "Filtering items already in memory (pass them to the component and let it filter); a one-shot fetch with no query (use your data library directly).",
+        "version": "0.17.1"
       }
     },
     {

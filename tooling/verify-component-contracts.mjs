@@ -1096,6 +1096,7 @@ sameStrings(
   [
     "use-animation-replay",
     "use-announcer",
+    "use-async-search",
     "use-drag-reorder",
     "use-inline-edit",
     "use-file-drop",
@@ -1121,8 +1122,8 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 11,
-  "expectedWaveCounts.Hooks must be 11",
+  contracts.expectedWaveCounts?.Hooks === 12,
+  "expectedWaveCounts.Hooks must be 12",
 );
 assert(
   contracts.expectedWaveCounts?.Block === 1,

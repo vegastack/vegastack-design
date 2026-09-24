@@ -1,9 +1,12 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
+import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Table, TableBody, TableHeader, TableRow } from "@/components/ui/table";
 import {
+  RowActionsMenu,
+  SectionRow,
   alignClass,
   columnCellClass,
   cycleSort,
@@ -34,6 +37,123 @@ const columns: DataTableColumnLayout[] = [
 ];
 
 /* ------------------------------------------------------------------ column rules */
+
+// DS-32/DS-34 parts first: later tests in this file leave React roots that swallow a fresh render.
+test("SectionRow is a rowgroup header with a disclosure and a muted count (DS-34)", async () => {
+  const onExpandedChange = vi.fn();
+  const screen = await render(
+    <Table aria-label="Tasks">
+      <TableBody>
+        <SectionRow
+          id="overdue"
+          label="Overdue"
+          count={3}
+          colSpan={2}
+          expanded
+          onExpandedChange={onExpandedChange}
+        />
+      </TableBody>
+    </Table>,
+  );
+  const th = document.querySelector('th[scope="rowgroup"]')!;
+  expect(th.getAttribute("colspan")).toBe("2");
+  const toggle = screen.getByRole("button", { name: "Overdue, 3 rows" });
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+  expect(
+    screen.container.querySelector('[data-slot="section-row-count"]')!
+      .className,
+  ).toContain("tabular-nums");
+  await toggle.click();
+  expect(onExpandedChange).toHaveBeenCalledWith(false);
+  await expectNoA11yViolations(screen.container);
+});
+
+// ---- DS-32: row actions --------------------------------------------------------------------
+
+test("RowActionsMenu names its trigger from the row and runs an action (DS-32)", async () => {
+  const onEdit = vi.fn();
+  const screen = await render(
+    <RowActionsMenu
+      label="Aria"
+      actions={[
+        { label: "Edit", onSelect: onEdit },
+        { label: "Delete", destructive: true, onSelect: () => {} },
+      ]}
+    />,
+  );
+  await screen.getByRole("button", { name: "Actions for Aria" }).click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Delete" }))
+    .toHaveAttribute("data-variant", "destructive");
+  await screen.getByRole("menuitem", { name: "Edit" }).click();
+  expect(onEdit).toHaveBeenCalledOnce();
+});
+
+test("a disabled action stays reachable by arrow keys and does nothing (DS-32)", async () => {
+  const onDelete = vi.fn();
+  const screen = await render(
+    <RowActionsMenu
+      label="Aria"
+      actions={[
+        { label: "Edit", onSelect: () => {} },
+        {
+          label: "Delete",
+          destructive: true,
+          disabled: true,
+          disabledReason: "In use by 3 products",
+          onSelect: onDelete,
+        },
+      ]}
+    />,
+  );
+  await screen.getByRole("button", { name: "Actions for Aria" }).click();
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  const item = screen.getByRole("menuitem", { name: /Delete/ });
+  await expect.element(item).toHaveFocus();
+  await expect.element(item).toHaveAttribute("aria-disabled", "true");
+  expect(item.element().textContent).toContain("In use by 3 products");
+  await expect
+    .element(item)
+    .toHaveAccessibleDescription("In use by 3 products");
+  await userEvent.keyboard("{Enter}");
+  expect(onDelete).not.toHaveBeenCalled();
+  await expectNoA11yViolations(document.body);
+});
+
+test("a link action renders as a link with its href (DS-32)", async () => {
+  const screen = await render(
+    <RowActionsMenu
+      label="Aria"
+      actions={[{ label: "Open", render: <a href="/products/aria" /> }]}
+      actionsLabel={(l) => `More for ${l}`}
+    />,
+  );
+  await screen.getByRole("button", { name: "More for Aria" }).click();
+  const open = document.querySelector('[data-slot="dropdown-menu-item"]')!;
+  expect(open.tagName).toBe("A");
+  expect(open.getAttribute("href")).toBe("/products/aria");
+});
+
+test("a single icon action is an icon button with a tooltip, not a menu (DS-32)", async () => {
+  const onDelete = vi.fn();
+  const screen = await render(
+    <RowActionsMenu
+      label="Aria"
+      actions={[
+        {
+          label: "Delete",
+          icon: <svg data-testid="icon" aria-hidden="true" />,
+          onSelect: onDelete,
+        },
+      ]}
+    />,
+  );
+  const button = screen.getByRole("button", { name: "Delete Aria" });
+  await button.click();
+  expect(onDelete).toHaveBeenCalledOnce();
+  expect(document.querySelector('[role="menu"]')).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
 
 test("alignClass maps the three alignments and defaults to start", () => {
   expect(alignClass(undefined)).toBe("text-start");

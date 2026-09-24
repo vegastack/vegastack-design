@@ -107,6 +107,16 @@ the card content too.
 
 <ComponentPreview name="boardLinks" file="components/preview/board.tsx" />
 
+### Paged lanes and card actions
+
+A lane with more cards than it has loaded takes `loadMore` (a `LoadMoreState`): the shared
+[`LoadMore`](/docs/components/load-more) footer sits after the lane's cards, inside its scroll.
+`getItemActions(item)` returns the card's own `RowAction`s — open, edit, archive — listed first in
+its ⋯ menu, above a separator and the Move items, so each card keeps one menu. With actions the
+menu control is named `Actions for {card}`.
+
+<ComponentPreview name="boardPagedLanes" file="components/preview/board.tsx" />
+
 ## API Reference
 
 <ApiTable path="../../packages/ui/registry/ui/board.tsx" name="BoardProps" />

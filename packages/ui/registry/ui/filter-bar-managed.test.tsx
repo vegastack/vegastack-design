@@ -1,9 +1,17 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
+  describeFilter,
   FilterBuilder,
+  formatRange,
+  NumberRangeEditor,
+  NumberValueEditor,
+  OptionsValueEditor,
+  OptionValueEditor,
+  TextValueEditor,
   type FilterField,
   type FilterNode,
   type FilterValueEditorProps,
@@ -646,4 +654,287 @@ test("focus indicator: nothing in the builder strips the outline (text entry exc
       /\bring-3\b|ring-ring\//.test(el.getAttribute("class") ?? ""),
   );
   expect(focusableOffenders).toEqual([]);
+});
+
+// ---- DS-41 / DS-42: condition rules, sentence summary, value editors -------------------------
+
+const RULES: FilterField<unknown>[] = [
+  {
+    key: "dimming",
+    label: "Dimming",
+    type: "option",
+    options: [
+      { value: "none", label: "Non-dimmable" },
+      { value: "dali", label: "DALI" },
+    ],
+    operators: [
+      { value: "is", label: "is" },
+      { value: "is-not", label: "is not" },
+      { value: "any-of", label: "is any of", valueShape: "list" },
+    ],
+  },
+  {
+    key: "beam",
+    label: "Beam angle",
+    type: "number",
+    unit: "°",
+    operators: [
+      { value: "gte", label: "is at least" },
+      { value: "between", label: "is between", valueShape: "range" },
+    ],
+  },
+  {
+    key: "watts",
+    label: "Wattage",
+    type: "number",
+    unit: "W",
+    operators: [{ value: "between", label: "is between", valueShape: "range" }],
+  },
+];
+
+type AnyGroup = Extract<FilterNode<unknown>, { type: "group" }>;
+
+const RULE: AnyGroup = {
+  type: "group",
+  op: "and",
+  children: [
+    { type: "condition", field: "dimming", operator: "is-not", value: "none" },
+    { type: "condition", field: "beam", operator: "gte", value: 30 },
+  ],
+};
+
+test("describeFilter reads the rule as one sentence (DS-41)", () => {
+  expect(describeFilter(RULE, RULES, { prefix: "Required when" })).toBe(
+    "Required when Dimming is not Non-dimmable and Beam angle is at least 30°",
+  );
+  expect(
+    describeFilter({ ...RULE, op: "or" }, RULES, { prefix: "Shown when" }),
+  ).toBe(
+    "Shown when Dimming is not Non-dimmable or Beam angle is at least 30°",
+  );
+  expect(
+    describeFilter(
+      {
+        type: "group",
+        op: "and",
+        children: [
+          {
+            type: "condition",
+            field: "dimming",
+            operator: "any-of",
+            value: ["none", "dali"],
+          },
+          {
+            type: "condition",
+            field: "watts",
+            operator: "between",
+            value: { min: 10, max: 20 },
+          },
+        ],
+      },
+      RULES,
+    ),
+  ).toBe(
+    "Dimming is any of Non-dimmable or DALI and Wattage is between 10–20 W",
+  );
+  expect(
+    describeFilter({ type: "group", op: "and", children: [] }, RULES),
+  ).toBe("");
+});
+
+test("formatRange reads one or two bounds with a unit (DS-42)", () => {
+  expect(formatRange(10, undefined, "W")).toBe("≥ 10 W");
+  expect(formatRange(10, 20, "W")).toBe("10–20 W");
+  expect(formatRange(undefined, 20, "W")).toBe("≤ 20 W");
+  expect(formatRange(30, undefined, "°")).toBe("≥ 30°");
+  expect(formatRange()).toBe("");
+});
+
+function RuleBuilder(
+  props: Partial<React.ComponentProps<typeof FilterBuilder<unknown>>> & {
+    initial?: AnyGroup;
+  },
+) {
+  const { initial = RULE, ...rest } = props;
+  const [tree, setTree] = React.useState<AnyGroup>(initial);
+  return (
+    <FilterBuilder<unknown>
+      vocabulary={RULES}
+      editors={{
+        option: OptionValueEditor,
+        number: NumberValueEditor,
+      }}
+      value={tree}
+      onValueChange={setTree}
+      {...rest}
+    />
+  );
+}
+
+test("allowGroups={false} is a flat rule list; prefix names the fieldset (DS-41)", async () => {
+  const screen = await render(
+    <RuleBuilder allowGroups={false} prefix="Required when" />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="filter-builder-add-group"]'),
+  ).toBeNull();
+  const legend = screen.container.querySelector("legend")!;
+  expect(legend.textContent).toBe("Required when");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("labels rename the builder's own words (DS-41)", async () => {
+  const screen = await render(
+    <RuleBuilder
+      allowGroups={false}
+      labels={{
+        addCondition: "Add rule",
+        remove: (label) => `Delete ${label} rule`,
+        matchAll: "Every rule",
+      }}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Add rule" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Delete Dimming rule" }))
+    .toBeInTheDocument();
+  expect(screen.container.textContent).toContain("Every rule");
+});
+
+test("conditionError wires a row's own error to its value editor (DS-41)", async () => {
+  const screen = await render(
+    <RuleBuilder
+      conditionError={(c) =>
+        c.field === "beam" && typeof c.value === "number" && c.value > 20
+          ? "Beam angle must be 20° or less."
+          : undefined
+      }
+    />,
+  );
+  const input = screen.getByRole("textbox", { name: "Beam angle value" });
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await expect
+    .element(input)
+    .toHaveAccessibleDescription("Beam angle must be 20° or less.");
+  await expectNoA11yViolations(screen.container);
+});
+
+test('summary="sentence" renders the rule as a sentence when read-only (DS-41)', async () => {
+  const screen = await render(
+    <RuleBuilder readOnly summary="sentence" prefix="Required when" />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="filter-builder-sentence"]')
+      ?.textContent,
+  ).toBe(
+    "Required when Dimming is not Non-dimmable and Beam angle is at least 30°",
+  );
+  expect(
+    screen.container.querySelector('[data-slot="filter-chip"]'),
+  ).toBeNull();
+});
+
+test("OptionValueEditor round-trips an option value (DS-42)", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <OptionValueEditor
+      field={RULES[0]!}
+      operator="is"
+      value="none"
+      onValueChange={onValueChange}
+      aria-label="Dimming value"
+    />,
+  );
+  expect(
+    screen.getByRole("combobox", { name: "Dimming value" }).element()
+      .textContent,
+  ).toContain("Non-dimmable");
+  await screen.getByRole("combobox", { name: "Dimming value" }).click();
+  await screen.getByRole("option", { name: "DALI" }).click();
+  expect(onValueChange).toHaveBeenLastCalledWith("dali");
+});
+
+test("OptionsValueEditor round-trips a list value (DS-42)", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <OptionsValueEditor
+      field={RULES[0]!}
+      operator="any-of"
+      value={["none"]}
+      onValueChange={onValueChange}
+      aria-label="Dimming values"
+    />,
+  );
+  expect(screen.container.textContent).toContain("Non-dimmable");
+  await screen.getByRole("combobox", { name: "Dimming values" }).click();
+  await screen.getByRole("option", { name: "DALI" }).click();
+  expect(onValueChange).toHaveBeenLastCalledWith(["none", "dali"]);
+});
+
+test("NumberValueEditor round-trips a number (DS-42)", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <NumberValueEditor
+      field={RULES[1]!}
+      operator="gte"
+      value={30}
+      onValueChange={onValueChange}
+      aria-label="Beam angle value"
+    />,
+  );
+  const input = screen.getByRole("textbox", { name: "Beam angle value" });
+  await expect.element(input).toHaveValue("30");
+  await input.fill("45");
+  await userEvent.keyboard("{Tab}");
+  expect(onValueChange).toHaveBeenLastCalledWith(45);
+});
+
+test("range editor wires the min > max error (DS-42)", async () => {
+  const screen = await render(
+    <NumberRangeEditor
+      field={RULES[2]!}
+      operator="between"
+      value={{ min: 20, max: 10 }}
+      onValueChange={() => {}}
+      aria-label="Wattage"
+    />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Minimum" }))
+    .toHaveAccessibleDescription("Minimum can't be more than maximum.");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("range editor accepts one bound (DS-42)", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <NumberRangeEditor
+      field={RULES[2]!}
+      operator="between"
+      value={undefined}
+      onValueChange={onValueChange}
+      aria-label="Wattage"
+    />,
+  );
+  await screen.getByRole("textbox", { name: "Minimum" }).fill("10");
+  await userEvent.keyboard("{Tab}");
+  expect(onValueChange).toHaveBeenLastCalledWith({ min: 10 });
+});
+
+test("TextValueEditor is exported and string-valued (DS-42)", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <TextValueEditor
+      field={VOCABULARY[0]!}
+      operator="is"
+      value="Open"
+      onValueChange={onValueChange}
+      aria-label="Stage value"
+    />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Stage value" }))
+    .toHaveValue("Open");
 });

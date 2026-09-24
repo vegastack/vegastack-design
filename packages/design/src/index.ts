@@ -64,6 +64,12 @@ export const TIMINGS = {
   feedbackRevertMs: 1500,
   /** Debounce before auto-persisting a text field (AutoSaveInput). */
   autoSaveDebounceMs: 800,
+  /**
+   * Debounce before a typed search query is sent (SearchInput's settled value, FilterBar
+   * search, `useAsyncSearch`). Short enough to feel like type-ahead, long enough that one
+   * word is one request; {@link TIMINGS.autoSaveDebounceMs} is too slow for this role.
+   */
+  searchDebounceMs: 300,
   /** Hover delay before a rich preview (HoverCard) opens — guards accidental opens. */
   hoverOpenDelayMs: 700,
   /** Hover delay before a rich preview closes — lets the pointer travel into the card. */

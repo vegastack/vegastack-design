@@ -60,6 +60,14 @@ serialises — the moment it did either, it would have adopted one app's AST.
 | Running the filter        | Host — the output describes conditions; it never executes them            |
 | AI-suggested filters      | Host — app-coupled per the [same split](/docs/components/data-list#scope) |
 
+## Anatomy
+
+<Anatomy name="filter-bar-managed" />
+
+`FilterBuilder` is the component; the five value editors (`TextValueEditor`, `NumberValueEditor`,
+`NumberRangeEditor`, `OptionValueEditor`, `OptionsValueEditor`) are the parts it renders a condition's
+value with, exported so a host can register or reuse them.
+
 ## Examples
 
 ### Chip summary
@@ -97,6 +105,42 @@ submitted — never on a row that was just added.
   name="filterBarManagedValueShapes"
   file="components/preview/filter-bar-managed.tsx"
 />
+
+### Condition rules (no groups)
+
+For a rule editor — "Required when …", "Shown when …" — `allowGroups={false}` keeps the conditions
+flat, `prefix` names the builder ("Required when" is the fieldset's name and leads the sentence),
+and `labels` renames its own words (`addCondition`, `remove`, `matchAll`, `matchAny`, `empty`,
+`valueRequired`, `field`, `operator`). `conditionError(condition, path)` returns a row's own
+message: it shows under the row and is read as its value editor's description, beside the built-in
+"Value required".
+
+<ComponentPreview
+  name="filterBarManagedConditionRules"
+  file="components/preview/filter-bar-managed.tsx"
+/>
+
+### Sentence summary
+
+`summary="sentence"` makes the read-only summary one sentence instead of chips. The same text comes
+from `describeFilter(tree, vocabulary, { prefix })` — for a list cell, a tooltip or an audit line.
+Option values read by their labels, numbers carry the field's `unit`, ranges read as `10–20 W`,
+`≥ 10 W` or `≤ 20 W` (`formatRange`), and nested groups read in parentheses.
+
+<ComponentPreview
+  name="filterBarManagedSentence"
+  file="components/preview/filter-bar-managed.tsx"
+/>
+
+### Value editors
+
+Five editors ship with the item, for the `editors` registry or on their own: `TextValueEditor`,
+`NumberValueEditor` (a `NumberField` with the field's `unit`), `NumberRangeEditor` (Minimum and
+Maximum; either may be empty, and a minimum above the maximum is an error on the Minimum field),
+`OptionValueEditor` and `OptionsValueEditor` (one or several of the field's `options`). Without an
+entry in `editors`, a `range` operator gets `NumberRangeEditor`, a `list` operator on a field with
+`options` gets `OptionsValueEditor`, a field with `options` gets `OptionValueEditor`, and the rest get
+`TextValueEditor`. `editors.range` and `editors.list` override the shape defaults.
 
 ### Depth and condition caps
 
