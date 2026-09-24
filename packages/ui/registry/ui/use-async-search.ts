@@ -1,4 +1,4 @@
-// @vegastack use-async-search@0.21.1 sha256-wvaZOi1CWCSF7wJhLYQqF2u/r2AZPDGtPF5LneUqkDU=
+// @vegastack use-async-search@0.21.1 sha256-pBJtbm9dGXWX6tq98vcm780BmmkgYshOxIdbpdKs4Fk=
 
 "use client";
 
@@ -214,6 +214,10 @@ export function useAsyncSearch<T>(
       queryRef.current = next;
       setQuery(next);
       clearTimer();
+      // The in-flight request answers the previous query: drop it now, so its response can't
+      // fill the list with stale results while the new query waits out its debounce.
+      controllerRef.current?.abort();
+      sequenceRef.current++;
       timerRef.current = setTimeout(() => {
         timerRef.current = null;
         run({ query: next, cursor: null });
