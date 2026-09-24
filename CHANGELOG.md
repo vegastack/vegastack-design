@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.21.1] — September 25, 2026
+
+<!-- assembled from 1 changeset: 55771294d40b -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.21.0 → 0.21.1.
+
+### 🐛 Fixed
+
+- A pinned `MultiStepFormActions` row paints the surface it sits on — a card, a dialog, a sheet or a drawer, not always the page — so it no longer shows as a black band in dark mode. The Tabs page gains the DS-62 recipes Regent's list pages use: vertical tabs that turn into a horizontal line list below an `@md` container, and vertical route tabs with counts that become a `NativeSelect` jump in a narrow column. The docs' code blocks keep their copy button clear of a long first line. [docs](https://design.vegastack.com/docs/components/tabs) ·
+  [`c911726`](https://github.com/VegaStack/vegastack-design/commit/c911726)
+
 ## [0.21.0] — September 25, 2026
 
 <!-- assembled from 5 changesets: 5a239bd87318 -->

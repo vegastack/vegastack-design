@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.21.1
+
+### Patch Changes
+
+- [#227](https://github.com/vegastack/vegastack-design/pull/227) [`c911726`](https://github.com/vegastack/vegastack-design/commit/c911726ca91c368b018c3d8a6e8bf17458a59a8c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 A pinned `MultiStepFormActions` row paints the surface it sits on — a card, a dialog, a sheet or a drawer, not always the page — so it no longer shows as a black band in dark mode. The Tabs page gains the DS-62 recipes Regent's list pages use: vertical tabs that turn into a horizontal line list below an `@md` container, and vertical route tabs with counts that become a `NativeSelect` jump in a narrow column. The docs' code blocks keep their copy button clear of a long first line. [docs](https://design.vegastack.com/docs/components/tabs)
+
 ## 0.21.0
 
 ### Minor Changes
