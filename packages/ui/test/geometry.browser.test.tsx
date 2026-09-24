@@ -34,6 +34,8 @@ import { DataListPager } from "../registry/ui/data-list-pager";
 import { ButtonGroup } from "../registry/ui/button-group";
 import { Input } from "../registry/ui/input";
 import { AppShellPage } from "../registry/ui/app-shell";
+import { DatePicker } from "../registry/ui/date-picker";
+import { SearchableSelect } from "../registry/ui/searchable-select";
 import {
   MultiStepForm,
   MultiStepFormActions,
@@ -3614,5 +3616,70 @@ test('multi-step-form-sticky: "narrow" pins at 320px and rests in the flow on a 
     await wide.unmount();
   } finally {
     await page.viewport(320, 812);
+  }
+});
+
+/**
+ * inline-trigger-row (DS-17): the three inline pickers share one `sm` height, so a table row or a
+ * toolbar reads as one tier, and each clear control is its own pointer target of at least 24px.
+ */
+test("inline-trigger-row: Select, SearchableSelect and DatePicker sm share one height", async () => {
+  const screen = await render(
+    <div className="flex items-center gap-2">
+      <Select items={[{ label: "High", value: "high" }]} defaultValue="high">
+        <SelectTrigger size="sm" variant="ghost" aria-label="Priority">
+          <SelectValue />
+        </SelectTrigger>
+      </Select>
+      <SearchableSelect<string>
+        items={["Asha", "Kiran"]}
+        value="Asha"
+        onValueChange={() => {}}
+        itemToKey={(name) => name}
+        itemToStringLabel={(name) => name}
+        renderItem={(name) => name}
+        searchLabel="Search people"
+        aria-label="Assignee"
+        size="sm"
+        variant="ghost"
+        clearable
+      />
+      <DatePicker
+        aria-label="Due"
+        size="sm"
+        variant="ghost"
+        clearable
+        value={new Date(2026, 8, 27)}
+        locale="en-US"
+      />
+    </div>,
+  );
+  const heights = [
+    '[data-slot="select-trigger"]',
+    '[data-slot="searchable-select-trigger"]',
+    '[data-slot="date-picker-trigger"]',
+  ].map(
+    (selector) =>
+      screen.container
+        .querySelector<HTMLElement>(selector)!
+        .getBoundingClientRect().height,
+  );
+  expect(new Set(heights).size).toBe(1);
+  expect(heights[0]).toBe(28);
+
+  for (const selector of [
+    '[data-slot="searchable-select-clear"]',
+    '[data-slot="date-picker-clear"]',
+  ]) {
+    const clear = screen.container.querySelector<HTMLElement>(selector)!;
+    const box = clear.getBoundingClientRect();
+    expect(box.width).toBeGreaterThanOrEqual(24);
+    expect(box.height).toBeGreaterThanOrEqual(24);
+    // The clear control is really hit at its own centre — not covered by the trigger.
+    const hit = document.elementFromPoint(
+      box.left + box.width / 2,
+      box.top + box.height / 2,
+    );
+    expect(clear.contains(hit)).toBe(true);
   }
 });

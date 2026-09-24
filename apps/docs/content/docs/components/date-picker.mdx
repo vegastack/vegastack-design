@@ -123,6 +123,28 @@ Field's `data-invalid` marks it invalid. An explicit `id` still wins, and an exp
   file="components/preview/date-picker.tsx"
 />
 
+### Clearable
+
+`clearable` puts a clear control beside the trigger while a date is set — a sibling, never inside
+the trigger — named by `clearLabel` ("Clear date"). Clearing reports `undefined` and returns focus
+to the trigger.
+
+<ComponentPreview
+  name="datePickerClearable"
+  file="components/preview/date-picker.tsx"
+/>
+
+### Inline in a row
+
+For a date inside a table row or a toolbar, `size="sm"` matches `Select size="sm"` and
+`SearchableSelect size="sm"`, and `variant="ghost"` sizes the trigger to its content with no border
+at rest. `renderValue` replaces the formatted date with your own face, such as "Due Jun 18".
+
+<ComponentPreview
+  name="datePickerInline"
+  file="components/preview/date-picker.tsx"
+/>
+
 ### Dropdown caption
 
 Forward `Calendar`'s own `DayPicker` knobs through `calendarProps`. Here `captionLayout="dropdown"` (bounded by `startMonth` / `endMonth`) swaps the static month/year heading for navigable dropdowns — handy for jumping across years.

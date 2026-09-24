@@ -590,3 +590,92 @@ fieldWiringTests({
   render: (props) => <DateRangePicker {...props} />,
   find: (screen, name) => screen.getByRole("button", { name }),
 });
+
+/* DS-17 — the inline tier, clearable, renderValue */
+
+test("DS-17: clearable shows a sibling clear control that reports undefined and returns focus to the trigger", async () => {
+  function Clearable() {
+    const [date, setDate] = React.useState<Date | undefined>(
+      new Date(2026, 8, 27),
+    );
+    return (
+      <DatePicker
+        aria-label="Due"
+        clearable
+        value={date}
+        onValueChange={setDate}
+        locale="en-US"
+      />
+    );
+  }
+  const screen = await render(<Clearable />);
+  const trigger = screen.getByRole("button", { name: "Due" });
+  const clear = screen.getByRole("button", { name: "Clear date" });
+  // Never nested: the clear control is not inside the trigger.
+  expect(trigger.element().contains(clear.element())).toBe(false);
+  await clear.click();
+  await expect.element(trigger).toHaveFocus();
+  await expect.element(trigger).toHaveAttribute("data-empty", "");
+  expect(
+    screen.container.querySelector('[data-slot="date-picker-clear"]'),
+  ).toBeNull();
+});
+
+test("DS-17: no clear control without clearable, or without a date", async () => {
+  const screen = await render(
+    <>
+      <DatePicker aria-label="A" value={new Date(2026, 8, 27)} />
+      <DatePicker aria-label="B" clearable />
+    </>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="date-picker-clear"]'),
+  ).toBeNull();
+});
+
+test("DS-17: clearLabel names the clear control", async () => {
+  const screen = await render(
+    <DatePicker
+      aria-label="Due"
+      clearable
+      clearLabel="Remove due date"
+      value={new Date(2026, 8, 27)}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Remove due date" }))
+    .toBeInTheDocument();
+});
+
+test("DS-17: renderValue replaces the formatted date on the trigger", async () => {
+  const screen = await render(
+    <DatePicker
+      aria-label="Due"
+      value={new Date(2026, 8, 27)}
+      renderValue={(date) => `Due ${date.getDate()} Sep`}
+    />,
+  );
+  await expect.element(screen.getByText("Due 27 Sep")).toBeInTheDocument();
+});
+
+test("DS-17: size and variant reflect on the trigger", async () => {
+  const screen = await render(
+    <DatePicker aria-label="Due" size="sm" variant="ghost" />,
+  );
+  const trigger = screen.getByRole("button", { name: "Due" });
+  await expect.element(trigger).toHaveAttribute("data-size", "sm");
+  await expect.element(trigger).toHaveAttribute("data-variant", "ghost");
+});
+
+test("no a11y violations — clearable inline trigger", async () => {
+  const screen = await render(
+    <DatePicker
+      aria-label="Due"
+      size="sm"
+      variant="ghost"
+      clearable
+      value={new Date(2026, 8, 27)}
+    />,
+  );
+  await expectNoA11yViolations(screen.container);
+});

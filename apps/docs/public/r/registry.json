@@ -1202,7 +1202,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.18.0",
-        "integrity": "sha256-+4zmMERvrfvV0C/2Zp7/bLD3yzvq6+mBe39dsPL88IA="
+        "integrity": "sha256-9DaM2INgomnDNCS0BxXXA7/hV/B1XRj/tU6wUYp6pDA="
       }
     },
     {
@@ -15660,7 +15660,7 @@
         "whenToUse": "A single-select field whose option list is long enough to need a search — countries, regions, projects, repositories, currencies.",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.18.0",
-        "integrity": "sha256-VF45JU+I8p8J0lVf0YmvXYhtO24vrnH7jZjbLbL+XDo="
+        "integrity": "sha256-/fX5wk+yAolXE8TxXu8fJ4Dd8sVrXoazAt4d4O3K0cQ="
       }
     },
     {

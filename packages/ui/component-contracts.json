@@ -7723,8 +7723,21 @@
               "values": [""]
             },
             {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
-              "values": ["date-picker-content", "date-picker-trigger"]
+              "values": [
+                "date-picker",
+                "date-picker-clear",
+                "date-picker-content",
+                "date-picker-trigger"
+              ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -10147,6 +10160,7 @@
               "name": "data-slot",
               "values": [
                 "filter-builder",
+                "filter-builder-add-group",
                 "filter-builder-cap-reason",
                 "filter-builder-condition",
                 "filter-builder-condition-error",
@@ -15792,7 +15806,15 @@
               "values": [""]
             },
             {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
+              "values": []
+            },
+            {
+              "name": "data-variant",
               "values": []
             }
           ],

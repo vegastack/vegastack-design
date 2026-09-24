@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.18.0 sha256-+4zmMERvrfvV0C/2Zp7/bLD3yzvq6+mBe39dsPL88IA=
+// @vegastack date-picker@0.18.0 sha256-9DaM2INgomnDNCS0BxXXA7/hV/B1XRj/tU6wUYp6pDA=
 
 "use client";
 
@@ -10,9 +10,9 @@ import {
   type DayButton,
   type Matcher,
 } from "react-day-picker";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, X } from "lucide-react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import {
@@ -346,7 +346,45 @@ export interface DatePickerProps {
    * @default undefined
    */
   "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+  /**
+   * Trigger height: `sm` (28px) is the inline tier shared with `Select size="sm"` and
+   * `SearchableSelect size="sm"`, for table rows and toolbars.
+   * @default 'default'
+   */
+  size?: "sm" | "default";
+  /**
+   * `ghost` is the inline trigger: content width, no border at rest, the border on hover, on
+   * focus and while the calendar is open — the same tier as `Select variant="ghost"`.
+   * @default 'outline'
+   */
+  variant?: "outline" | "ghost";
+  /**
+   * Shows a clear control beside the trigger while a date is set, which reports `undefined`.
+   * It is a sibling of the trigger, never inside it, and focus returns to the trigger after
+   * clearing.
+   * @default false
+   */
+  clearable?: boolean;
+  /**
+   * Accessible name for the clear control.
+   * @default "Clear date"
+   */
+  clearLabel?: string;
+  /**
+   * Renders the selected date on the trigger in place of the formatted date — e.g.
+   * `(date) => \`Due ${format(date)}\``.
+   * @default undefined
+   */
+  renderValue?: (date: Date) => React.ReactNode;
+  /** Ref forwarded to the trigger button.
+   * @default undefined
+   */
+  ref?: React.Ref<HTMLButtonElement>;
 }
+
+/** The inline (`ghost`) trigger chrome shared with `Select variant="ghost"`. */
+const GHOST_TRIGGER =
+  "border-transparent bg-transparent shadow-none hover:border-input focus:border-ring/70 aria-expanded:border-input dark:bg-transparent";
 
 /**
  * `DatePicker` — pick a single date. Renders an outline `Button` showing the formatted date (or the
@@ -356,6 +394,17 @@ export interface DatePickerProps {
  * @example
  * const [date, setDate] = React.useState<Date>();
  * <DatePicker value={date} onValueChange={setDate} />
+ *
+ * @example
+ * // Inline in a table row: the small ghost tier, clearable, with a custom face
+ * <DatePicker
+ *   size="sm"
+ *   variant="ghost"
+ *   clearable
+ *   value={due}
+ *   onValueChange={setDue}
+ *   renderValue={(date) => `Due ${formatShort(date)}`}
+ * />
  */
 export function DatePicker({
   value,
@@ -374,8 +423,18 @@ export function DatePicker({
   id,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  size = "default",
+  variant = "outline",
+  clearable = false,
+  clearLabel = "Clear date",
+  renderValue,
+  ref,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
+  const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
+  const triggerRef = React.useMemo(() => mergeRefs(setTrigger, ref), [ref]);
+  const showClear = clearable && value !== undefined;
+  const ghost = variant === "ghost";
   const {
     defaultMonth,
     autoFocus = true,
@@ -387,11 +446,11 @@ export function DatePicker({
     if (date) setOpen(false);
   };
 
-  return (
+  const picker = (
     <Popover open={open} onOpenChange={setOpen}>
       {/* DS-47: the trigger renders through Base UI `Field.Control`, so inside a `Field` it takes
-          its label, description and error ids and `aria-invalid` from the Field. The explicit
-          props below still win (`id`) or come first (`aria-describedby`). */}
+            its label, description and error ids and `aria-invalid` from the Field. The explicit
+            props below still win (`id`) or come first (`aria-describedby`). */}
       <FieldPrimitive.Control
         id={id}
         disabled={disabled}
@@ -401,8 +460,12 @@ export function DatePicker({
           <PopoverTrigger
             render={
               <Button
+                ref={triggerRef}
                 variant="outline"
+                size={size === "sm" ? "sm" : "default"}
                 data-slot="date-picker-trigger"
+                data-size={size}
+                data-variant={variant}
                 data-empty={value ? undefined : ""}
                 aria-label={ariaLabel}
                 className={cn(
@@ -410,6 +473,15 @@ export function DatePicker({
                   // control takes its width from its parent. A fixed-width trigger overflowed a 320px
                   // content area and was the only fixed-width control in the system (audit B8-03).
                   "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
+                  // The `sm` tier keeps 14px text, like `Select size="sm"`.
+                  size === "sm" && "text-sm",
+                  ghost && GHOST_TRIGGER,
+                  // Content width for the inline tier. A clearable picker's wrapper carries the
+                  // width instead, and the trigger fills it, so the clear control always sits in
+                  // the trigger's own trailing reserve.
+                  ghost && !clearable && "w-fit",
+                  // The clear control's reserve, so the label does not move when a date is set.
+                  clearable && "pe-9",
                   className,
                 )}
               >
@@ -417,7 +489,10 @@ export function DatePicker({
                   className="size-4 text-muted-foreground"
                   aria-hidden
                 />
-                {value ? formatDate(value, formatOptions, locale) : placeholder}
+                {value
+                  ? (renderValue?.(value) ??
+                    formatDate(value, formatOptions, locale))
+                  : placeholder}
               </Button>
             }
           />
@@ -469,6 +544,36 @@ export function DatePicker({
         />
       </PopoverContent>
     </Popover>
+  );
+
+  if (!clearable) return picker;
+
+  // DS-22: the clear control is a SIBLING after the trigger — an interactive control may not
+  // contain another — sharing the trigger's trailing `pe-9` reserve. It unmounts the moment the
+  // date clears, so it hands focus to the trigger first; no announcement, the change is visible.
+  return (
+    <div
+      data-slot="date-picker"
+      className={cn("relative min-w-0", ghost ? "w-fit" : "w-full")}
+    >
+      {picker}
+      {showClear ? (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label={clearLabel}
+          disabled={disabled}
+          data-slot="date-picker-clear"
+          className="absolute end-1.5 top-1/2 -translate-y-1/2"
+          onClick={() => {
+            trigger?.focus();
+            onValueChange?.(undefined);
+          }}
+        >
+          <X />
+        </Button>
+      ) : null}
+    </div>
   );
 }
 
