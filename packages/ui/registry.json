@@ -990,6 +990,7 @@
       "description": "Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
       "categories": ["form"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "react-day-picker@^10",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",

@@ -4,6 +4,7 @@ import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TextEdit } from "./text-edit";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 // Tiptap mounts a real ProseMirror contenteditable, so these tests require the
 // browser DOM that vitest browser-mode provides (jsdom is insufficient).
@@ -399,4 +400,73 @@ test("forwards ref to the root container", async () => {
   await render(<TextEdit ref={ref} aria-label="Body" />);
   expect(ref.current).toBeInstanceOf(HTMLDivElement);
   expect(ref.current?.dataset.slot).toBe("text-edit");
+});
+
+/* DS-47 — the contenteditable reads the enclosing Field through Base UI Field.Control */
+
+test("DS-47: inside a Field the editor is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Summary</FieldLabel>
+      <TextEdit />
+      <FieldDescription>Shown on the meeting page.</FieldDescription>
+      <FieldError>Write a summary.</FieldError>
+    </Field>,
+  );
+  const box = screen.getByRole("textbox", { name: "Summary" });
+  await expect.element(box).toHaveAttribute("aria-invalid", "true");
+  await expect
+    .element(box)
+    .toHaveAccessibleDescription(/Shown on the meeting page/);
+  await expect.element(box).toHaveAccessibleDescription(/Write a summary/);
+  await expect
+    .poll(() =>
+      screen.container
+        .querySelector('[data-slot="text-edit"]')
+        ?.hasAttribute("data-invalid"),
+    )
+    .toBe(true);
+});
+
+test("DS-47: an explicit aria-labelledby wins over the FieldLabel", async () => {
+  const screen = await render(
+    <>
+      <span id="te-own-name">Own name</span>
+      <Field>
+        <FieldLabel>Field name</FieldLabel>
+        <TextEdit aria-labelledby="te-own-name" />
+      </Field>
+    </>,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Own name" }))
+    .toBeInTheDocument();
+});
+
+test("no a11y violations — inside a Field, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Summary</FieldLabel>
+      <TextEdit />
+      <FieldDescription>Shown on the meeting page.</FieldDescription>
+    </Field>,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Summary" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — inside a Field, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Summary</FieldLabel>
+      <TextEdit />
+      <FieldError>Write a summary.</FieldError>
+    </Field>,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Summary" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
 });

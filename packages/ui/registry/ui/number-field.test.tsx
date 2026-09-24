@@ -4,6 +4,7 @@ import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { NumberField } from "./number-field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 test("renders a named numeric input inside upstream's InputGroup chrome", async () => {
   const screen = await render(
@@ -207,4 +208,71 @@ test("focus indicator: the steppers keep :focus-visible, pulled inside the clipp
   ) as HTMLButtonElement;
   expect(inc.className).not.toContain("outline-none");
   expect(inc.className).toContain("focus-visible:-outline-offset-2");
+});
+
+/* DS-67 — the ARIA wiring lands on the input a screen reader announces, not the group */
+
+test("DS-67: aria-describedby lands on the input, not the group", async () => {
+  const screen = await render(
+    <>
+      <NumberField aria-label="Qty" aria-describedby="qty-err" />
+      <p id="qty-err">Too many</p>
+    </>,
+  );
+  const input = screen.getByRole("textbox", { name: "Qty" });
+  await expect.element(input).toHaveAttribute("aria-describedby", "qty-err");
+  await expect.element(input).toHaveAccessibleDescription("Too many");
+  const group = screen.container.querySelector('[data-slot="number-field"]')!;
+  expect(group.hasAttribute("aria-describedby")).toBe(false);
+});
+
+test("DS-67: aria-labelledby and id land on the input", async () => {
+  const screen = await render(
+    <>
+      <span id="qty-name">Quantity</span>
+      <NumberField id="qty" aria-labelledby="qty-name" />
+    </>,
+  );
+  const input = screen.getByRole("textbox", { name: "Quantity" });
+  await expect.element(input).toHaveAttribute("id", "qty");
+  const group = screen.container.querySelector('[data-slot="number-field"]')!;
+  expect(group.hasAttribute("aria-labelledby")).toBe(false);
+  expect(group.getAttribute("id")).not.toBe("qty");
+});
+
+test("DS-47: inside a Field the input is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Quantity</FieldLabel>
+      <NumberField />
+      <FieldDescription>Whole units.</FieldDescription>
+      <FieldError>At most 99.</FieldError>
+    </Field>,
+  );
+  const input = screen.getByRole("textbox", { name: "Quantity" });
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await expect.element(input).toHaveAccessibleDescription(/Whole units/);
+  await expect.element(input).toHaveAccessibleDescription(/At most 99/);
+});
+
+test("no a11y violations — inside a Field, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Quantity</FieldLabel>
+      <NumberField />
+      <FieldDescription>Whole units.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — inside a Field, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Quantity</FieldLabel>
+      <NumberField />
+      <FieldError>At most 99.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
 });

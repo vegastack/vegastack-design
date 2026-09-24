@@ -227,6 +227,7 @@ const DYNAMIC_DOM: Record<string, string> = {
   textEditInvalid: ".tiptap[contenteditable]",
   textEditSubmit: ".tiptap[contenteditable]",
   textEditHeights: ".tiptap[contenteditable]",
+  textEditInsideField: ".tiptap[contenteditable]",
 };
 
 type Fixture = () => React.ReactNode;

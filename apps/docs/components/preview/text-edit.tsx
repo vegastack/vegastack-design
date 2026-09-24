@@ -3,6 +3,12 @@
 import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "@/components/ui/toast";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Wrapper } from "./wrapper";
 
 // TextEdit pulls in Tiptap; keep it out of the all-preview barrel's initial module graph.
@@ -119,6 +125,25 @@ export function textEditHeights(): ReactNode {
         placeholder="Write something…"
         aria-label="Sized editor"
       />
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-47: inside a `Field` the contenteditable is labelled by `FieldLabel`, described by the
+ * rendered description and error, and marked invalid — no ids to wire.
+ */
+export function textEditInsideField(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <Field data-invalid>
+        <FieldLabel>Meeting summary</FieldLabel>
+        <TextEdit placeholder="What was decided?" />
+        <FieldDescription>
+          Shown at the top of the meeting page.
+        </FieldDescription>
+        <FieldError>Write a summary before you publish.</FieldError>
+      </Field>
     </Wrapper>
   );
 }

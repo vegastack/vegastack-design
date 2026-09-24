@@ -61,3 +61,21 @@ export function passwordInputStates(): ReactNode {
     </Wrapper>
   );
 }
+
+/** DS-47: inside a `Field` the inner input is labelled, described and marked invalid for you. */
+export function passwordInputInsideField(): ReactNode {
+  return (
+    <Wrapper className="grid gap-4 sm:grid-cols-2">
+      <Field>
+        <FieldLabel>New password</FieldLabel>
+        <PasswordInput autoComplete="new-password" />
+        <FieldDescription>At least 12 characters.</FieldDescription>
+      </Field>
+      <Field data-invalid>
+        <FieldLabel>Current password</FieldLabel>
+        <PasswordInput autoComplete="current-password" defaultValue="short" />
+        <FieldError>That password is not right.</FieldError>
+      </Field>
+    </Wrapper>
+  );
+}

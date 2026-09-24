@@ -1,4 +1,4 @@
-// @vegastack number-field@0.17.1 sha256-Wew2mjW96bHEldNN3OJfYcJjVwELWLSQ51PbiR6/H+Y=
+// @vegastack number-field@0.17.1 sha256-DQujEBsWrQwZHb/Y/AmAL2itR0i3WZMEZ80o2yoZtCg=
 
 "use client";
 
@@ -67,6 +67,21 @@ export interface NumberFieldProps extends Omit<
    * @default undefined
    */
   "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+  /**
+   * Ids of the elements that describe the value — an error or a hint. They land on the inner
+   * `<input>`, which is what a screen reader announces, never on the group. Inside a `Field` the
+   * rendered `FieldDescription`/`FieldError` ids are added for you.
+
+   * @default undefined
+   */
+  "aria-describedby"?: string;
+  /**
+   * Ids of the elements that name the value. Lands on the inner `<input>`, like `aria-label`.
+   * `id` (inherited from Base UI's root) already targets the input.
+
+   * @default undefined
+   */
+  "aria-labelledby"?: string;
   /**
    * Placeholder for the empty input.
 
@@ -156,6 +171,8 @@ const stepperSlotClasses =
 export function NumberField({
   "aria-label": ariaLabel,
   "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+  "aria-labelledby": ariaLabelledBy,
   placeholder,
   prefix,
   suffix,
@@ -209,6 +226,8 @@ export function NumberField({
         render={<InputGroupInput />}
         ref={inputRef}
         aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid}
         placeholder={placeholder}
         // TYP-10 (ours) — tabular figures. This control formats its value through

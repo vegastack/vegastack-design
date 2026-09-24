@@ -118,6 +118,17 @@ also accepts `"grammar"` and `"spelling"`.
   file="components/preview/text-edit.tsx"
 />
 
+### Inside a Field
+
+Inside a [`Field`](/docs/components/field) the contenteditable takes its label, the rendered
+description and error ids, and `aria-invalid` from the Field, so a `FieldLabel` names the editor
+without an `id` or `aria-labelledby`. An explicit `aria-labelledby` still wins.
+
+<ComponentPreview
+  name="textEditInsideField"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Submit on Cmd/Ctrl+Enter
 
 Set `onSubmit` to get a keyboard submit affordance — pressing <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd>

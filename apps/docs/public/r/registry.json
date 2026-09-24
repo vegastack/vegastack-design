@@ -1137,6 +1137,7 @@
         "form"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "react-day-picker@^10",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -1158,7 +1159,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.17.1",
-        "integrity": "sha256-HwL0dW3K38wv8YB4k8mh92eI42HBTrdVQcPabItfdbI="
+        "integrity": "sha256-Z99wH0o94f33Rgqy1NVJOS8Xwi4sX6CFvpS9JOvupLA="
       }
     },
     {
@@ -15188,7 +15189,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.17.1",
-        "integrity": "sha256-Wew2mjW96bHEldNN3OJfYcJjVwELWLSQ51PbiR6/H+Y="
+        "integrity": "sha256-DQujEBsWrQwZHb/Y/AmAL2itR0i3WZMEZ80o2yoZtCg="
       }
     },
     {
@@ -15601,7 +15602,7 @@
         "whenToUse": "Any secret the user types — sign-in, sign-up, or a change-password form — where they may need to reveal what they typed.",
         "whenNotToUse": "A one-time code (use InputOTP) or a non-secret text field.",
         "version": "0.17.1",
-        "integrity": "sha256-lh+8dprQJ0AD0suTmmkcNExtnjWPf7W8ZqKjfxjFGzg="
+        "integrity": "sha256-5NsTJ8Qw9pLJAu5V+ntnJCvCAnb4Ue3yPc3NB7TDldI="
       }
     },
     {
@@ -16252,7 +16253,7 @@
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.17.1",
-        "integrity": "sha256-qnerFQlVTBk8+DHxpYjTDjFKxlVq4XcolAUpJislwdk="
+        "integrity": "sha256-VAPESwLpG1fUlxb+nFCos/viBekEVwPlFLzLUX1wkno="
       }
     },
     {

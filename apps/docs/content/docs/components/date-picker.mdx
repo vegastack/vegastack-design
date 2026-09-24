@@ -111,6 +111,18 @@ Set `disabled` to make the whole control inert — the trigger reads dimmed and 
   file="components/preview/date-picker.tsx"
 />
 
+### Inside a Field
+
+Inside a [`Field`](/docs/components/field) the trigger renders through Base UI's `Field.Control`,
+so `FieldLabel` names it, the rendered `FieldDescription` and `FieldError` describe it, and the
+Field's `data-invalid` marks it invalid. An explicit `id` still wins, and an explicit
+`aria-describedby` keeps its ids first.
+
+<ComponentPreview
+  name="datePickerInsideField"
+  file="components/preview/date-picker.tsx"
+/>
+
 ### Dropdown caption
 
 Forward `Calendar`'s own `DayPicker` knobs through `calendarProps`. Here `captionLayout="dropdown"` (bounded by `startMonth` / `endMonth`) swaps the static month/year heading for navigable dropdowns — handy for jumping across years.

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.17.1 sha256-qnerFQlVTBk8+DHxpYjTDjFKxlVq4XcolAUpJislwdk=
+// @vegastack text-edit@0.17.1 sha256-VAPESwLpG1fUlxb+nFCos/viBekEVwPlFLzLUX1wkno=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   type Editor,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { Field as FieldPrimitive } from "@base-ui/react/field";
 import {
   Bold,
   Italic,
@@ -423,7 +424,40 @@ export interface TextEditProps {
  * // Submit on Cmd/Ctrl+Enter, with a fixed scrolling height
  * <TextEdit onValueChange={setHtml} onSubmit={save} minHeight={120} maxHeight={320} />
  */
-export function TextEdit({
+export function TextEdit(props: TextEditProps) {
+  const {
+    id,
+    "aria-labelledby": ariaLabelledBy,
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
+  } = props;
+  // DS-47: the contenteditable is created by Tiptap, so it cannot BE the `Field.Control` element.
+  // The control's render function hands back the props Base UI resolved for it instead — the id,
+  // the label id, the rendered description and error ids, `aria-invalid` — and the surface puts
+  // them on the contenteditable. An explicit `id`/`aria-labelledby` wins; an explicit
+  // `aria-describedby` keeps its ids first. Only defined props are passed, because Base UI's
+  // merge lets an `undefined` override the label id.
+  return (
+    <FieldPrimitive.Control
+      id={id}
+      {...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {})}
+      {...(ariaDescribedBy ? { "aria-describedby": ariaDescribedBy } : {})}
+      {...(ariaInvalid !== undefined ? { "aria-invalid": ariaInvalid } : {})}
+      render={(control) => (
+        <TextEditSurface
+          {...props}
+          id={control.id}
+          aria-labelledby={control["aria-labelledby"]}
+          aria-describedby={control["aria-describedby"]}
+          aria-invalid={control["aria-invalid"]}
+        />
+      )}
+    />
+  );
+}
+
+/** The editor itself; `TextEdit` above feeds it the ids the enclosing `Field` resolved. */
+function TextEditSurface({
   value,
   defaultValue = "",
   onValueChange,
