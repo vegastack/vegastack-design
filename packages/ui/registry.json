@@ -208,7 +208,7 @@
       "name": "attachment",
       "type": "registry:ui",
       "title": "Attachment",
-      "description": "A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.",
+      "description": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group.",
       "categories": ["communication"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -216,7 +216,7 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
       "files": [
         {
           "path": "packages/ui/registry/ui/attachment.tsx",
@@ -225,8 +225,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A file attached to a chat message or a message-compose input — a chip or thumbnail with name, size, lifecycle state, and a remove or download action.",
-        "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
+        "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
+        "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.18.0"
       }
     },
@@ -1156,7 +1156,7 @@
       ],
       "meta": {
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
-        "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
+        "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering the staged files and their upload progress (Attachment with AttachmentProgress, laid out by AttachmentGroup).",
         "version": "0.18.0"
       }
     },

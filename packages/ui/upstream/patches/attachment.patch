@@ -1,5 +1,5 @@
 # component: attachment
-# decisions: A11Y-2, A11Y-13, API-16, DOC-1, DOC-2, FOC-1, FOC-6
+# decisions: A11Y-2, A11Y-13, API-16, API-28, DOC-1, DOC-2, FOC-1, FOC-6
 # hunks:
 #   FOC-1, FOC-6: `attachmentVariants` drops `focus-within:ring-1 focus-within:ring-ring/50`,
 #     and `AttachmentTrigger` drops `outline-none`. Upstream's arrangement is the CARD wearing a
@@ -30,15 +30,29 @@
 #     rendering it throws on import. `tooling/verify-rsc-safety.mjs` is what found it, the
 #     same way it found `breadcrumb` in Batch 5. API-16 puts the boundary at the lowest
 #     interactive leaf, and this file is it.
+#   API-28: Attachment's widened scope (DS-44, approved by MK 24-09-2026) — file and media tiles
+#     on any surface, not only chat. Four hunks:
+#     - `AttachmentGroup` takes `layout?: "scroll" | "grid"` (default `"scroll"`, upstream's row
+#       unchanged) and reflects it as `data-layout`; `"grid"` wraps the tiles into equal
+#       `repeat(auto-fill, minmax(--spacing(32), 1fr))` columns and lets each tile fill its cell.
+#     - a new `AttachmentProgress` part composes `progress`'s `ProgressTrack`/`ProgressIndicator`
+#       inside Base UI's `Progress.Root`, takes its own full-width row in the tile, is named
+#       "Upload progress" unless `aria-label` says otherwise, and announces `aria-valuetext`
+#       "{n}%" of `max`. `value={null}` keeps the engine's indeterminate text. `state="uploading"`
+#       without it keeps upstream's title shimmer.
+#     - `Attachment` takes `muted?: boolean`, reflected as `data-muted`, which dims the media to
+#       `opacity-50` and leaves the title and description at full ink.
+#     - image media styles a nested `<img>` (`[&_img]` in place of `*:[img]`) and sizes a nested
+#       `Image` frame to the slot, so the system `Image` with its fallback fills the media.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..5b20336 100644
+index f8ca4a8..ea0352e 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
-@@ -1,13 +1,19 @@
+@@ -1,13 +1,21 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
@@ -49,11 +63,13 @@ index f8ca4a8..5b20336 100644
 -import { Button } from "@/components/ui/button"
 +import * as React from "react";
 +import { mergeProps } from "@base-ui/react/merge-props";
++import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 +import { useRender } from "@base-ui/react/use-render";
 +import { cva, type VariantProps } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
 +
 +import { Button } from "@/components/ui/button";
++import { ProgressIndicator, ProgressTrack } from "@/components/ui/progress";
  
  const attachmentVariants = cva(
 -  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-xl border bg-card text-card-foreground transition-colors focus-within:ring-1 focus-within:ring-ring/50 has-[>a,>button]:hover:bg-muted/50 data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
@@ -65,7 +81,7 @@ index f8ca4a8..5b20336 100644
    {
      variants: {
        size: {
-@@ -21,8 +27,8 @@ const attachmentVariants = cva(
+@@ -21,18 +29,20 @@ const attachmentVariants = cva(
          vertical: "w-24 flex-col has-data-[slot=attachment-content]:w-30",
        },
      },
@@ -76,17 +92,30 @@ index f8ca4a8..5b20336 100644
  
  function Attachment({
    className,
-@@ -32,7 +38,7 @@ function Attachment({
+   state = "done",
+   size = "default",
+   orientation = "horizontal",
++  muted = false,
    ...props
  }: React.ComponentProps<"div"> &
    VariantProps<typeof attachmentVariants> & {
 -    state?: "idle" | "uploading" | "processing" | "error" | "done"
 +    state?: "idle" | "uploading" | "processing" | "error" | "done";
++    muted?: boolean;
    }) {
    return (
      <div
-@@ -43,7 +49,7 @@ function Attachment({
-       className={cn(attachmentVariants({ size, orientation }), className)}
+@@ -40,10 +50,15 @@ function Attachment({
+       data-state={state}
+       data-size={size}
+       data-orientation={orientation}
+-      className={cn(attachmentVariants({ size, orientation }), className)}
++      data-muted={muted || undefined}
++      className={cn(
++        attachmentVariants({ size, orientation }),
++        "data-muted:[&_[data-slot=attachment-media]]:opacity-50",
++        className,
++      )}
        {...props}
      />
 -  )
@@ -94,7 +123,14 @@ index f8ca4a8..5b20336 100644
  }
  
  const attachmentMediaVariants = cva(
-@@ -59,8 +65,8 @@ const attachmentMediaVariants = cva(
+@@ -53,14 +68,14 @@ const attachmentMediaVariants = cva(
+       variant: {
+         icon: "",
+         image:
+-          "opacity-60 group-data-[state=done]/attachment:opacity-100 group-data-[state=idle]/attachment:opacity-100 *:[img]:aspect-square *:[img]:w-full *:[img]:object-cover",
++          "opacity-60 group-data-[state=done]/attachment:opacity-100 group-data-[state=idle]/attachment:opacity-100 [&_[data-slot=image]]:size-full [&_img]:aspect-square [&_img]:w-full [&_img]:object-cover",
+       },
+     },
      defaultVariants: {
        variant: "icon",
      },
@@ -105,7 +141,7 @@ index f8ca4a8..5b20336 100644
  
  function AttachmentMedia({
    className,
-@@ -74,7 +80,7 @@ function AttachmentMedia({
+@@ -74,7 +89,7 @@ function AttachmentMedia({
        className={cn(attachmentMediaVariants({ variant }), className)}
        {...props}
      />
@@ -114,7 +150,7 @@ index f8ca4a8..5b20336 100644
  }
  
  function AttachmentContent({
-@@ -86,11 +92,11 @@ function AttachmentContent({
+@@ -86,11 +101,11 @@ function AttachmentContent({
        data-slot="attachment-content"
        className={cn(
          "max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1",
@@ -128,7 +164,7 @@ index f8ca4a8..5b20336 100644
  }
  
  function AttachmentTitle({
-@@ -102,11 +108,11 @@ function AttachmentTitle({
+@@ -102,11 +117,11 @@ function AttachmentTitle({
        data-slot="attachment-title"
        className={cn(
          "block max-w-full min-w-0 truncate font-medium group-data-[state=processing]/attachment:shimmer group-data-[state=uploading]/attachment:shimmer",
@@ -142,7 +178,7 @@ index f8ca4a8..5b20336 100644
  }
  
  function AttachmentDescription({
-@@ -117,13 +123,19 @@ function AttachmentDescription({
+@@ -117,13 +132,57 @@ function AttachmentDescription({
      <span
        data-slot="attachment-description"
        className={cn(
@@ -162,10 +198,48 @@ index f8ca4a8..5b20336 100644
      />
 -  )
 +  );
++}
++
++function AttachmentProgress({
++  value,
++  max = 100,
++  className,
++  "aria-label": ariaLabel = "Upload progress",
++  ...props
++}: Omit<
++  ProgressPrimitive.Root.Props,
++  "value" | "max" | "children" | "getAriaValueText"
++> & {
++  value: number | null;
++  max?: number;
++}) {
++  return (
++    <ProgressPrimitive.Root
++      data-slot="attachment-progress"
++      value={value}
++      max={max}
++      aria-label={ariaLabel}
++      getAriaValueText={
++        value === null
++          ? undefined
++          : (_formatted, current) =>
++              `${Math.round(((current ?? 0) / max) * 100)}%`
++      }
++      className={cn(
++        "w-full basis-full group-data-[orientation=vertical]/attachment:px-1",
++        className,
++      )}
++      {...props}
++    >
++      <ProgressTrack>
++        <ProgressIndicator />
++      </ProgressTrack>
++    </ProgressPrimitive.Root>
++  );
  }
  
  function AttachmentActions({
-@@ -135,11 +147,11 @@ function AttachmentActions({
+@@ -135,11 +194,11 @@ function AttachmentActions({
        data-slot="attachment-actions"
        className={cn(
          "relative z-20 flex shrink-0 items-center group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-3 group-data-[orientation=vertical]/attachment:end-3 group-data-[orientation=vertical]/attachment:gap-1",
@@ -179,7 +253,7 @@ index f8ca4a8..5b20336 100644
  }
  
  function AttachmentAction({
-@@ -156,7 +168,7 @@ function AttachmentAction({
+@@ -156,7 +215,7 @@ function AttachmentAction({
        className={cn(className)}
        {...props}
      />
@@ -188,7 +262,7 @@ index f8ca4a8..5b20336 100644
  }
  
  function AttachmentTrigger({
-@@ -170,15 +182,19 @@ function AttachmentTrigger({
+@@ -170,28 +229,39 @@ function AttachmentTrigger({
      props: mergeProps<"button">(
        {
          type: render ? type : (type ?? "button"),
@@ -210,12 +284,22 @@ index f8ca4a8..5b20336 100644
 +  });
  }
  
- function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
-@@ -187,11 +203,11 @@ function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
+-function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
++function AttachmentGroup({
++  className,
++  layout = "scroll",
++  ...props
++}: React.ComponentProps<"div"> & { layout?: "scroll" | "grid" }) {
+   return (
+     <div
        data-slot="attachment-group"
++      data-layout={layout}
        className={cn(
-         "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+-        "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
 -        className
++        layout === "grid"
++          ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(--spacing(32),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0"
++          : "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
 +        className,
        )}
        {...props}
@@ -225,7 +309,11 @@ index f8ca4a8..5b20336 100644
  }
  
  export {
-@@ -204,4 +220,4 @@ export {
+@@ -201,7 +271,8 @@ export {
+   AttachmentContent,
+   AttachmentTitle,
+   AttachmentDescription,
++  AttachmentProgress,
    AttachmentActions,
    AttachmentAction,
    AttachmentTrigger,

@@ -197,6 +197,7 @@ import type {
   AttachmentDescription,
   AttachmentGroup,
   AttachmentMedia,
+  AttachmentProgress,
   AttachmentTitle,
   AttachmentTrigger,
 } from "@/components/ui/attachment";
@@ -485,6 +486,9 @@ export type AttachmentTriggerProps = React.ComponentProps<
   typeof AttachmentTrigger
 >;
 export type AttachmentGroupProps = React.ComponentProps<typeof AttachmentGroup>;
+export type AttachmentProgressProps = React.ComponentProps<
+  typeof AttachmentProgress
+>;
 
 export type MarkerProps = React.ComponentProps<typeof Marker>;
 export type MarkerIconProps = React.ComponentProps<typeof MarkerIcon>;

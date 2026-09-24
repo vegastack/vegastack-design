@@ -48,9 +48,11 @@ import {
   AttachmentDescription,
   AttachmentGroup,
   AttachmentMedia,
+  AttachmentProgress,
   AttachmentTitle,
   AttachmentTrigger,
 } from "./attachment";
+import { Image } from "./image";
 import { Spinner } from "./spinner";
 
 const STATES = ["idle", "uploading", "processing", "error", "done"] as const;
@@ -789,6 +791,243 @@ test("no a11y violations — a group with a trigger and actions", async () => {
           <AttachmentTrigger aria-label={`Open ${name}`} />
         </Attachment>
       ))}
+    </AttachmentGroup>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+/* ── API-28: layout, progress, muted, nested images ─────────────────────────────────────────── */
+
+test("AttachmentProgress announces a percentage (API-28)", async () => {
+  const screen = await render(
+    <Attachment state="uploading">
+      <AttachmentContent>
+        <AttachmentTitle>sales-dashboard.pdf</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentProgress value={42} />
+    </Attachment>,
+  );
+  const bar = screen.getByRole("progressbar");
+  await expect.element(bar).toHaveAttribute("aria-valuetext", "42%");
+  await expect.element(bar).toHaveAttribute("aria-valuenow", "42");
+  await expect.element(bar).toHaveAccessibleName("Upload progress");
+  expect(
+    slot(screen.container, "attachment-progress")?.contains(
+      slot(screen.container, "progress-indicator"),
+    ),
+  ).toBe(true);
+});
+
+test("API-28: AttachmentProgress scales to max, takes its own row, and names itself from aria-label", async () => {
+  const screen = await render(
+    <Attachment state="uploading" className="w-80">
+      <AttachmentMedia>
+        <FileTextIcon />
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>big.zip</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentProgress
+        value={512}
+        max={2048}
+        aria-label="Uploading big.zip"
+      />
+    </Attachment>,
+  );
+  const bar = screen.getByRole("progressbar", { name: "Uploading big.zip" });
+  await expect.element(bar).toHaveAttribute("aria-valuetext", "25%");
+  const progress = slot(screen.container, "attachment-progress")!;
+  const card = slot(screen.container, "attachment")!;
+  const content = slot(screen.container, "attachment-content")!;
+  // Its own row under the media and content, as wide as the card's content box.
+  expect(progress.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+    content.getBoundingClientRect().bottom - 1,
+  );
+  expect(progress.getBoundingClientRect().width).toBeGreaterThan(
+    card.getBoundingClientRect().width * 0.8,
+  );
+});
+
+test("API-28: an indeterminate AttachmentProgress keeps the engine's own value text", async () => {
+  const screen = await render(
+    <Attachment state="processing">
+      <AttachmentProgress value={null} />
+    </Attachment>,
+  );
+  const bar = screen.container.querySelector('[role="progressbar"]')!;
+  expect(bar.getAttribute("aria-valuetext")).not.toMatch(/%$/);
+  expect(bar.hasAttribute("aria-valuenow")).toBe(false);
+});
+
+test("API-28: uploading without AttachmentProgress keeps the shimmer and renders no bar", async () => {
+  const screen = await render(<Card state="uploading" />);
+  expect(screen.container.querySelector('[role="progressbar"]')).toBeNull();
+  const title = slot(screen.container, "attachment-title")!;
+  expect(getComputedStyle(title).animationName).toBe("tw-shimmer");
+});
+
+test("API-28: AttachmentGroup defaults to the scrolling row and reflects its layout", async () => {
+  const screen = await render(
+    <AttachmentGroup>
+      <Attachment>
+        <AttachmentContent>
+          <AttachmentTitle>one.pdf</AttachmentTitle>
+        </AttachmentContent>
+      </Attachment>
+    </AttachmentGroup>,
+  );
+  const group = slot(screen.container, "attachment-group")!;
+  expect(group.getAttribute("data-layout")).toBe("scroll");
+  expect(getComputedStyle(group).overflowX).toBe("auto");
+});
+
+test.each([320, 1280])(
+  'API-28: layout="grid" wraps tiles into equal columns and never scrolls sideways at %ipx',
+  async (width) => {
+    const names = ["a.png", "b.png", "c.png", "d.png", "e.png", "f.png"];
+    const screen = await render(
+      <div style={{ width: `${width}px` }}>
+        <AttachmentGroup layout="grid">
+          {names.map((name) => (
+            <Attachment key={name} orientation="vertical">
+              <AttachmentMedia variant="image">
+                <img src="/preview/landscape.svg" alt="" />
+              </AttachmentMedia>
+              <AttachmentContent>
+                <AttachmentTitle>{name}</AttachmentTitle>
+              </AttachmentContent>
+            </Attachment>
+          ))}
+        </AttachmentGroup>
+      </div>,
+    );
+    const group = slot(screen.container, "attachment-group")!;
+    expect(group.getAttribute("data-layout")).toBe("grid");
+    expect(getComputedStyle(group).display).toBe("grid");
+    expect(group.scrollWidth).toBeLessThanOrEqual(group.clientWidth + 1);
+    const tiles = slots(screen.container, "attachment");
+    const widths = new Set(
+      tiles.map((tile) => Math.round(tile.getBoundingClientRect().width)),
+    );
+    expect(widths.size).toBe(1);
+    const rows = new Set(
+      tiles.map((tile) => Math.round(tile.getBoundingClientRect().top)),
+    );
+    // Several tiles per row, and more than one row when the six do not fit across.
+    expect(rows.size).toBeLessThan(tiles.length);
+    if (width === 320) expect(rows.size).toBeGreaterThan(1);
+  },
+);
+
+test("API-28: a muted tile dims its media, keeps its text, and still announces its description", async () => {
+  const screen = await render(
+    <Attachment muted>
+      <AttachmentMedia>
+        <FileTextIcon />
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>old-spec.pdf</AttachmentTitle>
+        <AttachmentDescription>Not used on this product</AttachmentDescription>
+      </AttachmentContent>
+      <AttachmentTrigger aria-label="Open old-spec.pdf" />
+    </Attachment>,
+  );
+  const card = slot(screen.container, "attachment")!;
+  expect(card.getAttribute("data-muted")).toBe("true");
+  expect(
+    getComputedStyle(slot(screen.container, "attachment-media")!).opacity,
+  ).toBe("0.5");
+  expect(
+    getComputedStyle(slot(screen.container, "attachment-title")!).opacity,
+  ).toBe("1");
+  await expect
+    .element(screen.getByText("Not used on this product"))
+    .toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("API-28: an unmuted tile carries no data-muted and full-opacity media", async () => {
+  const screen = await render(<Card state="done" />);
+  const card = slot(screen.container, "attachment")!;
+  expect(card.hasAttribute("data-muted")).toBe(false);
+  expect(
+    getComputedStyle(slot(screen.container, "attachment-media")!).opacity,
+  ).toBe("1");
+});
+
+test("API-28: a DS Image nested inside image media fills the slot, and falls back when it fails", async () => {
+  const screen = await render(
+    <div className="flex gap-3">
+      <Attachment orientation="vertical">
+        <AttachmentMedia variant="image">
+          <Image src="/preview/landscape.svg" alt="A scenic landscape" />
+        </AttachmentMedia>
+        <AttachmentContent>
+          <AttachmentTitle>landscape.svg</AttachmentTitle>
+        </AttachmentContent>
+      </Attachment>
+      <Attachment orientation="vertical">
+        <AttachmentMedia variant="image">
+          <Image
+            alt="Missing image"
+            fallback={<FileWarningIcon aria-hidden="true" />}
+          />
+        </AttachmentMedia>
+        <AttachmentContent>
+          <AttachmentTitle>missing.png</AttachmentTitle>
+        </AttachmentContent>
+      </Attachment>
+    </div>,
+  );
+  const [loaded, broken] = slots(screen.container, "attachment-media");
+  // The frame fills the media slot, and the image inside it is cropped rather than squashed —
+  // `[&_img]` reaches an `<img>` at any depth, where upstream's `*:[img]` reached only a child.
+  const image = loaded!.querySelector<HTMLElement>('[data-slot="image"]')!;
+  const img = loaded!.querySelector("img")!;
+  expect(getComputedStyle(img).objectFit).toBe("cover");
+  expect(image.getBoundingClientRect().width).toBeCloseTo(
+    loaded!.getBoundingClientRect().width,
+    0,
+  );
+  expect(img.getBoundingClientRect().width).toBeCloseTo(
+    loaded!.getBoundingClientRect().width,
+    0,
+  );
+  const frame = broken!.querySelector<HTMLElement>('[data-slot="image"]')!;
+  await expect.poll(() => frame.getAttribute("data-state")).toBe("error");
+  expect(frame.getBoundingClientRect().width).toBeCloseTo(
+    broken!.getBoundingClientRect().width,
+    0,
+  );
+});
+
+test("no a11y violations — uploading with AttachmentProgress (API-28)", async () => {
+  const screen = await render(
+    <AttachmentGroup layout="grid">
+      <Attachment state="uploading" orientation="vertical">
+        <AttachmentMedia>
+          <FileTextIcon />
+        </AttachmentMedia>
+        <AttachmentContent>
+          <AttachmentTitle>spec.pdf</AttachmentTitle>
+          <AttachmentDescription>1.2 MB of 2.4 MB</AttachmentDescription>
+        </AttachmentContent>
+        <AttachmentProgress value={50} aria-label="Uploading spec.pdf" />
+        <AttachmentActions>
+          <AttachmentAction aria-label="Cancel upload of spec.pdf">
+            <XIcon />
+          </AttachmentAction>
+        </AttachmentActions>
+      </Attachment>
+      <Attachment state="processing" orientation="vertical">
+        <AttachmentMedia>
+          <FileTextIcon />
+        </AttachmentMedia>
+        <AttachmentContent>
+          <AttachmentTitle>scan.pdf</AttachmentTitle>
+        </AttachmentContent>
+        <AttachmentProgress value={null} aria-label="Processing scan.pdf" />
+      </Attachment>
     </AttachmentGroup>,
   );
   await expectNoA11yViolations(screen.container);
