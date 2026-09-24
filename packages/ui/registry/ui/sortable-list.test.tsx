@@ -3,21 +3,37 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { SortableList, type SortableListItem } from "./sortable-list";
+import {
+  SortableList,
+  type SortableListItem,
+  type SortableListProps,
+} from "./sortable-list";
 
 function Controlled({
   onMove,
   gate,
   disabled,
   initial = ["Alpha", "Beta", "Gamma"],
+  locked = [],
+  ...rest
 }: {
   onMove?: (id: string, to: number) => void;
   gate?: () => Promise<void>;
   disabled?: boolean;
   initial?: string[];
-}) {
+  locked?: string[];
+} & Partial<
+  Pick<
+    SortableListProps,
+    "lockedReason" | "renderActions" | "actionsLabel" | "layout" | "renderItem"
+  >
+>) {
   const [items, setItems] = React.useState<SortableListItem[]>(
-    initial.map((label) => ({ id: label.toLowerCase(), label })),
+    initial.map((label) => ({
+      id: label.toLowerCase(),
+      label,
+      disabled: locked.includes(label),
+    })),
   );
   return (
     <SortableList
@@ -25,6 +41,7 @@ function Controlled({
       items={items}
       disabled={disabled}
       renderItem={(item) => <span>{item.label}</span>}
+      {...rest}
       onReorder={(move) => {
         onMove?.(move.id, move.to.index);
         if (gate) return gate();
@@ -56,7 +73,7 @@ test("renders a labelled list of items with handles and menus", async () => {
     .element(screen.getByRole("button", { name: "Reorder Alpha" }))
     .toBeInTheDocument();
   await expect
-    .element(screen.getByRole("button", { name: "Move Alpha" }))
+    .element(screen.getByRole("button", { name: "Actions for Alpha" }))
     .toBeInTheDocument();
 });
 
@@ -87,20 +104,20 @@ test("keyboard: Space on the handle lifts, ArrowDown commits a step, Escape ends
 
 test("the menu equivalent is lossless: Move up / down / to top / to bottom", async () => {
   const screen = await render(<Controlled />);
-  await screen.getByRole("button", { name: "Move Gamma" }).click();
+  await screen.getByRole("button", { name: "Actions for Gamma" }).click();
   await screen.getByRole("menuitem", { name: "Move to top" }).click();
   await expect.poll(() => rowLabels()).toEqual(["Gamma", "Alpha", "Beta"]);
-  await screen.getByRole("button", { name: "Move Gamma" }).click();
+  await screen.getByRole("button", { name: "Actions for Gamma" }).click();
   await screen.getByRole("menuitem", { name: "Move down" }).click();
   await expect.poll(() => rowLabels()).toEqual(["Alpha", "Gamma", "Beta"]);
-  await screen.getByRole("button", { name: "Move Gamma" }).click();
+  await screen.getByRole("button", { name: "Actions for Gamma" }).click();
   await screen.getByRole("menuitem", { name: "Move to bottom" }).click();
   await expect.poll(() => rowLabels()).toEqual(["Alpha", "Beta", "Gamma"]);
 });
 
 test("edge menu items disable (no wrap): Move up on the first row", async () => {
   const screen = await render(<Controlled />);
-  await screen.getByRole("button", { name: "Move Alpha" }).click();
+  await screen.getByRole("button", { name: "Actions for Alpha" }).click();
   // .element() does not retry — wait for the menu to actually open first
   // (Firefox opens it a frame later than Chromium).
   const locator = screen.getByRole("menuitem", { name: "Move up" });
@@ -146,7 +163,7 @@ test("disabled renders rows without handles or menus", async () => {
   const screen = await render(<Controlled disabled />);
   expect(rowLabels()).toEqual(["Alpha", "Beta", "Gamma"]);
   expect(document.querySelector('[aria-label^="Reorder"]')).toBeNull();
-  expect(document.querySelector('[aria-label^="Move "]')).toBeNull();
+  expect(document.querySelector('[aria-label^="Actions for"]')).toBeNull();
   await expectNoA11yViolations(screen.container);
 });
 
@@ -187,4 +204,284 @@ test("no a11y violations — idle and move mode", async () => {
   handle.focus();
   await userEvent.keyboard(" ");
   await expectNoA11yViolations(screen.container);
+});
+
+// ---- DS-43: locked rows, inline actions, the grid layout -------------------
+
+function rowOf(label: string): HTMLElement {
+  return Array.from(
+    document.querySelectorAll<HTMLElement>('[data-slot="sortable-list-item"]'),
+  ).find(
+    (el) => el.querySelector("[data-slot=item-content]")?.textContent === label,
+  )!;
+}
+
+test("a locked row keeps its spacer and menu, and Move items carry the reason", async () => {
+  const screen = await render(
+    <Controlled
+      initial={["Unit", "Colour"]}
+      locked={["Unit"]}
+      lockedReason="Built-in values can't move"
+    />,
+  );
+  const row = rowOf("Unit");
+  // The handle's footprint stays, so locked and unlocked rows align.
+  const spacer = row.querySelector<HTMLElement>(
+    '[data-slot="sortable-list-handle-spacer"]',
+  );
+  expect(spacer).not.toBeNull();
+  expect(spacer!.getAttribute("aria-hidden")).toBe("true");
+  expect(row.querySelector('[data-slot="sortable-list-handle"]')).toBeNull();
+  // The unlocked row keeps a real handle and no spacer.
+  expect(
+    rowOf("Colour").querySelector('[data-slot="sortable-list-handle-spacer"]'),
+  ).toBeNull();
+  await screen.getByRole("button", { name: "Actions for Unit" }).click();
+  for (const name of [
+    "Move up",
+    "Move down",
+    "Move to top",
+    "Move to bottom",
+  ]) {
+    const item = screen.getByRole("menuitem", { name });
+    await expect
+      .element(item)
+      .toHaveAccessibleDescription("Built-in values can't move");
+    const el = item.element() as HTMLElement;
+    expect(
+      el.getAttribute("aria-disabled") === "true" ||
+        el.hasAttribute("data-disabled"),
+    ).toBe(true);
+  }
+});
+
+test("a locked row without a reason has no description, and unlocked rows never carry one", async () => {
+  const screen = await render(
+    <Controlled
+      initial={["Unit", "Colour", "Size"]}
+      locked={["Unit"]}
+      lockedReason="Built-in values can't move"
+    />,
+  );
+  await screen.getByRole("button", { name: "Actions for Colour" }).click();
+  const moveDown = screen.getByRole("menuitem", { name: "Move down" });
+  await expect.element(moveDown).toBeInTheDocument();
+  expect(
+    (moveDown.element() as HTMLElement).hasAttribute("aria-describedby"),
+  ).toBe(false);
+});
+
+test("a locked row cannot be lifted, and others move past it", async () => {
+  const onMove = vi.fn();
+  const screen = await render(
+    <Controlled
+      onMove={onMove}
+      initial={["Unit", "Colour", "Size"]}
+      locked={["Unit"]}
+    />,
+  );
+  expect(document.querySelector('[aria-label="Reorder Unit"]')).toBeNull();
+  const handle = screen
+    .getByRole("button", { name: "Reorder Colour" })
+    .element() as HTMLElement;
+  handle.focus();
+  await userEvent.keyboard(" ");
+  await userEvent.keyboard("{ArrowUp}");
+  expect(onMove).toHaveBeenCalledWith("colour", 0);
+  expect(rowLabels()).toEqual(["Colour", "Unit", "Size"]);
+});
+
+test("renderActions adds an inline slot on every row, locked ones included", async () => {
+  const screen = await render(
+    <Controlled
+      initial={["Unit", "Colour"]}
+      locked={["Unit"]}
+      renderActions={(item) => (
+        <button type="button" aria-label={`Rename ${item.label}`}>
+          ✎
+        </button>
+      )}
+    />,
+  );
+  for (const label of ["Unit", "Colour"]) {
+    const slot = rowOf(label).querySelector(
+      '[data-slot="sortable-list-actions"]',
+    );
+    expect(slot).not.toBeNull();
+    await expect
+      .element(screen.getByRole("button", { name: `Rename ${label}` }))
+      .toBeInTheDocument();
+  }
+});
+
+test("actionsLabel names the row menu trigger", async () => {
+  const screen = await render(
+    <Controlled actionsLabel={(label) => `${label} options`} />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Alpha options" }))
+    .toBeInTheDocument();
+});
+
+/** Dispatch a Pragmatic dragstart on `row` at the centre of `from`. */
+function startDragAt(row: HTMLElement, from: HTMLElement) {
+  const rect = from.getBoundingClientRect();
+  row.dispatchEvent(
+    new DragEvent("dragstart", {
+      bubbles: true,
+      cancelable: true,
+      dataTransfer: new DataTransfer(),
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height / 2,
+    }),
+  );
+}
+
+test("with an input in the row, drag starts only from the handle", async () => {
+  await render(
+    <Controlled
+      renderItem={(item) => (
+        <input
+          aria-label={`Name for ${item.label}`}
+          defaultValue={item.label}
+        />
+      )}
+    />,
+  );
+  const row = document.querySelector<HTMLElement>('[data-drag-item="alpha"]')!;
+  const input = row.querySelector("input")!;
+  startDragAt(row, input);
+  await new Promise((r) => setTimeout(r, 60));
+  expect(row.hasAttribute("data-dragging")).toBe(false);
+  row.dispatchEvent(new DragEvent("dragend", { bubbles: true }));
+  const handle = row.querySelector<HTMLElement>(
+    '[data-slot="sortable-list-handle"]',
+  )!;
+  startDragAt(row, handle);
+  await expect.poll(() => row.hasAttribute("data-dragging")).toBe(true);
+  row.dispatchEvent(new DragEvent("dragend", { bubbles: true }));
+});
+
+/* The harness compiles no Tailwind, so the grid's `grid-cols-[repeat(auto-fill,…)]` is mirrored
+   1:1 as a fixed three-column track list (testing.md § Style-mirror): the hook measures the column
+   count from where the rows actually wrap, which is what this proves. */
+function GridMirror() {
+  return (
+    <style>{`
+      [data-slot="sortable-list"][data-layout="grid"] [data-slot="item-group"] {
+        display: grid; grid-template-columns: repeat(3, 120px); gap: 8px;
+      }
+      [data-slot="sortable-list"][data-layout="grid"] [data-slot="sortable-list-item"] {
+        position: relative; height: 80px;
+      }
+    `}</style>
+  );
+}
+
+const SIX = ["One", "Two", "Three", "Four", "Five", "Six"];
+
+test("grid: the layout is exposed and the handle overlays the tile", async () => {
+  await render(
+    <>
+      <GridMirror />
+      <Controlled layout="grid" initial={SIX} />
+    </>,
+  );
+  const root = document.querySelector('[data-slot="sortable-list"]')!;
+  expect(root.getAttribute("data-layout")).toBe("grid");
+  const group = root.querySelector('[data-slot="item-group"]')!;
+  expect(group.className).toContain(
+    "grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))]",
+  );
+  const handle = rowOf("One").querySelector(
+    '[data-slot="sortable-list-handle"]',
+  )!;
+  expect(handle.className).toContain("absolute");
+  expect(handle.className).toContain("start-1");
+});
+
+test("grid: ←/→ step one tile, ↑/↓ move by a measured row", async () => {
+  const onMove = vi.fn();
+  const screen = await render(
+    <>
+      <GridMirror />
+      <Controlled layout="grid" initial={SIX} onMove={onMove} />
+    </>,
+  );
+  const handle = screen
+    .getByRole("button", { name: "Reorder Two" })
+    .element() as HTMLElement;
+  handle.focus();
+  await userEvent.keyboard(" ");
+  await userEvent.keyboard("{ArrowRight}");
+  expect(onMove).toHaveBeenLastCalledWith("two", 2);
+  await userEvent.keyboard("{ArrowDown}");
+  expect(onMove).toHaveBeenLastCalledWith("two", 5);
+  expect(rowLabels()).toEqual(["One", "Three", "Four", "Five", "Six", "Two"]);
+  await userEvent.keyboard("{ArrowUp}");
+  expect(onMove).toHaveBeenLastCalledWith("two", 2);
+});
+
+test("grid: a pointer drop on a tile's right edge lands after it, across the wrap", async () => {
+  const onMove = vi.fn();
+  await render(
+    <>
+      <GridMirror />
+      <Controlled layout="grid" initial={SIX} onMove={onMove} />
+    </>,
+  );
+  const row = rowOf("Five");
+  const handle = row.querySelector<HTMLElement>(
+    '[data-slot="sortable-list-handle"]',
+  )!;
+  // "Three" ends the first row; its right edge is the seam before "Four" on the next row.
+  const target = rowOf("Three");
+  const rect = target.getBoundingClientRect();
+  const at = {
+    bubbles: true,
+    cancelable: true,
+    clientX: rect.right - 4,
+    clientY: rect.top + rect.height / 2,
+  };
+  startDragAt(row, handle);
+  await new Promise((r) => setTimeout(r, 60));
+  for (const type of ["dragenter", "dragover"] as const) {
+    target.dispatchEvent(new DragEvent(type, at));
+    await new Promise((r) => setTimeout(r, 60));
+  }
+  expect(target.getAttribute("data-drop-edge")).toBe("right");
+  target.dispatchEvent(new DragEvent("drop", at));
+  row.dispatchEvent(new DragEvent("dragend", at));
+  await expect.poll(() => onMove.mock.calls.length).toBe(1);
+  expect(onMove).toHaveBeenCalledWith("five", 3);
+  expect(rowLabels()).toEqual(["One", "Two", "Three", "Five", "Four", "Six"]);
+});
+
+test("no a11y violations — grid and locked", async () => {
+  const grid = await render(
+    <>
+      <GridMirror />
+      <Controlled layout="grid" initial={SIX} />
+    </>,
+  );
+  await expectNoA11yViolations(grid.container);
+  grid.unmount();
+  const locked = await render(
+    <Controlled
+      initial={["Unit", "Colour"]}
+      locked={["Unit"]}
+      lockedReason="Built-in values can't move"
+      renderActions={(item) => (
+        <button type="button" aria-label={`Rename ${item.label}`}>
+          ✎
+        </button>
+      )}
+    />,
+  );
+  await expectNoA11yViolations(locked.container);
+  await locked.getByRole("button", { name: "Actions for Unit" }).click();
+  await expect
+    .element(locked.getByRole("menuitem", { name: "Move down" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
 });

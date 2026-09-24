@@ -1101,7 +1101,7 @@
       "name": "drag-item",
       "type": "registry:lib",
       "title": "Drag Item",
-      "description": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
+      "description": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines on all four edges, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
       "categories": ["data"],
       "dependencies": [],
       "registryDependencies": [],
@@ -12802,7 +12802,7 @@
       "name": "sortable-list",
       "type": "registry:ui",
       "title": "Sortable List",
-      "description": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
+      "description": "Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless row menu, locked rows, inline actions, a grid layout, and server-refusable moves. Controlled; the host owns the order.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -12824,7 +12824,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
+        "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.18.0"
       }
@@ -13391,7 +13391,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
+        "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.18.0"
       }

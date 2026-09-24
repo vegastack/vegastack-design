@@ -1,6 +1,6 @@
 ---
 title: Sortable List
-description: Reorderable rows with pointer drag, keyboard move mode, a lossless row menu, and server-refusable moves — controlled; the host owns the order.
+description: Reorderable rows or tiles with pointer drag, keyboard move mode, a lossless row menu, locked rows and server-refusable moves. The host owns the order.
 audience: public
 registry: sortable-list
 status: stable
@@ -30,6 +30,12 @@ import { SortableList } from "@/components/ui/sortable-list";
 one drag-engine seam). It is controlled: `items` arrive in display order,
 `onReorder` requests a move, and the host applies — or refuses — it.
 
+Each row has a drag handle, its content, optional inline actions
+(`renderActions`), and a row menu named "Actions for {label}" (`actionsLabel`
+renames it) that holds the Move items. A row with `disabled: true` is locked: it
+keeps its place and its menu, and other rows move past it. `layout="grid"` wraps
+the same list into image tiles.
+
 ## Scope
 
 | Behaviour             | Where it lives                                                                                                                                         |
@@ -40,6 +46,42 @@ one drag-engine seam). It is controlled: `items` arrive in display order,
 | Virtualized ordering  | `data-grid` territory                                                                                                                                  |
 
 ## Examples
+
+### With inline rename
+
+When a row's content is a text field, drag starts only from the handle, so typing
+(Space included) never lifts the row. `renderActions` puts a delete button beside
+the row menu.
+
+<ComponentPreview
+  name="sortableListInlineRename"
+  file="components/preview/sortable-list.tsx"
+/>
+
+### Locked rows
+
+Set `disabled: true` on an item to lock it. Its handle becomes a spacer of the
+same size, so the handles stay aligned. Its row menu stays, with the Move items
+disabled, and `lockedReason` is their accessible description. Other rows still
+move past a locked row: the lock fixes the row, not the positions around it.
+
+<ComponentPreview
+  name="sortableListLocked"
+  file="components/preview/sortable-list.tsx"
+/>
+
+### Image grid
+
+`layout="grid"` wraps the list into tiles at least `--spacing(28)` wide, as many
+per row as fit. The handle and the actions sit over the tile's top corners. A drop
+lands left or right of a tile, and in keyboard move mode <kbd>←</kbd>/<kbd>→</kbd>
+step one tile while <kbd>↑</kbd>/<kbd>↓</kbd> step a whole row. The column count
+is measured, so the row step is right at any width.
+
+<ComponentPreview
+  name="sortableListGrid"
+  file="components/preview/sortable-list.tsx"
+/>
 
 ### Server-gated moves
 
@@ -54,7 +96,7 @@ so the order simply stays.
 
 ### The menu path
 
-Every enabled row carries a "Move …" menu — Move up / Move down / Move to top / Move to bottom — so
+Every row carries an "Actions for …" menu — Move up / Move down / Move to top / Move to bottom — so
 the whole ordering is reachable without a pointer and without entering keyboard move mode. It runs
 the same `onReorder` callback as a drag, so the host cannot tell the paths apart.
 
@@ -88,14 +130,17 @@ recipe — the same one `Board` uses, installed once as its own registry item.
   lossless path on touch and for AT.
 - Each step announces through a polite live region ("Moved to position 2 of
   3"); a refused move announces "Move rejected — position restored".
-- Handles and menu triggers are named per row ("Reorder Alpha", "Move Alpha");
-  drop position shows as a 2px indicator line, and a lifted row dims.
+- Handles and menu triggers are named per row ("Reorder Alpha", "Actions for
+  Alpha"); drop position shows as a 2px indicator line, and a lifted row dims.
+- A locked row has no handle, only a hidden spacer. Its Move items stay in the
+  menu, disabled, with `lockedReason` as their description.
 
-| Key                                 | Action                                  |
-| ----------------------------------- | --------------------------------------- |
-| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggle move mode on the focused handle. |
-| <kbd>↑</kbd> / <kbd>↓</kbd>         | Commit a one-step move (in move mode).  |
-| <kbd>Escape</kbd>                   | End move mode.                          |
+| Key                                 | Action                                                          |
+| ----------------------------------- | --------------------------------------------------------------- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggle move mode on the focused handle.                         |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Commit a one-step move (in move mode). In a grid, move one row. |
+| <kbd>←</kbd> / <kbd>→</kbd>         | In a grid, move one tile (in move mode).                        |
+| <kbd>Escape</kbd>                   | End move mode.                                                  |
 
 <StatesTested name="sortable-list" />
 

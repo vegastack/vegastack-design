@@ -430,3 +430,107 @@ test("move-mode horizontal arrows follow document direction (RTL)", async () => 
     }),
   );
 });
+
+// ---- columns: row-aware ↑/↓ when a horizontal axis wraps into a grid -------
+
+function GridList({
+  onMove,
+  columns,
+  initial = ["a", "b", "c", "d", "e", "f", "g"],
+}: {
+  onMove: (m: DragReorderMove) => void;
+  columns: UseDragReorderOptions["columns"];
+  initial?: string[];
+}) {
+  const [ids, setIds] = React.useState(initial);
+  return (
+    <>
+      {/* Three fixed tracks: the "auto" count is measured from where items wrap. */}
+      <style>{`[data-drop-container="grid"] { display: grid; grid-template-columns: repeat(3, 80px); list-style: none; padding: 0; }`}</style>
+      <Harness
+        lists={{ grid: ids }}
+        axis="horizontal"
+        columns={columns}
+        onReorder={(move) => {
+          onMove(move);
+          setIds((prev) => {
+            const next = prev.filter((x) => x !== move.id);
+            next.splice(move.to.index, 0, move.id);
+            return next;
+          });
+        }}
+      />
+    </>
+  );
+}
+
+async function lift(screen: Awaited<ReturnType<typeof render>>, id: string) {
+  const handle = screen
+    .getByRole("button", { name: `Move ${id}` })
+    .element() as HTMLElement;
+  handle.focus();
+  await userEvent.keyboard(" ");
+}
+
+for (const columns of [3, "auto"] as const) {
+  test(`columns=${columns}: ↑/↓ move by a row, clamping into a short last row`, async () => {
+    const onMove = vi.fn();
+    const screen = await render(<GridList onMove={onMove} columns={columns} />);
+    await lift(screen, "b");
+    await userEvent.keyboard("{ArrowDown}");
+    expect(onMove).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        id: "b",
+        to: { container: "grid", index: 4 },
+        input: "keyboard",
+      }),
+    );
+    // Row 2 → row 3 holds one item: index 7 does not exist, so it lands at the end.
+    await userEvent.keyboard("{ArrowDown}");
+    expect(onMove).toHaveBeenLastCalledWith(
+      expect.objectContaining({ to: { container: "grid", index: 6 } }),
+    );
+    // Already on the last row: nothing below, no useless commit.
+    await userEvent.keyboard("{ArrowDown}");
+    expect(onMove).toHaveBeenCalledTimes(2);
+    await userEvent.keyboard("{ArrowUp}");
+    expect(onMove).toHaveBeenLastCalledWith(
+      expect.objectContaining({ to: { container: "grid", index: 3 } }),
+    );
+    // ←/→ still step one item in reading order.
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(onMove).toHaveBeenLastCalledWith(
+      expect.objectContaining({ to: { container: "grid", index: 2 } }),
+    );
+    await userEvent.keyboard("{ArrowUp}");
+    // First row: nothing above.
+    expect(onMove).toHaveBeenCalledTimes(4);
+  });
+}
+
+test("a clamped ↓ that would stay on the same row is a no-op", async () => {
+  const onMove = vi.fn();
+  const screen = await render(
+    <GridList
+      onMove={onMove}
+      columns={3}
+      initial={["a", "b", "c", "d", "e"]}
+    />,
+  );
+  // "e" is on the last row; index 7 clamps to 4, its own index.
+  await lift(screen, "e");
+  await userEvent.keyboard("{ArrowDown}");
+  // "d" is on the last row too: clamping to 4 would stay on the same row.
+  await userEvent.keyboard("{Escape}");
+  await lift(screen, "d");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(onMove).not.toHaveBeenCalled();
+});
+
+test("without columns, ↑/↓ on a horizontal single list stay no-ops", async () => {
+  const onMove = vi.fn();
+  const screen = await render(<GridList onMove={onMove} columns={undefined} />);
+  await lift(screen, "b");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(onMove).not.toHaveBeenCalled();
+});
