@@ -473,3 +473,25 @@ test("no a11y violations — wrapped, joined", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("A11Y-20: a vertical group moves with up and down, not left and right (Vertical)", async () => {
+  const screen = await render(
+    <ToggleGroup orientation="vertical" aria-label="Alignment">
+      <ToggleGroupItem value="top">Top</ToggleGroupItem>
+      <ToggleGroupItem value="bottom">Bottom</ToggleGroupItem>
+    </ToggleGroup>,
+  );
+  (
+    screen.getByRole("button", { name: "Top" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("button", { name: "Bottom" }))
+    .toHaveFocus();
+  // role="group" takes no aria-orientation; the keys are the contract
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .element(screen.getByRole("button", { name: "Bottom" }))
+    .toHaveFocus();
+  await expectNoA11yViolations(screen.container);
+});

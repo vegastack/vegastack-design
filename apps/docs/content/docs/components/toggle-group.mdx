@@ -184,6 +184,7 @@ next.
 | ----------------------------------- | ------------------------------------------------------------- |
 | <kbd>Tab</kbd>                      | Move focus into and out of the group.                         |
 | <kbd>←</kbd> / <kbd>→</kbd>         | Move focus to the previous or next item, looping at the ends. |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | The same, in a group with `orientation="vertical"`.           |
 | <kbd>Home</kbd> / <kbd>End</kbd>    | Move focus to the first or last item.                         |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the focused item.                                      |
 
@@ -200,6 +201,9 @@ next.
 
 Upstream's file plus `packages/ui/upstream/patches/toggle-group.patch`. Every hunk:
 
+- **A11Y-20** — `orientation` reaches the Base UI group, so a vertical group moves with
+  <kbd>↑</kbd>/<kbd>↓</kbd>. Upstream only styles the column and keeps the keys
+  horizontal.
 - **API-23** — `ToggleGroup` takes `deselectable` (default `true`; `false` cancels the change that
   would empty a single-select group, so a view switch always has a view) and `wrap` (the items wrap
   onto rows; a joined group marks each row's first and last item so every row gets its own rounded

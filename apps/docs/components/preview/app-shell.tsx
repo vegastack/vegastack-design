@@ -19,7 +19,6 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
@@ -78,13 +77,14 @@ export function appShellDemo(): ReactNode {
                     <SidebarMenuButton
                       isActive={active === item.key}
                       onClick={() => setActive(item.key)}
+                      badge={item.badge}
+                      badgeLabel={
+                        item.badge ? `${item.badge} unread` : undefined
+                      }
                     >
                       <item.icon />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
-                    {item.badge ? (
-                      <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
-                    ) : null}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
@@ -253,13 +253,14 @@ export function appShellMobile(): ReactNode {
                     <SidebarMenuButton
                       isActive={active === item.key}
                       onClick={() => setActive(item.key)}
+                      badge={item.badge}
+                      badgeLabel={
+                        item.badge ? `${item.badge} unread` : undefined
+                      }
                     >
                       <item.icon />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
-                    {item.badge ? (
-                      <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
-                    ) : null}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>

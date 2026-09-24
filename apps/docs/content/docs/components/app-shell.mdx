@@ -208,6 +208,30 @@ function RouteFocus() {
 }
 ```
 
+### Static shells
+
+A prerendered or cached shell cannot read the sidebar cookie on the server, so a collapsed sidebar
+would paint expanded and jump on hydration. Put `SidebarStateScript` in the root layout's `<head>`
+with the same `collapsible` as your `AppShellSidebar`, and drive `AppShell` from
+`useSidebarCookieOpen` when you control it. The script marks the panel collapsed before first
+paint, the hook starts from that mark and writes the cookie, and the controlled shell writes none
+itself (LAY-13). The mechanism is documented on [Sidebar](/docs/components/sidebar#static-shells).
+
+```tsx title="components/app-frame.tsx"
+"use client";
+import { AppShell } from "@/components/ui/app-shell";
+import { useSidebarCookieOpen } from "@/components/ui/sidebar";
+
+export function AppFrame({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useSidebarCookieOpen();
+  return (
+    <AppShell open={open} onOpenChange={setOpen}>
+      {children}
+    </AppShell>
+  );
+}
+```
+
 ## API Reference
 
 ### AppShell
