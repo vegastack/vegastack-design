@@ -390,23 +390,25 @@
       "name": "board",
       "type": "registry:ui",
       "title": "Board",
-      "description": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
+      "description": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, named lanes with a muted total count, loading and custom empty lanes, collapsed lanes, cards as real links, Empty-bordered drop targets.",
       "categories": [
         "layout"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
-        "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/card",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/scroll-area",
+        "@vegastack/skeleton",
+        "@vegastack/truncated-text",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-mobile"
       ],
@@ -418,10 +420,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
+        "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.18.0",
-        "integrity": "sha256-yimtN3X5xAw1/Oc8cR2jca3k15GFbcsBmriPBS8EMGo="
+        "integrity": "sha256-vUyYRGUgz/Mml1bXyn3GkyZIosESz0GgFvi/RK0dSp0="
       }
     },
     {
