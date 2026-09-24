@@ -1,5 +1,5 @@
 # component: combobox
-# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
 # hunks:
 #   API-19: `ComboboxItem` calls Item's `useItemDescriptionId()`, provides its `register` through
 #     `ItemDescriptionContext`, and sets `aria-describedby` on the option once an `ItemDescription`
@@ -60,12 +60,19 @@
 #     the addon toggle's own `aria-label`, so a second element answered to the field's name. The
 #     `ComboboxInput` addon toggle passes `aria-labelledby={undefined}` and keeps "Show
 #     suggestions"; the input is the one control the Field names.
+#   API-27: a new `ComboboxStatus` part re-exports Base UI's `Combobox.Status` — the engine's own
+#     polite `role="status"` region for an asynchronously loaded list (DS-40, approved by MK
+#     24-09-2026). It carries `data-slot="combobox-status"` and is `sr-only` unless `visible`, which
+#     sets `data-visible` and shows it as a muted row that collapses its padding while empty. It is
+#     never hidden with `display: none`, `hidden` or `aria-hidden` — Base UI documents that the root
+#     must stay mounted — so a consumer renders it as a sibling of `ComboboxList` and toggles its
+#     children.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..e12ead8 100644
+index 39e776a..4c71991 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,28 @@
@@ -307,7 +314,7 @@ index 39e776a..e12ead8 100644
  }
  
  function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
-@@ -191,12 +235,12 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+@@ -191,12 +235,32 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
      <ComboboxPrimitive.Empty
        data-slot="combobox-empty"
        className={cn(
@@ -320,10 +327,30 @@ index 39e776a..e12ead8 100644
      />
 -  )
 +  );
++}
++
++function ComboboxStatus({
++  className,
++  visible = false,
++  ...props
++}: ComboboxPrimitive.Status.Props & { visible?: boolean }) {
++  return (
++    <ComboboxPrimitive.Status
++      data-slot="combobox-status"
++      data-visible={visible || undefined}
++      className={cn(
++        visible
++          ? "px-2 py-1.5 text-sm text-muted-foreground empty:p-0"
++          : "sr-only",
++        className,
++      )}
++      {...props}
++    />
++  );
  }
  
  function ComboboxSeparator({
-@@ -209,7 +253,7 @@ function ComboboxSeparator({
+@@ -209,7 +273,7 @@ function ComboboxSeparator({
        className={cn("-mx-1 my-1 h-px bg-border", className)}
        {...props}
      />
@@ -332,7 +359,7 @@ index 39e776a..e12ead8 100644
  }
  
  function ComboboxChips({
-@@ -221,12 +265,12 @@ function ComboboxChips({
+@@ -221,12 +285,12 @@ function ComboboxChips({
      <ComboboxPrimitive.Chips
        data-slot="combobox-chips"
        className={cn(
@@ -348,7 +375,7 @@ index 39e776a..e12ead8 100644
  }
  
  function ComboboxChip({
-@@ -235,21 +279,21 @@ function ComboboxChip({
+@@ -235,21 +299,21 @@ function ComboboxChip({
    showRemove = true,
    ...props
  }: ComboboxPrimitive.Chip.Props & {
@@ -374,7 +401,7 @@ index 39e776a..e12ead8 100644
            className="-ms-1 opacity-50 hover:opacity-100"
            data-slot="combobox-chip-remove"
          >
-@@ -257,7 +301,7 @@ function ComboboxChip({
+@@ -257,7 +321,7 @@ function ComboboxChip({
          </ComboboxPrimitive.ChipRemove>
        )}
      </ComboboxPrimitive.Chip>
@@ -383,7 +410,7 @@ index 39e776a..e12ead8 100644
  }
  
  function ComboboxChipsInput({
-@@ -267,14 +311,14 @@ function ComboboxChipsInput({
+@@ -267,14 +331,14 @@ function ComboboxChipsInput({
    return (
      <ComboboxPrimitive.Input
        data-slot="combobox-chip-input"
@@ -401,7 +428,15 @@ index 39e776a..e12ead8 100644
  }
  
  export {
-@@ -294,4 +338,4 @@ export {
+@@ -287,6 +351,7 @@ export {
+   ComboboxLabel,
+   ComboboxCollection,
+   ComboboxEmpty,
++  ComboboxStatus,
+   ComboboxSeparator,
+   ComboboxChips,
+   ComboboxChip,
+@@ -294,4 +359,4 @@ export {
    ComboboxTrigger,
    ComboboxValue,
    useComboboxAnchor,

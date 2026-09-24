@@ -17,6 +17,7 @@ import {
   ComboboxItem,
   ComboboxLabel,
   ComboboxList,
+  ComboboxStatus,
   ComboboxTrigger,
   ComboboxValue,
 } from "./combobox";
@@ -695,5 +696,91 @@ test("API-19: a two-line option exposes its description (Two-line options)", asy
   expect(described?.textContent).toBe("Meeting · 3 Sep");
   const oneLine = options.find((o) => o.textContent === "Standup")!;
   expect(oneLine.hasAttribute("aria-describedby")).toBe(false);
+  await expectNoA11yViolations(document.body);
+});
+
+function WithStatus({
+  status,
+  visible,
+}: {
+  status: React.ReactNode;
+  visible?: boolean;
+}) {
+  return (
+    <Combobox items={["a"]}>
+      <ComboboxInput aria-label="Fruit" />
+      <ComboboxContent>
+        <ComboboxStatus visible={visible}>{status}</ComboboxStatus>
+        <ComboboxList>
+          {(i: string) => (
+            <ComboboxItem key={i} value={i}>
+              {i}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}
+
+test("ComboboxStatus is a mounted polite region next to the list (API-27)", async () => {
+  const screen = await render(<WithStatus status="Searching…" />);
+  await screen.getByRole("combobox").click();
+  await expect
+    .element(screen.getByRole("status"))
+    .toHaveTextContent("Searching…");
+  const status = document.querySelector(
+    '[data-slot="combobox-status"]',
+  ) as HTMLElement;
+  expect(status.getAttribute("aria-live")).toBe("polite");
+  // A sibling of the listbox, never inside it: a status row inside `role="listbox"` is not an
+  // option and breaks the list's owned-element contract.
+  expect(
+    screen.container.ownerDocument.querySelector(
+      '[role="listbox"] [role="status"]',
+    ),
+  ).toBeNull();
+  expect(
+    status.parentElement?.querySelector('[role="listbox"]'),
+  ).not.toBeNull();
+});
+
+test("API-27: ComboboxStatus is screen-reader-only by default and shown with visible", async () => {
+  const screen = await render(<WithStatus status="Searching…" />);
+  await screen.getByRole("combobox").click();
+  const hidden = document.querySelector(
+    '[data-slot="combobox-status"]',
+  ) as HTMLElement;
+  expect(hidden.className.split(/\s+/)).toContain("sr-only");
+  expect(hidden.hasAttribute("data-visible")).toBe(false);
+  await screen.unmount();
+
+  const shown = await render(<WithStatus status="Searching…" visible />);
+  await shown.getByRole("combobox").click();
+  const region = document.querySelector(
+    '[data-slot="combobox-status"]',
+  ) as HTMLElement;
+  expect(region.className.split(/\s+/)).not.toContain("sr-only");
+  expect(region.getAttribute("data-visible")).toBe("true");
+});
+
+test("API-27: the region stays mounted when its message clears, so the next one is announced", async () => {
+  const screen = await render(<WithStatus status="Searching…" />);
+  await screen.getByRole("combobox").click();
+  const before = document.querySelector('[data-slot="combobox-status"]');
+  await screen.rerender(<WithStatus status={null} />);
+  const after = document.querySelector(
+    '[data-slot="combobox-status"]',
+  ) as HTMLElement;
+  expect(after).toBe(before);
+  expect(after.textContent).toBe("");
+  expect(getComputedStyle(after).display).not.toBe("none");
+  expect(after.hasAttribute("hidden")).toBe(false);
+  expect(after.getAttribute("aria-hidden")).toBe(null);
+});
+
+test("no a11y violations — open with a status message (API-27)", async () => {
+  const screen = await render(<WithStatus status="Searching…" visible />);
+  await screen.getByRole("combobox").click();
   await expectNoA11yViolations(document.body);
 });

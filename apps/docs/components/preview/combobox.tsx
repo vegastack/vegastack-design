@@ -20,6 +20,7 @@ import {
   ComboboxLabel,
   ComboboxList,
   ComboboxSeparator,
+  ComboboxStatus,
   ComboboxTrigger,
   ComboboxValue,
   useComboboxAnchor,
@@ -511,6 +512,54 @@ export function comboboxRtl(): ReactNode {
           />
           <ComboboxContent>
             <ComboboxEmpty>لا توجد عناصر.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * Ours (API-27): a server-searched list. `filter={null}` hands filtering to the "server", and
+ * `ComboboxStatus` — mounted as a sibling of the list, its children toggled — announces the
+ * search and its result count through the engine's own polite region.
+ */
+export function comboboxAsyncStatus(): ReactNode {
+  const [query, setQuery] = React.useState("");
+  const [items, setItems] = React.useState<string[]>([...frameworks]);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    setLoading(true);
+    const timer = window.setTimeout(() => {
+      const needle = query.trim().toLowerCase();
+      setItems(
+        frameworks.filter((item) => item.toLowerCase().includes(needle)),
+      );
+      setLoading(false);
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox
+          items={items}
+          filter={null}
+          onInputValueChange={(value) => setQuery(value)}
+        >
+          <ComboboxInput
+            placeholder="Search frameworks"
+            aria-label="Framework"
+          />
+          <ComboboxContent>
+            <ComboboxStatus visible>
+              {loading
+                ? "Searching…"
+                : `${items.length} ${items.length === 1 ? "result" : "results"}`}
+            </ComboboxStatus>
             <FrameworkList />
           </ComboboxContent>
         </Combobox>
