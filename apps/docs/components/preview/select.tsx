@@ -412,7 +412,7 @@ const priorities = [
 export function selectInlineTrigger(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-6">
-      <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+      <div className="flex w-full min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2">
         <span className="min-w-0 truncate text-sm">
           Renew the SSL certificate
         </span>
