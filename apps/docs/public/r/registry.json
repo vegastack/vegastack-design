@@ -16406,7 +16406,7 @@
         "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
         "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
         "version": "0.18.0",
-        "integrity": "sha256-cuHJkqRLAKwf8Z7OXrI7Dr0vNNfcScbGi9baVOYQvV4="
+        "integrity": "sha256-At+1eeFh/2W/QSKHP3tXhf8nOA5+IejIWtaYz6n5MWc="
       }
     },
     {
@@ -16526,7 +16526,7 @@
         "whenToUse": "Tool invocations in an agent/chat transcript (searched, executed, created).",
         "whenNotToUse": "Status badges (Badge) or long-running task rows (Marker + Spinner).",
         "version": "0.18.0",
-        "integrity": "sha256-VldIk1q2XB+HQRtFC0hiXYRpeTjOWQ4TZqB5Q84NaqM="
+        "integrity": "sha256-aSXmOqOZVCdu1NAm8+UpKOJONlUzofA4SKR+AenmAI4="
       },
       "registryDependencies": [
         "@vegastack/badge"

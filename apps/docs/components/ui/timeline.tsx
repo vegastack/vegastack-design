@@ -1,4 +1,4 @@
-// @vegastack timeline@0.18.0 sha256-cuHJkqRLAKwf8Z7OXrI7Dr0vNNfcScbGi9baVOYQvV4=
+// @vegastack timeline@0.18.0 sha256-At+1eeFh/2W/QSKHP3tXhf8nOA5+IejIWtaYz6n5MWc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -91,7 +91,14 @@ export interface TimelineItemProps extends React.ComponentPropsWithRef<"li"> {
  * `content-visibility` (the `MessageScrollerItem` recipe — no dependency).
  *
  * @example
- * <TimelineItem node={<Avatar size="xs" src={actor.avatar} alt="" />}>
+ * <TimelineItem
+ *   node={
+ *     <Avatar size="sm">
+ *       <AvatarImage src={actor.avatar} alt="" />
+ *       <AvatarFallback>{actor.initials}</AvatarFallback>
+ *     </Avatar>
+ *   }
+ * >
  *   <Item size="sm">…</Item>
  * </TimelineItem>
  */

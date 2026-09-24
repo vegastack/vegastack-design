@@ -1,4 +1,4 @@
-// @vegastack tool-call-chip@0.18.0 sha256-VldIk1q2XB+HQRtFC0hiXYRpeTjOWQ4TZqB5Q84NaqM=
+// @vegastack tool-call-chip@0.18.0 sha256-aSXmOqOZVCdu1NAm8+UpKOJONlUzofA4SKR+AenmAI4=
 
 "use client";
 
@@ -49,7 +49,7 @@ export interface ToolCallChipProps extends React.ComponentPropsWithRef<"span"> {
  * @example
  * // running state: spinner + no meta yet
  * <ToolCallChip label="Searching attributes…">
- *   <Spinner size="inherit" label="" />
+ *   <Spinner aria-hidden role={undefined} aria-label={undefined} />
  * </ToolCallChip>
  */
 export function ToolCallChip({
