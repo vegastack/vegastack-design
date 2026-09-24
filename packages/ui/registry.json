@@ -12212,6 +12212,7 @@
       "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
       "categories": ["navigation"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
@@ -12228,7 +12229,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
+        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.18.0"
       }

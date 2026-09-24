@@ -13666,6 +13666,7 @@
         "@vegastack/button"
       ],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
@@ -13704,8 +13705,13 @@
                 "page-header-back",
                 "page-header-breadcrumb",
                 "page-header-description",
+                "page-header-meta",
                 "page-header-title"
               ]
+            },
+            {
+              "name": "data-title-lines",
+              "values": []
             }
           ],
           "cssVariables": []

@@ -15285,6 +15285,7 @@
         "navigation"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
@@ -15301,10 +15302,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
+        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.18.0",
-        "integrity": "sha256-xBEyu64L7nMza7Y5yDI8hryym/T2szA40VSfV25XMZQ="
+        "integrity": "sha256-x1fdbQancSHygEYW8tWbRghkoW+H+YEDv8NonBpesYA="
       }
     },
     {

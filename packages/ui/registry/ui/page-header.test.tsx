@@ -297,3 +297,152 @@ test("no a11y violations — truncated title with the tooltip open", async () =>
   // axe the portaled tooltip too, which lands outside the render container.
   await expectNoA11yViolations(screen.container.ownerDocument.body);
 });
+
+/* DS-02 — framework back link, wrapping title, metadata row · DS-03 — one page-heading face */
+
+test("DS-02: backRender renders the passed link element with the back affordance", async () => {
+  const onNavigate = vi.fn((event: React.MouseEvent) => event.preventDefault());
+  function FrameworkLink(props: React.ComponentProps<"a">) {
+    return <a data-framework-link="" onClick={onNavigate} {...props} />;
+  }
+  const screen = await render(
+    <PageHeader
+      title="Family"
+      backLabel="Back to products"
+      backRender={<FrameworkLink href="/products" />}
+    />,
+  );
+  const back = screen.getByRole("link", { name: "Back to products" });
+  await expect.element(back).toHaveAttribute("href", "/products");
+  await expect.element(back).toHaveAttribute("data-slot", "page-header-back");
+  await expect.element(back).toHaveAttribute("data-framework-link", "");
+  expect(back.element().querySelector("svg")).not.toBeNull();
+  await back.click();
+  expect(onNavigate).toHaveBeenCalledOnce();
+});
+
+test("DS-02: backRender wins over backHref, and onBack wins over both", async () => {
+  const screen = await render(
+    <PageHeader
+      title="Family"
+      backHref="/plain"
+      backRender={<a href="/framework" />}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Go back" }))
+    .toHaveAttribute("href", "/framework");
+  await screen.rerender(
+    <PageHeader
+      title="Family"
+      backHref="/plain"
+      backRender={<a href="/framework" />}
+      onBack={() => {}}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Go back" }))
+    .toBeInTheDocument();
+  expect(screen.container.querySelector("a")).toBeNull();
+});
+
+test("DS-02: titleLines passes its clamp to TruncatedText", async () => {
+  const screen = await render(
+    <PageHeader title="A title long enough to wrap" titleLines={2} />,
+  );
+  const title = screen.container.querySelector(
+    '[data-slot="page-header-title"]',
+  )!;
+  expect(title.getAttribute("data-title-lines")).toBe("2");
+  expect(
+    title
+      .querySelector('[data-slot="truncated-text"]')
+      ?.getAttribute("data-lines"),
+  ).toBe("2");
+});
+
+test('DS-02: titleLines="none" renders the title with no truncation wrapper', async () => {
+  const screen = await render(
+    <PageHeader title="Supercalifragilistic family name" titleLines="none" />,
+  );
+  const title = screen.getByRole("heading", {
+    level: 1,
+    name: "Supercalifragilistic family name",
+  });
+  expect(
+    title.element().querySelector('[data-slot="truncated-text"]'),
+  ).toBeNull();
+  expect(title.element().className).toContain("wrap-break-word");
+});
+
+test("DS-02: meta is a div row that can hold interactive controls", async () => {
+  const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    const screen = await render(
+      <PageHeader
+        title="Plan"
+        description="The quarterly plan."
+        meta={
+          <>
+            <span>Draft</span>
+            <button type="button">Owner: Asha</button>
+          </>
+        }
+      />,
+    );
+    const meta = screen.container.querySelector(
+      '[data-slot="page-header-meta"]',
+    )!;
+    expect(meta.tagName).toBe("DIV");
+    await expect
+      .element(screen.getByRole("button", { name: "Owner: Asha" }))
+      .toBeInTheDocument();
+    expect(
+      errors.mock.calls.some((call) => String(call[0]).includes("nesting")),
+    ).toBe(false);
+  } finally {
+    errors.mockRestore();
+  }
+});
+
+test("DS-03: the title renders the one page-heading face", async () => {
+  const screen = await render(<PageHeader title="Profile" />);
+  const title = screen.getByRole("heading", { level: 1, name: "Profile" });
+  const classes = title.element().className;
+  expect(classes).toContain("font-heading");
+  expect(classes).toContain("text-2xl");
+  expect(classes).toContain("font-semibold");
+});
+
+test("RTL: the back link sits at the logical start", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <PageHeader title="Plan" backRender={<a href="/plans" />} />
+    </div>,
+  );
+  const back = screen.getByRole("link", { name: "Go back" }).element();
+  expect(back.className).toContain("-ms-2");
+  expect(back.className).not.toContain("-ml-2");
+});
+
+test("no a11y violations — framework back link, wrapping title and meta", async () => {
+  const screen = await render(
+    <PageHeader
+      title="Supercalifragilistic family name"
+      titleLines="none"
+      backRender={<a href="/products" />}
+      backLabel="Back to products"
+      meta={<button type="button">Owner: Asha</button>}
+    />,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — clamped two-line title", async () => {
+  const screen = await render(
+    <TooltipProvider>
+      <PageHeader title="A title long enough to wrap" titleLines={2} />
+    </TooltipProvider>,
+  );
+  await expectNoA11yViolations(screen.container);
+});

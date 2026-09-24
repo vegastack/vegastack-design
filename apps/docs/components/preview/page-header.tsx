@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type ComponentProps, type ReactNode } from "react";
 import { MoreVertical } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/page-header` (dogfoods the registry) → auto-scanned.
 import { PageHeader } from "@/components/ui/page-header";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
@@ -134,6 +135,64 @@ export function pageHeaderLongTitle(): ReactNode {
           actions={<Button>Export</Button>}
         />
       </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-02: `backRender` takes the framework's link element — here a stand-in for Next.js `Link` —
+ * and gives it the back affordance's classes, label and chevron.
+ */
+function RouterLink(props: ComponentProps<"a">) {
+  // A real app passes `<Link href="…" />`; the preview keeps navigation inside the page.
+  return <a {...props} onClick={(event) => event.preventDefault()} />;
+}
+
+export function pageHeaderBackRender(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <PageHeader
+        backRender={<RouterLink href="/products" />}
+        backLabel="Back to products"
+        title="Linen shirt"
+        description="The back link navigates client-side through the router's own Link."
+      />
+    </Wrapper>
+  );
+}
+
+/** DS-02: `titleLines="none"` lets a record's name wrap instead of clipping. */
+export function pageHeaderWrappingTitle(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-sm">
+        <PageHeader
+          title="Q3 Platform Reliability & Performance Engineering Initiative Retrospective"
+          titleLines="none"
+          actions={<Button>Export</Button>}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/** DS-02: `meta` is a `<div>` row, so it can hold badges and interactive controls. */
+export function pageHeaderMeta(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <PageHeader
+        title="Onboarding redesign"
+        meta={
+          <>
+            <Badge variant="secondary">In progress</Badge>
+            <span>Updated 2 hours ago</span>
+            <Button variant="outline" size="xs">
+              Owner: Asha Rao
+            </Button>
+          </>
+        }
+        actions={<Button>Share</Button>}
+      />
     </Wrapper>
   );
 }
