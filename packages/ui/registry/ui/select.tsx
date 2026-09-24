@@ -1,4 +1,4 @@
-// @vegastack select@0.16.1 sha256-iIAoikNh3VV5xXE00QfDgEUDHKlUsuol0O69S252+34=
+// @vegastack select@0.17.0 sha256-HFHNZ7+uWBTvXrbYoR7USaGcume3bP/pu/OrmerIktw=
 
 "use client";
 
